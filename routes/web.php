@@ -211,7 +211,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         | Users
         |--------------------------------------------------------------------------
         */
-        Route::resource('users', 'UserController', ['except' => ['create', 'show']]);
+        Route::resource('manager', 'UserController', ['except' => ['create', 'show']]);
         Route::post('users/search', 'UserController@search');
         Route::get('users/search', 'UserController@index');
         Route::get('users/invite', 'UserController@getInvite');

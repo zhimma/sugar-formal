@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserInviteRequest;
+use App\Models\User;
 
 class UserController extends Controller
 {
@@ -37,8 +38,13 @@ class UserController extends Controller
             return redirect('admin/users');
         }
 
-        $users = $this->service->search($request->search);
-        return view('admin.users.index')->with('users', $users);
+        //$user = $this->service->search($request->search);
+        $user = User::select('name', 'email', 'engroup')->where('email', $request->search)->get()->first();
+
+        return view('admin.users.index')
+               ->with('name',    $user->name)
+               ->with('email',   $user->email)
+               ->with('engroup', $user->engroup);
     }
 
     /**
