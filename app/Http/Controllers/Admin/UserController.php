@@ -8,6 +8,8 @@ use App\Services\UserService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserInviteRequest;
 use App\Models\User;
+use App\Models\SimpleTables\member_vip;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -37,14 +39,59 @@ class UserController extends Controller
         if (! $request->search) {
             return redirect('admin/users');
         }
-
+        
         //$user = $this->service->search($request->search);
-        $user = User::select('name', 'email', 'engroup')->where('email', $request->search)->get()->first();
-
+        $gender = '';
+        $vip_order_id = '';
+        $user = User::select('id', 'name', 'email', 'engroup')
+                ->where('email', $request->search)
+                ->get()->first();
+        $now = Carbon::now();
+        $vip_data = member_vip::select('order_id', 'expiry')
+                    ->where('member_id', $user->id)
+                    ->where('expiry', '>=', $now->toDateTimeString())
+                    ->get()->first();
+        if($user->engroup == 1){
+            $gender_ch = '男';
+        }
+        else{
+            $gender_ch = '女';
+        }
+        if($vip_data == null){
+            $is_vip = false;
+        }
+        else{
+            $is_vip = true;
+            $vip_order_id = $vip_data->order_id;
+        }
         return view('admin.users.index')
-               ->with('name',    $user->name)
-               ->with('email',   $user->email)
-               ->with('engroup', $user->engroup);
+               ->with('user_id',   $user->id)
+               ->with('name',      $user->name)
+               ->with('email',     $user->email)
+               ->with('gender_ch', $gender_ch)
+               ->with('gender',    $user->engroup)
+               ->with('is_vip',    $is_vip)
+               ->with('vip_order_id',  $vip_order_id);
+    }
+
+    /**
+     * Toggle the gender of a specific member.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function toggleGender(Request $request){
+        $user = User::select('id', 'engroup', 'email')
+                ->where('id', $request->user_id)
+                ->get()->first();
+        if($request->gender_now == 1){
+            $user->engroup = '2';    
+        }
+        else{
+            $user->engroup = '1';
+        }
+        $user->save();
+        return view('admin.users.success')
+               ->with('email', $user->email);
     }
 
     /**

@@ -217,6 +217,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         Route::get('users/invite', 'UserController@getInvite');
         Route::get('users/switch/{id}', 'UserController@switchToUser');
         Route::post('users/invite', 'UserController@postInvite');
+        Route::post('users/genderToggler', 'UserController@toggleGender');
 
         /*
         |--------------------------------------------------------------------------
