@@ -8,6 +8,8 @@ use App\Services\UserService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserInviteRequest;
 use App\Models\User;
+use App\Models\VipLog;
+use App\Models\Vip;
 use App\Models\SimpleTables\member_vip;
 use Carbon\Carbon;
 
@@ -46,32 +48,37 @@ class UserController extends Controller
         $user = User::select('id', 'name', 'email', 'engroup')
                 ->where('email', $request->search)
                 ->get()->first();
-        $now = Carbon::now();
-        $vip_data = member_vip::select('order_id', 'expiry')
-                    ->where('member_id', $user->id)
-                    ->where('expiry', '>=', $now->toDateTimeString())
-                    ->get()->first();
+        $isVip = $user->isVip();        
         if($user->engroup == 1){
             $gender_ch = '男';
         }
         else{
             $gender_ch = '女';
         }
-        if($vip_data == null){
-            $is_vip = false;
+        if($isVip == 1){
+            $isVip = true;
+            $vip_data = Vip::select('id', 'free', 'created_at', 'updated_at')
+                        ->where('member_id', $user->id)
+                        ->get()->first();
+            $vip_order_id = member_vip::select("order_id")
+                            ->where('member_id', $user->id)
+                            ->get()->first()->order_id;
         }
         else{
-            $is_vip = true;
-            $vip_order_id = $vip_data->order_id;
+            $isVip = false;
         }
         return view('admin.users.index')
-               ->with('user_id',   $user->id)
-               ->with('name',      $user->name)
-               ->with('email',     $user->email)
-               ->with('gender_ch', $gender_ch)
-               ->with('gender',    $user->engroup)
-               ->with('is_vip',    $is_vip)
-               ->with('vip_order_id',  $vip_order_id);
+               ->with('user_id',    $user->id)
+               ->with('name',       $user->name)
+               ->with('email',      $user->email)
+               ->with('gender_ch',  $gender_ch)
+               ->with('gender',     $user->engroup)
+               ->with('isVip',      $isVip)
+               ->with('vip_log_id',      $vip_data->id)
+               ->with('vip_order_id',    $vip_order_id)
+               ->with('vip_free',        $vip_data->free)
+               ->with('vip_create_time', $vip_data->created_at)
+               ->with('vip_update_time', $vip_data->updated_at);
     }
 
     /**
