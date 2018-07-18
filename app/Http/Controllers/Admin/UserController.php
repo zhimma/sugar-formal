@@ -45,6 +45,7 @@ class UserController extends Controller
         //$user = $this->service->search($request->search);
         $gender = '';
         $vip_order_id = '';
+        $vip_data = '';
         $user = User::select('id', 'name', 'email', 'engroup')
                 ->where('email', $request->search)
                 ->get()->first();
@@ -59,6 +60,7 @@ class UserController extends Controller
             $isVip = true;
             $vip_data = Vip::select('id', 'free', 'created_at', 'updated_at')
                         ->where('member_id', $user->id)
+                        ->orderBy('created_at', 'desc')
                         ->get()->first();
             $vip_order_id = member_vip::select("order_id")
                             ->where('member_id', $user->id)
@@ -74,11 +76,11 @@ class UserController extends Controller
                ->with('gender_ch',  $gender_ch)
                ->with('gender',     $user->engroup)
                ->with('isVip',      $isVip)
-               ->with('vip_log_id',      $vip_data->id)
                ->with('vip_order_id',    $vip_order_id)
-               ->with('vip_free',        $vip_data->free)
-               ->with('vip_create_time', $vip_data->created_at)
-               ->with('vip_update_time', $vip_data->updated_at);
+               ->with('vip_log_id',      isset($vip_data->id)         ? $vip_data->id : null)
+               ->with('vip_free',        isset($vip_data->free)       ? $vip_data->free : null)
+               ->with('vip_create_time', isset($vip_data->created_at) ? $vip_data->created_at : null)
+               ->with('vip_update_time', isset($vip_data->updated_at) ? $vip_data->updated_at : null);
     }
 
     /**
@@ -97,6 +99,37 @@ class UserController extends Controller
             $user->engroup = '1';
         }
         $user->save();
+        return view('admin.users.success')
+               ->with('email', $user->email);
+    }
+
+    /**
+     * Toggle the gender of a specific member.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function toggleVIP(Request $request){
+        if($request->isVip == 1){
+            $setVip = 0;
+        }
+        else{
+            $setVip = 1;
+        }
+        $user = Vip::select('member_id', 'active')
+                ->where('member_id', $request->user_id)
+                ->where('active', $request->isVip)
+                ->update(array('active' => $setVip));
+        if($user == 0){
+            $vip_user = new Vip;
+            $vip_user->member_id = $request->user_id;
+            $vip_user->active = $setVip;
+            $vip_user->created_at =  Carbon::now()->toDateTimeString();
+            $vip_user->save();
+        }
+        $user = User::select('id', 'email')
+                ->where('id', $request->user_id)
+                ->get()->first();
+
         return view('admin.users.success')
                ->with('email', $user->email);
     }

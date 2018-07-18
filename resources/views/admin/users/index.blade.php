@@ -9,7 +9,7 @@
 		<input type="email" name='search' class="" style="width:300px;" id="email" require>
 	</div>
 	<button type="button" class="btn btn-success" onclick="$('.search_form').submit()">送出</button>
-</form>
+</form><br>
 @if(isset($email))
 <table class='table'>
 	<tr>
@@ -23,6 +23,7 @@
 		<td>VIP資料建立時間</td>
 		<td>VIP資料更新時間</td>
 		<td>變更男/女</td>
+		<td>提供/取消VIP權限</td>
 	</tr>
 	<tr>
 		<td>{{ $email }}</td>
@@ -48,6 +49,12 @@
 			<input type="hidden" name='user_id' value="{{ $user_id }}">
 			<input type="hidden" name='gender_now' value="{{ $gender }}">
 			<button type="button" class="btn btn-warning" onclick="$('.user_profile').submit()">變更</button></form>
+		</td>
+		<td>
+		<form method="POST" action="VIPToggler" class="vip">{!! csrf_field() !!}
+			<input type="hidden" name='user_id' value="{{ $user_id }}">
+			<input type="hidden" name='isVip' value="@if($isVip) 1 @else 0 @endif">
+			<button type="button" class="btn btn-info" onclick="$('.vip').submit()">@if($isVip) 取消權限 @else 提供權限 @endif</button></form>
 		</td>
 	</tr>
 </table>
