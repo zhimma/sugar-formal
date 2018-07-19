@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Carbon\Carbon;
+use App\Rules\Nickname;
 
 class RegisterController extends Controller
 {
@@ -51,18 +52,37 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
-        return Validator::make($data, [
-            'name' => 'required|max:255',
-            'email' => 'required|email|max:255|unique:users',
+        //$data = $request->input();
+        $rules = [
+            'name'     => ['required', 'max:255', new Nickname],
+            'email'    => 'required|email|max:255|unique:users',
             'password' => 'required|min:6|confirmed',
-        ], [
-            'name.required' => '暱稱不可為空',
-            'email.required' => 'E-mail信箱不可為空',
-            'email.email' => 'E-mail格式錯誤',
-            'email.unique' => '此 E-mail 已被註冊',
-            'password.required' => '密碼不可為空',
+        ];
+        $messages = [
+            'required'      => ':attribute不可為空',    
+            'email.email'   => 'E-mail格式錯誤',
+            'email.unique'  => '此 E-mail 已被註冊',
             'password.confirmed' => '密碼確認錯誤'
-        ]);
+        ];
+        $attributes = [
+            'name'      => '暱稱',
+            'email'     => 'E-mail信箱',
+            'password'  => '密碼',
+        ];
+        $validator = \Validator::make($data, $rules, $messages, $attributes);
+        return $validator;
+        // return Validator::make($data, [
+        //     'name' => 'required|max:255',
+        //     'email' => 'required|email|max:255|unique:users',
+        //     'password' => 'required|min:6|confirmed',
+        // ], [
+        //     'name.required' => '暱稱不可為空',
+        //     'email.required' => 'E-mail信箱不可為空',
+        //     'email.email' => 'E-mail格式錯誤',
+        //     'email.unique' => '此 E-mail 已被註冊',
+        //     'password.required' => '密碼不可為空',
+        //     'password.confirmed' => '密碼確認錯誤'
+        // ]);
     }
 
     /**

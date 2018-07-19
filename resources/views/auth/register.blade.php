@@ -38,7 +38,7 @@
                         <input class="form-control m-input m-login__form-input--last" type="password" placeholder="密碼確認" name="password_confirmation">
                     </div>
                     <div class="form-group m-form__group">
-                        <input class="form-control m-input" type="text" placeholder="暱稱" name="name" value="{{old('name')}}">
+                        <input class="form-control m-input" type="text" placeholder="暱稱" id="name" name="name" value="{{old('name')}}">
                     </div>
                     <div class="form-group m-form__group">
                         <input class="form-control m-input" type="text" placeholder="標題" name="title">
