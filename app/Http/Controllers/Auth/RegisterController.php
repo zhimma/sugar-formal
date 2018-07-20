@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use DB;
-use Validator;
+use Illuminate\Support\Facades\Validator;
 use App\Services\UserService;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Carbon\Carbon;
-use App\Rules\Nickname;
 
 class RegisterController extends Controller
 {
@@ -52,13 +51,23 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
-        //$data = $request->input();
+        //Custom validation.
+        Validator::extend('not_contains', function($attribute, $value, $parameters)
+        {
+            $words = array('站長', '管理員');
+            foreach ($words as $word)
+            {
+                if (stripos($value, $word) !== false) return false;
+            }
+            return true;
+        });
         $rules = [
-            'name'     => ['required', 'max:255', new Nickname],
+            'name'     => ['required', 'max:255', 'not_contains'],
             'email'    => 'required|email|max:255|unique:users',
             'password' => 'required|min:6|confirmed',
         ];
         $messages = [
+            'not_contains'  => '請勿使用包含「站長」或「管理員」的字眼做為暱稱！',
             'required'      => ':attribute不可為空',    
             'email.email'   => 'E-mail格式錯誤',
             'email.unique'  => '此 E-mail 已被註冊',

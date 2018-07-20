@@ -96,7 +96,7 @@ $code = Config::get('social.payment.code');
 
                                 <div class="m-widget3__info">
                                 <a href="/dashboard/chat/{{$msgUser->id}}">
-                                    <span class="m-widget3__username">
+                                    <span class="m-widget3__username" @if($msgUser->name == '站長') id='admin' style='color:blue;' @endif>
                                     {{$msgUser->name}}
                                     </span><br>
                                     <span class="m-widget3__time">

@@ -4,8 +4,8 @@ namespace App\Models\SimpleTables;
 
 use Illuminate\Database\Eloquent\Model;
 
-class user extends Model
+class banned_users extends Model
 {
     //
-    protected $table = 'users';
+    protected $table = 'banned_users';
 }

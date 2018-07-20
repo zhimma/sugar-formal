@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\SimpleTables\banned_users;
 
 class LoginController extends Controller
 {
@@ -48,8 +49,13 @@ class LoginController extends Controller
         // if (auth()->user()->hasRole('admin')) {
         //     return redirect('/admin/search');
         // }
-
-        return redirect('/dashboard');
+        $banned_users = banned_users::select('*')->where('member_id', \Auth::user()->id)->count();
+        if($banned_users > 0){   
+            return redirect()->route('banned');    
+        }
+        else{
+            return redirect('/dashboard');
+        }
     }
 
     /**

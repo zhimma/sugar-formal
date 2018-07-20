@@ -80,6 +80,7 @@ Route::get('/privacy', 'PagesController@privacy');
 Route::get('/about', 'PagesController@about');
 Route::get('/terms', 'PagesController@terms');
 Route::get('/contact', 'PagesController@contact');
+Route::get('/banned', 'PagesController@banned')->name('banned');
 
 /*
 |--------------------------------------------------------------------------

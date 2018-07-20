@@ -23,6 +23,8 @@ use App\Http\Requests\FormFilterRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Validator;
+use App\Models\SimpleTables\banned_users;
 
 class PagesController extends Controller
 {
@@ -64,10 +66,33 @@ class PagesController extends Controller
 
     public function profileUpdate(Request $request, ProfileUpdateRequest $profileUpdateRequest)
     {
-        if ($this->service->update(auth()->id(), $request->all())) {
-            return redirect('/dashboard')->with('message', '資料更新成功');
+        //Custom validation.
+        Validator::extend('not_contains', function($attribute, $value, $parameters)
+        {
+            $words = array('站長', '管理員');
+            foreach ($words as $word)
+            {
+                if (stripos($value, $word) !== false) return false;
+            }
+            return true;
+        });
+        $rules = [
+            'name'     => ['required', 'max:255', 'not_contains'],
+        ];
+        $messages = [
+            'not_contains'  => '請勿使用包含「站長」或「管理員」的字眼做為暱稱！'
+        ];
+        $validator = \Validator::make($request->all(), $rules, $messages);
+        
+        if($validator->fails()){
+            return redirect('/dashboard')->withErrors(['請勿使用包含「站長」或「管理員」的字眼做為暱稱！']);
         }
-
+        else{
+            if ($this->service->update(auth()->id(), $request->all())) {
+                return redirect('/dashboard')->with('message', '資料更新成功');
+            }
+            return redirect('/dashboard')->withErrors(['沒辦法更新']);
+        } 
         return redirect('/dashboard')->withErrors(['沒辦法更新']);
     }
 
@@ -381,5 +406,23 @@ class PagesController extends Controller
         if ($user) {
             return view('auth.checkAccount')->with('user', $user);
         }
+    }
+
+    
+
+    /**
+     * Check the user is banned or not then show notice page.
+     */
+    public function banned(Request $request)
+    {
+        if($user = Auth::user()){
+            $banned_users = banned_users::select('*')->where('member_id', \Auth::user()->id)->count();
+            if($banned_users > 0){    
+                Auth::logout();
+                return view('errors.User-banned');
+            }
+            abort(404);
+        }
+        abort(404);
     }
 }
