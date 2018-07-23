@@ -96,7 +96,7 @@ $code = Config::get('social.payment.code');
 
                                 <div class="m-widget3__info">
                                 <a href="/dashboard/chat/{{$msgUser->id}}">
-                                    <span class="m-widget3__username" @if($msgUser->name == '站長') id='admin' style='color:blue;' @endif>
+                                    <span class="m-widget3__username" @if($msgUser->name == '站長') id='admin' style='color:blue;' @else id='normal' @endif>
                                     {{$msgUser->name}}
                                     </span><br>
                                     <span class="m-widget3__time">
@@ -239,30 +239,32 @@ $code = Config::get('social.payment.code');
 @section('javascript')
 
 <script>
-		$(document).ready(function(){
-
-		    $('#msg').on('keyup' , function() {
-    if($('#msg').val().length > 0 ){
-        $('#msgsnd').prop('disabled', false);
-    }
-    else {
-        $('#msgsnd').prop('disabled', true);
-    }
-});
-
-		     $("#showhide").click(function(){
-		         if ($("user-list").isHidden()) {
-		          $("user-list").show();
-		         }
-		         else {
-		            $("user-list").hide();
-		         }
+$(document).ready(function(){
+    $('#msg').on('keyup' , function() {
+        if($('#msg').val().length > 0 ){
+            $('#msgsnd').prop('disabled', false);
+        }
+        else {
+            $('#msgsnd').prop('disabled', true);
+        }
     });
-
-			setTimeout(function() {
-			    window.location.reload();
-			}, 80000);
-		});
-	</script>
+    $("#showhide").click(function(){
+        if ($("user-list").isHidden()) {
+            $("user-list").show();
+        }
+        else {
+            $("user-list").hide();
+        }
+    });
+    setTimeout(function() {
+        window.location.reload();
+    }, 80000);
+    $('#admin').each(
+        function (){
+            $(this).insertBefore($('#normal'));
+        }
+    );
+});
+</script>
 
 @stop
