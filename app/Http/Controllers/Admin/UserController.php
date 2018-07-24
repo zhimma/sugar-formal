@@ -153,7 +153,7 @@ class UserController extends Controller
             return redirect(route('users/advSearch'));
         }        
         $user = User::where('email', 'like', '%' . $request->email . '%')
-                ->orWhere('name', 'like', '%' . $request->email . '%')
+                ->orWhere('name', 'like', '%' . $request->name . '%')
                 ->get();
         return view('admin.users.advIndex')->with('users', $user);
     }
