@@ -149,12 +149,23 @@ class UserController extends Controller
      */
     public function advSearch(Request $request)
     {
-        if (! $request->email && ! $request->name) {
+        if( $request->email && $request->name ){
+            $user = User::where('email', 'like', '%' . $request->email . '%')
+                    ->where('name', 'like', '%' . $request->name . '%')
+                    ->get(); 
+        }
+        else if( $request->email ){
+            $user = User::where('email', 'like', '%' . $request->email . '%')
+                    ->get();    
+        }
+        else if ( $request->name ){
+            $user = User::where('name', 'like', '%' . $request->name . '%')
+                    ->get();
+        }
+        else{
             return redirect(route('users/advSearch'));
         }        
-        $user = User::where('email', 'like', '%' . $request->email . '%')
-                ->orWhere('name', 'like', '%' . $request->name . '%')
-                ->get();
+        
         return view('admin.users.advIndex')->with('users', $user);
     }
 
