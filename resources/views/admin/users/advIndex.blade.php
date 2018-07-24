@@ -1,5 +1,5 @@
-@include('partials.header')
-
+@extends('admin.main')
+@section('app-content')
 <body style="padding: 15px;">
 會員資料查詢：
 <form method="POST" action="{{ route('users/advSearch') }}" class="search_form">
@@ -14,29 +14,29 @@
 	<button type="button" class="btn btn-success" onclick="$('.search_form').submit()">送出</button>
 </form><br>
 @if(isset($users))
-<table class='table'>	
+<table class='table table-hover table-bordered'>	
 	<tr>
 		<td>會員ID</td>
 		<td>暱稱</td>
 		<td>標題</td>
 		<td>男/女</td>
-		<td>enstatus</td>
 		<td>Email</td>
 		<td>建立時間</td>
 		<td>更新時間</td>
 		<td>上次登入</td>
+		<td>所有資料/管理</td>
 	</tr>
 	@forelse ($users as $user)
 	<tr>
-		<td>{{ $user->id }}</td>
-		<td>{{ $user->name }}</td>
-		<td>{{ $user->title }}</td>
-		<td>@if($user->engroup==1) 男 @else 女 @endif</td>
-		<td>{{ $user->enstatus }}</td>
-		<td>{{ $user->email }}</td>
-		<td>{{ $user->created_at }}</td>
-		<td>{{ $user->updated_at }}</td>
-		<td>{{ $user->last_login }}</td>
+		<td class="align-middle">{{ $user->id }}</td>
+		<td class="align-middle">{{ $user->name }}</td>
+		<td class="align-middle">{{ $user->title }}</td>
+		<td class="align-middle">@if($user->engroup==1) 男 @else 女 @endif</td>
+		<td class="align-middle">{{ $user->email }}</td>
+		<td class="align-middle">{{ $user->created_at }}</td>
+		<td class="align-middle">{{ $user->updated_at }}</td>
+		<td class="align-middle">{{ $user->last_login }}</td>
+		<td class="align-middle"><button class='btn btn-primary'><a href="advInfo/{{ $user->id }}" target='blank' class='text-white '>前往</a></button></td>		
 	</tr>
 	@empty
 	<tr>找不到符合條件的資料</tr>
@@ -45,3 +45,4 @@
 @endif
 </body>
 </html>
+@stop

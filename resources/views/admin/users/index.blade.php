@@ -1,5 +1,5 @@
-@include('partials.header')
-
+@extends('admin.main')
+@section('app-content')
 <body style="padding: 15px;">
 會員查詢：
 <form method="POST" action="users/search" class="search_form">
@@ -61,3 +61,4 @@
 @endif
 </body>
 </html>
+@stop

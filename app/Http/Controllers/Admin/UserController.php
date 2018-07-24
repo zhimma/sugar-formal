@@ -8,6 +8,7 @@ use App\Services\UserService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserInviteRequest;
 use App\Models\User;
+use App\Models\UserMeta;
 use App\Models\VipLog;
 use App\Models\Vip;
 use App\Models\SimpleTables\member_vip;
@@ -150,12 +151,30 @@ class UserController extends Controller
     {
         if (! $request->email && ! $request->name) {
             return redirect(route('users/advSearch'));
-        }
-        
+        }        
         $user = User::where('email', 'like', '%' . $request->email . '%')
                 ->orWhere('name', 'like', '%' . $request->email . '%')
                 ->get();
         return view('admin.users.advIndex')->with('users', $user);
+    }
+
+    /**
+     * Display advance information of a member.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function advInfo(Request $request, $id)
+    {
+        if (! $id) {
+            return redirect(route('users/advSearch'));
+        }        
+        $user = User::where('id', 'like', $id)
+                ->get()->first();
+        $userMeta = UserMeta::where('user_id', 'like', $id)
+                ->get()->first();
+        return view('admin.users.advInfo')
+               ->with('userMeta', $userMeta)
+               ->with('user', $user);
     }
     
     /**
