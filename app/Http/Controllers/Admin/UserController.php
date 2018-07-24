@@ -27,8 +27,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = $this->service->all();
-        return view('admin.users.index')->with('users', $users);
+        //$users = $this->service->all();
+        return view('admin.users.index');
     }
 
     /**
@@ -39,7 +39,7 @@ class UserController extends Controller
     public function search(Request $request)
     {
         if (! $request->search) {
-            return redirect('admin/users');
+            return redirect('users/search');
         }
         
         //$user = $this->service->search($request->search);
@@ -134,6 +134,30 @@ class UserController extends Controller
                ->with('email', $user->email);
     }
 
+    public function advIndex()
+    {
+        //$users = $this->service->all();
+        //dd($users);
+        return view('admin.users.advIndex');
+    }
+
+    /**
+     * Display a listing of the resource searched. (Advanced)
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function advSearch(Request $request)
+    {
+        if (! $request->email && ! $request->name) {
+            return redirect(route('users/advSearch'));
+        }
+        
+        $user = User::where('email', 'like', '%' . $request->email . '%')
+                ->orWhere('name', 'like', '%' . $request->email . '%')
+                ->get();
+        return view('admin.users.advIndex')->with('users', $user);
+    }
+    
     /**
      * Show the form for inviting a customer.
      *

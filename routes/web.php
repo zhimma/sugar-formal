@@ -215,6 +215,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         Route::resource('manager', 'UserController', ['except' => ['create', 'show']]);
         Route::post('users/search', 'UserController@search');
         Route::get('users/search', 'UserController@index');
+        Route::post('users/advSearch', 'UserController@advSearch')->name('users/advSearch');
+        Route::get('users/advSearch', 'UserController@advIndex');
         Route::get('users/invite', 'UserController@getInvite');
         Route::get('users/switch/{id}', 'UserController@switchToUser');
         Route::post('users/invite', 'UserController@postInvite');
