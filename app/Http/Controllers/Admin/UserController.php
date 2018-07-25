@@ -50,6 +50,9 @@ class UserController extends Controller
         $user = User::select('id', 'name', 'email', 'engroup')
                 ->where('email', $request->search)
                 ->get()->first();
+        if(!$user){
+            return view('admin.users.index')->with('Nothing', '1');
+        }
         $isVip = $user->isVip();        
         if($user->engroup == 1){
             $gender_ch = '男';

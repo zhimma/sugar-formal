@@ -1,7 +1,7 @@
 @extends('admin.main')
 @section('app-content')
 <body style="padding: 15px;">
-會員資料查詢：
+<h1>進階會員搜尋</h1>
 <form method="POST" action="{{ route('users/advSearch') }}" class="search_form">
 	{!! csrf_field() !!}
 	<div class="form-group">
@@ -36,7 +36,7 @@
 		<td class="align-middle">{{ $user->created_at }}</td>
 		<td class="align-middle">{{ $user->updated_at }}</td>
 		<td class="align-middle">{{ $user->last_login }}</td>
-		<td class="align-middle"><button class='btn btn-primary'><a href="advInfo/{{ $user->id }}" target='blank' class='text-white '>前往</a></button></td>		
+		<td class="align-middle"><a href="advInfo/{{ $user->id }}" target='_blank' class='text-white btn btn-primary'>前往</a></td>		
 	</tr>
 	@empty
 	<tr>找不到符合條件的資料</tr>

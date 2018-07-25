@@ -1,8 +1,8 @@
 @extends('admin.main')
 @section('app-content')
 <body style="padding: 15px;">
-會員查詢：
-<form method="POST" action="users/search" class="search_form">
+<h1>會員搜尋(變更男女、VIP資料)</h1>
+<form method="POST" action="search" class="search_form">
 	{!! csrf_field() !!}
 	<div class="form-group">
 		<label for="email" class="">Email</label>	
@@ -58,6 +58,8 @@
 		</td>
 	</tr>
 </table>
+@elseif(isset($Nothing))
+<h7>找不到資料</h7>
 @endif
 </body>
 </html>
