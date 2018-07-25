@@ -48,7 +48,7 @@ class UserController extends Controller
         $vip_order_id = '';
         $vip_data = '';
         $user = User::select('id', 'name', 'email', 'engroup')
-                ->where('email', $request->search)
+                ->where('email','like', '%'.$request->search.'%')
                 ->get()->first();
         if(!$user){
             return view('admin.users.index')->with('Nothing', '1');
@@ -186,9 +186,16 @@ class UserController extends Controller
                 ->get()->first();
         $userMeta = UserMeta::where('user_id', 'like', $id)
                 ->get()->first();
-        return view('admin.users.advInfo')
-               ->with('userMeta', $userMeta)
-               ->with('user', $user);
+        if(str_contains(url()->current(), 'edit')){
+            return view('admin.users.editAdvInfo')
+                   ->with('userMeta', $userMeta)
+                   ->with('user', $user);
+        }
+        else{
+            return view('admin.users.advInfo')
+                   ->with('userMeta', $userMeta)
+                   ->with('user', $user);
+        }
     }
     
     /**

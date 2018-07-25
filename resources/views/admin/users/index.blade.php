@@ -6,7 +6,7 @@
 	{!! csrf_field() !!}
 	<div class="form-group">
 		<label for="email" class="">Email</label>	
-		<input type="email" name='search' class="" style="width:300px;" id="email" require>
+		<input type="text" name='search' class="" style="width:300px;" id="email" require>
 	</div>
 	<button type="button" class="btn btn-success" onclick="$('.search_form').submit()">送出</button>
 </form><br>

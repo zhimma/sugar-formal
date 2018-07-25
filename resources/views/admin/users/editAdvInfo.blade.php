@@ -1,9 +1,10 @@
 @include('partials.header')
 
 <body style="padding: 15px;">
-<h1>{{ $user->name }}的所有資料<a href="edit/{{ $user->id }}" class='text-white btn btn-primary'>修改</a></h1>
+<h1>{{ $user->name }}的所有資料</h1>
 <h4>基本資料</h4>
-<table class='table table-hover table-bordered '>	
+<form action="" id='basicData'>
+<table class='table table-hover table-bordered'>	
 	<tr>
 		<th>會員ID</th>
 		<th>暱稱</th>
@@ -15,17 +16,26 @@
 		<th>上次登入</th>
 	</tr>
 	<tr>
-		<td>{{ $user->id }}</td>
-		<td>{{ $user->name }}</td>
-		<td>{{ $user->title }}</td>
-		<td>@if($user->engroup==1) 男 @else 女 @endif</td>
-		<td>{{ $user->email }}</td>
-		<td>{{ $user->created_at }}</td>
-		<td>{{ $user->updated_at }}</td>
-		<td>{{ $user->last_login }}</td>
+		<td class="align-middle">{{ $user->id }}</td>
+		<td class="align-middle"><input type="text" value='{{ $user->name }}' name='user_name' class='form-control'></td>
+		<td class="align-middle"><input type="text" value='{{ $user->title }}' name='user_title' class='form-control'></td>
+		<td class="align-middle">
+			<select name="user_engroup" id="engroup" class='form-control'>
+				<option value="1" @if($user->engroup==1) selected @endif>男</option>
+				<option value="0" @if($user->engroup==0) selected @endif>女</option>
+			</select>
+		</td>
+		<td class="align-middle"><input type="text" value='{{ $user->email }}' name='user_email' class='form-control'></td>
+		<td class="align-middle">{{ $user->created_at }}</td>
+		<td class="align-middle">{{ $user->updated_at }}</td>
+		<td class="align-middle">{{ $user->last_login }}</td>
 	</tr>
 </table>
+<a href="edit/{{ $user->id }}" class='text-white btn btn-primary'>儲存</a>
+</form><br>
+<?php $umeta = $user->meta_(); ?>
 <h4>詳細資料</h4>
+<form action="" id='metaData'>
 <table class='table table-hover table-bordered'>	
 	<tr>
 		<th>會員ID</th>
@@ -38,16 +48,16 @@
 		<td rowspan='2'>@if($userMeta->pic) <img src="{{$userMeta->pic}}" width='150px'> @else 無 @endif</td>
 	</tr>
 	<tr>
-		<th>所在城市</th>
-		<td>{{ $userMeta->city }}</td>
-		<th>拒絕查詢城市</th>
-		<td>@if($userMeta->blockcity==0) 無 @else $userMeta->blockcity @endif</td>
+		<th>所在城市 {{ $userMeta->city }}</th>
+		<td class="twzipcode"></td>
+		<th>所在地區</th>
+		<td>{{ $userMeta->area }}</td>		
 		<th>預算</th>
 		<td>{{ $userMeta->budget }}</td>
 	</tr>
 	<tr>
-		<th>所在地區</th>
-		<td>{{ $userMeta->area }}</td>
+		<th>拒絕查詢城市</th>
+		<td>@if($userMeta->blockcity==0) 無 @else $userMeta->blockcity @endif</td>
 		<th>拒絕查詢地區</th>
 		<td>@if($userMeta->blockarea==0) 無 @else $userMeta->blockarea @endif</td>
 		<th>生日</th>
@@ -124,6 +134,8 @@
 		<td></td>
 	</tr>
 </table>
+<a href="edit/{{ $user->id }}" class='text-white btn btn-primary'>儲存</a>
+</form>
 <!--<table class='table table-hover table-bordered'>	
 	<tr>
 		<td>會員ID</td>
@@ -229,4 +241,10 @@
 	</tr>
 </table>-->
 </body>
+<script src="/js/jquery.twzipcode.min.js" type="text/javascript"></script>
+<script>
+$('.twzipcode').twzipcode({
+	'detect': true, 'css': ['form-control twzip', 'form-control twzip', 'zipcode']
+});
+</script>
 </html>
