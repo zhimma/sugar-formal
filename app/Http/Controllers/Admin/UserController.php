@@ -43,48 +43,35 @@ class UserController extends Controller
             return redirect('users/search');
         }
         
-        //$user = $this->service->search($request->search);
-        $gender = '';
-        $vip_order_id = '';
-        $vip_data = '';
-        $user = User::select('id', 'name', 'email', 'engroup')
-                ->where('email','like', '%'.$request->search.'%')
-                ->get()->first();
-        if(!$user){
-            return view('admin.users.index')->with('Nothing', '1');
-        }
-        $isVip = $user->isVip();        
-        if($user->engroup == 1){
-            $gender_ch = '男';
-        }
-        else{
-            $gender_ch = '女';
-        }
-        if($isVip == 1){
-            $isVip = true;
-            $vip_data = Vip::select('id', 'free', 'created_at', 'updated_at')
-                        ->where('member_id', $user->id)
-                        ->orderBy('created_at', 'desc')
-                        ->get()->first();
-            $vip_order_id = member_vip::select("order_id")
-                            ->where('member_id', $user->id)
-                            ->get()->first()->order_id;
-        }
-        else{
-            $isVip = false;
+        $users = User::select('id', 'name', 'email', 'engroup')
+                 ->where('email', 'like', '%'.$request->search.'%')
+                 ->get();
+        foreach($users as $user){
+            $isVip = $user->isVip();        
+            if($user->engroup == 1){
+                $user['gender_ch'] = '男';
+            }
+            else{
+                $user['gender_ch'] = '女';
+            }
+            if($isVip == 1){
+                $user['isVip'] = true;
+                $user['vip_data'] = Vip::select('id', 'free', 'created_at', 'updated_at')
+                                    ->where('member_id', $user->id)
+                                    ->orderBy('created_at', 'desc')
+                                    ->get()->first();
+                $user['vip_order_id'] = member_vip::select("order_id")
+                                        ->where('member_id', $user->id)
+                                        ->get()->first()->order_id;
+            }
+            else{
+                $user['isVip'] = false;
+                $user['vip_data'] = '';
+                $user['vip_order_id'] = '';
+            }
         }
         return view('admin.users.index')
-               ->with('user_id',    $user->id)
-               ->with('name',       $user->name)
-               ->with('email',      $user->email)
-               ->with('gender_ch',  $gender_ch)
-               ->with('gender',     $user->engroup)
-               ->with('isVip',      $isVip)
-               ->with('vip_order_id',    $vip_order_id)
-               ->with('vip_log_id',      isset($vip_data->id)         ? $vip_data->id : null)
-               ->with('vip_free',        isset($vip_data->free)       ? $vip_data->free : null)
-               ->with('vip_create_time', isset($vip_data->created_at) ? $vip_data->created_at : null)
-               ->with('vip_update_time', isset($vip_data->updated_at) ? $vip_data->updated_at : null);
+               ->with('users', $users);
     }
 
     /**
