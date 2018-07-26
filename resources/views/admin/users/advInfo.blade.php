@@ -34,26 +34,24 @@
 		<td>{{ $userMeta->phone }}</td>
 		<th>是否已啟動</th>
 		<td>@if($userMeta->is_active == 1) 是 @else 否 @endif</td>
-		<th rowspan='2'>照片</th>
-		<td rowspan='2'>@if($userMeta->pic) <img src="{{$userMeta->pic}}" width='150px'> @else 無 @endif</td>
+		<th rowspan='3'>照片</th>
+		<td rowspan='3'>@if($userMeta->pic) <img src="{{$userMeta->pic}}" width='150px'> @else 無 @endif</td>
 	</tr>
 	<tr>
-		<th>所在城市</th>
-		<td>{{ $userMeta->city }}</td>
-		<th>拒絕查詢城市</th>
-		<td>@if($userMeta->blockcity==0) 無 @else $userMeta->blockcity @endif</td>
+		<th>縣市</th>
+		<td>@if($userMeta->city=='0') 無 @else {{ $userMeta->city }} {{ $userMeta->area }} @endif</td>
+		<th>拒絕查詢的縣市</th>
+		<td>@if($userMeta->blockcity=='0') 無 @else {{ $userMeta->blockcity }} {{ $userMeta->blockarea }} @endif</td>
 		<th>預算</th>
 		<td>{{ $userMeta->budget }}</td>
 	</tr>
 	<tr>
-		<th>所在地區</th>
-		<td>{{ $userMeta->area }}</td>
-		<th>拒絕查詢地區</th>
-		<td>@if($userMeta->blockarea==0) 無 @else $userMeta->blockarea @endif</td>
 		<th>生日</th>
 		<td>{{ $userMeta->birthdate }}</td>
 		<th>身高</th>
 		<td>{{ $userMeta->height }}</td>
+		<th>職業</th>
+		<td>{{ $userMeta->occupation }}</td>
 	</tr>
 	<tr>
 		<th>體重</th>
@@ -66,12 +64,10 @@
 		<td>{{ $userMeta->situation }}</td>
 	</tr>
 	<tr>
-		<th>職業</th>
-		<td>{{ $userMeta->occupation }}</td>
 		<th>關於我</th>
-		<td colspan='2'>{{ $userMeta->about }}</td>
+		<td colspan='3'>{{ $userMeta->about }}</td>
 		<th>期待的約會模式</th>
-		<td colspan='2'>{{ $userMeta->style }}</td>
+		<td colspan='3'>{{ $userMeta->style }}</td>
 	</tr>
 	<tr>
 		<th>教育</th>
@@ -82,16 +78,6 @@
 		<td>{{ $userMeta->drinking }}</td>
 		<th>抽菸</th>
 		<td>{{ $userMeta->smoking }}</td>
-	</tr>
-	<tr>
-		<th>隱藏地區</th>
-		<td>@if($userMeta->isHideArea==1) 是 @else 否 @endif</td>
-		<th>隱藏罩杯</th>
-		<td>@if($userMeta->isHideCup==1) 是 @else 否 @endif</td>
-		<th>隱藏體重</th>
-		<td>@if($userMeta->isHideWeight==1) 是 @else 否 @endif</td>
-		<th>隱藏職業</th>
-		<td>@if($userMeta->isHideOccupation==1) 是 @else 否 @endif</td>	
 	</tr>
 	<tr>	
 		<th>產業1</th>
@@ -104,14 +90,24 @@
 		<td>{{ $userMeta->blockdomain }}</td>
 	</tr>
 	<tr>
-		<th>工作</th>
+		<th>職業</th>
 		<td>{{ $userMeta->job }}</td>
 		<th>資產</th>
 		<td>{{ $userMeta->domain }}</td>
-		<th>收入</th>
+		<th>年收</th>
 		<td>{{ $userMeta->income }}</td>
-		<th>訊息通知</th>
+		<th>信息通知</th>
 		<td>{{ $userMeta->notifmessage }}</td>
+	</tr>
+	<tr>
+		<th>隱藏地區</th>
+		<td>@if($userMeta->isHideArea==1) 是 @else 否 @endif</td>
+		<th>隱藏罩杯</th>
+		<td>@if($userMeta->isHideCup==1) 是 @else 否 @endif</td>
+		<th>隱藏體重</th>
+		<td>@if($userMeta->isHideWeight==1) 是 @else 否 @endif</td>
+		<th>隱藏職業</th>
+		<td>@if($userMeta->isHideOccupation==1) 是 @else 否 @endif</td>	
 	</tr>
 	<tr>
 		<th>收件夾顯示方式</th>
