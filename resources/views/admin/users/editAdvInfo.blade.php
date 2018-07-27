@@ -1,13 +1,19 @@
 @include('partials.header')
+@yield("pre-javascript")
+@include('partials.scripts')
+@yield("javascript")
 <style>
 .table > tbody > tr > td, .table > tbody > tr > th{
     vertical-align: middle;
 }
 </style>
 <body style="padding: 15px;">
+@include('partials.errors')
+@include('partials.message')
 <h1>{{ $user->name }}的所有資料</h1>
 <h4>基本資料</h4>
-<form action="/dashboard" id='user_data'>
+<form action="{{ route('users/save', $user->id) }}" id='user_data' method='POST'>
+{!! csrf_field() !!}
 <table class='table table-hover table-bordered'>	
 	<tr>
 		<th>會員ID</th>
@@ -308,7 +314,6 @@
 <button type='submit' class='text-white btn btn-primary'>儲存</button>
 </form>
 </body>
-<script src="/js/jquery.twzipcode.min.js" type="text/javascript"></script>
 <script>
 var domainJson = ({
 	'請選擇': ['請選擇'],
@@ -353,4 +358,3 @@ jQuery(document).ready(function(){
 	);
 });
 </script>
-</html>

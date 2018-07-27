@@ -252,21 +252,21 @@ class UserController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Save the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function saveAdvInfo(Request $request, $id)
     {
-        $result = $this->service->update($id, $request->except(['_token', '_method']));
-
+        //$result = $this->service->update($id, $request->except(['_token', '_method']));
+        $result = $this->service->update($id, $request->all());
         if ($result) {
-            return back()->with('message', 'Successfully updated');
+            return back()->with('message', '成功更新會員資料');
         }
 
-        return back()->with('message', 'Failed to update');
+        return back()->withErrors(['無法更新會員資料']);
     }
 
     /**

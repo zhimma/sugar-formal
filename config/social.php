@@ -11,7 +11,7 @@
 
 return [
     'block' => [
-        'block-people' => 10
+        'block-people' => 1000
     ],
     'limit' => [
         'show-chat' => 10,

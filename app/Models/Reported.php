@@ -42,4 +42,16 @@ class Reported extends Model
         $reported->reported_id = $reported_id;
         $reported->save();
     }
+
+    public static function findMember($member_id, $reported_id){
+        $query = Reported::where('member_id', $member_id)
+                 ->where('reported_id', $reported_id)
+                 ->get();
+        if(count($query)){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 }

@@ -226,11 +226,18 @@ class PagesController extends Controller
         $payload = $request->all();
         $uid = $payload['to'];
         $aid = auth()->id();
-        if ($aid !== $uid)
+        if ( ! Reported::findMember( $aid , $uid ) )
         {
-            Reported::report($aid, $uid);
+            if ($aid !== $uid)
+            {
+                Reported::report($aid, $uid);
+            }    
+            return back()->with('message', '舉報成功');
         }
-        return back()->with('message', '舉報成功');
+        else
+        {
+            return back()->withErrors(['舉報失敗：您已經舉報過這個人了']);
+        }
     }
 
     public function postBlock(Request $request)
