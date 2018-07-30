@@ -12,6 +12,7 @@ use App\Models\UserMeta;
 use App\Models\VipLog;
 use App\Models\Vip;
 use App\Models\SimpleTables\member_vip;
+use App\Models\SimpleTables\banned_users;
 use Carbon\Carbon;
 
 class UserController extends Controller
@@ -125,6 +126,31 @@ class UserController extends Controller
                ->with('email', $user->email);
     }
 
+    /**
+     * Toggle a specific member is blocked or not.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function toggleUserBlock(Request $request){
+        $userBanned = banned_users::where('member_id', $request->user_id)
+            ->get()->first();
+        $name = isset($request->name) ? $request->name : null;
+        $email = isset($request->email) ? $request->email : null;
+        if($userBanned){
+            $userBanned->delete();
+            return redirect()->back()
+                   ->with('message', '成功解除封鎖使用者', compact('name', 'email'));
+        }
+        else{
+            $userBanned = new banned_users;
+            $userBanned->member_id = $request->user_id;
+            $userBanned->save();
+            return redirect()->back()
+                   ->with('message', '成功封鎖使用者', compact('name', 'email'));
+        }
+
+    }
+
     public function advIndex()
     {
         //$users = $this->service->all();
@@ -139,24 +165,31 @@ class UserController extends Controller
      */
     public function advSearch(Request $request)
     {
+        $name = session('name');
+        $email = session('email');
         if( $request->email && $request->name ){
-            $user = User::where('email', 'like', '%' . $request->email . '%')
-                    ->where('name', 'like', '%' . $request->name . '%')
-                    ->get(); 
+            $users = User::where('email', 'like', '%' . $request->email . '%')
+                     ->where('name', 'like', '%' . $request->name . '%')
+                     ->get();
         }
         else if( $request->email ){
-            $user = User::where('email', 'like', '%' . $request->email . '%')
-                    ->get();    
+            $users = User::where('email', 'like', '%' . $request->email . '%')
+                     ->get();
         }
         else if ( $request->name ){
-            $user = User::where('name', 'like', '%' . $request->name . '%')
-                    ->get();
+            $users = User::where('name', 'like', '%' . $request->name . '%')
+                     ->get();
         }
         else{
             return redirect(route('users/advSearch'));
         }        
-        
-        return view('admin.users.advIndex')->with('users', $user);
+        foreach ($users as $user){
+            $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first();
+        }
+        return view('admin.users.advIndex')
+               ->with('users', $users)
+               ->with('name', isset($request->name) ? $request->name : null)
+               ->with('email', isset($request->email) ? $request->email : null);
     }
 
     /**

@@ -120,109 +120,22 @@
 		<td></td>
 	</tr>
 </table>
-<!--<table class='table table-hover table-bordered'>	
-	<tr>
-		<td>會員ID</td>
-		<td>手機</td>
-		<td>是否已啟動</td>
-		<td>所在城市</td>
-		<td>拒絕查詢城市</td>
-		<td>所在地區</td>
-		<td>拒絕查詢地區</td>
-		<td>預算</td>
-	</tr>
-	<tr>
-		<td>{{ $userMeta->user_id }}</td>
-		<td>{{ $userMeta->phone }}</td>
-		<td>@if($userMeta->is_active == 1) 是 @else 否 @endif</td>
-		<td>{{ $userMeta->city }}</td>
-		<td>@if($userMeta->blockcity==0) 無 @else $userMeta->blockcity @endif</td>
-		<td>{{ $userMeta->area }}</td>
-		<td>@if($userMeta->blockarea==0) 無 @else $userMeta->blockarea @endif</td>
-		<td>{{ $userMeta->budget }}</td>
-	</tr>
+<h4>現有生活照</h4>
+<?php $pics = \App\Models\MemberPic::getSelf($user->id); ?>
+<table class="table table-hover table-bordered" style="width: 50%;">
+	@forelse ($pics as $pic)
+		<tr>
+			<td>
+				<input type="hidden" name="userId" value="{{$user->id}}">
+				<input type="hidden" name="imgId" value="{{$pic->id}}">
+				<div style="width:400px">
+					<img src="{{$pic->pic}}" />
+				</div>
+			</td>
+		</tr>
+	@empty
+		此會員目前沒有生活照
+	@endforelse
 </table>
-<table class="table table-hover table-bordered">
-	<tr>
-		<td>生日</td>
-		<td>身高</td>
-		<td>體重</td>
-		<td>罩杯</td>
-		<td>體型</td>
-		<td>關於我</td>
-		<td>期待的約會模式</td>
-	</tr>
-	<tr>
-		<td>{{ $userMeta->birthdate }}</td>
-		<td>{{ $userMeta->height }}</td>
-		<td>{{ $userMeta->weight }}</td>
-		<td>{{ $userMeta->cup }}</td>
-		<td>{{ $userMeta->body }}</td>
-		<td>{{ $userMeta->about }}</td>
-		<td>{{ $userMeta->style }}</td>
-	</tr>
-</table>
-<table class='table table-hover table-bordered'>
-	<tr>
-		<td>現況</td>
-		<td>職業</td>
-		<td>教育</td>
-		<td>婚姻</td>
-		<td>喝酒</td>
-		<td>抽菸</td>
-		<td>隱藏地區</td>
-		<td>隱藏罩杯</td>
-		<td>隱藏體重</td>
-		<td>隱藏職業</td>
-		<td>照片</td>
-	</tr>
-	<tr>
-		<td>{{ $userMeta->situation }}</td>
-		<td>{{ $userMeta->occupation }}</td>
-		<td>{{ $userMeta->education }}</td>
-		<td>{{ $userMeta->marriage }}</td>
-		<td>{{ $userMeta->drinking }}</td>
-		<td>{{ $userMeta->smoking }}</td>
-		<td>@if($userMeta->isHideArea==1) 是 @else 否 @endif</td>
-		<td>@if($userMeta->isHideCup==1) 是 @else 否 @endif</td>
-		<td>@if($userMeta->isHideWeight==1) 是 @else 否 @endif</td>
-		<td>@if($userMeta->isHideOccupation==1) 是 @else 否 @endif</td>
-		<td>{{ $userMeta->pic }}</td>
-	</tr>
-</table>
-<table class="table table-hover table-bordered">
-	<tr>
-		<td>產業1</td>
-		<td>封鎖的產業1</td>
-		<td>產業2</td>
-		<td>封鎖的產業2</td>
-		<td>工作</td>
-		<td>資產</td>
-		<td>收入</td>
-		<td>訊息通知</td>
-		<td>收件夾顯示方式</td>
-	</tr>
-	<tr>
-		<td>{{ $userMeta->domainType }}</td>
-		<td>{{ $userMeta->blockdomainType }}</td>
-		<td>{{ $userMeta->domain }}</td>
-		<td>{{ $userMeta->blockdomain }}</td>
-		<td>{{ $userMeta->job }}</td>
-		<td>{{ $userMeta->assets }}</td>
-		<td>{{ $userMeta->income }}</td>
-		<td>{{ $userMeta->notifmessage }}</td>
-		<td>{{ $userMeta->notifhistory }}</td>
-	</tr>
-</table>
-<table class="table table-hover table-bordered">
-	<tr>
-		<td>建立時間</td>
-		<td>更新時間</td>
-	</tr>
-	<tr>
-		<td>{{ $userMeta->created_at }}</td>
-		<td>{{ $userMeta->updated_at }}</td>
-	</tr>
-</table>-->
 </body>
 </html>

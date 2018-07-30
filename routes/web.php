@@ -164,9 +164,9 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
     Route::post('/dashboard/chat', 'MessageController@postChat');
     Route::post('/dashboard/chatpay', 'PagesController@postChatpay')->name('chatpay');
     Route::post('/dashboard/chatpaycomment', 'PagesController@postChatpayComment')->name('chatpaycomment');
-    Route::post('/dashboard/header', 'ImageController@resizeImagePostHeader');
-    Route::post('/dashboard/image', 'ImageController@resizeImagePost');
-    Route::post('/dashboard/imagedel', 'ImageController@deleteImage');
+    Route::post('/dashboard/header/{admin?}', 'ImageController@resizeImagePostHeader');
+    Route::post('/dashboard/image/{admin?}', 'ImageController@resizeImagePost');
+    Route::post('/dashboard/imagedel/{admin?}', 'ImageController@deleteImage');
     Route::post('/dashboard/block', 'PagesController@postBlock');
     Route::post('/dashboard/unblock', 'PagesController@unblock');
     Route::post('/dashboard/fav', 'PagesController@postfav');
@@ -220,6 +220,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         Route::get('users/advInfo/{id}', 'UserController@advInfo');
         Route::get('users/advInfo/edit/{id}', 'UserController@advInfo');
         Route::post('users/advInfo/edit/{id}', 'UserController@saveAdvInfo')->name('users/save');
+        Route::post('users/toggleUserBlock', 'UserController@toggleUserBlock');
         Route::get('users/invite', 'UserController@getInvite');
         Route::get('users/switch/{id}', 'UserController@switchToUser');
         Route::post('users/invite', 'UserController@postInvite');

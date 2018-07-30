@@ -16,11 +16,16 @@ use Carbon\Carbon;
 
 class ImageController extends Controller
 {
-    public function deleteImage(Request $request)
+    public function deleteImage(Request $request, $admin = false)
     {
         $payload = $request->all();
         MemberPic::destroy($payload['imgId']);
-        return redirect("/dashboard?img");
+        if(!$admin){
+            return redirect("/dashboard?img");
+        }
+        else{
+            return back()->with('message', '成功刪除照片');
+        }
     }
 
     /**
@@ -28,7 +33,7 @@ class ImageController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function resizeImagePostHeader(Request $request, ImageRequest $imageRequest)
+    public function resizeImagePostHeader(Request $request, ImageRequest $imageRequest, $admin = false)
     {
 	    // $this->validate($request, [
         //     'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:22000',
@@ -68,12 +73,20 @@ class ImageController extends Controller
         $umeta->pic = $destinationPath;
         $umeta->save();
 
-        return redirect()->to('/dashboard?img')
-        	->with('success','照片上傳成功')
-        	->with('imageName',$input['imagename']);
+        if(!$admin){
+            return redirect()->to('/dashboard?img')
+                   ->with('success','照片上傳成功')
+                   ->with('imageName',$input['imagename']);
+        }
+        else if($admin){
+            return back()->with('message', '照片上傳成功');
+        }
+        else{
+            return back()->withErrors(['出現預期外的錯誤']);
+        }
     }
 
-    public function resizeImagePost(Request $request, MultipleImageRequest $multipleImage)
+    public function resizeImagePost(Request $request, MultipleImageRequest $multipleImage, $admin = false)
     {
 	    // $this->validate($request, [
         //     'images' => ['required', 'upload-image-limit'],
@@ -115,7 +128,16 @@ class ImageController extends Controller
             }
         }
 
-        return redirect()->to('/dashboard?img')
-        	->with('success','照片上傳成功');
+        if(!$admin){
+            return redirect()->to('/dashboard?img')
+                   ->with('success','照片上傳成功');
+        }
+        else if($admin){
+            return back()->with('message', '照片上傳成功');
+        }
+        else{
+            return back()->withErrors(['出現預期外的錯誤']);
+        }
+
     }
 }

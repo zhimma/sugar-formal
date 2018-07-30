@@ -1,4 +1,6 @@
 @include('partials.header')
+@include('partials.errors')
+@include('partials.message')
 <body>
     <div class="m-content">				          
         <div class="row">
