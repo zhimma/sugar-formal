@@ -37,8 +37,8 @@
 			<td>暫無記錄</td>
 		@else
 			<td>否</td>
-			<td>無資料</td>
-			<td>無資料</td>
+			<td>@if(isset($user->vip_data))@if($user->vip_data->free == 1) 是 @else 否 @endif @else 無資料 @endif</td>
+			<td>@if(isset($user->vip_order_id)){{ $user->vip_order_id }}@else 無資料 @endif</td>
 			<td>無資料</td>
 		@endif
 		<td>@if(isset($user->vip_data->created_at)){{ $user->vip_data->created_at }}@else 無資料 @endif</td>

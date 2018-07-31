@@ -58,19 +58,20 @@ class UserController extends Controller
             }
             if($isVip == 1){
                 $user['isVip'] = true;
-                $user['vip_data'] = Vip::select('id', 'free', 'created_at', 'updated_at')
-                                    ->where('member_id', $user->id)
-                                    ->orderBy('created_at', 'desc')
-                                    ->get()->first();
+
+            }
+            else{
+                $user['isVip'] = false;
+            }
+            if(member_vip::select("order_id")->where('member_id', $user->id)->get()->first()){
                 $user['vip_order_id'] = member_vip::select("order_id")
                                         ->where('member_id', $user->id)
                                         ->get()->first()->order_id;
             }
-            else{
-                $user['isVip'] = false;
-                $user['vip_data'] = '';
-                $user['vip_order_id'] = '';
-            }
+            $user['vip_data'] = Vip::select('id', 'free', 'created_at', 'updated_at')
+                                ->where('member_id', $user->id)
+                                ->orderBy('created_at', 'desc')
+                                ->get()->first();
         }
         return view('admin.users.index')
                ->with('users', $users);
