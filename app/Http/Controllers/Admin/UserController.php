@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests;
+use App\Models\Message;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Http\Controllers\Controller;
@@ -134,19 +135,15 @@ class UserController extends Controller
     public function toggleUserBlock(Request $request){
         $userBanned = banned_users::where('member_id', $request->user_id)
             ->get()->first();
-        $name = isset($request->name) ? $request->name : null;
-        $email = isset($request->email) ? $request->email : null;
         if($userBanned){
             $userBanned->delete();
-            return redirect()->back()
-                   ->with('message', '成功解除封鎖使用者', compact('name', 'email'));
+            return $this->advSearch($request, 'unban');
         }
         else{
             $userBanned = new banned_users;
             $userBanned->member_id = $request->user_id;
             $userBanned->save();
-            return redirect()->back()
-                   ->with('message', '成功封鎖使用者', compact('name', 'email'));
+            return $this->advSearch($request, 'ban');
         }
 
     }
@@ -163,10 +160,8 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function advSearch(Request $request)
+    public function advSearch(Request $request, string $message = null)
     {
-        $name = session('name');
-        $email = session('email');
         if( $request->email && $request->name ){
             $users = User::where('email', 'like', '%' . $request->email . '%')
                      ->where('name', 'like', '%' . $request->name . '%')
@@ -186,6 +181,8 @@ class UserController extends Controller
         foreach ($users as $user){
             $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first();
         }
+        $message = isset($message) ? ($message == 'ban' ? '成功封鎖使用者' : '成功解除封鎖使用者') : null;
+        $request->session()->put('message', $message);
         return view('admin.users.advIndex')
                ->with('users', $users)
                ->with('name', isset($request->name) ? $request->name : null)
@@ -226,6 +223,37 @@ class UserController extends Controller
     public function getInvite()
     {
         return view('admin.users.invite');
+    }
+
+    /**
+     * Show the form for messaging to a member.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function showAdminMessenger($id)
+    {
+        $admin = User::where('name', 'like', '%'.'站長'.'%')->get()->first();
+        if ($admin){
+            $user = $this->service->find($id);
+            return view('admin.users.messenger')
+                   ->with('admin', $admin)
+                   ->with('user', $user);
+        }
+        else{
+            return view('admin.users.messenger')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
+    }
+
+    /**
+     * Message to a member.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function sendAdminMessage(Request $request, $id)
+    {
+        $payload = $request->all();
+        Message::post($payload['admin_id'], $id, $payload['msg']);
+        return back()->with('message', '傳送成功');
     }
 
     /**

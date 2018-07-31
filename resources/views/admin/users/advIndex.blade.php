@@ -5,16 +5,15 @@
 <form method="POST" action="{{ route('users/advSearch') }}" class="search_form">
 	{!! csrf_field() !!}
 	<div class="form-group">
-		<label for="email" class="">Email</label>	
+		<label for="email" class="">Email</label>
 		<input type="email" name='email' class="" style="width:300px;" id="email" value="@if(isset($email )){{ $email }}@endif">
-		<br>
-		<label for="name" class="">暱稱</label>	
+		<label for="name" class="">暱稱</label>
 		<input type="text" name='name' class="" style="width:300px;" id="name" value="@if(isset($name)){{ $name }}@endif">
 	</div>
 	<button type="button" class="btn btn-success" onclick="$('.search_form').submit()">送出</button>
 </form><br>
 @if(isset($users))
-<table class='table table-hover table-bordered'>	
+<table class='table table-hover table-bordered'>
 	<tr>
 		<td>會員ID</td>
 		<td>暱稱</td>
@@ -25,6 +24,7 @@
 		<td>更新時間</td>
 		<td>上次登入</td>
 		<td>封鎖使用者</td>
+        <td>站長訊息</td>
 		<td>所有資料/管理</td>
 	</tr>
 	@forelse ($users as $user)
@@ -44,6 +44,9 @@
                 <input type="hidden" value="{{ $user->id }}" name="user_id">
                 <button type="submit" class='text-white btn @if($user->isBlocked) btn-success @else btn-danger @endif'>@if($user->isBlocked) 解除 @else 封鎖 @endif</button>
             </form>
+        </td>
+        <td class="align-middle">
+            <a href="message/{{ $user->id }}" target="_blank" class='btn btn-dark'>撰寫</a>
         </td>
         <td class="align-middle"><a href="advInfo/{{ $user->id }}" target='_blank' class='text-white btn btn-primary'>前往</a></td>
 	</tr>
