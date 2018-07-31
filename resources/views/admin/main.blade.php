@@ -1,6 +1,4 @@
 @include('partials.header')
-@include('partials.errors')
-@include('partials.message')
 <style>
     .sidenav {
         height: 100%;
@@ -69,6 +67,8 @@
         <span onclick="openNav()" class="" id="open">&#9776;開啟選單</span>
         <span class="instructor">甜心花園網：管理後台</span>
     </div>
+    @include('partials.errors')
+    @include('partials.message')
     <div id="main">
         @yield("app-content")
     </div>
