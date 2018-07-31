@@ -42,7 +42,7 @@ class UserController extends Controller
     public function search(Request $request)
     {
         if (! $request->search) {
-            return redirect('users/search');
+            return redirect('admin/users/search');
         }
         
         $users = User::select('id', 'name', 'email', 'engroup')

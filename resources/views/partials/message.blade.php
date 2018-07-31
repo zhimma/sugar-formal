@@ -4,3 +4,4 @@
         <span> {{ Session::get('message') }} </span>
     </div>
 @endif
+<? Session::forget('message'); ?>
