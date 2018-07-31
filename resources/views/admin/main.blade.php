@@ -64,7 +64,7 @@
 <body>
     @include('admin.panel')
     <div class="navbar">
-        <span onclick="openNav()" class="" id="open">&#9776;開啟選單</span>
+        <span onclick="openNav()" class="" id="open">&#9776;</span>
         <span class="instructor">甜心花園網：管理後台</span>
     </div>
     @include('partials.errors')
