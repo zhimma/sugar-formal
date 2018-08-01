@@ -222,7 +222,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         Route::post('users/advInfo/edit/{id}', 'UserController@saveAdvInfo')->name('users/save');
         Route::post('users/toggleUserBlock', 'UserController@toggleUserBlock');
         Route::get('users/message/to/{id}', 'UserController@showAdminMessenger');
-        Route::post('users/message/send/{id}', 'UserController@sendAdminMessage');
+        Route::post('users/message/send/{id}', 'UserController@sendAdminMessage')->name('admin/send');
         Route::get('users/message/search', 'UserController@showMessageSearchPage')->name('users/message/search');
         Route::post('users/message/search', 'UserController@searchMessage');
         Route::get('users/invite', 'UserController@getInvite');

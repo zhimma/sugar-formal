@@ -220,6 +220,67 @@ class UserController extends Controller
     {
         return view('admin.users.searchMessage');
     }
+
+    /**
+     * Search members' messages.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function searchMessage(Request $request){
+        try {
+            $results = '';
+            if ( $request->msg && $request->date-start && $request->date-end ) {
+                $results = Message::where('content', 'like', '%' . $request->msg . '%')
+                           ->whereBetween('created_at', $request->date_start . ' 00:00', $request->date_end . ' 23:59')
+                           ->get();
+            } else if ( $request->msg ) {
+                $results = Message::where('content', 'like', '%' . $request->msg . '%')
+                           ->get();
+            } else if ( $request->date-start && $request->date-end ) {
+                $results = Message::whereBetween('created_at', $request->date_start . ' 00:00', $request->date_end . ' 23:59')
+                           ->get();
+            }
+            else{
+                $results = null;
+            }
+        }
+        finally{
+            if($results != null){
+                $to_id = array();
+                $from_id = array();
+                foreach ($results as $result){
+                    if(!in_array($result->to_id, $to_id)) {
+                        array_push($to_id, $result->to_id);
+                    }
+                    if(!in_array($result->from_id, $from_id)) {
+                        array_push($from_id, $result->from_id);
+                    }
+                }
+                foreach ($to_id as $id){
+                    $users[$id] = array();
+                }
+                foreach ($from_id as $id){
+                    if(!in_array($id, $to_id)){
+                        $users[$id] = array();
+                    }
+                }
+                foreach ($users as $id => $user){
+                    $name = User::select('name')
+                        ->where('id', '=', $id)
+                        ->get()->first();
+                    if($name != null){
+                        $users[$id] = $name->name;
+                    }
+                    else{
+                        $users[$id] = '資料庫沒有資料';
+                    }
+                }
+            }
+            return view('admin.users.searchMessage')
+                   ->with('results', $results)
+                   ->with('users', isset($users) ? $users : null);
+        }
+    }
     
     /**
      * Show the form for inviting a customer.
