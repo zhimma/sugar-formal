@@ -215,6 +215,11 @@ class UserController extends Controller
                    ->with('user', $user);
         }
     }
+
+    public function showMessageSearchPage()
+    {
+        return view('admin.users.searchMessage');
+    }
     
     /**
      * Show the form for inviting a customer.

@@ -46,7 +46,7 @@
             </form>
         </td>
         <td class="align-middle">
-            <a href="message/{{ $user->id }}" target="_blank" class='btn btn-dark'>撰寫</a>
+            <a href="message/to/{{ $user->id }}" target="_blank" class='btn btn-dark'>撰寫</a>
         </td>
         <td class="align-middle"><a href="advInfo/{{ $user->id }}" target='_blank' class='text-white btn btn-primary'>前往</a></td>
 	</tr>

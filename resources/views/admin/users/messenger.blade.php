@@ -10,10 +10,10 @@
 <body style="padding: 15px;">
 @include('partials.errors')
 @include('partials.message')
-<h1>發送站長訊息給{{ $user->name }}</h1>
 @if (isset($errors))
     @if ($errors->count() > 0)
     @else
+        <h1>發送站長訊息給{{ $user->name }}</h1>
         <form action="send/{{ $user->id }}" id='message' method='POST'>
             {!! csrf_field() !!}
             <input type="hidden" value="{{ $admin->id }}" name="admin_id">
