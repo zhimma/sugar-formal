@@ -228,16 +228,15 @@ class UserController extends Controller
      */
     public function searchMessage(Request $request){
         try {
-            $results = '';
-            if ( $request->msg && $request->date-start && $request->date-end ) {
+            if ( $request->msg && $request->date_start && $request->date_end ) {
                 $results = Message::where('content', 'like', '%' . $request->msg . '%')
                            ->whereBetween('created_at', $request->date_start . ' 00:00', $request->date_end . ' 23:59')
                            ->get();
             } else if ( $request->msg ) {
                 $results = Message::where('content', 'like', '%' . $request->msg . '%')
                            ->get();
-            } else if ( $request->date-start && $request->date-end ) {
-                $results = Message::whereBetween('created_at', $request->date_start . ' 00:00', $request->date_end . ' 23:59')
+            } else if ( $request->date_start && $request->date_end ) {
+                $results = Message::whereBetween('created_at', array($request->date_start . ' 00:00', $request->date_end . ' 23:59'))
                            ->get();
             }
             else{
@@ -256,6 +255,7 @@ class UserController extends Controller
                         array_push($from_id, $result->from_id);
                     }
                 }
+                $users = array();
                 foreach ($to_id as $id){
                     $users[$id] = array();
                 }
@@ -278,7 +278,30 @@ class UserController extends Controller
             }
             return view('admin.users.searchMessage')
                    ->with('results', $results)
-                   ->with('users', isset($users) ? $users : null);
+                   ->with('users', isset($users) ? $users : null)
+                   ->with('msg', isset($request->msg) ? $request->msg : null)
+                   ->with('date_start', isset($request->date_start) ? $request->date_start : null)
+                   ->with('date_end', isset($request->date_end) ? $request->date_end : null);
+        }
+    }
+
+    /**
+     * Delete selected members' messages.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteMessage(Request $request)
+    {
+        $msg_ids = array();
+        foreach ($request->msg_id as $msg_id){
+            array_push($msg_ids, $msg_id);
+        }
+        if(Message::whereIn('id', $msg_ids)->delete()){
+            return redirect()->back()->withInput()->with('message', '訊息刪除成功');
+        }
+        else{
+
+            return redirect()->back()->withInput()->withErrors(['出現錯誤，訊息刪除失敗']);
         }
     }
     
