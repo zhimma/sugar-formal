@@ -1,25 +1,38 @@
 @extends('admin.main')
 @section('app-content')
+<style>
+    .table > tbody > tr > td, .table > tbody > tr > th{
+        vertical-align: middle;
+    }
+</style>
 <body style="padding: 15px;">
 <h1>會員封鎖清單</h1>
-{{ dd($list) }}
-<table class='table'>
+<table class='table table-bordered table-hover'>
 	<tr>
+        <td>會員ID</td>
 		<td>Email</td>
 		<td>名稱</td>
-		<td>男/女</td>
-		<td>是否為VIP</td>
-		<td>是否為免費方案</td>
-		<td>升級時的帳單編號</td>
-		<td>升級時卡號的後四碼</td>
-		<td>VIP資料建立時間</td>
-		<td>VIP資料更新時間</td>
-		<td>變更男/女</td>
-		<td>提供/取消VIP權限</td>
+		<td>封鎖時間</td>
+		<td>解除封鎖</td>
 	</tr>
-	<tr>
-	找不到資料
-	</tr>
+	@forelse($list as $user)
+    <tr>
+        <td>{{ $user->member_id }}</td>
+        <td>{{ $user->email }}</td>
+        <td>{{ $user->name }}</td>
+        <td>{{ $user->created_at }}</td>
+        <td>
+            <form action="userUnblock" method="POST">{!! csrf_field() !!}
+                <input type="hidden" value="{{ $user->member_id }}" name="user_id">
+                <button type="submit" class='text-white btn btn-success'>解除</button>
+            </form>
+        </td>
+    </tr>
+    @empty
+    <tr>
+        找不到資料
+    </tr>
+    @endforelse
 </table>
 </body>
 </html>

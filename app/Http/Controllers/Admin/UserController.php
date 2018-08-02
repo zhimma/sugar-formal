@@ -149,6 +149,18 @@ class UserController extends Controller
 
     }
 
+    public function userUnblock(Request $request){
+        $userBanned = banned_users::where('member_id', $request->user_id)
+            ->get()->first();
+        if($userBanned){
+            $userBanned->delete();
+            return redirect()->back()->with('message', '成功解除封鎖使用者');
+        }
+        else{
+            return redirect()->back()->withErrors(['出現錯誤，無法解除封鎖使用者']);
+        }
+    }
+
     public function advIndex()
     {
         //$users = $this->service->all();
@@ -308,7 +320,7 @@ class UserController extends Controller
     public function showBannedList()
     {
         $list = banned_users::join('users', 'users.id', '=', 'banned_users.member_id')
-                ->select('banned_users.*', 'users.name')->get();
+                ->select('banned_users.*', 'users.name', 'users.email')->get();
         return view('admin.users.bannedList')->with('list', $list);
     }
     
