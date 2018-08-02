@@ -226,6 +226,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         Route::get('users/message/search', 'UserController@showMessageSearchPage')->name('users/message/search');
         Route::post('users/message/search', 'UserController@searchMessage');
         Route::post('users/message/delete', 'UserController@deleteMessage')->name('users/message/delete');
+        Route::get('users/bannedList', 'UserController@showBannedList')->name('users/bannedList');
         Route::get('users/invite', 'UserController@getInvite');
         Route::get('users/switch/{id}', 'UserController@switchToUser');
         Route::post('users/invite', 'UserController@postInvite');

@@ -304,6 +304,13 @@ class UserController extends Controller
             return redirect()->back()->withInput()->withErrors(['出現錯誤，訊息刪除失敗']);
         }
     }
+
+    public function showBannedList()
+    {
+        $list = banned_users::join('users', 'users.id', '=', 'banned_users.member_id')
+                ->select('banned_users.*', 'users.name')->get();
+        return view('admin.users.bannedList')->with('list', $list);
+    }
     
     /**
      * Show the form for inviting a customer.
