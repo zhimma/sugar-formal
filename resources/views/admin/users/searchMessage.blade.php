@@ -75,9 +75,6 @@
                         <td>{{ $result->created_at }}</td>
                         <td style="text-align: center; vertical-align: middle">
                             <input type="checkbox" name="msg_id[]" value="{{ $result->id }}" class="form-control">
-                            <input type="hidden" name="from_id[]" value="{{ $result->from_id }}">
-                            <input type="hidden" name="post_time[]" value="{{ $result->created_at }}">
-                            <input type="hidden" name="name[]" value="{{ $users[$result->from_id] }}">
                         </td>
                     </tr>
                 @empty
@@ -161,9 +158,8 @@
         $('.submit').click(
             function () {
                 $('#msg2').val($('#msg').val());
-            }
-            $('#message').submit();
-        )
+                $('#message').submit();
+            });
     });
     function set_end_date(){
         $('#datepicker_2').each(

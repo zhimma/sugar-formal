@@ -120,6 +120,30 @@
 		<td></td>
 	</tr>
 </table>
+<h4>所有訊息</h4>
+<table class="table table-hover table-bordered">
+<form action="{{ route('users/message/delete') }}" method="post">
+    {!! csrf_field() !!}
+	<tr>
+		<td>發送給</td>
+		<td>內容</td>
+		<td>發送時間</td>
+        <td style="text-align: center; vertical-align: middle"><button type="submit" class="btn btn-danger">刪除選取</button></td>
+	</tr>
+	@forelse ($userMessage as $uM)
+		<tr>
+			<td>{{ $to_ids[$uM->to_id] }}</td>
+			<td>{{ $uM->content }}</td>
+			<td>{{ $uM->created_at }}</td>
+            <td style="text-align: center; vertical-align: middle">
+                <input type="checkbox" name="msg_id[]" value="{{ $uM->id }}" class="form-control">
+            </td>
+		</tr>
+    @empty
+        沒有訊息
+    @endforelse
+</form>
+</table>
 <h4>現有生活照</h4>
 <?php $pics = \App\Models\MemberPic::getSelf($user->id); ?>
 <table class="table table-hover table-bordered" style="width: 50%;">

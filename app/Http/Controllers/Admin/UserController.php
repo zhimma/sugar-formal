@@ -215,6 +215,14 @@ class UserController extends Controller
                 ->get()->first();
         $userMeta = UserMeta::where('user_id', 'like', $id)
                 ->get()->first();
+        $userMessage = Message::where('from_id', $id)->orderBy('created_at', 'desc')->get();
+        $to_ids = array();
+        foreach($userMessage as $u){
+            if(!array_key_exists($u->to_id, $to_ids)){
+                $to_ids[$u->to_id] = User::select('name')->where('id', $u->to_id)->get()->first();
+                $to_ids[$u->to_id] = $to_ids[$u->to_id]->name;
+            }
+        }
         if(str_contains(url()->current(), 'edit')){
             return view('admin.users.editAdvInfo')
                    ->with('userMeta', $userMeta)
@@ -223,7 +231,9 @@ class UserController extends Controller
         else{
             return view('admin.users.advInfo')
                    ->with('userMeta', $userMeta)
-                   ->with('user', $user);
+                   ->with('user', $user)
+                   ->with('userMessage', $userMessage)
+                   ->with('to_ids', $to_ids);
         }
     }
 
@@ -247,7 +257,7 @@ class UserController extends Controller
         try {
             if ( $request->msg && $request->date_start && $request->date_end ) {
                 $results = Message::where('content', 'like', '%' . $request->msg . '%')
-                           ->whereBetween('created_at', $request->date_start . ' 00:00', $request->date_end . ' 23:59')
+                           ->whereBetween('created_at', array($request->date_start . ' 00:00', $request->date_end . ' 23:59'))
                            ->get();
             } else if ( $request->msg ) {
                 $results = Message::where('content', 'like', '%' . $request->msg . '%')
@@ -318,22 +328,13 @@ class UserController extends Controller
         $names = array();
         $from_ids = array();
         $post_times = array();
-        foreach ($request->msg_id as $msg_id){
-            array_push($msg_ids, $msg_id);
-        }
-        foreach ($request->from_id as $from_id){
-            array_push($from_ids, $from_id);
-        }
-        foreach ($request->post_time as $post_time){
-            array_push($post_times, $post_time);
-        }
-        foreach ($request->name as $name){
-            array_push($names, $name);
-        }
         foreach ($request->msg_id as $key => $msg_id){
-            $msgs[$msg_id]['from_id'] = $from_ids[$key];
-            $msgs[$msg_id]['post_time'] = $post_times[$key];
-            $msgs[$msg_id]['name'] = $names[$key];
+            array_push($msg_ids, $msg_id);
+            $m = Message::select('from_id', 'created_at')->where('id', $msg_id)->get()->first();
+            $msgs[$msg_id]['from_id'] = $m->from_id;
+            $msgs[$msg_id]['post_time'] = $m->created_at;
+            $u = User::select('name')->where('id', $m->from_id)->get()->first();
+            $msgs[$msg_id]['name'] = $u->name;
         }
         if(Message::whereIn('id', $msg_ids)->delete()){
             $template = array(
@@ -399,6 +400,34 @@ class UserController extends Controller
         Message::post($payload['admin_id'], $id, $payload['msg']);
         return back()->with('message', '傳送成功');
     }
+
+    /**
+     * Messages to members.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function sendAdminMessageMultiple(Request $request)
+    {
+        //$payload = $request->all();
+        $admin_id = $request->admin_id;
+        $to_ids = array();
+        $msgs = array();
+        foreach ($request->msg as $msg){
+            array_push($msgs, $msg);
+        }
+        foreach ($request->to as $key => $id){
+            $to_ids[$id] = $msgs[$key];
+        }
+        //try{
+            foreach ($to_ids as $to_id => $msg) {
+                Message::post($admin_id, $to_id, $msg);
+            }
+        //}
+
+
+        return redirect()->route('users/message/search')->with('message', '傳送成功');
+    }
+
 
     /**
      * Show the form for inviting a customer.
