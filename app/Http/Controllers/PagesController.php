@@ -426,6 +426,7 @@ class PagesController extends Controller
             $banned_users = banned_users::select('*')->where('member_id', \Auth::user()->id)->count();
             if($banned_users > 0){    
                 Auth::logout();
+                $request->session()->flush();
                 return view('errors.User-banned');
             }
             abort(404);

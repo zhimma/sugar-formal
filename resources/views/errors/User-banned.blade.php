@@ -15,6 +15,5 @@
 <p>您已在被封鎖的會員列表中，詳請請洽站長，謝謝</p>
 <a class="btn btn-success" href="{!! url('contact') !!}" role="button">聯繫站長</a>
 </div>
-
 @stop
 
