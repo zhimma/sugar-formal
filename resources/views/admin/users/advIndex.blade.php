@@ -20,6 +20,7 @@
 		<td>標題</td>
 		<td>男/女</td>
 		<td>Email</td>
+		<td>VIP</td>
 		<td>建立時間</td>
 		<td>更新時間</td>
 		<td>上次登入</td>
@@ -34,6 +35,7 @@
 		<td class="align-middle">{{ $user->title }}</td>
 		<td class="align-middle">@if($user->engroup==1) 男 @else 女 @endif</td>
 		<td class="align-middle">{{ $user->email }}</td>
+		<td class="align-middle">{{ $user->vip }}</td>
 		<td class="align-middle">{{ $user->created_at }}</td>
 		<td class="align-middle">{{ $user->updated_at }}</td>
 		<td class="align-middle">{{ $user->last_login }}</td>

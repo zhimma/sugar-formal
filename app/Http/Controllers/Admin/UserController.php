@@ -163,8 +163,6 @@ class UserController extends Controller
 
     public function advIndex()
     {
-        //$users = $this->service->all();
-        //dd($users);
         return view('admin.users.advIndex');
     }
 
@@ -193,6 +191,7 @@ class UserController extends Controller
         }        
         foreach ($users as $user){
             $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first();
+            $user['vip'] = $user->isVip() ? '是' : '否';
         }
         $message = isset($message) ? ($message == 'ban' ? '成功封鎖使用者' : '成功解除封鎖使用者') : null;
         $request->session()->put('message', $message);
@@ -230,7 +229,13 @@ class UserController extends Controller
 
     public function showMessageSearchPage()
     {
-        return view('admin.users.searchMessage');
+        $admin = User::where('name', 'like', '%'.'站長'.'%')->get()->first();
+        if ($admin){
+            return view('admin.users.searchMessage');
+        }
+        else{
+            return view('admin.users.searchMessage')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
     }
 
     /**
@@ -304,15 +309,45 @@ class UserController extends Controller
      */
     public function deleteMessage(Request $request)
     {
+        $admin = User::where('name', 'like', '%'.'站長'.'%')->get()->first();
+        if (!$admin) {
+            return redirect()->back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
         $msg_ids = array();
+        $msgs = array();
+        $names = array();
+        $from_ids = array();
+        $post_times = array();
         foreach ($request->msg_id as $msg_id){
             array_push($msg_ids, $msg_id);
         }
+        foreach ($request->from_id as $from_id){
+            array_push($from_ids, $from_id);
+        }
+        foreach ($request->post_time as $post_time){
+            array_push($post_times, $post_time);
+        }
+        foreach ($request->name as $name){
+            array_push($names, $name);
+        }
+        foreach ($request->msg_id as $key => $msg_id){
+            $msgs[$msg_id]['from_id'] = $from_ids[$key];
+            $msgs[$msg_id]['post_time'] = $post_times[$key];
+            $msgs[$msg_id]['name'] = $names[$key];
+        }
         if(Message::whereIn('id', $msg_ids)->delete()){
-            return redirect()->back()->withInput()->with('message', '訊息刪除成功');
+            $template = array(
+                "head"   =>"你好，由於您在",
+                "body"   =>"的訊息不符站方規定，故已刪除。"
+            );
+            //return redirect()->back()->withInput()->with('message', '訊息刪除成功');
+            $request->session()->put('message', '訊息刪除成功，將會產生通知訊息發送給各發訊的會員，請檢查訊息內容，若無誤請按下送出。');
+            return view('admin.users.messenger')
+                   ->with('admin', $admin)
+                   ->with('msgs', $msgs)
+                   ->with('template', $template);
         }
         else{
-
             return redirect()->back()->withInput()->withErrors(['出現錯誤，訊息刪除失敗']);
         }
     }

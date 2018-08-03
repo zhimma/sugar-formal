@@ -13,13 +13,25 @@
 @if (isset($errors))
     @if ($errors->count() > 0)
     @else
-        <h1>發送站長訊息給{{ $user->name }}</h1>
-        <form action="{{ route('admin/send', $user->id) }}" id='message' method='POST'>
-            {!! csrf_field() !!}
-            <input type="hidden" value="{{ $admin->id }}" name="admin_id">
-            <textarea name="msg" class="form-control" cols="80" rows="5"></textarea><br>
-            <button type='submit' class='text-white btn btn-primary'>送出</button>
-        </form>
+        @if(!isset($msgs))
+            <h1>發送站長訊息給{{ $user->name }}</h1>
+            <form action="{{ route('admin/send', $user->id) }}" id='message' method='POST'>
+                {!! csrf_field() !!}
+                <input type="hidden" value="{{ $admin->id }}" name="admin_id">
+                <textarea name="msg" class="form-control" cols="80" rows="5"></textarea><br>
+                <button type='submit' class='text-white btn btn-primary'>送出</button>
+            </form>
+        @else
+            @foreach( $msgs as $msg )
+                <h3 style="text-align: left">發送給{{ $msg['name'] }}</h3>
+                <form action="{{ route('admin/send', $msg['from_id']) }}" id='message' method='POST'>
+                    {!! csrf_field() !!}
+                    <input type="hidden" value="{{ $admin->id }}" name="admin_id">
+                    <textarea name="msg" class="form-control" cols="80" rows="5">{{ $template['body'] }}</textarea><br>
+                    <button type='submit' class='text-white btn btn-primary'>送出</button>
+                </form>
+            @endforeach
+        @endif
     @endif
 @endif
 </body>

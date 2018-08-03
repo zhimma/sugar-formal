@@ -224,6 +224,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         Route::post('users/userUnblock', 'UserController@userUnblock');
         Route::get('users/message/to/{id}', 'UserController@showAdminMessenger');
         Route::post('users/message/send/{id}', 'UserController@sendAdminMessage')->name('admin/send');
+        //Route::get('users/message/multiple', 'UserController@showAdminMessengerMultiple')->name('admin/message/multiple');
+        Route::post('users/message/multiple/send', 'UserController@sendAdminMessageMultiple');
         Route::get('users/message/search', 'UserController@showMessageSearchPage')->name('users/message/search');
         Route::post('users/message/search', 'UserController@searchMessage');
         Route::post('users/message/delete', 'UserController@deleteMessage')->name('users/message/delete');
