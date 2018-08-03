@@ -149,6 +149,22 @@ class UserController extends Controller
 
     }
 
+    public function toggleUserBlock_simple($id){
+        $userBanned = banned_users::where('member_id', $id)
+            ->get()->first();
+        if($userBanned){
+            $userBanned->delete();
+            return view('admin.users.success')->with('message', '成功解除封鎖使用者');
+        }
+        else{
+            $userBanned = new banned_users;
+            $userBanned->member_id = $id;
+            $userBanned->save();
+            return view('admin.users.success')->with('message', '成功封鎖使用者');
+        }
+
+    }
+
     public function userUnblock(Request $request){
         $userBanned = banned_users::where('member_id', $request->user_id)
             ->get()->first();
@@ -281,6 +297,7 @@ class UserController extends Controller
                     if(!in_array($result->from_id, $from_id)) {
                         array_push($from_id, $result->from_id);
                     }
+                    $result['isBlocked'] = banned_users::where('member_id', 'like', $result->from_id)->get()->first();
                 }
                 $users = array();
                 foreach ($to_id as $id){

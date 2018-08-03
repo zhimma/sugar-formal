@@ -221,6 +221,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         Route::get('users/advInfo/edit/{id}', 'UserController@advInfo');
         Route::post('users/advInfo/edit/{id}', 'UserController@saveAdvInfo')->name('users/save');
         Route::post('users/toggleUserBlock', 'UserController@toggleUserBlock');
+        Route::get('users/toggleUserBlock/{id}', 'UserController@toggleUserBlock_simple')->name('toggleUserBlock');
         Route::post('users/userUnblock', 'UserController@userUnblock');
         Route::get('users/message/to/{id}', 'UserController@showAdminMessenger');
         Route::post('users/message/send/{id}', 'UserController@sendAdminMessage')->name('admin/send');

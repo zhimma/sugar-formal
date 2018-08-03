@@ -70,8 +70,11 @@
                     </td>
                 </tr>
                 @forelse ($results as $result)
-                    <tr>
-                        <td><a href="{{ route('users/advInfo', $result->from_id) }}" target='_blank'>{{ $users[$result->from_id] }}</a></td>
+                    <tr @if($result->isBlocked) style="color: #F00;" @endif>
+                        <td>
+                            <a href="{{ route('users/advInfo', $result->from_id) }}" target='_blank'>{{ $users[$result->from_id] }}</a>
+                            <a href="{{ route('toggleUserBlock', $result->from_id) }}" target="_blank" class='text-white btn @if($result->isBlocked) btn-success @else btn-danger @endif'>@if($result->isBlocked) ◯ @else 🞫 @endif</a>
+                        </td>
                         <td>{{ $users[$result->to_id] }}</td>
                         <td width="50%">{{ $result->content }}</td>
                         <td>{{ $result->read }}</td>
