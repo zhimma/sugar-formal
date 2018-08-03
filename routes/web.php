@@ -217,7 +217,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         Route::get('users/search', 'UserController@index')->name('users/manager');
         Route::post('users/advSearch', 'UserController@advSearch')->name('users/advSearch');
         Route::get('users/advSearch', 'UserController@advIndex');
-        Route::get('users/advInfo/{id}', 'UserController@advInfo');
+        Route::get('users/advInfo/{id}', 'UserController@advInfo')->name('users/advInfo');
         Route::get('users/advInfo/edit/{id}', 'UserController@advInfo');
         Route::post('users/advInfo/edit/{id}', 'UserController@saveAdvInfo')->name('users/save');
         Route::post('users/toggleUserBlock', 'UserController@toggleUserBlock');

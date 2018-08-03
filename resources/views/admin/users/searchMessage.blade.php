@@ -64,17 +64,20 @@
                     <td>內容</td>
                     <td>已讀</td>
                     <td>發送時間</td>
-                    <td><button type="submit" class="btn btn-danger">刪除選取</button></td>
+                    <td>
+                        <button id="select_all" class="btn btn-primary" onclick="selectAll();return false;">全選</button>
+                        <button type="submit" class="btn btn-danger">刪除選取</button>
+                    </td>
                 </tr>
                 @forelse ($results as $result)
                     <tr>
-                        <td>{{ $users[$result->from_id] }}</td>
+                        <td><a href="{{ route('users/advInfo', $result->from_id) }}" target='_blank'>{{ $users[$result->from_id] }}</a></td>
                         <td>{{ $users[$result->to_id] }}</td>
                         <td width="50%">{{ $result->content }}</td>
                         <td>{{ $result->read }}</td>
                         <td>{{ $result->created_at }}</td>
                         <td style="text-align: center; vertical-align: middle">
-                            <input type="checkbox" name="msg_id[]" value="{{ $result->id }}" class="form-control">
+                            <input type="checkbox" name="msg_id[]" value="{{ $result->id }}" class="form-control boxes">
                         </td>
                     </tr>
                 @empty
@@ -161,6 +164,19 @@
                 $('#message').submit();
             });
     });
+
+    function selectAll () {
+        $('.boxes').each(
+            function () {
+                if($(this).is(':checked')){
+                    $(this).prop("checked", false);
+                }
+                else{
+                    $(this).selected();
+                }
+            });
+
+    }
     function set_end_date(){
         $('#datepicker_2').each(
             function () {
