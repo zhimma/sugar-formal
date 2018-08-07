@@ -6,6 +6,7 @@ use App\Http\Requests;
 use App\Models\Message;
 use Illuminate\Http\Request;
 use App\Services\UserService;
+use App\Services\AdminService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserInviteRequest;
 use App\Models\User;
@@ -18,9 +19,10 @@ use Carbon\Carbon;
 
 class UserController extends Controller
 {
-    public function __construct(UserService $userService)
+    public function __construct(UserService $userService, AdminService $adminService)
     {
         $this->service = $userService;
+        $this->admin = $adminService;
     }
 
     /**
@@ -342,7 +344,7 @@ class UserController extends Controller
     public function modifyMessage(Request $request)
     {
         if($request->delete == 1 && $request->edit == 0){
-            $datas = $this->deleteMessage($request);
+            $datas = $this->admin->deleteMessage($request);
             if(!$datas){
                 return redirect()->back()->withInput()->withErrors(['出現錯誤，訊息刪除失敗']);
             }
@@ -354,94 +356,11 @@ class UserController extends Controller
             }
         }
         else if($request->edit == 1 && $request->delete == 0){
-            $datas = $this->editMessage($request);
+            return view('admin.users.editMessage')->with('request', $request);
+//            $datas = $this->admin->editMessage($request);
         }
         else{
             return redirect()->back()->withErrors(['出現不明錯誤']);
-        }
-    }
-
-    /**
-     * Deletes selected members' messages.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function deleteMessage(Request $request)
-    {
-        $admin = User::where('name', 'like', '%'.'站長'.'%')->get()->first();
-        if (!$admin) {
-            return redirect()->back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
-        }
-        $msg_ids = array();
-        $msgs = array();
-        $names = array();
-        $from_ids = array();
-        $post_times = array();
-        foreach ($request->msg_id as $key => $msg_id){
-            array_push($msg_ids, $msg_id);
-            $m = Message::select('from_id', 'created_at')->where('id', $msg_id)->get()->first();
-            $msgs[$msg_id]['from_id'] = $m->from_id;
-            $msgs[$msg_id]['post_time'] = $m->created_at;
-            $u = User::select('name')->where('id', $m->from_id)->get()->first();
-            $msgs[$msg_id]['name'] = $u->name;
-        }
-        if(Message::whereIn('id', $msg_ids)->delete()){
-            $template = array(
-                "head"   =>"你好，由於您在",
-                "body"   =>"的訊息不符站方規定，故已刪除。"
-            );
-            //return redirect()->back()->withInput()->with('message', '訊息刪除成功');
-            $request->session()->put('message', '訊息刪除成功，將會產生通知訊息發送給各發訊的會員，請檢查訊息內容，若無誤請按下送出。');
-            $datas = ['admin' => $admin,
-                      'msgs' => $msgs,
-                      'template' => $template];
-            return $datas;
-        }
-        else{
-            //return redirect()->back()->withInput()->withErrors(['出現錯誤，訊息刪除失敗']);
-            return false;
-        }
-    }
-
-    /**
-     * Edits selected members' messages.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function editMessage(Request $request)
-    {
-        $admin = User::where('name', 'like', '%'.'站長'.'%')->get()->first();
-        if (!$admin) {
-            return redirect()->back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
-        }
-        $msg_ids = array();
-        $msgs = array();
-        $names = array();
-        $from_ids = array();
-        $post_times = array();
-        foreach ($request->msg_id as $key => $msg_id){
-            array_push($msg_ids, $msg_id);
-            $m = Message::select('from_id', 'created_at')->where('id', $msg_id)->get()->first();
-            $msgs[$msg_id]['from_id'] = $m->from_id;
-            $msgs[$msg_id]['post_time'] = $m->created_at;
-            $u = User::select('name')->where('id', $m->from_id)->get()->first();
-            $msgs[$msg_id]['name'] = $u->name;
-        }
-        if(Message::whereIn('id', $msg_ids)->delete()){
-            $template = array(
-                "head"   =>"你好，由於您在",
-                "body"   =>"的訊息不符站方規定，故已刪除。"
-            );
-            //return redirect()->back()->withInput()->with('message', '訊息刪除成功');
-            $request->session()->put('message', '訊息刪除成功，將會產生通知訊息發送給各發訊的會員，請檢查訊息內容，若無誤請按下送出。');
-            $datas = ['admin' => $admin,
-                'msgs' => $msgs,
-                'template' => $template];
-            return $datas;
-        }
-        else{
-            //return redirect()->back()->withInput()->withErrors(['出現錯誤，訊息刪除失敗']);
-            return false;
         }
     }
 

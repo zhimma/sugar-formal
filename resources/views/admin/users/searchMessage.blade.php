@@ -71,6 +71,7 @@
                         <input type="hidden" name="delete" id="delete" value="0">
                         <button type="submit" class="btn btn-warning" onclick="$('#edit').val(1);">修改選取</button>
                         <input type="hidden" name="edit" id="edit" value="0">
+                        <input type="hidden" name="msg" value="{{ $msg }}">
                     </td>
                 </tr>
                 @forelse ($results as $result)
