@@ -432,12 +432,12 @@ class UserController extends Controller
         foreach ($request->msg as $msg){
             array_push($msgs, $msg);
         }
-        foreach ($request->to as $key => $id){
-            $to_ids[$id] = $msgs[$key];
+        foreach ($request->to as $id){
+            array_push($to_ids, $id);
         }
         //try{
-            foreach ($to_ids as $to_id => $msg) {
-                Message::post($admin_id, $to_id, $msg);
+            foreach ($msgs as $key => $msg) {
+                Message::post($admin_id, $to_ids[$key], $msg);
             }
         //}
 
