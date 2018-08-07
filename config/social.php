@@ -34,6 +34,7 @@ return [
         'code' => "abcd1234"
     ],
     'admin' => [
-        'email' => 'mmmaya111@gmail.com'
+        'email' => 'mmmaya111@gmail.com',
+        'showMessageCount' => 50
     ]
 ];

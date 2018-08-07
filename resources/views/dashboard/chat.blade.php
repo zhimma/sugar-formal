@@ -83,10 +83,10 @@ $code = Config::get('social.payment.code');
             ?>
                     @if(!empty($latestMessage))
                         @if(\App\Models\Message::isAdminMessage($latestMessage->content))
-                        <div class="m-widget3__item" style="background-color: rgba(164, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(164, 164, 164, 0.7); padding: 14px 28px;">
+                        <div class="m-widget3__item" @if(str_contains($msgUser->name, '站長')) id='admin' @else id='normal' @endif style="background-color: rgba(164, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(164, 164, 164, 0.7); padding: 14px 28px;">
 
                         @else
-                        <div class="m-widget3__item" style="background-color: rgba(244, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7); padding: 14px 28px;">
+                        <div class="m-widget3__item" @if(str_contains($msgUser->name, '站長')) id='admin' @else id='normal' @endif style="background-color: rgba(244, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7); padding: 14px 28px;">
 
                         @endif
                             <div class="m-widget3__header" @if(isset($to))style="width:95%"@else style="width:95%" @endif>
@@ -96,7 +96,7 @@ $code = Config::get('social.payment.code');
 
                                 <div class="m-widget3__info">
                                 <a href="/dashboard/chat/{{$msgUser->id}}">
-                                    <span class="m-widget3__username" @if($msgUser->name == '站長') id='admin' style='color:blue;' @else id='normal' @endif>
+                                    <span class="m-widget3__username" @if(str_contains($msgUser->name, '站長')) style='color:blue;' @endif>
                                     {{$msgUser->name}}
                                     </span><br>
                                     <span class="m-widget3__time">

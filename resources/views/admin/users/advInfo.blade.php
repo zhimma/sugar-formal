@@ -144,6 +144,7 @@
     @endforelse
 </form>
 </table>
+{!! $userMessage->links() !!}
 <h4>現有生活照</h4>
 <?php $pics = \App\Models\MemberPic::getSelf($user->id); ?>
 <table class="table table-hover table-bordered" style="width: 50%;">

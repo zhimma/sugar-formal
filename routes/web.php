@@ -228,6 +228,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         Route::post('users/message/multiple/send', 'UserController@sendAdminMessageMultiple')->name('admin/send/multiple');
         Route::get('users/message/search', 'UserController@showMessageSearchPage')->name('users/message/search');
         Route::post('users/message/search', 'UserController@searchMessage');
+        Route::post('users/message/modify', 'UserController@modifyMessage')->name('users/message/modify');
         Route::post('users/message/delete', 'UserController@deleteMessage')->name('users/message/delete');
         Route::get('users/bannedList', 'UserController@showBannedList')->name('users/bannedList');
         Route::get('users/invite', 'UserController@getInvite');

@@ -51,7 +51,7 @@
             </table>
         </form>
         @if(isset($results))
-        <form action="{{ route('users/message/delete') }}" method="post">
+        <form action="{{ route('users/message/modify') }}" method="post">
             {!! csrf_field() !!}
             <input type="hidden" name="msg" value="@if(isset($msg)) {{ $msg }}@endif" class="form-control" id="msg2">
             <input type='hidden' id="datepicker_1" name="date_start" data-date-format='yyyy-mm-dd' value="@if(isset($date_start)){{ $date_start }}@endif" class="form-control">
@@ -66,7 +66,11 @@
                     <td>發送時間</td>
                     <td>
                         <button id="select_all" class="btn btn-primary" onclick="selectAll();return false;">全選</button>
-                        <button type="submit" class="btn btn-danger">刪除選取</button>
+                        <br>
+                        <button type="submit" class="btn btn-danger" onclick="$('#delete').val(1);">刪除選取</button>
+                        <input type="hidden" name="delete" id="delete" value="0">
+                        <button type="submit" class="btn btn-warning" onclick="$('#edit').val(1);">修改選取</button>
+                        <input type="hidden" name="edit" id="edit" value="0">
                     </td>
                 </tr>
                 @forelse ($results as $result)
@@ -76,7 +80,7 @@
                             <a href="{{ route('toggleUserBlock', $result->from_id) }}" target="_blank" class='text-white btn @if($result->isBlocked) btn-success @else btn-danger @endif'>@if($result->isBlocked) ◯ @else 🞫 @endif</a>
                         </td>
                         <td>{{ $users[$result->to_id] }}</td>
-                        <td width="50%">{{ $result->content }}</td>
+                        <td width="45%">{{ $result->content }}</td>
                         <td>{{ $result->read }}</td>
                         <td>{{ $result->created_at }}</td>
                         <td style="text-align: center; vertical-align: middle">
