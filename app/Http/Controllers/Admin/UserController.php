@@ -262,7 +262,7 @@ class UserController extends Controller
 
     public function showMessageSearchPage()
     {
-        $admin = User::where('name', 'like', '%'.'站長'.'%')->get()->first();
+        $admin = $this->admin->checkAdmin();
         if ($admin){
             return view('admin.users.searchMessage');
         }
@@ -349,19 +349,41 @@ class UserController extends Controller
                 return redirect()->back()->withInput()->withErrors(['出現錯誤，訊息刪除失敗']);
             }
             else {
-                return view('admin.users.messenger')
-                    ->with('admin', $datas['admin'])
-                    ->with('msgs', $datas['msgs'])
-                    ->with('template', $datas['template']);
+                $admin = $this->admin->checkAdmin();
+                if($admin){
+                    return view('admin.users.messenger')
+                        ->with('admin', $datas['admin'])
+                        ->with('msgs', $datas['msgs'])
+                        ->with('template', $datas['template']);
+                }
+                else{
+                    return view('admin.users.messenger')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+                }
             }
         }
         else if($request->edit == 1 && $request->delete == 0){
-            return view('admin.users.editMessage')->with('request', $request);
-//            $datas = $this->admin->editMessage($request);
+            $admin = $this->admin->checkAdmin();
+            if($admin){
+                $data = $this->admin->renderMessages($request);
+                return view('admin.users.editMessage')->with('data', $data);
+            }
+            else{
+                return view('admin.users.messenger')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+            }
         }
         else{
             return redirect()->back()->withErrors(['出現不明錯誤']);
         }
+    }
+
+    public function editMessage(Request $request)
+    {
+        $messages = $this->admin->editMessageThenReturnIds($request);
+        $datas = $this->admin->sendEditedNotice($request, $messages);
+        return view('admin.users.messenger')
+            ->with('admin', $datas['admin'])
+            ->with('msgs', $datas['msgs'])
+            ->with('template', $datas['template']);
     }
 
     public function showBannedList()
@@ -388,7 +410,7 @@ class UserController extends Controller
      */
     public function showAdminMessenger($id)
     {
-        $admin = User::where('name', 'like', '%'.'站長'.'%')->get()->first();
+        $admin = $this->admin->checkAdmin();
         if ($admin){
             $user = $this->service->find($id);
             return view('admin.users.messenger')
