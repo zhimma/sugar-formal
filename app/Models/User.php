@@ -7,6 +7,7 @@ use App\Models\Blocked;
 use App\Models\Vip;
 use App\Models\UserMeta;
 use App\Models\MemberPic;
+use App\Models\SimpleTables\banned_users;
 use App\Notifications\ResetPassword;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -114,7 +115,8 @@ class User extends Authenticatable
     {
         if ($engroup == 1) $engroup = 2;
         else if ($engroup == 2) $engroup = 1;
-        return User::where('engroup', $engroup)->orderBy('last_login', 'desc')->paginate(12);
+        $bannedUsers = banned_users::select('member_id')->get();
+        return User::where('engroup', $engroup)->whereNotIn('id', $bannedUsers)->orderBy('last_login', 'desc')->paginate(12);
     }
 
     public static function findById($id)

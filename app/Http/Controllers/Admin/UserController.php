@@ -156,13 +156,13 @@ class UserController extends Controller
             ->get()->first();
         if($userBanned){
             $userBanned->delete();
-            return view('admin.users.success')->with('message', '成功解除封鎖使用者');
+            return view('admin.users.success_only')->with('message', '成功解除封鎖使用者');
         }
         else{
             $userBanned = new banned_users;
             $userBanned->member_id = $id;
             $userBanned->save();
-            return view('admin.users.success')->with('message', '成功封鎖使用者');
+            return view('admin.users.success_only')->with('message', '成功封鎖使用者');
         }
 
     }
@@ -191,32 +191,15 @@ class UserController extends Controller
      */
     public function advSearch(Request $request, string $message = null)
     {
-        if( $request->email && $request->name ){
-            $users = User::where('email', 'like', '%' . $request->email . '%')
-                     ->where('name', 'like', '%' . $request->name . '%')
-                     ->get();
-        }
-        else if( $request->email ){
-            $users = User::where('email', 'like', '%' . $request->email . '%')
-                     ->get();
-        }
-        else if ( $request->name ){
-            $users = User::where('name', 'like', '%' . $request->name . '%')
-                     ->get();
-        }
-        else{
-            return redirect(route('users/advSearch'));
-        }        
-        foreach ($users as $user){
-            $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first();
-            $user['vip'] = $user->isVip() ? '是' : '否';
-        }
+        $users = $this->admin->advSearch($request);
         $message = isset($message) ? ($message == 'ban' ? '成功封鎖使用者' : '成功解除封鎖使用者') : null;
         $request->session()->put('message', $message);
         return view('admin.users.advIndex')
                ->with('users', $users)
                ->with('name', isset($request->name) ? $request->name : null)
-               ->with('email', isset($request->email) ? $request->email : null);
+               ->with('email', isset($request->email) ? $request->email : null)
+               ->with('member_type', isset($request->member_type) ? $request->member_type : null)
+               ->with('time', isset($request->time) ? $request->time : null);
     }
 
     /**
@@ -304,7 +287,7 @@ class UserController extends Controller
                     if(!in_array($result->from_id, $from_id)) {
                         array_push($from_id, $result->from_id);
                     }
-                    $result['isBlocked'] = banned_users::where('member_id', 'like', $result->from_id)->get()->first();
+                    $result['isBlocked'] = banned_users::where('member_id', 'like', $result->from_id)->get()->first() == true ? true : false;
                 }
                 $users = array();
                 foreach ($to_id as $id){
@@ -389,7 +372,7 @@ class UserController extends Controller
     public function showBannedList()
     {
         $list = banned_users::join('users', 'users.id', '=', 'banned_users.member_id')
-                ->select('banned_users.*', 'users.name', 'users.email')->get();
+                ->select('banned_users.*', 'users.name', 'users.email')->orderBy('created_at', 'desc')->get();
         return view('admin.users.bannedList')->with('list', $list);
     }
     

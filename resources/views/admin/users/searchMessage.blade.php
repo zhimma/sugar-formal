@@ -54,8 +54,8 @@
         <form action="{{ route('users/message/modify') }}" method="post">
             {!! csrf_field() !!}
             <input type="hidden" name="msg" value="@if(isset($msg)) {{ $msg }}@endif" class="form-control" id="msg2">
-            <input type='hidden' id="datepicker_1" name="date_start" data-date-format='yyyy-mm-dd' value="@if(isset($date_start)){{ $date_start }}@endif" class="form-control">
-            <input type='hidden' id="datepicker_2" name="date_end" data-date-format='yyyy-mm-dd' value="@if(isset($date_end)){{ $date_end }}@endif" class="form-control">
+            <input type='hidden' class="datepicker_1" name="date_start" data-date-format='yyyy-mm-dd' value="@if(isset($date_start)){{ $date_start }}@endif" class="form-control">
+            <input type='hidden' class="datepicker_2" name="date_end" data-date-format='yyyy-mm-dd' value="@if(isset($date_end)){{ $date_end }}@endif" class="form-control">
             <h3 style="text-align: left;">搜尋結果</h3>
             <table class="table-hover table table-bordered">
                 <tr>
@@ -78,7 +78,7 @@
                     <tr @if($result->isBlocked) style="color: #F00;" @endif>
                         <td>
                             <a href="{{ route('users/advInfo', $result->from_id) }}" target='_blank'>{{ $users[$result->from_id] }}</a>
-                            <a href="{{ route('toggleUserBlock', $result->from_id) }}" target="_blank" class='text-white btn @if($result->isBlocked) btn-success @else btn-danger @endif'>@if($result->isBlocked) ◯ @else 🞫 @endif</a>
+                            <button type="button" onclick="toggleBanned({{ $result->from_id }});" target="_blank" class='text-white btn @if($result->isBlocked) btn-success @else btn-danger @endif'>@if($result->isBlocked) ◯ @else 🞫 @endif</button>
                         </td>
                         <td>{{ $users[$result->to_id] }}</td>
                         <td width="45%">{{ $result->content }}</td>
@@ -130,39 +130,31 @@
 
         $('.today').click(
             function(){
-                $('#datepicker_1').each(
-                    function () {
-                        $(this).val(year + '-' + str_pad(month) + '-' + str_pad(day));
-                    });
+                $('#datepicker_1').val(year + '-' + str_pad(month) + '-' + str_pad(day));
+                $('.datepicker_1').val(year + '-' + str_pad(month) + '-' + str_pad(day));
                 set_end_date();
             });
         $('.last3days').click(
             function () {
                 minus_date.setDate(minus_date.getDate() - 2);
-                $('#datepicker_1').each(
-                    function () {
-                        $(this).val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
-                    });
+                $('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
+                $('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
                 set_end_date();
                 minus_date.setDate(minus_date.getDate() + 2);
             });
         $('.last10days').click(
             function () {
                 minus_date.setDate(minus_date.getDate() - 9);
-                $('#datepicker_1').each(
-                    function () {
-                        $(this).val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
-                    });
+                $('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
+                $('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
                 set_end_date();
                 minus_date.setDate(minus_date.getDate() + 9);
             });
         $('.last30days').click(
             function () {
                 minus_date.setDate(minus_date.getDate() - 29);
-                $('#datepicker_1').each(
-                    function () {
-                        $(this).val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
-                    });
+                $('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
+                $('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
                 set_end_date();
                 minus_date.setDate(minus_date.getDate() + 29);
             });
@@ -186,13 +178,17 @@
 
     }
     function set_end_date(){
-        $('#datepicker_2').each(
-            function () {
-                $(this).val(year + '-' + str_pad(month) + '-' + str_pad(day));
-            });
+        $('#datepicker_2').val(year + '-' + str_pad(month) + '-' + str_pad(day));
+        $('.datepicker_2').val(year + '-' + str_pad(month) + '-' + str_pad(day));
     }
     function str_pad(n) {
         return String("00" + n).slice(-2);
+    }
+    function toggleBanned(id) {
+        //  http://sugar.formal/5814
+        let url = "{{ url("") }}";
+        window.open(url + '/admin/users/toggleUserBlock/' + id);
+        history.go(0);
     }
 </script>
 @stop

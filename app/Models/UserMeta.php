@@ -6,6 +6,7 @@ use \Datetime;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
+use App\Models\SimpleTables\banned_users;
 use Carbon\Carbon;
 
 class UserMeta extends Model
@@ -132,6 +133,9 @@ class UserMeta extends Model
         if (isset($drinking) && strlen($drinking) != 0) $query = $query->where('drinking', $drinking);
         if (isset($photo) && strlen($photo) != 0) $query = $query->whereNotNull('photo')->where('photo', '<>', 'NULL');
         if (isset($agefrom) && isset($ageto) && strlen($agefrom) != 0 && strlen($ageto) != 0) $query = $query->whereBetween('birthdate', [Carbon::now()->subYears($ageto), Carbon::now()->subYears($agefrom)]);
-        return $query->paginate(12);
+
+        $bannedUsers = banned_users::select('member_id')->get();
+
+        return $query->whereNotIn('user_id', $bannedUsers)->paginate(12);
     }
 }
