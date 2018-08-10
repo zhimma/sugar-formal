@@ -1,3 +1,10 @@
+@if(Session::has('message'))
+    <li class="m-nav__item m-dropdown m-dropdown--large m-dropdown--arrow m-dropdown--align-center m-dropdown--mobile-full-width m-dropdown--skin-light	m-list-search m-list-search--skin-light" id="m_quicksearch">
+        <a href="{{ route('escape') }}" class="m-nav__link m-dropdown__toggle">
+            回到原使用者
+        </a>
+    </li>
+@endif
 <li class="m-nav__item m-dropdown m-dropdown--large m-dropdown--arrow m-dropdown--align-center m-dropdown--mobile-full-width m-dropdown--skin-light	m-list-search m-list-search--skin-light" id="m_quicksearch">
 	<a href="{!! url('dashboard/search') !!}" class="m-nav__link m-dropdown__toggle">
 		<span class="m-nav__link-icon">

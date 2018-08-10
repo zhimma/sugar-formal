@@ -122,13 +122,14 @@
 </table>
 <h4>所有訊息</h4>
 <table class="table table-hover table-bordered">
-<form action="{{ route('users/message/delete') }}" method="post">
+<form action="{{ route('users/message/modify') }}" method="post">
     {!! csrf_field() !!}
+	<input type="hidden" name="delete" id="delete" value="1">
 	<tr>
 		<td>發送給</td>
 		<td>內容</td>
 		<td>發送時間</td>
-        <td style="text-align: center; vertical-align: middle"><button type="submit" class="btn btn-danger">刪除選取</button></td>
+        <td style="text-align: center; vertical-align: middle"><button type="submit" class="btn btn-danger delete-btn">刪除選取</button></td>
 	</tr>
 	@forelse ($userMessage as $uM)
 		<tr>
@@ -163,4 +164,13 @@
 	@endforelse
 </table>
 </body>
+<script>
+jQuery(document).ready(function(){
+    $('.delete-btn').on('click',function(e){
+        if(!confirm('確定要刪除選取的訊息?')){
+            e.preventDefault();
+        }
+    });
+});
+</script>
 </html>

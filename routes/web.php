@@ -135,7 +135,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/users/switch-back', 'Admin\UserController@switchUserBack');
+    Route::get('/users/switch-back', 'Admin\UserController@switchUserBack')->name('escape');
 
     /*
     |--------------------------------------------------------------------------
@@ -232,8 +232,10 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         Route::post('users/message/delete', 'UserController@deleteMessage')->name('users/message/delete');
         Route::post('users/message/edit', 'UserController@editMessage')->name('users/message/edit');
         Route::get('users/bannedList', 'UserController@showBannedList')->name('users/bannedList');
+        Route::get('users/switch', 'UserController@showUserSwitch')->name('users/switch');
+        Route::post('users/switch', 'UserController@switchSearch')->name('users/switch/search');
         Route::get('users/invite', 'UserController@getInvite');
-        Route::get('users/switch/{id}', 'UserController@switchToUser');
+        Route::get('users/switch/{id}', 'UserController@switchToUser')->name('users/switch/to');
         Route::post('users/invite', 'UserController@postInvite');
         Route::post('users/genderToggler', 'UserController@toggleGender');
         Route::post('users/VIPToggler', 'UserController@toggleVIP');

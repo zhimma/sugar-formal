@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Vip;
 use App\Models\UserMeta;
 use App\Models\Message;
 use App\Models\SimpleTables\banned_users;
@@ -111,6 +112,83 @@ class AdminService
             }
             $results = $results->get();
             return $results;
+    }
+
+    /**
+     * Search members' messages and orders by send time.
+     *
+     * @return datas
+     */
+    public function searchMessageBySendTime(Request $request){
+        try {
+            if ( $request->msg && $request->date_start && $request->date_end ) {
+                $results = Message::where('content', 'like', '%' . $request->msg . '%')
+                    ->whereBetween('created_at', array($request->date_start . ' 00:00', $request->date_end . ' 23:59'));
+            } else if ( $request->msg ) {
+                $results = Message::where('content', 'like', '%' . $request->msg . '%');
+            } else if ( $request->date_start && $request->date_end ) {
+                $results = Message::whereBetween('created_at', array($request->date_start . ' 00:00', $request->date_end . ' 23:59'));
+            }
+            else{
+                $results = null;
+            }
+        }
+        finally{
+            if($results != null){
+                $results = $results->orderBy('created_at', 'desc')->get();
+                $to_id = array();
+                $from_id = array();
+                foreach ($results as $result){
+                    if(!in_array($result->to_id, $to_id)) {
+                        array_push($to_id, $result->to_id);
+                    }
+                    if(!in_array($result->from_id, $from_id)) {
+                        array_push($from_id, $result->from_id);
+                    }
+                    $result['isBlocked'] = banned_users::where('member_id', 'like', $result->from_id)->get()->first();
+                    if(Vip::where('member_id', 'like', $result->from_id)->get()->first()){
+                        $result['vip'] = '是';
+                    }
+                    else{
+                        $result['vip'] = '否';
+                    }
+                }
+                $users = array();
+                foreach ($to_id as $id){
+                    $users[$id] = array();
+                }
+                foreach ($from_id as $id){
+                    if(!in_array($id, $to_id)){
+                        $users[$id] = array();
+                    }
+                }
+                foreach ($users as $id => $user){
+                    $name = User::select('name')
+                        ->where('id', '=', $id)
+                        ->get()->first();
+                    if($name != null){
+                        $users[$id] = $name->name;
+                    }
+                    else{
+                        $users[$id] = '資料庫沒有資料';
+                    }
+                }
+                if($request->member_type =='vip'){
+                    $results = collect($results)->sortBy('vip', true,true)->reverse()->toArray();
+                }
+                if($request->member_type =='banned'){
+                    $results = collect($results)->sortBy('isBlocked')->reverse()->toArray();
+                }
+            }
+            $datas = [
+                'results' => $results,
+                'users' => isset($users) ? $users : null,
+                'msg' => isset($request->msg) ? $request->msg : null,
+                'date_start' => isset($request->date_start) ? $request->date_start : null,
+                'date_end' => isset($request->date_end) ? $request->date_end : null
+            ];
+            return $datas;
+        }
     }
 
     /**

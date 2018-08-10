@@ -46,6 +46,21 @@
                     </td>
                 </tr>
                 <tr>
+                    <th>排序方式1</th>
+                    <td>
+                        <input type="radio" name="time" value="created_at" @if(isset($time) && $time=='created_at') checked="true" @endif/>註冊時間
+                        <input type="radio" name="time" value="login_time" @if(isset($time) && $time=='login_time') checked="true" @endif/>上線時間
+                        <input type="radio" name="time" value="send_time" @if(isset($time) && $time=='send_time') checked="true" @endif/>發訊時間
+                    </td>
+                </tr>
+                <tr>
+                    <th>排序方式2</th>
+                    <td>
+                        <input type="radio" name="member_type" value="vip" @if(isset($member_type) && $member_type=='vip') checked="true" @endif/>VIP會員
+                        <input type="radio" name="member_type" value="banned" @if(isset($member_type) && $member_type=='banned') checked="true" @endif/>Banned List會員
+                    </td>
+                </tr>
+                <tr>
                     <td colspan="2"><button class='text-white btn btn-primary submit'>送出</button></td>
                 </tr>
             </table>
@@ -60,6 +75,7 @@
             <table class="table-hover table table-bordered">
                 <tr>
                     <td>發送者</td>
+                    <td>VIP</td>
                     <td>收訊者</td>
                     <td>內容</td>
                     <td>已讀</td>
@@ -67,7 +83,7 @@
                     <td>
                         <button id="select_all" class="btn btn-primary" onclick="selectAll();return false;">全選</button>
                         <br>
-                        <button type="submit" class="btn btn-danger" onclick="$('#delete').val(1);">刪除選取</button>
+                        <button type="submit" class="btn btn-danger delete-btn" onclick="$('#delete').val(1);">刪除選取</button>
                         <input type="hidden" name="delete" id="delete" value="0">
                         <button type="submit" class="btn btn-warning" onclick="$('#edit').val(1);">修改選取</button>
                         <input type="hidden" name="edit" id="edit" value="0">
@@ -75,17 +91,18 @@
                     </td>
                 </tr>
                 @forelse ($results as $result)
-                    <tr @if($result->isBlocked) style="color: #F00;" @endif>
+                    <tr @if($result['isBlocked']) style="color: #F00;" @endif>
                         <td>
-                            <a href="{{ route('users/advInfo', $result->from_id) }}" target='_blank'>{{ $users[$result->from_id] }}</a>
-                            <button type="button" onclick="toggleBanned({{ $result->from_id }});" target="_blank" class='text-white btn @if($result->isBlocked) btn-success @else btn-danger @endif'>@if($result->isBlocked) ◯ @else 🞫 @endif</button>
+                            <a href="{{ route('users/advInfo', $result['from_id']) }}" target='_blank'>{{ $users[$result['from_id']] }}</a>
+                            <button type="button" onclick="toggleBanned({{ $result['from_id'] }});" target="_blank" class='text-white btn @if($result['isBlocked']) btn-success @else btn-danger @endif'>@if($result['isBlocked']) ◯ @else 🞫 @endif</button>
                         </td>
-                        <td>{{ $users[$result->to_id] }}</td>
-                        <td width="45%">{{ $result->content }}</td>
-                        <td>{{ $result->read }}</td>
-                        <td>{{ $result->created_at }}</td>
+                        <td>{{ $result['vip'] }}</td>
+                        <td>{{ $users[$result['to_id']] }}</td>
+                        <td width="45%">{{ $result['content'] }}</td>
+                        <td>{{ $result['read'] }}</td>
+                        <td>{{ $result['created_at'] }}</td>
                         <td style="text-align: center; vertical-align: middle">
-                            <input type="checkbox" name="msg_id[]" value="{{ $result->id }}" class="form-control boxes">
+                            <input type="checkbox" name="msg_id[]" value="{{ $result['id'] }}" class="form-control boxes">
                         </td>
                     </tr>
                 @empty
@@ -93,6 +110,70 @@
                 @endforelse
             </table>
         </form>
+        @else
+            @if(isset($senders))
+                <form action="{{ route('users/message/modify') }}" method="post">
+                    {!! csrf_field() !!}
+                    <input type="hidden" name="msg" value="@if(isset($msg)) {{ $msg }}@endif" class="form-control" id="msg2">
+                    <input type='hidden' class="datepicker_1" name="date_start" data-date-format='yyyy-mm-dd' value="@if(isset($date_start)){{ $date_start }}@endif" class="form-control">
+                    <input type='hidden' class="datepicker_2" name="date_end" data-date-format='yyyy-mm-dd' value="@if(isset($date_end)){{ $date_end }}@endif" class="form-control">
+                    <h3 style="text-align: left;">搜尋結果</h3>
+                    <table class="table-hover table table-bordered">
+                        <tr>
+                            <td>發送者</td>
+                            <td>註冊時間</td>
+                            <td>上線時間</td>
+                            <td>VIP</td>
+                            <td>收訊者</td>
+                            <td>內容</td>
+                            <td>已讀</td>
+                            <td>發送時間</td>
+                            <td>
+                                <button id="select_all" class="btn btn-primary" onclick="selectAll();return false;">全選</button>
+                                <br>
+                                <button type="submit" class="btn btn-danger delete-btn" onclick="$('#delete').val(1);">刪除選取</button>
+                                <input type="hidden" name="delete" id="delete" value="0">
+                                <button type="submit" class="btn btn-warning" onclick="$('#edit').val(1);">修改選取</button>
+                                <input type="hidden" name="edit" id="edit" value="0">
+                                <input type="hidden" name="msg" value="{{ $msg }}">
+                            </td>
+                        </tr>
+                        @forelse ($senders as $sender)
+                        <tr @if($sender['isBlocked']) style="color: #F00;" @endif>
+                            <td rowspan="{{ count($sender['messages']) }}">
+                                <a href="{{ route('users/advInfo', $sender['id']) }}" target='_blank'>{{ $sender['name'] }}</a>
+                                <button type="button" onclick="toggleBanned({{ $sender['id'] }});" target="_blank" class='text-white btn @if($sender['isBlocked']) btn-success @else btn-danger @endif'>@if($sender['isBlocked']) ◯ @else 🞫 @endif</button>
+                            </td>
+                            <td rowspan="{{ count($sender['messages']) }}">{{ $sender['created_at'] }}</td>
+                            <td rowspan="{{ count($sender['messages']) }}">{{ $sender['last_login'] }}</td>
+                            <td rowspan="{{ count($sender['messages']) }}">{{ $sender['vip'] }}</td>
+                            <td>{{ $receivers[$sender['messages'][0]['to_id']] }}</td>
+                            <td width="45%">{{ $sender['messages'][0]['content'] }}</td>
+                            <td>{{ $sender['messages'][0]['read'] }}</td>
+                            <td>{{ $sender['messages'][0]['created_at'] }}</td>
+                            <td style="text-align: center; vertical-align: middle">
+                                <input type="checkbox" name="msg_id[]" value="{{ $sender['id'] }}" class="form-control boxes">
+                            </td>
+                        </tr>
+                        @if(count($sender['messages']) > 1)
+                            @for( $i = 1; $i < count($sender['messages']); $i++)
+                                <tr @if($sender['isBlocked']) style="color: #F00;" @endif>
+                                    <td>{{ $receivers[$sender['messages'][$i]['to_id']] }}</td>
+                                    <td width="45%">{{ $sender['messages'][$i]['content'] }}</td>
+                                    <td>{{ $sender['messages'][$i]['read'] }}</td>
+                                    <td>{{ $sender['messages'][$i]['created_at'] }}</td>
+                                    <td style="text-align: center; vertical-align: middle">
+                                        <input type="checkbox" name="msg_id[]" value="{{ $sender['id'] }}" class="form-control boxes">
+                                    </td>
+                                </tr>
+                            @endfor
+                        @endif
+                        @empty
+                            沒有資料
+                        @endforelse
+                    </table>
+                </form>
+            @endif
         @endif
     @endif
 @endif
@@ -163,6 +244,11 @@
                 $('#msg2').val($('#msg').val());
                 $('#message').submit();
             });
+        $('.delete-btn').on('click',function(e){
+            if(!confirm('確定要刪除選取的訊息?')){
+                e.preventDefault();
+            }
+        });
     });
 
     function selectAll () {

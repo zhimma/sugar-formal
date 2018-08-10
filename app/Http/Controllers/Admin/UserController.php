@@ -260,62 +260,110 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function searchMessage(Request $request){
+        if($request->time =='send_time'){
+            $datas = $this->admin->searchMessageBySendTime($request);
+        }
         try {
-            if ( $request->msg && $request->date_start && $request->date_end ) {
-                $results = Message::where('content', 'like', '%' . $request->msg . '%')
-                           ->whereBetween('created_at', array($request->date_start . ' 00:00', $request->date_end . ' 23:59'))
-                           ->get();
-            } else if ( $request->msg ) {
-                $results = Message::where('content', 'like', '%' . $request->msg . '%')
-                           ->get();
-            } else if ( $request->date_start && $request->date_end ) {
-                $results = Message::whereBetween('created_at', array($request->date_start . ' 00:00', $request->date_end . ' 23:59'))
-                           ->get();
+            //Get messages.
+            $results = Message::select('*');
+            if ( $request->msg ) {
+                $results = $results->where('content', 'like', '%' . $request->msg . '%');
             }
-            else{
+            if ( $request->date_start && $request->date_end ) {
+                $results = $results->whereBetween('created_at', array($request->date_start . ' 00:00', $request->date_end . ' 23:59'));
+            }
+            if ( !$request->msg && !$request->date_start && !$request->date_end) {
                 $results = null;
             }
         }
         finally{
             if($results != null){
+                $temp = $results->get()->toArray();
+                //Rearranges the messages query results.
+                $results = array();
+                array_walk($temp, function (&$value, &$key) use (&$results) {
+                    $results[$value['id']] = $value;
+                });
+                //Senders' id.
                 $to_id = array();
+                //Receivers' id.
                 $from_id = array();
                 foreach ($results as $result){
-                    if(!in_array($result->to_id, $to_id)) {
-                        array_push($to_id, $result->to_id);
+                    if(!in_array($result['to_id'], $to_id)) {
+                        array_push($to_id, $result['to_id']);
                     }
-                    if(!in_array($result->from_id, $from_id)) {
-                        array_push($from_id, $result->from_id);
+                    if(!in_array($result['from_id'], $from_id)) {
+                        array_push($from_id, $result['from_id']);
                     }
-                    $result['isBlocked'] = banned_users::where('member_id', 'like', $result->from_id)->get()->first() == true ? true : false;
                 }
-                $users = array();
+                //Senders' meta.
+                $senders = array();
+                foreach ($from_id as $key => $id){
+                    $sender = User::where('id', '=', $id)->get()->first();
+                    $vip_tmp = $sender->isVip() ? '是' : '否';
+                    $senders[$key] = $sender->toArray();
+                    $senders[$key]['vip'] = $vip_tmp;
+                    $senders[$key]['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first() == true ? true : false;
+                }
+                //Fills message ids to each sender.
+                foreach ($senders as $key => $sender){
+                    $senders[$key]['messages'] = array();
+                    foreach ($results as $result) {
+                        if($result['from_id'] == $sender['id']){
+                            array_push($senders[$key]['messages'], $result);
+                        }
+                    }
+                }
+                //Receivers' name.
+                $receivers = array();
                 foreach ($to_id as $id){
-                    $users[$id] = array();
+                    $receivers[$id] = array();
                 }
-                foreach ($from_id as $id){
-                    if(!in_array($id, $to_id)){
-                        $users[$id] = array();
-                    }
-                }
-                foreach ($users as $id => $user){
+                foreach ($receivers as $id => $receiver){
                     $name = User::select('name')
                         ->where('id', '=', $id)
                         ->get()->first();
                     if($name != null){
-                        $users[$id] = $name->name;
+                        $receivers[$id] = $name->name;
                     }
                     else{
-                        $users[$id] = '資料庫沒有資料';
+                        $receivers[$id] = '資料庫沒有資料';
                     }
                 }
+
+                if($request->time =='created_at'){
+                    $senders = collect($senders)->sortBy('created_at', true,true)->reverse()->toArray();
+                }
+                if($request->time =='login_time'){
+                    $senders = collect($senders)->sortBy('last_login', true,true)->reverse()->toArray();
+                }
+                if($request->member_type =='vip'){
+                    $senders = collect($senders)->sortBy('vip', true,true)->reverse()->toArray();
+                }
+                if($request->member_type =='banned'){
+                    $senders = collect($senders)->sortBy('isBlocked')->reverse()->toArray();
+                }
             }
-            return view('admin.users.searchMessage')
-                   ->with('results', $results)
-                   ->with('users', isset($users) ? $users : null)
-                   ->with('msg', isset($request->msg) ? $request->msg : null)
-                   ->with('date_start', isset($request->date_start) ? $request->date_start : null)
-                   ->with('date_end', isset($request->date_end) ? $request->date_end : null);
+            if(isset($datas)){
+                return view('admin.users.searchMessage')
+                    ->with('results', $datas['results'])
+                    ->with('users', isset($datas['users']) ? $datas['users'] : null)
+                    ->with('msg', isset($datas['msg']) ? $datas['msg'] : null)
+                    ->with('date_start', isset($datas['date_start']) ? $datas['date_start'] : null)
+                    ->with('date_end', isset($datas['date_end']) ? $datas['date_end'] : null)
+                    ->with('time', isset($request->time) ? $request->time : null)
+                    ->with('member_type', isset($request->member_type) ? $request->member_type : null);
+            }
+            else{
+                return view('admin.users.searchMessage')
+                    ->with('senders', $senders)
+                    ->with('receivers', isset($receivers) ? $receivers : null)
+                    ->with('msg', isset($request->msg) ? $request->msg : null)
+                    ->with('date_start', isset($request->date_start) ? $request->date_start : null)
+                    ->with('date_end', isset($request->date_end) ? $request->date_end : null)
+                    ->with('time', isset($request->time) ? $request->time : null)
+                    ->with('member_type', isset($request->member_type) ? $request->member_type : null);
+            }
         }
     }
 
@@ -461,6 +509,21 @@ class UserController extends Controller
         return back()->with('error', 'Failed to invite');
     }
 
+    public function showUserSwitch()
+    {
+        return view('admin.users.switch');
+    }
+
+    public function switchSearch(Request $request)
+    {
+         if($request->email){
+             $user = $this->service->findByEmail($request->email);
+         }
+         if($request->name){
+             $user = $this->service->findByName($request->name);
+         }
+         return view('admin.users.switch')->with('user', $user);
+    }
     /**
      * Switch to a different User profile
      *
@@ -469,10 +532,10 @@ class UserController extends Controller
     public function switchToUser($id)
     {
         if ($this->service->switchToUser($id)) {
-            return redirect('dashboard')->with('message', 'You\'ve switched users.');
+            return redirect('dashboard')->with('message', '成功切換使用者');
         }
 
-        return redirect('dashboard')->with('message', 'Could not switch users');
+        return redirect('dashboard')->with('message', '無法切換使用者');
     }
 
     /**
@@ -483,10 +546,10 @@ class UserController extends Controller
     public function switchUserBack()
     {
         if ($this->service->switchUserBack()) {
-            return back()->with('message', 'You\'ve switched back.');
+            return back()->with('message', '成功切換回原使用者');
         }
 
-        return back()->with('message', 'Could not switch back');
+        return back()->with('message', '無法切換回原使用者');
     }
 
     /**

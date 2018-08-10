@@ -96,6 +96,11 @@ class UserService
         return $this->model->findByEmail($email);
     }
 
+    public function findByName($name)
+    {
+        return $this->model->findByName($name);
+    }
+
     /**
      * Find by Role ID
      * @param  integer $id
