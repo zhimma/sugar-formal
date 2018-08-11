@@ -143,6 +143,15 @@ class User extends Authenticatable
         }
         return false;
     }
+
+    public static function isBanned($id){
+        if(banned_users::where('member_id', $id)->get()->count() > 0){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
     /**
      * Find by Name
      *
