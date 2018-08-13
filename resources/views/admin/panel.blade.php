@@ -5,4 +5,5 @@
     <a href="{{ route('users/bannedList') }}">會員封鎖清單</a>
 	<a href="{{ route('users/message/search') }}">訊息管理</a>
 	<a href="{{ route('users/switch') }}">切換會員身份</a>
+	<a href="{{ route('admin/announcement') }}">站長公告</a>
 </div>

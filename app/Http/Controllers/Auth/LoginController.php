@@ -44,7 +44,7 @@ class LoginController extends Controller
      * Check user's role and redirect user based on their role
      * @return redirect
      */
-    public function authenticated()
+    public function authenticated(Request $request)
     {
         // if (auth()->user()->hasRole('admin')) {
         //     return redirect('/admin/search');
@@ -54,6 +54,9 @@ class LoginController extends Controller
             return redirect()->route('banned');    
         }
         else{
+            $announcement = \App\Models\AdminAnnounce::get()->first();
+            $announcement = $announcement->content;
+            $request->session()->flash('announcement', $announcement);
             return redirect('/dashboard');
         }
     }

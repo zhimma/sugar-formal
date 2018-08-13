@@ -239,6 +239,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         Route::post('users/invite', 'UserController@postInvite');
         Route::post('users/genderToggler', 'UserController@toggleGender');
         Route::post('users/VIPToggler', 'UserController@toggleVIP');
+        Route::get('announcement', 'UserController@showAdminAnnouncement')->name('admin/announcement');
+        Route::post('announcement/save', 'UserController@saveAdminAnnouncement')->name('admin/announcement/save');
 
         /*
         |--------------------------------------------------------------------------

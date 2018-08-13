@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UserInviteRequest;
 use App\Models\User;
 use App\Models\UserMeta;
+use App\Models\AdminAnnounce;
 use App\Models\VipLog;
 use App\Models\Vip;
 use App\Models\SimpleTables\member_vip;
@@ -597,5 +598,33 @@ class UserController extends Controller
         }
 
         return redirect('admin/users')->with('message', 'Failed to delete');
+    }
+
+    /**
+     * Shows admin announcement page.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function showAdminAnnouncement()
+    {
+        $a = AdminAnnounce::get()->first();
+        return view('admin.adminannouncement')->with('announce', $a);
+    }
+
+    /**
+     * Saves admin announcement.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function saveAdminAnnouncement(Request $request)
+    {
+        if(AdminAnnounce::editAnnouncement($request)) {
+            return redirect('admin/announcement')
+                   ->with('message', '成功修改站長公告');
+        }
+        else{
+            return redirect('admin/announcement')
+                   ->withErrors(['出現不明錯誤，無法修改站長公告']);
+        }
     }
 }

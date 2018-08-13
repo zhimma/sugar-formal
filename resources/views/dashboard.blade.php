@@ -901,6 +901,9 @@
 	</script>
 
     <script type="text/javascript">
+        @if(Session::has('announcement'))
+            alert('{{ Session::get('announcement') }}');
+        @endif
         jQuery(document).ready(function(){
 
         //Check File API support
