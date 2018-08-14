@@ -152,7 +152,7 @@
                             <td>{{ $sender['messages'][0]['read'] }}</td>
                             <td>{{ $sender['messages'][0]['created_at'] }}</td>
                             <td style="text-align: center; vertical-align: middle">
-                                <input type="checkbox" name="msg_id[]" value="{{ $sender['id'] }}" class="form-control boxes">
+                                <input type="checkbox" name="msg_id[]" value="{{ $sender['messages'][0]['id'] }}" class="form-control boxes">
                             </td>
                         </tr>
                         @if(count($sender['messages']) > 1)
@@ -163,7 +163,7 @@
                                     <td>{{ $sender['messages'][$i]['read'] }}</td>
                                     <td>{{ $sender['messages'][$i]['created_at'] }}</td>
                                     <td style="text-align: center; vertical-align: middle">
-                                        <input type="checkbox" name="msg_id[]" value="{{ $sender['id'] }}" class="form-control boxes">
+                                        <input type="checkbox" name="msg_id[]" value="{{ $sender['messages'][$i]['id'] }}" class="form-control boxes">
                                     </td>
                                 </tr>
                             @endfor
