@@ -28,6 +28,12 @@ class MessageController extends Controller {
         return redirect('dashboard/chat/' . $sid);
     }
 
+    public function reportMessage($id, $sid) {
+        Message::reportMessage($id);
+
+        return redirect('dashboard/chat/' . $sid)->with('message', '成功檢舉該筆訊息');
+    }
+
     public function postChat(Request $request)
     {
         $payload = $request->all();

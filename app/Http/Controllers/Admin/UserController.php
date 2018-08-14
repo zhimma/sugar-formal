@@ -255,6 +255,23 @@ class UserController extends Controller
         }
     }
 
+    public function showReportedMessages(){
+        $admin = $this->admin->checkAdmin();
+        if ($admin){
+            $messages = Message::where('isReported', 1);
+            $datas = $this->admin->fillMessageDatas($messages);
+            return view('admin.users.searchMessage')
+                ->with('results', $datas['results'])
+                ->with('users', isset($datas['users']) ? $datas['users'] : null)
+                ->with('msg', isset($datas['msg']) ? $datas['msg'] : null)
+                ->with('date_start', isset($datas['date_start']) ? $datas['date_start'] : null)
+                ->with('date_end', isset($datas['date_end']) ? $datas['date_end'] : null);
+        }
+        else{
+            return view('admin.users.searchMessage')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
+    }
+
     /**
      * Search members' messages.
      *
@@ -264,107 +281,109 @@ class UserController extends Controller
         if($request->time =='send_time'){
             $datas = $this->admin->searchMessageBySendTime($request);
         }
-        try {
-            //Get messages.
-            $results = Message::select('*');
-            if ( $request->msg ) {
-                $results = $results->where('content', 'like', '%' . $request->msg . '%');
-            }
-            if ( $request->date_start && $request->date_end ) {
-                $results = $results->whereBetween('created_at', array($request->date_start . ' 00:00', $request->date_end . ' 23:59'));
-            }
-            if ( !$request->msg && !$request->date_start && !$request->date_end) {
-                $results = null;
-            }
-        }
-        finally{
-            if($results != null){
-                $temp = $results->get()->toArray();
-                //Rearranges the messages query results.
-                $results = array();
-                array_walk($temp, function (&$value, &$key) use (&$results) {
-                    $results[$value['id']] = $value;
-                });
-                //Senders' id.
-                $to_id = array();
-                //Receivers' id.
-                $from_id = array();
-                foreach ($results as $result){
-                    if(!in_array($result['to_id'], $to_id)) {
-                        array_push($to_id, $result['to_id']);
-                    }
-                    if(!in_array($result['from_id'], $from_id)) {
-                        array_push($from_id, $result['from_id']);
-                    }
+        else{
+            try {
+                //Get messages.
+                $results = Message::select('*');
+                if ( $request->msg ) {
+                    $results = $results->where('content', 'like', '%' . $request->msg . '%');
                 }
-                //Senders' meta.
-                $senders = array();
-                foreach ($from_id as $key => $id){
-                    $sender = User::where('id', '=', $id)->get()->first();
-                    $vip_tmp = $sender->isVip() ? '是' : '否';
-                    $senders[$key] = $sender->toArray();
-                    $senders[$key]['vip'] = $vip_tmp;
-                    $senders[$key]['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first() == true ? true : false;
+                if ( $request->date_start && $request->date_end ) {
+                    $results = $results->whereBetween('created_at', array($request->date_start . ' 00:00', $request->date_end . ' 23:59'));
                 }
-                //Fills message ids to each sender.
-                foreach ($senders as $key => $sender){
-                    $senders[$key]['messages'] = array();
-                    foreach ($results as $result) {
-                        if($result['from_id'] == $sender['id']){
-                            array_push($senders[$key]['messages'], $result);
+                if ( !$request->msg && !$request->date_start && !$request->date_end) {
+                    $results = null;
+                }
+            }
+            finally{
+                if($results != null){
+                    $temp = $results->get()->toArray();
+                    //Rearranges the messages query results.
+                    $results = array();
+                    array_walk($temp, function (&$value, &$key) use (&$results) {
+                        $results[$value['id']] = $value;
+                    });
+                    //Senders' id.
+                    $to_id = array();
+                    //Receivers' id.
+                    $from_id = array();
+                    foreach ($results as $result){
+                        if(!in_array($result['to_id'], $to_id)) {
+                            array_push($to_id, $result['to_id']);
+                        }
+                        if(!in_array($result['from_id'], $from_id)) {
+                            array_push($from_id, $result['from_id']);
                         }
                     }
-                }
-                //Receivers' name.
-                $receivers = array();
-                foreach ($to_id as $id){
-                    $receivers[$id] = array();
-                }
-                foreach ($receivers as $id => $receiver){
-                    $name = User::select('name')
-                        ->where('id', '=', $id)
-                        ->get()->first();
-                    if($name != null){
-                        $receivers[$id] = $name->name;
+                    //Senders' meta.
+                    $senders = array();
+                    foreach ($from_id as $key => $id){
+                        $sender = User::where('id', '=', $id)->get()->first();
+                        $vip_tmp = $sender->isVip() ? '是' : '否';
+                        $senders[$key] = $sender->toArray();
+                        $senders[$key]['vip'] = $vip_tmp;
+                        $senders[$key]['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first() == true ? true : false;
                     }
-                    else{
-                        $receivers[$id] = '資料庫沒有資料';
+                    //Fills message ids to each sender.
+                    foreach ($senders as $key => $sender){
+                        $senders[$key]['messages'] = array();
+                        foreach ($results as $result) {
+                            if($result['from_id'] == $sender['id']){
+                                array_push($senders[$key]['messages'], $result);
+                            }
+                        }
                     }
-                }
+                    //Receivers' name.
+                    $receivers = array();
+                    foreach ($to_id as $id){
+                        $receivers[$id] = array();
+                    }
+                    foreach ($receivers as $id => $receiver){
+                        $name = User::select('name')
+                            ->where('id', '=', $id)
+                            ->get()->first();
+                        if($name != null){
+                            $receivers[$id] = $name->name;
+                        }
+                        else{
+                            $receivers[$id] = '資料庫沒有資料';
+                        }
+                    }
 
-                if($request->time =='created_at'){
-                    $senders = collect($senders)->sortBy('created_at', true,true)->reverse()->toArray();
-                }
-                if($request->time =='login_time'){
-                    $senders = collect($senders)->sortBy('last_login', true,true)->reverse()->toArray();
-                }
-                if($request->member_type =='vip'){
-                    $senders = collect($senders)->sortBy('vip', true,true)->reverse()->toArray();
-                }
-                if($request->member_type =='banned'){
-                    $senders = collect($senders)->sortBy('isBlocked')->reverse()->toArray();
+                    if($request->time =='created_at'){
+                        $senders = collect($senders)->sortBy('created_at', true,true)->reverse()->toArray();
+                    }
+                    if($request->time =='login_time'){
+                        $senders = collect($senders)->sortBy('last_login', true,true)->reverse()->toArray();
+                    }
+                    if($request->member_type =='vip'){
+                        $senders = collect($senders)->sortBy('vip', true,true)->reverse()->toArray();
+                    }
+                    if($request->member_type =='banned'){
+                        $senders = collect($senders)->sortBy('isBlocked')->reverse()->toArray();
+                    }
                 }
             }
-            if(isset($datas)){
-                return view('admin.users.searchMessage')
-                    ->with('results', $datas['results'])
-                    ->with('users', isset($datas['users']) ? $datas['users'] : null)
-                    ->with('msg', isset($datas['msg']) ? $datas['msg'] : null)
-                    ->with('date_start', isset($datas['date_start']) ? $datas['date_start'] : null)
-                    ->with('date_end', isset($datas['date_end']) ? $datas['date_end'] : null)
-                    ->with('time', isset($request->time) ? $request->time : null)
-                    ->with('member_type', isset($request->member_type) ? $request->member_type : null);
-            }
-            else{
-                return view('admin.users.searchMessage')
-                    ->with('senders', $senders)
-                    ->with('receivers', isset($receivers) ? $receivers : null)
-                    ->with('msg', isset($request->msg) ? $request->msg : null)
-                    ->with('date_start', isset($request->date_start) ? $request->date_start : null)
-                    ->with('date_end', isset($request->date_end) ? $request->date_end : null)
-                    ->with('time', isset($request->time) ? $request->time : null)
-                    ->with('member_type', isset($request->member_type) ? $request->member_type : null);
-            }
+        }
+        if(isset($datas)){
+            return view('admin.users.searchMessage')
+                ->with('results', $datas['results'])
+                ->with('users', isset($datas['users']) ? $datas['users'] : null)
+                ->with('msg', isset($datas['msg']) ? $datas['msg'] : null)
+                ->with('date_start', isset($datas['date_start']) ? $datas['date_start'] : null)
+                ->with('date_end', isset($datas['date_end']) ? $datas['date_end'] : null)
+                ->with('time', isset($request->time) ? $request->time : null)
+                ->with('member_type', isset($request->member_type) ? $request->member_type : null);
+        }
+        else{
+            return view('admin.users.searchMessage')
+                ->with('senders', $senders)
+                ->with('receivers', isset($receivers) ? $receivers : null)
+                ->with('msg', isset($request->msg) ? $request->msg : null)
+                ->with('date_start', isset($request->date_start) ? $request->date_start : null)
+                ->with('date_end', isset($request->date_end) ? $request->date_end : null)
+                ->with('time', isset($request->time) ? $request->time : null)
+                ->with('member_type', isset($request->member_type) ? $request->member_type : null);
         }
     }
 
@@ -377,8 +396,11 @@ class UserController extends Controller
     {
         if($request->delete == 1 && $request->edit == 0){
             $datas = $this->admin->deleteMessage($request);
+            if($datas == null){
+                return redirect()->back()->withErrors(['沒有選擇訊息。'])->withInput();
+            }
             if(!$datas){
-                return redirect()->back()->withInput()->withErrors(['出現錯誤，訊息刪除失敗']);
+                return redirect()->back()->withErrors(['出現錯誤，訊息刪除失敗'])->withInput();
             }
             else {
                 $admin = $this->admin->checkAdmin();
@@ -411,11 +433,17 @@ class UserController extends Controller
     public function editMessage(Request $request)
     {
         $messages = $this->admin->editMessageThenReturnIds($request);
-        $datas = $this->admin->sendEditedNotice($request, $messages);
-        return view('admin.users.messenger')
-            ->with('admin', $datas['admin'])
-            ->with('msgs', $datas['msgs'])
-            ->with('template', $datas['template']);
+        $admin = $this->checkAdmin();
+        if ($admin) {
+            $datas = $this->admin->sendEditedNotice($request, $messages);
+            return view('admin.users.messenger')
+                   ->with('admin', $datas['admin'])
+                   ->with('msgs', $datas['msgs'])
+                   ->with('template', $datas['template']);
+        }
+        else{
+            return view('admin.users.messenger')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
     }
 
     public function showBannedList()

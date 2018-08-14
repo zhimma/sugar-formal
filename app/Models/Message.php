@@ -106,6 +106,12 @@ class Message extends Model
         }
     }
 
+    public static function reportMessage($id) {
+        $message = Message::where('id', $id)->first();
+        $message->isReported = 1;
+        $message->save();
+    }
+
     public static function isAdminMessage($content) {
         if($content == '系統通知: 車馬費邀請') return true;
         return false;

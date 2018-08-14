@@ -37,7 +37,10 @@ class AdminService
      * @return $admin or false
      */
     public function checkAdmin(){
-        $admin = User::where('name', 'like', '%'.'站長'.'%')->get()->first();
+        $banned_users = banned_users::select('member_id')->get();
+        $admin = User::where('name', 'like', '%'.'站長'.'%')
+                       ->whereNotIn('id', $banned_users)
+                       ->get()->first();
         if ($admin){
             return $admin;
         }
@@ -135,44 +138,8 @@ class AdminService
         }
         finally{
             if($results != null){
-                $results = $results->orderBy('created_at', 'desc')->get();
-                $to_id = array();
-                $from_id = array();
-                foreach ($results as $result){
-                    if(!in_array($result->to_id, $to_id)) {
-                        array_push($to_id, $result->to_id);
-                    }
-                    if(!in_array($result->from_id, $from_id)) {
-                        array_push($from_id, $result->from_id);
-                    }
-                    $result['isBlocked'] = banned_users::where('member_id', 'like', $result->from_id)->get()->first();
-                    if(Vip::where('member_id', 'like', $result->from_id)->get()->first()){
-                        $result['vip'] = '是';
-                    }
-                    else{
-                        $result['vip'] = '否';
-                    }
-                }
-                $users = array();
-                foreach ($to_id as $id){
-                    $users[$id] = array();
-                }
-                foreach ($from_id as $id){
-                    if(!in_array($id, $to_id)){
-                        $users[$id] = array();
-                    }
-                }
-                foreach ($users as $id => $user){
-                    $name = User::select('name')
-                        ->where('id', '=', $id)
-                        ->get()->first();
-                    if($name != null){
-                        $users[$id] = $name->name;
-                    }
-                    else{
-                        $users[$id] = '資料庫沒有資料';
-                    }
-                }
+                $return = $this->fillMessageDatas($results);
+                $results = $return['results'];
                 if($request->member_type =='vip'){
                     $results = collect($results)->sortBy('vip', true,true)->reverse()->toArray();
                 }
@@ -182,13 +149,56 @@ class AdminService
             }
             $datas = [
                 'results' => $results,
-                'users' => isset($users) ? $users : null,
+                'users' => isset($return['users']) ? $return['users'] : null,
                 'msg' => isset($request->msg) ? $request->msg : null,
                 'date_start' => isset($request->date_start) ? $request->date_start : null,
                 'date_end' => isset($request->date_end) ? $request->date_end : null
             ];
             return $datas;
         }
+    }
+
+    public function fillMessageDatas($results){
+        $results = $results->orderBy('created_at', 'desc')->get();
+        $to_id = array();
+        $from_id = array();
+        foreach ($results as $result){
+            if(!in_array($result->to_id, $to_id)) {
+                array_push($to_id, $result->to_id);
+            }
+            if(!in_array($result->from_id, $from_id)) {
+                array_push($from_id, $result->from_id);
+            }
+            $result['isBlocked'] = banned_users::where('member_id', 'like', $result->from_id)->get()->first();
+            if(Vip::where('member_id', 'like', $result->from_id)->get()->first()){
+                $result['vip'] = '是';
+            }
+            else{
+                $result['vip'] = '否';
+            }
+        }
+        $users = array();
+        foreach ($to_id as $id){
+            $users[$id] = array();
+        }
+        foreach ($from_id as $id){
+            if(!in_array($id, $to_id)){
+                $users[$id] = array();
+            }
+        }
+        foreach ($users as $id => $user){
+            $name = User::select('name')
+                ->where('id', '=', $id)
+                ->get()->first();
+            if($name != null){
+                $users[$id] = $name->name;
+            }
+            else{
+                $users[$id] = '資料庫沒有資料';
+            }
+        }
+        return ['results' => $results,
+                'users' => $users];
     }
 
     /**
@@ -199,8 +209,11 @@ class AdminService
     public function deleteMessage(Request $request)
     {
         $admin = $this->checkAdmin();
-        if (!$admin) {
-            return redirect()->back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        if(!$admin){
+            return false;
+        }
+        if($request->msg_id == null){
+            return null;
         }
         $returnDatas = $this->preData($request->msg_id);
         $messages = $returnDatas['msgs'];
@@ -230,10 +243,6 @@ class AdminService
      */
     public function renderMessages(Request $request){
         $data = array();
-        $admin = $this->checkAdmin();
-        if (!$admin) {
-            return redirect()->back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
-        }
         $data['ids'] = $request->msg_id;
         $data['originalMessage'] = $request->msg;
         $data['admin'] = $admin;
@@ -262,10 +271,6 @@ class AdminService
             "head"   =>"你好，由於您在",
             "body"   =>"的訊息不符站方規定，故已修改。"
         );
-        $admin = $this->checkAdmin();
-        if (!$admin) {
-            return redirect()->back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
-        }
         $returnDatas = $this->preData($message_ids);
         //return redirect()->back()->withInput()->with('message', '訊息刪除成功');
         $request->session()->put('message', '訊息修改成功，將會產生通知訊息發送給各發訊的會員，請檢查訊息內容，若無誤請按下送出。');

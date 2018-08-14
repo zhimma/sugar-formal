@@ -61,7 +61,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="2"><button class='text-white btn btn-primary submit'>送出</button></td>
+                    <td colspan="2"><button class='text-white btn btn-primary submit'>送出</button> 或 <a href="{{ route('users/message/search/reported') }}" class="btn btn-info">檢視被檢舉的訊息</a></td>
                 </tr>
             </table>
         </form>

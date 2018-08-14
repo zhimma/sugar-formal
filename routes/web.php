@@ -192,6 +192,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         Route::get('/dashboard/chat/deleterow/{uid}/{sid}', ['uses' => 'MessageController@deleteBetween', 'as' => 'deleteBetween']);
         Route::get('/dashboard/chat/deleteall/{uid}', ['uses' => 'MessageController@deleteAll', 'as' => 'deleteAll']);
         Route::get('/dashboard/chat/deletesingle/{uid}/{sid}/{ct_time}/{content}', ['uses' => 'MessageController@deleteSingle', 'as' => 'deleteSingle']);
+        Route::get('/dashboard/chat/reportMessage/{id}/{sid}', 'MessageController@reportMessage')->name('reportMessage');
         //Route::get('/dashboard/block', 'PagesController@block');
         Route::get('/dashboard/upgrade', 'PagesController@upgrade');
    // Route::get('/dashboard/cancel', 'PagesController@cancel');
@@ -227,6 +228,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         Route::post('users/message/send/{id}', 'UserController@sendAdminMessage')->name('admin/send');
         Route::post('users/message/multiple/send', 'UserController@sendAdminMessageMultiple')->name('admin/send/multiple');
         Route::get('users/message/search', 'UserController@showMessageSearchPage')->name('users/message/search');
+        Route::get('users/message/search/reported', 'UserController@showReportedMessages')->name('users/message/search/reported');
         Route::post('users/message/search', 'UserController@searchMessage');
         Route::post('users/message/modify', 'UserController@modifyMessage')->name('users/message/modify');
         Route::post('users/message/delete', 'UserController@deleteMessage')->name('users/message/delete');
