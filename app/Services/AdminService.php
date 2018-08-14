@@ -242,6 +242,10 @@ class AdminService
      * @return data set
      */
     public function renderMessages(Request $request){
+        $admin = $this->checkAdmin();
+        if(!$admin){
+            return false;
+        }
         $data = array();
         $data['ids'] = $request->msg_id;
         $data['originalMessage'] = $request->msg;
