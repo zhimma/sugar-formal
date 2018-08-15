@@ -72,7 +72,10 @@ $code = Config::get('social.payment.code');
 
                 //($user->isVip() && !$msgUser->isVip() && ($user->meta_()->notifhistory == '顯示VIP會員信件' || $user->meta_()->notifhistory == NULL)) || (!$user->isVip() && $msgUser->isVip())
                 // 收件通知
-                if(\App\Models\Message::isShowVip($user, $msgUser) || \App\Models\Message::isShowNoVip($user, $msgUser)) {
+//                if(\App\Models\Message::onlyShowVip($user, $msgUser) || \App\Models\Message::showNoVip($user, $msgUser)) {
+//                    continue;
+//                }
+                if(\App\Models\Message::onlyShowVip($user, $msgUser)) {
                     continue;
                 }
 

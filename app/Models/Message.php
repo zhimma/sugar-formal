@@ -118,12 +118,12 @@ class Message extends Model
     }
 
     // show message setting
-    public static function isShowVip($user, $msgUser) {
+    public static function onlyShowVip($user, $msgUser) {
         return $user->isVip() && !$msgUser->isVip() && $user->meta_()->notifhistory == '顯示VIP會員信件';
     }
 
-    public static function isShowNoVip($user, $msgUser) {
-        return $user->isVip() && $msgUser->isVip() && ($user->meta_()->notifhistory == '顯示普通會員信件' || $user->meta_()->notifhistory == '');
+    public static function showNoVip($user, $msgUser) {
+        return $user->isVip() && !$msgUser->isVip() && ($user->meta_()->notifhistory == '顯示普通會員信件' || $user->meta_()->notifhistory == '');
     }
 
     public static function getLastSender($uid, $sid) {
