@@ -54,7 +54,7 @@ class LoginController extends Controller
             return redirect()->route('banned');    
         }
         else{
-            $announcement = \App\Models\AdminAnnounce::get()->first();
+            $announcement = \App\Models\AdminAnnounce::where('en_group', \Auth::user()->engroup)->get()->first();
             $announcement = $announcement->content;
             $request->session()->flash('announcement', $announcement);
             return redirect('/dashboard');

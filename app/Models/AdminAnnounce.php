@@ -27,8 +27,12 @@ class AdminAnnounce extends Model
 
     public static function editAnnouncement(Request $request) {
         //$a = AdminAnnounce::select('*')->where('id', '=', $request->id)->first();
-        $a = AdminAnnounce::get()->first();
-        $a->content = $request->content;
+        $a = AdminAnnounce::where('en_group', '1')->get()->first();
+        $a->content = $request->engroup_1;
+        $a->updated_at = Carbon::now();
+        $a->save();
+        $a = AdminAnnounce::where('en_group', '2')->get()->first();
+        $a->content = $request->engroup_2;
         $a->updated_at = Carbon::now();
         $a->save();
         return true;

@@ -635,7 +635,7 @@ class UserController extends Controller
      */
     public function showAdminAnnouncement()
     {
-        $a = AdminAnnounce::get()->first();
+        $a = AdminAnnounce::get()->all();
         return view('admin.adminannouncement')->with('announce', $a);
     }
 
