@@ -265,7 +265,7 @@ $(document).ready(function(){
     });
     setTimeout(function() {
         window.location.reload();
-    }, 80000);
+    }, 300000);
     $('#admin').each(
         function (){
             $(this).insertBefore($('#normal'));
