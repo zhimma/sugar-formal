@@ -26,7 +26,8 @@ return [
         'end' => 604800
     ],
     'user' => [
-        'viewed-seconds' => 604800
+        'viewed-seconds' => 604800,
+        'avatar-wait-seconds' => 5
     ],
     'payment' => [
         'returnURL' => "http://localhost:8000/dashboard/upgradepay",

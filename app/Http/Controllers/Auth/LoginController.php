@@ -59,6 +59,9 @@ class LoginController extends Controller
             //$announcement = str_replace(PHP_EOL, '\n', $announcement);
             $announcement = str_replace(array("\r\n", "\r", "\n"), '\n', $announcement);
             $request->session()->flash('announcement', $announcement);
+            if (empty(\Auth::user()->pic)) {
+                return view('noAvatar');
+            }
             return redirect('/dashboard');
         }
     }

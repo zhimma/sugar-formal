@@ -218,7 +218,7 @@
     <label class="col-form-label col-lg-2 col-sm-12"> @if(str_contains(url()->current(), 'dashboard'))出生日期@else年齡@endif</label>
     <div class="col-lg-4 col-md-9 col-sm-12">
         @if (str_contains(url()->current(), 'dashboard'))
-                <input type='text' class="form-control" id="m_datepicker_1" name="birthdate" readonly placeholder="請選擇" value="{{$umeta->birthdate}}" />
+                <input type='text' class="form-control" id="m_datepicker_1" name="birthdate" readonly data-date-format='yyyy-mm-dd' placeholder="請選擇" value="{{ date('Y-m-d', strtotime($umeta->birthdate)) }}" />
                 @else
                 <?php
                 $fromd = new DateTime($cmeta->birthdate);
@@ -891,8 +891,129 @@
                             @endif
                         @endif
 
-			var BootstrapDatepicker=function(){var t=function(){$("#m_datepicker_1, #m_datepicker_1_validate").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_1_modal").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_2, #m_datepicker_2_validate").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_2_modal").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_3, #m_datepicker_3_validate").datepicker({todayBtn:"linked",clearBtn:!0,todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_3_modal").datepicker({todayBtn:"linked",clearBtn:!0,todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_1").datepicker({orientation:"top left",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_2").datepicker({orientation:"top right",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_3").datepicker({orientation:"bottom left",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_4").datepicker({orientation:"bottom right",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_5").datepicker({todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_6").datepicker({todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}})};return{init:function(){t()}}}();jQuery(document).ready(function(){BootstrapDatepicker.init()});
-			var BootstrapSelect=function(){var t=function(){$(".m_selectpicker").selectpicker()};return{init:function(){t()}}}();jQuery(document).ready(function(){BootstrapSelect.init()});
+			var BootstrapDatepicker = function(){
+			    var t=function(){
+			        $("#m_datepicker_1, #m_datepicker_1_validate").datepicker({
+                        todayHighlight:!0,
+                        orientation:"bottom left",
+                        templates: {
+                            leftArrow:'<i class="la la-angle-left"></i>',
+                            rightArrow:'<i class="la la-angle-right"></i>'
+                        }
+			        }),
+                    $("#m_datepicker_1_modal").datepicker({
+                        todayHighlight: !0,
+                        orientation: "bottom left",
+                        templates: {
+                            leftArrow:'<i class="la la-angle-left"></i>',
+                            rightArrow:'<i class="la la-angle-right"></i>'
+                        }
+                    }),
+                    $("#m_datepicker_2, #m_datepicker_2_validate").datepicker({
+                        todayHighlight: !0,
+                        orientation: "bottom left",
+                        templates: {
+                            leftArrow:'<i class="la la-angle-left"></i>',
+                            rightArrow:'<i class="la la-angle-right"></i>'
+                        }
+                    }),
+                    $("#m_datepicker_2_modal").datepicker({
+                        todayHighlight: !0,
+                        orientation: "bottom left",
+                        templates: {
+                            leftArrow:'<i class="la la-angle-left"></i>',
+                            rightArrow:'<i class="la la-angle-right"></i>'
+                        }
+                    }),
+                    $("#m_datepicker_3, #m_datepicker_3_validate").datepicker({
+                        todayBtn: "linked",
+                        clearBtn: !0,
+                        todayHighlight: !0,
+                        templates: {
+                            leftArrow:'<i class="la la-angle-left"></i>',
+                            rightArrow:'<i class="la la-angle-right"></i>'
+                        }
+                    }),
+                    $("#m_datepicker_3_modal").datepicker({
+                        todayBtn: "linked",
+                        clearBtn: !0,
+                        todayHighlight: !0,
+                        templates: {
+                            leftArrow:'<i class="la la-angle-left"></i>',
+                            rightArrow:'<i class="la la-angle-right"></i>'
+                        }
+                    }),
+                    $("#m_datepicker_4_1").datepicker({
+                        orientation: "top left",
+                        todayHighlight: !0,
+                        templates: {
+                            leftArrow:'<i class="la la-angle-left"></i>',
+                            rightArrow:'<i class="la la-angle-right"></i>'
+                        }
+                    }),
+                    $("#m_datepicker_4_2").datepicker({
+                        orientation: "top right",
+                        todayHighlight: !0,
+                        templates: {
+                            leftArrow:'<i class="la la-angle-left"></i>',
+                            rightArrow:'<i class="la la-angle-right"></i>'
+                        }
+                    }),
+                    $("#m_datepicker_4_3").datepicker({
+                        orientation: "bottom left",
+                        todayHighlight: !0,
+                        templates: {
+                            leftArrow:'<i class="la la-angle-left"></i>',
+                            rightArrow:'<i class="la la-angle-right"></i>'
+                        }
+                    }),
+                    $("#m_datepicker_4_4").datepicker({
+                        orientation: "bottom right",
+                        todayHighlight: !0,
+                        templates: {
+                            leftArrow:'<i class="la la-angle-left"></i>',
+                            rightArrow:'<i class="la la-angle-right"></i>'
+                        }
+                    }),
+                    $("#m_datepicker_5").datepicker({
+                        todayHighlight: !0,
+                        templates: {
+                            leftArrow:'<i class="la la-angle-left"></i>',
+                            rightArrow:'<i class="la la-angle-right"></i>'
+                        }
+                    }),
+                    $("#m_datepicker_6").datepicker({
+                        todayHighlight: !0,
+                        templates: {
+                            leftArrow:'<i class="la la-angle-left"></i>',
+                            rightArrow:'<i class="la la-angle-right"></i>'
+                        }
+                    })
+			    };
+			    return {
+			        init:function(){
+			            t()
+			        }
+			    }
+			}();
+			jQuery(document).ready(
+			    function(){
+			        BootstrapDatepicker.init()
+			    });
+			var BootstrapSelect = function(){
+			    var t = function(){
+			        $(".m_selectpicker").selectpicker()
+			    };
+			    return {
+			        init:function(){
+			            t()
+			        }
+			    }
+			}();
+			jQuery(document).ready(
+			    function(){
+			        BootstrapSelect.init()
+			    });
 
 			$('.twzipcode').twzipcode({
 				'detect': true, 'css': ['form-control twzip', 'form-control twzip', 'zipcode']

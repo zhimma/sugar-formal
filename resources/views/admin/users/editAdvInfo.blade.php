@@ -75,7 +75,7 @@
         <tr>
             <th>生日</th>
             <td>
-                <input type='text' class="form-control" id="m_datepicker_1" name="birthdate" readonly placeholder="請選擇" value="{{$userMeta->birthdate}}" />
+                <input type='text' class="form-control" id="m_datepicker_1" name="birthdate" readonly data-date-format='yyyy-mm-dd' placeholder="請選擇" value="{{ date('Y-m-d', strtotime($userMeta->birthdate)) }}" />
             </td>
             <th>身高</th>
             <td><input class="form-control m-input" name="height" type="number" id="input-height" value="{{$userMeta->height}}"></td>

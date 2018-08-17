@@ -47,7 +47,7 @@
 	</tr>
 	<tr>
 		<th>生日</th>
-		<td>{{ $userMeta->birthdate }}</td>
+		<td>{{ date('Y-m-d', strtotime($userMeta->birthdate)) }}</td>
 		<th>身高</th>
 		<td>{{ $userMeta->height }}</td>
 		<th>職業</th>

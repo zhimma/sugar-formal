@@ -158,7 +158,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
     */
     Route::post('/dashboard', 'PagesController@profileUpdate');
     Route::post('dashboard/settings', 'PagesController@settingsUpdate');
-    Route::get('/dashboard', 'PagesController@dashboard');
+    Route::get('/dashboard', 'PagesController@dashboard')->name('dashboard');
     Route::get('/dashboard/cancel', 'PagesController@showCheckAccount');
     Route::post('/dashboard/cancelpay', 'PagesController@cancelpay');
     Route::post('/dashboard/chat', 'MessageController@postChat');
