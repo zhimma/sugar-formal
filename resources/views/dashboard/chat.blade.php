@@ -22,7 +22,7 @@ $code = Config::get('social.payment.code');
                 @if(isset($to))
                    <a class="btn btn-danger m-btn m-btn--air m-btn--custom" href="/dashboard/chat"> 回去收件夾</a>
                 @else
-                   <a class="btn btn-danger m-btn m-btn--air m-btn--custom" href="{!! route('deleteAll', ['uid' => $user->id]) !!}">刪除全部</a>
+                   <a class="btn btn-danger m-btn m-btn--air m-btn--custom delete-btn" href="{!! route('deleteAll', ['uid' => $user->id]) !!}">刪除全部</a>
                 @endif
             </span>
 
@@ -124,7 +124,7 @@ $code = Config::get('social.payment.code');
                                 </div>
 
                                 <div class="m-widget3__delete">
-                                    <a class="btn btn-danger m-btn m-btn--air m-btn--custom" href="{!! route('deleteBetween', ['uid' => $user->id, 'sid' => $msgUser->id]) !!}">刪除</a>
+                                    <a class="btn btn-danger m-btn m-btn--air m-btn--custom delete-btn" href="{!! route('deleteBetween', ['uid' => $user->id, 'sid' => $msgUser->id]) !!}">刪除</a>
                                 </div>
                             </div>
                         </div>
@@ -201,7 +201,7 @@ $code = Config::get('social.payment.code');
                         </div>
 
                         <div class="m-widget3__delete">
-                            <a href="{!! route('deleteSingle', ['uid' => $user->id, 'sid' => $to->id, 'ct_time' => $message->created_at, 'content' => $message->content]) !!}">刪除</a>
+                            <a class='delete-btn' href="{!! route('deleteSingle', ['uid' => $user->id, 'sid' => $to->id, 'ct_time' => $message->created_at, 'content' => $message->content]) !!}">刪除</a>
                             <a href="{!! route('reportMessage', ['id' => $message->id, 'sid' => $to->id]) !!}">檢舉</a>
                         </div>
                     </div>
@@ -271,6 +271,11 @@ $(document).ready(function(){
             $(this).insertBefore($('#normal'));
         }
     );
+    $('.delete-btn').on('click',function(e){
+        if(!confirm('確定要刪除?')){
+            e.preventDefault();
+        }
+    });
 });
 </script>
 
