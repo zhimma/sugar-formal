@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\User;
 use App\Models\Blocked;
+use App\Models\SimpleTables\banned_users;
 use Illuminate\Database\Eloquent\Model;
 use App\Notifications\MessageEmail;
 use Illuminate\Support\Facades\Config;
@@ -226,7 +227,8 @@ class Message extends Model
         // block information
         //
         $block = Blocked::getAllBlock($uid);
-        $all_msg = Message::where([['to_id', $uid],['from_id', '!=', $uid], ['is_row_delete_1', '=' ,0], ['temp_id', '=', 0]])->where('read', 'N');
+        $banned_users = banned_users::select('member_id')->get();
+        $all_msg = Message::where([['to_id', $uid],['from_id', '!=', $uid], ['is_row_delete_1', '=' ,0], ['temp_id', '=', 0]])->where('read', 'N')->whereNotIn('from_id', $banned_users);
         $unreadCount = 0;
         if($block->count() == 0) return $all_msg->count();
         //echo $block->count();
