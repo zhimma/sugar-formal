@@ -215,7 +215,7 @@ $code = Config::get('social.payment.code');
 
                         <div class="m-widget3__delete">
                             <a class='delete-btn' href="{!! route('deleteSingle', ['uid' => $user->id, 'sid' => $to->id, 'ct_time' => $message->created_at, 'content' => $message->content]) !!}">刪除</a>
-                            <a href="{!! route('reportMessage', ['id' => $message->id, 'sid' => $to->id]) !!}">檢舉</a>
+                            <a class='report-btn' href="{!! route('reportMessage', ['id' => $message->id, 'sid' => $to->id]) !!}">檢舉</a>
                         </div>
                     </div>
                 </div>
@@ -286,6 +286,11 @@ $(document).ready(function(){
     );
     $('.delete-btn').on('click',function(e){
         if(!confirm('確定要刪除?')){
+            e.preventDefault();
+        }
+    });
+    $('.report-btn').on('click',function(e){
+        if(!confirm('確定要檢舉?')){
             e.preventDefault();
         }
     });
