@@ -54,11 +54,24 @@ $code = Config::get('social.payment.code');
 
             // echo json_encode($messages);
         ?>
-        <?php /*$msgUserRead =  \App\Models\Message::getSendersRead($msgUser->id, $user->id);*/ ?>
+        <?php /*$msgUserRead =  \App\Models\Message::getSendersRead($msgUser->id, $user->id);*/
+            $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get()->toArray();
+            function search($value, $array) {
+                foreach ($array as $key => $val) {
+                    if ($val['blocked_id'] === $value) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        ?>
 
         @if(!empty($messages))
             @foreach ($messages as $message)
                 @if(\App\Models\User::isBanned($message['from_id']) || \App\Models\User::isBanned($message['to_id']))
+                    @continue
+                @endif
+                @if(search($message['from_id'], $userBlockList) || search($message['to_id'], $userBlockList))
                     @continue
                 @endif
             <?php
