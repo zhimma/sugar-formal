@@ -192,7 +192,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         Route::get('/dashboard/chat/deleterow/{uid}/{sid}', ['uses' => 'MessageController@deleteBetween', 'as' => 'deleteBetween']);
         Route::get('/dashboard/chat/deleteall/{uid}', ['uses' => 'MessageController@deleteAll', 'as' => 'deleteAll']);
         Route::get('/dashboard/chat/deletesingle/{uid}/{sid}/{ct_time}/{content}', ['uses' => 'MessageController@deleteSingle', 'as' => 'deleteSingle']);
-        Route::get('/dashboard/chat/reportMessage/{id}/{sid}', 'MessageController@reportMessage')->name('reportMessage');
+        Route::post('/dashboard/chat/reportMessage', 'MessageController@reportMessage')->name('reportMessage');
+        Route::get('/dashboard/chat/reportMessage/{id}/{sid}', 'MessageController@showReportMessagePage')->name('reportMessagePage');
         //Route::get('/dashboard/block', 'PagesController@block');
         Route::get('/dashboard/upgrade', 'PagesController@upgrade');
    // Route::get('/dashboard/cancel', 'PagesController@cancel');
@@ -225,6 +226,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         Route::get('users/toggleUserBlock/{id}', 'UserController@toggleUserBlock_simple')->name('toggleUserBlock');
         Route::post('users/userUnblock', 'UserController@userUnblock');
         Route::get('users/message/to/{id}', 'UserController@showAdminMessenger');
+        Route::get('users/message/to/{id}/{mid}', 'UserController@showAdminMessengerWithMessageId')->name('AdminMessengerWithMessageId');
         Route::post('users/message/send/{id}', 'UserController@sendAdminMessage')->name('admin/send');
         Route::post('users/message/multiple/send', 'UserController@sendAdminMessageMultiple')->name('admin/send/multiple');
         Route::get('users/message/search', 'UserController@showMessageSearchPage')->name('users/message/search');

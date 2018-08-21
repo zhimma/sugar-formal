@@ -78,6 +78,10 @@
                     <td>VIP</td>
                     <td>收訊者</td>
                     <td>內容</td>
+                    @if(isset($reported) && $reported == 1)
+                        <td>檢舉理由</td>
+                        <td>回覆</td>
+                    @endif
                     <td>已讀</td>
                     <td>發送時間</td>
                     <td>
@@ -99,6 +103,12 @@
                         <td>{{ $result['vip'] }}</td>
                         <td>{{ $users[$result['to_id']] }}</td>
                         <td width="45%">{{ $result['content'] }}</td>
+                        @if(isset($reported) && $reported == 1)
+                            <td>{{ $result['reportContent'] }}</td>
+                            <td>
+                                <a href="{{ route('AdminMessengerWithMessageId', [$result->to_id, $result->id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
+                            </td>
+                        @endif
                         <td>{{ $result['read'] }}</td>
                         <td>{{ $result['created_at'] }}</td>
                         <td style="text-align: center; vertical-align: middle">

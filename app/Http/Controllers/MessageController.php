@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Http\Requests;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class MessageController extends Controller {
@@ -28,10 +29,14 @@ class MessageController extends Controller {
         return redirect('dashboard/chat/' . $sid);
     }
 
-    public function reportMessage($id, $sid) {
-        Message::reportMessage($id);
+    public function reportMessage(Request $request){
+        Message::reportMessage($request->id, $request->content);
+        return redirect('dashboard/chat/' . $request->sid)->with('message', '成功檢舉該筆訊息');
+    }
 
-        return redirect('dashboard/chat/' . $sid)->with('message', '成功檢舉該筆訊息');
+    public function showReportMessagePage($id, $sid) {
+        $user = Auth::user();
+        return view('dashboard.reportMessage')->with('id', $id)->with('sid', $sid)->with('user', $user);
     }
 
     public function postChat(Request $request)

@@ -261,6 +261,7 @@ class UserController extends Controller
             $messages = Message::where('isReported', 1);
             $datas = $this->admin->fillMessageDatas($messages);
             return view('admin.users.searchMessage')
+                ->with('reported', 1)
                 ->with('results', $datas['results'])
                 ->with('users', isset($datas['users']) ? $datas['users'] : null)
                 ->with('msg', isset($datas['msg']) ? $datas['msg'] : null)
@@ -482,6 +483,24 @@ class UserController extends Controller
         }
     }
 
+    public function showAdminMessengerWithMessageId($id, $mid)
+    {
+        $admin = $this->admin->checkAdmin();
+        if ($admin){
+            $user = $this->service->find($id);
+            $message = Message::where('id', $mid)->get()->first();
+            $sender = User::where('id', $message->from_id)->get()->first();
+            return view('admin.users.messenger')
+                ->with('admin', $admin)
+                ->with('user', $user)
+                ->with('message', $message)
+                ->with('senderName', $sender->name);
+        }
+        else{
+            return view('admin.users.messenger')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
+    }
+
     /**
      * Message to a member.
      *
@@ -491,6 +510,12 @@ class UserController extends Controller
     {
         $payload = $request->all();
         Message::post($payload['admin_id'], $id, $payload['msg']);
+        if($request->rollback == 1){
+            $m = Message::where('id', $request->msg_id)->get()->first();
+            $m->isReported = 0;
+            $m->reportContent = '';
+            $m->save();
+        }
         return back()->with('message', '傳送成功');
     }
 

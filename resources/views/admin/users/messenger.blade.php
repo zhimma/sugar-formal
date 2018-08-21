@@ -15,41 +15,47 @@
     @else
         @if(!isset($msgs))
             <h1>發送站長訊息給{{ $user->name }}</h1>
-            <table class="table table-bordered table-hover">
-                <tr>
-                    <td>預設選項</td>
-                    <td>
-                        <button class="btn btn-success tpl">暱稱</button>
-                        <button class="btn btn-success tpl">標題</button>
-                        <button class="btn btn-success tpl">身高</button>
-                        <button class="btn btn-success tpl">職業</button>
-                        <button class="btn btn-success tpl">體重</button>
-                        <button class="btn btn-success tpl">罩杯</button>
-                        <button class="btn btn-success tpl">體型</button>
-                        <button class="btn btn-success tpl">現況</button>
-                        <button class="btn btn-success tpl">關於我</button>
-                        <button class="btn btn-success tpl">期待的約會模式</button>
-                        <button class="btn btn-success tpl">教育</button>
-                        <button class="btn btn-success tpl">婚姻</button>
-                        <button class="btn btn-success tpl">喝酒</button>
-                        <button class="btn btn-success tpl">抽菸</button>
-                        <button class="btn btn-success tpl">職業</button>
-                        <button class="btn btn-success tpl">資產</button>
-                        <button class="btn btn-success tpl">年收</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>修改/刪除</td>
-                    <td>
-                        <button class="btn btn-danger edit">修改</button>
-                        <button class="btn btn-danger del">刪除</button>
-                    </td>
-                </tr>
-            </table>
+            @if(!isset($message))
+                <table class="table table-bordered table-hover">
+                    <tr>
+                        <td>預設選項</td>
+                        <td>
+                            <button class="btn btn-success tpl">暱稱</button>
+                            <button class="btn btn-success tpl">標題</button>
+                            <button class="btn btn-success tpl">身高</button>
+                            <button class="btn btn-success tpl">職業</button>
+                            <button class="btn btn-success tpl">體重</button>
+                            <button class="btn btn-success tpl">罩杯</button>
+                            <button class="btn btn-success tpl">體型</button>
+                            <button class="btn btn-success tpl">現況</button>
+                            <button class="btn btn-success tpl">關於我</button>
+                            <button class="btn btn-success tpl">期待的約會模式</button>
+                            <button class="btn btn-success tpl">教育</button>
+                            <button class="btn btn-success tpl">婚姻</button>
+                            <button class="btn btn-success tpl">喝酒</button>
+                            <button class="btn btn-success tpl">抽菸</button>
+                            <button class="btn btn-success tpl">職業</button>
+                            <button class="btn btn-success tpl">資產</button>
+                            <button class="btn btn-success tpl">年收</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>修改/刪除</td>
+                        <td>
+                            <button class="btn btn-danger edit">修改</button>
+                            <button class="btn btn-danger del">刪除</button>
+                        </td>
+                    </tr>
+                </table>
+            @endif
             <form action="{{ route('admin/send', $user->id) }}" id='message' method='POST'>
                 {!! csrf_field() !!}
                 <input type="hidden" value="{{ $admin->id }}" name="admin_id">
-                <textarea name="msg" id="msg" class="form-control" cols="80" rows="5"></textarea><br>
+                <textarea name="msg" id="msg" class="form-control" cols="80" rows="5">@if(isset($message)){{ $user->name }}您好，您先前所檢舉，由{{ $senderName }}於{{ $message->created_at }}發送的訊息，站長已檢視此訊息並無問題，若有疑慮請來訊。@endif</textarea><br>
+                @if(isset($message))
+                    <input type="hidden" name="rollback" value="1">
+                    <input type="hidden" name="msg_id" value="{{ $message->id }}">
+                @endif
                 <button type='submit' class='text-white btn btn-primary'>送出</button>
             </form>
         @else
