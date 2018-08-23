@@ -53,7 +53,7 @@ class LoginController extends Controller
         // }
         $banned_users = banned_users::select('*')->where('member_id', \Auth::user()->id)->orderBy('expire_date', 'desc')->get()->first();
         $now = new \DateTime(Carbon::now()->toDateTimeString());
-        $expire_date = new \DateTime($banned_users->expire_date);
+        $expire_date = $banned_users == null ? null : new \DateTime($banned_users->expire_date);
         if($banned_users && $now < $expire_date){
             return redirect()->route('banned');    
         }
