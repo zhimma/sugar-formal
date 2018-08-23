@@ -185,7 +185,7 @@ class UserController extends Controller
                     'notice2' => '因內容「'.$message->content.'」，',
                     'notice3' => '所以遭封鎖'.$days.'天。'];
         $user->notify(new BannedNotification($content));
-        return back()->with('message', '成功封鎖使用者');
+        return back()->with('message', '成功封鎖使用者並發送通知信');
     }
 
     public function userUnblock(Request $request){
