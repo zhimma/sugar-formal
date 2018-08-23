@@ -93,6 +93,9 @@
                         <input type="hidden" name="edit" id="edit" value="0">
                         <input type="hidden" name="msg" value="{{ $msg }}">
                     </td>
+                    @if(isset($reported) && $reported == 1)
+                        <td>封鎖</td>
+                    @endif
                 </tr>
                 @forelse ($results as $result)
                     <tr @if($result['isBlocked']) style="color: #F00;" @endif>
@@ -114,6 +117,17 @@
                         <td style="text-align: center; vertical-align: middle">
                             <input type="checkbox" name="msg_id[]" value="{{ $result['id'] }}" class="form-control boxes">
                         </td>
+                        @if(isset($reported) && $reported == 1)
+                            <td>
+                                <select name="days" id="days">
+                                    <option value="3">三天</option>
+                                    <option value="7">七天</option>
+                                    <option value="14">十四天</option>
+                                    <option value="30">三十天</option>
+                                </select>
+                                <a class="btn btn-success ban-user" href="{{ route('banUserWithDayAndMessage', [$result['from_id'], $result['id']]) }}" onclick="setDays()">送出</a>
+                            </td>
+                        @endif
                     </tr>
                 @empty
                     沒有資料
@@ -285,6 +299,10 @@
         let url = "{{ url("") }}";
         window.open(url + '/admin/users/toggleUserBlock/' + id);
         history.go(0);
+    }
+    function setDays() {
+        href = $('.ban-user').attr("href");
+        $('.ban-user').attr("href", href + '/' + $('#days').val());
     }
 </script>
 @stop

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -50,11 +51,16 @@ class LoginController extends Controller
         // if (auth()->user()->hasRole('admin')) {
         //     return redirect('/admin/search');
         // }
-        $banned_users = banned_users::select('*')->where('member_id', \Auth::user()->id)->count();
-        if($banned_users > 0){   
+        $banned_users = banned_users::select('*')->where('member_id', \Auth::user()->id)->orderBy('expire_date', 'desc')->get()->first();
+        $now = new \DateTime(Carbon::now()->toDateTimeString());
+        $expire_date = new \DateTime($banned_users->expire_date);
+        if($banned_users && $now < $expire_date){
             return redirect()->route('banned');    
         }
         else{
+            if($banned_users){
+                $banned_users->delete();
+            }
             $announcement = \App\Models\AdminAnnounce::where('en_group', \Auth::user()->engroup)->get()->first();
             $announcement = $announcement->content;
             //$announcement = str_replace(PHP_EOL, '\n', $announcement);

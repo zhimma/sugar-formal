@@ -16,6 +16,7 @@ use App\Models\VipLog;
 use App\Models\Vip;
 use App\Models\SimpleTables\member_vip;
 use App\Models\SimpleTables\banned_users;
+use App\Notifications\BannedNotification;
 use Carbon\Carbon;
 
 class UserController extends Controller
@@ -166,6 +167,25 @@ class UserController extends Controller
             return view('admin.users.success_only')->with('message', '成功封鎖使用者');
         }
 
+    }
+
+    public function banUserWithDayAndMessage($user_id, $msg_id, $days){
+        $userBanned = banned_users::where('member_id', $user_id)
+            ->get()->first();
+        if(!$userBanned){
+            $userBanned = new banned_users;
+        }
+        $userBanned->member_id = $user_id;
+        $userBanned->expire_date = Carbon::now()->addDays($days);
+        $userBanned->save();
+        $message = Message::where('id', $msg_id)->get()->first();
+        $user = User::where('id', $user_id)->get()->first();
+        $content = ['hello' => $user->name.'您好，',
+                    'notice1' => '您在'.$message->created_at.'所發送的訊息，',
+                    'notice2' => '因內容「'.$message->content.'」，',
+                    'notice3' => '所以遭封鎖'.$days.'天。'];
+        $user->notify(new BannedNotification($content));
+        return back()->with('message', '成功封鎖使用者');
     }
 
     public function userUnblock(Request $request){

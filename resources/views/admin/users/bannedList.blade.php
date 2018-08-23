@@ -13,6 +13,7 @@
 		<td>Email</td>
 		<td>名稱</td>
 		<td>封鎖時間</td>
+        <td>到期日(自動解除)</td>
 		<td>解除封鎖</td>
 	</tr>
 	@forelse($list as $user)
@@ -21,6 +22,7 @@
         <td>{{ $user->email }}</td>
         <td>{{ $user->name }}</td>
         <td>{{ $user->created_at }}</td>
+        <td>{{ $user->expire_date }}</td>
         <td>
             <form action="userUnblock" method="POST">{!! csrf_field() !!}
                 <input type="hidden" value="{{ $user->member_id }}" name="user_id">

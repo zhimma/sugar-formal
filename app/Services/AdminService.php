@@ -215,7 +215,8 @@ class AdminService
         if($request->msg_id == null){
             return null;
         }
-        $returnDatas = $this->preData($request->msg_id);
+        $msg_ids = is_array($request->msg_id) ? $request->msg_id : array($request->msg_id);
+        $returnDatas = $this->preData($msg_ids);
         $messages = $returnDatas['msgs'];
         $msg_ids = $returnDatas['msg_ids'];
         if(Message::whereIn('id', $msg_ids)->delete()){
@@ -275,6 +276,7 @@ class AdminService
             "head"   =>"你好，由於您在",
             "body"   =>"的訊息不符站方規定，故已修改。"
         );
+        $message_ids = is_array($message_ids) ? $message_ids : array($message_ids);
         $returnDatas = $this->preData($message_ids);
         //return redirect()->back()->withInput()->with('message', '訊息刪除成功');
         $request->session()->put('message', '訊息修改成功，將會產生通知訊息發送給各發訊的會員，請檢查訊息內容，若無誤請按下送出。');
