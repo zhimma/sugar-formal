@@ -19,7 +19,7 @@ return [
     ],
     'vip' => [
         // seconds
-        'start' => 86400,
+        'start' => 0,
         'free-days' => 1296000
     ],
     'comment' => [
@@ -30,7 +30,7 @@ return [
         'avatar-wait-seconds' => 5
     ],
     'payment' => [
-        'returnURL' => "http://localhost:8000/dashboard/upgradepay",
+        'returnURL' => "http://sugar.formal/dashboard/upgradepay",
         'actionURL' => "https://testmaple2.neweb.com.tw/NewebmPP/cdcard.jsp",
         'code' => "abcd1234"
     ],

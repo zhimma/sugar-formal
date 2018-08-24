@@ -42,7 +42,7 @@ class VipLogService {
 
     public function writeLogToFile() {
         $fileName = 'RP_'. $this->business_id . '_' . Carbon::now()->format('Ymd') .'.dat';
-        $fileContent = $this->business_id . ',' . $this->user_id . ',' . $this->order_id . ',,,' . intval($this->amount) . ',' . $this->action . ',' . $this->status . ',' . $this->mode;
+        $fileContent = $this->business_id . ',' . $this->user_id . ',' . $this->order_id . ',,,' . intval($this->amount) . ',' . Carbon::now()->format('d') . ',' . $this->action . ',' . $this->status . ',' . $this->mode;
 
 
         Storage::append($fileName, $fileContent);

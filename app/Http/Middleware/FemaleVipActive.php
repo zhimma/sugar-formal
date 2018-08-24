@@ -56,7 +56,8 @@ class FemaleVipActive
         else if(!$user->isVip()) {
             $user->vip_record = Carbon::now();
             $user->save();
-            Vip::upgrade($user->id, 'Test Business', 'Test Order', 0, 'Test Txn', 1, 1);
+            Vip::upgrade($user->id, '1111000', '0', 0, 'OOOOOOOO', 1, 1);
+            return $next($request);
         }
 
         if($user->isVip() && $vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.free-days')) {
