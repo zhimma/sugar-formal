@@ -272,6 +272,10 @@ class AdminService
     }
 
     public function sendEditedNotice(Request $request, $message_ids){
+        $admin = $this->checkAdmin();
+        if(!$admin){
+            return false;
+        }
         $template = array(
             "head"   =>"你好，由於您在",
             "body"   =>"的訊息不符站方規定，故已修改。"

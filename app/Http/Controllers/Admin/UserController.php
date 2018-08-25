@@ -454,7 +454,7 @@ class UserController extends Controller
     public function editMessage(Request $request)
     {
         $messages = $this->admin->editMessageThenReturnIds($request);
-        $admin = $this->checkAdmin();
+        $admin = $this->admin->checkAdmin();
         if ($admin) {
             $datas = $this->admin->sendEditedNotice($request, $messages);
             return view('admin.users.messenger')
