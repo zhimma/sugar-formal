@@ -369,6 +369,10 @@ class PagesController extends Controller
         $payload = $request->all();
         if (isset($payload['final_result']))
         {
+            if(Vip::checkByUserAndTxnId($user->id, $payload['P_CheckSum'])){
+                return view('dashboard.upgradesuccess')
+                    ->with('user', $user)->withErrors(['升級成功後請勿在本頁面重新整理！']);
+            }
             $this->logService->upgradeLog($payload, $user->id);
             $this->logService->writeLogToFile();
             Vip::upgrade($user->id, $payload['P_MerchantNumber'], $payload['P_OrderNumber'], $payload['P_Amount'], $payload['P_CheckSum'], 1, 0);

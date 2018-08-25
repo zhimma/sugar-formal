@@ -72,6 +72,10 @@ class Vip extends Model
         return Vip::where('member_id', $member_id)->first();
     }
 
+    public static function checkByUserAndTxnId($member_id, $txn_id) {
+        return Vip::where('member_id', $member_id)->where('txn_id', $txn_id)->where('created_at', '>', Carbon::now()->addHours(-24)->toDateTimeString())->first();
+    }
+
     public static function cancel($member_id, $free)
     {
         //$curVip = Vip::where('member_id', $member_id)->orderBy('expiry', 'desc')->first();
