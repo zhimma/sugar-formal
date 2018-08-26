@@ -54,6 +54,7 @@ class FemaleVipActive
         if($user_last_login->diffInSeconds(Carbon::now()) <= Config::get('social.vip.start') && !$user->isVip()) {
         }
         else if(!$user->isVip()) {
+            //Check if the member had been free VIP befor.
             if(Vip::where('member_id', $user->id)->get()){
                 return $next($request);
             }
