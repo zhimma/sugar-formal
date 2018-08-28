@@ -246,6 +246,9 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         Route::post('users/VIPToggler', 'UserController@toggleVIP');
         Route::get('announcement', 'UserController@showAdminAnnouncement')->name('admin/announcement');
         Route::post('announcement/save', 'UserController@saveAdminAnnouncement')->name('admin/announcement/save');
+        Route::get('/chat', 'MessageController@chatview')->name('admin/chat');
+        Route::get('/chat/{cid}', 'PagesController@chat');
+        Route::post('/chat', 'MessageController@postChat');
 
         /*
         |--------------------------------------------------------------------------

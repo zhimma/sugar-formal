@@ -53,4 +53,5 @@ class MessageController extends Controller {
             return view('dashboard.chat')->with('user', $user);
         }
     }
+
 }

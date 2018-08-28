@@ -54,10 +54,6 @@ class FemaleVipActive
         if($user_last_login->diffInSeconds(Carbon::now()) <= Config::get('social.vip.start') && !$user->isVip()) {
         }
         else if(!$user->isVip()) {
-            //Check if the member had been free VIP befor.
-            if(Vip::where('member_id', $user->id)->get()){
-                return $next($request);
-            }
             $user->vip_record = Carbon::now();
             $user->save();
             Vip::upgrade($user->id, '1111000', '0', 0, 'OOOOOOOO', 1, 1);
