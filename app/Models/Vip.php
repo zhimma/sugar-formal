@@ -29,6 +29,10 @@ class Vip extends Model
         'expiry'
     ];
 
+    public static  function allVip(){
+        return Vip::select('member_id')->where('active', 1)->get();
+    }
+
     public static function lastid()
     {
         $lid = Vip::orderBy('created_at', 'desc')->first();

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests;
+use App\Models\MemberPic;
 use App\Models\Message;
 use Illuminate\Http\Request;
 use App\Services\UserService;
@@ -262,6 +263,29 @@ class UserController extends Controller
                    ->with('userMessage', $userMessage)
                    ->with('to_ids', $to_ids);
         }
+    }
+
+    public function showUserPictures()
+    {
+        $userNames = array();
+        $pics = MemberPic::select('member_id', 'pic')->get();
+        $avatars = UserMeta::select('user_id', 'pic')->get();
+        foreach ($pics as $pic){
+            $userNames[$pic->member_id] = '';
+        }
+        foreach ($avatars as $avatar){
+            $userNames[$avatar->user_id] = '';
+        }
+        foreach ($userNames as $key => $userName){
+            $userNames[$key] = User::findById($key);
+            $userNames[$key] = $userNames[$key]->name;
+        }
+        $allPics = $pics->merge($avatars);
+        return view('admin.users.userPictures',
+            ['pics' => $pics,
+             'avatars' => $avatars,
+             'userNames' => $userNames,
+             'allPics' => $allPics]);
     }
 
     public function showMessageSearchPage()

@@ -227,9 +227,15 @@ class Message extends Model
     {
         // block information
         //
+        $user = User::findById($uid);
         $block = Blocked::getAllBlock($uid);
         $banned_users = banned_users::select('member_id')->get();
         $all_msg = Message::where([['to_id', $uid],['from_id', '!=', $uid], ['is_row_delete_1', '=' ,0], ['temp_id', '=', 0]])->where('read', 'N')->whereNotIn('from_id', $banned_users);
+        if($user->meta_()->notifhistory == '顯示VIP會員信件') {
+            //$allVip = \App\Models\Vip::allVip();
+            //$all_msg = $all_msg->whereIn('from_id', $allVip);
+            $all_msg = $all_msg->join('member_vip', 'member_vip.member_id', '=', 'message.from_id');
+        }
         $unreadCount = 0;
         if($block->count() == 0) return $all_msg->count();
         //echo $block->count();
@@ -241,7 +247,6 @@ class Message extends Model
         }
 
         return $unreadCount;
-
         //return Message::where([['to_id', $uid],['from_id', '!=', $uid],['from_id', '!=', $block[$i]->blocked_id]])->where('read', 'N')->count();
     }
 
