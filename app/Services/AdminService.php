@@ -310,4 +310,67 @@ class AdminService
                   'msgs' => $msgs];
         return $datas;
     }
+
+    public function deletePicture(Request $request)
+    {
+        $admin = $this->checkAdmin();
+        if(!$admin){
+            return false;
+        }
+        if($request->msg_id == null){
+            return null;
+        }
+        //NEED A NEW PRE-DATA FUNCTION.
+        $msg_ids = is_array($request->msg_id) ? $request->msg_id : array($request->msg_id);
+        $returnDatas = $this->preData($msg_ids);
+        $messages = $returnDatas['msgs'];
+        $msg_ids = $returnDatas['msg_ids'];
+        if(Message::whereIn('id', $msg_ids)->delete()){
+            $template = array(
+                "head"   =>"你好，由於您在",
+                "body"   =>"的訊息不符站方規定，故已刪除。"
+            );
+            //return redirect()->back()->withInput()->with('message', '訊息刪除成功');
+            $request->session()->put('message', '訊息刪除成功，將會產生通知訊息發送給各發訊的會員，請檢查訊息內容，若無誤請按下送出。');
+            $datas = ['admin' => $admin,
+                'msgs' => $messages,
+                'template' => $template];
+            return $datas;
+        }
+        else{
+            //return redirect()->back()->withInput()->withErrors(['出現錯誤，訊息刪除失敗']);
+            return false;
+        }
+    }
+
+    public function hidePicture(Request $request)
+    {
+        $admin = $this->checkAdmin();
+        if(!$admin){
+            return false;
+        }
+        if($request->msg_id == null){
+            return null;
+        }
+        $msg_ids = is_array($request->msg_id) ? $request->msg_id : array($request->msg_id);
+        //NEED A NEW PRE-DATA FUNCTION.
+        $returnDatas = $this->preData($msg_ids);
+        $messages = $returnDatas['msgs'];
+        $msg_ids = $returnDatas['msg_ids'];
+        if(Message::whereIn('id', $msg_ids)->delete()){
+            $template = array(
+                "head"   =>"你好，由於您在",
+                "body"   =>"的訊息不符站方規定，故已刪除。"
+            );
+            //return redirect()->back()->withInput()->with('message', '訊息刪除成功');
+            $request->session()->put('message', '訊息刪除成功，將會產生通知訊息發送給各發訊的會員，請檢查訊息內容，若無誤請按下送出。');
+            $datas = ['admin' => $admin,
+                'msgs' => $messages,
+                'template' => $template];
+            return $datas;
+        }
+        else{
+            //return redirect()->back()->withInput()->withErrors(['出現錯誤，訊息刪除失敗']);
+            return false;
+        }
 }

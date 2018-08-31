@@ -267,9 +267,35 @@ class UserController extends Controller
 
     public function showUserPictures()
     {
+        return view('admin.users.userPictures');
+    }
+
+    public function searchUserPictures(Request $request)
+    {
         $userNames = array();
-        $pics = MemberPic::select('member_id', 'pic')->get();
-        $avatars = UserMeta::select('user_id', 'pic')->get();
+        $pics = MemberPic::select('id', 'member_id', 'pic', 'updated_at');
+        $avatars = UserMeta::select('user_id', 'pic', 'updated_at')->whereNotNull('pic');
+        if($request->days){
+            $pics = $pics->where('updated_at', '>', Carbon::now()->subDays($request->days));
+            $avatars = $avatars->where('updated_at', '>', Carbon::now()->subDays($request->days));
+        }
+        if($request->en_group){
+            $users = User::select('id')->where('engroup', $request->en_group)->get();
+            $pics = $pics->whereIn('member_id', $users);
+            $avatars = $avatars->whereIn('user_id', $users);
+        }
+        if($request->city){
+            $users = UserMeta::select('user_id')->where('city', $request->city)->get();
+            $pics = $pics->whereIn('member_id', $users);
+            $avatars = $avatars->whereIn('user_id', $users);
+        }
+        if($request->area){
+            $users = UserMeta::select('user_id')->where('area', $request->area)->get();
+            $pics = $pics->whereIn('member_id', $users);
+            $avatars = $avatars->whereIn('user_id', $users);
+        }
+        $pics = $pics->get();
+        $avatars = $avatars->get();
         foreach ($pics as $pic){
             $userNames[$pic->member_id] = '';
         }
@@ -280,12 +306,14 @@ class UserController extends Controller
             $userNames[$key] = User::findById($key);
             $userNames[$key] = $userNames[$key]->name;
         }
-        $allPics = $pics->merge($avatars);
         return view('admin.users.userPictures',
             ['pics' => $pics,
-             'avatars' => $avatars,
-             'userNames' => $userNames,
-             'allPics' => $allPics]);
+            'avatars' => $avatars,
+            'userNames' => $userNames,
+            'days' => isset($request->days) ? $request->days : null,
+            'en_group' => isset($request->en_group) ? $request->en_group : null,
+            'city' => isset($request->city) ? $request->city : null,
+            'area' => isset($request->area) ? $request->area : null]);
     }
 
     public function showMessageSearchPage()

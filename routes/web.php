@@ -227,6 +227,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         Route::post('users/userUnblock', 'UserController@userUnblock');
         Route::get('users/banUserWithDayAndMessage/{user_id}/{msg_id}/{days?}', 'UserController@banUserWithDayAndMessage')->name('banUserWithDayAndMessage');
         Route::get('users/pictures', 'UserController@showUserPictures')->name('users/pictures');
+        Route::post('users/pictures', 'UserController@searchUserPictures')->name('users/pictures');
+        Route::post('users/pictures/modify', 'UserController@showUserPictures')->name('users/pictures/modify');
         Route::get('users/message/to/{id}', 'UserController@showAdminMessenger');
         Route::get('users/message/to/{id}/{mid}', 'UserController@showAdminMessengerWithMessageId')->name('AdminMessengerWithMessageId');
         Route::post('users/message/send/{id}', 'UserController@sendAdminMessage')->name('admin/send');
