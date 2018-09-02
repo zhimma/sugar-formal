@@ -373,4 +373,5 @@ class AdminService
             //return redirect()->back()->withInput()->withErrors(['出現錯誤，訊息刪除失敗']);
             return false;
         }
+    }
 }
