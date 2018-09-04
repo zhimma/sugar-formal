@@ -14,7 +14,7 @@ return [
         'block-people' => 1000
     ],
     'limit' => [
-        'show-chat' => 10,
+        'show-chat' => 3,
         'board-days' => 86400
     ],
     'vip' => [

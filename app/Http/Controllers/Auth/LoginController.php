@@ -61,15 +61,15 @@ class LoginController extends Controller
             if($banned_users){
                 $banned_users->delete();
             }
+            $userMeta = UserMeta::where('user_id', \Auth::user()->id)->get()->first();
+            if (empty($userMeta->pic)) {
+                return view('noAvatar');
+            }
             $announcement = \App\Models\AdminAnnounce::where('en_group', \Auth::user()->engroup)->get()->first();
             $announcement = $announcement->content;
             //$announcement = str_replace(PHP_EOL, '\n', $announcement);
             $announcement = str_replace(array("\r\n", "\r", "\n"), '\n', $announcement);
             $request->session()->flash('announcement', $announcement);
-            $userMeta = UserMeta::where('user_id', \Auth::user()->id)->get()->first();
-            if (empty($userMeta->pic)) {
-                return view('noAvatar');
-            }
             return redirect('/dashboard');
         }
     }
