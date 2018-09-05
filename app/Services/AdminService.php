@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Vip;
 use App\Models\UserMeta;
 use App\Models\Message;
+use App\Models\MemberPic;
 use App\Models\SimpleTables\banned_users;
 use PhpParser\Node\Expr\Cast\Object_;
 
@@ -311,36 +312,85 @@ class AdminService
         return $datas;
     }
 
+    public function picPreData($ids, $type){
+        if($type == 'pic'){
+            $infos = array();
+            foreach ($ids as $key => $id){
+                $p = MemberPic::select('member_id', 'created_at')->where('id', $id)->get()->first();
+                $infos[$id]['post_time'] = $p->created_at;
+                $u = User::select('id', 'name')->where('id', $p->member_id)->get()->first();
+                $infos[$id]['user_id'] = $u->id;
+                $infos[$id]['user_name'] = $u->name;
+            }
+            $datas = ['pic_ids' => $ids,
+                'infos' => $infos];
+            return $datas;
+        }
+        else if($type == 'avatar'){
+            $infos = array();
+            foreach ($ids as $key => $id){
+                $infos[$id]['post_time'] = '';
+                $u = User::select('name')->where('id', $id)->get()->first();
+                $infos[$id]['user_id'] = $id;
+                $infos[$id]['user_name'] = $u->name;
+            }
+            $datas = ['pic_ids' => $ids,
+                'infos' => $infos];
+            return $datas;
+        }
+        return false;
+    }
+
     public function deletePicture(Request $request)
     {
         $admin = $this->checkAdmin();
         if(!$admin){
             return false;
         }
-        if($request->msg_id == null){
+        if($request->pic_id == null && $request->avatar_id == null){
             return null;
         }
-        //NEED A NEW PRE-DATA FUNCTION.
-        $msg_ids = is_array($request->msg_id) ? $request->msg_id : array($request->msg_id);
-        $returnDatas = $this->preData($msg_ids);
-        $messages = $returnDatas['msgs'];
-        $msg_ids = $returnDatas['msg_ids'];
-        if(Message::whereIn('id', $msg_ids)->delete()){
-            $template = array(
-                "head"   =>"你好，由於您在",
-                "body"   =>"的訊息不符站方規定，故已刪除。"
-            );
-            //return redirect()->back()->withInput()->with('message', '訊息刪除成功');
-            $request->session()->put('message', '訊息刪除成功，將會產生通知訊息發送給各發訊的會員，請檢查訊息內容，若無誤請按下送出。');
-            $datas = ['admin' => $admin,
-                'msgs' => $messages,
-                'template' => $template];
-            return $datas;
+        $pic_ids = is_array($request->pic_id) ? $request->pic_id : array($request->pic_id);
+        $avatar_ids = is_array($request->avatar_id) ? $request->avatar_id : array($request->avatar_id);
+        if($pic_ids[0] != null){
+            $returnDatas1 = $this->picPreData($pic_ids, 'pic');
+            $picInfos = $returnDatas1['infos'];
+            $pic_ids = $returnDatas1['pic_ids'];
+            if(MemberPic::whereIn('id', $pic_ids)->delete()){
+
+            }
+            else{
+                //return redirect()->back()->withInput()->withErrors(['出現錯誤，訊息刪除失敗']);
+                return false;
+            }
         }
-        else{
-            //return redirect()->back()->withInput()->withErrors(['出現錯誤，訊息刪除失敗']);
-            return false;
+        if($avatar_ids[0] != null){
+            $returnDatas2 = $this->picPreData($avatar_ids, 'avatar');
+            $avatarInfos = $returnDatas2['infos'];
+            $avatar_ids = $returnDatas2['pic_ids'];
+            foreach( $avatar_ids as $user_id){
+                $u = UserMeta::select('id', 'pic')->where('user_id', $user_id)->get()->first();
+                $u->pic = null;
+                $u->save();
+            }
         }
+        $template = [
+            "pic" => [
+                "head"   =>"您好，由於您在",
+                "body"   =>"上傳的照片不適合網站主旨，故已刪除。請重新上傳。如有疑慮請與站長聯絡。"
+            ],
+            "avatar" => [
+                "head"   =>"您好，由於您",
+                "body"   =>"的大頭照不適合網站主旨，故已刪除。請重新上傳。如有疑慮請與站長聯絡。"
+            ]
+        ];
+        //return redirect()->back()->withInput()->with('message', '訊息刪除成功');
+        $request->session()->put('message', '照片刪除成功，將會產生通知訊息發送給各發訊的會員，請檢查訊息內容，若無誤請按下送出。');
+        $datas = ['admin' => $admin,
+            'msgs' => isset($picInfos) ? $picInfos : 0,
+            'msgs2' => isset($avatarInfos) ? $avatarInfos : 0,
+            'template' => $template];
+        return $datas;
     }
 
     public function hidePicture(Request $request)
@@ -349,29 +399,97 @@ class AdminService
         if(!$admin){
             return false;
         }
-        if($request->msg_id == null){
+        if($request->pic_id == null && $request->avatar_id == null){
             return null;
         }
-        $msg_ids = is_array($request->msg_id) ? $request->msg_id : array($request->msg_id);
-        //NEED A NEW PRE-DATA FUNCTION.
-        $returnDatas = $this->preData($msg_ids);
-        $messages = $returnDatas['msgs'];
-        $msg_ids = $returnDatas['msg_ids'];
-        if(Message::whereIn('id', $msg_ids)->delete()){
-            $template = array(
-                "head"   =>"你好，由於您在",
-                "body"   =>"的訊息不符站方規定，故已刪除。"
-            );
-            //return redirect()->back()->withInput()->with('message', '訊息刪除成功');
-            $request->session()->put('message', '訊息刪除成功，將會產生通知訊息發送給各發訊的會員，請檢查訊息內容，若無誤請按下送出。');
-            $datas = ['admin' => $admin,
-                'msgs' => $messages,
-                'template' => $template];
-            return $datas;
+        $pic_ids = is_array($request->pic_id) ? $request->pic_id : array($request->pic_id);
+        $avatar_ids = is_array($request->avatar_id) ? $request->avatar_id : array($request->avatar_id);
+        if($pic_ids[0] != null){
+            $returnDatas1 = $this->picPreData($pic_ids, 'pic');
+            $picInfos = $returnDatas1['infos'];
+            $pic_ids = $returnDatas1['pic_ids'];
+            foreach( $pic_ids as $pic){
+                $u = MemberPic::select('id', 'isHidden')->where('id', $pic)->get()->first();
+                $u->isHidden = 1;
+                $u->save();
+            }
         }
-        else{
-            //return redirect()->back()->withInput()->withErrors(['出現錯誤，訊息刪除失敗']);
+        if($avatar_ids[0] != null){
+            $returnDatas2 = $this->picPreData($avatar_ids, 'avatar');
+            $avatarInfos = $returnDatas2['infos'];
+            $avatar_ids = $returnDatas2['pic_ids'];
+            foreach( $avatar_ids as $user_id){
+                $u = UserMeta::select('id', 'isAvatarHidden')->where('user_id', $user_id)->get()->first();
+                $u->isAvatarHidden = 1;
+                $u->save();
+            }
+        }
+        $template = [
+            "pic" => [
+                "head"   =>"您好，由於您在",
+                "body"   =>"上傳的照片不適合網站主旨，故已隱藏。請重新上傳。如有疑慮請與站長聯絡。"
+            ],
+            "avatar" => [
+                "head"   =>"您好，由於您",
+                "body"   =>"的大頭照不適合網站主旨，故已隱藏。請重新上傳。如有疑慮請與站長聯絡。"
+            ]
+        ];
+        //return redirect()->back()->withInput()->with('message', '訊息刪除成功');
+        $request->session()->put('message', '照片隱藏成功，將會產生通知訊息發送給各發訊的會員，請檢查訊息內容，若無誤請按下送出。');
+        $datas = ['admin' => $admin,
+            'msgs' => isset($picInfos) ? $picInfos : 0,
+            'msgs2' => isset($avatarInfos) ? $avatarInfos : 0,
+            'template' => $template];
+        return $datas;
+    }
+
+    public function deHidePicture(Request $request)
+    {
+        $admin = $this->checkAdmin();
+        if(!$admin){
             return false;
         }
+        if($request->pic_id == null && $request->avatar_id == null){
+            return null;
+        }
+        $pic_ids = is_array($request->pic_id) ? $request->pic_id : array($request->pic_id);
+        $avatar_ids = is_array($request->avatar_id) ? $request->avatar_id : array($request->avatar_id);
+        if($pic_ids[0] != null){
+            $returnDatas1 = $this->picPreData($pic_ids, 'pic');
+            $picInfos = $returnDatas1['infos'];
+            $pic_ids = $returnDatas1['pic_ids'];
+            foreach( $pic_ids as $pic){
+                $u = MemberPic::select('id', 'isHidden')->where('id', $pic)->get()->first();
+                $u->isHidden = 0;
+                $u->save();
+            }
+        }
+        if($avatar_ids[0] != null){
+            $returnDatas2 = $this->picPreData($avatar_ids, 'avatar');
+            $avatarInfos = $returnDatas2['infos'];
+            $avatar_ids = $returnDatas2['pic_ids'];
+            foreach( $avatar_ids as $user_id){
+                $u = UserMeta::select('id', 'isAvatarHidden')->where('user_id', $user_id)->get()->first();
+                $u->isAvatarHidden = 0;
+                $u->save();
+            }
+        }
+        $template = [
+            "pic" => [
+                "head"   =>"您好，您在",
+                "body"   =>"上傳的照片已解除隱藏。"
+            ],
+            "avatar" => [
+                "head"   =>"您好，您",
+                "body"   =>"的大頭照已解除隱藏。"
+            ]
+        ];
+        //return redirect()->back()->withInput()->with('message', '訊息刪除成功');
+        $request->session()->put('message', '照片隱藏成功，將會產生通知訊息發送給各發訊的會員，請檢查訊息內容，若無誤請按下送出。');
+        $datas = ['admin' => $admin,
+            'msgs' => isset($picInfos) ? $picInfos : 0,
+            'msgs2' => isset($avatarInfos) ? $avatarInfos : 0,
+            'template' => $template];
+        return $datas;
     }
 }

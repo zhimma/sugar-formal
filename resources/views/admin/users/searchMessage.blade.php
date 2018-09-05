@@ -105,7 +105,7 @@
                         </td>
                         <td>{{ $result['vip'] }}</td>
                         <td>{{ $users[$result['to_id']] }}</td>
-                        <td width="45%">{{ $result['content'] }}</td>
+                        <td width="45%" style="word-wrap: break-word;">{{ $result['content'] }}</td>
                         @if(isset($reported) && $reported == 1)
                             <td>{{ $result['reportContent'] }}</td>
                             <td>

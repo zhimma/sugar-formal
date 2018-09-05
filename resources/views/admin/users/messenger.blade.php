@@ -59,16 +59,38 @@
                 <button type='submit' class='text-white btn btn-primary'>送出</button>
             </form>
         @else
+            @if(isset($msgs2) || $msgs2 == 0)
             <form action="{{ route('admin/send/multiple') }}" id='message' method='POST'>
                 {!! csrf_field() !!}
                 <input type="hidden" value="{{ $admin->id }}" name="admin_id">
-                @foreach( $msgs as $msg )
-                    <h3 style="text-align: left">發送給{{ $msg['name'] }}</h3>
-                    <input type="hidden" value="{{ $msg['from_id'] }}" name="to[]">
-                    <textarea name="msg[]" class="form-control" cols="80" rows="5">{{ $msg['name'] }}{{ $template['head'] }}{{ $msg['post_time'] }}{{ $template['body'] }}</textarea><br>
-                @endforeach
+                @if($msgs != 0)
+                    @foreach( $msgs as $msg )
+                        <h3 style="text-align: left">發送給{{ $msg['user_name'] }}</h3>
+                        <input type="hidden" value="{{ $msg['user_id'] }}" name="to[]">
+                        <textarea name="msg[]" class="form-control" cols="80" rows="5">{{ $msg['user_name'] }}{{ $template['pic']['head'] }}{{ $msg['post_time'] }}{{ $template['pic']['body'] }}</textarea><br>
+                    @endforeach
+                @endif
+                @if($msgs2 != 0)
+                    @foreach( $msgs2 as $msg )
+                        <h3 style="text-align: left">發送給{{ $msg['user_name'] }}</h3>
+                        <input type="hidden" value="{{ $msg['user_id'] }}" name="to[]">
+                        <textarea name="msg[]" class="form-control" cols="80" rows="5">{{ $msg['user_name'] }}{{ $template['avatar']['head'] }}{{ $template['avatar']['body'] }}</textarea><br>
+                    @endforeach
+                @endif
                 <button type='submit' class='text-white btn btn-primary'>送出</button>
             </form>
+            @else
+                <form action="{{ route('admin/send/multiple') }}" id='message' method='POST'>
+                    {!! csrf_field() !!}
+                    <input type="hidden" value="{{ $admin->id }}" name="admin_id">
+                    @foreach( $msgs as $msg )
+                        <h3 style="text-align: left">發送給{{ $msg['name'] }}</h3>
+                        <input type="hidden" value="{{ $msg['from_id'] }}" name="to[]">
+                        <textarea name="msg[]" class="form-control" cols="80" rows="5">{{ $msg['name'] }}{{ $template['head'] }}{{ $msg['post_time'] }}{{ $template['body'] }}</textarea><br>
+                    @endforeach
+                    <button type='submit' class='text-white btn btn-primary'>送出</button>
+                </form>
+            @endif
         @endif
     @endif
 @endif

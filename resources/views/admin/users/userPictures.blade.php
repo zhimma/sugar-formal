@@ -22,6 +22,7 @@
                 <input type="radio" name="days" value="7" @if(isset($days) && $days == 7) checked @endif>7天內</input>
                 <input type="radio" name="days" value="15" @if(isset($days) && $days == 15) checked @endif>15天內</input>
                 <input type="radio" name="days" value="30" @if(isset($days) && $days == 30) checked @endif>30天內</input>
+                <input type="radio" name="days" value="60" @if(isset($days) && $days == 60) checked @endif>60天內</input>
             </td>
         </tr>
         <tr>
@@ -40,7 +41,8 @@
         </tr>
         <tr>
             <td colspan="2">
-                <button type="submit" class="btn btn-primary">查詢</button>
+                <button type="submit" class="btn btn-primary">查詢</button> 或
+                <button type="submit" class="btn btn-info" name="hidden" value="1">隱藏的照片</button>
             </td>
         </tr>
     </table>
@@ -54,7 +56,7 @@
             <td>照片</td>
             <td>更新時間</td>
             <td>
-                <button class="btn btn-warning" onclick="$('#modify').submit()" name="hide" value="1">不顯示</button>
+                <button class="btn btn-warning" onclick="$('#modify').submit()" @if($hiddenSearch) name="dehide" @else name="hide" @endif  value="1">@if($hiddenSearch) 解除@endif隱藏</button>
                 <button class="btn btn-danger" onclick="$('#modify').submit()" name='delete' value="1">刪除</button>
             </td>
         </tr>
@@ -66,7 +68,7 @@
                     <td>{{ $pic->updated_at }}</td>
                     <td>
                         <input type="hidden" name="type" value="pic">
-                        <input type="checkbox" name="id" value="{{ $pic->id }}">
+                        <input type="checkbox" name="pic_id[]" value="{{ $pic->id }}">
                     </td>
                 </tr>
             @endforeach
@@ -79,7 +81,7 @@
                     <td>{{ $avatar->updated_at }}</td>
                     <td>
                         <input type="hidden" name="type" value="avatar">
-                        <input type="checkbox" name="user_id" value="{{ $avatar->id }}">
+                        <input type="checkbox" name="avatar_id[]" value="{{ $avatar->user_id }}">
                     </td>
                 </tr>
             @endforeach

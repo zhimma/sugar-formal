@@ -273,8 +273,16 @@ class UserController extends Controller
     public function searchUserPictures(Request $request)
     {
         $userNames = array();
-        $pics = MemberPic::select('id', 'member_id', 'pic', 'updated_at');
-        $avatars = UserMeta::select('user_id', 'pic', 'updated_at')->whereNotNull('pic');
+        $pics = MemberPic::select('*');
+        $avatars = UserMeta::select('user_id', 'pic', 'isAvatarHidden', 'updated_at')->whereNotNull('pic');
+        if($request->hidden){
+            $pics = $pics->where('isHidden', 1);
+            $avatars = $avatars->where('isAvatarHidden', 1);
+        }
+        else{
+            $pics = $pics->where('isHidden', 0);
+            $avatars = $avatars->where('isAvatarHidden', 0);
+        }
         if($request->days){
             $pics = $pics->where('updated_at', '>', Carbon::now()->subDays($request->days));
             $avatars = $avatars->where('updated_at', '>', Carbon::now()->subDays($request->days));
@@ -313,7 +321,81 @@ class UserController extends Controller
             'days' => isset($request->days) ? $request->days : null,
             'en_group' => isset($request->en_group) ? $request->en_group : null,
             'city' => isset($request->city) ? $request->city : null,
-            'area' => isset($request->area) ? $request->area : null]);
+            'area' => isset($request->area) ? $request->area : null,
+            'hiddenSearch' => isset($request->hidden) ? true : false]);
+    }
+
+    public function modifyUserPictures(Request $request)
+    {
+        if($request->delete){
+            $datas = $this->admin->deletePicture($request);
+            if($datas == null){
+                return redirect()->back()->withErrors(['沒有選擇訊息。'])->withInput();
+            }
+            if(!$datas){
+                return redirect()->back()->withErrors(['出現錯誤，訊息刪除失敗'])->withInput();
+            }
+            else {
+                $admin = $this->admin->checkAdmin();
+                if($admin){
+                    return view('admin.users.messenger')
+                        ->with('admin', $datas['admin'])
+                        ->with('msgs', $datas['msgs'])
+                        ->with('msgs2', $datas['msgs2'])
+                        ->with('template', $datas['template']);
+                }
+                else{
+                    return view('admin.users.messenger')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+                }
+            }
+        }
+        else if($request->hide){
+            $datas = $this->admin->hidePicture($request);
+            if($datas == null){
+                return redirect()->back()->withErrors(['沒有選擇訊息。'])->withInput();
+            }
+            if(!$datas){
+                return redirect()->back()->withErrors(['出現錯誤，訊息刪除失敗'])->withInput();
+            }
+            else {
+                $admin = $this->admin->checkAdmin();
+                if($admin){
+                    return view('admin.users.messenger')
+                        ->with('admin', $datas['admin'])
+                        ->with('msgs', $datas['msgs'])
+                        ->with('msgs2', $datas['msgs2'])
+                        ->with('template', $datas['template']);
+                }
+                else{
+                    return view('admin.users.messenger')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+                }
+            }
+        }
+        else if($request->dehide){
+            $datas = $this->admin->deHidePicture($request);
+            if($datas == null){
+                return redirect()->back()->withErrors(['沒有選擇訊息。'])->withInput();
+            }
+            if(!$datas){
+                return redirect()->back()->withErrors(['出現錯誤，訊息刪除失敗'])->withInput();
+            }
+            else {
+                $admin = $this->admin->checkAdmin();
+                if($admin){
+                    return view('admin.users.messenger')
+                        ->with('admin', $datas['admin'])
+                        ->with('msgs', $datas['msgs'])
+                        ->with('msgs2', $datas['msgs2'])
+                        ->with('template', $datas['template']);
+                }
+                else{
+                    return view('admin.users.messenger')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+                }
+            }
+        }
+        else{
+            return redirect()->back()->withErrors(['出現不明錯誤']);
+        }
     }
 
     public function showMessageSearchPage()
