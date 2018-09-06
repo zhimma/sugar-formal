@@ -133,13 +133,19 @@
             <div class="form-group m-form__group">
             @if (isset($cmeta->pic))
             <div class="personal-image">
-                <img src="{{$cmeta->pic}}"/>
+                @if($cmeta->isAvatarHidden == 1)
+                @else
+                    <img src="{{$cmeta->pic}}"/>
+                @endif
             </div>
             @endif
             <?php $pics = \App\Models\MemberPic::getSelf($cur->id) ?>
             @foreach ($pics as $pic)
             <div class="personal-image">
-                <img src="{{$pic->pic}}"/>
+                @if($pic->isHidden == 1)
+                @else
+                    <img src="{{$pic->pic}}"/>
+                @endif
             </div>
             @endforeach
             @endif
@@ -670,6 +676,7 @@
         <div class="form-group m-form__group row">
             <div class="upload-image">
                 <img src="{{$umeta->pic}}"/>
+                @if($user->meta_()->isAvatarHidden == 1) <p style="color: red; text-align: center; font-weight: bold;">大頭照已被隱藏</p> @endif
             </div>
         </div>
         @endif
@@ -725,6 +732,7 @@
             <div class="form-group m-form__group">
                 <div class="upload-image" style="width:400px">
                     <img src="{{$pic->pic}}" />
+                    @if($pic->isHidden == 1) <p style="color: red; text-align: center; font-weight: bold;">此照片已被隱藏</p> @endif
                 </div>
                 <button type="submit" class="btn btn-danger m-btn m-btn--air m-btn--custom">刪除</button>
             </div>

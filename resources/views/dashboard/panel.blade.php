@@ -15,7 +15,15 @@ if(Auth::user()) $login_user = Auth::user();
 				</div>
 				<div class="m-card-profile__pic">
 					<div class="m-card-profile__pic-wrapper">
-						<img width="130" height="130" src="@if (str_contains(url()->current(), 'dashboard')){{$user->meta_()->pic}}@elseif(isset($cur)){{$cur->meta_()->pic}}@endif" alt=""/>
+                        @if (str_contains(url()->current(), 'dashboard'))
+                            @if($user->meta_()->isAvatarHidden == 1) <p style="color: red; text-align: center; font-weight: bold;">大頭照已被隱藏</p> @endif
+                            <img width="130" height="130" src="{{$user->meta_()->pic}}" alt=""/>
+                        @elseif(isset($cur))
+                            @if($cur->meta_()->isAvatarHidden == 1)
+                            @else
+                                <img width="130" height="130" src="{{$cur->meta_()->pic}}" alt=""/>
+                            @endif
+                        @endif
 					</div>
 				</div>
 				<div class="m-card-profile__details">

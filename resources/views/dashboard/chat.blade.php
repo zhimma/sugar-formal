@@ -110,7 +110,7 @@ $code = Config::get('social.payment.code');
                         @endif
                             <div class="m-widget3__header" @if(isset($to))style="width:95%"@else style="width:95%" @endif>
                                 <div class="m-widget3__user-img">
-                                    <a href="/dashboard/chat/{{$msgUser->id}}"><img class="m-widget3__img" style="max-width:none" src="{{$msgUser->meta_()->pic}}" onerror="this.src='/img/male-avatar.png'" alt=""></a>
+                                    <a href="/dashboard/chat/{{$msgUser->id}}"><img class="m-widget3__img" style="max-width:none" src="@if($msgUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{$msgUser->meta_()->pic}} @endif" onerror="this.src='/img/male-avatar.png'" alt=""></a>
                                 </div>
 
                                 <div class="m-widget3__info">
@@ -176,7 +176,7 @@ $code = Config::get('social.payment.code');
                 <div class="m-widget3__item" @if ($icc == 1) <?php echo 'style="border-bottom: none !important; background-color: rgba(244, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7); padding: 16px 32px; 0px 32px"'; $icc = 0?>@else <?php $icc = 1; echo'style="border-bottom: none !important; padding: 14px 28px 0px 28px;"'; ?> @endif>
                     <div class="m-widget3__header" @if(isset($to))style="width:95%"@endif>
                         <div class="m-widget3__user-img" style="display:inline-block; margin-right: 6%; vertical-align: middle;">
-                            <a href="/user/view/{{$msgUser->id}}"><img class="m-widget3__img" style="max-width:4rem" src="{{$msgUser->meta_()->pic}}" onerror="this.src='/img/male-avatar.png'" alt=""></a>
+                            <a href="/user/view/{{$msgUser->id}}"><img class="m-widget3__img" style="max-width:4rem" src="@if($msgUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{$msgUser->meta_()->pic}} @endif" onerror="this.src='/img/male-avatar.png'" alt=""></a>
                         </div>
                 @endif
                         <div class="m-widget3__body" style="display:inline-block; word-wrap: break-word; word-break: break-all">
