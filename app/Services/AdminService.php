@@ -202,6 +202,49 @@ class AdminService
                 'users' => $users];
     }
 
+    public function fillReportedDatas($results){
+        $results = $results->get();
+        $member_id = array();
+        $reported_id = array();
+        foreach ($results as $result){
+            if(!in_array($result->member_id, $member_id)) {
+                array_push($member_id, $result->member_id);
+            }
+            if(!in_array($result->reported_id, $reported_id)) {
+                array_push($reported_id, $result->reported_id);
+            }
+            $result['isBlocked'] = banned_users::where('member_id', 'like', $result->reported_id)->get()->first();
+            if(Vip::where('member_id', 'like', $result->member_id)->get()->first()){
+                $result['vip'] = '是';
+            }
+            else{
+                $result['vip'] = '否';
+            }
+        }
+        $users = array();
+        foreach ($member_id as $id){
+            $users[$id] = array();
+        }
+        foreach ($reported_id as $id){
+            if(!in_array($id, $users)){
+                $users[$id] = array();
+            }
+        }
+        foreach ($users as $id => $user){
+            $name = User::select('name')
+                ->where('id', '=', $id)
+                ->get()->first();
+            if($name != null){
+                $users[$id] = $name->name;
+            }
+            else{
+                $users[$id] = '資料庫沒有資料';
+            }
+        }
+        return ['results' => $results,
+            'users' => $users];
+    }
+
     /**
      * Deletes selected members' messages.
      *

@@ -35,11 +35,12 @@ class Reported extends Model
         return Reported::where('reported_id', $uid)->count();
     }
 
-    public static function report($member_id, $reported_id)
+    public static function report($member_id, $reported_id, $content = null)
     {
         $reported = new Reported;
         $reported->member_id = $member_id;
         $reported->reported_id = $reported_id;
+        $reported->content = $content;
         $reported->save();
     }
 

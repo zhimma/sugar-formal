@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests;
 use App\Models\MemberPic;
 use App\Models\Message;
+use App\Models\Reported;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\AdminService;
@@ -655,6 +656,25 @@ class UserController extends Controller
         }
     }
 
+    public function showAdminMessengerWithReportedId($id, $mid)
+    {
+        $admin = $this->admin->checkAdmin();
+        if ($admin){
+            $user = $this->service->find($id);
+            $report = Reported::where('member_id', $id)->where('reported_id', $mid)->get()->first();
+            $reported = User::where('id', $mid)->get()->first();
+            return view('admin.users.messenger')
+                ->with('admin', $admin)
+                ->with('user', $user)
+                ->with('message', 'REPORTEDUSERONLY')
+                ->with('report', $report)
+                ->with('reportedName', $reported->name);
+        }
+        else{
+            return view('admin.users.messenger')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
+    }
+
     /**
      * Message to a member.
      *
@@ -665,10 +685,16 @@ class UserController extends Controller
         $payload = $request->all();
         Message::post($payload['admin_id'], $id, $payload['msg']);
         if($request->rollback == 1){
-            $m = Message::where('id', $request->msg_id)->get()->first();
-            $m->isReported = 0;
-            $m->reportContent = '';
-            $m->save();
+            if($request->msg_id){
+                $m = Message::where('id', $request->msg_id)->get()->first();
+                $m->isReported = 0;
+                $m->reportContent = '';
+                $m->save();
+            }
+            if($request->report_id){
+                $m = Reported::where('id', $request->report_id)->get()->first();
+                $m->delete();
+            }
         }
         return back()->with('message', '傳送成功');
     }
@@ -832,6 +858,39 @@ class UserController extends Controller
         else{
             return redirect('admin/announcement')
                    ->withErrors(['出現不明錯誤，無法修改站長公告']);
+        }
+    }
+
+    public function showReportedUsersPage(){
+        $admin = $this->admin->checkAdmin();
+        if ($admin){
+            return view('admin.users.reportedUsers');
+        }
+        else{
+            return view('admin.users.reportedUsers')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
+    }
+
+    public function showReportedUsersList(Request $request){
+        $admin = $this->admin->checkAdmin();
+        if ($admin){
+            $users = Reported::select('*');
+            if($request->date_start){
+                $users = $users->where('created_at', '>', $request->date_start . ' 00:00');
+            }
+            if($request->date_end){
+                $users = $users->where('created_at', '<', $request->date_end . ' 23:59');
+            }
+            $users = $users->orderBy('created_at', 'desc');
+            $datas = $this->admin->fillReportedDatas($users);
+            return view('admin.users.reportedUsers')
+                ->with('results', $datas['results'])
+                ->with('users', isset($datas['users']) ? $datas['users'] : null)
+                ->with('date_start', isset($request->date_start) ? $request->date_start : null)
+                ->with('date_end', isset($request->date_end) ? $request->date_end : null);
+        }
+        else{
+            return view('admin.users.reportedUsers')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
         }
     }
 }

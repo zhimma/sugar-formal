@@ -170,9 +170,9 @@ if(Auth::user()) $login_user = Auth::user();
 					<input type="hidden" name="_token" value="{{ csrf_token() }}" >
 					<input type="hidden" name="userId" value="{{$user->id}}">
     				<input type="hidden" name="to" value="{{$cur->id}}">
-					<button type="submit" style="background: none; border: none; padding: 0">
+					<button type="submit" style="background: none; border: none; padding: 0" class="report">
 						<i class="m-nav__link-icon flaticon-bell"></i>
-						<span class="m-nav__link-text">舉報</span>
+						<span class="m-nav__link-text">檢舉</span>
 					</button>
 					</form>
                 </li>
@@ -222,3 +222,10 @@ if(Auth::user()) $login_user = Auth::user();
     </div>
   </div>
 </div>
+<script>
+    $('.report').on('click',function(e){
+        if(!confirm('確定要檢舉他/她嗎?')){
+            e.preventDefault();
+        }
+    });
+</script>

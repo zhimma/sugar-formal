@@ -83,7 +83,7 @@
                     <input type="hidden" name="userId" value="{{$user->id}}">
                     <input type="hidden" name="to" value="{{$cur->id}}">
                     <button type="submit" style="background: none; border: none; padding: 0">
-                        舉報
+                        檢舉
                     </button>
                 </form>
             </li>

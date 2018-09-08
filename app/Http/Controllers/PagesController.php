@@ -230,14 +230,22 @@ class PagesController extends Controller
         {
             if ($aid !== $uid)
             {
-                Reported::report($aid, $uid);
-            }    
-            return back()->with('message', '舉報成功');
+                $user = $request->user();
+                return view('dashboard.reportUser', [ 'aid' => $aid, 'uid' => $uid, 'user' => $user ]);
+            }
+            else{
+                return back()->withErrors(['錯誤，不能檢舉自己。']);
+            }
         }
         else
         {
-            return back()->withErrors(['舉報失敗：您已經舉報過這個人了']);
+            return back()->withErrors(['檢舉失敗：您已經檢舉過這個人了']);
         }
+    }
+
+    public function reportNext(Request $request){
+        Reported::report($request->aid, $request->uid, $request->content);
+        return redirect('/user/view/'.$request->uid)->with('message', '檢舉成功');
     }
 
     public function postBlock(Request $request)
