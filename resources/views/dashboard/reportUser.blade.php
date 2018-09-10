@@ -5,10 +5,10 @@
     <div class="m-portlet__head-caption">
         <div class="m-portlet__head-title">
             <h3 style="text-align:left;" class="m-portlet__head-text">
-                檢舉會員 - 請填寫理由
+                檢舉會員：{{ \App\Models\User::findById($uid)->name }} - 請填寫理由
             </h3>
             <span style="text-align:right;" class="m-portlet__head-text">
-                <a class="btn btn-danger m-btn m-btn--air m-btn--custom" href="/user/view/{{ $uid }}"> 回去會員資料</a>
+                <a class="btn btn-danger m-btn m-btn--air m-btn--custom" href="/user/view/{{ $uid }}"> 回去{{ \App\Models\User::findById($uid)->name }}的會員資料</a>
             </span>
         </div>
     </div>

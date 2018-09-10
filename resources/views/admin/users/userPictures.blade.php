@@ -17,12 +17,12 @@
         <tr>
             <th>更新時間</th>
             <td>
-                <input type="radio" name="days" value="" @if(!isset($days) || $days == null) checked @endif>不限</input>
-                <input type="radio" name="days" value="3" @if(isset($days) && $days == 3) checked @endif>3天內</input>
+                <input type="radio" name="days" value="3" @if(!isset($days) || (isset($days) && $days == 3)) checked @endif>3天內</input>
                 <input type="radio" name="days" value="7" @if(isset($days) && $days == 7) checked @endif>7天內</input>
                 <input type="radio" name="days" value="15" @if(isset($days) && $days == 15) checked @endif>15天內</input>
                 <input type="radio" name="days" value="30" @if(isset($days) && $days == 30) checked @endif>30天內</input>
                 <input type="radio" name="days" value="60" @if(isset($days) && $days == 60) checked @endif>60天內</input>
+                <input type="radio" name="days" value="" @if(isset($days) && $days == null) checked @endif>不限</input>
             </td>
         </tr>
         <tr>
