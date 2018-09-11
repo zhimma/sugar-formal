@@ -74,8 +74,25 @@
         </tr>
         <tr>
             <th>生日</th>
-            <td>
-                <input type='text' class="form-control" id="m_datepicker_1" name="birthdate" readonly data-date-format='yyyy-mm-dd' placeholder="請選擇" value="{{ date('Y-m-d', strtotime($userMeta->birthdate)) }}" />
+            <td class="form-inline">
+                <select name="year" class="form-control"></select>年
+                <select name="month" class="form-control">
+                    <option value="1" @if($month == '01') selected @endif>1</option>
+                    <option value="2" @if($month == '02') selected @endif>2</option>
+                    <option value="3" @if($month == '03') selected @endif>3</option>
+                    <option value="4" @if($month == '04') selected @endif>4</option>
+                    <option value="5" @if($month == '05') selected @endif>5</option>
+                    <option value="6" @if($month == '06') selected @endif>6</option>
+                    <option value="7" @if($month == '07') selected @endif>7</option>
+                    <option value="8" @if($month == '08') selected @endif>8</option>
+                    <option value="9" @if($month == '09') selected @endif>9</option>
+                    <option value="10" @if($month == '10') selected @endif>10</option>
+                    <option value="11" @if($month == '11') selected @endif>11</option>
+                    <option value="12" @if($month == '12') selected @endif>12</option>
+                </select>月
+                <select name="day" class="form-control"></select>日
+
+                <!--<input type='text' class="form-control" id="m_datepicker_1" name="birthdate" readonly data-date-format='yyyy-mm-dd' placeholder="請選擇" value="{{ date('Y-m-d', strtotime($userMeta->birthdate)) }}" />-->
             </td>
             <th>身高</th>
             <td><input class="form-control m-input" name="height" type="number" id="input-height" value="{{$userMeta->height}}"></td>
@@ -447,4 +464,43 @@ $(wrapper).on("click",".remove_field", function(e){ //user click on remove text
     e.preventDefault();
     $(this).parent('div').remove();
 });
+
+var ysel = document.getElementsByName("year")[0],
+    msel = document.getElementsByName("month")[0],
+    dsel = document.getElementsByName("day")[0],
+    firstTime = 0;
+for (var i = {{ date("Y") }}; i>=1930; i--){
+    var opt = new Option();
+    opt.value = opt.text = i;
+    if(opt.value == {{ $year }}){
+        opt.selected = true;
+    }
+    ysel.add(opt);
+}
+ysel.addEventListener("change",validate_date);
+msel.addEventListener("change",validate_date);
+
+function validate_date(){
+    var y = +ysel.value, m = msel.value, d = dsel.value;
+    if (m === "2") {
+        var mlength = 28 + (!(y & 3) && ((y % 100) !== 0 || !(y & 15)));
+    }
+    else {
+        var mlength = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1];
+    }
+    dsel.length = 0;
+    for(var i=1;i<=mlength;i++){
+        var opt=new Option();
+        opt.value = opt.text = i;
+        if(i==d) {
+            opt.selected=true;
+        }
+        if(opt.value == {{ $day }} && firstTime == 0){
+            opt.selected = true;
+            firstTime = 1;
+        }
+        dsel.add(opt);
+    }
+}
+validate_date();
 </script>

@@ -199,12 +199,20 @@ class PagesController extends Controller
             $tabName = 'm_user_profile_tab_1';
         }
 
+        $birthday = date('Y-m-d', strtotime($user->meta_()->birthdate));
+        $birthday = explode('-', $birthday);
+        $year = $birthday[0];
+        $month = $birthday[1];
+        $day = $birthday[2];
 
         if ($user) {
             return view('dashboard')
             ->with('user', $user)
             ->with('tabName', $tabName)
-            ->with('cur', $user);
+            ->with('cur', $user)
+            ->with('year', $year)
+            ->with('month', $month)
+            ->with('day', $day);
         }
     }
 

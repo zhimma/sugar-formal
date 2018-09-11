@@ -244,6 +244,13 @@ class UserService
                   $payload['meta']['birthdate'] = $payload['birthdate'];
                   unset($payload['birthdate']);
                   }
+                  if (isset($payload['year']) && isset($payload['month']) && isset($payload['day']))
+                  {
+                      $payload['meta']['birthdate'] = $payload['year'].'-'.$payload['month'].'-'.$payload['day'];
+                      unset($payload['year']);
+                      unset($payload['month']);
+                      unset($payload['day']);
+                  }
                   if (isset($payload['height']))
                   {
                   $payload['meta']['height'] = $payload['height'];

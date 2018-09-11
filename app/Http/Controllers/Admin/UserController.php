@@ -253,9 +253,17 @@ class UserController extends Controller
             }
         }
         if(str_contains(url()->current(), 'edit')){
+            $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
+            $birthday = explode('-', $birthday);
+            $year = $birthday[0];
+            $month = $birthday[1];
+            $day = $birthday[2];
             return view('admin.users.editAdvInfo')
                    ->with('userMeta', $userMeta)
-                   ->with('user', $user);
+                   ->with('user', $user)
+                   ->with('year', $year)
+                   ->with('month', $month)
+                   ->with('day', $day);
         }
         else{
             return view('admin.users.advInfo')
@@ -346,7 +354,7 @@ class UserController extends Controller
                         ->with('template', $datas['template']);
                 }
                 else{
-                    return view('admin.users.messenger')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+                    return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
                 }
             }
         }
@@ -368,7 +376,7 @@ class UserController extends Controller
                         ->with('template', $datas['template']);
                 }
                 else{
-                    return view('admin.users.messenger')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+                    return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
                 }
             }
         }
@@ -390,7 +398,7 @@ class UserController extends Controller
                         ->with('template', $datas['template']);
                 }
                 else{
-                    return view('admin.users.messenger')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+                    return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
                 }
             }
         }
@@ -567,7 +575,7 @@ class UserController extends Controller
                         ->with('template', $datas['template']);
                 }
                 else{
-                    return view('admin.users.messenger')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+                    return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
                 }
             }
         }
@@ -578,7 +586,7 @@ class UserController extends Controller
                 return view('admin.users.editMessage')->with('data', $data);
             }
             else{
-                return view('admin.users.messenger')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+                return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
             }
         }
         else{
@@ -598,7 +606,7 @@ class UserController extends Controller
                    ->with('template', $datas['template']);
         }
         else{
-            return view('admin.users.messenger')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+            return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
         }
     }
 
@@ -608,7 +616,7 @@ class UserController extends Controller
                 ->select('banned_users.*', 'users.name', 'users.email')->orderBy('created_at', 'desc')->get();
         return view('admin.users.bannedList')->with('list', $list);
     }
-    
+
     /**
      * Show the form for inviting a customer.
      *
@@ -634,7 +642,7 @@ class UserController extends Controller
                    ->with('user', $user);
         }
         else{
-            return view('admin.users.messenger')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+            return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
         }
     }
 
@@ -652,7 +660,7 @@ class UserController extends Controller
                 ->with('senderName', $sender->name);
         }
         else{
-            return view('admin.users.messenger')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+            return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
         }
     }
 
@@ -671,7 +679,7 @@ class UserController extends Controller
                 ->with('reportedName', $reported->name);
         }
         else{
-            return view('admin.users.messenger')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+            return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
         }
     }
 
