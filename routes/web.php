@@ -172,6 +172,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
     Route::post('/dashboard/fav', 'PagesController@postfav');
     Route::post('/dashboard/report', 'PagesController@report');
     Route::post('/dashboard/reportNext', 'PagesController@reportNext')->name('reportNext');
+    Route::get('/dashboard/reportPic/{user}/{id}', 'PagesController@reportPic')->name('reportPic');
+    Route::post('/dashboard/reportPicNext', 'PagesController@reportPicNext')->name('reportPicNext');
     Route::post('/dashboard/upgradepay', 'PagesController@upgradepay');
 
     Route::group(['middleware' => ['vipc']], function () {

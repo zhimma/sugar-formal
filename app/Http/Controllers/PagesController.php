@@ -11,6 +11,8 @@ use App\Models\Visited;
 use App\Models\Board;
 use App\Models\Message;
 use App\Models\Reported;
+use App\Models\ReportedAvatar;
+use App\Models\ReportedPic;
 use App\Models\User;
 use App\Models\Vip;
 use App\Models\Tip;
@@ -252,6 +254,30 @@ class PagesController extends Controller
     }
 
     public function reportNext(Request $request){
+        Reported::report($request->aid, $request->uid, $request->content);
+        return redirect('/user/view/'.$request->uid)->with('message', '檢舉成功');
+    }
+
+    public function reportPic($reported_user_id, $pic_id)
+    {
+        if ( ! Reported::findMember( $aid , $uid ) )
+        {
+            if ($aid !== $uid)
+            {
+                $user = $request->user();
+                return view('dashboard.reportUser', [ 'aid' => $aid, 'uid' => $uid, 'user' => $user ]);
+            }
+            else{
+                return back()->withErrors(['錯誤，不能檢舉自己。']);
+            }
+        }
+        else
+        {
+            return back()->withErrors(['檢舉失敗：您已經檢舉過這個人了']);
+        }
+    }
+
+    public function reportPicNext(Request $request){
         Reported::report($request->aid, $request->uid, $request->content);
         return redirect('/user/view/'.$request->uid)->with('message', '檢舉成功');
     }
