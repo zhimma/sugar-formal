@@ -223,22 +223,31 @@
 <div class="form-group m-form__group row">
     <label class="col-form-label col-lg-2 col-sm-12"> @if(str_contains(url()->current(), 'dashboard'))出生日期@else年齡@endif</label>
     <div class="col-lg-4 col-md-9 col-sm-12 form-inline">
-        <select name="year" class="form-control"></select>年
-        <select name="month" class="form-control">
-            <option value="1" @if($month == '01') selected @endif>1</option>
-            <option value="2" @if($month == '02') selected @endif>2</option>
-            <option value="3" @if($month == '03') selected @endif>3</option>
-            <option value="4" @if($month == '04') selected @endif>4</option>
-            <option value="5" @if($month == '05') selected @endif>5</option>
-            <option value="6" @if($month == '06') selected @endif>6</option>
-            <option value="7" @if($month == '07') selected @endif>7</option>
-            <option value="8" @if($month == '08') selected @endif>8</option>
-            <option value="9" @if($month == '09') selected @endif>9</option>
-            <option value="10" @if($month == '10') selected @endif>10</option>
-            <option value="11" @if($month == '11') selected @endif>11</option>
-            <option value="12" @if($month == '12') selected @endif>12</option>
-        </select>月
-        <select name="day" class="form-control"></select>日
+        @if (str_contains(url()->current(), 'dashboard'))
+            <select name="year" class="form-control"></select>年
+            <select name="month" class="form-control">
+                <option value="1" @if($month == '01') selected @endif>1</option>
+                <option value="2" @if($month == '02') selected @endif>2</option>
+                <option value="3" @if($month == '03') selected @endif>3</option>
+                <option value="4" @if($month == '04') selected @endif>4</option>
+                <option value="5" @if($month == '05') selected @endif>5</option>
+                <option value="6" @if($month == '06') selected @endif>6</option>
+                <option value="7" @if($month == '07') selected @endif>7</option>
+                <option value="8" @if($month == '08') selected @endif>8</option>
+                <option value="9" @if($month == '09') selected @endif>9</option>
+                <option value="10" @if($month == '10') selected @endif>10</option>
+                <option value="11" @if($month == '11') selected @endif>11</option>
+                <option value="12" @if($month == '12') selected @endif>12</option>
+            </select>月
+            <select name="day" class="form-control"></select>日
+        @else
+            <?php
+            $fromd = new DateTime($cmeta->birthdate);
+            $tod = new DateTime();
+            $age = $fromd->diff($tod)->y;
+            ?>
+            <input class="form-control m-input" disabled value="{{$age}}">
+        @endif
     </div>
 </div>
 

@@ -391,11 +391,7 @@ class UserController extends Controller
             else {
                 $admin = $this->admin->checkAdmin();
                 if($admin){
-                    return view('admin.users.messenger')
-                        ->with('admin', $datas['admin'])
-                        ->with('msgs', $datas['msgs'])
-                        ->with('msgs2', $datas['msgs2'])
-                        ->with('template', $datas['template']);
+                    return back();
                 }
                 else{
                     return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);

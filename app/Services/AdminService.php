@@ -528,7 +528,7 @@ class AdminService
             ]
         ];
         //return redirect()->back()->withInput()->with('message', '訊息刪除成功');
-        $request->session()->put('message', '照片隱藏成功，將會產生通知訊息發送給各發訊的會員，請檢查訊息內容，若無誤請按下送出。');
+        $request->session()->put('message', '照片解除隱藏成功。');
         $datas = ['admin' => $admin,
             'msgs' => isset($picInfos) ? $picInfos : 0,
             'msgs2' => isset($avatarInfos) ? $avatarInfos : 0,

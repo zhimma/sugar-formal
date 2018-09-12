@@ -9,7 +9,7 @@
 }
 </style>
 <body style="padding: 15px;">
-<h1>站內訊息管理</h1>
+<h1>被檢舉會員清單</h1>
 @if (isset($errors))
     @if ($errors->count() > 0)
     @else
