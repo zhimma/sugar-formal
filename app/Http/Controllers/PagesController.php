@@ -258,22 +258,39 @@ class PagesController extends Controller
         return redirect('/user/view/'.$request->uid)->with('message', '檢舉成功');
     }
 
-    public function reportPic($reported_user_id, $pic_id)
+    public function reportPic($reporter_id, $pic_id)
     {
-        if ( ! Reported::findMember( $aid , $uid ) )
-        {
-            if ($aid !== $uid)
+        $isAvatar = false;
+        $user = Auth::user();
+        if(str_contains($pic_id, 'uid')){
+            $isAvatar = true;
+            $pic_id = substr($pic_id, 3, strlen($pic_id));
+        }
+        if($isAvatar){
+            if ( ! ReportedAvatar::findMember( $reporter_id , $pic_id ) )
             {
-                $user = $request->user();
-                return view('dashboard.reportUser', [ 'aid' => $aid, 'uid' => $uid, 'user' => $user ]);
+                if ($reporter_id !== $pic_id)
+                {
+                    return view('dashboard.reportAvatar', [ 'reporter_id' => $reporter_id, 'reported_pic_id' => $pic_id, 'user' => $user ]);
+                }
+                else{
+                    return back()->withErrors(['錯誤，不能檢舉自己的大頭照。']);
+                }
             }
-            else{
-                return back()->withErrors(['錯誤，不能檢舉自己。']);
+            else
+            {
+                return back()->withErrors(['檢舉失敗：您已經檢舉過這張大頭照了']);
             }
         }
-        else
-        {
-            return back()->withErrors(['檢舉失敗：您已經檢舉過這個人了']);
+        else{
+            if ( ! ReportedPic::findMember( $reporter_id , $pic_id ) )
+            {
+                return view('dashboard.reportPic', [ 'reporter_id' => $reporter_id, 'reported_pic_id' => $pic_id, 'user' => $user ]);
+            }
+            else
+            {
+                return back()->withErrors(['檢舉失敗：您已經檢舉過這張照片了']);
+            }
         }
     }
 

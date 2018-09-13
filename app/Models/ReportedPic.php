@@ -5,14 +5,14 @@ namespace App\Models;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
-class Reported extends Model
+class ReportedPic extends Model
 {
     /**
      * The database table used by the model.
      *
      * @var string
      */
-    protected $table = 'reported';
+    protected $table = 'reported_pic';
 
     /**
      * Fillable fields
@@ -20,33 +20,22 @@ class Reported extends Model
      * @var array
      */
     protected $fillable = [
-        'member_id',
-        'reported_id'
+        'reporter_id',
+        'reported_pic_id'
     ];
 
-    /**
-     * Find a role by name
-     *
-     * @param  string $name
-     * @return Role
-     */
-    public static function cntr($uid)
+    public static function report($reporter_id, $reported_pic_id, $content = null)
     {
-        return Reported::where('reported_id', $uid)->count();
-    }
-
-    public static function report($member_id, $reported_id, $content = null)
-    {
-        $reported = new Reported;
-        $reported->member_id = $member_id;
-        $reported->reported_id = $reported_id;
+        $reported = new ReportedPic;
+        $reported->reporter_id = $reporter_id;
+        $reported->reported_pic_id = $reported_pic_id;
         $reported->content = $content;
         $reported->save();
     }
 
-    public static function findMember($member_id, $reported_id){
-        $query = Reported::where('member_id', $member_id)
-                 ->where('reported_id', $reported_id)
+    public static function findMember($reporter_id, $reported_pic_id){
+        $query = ReportedPic::where('reporter_id', $reporter_id)
+                 ->where('reported_pic_id', $reported_pic_id)
                  ->get();
         if(count($query)){
             return true;
