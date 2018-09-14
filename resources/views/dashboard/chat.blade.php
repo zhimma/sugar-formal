@@ -226,7 +226,7 @@ $code = Config::get('social.payment.code');
                 {!! $messages->appends(request()->input())->links() !!}
             </div>
 
-            <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/chat">
+            <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/chat" id="chatForm" onsubmit="return checkSpaces()">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                 <input type="hidden" name="userId" value="{{$user->id}}">
@@ -241,7 +241,7 @@ $code = Config::get('social.payment.code');
                     <div class="m-form__actions">
                         <div class="row">
                             <div class="col-lg-9">
-                                <button id="msgsnd" type="submit" class="btn btn-danger m-btn m-btn--air m-btn--custom">回復</button>&nbsp;&nbsp;
+                                <button id="msgsnd" class="btn btn-danger m-btn m-btn--air m-btn--custom">回覆</button>&nbsp;&nbsp;
                                 <button type="reset" class="btn btn-outline-danger m-btn m-btn--air m-btn--custom">取消</button>
                             </div>
                         </div>
@@ -295,6 +295,20 @@ $(document).ready(function(){
         }
     });
 });
+function checkSpaces() {
+    let msg = $('#msg').val();
+    if(msg.trim().length == 0){
+        alert('請勿僅輸入空白');
+        return false;
+    }
+    else if(msg.trim('　').length == 0){
+        alert('請勿僅輸入空白');
+        return false;
+    }
+    else{
+        $('#chatForm').submit();
+    }
+}
 </script>
 
 @stop
