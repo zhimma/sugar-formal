@@ -956,9 +956,25 @@ class UserController extends Controller
     public function inactiveUsers()
     {
         $users = User::join('user_meta', 'users.id', 'user_meta.user_id')
-            ->where('user_meta.is_active', 0)->get();
+            ->where('user_meta.is_active', 0)
+            ->orderBy('users.created_at', 'desc')
+            ->get();
         return view('admin.users.inactiveUsers',[
             'users' => $users
         ]);
+    }
+
+    public function activateUser($token)
+    {
+        $user = UserMeta::where('activation_token', $token)->first();
+        if ($user) {
+            $user->update([
+                'is_active' => true,
+                'activation_token' => null
+            ]);
+            return back()->with('message', '啟動成功。');
+        }
+
+        return back()->withErrors(['啟動失敗。']);
     }
 }

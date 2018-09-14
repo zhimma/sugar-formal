@@ -11,11 +11,13 @@
 	<button type="button" class="btn btn-primary" onclick="$('.search_form').submit()">送出</button>
 </form><br>-->
 @if(isset($users))
+共 {{ $users->count() }} 筆資料
 <table class='table table-bordered table-hover'>
 	<tr>
 		<th>Email</th>
 		<th>名稱</th>
 		<th>男/女</th>
+		<th>註冊時間</th>
 		<th>Token</th>
 		<th>啟動帳號</th>
 	</tr>
@@ -25,13 +27,11 @@
 		<td>
             <a href="advInfo/{{ $user->id }}" target="_blank">{{ $user->name }}</a>
         </td>
-		<td>{{ $user->gender_ch }}</td>
-		<td>{{ $user->token }}</td>
+		<td>@if($user->engroup == '1') 男 @else 女 @endif</td>
+		<td>{{ $user->created_at }}</td>
+		<td>{{ $user->activation_token }}</td>
 		<td>
-			<form method="POST" action="genderToggler" class="user_profile">{!! csrf_field() !!}
-			<input type="hidden" name='user_id' value="{{ $user->id }}">
-			<input type="hidden" name='gender_now' value="{{ $user->engroup }}">
-			<button type="button" class="btn btn-warning" onclick="$('.user_profile').submit()">變更</button></form>
+			<a href="{{ route('activateUser', $user->activation_token)  }}" class="btn btn-success">啟動</a>
 		</td>
 	</tr>
 	@empty
