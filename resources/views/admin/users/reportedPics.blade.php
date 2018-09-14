@@ -59,7 +59,7 @@
                             <td>檢舉理由</td>
                             <td>回覆</td>
                             <td>檢舉時間</td>
-                            <td>封鎖被檢舉者</td>
+                            <!--<td>封鎖被檢舉者</td>-->
                         </tr>
                         @if(isset($results))
                             @foreach ($results as $result)
@@ -80,7 +80,7 @@
                                     <a href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, 'avatar'.$result->id, true]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
                                 </td>
                                 <td>{{ $result['created_at'] }}</td>
-                                <td>
+                                <!--<td>
                                     <select name="days" id="days">
                                         <option value="3">三天</option>
                                         <option value="7">七天</option>
@@ -88,7 +88,7 @@
                                         <option value="30">三十天</option>
                                     </select>
                                     <a class="btn btn-success ban-user" href="{{ route('banUserWithDayAndMessage', [$result['reporter_id'], $result['id']]) }}" onclick="setDays()">送出</a>
-                                </td>
+                                </td>-->
                             </tr>
                         @endforeach
                         @endif
@@ -111,7 +111,7 @@
                                     <a href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
                                 </td>
                                 <td>{{ $result['created_at'] }}</td>
-                                <td>
+                                <!--<td>
                                     <select name="days" id="days">
                                         <option value="3">三天</option>
                                         <option value="7">七天</option>
@@ -119,7 +119,7 @@
                                         <option value="30">三十天</option>
                                     </select>
                                     <a class="btn btn-success ban-user" href="{{ route('banUserWithDayAndMessage', [$result['reporter_id'], $result['id']]) }}" onclick="setDays()">送出</a>
-                                </td>
+                                </td>-->
                             </tr>
                         @endforeach
                         @endif
