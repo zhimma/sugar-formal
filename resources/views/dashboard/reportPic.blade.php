@@ -8,16 +8,17 @@
                     檢舉照片 - 請填寫理由
                 </h3>
                 <span style="text-align:right;" class="m-portlet__head-text">
-
-                <a class="btn btn-danger m-btn m-btn--air m-btn--custom" href="history.back()"> 回去會員資料</a>
+                <a class="btn btn-danger m-btn m-btn--air m-btn--custom" href="/user/view/{{ $uid }}"> 回去{{ \App\Models\User::findById($uid)->name }}的會員資料</a>
             </span>
             </div>
         </div>
     </div>
     <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ route('reportPicNext') }}">
         {!! csrf_field() !!}
+        <input type="hidden" name="pic" value="1">
         <input type="hidden" name="reporter_id" value="{{ $reporter_id }}">
         <input type="hidden" name="reported_pic_id" value="{{ $reported_pic_id }}">
+        <input type="hidden" name="reported_user_id" value="{{ $uid }}">
         <div class="m-portlet__body">
             <div class="form-group m-form__group row">
                 <div class="col-lg-9">

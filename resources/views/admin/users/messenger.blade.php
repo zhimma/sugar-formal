@@ -51,8 +51,11 @@
             <form action="{{ route('admin/send', $user->id) }}" id='message' method='POST'>
                 {!! csrf_field() !!}
                 <input type="hidden" value="{{ $admin->id }}" name="admin_id">
-                <textarea name="msg" id="msg" class="form-control" cols="80" rows="5">@if(isset($message) && !isset($report)){{ $user->name }}您好，您先前所檢舉，由{{ $senderName }}於{{ $message->created_at }}發送的訊息，站長已檢視此訊息並無問題，若有疑慮請來訊。@elseif(isset($message) && isset($report)) {{ $user->name }}您好，您先前在{{ $report->created_at }}檢舉了會員「{{ $reportedName }}」，經站長檢視理由，認為此會員並無問題，若有疑慮請來訊。 @endif</textarea><br>
-                @if(isset($message) && !isset($report))
+                <textarea name="msg" id="msg" class="form-control" cols="80" rows="5">@if(isset($message) && !isset($report)){{ $user->name }}您好，您先前所檢舉@if($isPic){{ $reportedName }}的@else，由{{ $senderName }}@endif @if($isPic)圖片/大頭照@else於{{ $message->created_at }}發送的訊息@endif，站長已檢視，認為並無問題，若有疑慮請來訊。@elseif(isset($message) && isset($report)) {{ $user->name }}您好，您先前在{{ $report->created_at }}檢舉了會員「{{ $reportedName }}」，經站長檢視理由，認為此會員並無問題，若有疑慮請來訊。 @endif</textarea><br>
+                @if($isPic)
+                    <input type="hidden" name="rollback" value="1">
+                    <input type="hidden" name="pic_id" value="{{ $pic_id }}">
+                @elseif(isset($message) && !isset($report))
                     <input type="hidden" name="rollback" value="1">
                     <input type="hidden" name="msg_id" value="{{ $message->id }}">
                 @elseif(isset($message) && isset($report))

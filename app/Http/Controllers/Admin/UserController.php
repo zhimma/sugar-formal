@@ -6,6 +6,8 @@ use App\Http\Requests;
 use App\Models\MemberPic;
 use App\Models\Message;
 use App\Models\Reported;
+use App\Models\ReportedAvatar;
+use App\Models\ReportedPic;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\AdminService;
@@ -660,7 +662,7 @@ class UserController extends Controller
         }
     }
 
-    public function showAdminMessengerWithReportedId($id, $mid)
+    public function showAdminMessengerWithReportedId($id, $mid, $pic_id = null, $isPic= null)
     {
         $admin = $this->admin->checkAdmin();
         if ($admin){
@@ -672,7 +674,9 @@ class UserController extends Controller
                 ->with('user', $user)
                 ->with('message', 'REPORTEDUSERONLY')
                 ->with('report', $report)
-                ->with('reportedName', $reported->name);
+                ->with('reportedName', $reported->name)
+                ->with('isPic', $isPic)
+                ->with('pic_id', $pic_id);
         }
         else{
             return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
@@ -698,6 +702,17 @@ class UserController extends Controller
             if($request->report_id){
                 $m = Reported::where('id', $request->report_id)->get()->first();
                 $m->delete();
+            }
+            if($request->pic_id){
+                if(str_contains($request->pic_id, 'avatar')){
+                    $a_id = substr($request->pic_id, 6, strlen($request->pic_id));
+                    $a = ReportedAvatar::where('id', $a_id)->get()->first();
+                    $a->delete();
+                }
+                else{
+                    $p = ReportedPic::where('id', $request->pic_id)->get()->first();
+                    $p->delete();
+                }
             }
         }
         return back()->with('message', '傳送成功');
@@ -895,6 +910,46 @@ class UserController extends Controller
         }
         else{
             return view('admin.users.reportedUsers')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
+    }
+
+    public function showReportedPicsPage(){
+        $admin = $this->admin->checkAdmin();
+        if ($admin){
+            return view('admin.users.reportedPics');
+        }
+        else{
+            return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
+    }
+
+    public function searchReportedPics(Request $request){
+        $admin = $this->admin->checkAdmin();
+        if ($admin){
+            $avatars = ReportedAvatar::select('*');
+            $pics = ReportedPic::select('*');
+            if($request->date_start){
+                $avatars = $avatars->where('created_at', '>', $request->date_start . ' 00:00');
+                $pics = $pics->where('created_at', '>', $request->date_start . ' 00:00');
+            }
+            if($request->date_end){
+                $avatars = $avatars->where('created_at', '<', $request->date_end . ' 23:59');
+                $pics = $pics->where('created_at', '<', $request->date_end . ' 23:59');
+            }
+            $avatars = $avatars->orderBy('created_at', 'desc')->get();
+            $pics = $pics->orderBy('created_at', 'desc')->get();
+            $avatarDatas = $this->admin->fillReportedAvatarDatas($avatars);
+            $picDatas = $this->admin->fillReportedPicDatas($pics);
+            return view('admin.users.reportedPics')
+                ->with('results', $avatarDatas['results'] ? $avatarDatas['results'] : 1)
+                ->with('users', isset($avatarDatas['users']) ? $avatarDatas['users'] : null)
+                ->with('Presults', $picDatas['results'] ? $picDatas['results'] :null)
+                ->with('Pusers', isset($picDatas['users']) ? $picDatas['users'] : null)
+                ->with('date_start', isset($request->date_start) ? $request->date_start : null)
+                ->with('date_end', isset($request->date_end) ? $request->date_end : null);
+        }
+        else{
+            return view('admin.users.reportedPics')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
         }
     }
 }

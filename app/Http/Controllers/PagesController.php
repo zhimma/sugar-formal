@@ -258,7 +258,7 @@ class PagesController extends Controller
         return redirect('/user/view/'.$request->uid)->with('message', '檢舉成功');
     }
 
-    public function reportPic($reporter_id, $pic_id)
+    public function reportPic($reporter_id, $pic_id, $uid = null)
     {
         $isAvatar = false;
         $user = Auth::user();
@@ -271,7 +271,10 @@ class PagesController extends Controller
             {
                 if ($reporter_id !== $pic_id)
                 {
-                    return view('dashboard.reportAvatar', [ 'reporter_id' => $reporter_id, 'reported_pic_id' => $pic_id, 'user' => $user ]);
+                    return view('dashboard.reportAvatar', [
+                        'reporter_id' => $reporter_id,
+                        'reported_user_id' => $pic_id,
+                        'user' => $user ]);
                 }
                 else{
                     return back()->withErrors(['錯誤，不能檢舉自己的大頭照。']);
@@ -285,7 +288,16 @@ class PagesController extends Controller
         else{
             if ( ! ReportedPic::findMember( $reporter_id , $pic_id ) )
             {
-                return view('dashboard.reportPic', [ 'reporter_id' => $reporter_id, 'reported_pic_id' => $pic_id, 'user' => $user ]);
+                if( $reporter_id !== $uid ){
+                    return view('dashboard.reportPic', [
+                        'reporter_id' => $reporter_id,
+                        'reported_pic_id' => $pic_id,
+                        'user' => $user,
+                        'uid' => $uid]);
+                }
+                else{
+                    return back()->withErrors(['錯誤，不能檢舉自己的照片。']);
+                }
             }
             else
             {
@@ -295,8 +307,13 @@ class PagesController extends Controller
     }
 
     public function reportPicNext(Request $request){
-        Reported::report($request->aid, $request->uid, $request->content);
-        return redirect('/user/view/'.$request->uid)->with('message', '檢舉成功');
+        if($request->avatar){
+            ReportedAvatar::report($request->reporter_id, $request->reported_user_id, $request->content);
+        }
+        if($request->pic){
+            ReportedPic::report($request->reporter_id, $request->reported_pic_id, $request->content);
+        }
+        return redirect('/user/view/'.$request->reported_user_id)->with('message', '檢舉成功');
     }
 
     public function postBlock(Request $request)

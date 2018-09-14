@@ -136,7 +136,7 @@
                 @if($cmeta->isAvatarHidden == 1)
                 @else
                     <img src="{{$cmeta->pic}}"/>
-                    <a href="{{ route('reportPic', [$user->id, 'uid'.$user->id]) }}">檢舉大頭照</a>
+                    <a href="{{ route('reportPic', [$user->id, 'uid'.$cur->id]) }}">檢舉大頭照</a>
                 @endif
             </div>
             @endif
@@ -146,7 +146,7 @@
                 @if($pic->isHidden == 1)
                 @else
                     <img src="{{$pic->pic}}"/>
-                    <a href="{{ route('reportPic', [$user->id, $pic->id]) }}">檢舉這張照片</a>
+                    <a href="{{ route('reportPic', [$user->id, $pic->id, $cur->id]) }}">檢舉這張照片</a>
                 @endif
             </div>
             @endforeach

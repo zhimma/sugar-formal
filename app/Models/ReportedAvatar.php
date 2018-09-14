@@ -27,8 +27,8 @@ class ReportedAvatar extends Model
     public static function report($reporter_id, $reported_user_id, $content = null)
     {
         $reported = new ReportedAvatar;
-        $reported->member_id = $reporter_id;
-        $reported->reported_id = $reported_user_id;
+        $reported->reporter_id = $reporter_id;
+        $reported->reported_user_id = $reported_user_id;
         $reported->content = $content;
         $reported->save();
     }

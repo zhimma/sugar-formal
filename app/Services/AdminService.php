@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ReportedPic;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Vip;
@@ -226,6 +227,95 @@ class AdminService
             $users[$id] = array();
         }
         foreach ($reported_id as $id){
+            if(!in_array($id, $users)){
+                $users[$id] = array();
+            }
+        }
+        foreach ($users as $id => $user){
+            $name = User::select('name')
+                ->where('id', '=', $id)
+                ->get()->first();
+            if($name != null){
+                $users[$id] = $name->name;
+            }
+            else{
+                $users[$id] = '資料庫沒有資料';
+            }
+        }
+        return ['results' => $results,
+            'users' => $users];
+    }
+
+    public function fillReportedAvatarDatas($results){
+        $reporter_id = array();
+        $reported_user_id = array();
+        foreach ($results as $result){
+            if(!in_array($result->reporter_id, $reporter_id)) {
+                array_push($reporter_id, $result->reporter_id);
+            }
+            if(!in_array($result->reported_user_id, $reported_user_id)) {
+                array_push($reported_user_id, $result->reported_user_id);
+            }
+            $result['isBlocked'] = banned_users::where('member_id', 'like', $result->reported_user_id)->get()->first();
+            if(Vip::where('member_id', 'like', $result->reporter_id)->get()->first()){
+                $result['vip'] = '是';
+            }
+            else{
+                $result['vip'] = '否';
+            }
+            $result['pic'] = UserMeta::select('pic')->where('user_id', $result->reported_user_id)->get()->first();
+            $result['pic'] = $result['pic']->pic;
+        }
+        $users = array();
+        foreach ($reporter_id as $id){
+            $users[$id] = array();
+        }
+        foreach ($reported_user_id as $id){
+            if(!in_array($id, $users)){
+                $users[$id] = array();
+            }
+        }
+        foreach ($users as $id => $user){
+            $name = User::select('name')
+                ->where('id', '=', $id)
+                ->get()->first();
+            if($name != null){
+                $users[$id] = $name->name;
+            }
+            else{
+                $users[$id] = '資料庫沒有資料';
+            }
+        }
+        return ['results' => $results,
+            'users' => $users];
+    }
+
+    public function fillReportedPicDatas($results){
+        $reporter_id = array();
+        $reported_user_id = array();
+        foreach ($results as $result){
+            if(!in_array($result->reporter_id, $reporter_id)) {
+                array_push($reporter_id, $result->reporter_id);
+            }
+            $temp = MemberPic::select('member_id', 'pic')->where('id', $result->reported_pic_id)->get()->first();
+            $result['reported_user_id'] = $temp->member_id;
+            $result['pic'] = $temp->pic;
+            if(!in_array($temp->member_id, $reported_user_id)) {
+                array_push($reported_user_id, $temp->member_id);
+            }
+            $result['isBlocked'] = banned_users::where('member_id', 'like', $temp->member_id)->get()->first();
+            if(Vip::where('member_id', 'like', $result->reporter_id)->get()->first()){
+                $result['vip'] = '是';
+            }
+            else{
+                $result['vip'] = '否';
+            }
+        }
+        $users = array();
+        foreach ($reporter_id as $id){
+            $users[$id] = array();
+        }
+        foreach ($reported_user_id as $id){
             if(!in_array($id, $users)){
                 $users[$id] = array();
             }

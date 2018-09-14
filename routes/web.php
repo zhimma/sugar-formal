@@ -172,7 +172,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
     Route::post('/dashboard/fav', 'PagesController@postfav');
     Route::post('/dashboard/report', 'PagesController@report');
     Route::post('/dashboard/reportNext', 'PagesController@reportNext')->name('reportNext');
-    Route::get('/dashboard/reportPic/{user}/{id}', 'PagesController@reportPic')->name('reportPic');
+    Route::get('/dashboard/reportPic/{user}/{id}/{uid?}', 'PagesController@reportPic')->name('reportPic');
     Route::post('/dashboard/reportPicNext', 'PagesController@reportPicNext')->name('reportPicNext');
     Route::post('/dashboard/upgradepay', 'PagesController@upgradepay');
 
@@ -234,7 +234,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         Route::post('users/pictures/modify', 'UserController@modifyUserPictures')->name('users/pictures/modify');
         Route::get('users/message/to/{id}', 'UserController@showAdminMessenger');
         Route::get('users/message/to/{id}/{mid}', 'UserController@showAdminMessengerWithMessageId')->name('AdminMessengerWithMessageId');
-        Route::get('users/message/unreported/to/{id}/{mid}', 'UserController@showAdminMessengerWithReportedId')->name('AdminMessengerWithReportedId');
+        Route::get('users/message/unreported/to/{id}/{mid}/{pic_id?}/{isPic?}', 'UserController@showAdminMessengerWithReportedId')->name('AdminMessengerWithReportedId');
         Route::post('users/message/send/{id}', 'UserController@sendAdminMessage')->name('admin/send');
         Route::post('users/message/multiple/send', 'UserController@sendAdminMessageMultiple')->name('admin/send/multiple');
         Route::get('users/message/search', 'UserController@showMessageSearchPage')->name('users/message/search');
@@ -243,6 +243,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         Route::post('users/message/modify', 'UserController@modifyMessage')->name('users/message/modify');
         Route::post('users/message/delete', 'UserController@deleteMessage')->name('users/message/delete');
         Route::post('users/message/edit', 'UserController@editMessage')->name('users/message/edit');
+        Route::get('users/pics/reported', 'UserController@showReportedPicsPage')->name('users/pics/reported');
+        Route::post('users/pics/reported', 'UserController@searchReportedPics')->name('users/pics/reported');
         Route::get('users/bannedList', 'UserController@showBannedList')->name('users/bannedList');
         Route::get('users/reported', 'UserController@showReportedUsersPage')->name('users/reported');
         Route::post('users/reported', 'UserController@showReportedUsersList')->name('users/reported');
