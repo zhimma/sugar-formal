@@ -260,6 +260,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         Route::get('/chat', 'MessageController@chatview')->name('admin/chat');
         Route::get('/chat/{cid}', 'PagesController@chat');
         Route::post('/chat', 'MessageController@postChat');
+        Route::get('users/inactive', 'UserController@inactiveUsers')->name('inactive');
 
         /*
         |--------------------------------------------------------------------------

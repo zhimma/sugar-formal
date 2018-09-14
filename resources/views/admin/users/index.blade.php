@@ -11,35 +11,34 @@
 	<button type="button" class="btn btn-primary" onclick="$('.search_form').submit()">送出</button>
 </form><br>
 @if(isset($users))
-<table class='table'>
+<table class='table table-bordered table-hover'>
 	<tr>
-		<td>Email</td>
-		<td>名稱</td>
-		<td>男/女</td>
-		<td>是否為VIP</td>
-		<td>是否為免費方案</td>
-		<td>升級時的帳單編號</td>
-		<td>升級時卡號的後四碼</td>
-		<td>VIP資料建立時間</td>
-		<td>VIP資料更新時間</td>
-		<td>變更男/女</td>
-		<td>提供/取消VIP權限</td>
+		<th>Email</th>
+		<th>名稱</th>
+		<th>男/女</th>
+		<th>是否為VIP</th>
+		<th>是否為免費方案</th>
+		<th>升級時的帳單編號</th>
+		<th>VIP資料建立時間</th>
+		<th>VIP資料更新時間</th>
+		<th>變更男/女</th>
+		<th>提供/取消VIP權限</th>
 	</tr>
 	@forelse ($users as $user)
 	<tr>
 		<td>{{ $user->email }}</td>
-		<td>{{ $user->name }}</td>
+		<td>
+            <a href="advInfo/{{ $user->id }}" target="_blank">{{ $user->name }}</a>
+        </td>
 		<td>{{ $user->gender_ch }}</td>
 		@if($user->isVip)
 			<td>是</td>
 			<td>@if($user->vip_data->free == 1) 是 @else 否 @endif</td>
 			<td>{{ $user->vip_order_id }}</td>
-			<td>暫無記錄</td>
 		@else
 			<td>否</td>
 			<td>@if(isset($user->vip_data))@if($user->vip_data->free == 1) 是 @else 否 @endif @else 無資料 @endif</td>
 			<td>@if(isset($user->vip_order_id)){{ $user->vip_order_id }}@else 無資料 @endif</td>
-			<td>無資料</td>
 		@endif
 		<td>@if(isset($user->vip_data->created_at)){{ $user->vip_data->created_at }}@else 無資料 @endif</td>
 		<td>@if(isset($user->vip_data->updated_at)){{ $user->vip_data->updated_at }}@else 無資料 @endif</td>

@@ -952,4 +952,13 @@ class UserController extends Controller
             return view('admin.users.reportedPics')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
         }
     }
+
+    public function inactiveUsers()
+    {
+        $users = User::join('user_meta', 'users.id', 'user_meta.user_id')
+            ->where('user_meta.is_active', 0)->get();
+        return view('admin.users.inactiveUsers',[
+            'users' => $users
+        ]);
+    }
 }

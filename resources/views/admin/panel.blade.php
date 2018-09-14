@@ -8,6 +8,7 @@
 	<a href="{{ route('users/reported') }}">被檢舉會員清單</a>
 	<a href="{{ route('users/pics/reported') }}">被檢舉照片清單</a>
 	<a href="{{ route('users/switch') }}">切換會員身份</a>
+    <a href="{{ route('inactive') }}">未啟動會員</a>
 	<a href="{{ route('admin/announcement') }}">站長公告</a>
 	<a href="{{ route('admin/chat') }}">信箱</a>
 </div>
