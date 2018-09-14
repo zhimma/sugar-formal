@@ -297,17 +297,13 @@ $(document).ready(function(){
 });
 function checkSpaces() {
     let msg = $('#msg').val();
-    if(msg.trim().length == 0){
-        alert('請勿僅輸入空白');
-        return false;
-    }
-    else if(msg.trim('　').length == 0){
-        alert('請勿僅輸入空白');
-        return false;
-    }
-    else{
+    // if(!!msg.replace(/\s/g, '').length){
+    //     alert('請勿僅輸入空白');
+    //     return false;
+    // }
+    // else{
         $('#chatForm').submit();
-    }
+    // }
 }
 </script>
 
