@@ -78,8 +78,11 @@ class UserController extends Controller
             }
             $user['vip_data'] = Vip::select('id', 'free', 'created_at', 'updated_at')
                                 ->where('member_id', $user->id)
-                                ->orderBy('created_at', 'desc')
+                                ->orderBy('created_at', 'asc')
                                 ->get()->first();
+            if(VipLog::select("updated_at")->where('member_id', $user->id)->orderBy('updated_at', 'desc')->get()->first()){
+                $user['updated_at'] = VipLog::select("updated_at")->where('member_id', $user->id)->orderBy('updated_at', 'desc')->get()->first()->updated_at;
+            }
         }
         return view('admin.users.index')
                ->with('users', $users);

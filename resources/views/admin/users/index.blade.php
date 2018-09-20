@@ -41,7 +41,7 @@
 			<td>@if(isset($user->vip_order_id)){{ $user->vip_order_id }}@else 無資料 @endif</td>
 		@endif
 		<td>@if(isset($user->vip_data->created_at)){{ $user->vip_data->created_at }}@else 無資料 @endif</td>
-		<td>@if(isset($user->vip_data->updated_at)){{ $user->vip_data->updated_at }}@else 無資料 @endif</td>
+		<td>@if(isset($user['updated_at'])){{ $user['updated_at'] }}@else 無資料 @endif</td>
 		<td>
 			<form method="POST" action="genderToggler" class="user_profile">{!! csrf_field() !!}
 			<input type="hidden" name='user_id' value="{{ $user->id }}">
