@@ -32,7 +32,7 @@
             <td>
                 <select name="user_engroup" id="engroup" class='form-control'>
                     <option value="1" @if($user->engroup==1) selected @endif>男</option>
-                    <option value="0" @if($user->engroup==0) selected @endif>女</option>
+                    <option value="2" @if($user->engroup==2) selected @endif>女</option>
                 </select>
             </td>
             <td><input type="text" value='{{ $user->email }}' name='email' class='form-control'></td>
