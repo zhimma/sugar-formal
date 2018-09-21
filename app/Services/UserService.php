@@ -369,7 +369,14 @@ class UserService
                     $userMetaResult = true;
                 }
                 else $userMetaResult = false;
-                $user->update($payload);
+                if($payload['user_engroup'] != $user->engroup){
+                    $user->engroup_change = $user->engroup_change + 1;
+                    $user->save();
+                    $user->update($payload);
+                }
+                else{
+                    $user->update($payload);
+                }
 
                 if (isset($payload['roles'])) {
                     $this->unassignAllRoles($userId);

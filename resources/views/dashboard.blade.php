@@ -98,7 +98,7 @@
 <?php $cmeta = $cur->meta_(); ?>
 
 @if(str_contains(url()->current(), 'dashboard'))
-    <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard">
+    <form class="m-form m-form--fit m-form--label-align-right" method="POST" name="user_data" action="/dashboard">
         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
         <input type="hidden" name="userId" value="{{$user->id}}">
 @endif
@@ -130,10 +130,10 @@
                 </div>
             </div>
             <div class="form-group m-form__group row">
-                <label for="engroup" class="col-lg-2 col-md-3 col-form-label">帳號類型</label>
+                <label for="user_engroup" class="col-lg-2 col-md-3 col-form-label">帳號類型</label>
                 <div class="col-lg-7 form-inline">
-                    <input class="form-control m-input" name="engroup" type="radio" value="1" @if($user->engroup == 1) checked @endif @if($user->engroup_change > 0) disabled @endif>甜心大哥/大姐&nbsp;
-                    <input class="form-control m-input" type="radio" name="engroup" value="2" @if($user->engroup == 2) checked @endif @if($user->engroup_change > 0) disabled @endif>甜心寶貝&nbsp;
+                    <input class="form-control m-input" name="user_engroup" type="radio" value="1" @if($user->engroup == 1) checked @endif @if($user->engroup_change > 0) disabled @endif>甜心大哥/大姐&nbsp;
+                    <input class="form-control m-input" type="radio" name="user_engroup" value="2" @if($user->engroup == 2) checked @endif @if($user->engroup_change > 0) disabled @endif>甜心寶貝&nbsp;
                     <a style="font-weight: bold; color: red">(注意：每個帳號僅能變更一次)</a>
                 </div>
             </div>
@@ -1136,6 +1136,21 @@
             });
         });
         @if (str_contains(url()->current(), 'dashboard'))
+            {{--let engroup = $('input[name=engroup]:checked').val();--}}
+            {{--function check_engroup_change() {--}}
+                {{--console.log(engroup);--}}
+                {{--return false;--}}
+                {{--if(engroup !== {{ $user->engroup }}){--}}
+                    {{--if(confirm('確定要改變帳號類型？')){--}}
+                        {{--$('#user_data').submit();--}}
+                    {{--}--}}
+                    {{--return false;--}}
+                {{--}--}}
+                {{--else{--}}
+                    {{--$('#user_data').submit();--}}
+                {{--}--}}
+            {{--}--}}
+
             var ysel = document.getElementsByName("year")[0],
                 msel = document.getElementsByName("month")[0],
                 dsel = document.getElementsByName("day")[0],
