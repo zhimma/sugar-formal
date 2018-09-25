@@ -262,6 +262,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
         Route::post('/chat', 'MessageController@postChat');
         Route::get('users/inactive', 'UserController@inactiveUsers')->name('inactive');
         Route::get('users/activate/token/{token}', 'UserController@activateUser')->name('activateUser');
+        Route::get('stats/vip', 'StatController@vip')->name('stats/vip');
 
         /*
         |--------------------------------------------------------------------------
