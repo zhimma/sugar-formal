@@ -59,5 +59,12 @@ class StatController extends Controller
         }
         return view('admin.stats.vip', ['results' => $results]);
     }
-
+    public function vipLog($id)
+    {
+        $results = VipLog::where('member_id', $id)->get();
+        $name = User::where('id', $id)->get()->first()->name;
+        return view('admin.stats.vipLog', [
+            'results' => $results,
+            'name' => $name]);
+    }
 }

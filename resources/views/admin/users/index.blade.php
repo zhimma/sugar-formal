@@ -40,7 +40,7 @@
 			<td>@if(isset($user->vip_data))@if($user->vip_data->free == 1) 是 @else 否 @endif @else 無資料 @endif</td>
 			<td>@if(isset($user->vip_order_id)){{ $user->vip_order_id }}@else 無資料 @endif</td>
 		@endif
-		<td>@if(isset($user->vip_data->created_at)){{ $user->vip_data->created_at }}@else 無資料 @endif</td>
+		<td>@if(isset($user->vip_data->created_at))<a href="{{ route('stats/vip_log', $user->id) }}" target="_blank">{{ $user->vip_data->created_at }}</a>@else 無資料 @endif</td>
 		<td>@if(isset($user['updated_at'])){{ $user['updated_at'] }}@else 無資料 @endif</td>
 		<td>
 			<form method="POST" action="genderToggler" class="user_profile">{!! csrf_field() !!}
