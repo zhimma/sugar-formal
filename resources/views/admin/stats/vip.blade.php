@@ -7,6 +7,7 @@
 	<tr>
 		<th>會員ID</th>
 		<th>名稱</th>
+		<th>男/女</th>
         <th>VIP持續時間</th>
 		<th>升級時間(資料建立時間)</th>
     </tr>
@@ -14,8 +15,9 @@
 	<tr>
 		<td>{{ $result->member_id }}</td>
 		<td>
-            <a href="{{ route('users/advInfo', $result->member_id)XA }}" target="_blank">{{ $result['name'] }}</a>
+            <a href="{{ route('users/advInfo', $result->member_id) }}" target="_blank">{{ $result['name'] }}</a>
         </td>
+        <td>{{ $result['engroup'] }}</td>
         <td>@if($result['times']->y != 0) {{ $result['times']->y }}年@endif @if($result['times']->m != 0) {{ $result['times']->m }}個月@endif{{ $result['times']->d }}天</td>
 		<td>{{ $result->created_at }}</td>
 	</tr>

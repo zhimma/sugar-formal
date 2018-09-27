@@ -48,12 +48,18 @@ class StatController extends Controller
         $end = date_create();
         foreach ($results as $key => $result){
             $start  = date_create($result->created_at);
-            $results[$key]['name'] = User::select('name')->where('id', $result->member_id)->get()->first();
-            if($results[$key]['name'] == null){
+            $user = User::select('name','engroup')->where('id', $result->member_id)->get()->first();
+            if($user == null){
                 $results[$key]['name'] = '無資料';
             }
             else{
-                $results[$key]['name'] = $results[$key]['name']->name;
+                $results[$key]['name'] = $user->name;
+            }
+            if($user->engroup == 1){
+                $results[$key]['engroup'] = '男';
+            }
+            else{
+                $results[$key]['engroup'] = '女';
             }
             $results[$key]['times'] = date_diff( $start, $end );
         }
