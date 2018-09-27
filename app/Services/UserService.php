@@ -369,7 +369,7 @@ class UserService
                     $userMetaResult = true;
                 }
                 else $userMetaResult = false;
-                if($payload['user_engroup'] != $user->engroup){
+                if($payload['engroup'] != $user->engroup){
                     $user->engroup_change = $user->engroup_change + 1;
                     $user->save();
                     $user->update($payload);

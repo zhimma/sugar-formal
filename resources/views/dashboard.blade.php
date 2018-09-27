@@ -132,8 +132,8 @@
             <div class="form-group m-form__group row">
                 <label for="user_engroup" class="col-lg-2 col-md-3 col-form-label">帳號類型</label>
                 <div class="col-lg-7 form-inline">
-                    <input class="form-control m-input" name="user_engroup" type="radio" value="1" @if($user->engroup == 1) checked @endif @if($user->engroup_change > 0) disabled @endif>甜心大哥/大姐&nbsp;
-                    <input class="form-control m-input" type="radio" name="user_engroup" value="2" @if($user->engroup == 2) checked @endif @if($user->engroup_change > 0) disabled @endif>甜心寶貝&nbsp;
+                    <input class="form-control m-input" name="engroup" type="radio" value="1" @if($user->engroup == 1) checked @endif @if($user->engroup_change > 0) disabled @endif>甜心大哥/大姐&nbsp;
+                    <input class="form-control m-input" type="radio" name="engroup" value="2" @if($user->engroup == 2) checked @endif @if($user->engroup_change > 0) disabled @endif>甜心寶貝&nbsp;
                     <a style="font-weight: bold; color: red">(注意：每個帳號僅能變更一次)</a>
                 </div>
             @else
