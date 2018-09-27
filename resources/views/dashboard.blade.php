@@ -136,7 +136,6 @@
                     <input class="form-control m-input" type="radio" name="user_engroup" value="2" @if($user->engroup == 2) checked @endif @if($user->engroup_change > 0) disabled @endif>甜心寶貝&nbsp;
                     <a style="font-weight: bold; color: red">(注意：每個帳號僅能變更一次)</a>
                 </div>
-            </div>
             @else
             <div class="form-group m-form__group">
             @if (isset($cmeta->pic))
