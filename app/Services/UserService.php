@@ -369,13 +369,15 @@ class UserService
                     $userMetaResult = true;
                 }
                 else $userMetaResult = false;
-                if($payload['engroup'] != $user->engroup){
-                    $user->engroup_change = $user->engroup_change + 1;
-                    $user->save();
-                    $user->update($payload);
-                }
-                else{
-                    $user->update($payload);
+                if($payload['engroup']){
+                    if($payload['engroup'] != $user->engroup){
+                        $user->engroup_change = $user->engroup_change + 1;
+                        $user->save();
+                        $user->update($payload);
+                    }
+                    else{
+                        $user->update($payload);
+                    }
                 }
 
                 if (isset($payload['roles'])) {
