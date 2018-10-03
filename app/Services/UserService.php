@@ -63,7 +63,7 @@ class UserService
      */
     public function find($id)
     {
-        return $this->model->find($id);
+        return $this->model->findById($id);
     }
 
     /**
@@ -185,7 +185,8 @@ class UserService
 
         try {
             return DB::transaction(function () use ($userId, $payload) {
-                $user = $this->model->find($userId);
+                //$user = $this->model->find($userId);
+                $user = $this->find($userId);
 
                 if (isset($payload['meta']['terms_and_cond']) && ($payload['meta']['terms_and_cond'] == 1 || $payload['meta']['terms_and_cond'] == 'on')) {
                     $payload['meta']['terms_and_cond'] = 1;
@@ -369,13 +370,13 @@ class UserService
                     $userMetaResult = true;
                 }
                 else $userMetaResult = false;
-                if($payload['engroup']){
-                    if($payload['engroup'] != $user->engroup){
+                if(isset($payload['engroup'])) {
+                    if ($payload['engroup'] != $user->engroup) {
                         $user->engroup_change = $user->engroup_change + 1;
                         $user->save();
                         $user->update($payload);
                     }
-                    else{
+                    else {
                         $user->update($payload);
                     }
                 }
@@ -426,7 +427,8 @@ class UserService
                 $this->leaveAllTeams($id);
 
                 $userMetaResult = $this->userMeta->where('user_id', $id)->delete();
-                $userResult = $this->model->find($id)->delete();
+                //$userResult = $this->model->find($id)->delete();
+                $userResult = $this->find($id)->delete();
 
                 return ($userMetaResult && $userResult);
             });
@@ -444,7 +446,8 @@ class UserService
     public function switchToUser($id)
     {
         try {
-            $user = $this->model->find($id);
+            //$user = $this->model->find($id);
+            $user = $this->find($id);
             Session::put('original_user', Auth::id());
             Auth::login($user);
             return true;
@@ -463,7 +466,8 @@ class UserService
     {
         try {
             $original = Session::pull('original_user');
-            $user = $this->model->find($original);
+            //$user = $this->model->find($original);
+            $user = $this->find($original);
             Auth::login($user);
             return true;
         } catch (Exception $e) {
@@ -503,7 +507,8 @@ class UserService
     public function assignRole($roleName, $userId)
     {
         $role = $this->role->findByName($roleName);
-        $user = $this->model->find($userId);
+        //$user = $this->model->find($userId);
+        $user = $this->find($userId);
 
         $user->roles()->attach($role);
     }
@@ -518,7 +523,8 @@ class UserService
     public function unassignRole($roleName, $userId)
     {
         $role = $this->role->findByName($roleName);
-        $user = $this->model->find($userId);
+        //$user = $this->model->find($userId);
+        $user = $this->find($userId);
 
         $user->roles()->detach($role);
     }
@@ -532,7 +538,8 @@ class UserService
      */
     public function unassignAllRoles($userId)
     {
-        $user = $this->model->find($userId);
+        //$user = $this->model->find($userId);
+        $user = $this->find($userId);
         $user->roles()->detach();
     }
 }
