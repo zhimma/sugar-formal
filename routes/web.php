@@ -208,7 +208,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::group(['prefix' => 'admin', 'namespace' => 'Admin', 'middleware' => 'admin'], function () {
+    Route::group(['prefix' => 'admin', 'namespace' => 'Admin', 'middleware' => 'Admin'], function () {
 
         Route::get('dashboard', 'DashboardController@index');
 
