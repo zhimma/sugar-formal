@@ -373,11 +373,6 @@ class UserService
                 if(isset($payload['engroup'])) {
                     if ($payload['engroup'] != $user->engroup) {
                         $user->engroup_change = $user->engroup_change + 1;
-                        $user->save();
-                        $user->update($payload);
-                    }
-                    else {
-                        $user->update($payload);
                     }
                 }
 
@@ -386,6 +381,7 @@ class UserService
                     $this->assignRole($payload['roles'], $userId);
                 }
 
+                $user->update($payload);
                 return $user;
             });
         } catch (Exception $e) {

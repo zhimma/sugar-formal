@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Exception;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
@@ -48,10 +49,7 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        if(!$exception instanceof ValidationException) {
-            if(str_contains($request->path(), 'admin')){
-                return parent::render($request, $exception);
-            }
+        if(!$exception instanceof ValidationException && !$exception instanceof \Illuminate\Auth\AuthenticationException) {
             return response()->view('errors.exception');
         }
         return parent::render($request, $exception);
