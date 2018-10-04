@@ -48,6 +48,12 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        if(!$exception instanceof ValidationException) {
+            if(str_contains($request->path(), 'admin')){
+                return parent::render($request, $exception);
+            }
+            return response()->view('errors.exception');
+        }
         return parent::render($request, $exception);
         //return redirect('/error');
     }
