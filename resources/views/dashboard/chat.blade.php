@@ -226,7 +226,7 @@ $code = Config::get('social.payment.code');
                 {!! $messages->appends(request()->input())->links() !!}
             </div>
 
-            <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/chat" id="chatForm" onsubmit="return checkSpaces()">
+            <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/chat" id="chatForm" onsubmit="return submit()">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                 <input type="hidden" name="userId" value="{{$user->id}}">
@@ -234,14 +234,14 @@ $code = Config::get('social.payment.code');
                 <div class="m-portlet__body">
                     <div class="form-group m-form__group row">
                         <div class="col-lg-9">
-                            <textarea class="form-control m-input" rows="4" id="msg" required name="msg" maxlength="500"></textarea>
+                            <textarea class="form-control m-input msg" rows="4" id="msg" required name="msg" maxlength="500"></textarea>
                         </div>
                     </div>
 
                     <div class="m-form__actions">
                         <div class="row">
                             <div class="col-lg-9">
-                                <button id="msgsnd" class="btn btn-danger m-btn m-btn--air m-btn--custom">回覆</button>&nbsp;&nbsp;
+                                <button id="msgsnd" class="btn btn-danger m-btn m-btn--air m-btn--custom msgsnd">回覆</button>&nbsp;&nbsp;
                                 <button type="reset" class="btn btn-outline-danger m-btn m-btn--air m-btn--custom">取消</button>
                             </div>
                         </div>
@@ -257,15 +257,18 @@ $code = Config::get('social.payment.code');
 @stop
 
 @section('javascript')
-
 <script>
 $(document).ready(function(){
-    $('#msg').on('keyup' , function() {
-        if($('#msg').val().length > 0 ){
-            $('#msgsnd').prop('disabled', false);
+    $('.msg').keyup(function() {
+        let content = $('.msg').val(), msgsnd = $('.msgsnd');
+        if($.trim(content) == "" ){
+            $('.alert').remove();
+            $("<a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a>").insertAfter(this);
+            msgsnd.prop('disabled', true);
         }
         else {
-            $('#msgsnd').prop('disabled', true);
+            $('.alert').remove();
+            msgsnd.prop('disabled', false);
         }
     });
     $("#showhide").click(function(){
@@ -295,15 +298,8 @@ $(document).ready(function(){
         }
     });
 });
-function checkSpaces() {
-    let msg = $('#msg').val();
-    // if(!!msg.replace(/\s/g, '').length){
-    //     alert('請勿僅輸入空白');
-    //     return false;
-    // }
-    // else{
-        $('#chatForm').submit();
-    // }
+function submit() {
+    $('#chatForm').submit();
 }
 </script>
 
