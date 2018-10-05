@@ -42,6 +42,9 @@ class MessageController extends Controller {
     public function postChat(Request $request)
     {
         $payload = $request->all();
+        if(!isset($payload['msg'])){
+            return back()->withErrors(['請勿僅輸入空白！']);
+        }
         Message::post(auth()->id(), $payload['to'], $payload['msg']);
         return back();
     }
