@@ -241,7 +241,7 @@ $code = Config::get('social.payment.code');
                     <div class="m-form__actions">
                         <div class="row">
                             <div class="col-lg-9">
-                                <button id="msgsnd" class="btn btn-danger m-btn m-btn--air m-btn--custom msgsnd">回覆</button>&nbsp;&nbsp;
+                                <button id="msgsnd" type="submit" class="btn btn-danger m-btn m-btn--air m-btn--custom msgsnd">回覆</button>&nbsp;&nbsp;
                                 <button type="reset" class="btn btn-outline-danger m-btn m-btn--air m-btn--custom">取消</button>
                             </div>
                         </div>
