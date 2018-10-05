@@ -51,7 +51,8 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
-        if(strpos($data['email'], 'gmail.com') !== false) {
+        //todo: Gmail validation.
+        /*if(strpos($data['email'], 'gmail.com') !== false) {
             //Removes all the dots that contains in the email that intend to register.
             $email = str_replace('.', '', $data['email']);
             //Removes all the characters that follows after the first '+' shows up.
@@ -62,7 +63,7 @@ class RegisterController extends Controller
             if($emails->contains('email', $email)){
                 return back()->withErrors(['此電子郵件已在本站註冊過。']);
             }
-        }
+        }*/
 
         //Custom validation.
         Validator::extend('not_contains', function($attribute, $value, $parameters)
