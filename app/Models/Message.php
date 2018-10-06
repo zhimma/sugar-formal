@@ -240,11 +240,21 @@ class Message extends Model
         if($block->count() == 0) return $all_msg->count();
         //echo $block->count();
         //echo 'count = '. $block->count();
-        for($i = 0 ; $i < $block->count(); $i++) {
-            if($all_msg->where('from_id', '!=', $block[$i]->blocked_id) != NULL) {
-                $unreadCount += $all_msg->where('from_id', '!=', $block[$i]->blocked_id)->count();
+        $blocked_ids = array();
+        foreach($block as $b) {
+            if(!in_array($b->blocked_id, $blocked_ids)){
+                array_push($blocked_ids, $b->blocked_id);
             }
         }
+        $unreadCount += $all_msg->whereNotIn('from_id', $blocked_ids)->count();
+        //for($i = 0 ; $i < $block->count(); $i++) {
+        //    if($all_msg->where('from_id', '!=', $block[$i]->blocked_id) != NULL) {
+        //        $unreadCount += $all_msg
+        //                        ->where('from_id', '!=', $block[$i]->blocked_id)
+        //                        ->where('read', 'N')
+        //                        ->count();
+        //    }
+        //}
 
         return $unreadCount;
         //return Message::where([['to_id', $uid],['from_id', '!=', $uid],['from_id', '!=', $block[$i]->blocked_id]])->where('read', 'N')->count();

@@ -1,0 +1,6 @@
+SELECT `reported_id`, `C`, `u`.`name`, `u`.`email`, `city`, `area`, `u`.`engroup` FROM ( 
+    SELECT *, count(`reported_id`) as C FROM `reported` GROUP BY `reported_id` 
+) AS T 
+JOIN `users` `u` on `reported_id` = `u`.`id` 
+JOIN `user_meta` AS `um` on `reported_id` = `um`.`user_id` 
+WHERE `C` > 10
