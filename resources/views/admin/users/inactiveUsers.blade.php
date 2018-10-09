@@ -25,7 +25,7 @@
 	<tr>
 		<td>{{ $user->email }}</td>
 		<td>
-            <a href="advInfo/{{ $user->id }}" target="_blank">{{ $user->name }}</a>
+            <a href="advInfo/{{ $user->user_id }}" target="_blank">{{ $user->name }}</a>
         </td>
 		<td>@if($user->engroup == '1') 男 @else 女 @endif</td>
 		<td>{{ $user->created_at }}</td>
