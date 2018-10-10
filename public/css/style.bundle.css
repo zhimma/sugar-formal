@@ -16310,7 +16310,8 @@ button {
 }
 .m-badge.m-badge--danger {
     background-color: #f4516c;
-    color: #fff
+    color: #fff;
+    white-space: nowrap;
 }
 .m-link {
     text-decoration: none;
