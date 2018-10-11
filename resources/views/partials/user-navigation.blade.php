@@ -32,8 +32,23 @@
         <a href="#" class="m-nav__link notice__toggle" id="notVIP">
             <img src="/img/question.png" class="question" style="padding: 14px 0 -10px 0; width: 20px">
         </a>
-        <div class="notice">
-            TYEWERWER
+        <div class="notice m-dropdown__wrapper m-dropdown__wrapper_q">
+            <span class="m-dropdown__arrow m-dropdown__arrow--right m-dropdown__arrow--adjust m-dropdown__arrow_q"></span>
+            <div class="m-dropdown__inner">
+                <div class="m-dropdown__body">
+                    <div class="m-dropdown__content">
+                        男生版
+                        非 VIP 會員最多一次跟十位會員通信，加入 VIP 即可解除此限制。
+
+                        女生版
+                        非 VIP 會員最多一次跟十位會員通信，只要常常上線就可以獲得 VIP 權限。
+                    </div>
+                    <div class="buttons">
+                        <a href="" class="btn btn-success">確定</a>
+                        <a href="" class="btn btn-warning">不再通知</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </li>
 @endif
@@ -161,9 +176,7 @@
     $('.notice__toggle').click(function (){ $('.notice').toggle("slow") });
 </script>
 <style>
-    .notice{
-        background-color: transparent;
-        background-image: url('/img/border.png');
-        background-repeat: no-repeat;
+    .buttons{
+        text-align: center;
     }
 </style>
