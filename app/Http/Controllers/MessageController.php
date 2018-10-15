@@ -57,4 +57,12 @@ class MessageController extends Controller {
         }
     }
 
+    public function disableNotice(Request $request)
+    {
+        $user = $request->user();
+        if ($user) {
+            return view('dashboard.chat')->with('user', $user);
+        }
+    }
+
 }

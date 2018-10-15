@@ -37,15 +37,15 @@
             <div class="m-dropdown__inner">
                 <div class="m-dropdown__body">
                     <div class="m-dropdown__content">
-                        男生版
-                        非 VIP 會員最多一次跟十位會員通信，加入 VIP 即可解除此限制。
-
-                        女生版
-                        非 VIP 會員最多一次跟十位會員通信，只要常常上線就可以獲得 VIP 權限。
+                        @if($user->engroup == 1)
+                            非 VIP 會員最多一次跟十位會員通信，加入 VIP 即可解除此限制。
+                        @else
+                            非 VIP 會員最多一次跟十位會員通信，只要常常上線就可以獲得 VIP 權限。
+                        @endif
                     </div>
                     <div class="buttons">
-                        <a href="" class="btn btn-success">確定</a>
-                        <a href="" class="btn btn-warning">不再通知</a>
+                        <a class="btn btn-success notice__toggle">確定</a>
+                        <a class="btn btn-warning" onclick="disableNotice()">不再通知</a>
                     </div>
                 </div>
             </div>
@@ -174,6 +174,23 @@
         $(".question").removeClass("m-animate-shake")
     }, 6e3);
     $('.notice__toggle').click(function (){ $('.notice').toggle("slow") });
+    function disableNotice(){
+        $.ajax({
+            type: 'POST',
+            url: '{{ route('disableNotice') }}',
+            data: { id : "{{ $user->id }}", _token:"{{ csrf_token() }}"},
+            dataType: 'json',
+            success: function(data){
+                $('.notice').toggle("slow");
+                $('.notice__toggle').toggle("slow");
+            },
+            error: function(xhr, status, error){
+                console.log(xhr);
+                console.log(status);
+                console.log(error);
+            }
+        });
+    }
 </script>
 <style>
     .buttons{

@@ -136,6 +136,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
     */
 
     Route::get('/users/switch-back', 'Admin\UserController@switchUserBack')->name('escape');
+    Route::get('/message/disableNotice', 'MessageController@disableNotice')->name('disableNotice');
 
     /*
     |--------------------------------------------------------------------------
