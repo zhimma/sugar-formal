@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Http\Requests;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -59,9 +60,19 @@ class MessageController extends Controller {
 
     public function disableNotice(Request $request)
     {
-        $user = $request->user();
-        if ($user) {
-            return view('dashboard.chat')->with('user', $user);
+        $user_id = $request->id;
+        $user = User::select('id', 'noticeRead')->where('id', $user_id)->get()->first();
+        $user->noticeRead = 1;
+        if ($user->save()) {
+            return response()->json(array(
+                'status' => 1,
+                'msg' => 'ok',
+            ), 200);
+        } else {
+            return response()->json(array(
+                'status' => 2,
+                'msg' => 'fail',
+            ), 500);
         }
     }
 

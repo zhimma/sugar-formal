@@ -27,7 +27,7 @@
 		</span>
     </a>
 </li>
-@if(!$user->isVip())
+@if(!$user->isVip() && $user->noticeRead == 0)
     <li class="m-nav__item m-topbar__notifications m-topbar__notifications--img m-dropdown m-dropdown--large m-dropdown--header-bg-fill m-dropdown--arrow m-dropdown--align-center	m-dropdown--mobile-full-width" style="padding: 0 0 0 0; margin: 0 0 0 -8px">
         <a href="#" class="m-nav__link notice__toggle" id="notVIP">
             <img src="/img/question.png" class="question" style="padding: 14px 0 -10px 0; width: 20px">
@@ -44,8 +44,8 @@
                         @endif
                     </div>
                     <div class="buttons">
-                        <a class="btn btn-success notice__toggle">確定</a>
-                        <a class="btn btn-warning" onclick="disableNotice()">不再通知</a>
+                        <a class="btn btn-success notice__toggle text-white">確定</a>
+                        <a class="btn btn-danger text-white" onclick="confirmation()">不再通知</a>
                     </div>
                 </div>
             </div>
@@ -174,15 +174,21 @@
         $(".question").removeClass("m-animate-shake")
     }, 6e3);
     $('.notice__toggle').click(function (){ $('.notice').toggle("slow") });
+    function confirmation(){
+        if(confirm('確定不再通知？')){
+            disableNotice();
+        }
+    }
     function disableNotice(){
         $.ajax({
             type: 'POST',
             url: '{{ route('disableNotice') }}',
             data: { id : "{{ $user->id }}", _token:"{{ csrf_token() }}"},
-            dataType: 'json',
-            success: function(data){
+            success: function(xhr, status, error){
                 $('.notice').toggle("slow");
                 $('.notice__toggle').toggle("slow");
+                console.log(xhr);
+                console.log(error);
             },
             error: function(xhr, status, error){
                 console.log(xhr);
