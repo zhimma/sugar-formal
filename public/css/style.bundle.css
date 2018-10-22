@@ -15590,16 +15590,13 @@ button {
     margin-left: -227.5px
 }
 
-
-@media (max-width: 1550px) {
-    .m-dropdown.m-dropdown--align-center.m-dropdown--large .m-dropdown__wrapper_q {
-        width: 380px;
-        margin-left: -345px;
-        margin-top: -30px;
-    }
+.m-dropdown.m-dropdown--align-center.m-dropdown--large .m-dropdown__wrapper_q {
+    width: 380px;
+    margin-left: -345px;
+    margin-top: -30px;
 }
 
-@media screen and (min-width: 1240px) and (max-width: 1550px) {
+@media (max-width: 1550px) {
     .m-dropdown.m-dropdown--align-center.m-dropdown--large .m-dropdown__wrapper_q {
         width: 380px;
         margin-left: -345px;
