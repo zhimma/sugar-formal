@@ -93,7 +93,11 @@ class Vip extends Model
         {
             // $curUser->notify(new MessageEmail($member_id, $member_id, "VIP 取消了！"));
         }
-
-        return Vip::where('member_id', $member_id)->delete();
+        $user = Vip::select('member_id', 'active')
+            ->where('member_id', $member_id)
+            ->where('active', 1)
+            ->update(array('active' => 0));
+        return $user;
+        //return Vip::where('member_id', $member_id)->delete();
     }
 }
