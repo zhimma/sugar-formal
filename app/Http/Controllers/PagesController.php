@@ -450,7 +450,7 @@ class PagesController extends Controller
                     ->with('user', $user)->withErrors(['升級成功後請勿在本頁面重新整理！']);
             }
             else{
-                return view('')
+                return view('');
             }
             $this->logService->upgradeLog($payload, $user->id);
             $this->logService->writeLogToFile();

@@ -7,7 +7,7 @@
     <input type="hidden" name="to" value="@if(isset($cur)){{$cur->id}}@endif">
     <input type=hidden name="MerchantNumber" value="761404">
     <input type=hidden name="OrderNumber" value="<?php echo $orderNumber; ?>">
-    <input type=hidden name="OrgOrderNumber" value="Test Order">
+    <input type=hidden name="OrgOrderNumber" value="SG-車馬費({{$user->id}})">
     <input type=hidden name="ApproveFlag" value="1">
     <input type=hidden name="DepositFlag" value="1">
     <input type=hidden name="iphonepage" value="0">
