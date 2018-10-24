@@ -43,8 +43,14 @@ class VipLogService {
     public function writeLogToFile() {
         $fileName = 'RP_'. $this->business_id . '_' . Carbon::now()->format('Ymd') .'.dat';
         $fileContent = $this->business_id . ',' . $this->user_id . ',' . $this->order_id . ',,,' . intval($this->amount) . ',' . Carbon::now()->format('d') . ',' . $this->action . ',' . $this->status . ',' . $this->mode;
-
-
+        $this->writeLogToDB($fileName, $fileContent);
         Storage::append($fileName, $fileContent);
+    }
+
+    public function writeLogToDB($fileName, $fileContent) {
+        $log = new \App\Models\VipLogs;
+        $log->filename = $fileName;
+        $log->content = $fileContent;
+        $log->save();
     }
 }
