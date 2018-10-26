@@ -30,7 +30,7 @@ return [
         'avatar-wait-seconds' => 5
     ],
     'payment' => [
-        'returnURL' => "http://sugar.formal/dashboard/upgradepay",
+        'returnURL' => "http://localhost:8000/dashboard/upgradepay",
         'actionURL' => "https://testmaple2.neweb.com.tw/NewebmPP/cdcard.jsp",
         'code' => "abcd1234"
     ],

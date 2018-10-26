@@ -15,3 +15,5 @@ yarn-error.log
 resources/views/.DS_Store
 app/Http/.DS_Store
 .DS_Store
+config/social.php
+config/social.php
