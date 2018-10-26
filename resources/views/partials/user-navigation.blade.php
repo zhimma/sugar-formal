@@ -106,12 +106,24 @@
                                 <a href="{!! url('dashboard/history') !!}" class="m-nav__link">
                                     <i class="m-nav__link-icon flaticon-share"></i>
                                     <span class="m-nav__link-title">
-									<span class="m-nav__link-wrap">
-										<span class="m-nav__link-text">
-											足跡
-										</span>
-									</span>
-								</span>
+                                        <span class="m-nav__link-wrap">
+                                            <span class="m-nav__link-text">
+                                                足跡
+                                            </span>
+                                        </span>
+								    </span>
+                                </a>
+                            </li>
+                            <li class="m-nav__item">
+                                <a href="{!! url('dashboard/fav') !!}" class="m-nav__link">
+                                    <i class="m-nav__link-icon fa fa-diamond"></i>
+                                    <span class="m-nav__link-title">
+                                        <span class="m-nav__link-wrap">
+                                            <span class="m-nav__link-text">
+                                                我的收藏
+                                            </span>
+                                        </span>
+								    </span>
                                 </a>
                             </li>
                         @endif
