@@ -30,6 +30,14 @@
                                         <span class="m-widget3__time">
                                         {{ $visitor->created_at }}
                                         </span>
+                                        <form action="{{ route('fav/remove') }}" method="POST">
+                                            <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                            <input type="hidden" name="userId" value="{{$user->id}}">
+                                            <input type="hidden" name="favUserId" value="{{$favUser->id}}">
+                                            <button type="submit" class="btn btn-danger">
+                                                移除
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                                 <div class="m-widget3__body">

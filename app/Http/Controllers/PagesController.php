@@ -354,6 +354,15 @@ class PagesController extends Controller
         return back()->with('message', '收藏成功');
     }
 
+    public function removeFav(Request $request)
+    {
+        if ($request->userId !== $request->favUserId)
+        {
+            MemberFav::remove($request->userId, $request->favUserId);
+        }
+        return back()->with('message', '移除成功');
+    }
+
     public function fav(Request $request)
     {
         $user = $request->user();

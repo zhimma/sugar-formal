@@ -171,6 +171,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
     Route::post('/dashboard/block', 'PagesController@postBlock');
     Route::post('/dashboard/unblock', 'PagesController@unblock');
     Route::post('/dashboard/fav', 'PagesController@postfav');
+    Route::post('/dashboard/fav/remove', 'PagesController@removeFav')->name('fav/remove');
     Route::post('/dashboard/report', 'PagesController@report');
     Route::post('/dashboard/reportNext', 'PagesController@reportNext')->name('reportNext');
     Route::get('/dashboard/reportPic/{user}/{id}/{uid?}', 'PagesController@reportPic')->name('reportPic');

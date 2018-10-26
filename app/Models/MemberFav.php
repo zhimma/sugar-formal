@@ -36,4 +36,10 @@ class MemberFav extends Model
     {
         return Visited::unique(MemberFav::where([['member_id', $uid],['member_fav_id', '!=', $uid]])->distinct()->orderBy('created_at', 'desc')->get(), "member_fav_id");
     }
+
+    public static function remove($member_id, $fav_id)
+    {
+        $fav = MemberFav::where('member_id', $member_id)->where('member_fav_id', $fav_id)->get()->first();
+        $fav->delete();
+    }
 }
