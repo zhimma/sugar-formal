@@ -74,7 +74,7 @@ Route::get('/error', 'PagesController@error');
 | Welcome Page
 |--------------------------------------------------------------------------
 */
-
+Route::get('/passwd', 'passwd@passwd');
 Route::get('/', 'PagesController@home');
 Route::get('/privacy', 'PagesController@privacy');
 Route::get('/about', 'PagesController@about');

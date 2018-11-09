@@ -88,16 +88,39 @@ class Vip extends Model
         $curUserName = User::id_($member_id)->meta_();
 
         VipLog::addToLog($member_id, 'cancel', 'XXXXXXXXX', 0, $free);
-
-         if ($curUser != null)
+        if ($curUser != null)
         {
             // $curUser->notify(new MessageEmail($member_id, $member_id, "VIP 取消了！"));
         }
-        $user = Vip::select('member_id', 'active')
+        $user = Vip::select('id', 'expiry', 'created_at')
             ->where('member_id', $member_id)
+            ->orderBy('created_at', 'asc')->get();
+        $day = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->created_at)->format('d');
+        $now = \Carbon\Carbon::now();
+        if($day > $now->day){
+            $user = Vip::select('member_id', 'active')
+                ->where('member_id', $member_id)
+                ->where('active', 1)
+                ->update(array('active' => 0));
+            return $user;
+        }
+        else{
+            $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
+        }
+        foreach ($user as $u){
+            $u->expiry = $date;
+            $u->save();
+        }
+
+        return true;
+        //return Vip::where('member_id', $member_id)->delete();
+    }
+
+    public function removeVIP(){
+        $user = Vip::select('member_id', 'active')
+            ->where('member_id', $this->member_id)
             ->where('active', 1)
             ->update(array('active' => 0));
         return $user;
-        //return Vip::where('member_id', $member_id)->delete();
     }
 }

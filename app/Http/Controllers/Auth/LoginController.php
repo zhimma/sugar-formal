@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Vip;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -60,6 +61,10 @@ class LoginController extends Controller
         else{
             if($banned_users){
                 $banned_users->delete();
+            }
+            $userVIP = Vip::where('member_id', \Auth::user()->id)->get()->first();
+            if($now > $userVIP->expiry && $userVIP->expiry != '0000-00-00 00:00:00'){
+                $userVIP->removeVIP();
             }
             $userMeta = UserMeta::where('user_id', \Auth::user()->id)->get()->first();
             if (empty($userMeta->pic)) {
