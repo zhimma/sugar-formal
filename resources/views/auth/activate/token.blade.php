@@ -15,7 +15,7 @@
     <p><h3>站長的話</h3></p>
     <p>...</p>
     <hr>
-    <p>驗證碼已經寄到你的email.</p>
+    <a>驗證碼已經寄到你的email. <a style="color: red; font-weight: bold;">【{{ $user->email }}】</a></p>
     <a href="{!! url('contact') !!}" style="color: red; font-weight: bold;">如果沒收到認證信/認證失敗，請點此聯繫站長。</a>
 </div>
 

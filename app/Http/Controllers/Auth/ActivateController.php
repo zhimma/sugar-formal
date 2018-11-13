@@ -39,7 +39,9 @@ class ActivateController extends Controller
     public function sendToken()
     {
         $this->service->sendActivationToken();
-        return view('auth.activate.token');
+        $user = auth()->user();
+
+        return view('auth.activate.token', compact('user'));
     }
 
     /**
@@ -52,7 +54,7 @@ class ActivateController extends Controller
         if ($this->service->activateUser($token)) {
             return redirect('dashboard')->with('message', '驗證成功');
         }
-
-        return view('auth.activate.email')->withErrors(['驗證失敗']);
+        $user = auth()->user();
+        return view('auth.activate.email', compact('user'))->withErrors(['驗證失敗']);
     }
 }
