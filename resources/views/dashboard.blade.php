@@ -5,6 +5,11 @@
     function vipadditional() {
         $(".vipadd").toggle();
     }
+    function check_engroup(){
+        console.log('11111111');
+        console.log($('input[name=engroup]:checked').val());
+        //$('#information').submit();
+    }
 </script>
 
 <div class="m-portlet__head">
@@ -679,7 +684,7 @@
                     <div class="col-lg-2">
                     </div>
                     <div class="col-lg-7">
-                        <button type="submit" class="btn btn-danger m-btn m-btn--air m-btn--custom">更新資料</button>&nbsp;&nbsp;
+                        <button type="button" class="btn btn-danger m-btn m-btn--air m-btn--custom" onclick="check_engroup();">更新資料</button>&nbsp;&nbsp;
                         <button type="reset" class="btn btn-outline-danger m-btn m-btn--air m-btn--custom">取消</button>
                     </div>
                 </div>
@@ -810,7 +815,7 @@
 @endif
 @if (str_contains(url()->current(), 'dashboard')  || (!str_contains(url()->current(), 'dashboard') && $user->id == $cur->id))
 <div class="tab-pane" id="m_user_profile_tab_3" >
-    <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/settings">
+    <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/settings" id="information">
         <input type="hidden" name="_token" value="{{csrf_token()}}" >
         <input type="hidden" name="userId" value="{{$user->id}}">
         <div class="m-portlet__body">
@@ -886,310 +891,310 @@
 @section ('javascript')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.0.0/cropper.min.js"></script>
 <script>
-                        var domainJson = ({
-                            '請選擇': ['請選擇'],
-                            '資訊科技': ['軟體網路','電信通訊','光電光學','半導體業','電腦週邊','電子相關'],
-                            '傳產製造': ['食品飲料','紡織相關','鞋類紡織','家具家飾','紙製製造','印刷相關','化學製造','石油製造','橡膠塑膠','非金屬製造','金屬製造','機械設備','電力機械','運輸工具','儀器醫材','育樂用品','其他製造','物流倉儲','營建土木','農林漁牧','礦業土石'],
-                            '工商服務': ['法律服務','會計服務','顧問研發','人力仲介','租賃業','汽車維修','徵信保全'],
-                            '民生服務': ['批發零售','金融機構','投資理財','保險業','電影業','旅遊休閒','美容美髮','醫療服務','環境衛生','住宿服務','餐飲服務'],
-                            '文教傳播': ['教育服務','印刷出版','藝文相關','廣播電視','廣告行銷','政治社福']
-                        });
+    var domainJson = ({
+        '請選擇': ['請選擇'],
+        '資訊科技': ['軟體網路','電信通訊','光電光學','半導體業','電腦週邊','電子相關'],
+        '傳產製造': ['食品飲料','紡織相關','鞋類紡織','家具家飾','紙製製造','印刷相關','化學製造','石油製造','橡膠塑膠','非金屬製造','金屬製造','機械設備','電力機械','運輸工具','儀器醫材','育樂用品','其他製造','物流倉儲','營建土木','農林漁牧','礦業土石'],
+        '工商服務': ['法律服務','會計服務','顧問研發','人力仲介','租賃業','汽車維修','徵信保全'],
+        '民生服務': ['批發零售','金融機構','投資理財','保險業','電影業','旅遊休閒','美容美髮','醫療服務','環境衛生','住宿服務','餐飲服務'],
+        '文教傳播': ['教育服務','印刷出版','藝文相關','廣播電視','廣告行銷','政治社福']
+    });
 
-                        setDomain(1);
+    setDomain(1);
 
-                        function setDomain(initial) {
-                            var domain = eval(domainJson);
-                            var type = $("#domainType").val();
-                            //console.log('type is ' + type);
-                            if(!initial) {
-                                $("#domain option").remove();
-                                $("#domain").append('<option value="">請選擇</option>');
-                            }
-                            for (var i in domain[type]) {
-                                //console.log(domain[type][i]);
-                                if(domain[type][i] != $("#domain option:selected").val()) {
-                                    $("#domain").append('<option value="' + domain[type][i] + '">' + domain[type][i] + '</option>');
-                                    $("#domain").selectpicker('refresh');
-                                }
-                            }
-                        }
-
-                        jQuery(document).ready(function(){
-                        @if(!$user->isAdmin())
-                            @if (!$umeta->isAllSet())
-                                    alert('請寫上基本資料');
-                            @elseif (empty($umeta->pic))
-                                    alert('請加上頭像照');
-                            @endif
-                        @endif
-
-			var BootstrapDatepicker = function(){
-			    var t=function(){
-			        $("#m_datepicker_1, #m_datepicker_1_validate").datepicker({
-                        todayHighlight:!0,
-                        orientation:"bottom left",
-                        templates: {
-                            leftArrow:'<i class="la la-angle-left"></i>',
-                            rightArrow:'<i class="la la-angle-right"></i>'
-                        }
-			        }),
-                    $("#m_datepicker_1_modal").datepicker({
-                        todayHighlight: !0,
-                        orientation: "bottom left",
-                        templates: {
-                            leftArrow:'<i class="la la-angle-left"></i>',
-                            rightArrow:'<i class="la la-angle-right"></i>'
-                        }
-                    }),
-                    $("#m_datepicker_2, #m_datepicker_2_validate").datepicker({
-                        todayHighlight: !0,
-                        orientation: "bottom left",
-                        templates: {
-                            leftArrow:'<i class="la la-angle-left"></i>',
-                            rightArrow:'<i class="la la-angle-right"></i>'
-                        }
-                    }),
-                    $("#m_datepicker_2_modal").datepicker({
-                        todayHighlight: !0,
-                        orientation: "bottom left",
-                        templates: {
-                            leftArrow:'<i class="la la-angle-left"></i>',
-                            rightArrow:'<i class="la la-angle-right"></i>'
-                        }
-                    }),
-                    $("#m_datepicker_3, #m_datepicker_3_validate").datepicker({
-                        todayBtn: "linked",
-                        clearBtn: !0,
-                        todayHighlight: !0,
-                        templates: {
-                            leftArrow:'<i class="la la-angle-left"></i>',
-                            rightArrow:'<i class="la la-angle-right"></i>'
-                        }
-                    }),
-                    $("#m_datepicker_3_modal").datepicker({
-                        todayBtn: "linked",
-                        clearBtn: !0,
-                        todayHighlight: !0,
-                        templates: {
-                            leftArrow:'<i class="la la-angle-left"></i>',
-                            rightArrow:'<i class="la la-angle-right"></i>'
-                        }
-                    }),
-                    $("#m_datepicker_4_1").datepicker({
-                        orientation: "top left",
-                        todayHighlight: !0,
-                        templates: {
-                            leftArrow:'<i class="la la-angle-left"></i>',
-                            rightArrow:'<i class="la la-angle-right"></i>'
-                        }
-                    }),
-                    $("#m_datepicker_4_2").datepicker({
-                        orientation: "top right",
-                        todayHighlight: !0,
-                        templates: {
-                            leftArrow:'<i class="la la-angle-left"></i>',
-                            rightArrow:'<i class="la la-angle-right"></i>'
-                        }
-                    }),
-                    $("#m_datepicker_4_3").datepicker({
-                        orientation: "bottom left",
-                        todayHighlight: !0,
-                        templates: {
-                            leftArrow:'<i class="la la-angle-left"></i>',
-                            rightArrow:'<i class="la la-angle-right"></i>'
-                        }
-                    }),
-                    $("#m_datepicker_4_4").datepicker({
-                        orientation: "bottom right",
-                        todayHighlight: !0,
-                        templates: {
-                            leftArrow:'<i class="la la-angle-left"></i>',
-                            rightArrow:'<i class="la la-angle-right"></i>'
-                        }
-                    }),
-                    $("#m_datepicker_5").datepicker({
-                        todayHighlight: !0,
-                        templates: {
-                            leftArrow:'<i class="la la-angle-left"></i>',
-                            rightArrow:'<i class="la la-angle-right"></i>'
-                        }
-                    }),
-                    $("#m_datepicker_6").datepicker({
-                        todayHighlight: !0,
-                        templates: {
-                            leftArrow:'<i class="la la-angle-left"></i>',
-                            rightArrow:'<i class="la la-angle-right"></i>'
-                        }
-                    })
-			    };
-			    return {
-			        init:function(){
-			            t()
-			        }
-			    }
-			}();
-			jQuery(document).ready(
-			    function(){
-			        BootstrapDatepicker.init()
-			    });
-			var BootstrapSelect = function(){
-			    var t = function(){
-			        $(".m_selectpicker").selectpicker()
-			    };
-			    return {
-			        init:function(){
-			            t()
-			        }
-			    }
-			}();
-			jQuery(document).ready(
-			    function(){
-			        BootstrapSelect.init()
-			    });
-
-			$('.twzipcode').twzipcode({
-				'detect': true, 'css': ['form-control twzip', 'form-control twzip', 'zipcode']
-			});
-		});
-	</script>
-
-    <script type="text/javascript">
-        @if(Session::has('announcement'))
-            alert('{{ Session::get('announcement') }}');
-        @endif
-        jQuery(document).ready(function(){
-
-        //Check File API support
-        function uploadFiles() {
-            if(window.File && window.FileList && window.FileReader)
-            {
-                var filesInput = document.getElementById("images");
-
-                filesInput.addEventListener("change", function(event){
-
-                    var files = event.target.files; //FileList object
-                    var output = document.getElementById("result");
-                        for(var i = 0; i< files.length; i++)
-                        {
-                            var file = files[i];
-
-                            //Only pics
-                            if(!file.type.match('image'))
-                              continue;
-
-                            var picReader = new FileReader();
-
-                            picReader.addEventListener("load",function(event){
-
-                                var picFile = event.target;
-                                var div = document.createElement("div");
-
-                                div.innerHTML = "<img class='thumbnail' src='" + picFile.result + "'" +
-                                        "title='" + picFile.name + "'/>";
-
-                                output.insertBefore(div,null);
-
-                            });
-                             //Read the image
-                            picReader.readAsDataURL(file);
-                        }
-                    });
-                }
+    function setDomain(initial) {
+        var domain = eval(domainJson);
+        var type = $("#domainType").val();
+        //console.log('type is ' + type);
+        if(!initial) {
+            $("#domain option").remove();
+            $("#domain").append('<option value="">請選擇</option>');
+        }
+        for (var i in domain[type]) {
+            //console.log(domain[type][i]);
+            if(domain[type][i] != $("#domain option:selected").val()) {
+                $("#domain").append('<option value="' + domain[type][i] + '">' + domain[type][i] + '</option>');
+                $("#domain").selectpicker('refresh');
             }
+        }
+    }
 
-            // $("#images").on("change", function() {
-            //  if($("#images")[0].files.length > 2) {
-            //      alert("You can select only 2 images");
-            //  } else {
-            //     uploadFiles();
-            //  }
+    jQuery(document).ready(function(){
+    @if(!$user->isAdmin())
+        @if (!$umeta->isAllSet())
+                alert('請寫上基本資料');
+        @elseif (empty($umeta->pic))
+                alert('請加上頭像照');
+        @endif
+    @endif
 
-            var max_fields      = <?php echo \App\Models\MemberPic::getPicNums($user->id); ?>; //maximum input boxes allowed
-            var wrapper         = $(".input_field_weap"); //Fields wrapper
-            var add_button      = $("#add_image"); //Add button ID
-
-            var x = 1; //initlal text box count
-            $(add_button).click(function(e){ //on add input button click
-                e.preventDefault();
-                if(14 - max_fields >= x){ //max input box allowed
-                    x++; //text box increment
-                    $(wrapper).append('<div><label class="custom-file"><input type="file" class="custom-file-input" name="images[]" onchange="$(this).parent().children().last().text($(this).val())"><span class="custom-file-control"></span></label><a href="#" class="remove_field">&nbsp;Remove</a></div>'); //add input box
+    var BootstrapDatepicker = function(){
+        var t=function(){
+            $("#m_datepicker_1, #m_datepicker_1_validate").datepicker({
+                todayHighlight:!0,
+                orientation:"bottom left",
+                templates: {
+                    leftArrow:'<i class="la la-angle-left"></i>',
+                    rightArrow:'<i class="la la-angle-right"></i>'
                 }
-                else {
-                    alert('最多上傳15張');
+            }),
+            $("#m_datepicker_1_modal").datepicker({
+                todayHighlight: !0,
+                orientation: "bottom left",
+                templates: {
+                    leftArrow:'<i class="la la-angle-left"></i>',
+                    rightArrow:'<i class="la la-angle-right"></i>'
                 }
-            });
-
-            $('#images').click(function(e) {
-                //e.preventDefault();
-                if(max_fields >= 15) {
-                    alert('最多上傳15張');
-                    e.preventDefault();
+            }),
+            $("#m_datepicker_2, #m_datepicker_2_validate").datepicker({
+                todayHighlight: !0,
+                orientation: "bottom left",
+                templates: {
+                    leftArrow:'<i class="la la-angle-left"></i>',
+                    rightArrow:'<i class="la la-angle-right"></i>'
+                }
+            }),
+            $("#m_datepicker_2_modal").datepicker({
+                todayHighlight: !0,
+                orientation: "bottom left",
+                templates: {
+                    leftArrow:'<i class="la la-angle-left"></i>',
+                    rightArrow:'<i class="la la-angle-right"></i>'
+                }
+            }),
+            $("#m_datepicker_3, #m_datepicker_3_validate").datepicker({
+                todayBtn: "linked",
+                clearBtn: !0,
+                todayHighlight: !0,
+                templates: {
+                    leftArrow:'<i class="la la-angle-left"></i>',
+                    rightArrow:'<i class="la la-angle-right"></i>'
+                }
+            }),
+            $("#m_datepicker_3_modal").datepicker({
+                todayBtn: "linked",
+                clearBtn: !0,
+                todayHighlight: !0,
+                templates: {
+                    leftArrow:'<i class="la la-angle-left"></i>',
+                    rightArrow:'<i class="la la-angle-right"></i>'
+                }
+            }),
+            $("#m_datepicker_4_1").datepicker({
+                orientation: "top left",
+                todayHighlight: !0,
+                templates: {
+                    leftArrow:'<i class="la la-angle-left"></i>',
+                    rightArrow:'<i class="la la-angle-right"></i>'
+                }
+            }),
+            $("#m_datepicker_4_2").datepicker({
+                orientation: "top right",
+                todayHighlight: !0,
+                templates: {
+                    leftArrow:'<i class="la la-angle-left"></i>',
+                    rightArrow:'<i class="la la-angle-right"></i>'
+                }
+            }),
+            $("#m_datepicker_4_3").datepicker({
+                orientation: "bottom left",
+                todayHighlight: !0,
+                templates: {
+                    leftArrow:'<i class="la la-angle-left"></i>',
+                    rightArrow:'<i class="la la-angle-right"></i>'
+                }
+            }),
+            $("#m_datepicker_4_4").datepicker({
+                orientation: "bottom right",
+                todayHighlight: !0,
+                templates: {
+                    leftArrow:'<i class="la la-angle-left"></i>',
+                    rightArrow:'<i class="la la-angle-right"></i>'
+                }
+            }),
+            $("#m_datepicker_5").datepicker({
+                todayHighlight: !0,
+                templates: {
+                    leftArrow:'<i class="la la-angle-left"></i>',
+                    rightArrow:'<i class="la la-angle-right"></i>'
+                }
+            }),
+            $("#m_datepicker_6").datepicker({
+                todayHighlight: !0,
+                templates: {
+                    leftArrow:'<i class="la la-angle-left"></i>',
+                    rightArrow:'<i class="la la-angle-right"></i>'
                 }
             })
-
-            $(wrapper).on("click",".remove_field", function(e){ //user click on remove text
-                e.preventDefault();
-                $(this).parent('div').remove();
-                x--;
-            });
+        };
+        return {
+            init:function(){
+                t()
+            }
+        }
+    }();
+    jQuery(document).ready(
+        function(){
+            BootstrapDatepicker.init()
         });
-        @if (str_contains(url()->current(), 'dashboard'))
-            {{--let engroup = $('input[name=engroup]:checked').val();--}}
-            {{--function check_engroup_change() {--}}
-                {{--console.log(engroup);--}}
-                {{--return false;--}}
-                {{--if(engroup !== {{ $user->engroup }}){--}}
-                    {{--if(confirm('確定要改變帳號類型？')){--}}
-                        {{--$('#user_data').submit();--}}
-                    {{--}--}}
-                    {{--return false;--}}
-                {{--}--}}
-                {{--else{--}}
+    var BootstrapSelect = function(){
+        var t = function(){
+            $(".m_selectpicker").selectpicker()
+        };
+        return {
+            init:function(){
+                t()
+            }
+        }
+    }();
+    jQuery(document).ready(
+        function(){
+            BootstrapSelect.init()
+        });
+
+    $('.twzipcode').twzipcode({
+        'detect': true, 'css': ['form-control twzip', 'form-control twzip', 'zipcode']
+    });
+});
+</script>
+
+<script type="text/javascript">
+    @if(Session::has('announcement'))
+        alert('{{ Session::get('announcement') }}');
+    @endif
+
+    jQuery(document).ready(function(){
+    //Check File API support
+    function uploadFiles() {
+        if(window.File && window.FileList && window.FileReader)
+        {
+            var filesInput = document.getElementById("images");
+
+            filesInput.addEventListener("change", function(event){
+
+                var files = event.target.files; //FileList object
+                var output = document.getElementById("result");
+                    for(var i = 0; i< files.length; i++)
+                    {
+                        var file = files[i];
+
+                        //Only pics
+                        if(!file.type.match('image'))
+                          continue;
+
+                        var picReader = new FileReader();
+
+                        picReader.addEventListener("load",function(event){
+
+                            var picFile = event.target;
+                            var div = document.createElement("div");
+
+                            div.innerHTML = "<img class='thumbnail' src='" + picFile.result + "'" +
+                                    "title='" + picFile.name + "'/>";
+
+                            output.insertBefore(div,null);
+
+                        });
+                         //Read the image
+                        picReader.readAsDataURL(file);
+                    }
+                });
+            }
+        }
+
+        // $("#images").on("change", function() {
+        //  if($("#images")[0].files.length > 2) {
+        //      alert("You can select only 2 images");
+        //  } else {
+        //     uploadFiles();
+        //  }
+
+        var max_fields      = <?php echo \App\Models\MemberPic::getPicNums($user->id); ?>; //maximum input boxes allowed
+        var wrapper         = $(".input_field_weap"); //Fields wrapper
+        var add_button      = $("#add_image"); //Add button ID
+
+        var x = 1; //initlal text box count
+        $(add_button).click(function(e){ //on add input button click
+            e.preventDefault();
+            if(14 - max_fields >= x){ //max input box allowed
+                x++; //text box increment
+                $(wrapper).append('<div><label class="custom-file"><input type="file" class="custom-file-input" name="images[]" onchange="$(this).parent().children().last().text($(this).val())"><span class="custom-file-control"></span></label><a href="#" class="remove_field">&nbsp;Remove</a></div>'); //add input box
+            }
+            else {
+                alert('最多上傳15張');
+            }
+        });
+
+        $('#images').click(function(e) {
+            //e.preventDefault();
+            if(max_fields >= 15) {
+                alert('最多上傳15張');
+                e.preventDefault();
+            }
+        })
+
+        $(wrapper).on("click",".remove_field", function(e){ //user click on remove text
+            e.preventDefault();
+            $(this).parent('div').remove();
+            x--;
+        });
+    });
+    @if (str_contains(url()->current(), 'dashboard'))
+        {{--let engroup = $('input[name=engroup]:checked').val();--}}
+        {{--function check_engroup_change() {--}}
+            {{--console.log(engroup);--}}
+            {{--return false;--}}
+            {{--if(engroup !== {{ $user->engroup }}){--}}
+                {{--if(confirm('確定要改變帳號類型？')){--}}
                     {{--$('#user_data').submit();--}}
                 {{--}--}}
+                {{--return false;--}}
             {{--}--}}
+            {{--else{--}}
+                {{--$('#user_data').submit();--}}
+            {{--}--}}
+        {{--}--}}
 
-            var ysel = document.getElementsByName("year")[0],
-                msel = document.getElementsByName("month")[0],
-                dsel = document.getElementsByName("day")[0],
-                firstTime = 0;
-                for (var i = {{ date("Y") }}; i>=1930; i--){
-                    var opt = new Option();
-                    opt.value = opt.text = i;
-                    if(opt.value == {{ $year }}){
-                        opt.selected = true;
-                    }
-                    ysel.add(opt);
+        var ysel = document.getElementsByName("year")[0],
+            msel = document.getElementsByName("month")[0],
+            dsel = document.getElementsByName("day")[0],
+            firstTime = 0;
+            for (var i = {{ date("Y") }}; i>=1930; i--){
+                var opt = new Option();
+                opt.value = opt.text = i;
+                if(opt.value == {{ $year }}){
+                    opt.selected = true;
                 }
-                ysel.addEventListener("change",validate_date);
-                msel.addEventListener("change",validate_date);
-
-            function validate_date(){
-                var y = +ysel.value, m = msel.value, d = dsel.value;
-                if (m === "2") {
-                    var mlength = 28 + (!(y & 3) && ((y % 100) !== 0 || !(y & 15)));
-                }
-                else {
-                    var mlength = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1];
-                }
-                dsel.length = 0;
-                for(var i=1;i<=mlength;i++){
-                    var opt=new Option();
-                    opt.value = opt.text = i;
-                    if(i==d) {
-                        opt.selected=true;
-                    }
-                    if(opt.value == {{ $day }} && firstTime == 0){
-                        opt.selected = true;
-                        firstTime = 1;
-                    }
-                    dsel.add(opt);
-                }
+                ysel.add(opt);
             }
-            validate_date();
-        @endif
-    </script>
+            ysel.addEventListener("change",validate_date);
+            msel.addEventListener("change",validate_date);
+
+        function validate_date(){
+            var y = +ysel.value, m = msel.value, d = dsel.value;
+            if (m === "2") {
+                var mlength = 28 + (!(y & 3) && ((y % 100) !== 0 || !(y & 15)));
+            }
+            else {
+                var mlength = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1];
+            }
+            dsel.length = 0;
+            for(var i=1;i<=mlength;i++){
+                var opt=new Option();
+                opt.value = opt.text = i;
+                if(i==d) {
+                    opt.selected=true;
+                }
+                if(opt.value == {{ $day }} && firstTime == 0){
+                    opt.selected = true;
+                    firstTime = 1;
+                }
+                dsel.add(opt);
+            }
+        }
+        validate_date();
+    @endif
+</script>
 @stop
 
 @endif
