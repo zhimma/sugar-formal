@@ -85,6 +85,7 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
+        //todo: 判斷管理員帳號，登入後session lifetime要維持
         $this->validateLogin($request);
 
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
