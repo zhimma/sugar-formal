@@ -87,7 +87,7 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $uid = User::select('id')->where('email', $request->email)->get()->first();
-        if(Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('role_user.user_id', $uid->id)->exists()){
+        if(Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $uid->id)->exists()){
             $request->remember = 'on';
         }
         $this->validateLogin($request);
