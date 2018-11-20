@@ -92,6 +92,7 @@ class Vip extends Model
         {
             // $curUser->notify(new MessageEmail($member_id, $member_id, "VIP 取消了！"));
         }
+        //todo: 獨立出男VIP
         $user = Vip::select('id', 'expiry', 'created_at')
             ->where('member_id', $member_id)
             ->orderBy('created_at', 'asc')->get();

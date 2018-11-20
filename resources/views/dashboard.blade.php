@@ -6,9 +6,20 @@
         $(".vipadd").toggle();
     }
     function check_engroup(){
-        console.log('11111111');
-        console.log($('input[name=engroup]:checked').val());
-        //$('#information').submit();
+        let original_en = "{{ $user->engroup }}";
+        let after = $('input[name=engroup]:checked').val();
+        //console.log($('input[name=engroup]:checked').val());
+        if(original_en != after){
+            let r = confirm("確定要改變帳號類型(甜心大哥/大姐、甜心寶貝)嗎？");
+            //console.log(r);
+            if(r){
+                $('#information').submit();
+            }
+            else{
+                return false;
+            }
+        }
+        $('#information').submit();
     }
 </script>
 
@@ -103,7 +114,7 @@
 <?php $cmeta = $cur->meta_(); ?>
 
 @if(str_contains(url()->current(), 'dashboard'))
-    <form class="m-form m-form--fit m-form--label-align-right" method="POST" name="user_data" action="/dashboard">
+    <form class="m-form m-form--fit m-form--label-align-right" method="POST" name="user_data" action="/dashboard" id="information">
         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
         <input type="hidden" name="userId" value="{{$user->id}}">
 @endif
@@ -815,7 +826,7 @@
 @endif
 @if (str_contains(url()->current(), 'dashboard')  || (!str_contains(url()->current(), 'dashboard') && $user->id == $cur->id))
 <div class="tab-pane" id="m_user_profile_tab_3" >
-    <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/settings" id="information">
+    <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/settings">
         <input type="hidden" name="_token" value="{{csrf_token()}}" >
         <input type="hidden" name="userId" value="{{$user->id}}">
         <div class="m-portlet__body">
