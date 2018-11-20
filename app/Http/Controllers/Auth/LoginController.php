@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\UserMeta;
+use App\Models\Role;
 use App\Models\SimpleTables\banned_users;
 
 class LoginController extends Controller
@@ -85,7 +86,10 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        //todo: 判斷管理員帳號，登入後session lifetime要維持
+        $uid = User::select('id')->where('email', $request->email)->get()->first();
+        if(Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('role_user.user_id', $uid->id)->exists()){
+            $request->remember = 'on';
+        }
         $this->validateLogin($request);
 
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
