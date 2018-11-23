@@ -127,7 +127,7 @@ Route::group(['middleware' => ['auth']], function () {
 |--------------------------------------------------------------------------
 */
 
-Route::group(['middleware' => ['auth', 'active', 'femaleActive']], function () {
+Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], function () {
 
     /*
     |--------------------------------------------------------------------------

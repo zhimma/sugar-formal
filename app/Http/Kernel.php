@@ -66,6 +66,7 @@ class Kernel extends HttpKernel
 		'roles' => \App\Http\Middleware\Roles::class,
 		'vipc' => \App\Http\Middleware\Vipc::class,
 		'filled' => \App\Http\Middleware\Filled::class,
-        'femaleActive' => \App\Http\Middleware\FemaleVipActive::class
+        'femaleActive' => \App\Http\Middleware\FemaleVipActive::class,
+        'vipCheck' => \App\Http\Middleware\VipCheck::class
     ];
 }

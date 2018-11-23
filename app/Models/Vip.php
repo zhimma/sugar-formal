@@ -92,25 +92,27 @@ class Vip extends Model
         {
             // $curUser->notify(new MessageEmail($member_id, $member_id, "VIP 取消了！"));
         }
-        //todo: 獨立出男VIP
-        $user = Vip::select('id', 'expiry', 'created_at')
-            ->where('member_id', $member_id)
-            ->orderBy('created_at', 'asc')->get();
-        $day = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->created_at)->format('d');
-        $now = \Carbon\Carbon::now();
-        if($day > $now->day){
-            $user = Vip::select('member_id', 'active')
+        if($curUser->engroup == 1){
+            $user = Vip::select('id', 'expiry', 'created_at')
                 ->where('member_id', $member_id)
-                ->where('active', 1)
-                ->update(array('active' => 0));
-            return $user;
-        }
-        else{
+                ->orderBy('created_at', 'asc')->get();
+            $day = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->created_at)->format('d');
+            $now = \Carbon\Carbon::now();
+//            if($day > $now->day){
+//                $user = Vip::select('member_id', 'active')
+//                    ->where('member_id', $member_id)
+//                    ->where('active', 1)
+//                    ->update(array('active' => 0));
+//                $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
+//            }
+//            else{
+//                $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
+//            }
             $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
-        }
-        foreach ($user as $u){
-            $u->expiry = $date;
-            $u->save();
+            foreach ($user as $u){
+                $u->expiry = $date->toDateTimeString();
+                $u->save();
+            }
         }
 
         return true;
@@ -121,7 +123,7 @@ class Vip extends Model
         $user = Vip::select('member_id', 'active')
             ->where('member_id', $this->member_id)
             ->where('active', 1)
-            ->update(array('active' => 0));
+            ->update(array('active' => 0, 'expiry' => null));
         return $user;
     }
 }
