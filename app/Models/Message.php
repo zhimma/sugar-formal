@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Notifications\MessageEmail;
 use Illuminate\Support\Facades\Config;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class Message extends Model
 {
@@ -145,11 +146,11 @@ class Message extends Model
         foreach($messages as $message) {
 
             // end 1 and 2
-            if($message['all_delete_count'] == 2) {
-                Message::deleteAllMessagesFromDB($message['to_id'], $message['from_id']);
+            if($message->all_delete_count == 2) {
+                Message::deleteAllMessagesFromDB($message->to_id, $message->from_id);
             }
-            if($message['all_delete_count'] == 1 && ($message['is_row_delete_1'] == $message['to_id'] || $message['is_row_delete_2'] == $message['to_id'] || $message['is_row_delete_1'] == $message['from_id'] || $message['is_row_delete_2'] == $message['from_id'])) {
-                Message::deleteAllMessagesFromDB($message['to_id'], $message['from_id']);
+            if($message->all_delete_count == 1 && ($message->is_row_delete_1 == $message->to_id || $message->is_row_delete_2 == $message->to_id || $message->is_row_delete_1 == $message->from_id || $message->is_row_delete_2 == $message->from_id)) {
+                Message::deleteAllMessagesFromDB($message->to_id, $message->from_id);
             }
 
             // delete row messages
@@ -158,7 +159,7 @@ class Message extends Model
             }
 
             // delete all messages
-            if($uid == $message['temp_id'] && $message['all_delete_count'] == 1 && $isAllDelete == true) {
+            if($uid == $message->temp_id && $message->all_delete_count == 1 && $isAllDelete == true) {
                 continue;
             }
 
@@ -181,7 +182,30 @@ class Message extends Model
 
     public static function allSenders($uid, $isVip)
     {
-        $messages = Message::where([['to_id', $uid], ['from_id', '!=', $uid]])->orWhere([['from_id', $uid], ['to_id', '!=',$uid]])->orderBy('created_at', 'desc')->get();
+        $dropTempTables = DB::unprepared(
+            DB::raw("
+                DROP TABLE IF EXISTS temp_m;
+            ")
+        );
+        $createTempTables = DB::unprepared(
+            DB::raw("
+                CREATE TEMPORARY TABLE `temp_m` AS(
+                    SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent` 
+                    FROM `message` 
+                    WHERE created_at >= '2018-07-16 00:00:00'
+                );
+            ")
+        );
+        if($createTempTables){
+            $messages = DB::select(DB::raw("
+                select * from `temp_m` 
+                WHERE  (`to_id` = $uid and `from_id` != $uid) or (`from_id` = $uid and `to_id` != $uid) 
+                order by `created_at` desc 
+            "));
+        }
+
+
+        //$messages = Message::where([['to_id', $uid], ['from_id', '!=', $uid]])->orWhere([['from_id', $uid], ['to_id', '!=',$uid]])->orderBy('created_at', 'desc')->get();
 
         if($isVip == 1)
             $saveMessages = Message::chatArray($uid, $messages, 1);
