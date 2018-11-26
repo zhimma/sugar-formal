@@ -180,22 +180,70 @@ class Message extends Model
         return $saveMessages;
     }
 
+    public static function chatArrayAJAX($uid, $messages, $isVip) {
+        $saveMessages = [];
+        $tempMessages = [];
+        $noVipCount = 0;
+        $isAllDelete = true;
+        $msgShow = User::findById($uid)->meta_()->notifhistory;
+
+
+        foreach($messages as $message) {
+
+            // end 1 and 2
+            if($message->all_delete_count == 2) {
+                Message::deleteAllMessagesFromDB($message->to_id, $message->from_id);
+            }
+            if($message->all_delete_count == 1 && ($message->is_row_delete_1 == $message->to_id || $message->is_row_delete_2 == $message->to_id || $message->is_row_delete_1 == $message->from_id || $message->is_row_delete_2 == $message->from_id)) {
+                Message::deleteAllMessagesFromDB($message->to_id, $message->from_id);
+            }
+
+            // delete row messages
+            if($message->is_row_delete_1 == $uid || $message->is_row_delete_2 == $uid) {
+                continue;
+            }
+
+            // delete all messages
+            if($uid == $message->temp_id && $message->all_delete_count == 1 && $isAllDelete == true) {
+                continue;
+            }
+
+            // add messages to array
+            if(!in_array(['to_id' => $message->to_id, 'from_id' => $message->from_id], $tempMessages) && !in_array(['to_id' => $message->from_id, 'from_id' => $message->to_id], $tempMessages)) {
+                array_push($tempMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id]);
+                array_push($saveMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id, 'temp_id' => $message->temp_id,'all_delete_count' => $message->all_delete_count, 'is_row_delete_1' => $message->is_row_delete_1, 'is_row_delete_2' => $message->is_row_delete_2, 'is_single_delete_1' => $message->is_single_delete_1, 'is_single_delete_2' => $message->is_single_delete_2]);
+                $noVipCount++;
+            }
+
+            if($isVip == 0 && $noVipCount == Config::get('social.limit.show-chat')) {
+                break;
+            }
+        }
+
+        //if($isAllDelete) return NULL;
+
+        return $saveMessages;
+    }
+
     public static function allSenders($uid, $isVip)
     {
-        $dropTempTables = DB::unprepared(
-            DB::raw("
-                DROP TABLE IF EXISTS temp_m;
-            ")
-        );
-        $createTempTables = DB::unprepared(
-            DB::raw("
-                CREATE TEMPORARY TABLE `temp_m` AS(
-                    SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent` 
-                    FROM `message` 
-                    WHERE created_at >= '2018-07-16 00:00:00'
-                );
-            ")
-        );
+        $dropTempTables = DB::unprepared(DB::raw("
+            DROP TABLE IF EXISTS temp_m;
+        "));
+        $createTempTables = DB::unprepared(DB::raw("
+            CREATE TEMPORARY TABLE `temp_m` AS(
+                SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent`
+                FROM `message`
+                WHERE created_at >= '".\Carbon\Carbon::now()->subDays(7)->toDateTimeString()."'
+            );
+        "));
+//        $createTempTables = DB::unprepared(DB::raw("
+//            CREATE TEMPORARY TABLE `temp_m` AS(
+//                SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent`
+//                FROM `message`
+//                WHERE created_at >= '2018-07-01'
+//            );
+//        "));
         if($createTempTables){
             $messages = DB::select(DB::raw("
                 select * from `temp_m` 
@@ -204,13 +252,49 @@ class Message extends Model
             "));
         }
 
-
         //$messages = Message::where([['to_id', $uid], ['from_id', '!=', $uid]])->orWhere([['from_id', $uid], ['to_id', '!=',$uid]])->orderBy('created_at', 'desc')->get();
 
         if($isVip == 1)
             $saveMessages = Message::chatArray($uid, $messages, 1);
         else if($isVip == 0) {
             $saveMessages = Message::chatArray($uid, $messages, 0);
+        }
+
+        //echo json_encode($saveMessages);
+
+        return $saveMessages;
+        //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
+    }
+
+    public static function allSendersAJAX($uid, $isVip, $date)
+    {
+        //todo: AJAX 抓取訊息
+        $dropTempTables = DB::unprepared(DB::raw("
+            DROP TABLE IF EXISTS temp_m;
+        "));
+        $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $date);
+        $createTempTables = DB::unprepared(DB::raw("
+            CREATE TEMPORARY TABLE `temp_m` AS(
+                SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent` 
+                FROM `message` 
+                WHERE created_at >= '".$date->subDays(7)->toDateTimeString()."'
+                AND created_at <= '".$date->toDateTimeString()."'
+            );
+        "));
+        if($createTempTables){
+            $messages = DB::select(DB::raw("
+                select * from `temp_m` 
+                WHERE  (`to_id` = $uid and `from_id` != $uid) or (`from_id` = $uid and `to_id` != $uid) 
+                order by `created_at` desc 
+            "));
+        }
+
+        //$messages = Message::where([['to_id', $uid], ['from_id', '!=', $uid]])->orWhere([['from_id', $uid], ['to_id', '!=',$uid]])->orderBy('created_at', 'desc')->get();
+
+        if($isVip == 1)
+            $saveMessages = Message::chatArrayAJAX($uid, $messages, 1);
+        else if($isVip == 0) {
+            $saveMessages = Message::chatArrayAJAX($uid, $messages, 0);
         }
 
         //echo json_encode($saveMessages);
