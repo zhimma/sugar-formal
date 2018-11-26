@@ -1,7 +1,139 @@
 @extends('layouts.master')
 
 @section('app-content')
+<script>
+    let d = new Date(), count = 0;
+    function showMore(){
+        count++;
+        if(count === 3 && $('.user-list').length > 3){
+            $('.showAll').show();
+        }
+        d.setDate(d.getDate() - 7);
+        let date = d.getFullYear() + '-' + ( d.getMonth() + 1 ) + '-' + d.getDate();
+        console.log(date);
+        $.ajax({
+            type: 'POST',
+            url: '{{ route('showMoreMessages') }}',
+            data: {
+                _token:"{{ csrf_token() }}",
+                date : date,
+                uid : '{{ $user->id }}',
+                isVip : '{{ $user->isVip() }}'
+            },
+            dataType: 'json',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(xhr){
+                console.log(xhr.msg);
+                if(xhr.msg !== ' No data'){
+                    fillDatas(xhr.msg);
+                }
+            },
+            error: function(xhr, type){
+                alert('Ajax error!')
+            }
+        });
+    }
+    function showAll(){
+        $("#showMore").hide();
+        $.ajax({
+            type: 'POST',
+            url: '{{ route('showAllMessages') }}',
+            data: {
+                _token:"{{ csrf_token() }}",
+                uid : '{{ $user->id }}',
+                isVip : '{{ $user->isVip() }}'
+            },
+            dataType: 'json',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(xhr){
+                console.log(xhr.msg);
+                if(xhr.msg !== ' No data'){
+                    fillDatas(xhr.msg);
+                    $("#showAll").hide();
+                    $("#tips").hide();
+                }
+            },
+            error: function(xhr, type){
+                alert('Ajax error!')
+            }
+        });
+    }
+    function fillDatas(data) {
+        for(let i = 0 ; i < data.length ; i++){
+            let ele;
+            if(data[i]['isAdminMessage'] === 1){
+                if(data[i]['user_name'].includes('站長')){
+                    ele = "<div class='m-widget3__item' id='admin' style='background-color: rgba(164, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(164, 164, 164, 0.7); padding: 14px 28px;'>";
+                }
+                else{
+                    ele = "<div class='m-widget3__item' id='normal' style='background-color: rgba(164, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(164, 164, 164, 0.7); padding: 14px 28px;'>";
+                }
+            }
+            else{
+                if(data[i]['user_name'].includes('站長')){
+                    ele = "<div class='m-widget3__item' id='admin' style='background-color: rgba(244, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7); padding: 14px 28px;'>";
+                }
+                else{
+                    ele = "<div class='m-widget3__item' id='normal' style='background-color: rgba(244, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7); padding: 14px 28px;'>";
+                }
+            }
 
+            ele += "<div class='m-widget3__header' style='width:95%'>";
+            ele += "<div class='m-widget3__user-img'>";
+            if(data[i]['isAvatarHidden'] === 1){
+                ele += "<a href='/dashboard/chat/" + data[i]['user_id'] + "'><img class='m-widget3__img' style='max-width:none' src='makesomeerror' onerror=\"this.src='{{ url('/') }}/img/male-avatar.png'\" alt=''></a></div>";
+            }
+            else{
+                ele += "<a href='/dashboard/chat/" + data[i]['user_id'] + "'><img class='m-widget3__img' style='max-width:none' src='" + data[i]['pic'] + "' onerror=\"this.src='/img/male-avatar.png'\" alt=''></a></div>";
+            }
+
+            ele += "<div class='m-widget3__info'>";
+            ele += "<a href='/dashboard/chat/" + data[i]['user_id'] + "'>";
+
+            if(data[i]['user_name'].includes('站長')){
+                ele += "<span class='m-widget3__username' style='color:blue;'>";
+            }
+            else{
+                ele += "<span class='m-widget3__username'>";
+            }
+            ele += data[i]['user_name'];
+            ele += "</span><br>";
+            ele += "<span class='m-widget3__time'>";
+            ele += "</span>";
+            if(data[i]['cntr'] === 1){
+                ele += "<br><span class='m-widget3__username' style='color:red'>(此人遭多人檢舉)</span>";
+            }
+            ele += "</a></div>";
+            ele += "<div class='m-widget3__body' style='display:inline-block; word-wrap: break-word; word-break: break-all'>";
+            if(data[i]['isAdminMessage'] === 1){
+                ele += "<p class='message-text' style='word-wrap: break-word; word-break: break-all'>";
+            }
+            else{
+                ele += "<p class='m-widget3__text' style='word-wrap: break-word; word-break: break-all'>";
+            }
+            ele += data[i]['content'];
+            ele += "</p></div>";
+
+            ele += "<div class='m-widget3__delete'>";
+            ele += "<a class='btn btn-danger m-btn m-btn--air m-btn--custom delete-btn' href='{{ url('/') }}/dashboard/chat/deleterow/{{ $user->id }}/" + data[i]['user_id'] + "'>刪除</a>";
+            ele += "</div></div></div>";
+            $(ele).insertBefore($('.options'));
+        }
+        adminMessage();
+    }
+
+    function adminMessage() {
+        $('#admin').each(
+            function (){
+                $(this).insertBefore($('#normal'));
+            }
+        );
+    }
+</script>
 <?php
 $block_people =  Config::get('social.block.block-people');
 $admin_email = Config::get('social.admin.email');
@@ -10,7 +142,6 @@ if (isset($to)) $orderNumber = $to->id;
 else $orderNumber = "";
 $code = Config::get('social.payment.code');
 ?>
-
 <div class="m-portlet__head">
     <div class="m-portlet__head-caption">
         <div class="m-portlet__head-title">
@@ -47,7 +178,8 @@ $code = Config::get('social.payment.code');
         <?php
             $collection = array();
         ?>
-    <div id="user-list" class="m-widget3 col-lg-12" style="display:inline-block">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <div id="user-list" class="m-widget3 col-lg-12" style="display:inline-block">
         <?php if($user->isVip())
                 $messages = \App\Models\Message::allSenders($user->id, 1);
             else $messages = \App\Models\Message::allSenders($user->id, 0);
@@ -144,6 +276,10 @@ $code = Config::get('social.payment.code');
                     @endif
                 @endforeach
             @endif
+            <div class="options">
+                <a class="btn btn-danger m-btn m-btn--air m-btn--custom text-white" id="showMore" onclick="showMore();" data-token="{{ csrf_token() }}">顯示更多</a>
+                <a class="btn btn-danger m-btn m-btn--air m-btn--custom text-white" id="showAll" onclick="showAll();" data-token="{{ csrf_token() }}">顯示全部</a>
+            </div>
         </div>
 
         @elseif(isset($to))
@@ -222,6 +358,7 @@ $code = Config::get('social.payment.code');
                 @endif
             @endforeach
 
+
             <div class="m-form__actions">
                 {!! $messages->appends(request()->input())->links() !!}
             </div>
@@ -297,6 +434,12 @@ $(document).ready(function(){
             e.preventDefault();
         }
     });
+    if($('.user-list').length <= 3){
+        $('<p style="color:red;" id="tips">如果發現訊息不完整，請按下全部顯示</p>').insertAfter($('.options'));
+    }
+    else{
+        $('.showAll').hide();
+    }
 });
 $('#chatForm').submit(function () {
     let content = $('.msg').val(), msgsnd = $('.msgsnd');

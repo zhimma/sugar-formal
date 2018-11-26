@@ -58,6 +58,40 @@ class MessageController extends Controller {
         }
     }
 
+    public function chatviewMore(Request $request)
+    {
+        $user_id = $request->uid;
+        $data = Message::moreSendersAJAX($user_id, $request->isVip, $request->date);
+        if ($data) {
+            return response()->json(array(
+                'status' => 1,
+                'msg' => $data
+            ), 200);
+        } else {
+            return response()->json(array(
+                'status' => 2,
+                'msg' => 'fail',
+            ), 500);
+        }
+    }
+
+    public function chatviewAll(Request $request)
+    {
+        $user_id = $request->uid;
+        $data = Message::allSendersAJAX($user_id, $request->isVip);
+        if ($data) {
+            return response()->json(array(
+                'status' => 1,
+                'msg' => $data
+            ), 200);
+        } else {
+            return response()->json(array(
+                'status' => 2,
+                'msg' => 'fail',
+            ), 500);
+        }
+    }
+
     public function disableNotice(Request $request)
     {
         $user_id = $request->id;

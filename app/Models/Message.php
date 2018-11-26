@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Auth;
 use App\Models\User;
 use App\Models\Blocked;
 use App\Models\SimpleTables\banned_users;
@@ -237,11 +238,15 @@ class Message extends Model
                 WHERE created_at >= '".\Carbon\Carbon::now()->subDays(7)->toDateTimeString()."'
             );
         "));
+//        $date = \Carbon\Carbon::createFromFormat('Y-m-d', '2018-09-01');
+//        $date_s = $date->subDays(30);
 //        $createTempTables = DB::unprepared(DB::raw("
 //            CREATE TEMPORARY TABLE `temp_m` AS(
 //                SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent`
 //                FROM `message`
-//                WHERE created_at >= '2018-07-01'
+//                WHERE `created_at`
+//                BETWEEN '".$date_s->toDateTimeString()."'
+//                AND '".$date_s->addDays(30)->toDateTimeString()."'
 //            );
 //        "));
         if($createTempTables){
@@ -263,24 +268,32 @@ class Message extends Model
         //echo json_encode($saveMessages);
 
         return $saveMessages;
+        //return Message::sortMessages($saveMessages);
         //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
     }
 
-    public static function allSendersAJAX($uid, $isVip, $date)
+    public static function moreSendersAJAX($uid, $isVip, $date)
     {
-        //todo: AJAX 抓取訊息
         $dropTempTables = DB::unprepared(DB::raw("
             DROP TABLE IF EXISTS temp_m;
         "));
-        $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $date);
+        $date = \Carbon\Carbon::createFromFormat('Y-m-d', $date);
         $createTempTables = DB::unprepared(DB::raw("
             CREATE TEMPORARY TABLE `temp_m` AS(
-                SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent` 
-                FROM `message` 
-                WHERE created_at >= '".$date->subDays(7)->toDateTimeString()."'
-                AND created_at <= '".$date->toDateTimeString()."'
+                SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent`
+                FROM `message`
+                WHERE `created_at`
+                BETWEEN '".$date->subDays(7)->toDateTimeString()."'
+                AND '".$date->addDays(7)->toDateTimeString()."'
             );
         "));
+//        $createTempTables = DB::unprepared(DB::raw("
+//            CREATE TEMPORARY TABLE `temp_m` AS(
+//                SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent`
+//                FROM `message`
+//                WHERE created_at >= '2018-07-01'
+//            );
+//        "));
         if($createTempTables){
             $messages = DB::select(DB::raw("
                 select * from `temp_m` 
@@ -298,9 +311,86 @@ class Message extends Model
         }
 
         //echo json_encode($saveMessages);
-
-        return $saveMessages;
+        if(count($saveMessages) == 0){
+            return 'No data';
+        }
+        else{
+            return Message::sortMessages($saveMessages);
+        }
         //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
+    }
+
+    public static function allSendersAJAX($uid, $isVip)
+    {
+        $messages = Message::where([['to_id', $uid], ['from_id', '!=', $uid]])->orWhere([['from_id', $uid], ['to_id', '!=',$uid]])->orderBy('created_at', 'desc')->get();
+
+        if($isVip == 1)
+            $saveMessages = Message::chatArrayAJAX($uid, $messages, 1);
+        else if($isVip == 0) {
+            $saveMessages = Message::chatArrayAJAX($uid, $messages, 0);
+        }
+
+        //echo json_encode($saveMessages);
+        if(count($saveMessages) == 0){
+            return 'No data';
+        }
+        else{
+            return Message::sortMessages($saveMessages);
+        }
+        //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
+    }
+
+    public static function sortMessages($messages){
+        $user = Auth::user();
+        $block_people =  Config::get('social.block.block-people');
+        $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get()->toArray();
+        foreach ($messages as $key => $message){
+            if(\App\Models\User::isBanned($message['from_id']) || \App\Models\User::isBanned($message['to_id'])){
+                continue;
+            }
+            if(Message::search($message['from_id'], $userBlockList) || Message::search($message['to_id'], $userBlockList)){
+                continue;
+            }
+            if($message['to_id'] == $user->id) {
+                $msgUser = \App\Models\User::findById($message['from_id']);
+            }
+            else if($message['from_id'] == $user->id) {
+                $msgUser =  \App\Models\User::findById($message['to_id']);
+            }
+            if(\App\Models\Message::onlyShowVip($user, $msgUser)) {
+                continue;
+            }
+            $latestMessage = \App\Models\Message::latestMessage($user->id, $msgUser->id);
+            if(!empty($latestMessage)){
+                if(\App\Models\Message::isAdminMessage($latestMessage->content)){
+                    $messages[$key]['isAdminMessage'] = 1;
+                }
+                else{
+                    $messages[$key]['isAdminMessage'] = 0;
+                }
+                if(\App\Models\Reported::cntr($msgUser->id) >= $block_people ){
+                    $messages[$key]['cntr'] = 1;
+                }
+                else{
+                    $messages[$key]['cntr'] = 0;
+                }
+            }
+            $messages[$key]['user_id'] = $msgUser->id;
+            $messages[$key]['user_name'] = $msgUser->name;
+            $messages[$key]['isAvatarHidden'] = $msgUser->meta_()->isAvatarHidden;
+            $messages[$key]['pic'] = $msgUser->meta_()->pic;
+            $messages[$key]['content'] = $latestMessage->content;
+        }
+        return $messages;
+    }
+
+    public static function search($value, $array) {
+        foreach ($array as $key => $val) {
+            if ($val['blocked_id'] === $value) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static function latestMessage($uid, $sid)
