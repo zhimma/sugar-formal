@@ -146,6 +146,19 @@ class Message extends Model
 
         foreach($messages as $message) {
 
+            if(\App\Models\User::isBanned($message->from_id) || \App\Models\User::isBanned($message->to_id)){
+                continue;
+            }
+            if($message['to_id'] == $user->id) {
+                $msgUser = \App\Models\User::findById($message['from_id']);
+            }
+            else if($message['from_id'] == $user->id) {
+                $msgUser =  \App\Models\User::findById($message['to_id']);
+            }
+            if(\App\Models\Message::onlyShowVip($user, $msgUser)) {
+                continue;
+            }
+
             // end 1 and 2
             if($message->all_delete_count == 2) {
                 Message::deleteAllMessagesFromDB($message->to_id, $message->from_id);

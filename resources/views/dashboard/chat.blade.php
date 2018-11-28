@@ -220,9 +220,6 @@ $code = Config::get('social.payment.code');
 //                if(\App\Models\Message::onlyShowVip($user, $msgUser) || \App\Models\Message::showNoVip($user, $msgUser)) {
 //                    continue;
 //                }
-                if(\App\Models\Message::onlyShowVip($user, $msgUser)) {
-                    continue;
-                }
 
                 //echo 'message->to_id = '. $message->to_id . ' message->from_id = '. $message->from_id . ' user->id = ' . $user->id;
                 $msgFromUser = \App\Models\User::findById($message['from_id']);
