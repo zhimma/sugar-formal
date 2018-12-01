@@ -405,7 +405,7 @@ class Message extends Model
             $messages[$key]['user_name'] = $msgUser->name;
             $messages[$key]['isAvatarHidden'] = $msgUser->meta_()->isAvatarHidden;
             $messages[$key]['pic'] = $msgUser->meta_()->pic;
-            $messages[$key]['content'] = $latestMessage->content;
+            $messages[$key]['content'] = $latestMessage == null ? '' : $latestMessage->content;
         }
         return $messages;
     }

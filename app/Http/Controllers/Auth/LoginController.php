@@ -83,7 +83,7 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $uid = User::select('id')->where('email', $request->email)->get()->first();
-        if(Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $uid->id)->exists()){
+        if(isset($uid) && Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $uid->id)->exists()){
             $request->remember = 'on';
         }
         $this->validateLogin($request);
@@ -102,7 +102,7 @@ class LoginController extends Controller
         //dd($request->input('email'));
         $user = User::findByEmail($request->input('email'));
         //dd($user->password_updated);
-        if (!$user->password_updated) {
+        if (isset($user) && !$user->password_updated) {
             //if (md5($request->input('password')) == $user->password) {
             if($user->isLoginSuccess($request->input('email'), $request->input('password'))) {
                 $user->password = bcrypt($request->input('password'));
