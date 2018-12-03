@@ -22,7 +22,23 @@
         $('#information').submit();
     }
 </script>
-
+<style>
+    .pics{
+        position: absolute;
+        padding: 0;
+        margin: 0;
+        top: 40px;
+        left: 0;
+        right: 0;
+        width: inherit;
+        height: 100%;
+        border: 2px solid red;
+        padding: 10px;
+        border-radius: 25px;
+        box-shadow:4px 4px 3px rgba(20%,20%,40%,0.5);
+        z-index: 999;
+    }
+</style>
 <div class="m-portlet__head">
 <div class="m-portlet__head-tools">
 <ul class="nav nav-tabs m-tabs m-tabs-line m-tabs-line--left m-tabs-line--primary" role="tablist">
@@ -114,6 +130,15 @@
 <?php $cmeta = $cur->meta_(); ?>
 
 @if(str_contains(url()->current(), 'dashboard'))
+    {{--<div class="pics">--}}
+        {{--<img src="/img/banner.jpg" alt="">--}}
+        {{--<img src="/img/banner.jpg" alt="">--}}
+        {{--<img src="/img/banner.jpg" alt="">--}}
+        {{--<img src="/img/banner.jpg" alt="">--}}
+        {{--<img src="/img/banner.jpg" alt="">--}}
+        {{--<img src="/img/banner.jpg" alt="">--}}
+        {{--<img src="/img/banner.jpg" alt="">--}}
+    {{--</div>--}}
     <form class="m-form m-form--fit m-form--label-align-right" method="POST" name="user_data" action="/dashboard" id="information">
         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
         <input type="hidden" name="userId" value="{{$user->id}}">
