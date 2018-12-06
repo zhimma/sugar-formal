@@ -453,6 +453,7 @@ class PagesController extends Controller
 
         $payload = $request->all();
         $this->logService->writeLogToDB();
+        //todo: 應該記錄payload所有資料，尤其final_result這一欄
         if (isset($payload['final_result']))
         {
             if(Vip::checkByUserAndTxnId($user->id, $payload['P_CheckSum'])){
