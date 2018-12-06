@@ -31,13 +31,13 @@
                         <input class="form-control m-input m-login__form-input--last" type="password" placeholder="密碼" name="password" id="password">
                     </div>
                     <div class="row m-login__form-sub">
-                   	<div class="col m--align-left m-login__form-left">
+                   	<!--<div class="col m--align-left m-login__form-left">
                             <label class="m-checkbox  m-checkbox--focus">
                                 <input type="checkbox" name="remember">
                                 記住我
                                 <span></span>
                             </label>
-                        </div>
+                        </div>-->
                         <div class="col m--align-right m-login__form-right">
                             <a href="{!! url('password/reset') !!}" id="m_login_forget_password" class="m-link">
                                     忘記密碼 ?
