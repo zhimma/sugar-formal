@@ -52,6 +52,7 @@ class FemaleVipActive
         }
 
         if($user_last_login->diffInSeconds(Carbon::now()) <= Config::get('social.vip.start') && !$user->isVip()) {
+            //超過一天沒登入
         }
         else if(!$user->isVip()) {
             $user->vip_record = Carbon::now();

@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\Role;
 use App\Models\SimpleTables\banned_users;
+use Illuminate\Support\Facades\Config;
 
 class LoginController extends Controller
 {
@@ -72,6 +73,35 @@ class LoginController extends Controller
             //$announcement = str_replace(PHP_EOL, '\n', $announcement);
             $announcement = str_replace(array("\r\n", "\r", "\n"), '\n', $announcement);
             $request->session()->flash('announcement', $announcement);
+
+            $user = auth()->user();
+            if($user->engroup == 2){
+                $user_last_login = Carbon::parse($request->session()->get('last_login'));
+                $vip_record = Carbon::parse($user->vip_record);
+                if((!$user->existHeaderImage() && $user->isVip())) {
+                    //沒大頭貼、三張照片
+                }
+                if($user_last_login->diffInSeconds(Carbon::now()) >= Config::get('social.vip.start') && !$user->isVip()) {
+                    //超過一天沒登入
+                    $switch = 0;
+                }
+                if($user->isVip() && $vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.free-days')) {
+                    //VIP還在免費期內
+                    $switch = 1;
+                }
+                if(isset($switch)){
+                    if($switch == 1){
+                        $vip_expire_date = $vip_record->addSeconds(Config::get('social.vip.free-days'));
+                        $vip_expire_date = $vip_expire_date->year.'年'.$vip_expire_date->month.'月'.$vip_expire_date->day.'日'.$vip_expire_date->hour.'點'.$vip_expire_date->minute.'分';
+                        $request->session()->flash('vip_expire_date', $vip_expire_date);
+                    }
+                    elseif($switch == 0){
+                        $vip_gain_date = Carbon::parse($user->last_login)->addSeconds(Config::get('social.vip.start'));
+                        $vip_gain_date = $vip_gain_date->year.'年'.$vip_gain_date->month.'月'.$vip_gain_date->day.'日'.$vip_gain_date->hour.'點'.$vip_gain_date->minute.'分';
+                        $request->session()->flash('vip_gain_date', $vip_gain_date);
+                    }
+                }
+            }
             return redirect('/dashboard');
         }
     }
@@ -82,9 +112,12 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        $uid = User::select('id')->where('email', $request->email)->get()->first();
+        $uid = User::select('id', 'last_login')->where('email', $request->email)->get()->first();
         if(isset($uid) && Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $uid->id)->exists()){
             $request->remember = 'on';
+        }
+        if(isset($uid)){
+            $request->session()->put('last_login', $uid->last_login);
         }
         $this->validateLogin($request);
 
