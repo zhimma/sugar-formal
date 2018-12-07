@@ -52,9 +52,10 @@ class FemaleVipActive
         }
 
         if($user_last_login->diffInSeconds(Carbon::now()) <= Config::get('social.vip.start') && !$user->isVip()) {
-            //超過一天沒登入
+            //在一天內登出又登入
         }
         else if(!$user->isVip()) {
+            //維持登入狀態
             $user->vip_record = Carbon::now();
             $user->save();
             Vip::upgrade($user->id, '1111000', '0', 0, 'OOOOOOOO', 1, 1);
