@@ -113,10 +113,10 @@ class Vip extends Model
                 $u->expiry = $date->toDateTimeString();
                 $u->save();
             }
+            return true;
         }
 
-        return true;
-        //return Vip::where('member_id', $member_id)->delete();
+        return Vip::where('member_id', $member_id)->delete();
     }
 
     public function removeVIP(){
