@@ -9,7 +9,7 @@
         let original_en = "{{ $user->engroup }}";
         let after = $('input[name=engroup]:checked').val();
         //console.log($('input[name=engroup]:checked').val());
-        if(original_en != after){
+        if(original_en != after && after != null){
             let r = confirm("確定要改變帳號類型(甜心大哥/大姐、甜心寶貝)嗎？");
             //console.log(r);
             if(r){
@@ -173,9 +173,13 @@
             <div class="form-group m-form__group row">
                 <label for="user_engroup" class="col-lg-2 col-md-3 col-form-label">帳號類型</label>
                 <div class="col-lg-7 form-inline">
-                    <input class="form-control m-input" name="engroup" value="1" @if($user->engroup == 1) checked @endif @if($user->engroup_change > 0) type="hidden" @else type="radio" @endif>@if($user->engroup_change > 0 && $user->engroup == 1) 甜心大哥/大姐 @elseif($user->engroup_change == 0) 甜心大哥/大姐 @endif
-                    <input class="form-control m-input" name="engroup" value="2" @if($user->engroup == 2) checked @endif @if($user->engroup_change > 0) type="hidden" @else type="radio" @endif>@if($user->engroup_change > 0 && $user->engroup == 2) 甜心寶貝&nbsp;@elseif($user->engroup_change == 0) 甜心寶貝 @endif
-                    <a style="font-weight: bold; color: red">(注意：每個帳號僅能變更一次)</a>
+                    @if($user->engroup_change == 0)
+                        <input class="form-control m-input" name="engroup" value="1" @if($user->engroup == 1) checked @endif type="radio"> 甜心大哥/大姐
+                        <input class="form-control m-input" name="engroup" value="2" @if($user->engroup == 2) checked @endif type="radio"> 甜心寶貝&nbsp;
+                        <a style="font-weight: bold; color: red">(注意：每個帳號僅能變更一次)</a>
+                    @elseif($user->engroup_change > 0 && $user->engroup == 2) 甜心寶貝&nbsp;
+                    @elseif($user->engroup_change > 0 && $user->engroup == 1) 甜心大哥/大姐
+                    @endif
                 </div>
             @else
             <div class="form-group m-form__group">
