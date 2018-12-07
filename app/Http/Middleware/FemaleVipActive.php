@@ -52,7 +52,7 @@ class FemaleVipActive
         }
 
         if($user_last_login->diffInSeconds(Carbon::now()) <= Config::get('social.vip.start') && !$user->isVip()) {
-            //在一天內登出又登入
+            //不可能執行
         }
         else if(!$user->isVip()) {
             //維持登入狀態
