@@ -81,8 +81,8 @@ class LoginController extends Controller
                 if((!$user->existHeaderImage() && $user->isVip())) {
                     //沒大頭貼、三張照片
                 }
-                if($user_last_login->diffInSeconds(Carbon::now()) >= Config::get('social.vip.start') && !$user->isVip()) {
-                    //超過一天沒登入
+                if($vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.start') && !$user->isVip()) {
+                    //免費VIP失效
                     $switch = 0;
                 }
                 if($user->isVip() && $vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.free-days')) {

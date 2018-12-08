@@ -44,29 +44,24 @@ class FemaleVipActive
         $user_last_login = Carbon::parse($user->last_login);
         $vip_record = Carbon::parse($user->vip_record);
 
-        if($user->engroup == 1 || $user->engroup == 2 && !Vip::status($user->id)) return $next($request);
+        //if($user->engroup == 1 || $user->engroup == 2 && !Vip::status($user->id)) return $next($request);
+        if($user->engroup == 1 || $user->engroup == 2 && !$user->existHeaderImage() || Vip::status($user->id)) return $next($request);
 
-        if((!$user->existHeaderImage() && $user->isVip() && $user->engroup == 2)) {
-            Vip::cancel($user->id, 1);
-            return $next($request);
-        }
-
-        if($user_last_login->diffInSeconds(Carbon::now()) <= Config::get('social.vip.start') && !$user->isVip()) {
-            //不可能執行
+        if($vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.start') && !$user->isVip()) {
         }
         else if(!$user->isVip()) {
-            //維持登入狀態
             $user->vip_record = Carbon::now();
             $user->save();
             Vip::upgrade($user->id, '1111000', '0', 0, 'OOOOOOOO', 1, 1);
             return $next($request);
         }
-
-        if($user->isVip() && $vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.free-days')) {
+        else if($user->isVip() && $vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.free-days')) {
             return $next($request);
         }
         else if($user->isVip()) {
             Vip::cancel($user->id, 1);
+            $user->vip_record = Carbon::now();
+            $user->save();
         }
 
         return $next($request);
