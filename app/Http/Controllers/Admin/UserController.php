@@ -748,6 +748,13 @@ class UserController extends Controller
         return redirect()->route('users/message/search')->with('message', '傳送成功');
     }
 
+    public function showMessagesBetween($id1, $id2)
+    {
+        $messages = Message::allToFromSender($id1, $id2);
+        $id1 = User::where('id', $id1)->get()->first();
+        $id2 = User::where('id', $id2)->get()->first();
+        return view('admin.users.showMessagesBetween', compact('messages', 'id1', 'id2'));
+    }
 
     /**
      * Show the form for inviting a customer.

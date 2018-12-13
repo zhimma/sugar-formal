@@ -133,7 +133,7 @@
 	</tr>
 	@forelse ($userMessage as $uM)
 		<tr>
-			<td>{{ $to_ids[$uM->to_id] }}</td>
+			<td><a href="{{ route('admin/showMessagesBetween', [$user->id, $uM->to_id]) }}" target="_blank">{{ $to_ids[$uM->to_id] }}</a></td>
 			<td>{{ $uM->content }}</td>
 			<td>{{ $uM->created_at }}</td>
             <td style="text-align: center; vertical-align: middle">
