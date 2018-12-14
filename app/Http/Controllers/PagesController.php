@@ -116,6 +116,17 @@ class PagesController extends Controller
             $user = User::findById($aid);
         }
         $payload = $request->all();
+        $pool = '';
+        $count = 0;
+        foreach ($payload as $key => $value){
+            $pool .= 'Row '. $count . ' : ' . $key . ', Value : ' . $value . '
+';//換行
+            $count++;
+        }
+        $infos = new \App\Models\LogChatPayInfos();
+        $infos->user_id = $user->id;
+        $infos->content = $pool;
+        $infos->save();
         if (isset($payload['final_result']))
         {
             Tip::upgrade($user->id, $payload['P_OrderNumber'], $payload['P_CheckSum']);
@@ -125,6 +136,26 @@ class PagesController extends Controller
         Message::post($user->id, $payload['P_OrderNumber'], "系統通知: 車馬費邀請");
 
         return redirect('/dashboard/chat/' . $payload['P_OrderNumber'] . '?invite=success');
+    }
+
+    public function postChatpayLog(Request $request)
+    {
+        $user_id = $request->user_id;
+        $to_id = $request->to_id;
+        $log = new \App\Models\LogChatPay();
+        $log->user_id = $user_id;
+        $log->to_id = $to_id;
+        if ($log->save()) {
+            return response()->json(array(
+                'status' => 1,
+                'msg' => 'ok',
+            ), 200);
+        } else {
+            return response()->json(array(
+                'status' => 2,
+                'msg' => 'fail',
+            ), 500);
+        }
     }
 
     public function postChatpayComment(Request $request)
@@ -418,6 +449,9 @@ class PagesController extends Controller
         $user = $request->user();
         if ($user)
         {
+            $log = new \App\Models\LogClickUpgrade();
+            $log->user_id = $user->id;
+            $log->save();
             return view('dashboard.upgrade')
             ->with('user', $user);
         }
@@ -452,14 +486,35 @@ class PagesController extends Controller
         }
 
         $payload = $request->all();
+        $pool = '';
+        $count = 0;
+        foreach ($payload as $key => $value){
+            $pool .= 'Row '. $count . ' : ' . $key . ', Value : ' . $value . '
+';//換行
+            $count++;
+        }
+        $infos = new \App\Models\LogUpgradedInfos();
+        $infos->user_id = $user->id;
+        $infos->content = $pool;
+        $infos->save();
         $this->logService->writeLogToDB();
-        //todo: 應該記錄payload所有資料，尤其final_result這一欄
         if (isset($payload['final_result']))
         {
             if(Vip::checkByUserAndTxnId($user->id, $payload['P_CheckSum'])){
                 return view('dashboard.upgradesuccess')
                     ->with('user', $user)->withErrors(['升級成功後請勿在本頁面重新整理！']);
             }
+            $pool = '';
+            $count = 0;
+            foreach ($payload as $key => $value){
+                $pool .= 'Row '. $count . ' : ' . $key . ', Value : ' . $value . '
+';//換行
+                $count++;
+            }
+            $infos = new \App\Models\LogUpgradedInfosWhenGivingPermission();
+            $infos->user_id = $user->id;
+            $infos->content = $pool;
+            $infos->save();
             $this->logService->upgradeLog($payload, $user->id);
             $this->logService->writeLogToFile();
             Vip::upgrade($user->id, $payload['P_MerchantNumber'], $payload['P_OrderNumber'], $payload['P_Amount'], $payload['P_CheckSum'], 1, 0);
@@ -487,6 +542,9 @@ class PagesController extends Controller
         $user = $request->user();
 
         if ($user) {
+            $log = new \App\Models\LogCancelVip();
+            $log->user_id = $user->id;
+            $log->save();
             if(User::isCorrectAccount($payload['email'], $payload['password'])) {
                 $vip = Vip::findById($user->id);
                 $this->logService->cancelLog($vip);
