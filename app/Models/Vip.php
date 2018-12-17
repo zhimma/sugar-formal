@@ -96,7 +96,8 @@ class Vip extends Model
             $user = Vip::select('id', 'expiry', 'created_at')
                 ->where('member_id', $member_id)
                 ->orderBy('created_at', 'asc')->get();
-            $day = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->created_at)->format('d');
+            $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->created_at);
+            $day = $date->format('d');
             $now = \Carbon\Carbon::now();
 //            if($day > $now->day){
 //                $user = Vip::select('member_id', 'active')
@@ -109,6 +110,9 @@ class Vip extends Model
 //                $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
 //            }
             $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
+            if($now->month == $date->month){
+                $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year + 1 .'-01-'.$day.' 00:00:00');
+            }
             foreach ($user as $u){
                 $u->expiry = $date->toDateTimeString();
                 $u->save();
