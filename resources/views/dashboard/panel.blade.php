@@ -84,20 +84,23 @@ if(Auth::user()) $login_user = Auth::user();
 					</a>
                 </li>
                 @if (!$user->isVip())
-                    <li class="m-nav__item">
-                        <a href="{!! url('dashboard/upgrade') !!}" class="m-nav__link">
-                            <i class="m-nav__link-icon fa fa-diamond"></i>
-                            <span class="m-nav__link-text">@if($user->isVip()) 取消 VIP @else 升級 VIP @endif</span>
-                        </a>
-                    </li>
+					@if($user->isVipNotExpire())
+						<li class="m-nav__item">
+							<a href="{!! url('dashboard/upgrade') !!}" class="m-nav__link">
+								<i class="m-nav__link-icon fa fa-diamond"></i>
+								<span class="m-nav__link-text">@if($user->isVip()) 取消 VIP @else 升級 VIP @endif</span>
+							</a>
+						</li>
+					@endif
 				@else
-					<li class="m-nav__item">
-						<a href="{!! url('dashboard/cancel') !!}" class="m-nav__link">
-							<i class="m-nav__link-icon fa fa-diamond"></i>
-							<span class="m-nav__link-text">取消 VIP</span>
-						</a>
-					</li>
-
+					@if($user->isVipNotExpire())
+						<li class="m-nav__item">
+							<a href="{!! url('dashboard/cancel') !!}" class="m-nav__link">
+								<i class="m-nav__link-icon fa fa-diamond"></i>
+								<span class="m-nav__link-text">取消 VIP</span>
+							</a>
+						</li>
+					@endif
 					<li class="m-nav__item">
 						<a href="{!! url('dashboard/fav') !!}" class="m-nav__link">
 							<i class="m-nav__link-icon fa fa-diamond"></i>

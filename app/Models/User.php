@@ -180,6 +180,12 @@ class User extends Authenticatable
         return Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first() !== null;
     }
 
+    public function isVipNotExpire()
+    {
+        //return Vip::where('member_id', $this->id)->where('expiry', '>=',   Carbon::now())->orderBy('created_at', 'desc')->first() !== null;
+        return Vip::where('member_id', $this->id)->where('active', 1)->where('expiry', '==', '0000-00-00 00:00:00')->orderBy('created_at', 'desc')->first() !== null;
+    }
+
     public function isVipBoolean()
     {
         //return Vip::where('member_id', $this->id)->where('expiry', '>=',   Carbon::now())->orderBy('created_at', 'desc')->first() !== null;

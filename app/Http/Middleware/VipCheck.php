@@ -40,7 +40,8 @@ class VipCheck
         //If the member is male VIP, then check his expiry date.
         if ($this->auth->user()->isVip() && $this->auth->user()->engroup == 1) {
             $userVIP = Vip::where('member_id', $this->auth->user()->id)->get()->first();
-            if($now > $userVIP->expiry && $userVIP->expiry != '0000-00-00 00:00:00'){
+            $expiry = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $userVIP->expiry);
+            if($now > $expiry && $userVIP->expiry != '0000-00-00 00:00:00'){
                 $userVIP->removeVIP();
             }
         }
