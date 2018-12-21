@@ -484,7 +484,6 @@ class PagesController extends Controller
             $aid = auth()->id();
             $user = User::findById($aid);
         }
-
         $payload = $request->all();
         $pool = '';
         $count = 0;
@@ -497,7 +496,6 @@ class PagesController extends Controller
         $infos->user_id = $user->id;
         $infos->content = $pool;
         $infos->save();
-        $this->logService->writeLogToDB();
         if (isset($payload['final_result']))
         {
             if(Vip::checkByUserAndTxnId($user->id, $payload['P_CheckSum'])){
@@ -516,6 +514,7 @@ class PagesController extends Controller
             $infos->content = $pool;
             $infos->save();
             $this->logService->upgradeLog($payload, $user->id);
+            $this->logService->writeLogToDB();
             $this->logService->writeLogToFile();
             Vip::upgrade($user->id, $payload['P_MerchantNumber'], $payload['P_OrderNumber'], $payload['P_Amount'], $payload['P_CheckSum'], 1, 0);
         }
