@@ -60,7 +60,12 @@ Route::get('/config-cache', function() {
     $exitCode = Artisan::call('config:cache');
     return '<h1>Clear Config cleared</h1>';
 });
-
+Route::get('/transaction-test', function(){
+    $datas = \DB::table('viplogs')->where('created_at', '>=', \Carbon\Carbon::now()->subDays(10)->toDateTimeString())->get();
+    dd($datas);
+    $file = File::get(storage_path('app/RP_1111000_20181208.dat'));
+    dd($file);
+});
 /*
 |--------------------------------------------------------------------------
 | Error Handler Redirect Page
