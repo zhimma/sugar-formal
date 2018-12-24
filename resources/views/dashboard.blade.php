@@ -1108,6 +1108,9 @@
     @if(Session::has('announcement'))
         alert('{{ Session::get('announcement') }}');
     @endif
+    @if(Session::has('notice'))
+        alert('{{ Session::get('notice') }}');
+    @endif
 
     jQuery(document).ready(function(){
     //Check File API support
