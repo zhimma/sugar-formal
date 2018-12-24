@@ -63,9 +63,7 @@ Route::get('/config-cache', function() {
 Route::get('/transaction-test', function(){
     $date = \Carbon\Carbon::createFromFormat("Y-m-d", '2018-12-22')->toDateString();
     $datas = \DB::table('viplogs')->where('created_at', 'LIKE', $date.'%')->get();
-    //dd($datas);
     $file = File::get(storage_path('app/RP_761404_20181222.dat'));
-    //dd($file);
     $file = explode(PHP_EOL, $file);
     foreach ($file as $key => &$line){
         foreach ($datas as $key2 => &$data){
@@ -75,17 +73,43 @@ Route::get('/transaction-test', function(){
             }
         }
     }
-    // todo : 如果資料庫多，補異動檔，補權限
+    //如果資料庫多，補異動檔，補權限
     if(empty($file)){
         foreach ($datas as &$data){
             foreach ($data as &$line){
                 $line = explode(',', $line);
+                $user = User::where('id', $line[1])->get()->first();
+                //若資料庫多的是Cancel
+                if($line[7] == 'Delete'){
+                    //檢查是否已取消權限
+                    if($user->isVip()){
+                        $vip = Vip::findById($user->id);
+                        $this->logService->cancelLog($vip);
+                        $this->logService->writeLogToFile();
+                        $tmp = Vip::removeVIP($user->id, 0);
+                        dd($tmp);
+                    }
+                    else{
+                        dd('Over-recorded data, User: '.$user);
+                    }
+                }
+                //若資料庫多的是New
+                else {
+                    //檢查是否已獲得權限
+                    if (!$user->isVip()) {
+                        //若沒獲得權限，補權限
+                        $tmp = Vip::upgrade($user->id, $line[0], $line[2], $line[5], 'auto completion', 1, 0);
+                        dd($tmp);
+                    } else {
+                        dd('Over-recorded data, User: ' . $user);
+                    }
+                }
             }
             dd($data);
         }
         dd($datas);
     }
-    // todo : 如果異動檔多，補權限（是否要補資料庫？）
+    //如果異動檔多，補權限（是否要補資料庫？）
     if($datas->count() == 0){
         foreach ($file as &$line){
             $line = explode(',', $line);
@@ -105,6 +129,7 @@ Route::get('/transaction-test', function(){
             else {
                 //檢查是否已獲得權限
                 if (!$user->isVip()) {
+                    //若沒獲得權限，補權限
                     $tmp = Vip::upgrade($user->id, $line[0], $line[2], $line[5], 'auto completion', 1, 0);
                     dd($tmp);
                 } else {
