@@ -60,12 +60,18 @@ Route::get('/config-cache', function() {
     $exitCode = Artisan::call('config:cache');
     return '<h1>Clear Config cleared</h1>';
 });
-Route::get('/transaction-test', function(){
-    $date = \Carbon\Carbon::createFromFormat("Y-m-d", '2018-12-22')->toDateString();
-    $date = \Carbon\Carbon::now()->toDateString();
+Route::get('/transaction-test/{date_set?}', function($date_set = null){
+    if(isset($date_set)){
+        $date = \Carbon\Carbon::createFromFormat("Y-m-d", $date_set)->toDateString();
+    }
+    else{
+        $date = \Carbon\Carbon::now()->toDateString();
+    }
     $datas = \DB::table('viplogs')->where('created_at', 'LIKE', $date.'%')->get();
-    $file = File::get(storage_path('app/RP_761404_20181222.dat'));
     $date = str_replace('-', '', $date);
+    if(!file_exists(storage_path('app/RP_761404_'.$date.'.dat'))){
+        return 'Today\'s file not found';
+    }
     $file = File::get(storage_path('app/RP_761404_'.$date.'.dat'));
     $file = explode(PHP_EOL, $file);
     foreach ($file as $key => &$line){
@@ -86,11 +92,11 @@ Route::get('/transaction-test', function(){
                 if($line[7] == 'Delete'){
                     //檢查是否已取消權限
                     if($user->isVip()){
-                        $vip = Vip::findById($user->id);
+                        $vip = \App\Models\Vip::findById($user->id);
                         $this->logService->cancelLog($vip);
                         $this->logService->writeLogToFile();
-                        $tmp = Vip::removeVIP($user->id, 0);
-                        dd('1'.$tmp);
+                        $tmp = \App\Models\Vip::removeVIP($user->id, 0);
+                        dd('Location 1: '.$tmp);
                     }
                     else{
                         dd('Over-recorded data, User: '.$user);
@@ -101,8 +107,8 @@ Route::get('/transaction-test', function(){
                     //檢查是否已獲得權限
                     if (!$user->isVip()) {
                         //若沒獲得權限，補權限
-                        $tmp = Vip::upgrade($user->id, $line[0], $line[2], $line[5], 'auto completion', 1, 0);
-                        dd('2'.$tmp);
+                        $tmp = \App\Models\Vip::upgrade($user->id, $line[0], $line[2], $line[5], 'auto completion', 1, 0);
+                        dd('Location 2: '.$tmp);
                     } else {
                         dd('Over-recorded data, User: ' . $user);
                     }
@@ -116,13 +122,13 @@ Route::get('/transaction-test', function(){
     if($datas->count() == 0){
         foreach ($file as &$line){
             $line = explode(',', $line);
-            $user = User::where('id', $line[1])->get()->first();
+            $user = \App\Models\User::where('id', $line[1])->get()->first();
             //若異動檔多的是Delete
             if($line[7] == 'Delete'){
                 //檢查是否已取消權限
                 if($user->isVip()){
-                    $tmp = Vip::where('member_id', $user->id)->get()->first()->removeVIP();
-                    dd($tmp);
+                    $tmp = \App\Models\Vip::where('member_id', $user->id)->get()->first()->removeVIP();
+                    dd('Location 3: '.$tmp);
                 }
                 else{
                     dd('Over-recorded data, User: '.$user);
@@ -133,8 +139,8 @@ Route::get('/transaction-test', function(){
                 //檢查是否已獲得權限
                 if (!$user->isVip()) {
                     //若沒獲得權限，補權限
-                    $tmp = Vip::upgrade($user->id, $line[0], $line[2], $line[5], 'auto completion', 1, 0);
-                    dd($tmp);
+                    $tmp = \App\Models\Vip::upgrade($user->id, $line[0], $line[2], $line[5], 'auto completion', 1, 0);
+                    dd('Location 4: '.$tmp);
                 } else {
                     dd('Over-recorded data, User: ' . $user);
                 }

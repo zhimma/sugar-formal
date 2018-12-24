@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
 use App\Models\SimpleTables\banned_users;
-use mysql_xdevapi\Session;
+use Session;
 
 class PagesController extends Controller
 {
@@ -552,6 +552,7 @@ class PagesController extends Controller
                 Vip::cancel($user->id, 0);
                 $data = Vip::where('member_id', $user->id)->where('expiry', '!=', '0000-00-00 00:00:00')->get()->first();
                 $date = date('Y年m月d日', strtotime($data->expiry));
+                Session::put('cancel_notice', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
                 return redirect('/dashboard')->with('user', $user)->with('message', 'VIP 取消成功！')->with('cancel_notice', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
             }
             return back()->with('message', '帳號密碼輸入錯誤');

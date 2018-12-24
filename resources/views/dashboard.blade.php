@@ -1110,6 +1110,7 @@
     @endif
     @if(Session::has('cancel_notice'))
         alert('{{ Session::get('cancel_notice') }}');
+        <? Session::forget('cancel_notice'); ?>
     @endif
 
     jQuery(document).ready(function(){
