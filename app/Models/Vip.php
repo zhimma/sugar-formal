@@ -122,7 +122,7 @@ class Vip extends Model
 
         //return Vip::where('member_id', $member_id)->delete();
         //VIP取消權限不再用刪除，而是全改為拔active
-        return Vip::where('member_id', $member_id)->removeVIP();
+        return Vip::where('member_id', $member_id)->get()->first()->removeVIP();
     }
 
     public function removeVIP(){

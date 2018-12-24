@@ -42,10 +42,10 @@
 <div class="m-portlet__head">
 <div class="m-portlet__head-tools">
 <ul class="nav nav-tabs m-tabs m-tabs-line m-tabs-line--left m-tabs-line--primary" role="tablist">
-        @if (!str_contains(url()->current(), 'dashboard')) <li class="nav-item m-tabs__item d-none d-md-block"><h4 class="nav-link m-tabs__link">{{ $cur->title }}</h4></li>@endif
+        @if (!str_contains(url()->current(), 'dashboard')) <li class="nav-item m-tabs__item d-none d-md-block"><h4 class="nav-link m-tabs__link">@if(isset($cur)){{ $cur->title }}@endif</h4></li>@endif
         @if (str_contains(url()->current(), 'dashboard'))
        <li class="nav-item m-tabs__item">
-           @if($user->id == $cur->id)
+           @if($user->id == $cur->id && isset($cur))
            <a class="nav-link m-tabs__link" href="/dashboard">
                <i class="flaticon-share m--hide"></i>
                    首頁
