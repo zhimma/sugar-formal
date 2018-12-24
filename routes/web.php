@@ -62,8 +62,11 @@ Route::get('/config-cache', function() {
 });
 Route::get('/transaction-test', function(){
     $date = \Carbon\Carbon::createFromFormat("Y-m-d", '2018-12-22')->toDateString();
+    $date = \Carbon\Carbon::now()->toDateString();
     $datas = \DB::table('viplogs')->where('created_at', 'LIKE', $date.'%')->get();
     $file = File::get(storage_path('app/RP_761404_20181222.dat'));
+    $date = str_replace('-', '', $date);
+    $file = File::get(storage_path('app/RP_761404_'.$date.'.dat'));
     $file = explode(PHP_EOL, $file);
     foreach ($file as $key => &$line){
         foreach ($datas as $key2 => &$data){
@@ -87,7 +90,7 @@ Route::get('/transaction-test', function(){
                         $this->logService->cancelLog($vip);
                         $this->logService->writeLogToFile();
                         $tmp = Vip::removeVIP($user->id, 0);
-                        dd($tmp);
+                        dd('1'.$tmp);
                     }
                     else{
                         dd('Over-recorded data, User: '.$user);
@@ -99,7 +102,7 @@ Route::get('/transaction-test', function(){
                     if (!$user->isVip()) {
                         //若沒獲得權限，補權限
                         $tmp = Vip::upgrade($user->id, $line[0], $line[2], $line[5], 'auto completion', 1, 0);
-                        dd($tmp);
+                        dd('2'.$tmp);
                     } else {
                         dd('Over-recorded data, User: ' . $user);
                     }
