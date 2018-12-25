@@ -96,7 +96,8 @@ Route::get('/transaction-test/{date_set?}', function($date_set = null){
                         $this->logService->cancelLog($vip);
                         $this->logService->writeLogToFile();
                         $tmp = \App\Models\Vip::removeVIP($user->id, 0);
-                        dd('Location 1: '.$tmp);
+                        //dd('Location 1: '.$tmp);
+                        echo 'Location 1: '. $line;
                     }
                     else{
                         dd('Over-recorded data, User: '.$user);
