@@ -96,11 +96,13 @@ Route::get('/transaction-test/{date_set?}', function($date_set = null){
                         $this->logService->cancelLog($vip);
                         $this->logService->writeLogToFile();
                         $tmp = \App\Models\Vip::removeVIP($user->id, 0);
-                        //dd('Location 1: '.$tmp);
-                        echo 'Location 1: '. $line;
+                        echo 'Location 1';
+                        foreach ($line as $l){
+                            echo $l.'\n';
+                        }
                     }
                     else{
-                        dd('Over-recorded data, User: '.$user);
+                        echo 'Location 1: Over-recorded data, User: '.$user->id.'\n';
                     }
                 }
                 //若資料庫多的是New
@@ -109,15 +111,17 @@ Route::get('/transaction-test/{date_set?}', function($date_set = null){
                     if (!$user->isVip()) {
                         //若沒獲得權限，補權限
                         $tmp = \App\Models\Vip::upgrade($user->id, $line[0], $line[2], $line[5], 'auto completion', 1, 0);
-                        dd('Location 2: '.$tmp);
+                        echo 'Location 2';
+                        foreach ($line as $l){
+                            echo $l.'\n';
+                        }
                     } else {
-                        dd('Over-recorded data, User: ' . $user);
+                        echo 'Location 2: Over-recorded data, User: '.$user->id.'\n';
                     }
                 }
             }
-            dd($data);
         }
-        dd($datas);
+        echo "DONE.";
     }
     //如果異動檔多，補權限（是否要補資料庫？）
     if($datas->count() == 0){
@@ -129,10 +133,13 @@ Route::get('/transaction-test/{date_set?}', function($date_set = null){
                 //檢查是否已取消權限
                 if($user->isVip()){
                     $tmp = \App\Models\Vip::where('member_id', $user->id)->get()->first()->removeVIP();
-                    dd('Location 3: '.$tmp);
+                    echo 'Location 3';
+                    foreach ($line as $l){
+                        echo $l.'\n';
+                    }
                 }
                 else{
-                    dd('Over-recorded data, User: '.$user);
+                    echo 'Location 3: Over-recorded data, User: '.$user->id.'\n';
                 }
             }
             //若異動檔多的是New
@@ -141,13 +148,16 @@ Route::get('/transaction-test/{date_set?}', function($date_set = null){
                 if (!$user->isVip()) {
                     //若沒獲得權限，補權限
                     $tmp = \App\Models\Vip::upgrade($user->id, $line[0], $line[2], $line[5], 'auto completion', 1, 0);
-                    dd('Location 4: '.$tmp);
+                    echo 'Location 4';
+                    foreach ($line as $l){
+                        echo $l.'\n';
+                    }
                 } else {
-                    dd('Over-recorded data, User: ' . $user);
+                    echo 'Location 4: Over-recorded data, User: '.$user->id.'\n';
                 }
             }
         }
-        dd($file);
+        echo "DONE.";
     }
 });
 /*
