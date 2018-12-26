@@ -67,13 +67,14 @@ Route::get('/transaction-test/{date_set?}', function($date_set = null){
     else{
         $date = \Carbon\Carbon::now()->toDateString();
     }
-    $datas = \DB::table('viplogs')->where('created_at', 'LIKE', $date.'%')->get();
+    $datas = \DB::table('viplogs')->where('filename', 'LIKE', '%761404%')->where('created_at', 'LIKE', $date.'%')->get();
     $date = str_replace('-', '', $date);
     if(!file_exists(storage_path('app/RP_761404_'.$date.'.dat'))){
         return 'Today\'s file not found';
     }
     $file = File::get(storage_path('app/RP_761404_'.$date.'.dat'));
-    $file = explode(PHP_EOL, $file);
+    //$file = explode(PHP_EOL, $file);
+    $file = explode("\n", $file);
     foreach ($file as $key => &$line){
         foreach ($datas as $key2 => &$data){
             if($line === $data->content){
@@ -82,46 +83,49 @@ Route::get('/transaction-test/{date_set?}', function($date_set = null){
             }
         }
     }
+    $string = '';
     //如果資料庫多，補異動檔，補權限
     if(empty($file)){
-        foreach ($datas as &$data){
-            foreach ($data as &$line){
-                $line = explode(',', $line);
-                $user = User::where('id', $line[1])->get()->first();
-                //若資料庫多的是Cancel
-                if($line[7] == 'Delete'){
-                    //檢查是否已取消權限
-                    if($user->isVip()){
-                        $vip = \App\Models\Vip::findById($user->id);
-                        $this->logService->cancelLog($vip);
-                        $this->logService->writeLogToFile();
-                        $tmp = \App\Models\Vip::removeVIP($user->id, 0);
-                        echo 'Location 1';
-                        foreach ($line as $l){
-                            echo $l.'\n';
-                        }
+        foreach ($datas as &$line){
+            $line = explode(',', $line->content);
+            $user = \App\Models\User::where('id', $line[1])->get()->first();
+            //若資料庫多的是Cancel
+            if($line[7] == 'Delete'){
+                $string = $string."Location 1 start.\n";
+                //檢查是否已取消權限
+                if(isset($user) && $user->isVip()){
+                    $vip = \App\Models\Vip::findById($user->id);
+                    $this->logService->cancelLog($vip);
+                    $this->logService->writeLogToFile();
+                    $tmp = \App\Models\Vip::removeVIP($user->id, 0);
+                    $string = $string.'Location 1';
+                    foreach ($line as $l){
+                        $string = $string.$l."\n";
                     }
-                    else{
-                        echo 'Location 1: Over-recorded data, User: '.$user->id.'\n';
-                    }
+                    $string = $string."\n";
                 }
-                //若資料庫多的是New
-                else {
-                    //檢查是否已獲得權限
-                    if (!$user->isVip()) {
-                        //若沒獲得權限，補權限
-                        $tmp = \App\Models\Vip::upgrade($user->id, $line[0], $line[2], $line[5], 'auto completion', 1, 0);
-                        echo 'Location 2';
-                        foreach ($line as $l){
-                            echo $l.'\n';
-                        }
-                    } else {
-                        echo 'Location 2: Over-recorded data, User: '.$user->id.'\n';
+                else{
+                    $string = $string.'Location 1: Over-recorded or NULL data, User: '.$line[1]."\n";
+                }
+            }
+            //若資料庫多的是New
+            else {
+                $string = $string."Location 2 start.\n";
+                //檢查是否已獲得權限
+                if (isset($user) && !$user->isVip()) {
+                    //若沒獲得權限，補權限
+                    $tmp = \App\Models\Vip::upgrade($user->id, $line[0], $line[2], $line[5], 'auto completion', 1, 0);
+                    $string = $string.'Location 2';
+                    foreach ($line as $l){
+                        $string = $string.$l."\n";
                     }
+                    $string = $string."\n";
+                } else {
+                    $string = $string.'Location 2: Over-recorded or NULL data, User: '.$line[1]."\n";
                 }
             }
         }
-        echo "DONE.";
+        dd($string);
     }
     //如果異動檔多，補權限（是否要補資料庫？）
     if($datas->count() == 0){
@@ -130,35 +134,40 @@ Route::get('/transaction-test/{date_set?}', function($date_set = null){
             $user = \App\Models\User::where('id', $line[1])->get()->first();
             //若異動檔多的是Delete
             if($line[7] == 'Delete'){
+                $string = $string."Location 3 start.\n";
                 //檢查是否已取消權限
-                if($user->isVip()){
+                if(isset($user) && $user->isVip()){
                     $tmp = \App\Models\Vip::where('member_id', $user->id)->get()->first()->removeVIP();
-                    echo 'Location 3';
+                    $string = $string.'Location 3';
                     foreach ($line as $l){
-                        echo $l.'\n';
+                        $string = $string.$l."\n";
                     }
+                    $string = $string."\n";
                 }
                 else{
-                    echo 'Location 3: Over-recorded data, User: '.$user->id.'\n';
+                    $string = $string.'Location 3: Over-recorded or NULL data, User: '.$line[1]."\n";
                 }
             }
             //若異動檔多的是New
             else {
+                $string = $string."Location 4 start.\n";
                 //檢查是否已獲得權限
-                if (!$user->isVip()) {
+                if (isset($user) && !$user->isVip()) {
                     //若沒獲得權限，補權限
                     $tmp = \App\Models\Vip::upgrade($user->id, $line[0], $line[2], $line[5], 'auto completion', 1, 0);
-                    echo 'Location 4';
+                    $string = $string.'Location 4';
                     foreach ($line as $l){
-                        echo $l.'\n';
+                        $string = $string.$l."\n";
                     }
+                    $string = $string."\n";
                 } else {
-                    echo 'Location 4: Over-recorded data, User: '.$user->id.'\n';
+                    $string = $string.'Location 4: Over-recorded or NULL data, User: '.$line[1]."\n";
                 }
             }
         }
-        echo "DONE.";
+        dd($string);
     }
+    return 'Nothing\'s done.';
 });
 /*
 |--------------------------------------------------------------------------
