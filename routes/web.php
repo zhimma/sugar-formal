@@ -83,9 +83,9 @@ Route::get('/transaction-test/{date_set?}', function($date_set = null){
             }
         }
     }
-    $string = '';
     //如果資料庫多，補異動檔，補權限
-    if(empty($file)){
+    if(empty($file) && $datas->count() > 0){
+        $string = '';
         foreach ($datas as &$line){
             $line = explode(',', $line->content);
             $user = \App\Models\User::where('id', $line[1])->get()->first();
@@ -128,7 +128,8 @@ Route::get('/transaction-test/{date_set?}', function($date_set = null){
         dd($string);
     }
     //如果異動檔多，補權限（是否要補資料庫？）
-    if($datas->count() == 0){
+    if($datas->count() == 0 && !empty($file)){
+        $string = '';
         foreach ($file as &$line){
             $line = explode(',', $line);
             $user = \App\Models\User::where('id', $line[1])->get()->first();
@@ -167,7 +168,7 @@ Route::get('/transaction-test/{date_set?}', function($date_set = null){
         }
         dd($string);
     }
-    return 'Nothing\'s done.';
+    return "Nothing's done.";
 });
 /*
 |--------------------------------------------------------------------------
