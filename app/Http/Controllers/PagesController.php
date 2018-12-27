@@ -254,6 +254,10 @@ class PagesController extends Controller
     {
         $user = $request->user();
         if (isset($user) && isset($uid)) {
+            $tmp = User::where('id', $uid)->get()->first();
+            if(!isset($tmp)){
+                return view('errors.nodata');
+            }
             if ($user->id != $uid) {
                 Visited::visit($user->id, $uid);
             }
