@@ -33,86 +33,90 @@ if(Auth::user()) $login_user = Auth::user();
 
 			<ul class="m-nav m-nav--hover-bg m-portlet-fit--sides">
 				<li class="m-nav__separator m-nav__separator--fit"></li>
-				@if (isset($cur) && (str_contains(url()->current(), 'dashboard') || $user->id == $cur->id))
-				<li class="m-nav__section m--hide">
-					<span class="m-nav__section-text">Section</span>
-				</li>
-				<li class="m-nav__item d-none d-md-block">
-					<a href="{!! url('dashboard') !!}" class="m-nav__link">
-						<i class="m-nav__link-icon flaticon-profile-1"></i>
-						<span class="m-nav__link-title">
-							<span class="m-nav__link-wrap">
-								<span class="m-nav__link-text">個人資料</span>
+				@if(!isset($cur) && !str_contains(url()->current(), 'dashboard'))
+					<div class="m-card-profile__details">
+						<span class="m-card-profile__name">錯誤：沒有資料</span>
+					</div>
+				@elseif ((str_contains(url()->current(), 'dashboard') || $user->id == $cur->id))
+					<li class="m-nav__section m--hide">
+						<span class="m-nav__section-text">Section</span>
+					</li>
+					<li class="m-nav__item d-none d-md-block">
+						<a href="{!! url('dashboard') !!}" class="m-nav__link">
+							<i class="m-nav__link-icon flaticon-profile-1"></i>
+							<span class="m-nav__link-title">
+								<span class="m-nav__link-wrap">
+									<span class="m-nav__link-text">個人資料</span>
+								</span>
 							</span>
-						</span>
-					</a>
-                </li>
-            <!--    <li class="m-nav__item d-none d-md-block">
-					<a href="/user/view/{{$user->id}}" class="m-nav__link">
-						<i class="m-nav__link-icon flaticon-profile-1"></i>
-						<span class="m-nav__link-title">
-							<span class="m-nav__link-wrap">
-								<span class="m-nav__link-text">首頁</span>
-							</span>
-						</span>
-					</a>
-                </li> -->
-                <li class="m-nav__item">
-					<a href="{!! url('dashboard/search') !!}" class="m-nav__link">
-						<i class="m-nav__link-icon flaticon-search-1"></i>
-						<span class="m-nav__link-text">搜索</span>
-					</a>
-				</li>
-				<li class="m-nav__item">
-					<a href="{!! url('dashboard/chat') !!}" class="m-nav__link">
-						<i class="m-nav__link-icon flaticon-chat-1"></i>
-						<span class="m-nav__link-text">收件夾 <span class="m-nav__link-badge"><span class="m-badge m-badge--danger">{{ \App\Models\Message::unread($user->id) }}</span></span>  </span>
-					</a>
-				</li>
-				@if ($user->isVip())
-				<li class="m-nav__item">
-					<a href="{!! url('dashboard/history') !!}" class="m-nav__link">
-					<i class="m-nav__link-icon flaticon-share"></i>
-						<span class="m-nav__link-text">足跡</span>
-					</a>
-				</li>
-				@endif
-				<li class="m-nav__item">
-					<a href="{!! url('dashboard/board') !!}" class="m-nav__link">
-						<i class="m-nav__link-icon flaticon-graphic-2"></i>
-						<span class="m-nav__link-text">留言版</span>
-					</a>
-                </li>
-                @if (!$user->isVip())
-					<li class="m-nav__item">
-						<a href="{!! url('dashboard/upgrade') !!}" class="m-nav__link">
-							<i class="m-nav__link-icon fa fa-diamond"></i>
-							<span class="m-nav__link-text">@if($user->isVip() && !$user->isVipCanceledButNotExpire()) 取消 VIP @else 升級 VIP @endif</span>
 						</a>
 					</li>
-				@else
-					@if($user->isVipCanceledButNotExpire())
+					<!--    <li class="m-nav__item d-none d-md-block">
+						<a href="/user/view/{{$user->id}}" class="m-nav__link">
+							<i class="m-nav__link-icon flaticon-profile-1"></i>
+							<span class="m-nav__link-title">
+								<span class="m-nav__link-wrap">
+									<span class="m-nav__link-text">首頁</span>
+								</span>
+							</span>
+						</a>
+					</li> -->
+					<li class="m-nav__item">
+						<a href="{!! url('dashboard/search') !!}" class="m-nav__link">
+							<i class="m-nav__link-icon flaticon-search-1"></i>
+							<span class="m-nav__link-text">搜索</span>
+						</a>
+					</li>
+					<li class="m-nav__item">
+						<a href="{!! url('dashboard/chat') !!}" class="m-nav__link">
+							<i class="m-nav__link-icon flaticon-chat-1"></i>
+							<span class="m-nav__link-text">收件夾 <span class="m-nav__link-badge"><span class="m-badge m-badge--danger">{{ \App\Models\Message::unread($user->id) }}</span></span>  </span>
+						</a>
+					</li>
+					@if ($user->isVip())
+					<li class="m-nav__item">
+						<a href="{!! url('dashboard/history') !!}" class="m-nav__link">
+						<i class="m-nav__link-icon flaticon-share"></i>
+							<span class="m-nav__link-text">足跡</span>
+						</a>
+					</li>
+					@endif
+					<li class="m-nav__item">
+						<a href="{!! url('dashboard/board') !!}" class="m-nav__link">
+							<i class="m-nav__link-icon flaticon-graphic-2"></i>
+							<span class="m-nav__link-text">留言版</span>
+						</a>
+					</li>
+					@if (!$user->isVip())
 						<li class="m-nav__item">
-							<a href="{!! url('dashboard/cancel') !!}" class="m-nav__link">
+							<a href="{!! url('dashboard/upgrade') !!}" class="m-nav__link">
 								<i class="m-nav__link-icon fa fa-diamond"></i>
-								<span class="m-nav__link-text">取消 VIP</span>
+								<span class="m-nav__link-text">@if($user->isVip() && !$user->isVipCanceledButNotExpire()) 取消 VIP @else 升級 VIP @endif</span>
+							</a>
+						</li>
+					@else
+						@if($user->isVipCanceledButNotExpire())
+							<li class="m-nav__item">
+								<a href="{!! url('dashboard/cancel') !!}" class="m-nav__link">
+									<i class="m-nav__link-icon fa fa-diamond"></i>
+									<span class="m-nav__link-text">取消 VIP</span>
+								</a>
+							</li>
+						@endif
+						<li class="m-nav__item">
+							<a href="{!! url('dashboard/fav') !!}" class="m-nav__link">
+								<i class="m-nav__link-icon fa fa-diamond"></i>
+								<span class="m-nav__link-text">我的收藏</span>
+							</a>
+						</li>
+
+						<li class="m-nav__item">
+							<a href="{!! url('dashboard/block') !!}" class="m-nav__link">
+								<i class="m-nav__link-icon fa fa-diamond"></i>
+								<span class="m-nav__link-text">我的封鎖名單</span>
 							</a>
 						</li>
 					@endif
-					<li class="m-nav__item">
-						<a href="{!! url('dashboard/fav') !!}" class="m-nav__link">
-							<i class="m-nav__link-icon fa fa-diamond"></i>
-							<span class="m-nav__link-text">我的收藏</span>
-						</a>
-					</li>
-
-					<li class="m-nav__item">
-						<a href="{!! url('dashboard/block') !!}" class="m-nav__link">
-							<i class="m-nav__link-icon fa fa-diamond"></i>
-							<span class="m-nav__link-text">我的封鎖名單</span>
-						</a>
-					</li>
-                @endif
 				@else
 					<!-- $cur->id : /user/view/{$cur->id} -->
 					@if(isset($cur) && $login_user->id != $cur->id)
