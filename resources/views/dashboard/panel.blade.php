@@ -33,7 +33,7 @@ if(Auth::user()) $login_user = Auth::user();
 
 			<ul class="m-nav m-nav--hover-bg m-portlet-fit--sides">
 				<li class="m-nav__separator m-nav__separator--fit"></li>
-				@if (str_contains(url()->current(), 'dashboard') || $user->id == $cur->id)
+				@if (isset($cur) && (str_contains(url()->current(), 'dashboard') || $user->id == $cur->id))
 				<li class="m-nav__section m--hide">
 					<span class="m-nav__section-text">Section</span>
 				</li>
@@ -115,7 +115,7 @@ if(Auth::user()) $login_user = Auth::user();
                 @endif
 				@else
 					<!-- $cur->id : /user/view/{$cur->id} -->
-					@if($login_user->id != $cur->id)
+					@if(isset($cur) && $login_user->id != $cur->id)
 						<li class="m-nav__item">
 							<a href="{!! url('dashboard/board') !!}" class="m-nav__link" data-toggle="modal" data-target="#m_modal_1">
 								<i class="m-nav__link-icon flaticon-comment"></i>
@@ -124,7 +124,7 @@ if(Auth::user()) $login_user = Auth::user();
 		                </li>
 					@endif
 
-				@if ($user->isVip() && $login_user->id != $cur->id)
+				@if (isset($cur) && $user->isVip() && $login_user->id != $cur->id)
 				<li class="m-nav__item">
 					<form action="{!! url('dashboard/fav') !!}" class="m-nav__link" method="POST">
 					<input type="hidden" name="_token" value="{{ csrf_token() }}" >
@@ -137,8 +137,12 @@ if(Auth::user()) $login_user = Auth::user();
 					</form>
                 </li>
 
-				<?php $isBlocked = \App\Models\Blocked::isBlocked($user->id, $cur->id);?>
-				@if(!$isBlocked)
+				<?php
+					if(isset($cur)){
+						$isBlocked = \App\Models\Blocked::isBlocked($user->id, $cur->id);
+					}
+				?>
+				@if(isset($isBlocked) && !$isBlocked)
 					<li class="m-nav__item">
 						<form action="{!! url('dashboard/block') !!}" class="m-nav__link" method="POST">
 						<input type="hidden" name="_token" value="{{ csrf_token() }}" >
@@ -150,7 +154,7 @@ if(Auth::user()) $login_user = Auth::user();
 						</button>
 						</form>
 					</li>
-				@else
+				@elseif(isset($cur))
 					<li class="m-nav__item">
 						<form action="{!! url('dashboard/unblock') !!}" class="m-nav__link" method="POST">
 						<input type="hidden" name="_token" value="{{ csrf_token() }}" >
@@ -165,7 +169,7 @@ if(Auth::user()) $login_user = Auth::user();
 				@endif
 			@endif
 
-			@if($login_user->id != $cur->id)
+			@if(isset($cur) && $login_user->id != $cur->id)
 				<li class="m-nav__item">
 					<form action="{!! url('dashboard/report') !!}" class="m-nav__link" method="POST">
 					<input type="hidden" name="_token" value="{{ csrf_token() }}" >

@@ -199,7 +199,7 @@ class Message extends Model
         $tempMessages = [];
         $noVipCount = 0;
         $isAllDelete = true;
-        $msgShow = User::findById($uid)->meta_()->notifhistory;
+        //$msgShow = User::findById($uid)->meta_()->notifhistory;
         $user = \Auth::user();
 
         foreach($messages as $message) {

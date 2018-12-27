@@ -45,7 +45,7 @@
         @if (!str_contains(url()->current(), 'dashboard')) <li class="nav-item m-tabs__item d-none d-md-block"><h4 class="nav-link m-tabs__link">@if(isset($cur)){{ $cur->title }}@endif</h4></li>@endif
         @if (str_contains(url()->current(), 'dashboard'))
        <li class="nav-item m-tabs__item">
-           @if($user->id == $cur->id && isset($cur))
+           @if(isset($cur) && $user->id == $cur->id)
            <a class="nav-link m-tabs__link" href="/dashboard">
                <i class="flaticon-share m--hide"></i>
                    首頁
@@ -79,13 +79,13 @@
                         設定
                 </a>
         </li>
-        @elseif($user->id !== $cur->id)
+        @elseif(isset($cur) && $user->id !== $cur->id)
         <li class="nav-item m-tabs__item d-md-none">
             <a class="nav-link m-tabs__link" data-toggle="modal" href="#m_modal_1">
                     發信件
             </a>
         </li>
-        @if ($user->isVip() && $user->id == $cur->id)
+        @if (isset($cur) && $user->isVip() && $user->id == $cur->id)
             <li class="nav-item m-tabs__item d-md-none">
                 <form action="{!! url('dashboard/fav') !!}" class="nav-link m-tabs__link" method="POST">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}" >
@@ -113,7 +113,7 @@
                 <form action="{!! url('dashboard/report') !!}" class="nav-link m-tabs__link" method="POST">
                     <input type="hidden" name="_token" value="{{csrf_token()}}" >
                     <input type="hidden" name="userId" value="{{$user->id}}">
-                    <input type="hidden" name="to" value="{{$cur->id}}">
+                    <input type="hidden" name="to" value="@if(isset($cur)) {{$cur->id}} @endif">
                     <button type="submit" style="background: none; border: none; padding: 0">
                         檢舉
                     </button>
@@ -126,8 +126,8 @@
 
 <div class="tab-content">
 <div class="tab-pane {{ empty($tabName) || $tabName == 'm_user_profile_tab_1' ? 'active' : '' }}" id="m_user_profile_tab_1">
-<?php $umeta = $user->meta_(); ?>
-<?php $cmeta = $cur->meta_(); ?>
+<?php if(!isset($user)){$umeta = null;}else{$umeta = $user->meta_();}?>
+<?php if(!isset($cur)){ $cmeta = null;}else{$cmeta = $cur->meta_();} ?>
 
 @if(str_contains(url()->current(), 'dashboard'))
     {{--<div class="pics">--}}
@@ -164,13 +164,13 @@
             @endif
 
             @if (str_contains(url()->current(), 'dashboard'))
-            <div class="form-group m-form__group row">
-                <label for="title" class="col-lg-2 col-md-3 col-form-label">標題</label>
-                <div class="col-lg-7">
-                    <input class="form-control m-input" name="title" type="text" maxlength="20" value="{{$user->title}}">
+                <div class="form-group m-form__group row">
+                    <label for="title" class="col-lg-2 col-md-3 col-form-label">標題</label>
+                    <div class="col-lg-7">
+                        <input class="form-control m-input" name="title" type="text" maxlength="20" value="{{$user->title}}">
+                    </div>
                 </div>
-            </div>
-            <div class="form-group m-form__group row">
+                <div class="form-group m-form__group row">
                 <label for="user_engroup" class="col-lg-2 col-md-3 col-form-label">帳號類型</label>
                 <div class="col-lg-7 form-inline">
                     @if($user->engroup_change == 0)
@@ -182,31 +182,33 @@
                     @endif
                 </div>
             @else
-            <div class="form-group m-form__group">
-            @if (isset($cmeta->pic))
-            <div class="personal-image">
-                @if($cmeta->isAvatarHidden == 1)
-                @else
-                    <img src="{{$cmeta->pic}}"/>
-                    <a href="{{ route('reportPic', [$user->id, 'uid'.$cur->id]) }}">檢舉大頭照</a>
+                <div class="form-group m-form__group">
+                @if (isset($cmeta->pic))
+                <div class="personal-image">
+                    @if($cmeta->isAvatarHidden == 1)
+                    @else
+                        <img src="{{$cmeta->pic}}"/>
+                        <a href="{{ route('reportPic', [$user->id, 'uid'.$cur->id]) }}">檢舉大頭照</a>
+                    @endif
+                </div>
                 @endif
-            </div>
-            @endif
-            <?php $pics = \App\Models\MemberPic::getSelf($cur->id) ?>
-            @foreach ($pics as $pic)
-            <div class="personal-image">
-                @if($pic->isHidden == 1)
-                @else
-                    <img src="{{$pic->pic}}"/>
-                    <a href="{{ route('reportPic', [$user->id, $pic->id, $cur->id]) }}">檢舉這張照片</a>
+                @if(isset($cur))
+                    <?php $pics = \App\Models\MemberPic::getSelf($cur->id) ?>
+                    @foreach ($pics as $pic)
+                    <div class="personal-image">
+                        @if($pic->isHidden == 1)
+                        @else
+                            <img src="{{$pic->pic}}"/>
+                            <a href="{{ route('reportPic', [$user->id, $pic->id, $cur->id]) }}">檢舉這張照片</a>
+                        @endif
+                    </div>
+                    @endforeach
                 @endif
-            </div>
-            @endforeach
             @endif
             </div>
             @if (!str_contains(url()->current(), 'dashboard'))
             <div class="form-group m-form__group row d-md-none">
-                <span>{{$cmeta->title}}</span>
+                <span>@if(isset($cmeta)){{$cmeta->title}}@endif</span>
             </div>
             @endif
             <div class="m-form__seperator m-form__seperator--dashed m-form__seperator--space-2x"></div>
@@ -220,7 +222,7 @@
             <div class="col-lg-5 col-md-10 col-sm-12">
 
             <!--  個人資料首頁 -->
-            @if (str_contains(url()->current(), 'dashboard'))
+                @if (str_contains(url()->current(), 'dashboard'))
                 <div class="twzip" data-role="county" data-name="city" data-value="{{$umeta->city}}">
                 </div>
                 <div class="twzip" data-role="district" data-name="area" data-value="{{$umeta->area}}">
@@ -230,10 +232,10 @@
                     <input type="checkbox" name="isHideArea" @if($umeta->isHideArea == true) checked @endif value="1">
                     隱藏鄉鎮區
                 </div>
-                @elseif (!$cmeta->isHideArea)
+                @elseif (isset($cmeta) && !$cmeta->isHideArea)
                         <input class="form-control m-input" disabled value="{{$cmeta->city}} {{$cmeta->area}}">
                 @else
-                        <input class="form-control m-input" disabled value="{{$cmeta->city}}">
+                        <input class="form-control m-input" disabled value="@if(isset($cmeta)){{$cmeta->city}}@endif">
                 @endif
             </div>
 
@@ -248,7 +250,7 @@
                 <div class="twzip" data-role="district" data-name="blockarea" data-value="{{$umeta->blockarea}}">
                 </div>
                 @else
-                    <input class="form-control m-input" disabled value="{{$cmeta->blockcity}} {{$cmeta->blockarea}}">
+                    <input class="form-control m-input" disabled value="@if(isset($cmeta)){{$cmeta->blockcity}} {{$cmeta->blockarea}}@endif">
                 @endif
             </div>
 
@@ -269,7 +271,7 @@
         <option value="可商議" @if($umeta->budget == '可商議') selected @endif>可商議</option>
         </select>
         @else
-        <input class="form-control m-input" disabled value="{{$cmeta->budget}}">
+        <input class="form-control m-input" disabled value="@if(isset($cmeta)){{$cmeta->budget}}@endif">
         @endif
     </div>
 </div>
@@ -296,9 +298,16 @@
             <select name="day" class="form-control"></select>日
         @else
             <?php
-            $fromd = new DateTime($cmeta->birthdate);
-            $tod = new DateTime();
-            $age = $fromd->diff($tod)->y;
+                if(isset($cmeta)){
+                    $fromd = new DateTime($cmeta->birthdate);
+                    $tod = new DateTime();
+                    $age = $fromd->diff($tod)->y;
+                }
+                else{
+                    $fromd = null;
+                    $tod = null;
+                    $age = null;
+                }
             ?>
             <input class="form-control m-input" disabled value="{{$age}}">
         @endif
@@ -311,7 +320,7 @@
     @if (str_contains(url()->current(), 'dashboard'))
         <input class="form-control m-input" name="height" type="number" id="input-height" value="{{$umeta->height}}">
         @else
-        <input class="form-control m-input" disabled value="{{ $cmeta->height }}">
+        <input class="form-control m-input" disabled value="@if(isset($cmeta)){{ $cmeta->height }}@endif">
         @endif
     </div>
 </div>
@@ -327,7 +336,7 @@
                             <input type="checkbox" name="isHideWeight" @if($umeta->isHideWeight == true) checked @endif value="1">
                             <!-- <input class="m-input" type="checkbox" id="isHideWeight" name="isHideWeight" value="{{ $umeta->isHideWeight }}"> -->
                             隱藏體重</div>
-                    @elseif (!$cmeta->isHideWeight)
+                    @elseif (isset($cmeta) && !$cmeta->isHideWeight)
                         <input class="form-control m-input" disabled value="{{$cmeta->weight}}">
                     @else
                         <input class="form-control m-input" disabled value="">
@@ -356,7 +365,7 @@
                             <!-- <input class="m-input" type="checkbox" id="isHideCup" name="isHideCup" value="{{$umeta->isHideCup}}">  -->
                             隱藏
                         </div>
-                    @elseif (!$cmeta->isHideCup)
+                    @elseif (isset($cmeta) && !$cmeta->isHideCup)
                         <input class="form-control m-input" disabled value="{{$cmeta->cup}}">
                     @else
                         <input class="form-control m-input" disabled value="">
@@ -377,7 +386,7 @@
         <option value="胖" @if($umeta->body == '胖') selected @endif>胖</option>
         </select>
         @else
-    <input class="form-control m-input" disabled value="{{$cmeta->body}}">
+    <input class="form-control m-input" disabled value="@if(isset($cmeta)){{$cmeta->body}}@endif">
     @endif
     </div>
 
@@ -390,7 +399,7 @@
                 @if (str_contains(url()->current(), 'dashboard'))
                     <textarea class="form-control m-input" type="textarea" id="about" name="about" rows="3" maxlength="300">{{$umeta->about}}</textarea>
                     @else
-    <textarea class="form-control m-input" disabled>{{$cmeta->about}}</textarea>
+    <textarea class="form-control m-input" disabled>@if(isset($cmeta)){{$cmeta->about}}@endif</textarea>
     @endif
                 </div>
             </div>
@@ -401,7 +410,7 @@
                 @if (str_contains(url()->current(), 'dashboard'))
                     <textarea class="form-control m-input" type="textarea" name="style" rows="3" maxlength="300">{{$umeta->style}}</textarea>
                     @else
-    <textarea class="form-control m-input" disabled value="">{{$cmeta->style}}</textarea>
+    <textarea class="form-control m-input" disabled value="">@if(isset($cmeta)){{$cmeta->style}}@endif</textarea>
     @endif
                 </div>
             </div>
@@ -422,7 +431,7 @@
                     <option value="上班族" @if($umeta->situation == '上班族') selected @endif>上班族</option>
                 </select>
             @else
-                <input class="form-control m-input" disabled value="{{$cmeta->situation}}">
+                <input class="form-control m-input" disabled value="@if(isset($cmeta)){{$cmeta->situation}}@endif">
             @endif
         </div>
     </div>
@@ -449,8 +458,8 @@
             @endif
         </select>
     @else
-            <input class="form-control m-input" disabled value="{{$cmeta->domainType}}">
-            <input class="form-control m-input" disabled value="{{$cmeta->domain}}">
+            <input class="form-control m-input" disabled value="@if(isset($cmeta)){{$cmeta->domainType}}@endif">
+            <input class="form-control m-input" disabled value="@if(isset($cmeta)){{$cmeta->domain}}@endif">
     @endif
     </div>
 </div>
@@ -496,7 +505,7 @@
                 <input type="checkbox" name="isHideOccupation" @if($umeta->isHideOccupation == true) checked @endif value="1">
                 隱藏職業
             </div>
-        @elseif ((!$cmeta->isHideOccupation))
+        @elseif (isset($cmeta) && (!$cmeta->isHideOccupation))
             <input class="form-control m-input" disabled value="{{$cmeta->occupation}}">
         @else
             <input class="form-control m-input" disabled value="">
@@ -529,7 +538,7 @@
         <option value="研究所" @if($umeta->education == '研究所') selected @endif>研究所</option>
         </select>
         @else
-    <input class="form-control m-input" disabled value="{{$cmeta->education}}">
+    <input class="form-control m-input" disabled value="@if(isset($cmeta)){{$cmeta->education}}@endif">
         @endif
     </div>
 </div>
@@ -550,7 +559,7 @@
                 @endif
             </select>
         @else
-            <input class="form-control m-input" disabled value="{{$cmeta->marriage}}">
+            <input class="form-control m-input" disabled value="@if(isset($cmeta)){{$cmeta->marriage}}@endif">
         @endif
     </div>
 </div>
@@ -567,7 +576,7 @@
                 <option value="常喝" @if($umeta->drinking == '常喝') selected @endif>常喝</option>
             </select>
         @else
-            <input class="form-control m-input" disabled value="{{ $cmeta->drinking }}">
+            <input class="form-control m-input" disabled value="@if(isset($cmeta)){{ $cmeta->drinking }}@endif">
         @endif
     </div>
 </div>
@@ -583,7 +592,7 @@
             <option value="常抽" @if($umeta->smoking == '常抽') selected @endif>常抽</option>
         </select>
         @else
-    <input class="form-control m-input" disabled value="{{$cmeta->smoking}}">
+    <input class="form-control m-input" disabled value="@if(isset($cmeta)){{$cmeta->smoking}}@endif">
         @endif
     </div>
 </div>
@@ -603,7 +612,7 @@
 
         </select>
         @else
-    <input class="form-control m-input" disabled name="income" value="{{$cmeta->income}}">
+    <input class="form-control m-input" disabled name="income" value="@if(isset($cmeta)){{$cmeta->income}}@endif">
         @endif
     </div>
 </div>
@@ -613,7 +622,7 @@
     @if (str_contains(url()->current(), 'dashboard'))
     <input class="form-control m-input" name="assets" value="{{$umeta->assets}}">
     @else
-        <input class="form-control m-input" disabled value="{{$cmeta->assets}}">
+        <input class="form-control m-input" disabled value="@if(isset($cmeta)){{$cmeta->assets}}@endif">
         @endif
     </div>
 </div>
@@ -625,7 +634,7 @@
 </div>
 @endif
 
-@if ($user->isVip() && (!str_contains(url()->current(), 'dashboard') && $user->id !== $cur->id))
+@if ($user->isVip() && (!str_contains(url()->current(), 'dashboard') && isset($cur) && $user->id !== $cur->id))
 <div class="form-group m-form__group row">
     <button class="btn btn-danger m-btn m-btn--air m-btn--custom" id="vipadditional" onclick="vipadditional()">進階資料</button>
 </div>
@@ -703,18 +712,18 @@
     </div>
 </div>
 
-@if ($female && $user->isVip() && ($user->id != $cur->id))
-    <div class="form-group m-form__group row vipadd" style="display:none">
-        <label class="col-form-label col-lg-2 col-sm-12">評價</label>
-        <div class="col-lg-5 col-md-10 col-sm-12">
-            <?php $comments = \App\Models\Tip::getAllComment($cur->id); ?>
-            @foreach($comments as $comment)
-                <input class="form-control m-input" disabled value="{{ $comment->message }}">
-                <br>
-            @endforeach
+    @if ($female && $user->isVip() && isset($cur) && ($user->id != $cur->id))
+        <div class="form-group m-form__group row vipadd" style="display:none">
+            <label class="col-form-label col-lg-2 col-sm-12">評價</label>
+            <div class="col-lg-5 col-md-10 col-sm-12">
+                <?php $comments = \App\Models\Tip::getAllComment($cur->id); ?>
+                @foreach($comments as $comment)
+                    <input class="form-control m-input" disabled value="{{ $comment->message }}">
+                    <br>
+                @endforeach
+            </div>
         </div>
-    </div>
-@endif
+    @endif
 @endif
         </div>
         @if (str_contains(url()->current(), 'dashboard'))
@@ -811,7 +820,7 @@
 </div>
 @endif
 
-@if (str_contains(url()->current(), 'dashboard')  || (!str_contains(url()->current(), 'dashboard') && $user->id == $cur->id))
+@if (str_contains(url()->current(), 'dashboard')  || (!str_contains(url()->current(), 'dashboard') && isset($cur) && $user->id == $cur->id))
 <div class="tab-pane" id="m_user_profile_tab_2">
     <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/user/password">
         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
@@ -853,7 +862,7 @@
     </form>
 </div>
 @endif
-@if (str_contains(url()->current(), 'dashboard')  || (!str_contains(url()->current(), 'dashboard') && $user->id == $cur->id))
+@if (str_contains(url()->current(), 'dashboard')  || (!str_contains(url()->current(), 'dashboard') && isset($cur) && $user->id == $cur->id))
 <div class="tab-pane" id="m_user_profile_tab_3" >
     <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/settings">
         <input type="hidden" name="_token" value="{{csrf_token()}}" >
@@ -926,7 +935,7 @@
 
 @stop
 
-@if (str_contains(url()->current(), 'dashboard')  || (!str_contains(url()->current(), 'dashboard') && $user->id == $cur->id))
+@if (str_contains(url()->current(), 'dashboard')  || (!str_contains(url()->current(), 'dashboard') && isset($cur) && $user->id == $cur->id))
 
 @section ('javascript')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.0.0/cropper.min.js"></script>
