@@ -139,21 +139,21 @@
 								</span>
                             </a>
                         </li>
-                        @if($user->isVipNotExpire())
-                            @if (!$user->isVip())
-                                <li class="m-nav__item">
-                                    <a href="{!! url('dashboard/upgrade') !!}" class="m-nav__link">
-                                        <i class="m-nav__link-icon fa fa-diamond"></i>
-                                        <span class="m-nav__link-title">
-                                        <span class="m-nav__link-wrap">
-                                            <span class="m-nav__link-text">
-                                                升級 VIP
-                                            </span>
+                        @if (!$user->isVip())
+                            <li class="m-nav__item">
+                                <a href="{!! url('dashboard/upgrade') !!}" class="m-nav__link">
+                                    <i class="m-nav__link-icon fa fa-diamond"></i>
+                                    <span class="m-nav__link-title">
+                                    <span class="m-nav__link-wrap">
+                                        <span class="m-nav__link-text">
+                                            升級 VIP
                                         </span>
                                     </span>
-                                    </a>
-                                </li>
-                            @else
+                                </span>
+                                </a>
+                            </li>
+                        @else
+                            @if($user->isVipCanceledButNotExpire())
                                 <li class="m-nav__item">
                                     <a href="{!! url('dashboard/cancel') !!}" class="m-nav__link">
                                         <i class="m-nav__link-icon fa fa-diamond"></i>
