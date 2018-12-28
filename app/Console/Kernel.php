@@ -5,6 +5,7 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class Kernel extends ConsoleKernel
 {
@@ -25,12 +26,36 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->call($this->callCheck())->daily();
-        $schedule->call($this->callCheck())->dailyAt('4:00');
-        $schedule->call($this->callCheck())->dailyAt('8:00');
-        $schedule->call($this->callCheck())->dailyAt('12:00');
-        $schedule->call($this->callCheck())->dailyAt('16:00');
-        $schedule->call($this->callCheck())->dailyAt('20:00');
+        $schedule->call(function (){
+            $this->VIPCheck(\Carbon\Carbon::now()->subDays(2)->toDateString());
+            $this->VIPCheck(\Carbon\Carbon::now()->subDay()->toDateString());
+            $this->VIPCheck();
+        })->daily();
+        $schedule->call(function (){
+            $this->VIPCheck(\Carbon\Carbon::now()->subDays(2)->toDateString());
+            $this->VIPCheck(\Carbon\Carbon::now()->subDay()->toDateString());
+            $this->VIPCheck();
+        })->dailyAt('4:00');
+        $schedule->call(function (){
+            $this->VIPCheck(\Carbon\Carbon::now()->subDays(2)->toDateString());
+            $this->VIPCheck(\Carbon\Carbon::now()->subDay()->toDateString());
+            $this->VIPCheck();
+        })->dailyAt('8:00');
+        $schedule->call(function (){
+            $this->VIPCheck(\Carbon\Carbon::now()->subDays(2)->toDateString());
+            $this->VIPCheck(\Carbon\Carbon::now()->subDay()->toDateString());
+            $this->VIPCheck();
+        })->dailyAt('12:00');
+        $schedule->call(function (){
+            $this->VIPCheck(\Carbon\Carbon::now()->subDays(2)->toDateString());
+            $this->VIPCheck(\Carbon\Carbon::now()->subDay()->toDateString());
+            $this->VIPCheck();
+        })->dailyAt('16:00');
+        $schedule->call(function (){
+            $this->VIPCheck(\Carbon\Carbon::now()->subDays(2)->toDateString());
+            $this->VIPCheck(\Carbon\Carbon::now()->subDay()->toDateString());
+            $this->VIPCheck();
+        })->dailyAt('20:00');
     }
 
     /**
@@ -45,13 +70,6 @@ class Kernel extends ConsoleKernel
         require base_path('routes/console.php');
     }
 
-    protected function callCheck()
-    {
-        $this->VIPCheck(\Carbon\Carbon::now()->subDays(2)->toDateString());
-        $this->VIPCheck(\Carbon\Carbon::now()->subDay()->toDateString());
-        $this->VIPCheck();
-    }
-
     protected function VIPCheck($date_set = null){
         if(isset($date_set)){
             $date = \Carbon\Carbon::createFromFormat("Y-m-d", $date_set)->toDateString();
@@ -60,6 +78,7 @@ class Kernel extends ConsoleKernel
             $date = \Carbon\Carbon::now()->toDateString();
         }
         $datas = \DB::table('viplogs')->where('filename', 'LIKE', '%761404%')->where('created_at', 'LIKE', $date.'%')->get();
+        $dateStr = $date;
         $date = str_replace('-', '', $date);
         $string = '';
         if(!file_exists(storage_path('app/RP_761404_'.$date.'.dat'))){
@@ -74,6 +93,7 @@ class Kernel extends ConsoleKernel
         if($datas->count() == 0){
             $string = $string."There's no today's log.\n";
         }
+        $nothingStr = '';
         if($string == ''){
             foreach ($file as $key => &$line){
                 foreach ($datas as $key2 => &$data){
@@ -139,8 +159,9 @@ class Kernel extends ConsoleKernel
                     }
                 }
                 \DB::table('log_vip_crontab')->insert(
-                    ['user_id' => $line[1],
-                        'content' => $log_str]
+                    ['date'    => $dateStr,
+                     'user_id' => $line[1],
+                     'content' => $log_str]
                 );
             }
             return str_replace("\n", "<br>", $string);
@@ -193,16 +214,19 @@ class Kernel extends ConsoleKernel
                     }
                 }
                 \DB::table('log_vip_crontab')->insert(
-                    ['user_id' => $line[1],
-                        'content' => $log_str]
+                    ['date'    => $dateStr,
+                     'user_id' => $line[1],
+                     'content' => $log_str]
                 );
             }
             return str_replace("\n", "<br>", $string);
         }
         \DB::table('log_vip_crontab')->insert(
-            ['user_id' => '',
-                'content' => $nothingStr."Nothing's done."]
+            ['date'    => $dateStr,
+             'user_id' => '',
+             'content' => $nothingStr."Nothing's done."]
         );
-        return str_replace("\n", "<br>", $string."Nothing's done.");
+        //return str_replace("\n", "<br>", $string."Nothing's done.");
+        return $string."Nothing's done.";
     }
 }

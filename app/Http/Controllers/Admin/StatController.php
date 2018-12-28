@@ -73,4 +73,15 @@ class StatController extends Controller
             'results' => $results,
             'name' => $name]);
     }
+    public function cronLog(){
+        $data = \DB::table('log_vip_crontab')->paginate(20);
+        foreach ($data as &$d){
+            if($d->user_id == 0){
+                $d->user_id = '無';
+            }
+            $d->date = substr($d->date, 0, 9);
+            $d->created_at = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at)->addHours(14);
+        }
+        return view('admin.stats.cronLog')->with('data', $data);
+    }
 }

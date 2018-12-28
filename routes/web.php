@@ -68,6 +68,7 @@ Route::get('/transaction-test/{date_set?}', function($date_set = null){
         $date = \Carbon\Carbon::now()->toDateString();
     }
     $datas = \DB::table('viplogs')->where('filename', 'LIKE', '%761404%')->where('created_at', 'LIKE', $date.'%')->get();
+    $dateStr = $date;
     $date = str_replace('-', '', $date);
     $string = '';
     if(!file_exists(storage_path('app/RP_761404_'.$date.'.dat'))){
@@ -82,6 +83,7 @@ Route::get('/transaction-test/{date_set?}', function($date_set = null){
     if($datas->count() == 0){
         $string = $string."There's no today's log.\n";
     }
+    $nothingStr = '';
     if($string == ''){
         foreach ($file as $key => &$line){
             foreach ($datas as $key2 => &$data){
@@ -147,7 +149,8 @@ Route::get('/transaction-test/{date_set?}', function($date_set = null){
                 }
             }
             \DB::table('log_vip_crontab')->insert(
-                ['user_id' => $line[1],
+                ['date'    => $dateStr,
+                 'user_id' => $line[1],
                  'content' => $log_str]
             );
         }
@@ -201,14 +204,16 @@ Route::get('/transaction-test/{date_set?}', function($date_set = null){
                 }
             }
             \DB::table('log_vip_crontab')->insert(
-                ['user_id' => $line[1],
+                ['date'    => $dateStr,
+                 'user_id' => $line[1],
                  'content' => $log_str]
             );
         }
         return str_replace("\n", "<br>", $string);
     }
     \DB::table('log_vip_crontab')->insert(
-        ['user_id' => '',
+        ['date'    => $dateStr,
+         'user_id' => '',
          'content' => $nothingStr."Nothing's done."]
     );
     return str_replace("\n", "<br>", $string."Nothing's done.");
@@ -422,6 +427,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('users/activate/token/{token}', 'UserController@activateUser')->name('activateUser');
         Route::get('stats/vip', 'StatController@vip')->name('stats/vip');
         Route::get('stats/vip_log/{id}', 'StatController@vipLog')->name('stats/vip_log');
+        Route::get('stats/cron_log', 'StatController@cronLog')->name('stats/cron_log');
 
         /*
         |--------------------------------------------------------------------------
