@@ -74,7 +74,7 @@ class StatController extends Controller
             'name' => $name]);
     }
     public function cronLog(){
-        $data = \DB::table('log_vip_crontab')->paginate(20);
+        $data = \DB::table('log_vip_crontab')->orderBy('id', 'desc')->paginate(20);
         foreach ($data as &$d){
             if($d->user_id == 0){
                 $d->user_id = '無';

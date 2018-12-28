@@ -250,7 +250,7 @@ class PagesController extends Controller
         }
     }
 
-    public function viewuser(Request $request, $uid)
+    public function viewuser(Request $request, $uid = -1)
     {
         $user = $request->user();
         if (isset($user) && isset($uid)) {

@@ -307,7 +307,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('password', 'PasswordController@update');
     });
 
-    Route::get('/user/view/{uid}', 'PagesController@viewuser');
+    Route::get('/user/view/{uid?}', 'PagesController@viewuser');
 
     /*
     |--------------------------------------------------------------------------

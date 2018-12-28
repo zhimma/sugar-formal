@@ -33,6 +33,7 @@
 	</tr>
 	@endforelse
 </table>
+{{ $data->links() }}
 </body>
 </html>
 @stop
