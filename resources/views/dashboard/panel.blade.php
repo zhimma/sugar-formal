@@ -91,11 +91,11 @@ if(Auth::user()) $login_user = Auth::user();
 						<li class="m-nav__item">
 							<a href="{!! url('dashboard/upgrade') !!}" class="m-nav__link">
 								<i class="m-nav__link-icon fa fa-diamond"></i>
-								<span class="m-nav__link-text">@if($user->isVip() && !$user->isVipCanceledButNotExpire()) 取消 VIP @else 升級 VIP @endif</span>
+								<span class="m-nav__link-text">@if($user->isVip() && !$user->isVipNotCanceledORCanceledButNotExpire()) 取消 VIP @else 升級 VIP @endif</span>
 							</a>
 						</li>
 					@else
-						@if($user->isVipCanceledButNotExpire())
+						@if($user->isVipNotCanceledORCanceledButNotExpire() && !$user->isFreeVIP())
 							<li class="m-nav__item">
 								<a href="{!! url('dashboard/cancel') !!}" class="m-nav__link">
 									<i class="m-nav__link-icon fa fa-diamond"></i>

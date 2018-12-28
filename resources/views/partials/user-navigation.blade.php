@@ -153,7 +153,7 @@
                                 </a>
                             </li>
                         @else
-                            @if($user->isVipCanceledButNotExpire())
+                            @if($user->isVipNotCanceledORCanceledButNotExpire() && !$user->isFreeVIP())
                                 <li class="m-nav__item">
                                     <a href="{!! url('dashboard/cancel') !!}" class="m-nav__link">
                                         <i class="m-nav__link-icon fa fa-diamond"></i>
