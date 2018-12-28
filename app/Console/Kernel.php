@@ -123,8 +123,8 @@ class Kernel extends ConsoleKernel
                         $this->logService->cancelLog($vip);
                         $this->logService->writeLogToFile();
                         $tmp = \App\Models\Vip::removeVIP($user->id, 0);
-                        $string = $string.'Condition 1(Delete): ';
-                        $log_str = $log_str.'Condition 1(Delete): ';
+                        //$string = $string.'Condition 1(Delete): ';
+                        //$log_str = $log_str.'Condition 1(Delete): ';
                         foreach ($line as $l){
                             $string = $string.$l.", ";
                             $log_str = $log_str.$l.", ";
@@ -133,8 +133,8 @@ class Kernel extends ConsoleKernel
                         $log_str = $string."\n";
                     }
                     else{
-                        $string = $string.'Condition 1(Delete): The log over-recorded a member or encountered a NULL data, User: '.$line[1]."\n";
-                        $log_str = $log_str.'Condition 1(Delete): The log over-recorded a member or encountered a NULL data, User: '.$line[1]."\n";
+                        $string = $string.'The log over-recorded a member or encountered a NULL data, User: '.$line[1]."\n";
+                        $log_str = $log_str.'The log over-recorded a member or encountered a NULL data, User: '.$line[1]."\n";
                     }
                 }
                 //若資料庫多的是New
@@ -145,8 +145,8 @@ class Kernel extends ConsoleKernel
                     if (isset($user) && !$user->isVip()) {
                         //若沒獲得權限，補權限
                         $tmp = \App\Models\Vip::upgrade($user->id, $line[0], $line[2], $line[5], 'auto completion', 1, 0);
-                        $string = $string.'Condition 2(New): ';
-                        $log_str = $log_str.'Condition 2(New): ';
+                        //$string = $string.'Condition 2(New): ';
+                        //$log_str = $log_str.'Condition 2(New): ';
                         foreach ($line as $l){
                             $string = $string.$l.", ";
                             $log_str = $log_str.$l.", ";
@@ -154,8 +154,8 @@ class Kernel extends ConsoleKernel
                         $string = $string."\n";
                         $log_str = $log_str."\n";
                     } else {
-                        $string = $string.'Condition 2(New): The log over-recorded a member or encountered a NULL data, User: '.$line[1]."\n";
-                        $log_str = $log_str.'Condition 2(New): The log over-recorded a member or encountered a NULL data, User: '.$line[1]."\n";
+                        $string = $string.'The log over-recorded a member or encountered a NULL data, User: '.$line[1]."\n";
+                        $log_str = $log_str.'The log over-recorded a member or encountered a NULL data, User: '.$line[1]."\n";
                     }
                 }
                 \DB::table('log_vip_crontab')->insert(
@@ -179,8 +179,8 @@ class Kernel extends ConsoleKernel
                     //檢查是否已取消權限
                     if(isset($user) && $user->isVip()){
                         $tmp = \App\Models\Vip::where('member_id', $user->id)->get()->first()->removeVIP();
-                        $string = $string.'Condition 3(Delete): ';
-                        $log_str = $log_str.'Condition 3(Delete): ';
+                        //$string = $string.'Condition 3(Delete): ';
+                        //$log_str = $log_str.'Condition 3(Delete): ';
                         foreach ($line as $l){
                             $string = $string.$l.", ";
                             $log_str = $log_str.$l.", ";
@@ -189,8 +189,8 @@ class Kernel extends ConsoleKernel
                         $log_str = $log_str."\n";
                     }
                     else{
-                        $string = $string.'Condition 3(Delete): The file over-recorded a member or encountered a NULL data, User: '.$line[1]."\n";
-                        $log_str = $log_str.'Condition 3(Delete): The file over-recorded a member or encountered a NULL data, User: '.$line[1]."\n";
+                        $string = $string.'The file over-recorded a member or encountered a NULL data, User: '.$line[1]."\n";
+                        $log_str = $log_str.'The file over-recorded a member or encountered a NULL data, User: '.$line[1]."\n";
                     }
                 }
                 //若異動檔多的是New
@@ -200,8 +200,8 @@ class Kernel extends ConsoleKernel
                     if (isset($user) && !$user->isVip()) {
                         //若沒獲得權限，補權限
                         $tmp = \App\Models\Vip::upgrade($user->id, $line[0], $line[2], $line[5], 'auto completion', 1, 0);
-                        $string = $string.'Condition 4(New): ';
-                        $log_str = $log_str.'Condition 4(New): ';
+                        //$string = $string.'Condition 4(New): ';
+                        //$log_str = $log_str.'Condition 4(New): ';
                         foreach ($line as $l){
                             $string = $string.$l.", ";
                             $log_str = $log_str.$l.", ";
@@ -209,8 +209,8 @@ class Kernel extends ConsoleKernel
                         $string = $string."\n";
                         $log_str = $log_str."\n";
                     } else {
-                        $string = $string.'Condition 4(New): The file over-recorded a member or encountered a NULL data, User: '.$line[1]."\n";
-                        $log_str = $log_str.'Condition 4(New): The file over-recorded a member or encountered a NULL data, User: '.$line[1]."\n";
+                        $string = $string.'The file over-recorded a member or encountered a NULL data, User: '.$line[1]."\n";
+                        $log_str = $log_str.'The file over-recorded a member or encountered a NULL data, User: '.$line[1]."\n";
                     }
                 }
                 \DB::table('log_vip_crontab')->insert(
