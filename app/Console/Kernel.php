@@ -120,8 +120,8 @@ class Kernel extends ConsoleKernel
                     $vip = \App\Models\Vip::where('member_id', $line[1])->get()->first();
                     //如果該會員有設定到期日，則不做任何動作
                     if(isset($user) && $vip->expiry != '0000-00-00 00:00:00'){
-                        $string = "The VIP of this user is still valid. (Hasn't expired yet.)\n";
-                        $log_str = "The VIP of this user is still valid. (Hasn't expired yet.)\n";
+                        $string = $string."The VIP of this user is still valid. (Hasn't expired yet.)\n";
+                        $log_str = $log_str."The VIP of this user is still valid. (Hasn't expired yet.)\n";
                     }
                     //若無，檢查是否已取消權限
                     else if(isset($user) && $user->isVip()){
@@ -185,8 +185,8 @@ class Kernel extends ConsoleKernel
                     $vip = \App\Models\Vip::where('member_id', $line[1])->get()->first();
                     //如果該會員有設定到期日，則不做任何動作
                     if(isset($user) && $vip->expiry != '0000-00-00 00:00:00'){
-                        $string = "The VIP of this user is still valid. (Hasn't expired yet.)\n";
-                        $log_str = "The VIP of this user is still valid. (Hasn't expired yet.)\n";
+                        $string = $string."The VIP of this user is still valid. (Hasn't expired yet.)\n";
+                        $log_str = $log_str."The VIP of this user is still valid. (Hasn't expired yet.)\n";
                     }
                     //若無，則檢查是否已取消權限
                     else if(isset($user) && $user->isVip()){
