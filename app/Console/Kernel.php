@@ -83,7 +83,7 @@ class Kernel extends ConsoleKernel
         $string = '';
         if(!file_exists(storage_path('app/RP_761404_'.$date.'.dat'))){
             $file = '';
-            $string = $string.'Today\'s file not found('.storage_path('app/RP_761404_'.$date.'.dat').").\n";
+            $string = $string.'Today\'s file was not found('.storage_path('app/RP_761404_'.$date.'.dat').").\n";
         }
         else{
             $file = File::get(storage_path('app/RP_761404_'.$date.'.dat'));
@@ -117,8 +117,14 @@ class Kernel extends ConsoleKernel
                 if($line[7] == 'Delete'){
                     $string = $string."Condition 1(log, Delete):\n";
                     $log_str = $log_str."Condition 1(log, Delete):\n";
-                    //檢查是否已取消權限
-                    if(isset($user) && $user->isVip()){
+                    $vip = \App\Models\Vip::where('member_id', $line[1])->get()->first();
+                    //如果該會員有設定到期日，則不做任何動作
+                    if(isset($user) && $vip->expiry != '0000-00-00 00:00:00'){
+                        $string = "The VIP of this user is still valid. (Hasn't expired yet.)\n";
+                        $log_str = "The VIP of this user is still valid. (Hasn't expired yet.)\n";
+                    }
+                    //若無，檢查是否已取消權限
+                    else if(isset($user) && $user->isVip()){
                         $vip = \App\Models\Vip::findById($user->id);
                         $this->logService->cancelLog($vip);
                         $this->logService->writeLogToFile();
@@ -176,8 +182,14 @@ class Kernel extends ConsoleKernel
                 if($line[7] == 'Delete'){
                     $string = $string."Condition 3(file, Delete):\n";
                     $log_str = $log_str."Condition 3(file, Delete):\n";
-                    //檢查是否已取消權限
-                    if(isset($user) && $user->isVip()){
+                    $vip = \App\Models\Vip::where('member_id', $line[1])->get()->first();
+                    //如果該會員有設定到期日，則不做任何動作
+                    if(isset($user) && $vip->expiry != '0000-00-00 00:00:00'){
+                        $string = "The VIP of this user is still valid. (Hasn't expired yet.)\n";
+                        $log_str = "The VIP of this user is still valid. (Hasn't expired yet.)\n";
+                    }
+                    //若無，則檢查是否已取消權限
+                    else if(isset($user) && $user->isVip()){
                         $tmp = \App\Models\Vip::where('member_id', $user->id)->get()->first()->removeVIP();
                         //$string = $string.'Condition 3(Delete): ';
                         //$log_str = $log_str.'Condition 3(Delete): ';
