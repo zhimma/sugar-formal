@@ -1117,9 +1117,8 @@
     @if(Session::has('announcement'))
         alert('{{ Session::get('announcement') }}');
     @endif
-    @if(Session::has('cancel_notice'))
-        alert('{{ Session::get('cancel_notice') }}');
-        <? Session::forget('cancel_notice'); ?>
+    @if(isset($cancel_notice))
+        alert('{{ $cancel_notice }}');
     @endif
 
     jQuery(document).ready(function(){

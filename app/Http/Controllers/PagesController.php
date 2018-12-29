@@ -240,6 +240,19 @@ class PagesController extends Controller
         $day = $birthday[2];
 
         if ($user) {
+            $cancel_notice = $request->session()->get('cancel_notice');
+            $message = $request->session()->get('message');
+            if(isset($cancel_notice)){
+                return view('dashboard')
+                    ->with('user', $user)
+                    ->with('tabName', $tabName)
+                    ->with('cur', $user)
+                    ->with('year', $year)
+                    ->with('month', $month)
+                    ->with('day', $day)
+                    ->with('message', $message)
+                    ->with('cancel_notice', $cancel_notice);
+            }
             return view('dashboard')
             ->with('user', $user)
             ->with('tabName', $tabName)
@@ -556,7 +569,7 @@ class PagesController extends Controller
                 Vip::cancel($user->id, 0);
                 $data = Vip::where('member_id', $user->id)->where('expiry', '!=', '0000-00-00 00:00:00')->get()->first();
                 $date = date('Y年m月d日', strtotime($data->expiry));
-                Session::put('cancel_notice', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
+                $request->session()->flash('cancel_notice', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
                 return redirect('/dashboard')->with('user', $user)->with('message', 'VIP 取消成功！')->with('cancel_notice', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
             }
             return back()->with('message', '帳號密碼輸入錯誤');
