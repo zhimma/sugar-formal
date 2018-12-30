@@ -17,3 +17,5 @@ app/Http/.DS_Store
 .DS_Store
 config/social.php
 config/social.php
+config/session.php
+config/session.php
