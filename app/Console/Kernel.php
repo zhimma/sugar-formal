@@ -120,15 +120,15 @@ class Kernel extends ConsoleKernel
                     $vip = \App\Models\Vip::where('member_id', $line[1])->get()->first();
                     //如果該會員有設定到期日，則不做任何動作
                     if(isset($user) && $vip->expiry != '0000-00-00 00:00:00'){
-                        $string = $string."The VIP of this user is still valid. (Hasn't expired yet.)\n";
-                        $log_str = $log_str."The VIP of this user is still valid. (Hasn't expired yet.)\n";
+                        $string = $string."The VIP of this user is still valid. (It hasn't expired yet, nothing will be changed.)\n";
+                        $log_str = $log_str."The VIP of this user is still valid. (It hasn't expired yet, nothing will be changed.)\n";
                     }
-                    //若無，檢查是否已取消權限
+                    //若無，檢查是否已取消權限，並補上異動檔、取消VIP
                     else if(isset($user) && $user->isVip()){
                         $vip = \App\Models\Vip::findById($user->id);
                         $this->logService->cancelLog($vip);
                         $this->logService->writeLogToFile();
-                        $tmp = \App\Models\Vip::removeVIP($user->id, 0);
+                        $tmp = \App\Models\Vip::where('member_id', $user->id)->orderBy('created_at', 'desc')->first()->compactCancel();
                         //$string = $string.'Condition 1(Delete): ';
                         //$log_str = $log_str.'Condition 1(Delete): ';
                         foreach ($line as $l){
@@ -185,12 +185,12 @@ class Kernel extends ConsoleKernel
                     $vip = \App\Models\Vip::where('member_id', $line[1])->get()->first();
                     //如果該會員有設定到期日，則不做任何動作
                     if(isset($user) && $vip->expiry != '0000-00-00 00:00:00'){
-                        $string = $string."The VIP of this user is still valid. (Hasn't expired yet.)\n";
-                        $log_str = $log_str."The VIP of this user is still valid. (Hasn't expired yet.)\n";
+                        $string = $string."The VIP of this user is still valid. (It hasn't expired yet, nothing will be changed.)\n";
+                        $log_str = $log_str."The VIP of this user is still valid. (It hasn't expired yet, nothing will be changed.)\n";
                     }
                     //若無，則檢查是否已取消權限
                     else if(isset($user) && $user->isVip()){
-                        $tmp = \App\Models\Vip::where('member_id', $user->id)->get()->first()->removeVIP();
+                        $tmp = \App\Models\Vip::where('member_id', $user->id)->orderBy('created_at', 'desc')->first()->compactCancel();
                         //$string = $string.'Condition 3(Delete): ';
                         //$log_str = $log_str.'Condition 3(Delete): ';
                         foreach ($line as $l){

@@ -85,7 +85,7 @@ class Vip extends Model
         //$curVip = Vip::where('member_id', $member_id)->orderBy('expiry', 'desc')->first();
         //$curVip->expiry =
         $curUser = User::findById($member_id);
-        $curUserName = User::id_($member_id)->meta_();
+        //$curUserName = User::id_($member_id)->meta_();
 
         VipLog::addToLog($member_id, 'cancel', 'XXXXXXXXX', 0, $free);
         if ($curUser != null)
@@ -123,6 +123,10 @@ class Vip extends Model
         //return Vip::where('member_id', $member_id)->delete();
         //VIP取消權限不再用刪除，而是全改為拔active
         return Vip::where('member_id', $member_id)->get()->first()->removeVIP();
+    }
+
+    public function compactCancel(){
+        return Vip::cancel($this->member_id, $this->free);
     }
 
     public function removeVIP(){
