@@ -30,32 +30,32 @@ class Kernel extends ConsoleKernel
             $this->VIPCheck(\Carbon\Carbon::now()->subDays(2)->toDateString());
             $this->VIPCheck(\Carbon\Carbon::now()->subDay()->toDateString());
             $this->VIPCheck();
-        })->daily();
+        })->timezone('Asia/Taipei')->daily();
         $schedule->call(function (){
             $this->VIPCheck(\Carbon\Carbon::now()->subDays(2)->toDateString());
             $this->VIPCheck(\Carbon\Carbon::now()->subDay()->toDateString());
             $this->VIPCheck();
-        })->dailyAt('4:00');
+        })->timezone('Asia/Taipei')->dailyAt('4:00');
         $schedule->call(function (){
             $this->VIPCheck(\Carbon\Carbon::now()->subDays(2)->toDateString());
             $this->VIPCheck(\Carbon\Carbon::now()->subDay()->toDateString());
             $this->VIPCheck();
-        })->dailyAt('8:00');
+        })->timezone('Asia/Taipei')->dailyAt('8:00');
         $schedule->call(function (){
             $this->VIPCheck(\Carbon\Carbon::now()->subDays(2)->toDateString());
             $this->VIPCheck(\Carbon\Carbon::now()->subDay()->toDateString());
             $this->VIPCheck();
-        })->dailyAt('12:00');
+        })->timezone('Asia/Taipei')->dailyAt('12:00');
         $schedule->call(function (){
             $this->VIPCheck(\Carbon\Carbon::now()->subDays(2)->toDateString());
             $this->VIPCheck(\Carbon\Carbon::now()->subDay()->toDateString());
             $this->VIPCheck();
-        })->dailyAt('16:00');
+        })->timezone('Asia/Taipei')->dailyAt('16:00');
         $schedule->call(function (){
             $this->VIPCheck(\Carbon\Carbon::now()->subDays(2)->toDateString());
             $this->VIPCheck(\Carbon\Carbon::now()->subDay()->toDateString());
             $this->VIPCheck();
-        })->dailyAt('20:00');
+        })->timezone('Asia/Taipei')->dailyAt('20:00');
     }
 
     /**
