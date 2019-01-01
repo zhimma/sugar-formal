@@ -565,6 +565,7 @@ class PagesController extends Controller
             if(User::isCorrectAccount($payload['email'], $payload['password'])) {
                 $vip = Vip::findById($user->id);
                 $this->logService->cancelLog($vip);
+                $this->logService->writeLogToDB();
                 $this->logService->writeLogToFile();
                 Vip::cancel($user->id, 0);
                 $data = Vip::where('member_id', $user->id)->where('expiry', '!=', '0000-00-00 00:00:00')->get()->first();
