@@ -170,7 +170,8 @@ class Kernel extends ConsoleKernel
                      'content' => $log_str]
                 );
             }
-            return str_replace("\n", "<br>", $string);
+            //return str_replace("\n", "<br>", $string);
+            return $string;
         }
         //如果異動檔多，補權限
         if($datas->count() == 0 && !empty($file)){
@@ -231,7 +232,8 @@ class Kernel extends ConsoleKernel
                      'content' => $log_str]
                 );
             }
-            return str_replace("\n", "<br>", $string);
+            //return str_replace("\n", "<br>", $string);
+            return $string;
         }
         \DB::table('log_vip_crontab')->insert(
             ['date'    => $dateStr,
