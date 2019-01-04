@@ -63,12 +63,71 @@ Route::get('/config-cache', function() {
 Route::get('/sftp-test', function(){
     $date = \Carbon\Carbon::now()->subDay()->toDateString();
     $date = str_replace('-', '', $date);
-    $fileContent = file_get_contents(storage_path('app/RP_761404_'.$date.'.dat'));
-    $destinDate = \Carbon\Carbon::now()->toDateString();
-    $destinDate = str_replace('-', '', $destinDate);
-    $file = 'RP_761404_'.$destinDate.'.dat';
-    GrahamCampbell\Flysystem\Facades\Flysystem::connection('sftp')->put($file, $fileContent);
+    if(file_exists(storage_path('app/RP_761404_'.$date.'.dat'))){
+        $fileContent = file_get_contents(storage_path('app/RP_761404_'.$date.'.dat'));
+        $destinDate = \Carbon\Carbon::now()->toDateString();
+        $destinDate = str_replace('-', '', $destinDate);
+        $file = 'RP_761404_'.$destinDate.'.dat';
+        GrahamCampbell\Flysystem\Facades\Flysystem::connection('sftp')->put($file, $fileContent);
+
+        \DB::table('log_dat_file')->insert(
+            ['upload_check' => 0,
+                'local_file'    => 'RP_761404_'.$date.'.dat',
+                'remote_file' => $file,
+                'content' => "RP_761404_".$date.".dat: Upload completed."]
+        );
+        return "RP_761404_".$date."dat: Upload completed.";
+    }
+    else{
+        \DB::table('log_dat_file')->insert(
+            ['upload_check' => 0,
+                'local_file'    => 'RP_761404_'.$date.'.dat',
+                'remote_file' => '',
+                'content' => "File RP_761404_".$date.".dat not found, upload process didn't initiate."]
+        );
+        return "File not found, upload process didn't initiate.";
+    }
 });
+
+Route::get('/sftp-check-test', function(){
+    $localDate = \Carbon\Carbon::now()->subDay()->toDateString();
+    $localDate = str_replace('-', '', $localDate);
+    if(file_exists(storage_path('app/RP_761404_'.$localDate.'.dat'))){
+        $localFileContent = file_get_contents(storage_path('app/RP_761404_'.$localDate.'.dat'));
+        $remoteDate = \Carbon\Carbon::now()->toDateString();
+        $remoteDate = str_replace('-', '', $remoteDate);
+        $remoteFile = 'RP_761404_'.$remoteDate.'.dat';
+        $remoteFileContent = GrahamCampbell\Flysystem\Facades\Flysystem::connection('sftp')->read($remoteFile);
+        if($localFileContent == $remoteFileContent){
+            \DB::table('log_dat_file')->insert(
+                ['upload_check' => 1,
+                    'local_file'    => 'RP_761404_'.$localDate.'.dat',
+                    'remote_file' => $remoteFile,
+                    'content' => "File comparison success."]
+            );
+            return "File comparison success.";
+        }
+        else{
+            \DB::table('log_dat_file')->insert(
+                ['upload_check' => 1,
+                    'local_file'    => 'RP_761404_'.$localDate.'.dat',
+                    'remote_file' => $remoteFile,
+                    'content' => "File comparison failed."]
+            );
+            return "File comparison failed.";
+        }
+    }
+    else{
+        \DB::table('log_dat_file')->insert(
+            ['upload_check' => 1,
+                'local_file'    => 'RP_761404_'.$localDate.'.dat',
+                'remote_file' => '',
+                'content' => "Local file not found, check process didn't initiate."]
+        );
+        return "Local file not found, check process didn't initiate.";
+    }
+});
+
 /*
 |--------------------------------------------------------------------------
 | Error Handler Redirect Page
