@@ -37,6 +37,9 @@ class Message extends Model
     public static function deleteBetween($uid, $sid) {
         $message = Message::where([['to_id', $uid], ['from_id', $sid]])->orWhere([['to_id', $sid], ['from_id', $uid]])->orderBy('created_at', 'desc')->first();
 
+        if(!isset($message)){
+            return false;
+        }
         if($message->is_row_delete_1 == 0) {
             Message::deleteRowMessage($uid, $sid, 0);
         }

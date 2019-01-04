@@ -114,7 +114,7 @@ class LoginController extends Controller
     {
         $uid = User::select('id', 'last_login')->where('email', $request->email)->get()->first();
         if(isset($uid) && Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $uid->id)->exists()){
-            $request->remember = 'on';
+            $request->remember = true;
         }
         if(isset($uid)){
             $request->session()->put('last_login', $uid->last_login);
