@@ -32,10 +32,19 @@ class Kernel extends ConsoleKernel
             $this->VIPCheck();
         })->timezone('Asia/Taipei')->daily();
         $schedule->call(function (){
+            $this->uploadDatFile();
+        })->timezone('Asia/Taipei')->dailyAt('1:00');
+        $schedule->call(function (){
+            $this->checkDatFile();
+        })->timezone('Asia/Taipei')->dailyAt('3:00');
+        $schedule->call(function (){
             $this->VIPCheck(\Carbon\Carbon::now()->subDays(2)->toDateString());
             $this->VIPCheck(\Carbon\Carbon::now()->subDay()->toDateString());
             $this->VIPCheck();
         })->timezone('Asia/Taipei')->dailyAt('4:00');
+        $schedule->call(function (){
+            $this->checkDatFile();
+        })->timezone('Asia/Taipei')->dailyAt('5:00');
         $schedule->call(function (){
             $this->VIPCheck(\Carbon\Carbon::now()->subDays(2)->toDateString());
             $this->VIPCheck(\Carbon\Carbon::now()->subDay()->toDateString());
