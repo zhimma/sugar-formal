@@ -261,7 +261,7 @@ class Kernel extends ConsoleKernel
             $destinDate = \Carbon\Carbon::now()->toDateString();
             $destinDate = str_replace('-', '', $destinDate);
             $file = 'RP_761404_'.$destinDate.'.dat';
-            GrahamCampbell\Flysystem\Facades\Flysystem::connection('sftp')->put($file, $fileContent);
+            \GrahamCampbell\Flysystem\Facades\Flysystem::connection('sftp')->put($file, $fileContent);
 
             \DB::table('log_dat_file')->insert(
                 ['upload_check' => 0,
@@ -290,7 +290,7 @@ class Kernel extends ConsoleKernel
             $remoteDate = \Carbon\Carbon::now()->toDateString();
             $remoteDate = str_replace('-', '', $remoteDate);
             $remoteFile = 'RP_761404_'.$remoteDate.'.dat';
-            $remoteFileContent = GrahamCampbell\Flysystem\Facades\Flysystem::connection('sftp')->read($remoteFile);
+            $remoteFileContent = \GrahamCampbell\Flysystem\Facades\Flysystem::connection('sftp')->read($remoteFile);
             if($localFileContent == $remoteFileContent){
                 \DB::table('log_dat_file')->insert(
                     ['upload_check' => 1,
