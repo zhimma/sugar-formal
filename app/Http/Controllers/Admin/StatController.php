@@ -85,4 +85,17 @@ class StatController extends Controller
         }
         return view('admin.stats.cronLog')->with('data', $data);
     }
+    public function datFileLog(){
+        $data = \DB::table('log_dat_file')->orderBy('id', 'desc')->paginate(21);
+        foreach ($data as &$d){
+            if($d->upload_check == 0){
+                $d->upload_check = '上傳';
+            }
+            else{
+                $d->upload_check = '檢查';
+            }
+            $d->created_at = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at)->addHours(14);
+        }
+        return view('admin.stats.datFileLog')->with('data', $data);
+    }
 }

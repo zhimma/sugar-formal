@@ -338,6 +338,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('stats/vip', 'StatController@vip')->name('stats/vip');
         Route::get('stats/vip_log/{id}', 'StatController@vipLog')->name('stats/vip_log');
         Route::get('stats/cron_log', 'StatController@cronLog')->name('stats/cron_log');
+        Route::get('stats/date_file_log', 'StatController@datFileLog')->name('stats/date_file_log');
 
         /*
         |--------------------------------------------------------------------------
