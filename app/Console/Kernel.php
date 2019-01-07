@@ -27,44 +27,32 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->call(function (){
-            $this->VIPCheck(\Carbon\Carbon::now()->subDays(2)->toDateString());
-            $this->VIPCheck(\Carbon\Carbon::now()->subDay()->toDateString());
-            $this->VIPCheck();
-        })->timezone('Asia/Taipei')->daily();
-        $schedule->call(function (){
             $this->uploadDatFile();
         })->timezone('Asia/Taipei')->dailyAt('1:00');
         $schedule->call(function (){
             $this->checkDatFile();
         })->timezone('Asia/Taipei')->dailyAt('3:00');
         $schedule->call(function (){
-            $this->VIPCheck(\Carbon\Carbon::now()->subDays(2)->toDateString());
-            $this->VIPCheck(\Carbon\Carbon::now()->subDay()->toDateString());
             $this->VIPCheck();
         })->timezone('Asia/Taipei')->dailyAt('4:00');
         $schedule->call(function (){
             $this->checkDatFile();
         })->timezone('Asia/Taipei')->dailyAt('5:00');
         $schedule->call(function (){
-            $this->VIPCheck(\Carbon\Carbon::now()->subDays(2)->toDateString());
-            $this->VIPCheck(\Carbon\Carbon::now()->subDay()->toDateString());
             $this->VIPCheck();
         })->timezone('Asia/Taipei')->dailyAt('8:00');
         $schedule->call(function (){
-            $this->VIPCheck(\Carbon\Carbon::now()->subDays(2)->toDateString());
-            $this->VIPCheck(\Carbon\Carbon::now()->subDay()->toDateString());
             $this->VIPCheck();
         })->timezone('Asia/Taipei')->dailyAt('12:00');
         $schedule->call(function (){
-            $this->VIPCheck(\Carbon\Carbon::now()->subDays(2)->toDateString());
-            $this->VIPCheck(\Carbon\Carbon::now()->subDay()->toDateString());
             $this->VIPCheck();
         })->timezone('Asia/Taipei')->dailyAt('16:00');
         $schedule->call(function (){
-            $this->VIPCheck(\Carbon\Carbon::now()->subDays(2)->toDateString());
-            $this->VIPCheck(\Carbon\Carbon::now()->subDay()->toDateString());
             $this->VIPCheck();
         })->timezone('Asia/Taipei')->dailyAt('20:00');
+        $schedule->call(function (){
+            $this->VIPCheck();
+        })->timezone('Asia/Taipei')->dailyAt('23:59');
     }
 
     /**
