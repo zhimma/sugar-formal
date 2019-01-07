@@ -66,14 +66,7 @@
                         <div class="col m--align-left">
                             <label class="m-checkbox m-checkbox--focus">
                                 <input type="checkbox" name="agree">
-                                我同意台灣甜心的
-                                <a href="terms.php" class="m-link m-link--danger">
-                                    條款隱私
-                                </a>和
-                                <a href="privacy.php" class="m-link m-link--danger">
-                                    隱私
-                                </a>
-                                政策.
+                                我同意台灣甜心的<a href="terms" target="_blank" class="m-link m-link--danger">使用條款和隱私政策</a>.
                                 <span></span>
                             </label>
                             <span class="m-form__help"></span>

@@ -104,6 +104,9 @@ class Message extends Model
         $message = Message::where([['to_id', $uid], ['from_id', $sid], ['created_at', $ct_time], ['content', $content]])->orWhere([['to_id', $sid], ['from_id', $uid], ['created_at', $ct_time], ['content', $content]])->first();
         //echo json_encode($message);
         //echo 'uid = ' . $uid . ' sid = ' . $sid;
+        if(!isset($message)){
+            return false;
+        }
         if($message->is_single_delete_1 == 0) {
             Message::deleteSingleMessage($message, $uid, $sid, $ct_time, $content, 0);
         }

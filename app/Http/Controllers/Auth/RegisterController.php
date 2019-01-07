@@ -78,11 +78,14 @@ class RegisterController extends Controller
         $rules = [
             'name'     => ['required', 'max:255', 'not_contains'],
             'title'    => ['required', 'max:255', 'not_contains'],
+            'engroup'  => ['required'],
             'email'    => 'required|email|max:255|unique:users',
             'password' => 'required|min:6|confirmed',
+            'agree'    => 'required',
         ];
         $messages = [
             'not_contains'  => '請勿使用包含「站長」或「管理員」的字眼做為暱稱！',
+            'agree.required'=> '您必須同意本站的使用條款和隱私政策，才可完成註冊。',
             'required'      => ':attribute不可為空',    
             'email.email'   => 'E-mail格式錯誤',
             'email.unique'  => '此 E-mail 已被註冊',
@@ -91,6 +94,7 @@ class RegisterController extends Controller
         $attributes = [
             'name'      => '暱稱',
             'title'     => '標題',
+            'engroup'   => '帳號類型',
             'email'     => 'E-mail信箱',
             'password'  => '密碼',
         ];
