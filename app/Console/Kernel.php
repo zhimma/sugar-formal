@@ -267,7 +267,7 @@ class Kernel extends ConsoleKernel
                 ['upload_check' => 0,
                  'local_file'    => 'RP_761404_'.$date.'.dat',
                  'remote_file' => $file,
-                 'content' => "RP_761404_".$date.".dat: Upload completed."]
+                 'content' => "RP_761404_".$date.".dat: 上傳成功。"]
             );
             return "RP_761404_".$date."dat: Upload completed.";
         }
@@ -276,7 +276,7 @@ class Kernel extends ConsoleKernel
                 ['upload_check' => 0,
                  'local_file'    => 'RP_761404_'.$date.'.dat',
                  'remote_file' => '',
-                 'content' => "File RP_761404_".$date.".dat not found, upload process didn't initiate."]
+                 'content' => "沒有找到本地檔案：RP_761404_".$date.".dat，上傳程序沒有執行。"]
             );
             return "File not found, upload process didn't initiate.";
         }
@@ -296,7 +296,7 @@ class Kernel extends ConsoleKernel
                     ['upload_check' => 1,
                      'local_file'    => 'RP_761404_'.$localDate.'.dat',
                      'remote_file' => $remoteFile,
-                     'content' => "File comparison success."]
+                     'content' => "檔案比較完成：本地與遠端的檔案內容一致。"]
                 );
                 return "File comparison success.";
             }
@@ -305,7 +305,7 @@ class Kernel extends ConsoleKernel
                     ['upload_check' => 1,
                      'local_file'    => 'RP_761404_'.$localDate.'.dat',
                      'remote_file' => $remoteFile,
-                     'content' => "File comparison failed."]
+                     'content' => "檔案比較失敗：本地與遠端的檔案內容不一致。"]
                 );
                 $admin = \App\Models\User::findByEmail(Config::get('social.admin.email'));
                 $admin->notify(new AutoComparisonFailedEmail(\Carbon\Carbon::now()->toDateTimeString(), 'RP_761404_'.$localDate.'.dat', '本地與遠端的檔案內容不一致'));
@@ -317,7 +317,7 @@ class Kernel extends ConsoleKernel
                 ['upload_check' => 1,
                  'local_file'    => 'RP_761404_'.$localDate.'.dat',
                  'remote_file' => '',
-                 'content' => "Local file not found, check process didn't initiate."]
+                 'content' => "本地端沒有檔案，檢查程序沒有執行。"]
             );
             $admin = \App\Models\User::findByEmail(Config::get('social.admin.email'));
             $admin->notify(new AutoComparisonFailedEmail(\Carbon\Carbon::now()->toDateTimeString(), 'RP_761404_'.$localDate.'.dat', '本地端沒有檔案'));
