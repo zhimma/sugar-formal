@@ -95,10 +95,11 @@ class Vip extends Model
         if($curUser->engroup == 1){
             $user = Vip::select('id', 'expiry', 'created_at')
                 ->where('member_id', $member_id)
-                ->orderBy('created_at', 'asc')->get();
+                ->orderBy('created_at', 'desc')->get();
             $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->created_at);
             $day = $date->format('d');
             $now = \Carbon\Carbon::now();
+            $nextMonth = $now->addMonth();
 //            if($day > $now->day){
 //                $user = Vip::select('member_id', 'active')
 //                    ->where('member_id', $member_id)
@@ -109,10 +110,13 @@ class Vip extends Model
 //            else{
 //                $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
 //            }
-            $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
-            if($now->month == $date->month){
-                $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year + 1 .'-01-'.$day.' 00:00:00');
-            }
+//            $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
+//            if($date->month == '12'){
+//                $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year + 1 .'-01-'.$day.' 00:00:00');
+//            }
+//            if($date->month == $now->month){
+            $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $nextMonth->year.'-'.$nextMonth->month.'-'.$day.' 00:00:00');
+//            }
             foreach ($user as $u){
                 $u->expiry = $date->toDateTimeString();
                 $u->save();
