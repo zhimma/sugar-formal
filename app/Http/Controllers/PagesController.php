@@ -574,7 +574,15 @@ class PagesController extends Controller
                 $request->session()->save();
                 return redirect('/dashboard')->with('user', $user)->with('message', 'VIP 取消成功！')->with('cancel_notice', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
             }
-            return back()->with('message', '帳號密碼輸入錯誤');
+            else{
+                $log = new \App\Models\LogCancelVipFailed();
+                $log->user_id = $user->id;
+                $log->save();
+                return back()->with('message', '帳號密碼輸入錯誤');
+            }
+        }
+        else{
+            Log::error('User not found while canceling VIP.');
         }
     }
 
