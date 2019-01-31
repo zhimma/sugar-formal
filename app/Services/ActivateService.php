@@ -52,10 +52,13 @@ class ActivateService
     {
         $user = UserMeta::where('activation_token', $token)->first();
         if ($user) {
-            return $user->update([
+            if($user->update([
                 'is_active' => true,
                 'activation_token' => null
-            ]);
+            ])){
+                return User::find($user->user_id);
+            }
+            return false;
         }
 
         return false;
