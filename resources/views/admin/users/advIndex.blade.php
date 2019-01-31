@@ -67,7 +67,7 @@
 		<td class="align-middle">{{ $user['title'] }}</td>
 		<td class="align-middle">@if($user['engroup']==1) 男 @else 女 @endif</td>
 		<td class="align-middle">{{ $user['email'] }}</td>
-		<td class="align-middle">{{ $user['vip'] }}</td>
+		<td class="align-middle">{{ $user['vip'] }} @if(isset($user['vip_data']) && $user['vip_data']['expiry'] != "0000-00-00 00:00:00") (到期日: {{ substr($user['vip_data']['expiry'], 0, 10) }}) @endif</td>
 		<td class="align-middle">{{ $user['created_at'] }}</td>
 		<td class="align-middle">{{ $user['updated_at'] }}</td>
 		<td class="align-middle">{{ $user['last_login'] }}</td>
