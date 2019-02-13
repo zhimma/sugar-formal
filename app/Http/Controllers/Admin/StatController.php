@@ -69,9 +69,11 @@ class StatController extends Controller
     {
         $results = VipLog::where('member_id', $id)->get();
         $name = User::where('id', $id)->get()->first()->name;
+        $expiry = Vip::where('member_id', $id)->orderBy('created_at', 'asc')->get()->first()->expiry;
         return view('admin.stats.vipLog', [
             'results' => $results,
-            'name' => $name]);
+            'name' => $name,
+            'expiry' => substr($expiry, 0, 10)]);
     }
     public function cronLog(){
         $data = \DB::table('log_vip_crontab')->orderBy('id', 'desc')->paginate(20);

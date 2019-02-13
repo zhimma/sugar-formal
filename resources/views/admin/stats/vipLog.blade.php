@@ -1,7 +1,7 @@
 @extends('admin.main')
 @section('app-content')
 <body style="padding: 15px;">
-<h1>{{ $name }}的VIP記錄</h1>
+<h1>{{ $name }}的VIP記錄 @if($expiry != "0000-00-00 00:00:00") (到期日: {{ $expiry }}) @endif</h1>
 <table class='table table-bordered table-hover'>
 	<tr>
 		<th>動作</th>

@@ -56,9 +56,12 @@
 
         <p>驗證碼已經寄到你的email: <a style="font-weight: bold">{{ $user->email }} (若Email填寫錯誤，請重新註冊)</a></p>
         <a class="btn btn-danger" href="{{ url('activate/send-token') }}">重新發送</a>
-    @else
+    @elseif(isset($register))
         <p><h3>註冊失敗</h3></p>
         <p>系統無法找到您所填寫的資料，敬請重新註冊。</p>
+    @else
+        <p><h3>驗證失敗</h3></p>
+        <p>這個驗證碼已經無效或是您提供了錯誤的驗證碼，請先嘗試登入先前所註冊的Email，若問題仍舊存在，敬請聯絡站長，謝謝。</p>
     @endif
 </div>
 

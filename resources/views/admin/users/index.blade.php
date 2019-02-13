@@ -32,7 +32,7 @@
         </td>
 		<td>{{ $user->gender_ch }}</td>
 		@if($user->isVip)
-			<td>是</td>
+			<td>是 @if($user->vip_data->expiry!="0000-00-00 00:00:00") (到期日: {{ substr($user->vip_data->expiry, 0, 10) }}) @endif</td>
 			<td>@if($user->vip_data->free == 1) 是 @else 否 @endif</td>
 			<td>{{ $user->vip_order_id }}</td>
 		@else

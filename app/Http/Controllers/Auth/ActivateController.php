@@ -28,7 +28,7 @@ class ActivateController extends Controller
     {
         $user = auth()->user();
 
-        return view('auth.activate.email')->with('user', $user);
+        return view('auth.activate.email')->with('user', $user)->with('register', true);
     }
 
     /**
@@ -51,8 +51,10 @@ class ActivateController extends Controller
      */
     public function activate($token)
     {
-        if ($this->service->activateUser($token)) {
-            return redirect('dashboard')->with('message', '驗證成功');
+        $user = $this->service->activateUser($token);
+        if ($user) {
+            return view('auth.activate.activationSucceed')->with('user', $user)->with('message', '驗證成功');
+            //return redirect('dashboard')->with('message', '驗證成功');
         }
         $user = auth()->user();
         return view('auth.activate.email', compact('user'))->withErrors(['驗證失敗']);

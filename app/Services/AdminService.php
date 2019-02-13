@@ -81,6 +81,12 @@ class AdminService
         foreach ($users as $user){
             $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first() == true  ? true : false;
             $user['vip'] = $user->isVip() ? '是' : '否';
+            if($user['vip'] == '是'){
+                $user['vip_data'] = Vip::select('id', 'expiry')
+                    ->where('member_id', $user->id)
+                    ->orderBy('created_at', 'asc')
+                    ->get()->first();
+            }
         }
         if($request->member_type =='vip'){
             $users = collect($users)->sortBy('vip', true,true)->reverse()->toArray();

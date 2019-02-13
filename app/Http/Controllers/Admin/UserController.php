@@ -76,7 +76,7 @@ class UserController extends Controller
                                         ->where('member_id', $user->id)
                                         ->get()->first()->order_id;
             }
-            $user['vip_data'] = Vip::select('id', 'free', 'created_at', 'updated_at')
+            $user['vip_data'] = Vip::select('id', 'free', 'expiry', 'created_at', 'updated_at')
                                 ->where('member_id', $user->id)
                                 ->orderBy('created_at', 'asc')
                                 ->get()->first();
