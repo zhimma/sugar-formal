@@ -963,6 +963,25 @@ class UserController extends Controller
         }
     }
 
+    public function customizeMigrationFiles(Request $request){
+        $file = null;
+        if(file_exists(storage_path('app/RP_761404_'.\Carbon\Carbon::today().'.dat'))){
+            $file = \File::get(storage_path('app/RP_761404_'.\Carbon\Carbon::today().'.dat'));
+        }
+        $file = \File::get(storage_path('app/RP_761404_20181222.dat'));
+        $date = \Carbon\Carbon::now()->addDay()->day >= 28 ? '01' : \Carbon\Carbon::now()->addDay()->day;
+
+        if ($request->isMethod('get'))
+        {
+            return view('admin.users.customizeMigrationFiles',
+                ['file' => nl2br($file),
+                 'date' => $date]);
+        }
+        elseif($request->isMethod('post')){
+
+        }
+    }
+
     public function inactiveUsers()
     {
         $users = User::join('user_meta', 'users.id', 'user_meta.user_id')

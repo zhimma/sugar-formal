@@ -328,6 +328,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('users/invite', 'UserController@postInvite');
         Route::post('users/genderToggler', 'UserController@toggleGender');
         Route::post('users/VIPToggler', 'UserController@toggleVIP');
+        Route::get('users/customizeMigrationFiles', 'UserController@customizeMigrationFiles')->name('users/customize_migration_files');
         Route::get('announcement', 'UserController@showAdminAnnouncement')->name('admin/announcement');
         Route::post('announcement/save', 'UserController@saveAdminAnnouncement')->name('admin/announcement/save');
         Route::get('/chat', 'MessageController@chatview')->name('admin/chat');
