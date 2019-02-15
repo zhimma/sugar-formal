@@ -982,6 +982,25 @@ class UserController extends Controller
         }
     }
 
+    public function changePassword(Request $request){
+        if ($request->isMethod('get')) {
+            return view('admin.users.changePassword');
+        }
+        elseif($request->isMethod('post')){
+            $user = User::findByEmail($request->email);
+            if(!isset($user)){
+                return view('admin.users.changePassword')->withErrors(['找不到會員，請檢查輸入的Email是否正確']);
+            }
+            else{
+                $password = $request->password == null ? '123456' : $request->password;
+                $user->password = bcrypt($password);
+                $user->save();
+                return back()->with('message', '會員 '.$user->name.' 的密碼已設為:'.$password);
+            }
+        }
+        return view('admin.users.changePassword')->withErrors(['發生不明錯誤(Error001)']);
+    }
+
     public function inactiveUsers()
     {
         $users = User::join('user_meta', 'users.id', 'user_meta.user_id')

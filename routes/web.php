@@ -323,6 +323,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('users/reported', 'UserController@showReportedUsersList')->name('users/reported');
         Route::get('users/switch', 'UserController@showUserSwitch')->name('users/switch');
         Route::post('users/switch', 'UserController@switchSearch')->name('users/switch/search');
+        Route::get('users/changePassword', 'UserController@changePassword')->name('users/changePassword');
+        Route::post('users/changePassword', 'UserController@changePassword')->name('users/changePassword');
         Route::get('users/invite', 'UserController@getInvite');
         Route::get('users/switch/{id}', 'UserController@switchToUser')->name('users/switch/to');
         Route::post('users/invite', 'UserController@postInvite');
