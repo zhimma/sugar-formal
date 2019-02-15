@@ -7,10 +7,10 @@
 	<div class="form-group">
 		<table class="table table-hovered table-bordered" style="width: 50%;">
 			<tr>
-				<th><label for="new_delete">新增/刪除</label></th>
+				<th><label for="action">新增/刪除</label></th>
 				<td>
-					<input type="radio" name="new_delete" value="new">新增
-					<input type="radio" name="new_delete" value="delete">刪除
+					<input type="radio" name="action" value="new">新增
+					<input type="radio" name="action" value="delete">刪除
 				</td>
 			</tr>
 			<tr>
@@ -26,9 +26,9 @@
 				</td>
 			</tr>
 			<tr>
-				<th><label for="date">日期</label></th>
+				<th><label for="day">日期</label></th>
 				<td>
-					<input type="number" name='date' style="width:300px;" id="date" value="{{ $date }}" max="28" min="1" required>
+					<input type="number" name='day' style="width:300px;" id="day" value="{{ $date }}" max="28" min="1" required>
 				</td>
 			</tr>
 			<tr>

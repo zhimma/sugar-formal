@@ -48,6 +48,13 @@ class VipLogService {
         Storage::append($fileName, $fileContent);
     }
 
+    public function customLogToFile($user_id, $order_id, $day, $action){
+        $fileName = 'RP_761404_'. \Carbon\Carbon::today() .'.dat';
+        $fileContent = '761404,' . $user_id . ',' . $order_id . ',,,888,' . $day . ',' . $action . ',01,0';
+
+        return Storage::append($fileName, $fileContent);
+    }
+
     public function writeLogToDB() {
         $today = Carbon::now()->format('d') <= 28 ? Carbon::now()->format('d') : 01;
         $fileName = 'RP_'. $this->business_id . '_' . Carbon::now()->format('Ymd') .'.dat';

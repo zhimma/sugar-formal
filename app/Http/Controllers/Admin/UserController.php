@@ -968,7 +968,6 @@ class UserController extends Controller
         if(file_exists(storage_path('app/RP_761404_'.\Carbon\Carbon::today().'.dat'))){
             $file = \File::get(storage_path('app/RP_761404_'.\Carbon\Carbon::today().'.dat'));
         }
-        $file = \File::get(storage_path('app/RP_761404_20181222.dat'));
         $date = \Carbon\Carbon::now()->addDay()->day >= 28 ? '01' : \Carbon\Carbon::now()->addDay()->day;
 
         if ($request->isMethod('get'))
@@ -978,7 +977,13 @@ class UserController extends Controller
                  'date' => $date]);
         }
         elseif($request->isMethod('post')){
-
+            $logging = new \App\Services\VipLogService;
+            if($logging->customLogToFile($request->user_id, $request->order_id, $request->day, $request->action)){
+                return back()->with('message', '異動檔修改成功，請在頁面下方查看結果。');
+            }
+            else{
+                return back()->withErrors(['發生不明錯誤(Error002).']);
+            }
         }
     }
 
