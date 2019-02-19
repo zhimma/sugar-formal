@@ -9,20 +9,20 @@
 			<tr>
 				<th><label for="action">新增/刪除</label></th>
 				<td>
-					<input type="radio" name="action" value="new">新增
-					<input type="radio" name="action" value="delete">刪除
+					<input type="radio" name="action" value="new" required>新增
+					<input type="radio" name="action" value="delete" required>刪除
 				</td>
 			</tr>
 			<tr>
 				<th><label for="user_id">會員ID</label></th>
 				<td>
-					<input type="text" name='user_id' style="width:300px;" id="user_id" required>
+					<input type="number" name='user_id' style="width:300px;" id="user_id" required>
 				</td>
 			</tr>
 			<tr>
 				<th><label for="order_id">訂單編號</label></th>
 				<td>
-					<input type="text" name='order_id' style="width:300px;" id="order_id" required>
+					<input type="number" name='order_id' style="width:300px;" id="order_id" required>
 				</td>
 			</tr>
 			<tr>
