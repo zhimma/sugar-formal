@@ -177,7 +177,7 @@
                             if (isset($_GET['income'])) $income = $_GET['income'];
                             if (isset($_GET['smoking'])) $smoking = $_GET['smoking'];
                             if (isset($_GET['drinking'])) $drinking = $_GET['drinking'];
-                            if (isset($_GET['photo'])) $photo = $_GET['photo'];
+                            if (isset($_GET['pic'])) $photo = $_GET['pic'];
                             if (isset($_GET['ageto'])) $ageto = $_GET['ageto'];
                             if (isset($_GET['agefrom'])) $agefrom = $_GET['agefrom'];
                             $vis = \App\Models\UserMeta::search($county, $district, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $user->engroup, $user->city, $user->area, $user->domain, $user->domainType);

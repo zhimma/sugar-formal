@@ -131,7 +131,7 @@ class UserMeta extends Model
         if (isset($income) && strlen($income) != 0) $query = $query->where('income', $income);
         if (isset($smoking) && strlen($smoking) != 0) $query = $query->where('smoking', $smoking);
         if (isset($drinking) && strlen($drinking) != 0) $query = $query->where('drinking', $drinking);
-        if (isset($photo) && strlen($photo) != 0) $query = $query->whereNotNull('photo')->where('photo', '<>', 'NULL');
+        if (isset($photo) && strlen($photo) != 0) $query = $query->whereNotNull('pic')->where('pic', '<>', 'NULL');
         if (isset($agefrom) && isset($ageto) && strlen($agefrom) != 0 && strlen($ageto) != 0) $query = $query->whereBetween('birthdate', [Carbon::now()->subYears($ageto), Carbon::now()->subYears($agefrom)]);
 
         $bannedUsers = banned_users::select('member_id')->get();
