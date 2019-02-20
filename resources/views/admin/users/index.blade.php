@@ -52,7 +52,7 @@
 		<form method="POST" action="VIPToggler" class="vip">{!! csrf_field() !!}
 			<input type="hidden" name='user_id' value="{{ $user->id }}">
 			<input type="hidden" name='isVip' value="@if($user->isVip) 1 @else 0 @endif">
-			<button type="button" class="btn btn-info" onclick="$('.vip').submit()">@if($user->isVip) 取消權限 @else 提供權限 @endif</button></form>
+			<button type="submit" class="btn btn-info">@if($user->isVip) 取消權限 @else 提供權限 @endif</button></form>
 		</td>
 	</tr>
 	@empty

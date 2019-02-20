@@ -78,7 +78,7 @@ class UserController extends Controller
             }
             $user['vip_data'] = Vip::select('id', 'free', 'expiry', 'created_at', 'updated_at')
                                 ->where('member_id', $user->id)
-                                ->orderBy('created_at', 'asc')
+                                ->orderBy('created_at', 'desc')
                                 ->get()->first();
             if(VipLog::select("updated_at")->where('member_id', $user->id)->orderBy('updated_at', 'desc')->get()->first()){
                 $user['updated_at'] = VipLog::select("updated_at")->where('member_id', $user->id)->orderBy('updated_at', 'desc')->get()->first()->updated_at;
@@ -131,6 +131,7 @@ class UserController extends Controller
             $vip_user->created_at =  Carbon::now()->toDateTimeString();
             $vip_user->save();
         }
+        VipLog::addToLog($request->user_id, $setVip == 0 ? 'manual_cancel' : 'manual_upgrade', 'Manual Setting', $setVip, 1);
         $user = User::select('id', 'email')
                 ->where('id', $request->user_id)
                 ->get()->first();
