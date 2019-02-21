@@ -58,7 +58,7 @@ class FemaleVipActive
         else if($user->isVip() && $vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.free-days')) {
             return $next($request);
         }
-        else if($user->isVip()) {
+        else if($user->isVip() && $user->isFreeVip()) {
             Vip::cancel($user->id, 1);
             $user->vip_record = Carbon::now();
             $user->save();
