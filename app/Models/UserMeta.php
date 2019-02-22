@@ -87,6 +87,11 @@ class UserMeta extends Model
         return isset($this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && isset($this->budget) && $this->height > 0 && isset($this->area) && isset($this->city);
     }
 
+    public function returnUnSet()
+    {
+        return isset( $this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && isset($this->budget) && $this->height > 0 && isset($this->area) && isset($this->city);
+    }
+
     // public static function uploadUserHeader($uid, $fieldContent) {
     //     return DB::table('user_meta')->where('user_id', $uid)->update(['pic' => $fieldContent]);
     // }
