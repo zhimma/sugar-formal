@@ -89,7 +89,41 @@ class UserMeta extends Model
 
     public function returnUnSet()
     {
-        return isset( $this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && isset($this->budget) && $this->height > 0 && isset($this->area) && isset($this->city);
+        $string = '';
+        if(!isset( $this->smoking)){
+            $string .= '抽菸、';
+        }
+        if(!isset($this->drinking)){
+            $string .= '喝酒、';
+        }
+        if(!isset($this->marriage)){
+            $string .= '婚姻、';
+        }
+        if(!isset($this->education)){
+            $string .= '教育、';
+        }
+        if(!isset($this->about)){
+            $string .= '關於我、';
+        }
+        if(!isset($this->style)){
+            $string .= '期待的約會模式、';
+        }
+        if(!isset($this->birthdate)){
+            $string .= '生日、';
+        }
+        if(!isset($this->budget)){
+            $string .= '預算、';
+        }
+        if($this->height <= 0){
+            $string = $string .'身高、';
+        }
+        if(!isset($this->area)){
+            $string .= '地區、';
+        }
+        if(!isset($this->city)){
+            $string .= '縣市、';
+        }
+        return substr($string, 0, -3).'未填寫！';
     }
 
     // public static function uploadUserHeader($uid, $fieldContent) {

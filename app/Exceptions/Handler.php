@@ -53,8 +53,8 @@ class Handler extends ExceptionHandler
 //            return response()->view('errors.exception',
 //                [ 'exception' => $exception->getMessage() == null ? null : $exception->getMessage()]);
 //        }
-        //return parent::render($request, $exception);
+        return parent::render($request, $exception);
         //return redirect('/error');
-        return view('errors.exception')->with('exception', $exception->getMessage() == null ? null : $exception->getMessage());
+        //return view('errors.exception')->with('exception', $exception->getMessage() == null ? null : $exception->getMessage());
     }
 }

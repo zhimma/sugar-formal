@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Support\Facades\Log;
+use mysql_xdevapi\Session;
 
 class Filled
 {
@@ -36,6 +37,10 @@ class Filled
     public function handle($request, Closure $next)
     {
         if (!$this->auth->user()->meta_()->isAllSet()) {
+            $collection = collect([
+                (string)$this->auth->user()->meta_()->returnUnSet()
+            ]);
+            $request->session()->flash('errors', $collection);
             return redirect('dashboard');
         }
 
