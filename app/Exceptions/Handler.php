@@ -50,7 +50,8 @@ class Handler extends ExceptionHandler
     public function render($request, Exception $exception)
     {
 //        if(!$exception instanceof ValidationException && !$exception instanceof \Illuminate\Auth\AuthenticationException) {
-//            return response()->view('errors.exception');
+//            return response()->view('errors.exception',
+//                [ 'exception' => $exception->getMessage() == null ? null : $exception->getMessage()]);
 //        }
         //return parent::render($request, $exception);
         //return redirect('/error');
