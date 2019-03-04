@@ -57,29 +57,35 @@ class LoginController extends Controller
         $banned_users = banned_users::select('*')->where('member_id', \Auth::user()->id)->orderBy('expire_date', 'desc')->get()->first();
         $now = new \DateTime(Carbon::now()->toDateTimeString());
         $expire_date = $banned_users == null ? null : new \DateTime($banned_users->expire_date);
-        if($banned_users && $now < $expire_date){
+        if(isset($banned_users) && $now < $expire_date){
             return redirect()->route('banned');    
         }
         else{
-            if($banned_users){
+            if(isset($banned_users)){
                 $banned_users->delete();
             }
             $userMeta = UserMeta::where('user_id', \Auth::user()->id)->get()->first();
-            if (empty($userMeta->pic)) {
-                return view('noAvatar');
-            }
             $announcement = \App\Models\AdminAnnounce::where('en_group', \Auth::user()->engroup)->get()->first();
             $announcement = $announcement->content;
             //$announcement = str_replace(PHP_EOL, '\n', $announcement);
             $announcement = str_replace(array("\r\n", "\r", "\n"), '\n', $announcement);
             $request->session()->flash('announcement', $announcement);
 
-            $user = auth()->user();
+            $user = \Auth::user();
             if($user->engroup == 2){
                 $user_last_login = Carbon::parse($request->session()->get('last_login'));
                 $vip_record = Carbon::parse($user->vip_record);
-                if((!$user->existHeaderImage() && $user->isVip())) {
+                $pics = \App\Models\MemberPic::where('member_id', $user->id)->count();
+                if((!isset($userMeta->pic) || !($pics >= 3)) && !$user->isVip()) {
                     //沒大頭貼、三張照片
+                    $image = 0b000;
+                    //001沒大頭照，010沒滿三張圖，011兩者皆無
+                    if(!isset($userMeta->pic)){
+                        $image |= 0b001;
+                    }
+                    if($pics < 3){
+                        $image |= 0b010;
+                    }
                 }
                 if($vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.start') && !$user->isVip()) {
                     //免費VIP失效
@@ -101,6 +107,24 @@ class LoginController extends Controller
                         $request->session()->flash('vip_gain_date', $vip_gain_date);
                     }
                 }
+                if(isset($image) && $image > 0){
+                    if(($image & 0b001) == 0b001){
+                        $string = '上傳大頭照';
+                    }
+                    if(($image & 0b010) == 0b010){
+                        if(isset($string)){
+                            $string .= '、上傳三張相片';
+                        }
+                        else{
+                            $string = '上傳三張相片';
+                        }
+                    }
+                    $request->session()->flash('vip_pre_requirements', isset($string) ? $string : null);
+                }
+            }
+            if (empty($userMeta->pic)) {
+                $request->session()->reflash();
+                return view('noAvatar');
             }
             return redirect('/dashboard');
         }

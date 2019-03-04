@@ -130,15 +130,6 @@
 <?php if(!isset($cur)){ $cmeta = null;}else{$cmeta = $cur->meta_();} ?>
 
 @if(str_contains(url()->current(), 'dashboard'))
-    {{--<div class="pics">--}}
-        {{--<img src="/img/banner.jpg" alt="">--}}
-        {{--<img src="/img/banner.jpg" alt="">--}}
-        {{--<img src="/img/banner.jpg" alt="">--}}
-        {{--<img src="/img/banner.jpg" alt="">--}}
-        {{--<img src="/img/banner.jpg" alt="">--}}
-        {{--<img src="/img/banner.jpg" alt="">--}}
-        {{--<img src="/img/banner.jpg" alt="">--}}
-    {{--</div>--}}
     <form class="m-form m-form--fit m-form--label-align-right" method="POST" name="user_data" action="/dashboard" id="information">
         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
         <input type="hidden" name="userId" value="{{$user->id}}">
@@ -1111,6 +1102,9 @@
     @if(Session::has('vip_expire_date'))
         alert('歡迎{{ $user->name }}上線，您現在已是免費VIP，資格持續到{{ Session::get('vip_expire_date') }}。');
     @endif
+    @if(Session::has('vip_pre_requirements'))
+    alert('歡迎{{ $user->name }}上線，您目前還需{{ Session::get('vip_pre_requirements') }}，再持續保持每天登入，就可以取得VIP資格。');
+    @endif
     @if(Session::has('vip_gain_date'))
         alert('歡迎{{ $user->name }}上線，只要持續保持每天登入，預計在{{ Session::get('vip_gain_date') }}後，您將可以取得VIP資格。');
     @endif
@@ -1198,21 +1192,6 @@
         });
     });
     @if (str_contains(url()->current(), 'dashboard'))
-        {{--let engroup = $('input[name=engroup]:checked').val();--}}
-        {{--function check_engroup_change() {--}}
-            {{--console.log(engroup);--}}
-            {{--return false;--}}
-            {{--if(engroup !== {{ $user->engroup }}){--}}
-                {{--if(confirm('確定要改變帳號類型？')){--}}
-                    {{--$('#user_data').submit();--}}
-                {{--}--}}
-                {{--return false;--}}
-            {{--}--}}
-            {{--else{--}}
-                {{--$('#user_data').submit();--}}
-            {{--}--}}
-        {{--}--}}
-
         var ysel = document.getElementsByName("year")[0],
             msel = document.getElementsByName("month")[0],
             dsel = document.getElementsByName("day")[0],
