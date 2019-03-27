@@ -32,6 +32,6 @@ class passwd extends Controller
     }
 
     public function passwd(){
-        dd(bcrypt('123456'));
+        dd(bcrypt('123123'));
     }
 }

@@ -304,18 +304,27 @@ class AdminService
                 array_push($reporter_id, $result->reporter_id);
             }
             $temp = MemberPic::select('member_id', 'pic')->where('id', $result->reported_pic_id)->get()->first();
-            $result['reported_user_id'] = $temp->member_id;
-            $result['pic'] = $temp->pic;
-            if(!in_array($temp->member_id, $reported_user_id)) {
-                array_push($reported_user_id, $temp->member_id);
-            }
-            $result['isBlocked'] = banned_users::where('member_id', 'like', $temp->member_id)->get()->first();
-            if(Vip::where('member_id', 'like', $result->reporter_id)->get()->first()){
-                $result['vip'] = '是';
+            if(isset($temp)){
+                $result['reported_user_id'] = $result->reported_pic_id;
+                $result['pic'] = $temp->pic;
+                if(!in_array($temp->member_id, $reported_user_id)) {
+                    array_push($reported_user_id, $temp->member_id);
+                }
+                $result['isBlocked'] = banned_users::where('member_id', 'like', $temp->member_id)->get()->first();
+                if(Vip::where('member_id', 'like', $result->reporter_id)->get()->first()){
+                    $result['vip'] = '是';
+                }
+                else{
+                    $result['vip'] = '否';
+                }
             }
             else{
-                $result['vip'] = '否';
+                $result['reported_user_id'] = $result->reported_pic_id;
+                $result['pic'] = '照片已刪除或該筆資料不存在。';
+                $result['isBlocked'] = '';
+                $result['vip'] = '照片已刪除或該筆資料不存在。';
             }
+
         }
         $users = array();
         foreach ($reporter_id as $id){
