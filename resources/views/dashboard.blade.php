@@ -38,12 +38,22 @@
         box-shadow:4px 4px 3px rgba(20%,20%,40%,0.5);
         z-index: 999;
     }
+
+    .announce-box {
+        position: absolute;
+        left: 10px;
+        top: 20px;
+        z-index: 2;
+    }
 </style>
 <div class="m-portlet__head">
 <div class="m-portlet__head-tools">
 <ul class="nav nav-tabs m-tabs m-tabs-line m-tabs-line--left m-tabs-line--primary" role="tablist">
         @if (!str_contains(url()->current(), 'dashboard')) <li class="nav-item m-tabs__item d-none d-md-block"><h4 class="nav-link m-tabs__link">@if(isset($cur)){{ $cur->title }}@endif</h4></li>@endif
         @if (str_contains(url()->current(), 'dashboard'))
+        <div class="announce-box" style="background-color: black">
+            sdfsdfsdfsdf
+        </div>
        <li class="nav-item m-tabs__item">
            @if(isset($cur) && $user->id == $cur->id)
            <a class="nav-link m-tabs__link" href="/dashboard">
