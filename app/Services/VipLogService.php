@@ -46,6 +46,7 @@ class VipLogService {
         $fileContent = $this->business_id . ',' . $this->user_id . ',' . $this->order_id . ',,,' . intval($this->amount) . ',' . $today . ',' . $this->action . ',' . $this->status . ',' . $this->mode;
 
         Storage::append($fileName, $fileContent);
+        return array($fileName, $fileContent);
     }
 
     public function customLogToFile($user_id, $order_id, $day, $action){

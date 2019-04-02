@@ -566,13 +566,22 @@ class PagesController extends Controller
                 $vip = Vip::findById($user->id);
                 $this->logService->cancelLog($vip);
                 $this->logService->writeLogToDB();
-                $this->logService->writeLogToFile();
-                Vip::cancel($user->id, 0);
-                $data = Vip::where('member_id', $user->id)->where('expiry', '!=', '0000-00-00 00:00:00')->get()->first();
-                $date = date('Y年m月d日', strtotime($data->expiry));
-                $request->session()->flash('cancel_notice', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
-                $request->session()->save();
-                return redirect('/dashboard')->with('user', $user)->with('message', 'VIP 取消成功！')->with('cancel_notice', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
+                $file = $this->logService->writeLogToFile();
+                if( strpos(\Storage::disk('local')->get($file[0]), $file[1]) !== false) {
+                    Vip::cancel($user->id, 0);
+                    $data = Vip::where('member_id', $user->id)->where('expiry', '!=', '0000-00-00 00:00:00')->get()->first();
+                    $date = date('Y年m月d日', strtotime($data->expiry));
+                    $request->session()->flash('cancel_notice', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
+                    $request->session()->save();
+                    return redirect('/dashboard')->with('user', $user)->with('message', 'VIP 取消成功！')->with('cancel_notice', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
+                }
+                else{
+                    $log = new \App\Models\LogCancelVipFailed();
+                    $log->user_id = $user->id;
+                    $log->reason = 'File saving failed.';
+                    $log->save();
+                    return redirect('/dashboard')->with('user', $user)->withErrors(['VIP 取消失敗！'])->with('cancel_notice', '本次VIP取消資訊沒有成功寫入，請再試一次。');
+                }
             }
             else{
                 $log = new \App\Models\LogCancelVipFailed();
