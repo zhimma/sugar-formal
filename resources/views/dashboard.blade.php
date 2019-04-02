@@ -41,7 +41,7 @@
 
     .announce-box {
         position: absolute;
-        left: 10px;
+        left: -10px;
         top: 20px;
         z-index: 2;
     }
