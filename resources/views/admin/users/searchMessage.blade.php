@@ -125,7 +125,7 @@
                                     <option value="14">十四天</option>
                                     <option value="30">三十天</option>
                                 </select>
-                                <a class="btn btn-success ban-user" href="{{ route('banUserWithDayAndMessage', [$result['from_id'], $result['id']]) }}" onclick="setDays()">送出</a>
+                                <a class="btn btn-success ban-user" href="{{ route('banUserWithDayAndMessage', [$result['from_id'], $result['id']]) }}" onclick="setDays(this)">送出</a>
                             </td>
                         @endif
                     </tr>
@@ -300,8 +300,8 @@
         window.open(url + '/admin/users/toggleUserBlock/' + id);
         history.go(0);
     }
-    function setDays() {
-        href = $('.ban-user').attr("href");
+    function setDays(a) {
+        href = a.href;
         $('.ban-user').attr("href", href + '/' + $('#days').val());
     }
 </script>

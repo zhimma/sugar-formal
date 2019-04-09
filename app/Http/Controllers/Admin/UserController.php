@@ -186,14 +186,24 @@ class UserController extends Controller
         $userBanned->member_id = $user_id;
         $userBanned->expire_date = Carbon::now()->addDays($days);
         $userBanned->save();
-        $message = Message::where('id', $msg_id)->get()->first();
         $user = User::where('id', $user_id)->get()->first();
-        $content = ['hello' => $user->name.'您好，',
-                    'notice1' => '您在'.$message->created_at.'所發送的訊息，',
-                    'notice2' => '因內容「'.$message->content.'」，',
-                    'notice3' => '所以遭封鎖'.$days.'天。'];
-        $user->notify(new BannedNotification($content));
-        return back()->with('message', '成功封鎖使用者並發送通知信');
+        if($msg_id == 0){
+            $content = ['hello' => $user->name.'您好，',
+                'notice1' => '您因遭到檢舉，',
+                'notice2' => '經管理員檢視，認為確實違反規定，',
+                'notice3' => '所以遭封鎖'.$days.'天。'];
+            $user->notify(new BannedNotification($content));
+            return back()->with('message', '成功封鎖使用者並發送通知信');
+        }
+        else{
+            $message = Message::where('id', $msg_id)->get()->first();
+            $content = ['hello' => $user->name.'您好，',
+                'notice1' => '您在'.$message->created_at.'所發送的訊息，',
+                'notice2' => '因內容「'.$message->content.'」，',
+                'notice3' => '所以遭封鎖'.$days.'天。'];
+            $user->notify(new BannedNotification($content));
+            return back()->with('message', '成功封鎖使用者並發送通知信');
+        }
     }
 
     public function userUnblock(Request $request){
