@@ -83,7 +83,7 @@
                                 <option value="14">十四天</option>
                                 <option value="30">三十天</option>
                             </select>
-                            <a class="btn btn-success ban-user" href="{{ route('banUserWithDayAndMessage', [$result['member_id'], $result['id']]) }}" onclick="setDays(this)">送出</a>
+                            <a class="btn btn-success ban-user" href="{{ route('banUserWithDayAndMessage', [$result['reported_id'], $result['id']]) }}" onclick="setDays(this)">送出</a>
                         </td>
                     </tr>
                 @empty
