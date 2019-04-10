@@ -188,10 +188,13 @@
         window.open(url + '/admin/users/toggleUserBlock/' + id);
         history.go(0);
     }
+    let count = 0;
     function setDays(a) {
-        href = a.href;
-        $('.ban-user').attr("href", href + '/' + $('#days').val());
-        return false;
+        if(count === 0){
+            let href = a.href;
+            $('.ban-user').attr("href", href + '/' + $('#days').val());
+        }
+        count++;
     }
 </script>
 @stop
