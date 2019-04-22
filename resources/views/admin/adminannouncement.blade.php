@@ -10,13 +10,49 @@ h3{
 </style>
 <body style="padding: 15px;">
     <h1>站長公告</h1>
-    <form action="{{ route('admin/announcement/save') }}" id='message' method='POST'>
-        {!! csrf_field() !!}
-        <h3>男性會員</h3>
-        <textarea name="engroup_1" class="form-control" cols="80" rows="5">@foreach($announce as $a) @if($a->en_group == 1){{ $a->content }}@endif @endforeach</textarea>
-        <h3>女性會員</h3>
-        <textarea name="engroup_2" class="form-control" cols="80" rows="5">@foreach($announce as $a) @if($a->en_group == 2){{ $a->content }}@endif @endforeach</textarea>
-        <button type='submit' class='text-white btn btn-primary'>修改</button>
-    </form>
+    <table class="table-bordered table-hover center-block text-center" id="table">
+        <tr>
+            <th class="text-center">內容</th>
+            <th class="text-center">性別</th>
+            <th class="text-center">排序(預設為1)</th>
+            <th class="text-center">建立時間</th>
+            <th class="text-center">更新時間</th>
+            <th class="text-center">操作</th>
+        </tr>
+        @foreach($announce as $a)
+            <tr class="template">
+                <form action="{{ route('admin/announcement/save') }}" id='message' method='POST'>
+                <td>
+                    <textarea name="content" class="form-control" cols="80" rows="5">{{ $a->content }}</textarea>
+                </td>
+                <td>
+                    <select name="en_group" id="">
+                        <option value="1" @if($a->en_group == 1) selected @endif>男</option>
+                        <option value="2" @if($a->en_group == 2) selected @endif>女</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="number" value="{{ $a->sequence }}" name="sequence">
+                </td>
+                <td>{{ $a->created_at }}</td>
+                <td>{{ $a->updated_at }}</td>
+                <td>
+                    <input type="hidden" value="{{ $a->id }}">
+                    <button type='submit' class='text-white btn btn-primary' value="edit">修改</button>
+                    <button type='submit' class='text-white btn btn-danger' value="delete">刪除</button>
+                </td>
+                </form>
+            </tr>
+        @endforeach
+    </table>
+    <button onclick="newRow();" class='text-white btn btn-success'>新增一筆公告</button>
 </body>
+<script>
+    function newRow(){
+        let $tr    = $('#table tr:last');
+        let $clone = $tr.clone();
+        $tr.after($clone);
+        $clone.find("form").reset();
+    }
+</script>
 @stop
