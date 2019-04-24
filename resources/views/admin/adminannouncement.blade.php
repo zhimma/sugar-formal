@@ -32,7 +32,7 @@ h3{
                     </select>
                 </td>
                 <td>
-                    <input type="number" value="{{ $a->sequence }}" name="sequence">
+                    <input type="number" value="{{ $a->sequence }}" name="sequence" min="1">
                 </td>
                 <td>{{ $a->created_at }}</td>
                 <td>{{ $a->updated_at }}</td>
@@ -45,14 +45,41 @@ h3{
             </tr>
         @endforeach
     </table>
-    <button onclick="newRow();" class='text-white btn btn-success'>新增一筆公告</button>
+    <button onclick="newRow();" class='new text-white btn btn-success'>新增公告</button>
 </body>
 <script>
     function newRow(){
+        $('.new').remove();
+        let template = '<tr class="template">' +
+            '<form action="{{ route("admin/announcement/save") }}" id="new" method="POST">' +
+                '<td>' +
+                    '<textarea name="content" class="form-control" cols="80" rows="5" id="new_content">公告內容</textarea>' +
+                '</td>' +
+                '<td>' +
+                    '<select name="en_group" id="new_engroup">' +
+                        '<option value="1">男</option>' +
+                        '<option value="2">女</option>' +
+                    '</select>' +
+                '</td>' +
+                '<td>' +
+                    '<input type="number" value="1" name="sequence" id="new_sequence" min="1">' +
+                '</td>' +
+                '<td></td>' +
+                '<td></td>' +
+                '<td>' +
+                    '<input type="hidden" value="new">' +
+                    '<button type="submit" class="text-white btn btn-primary" value="edit">新增</button>' +
+                    '<input type="button" name="reset" value="重設" class="text-white btn btn-danger" id="reset123" onclick="customReset();"/>' +
+                '</td>' +
+            '</form>' +
+        '</tr>';
         let $tr    = $('#table tr:last');
-        let $clone = $tr.clone();
-        $tr.after($clone);
-        $clone.find("form").reset();
+        $tr.after(template);
+    }
+    function customReset(){
+        document.getElementById("new_content").value = "公告內容";
+        document.getElementById("new_engroup").value = "1";
+        document.getElementById("new_sequence").value = "1";
     }
 </script>
 @stop
