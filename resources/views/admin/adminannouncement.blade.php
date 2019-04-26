@@ -21,9 +21,10 @@ h3{
         </tr>
         @foreach($announce as $a)
             <tr class="template">
-                <form action="{{ route('admin/announcement/save') }}" id='message' method='POST'>
+                <form action="{{ route('admin/announcement/process') }}" id='message' method='POST'>
+                {!! csrf_field() !!}
                 <td>
-                    <textarea name="content" class="form-control" cols="80" rows="5" class="content">{{ $a->content }}</textarea>
+                    <textarea name="content_word" class="form-control" cols="80" rows="5" class="content">{{ $a->content }}</textarea>
                 </td>
                 <td>
                     <select name="en_group" id="" class="en_group">
@@ -38,8 +39,9 @@ h3{
                 <td class="updated_at">{{ $a->updated_at }}</td>
                 <td>
                     <input type="hidden" value="{{ $a->id }}" name="id" class="id">
-                    <button type='submit' class='text-white btn btn-primary' value="edit">修改</button>
-                    <button type='submit' class='text-white btn btn-danger' value="delete">刪除</button>
+                    <input type="hidden" value="" name="type" class="type">
+                    <input type='button' class='text-white btn btn-primary' value="修改" onclick="submitForm(this.parentNode, 'edit')">
+                    <input type='button' class='text-white btn btn-danger' value="刪除" onclick="submitForm(this.parentNode, 'delete')">
                 </td>
                 </form>
             </tr>
@@ -51,7 +53,8 @@ h3{
     function newRow(){
         $('.new').remove();
         let template = '<tr class="template">' +
-            '<form action="{{ route("admin/announcement/save") }}" id="new" method="POST">' +
+            '<form action="{{ route("admin/announcement/new") }}" id="new" method="POST">' +
+                '{!! csrf_field() !!}' +
                 '<td>' +
                     '<textarea name="content" class="form-control" cols="80" rows="5" id="new_content">公告內容</textarea>' +
                 '</td>' +
@@ -80,6 +83,19 @@ h3{
         document.getElementById("new_content").value = "公告內容";
         document.getElementById("new_engroup").value = "1";
         document.getElementById("new_sequence").value = "1";
+    }
+    function submitForm(td, type) {
+        if(type === 'edit'){
+            let type = td.getElementsByClassName('type')[0];
+            type.value = "edit";
+        }
+        else if(type === 'delete'){
+            let type = td.getElementsByClassName('type')[0];
+            type.value = "delete";
+        }
+        tr = td.parentNode;
+        form = tr.getElementById('message')
+        console.log(form);
     }
 </script>
 @stop

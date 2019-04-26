@@ -884,12 +884,31 @@ class UserController extends Controller
         return view('admin.adminannouncement')->with('announce', $a);
     }
 
+    public function processAdminAnnouncement(Request $request)
+    {
+        switch($request->submit_button) {
+            case 'edit':
+                $this->editAdminAnnouncement($request);
+                return redirect('admin/announcement')
+                    ->with('message', '成功修改站長公告');
+                break;
+            case 'delete':
+                $this->deleteAdminAnnouncement($request);
+                return redirect('admin/announcement')
+                    ->with('message', '成功刪除站長公告');
+                break;
+            default:
+                return redirect('admin/announcement')
+                    ->withErrors(['參數錯誤，沒有產生任何改動']);
+        }
+    }
+
     /**
-     * Saves admin announcement.
+     * Edits and saves admin announcement.
      *
      * @return \Illuminate\Http\Response
      */
-    public function saveAdminAnnouncement(Request $request)
+    public function editAdminAnnouncement(Request $request)
     {
         if(AdminAnnounce::editAnnouncement($request)) {
             return redirect('admin/announcement')
@@ -898,6 +917,30 @@ class UserController extends Controller
         else{
             return redirect('admin/announcement')
                    ->withErrors(['出現不明錯誤，無法修改站長公告']);
+        }
+    }
+
+    public function newAdminAnnouncement(Request $request)
+    {
+        if(AdminAnnounce::newAnnouncement($request)) {
+            return redirect('admin/announcement')
+                ->with('message', '成功新增站長公告');
+        }
+        else{
+            return redirect('admin/announcement')
+                ->withErrors(['出現不明錯誤，無法新增站長公告']);
+        }
+    }
+
+    public function deleteAdminAnnouncement(Request $request)
+    {
+        if(AdminAnnounce::deleteAnnouncement($request)) {
+            return redirect('admin/announcement')
+                ->with('message', '成功刪除站長公告');
+        }
+        else{
+            return redirect('admin/announcement')
+                ->withErrors(['出現不明錯誤，無法刪除站長公告']);
         }
     }
 
