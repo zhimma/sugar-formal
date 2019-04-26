@@ -23,21 +23,21 @@ h3{
             <tr class="template">
                 <form action="{{ route('admin/announcement/save') }}" id='message' method='POST'>
                 <td>
-                    <textarea name="content" class="form-control" cols="80" rows="5">{{ $a->content }}</textarea>
+                    <textarea name="content" class="form-control" cols="80" rows="5" class="content">{{ $a->content }}</textarea>
                 </td>
                 <td>
-                    <select name="en_group" id="">
+                    <select name="en_group" id="" class="en_group">
                         <option value="1" @if($a->en_group == 1) selected @endif>男</option>
                         <option value="2" @if($a->en_group == 2) selected @endif>女</option>
                     </select>
                 </td>
                 <td>
-                    <input type="number" value="{{ $a->sequence }}" name="sequence">
+                    <input type="number" value="{{ $a->sequence }}" name="sequence" class="number">
                 </td>
-                <td>{{ $a->created_at }}</td>
-                <td>{{ $a->updated_at }}</td>
+                <td class="created_at">{{ $a->created_at }}</td>
+                <td class="updated_at">{{ $a->updated_at }}</td>
                 <td>
-                    <input type="hidden" value="{{ $a->id }}">
+                    <input type="hidden" value="{{ $a->id }}" name="id" class="id">
                     <button type='submit' class='text-white btn btn-primary' value="edit">修改</button>
                     <button type='submit' class='text-white btn btn-danger' value="delete">刪除</button>
                 </td>
@@ -52,6 +52,7 @@ h3{
         let $tr    = $('#table tr:last');
         let $clone = $tr.clone();
         $tr.after($clone);
+        $clone.(".content").empty();
         $clone.find("form").reset();
     }
 </script>
