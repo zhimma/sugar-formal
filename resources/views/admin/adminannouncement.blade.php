@@ -10,18 +10,18 @@ h3{
 </style>
 <body style="padding: 15px;">
     <h1>站長公告</h1>
-    <table class="table-bordered table-hover center-block text-center" id="table">
-        <tr>
-            <th class="text-center">內容</th>
-            <th class="text-center">性別</th>
-            <th class="text-center">排序(預設為1)</th>
-            <th class="text-center">建立時間</th>
-            <th class="text-center">更新時間</th>
-            <th class="text-center">操作</th>
-        </tr>
-        @foreach($announce as $a)
-            <form action="{{ route('admin/announcement/process') }}" id='message' method='POST'>
-                {!! csrf_field() !!}
+    <form action="{{ route('admin/announcement/process') }}" id='message' method='POST' onsubmit="return submitForm();">
+        {!! csrf_field() !!}
+        <table class="table-bordered table-hover center-block text-center" id="table">
+            <tr>
+                <th class="text-center">內容</th>
+                <th class="text-center">性別</th>
+                <th class="text-center">排序(預設為1)</th>
+                <th class="text-center">建立時間</th>
+                <th class="text-center">更新時間</th>
+                <th class="text-center">操作</th>
+            </tr>
+            @foreach($announce as $a)
                 <tr class="template">
                     <td>
                         <textarea name="content_word" class="form-control" cols="80" rows="5" class="content">{{ $a->content }}</textarea>
@@ -40,13 +40,13 @@ h3{
                     <td>
                         <input type="hidden" value="{{ $a->id }}" name="id" class="id">
                         <input type="hidden" value="" name="type" class="type">
-                        <input type='button' class='text-white btn btn-primary' value="修改" onclick="submitForm(this.parentNode, 'edit')">
-                        <input type='button' class='text-white btn btn-danger' value="刪除" onclick="submitForm(this.parentNode, 'delete')">
+                        <button type='submit' class='text-white btn btn-primary' value="修改" onclick="return setForm(this.parentNode, 'edit');">修改</button>
+                        <button type='submit' class='text-white btn btn-danger' value="刪除" onclick="return setForm(this.parentNode, 'delete');">刪除</button>
                     </td>
                 </tr>
-            </form>
-        @endforeach
-    </table>
+            @endforeach
+        </table>
+    </form>
     <button onclick="newRow();" class='new text-white btn btn-success'>新增公告</button>
 </body>
 <script>
@@ -84,7 +84,8 @@ h3{
         document.getElementById("new_engroup").value = "1";
         document.getElementById("new_sequence").value = "1";
     }
-    function submitForm(td, type) {
+    function setForm(td, type) {
+        console.log(type);
         if(type === 'edit'){
             let type = td.getElementsByClassName('type')[0];
             type.value = "edit";
@@ -93,10 +94,18 @@ h3{
             let type = td.getElementsByClassName('type')[0];
             type.value = "delete";
         }
-        tr = td.parentElement;
-        console.log(tr);
-        form = tr.getElementById('message');
-        console.log(form);
+    }
+    function submitForm() {
+        var allInputs = myForm.getElementsByTagName('input');
+
+        for (var i = 0; i < allInputs.length; i++) {
+            var input = allInputs[i];
+
+            if (input.name && !input.value) {
+                input.name = '';
+            }
+        }
+        return true;
     }
 </script>
 @stop
