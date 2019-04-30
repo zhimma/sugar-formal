@@ -20,31 +20,31 @@ h3{
             <th class="text-center">操作</th>
         </tr>
         @foreach($announce as $a)
-            <tr class="template">
-                <form action="{{ route('admin/announcement/process') }}" id='message' method='POST'>
+            <form action="{{ route('admin/announcement/process') }}" id='message' method='POST'>
                 {!! csrf_field() !!}
-                <td>
-                    <textarea name="content_word" class="form-control" cols="80" rows="5" class="content">{{ $a->content }}</textarea>
-                </td>
-                <td>
-                    <select name="en_group" id="" class="en_group">
-                        <option value="1" @if($a->en_group == 1) selected @endif>男</option>
-                        <option value="2" @if($a->en_group == 2) selected @endif>女</option>
-                    </select>
-                </td>
-                <td>
-                    <input type="number" value="{{ $a->sequence }}" name="sequence" min="1">
-                </td>
-                <td class="created_at">{{ $a->created_at }}</td>
-                <td class="updated_at">{{ $a->updated_at }}</td>
-                <td>
-                    <input type="hidden" value="{{ $a->id }}" name="id" class="id">
-                    <input type="hidden" value="" name="type" class="type">
-                    <input type='button' class='text-white btn btn-primary' value="修改" onclick="submitForm(this.parentNode, 'edit')">
-                    <input type='button' class='text-white btn btn-danger' value="刪除" onclick="submitForm(this.parentNode, 'delete')">
-                </td>
-                </form>
-            </tr>
+                <tr class="template">
+                    <td>
+                        <textarea name="content_word" class="form-control" cols="80" rows="5" class="content">{{ $a->content }}</textarea>
+                    </td>
+                    <td>
+                        <select name="en_group" id="" class="en_group">
+                            <option value="1" @if($a->en_group == 1) selected @endif>男</option>
+                            <option value="2" @if($a->en_group == 2) selected @endif>女</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" value="{{ $a->sequence }}" name="sequence" min="1">
+                    </td>
+                    <td class="created_at">{{ $a->created_at }}</td>
+                    <td class="updated_at">{{ $a->updated_at }}</td>
+                    <td>
+                        <input type="hidden" value="{{ $a->id }}" name="id" class="id">
+                        <input type="hidden" value="" name="type" class="type">
+                        <input type='button' class='text-white btn btn-primary' value="修改" onclick="submitForm(this.parentNode, 'edit')">
+                        <input type='button' class='text-white btn btn-danger' value="刪除" onclick="submitForm(this.parentNode, 'delete')">
+                    </td>
+                </tr>
+            </form>
         @endforeach
     </table>
     <button onclick="newRow();" class='new text-white btn btn-success'>新增公告</button>
@@ -93,8 +93,9 @@ h3{
             let type = td.getElementsByClassName('type')[0];
             type.value = "delete";
         }
-        tr = td.parentNode;
-        form = tr.getElementById('message')
+        tr = td.parentElement;
+        console.log(tr);
+        form = tr.getElementById('message');
         console.log(form);
     }
 </script>
