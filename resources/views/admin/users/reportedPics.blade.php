@@ -101,7 +101,11 @@
                                 </td>
                                 <td>{{ $result['vip'] }}</td>
                                 <td>
-                                    <a href="{{ route('users/advInfo', $result['reported_user_id']) }}" target='_blank'>{{ $Pusers[$result['reported_user_id']] }}</a>
+                                    @if(isset($result['reported_user_id']))
+                                        <a href="{{ route('users/advInfo', $result['reported_user_id']) }}" target='_blank'>{{ $Pusers[$result['reported_user_id']] }}</a>
+                                    @else
+                                        照片已刪除或該筆資料不存在。
+                                    @endif
                                 </td>
                                 <td>
                                     <img src="{{ $result['pic'] }}" alt="" height="200px">
