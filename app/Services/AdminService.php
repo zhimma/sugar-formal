@@ -305,7 +305,7 @@ class AdminService
             }
             $temp = MemberPic::select('member_id', 'pic')->where('id', $result->reported_pic_id)->get()->first();
             if(isset($temp)){
-                $result['reported_user_id'] = $result->reported_pic_id;
+                $result['reported_user_id'] = $temp->member_id;
                 $result['pic'] = $temp->pic;
                 if(!in_array($temp->member_id, $reported_user_id)) {
                     array_push($reported_user_id, $temp->member_id);
@@ -319,7 +319,7 @@ class AdminService
                 }
             }
             else{
-                $result['reported_user_id'] = $result->reported_pic_id;
+                $result['reported_user_id'] = null;
                 $result['pic'] = '照片已刪除或該筆資料不存在。';
                 $result['isBlocked'] = '';
                 $result['vip'] = '照片已刪除或該筆資料不存在。';
