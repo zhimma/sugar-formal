@@ -10,35 +10,43 @@ h3{
 </style>
 <body style="padding: 15px;">
     <h1>站長公告</h1>
-    <table class="table-bordered table-hover center-block text-center" id="table">
-        <tr>
-            <th class="text-center">內容</th>
-            <th class="text-center">性別</th>
-            <th class="text-center">排序(預設為1)</th>
-            <th class="text-center">建立時間</th>
-            <th class="text-center">更新時間</th>
-            <th class="text-center">操作</th>
-        </tr>
-        @foreach($announce as $a)
-            <tr class="template">
-                <td>
-                    {{ $a->content }}
-                </td>
-                <td>
-                    @if($a->en_group == 1) 男 @else 女 @endif
-                </td>
-                <td>
-                    {{ $a->sequence }}
-                </td>
-                <td class="created_at">{{ $a->created_at }}</td>
-                <td class="updated_at">{{ $a->updated_at }}</td>
-                <td>
-                    <button type='submit' class='text-white btn btn-primary' value="修改" onclick="return setForm(this.parentNode, 'edit');">修改</button>
-                    <button type='submit' class='text-white btn btn-danger' value="刪除" onclick="return setForm(this.parentNode, 'delete');">刪除</button>
-                </td>
+    <form action="{{ route('admin/announcement/process') }}" id='message' method='POST' onsubmit="return submitForm();">
+        {!! csrf_field() !!}
+        <table class="table-bordered table-hover center-block text-center" id="table">
+            <tr>
+                <th class="text-center">內容</th>
+                <th class="text-center">性別</th>
+                <th class="text-center">排序(預設為1)</th>
+                <th class="text-center">建立時間</th>
+                <th class="text-center">更新時間</th>
+                <th class="text-center">操作</th>
             </tr>
-        @endforeach
-    </table>
+            @foreach($announce as $a)
+                <tr class="template">
+                    <td>
+                        <textarea name="content_word" class="form-control" cols="80" rows="5" class="content">{{ $a->content }}</textarea>
+                    </td>
+                    <td>
+                        <select name="en_group" id="" class="en_group">
+                            <option value="1" @if($a->en_group == 1) selected @endif>男</option>
+                            <option value="2" @if($a->en_group == 2) selected @endif>女</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" value="{{ $a->sequence }}" name="sequence" min="1">
+                    </td>
+                    <td class="created_at">{{ $a->created_at }}</td>
+                    <td class="updated_at">{{ $a->updated_at }}</td>
+                    <td>
+                        <input type="hidden" value="{{ $a->id }}" name="id" class="id">
+                        <input type="hidden" value="" name="type" class="type">
+                        <button type='submit' class='text-white btn btn-primary' value="修改" onclick="return setForm(this.parentNode, 'edit');">修改</button>
+                        <button type='submit' class='text-white btn btn-danger' value="刪除" onclick="return setForm(this.parentNode, 'delete');">刪除</button>
+                    </td>
+                </tr>
+            @endforeach
+        </table>
+    </form>
     <button onclick="newRow();" class='new text-white btn btn-success'>新增公告</button>
 </body>
 <script>
