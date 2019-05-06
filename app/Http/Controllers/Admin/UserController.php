@@ -884,6 +884,12 @@ class UserController extends Controller
         return view('admin.adminannouncement')->with('announce', $a);
     }
 
+    public function showAdminAnnouncementEdit()
+    {
+        $a = AdminAnnounce::get()->all();
+        return view('admin.adminannouncement_edit')->with('announce', $a);
+    }
+
     public function processAdminAnnouncement(Request $request)
     {
         switch($request->submit_button) {
@@ -918,6 +924,11 @@ class UserController extends Controller
             return redirect('admin/announcement')
                    ->withErrors(['出現不明錯誤，無法修改站長公告']);
         }
+    }
+
+    public function showNewAdminAnnouncement(Request $request)
+    {
+        return view('admin.adminannouncement_new');
     }
 
     public function newAdminAnnouncement(Request $request)
