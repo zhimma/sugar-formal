@@ -27,8 +27,8 @@ h3{
                     <td class="created_at">{{ $a->created_at }}</td>
                     <td class="updated_at">{{ $a->updated_at }}</td>
                     <td>
-                        <button type='submit' class='text-white btn btn-primary' value="修改" onclick="return setForm(this.parentNode, 'edit');">修改</button>
-                        <button type='submit' class='text-white btn btn-danger' value="刪除" onclick="return setForm(this.parentNode, 'delete');">刪除</button>
+                        <a class='text-white btn btn-primary' href="{{ route('admin/announcement/edit', $a->id) }}">修改</a>
+                        <a class='text-white btn btn-danger' href="{{ route('admin/announcement/delete', $a->id) }}">刪除</a>
                     </td>
                 </tr>
             @endforeach

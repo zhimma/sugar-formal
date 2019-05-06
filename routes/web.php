@@ -333,9 +333,9 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('users/customizeMigrationFiles', 'UserController@customizeMigrationFiles')->name('users/customize_migration_files');
         Route::post('users/customizeMigrationFiles', 'UserController@customizeMigrationFiles')->name('users/customize_migration_files');
         Route::get('announcement', 'UserController@showAdminAnnouncement')->name('admin/announcement');
-        Route::get('announcement/edit', 'UserController@showAdminAnnouncementEdit')->name('admin/announcement/edit');
+        Route::get('announcement/edit/{id}', 'UserController@showAdminAnnouncementEdit')->name('admin/announcement/edit');
         Route::post('announcement/save', 'UserController@saveAdminAnnouncement')->name('admin/announcement/save');
-        Route::post('announcement/process', 'UserController@processAdminAnnouncement')->name('admin/announcement/process');
+        Route::get('announcement/delete/{id}', 'UserController@deleteAdminAnnouncement')->name('admin/announcement/delete');
         Route::get('announcement/new', 'UserController@showNewAdminAnnouncement')->name('admin/announcement/new');
         Route::post('announcement/new', 'UserController@newAdminAnnouncement')->name('admin/announcement/new');
         Route::get('/chat', 'MessageController@chatview')->name('admin/chat');

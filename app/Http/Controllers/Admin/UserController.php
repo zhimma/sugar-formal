@@ -884,29 +884,10 @@ class UserController extends Controller
         return view('admin.adminannouncement')->with('announce', $a);
     }
 
-    public function showAdminAnnouncementEdit()
+    public function showAdminAnnouncementEdit($id)
     {
-        $a = AdminAnnounce::get()->all();
+        $a = AdminAnnounce::where('id', $id)->get()->first();
         return view('admin.adminannouncement_edit')->with('announce', $a);
-    }
-
-    public function processAdminAnnouncement(Request $request)
-    {
-        switch($request->submit_button) {
-            case 'edit':
-                $this->editAdminAnnouncement($request);
-                return redirect('admin/announcement')
-                    ->with('message', '成功修改站長公告');
-                break;
-            case 'delete':
-                $this->deleteAdminAnnouncement($request);
-                return redirect('admin/announcement')
-                    ->with('message', '成功刪除站長公告');
-                break;
-            default:
-                return redirect('admin/announcement')
-                    ->withErrors(['參數錯誤，沒有產生任何改動']);
-        }
     }
 
     /**
