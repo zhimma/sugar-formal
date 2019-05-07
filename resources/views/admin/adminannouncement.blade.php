@@ -28,7 +28,7 @@ h3{
                     <td class="updated_at">{{ $a->updated_at }}</td>
                     <td>
                         <a class='text-white btn btn-primary' href="{{ route('admin/announcement/edit', $a->id) }}">修改</a>
-                        <a class='text-white btn btn-danger' href="{{ route('admin/announcement/delete', $a->id) }}">刪除</a>
+                        <a class='text-white btn btn-danger' href="#" onclick="deleteAnnounce( {{ $a->id }} )">刪除</a>
                     </td>
                 </tr>
             @endforeach
@@ -36,6 +36,15 @@ h3{
     <a href="{{ route('admin/announcement/new') }}" class='new text-white btn btn-success'>新增公告</a>
 </body>
 <script>
+    function deleteAnnounce(id) {
+        let c = confirm('確定要刪除這則公告？');
+        if(c === true){
+            window.location = "{{ route('admin/announcement/delete') }}/" + id;
+        }
+        else{
+            return 0;
+        }
+    }
     function setForm(td, type) {
         console.log(type);
         if(type === 'edit'){

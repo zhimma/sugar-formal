@@ -912,6 +912,16 @@ class UserController extends Controller
         return view('admin.adminannouncement_new');
     }
 
+    public function saveAdminAnnouncement(Request $request)
+    {
+        if(AdminAnnounce::saveAnnouncement($request)){
+            return back()->with('message', '成功修改站長公告');
+        }
+        else{
+            return back()->withErrors(['出現不明錯誤，無法新增站長公告']);
+        }
+    }
+
     public function newAdminAnnouncement(Request $request)
     {
         if(AdminAnnounce::newAnnouncement($request)) {

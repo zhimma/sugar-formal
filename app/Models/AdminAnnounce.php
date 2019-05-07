@@ -25,7 +25,7 @@ class AdminAnnounce extends Model
      */
     protected $fillable = [];
 
-    public static function editAnnouncement(Request $request) {
+    public static function saveAnnouncement(Request $request) {
         /*$a = AdminAnnounce::where('en_group', '1')->get()->first();
         $a->content = $request->engroup_1;
         $a->updated_at = Carbon::now();
@@ -38,6 +38,7 @@ class AdminAnnounce extends Model
         $a->en_group = $request->en_group;
         $a->content = $request->content_word;
         $a->sequence = $request->sequence;
+        $a->save();
         return true;
     }
 

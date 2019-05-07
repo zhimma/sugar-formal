@@ -11,6 +11,7 @@
     <body style="padding: 15px;">
     <h1>修改站長公告</h1>
     <form action="{{ route('admin/announcement/save', $announce->id) }}" method="post">
+        {!! csrf_field() !!}
         <table class="table-bordered table-hover center-block text-center" id="table">
             <tr>
                 <th class="text-center">內容</th>
@@ -22,23 +23,28 @@
             </tr>
             <tr class="template">
                 <td>
-                    <textarea name="content" id="" cols="80" rows="10">
-                        {{ $announce->content }}
-                    </textarea>
+                    <textarea name="content_word" id="" cols="80" rows="10">{{ $announce->content }}</textarea>
                 </td>
-                <td>@if($announce->en_group == 1) 男 @else 女 @endif</td>
                 <td>
-                    {{ $announce->sequence }}
+                    <select name="en_group" id="">
+                        <option value="1" @if($announce->en_group == 1) selected @endif>男</option>
+                        <option value="2" @if($announce->en_group == 2) selected @endif>女</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="number" name="sequence" min="1" value="{{ $announce->sequence }}">
                 </td>
                 <td class="created_at">{{ $announce->created_at }}</td>
                 <td class="updated_at">{{ $announce->updated_at }}</td>
                 <td>
+                    <input type="hidden" name="id" value="{{ $announce->id }}">
                     <input type="submit" class='text-white btn btn-success' value="送出">
-                    <input type="reset"  class='text-white btn btn-danger' value="重設">
+                    <input type="reset"  class='text-white btn btn-danger' value="復原">
                 </td>
             </tr>
         </table>
     </form>
+    <a href="{{ route('admin/announcement') }}" class="text-white btn btn-primary">返回</a>
     </body>
     <script>
         function setForm(td, type) {
