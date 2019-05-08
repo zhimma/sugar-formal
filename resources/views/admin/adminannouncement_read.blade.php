@@ -18,7 +18,7 @@ h3{
             <th class="text-center">更新時間</th>
         </tr>
         <tr class="template">
-            <td style="word-break: break-all; width: 50%;">{{ $announce->content }}</td>
+            <td style="word-break: break-all; width: 50%;">{!! nl2br($announce->content) !!}</td>
             <td>@if($announce->en_group == 1) 男 @else 女 @endif</td>
             <td>{{ $announce->sequence }}</td>
             <td class="created_at">{{ $announce->created_at }}</td>

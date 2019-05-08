@@ -22,7 +22,7 @@ h3{
         @foreach($announce as $a)
             @if($a->en_group == 1)
                 <tr class="template">
-                    <td style="word-break: break-all; width: 50%;">{{ $a->content }}</td>
+                    <td style="word-break: break-all; width: 50%;">{!! nl2br($a->content) !!}</td>
                     <td>{{ $a->sequence }}</td>
                     <td class="created_at">{{ $a->created_at }}</td>
                     <td class="updated_at">{{ $a->updated_at }}</td>
@@ -47,7 +47,7 @@ h3{
         @foreach($announce as $a)
             @if($a->en_group == 2)
                 <tr class="template">
-                    <td style="word-break: break-all; width: 50%;">{{ $a->content }}</td>
+                    <td style="word-break: break-all; width: 50%;">{!! nl2br($a->content) !!}</td>
                     <td>{{ $a->sequence }}</td>
                     <td class="created_at">{{ $a->created_at }}</td>
                     <td class="updated_at">{{ $a->updated_at }}</td>
