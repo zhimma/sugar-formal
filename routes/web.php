@@ -339,7 +339,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('announcement/delete/{id?}', 'UserController@deleteAdminAnnouncement')->name('admin/announcement/delete');
         Route::get('announcement/new', 'UserController@showNewAdminAnnouncement')->name('admin/announcement/new');
         Route::post('announcement/new', 'UserController@newAdminAnnouncement')->name('admin/announcement/new');
-        Route::get('announcement/read', 'UserController@showReadAnnouncementUser')->name('admin/announcement/read');
+        Route::get('announcement/read/{id}', 'UserController@showReadAnnouncementUser')->name('admin/announcement/read');
         Route::get('/chat', 'MessageController@chatview')->name('admin/chat');
         Route::get('/chat/{cid}', 'PagesController@chat');
         Route::post('/chat', 'MessageController@postChat');

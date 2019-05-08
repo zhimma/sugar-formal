@@ -8,6 +8,7 @@ use App\Models\Message;
 use App\Models\Reported;
 use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
+use App\Models\SimpleTables\users;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\AdminService;
@@ -884,10 +885,17 @@ class UserController extends Controller
         return view('admin.adminannouncement')->with('announce', $a);
     }
 
-    public function showReadAnnouncementUser()
+    public function showReadAnnouncementUser($id)
     {
-        $a = AdminAnnounce::get()->all();
-        return view('admin.adminannouncement')->with('announce', $a);
+        $a = AdminAnnounce::where('id', $id)->get()->first();
+        $results = \App\Models\AnnouncementRead::where('announcement_id', $id)->get();
+        foreach ($results as &$result){
+            $user = users::where('id', $result->user_id)->get()->first();
+            $result->name = $user->name;
+        }
+        return view('admin.adminannouncement_read')
+            ->with('announce', $a)
+            ->with('results', $results);
     }
 
     public function showAdminAnnouncementEdit($id)

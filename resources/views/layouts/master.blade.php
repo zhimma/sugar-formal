@@ -3,9 +3,10 @@
     .announce-box {
         /*word-break: break-all;*/
         background-color: #f7eeeb;
-        position: absolute;
+        position: fixed;
         z-index: 999;
-        top: 2%;
+        top: 1%;
+        bottom: 1%;
         width: 98%;
         height: 98%;
         left:0;
@@ -17,6 +18,7 @@
         border-color: rgba(244, 164, 164, 0.7);
         padding: 5px;
         box-shadow: 0 1px 15px 1px rgba(113, 106, 202, .08);
+        word-break: break-word;
     }
     .float{
         position: absolute;
