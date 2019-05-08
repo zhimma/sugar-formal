@@ -52,7 +52,7 @@
                             <div class="btn btn-danger float close-window">X</div>
                             <h2>站長公告(第{{ count(Session::get('announcement')) - $key }}則)</h2>
                             <div class="center">{!! nl2br($a->content) !!}</div>
-                            <div class="btn btn-primary footer close-window" onclick="disableNotice( {{ $a->id }} )">不再顯示本公告</div>
+                            <div class="btn btn-primary footer close-window" onclick="disableAnnounce( {{ $a->id }} )">不再顯示本公告</div>
                         </div>
                     @endforeach
                 @endif
@@ -82,13 +82,7 @@
             close[i].parentNode.parentNode.removeChild(close[i].parentNode);
         })
     }
-
-    function confirmation(){
-        if(confirm('確定不再通知？')){
-            disableNotice();
-        }
-    }
-    function disableNotice(aid){
+    function disableAnnounce(aid){
         $.ajax({
             type: 'POST',
             url: '{{ route('announceRead') }}',
