@@ -562,7 +562,7 @@ class PagesController extends Controller
             $log = new \App\Models\LogCancelVip();
             $log->user_id = $user->id;
             $log->save();
-            if(User::isCorrectAccount($payload['email'], $payload['password'])) {
+            if(Auth::attempt(array('email' => $payload['email'], 'password' => $payload['password']))){
                 $vip = Vip::findById($user->id);
                 $this->logService->cancelLog($vip);
                 $this->logService->writeLogToDB();
