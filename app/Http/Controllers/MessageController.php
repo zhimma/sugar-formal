@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Message;
+use App\Models\AnnouncementRead;
 use App\Http\Requests;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -98,6 +99,26 @@ class MessageController extends Controller {
         $user = User::select('id', 'noticeRead')->where('id', $user_id)->get()->first();
         $user->noticeRead = 1;
         if ($user->save()) {
+            return response()->json(array(
+                'status' => 1,
+                'msg' => 'ok',
+            ), 200);
+        } else {
+            return response()->json(array(
+                'status' => 2,
+                'msg' => 'fail',
+            ), 500);
+        }
+    }
+
+    public function announceRead(Request $request)
+    {
+        $user_id = $request->uid;
+        $announce_id = $request->aid;
+        $announceRead = new AnnouncementRead;
+        $announceRead->user_id = $user_id;
+        $announceRead->announcement_id = $announce_id;
+        if ($announceRead->save()) {
             return response()->json(array(
                 'status' => 1,
                 'msg' => 'ok',

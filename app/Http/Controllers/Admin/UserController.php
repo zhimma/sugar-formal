@@ -880,6 +880,12 @@ class UserController extends Controller
      */
     public function showAdminAnnouncement()
     {
+        $a = AdminAnnounce::orderBy('sequence', 'asc')->get()->all();
+        return view('admin.adminannouncement')->with('announce', $a);
+    }
+
+    public function showReadAnnouncementUser()
+    {
         $a = AdminAnnounce::get()->all();
         return view('admin.adminannouncement')->with('announce', $a);
     }

@@ -65,13 +65,13 @@ class LoginController extends Controller
                 $banned_users->delete();
             }
             $userMeta = UserMeta::where('user_id', \Auth::user()->id)->get()->first();
-            $announcement = \App\Models\AdminAnnounce::where('en_group', \Auth::user()->engroup)->orderBy('sequence', 'desc')->get();
+            $announceRead = \App\Models\AnnouncementRead::select('announcement_id')->where('user_id', \Auth::user()->id)->get();
+            $announcement = \App\Models\AdminAnnounce::where('en_group', \Auth::user()->engroup)->whereNotIn('id', $announceRead)->orderBy('sequence', 'desc')->get();
             //$announcement = $announcement->content;
             //$announcement = str_replace(PHP_EOL, '\n', $announcement);
             foreach ($announcement as &$a){
-                $a = str_replace(array("\r\n", "\r", "\n"), '\n', $a);
+                $a = str_replace(array("\r\n", "\r", "\n"), "<br>", $a);
             }
-            //todo: keep finish it.
             $request->session()->flash('announcement', $announcement);
 
             $user = \Auth::user();
