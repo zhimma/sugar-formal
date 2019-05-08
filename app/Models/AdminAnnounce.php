@@ -53,6 +53,7 @@ class AdminAnnounce extends Model
 
     public static function deleteAnnouncement(Request $request) {
         $a = AdminAnnounce::select('*')->where('id', '=', $request->id)->delete();
-        return $a;
+        $b = AnnouncementRead::select('*')->where('announcement_id', '=', $request->id)->delete();
+        return $a && $b;
     }
 }
