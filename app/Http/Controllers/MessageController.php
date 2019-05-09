@@ -115,20 +115,27 @@ class MessageController extends Controller {
     {
         $user_id = $request->uid;
         $announce_id = $request->aid;
-        $announceRead = new AnnouncementRead;
-        $announceRead->user_id = $user_id;
-        $announceRead->announcement_id = $announce_id;
-        if ($announceRead->save()) {
-            return response()->json(array(
-                'status' => 1,
-                'msg' => 'ok',
-            ), 200);
-        } else {
-            return response()->json(array(
-                'status' => 2,
-                'msg' => 'fail',
-            ), 500);
+        $exist = AnnouncementRead::where('user_id', $user_id)->where('announcement_id', $announce_id)->get()->first();
+        if(!isset($exist)){
+            $announceRead = new AnnouncementRead;
+            $announceRead->user_id = $user_id;
+            $announceRead->announcement_id = $announce_id;
+            if ($announceRead->save()) {
+                return response()->json(array(
+                    'status' => 1,
+                    'msg' => 'ok',
+                ), 200);
+            } else {
+                return response()->json(array(
+                    'status' => 2,
+                    'msg' => 'fail',
+                ), 500);
+            }
         }
+        return response()->json(array(
+            'status' => 1,
+            'msg' => 'already exists.',
+        ), 200);
     }
 
 }
