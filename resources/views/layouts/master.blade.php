@@ -1,7 +1,6 @@
 @include('partials.header')
 <style>
     .announce-box {
-        /*word-break: break-all;*/
         background-color: #f7eeeb;
         position: fixed;
         z-index: 999;
@@ -13,6 +12,23 @@
         right:0;
         margin-left: auto;
         margin-right: auto;
+        border-width: 3px;
+        border-style: dotted solid dotted;
+        border-color: rgba(244, 164, 164, 0.7);
+        padding: 5px;
+        box-shadow: 0 1px 15px 1px rgba(113, 106, 202, .08);
+        word-break: break-word;
+    }
+    .announce-box-small {
+        background-color: #f7eeeb;
+        position: fixed;
+        z-index: 999;
+        top: 15%;
+        bottom: 15%;
+        left:0;
+        right:0;
+        margin-left: 15%;
+        margin-right: 15%;
         border-width: 3px;
         border-style: dotted solid dotted;
         border-color: rgba(244, 164, 164, 0.7);
@@ -55,6 +71,13 @@
                             <div class="btn btn-primary footer close-window" onclick="disableAnnounce( {{ $a->id }} )">不再顯示本公告</div>
                         </div>
                     @endforeach
+                @endif
+                @if(Session::has('male_vip_expire_date'))
+                    <div class="announce-box-small">
+                        <div class="btn btn-danger float close-window">X</div>
+                        <h2>VIP通知</h2>
+                        <div class="center">{!! nl2br(Session::get('male_vip_expire_date')) !!}</div>
+                    </div>
                 @endif
                 <div class="row">
                     @include('dashboard.panel')
