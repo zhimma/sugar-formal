@@ -1099,8 +1099,6 @@
 </script>
 
 <script type="text/javascript">
-
-
     jQuery(document).ready(function(){
     //Check File API support
     function uploadFiles() {
