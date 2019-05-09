@@ -46,7 +46,7 @@
 			<form method="POST" action="genderToggler" class="user_profile">{!! csrf_field() !!}
 			<input type="hidden" name='user_id' value="{{ $user->id }}">
 			<input type="hidden" name='gender_now' value="{{ $user->engroup }}">
-			<button type="button" class="btn btn-warning" onclick="$('.user_profile').submit()">變更</button></form>
+			<button type="submit" class="btn btn-warning">變更</button></form>
 		</td>
 		<td>
 		<form method="POST" action="VIPToggler" class="vip">{!! csrf_field() !!}
