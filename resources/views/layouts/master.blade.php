@@ -79,6 +79,34 @@
                         <div class="center">{!! nl2br(Session::get('male_vip_expire_date')) !!}</div>
                     </div>
                 @endif
+                @if(Session::has('vip_expire_date'))
+                    <div class="announce-box-small">
+                        <div class="btn btn-danger float close-window">X</div>
+                        <h2>免費VIP通知</h2>
+                        <div class="center">歡迎{{ $user->name }}上線，您現在已是免費VIP，資格持續到{{ Session::get('vip_expire_date') }}。</div>
+                    </div>
+                @endif
+                @if(Session::has('vip_pre_requirements'))
+                    <div class="announce-box-small">
+                        <div class="btn btn-danger float close-window">X</div>
+                        <h2>免費VIP進度</h2>
+                        <div class="center">歡迎{{ $user->name }}上線，您目前還需{{ Session::get('vip_pre_requirements') }}，再持續保持每天登入，就可以取得VIP資格。</div>
+                    </div>
+                @endif
+                @if(Session::has('vip_gain_date'))
+                    <div class="announce-box-small">
+                        <div class="btn btn-danger float close-window">X</div>
+                        <h2>免費VIP進度</h2>
+                        <div class="center">歡迎{{ $user->name }}上線，只要持續保持每天登入，預計在{{ Session::get('vip_gain_date') }}後，您將可以取得VIP資格。</div>
+                    </div>
+                @endif
+                @if(isset($cancel_notice))
+                    <div class="announce-box-small">
+                        <div class="btn btn-danger float close-window">X</div>
+                        <h2>VIP取消付款成功</h2>
+                        <div class="center">{!! nl2br($cancel_notice) !!}</div>
+                    </div>
+                @endif
                 <div class="row">
                     @include('dashboard.panel')
                     <div class="content col-lg-9 col-md-8">

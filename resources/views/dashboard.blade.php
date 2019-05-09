@@ -1099,18 +1099,7 @@
 </script>
 
 <script type="text/javascript">
-    @if(Session::has('vip_expire_date'))
-        alert('歡迎{{ $user->name }}上線，您現在已是免費VIP，資格持續到{{ Session::get('vip_expire_date') }}。');
-    @endif
-    @if(Session::has('vip_pre_requirements'))
-    alert('歡迎{{ $user->name }}上線，您目前還需{{ Session::get('vip_pre_requirements') }}，再持續保持每天登入，就可以取得VIP資格。');
-    @endif
-    @if(Session::has('vip_gain_date'))
-        alert('歡迎{{ $user->name }}上線，只要持續保持每天登入，預計在{{ Session::get('vip_gain_date') }}後，您將可以取得VIP資格。');
-    @endif
-    @if(isset($cancel_notice))
-        alert('{{ $cancel_notice }}');
-    @endif
+
 
     jQuery(document).ready(function(){
     //Check File API support
