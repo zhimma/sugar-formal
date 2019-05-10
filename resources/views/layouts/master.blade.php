@@ -4,14 +4,12 @@
         background-color: #f7eeeb;
         position: fixed;
         z-index: 999;
-        top: 1%;
-        bottom: 1%;
-        width: 98%;
-        height: 98%;
         left:0;
         right:0;
-        margin-left: auto;
-        margin-right: auto;
+        top: 10%;
+        bottom: 10%;
+        margin-left: 15%;
+        margin-right: 15%;
         border-width: 3px;
         border-style: dotted solid dotted;
         border-color: rgba(244, 164, 164, 0.7);
@@ -23,12 +21,12 @@
         background-color: #f7eeeb;
         position: fixed;
         z-index: 999;
-        top: 15%;
-        bottom: 15%;
         left:0;
         right:0;
-        margin-left: 15%;
-        margin-right: 15%;
+        top: 25%;
+        bottom: 25%;
+        margin-left: 25%;
+        margin-right: 25%;
         border-width: 3px;
         border-style: dotted solid dotted;
         border-color: rgba(244, 164, 164, 0.7);
@@ -42,11 +40,15 @@
     }
     .footer {
         position: absolute;
-        left: 5px;
+        width: 133px;
+        left:0;
+        right:0;
         bottom: 5px;
+        margin-left: auto;
+        margin-right: auto;
     }
     .center{
-        font-size: x-large;
+        font-size: large;
         text-align: center;
     }
 </style>
@@ -66,42 +68,42 @@
                     @foreach(Session::get('announcement') as $key =>  $a)
                         <div class="announce-box">
                             <div class="btn btn-danger float close-window">X</div>
-                            <h2>站長公告(第{{ count(Session::get('announcement')) - $key }}則)</h2>
+                            <h3>站長公告(第{{ count(Session::get('announcement')) - $key }}/{{ count(Session::get('announcement')) }}則)</h3>
                             <div class="center">{!! nl2br($a->content) !!}</div>
                             <div class="btn btn-primary footer close-window" onclick="disableAnnounce( {{ $a->id }} )">不再顯示本公告</div>
                         </div>
                     @endforeach
                 @endif
                 @if(Session::has('male_vip_expire_date'))
-                    <div class="announce-box-small">
+                    <div class="announce-box">
                         <div class="btn btn-danger float close-window">X</div>
-                        <h2>VIP通知</h2>
+                        <h3>VIP通知</h3>
                         <div class="center">{!! nl2br(Session::get('male_vip_expire_date')) !!}</div>
                     </div>
                 @endif
                 @if(Session::has('vip_expire_date'))
-                    <div class="announce-box-small">
+                    <div class="announce-box">
                         <div class="btn btn-danger float close-window">X</div>
-                        <h2>免費VIP通知</h2>
+                        <h3>免費VIP通知</h3>
                         <div class="center">歡迎{{ $user->name }}上線，您現在已是免費VIP，資格持續到{{ Session::get('vip_expire_date') }}。</div>
                     </div>
                 @endif
                 @if(Session::has('vip_pre_requirements'))
-                    <div class="announce-box-small">
+                    <div class="announce-box">
                         <div class="btn btn-danger float close-window">X</div>
-                        <h2>免費VIP進度</h2>
+                        <h3>免費VIP進度</h3>
                         <div class="center">歡迎{{ $user->name }}上線，您目前還需{{ Session::get('vip_pre_requirements') }}，再持續保持每天登入，就可以取得VIP資格。</div>
                     </div>
                 @endif
                 @if(Session::has('vip_gain_date'))
-                    <div class="announce-box-small">
+                    <div class="announce-box">
                         <div class="btn btn-danger float close-window">X</div>
-                        <h2>免費VIP進度</h2>
+                        <h3>免費VIP進度</h3>
                         <div class="center">歡迎{{ $user->name }}上線，只要持續保持每天登入，預計在{{ Session::get('vip_gain_date') }}後，您將可以取得VIP資格。</div>
                     </div>
                 @endif
                 @if(isset($cancel_notice))
-                    <div class="announce-box-small">
+                    <div class="announce-box">
                         <div class="btn btn-danger float close-window">X</div>
                         <h2>VIP取消付款成功</h2>
                         <div class="center">{!! nl2br($cancel_notice) !!}</div>

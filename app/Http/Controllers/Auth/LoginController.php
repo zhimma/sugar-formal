@@ -130,7 +130,7 @@ class LoginController extends Controller
                 //男性會員取消付費後還沒過期
                 $vip_data = member_vip::where('member_id', \Auth::user()->id)->where('active', 1)->orderBy('expiry', 'desc')->get()->first();
                 if(isset($vip_data) && $vip_data->expiry!='0000-00-00 00:00:00'){
-                    $str = \Auth::user()->name."您好，您目前已取消VIP定期付費，您的VIP資格將持續至".$vip_data->expiry."，<br>過期後，將會自動失去VIP資格，若要繼續使用VIP功能，請在失去VIP資格後重新付費，謝謝。";
+                    $str = \Auth::user()->name."您好，您目前已取消VIP定期付費，<br>您的VIP資格將持續至".$vip_data->expiry."，<br>過期後，將會自動失去VIP資格，<br>若要繼續使用VIP功能，請在失去VIP資格後重新付費，謝謝。";
                     $request->session()->flash('male_vip_expire_date', $str);
                 }
             }
