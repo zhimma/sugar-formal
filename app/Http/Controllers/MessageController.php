@@ -54,8 +54,9 @@ class MessageController extends Controller {
     public function chatview(Request $request)
     {
         $user = $request->user();
+        $m_time = '';
         if ($user) {
-            return view('dashboard.chat')->with('user', $user);
+            return view('dashboard.chat')->with('user', $user)->with('m_time', $m_time);
         }
     }
 

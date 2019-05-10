@@ -424,15 +424,24 @@ class PagesController extends Controller
     public function chat(Request $request, $cid)
     {
         $user = $request->user();
+        $m_time = '';
         if ($user) {
             if (isset($cid)) {
+                if(!$user->isVip()){
+                    $m_time = Message::select('created_at')->
+                    where('from_id', $user->id)->
+                    where('to_id', $cid)->
+                    orderBy('created_at', 'desc')->first();
+                }
                 return view('dashboard.chat')
-                ->with('user', $user)
-                ->with('to', $this->service->find($cid));
+                    ->with('user', $user)
+                    ->with('to', $this->service->find($cid))
+                    ->with('m_time', $m_time);
             }
             else {
                 return view('dashboard.chat')
-                ->with('user', $user);
+                    ->with('user', $user)
+                    ->with('m_time', $m_time);
             }
         }
     }
