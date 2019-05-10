@@ -26,6 +26,7 @@ h3{
         </tr>
     </table>
     <h3>不再顯示的會員</h3>
+    <h5>共{{ $results->count() }}筆</h5>
     <table class="table-bordered table-hover center-block text-center" id="table">
         <tr>
             <th class="text-center">ID</th>
