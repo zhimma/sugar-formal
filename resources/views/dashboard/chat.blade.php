@@ -439,21 +439,26 @@ $(document).ready(function(){
     }
 });
 $('#chatForm').submit(function () {
-    let m_time = '{{ $m_time }}';
-    let datetime = new Date().today() + " " + new Date().timeNow();
     let content = $('.msg').val(), msgsnd = $('.msgsnd');
-    console.log(m_time, datetime);
     if($.trim(content) == "" ){
         $('.alert').remove();
         $("<a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a>").insertAfter($('.msg'));
         msgsnd.prop('disabled', true);
-        return false;
+        return checkForm;
     }
     else {
         $('.alert').remove();
-        return true;
+        return checkForm;
     }
 });
+function checkForm(){
+    let m_time = '{{ $m_time }}';
+    let datetime = new Date().today() + " " + new Date().timeNow();
+    if(datetime - m_time < 60){
+        return false;
+    }
+    return true;
+}
 </script>
 
 @stop
