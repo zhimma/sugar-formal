@@ -436,12 +436,12 @@ class PagesController extends Controller
                 return view('dashboard.chat')
                     ->with('user', $user)
                     ->with('to', $this->service->find($cid))
-                    ->with('m_time', $m_time);
+                    ->with('m_time', $m_time->created_at);
             }
             else {
                 return view('dashboard.chat')
                     ->with('user', $user)
-                    ->with('m_time', $m_time);
+                    ->with('m_time', $m_time->created_at);
             }
         }
     }

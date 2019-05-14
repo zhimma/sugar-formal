@@ -393,6 +393,19 @@ $code = Config::get('social.payment.code');
 @section('javascript')
 <script>
 $(document).ready(function(){
+    setInterval(function() {
+        let m_time = '{{ $m_time }}';
+        // Split timestamp into [ Y, M, D, h, m, s ]
+        let t = m_time.split(/[- :]/);
+        // Apply each element to the Date function
+        m_time = new Date(Date.UTC(t[0], t[1] - 1, t[2], t[3] - 8, t[4], t[5]));
+        let now = new Date();
+        let diff = now - m_time;
+        let diffInSec = (diff % 86400000) % 3600000 / 1000;
+        console.log(m_time);
+        console.log(now);
+        console.log('差' + diffInSec + '秒');
+    },10);
     $('.msg').keyup(function() {
         let content = $('.msg').val(), msgsnd = $('.msgsnd');
         if($.trim(content) == "" ){
@@ -453,8 +466,14 @@ $('#chatForm').submit(function () {
 });
 function checkForm(){
     let m_time = '{{ $m_time }}';
-    let datetime = new Date().today() + " " + new Date().timeNow();
-    if(datetime - m_time < 60){
+    // Split timestamp into [ Y, M, D, h, m, s ]
+    let t = m_time.split(/[- :]/);
+    // Apply each element to the Date function
+    m_time = new Date(Date.UTC(t[0], t[1]-1, t[2], t[3], t[4], t[5]));
+    let now = new Date();
+    let diff = now - m_time;
+    if((diff % 86400000) % 3600000 / 1000 < 60){
+        console.log((diff % 86400000) % 3600000 / 1000);
         return false;
     }
     return true;
