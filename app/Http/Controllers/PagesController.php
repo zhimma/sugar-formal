@@ -431,17 +431,17 @@ class PagesController extends Controller
                     $m_time = Message::select('created_at')->
                     where('from_id', $user->id)->
                     where('to_id', $cid)->
-                    orderBy('created_at', 'desc')->first();
+                    orderBy('created_at', 'desc')->first()->created_at;
                 }
                 return view('dashboard.chat')
                     ->with('user', $user)
                     ->with('to', $this->service->find($cid))
-                    ->with('m_time', $m_time->created_at);
+                    ->with('m_time', $m_time);
             }
             else {
                 return view('dashboard.chat')
                     ->with('user', $user)
-                    ->with('m_time', $m_time->created_at);
+                    ->with('m_time', $m_time);
             }
         }
     }

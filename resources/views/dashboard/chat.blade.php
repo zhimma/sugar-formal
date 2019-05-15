@@ -365,6 +365,7 @@ $code = Config::get('social.payment.code');
                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                 <input type="hidden" name="userId" value="{{$user->id}}">
                 <input type="hidden" name="to" value="{{$to->id}}">
+                <input type="hidden" name="m_time" value="{{ $m_time }}">
                 <div class="m-portlet__body">
                     <div class="form-group m-form__group row">
                         <div class="col-lg-9">
@@ -376,7 +377,7 @@ $code = Config::get('social.payment.code');
                         <div class="row">
                             <div class="col-lg-9">
                                 <button id="msgsnd" class="btn btn-danger m-btn m-btn--air m-btn--custom msgsnd">回覆</button>&nbsp;&nbsp;
-                                <button type="reset" class="btn btn-outline-danger m-btn m-btn--air m-btn--custom">取消</button>
+                                <button id="reset" type="reset" class="btn btn-outline-danger m-btn m-btn--air m-btn--custom">取消</button>
                             </div>
                         </div>
                     </div>
@@ -393,19 +394,34 @@ $code = Config::get('social.payment.code');
 @section('javascript')
 <script>
 $(document).ready(function(){
-    setInterval(function() {
-        let m_time = '{{ $m_time }}';
-        // Split timestamp into [ Y, M, D, h, m, s ]
-        let t = m_time.split(/[- :]/);
-        // Apply each element to the Date function
-        m_time = new Date(Date.UTC(t[0], t[1] - 1, t[2], t[3] - 8, t[4], t[5]));
-        let now = new Date();
-        let diff = now - m_time;
-        let diffInSec = (diff % 86400000) % 3600000 / 1000;
-        console.log(m_time);
-        console.log(now);
-        console.log('差' + diffInSec + '秒');
-    },10);
+    let m_time = '{{ $m_time }}';
+    if(m_time){
+        let intervalID = setInterval(function() {
+            let intervalSecs = 60;
+            let m_time = '{{ $m_time }}';
+            // Split timestamp into [ Y, M, D, h, m, s ]
+            let t = m_time.split(/[- :]/);
+            // Apply each element to the Date function
+            m_time = new Date(Date.UTC(t[0], t[1] - 1, t[2], t[3], t[4], t[5]));
+            m_time.setHours(m_time.getHours() - 8);
+            let now = new Date();
+            let diff = now.getTime() - m_time.getTime();
+            let diffInSec = Math.floor(diff / 1000);
+            let still = intervalSecs - diffInSec;
+            let text = document.getElementById('msgsnd').firstChild;
+            if(diffInSec >= intervalSecs){
+                $(".tips").remove();
+                text.data = '回覆';
+                $('#msgsnd').enable(true);
+                clearInterval(intervalID);
+            }
+            else{
+                $('#msgsnd').enable(false);
+                text.data = '還有' + still + '秒才能回覆';
+            }
+        },100);
+        $("<a href='{!! url('dashboard/upgrade') !!}' style='color: red;' class='tips'>成為VIP即可解除此限制<br></a>").insertBefore('#msgsnd');
+    }
     $('.msg').keyup(function() {
         let content = $('.msg').val(), msgsnd = $('.msgsnd');
         if($.trim(content) == "" ){
@@ -415,7 +431,7 @@ $(document).ready(function(){
         }
         else {
             $('.alert').remove();
-            msgsnd.prop('disabled', false);
+            msgsnd.prop('disabled', !checkForm());
         }
     });
     $("#showhide").click(function(){
@@ -466,17 +482,22 @@ $('#chatForm').submit(function () {
 });
 function checkForm(){
     let m_time = '{{ $m_time }}';
-    // Split timestamp into [ Y, M, D, h, m, s ]
-    let t = m_time.split(/[- :]/);
-    // Apply each element to the Date function
-    m_time = new Date(Date.UTC(t[0], t[1]-1, t[2], t[3], t[4], t[5]));
-    let now = new Date();
-    let diff = now - m_time;
-    if((diff % 86400000) % 3600000 / 1000 < 60){
-        console.log((diff % 86400000) % 3600000 / 1000);
-        return false;
+    if(m_time) {
+        let intervalSecs = 60;
+        let m_time = '{{ $m_time }}';
+        // Split timestamp into [ Y, M, D, h, m, s ]
+        let t = m_time.split(/[- :]/);
+        // Apply each element to the Date function
+        m_time = new Date(Date.UTC(t[0], t[1] - 1, t[2], t[3], t[4], t[5]));
+        m_time.setHours(m_time.getHours() - 8);
+        let now = new Date();
+        let diff = now.getTime() - m_time.getTime();
+        let diffInSec = Math.floor(diff / 1000);
+        return diffInSec >= intervalSecs;
     }
-    return true;
+    else{
+        return true;
+    }
 }
 </script>
 

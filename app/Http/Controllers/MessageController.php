@@ -47,6 +47,12 @@ class MessageController extends Controller {
         if(!isset($payload['msg'])){
             return back()->withErrors(['請勿僅輸入空白！']);
         }
+        if(!Auth::user()->isVIP()){
+            $diffInSecs = strtotime(date("Y-m-d H:i:s")) - strtotime($payload['m_time']);
+            if($diffInSecs < 60){
+                return back()->withErrors(['由於您尚未升級VIP，因此受到每次發訊60秒的限制。']);
+            }
+        }
         Message::post(auth()->id(), $payload['to'], $payload['msg']);
         return back();
     }
