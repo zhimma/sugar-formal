@@ -427,7 +427,7 @@ class PagesController extends Controller
         $m_time = '';
         if ($user) {
             if (isset($cid)) {
-                if(!$user->isVip()){
+                if(!$user->isVip() && $user->engroup == 1){
                     $m_time = Message::select('created_at')->
                     where('from_id', $user->id)->
                     where('to_id', $cid)->
