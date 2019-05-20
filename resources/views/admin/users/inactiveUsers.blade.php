@@ -2,16 +2,17 @@
 @section('app-content')
 <body style="padding: 15px;">
 <h1>未啟動會員</h1>
-<!--<form method="POST" action="{{ route('users/manager') }}" class="search_form">
+<form method="POST" action="{{ route('inactive') }}" class="search_form">
 	{!! csrf_field() !!}
 	<div class="form-group">
 		<label for="email" class="">Email</label>	
-		<input type="text" name='search' class="" style="width:300px;" id="email" required>
+		<input type="email" name='email' class="" style="width:300px;" id="email">
 	</div>
-	<button type="button" class="btn btn-primary" onclick="$('.search_form').submit()">送出</button>
-</form><br>-->
+	<button type="submit" class="btn btn-primary">送出</button>
+</form>
+<br>
 @if(isset($users))
-共 {{ $users->count() }} 筆資料
+共 {{ $users->total() }} 筆資料
 <table class='table table-bordered table-hover'>
 	<tr>
 		<th>Email</th>
@@ -40,6 +41,7 @@
 	</tr>
 	@endforelse
 </table>
+{{ $users->links() }}
 @endif
 </body>
 </html>

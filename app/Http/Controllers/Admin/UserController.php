@@ -1076,12 +1076,14 @@ class UserController extends Controller
         return view('admin.users.changePassword')->withErrors(['發生不明錯誤(Error001)']);
     }
 
-    public function inactiveUsers()
+    public function inactiveUsers(Request $request)
     {
         $users = User::join('user_meta', 'users.id', 'user_meta.user_id')
-            ->where('user_meta.is_active', 0)
-            ->orderBy('users.created_at', 'desc')
-            ->get();
+            ->where('user_meta.is_active', 0);
+        if($request->email != null){
+            $users = $users->where('users.email', $request->email);
+        }
+        $users = $users->orderBy('users.created_at', 'desc')->paginate(20);
         return view('admin.users.inactiveUsers',[
             'users' => $users
         ]);

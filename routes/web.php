@@ -344,6 +344,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('/chat/{cid}', 'PagesController@chat');
         Route::post('/chat', 'MessageController@postChat');
         Route::get('users/inactive', 'UserController@inactiveUsers')->name('inactive');
+        Route::post('users/inactive', 'UserController@inactiveUsers')->name('inactive');
         Route::get('users/activate/token/{token}', 'UserController@activateUser')->name('activateUser');
         Route::get('stats/vip', 'StatController@vip')->name('stats/vip');
         Route::get('stats/vip_log/{id}', 'StatController@vipLog')->name('stats/vip_log');
