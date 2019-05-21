@@ -402,7 +402,11 @@ $(document).ready(function(){
     if(m_time){
         let intervalID = setInterval(function() {
             let intervalSecs = 60;
-            let m_time = '{{ $m_time }}';
+            @if(isset($m_time))
+                let m_time = '{{ $m_time }}';
+            @else
+                let m_time = '';
+            @endif
             // Split timestamp into [ Y, M, D, h, m, s ]
             let t = m_time.split(/[- :]/);
             // Apply each element to the Date function
@@ -492,7 +496,11 @@ function checkForm(){
     @endif
     if(m_time) {
         let intervalSecs = 60;
-        let m_time = '{{ $m_time }}';
+        @if(isset($m_time))
+            let m_time = '{{ $m_time }}';
+        @else
+            let m_time = '';
+        @endif
         // Split timestamp into [ Y, M, D, h, m, s ]
         let t = m_time.split(/[- :]/);
         // Apply each element to the Date function
