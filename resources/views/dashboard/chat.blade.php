@@ -365,7 +365,7 @@ $code = Config::get('social.payment.code');
                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                 <input type="hidden" name="userId" value="{{$user->id}}">
                 <input type="hidden" name="to" value="{{$to->id}}">
-                <input type="hidden" name="m_time" value="{{ $m_time }}">
+                <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
                 <div class="m-portlet__body">
                     <div class="form-group m-form__group row">
                         <div class="col-lg-9">
@@ -394,7 +394,11 @@ $code = Config::get('social.payment.code');
 @section('javascript')
 <script>
 $(document).ready(function(){
-    let m_time = '{{ $m_time }}';
+    @if(isset($m_time))
+        let m_time = '{{ $m_time }}';
+    @else
+        let m_time = '';
+    @endif
     if(m_time){
         let intervalID = setInterval(function() {
             let intervalSecs = 60;
@@ -481,7 +485,11 @@ $('#chatForm').submit(function () {
     }
 });
 function checkForm(){
-    let m_time = '{{ $m_time }}';
+    @if(isset($m_time))
+        let m_time = '{{ $m_time }}';
+    @else
+        let m_time = '';
+    @endif
     if(m_time) {
         let intervalSecs = 60;
         let m_time = '{{ $m_time }}';
