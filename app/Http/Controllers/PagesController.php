@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Auth;
 use App\Http\Requests;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\VipLogService;
@@ -147,6 +148,25 @@ class PagesController extends Controller
         $log->user_id = $user_id;
         $log->to_id = $to_id;
         if ($log->save()) {
+            return response()->json(array(
+                'status' => 1,
+                'msg' => 'ok',
+            ), 200);
+        } else {
+            return response()->json(array(
+                'status' => 2,
+                'msg' => 'fail',
+            ), 500);
+        }
+    }
+
+    public function upgradepayLog(Request $request)
+    {
+        $filename = 'api_datalogger_' . Carbon::now()->format('Y-m-d') . '.log';
+        $dataToLog  = 'Time: '   . Carbon::now()->toDateTimeString() . "\n";
+        $dataToLog .= 'IP Address: ' . $request->ip() . "\n";
+        $dataToLog .= 'Content: '  . $request->getContent() . "\n";
+        if (\File::append( storage_path('logs' . DIRECTORY_SEPARATOR . $filename), $dataToLog . "\n" . str_repeat("=", 20) . "\n\n")) {
             return response()->json(array(
                 'status' => 1,
                 'msg' => 'ok',

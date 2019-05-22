@@ -229,7 +229,6 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('dashboard/settings', 'PagesController@settingsUpdate');
     Route::get('/dashboard', 'PagesController@dashboard')->name('dashboard');
     Route::get('/dashboard/cancel', 'PagesController@showCheckAccount');
-    Route::post('/dashboard/cancelpay', 'PagesController@cancelpay');
     Route::post('/dashboard/chat', 'MessageController@postChat');
     Route::post('/dashboard/chatpay', 'PagesController@postChatpay')->name('chatpay');
     Route::post('/dashboard/chatpayLog', 'PagesController@postChatpayLog')->name('chatpayLog');
@@ -245,7 +244,11 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('/dashboard/reportNext', 'PagesController@reportNext')->name('reportNext');
     Route::get('/dashboard/reportPic/{user}/{id}/{uid?}', 'PagesController@reportPic')->name('reportPic');
     Route::post('/dashboard/reportPicNext', 'PagesController@reportPicNext')->name('reportPicNext');
-    Route::post('/dashboard/upgradepay', 'PagesController@upgradepay');
+    Route::group(['middleware' => ['api']], function() {
+        Route::post('/dashboard/upgradepay', 'PagesController@upgradepay');
+        Route::post('/dashboard/cancelpay', 'PagesController@cancelpay');
+    });
+    Route::post('/upgradepayLog', 'PagesController@upgradepayLog')->name('upgradepayLog');
 
     Route::group(['middleware' => ['vipc']], function () {
         Route::post('/dashboard/board', 'PagesController@postBoard');
