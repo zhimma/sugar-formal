@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests;
+use App\Models\Board;
 use App\Models\MemberPic;
 use App\Models\Message;
 use App\Models\Reported;
@@ -1101,5 +1102,15 @@ class UserController extends Controller
         }
 
         return back()->withErrors(['啟動失敗。']);
+    }
+
+    public function deleteBoard($id){
+        $message = Board::where('id', $id)->get()->first();
+        if($message->delete()){
+            return back()->with('message', '成功刪除留言！');
+        }
+        else{
+            return back()->withErrors(['發生不明錯誤，刪除留言失敗！']);
+        }
     }
 }

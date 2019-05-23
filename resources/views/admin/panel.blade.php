@@ -8,6 +8,7 @@
 	<a href="{{ route('users/advSearch') }}">進階會員搜尋</a>
     <a href="{{ route('users/bannedList') }}">會員封鎖清單</a>
 	<a href="{{ route('users/pictures') }}">會員照片管理</a>
+	<a href="{{ route('users/board') }}">留言板管理</a>
 	<a href="{{ route('users/message/search') }}">會員訊息管理</a>
 	<a href="{{ route('users/reported') }}">被檢舉會員清單</a>
 	<a href="{{ route('users/pics/reported') }}">被檢舉照片清單</a>

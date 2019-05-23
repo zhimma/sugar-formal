@@ -308,6 +308,9 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('users/pictures', 'UserController@showUserPictures')->name('users/pictures');
         Route::post('users/pictures', 'UserController@searchUserPictures')->name('users/pictures');
         Route::post('users/pictures/modify', 'UserController@modifyUserPictures')->name('users/pictures/modify');
+        Route::get('users/board', 'PagesController@board')->name('users/board');
+        Route::post('users/board', 'PagesController@board')->name('users/board/search');
+        Route::get('users/board/delete/{id}', 'UserController@deleteBoard')->name('users/board/delete');
         Route::get('users/message/showBetween/{id1}/{id2}', 'UserController@showMessagesBetween')->name('admin/showMessagesBetween');
         Route::get('users/message/to/{id}', 'UserController@showAdminMessenger');
         Route::get('users/message/to/{id}/{mid}', 'UserController@showAdminMessengerWithMessageId')->name('AdminMessengerWithMessageId');
