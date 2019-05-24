@@ -23,7 +23,7 @@ $code = Config::get('social.payment.code');
         ?>
     <div id="user-list" style="display:inline-block; width: 100%;">
         <?php
-            $messages = \App\Models\Message::allSenders($user->id, 1);
+            $messages = \App\Models\Message::allSendersAdmin($user->id, 1);
             // echo json_encode($messages);
         ?>
         <?php /*$msgUserRead =  \App\Models\Message::getSendersRead($msgUser->id, $user->id);*/
