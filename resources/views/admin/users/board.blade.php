@@ -26,13 +26,14 @@
 				<label for="keyword">關鍵字</label>
 			</th>
 			<td>
-				<input type="text" name="keyword" class="form-control">
+				<input type="text" name="keyword" class="form-control" value="{{ $keyword }}">
 			</td>
 		</tr>
 	</table>
 	<button type="submit" class="btn btn-success">送出</button>
 </form><br>
 @if(isset($messages))
+共 {{ $messages->total() }} 筆資料
 <table class='table table-bordered table-hover'>
 	<tr>
 		<th>內容</th>
