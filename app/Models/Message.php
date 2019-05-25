@@ -265,11 +265,13 @@ class Message extends Model
         "));
         if(!\Schema::hasTable('temp_m')){
             $createTempTables = DB::unprepared(DB::raw("
+                SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
                 CREATE TEMPORARY TABLE `temp_m` AS(
                     SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent`
                     FROM `message`
                     WHERE created_at >= '".\Carbon\Carbon::now()->subDays(7)->toDateTimeString()."'
                 );
+                COMMIT;
             "));
         }
 //        $date = \Carbon\Carbon::createFromFormat('Y-m-d', '2018-09-01');
@@ -326,13 +328,15 @@ class Message extends Model
         if(!\Schema::hasTable('temp_m')) {
             $date = \Carbon\Carbon::createFromFormat('Y-m-d', $date);
             $createTempTables = DB::unprepared(DB::raw("
+                SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
                 CREATE TEMPORARY TABLE `temp_m` AS(
                     SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent`
                     FROM `message`
                     WHERE `created_at`
                     BETWEEN '" . $date->subDays(7)->toDateTimeString() . "'
                     AND '" . $date->addDays(7)->toDateTimeString() . "'
-                );
+                );       
+                COMMIT;
             "));
         }
 //        $createTempTables = DB::unprepared(DB::raw("
