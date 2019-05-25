@@ -202,7 +202,18 @@ class PagesController extends Controller
     public function home(Request $request)
     {
         $user = $request->user();
-        return view('welcome')->with('user', $user);
+        $imgUserM = User::select('users.name', 'users.title', 'user_meta.pic')
+            ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->whereNotNull('user_meta.pic')
+            ->where('engroup', 1)->inRandomorder()->take(3)->get();
+        $imgUserF = User::select('users.name', 'users.title', 'user_meta.pic')
+            ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->whereNotNull('user_meta.pic')
+            ->where('engroup', 2)->inRandomorder()->take(3)->get();
+        return view('welcome')
+            ->with('user', $user)
+            ->with('imgUserM', $imgUserM)
+            ->with('imgUserF', $imgUserF);
     }
 
     public function privacy(Request $request)
