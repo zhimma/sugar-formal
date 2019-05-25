@@ -53,9 +53,12 @@ class PagesController extends Controller
     public function board(Request $request){
         $messages = Board::select('board.*', 'users.name', 'users.engroup')->join('users', 'users.id', '=', 'board.member_id');
         if(isset($request->date_start) || isset($request->date_end) || isset($request->keyword)){
-            $messages = $messages->where('created_at', '>=', $request->date_start)
-                ->where('created_at', '<=', $request->date_end)
-                ->where('post', 'like', '%'.$request->keyword.'%');
+            $start = isset($request->date_start) ? $request->date_start : '';
+            $end = isset($request->date_end) ? $request->date_end : '';
+            $keyword = isset($request->keyword) ? $request->keyword : '';
+            $messages = $messages->whereDate('board.created_at', '>=', $start)
+                ->whereDate('board.created_at', '<=', $end)
+                ->where('post', 'like', '%' . $keyword .' %');
         }
         $messages = $messages->orderBy('created_at', 'desc')->paginate(20);
         return view('admin.users.board')->with('messages', $messages)

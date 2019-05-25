@@ -25,6 +25,9 @@ class ApiDataLogger{
             $dataToLog .= 'URL: '    . $request->fullUrl() . "\n";
             $dataToLog .= 'Method: ' . $request->method() . "\n";
             $dataToLog .= 'Input: '  . $request->getContent() . "\n";
+            if(str_contains($request->getContent(), 'BankResponseCode')){
+                $dataToLog .= 'Response: '  . $response->getContent() . "\n";
+            }
             //$dataToLog .= 'Output: ' . $response->getContent() . "\n";
             \File::append( storage_path('logs' . DIRECTORY_SEPARATOR . $filename), $dataToLog . "\n" . str_repeat("=", 20) . "\n\n");
         }

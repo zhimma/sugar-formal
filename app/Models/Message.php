@@ -306,6 +306,18 @@ class Message extends Model
         //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
     }
 
+    public static function allSendersAdmin($uid, $isVip)
+    {
+        $messages = DB::select(DB::raw("
+            select * from `message` 
+            WHERE  (`to_id` = $uid and `from_id` != $uid) or (`from_id` = $uid and `to_id` != $uid) 
+            order by `created_at` desc 
+        "));
+        $saveMessages = Message::chatArray($uid, $messages, 1);
+
+        return $saveMessages;
+    }
+
     public static function moreSendersAJAX($uid, $isVip, $date)
     {
         $dropTempTables = DB::unprepared(DB::raw("
