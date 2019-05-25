@@ -124,11 +124,11 @@
 
 <div class="carousel-item active">
 
-<?php $user1 = \App\Models\User::getRand() ?>
+<?php $user1 = $imgUserF[0]; ?>
 
 @if(isset($user1))
 
-  <img class="d-block img-fluid" src="{{$user1->meta_()->pic}}">
+  <img class="d-block img-fluid" src="{{$user1->pic}}">
 
   <div class="carousel-caption cara-g-idx d-none d-md-block">
 
@@ -144,11 +144,11 @@
 
 <div class="carousel-item">
 
-<?php $user2 = \App\Models\User::getRand() ?>
+<?php $user2 = $imgUserF[1]; ?>
 
 @if(isset($user2))
 
-  <img class="d-block img-fluid" src="{{$user2->meta_()->pic}}">
+  <img class="d-block img-fluid" src="{{$user2->pic}}">
 
   <div class="carousel-caption cara-g-idx d-none d-md-block">
 
@@ -164,11 +164,11 @@
 
 <div class="carousel-item">
 
-<?php $user3 = \App\Models\User::getRand() ?>
+<?php $user3 = $imgUserF[2]; ?>
 
 @if(isset($user3))
 
-  <img class="d-block img-fluid" src="{{$user3->meta_()->pic}}">
+  <img class="d-block img-fluid" src="{{$user3->pic}}">
 
   <div class="carousel-caption cara-g-idx d-none d-md-block">
 
@@ -362,11 +362,11 @@
 
 								<div class="carousel-item active">
 
-									<?php $userD1 = \App\Models\User::getRandD() ?>
+									<?php $userD1 = $imgUserM[0]; ?>
 
 									@if(isset($userD1))
 
-									<img class="d-block img-fluid" src="{{$userD1->meta_()->pic}}">
+									<img class="d-block img-fluid" src="{{$userD1->pic}}">
 
 									<div class="carousel-caption cara-b-idx d-none d-md-block">
 
@@ -382,11 +382,11 @@
 
 								<div class="carousel-item">
 
-								<?php $userD2 = \App\Models\User::getRandD() ?>
+								<?php $userD2 = $imgUserM[1]; ?>
 
 								@if(isset($userD2))
 
-								<img class="d-block img-fluid" src="{{$userD2->meta_()->pic}}">
+								<img class="d-block img-fluid" src="{{$userD2->pic}}">
 
 								<div class="carousel-caption cara-b-idx d-none d-md-block">
 
@@ -402,11 +402,11 @@
 
 								<div class="carousel-item">
 
-								<?php $userD3 = \App\Models\User::getRandD() ?>
+								<?php $userD3 = $imgUserM[2]; ?>
 
 								@if(isset($userD3))
 
-								<img class="d-block img-fluid" src="{{$userD3->meta_()->pic}}">
+								<img class="d-block img-fluid" src="{{$userD3->pic}}">
 
 								<div class="carousel-caption cara-b-idx d-none d-md-block">
 
