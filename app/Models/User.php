@@ -289,49 +289,4 @@ class User extends Authenticatable
     {
         return Visited::where('visited_id', $this->id)->whereBetween('created_at',  [Carbon::now()->subSeconds(Config::get('social.user.viewed-seconds')), Carbon::now()])->count();
     }
-
-    public static function isPicsEmpty($gender) {
-        $imgUsers = User::where('engroup', $gender)->get();
-        $empty = true;
-
-        foreach($imgUsers as $imgUser) {
-            if($imgUser->meta_()->pic != NULL) {
-                $empty = false;
-                break;
-            }
-        }
-
-        return $empty;
-    }
-
-
-    public static function getRand()
-    {
-        if(User::isPicsEmpty(2)) {
-            return;
-        }
-
-        while(1) {
-            $imgUser = User::where('engroup', 2)->inRandomorder()->first();
-            if ($imgUser->meta_()->pic == NULL) continue;
-            else break;
-        }
-
-        return $imgUser;
-    }
-
-    public static function getRandD()
-    {
-        if(User::isPicsEmpty(1)) {
-            return;
-        }
-
-        while(1) {
-            $imgUser = User::where('engroup', 1)->inRandomorder()->first();
-            if ($imgUser->meta_()->pic == NULL) continue;
-            else break;
-        }
-
-        return $imgUser;
-    }
 }
