@@ -334,6 +334,10 @@ class PagesController extends Controller
     }
 
     public function reportNext(Request $request){
+        if(empty($this->customTrim($request->content))){
+            $user = $request->user();
+            return view('dashboard.reportUser', [ 'aid' => $request->aid, 'uid' => $request->uid, 'user' =>  $user])->withErrors(['檢舉失敗，請填寫理由。']);
+        }
         Reported::report($request->aid, $request->uid, $request->content);
         return redirect('/user/view/'.$request->uid)->with('message', '檢舉成功');
     }
@@ -388,12 +392,25 @@ class PagesController extends Controller
 
     public function reportPicNext(Request $request){
         if($request->avatar){
+            if(empty($this->customTrim($request->content))){
+                return back()->withErrors(['檢舉失敗，請填寫理由。']);
+            }
             ReportedAvatar::report($request->reporter_id, $request->reported_user_id, $request->content);
         }
         if($request->pic){
+            if(empty($this->customTrim($request->content))){
+                return back()->withErrors(['檢舉失敗，請填寫理由。']);
+            }
             ReportedPic::report($request->reporter_id, $request->reported_pic_id, $request->content);
         }
         return redirect('/user/view/'.$request->reported_user_id)->with('message', '檢舉成功');
+    }
+
+    private function customTrim($str)
+    {
+        $search = array(" ","　","\n","\r","\t");
+        $replace = array("","","","","");
+        return str_replace($search, $replace, $str);
     }
 
     public function postBlock(Request $request)
