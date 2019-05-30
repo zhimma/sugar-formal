@@ -188,7 +188,10 @@ class UserController extends Controller
         }
         $userBanned->member_id = $user_id;
         $userBanned->expire_date = Carbon::now()->addDays($days);
-        $userBanned->message_id = $msg_id;
+        $message = Message::where('id', $msg_id)->get()->first();
+        if(isset($message)){
+            $userBanned->message_content = $message->content;
+        }
         $userBanned->save();
         //$user = User::where('id', $user_id)->get()->first();
         //if($msg_id == 0){
