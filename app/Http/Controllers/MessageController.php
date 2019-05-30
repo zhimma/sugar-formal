@@ -61,8 +61,12 @@ class MessageController extends Controller {
     {
         $user = $request->user();
         $m_time = '';
-        if ($user) {
-            return view('dashboard.chat')->with('user', $user)->with('m_time', $m_time);
+        if (isset($user)) {
+            $isVip = $user->isVip();
+            return view('dashboard.chat')
+                ->with('user', $user)
+                ->with('m_time', $m_time)
+                ->with('isVip', $isVip);
         }
     }
 

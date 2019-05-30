@@ -473,7 +473,8 @@ class PagesController extends Controller
     {
         $user = $request->user();
         $m_time = '';
-        if ($user) {
+        if (isset($user)) {
+            $isVip = $user->isVip();
             if (isset($cid)) {
                 if(!$user->isVip() && $user->engroup == 1){
                     $m_time = Message::select('created_at')->
@@ -487,12 +488,14 @@ class PagesController extends Controller
                 return view('dashboard.chat')
                     ->with('user', $user)
                     ->with('to', $this->service->find($cid))
-                    ->with('m_time', $m_time);
+                    ->with('m_time', $m_time)
+                    ->with('isVip', $isVip);
             }
             else {
                 return view('dashboard.chat')
                     ->with('user', $user)
-                    ->with('m_time', $m_time);
+                    ->with('m_time', $m_time)
+                    ->with('isVip', $isVip);
             }
         }
     }

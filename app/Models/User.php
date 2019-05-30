@@ -56,9 +56,12 @@ class User extends Authenticatable
         return User::where('id', $uid)->first();
     }
 
-    public function meta_()
+    public function meta_($queries = null)
     {
-        return UserMeta::where('user_id', $this->id)->first();
+        if(!isset($queries)){
+            $queries = '*';
+        }
+        return UserMeta::select($queries)->where('user_id', $this->id)->first();
     }
 
     /**
@@ -177,7 +180,7 @@ class User extends Authenticatable
     public function isVip()
     {
         //return Vip::where('member_id', $this->id)->where('expiry', '>=',   Carbon::now())->orderBy('created_at', 'desc')->first() !== null;
-        return Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first() !== null;
+        return Vip::select('active')->where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first() !== null;
     }
 
     public function isFreeVip()

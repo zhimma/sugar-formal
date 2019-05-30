@@ -128,12 +128,14 @@ class Message extends Model
     }
 
     // show message setting
-    public static function onlyShowVip($user, $msgUser) {
-        return $user->isVip() && !$msgUser->isVip() && $user->meta_()->notifhistory == '顯示VIP會員信件';
+    public static function onlyShowVip($user, $msgUser, $isVip = false) {
+        //return $user->isVip() && !$msgUser->isVip() && $user->meta_()->notifhistory == '顯示VIP會員信件';
+        return $isVip && !$msgUser->isVip() && $user->meta_('notifhistory')->notifhistory == '顯示VIP會員信件';
     }
 
-    public static function showNoVip($user, $msgUser) {
-        return $user->isVip() && !$msgUser->isVip() && ($user->meta_()->notifhistory == '顯示普通會員信件' || $user->meta_()->notifhistory == '');
+    public static function showNoVip($user, $msgUser, $isVip = false) {
+        //return $user->isVip() && !$msgUser->isVip() && ($user->meta_()->notifhistory == '顯示普通會員信件' || $user->meta_()->notifhistory == '');
+        return $isVip && !$msgUser->isVip() && ($user->meta_('notifhistory')->notifhistory == '顯示普通會員信件' || $user->meta_()->notifhistory == '');
     }
 
     public static function getLastSender($uid, $sid) {
@@ -147,12 +149,12 @@ class Message extends Model
         $tempMessages = [];
         $noVipCount = 0;
         $isAllDelete = true;
-        $msgShow = User::findById($uid)->meta_()->notifhistory;
+        //$msgShow = User::findById($uid)->meta_()->notifhistory;
         $user = \Auth::user();
-
+        $banned_users = \App\Models\SimpleTables\banned_users::select('member_id')->get();
+        $isVip = $user->isVip();
         foreach($messages as $message) {
-
-            if(\App\Models\User::isBanned($message->from_id) || \App\Models\User::isBanned($message->to_id)){
+            if($banned_users->contains($message->from_id) || $banned_users->contains($message->to_id)){
                 continue;
             }
             if($message->to_id == $user->id) {
@@ -161,7 +163,7 @@ class Message extends Model
             else if($message->from_id == $user->id) {
                 $msgUser =  \App\Models\User::findById($message->to_id);
             }
-            if(\App\Models\Message::onlyShowVip($user, $msgUser)) {
+            if(\App\Models\Message::onlyShowVip($user, $msgUser, $isVip)) {
                 continue;
             }
 
@@ -207,10 +209,10 @@ class Message extends Model
         $isAllDelete = true;
         //$msgShow = User::findById($uid)->meta_()->notifhistory;
         $user = \Auth::user();
-
+        $banned_users = \App\Models\SimpleTables\banned_users::select('member_id')->get();
+        $isVip = $user->isVip();
         foreach($messages as $message) {
-
-            if(\App\Models\User::isBanned($message->from_id) || \App\Models\User::isBanned($message->to_id)){
+            if($banned_users->contains($message->from_id) || $banned_users->contains($message->to_id)){
                 continue;
             }
             if($message->to_id == $user->id) {
@@ -219,7 +221,7 @@ class Message extends Model
             else if($message->from_id == $user->id) {
                 $msgUser =  \App\Models\User::findById($message->to_id);
             }
-            if(\App\Models\Message::onlyShowVip($user, $msgUser)) {
+            if(\App\Models\Message::onlyShowVip($user, $msgUser, $isVip)) {
                 continue;
             }
 
@@ -395,12 +397,14 @@ class Message extends Model
     public static function sortMessages($messages){
         $user = Auth::user();
         $block_people =  Config::get('social.block.block-people');
-        $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get()->toArray();
+        $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
+        $banned_users = banned_users::select('member_id')->get();
+        $isVip = $user->isVip();
         foreach ($messages as $key => $message){
-            if(\App\Models\User::isBanned($message['from_id']) || \App\Models\User::isBanned($message['to_id'])){
+            if($banned_users->contains($message['from_id']) || $banned_users->contains($message['to_id'])){
                 continue;
             }
-            if(Message::search($message['from_id'], $userBlockList) || Message::search($message['to_id'], $userBlockList)){
+            if($userBlockList->contains($message['from_id']) || $userBlockList->contains($message['to_id'])){
                 continue;
             }
             if($message['to_id'] == $user->id) {
@@ -409,7 +413,7 @@ class Message extends Model
             else if($message['from_id'] == $user->id) {
                 $msgUser =  \App\Models\User::findById($message['to_id']);
             }
-            if(\App\Models\Message::onlyShowVip($user, $msgUser)) {
+            if(\App\Models\Message::onlyShowVip($user, $msgUser, $isVip)) {
                 continue;
             }
             $latestMessage = \App\Models\Message::latestMessage($user->id, $msgUser->id);

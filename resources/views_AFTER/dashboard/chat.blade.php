@@ -15,7 +15,7 @@ $umeta = $user->meta_();
         <div class="photo weui-t_c">
             <img src="{{$umeta->pic}}">
             <p class="weui-pt20 weui-f18">{{$user->name}}</p>
-            @if ((isset($cur) && $cur->isVip()) || $user->isVip()) 
+            @if ((isset($cur) && $cur->isVip()) || $isVIp) 
                 <p class="weui-pt10 m_p">
                     <span class="weui-pl10 weui-pr10">
                         <img src="/images/sousuo_03.png">
@@ -53,7 +53,7 @@ $umeta = $user->meta_();
             </span>
             <span style="text-align:right;" class="m-portlet__head-text">
                 @if(isset($to))
-                   @if(!\App\Models\Tip::isComment($user->id, $to->id) && $user->isVip() && \App\Models\Tip::isCommentNoEnd($user->id, $to->id))
+                   @if(!\App\Models\Tip::isComment($user->id, $to->id) && $isVIp && \App\Models\Tip::isCommentNoEnd($user->id, $to->id))
                         @include('partials.nwetip-comment')
                    @else
                         @include('partials.newtip-invite')
@@ -70,7 +70,7 @@ $umeta = $user->meta_();
 @if(str_contains(url()->current(), 'dashboard') && empty($to))
         <?php
             $collection = array();
-            if($user->isVip())
+            if($isVIp)
                 $messages = \App\Models\Message::allSenders($user->id, 1);
             else $messages = \App\Models\Message::allSenders($user->id, 0);
 
@@ -118,14 +118,14 @@ $umeta = $user->meta_();
                     $msgUser =  \App\Models\User::findById($message['to_id']);
                 }
 
-                //($user->isVip() && !$msgUser->isVip() && ($user->meta_()->notifhistory == '顯示VIP會員信件' || $user->meta_()->notifhistory == NULL)) || (!$user->isVip() && $msgUser->isVip())
+                //($isVIp && !$msgUser->isVip() && ($user->meta_()->notifhistory == '顯示VIP會員信件' || $user->meta_()->notifhistory == NULL)) || (!$isVIp && $msgUser->isVip())
                 // 收件通知
 //                if(\App\Models\Message::onlyShowVip($user, $msgUser) || \App\Models\Message::showNoVip($user, $msgUser)) {
 //                    continue;
 //                }
-                if(\App\Models\Message::onlyShowVip($user, $msgUser)) {
-                    continue;
-                }
+//                if(\App\Models\Message::onlyShowVip($user, $msgUser)) {
+//                    continue;
+//                }
 
                 //echo 'message->to_id = '. $message->to_id . ' message->from_id = '. $message->from_id . ' user->id = ' . $user->id;
                 $msgFromUser = \App\Models\User::findById($message['from_id']);
@@ -227,7 +227,7 @@ $umeta = $user->meta_();
                         continue;
                     }
                 ?>
-                @if ($user->isVip() && $user->city !== $msgUser->city)
+                @if ($isVIp && $user->city !== $msgUser->city)
 
                 @else
                <!--  @if(\App\Models\Message::isAdminMessage($message->content))
@@ -262,11 +262,11 @@ $umeta = $user->meta_();
                               @endif
                              <div class="clearfix">
                                  <span class="weui-fl">{{ $message->created_at }}     <span class="weui-blue weui-dnb">@if(!\App\Models\Message::isAdminMessage($message->content))
-                                    @if($user->id == $msgUser->id && $message->read == "Y" && $user->isVip())
+                                    @if($user->id == $msgUser->id && $message->read == "Y" && $isVIp)
                                         【已讀】
-                                    @elseif($user->id == $msgUser->id && $message->read == "N" && $user->isVip())
+                                    @elseif($user->id == $msgUser->id && $message->read == "N" && $isVIp)
                                         【未讀】
-                                    @elseif(!$user->isVip())
+                                    @elseif(!$isVIp)
                                         已讀/未讀 (?)
                                     @endif
                                 @endif</span></span>
@@ -302,11 +302,11 @@ $umeta = $user->meta_();
                              <div class="clearfix">
                                  <span class="weui-fl">{{ $message->created_at }}   <span class="weui-red weui-dnb">
                                  @if(!\App\Models\Message::isAdminMessage($message->content))
-                                    @if($user->id == $msgUser->id && $message->read == "Y" && $user->isVip())
+                                    @if($user->id == $msgUser->id && $message->read == "Y" && $isVIp)
                                         【已讀】
-                                    @elseif($user->id == $msgUser->id && $message->read == "N" && $user->isVip())
+                                    @elseif($user->id == $msgUser->id && $message->read == "N" && $isVIp)
                                         【未讀】
-                                    @elseif(!$user->isVip())
+                                    @elseif(!$isVIp)
                                         已讀/未讀 (?)
                                     @endif
                                 @endif  
