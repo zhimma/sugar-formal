@@ -200,9 +200,6 @@ $code = Config::get('social.payment.code');
 
         @if(!empty($messages))
             @foreach ($messages as $message)
-                @if(\App\Models\User::isBanned($message['from_id']) || \App\Models\User::isBanned($message['to_id']))
-                    @continue
-                @endif
                 @if(search($message['from_id'], $userBlockList) || search($message['to_id'], $userBlockList))
                     @continue
                 @endif

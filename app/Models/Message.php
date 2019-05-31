@@ -154,7 +154,10 @@ class Message extends Model
         $banned_users = \App\Models\SimpleTables\banned_users::select('member_id')->get();
         $isVip = $user->isVip();
         foreach($messages as $message) {
-            if($banned_users->contains($message->from_id) || $banned_users->contains($message->to_id)){
+            if($banned_users->contains($message->to_id)){
+                continue;
+            }
+            if($banned_users->contains($message->from_id) && $message->from_id != $user->id){
                 continue;
             }
             if($message->to_id == $user->id) {
@@ -212,7 +215,10 @@ class Message extends Model
         $banned_users = \App\Models\SimpleTables\banned_users::select('member_id')->get();
         $isVip = $user->isVip();
         foreach($messages as $message) {
-            if($banned_users->contains($message->from_id) || $banned_users->contains($message->to_id)){
+            if($banned_users->contains($message->to_id)){
+                continue;
+            }
+            if($banned_users->contains($message->from_id) && $message->from_id != $user->id){
                 continue;
             }
             if($message->to_id == $user->id) {
@@ -401,7 +407,10 @@ class Message extends Model
         $banned_users = banned_users::select('member_id')->get();
         $isVip = $user->isVip();
         foreach ($messages as $key => $message){
-            if($banned_users->contains($message['from_id']) || $banned_users->contains($message['to_id'])){
+            if($banned_users->contains($message['to_id'])){
+                continue;
+            }
+            if($banned_users->contains($message['from_id']) && $message['from_id'] != $user->id){
                 continue;
             }
             if($userBlockList->contains($message['from_id']) || $userBlockList->contains($message['to_id'])){

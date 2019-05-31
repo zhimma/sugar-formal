@@ -8,6 +8,7 @@ use App\Models\AnnouncementRead;
 use App\Http\Requests;
 use App\Models\SimpleTables\banned_users;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -45,9 +46,13 @@ class MessageController extends Controller {
     public function postChat(Request $request)
     {
         $banned = banned_users::where('member_id', Auth::user()->id)
+            ->whereNotNull('expire_date')
             ->orderBy('expire_date', 'asc')->get()->first();
         if(isset($banned)){
-            return view('errors.User-banned-with-message', ['banned' => $banned]);
+            $date = \Carbon\Carbon::parse($banned->expire_date);
+            return view('errors.User-banned-with-message',
+                ['banned' => $banned,
+                 'days' => $date->diffInDays() + 1]);
         }
         $payload = $request->all();
         if(!isset($payload['msg'])){
