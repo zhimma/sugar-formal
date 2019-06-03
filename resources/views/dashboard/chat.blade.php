@@ -18,7 +18,7 @@
                 _token:"{{ csrf_token() }}",
                 date : date,
                 uid : '{{ $user->id }}',
-                isVip : '{{ $user->isVip() }}'
+                isVip : '{{ $isVip }}'
             },
             dataType: 'json',
             headers: {
@@ -43,7 +43,7 @@
             data: {
                 _token:"{{ csrf_token() }}",
                 uid : '{{ $user->id }}',
-                isVip : '{{ $user->isVip() }}'
+                isVip : '{{ $isVip }}'
             },
             dataType: 'json',
             headers: {
@@ -159,7 +159,7 @@ $code = Config::get('social.payment.code');
 
             <span style="text-align:right;" class="m-portlet__head-text">
                 @if(isset($to))
-                   @if(!\App\Models\Tip::isComment($user->id, $to->id) && $user->isVip() && \App\Models\Tip::isCommentNoEnd($user->id, $to->id))
+                   @if(!\App\Models\Tip::isComment($user->id, $to->id) && $isVip && \App\Models\Tip::isCommentNoEnd($user->id, $to->id))
                            @include('partials.tip-comment')
                    @else
                            @include('partials.tip-invite')
@@ -180,7 +180,7 @@ $code = Config::get('social.payment.code');
         ?>
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <div id="user-list" class="m-widget3 col-lg-12" style="display:inline-block">
-        <?php if($user->isVip())
+        <?php if($isVip)
                 $messages = \App\Models\Message::allSenders($user->id, 1);
             else $messages = \App\Models\Message::allSenders($user->id, 0);
 
@@ -200,9 +200,6 @@ $code = Config::get('social.payment.code');
 
         @if(!empty($messages))
             @foreach ($messages as $message)
-                @if(\App\Models\User::isBanned($message['from_id']) || \App\Models\User::isBanned($message['to_id']))
-                    @continue
-                @endif
                 @if(search($message['from_id'], $userBlockList) || search($message['to_id'], $userBlockList))
                     @continue
                 @endif
@@ -215,7 +212,7 @@ $code = Config::get('social.payment.code');
                     $msgUser =  \App\Models\User::findById($message['to_id']);
                 }
 
-                //($user->isVip() && !$msgUser->isVip() && ($user->meta_()->notifhistory == '顯示VIP會員信件' || $user->meta_()->notifhistory == NULL)) || (!$user->isVip() && $msgUser->isVip())
+                //($isVip && !$msgUser->isVip() && ($user->meta_()->notifhistory == '顯示VIP會員信件' || $user->meta_()->notifhistory == NULL)) || (!$isVip && $msgUser->isVip())
                 // 收件通知
 //                if(\App\Models\Message::onlyShowVip($user, $msgUser) || \App\Models\Message::showNoVip($user, $msgUser)) {
 //                    continue;
@@ -296,7 +293,7 @@ $code = Config::get('social.payment.code');
                         continue;
                     }
                 ?>
-                @if ($user->isVip() && $user->city !== $msgUser->city)
+                @if ($isVip && $user->city !== $msgUser->city)
 
                 @else
                 @if(\App\Models\Message::isAdminMessage($message->content))
@@ -335,11 +332,11 @@ $code = Config::get('social.payment.code');
                         <div class="m-widget3__body">
                             <p class="m-widget3__text">
                                 @if(!\App\Models\Message::isAdminMessage($message->content))
-                                    @if($user->id == $msgUser->id && $message->read == "Y" && $user->isVip())
+                                    @if($user->id == $msgUser->id && $message->read == "Y" && $isVip)
                                         已讀
-                                    @elseif($user->id == $msgUser->id && $message->read == "N" && $user->isVip())
+                                    @elseif($user->id == $msgUser->id && $message->read == "N" && $isVip)
                                         未讀
-                                    @elseif(!$user->isVip())
+                                    @elseif(!$isVip)
                                         已讀/未讀 (?)
                                     @endif
                                 @endif

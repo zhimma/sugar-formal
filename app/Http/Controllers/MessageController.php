@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Models\AnnouncementRead;
 use App\Http\Requests;
+use App\Models\SimpleTables\banned_users;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -43,6 +45,15 @@ class MessageController extends Controller {
 
     public function postChat(Request $request)
     {
+        $banned = banned_users::where('member_id', Auth::user()->id)
+            ->whereNotNull('expire_date')
+            ->orderBy('expire_date', 'asc')->get()->first();
+        if(isset($banned)){
+            $date = \Carbon\Carbon::parse($banned->expire_date);
+            return view('errors.User-banned-with-message',
+                ['banned' => $banned,
+                 'days' => $date->diffInDays() + 1]);
+        }
         $payload = $request->all();
         if(!isset($payload['msg'])){
             return back()->withErrors(['請勿僅輸入空白！']);
@@ -50,7 +61,7 @@ class MessageController extends Controller {
         if(isset($payload['m_time']) && !Auth::user()->isVIP() && Auth::user()->engroup == 1){
             $diffInSecs = strtotime(date("Y-m-d H:i:s")) - strtotime($payload['m_time']);
             if($diffInSecs < 60){
-                return back()->withErrors(['由於您尚未升級VIP，因此受到每次發訊60秒的限制。']);
+                return back()->withErrors(['由於您尚未升級VIP，因此受到每次發訊間隔60秒的限制。']);
             }
         }
         Message::post(auth()->id(), $payload['to'], $payload['msg']);
@@ -61,8 +72,12 @@ class MessageController extends Controller {
     {
         $user = $request->user();
         $m_time = '';
-        if ($user) {
-            return view('dashboard.chat')->with('user', $user)->with('m_time', $m_time);
+        if (isset($user)) {
+            $isVip = $user->isVip();
+            return view('dashboard.chat')
+                ->with('user', $user)
+                ->with('m_time', $m_time)
+                ->with('isVip', $isVip);
         }
     }
 

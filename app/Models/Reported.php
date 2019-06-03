@@ -32,7 +32,7 @@ class Reported extends Model
      */
     public static function cntr($uid)
     {
-        return Reported::where('reported_id', $uid)->count();
+        return Reported::select('id')->where('reported_id', $uid)->count();
     }
 
     public static function report($member_id, $reported_id, $content = null)

@@ -123,6 +123,9 @@ class Vip extends Model
             }
             return true;
         }
+        else if($free == 0 && $curUser->engroup == 2){
+            // todo : 女付費VIP取消
+        }
 
         //return Vip::where('member_id', $member_id)->delete();
         //VIP取消權限不再用刪除，而是全改為拔active

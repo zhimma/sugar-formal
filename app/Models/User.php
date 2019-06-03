@@ -56,9 +56,12 @@ class User extends Authenticatable
         return User::where('id', $uid)->first();
     }
 
-    public function meta_()
+    public function meta_($queries = null)
     {
-        return UserMeta::where('user_id', $this->id)->first();
+        if(!isset($queries)){
+            $queries = '*';
+        }
+        return UserMeta::select($queries)->where('user_id', $this->id)->first();
     }
 
     /**
@@ -177,7 +180,7 @@ class User extends Authenticatable
     public function isVip()
     {
         //return Vip::where('member_id', $this->id)->where('expiry', '>=',   Carbon::now())->orderBy('created_at', 'desc')->first() !== null;
-        return Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first() !== null;
+        return Vip::select('active')->where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first() !== null;
     }
 
     public function isFreeVip()
@@ -288,50 +291,5 @@ class User extends Authenticatable
         public function visitedsevenCount()
     {
         return Visited::where('visited_id', $this->id)->whereBetween('created_at',  [Carbon::now()->subSeconds(Config::get('social.user.viewed-seconds')), Carbon::now()])->count();
-    }
-
-    public static function isPicsEmpty($gender) {
-        $imgUsers = User::where('engroup', $gender)->get();
-        $empty = true;
-
-        foreach($imgUsers as $imgUser) {
-            if($imgUser->meta_()->pic != NULL) {
-                $empty = false;
-                break;
-            }
-        }
-
-        return $empty;
-    }
-
-
-    public static function getRand()
-    {
-        if(User::isPicsEmpty(2)) {
-            return;
-        }
-
-        while(1) {
-            $imgUser = User::where('engroup', 2)->inRandomorder()->first();
-            if ($imgUser->meta_()->pic == NULL) continue;
-            else break;
-        }
-
-        return $imgUser;
-    }
-
-    public static function getRandD()
-    {
-        if(User::isPicsEmpty(1)) {
-            return;
-        }
-
-        while(1) {
-            $imgUser = User::where('engroup', 1)->inRandomorder()->first();
-            if ($imgUser->meta_()->pic == NULL) continue;
-            else break;
-        }
-
-        return $imgUser;
     }
 }
