@@ -175,6 +175,6 @@ class UserMeta extends Model
 
         $bannedUsers = banned_users::select('member_id')->get();
 
-        return $query->whereNotIn('user_id', $bannedUsers)->paginate(12);
+        return $query->whereNotIn('user_id', $bannedUsers)->orderBy('users.last_login', 'desc')->paginate(12);
     }
 }
