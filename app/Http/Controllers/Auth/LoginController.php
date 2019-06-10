@@ -182,7 +182,10 @@ class LoginController extends Controller
             //dd($user->password_updated);
         }
 
-        if ($this->attemptLogin($request)) {
+        // if ($this->attemptLogin($request)) {
+        //     return $this->sendLoginResponse($request);
+        // }
+        if (\Auth::attempt(['email' => $request->email, 'password' => $request->password],$request->remember)) {
             return $this->sendLoginResponse($request);
         }
 
