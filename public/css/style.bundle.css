@@ -5446,9 +5446,6 @@ a.bg-dark:hover {
     }
 }
 @media (min-width: 768px) {
-    .d-md-none {
-        display: none!important
-    }
     .d-md-inline {
         display: inline!important
     }
@@ -5476,6 +5473,12 @@ a.bg-dark:hover {
     }
 }
 @media (min-width: 992px) {
+    .d-md-none {
+        display: none!important
+    }
+    .showli{
+        display: inline!important;
+    }
     .d-lg-none {
         display: none!important
     }
@@ -5506,6 +5509,9 @@ a.bg-dark:hover {
     }
 }
 @media (min-width: 1200px) {
+    .showli{
+        display: none!important;
+    }
     .d-xl-none {
         display: none!important
     }
