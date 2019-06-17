@@ -603,12 +603,12 @@ class PagesController extends Controller
                     ->with('user', $user)->with('message', 'VIP 升級成功！');
             }
             else{
-                return view('dashboard.upgradesuccess')
+                return view('dashboard.upgradefailed')
                     ->with('user', $user)->withErrors(['交易系統回傳結果顯示交易未成功，VIP 升級失敗！請檢查信用卡資訊。']);
             }
         }
         else{
-            return view('dashboard.upgradesuccess')
+            return view('dashboard.upgradefailed')
                 ->with('user', $user)->withErrors(['交易系統沒有回傳資料，VIP 升級失敗！請檢查網路是否順暢。']);
         }
     }

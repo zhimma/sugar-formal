@@ -137,9 +137,8 @@ class Vip extends Model
     }
 
     public function removeVIP(){
-        $user = Vip::select('member_id', 'active')
+        $user = Vip::select('member_id', 'active', 'expiry')
             ->where('member_id', $this->member_id)
-            ->where('active', 1)
             ->update(array('active' => 0, 'expiry' => null));
         return $user;
     }

@@ -5,6 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
+<<<<<<< HEAD
             "name": "Listen for XDebug",
             "type": "php",
             "request": "launch",
@@ -15,6 +16,14 @@
             "type": "php",
             "request": "launch",
             "pathMappings": {"/Users/lzong/wwwroot/sugar-formal": "${workspaceFolder}"},
+=======
+            "name": "Listen for XDebug on Laravel",
+            "type": "php",
+            "request": "launch",
+            "pathMappings": {
+                "C:/xampp/htdocs/sugar-formal/": "${workspaceFolder}"
+            },
+>>>>>>> 3462f34c5816cfeae4a4dfcdc7da12e02ae4acb9
             "port": 9000
         },
         {
