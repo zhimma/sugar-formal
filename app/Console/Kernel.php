@@ -296,7 +296,7 @@ class Kernel extends ConsoleKernel
                      'content' => "檔案比較失敗：本地與遠端的檔案內容不一致。"]
                 );
                 $admin = \App\Models\User::findByEmail(config('social.admin.email'));
-                $admin->notify(new AutoComparisonFailedEmail(\Carbon\Carbon::now()->toDateTimeString(), 'RP_761404_'.$localDate.'.dat', '本地與遠端的檔案內容不一致'));
+                $admin->notify(new \App\Notifications\AutoComparisonFailedEmail(\Carbon\Carbon::now()->toDateTimeString(), 'RP_761404_'.$localDate.'.dat', '本地與遠端的檔案內容不一致'));
                 return "File comparison failed, the contents of local and remote files are not the same.";
             }
         }
@@ -308,7 +308,7 @@ class Kernel extends ConsoleKernel
                  'content' => "本地端沒有檔案，檢查程序沒有執行。"]
             );
             $admin = \App\Models\User::findByEmail(config('social.admin.email'));
-            $admin->notify(new AutoComparisonFailedEmail(\Carbon\Carbon::now()->toDateTimeString(), 'RP_761404_'.$localDate.'.dat', '本地端沒有檔案'));
+            $admin->notify(new \App\Notifications\AutoComparisonFailedEmail(\Carbon\Carbon::now()->toDateTimeString(), 'RP_761404_'.$localDate.'.dat', '本地端沒有檔案'));
             return "Local file not found, check process didn't initiate.";
         }
     }
