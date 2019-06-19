@@ -49,6 +49,7 @@ class FemaleVipActive
         //若女會員照片條件不符合，則過濾掉，不判斷剩下的規則
         //若女會員是付費VIP(!$user->isFreeVip()，是VIP且非免費)，則過濾掉，不判斷剩下的規則
         if($user->engroup == 1 || $user->engroup == 2 && !$user->existHeaderImage() || !$user->isFreeVip()){
+            //******若女會員已有免費VIP後，才不符合圖片資格，需處理(如不處理，則會一直擁有權限)
             return $next($request);
         } 
 
@@ -56,13 +57,13 @@ class FemaleVipActive
         //這句是為了避免會員失去免費VIP後，馬上就又可以拿到免費VIP而設的條件
         if($vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.start') && !$user->isVip()) {
         }
-        //提供免費VIP的邏輯，使用vip_record記錄提供的時間點
+        //提供免費VIP的主要程式段，若會員非VIP，則提供免費VIP，使用vip_record記錄提供的時間點
         else if(!$user->isVip()) {
             $user->vip_record = Carbon::now();
             $user->save();
             Vip::upgrade($user->id, '1111000', '0', 0, 'OOOOOOOO', 1, 1);
         }
-        //如果免費VIP取得權限的時間點與現在時間的差距，小於系統設定的時間長度(代表他固定上線)，則將該時間點延長(延長VIP時間)
+        //如果免費VIP取得權限的時間點與現在時間的差距，小於系統設定的時間長度(代表他固定上線)，則將現在時間記錄至vip_record(延長VIP時間)
         else if($user->isVip() && $vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.free-days')) {
             $user->vip_record = Carbon::now();
             $user->save();
