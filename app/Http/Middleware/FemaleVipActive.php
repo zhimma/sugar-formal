@@ -51,7 +51,7 @@ class FemaleVipActive
         //剩下的是符合資格的女會員，如果她已經是免費VIP，則檢查現在是否依舊符合資格(照片、固定上線)
         if($user->isFreeVip()){
             //如果取得免費VIP權限的時間點與現在時間的差距，小於系統設定的時間長度(代表他固定上線)，同時也符合照片條件，則將現在時間記錄至vip_record(延長VIP時間)
-            if( ($vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.free-days'))  && !$user->existHeaderImage() ) {
+            if( ($vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.free-days'))  && $user->existHeaderImage() ) {
                 $user->vip_record = Carbon::now();
                 $user->save();
             }
