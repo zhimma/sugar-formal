@@ -58,10 +58,13 @@ class MessageController extends Controller {
         if(!isset($payload['msg'])){
             return back()->withErrors(['請勿僅輸入空白！']);
         }
-        if(isset($payload['m_time']) && !Auth::user()->isVIP() && Auth::user()->engroup == 1){
-            $diffInSecs = strtotime(date("Y-m-d H:i:s")) - strtotime($payload['m_time']);
+        if(!Auth::user()->isVIP()){
+            $m_time = Message::select('created_at')->
+                where('from_id', Auth::user()->id)->
+                orderBy('created_at', 'desc')->first();
+            $diffInSecs = strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at);
             if($diffInSecs < 60){
-                return back()->withErrors(['由於您尚未升級VIP，因此受到每次發訊間隔60秒的限制。']);
+                return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每分鐘限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
             }
         }
         Message::post(auth()->id(), $payload['to'], $payload['msg']);
