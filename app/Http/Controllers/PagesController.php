@@ -479,7 +479,6 @@ class PagesController extends Controller
                 if(!$user->isVip() && $user->engroup == 1){
                     $m_time = Message::select('created_at')->
                     where('from_id', $user->id)->
-                    where('to_id', $cid)->
                     orderBy('created_at', 'desc')->first();
                     if(isset($m_time)){
                         $m_time = $m_time->created_at;
