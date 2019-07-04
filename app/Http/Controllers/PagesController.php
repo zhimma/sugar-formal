@@ -665,7 +665,9 @@ class PagesController extends Controller
 
     public function showCheckAccount(Request $request) {
         $user = $request->user();
-
+        if(!$user->isVip()){
+            return back()->withErrors(['很抱歉，您目前還不是本站VIP，因此無法執行這個步驟。']);
+        }
         if ($user) {
             return view('auth.checkAccount')->with('user', $user);
         }
