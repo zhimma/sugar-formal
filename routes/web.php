@@ -264,10 +264,10 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         //Route::get('/dashboard/fav', 'PagesController@fav');
         Route::get('/dashboard/upgradesuccess', 'PagesController@upgradesuccess');
         Route::get('/dashboard/search', 'PagesController@search');
-        Route::get('/dashboard/chat', 'MessageController@chatview');
+        Route::get('/dashboard/chat', 'MessageController@chatview')->name('chatView');
         Route::post('/dashboard/chat/showMoreMessages', 'MessageController@chatviewMore')->name('showMoreMessages');
         Route::post('/dashboard/chat/showAllMessages', 'MessageController@chatviewAll')->name('showAllMessages');
-        Route::get('/dashboard/chat/{cid}', 'PagesController@chat');
+        Route::get('/dashboard/chat/{cid}', 'PagesController@chat')->name('chatWithUser');
         Route::get('/dashboard/chat/deleterow/{uid}/{sid}', ['uses' => 'MessageController@deleteBetween', 'as' => 'deleteBetween']);
         Route::get('/dashboard/chat/deleteall/{uid}', ['uses' => 'MessageController@deleteAll', 'as' => 'deleteAll']);
         Route::get('/dashboard/chat/deletesingle/{uid}/{sid}/{ct_time}/{content}', ['uses' => 'MessageController@deleteSingle', 'as' => 'deleteSingle']);
