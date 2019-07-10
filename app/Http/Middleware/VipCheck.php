@@ -42,6 +42,7 @@ class VipCheck
             $userVIP = Vip::where('member_id', $this->auth->user()->id)->get()->first();
             $expiry = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $userVIP->expiry);
             if($now > $expiry && $userVIP->expiry != '0000-00-00 00:00:00'){
+                \App\Models\VipLog::addToLog($this->auth->user()->id, 'Expired auto cancellation.', 'XXXXXXXXX', 0, 0);
                 $userVIP->removeVIP();
             }
         }
