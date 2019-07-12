@@ -1,7 +1,119 @@
 @extends('layouts.master')
 
 @section('app-content')
-
+<style>
+    .MW4BW_ {
+        position: absolute;
+        left: 14px;
+        top: .625rem;
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -moz-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        -webkit-flex-direction: column;
+        -moz-box-orient: vertical;
+        -moz-box-direction: normal;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        -webkit-box-align: start;
+        -webkit-align-items: flex-start;
+        -moz-box-align: start;
+        -ms-flex-align: start;
+        align-items: flex-start;
+        z-index: 1;
+    }
+    ._1gkBDw {
+        /*text-decoration: none;*/
+        /*color: rgba(0,0,0,.8);*/
+        /*display: block;*/
+        /*box-shadow: 0 0.0625rem 0.125rem 0 rgba(0,0,0,.1);*/
+        /*border-radius: .125rem;*/
+        /*overflow: hidden;*/
+        /*background: #fff;*/
+        /*position: relative;*/
+        /*overflow: visible;*/
+        /*cursor: pointer;*/
+        /*-webkit-user-select: none;*/
+        /*-moz-user-select: none;*/
+        /*-ms-user-select: none;*/
+        /*user-select: none;*/
+        /*padding: 0;*/
+        /*-webkit-transition: box-shadow .1s cubic-bezier(.4,0,.6,1),-webkit-transform .1s cubic-bezier(.4,0,.6,1);*/
+        /*transition: box-shadow .1s cubic-bezier(.4,0,.6,1),-webkit-transform .1s cubic-bezier(.4,0,.6,1);*/
+        /*transition: transform .1s cubic-bezier(.4,0,.6,1),box-shadow .1s cubic-bezier(.4,0,.6,1);*/
+        /*transition: transform .1s cubic-bezier(.4,0,.6,1),box-shadow .1s cubic-bezier(.4,0,.6,1),-webkit-transform .1s cubic-bezier(.4,0,.6,1);*/
+    }
+    .bgXBUk {
+        padding: 0 .25rem;
+    }
+    ._3BQlNg {
+        position: relative;
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -moz-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        -moz-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+        height: 1rem;
+        padding: 0 3px;
+        border-top-right-radius: .1875rem;
+        border-bottom-right-radius: .1875rem;
+        background: currentColor;
+        left: -.25rem;
+    }
+    ._3BQlNg:before {
+        content: "";
+        display: inline-block;
+        position: absolute;
+        left: 0;
+        bottom: -.1875rem;
+        border-top: .1875rem solid currentColor;
+        border-left: .1875rem solid transparent;
+        filter: url(data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg"><f…B type="linear" slope="0.6" /></feComponentTransfer></filter></svg>#filter);
+        -webkit-filter: brightness(60%);
+        filter: brightness(60%);
+    }
+    svg:not(:root) {
+        overflow: hidden;
+    }
+    .Yov1gb {
+        font-size: .5rem;
+    }
+    .lVCR4M, .Yov1gb {
+        color: #fff;
+    }
+    .shopee-svg-icon {
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        fill: currentColor;
+        position: relative;
+    }
+    svg {
+        x: 0;
+        y: 0;
+    }
+    :not(svg) {
+        transform-origin: 0px 0px;
+    }
+    .Yov1gb {
+        font-size: .5rem;
+    }
+    .lVCR4M, .Yov1gb {
+        color: #fff;
+    }
+    ._2O43P5 {
+        overflow: visible;
+        border: 1px solid transparent;
+    }
+</style>
 <?php $block_people =  Config::get('social.block.block-people'); ?>
 
 <div class="m-portlet__head">
@@ -185,7 +297,8 @@
                             <?php $icc = 1; ?>
             @if (isset($vis) && sizeof($vis) > 0)
             @foreach ($vis as $vi)
-                <div class="col-md-3 m-widget3__item"  style="border-bottom: none; margin:50px 0;">
+                <div class="col-md-3 m-widget3__item _1gkBDw _2O43P5"  style="border-bottom: none; margin:50px 0;">
+                    <div class="MW4BW_"><div class="_3BQlNg bgXBUk" style="color: rgb(242, 82, 32);"><svg class="shopee-svg-icon Yov1gb icon-tick" enable-background="new 0 0 15 15" viewBox="0 0 15 15" x="0" y="0"><g><path d="m6.5 13.6c-.2 0-.5-.1-.7-.2l-5.5-4.8c-.4-.4-.5-1-.1-1.4s1-.5 1.4-.1l4.7 4 6.8-9.4c.3-.4.9-.5 1.4-.2.4.3.5 1 .2 1.4l-7.4 10.3c-.2.2-.4.4-.7.4 0 0 0 0-.1 0z"></path></g></svg><span class="lVCR4M">蝦皮優選</span></div></div>
                      <?php $visitor = $vi->user() ?>
                      @if ($visitor !== null && $visitor->engroup != $user->engroup && $visitor->meta_() !== null)
                     <?php $vmeta = $visitor->meta_(); ?>
@@ -232,46 +345,44 @@
                             @endif
 
             @if ($visitor !== null && $visitor->meta_() !== null)
-                    <div class="col-md-3 m-widget3__item" style="border-bottom: none; margin:50px 0;">
-                            <div class="card m-portlet m-portlet--mobile" style="display: inline-block; width: 100%; margin-bottom: 0; box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7);">
-                                <!-- <div class="m-portlet__body col-lg-3 col-md-3" style="display:inline-block; padding: 1rem; max-width: 26%">
-            			             <a href="/user/view/{{$visitor->id}}"><img class="m-widget3__img" src="{{$visitor->meta_()->pic}}" onerror="this.src='/img/male-avatar.png'" alt=""></a>
-            			        </div> -->
-                                <a href="/user/view/{{$visitor->id}}"><img src="@if($visitor->meta_()->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->meta_()->pic}} @endif" @if ($visitor->engroup == 1) onerror="this.src='/img/male-avatar.png'" @else onerror="this.src='/img/female-avatar.png'" @endif alt="" width="100%" height="100%"></a>
-                        			<div class="card-inner" style="display:inline-block;">
-                        			    <!-- <a href="/user/view/{{$visitor->id}}" @if ($icc == 1) style="color: white" @endif> -->
+                <div class="col-md-3 m-widget3__item _1gkBDw _2O43P5" style="border-bottom: none; margin:50px 0;">
+                    <div class="MW4BW_"><div class="_3BQlNg bgXBUk" style="color: rgb(242, 82, 32);"><svg class="shopee-svg-icon Yov1gb icon-tick" enable-background="new 0 0 15 15" viewBox="0 0 15 15" x="0" y="0"><g><path d="m6.5 13.6c-.2 0-.5-.1-.7-.2l-5.5-4.8c-.4-.4-.5-1-.1-1.4s1-.5 1.4-.1l4.7 4 6.8-9.4c.3-.4.9-.5 1.4-.2.4.3.5 1 .2 1.4l-7.4 10.3c-.2.2-.4.4-.7.4 0 0 0 0-.1 0z"></path></g></svg><span class="lVCR4M">蝦皮優選</span></div></div>
+                        <div class="card m-portlet m-portlet--mobile" style="display: inline-block; width: 100%; margin-bottom: 0; box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7);">
+                            <a href="/user/view/{{$visitor->id}}"><img src="@if($visitor->meta_()->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->meta_()->pic}} @endif" @if ($visitor->engroup == 1) onerror="this.src='/img/male-avatar.png'" @else onerror="this.src='/img/female-avatar.png'" @endif alt="" width="100%" height="100%"></a>
+                                <div class="card-inner" style="display:inline-block;">
+                                    <!-- <a href="/user/view/{{$visitor->id}}" @if ($icc == 1) style="color: white" @endif> -->
 
-                            				<p class="user-card" id="card-basic">{{ $visitor->name }} @if ($visitor->isVip()) (VIP) @endif , {{ $visitor->meta_()->age() }}歲
-                                                @if(\App\Models\Reported::cntr($visitor->id) >=  $block_people )
-                                                    <span class="m-widget3__username" style="color:red">(此人遭多人檢舉)</span>
-                                                @endif
-                                                <br />
-                                            <p class="user-card" id="card-area">{{$visitor->meta_()->city}} {{$visitor->meta_()->area}}</p>
-                                                                        <!-- {{$visitor->title}} -->
-                                            </p>
-                                        <!-- </a> -->
-                        		     </div>
+                                        <p class="user-card" id="card-basic">{{ $visitor->name }} @if ($visitor->isVip()) (VIP) @endif , {{ $visitor->meta_()->age() }}歲
+                                            @if(\App\Models\Reported::cntr($visitor->id) >=  $block_people )
+                                                <span class="m-widget3__username" style="color:red">(此人遭多人檢舉)</span>
+                                            @endif
+                                            <br />
+                                        <p class="user-card" id="card-area">{{$visitor->meta_()->city}} {{$visitor->meta_()->area}}</p>
+                                                                    <!-- {{$visitor->title}} -->
+                                        </p>
+                                    <!-- </a> -->
+                                 </div>
 
-            			<!-- <div class="m-portlet__body col-lg-4 col-md-4" style="display:inline-block; max-width: 41%">
-            			    <a href="/user/view/{{$visitor->id}}" @if ($icc == 1) style="color: white" @endif>
-            				<p>{{$visitor->meta_()->city}} {{$visitor->meta_()->area}}<br>年齡: {{$visitor->meta_()->age()}}<br>身高: {{$visitor->meta_()->height}}cm<br>體型: {{$visitor->meta_()->body}}</p></a>
-            			</div> -->
-            		      </div>
-                    </div>
+                    <!-- <div class="m-portlet__body col-lg-4 col-md-4" style="display:inline-block; max-width: 41%">
+                        <a href="/user/view/{{$visitor->id}}" @if ($icc == 1) style="color: white" @endif>
+                        <p>{{$visitor->meta_()->city}} {{$visitor->meta_()->area}}<br>年齡: {{$visitor->meta_()->age()}}<br>身高: {{$visitor->meta_()->height}}cm<br>體型: {{$visitor->meta_()->body}}</p></a>
+                    </div> -->
+                      </div>
+                </div>
 
-                            @if ($icc == 1) <?php $icc = 0; ?> @else <?php $icc = 1; ?>@endif
-                            @endif
-                            @endforeach
-                            <div class="page m-form__actions row">
-                                <div class="col-md-12 col-xs-12 col-sm-12">
-                                    {!! $visitors->appends(request()->input())->links() !!}
-                                </div>
+                        @if ($icc == 1) <?php $icc = 0; ?> @else <?php $icc = 1; ?>@endif
+                        @endif
+                        @endforeach
+                        <div class="page m-form__actions row">
+                            <div class="col-md-12 col-xs-12 col-sm-12">
+                                {!! $visitors->appends(request()->input())->links() !!}
                             </div>
-                            @endif
-
                         </div>
+                        @endif
 
                     </div>
+
+                </div>
 
 @stop
 
