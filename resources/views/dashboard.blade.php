@@ -129,6 +129,9 @@
                 </li>
             @endif
         </ul>
+        @if(isset($cur) && $user->id !== $cur->id)
+            <img src="../../img/member_tags/rcmd_daddy.png" alt="" height="30px" style="margin: 20px 0 20px 0; float: right; right: 0;">
+        @endif
     </div>
 </div>
 <div class="tab-content">
