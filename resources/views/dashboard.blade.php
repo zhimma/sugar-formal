@@ -21,6 +21,10 @@
         }
         $('#information').submit();
     }
+
+    function showDescription() {
+        console.log('clicked.');
+    }
 </script>
 <style>
     .pics {
@@ -130,7 +134,7 @@
             @endif
         </ul>
         @if(isset($cur) && $user->id !== $cur->id)
-            <img src="../../img/member_tags/rcmd_daddy.png" alt="" height="30px" style="margin: 20px 0 20px 0; float: right; right: 0;">
+            <img src="../../img/member_tags/rcmd_daddy.png" alt="" height="30px" style="margin: 20px 0 20px 0; float: right; right: 0;" onclick="showDescription()">
         @endif
     </div>
 </div>
