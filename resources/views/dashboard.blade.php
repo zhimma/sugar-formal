@@ -36,19 +36,21 @@
     }
 
     function showDescription() {
-        $('.modal').animate(
-            {opacity:100}
-            ,'nornal'
-            ,function(){ $(this).show(); }
-        );
+        // $('.modal').animate(
+        //     {opacity:0}
+        //     ,'nornal'
+        //     ,function(){ $('.modal').show(); }
+        // );
+        $('.modal').fadeToggle(200);
     }
 
     function hideDescription() {
-        $('.modal').animate(
-            {opacity:0,top:0}
-            ,'normal'
-            ,function(){ $(this).hide(); }
-        );
+        // $('.modal').animate(
+        //     {opacity:0,top:0}
+        //     ,'normal'
+        //     ,function(){ $('.modal').hide(); }
+        // );
+        $('.modal').fadeToggle(200);
     }
 </script>
 <style>
@@ -69,18 +71,63 @@
     }
 
     .wrap {
-        margin: auto;
     }
 
     .modal {
+        background-image: url("../../img/member_tags/bg_1.png");
         background-color: #fff;
-        padding: 2em 3em;
+        background-repeat: no-repeat;
+        /*padding: 2em 3em;*/
+        margin: auto;
+        width: 420px;
+        height: 500px;
         text-align: center;
         border-radius: .5em;
-        display: none;
+        display: inline;
+        -webkit-box-shadow: 0px 4px 20px 0px rgba(0,0,0,0.31);
+        -moz-box-shadow: 0px 4px 20px 0px rgba(0,0,0,0.31);
+        box-shadow: 0px 4px 20px 0px rgba(0,0,0,0.31);
     }
-    .modal.is-active {
-        display: block;
+
+    .modal2{
+        background: #ffffff;
+        margin-top: 152px;
+        margin-left: auto;
+        margin-right: auto;
+        height: 45%;
+        width: 86%;
+        border-radius: .5em;
+        -webkit-box-shadow: 0px 3px 22px 0px rgba(122,122,122,0.41);
+        -moz-box-shadow: 0px 3px 22px 0px rgba(122,122,122,0.41);
+        box-shadow: 0px 3px 22px 0px rgba(122,122,122,0.41);
+    }
+
+    .modal3{
+        background: #F2526C;
+        color: white;
+        margin-top: 36px;
+        margin-left: auto;
+        margin-right: auto;
+        height: 40px;
+        width: 86%;
+        border-radius: 20px;
+    }
+
+    hr {
+        border: 0;
+        height: 2px;
+        width: 60px;
+        /*color: #F2526C;*/
+        background: #F2526C;
+        /*background-image: linear-gradient(to right, rgba(0,0,0,0), #F2526C, rgba(0,0,0,0));*/
+    }
+
+    .modal-button{
+        margin-top: 30px;
+        margin-right: auto;
+        margin-left: auto;
+        position: fixed;
+        outline: 0;
     }
 
     .modal-image {
@@ -91,13 +138,6 @@
         box-shadow: 0 0 0 2px #48DB71;
         padding: 11px 10px 2px;
         margin-bottom: 2em;
-    }
-
-    .btn-open {
-        display: none;
-    }
-    .btn-open.is-active {
-        display: block;
     }
 </style>
 <div class="m-portlet__head">
@@ -195,14 +235,17 @@
             {{-- https://codepen.io/rppld/pen/vOvdyQ  --}}
 
             <div class="wrap">
-                <div class="modal js-modal">
-                    <div class="modal-image">
-                        <svg viewBox="0 0 32 32" style="fill:#48DB71"><path d="M1 14 L5 10 L13 18 L27 4 L31 8 L13 26 z"></path></svg>
+                <div class="modal">
+                    <div class="modal2">
+                        優選糖爹
+                        <hr>
+                        *會員名*是本站*加入vip日期*的長期VIP會員。
                     </div>
-                    <h1>Nice job!</h1>
-                    <p>To dismiss click the button below</p>
-                    <button class="js-close" onclick="hideDescription()">Dismiss</button>
+                    <div class="modal3">
+                        推薦指數
+                    </div>
                 </div>
+                <button onclick="hideDescription()" class="modal-button">Dismiss</button>
             </div>
         @endif
     </div>
