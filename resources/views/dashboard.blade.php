@@ -23,9 +23,33 @@
         $('#information').submit();
     }
 
-    // function showDescription() {
-    //     console.log('clicked.');
-    // }
+    function select(selector) {
+        var elements = document.querySelectorAll(selector);
+
+        if (elements.length > 1) {
+            console.log(elements);
+            return elements;
+        } else {
+            console.log(elements.item(0));
+            return elements.item(0);
+        }
+    }
+
+    function showDescription() {
+        $('.modal').animate(
+            {opacity:100}
+            ,'nornal'
+            ,function(){ $(this).show(); }
+        );
+    }
+
+    function hideDescription() {
+        $('.modal').animate(
+            {opacity:0,top:0}
+            ,'normal'
+            ,function(){ $(this).hide(); }
+        );
+    }
 </script>
 <style>
     .pics {
@@ -43,6 +67,7 @@
         box-shadow: 4px 4px 3px rgba(20%, 20%, 40%, 0.5);
         z-index: 999;
     }
+
     .wrap {
         margin: auto;
     }
@@ -53,7 +78,9 @@
         text-align: center;
         border-radius: .5em;
         display: none;
-        &.is-active { display: block; }
+    }
+    .modal.is-active {
+        display: block;
     }
 
     .modal-image {
@@ -64,6 +91,13 @@
         box-shadow: 0 0 0 2px #48DB71;
         padding: 11px 10px 2px;
         margin-bottom: 2em;
+    }
+
+    .btn-open {
+        display: none;
+    }
+    .btn-open.is-active {
+        display: block;
     }
 </style>
 <div class="m-portlet__head">
@@ -161,14 +195,13 @@
             {{-- https://codepen.io/rppld/pen/vOvdyQ  --}}
 
             <div class="wrap">
-                <button class="js-open btn-open is-active">Show modal</button>
                 <div class="modal js-modal">
                     <div class="modal-image">
                         <svg viewBox="0 0 32 32" style="fill:#48DB71"><path d="M1 14 L5 10 L13 18 L27 4 L31 8 L13 26 z"></path></svg>
                     </div>
                     <h1>Nice job!</h1>
                     <p>To dismiss click the button below</p>
-                    <button class="js-close">Dismiss</button>
+                    <button class="js-close" onclick="hideDescription()">Dismiss</button>
                 </div>
             </div>
         @endif
@@ -1655,103 +1688,6 @@
     }
     validate_date();
     @endif
-
-    var btnOpen = $(".js-open");
-    var btnClose = $(".js-close");
-    var modal = $(".js-modal");
-    var modalChildren = modal.children;
-
-    function hideModal() {
-        dynamics.animate(modal, {
-            opacity: 0,
-            translateY: 100
-        }, {
-            type: dynamics.spring,
-            frequency: 50,
-            friction: 600,
-            duration: 1500
-        });
-    }
-
-    function showDescription() {
-        // Define initial properties
-        dynamics.css(modal, {
-            opacity: 0,
-            scale: .5
-        });
-
-        // Animate to final properties
-        dynamics.animate(modal, {
-            opacity: 1,
-            scale: 1
-        }, {
-            type: dynamics.spring,
-            frequency: 300,
-            friction: 400,
-            duration: 1000
-        });
-    }
-
-    function showBtn() {
-        dynamics.css(btnOpen, {
-            opacity: 0
-        });
-
-        dynamics.animate(btnOpen, {
-            opacity: 1
-        }, {
-            type: dynamics.spring,
-            frequency: 300,
-            friction: 400,
-            duration: 800
-        });
-    }
-
-    function showModalChildren() {
-        // Animate each child individually
-        for(var i=0; i<modalChildren.length; i++) {
-            var item = modalChildren[i];
-
-            // Define initial properties
-            dynamics.css(item, {
-                opacity: 0,
-                translateY: 30
-            });
-
-            // Animate to final properties
-            dynamics.animate(item, {
-                opacity: 1,
-                translateY: 0
-            }, {
-                type: dynamics.spring,
-                frequency: 300,
-                friction: 400,
-                duration: 1000,
-                delay: 100 + i * 40
-            });
-        }
-    }
-
-    function toggleClasses() {
-        toggleClass(btnOpen, 'is-active');
-        toggleClass(modal, 'is-active');
-    }
-
-
-    // Open nav when clicking sandwich button
-    btnOpen.click(function(e) {
-        console.log('clicked');
-        toggleClasses();
-        showDescription();
-        showModalChildren();
-    });
-
-    // Open nav when clicking sandwich button
-    btnClose.click(function(e) {
-        hideModal();
-        dynamics.setTimeout(toggleClasses, 500);
-        dynamics.setTimeout(showBtn, 500);
-    });
 </script>
 @stop
 
