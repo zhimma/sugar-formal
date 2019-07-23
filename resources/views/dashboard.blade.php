@@ -41,7 +41,7 @@
         //     ,'nornal'
         //     ,function(){ $('.modal').show(); }
         // );
-        $('.modal').fadeToggle(200);
+        $('.wrap').fadeToggle(200);
     }
 
     function hideDescription() {
@@ -50,7 +50,7 @@
         //     ,'normal'
         //     ,function(){ $('.modal').hide(); }
         // );
-        $('.modal').fadeToggle(200);
+        $('.wrap').fadeToggle(200);
     }
 </script>
 <style>
@@ -77,10 +77,10 @@
         background-image: url("../../img/member_tags/bg_1.png");
         background-color: #fff;
         background-repeat: no-repeat;
-        /*padding: 2em 3em;*/
+        background-size: 100%;
         margin: auto;
-        width: 420px;
-        height: 500px;
+        width: 315px;
+        height: 390px;
         text-align: center;
         border-radius: .5em;
         display: inline;
@@ -91,9 +91,10 @@
 
     .modal2{
         background: #ffffff;
-        margin-top: 152px;
+        margin-top: 114px;
         margin-left: auto;
         margin-right: auto;
+        padding: 1.5em;
         height: 45%;
         width: 86%;
         border-radius: .5em;
@@ -105,12 +106,19 @@
     .modal3{
         background: #F2526C;
         color: white;
-        margin-top: 36px;
+        margin-top: 28px;
         margin-left: auto;
         margin-right: auto;
         height: 40px;
         width: 86%;
         border-radius: 20px;
+        display: table;
+        text-align:center;
+    }
+
+    .modal3 > h5 {
+        display: table-cell;
+        vertical-align: middle;
     }
 
     hr {
@@ -122,12 +130,29 @@
         /*background-image: linear-gradient(to right, rgba(0,0,0,0), #F2526C, rgba(0,0,0,0));*/
     }
 
-    .modal-button{
-        margin-top: 30px;
+    .wrap > .modal-button{
+        position: fixed;
+        margin-top: 78vh;
+        margin-bottom: 10vh;
         margin-right: auto;
         margin-left: auto;
-        position: fixed;
-        outline: 0;
+        text-align: center;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1050;
+    }
+
+    .wrap > .modal-button > button {
+        background-image: url('../../img/member_tags/close-button.svg');
+        background-repeat: no-repeat;
+        background-position: 50% 50%;
+        background-color: transparent;
+        /* put the height and width of your image here */
+        width: 40px;
+        height: 40px;
+        border: none;
     }
 
     .modal-image {
@@ -237,15 +262,17 @@
             <div class="wrap">
                 <div class="modal">
                     <div class="modal2">
-                        優選糖爹
+                        <h4>優選糖爹</h4>
                         <hr>
-                        *會員名*是本站*加入vip日期*的長期VIP會員。
+                        <p>*會員名*是本站*加入vip日期*的長期VIP會員。</p>
                     </div>
                     <div class="modal3">
-                        推薦指數
+                        <h5>推薦指數</h5>
                     </div>
                 </div>
-                <button onclick="hideDescription()" class="modal-button">Dismiss</button>
+                <div class="modal-button">
+                    <button onclick="hideDescription()" class="modal-button"></button>
+                </div>
             </div>
         @endif
     </div>
