@@ -71,10 +71,11 @@
     }
 
     .wrap {
+        display: none;
     }
 
     .modal {
-        background-image: url("../../img/member_tags/bg_1.png");
+        background-image: url("{{ $background }}");
         background-color: #fff;
         background-repeat: no-repeat;
         background-size: 100%;
@@ -114,11 +115,20 @@
         border-radius: 20px;
         display: table;
         text-align:center;
+        vertical-align: middle;
     }
 
     .modal3 > h5 {
         display: table-cell;
         vertical-align: middle;
+    }
+
+    .modal3 > .stars{
+        display: inline-block;
+        height: 100%;
+        vertical-align: middle;
+        margin-top: auto;
+        margin-bottom: auto;
     }
 
     hr {
@@ -132,7 +142,7 @@
 
     .wrap > .modal-button{
         position: fixed;
-        margin-top: 78vh;
+        margin-top: 80vh;
         margin-bottom: 10vh;
         margin-right: auto;
         margin-left: auto;
@@ -153,16 +163,6 @@
         width: 40px;
         height: 40px;
         border: none;
-    }
-
-    .modal-image {
-        width: 40px;
-        height: 40px;
-        margin: 0 auto;
-        border-radius: 50%;
-        box-shadow: 0 0 0 2px #48DB71;
-        padding: 11px 10px 2px;
-        margin-bottom: 2em;
     }
 </style>
 <div class="m-portlet__head">
@@ -255,19 +255,20 @@
                 </li>
             @endif
         </ul>
-        @if(isset($cur) && $user->id !== $cur->id)
-            <img src="../../img/member_tags/rcmd_daddy.png" alt="" height="30px" style="margin: 20px 0 20px 0; float: right; right: 0;" onclick="showDescription()">
+        @if(isset($cur) && $user->id !== $cur->id && isset($button))
+            <img src="{{ $button }}" alt="" height="30px" style="margin: 20px 0 20px 0; float: right; right: 0;" onclick="showDescription()">
             {{-- https://codepen.io/rppld/pen/vOvdyQ  --}}
 
             <div class="wrap">
                 <div class="modal">
                     <div class="modal2">
-                        <h4>優選糖爹</h4>
+                        <h4>{{ $title }}</h4>
                         <hr>
-                        <p>*會員名*是本站*加入vip日期*的長期VIP會員。</p>
+                        <p>{!! $description !!}</p>
                     </div>
                     <div class="modal3">
                         <h5>推薦指數</h5>
+                        <div class="stars">{!! $stars !!}</div>
                     </div>
                 </div>
                 <div class="modal-button">

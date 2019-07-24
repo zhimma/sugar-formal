@@ -279,7 +279,14 @@
             @if (isset($vis) && sizeof($vis) > 0)
             @foreach ($vis as $vi)
                 <div class="col-md-3 m-widget3__item"  style="border-bottom: none; margin:50px 0;">
-                    <div class="MW4BW_"><div class="_3BQlNg bgXBUk" style="color: rgb(242, 82, 32);"><svg class="shopee-svg-icon Yov1gb icon-tick" enable-background="new 0 0 15 15" viewBox="0 0 15 15" x="0" y="0"><g><path d="m6.5 13.6c-.2 0-.5-.1-.7-.2l-5.5-4.8c-.4-.4-.5-1-.1-1.4s1-.5 1.4-.1l4.7 4 6.8-9.4c.3-.4.9-.5 1.4-.2.4.3.5 1 .2 1.4l-7.4 10.3c-.2.2-.4.4-.7.4 0 0 0 0-.1 0z"></path></g></svg><span class="lVCR4M">蝦皮優選</span></div></div>
+                    <? $data = \App\Services\UserService::checkRecommendedUser($vi); ?>
+                    @if(isset($data->button))
+                        <div class="MW4BW_">
+                            <div class="_3BQlNg bgXBUk" style="color: rgb(253, 112, 135);">
+                                <img src="{{ $data->button }}" alt="" height="100%">
+                            </div>
+                        </div>
+                    @endif
                      <?php $visitor = $vi->user() ?>
                      @if ($visitor !== null && $visitor->engroup != $user->engroup && $visitor->meta_() !== null)
                     <?php $vmeta = $visitor->meta_(); ?>
@@ -327,11 +334,14 @@
 
             @if ($visitor !== null && $visitor->meta_() !== null)
                 <div class="col-md-3 m-widget3__item" style="border-bottom: none; margin:50px 0;">
-                    <div class="MW4BW_">
-                        <div class="_3BQlNg bgXBUk" style="color: rgb(253, 112, 135);">
-                            <img src="../img/member_tags/rcmd_daddy.png" alt="" height="100%">
+                    <? $data = \App\Services\UserService::checkRecommendedUser($visitor); ?>
+                    @if(isset($data['button']))
+                        <div class="MW4BW_">
+                            <div class="_3BQlNg bgXBUk" style="color: rgb(253, 112, 135);">
+                                <img src="{{ $data['button'] }}" alt="" height="100%">
+                            </div>
                         </div>
-                    </div>
+                    @endif
                         <div class="card m-portlet m-portlet--mobile" style="display: inline-block; width: 100%; margin-bottom: 0; box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7);">
                             <a href="/user/view/{{$visitor->id}}"><img src="@if($visitor->meta_()->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->meta_()->pic}} @endif" @if ($visitor->engroup == 1) onerror="this.src='/img/male-avatar.png'" @else onerror="this.src='/img/female-avatar.png'" @endif alt="" width="100%" height="100%"></a>
                                 <div class="card-inner" style="display:inline-block;">

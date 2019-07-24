@@ -313,33 +313,26 @@ class PagesController extends Controller
     public function viewuser(Request $request, $uid = -1)
     {
         $user = $request->user();
+
         if (isset($user) && isset($uid)) {
-            $tmp = User::where('id', $uid)->get()->first();
-            if(!isset($tmp)){
+            $targetUser = User::where('id', $uid)->get()->first();
+            if(!isset($targetUser)){
                 return view('errors.nodata');
             }
             if ($user->id != $uid) {
                 Visited::visit($user->id, $uid);
             }
 
-            if($tmp->engroup == 1 && $tmp->isVip()){
-                $vip_date = Vip::select('id', 'updated_at')->where('member_id', $uid)->orderBy('updated_at', 'desc')->get()->first();
-                $vip_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $vip_date->created_at);
-                $now = \Carbon\Carbon::now();
-                $diff_in_months = $vip_date->diffInMonths($now);
-                $tip_count = Tip::select('id')->where('member_id', $uid)->count();
-                switch ($diff_in_months){
-                    case 1:
-                        if($tip_count >= 1){
-                            $descrpition = "*會員名*是本站*加入vip日期*新進的VIP會員，願意使用站方的車馬費制度。建議甜心可請求*會員名*向站方支付車馬費與您進行第一次約會。(甚麼是車馬費?)";
-                        }
-                        break;
-                }
-            }
+            $checkRecommendedUser = $this->service->checkRecommendedUser($targetUser);
 
             return view('dashboard')
             ->with('user', $user)
-            ->with('cur', $this->service->find($uid));
+            ->with('cur', $this->service->find($uid))
+            ->with('description', $checkRecommendedUser['description'])
+            ->with('stars', $checkRecommendedUser['stars'])
+            ->with('background', $checkRecommendedUser['background'])
+            ->with('title', $checkRecommendedUser['title'])
+            ->with('button', $checkRecommendedUser['button']);
         }
     }
 
