@@ -332,7 +332,8 @@ class PagesController extends Controller
             ->with('stars', $checkRecommendedUser['stars'])
             ->with('background', $checkRecommendedUser['background'])
             ->with('title', $checkRecommendedUser['title'])
-            ->with('button', $checkRecommendedUser['button']);
+            ->with('button', $checkRecommendedUser['button'])
+            ->with('height', $checkRecommendedUser['height']);
         }
     }
 

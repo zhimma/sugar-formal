@@ -279,17 +279,17 @@
             @if (isset($vis) && sizeof($vis) > 0)
             @foreach ($vis as $vi)
                 <div class="col-md-3 m-widget3__item"  style="border-bottom: none; margin:50px 0;">
-                    <? $data = \App\Services\UserService::checkRecommendedUser($vi); ?>
-                    @if(isset($data->button))
-                        <div class="MW4BW_">
-                            <div class="_3BQlNg bgXBUk" style="color: rgb(253, 112, 135);">
-                                <img src="{{ $data->button }}" alt="" height="100%">
-                            </div>
-                        </div>
-                    @endif
                      <?php $visitor = $vi->user() ?>
                      @if ($visitor !== null && $visitor->engroup != $user->engroup && $visitor->meta_() !== null)
-                    <?php $vmeta = $visitor->meta_(); ?>
+                     <?php $vmeta = $visitor->meta_(); ?>
+                     <? $data = \App\Services\UserService::checkRecommendedUser($visitor); ?>
+                     @if(isset($data['button']))
+                         <div class="MW4BW_">
+                             <div class="_3BQlNg bgXBUk" style="color: rgb(253, 112, 135);">
+                                 <img src="{{ $data['button'] }}" alt="" height="100%">
+                             </div>
+                         </div>
+                     @endif
                         <div class="card m-portlet m-portlet--mobile" style="display: inline-block; width: 100%; margin-bottom: 0; box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7);">
                             <!-- <div class="card m-portlet__body col-lg-3 col-md-4" style="display:inline-block; padding: 1rem; max-width: 26%">
 		                         <a href="/user/view/{{$visitor->id}}"><img class="m-widget3__img" src="{{$visitor->meta_()->pic}}" @if ($visitor->engroup == 1) onerror="this.src='/img/male-avatar.png'" @else onerror="this.src='/img/female-avatar.png'" @endif alt=""></a>

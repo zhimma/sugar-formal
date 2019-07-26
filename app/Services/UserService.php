@@ -392,15 +392,19 @@ class UserService
     }
 
     public static function checkRecommendedUser($targetUser){
-        $descrpition = null;
+        $description = null;
         $stars = null;
-        $backgroud = null;
+        $background = null;
         $title = null;
         $button = null;
+        $height = null;
         $now = \Carbon\Carbon::now();
         if($targetUser->engroup == 1 && $targetUser->isVip()){
             $vip_date = Vip::select('id', 'updated_at')->where('member_id', $targetUser->id)->orderBy('updated_at', 'desc')->get()->first();
-            $vip_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $vip_date->created_at);
+            if(!isset($vip_date->updated_at)){
+                return false;
+            }
+            $vip_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $vip_date->updated_at);
             $diff_in_months = $vip_date->diffInMonths($now);
             $title = "優選糖爹";
             $button = "../../img/member_tags/rcmd_daddy.png";
@@ -409,65 +413,71 @@ class UserService
                     break;
                 case 1:
                 case 2:
-                    $backgroud = '../../img/member_tags/bg_1.png';
+                    $background = '../../img/member_tags/bg_1.png';
                     $tip_count = Tip::select('id')->where('member_id', $targetUser->id)->count();
                     if($tip_count >= 1){
-                        $descrpition = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的新進的VIP會員，願意使用站方的車馬費制度。建議甜心可請求".$targetUser->name."向站方支付車馬費與您進行第一次約會。<a href='".url('feature')."' target='_blank'>(甚麼是車馬費?)</a>";
+                        $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的新進的VIP會員，願意使用站方的車馬費制度。建議甜心可請求".$targetUser->name."向站方支付車馬費與您進行第一次約會。<a href='".url('feature')."' target='_blank'>(甚麼是車馬費?)</a>";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_23.png'>
                                   <img src='../../img/member_tags/star_23.png'>";
+                        $height = '480px';
                     }
                     break;
                 case 3:
-                    $backgroud = '../../img/member_tags/bg_1.png';
+                    $background = '../../img/member_tags/bg_1.png';
                     $tip_count = Tip::select('id')->where('member_id', $targetUser->id)->count();
                     if($tip_count >= 1){
-                        $descrpition = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員，願意使用站方的車馬費制度。建議甜心可請求".$targetUser->name."向站方支付車馬費與您進行第一次約會。<a href='".url('feature')."' target='_blank'>(甚麼是車馬費?)</a>";
+                        $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員，願意使用站方的車馬費制度。建議甜心可請求".$targetUser->name."向站方支付車馬費與您進行第一次約會。<a href='".url('feature')."' target='_blank'>(甚麼是車馬費?)</a>";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_21.png'>
                                   <img src='../../img/member_tags/star_23.png'>";
+                        $height = '480px';
                     }
                     else{
-                        $descrpition = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
+                        $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_23.png'>
                                   <img src='../../img/member_tags/star_23.png'>";
+                        $height = '380px';
                     }
                     break;
                 case 4:
-                    $backgroud = '../../img/member_tags/bg_1.png';
+                    $background = '../../img/member_tags/bg_1.png';
                     $tip_count = Tip::select('id')->where('member_id', $targetUser->id)->count();
                     if($tip_count >= 1){
-                        $descrpition = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員，願意使用站方的車馬費制度。建議甜心可請求".$targetUser->name."向站方支付車馬費與您進行第一次約會。<a href='".url('feature')."' target='_blank'>(甚麼是車馬費?)</a>";
+                        $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員，願意使用站方的車馬費制度。建議甜心可請求".$targetUser->name."向站方支付車馬費與您進行第一次約會。<a href='".url('feature')."' target='_blank'>(甚麼是車馬費?)</a>";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_21.png'>";
+                        $height = '480px';
                     }
                     else{
-                        $descrpition = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
+                        $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_23.png'>";
+                        $height = '380px';
                     }
                     break;
                 default:  //五個月以上
-                    $backgroud = '../../img/member_tags/bg_1.png';
-                    $descrpition = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
+                    $background = '../../img/member_tags/bg_1.png';
+                    $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
                     $stars = "<img src='../../img/member_tags/star_19.png'>
                               <img src='../../img/member_tags/star_19.png'>
                               <img src='../../img/member_tags/star_19.png'>
                               <img src='../../img/member_tags/star_19.png'>
                               <img src='../../img/member_tags/star_19.png'>";
+                    $height = '380px';
                     break;
             }
         }
@@ -475,23 +485,25 @@ class UserService
             $registration_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $targetUser->created_at);
             $diff_in_months = $registration_date->diffInMonths($now);
             if($diff_in_months == 0){
-                $backgroud = '../../img/member_tags/bg_2.png';
+                $background = '../../img/member_tags/bg_2.png';
                 $button = "../../img/member_tags/new_baby.png";
                 $title = "新進甜心";
-                $descrpition = $targetUser->name."是本站新註冊的甜心寶貝。";
+                $description = $targetUser->name."是本站新註冊的甜心寶貝。";
                 $stars = "<img src='../../img/member_tags/star_19.png'>
                           <img src='../../img/member_tags/star_19.png'>
                           <img src='../../img/member_tags/star_19.png'>
                           <img src='../../img/member_tags/star_19.png'>
                           <img src='../../img/member_tags/star_19.png'>";
+                $height = '380px';
             }
         }
 
-        return ['description' => $descrpition,
+        return ['description' => $description,
                 'stars' => $stars,
-                'background' => $backgroud,
+                'background' => $background,
                 'title' => $title,
-                'button' =>  $button,];
+                'button' =>  $button,
+                'height' => $height];
     }
 
     /**

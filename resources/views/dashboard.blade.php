@@ -1,7 +1,5 @@
 @extends('layouts.master')
-
 @section('app-content')
-<script src="{{ url('/js/dynamics.js') }}"></script>
 <script>
     function vipadditional() {
         $(".vipadd").toggle();
@@ -21,18 +19,6 @@
             }
         }
         $('#information').submit();
-    }
-
-    function select(selector) {
-        var elements = document.querySelectorAll(selector);
-
-        if (elements.length > 1) {
-            console.log(elements);
-            return elements;
-        } else {
-            console.log(elements.item(0));
-            return elements.item(0);
-        }
     }
 
     function showDescription() {
@@ -74,21 +60,23 @@
         display: none;
     }
 
-    .modal {
-        background-image: url("{{ $background }}");
-        background-color: #fff;
-        background-repeat: no-repeat;
-        background-size: 100%;
-        margin: auto;
-        width: 315px;
-        height: 390px;
-        text-align: center;
-        border-radius: .5em;
-        display: inline;
-        -webkit-box-shadow: 0px 4px 20px 0px rgba(0,0,0,0.31);
-        -moz-box-shadow: 0px 4px 20px 0px rgba(0,0,0,0.31);
-        box-shadow: 0px 4px 20px 0px rgba(0,0,0,0.31);
-    }
+    @if(isset($background))
+        .modal {
+            background-image: url("{{ $background }}");
+            background-color: #fff;
+            background-repeat: no-repeat;
+            background-size: 100%;
+            margin: auto;
+            width: 315px;
+            height: {{ $height }};
+            text-align: center;
+            border-radius: .5em;
+            display: inline;
+            -webkit-box-shadow: 0px 4px 20px 0px rgba(0,0,0,0.31);
+            -moz-box-shadow: 0px 4px 20px 0px rgba(0,0,0,0.31);
+            box-shadow: 0px 4px 20px 0px rgba(0,0,0,0.31);
+        }
+    @endif
 
     .modal2{
         background: #ffffff;
@@ -96,7 +84,7 @@
         margin-left: auto;
         margin-right: auto;
         padding: 1.5em;
-        height: 45%;
+        /*height: 45%;*/
         width: 86%;
         border-radius: .5em;
         -webkit-box-shadow: 0px 3px 22px 0px rgba(122,122,122,0.41);
@@ -134,8 +122,8 @@
 
     .wrap > .modal-button{
         position: fixed;
-        margin-top: 80vh;
-        margin-bottom: 10vh;
+        margin-top: 85vh;
+        margin-bottom: 5vh;
         margin-right: auto;
         margin-left: auto;
         text-align: center;
