@@ -113,22 +113,14 @@
         height: 40px;
         width: 86%;
         border-radius: 20px;
-        display: table;
-        text-align:center;
-        vertical-align: middle;
+        display: flex;
+        align-items:center;
+        justify-content: center;
     }
 
-    .modal3 > h5 {
-        display: table-cell;
-        vertical-align: middle;
-    }
-
-    .modal3 > .stars{
-        display: inline-block;
-        height: 100%;
-        vertical-align: middle;
-        margin-top: auto;
-        margin-bottom: auto;
+    .modal3 > span {
+        font-size: large;
+        font-weight: bold;
     }
 
     hr {
@@ -267,8 +259,7 @@
                         <p>{!! $description !!}</p>
                     </div>
                     <div class="modal3">
-                        <h5>推薦指數</h5>
-                        <div class="stars">{!! $stars !!}</div>
+                        <span>推薦指數</span>{!! $stars !!}
                     </div>
                 </div>
                 <div class="modal-button">
