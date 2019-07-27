@@ -243,7 +243,7 @@
                 </li>
             @endif
         </ul>
-        @if(isset($cur) && $user->id !== $cur->id && isset($button))
+        @if(isset($cur) && $user->id !== $cur->id && isset($description))
             <img src="{{ $button }}" alt="" height="30px" style="margin: 20px 0 20px 0; float: right; right: 0;" onclick="showDescription()">
             {{-- https://codepen.io/rppld/pen/vOvdyQ  --}}
 

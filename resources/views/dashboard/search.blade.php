@@ -1,5 +1,4 @@
 @extends('layouts.master')
-
 @section('app-content')
 <style>
     .MW4BW_ {
@@ -96,7 +95,6 @@
     }
 </style>
 <?php $block_people =  Config::get('social.block.block-people'); ?>
-
 <div class="m-portlet__head">
                         <div class="m-portlet__head-caption">
                             <div class="m-portlet__head-title">
@@ -111,7 +109,6 @@
 <form action="{!! url('dashboard/search') !!}" class="m-form m-form--fit m-form--label-align-right" method="GET">
     <input type="hidden" name="_token" value="{{csrf_token()}}" >
         <div class="form-group m-form__group row" id="twzipcode"><label class="col-form-label col-lg-2 col-sm-12">縣市</label>
-
             <div class="col-lg-6 col-md-10 col-sm-12">
                 <div class="twzip" data-role="county" data-name="county">
                 </div>
@@ -279,17 +276,17 @@
             @if (isset($vis) && sizeof($vis) > 0)
             @foreach ($vis as $vi)
                 <div class="col-md-3 m-widget3__item"  style="border-bottom: none; margin:50px 0;">
-                     <?php $visitor = $vi->user() ?>
-                     @if ($visitor !== null && $visitor->engroup != $user->engroup && $visitor->meta_() !== null)
-                     <?php $vmeta = $visitor->meta_(); ?>
-                     <? $data = \App\Services\UserService::checkRecommendedUser($visitor); ?>
-                     @if(isset($data['button']))
-                         <div class="MW4BW_">
-                             <div class="_3BQlNg bgXBUk" style="color: rgb(253, 112, 135);">
-                                 <img src="{{ $data['button'] }}" alt="" height="100%">
-                             </div>
-                         </div>
-                     @endif
+                    <?php $visitor = $vi->user() ?>
+                    @if ($visitor !== null && $visitor->engroup != $user->engroup && $visitor->meta_() !== null)
+                    <?php $vmeta = $visitor->meta_(); ?>
+                    <? $data = \App\Services\UserService::checkRecommendedUser($visitor); ?>
+                    @if(isset($data['description']))
+                        <div class="MW4BW_">
+                            <div class="_3BQlNg bgXBUk" style="color: rgb(253, 112, 135);">
+                                <img src="{{ $data['button'] }}" alt="" height="100%">
+                            </div>
+                        </div>
+                    @endif
                         <div class="card m-portlet m-portlet--mobile" style="display: inline-block; width: 100%; margin-bottom: 0; box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7);">
                             <!-- <div class="card m-portlet__body col-lg-3 col-md-4" style="display:inline-block; padding: 1rem; max-width: 26%">
 		                         <a href="/user/view/{{$visitor->id}}"><img class="m-widget3__img" src="{{$visitor->meta_()->pic}}" @if ($visitor->engroup == 1) onerror="this.src='/img/male-avatar.png'" @else onerror="this.src='/img/female-avatar.png'" @endif alt=""></a>
@@ -306,7 +303,6 @@
                                                             <!-- {{$visitor->title}} -->
                                 </p>
                 		    </div>
-
                 			<!-- <div class="m-portlet__body col-lg-4 col-sm-5" style="display:inline-block; max-width: 41%">
                 			    <a href="/user/view/{{$visitor->id}}" @if ($icc == 1) style="color: white" @endif>
                 				    <p>{{$visitor->meta_()->city}} {{$visitor->meta_()->area}}<br>年齡: {{$visitor->meta_()->age()}}<br>身高: {{$visitor->meta_()->height}}cm<br>體型: {{$visitor->meta_()->body}}</p>
@@ -314,7 +310,6 @@
                 			</div> -->
 		              </div>
                 </div>
-
                             @if ($icc == 1) <?php $icc = 0; ?> @else <?php $icc = 1; ?>@endif
                             @endif
                             @endforeach
@@ -331,11 +326,10 @@
                             @if (isset($_GET['_token']))
                                 <?php $visitor = $vi->user() ?>
                             @endif
-
             @if ($visitor !== null && $visitor->meta_() !== null)
                 <div class="col-md-3 m-widget3__item" style="border-bottom: none; margin:50px 0;">
                     <? $data = \App\Services\UserService::checkRecommendedUser($visitor); ?>
-                    @if(isset($data['button']))
+                    @if(isset($data['description']))
                         <div class="MW4BW_">
                             <div class="_3BQlNg bgXBUk" style="color: rgb(253, 112, 135);">
                                 <img src="{{ $data['button'] }}" alt="" height="100%">
@@ -346,7 +340,6 @@
                             <a href="/user/view/{{$visitor->id}}"><img src="@if($visitor->meta_()->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->meta_()->pic}} @endif" @if ($visitor->engroup == 1) onerror="this.src='/img/male-avatar.png'" @else onerror="this.src='/img/female-avatar.png'" @endif alt="" width="100%" height="100%"></a>
                                 <div class="card-inner" style="display:inline-block;">
                                     <!-- <a href="/user/view/{{$visitor->id}}" @if ($icc == 1) style="color: white" @endif> -->
-
                                         <p class="user-card" id="card-basic">{{ $visitor->name }} @if ($visitor->isVip()) (VIP) @endif , {{ $visitor->meta_()->age() }}歲
                                             @if(\App\Models\Reported::cntr($visitor->id) >=  $block_people )
                                                 <span class="m-widget3__username" style="color:red">(此人遭多人檢舉)</span>
@@ -357,14 +350,12 @@
                                         </p>
                                     <!-- </a> -->
                                  </div>
-
                     <!-- <div class="m-portlet__body col-lg-4 col-md-4" style="display:inline-block; max-width: 41%">
                         <a href="/user/view/{{$visitor->id}}" @if ($icc == 1) style="color: white" @endif>
                         <p>{{$visitor->meta_()->city}} {{$visitor->meta_()->area}}<br>年齡: {{$visitor->meta_()->age()}}<br>身高: {{$visitor->meta_()->height}}cm<br>體型: {{$visitor->meta_()->body}}</p></a>
                     </div> -->
                       </div>
                 </div>
-
                         @if ($icc == 1) <?php $icc = 0; ?> @else <?php $icc = 1; ?>@endif
                         @endif
                         @endforeach
@@ -374,13 +365,9 @@
                             </div>
                         </div>
                         @endif
-
                     </div>
-
                 </div>
-
 @stop
-
 @section ('javascript')
 <script src="//cdnjs.cloudflare.com/ajax/libs/cropperjs/1.0.0/cropper.min.js"></script>
 <script>
