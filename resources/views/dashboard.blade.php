@@ -61,7 +61,16 @@
     }
 
     @if(isset($background))
-        .modal {
+        .description {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 1050;
+            display: inline;
+            overflow: hidden;
+            outline: 0;
             background-image: url("{{ $background }}");
             background-color: #fff;
             background-repeat: no-repeat;
@@ -71,14 +80,13 @@
             height: {{ $height }};
             text-align: center;
             border-radius: .5em;
-            display: inline;
             -webkit-box-shadow: 0px 4px 20px 0px rgba(0,0,0,0.31);
             -moz-box-shadow: 0px 4px 20px 0px rgba(0,0,0,0.31);
             box-shadow: 0px 4px 20px 0px rgba(0,0,0,0.31);
         }
     @endif
 
-    .modal2{
+    .description2{
         background: #ffffff;
         margin-top: 114px;
         margin-left: auto;
@@ -92,7 +100,7 @@
         box-shadow: 0px 3px 22px 0px rgba(122,122,122,0.41);
     }
 
-    .modal3{
+    .description3{
         background: #F2526C;
         color: white;
         margin-top: 28px;
@@ -106,7 +114,7 @@
         justify-content: center;
     }
 
-    .modal3 > span {
+    .description3 > span {
         font-size: large;
         font-weight: bold;
     }
@@ -120,7 +128,7 @@
         /*background-image: linear-gradient(to right, rgba(0,0,0,0), #F2526C, rgba(0,0,0,0));*/
     }
 
-    .wrap > .modal-button{
+    .wrap > .description-button{
         position: fixed;
         margin-top: 85vh;
         margin-bottom: 5vh;
@@ -134,7 +142,7 @@
         z-index: 1050;
     }
 
-    .wrap > .modal-button > button {
+    .wrap > .description-button > button {
         background-image: url('../../img/member_tags/close-button.svg');
         background-repeat: no-repeat;
         background-position: 50% 50%;
@@ -240,18 +248,18 @@
             {{-- https://codepen.io/rppld/pen/vOvdyQ  --}}
 
             <div class="wrap">
-                <div class="modal">
-                    <div class="modal2">
+                <div class="description">
+                    <div class="description2">
                         <h4>{{ $title }}</h4>
                         <hr>
                         <p>{!! $description !!}</p>
                     </div>
-                    <div class="modal3">
+                    <div class="description3">
                         <span>推薦指數</span>{!! $stars !!}
                     </div>
                 </div>
-                <div class="modal-button">
-                    <button onclick="hideDescription()" class="modal-button"></button>
+                <div class="description-button">
+                    <button onclick="hideDescription()" class="description-button"></button>
                 </div>
             </div>
         @endif
