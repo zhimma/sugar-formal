@@ -90,7 +90,7 @@ class MessageController extends Controller {
     {
         $user_id = $request->uid;
         $data = Message::moreSendersAJAX($user_id, $request->isVip, $request->date);
-        if ($data) {
+        if (isset($data)) {
             return response()->json(array(
                 'status' => 1,
                 'msg' => $data
@@ -107,7 +107,7 @@ class MessageController extends Controller {
     {
         $user_id = $request->uid;
         $data = Message::allSendersAJAX($user_id, $request->isVip);
-        if ($data) {
+        if (isset($data)) {
             return response()->json(array(
                 'status' => 1,
                 'msg' => $data

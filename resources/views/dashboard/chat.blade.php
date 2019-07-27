@@ -63,6 +63,7 @@
         });
     }
     function fillDatas(data) {
+        $('#user-list').empty();
         for(let i = 0 ; i < data.length ; i++){
             let ele;
             if(data[i]['isAdminMessage'] === 1){
@@ -121,7 +122,7 @@
             ele += "<div class='m-widget3__delete'>";
             ele += "<a class='btn btn-danger m-btn m-btn--air m-btn--custom delete-btn' href='{{ url('/') }}/dashboard/chat/deleterow/{{ $user->id }}/" + data[i]['user_id'] + "'>刪除</a>";
             ele += "</div></div></div>";
-            $(ele).insertBefore($('.options'));
+            $('#user-list').append(ele);
         }
         adminMessage();
     }

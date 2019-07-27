@@ -152,12 +152,13 @@ class Message extends Model
         //$msgShow = User::findById($uid)->meta_()->notifhistory;
         $user = \Auth::user();
         $banned_users = \App\Models\SimpleTables\banned_users::select('member_id')->get();
-        $isVip = $user->isVip();
-        foreach($messages as $message) {
-            if($banned_users->contains($message->to_id)){
+        foreach($messages as $key => $message) {
+            if($banned_users->contains('member_id', $message->to_id)){
+                unset($messages[$key]);
                 continue;
             }
-            if($banned_users->contains($message->from_id) && $message->from_id != $user->id){
+            if($banned_users->contains('member_id', $message->from_id) && $message->from_id != $user->id){
+                unset($messages[$key]);
                 continue;
             }
             if($message->to_id == $user->id) {
@@ -167,6 +168,7 @@ class Message extends Model
                 $msgUser =  \App\Models\User::findById($message->to_id);
             }
             if(\App\Models\Message::onlyShowVip($user, $msgUser, $isVip)) {
+                unset($messages[$key]);
                 continue;
             }
 
@@ -180,11 +182,13 @@ class Message extends Model
 
             // delete row messages
             if($message->is_row_delete_1 == $uid || $message->is_row_delete_2 == $uid) {
+                unset($messages[$key]);
                 continue;
             }
 
             // delete all messages
             if($uid == $message->temp_id && $message->all_delete_count == 1 && $isAllDelete == true) {
+                unset($messages[$key]);
                 continue;
             }
 
@@ -211,26 +215,7 @@ class Message extends Model
         $noVipCount = 0;
         $isAllDelete = true;
         //$msgShow = User::findById($uid)->meta_()->notifhistory;
-        $user = \Auth::user();
-        $banned_users = \App\Models\SimpleTables\banned_users::select('member_id')->get();
-        $isVip = $user->isVip();
-        foreach($messages as $message) {
-            if($banned_users->contains($message->to_id)){
-                continue;
-            }
-            if($banned_users->contains($message->from_id) && $message->from_id != $user->id){
-                continue;
-            }
-            if($message->to_id == $user->id) {
-                $msgUser = \App\Models\User::findById($message->from_id);
-            }
-            else if($message->from_id == $user->id) {
-                $msgUser =  \App\Models\User::findById($message->to_id);
-            }
-            if(\App\Models\Message::onlyShowVip($user, $msgUser, $isVip)) {
-                continue;
-            }
-
+        foreach($messages as $key => $message) {
             // end 1 and 2
             if($message->all_delete_count == 2) {
                 Message::deleteAllMessagesFromDB($message->to_id, $message->from_id);
@@ -241,11 +226,13 @@ class Message extends Model
 
             // delete row messages
             if($message->is_row_delete_1 == $uid || $message->is_row_delete_2 == $uid) {
+                unset($messages[$key]);
                 continue;
             }
 
             // delete all messages
             if($uid == $message->temp_id && $message->all_delete_count == 1 && $isAllDelete == true) {
+                unset($messages[$key]);
                 continue;
             }
 
@@ -401,19 +388,25 @@ class Message extends Model
     }
 
     public static function sortMessages($messages){
+        if ($messages instanceof Illuminate\Database\Eloquent\Collection) {
+            $messages = $messages->toArray();
+        }
         $user = Auth::user();
         $block_people =  Config::get('social.block.block-people');
         $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
         $banned_users = banned_users::select('member_id')->get();
         $isVip = $user->isVip();
         foreach ($messages as $key => $message){
-            if($banned_users->contains($message['to_id'])){
+            if($banned_users->contains('member_id', $message['to_id'])){
+                unset($messages[$key]);
                 continue;
             }
-            if($banned_users->contains($message['from_id']) && $message['from_id'] != $user->id){
+            if($banned_users->contains('member_id', $message['from_id']) && $message['from_id'] != $user->id){
+                unset($messages[$key]);
                 continue;
             }
-            if($userBlockList->contains($message['from_id']) || $userBlockList->contains($message['to_id'])){
+            if($userBlockList->contains('member_id', $message['from_id']) || $userBlockList->contains('member_id', $message['to_id'])){
+                unset($messages[$key]);
                 continue;
             }
             if($message['to_id'] == $user->id) {
@@ -423,6 +416,7 @@ class Message extends Model
                 $msgUser =  \App\Models\User::findById($message['to_id']);
             }
             if(\App\Models\Message::onlyShowVip($user, $msgUser, $isVip)) {
+                unset($messages[$key]);
                 continue;
             }
             $latestMessage = \App\Models\Message::latestMessage($user->id, $msgUser->id);
@@ -446,7 +440,7 @@ class Message extends Model
             $messages[$key]['pic'] = $msgUser->meta_()->pic;
             $messages[$key]['content'] = $latestMessage == null ? '' : $latestMessage->content;
         }
-        return $messages;
+        return array_values($messages);
     }
 
     public static function search($value, $array) {
