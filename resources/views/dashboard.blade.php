@@ -60,7 +60,7 @@
         display: none;
     }
 
-    @if(isset($background))
+    @if(isset($background) && isset($height))
         .description {
             position: fixed;
             top: 0;
