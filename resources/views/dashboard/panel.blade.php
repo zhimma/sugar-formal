@@ -27,7 +27,7 @@ if(Auth::user()) $login_user = Auth::user();
 					</div>
 				</div>
 				<div class="m-card-profile__details">
-					<span class="m-card-profile__name">@if (str_contains(url()->current(), 'dashboard')) {{ $user->name }} @elseif (isset($cur)) {{ $cur->name }} @endif @if ((isset($cur) && $cur->isVip()) || $user->isVip() && str_contains(url()->current(), 'dashboard')) (VIP) @endif</span>
+					<span class="m-card-profile__name">@if (str_contains(url()->current(), 'dashboard')) {{ $user->name }} @elseif (isset($cur)) {{ $cur->name }} @endif @if (((isset($cur) && $cur->isVip() && $cur->engroup == '1')) || ($user->isVip() && str_contains(url()->current(), 'dashboard'))) (VIP) @endif</span>
 				</div>
 			</div>
 

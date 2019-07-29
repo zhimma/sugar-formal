@@ -97,7 +97,7 @@
                         <td>封鎖</td>
                     @endif
                 </tr>
-                @forelse ($results as $result)
+                @forelse ($results as $key => $result)
                     <tr @if($result['isBlocked']) style="color: #F00;" @endif>
                         <td>
                             <a href="{{ route('users/advInfo', $result['from_id']) }}" target='_blank'>{{ $users[$result['from_id']] }}</a>
@@ -119,13 +119,13 @@
                         </td>
                         @if(isset($reported) && $reported == 1)
                             <td>
-                                <select name="days" id="days">
+                                <select name="days" class="days{{ $key }}">
                                     <option value="3">三天</option>
                                     <option value="7">七天</option>
                                     <option value="14">十四天</option>
                                     <option value="30">三十天</option>
                                 </select>
-                                <a class="btn btn-success ban-user" href="{{ route('banUserWithDayAndMessage', [$result['from_id'], $result['id']]) }}" onclick="setDays(this)">送出</a>
+                                <a class="btn btn-success ban-user{{ $key }}" href="{{ route('banUserWithDayAndMessage', [$result['from_id'], $result['id']]) }}" onclick="setDays(this, {{ $key }})">送出</a>
                             </td>
                         @endif
                     </tr>
@@ -301,10 +301,10 @@
         history.go(0);
     }
     let count = 0;
-    function setDays(a) {
+    function setDays(a, key) {
         if(count === 0){
             let href = a.href;
-            $('.ban-user').attr("href", href + '/' + $('#days').val());
+            $('.ban-user' + key).attr("href", href + '/' + $('.days' + key).val());
         }
         count++;
     }

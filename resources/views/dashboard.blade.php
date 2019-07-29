@@ -128,29 +128,29 @@
         /*background-image: linear-gradient(to right, rgba(0,0,0,0), #F2526C, rgba(0,0,0,0));*/
     }
 
-    .wrap > .description-button{
-        position: fixed;
-        margin-top: 85vh;
-        margin-bottom: 5vh;
-        margin-right: auto;
-        margin-left: auto;
+    .description > .description-button{
+        float: right;
         text-align: center;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
+        margin-right: 6px;
+        margin-top: 6px;
         z-index: 1050;
     }
 
-    .wrap > .description-button > button {
-        background-image: url('../../img/member_tags/close-button.svg');
-        background-repeat: no-repeat;
-        background-position: 50% 50%;
-        background-color: transparent;
+    .description > .description-button > button {
+        background-color: #4CAF50;
+        color: white;
+        font-weight: bold;
+        border-radius: 50%;
         /* put the height and width of your image here */
-        width: 40px;
-        height: 40px;
+        width: 24px;
+        height: 24px;
         border: none;
+        -webkit-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.49);
+        -moz-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.49);
+        box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.49);
+        -webkit-box-shadow: inset 0px 0px 4px 0px rgb(41, 83, 41,0.49);
+        -moz-box-shadow: inset 0px 0px 4px 0px rgba(41, 83, 41,0.49);
+        box-shadow: inset 0px 0px 4px 0px rgba(41, 83, 41,0.49);
     }
 </style>
 <div class="m-portlet__head">
@@ -165,17 +165,14 @@
             @endif
             @if (str_contains(url()->current(), 'dashboard'))
                 <li class="nav-item m-tabs__item">
-                    @if(isset($cur) && $user->id == $cur->id)
-                        <a class="nav-link m-tabs__link" href="/dashboard">
-                            <i class="flaticon-share m--hide"></i>
+                    <a class="nav-link m-tabs__link" href="/user/view/{{ $user->id }}">
+                        <i class="flaticon-share m--hide"></i>
+                        @if(isset($cur) && $user->id == $cur->id)
+                            檢視自己的首頁
+                        @else
                             首頁
-                        </a>
-                    @else
-                        <a class="nav-link m-tabs__link" href="/user/view/{{$user->id}}">
-                            <i class="flaticon-share m--hide"></i>
-                            首頁
-                        </a>
-                    @endif
+                        @endif
+                    </a>
                 </li>
                 <li class="nav-item m-tabs__item">
                     <a class="nav-link m-tabs__link {{ empty($tabName) || $tabName == 'm_user_profile_tab_1' ? 'active' : '' }}"
@@ -249,6 +246,9 @@
 
             <div class="wrap">
                 <div class="description">
+                    <div class="description-button">
+                        <button onclick="hideDescription()" class="description-button">X</button>
+                    </div>
                     <div class="description2">
                         <h4>{{ $title }}</h4>
                         <hr>
@@ -257,9 +257,6 @@
                     <div class="description3">
                         <span>推薦指數</span>{!! $stars !!}
                     </div>
-                </div>
-                <div class="description-button">
-                    <button onclick="hideDescription()" class="description-button"></button>
                 </div>
             </div>
         @endif
@@ -392,7 +389,7 @@
 
                                             </div>
                                             @if ($user->engroup == 2)
-                                                <div class="form-group m-form__group row twzipcode"><label
+                                                <div class="form-group m-form__group row @if (str_contains(url()->current(), 'dashboard')) twzipcode @endif"><label
                                                             class="col-form-label col-lg-2 col-sm-12">拒絕接受搜索縣市</label>
 
                                                     <div class="col-lg-5 col-md-10 col-sm-12">

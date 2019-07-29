@@ -280,13 +280,13 @@
                     @if ($visitor !== null && $visitor->engroup != $user->engroup && $visitor->meta_() !== null)
                     <?php $vmeta = $visitor->meta_(); ?>
                     <? $data = \App\Services\UserService::checkRecommendedUser($visitor); ?>
-                    @if(isset($data['description']))
-                        <div class="MW4BW_">
-                            <div class="_3BQlNg bgXBUk" style="color: rgb(253, 112, 135);">
-                                <img src="{{ $data['button'] }}" alt="" height="100%">
+                        @if($visitor->isVip())
+                            <div class="MW4BW_">
+                                <div class="_3BQlNg bgXBUk" style="color: rgb(253, 112, 135);">
+                                    @if ($visitor->engroup == 1) <a style="color: white; font-weight: bold; font-size: 16px;">&nbsp;VIP</a> @endif @if(isset($data['description'])) <img src="{{ $data['button'] }}" alt="" height="100%"> @else <a style="color: white; font-weight: bold; font-size: 16px;">&nbsp;</a> @endif
+                                </div>
                             </div>
-                        </div>
-                    @endif
+                        @endif
                         <div class="card m-portlet m-portlet--mobile" style="display: inline-block; width: 100%; margin-bottom: 0; box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7);">
                             <!-- <div class="card m-portlet__body col-lg-3 col-md-4" style="display:inline-block; padding: 1rem; max-width: 26%">
 		                         <a href="/user/view/{{$visitor->id}}"><img class="m-widget3__img" src="{{$visitor->meta_()->pic}}" @if ($visitor->engroup == 1) onerror="this.src='/img/male-avatar.png'" @else onerror="this.src='/img/female-avatar.png'" @endif alt=""></a>
@@ -294,7 +294,7 @@
                             <a href="/user/view/{{$visitor->id}}"><img src="@if($visitor->meta_()->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->meta_()->pic}} @endif" @if ($visitor->engroup == 1) onerror="this.src='/img/male-avatar.png'" @else onerror="this.src='/img/female-avatar.png'" @endif alt="" width="100%" height="100%"></a>
                 			<div class="card-inner" style="display:inline-block;">
                 			    <!-- <a href="/user/view/{{$visitor->id}}" @if ($icc == 1) style="color: white" @endif> -->
-                                <p class="user-card" id="card-basic">{{ $visitor->name }} @if ($visitor->isVip()) (VIP) @endif , {{ $visitor->meta_()->age() }}歲
+                                <p class="user-card" id="card-basic">{{ $visitor->name }}, {{ $visitor->meta_()->age() }}歲
                                     @if(\App\Models\Reported::cntr($visitor->id) >=  $block_people )
                                         <span class="m-widget3__username" style="color:red">(此人遭多人檢舉)</span>
                                     @endif
@@ -329,18 +329,18 @@
             @if ($visitor !== null && $visitor->meta_() !== null)
                 <div class="col-md-3 m-widget3__item" style="border-bottom: none; margin:50px 0;">
                     <? $data = \App\Services\UserService::checkRecommendedUser($visitor); ?>
-                    @if(isset($data['description']))
-                        <div class="MW4BW_">
-                            <div class="_3BQlNg bgXBUk" style="color: rgb(253, 112, 135);">
-                                <img src="{{ $data['button'] }}" alt="" height="100%">
+                        @if($visitor->isVip())
+                            <div class="MW4BW_">
+                                <div class="_3BQlNg bgXBUk" style="color: rgb(253, 112, 135);">
+                                    @if ($visitor->engroup == 1) <a style="color: white; font-weight: bold; font-size: 16px;">&nbsp;VIP</a> @endif @if(isset($data['description'])) <img src="{{ $data['button'] }}" alt="" height="100%"> @else <a style="color: white; font-weight: bold; font-size: 16px;">&nbsp;</a> @endif
+                                </div>
                             </div>
-                        </div>
-                    @endif
+                        @endif
                         <div class="card m-portlet m-portlet--mobile" style="display: inline-block; width: 100%; margin-bottom: 0; box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7);">
                             <a href="/user/view/{{$visitor->id}}"><img src="@if($visitor->meta_()->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->meta_()->pic}} @endif" @if ($visitor->engroup == 1) onerror="this.src='/img/male-avatar.png'" @else onerror="this.src='/img/female-avatar.png'" @endif alt="" width="100%" height="100%"></a>
                                 <div class="card-inner" style="display:inline-block;">
                                     <!-- <a href="/user/view/{{$visitor->id}}" @if ($icc == 1) style="color: white" @endif> -->
-                                        <p class="user-card" id="card-basic">{{ $visitor->name }} @if ($visitor->isVip()) (VIP) @endif , {{ $visitor->meta_()->age() }}歲
+                                        <p class="user-card" id="card-basic">{{ $visitor->name }}, {{ $visitor->meta_()->age() }}歲
                                             @if(\App\Models\Reported::cntr($visitor->id) >=  $block_people )
                                                 <span class="m-widget3__username" style="color:red">(此人遭多人檢舉)</span>
                                             @endif
