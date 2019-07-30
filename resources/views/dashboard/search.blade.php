@@ -24,9 +24,6 @@
         align-items: flex-start;
         z-index: 1;
     }
-    .bgXBUk {
-        /*padding: 0 .25rem;*/
-    }
     ._3BQlNg {
         position: relative;
         display: -webkit-box;
@@ -52,46 +49,10 @@
         background: linear-gradient(to right, #F45670, #FD7087);
         left: -.05rem;
     }
-    ._3BQlNg:before {
-        /*content: "";*/
-        /*display: inline-block;*/
-        /*position: absolute;*/
-        /*left: 0;*/
-        /*bottom: -.1875rem;*/
-        /*border-top: .1875rem solid currentColor;*/
-        /*border-left: .1875rem solid transparent;*/
-        /*filter: url(data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg"><f…B type="linear" slope="0.6" /></feComponentTransfer></filter></svg>#filter);*/
-        /*-webkit-filter: brightness(60%);*/
-        /*filter: brightness(60%);*/
-    }
-    svg:not(:root) {
-        overflow: hidden;
-    }
-    .Yov1gb {
-        font-size: .5rem;
-    }
-    .lVCR4M, .Yov1gb {
-        color: #fff;
-    }
-    .shopee-svg-icon {
-        display: inline-block;
-        width: 1em;
-        height: 1em;
-        fill: currentColor;
-        position: relative;
-    }
-    svg {
-        x: 0;
-        y: 0;
-    }
-    :not(svg) {
-        transform-origin: 0px 0px;
-    }
-    .Yov1gb {
-        font-size: .5rem;
-    }
-    .lVCR4M, .Yov1gb {
-        color: #fff;
+    .preferred{
+        float: left;
+        margin-left: 42px;
+        margin-top: -30px;
     }
 </style>
 <?php $block_people =  Config::get('social.block.block-people'); ?>
@@ -282,9 +243,7 @@
                     <? $data = \App\Services\UserService::checkRecommendedUser($visitor); ?>
                         @if($visitor->isVip())
                             <div class="MW4BW_">
-                                <div class="_3BQlNg bgXBUk" style="color: rgb(253, 112, 135);">
-                                    @if ($visitor->engroup == 1) <a style="color: white; font-weight: bold; font-size: 16px;">&nbsp;VIP</a> @endif @if(isset($data['description'])) <img src="{{ $data['button'] }}" alt="" height="100%"> @else <a style="color: white; font-weight: bold; font-size: 16px;">&nbsp;</a> @endif
-                                </div>
+                                @if ($visitor->engroup == 1) <a class="_3BQlNg bgXBUk"  style="color: white; font-weight: bold; font-size: 16px;">&nbsp;VIP&nbsp;</a> @endif @if(isset($data['description'])) <img src="{{ $data['button'] }}" alt="" height="30px" class="preferred"> @endif
                             </div>
                         @endif
                         <div class="card m-portlet m-portlet--mobile" style="display: inline-block; width: 100%; margin-bottom: 0; box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7);">
@@ -331,9 +290,7 @@
                     <? $data = \App\Services\UserService::checkRecommendedUser($visitor); ?>
                         @if($visitor->isVip())
                             <div class="MW4BW_">
-                                <div class="_3BQlNg bgXBUk" style="color: rgb(253, 112, 135);">
-                                    @if ($visitor->engroup == 1) <a style="color: white; font-weight: bold; font-size: 16px;">&nbsp;VIP</a> @endif @if(isset($data['description'])) <img src="{{ $data['button'] }}" alt="" height="100%"> @else <a style="color: white; font-weight: bold; font-size: 16px;">&nbsp;</a> @endif
-                                </div>
+                                @if ($visitor->engroup == 1) <a class="_3BQlNg bgXBUk"  style="color: white; font-weight: bold; font-size: 16px;">&nbsp;VIP&nbsp;</a> @endif @if(isset($data['description'])) <img src="{{ $data['button'] }}" alt="" height="30px" class="preferred"> @endif
                             </div>
                         @endif
                         <div class="card m-portlet m-portlet--mobile" style="display: inline-block; width: 100%; margin-bottom: 0; box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7);">
