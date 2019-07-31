@@ -38,10 +38,10 @@
         align-items: center;
         height: 30px;
         padding: 0 3px;
-        border-top-right-radius: .1875rem;
-        border-bottom-right-radius: .1875rem;
-        border-top-left-radius: .1875rem;
-        border-bottom-left-radius: .1875rem;
+        border-top-right-radius: .18rem;
+        border-bottom-right-radius: .18rem;
+        border-top-left-radius: .18rem;
+        border-bottom-left-radius: .18rem;
         /*background: currentColor;*/
         background: -webkit-linear-gradient(left, #F45670, #FD7087);
         background: -o-linear-gradient(right, #F45670, #FD7087);
@@ -51,7 +51,7 @@
     }
     .preferred{
         float: left;
-        margin-left: 42px;
+        margin-left: 43px;
         margin-top: -30px;
     }
 </style>

@@ -135,6 +135,59 @@
         );
     }
 </script>
+<style>
+    .MW4BW_ {
+        position: absolute;
+        left: 14px;
+        top: 0;
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -moz-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        -webkit-flex-direction: column;
+        -moz-box-orient: vertical;
+        -moz-box-direction: normal;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        -webkit-box-align: start;
+        -webkit-align-items: flex-start;
+        -moz-box-align: start;
+        -ms-flex-align: start;
+        align-items: flex-start;
+        z-index: 1;
+    }
+    /*._3BQlNg {*/
+    /*    position: relative;*/
+    /*    display: -webkit-box;*/
+    /*    display: -webkit-flex;*/
+    /*    display: -moz-box;*/
+    /*    display: -ms-flexbox;*/
+    /*    display: flex;*/
+    /*    -webkit-box-align: center;*/
+    /*    -webkit-align-items: center;*/
+    /*    -moz-box-align: center;*/
+    /*    -ms-flex-align: center;*/
+    /*    align-items: center;*/
+    /*    height: 30px;*/
+    /*    padding: 0 3px;*/
+    /*    border-top-right-radius: .18rem;*/
+    /*    border-bottom-right-radius: .18rem;*/
+    /*    border-top-left-radius: .18rem;*/
+    /*    border-bottom-left-radius: .18rem;*/
+    /*    !*background: currentColor;*!*/
+    /*    background: -webkit-linear-gradient(left, #F45670, #FD7087);*/
+    /*    background: -o-linear-gradient(right, #F45670, #FD7087);*/
+    /*    background: -moz-linear-gradient(right, #F45670, #FD7087);*/
+    /*    background: linear-gradient(to right, #F45670, #FD7087);*/
+    /*    left: -.05rem;*/
+    /*}*/
+    /*.preferred{*/
+    /*    float: left;*/
+    /*}*/
+</style>
 <?php
 $block_people =  Config::get('social.block.block-people');
 $admin_email = Config::get('social.admin.email');
@@ -235,6 +288,15 @@ $code = Config::get('social.payment.code');
                         <div class="m-widget3__item" @if(str_contains($msgUser->name, '站長')) id='admin' @else id='normal' @endif style="background-color: rgba(244, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7); padding: 14px 28px;">
 
                         @endif
+                            <? $data = \App\Services\UserService::checkRecommendedUser($msgUser); ?>
+                            {{--                    @if($visitor->isVip())--}}
+                            <div class="MW4BW_">
+                                {{--                            @if ($visitor->engroup == 1) <a class="_3BQlNg bgXBUk"  style="color: white; font-weight: bold; font-size: 16px;">&nbsp;VIP&nbsp;</a> @endif --}}
+{{--                                @if(isset($data['description'])) --}}
+                                    <img src="{{ $data['button'] }}" alt="" height="25px" class="preferred">
+{{--                                @endif--}}
+                            </div>
+                            {{--                    @endif--}}
                             <div class="m-widget3__header" @if(isset($to))style="width:95%"@else style="width:95%" @endif>
                                 <div class="m-widget3__user-img">
                                     <a href="/dashboard/chat/{{$msgUser->id}}"><img class="m-widget3__img" style="max-width:none" src="@if($msgUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{$msgUser->meta_()->pic}} @endif" onerror="this.src='/img/male-avatar.png'" alt=""></a>
