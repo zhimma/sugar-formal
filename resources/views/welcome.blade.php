@@ -299,22 +299,24 @@
 			close[i].parentNode.parentNode.removeChild(close[i].parentNode);
 		})
 	}
-	function disableAnnounce(aid){
-		$.ajax({
-			type: 'POST',
-			url: '{{ route('announceRead') }}',
-			data: { uid: "{{ $user->id }}", aid: aid, _token: "{{ csrf_token() }}"},
-			success: function(xhr, status, error){
-				console.log(xhr);
-				console.log(error);
-			},
-			error: function(xhr, status, error){
-				console.log(xhr);
-				console.log(status);
-				console.log(error);
-			}
-		});
-	}
+	@if(isset($user))
+		function disableAnnounce(aid){
+			$.ajax({
+				type: 'POST',
+				url: '{{ route('announceRead') }}',
+				data: { uid: "{{ $user->id }}", aid: aid, _token: "{{ csrf_token() }}"},
+				success: function(xhr, status, error){
+					console.log(xhr);
+					console.log(error);
+				},
+				error: function(xhr, status, error){
+					console.log(xhr);
+					console.log(status);
+					console.log(error);
+				}
+			});
+		}
+	@endif
 </script>
 </body>
 </html>
