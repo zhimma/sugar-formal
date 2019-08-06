@@ -152,7 +152,7 @@ class Message extends Model
         //$msgShow = User::findById($uid)->meta_()->notifhistory;
         $user = \Auth::user();
         $banned_users = \App\Models\SimpleTables\banned_users::select('member_id')->get();
-        foreach($messages as $key => $message) {
+        foreach($messages as $key => &$message) {
             if($banned_users->contains('member_id', $message->to_id)){
                 unset($messages[$key]);
                 continue;
@@ -396,7 +396,7 @@ class Message extends Model
         $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
         $banned_users = banned_users::select('member_id')->get();
         $isVip = $user->isVip();
-        foreach ($messages as $key => $message){
+        foreach ($messages as $key => &$message){
             if($banned_users->contains('member_id', $message['to_id'])){
                 unset($messages[$key]);
                 continue;
@@ -433,6 +433,10 @@ class Message extends Model
                 else{
                     $messages[$key]['cntr'] = 0;
                 }
+                if(isset($latestMessage->isPreferred)){
+                    $message['isPreferred'] = 1;
+                    $message['button'] = $latestMessage->button;
+                }
             }
             $messages[$key]['user_id'] = $msgUser->id;
             $messages[$key]['user_name'] = $msgUser->name;
@@ -462,7 +466,16 @@ class Message extends Model
             if($latestMessage == NULL) return NULL;
             return $latestMessage;
         }
-        return Message::where([['to_id', $uid],['from_id', $sid]])->orWhere([['to_id', $sid],['from_id', $uid]])->orderBy('created_at', 'desc')->first();
+
+        $theMessage = Message::where([['to_id', $uid],['from_id', $sid]])->orWhere([['to_id', $sid],['from_id', $uid]])->orderBy('created_at', 'desc')->first();
+        $msgUser = User::findById($sid);
+        $data = \App\Services\UserService::checkRecommendedUser($msgUser);
+        if(isset($data['button'])){
+            $theMessage->isPreferred = 1;
+            $theMessage->button = $data['button'];
+        }
+
+        return $theMessage;
     }
 
     // public static function allFromSender($uid, $sid)
