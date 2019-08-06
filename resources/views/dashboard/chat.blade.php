@@ -1,3 +1,4 @@
+<?// todo: 顯示更多、顯示全部邏輯修正?>
 @extends('layouts.master')
 
 @section('app-content')
@@ -52,7 +53,7 @@
             success: function(xhr){
                 console.log(xhr.msg);
                 if(xhr.msg !== ' No data'){
-                    fillDatas(xhr.msg);
+                    fillDatas(xhr.msg, true);
                     $("#showAll").hide();
                     $("#tips").hide();
                 }
@@ -62,7 +63,8 @@
             }
         });
     }
-    function fillDatas(data) {
+    function fillDatas(data, isAll = false) {
+        let showMore = $("#showMore"), showAll = $("#showAll");
         $('#user-list').empty();
         for(let i = 0 ; i < data.length ; i++){
             let ele;
@@ -82,7 +84,12 @@
                     ele = "<div class='m-widget3__item' id='normal' style='background-color: rgba(244, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7); padding: 14px 28px;'>";
                 }
             }
-
+            if(data[i]['isPreferred'] === 1){
+                ele += "<div class='MW4BW_'>";
+                    {{-- @if ($visitor->engroup == 1) <a class="_3BQlNg bgXBUk"  style="color: white; font-weight: bold; font-size: 16px;">&nbsp;VIP&nbsp;</a> @endif --}}
+                ele += "<img src='" + data[i]['button'] + "' alt='' height='25px' class='preferred'>";
+                ele += "</div>";
+            }
             ele += "<div class='m-widget3__header' style='width:95%'>";
             ele += "<div class='m-widget3__user-img'>";
             if(data[i]['isAvatarHidden'] === 1){
@@ -123,6 +130,10 @@
             ele += "<a class='btn btn-danger m-btn m-btn--air m-btn--custom delete-btn' href='{{ url('/') }}/dashboard/chat/deleterow/{{ $user->id }}/" + data[i]['user_id'] + "'>刪除</a>";
             ele += "</div></div></div>";
             $('#user-list').append(ele);
+            if(!isAll){
+                $('#user-list').append(showMore);
+                $('#user-list').append(showAll);
+            }
         }
         adminMessage();
     }
@@ -273,8 +284,6 @@ $code = Config::get('social.payment.code');
 //                }
 
                 //echo 'message->to_id = '. $message->to_id . ' message->from_id = '. $message->from_id . ' user->id = ' . $user->id;
-                $msgFromUser = \App\Models\User::findById($message['from_id']);
-                $msgToUser = \App\Models\User::findById($message['to_id']);
                 $latestMessage = \App\Models\Message::latestMessage($user->id, $msgUser->id);
                 $lastSender = \App\Models\Message::getLastSender($user->id, $msgUser->id);
                 // echo '<br/>';
@@ -288,15 +297,12 @@ $code = Config::get('social.payment.code');
                         <div class="m-widget3__item" @if(str_contains($msgUser->name, '站長')) id='admin' @else id='normal' @endif style="background-color: rgba(244, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7); padding: 14px 28px;">
 
                         @endif
-                            <? $data = \App\Services\UserService::checkRecommendedUser($msgUser); ?>
-                            {{--                    @if($visitor->isVip())--}}
-                            <div class="MW4BW_">
-                                {{--                            @if ($visitor->engroup == 1) <a class="_3BQlNg bgXBUk"  style="color: white; font-weight: bold; font-size: 16px;">&nbsp;VIP&nbsp;</a> @endif --}}
-{{--                                @if(isset($data['description'])) --}}
-                                    <img src="{{ $data['button'] }}" alt="" height="25px" class="preferred">
-{{--                                @endif--}}
-                            </div>
-                            {{--                    @endif--}}
+                            @if(isset($latestMessage->isPreferred))
+                                <div class="MW4BW_">
+                                    {{-- @if ($visitor->engroup == 1) <a class="_3BQlNg bgXBUk"  style="color: white; font-weight: bold; font-size: 16px;">&nbsp;VIP&nbsp;</a> @endif --}}
+                                    <img src="{{ $latestMessage->button }}" alt="" height="25px" class="preferred">
+                                </div>
+                            @endif
                             <div class="m-widget3__header" @if(isset($to))style="width:95%"@else style="width:95%" @endif>
                                 <div class="m-widget3__user-img">
                                     <a href="/dashboard/chat/{{$msgUser->id}}"><img class="m-widget3__img" style="max-width:none" src="@if($msgUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{$msgUser->meta_()->pic}} @endif" onerror="this.src='/img/male-avatar.png'" alt=""></a>
