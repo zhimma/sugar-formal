@@ -56,10 +56,7 @@ $code = Config::get('social.payment.code');
                 }
 
                 //echo 'message->to_id = '. $message->to_id . ' message->from_id = '. $message->from_id . ' user->id = ' . $user->id;
-                $msgFromUser = \App\Models\User::findById($message['from_id']);
-                $msgToUser = \App\Models\User::findById($message['to_id']);
                 $latestMessage = \App\Models\Message::latestMessage($user->id, $msgUser->id);
-                $lastSender = \App\Models\Message::getLastSender($user->id, $msgUser->id);
                 // echo '<br/>';
                 // echo json_encode($latestMessage);
             ?>
