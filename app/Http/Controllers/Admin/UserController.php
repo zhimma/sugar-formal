@@ -1123,4 +1123,30 @@ class UserController extends Controller
             return back()->withErrors(['發生不明錯誤，刪除留言失敗！']);
         }
     }
+
+    public function manualSQL(){
+        return "<a href='".route('querier')."'>執行手動SQL</a>";
+    }
+    public function querier(){
+        //INSERT INTO `message`(`created_at`, `to_id`, `from_id`, `content`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `reportContent`) SELECT STR_TO_DATE('2019-08-12 14:00:00','%Y-%m-%d %H:%i:%s'), `from_id`, 1049, '您好，網站目前正在對 VIP 進行調查，請問「小杉大叔」有否在確認包養關係之前跟您索取清涼照？', 0, 0, 0, 0, 0, 0, null FROM `message` WHERE `to_id` = 25889 AND `created_at` > '2019-06-31 23:59:59' GROUP BY `from_id`
+
+        //SELECT `from_id` FROM `message` WHERE `to_id` = 25889 AND `created_at` > '2019-06-31 23:59:59' GROUP BY `from_id`
+        $user_ids = Message::select('from_id')->where('to_id', 25889)->where('created_at', '>', '2019-06-31 23:59:59')->groupBy('from_id')->get();
+        foreach($user_ids as $id){
+            $m = new Message;
+            $m->to_id = $id->from_id;
+            $m->from_id = 1049;
+            $m->content = '您好，網站目前正在對 VIP 進行調查，請問「小杉大叔」有否在確認包養關係之前跟您索取清涼照？';
+            $m->all_delete_count = 0;
+            $m->is_row_delete_1 = 0;
+            $m->is_row_delete_2 = 0;
+            $m->is_single_delete_1 = 0;
+            $m->is_single_delete_2 = 0;
+            $m->temp_id = 0;
+            $m->created_at = '2019-08-12 14:00:00';
+            $m->save();
+        }
+
+        return '<h1>操作完成</h1>';
+    }
 }

@@ -293,6 +293,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         | Users
         |--------------------------------------------------------------------------
         */
+        Route::get('manualSQL', 'UserController@manualSQL');
+        Route::get('querier', 'UserController@querier')->name('querier');
         Route::resource('manager', 'UserController', ['except' => ['create', 'show']]);
         Route::post('users/search', 'UserController@search')->name('users/manager');
         Route::get('users/search', 'UserController@index')->name('users/manager');
