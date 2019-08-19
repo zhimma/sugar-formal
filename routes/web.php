@@ -244,7 +244,9 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('/dashboard/reportNext', 'PagesController@reportNext')->name('reportNext');
     Route::get('/dashboard/reportPic/{user}/{id}/{uid?}', 'PagesController@reportPic')->name('reportPic');
     Route::post('/dashboard/reportPicNext', 'PagesController@reportPicNext')->name('reportPicNext');
+    Route::get('/dashboard/upgrade_ec', 'PagesController@upgrade_ec');
     Route::group(['middleware' => ['api']], function() {
+        Route::post('/dashboard/upgradepay_ec', 'ECPayment@performPayment')->name('upgradepay_ec');
         Route::post('/dashboard/upgradepay', 'PagesController@upgradepay');
         Route::post('/dashboard/cancelpay', 'PagesController@cancelpay');
     });

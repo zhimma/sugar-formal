@@ -563,6 +563,19 @@ class PagesController extends Controller
         }
     }
 
+    public function upgrade_ec(Request $request)
+    {
+        $user = $request->user();
+        if ($user)
+        {
+            $log = new \App\Models\LogClickUpgrade();
+            $log->user_id = $user->id;
+            $log->save();
+            return view('dashboard.upgrade_EC')
+                ->with('user', $user);
+        }
+    }
+
     public function block(Request $request)
     {
         $user = $request->user();
