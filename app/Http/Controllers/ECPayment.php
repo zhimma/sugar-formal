@@ -43,8 +43,7 @@ class ECPayment extends Controller
             // $obj->Send['IgnorePayment']     = ECPay_PaymentMethod::GooglePay ;           //不使用付款方式:GooglePay
 
             //訂單的商品資料
-            array_push($obj->Send['Items'], array('Name' => "SG-VIP(".$request->userId.")", 'Price' => (int)"888",
-                    'Currency' => "元", 'Quantity' => (int) "1", 'URL' => ""));
+            array_push($obj->Send['Items'], array('Name' => "SG-VIP(".$request->userId.")", 'Price' => (int)"888", 'Currency' => "元", 'Quantity' => (int) "1", 'URL' => ""));
 
 
             //Credit信用卡分期付款延伸參數(可依系統需求選擇是否代入)
@@ -83,8 +82,8 @@ class ECPayment extends Controller
 
             //產生訂單(auto submit至ECPay)
             $obj->CheckOut();        
-        } catch (Exception $e) {
-            echo $e->getMessage();
+        } catch (\Exception $e) {
+            //echo $e->getMessage();
         } 
 
 
