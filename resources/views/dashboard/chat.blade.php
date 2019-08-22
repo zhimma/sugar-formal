@@ -7,6 +7,16 @@
         $('#showMore').fadeOut(50);
         $('#warning').fadeIn(100);
         $('#showAll').fadeOut(50);
+        let wait = document.getElementById("warning");
+        let text = wait.innerHTML;
+        let length = wait.innerHTML.length + 10;
+        let dots = window.setInterval( function() {
+            let wait = document.getElementById("warning");
+            if ( wait.innerHTML.length > length )
+                wait.innerText = text;
+            else
+                wait.innerText += ".";
+        }, 100);
         // count++;
         // if(count === 3 && $('.user-list').length > 3){
         //     $('.showAll').show();
@@ -47,7 +57,19 @@
         });
     }
     function showAll(){
-        $("#showMore").hide();
+        $('#showMore').fadeOut(50);
+        $('#warning').fadeIn(100);
+        $('#showAll').fadeOut(50);
+        let wait = document.getElementById("warning");
+        let text = wait.innerHTML;
+        let length = wait.innerHTML.length + 10;
+        let dots = window.setInterval( function() {
+            let wait = document.getElementById("warning");
+            if ( wait.innerHTML.length > length )
+                wait.innerText = text;
+            else
+                wait.innerText += ".";
+        }, 100);
         $.ajax({
             type: 'POST',
             url: '{{ route('showAllMessages') }}',
