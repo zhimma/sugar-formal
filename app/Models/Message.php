@@ -33,6 +33,8 @@ class Message extends Model
         'read'
     ];
 
+    static $date = null;
+
     // handle delete Message
     public static function deleteBetween($uid, $sid) {
         $message = Message::where([['to_id', $uid], ['from_id', $sid]])->orWhere([['to_id', $sid], ['from_id', $uid]])->orderBy('created_at', 'desc')->first();
@@ -255,6 +257,7 @@ class Message extends Model
 
     public static function allSenders($uid, $isVip)
     {
+        self::$date = \Carbon\Carbon::now()->subDays(7)->toDateTimeString();
         $dropTempTables = DB::unprepared(DB::raw("
             DROP TABLE IF EXISTS temp_m;
         "));
@@ -264,7 +267,7 @@ class Message extends Model
                 CREATE TEMPORARY TABLE `temp_m` AS(
                     SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent`
                     FROM `message`
-                    WHERE created_at >= '".\Carbon\Carbon::now()->subDays(7)->toDateTimeString()."'
+                    WHERE created_at >= '".self::$date."'
                 );
                 COMMIT;
             "));
@@ -321,16 +324,19 @@ class Message extends Model
             DROP TABLE IF EXISTS temp_m;
         "));
         if(!\Schema::hasTable('temp_m')) {
-            $date = \Carbon\Carbon::createFromFormat('Y-m-d', $date);
+            $date     = \Carbon\Carbon::createFromFormat('Y-m-d', $date);
+            $dateEnd  = $date->toDateTimeString();
+            $monthAgo = $date->subDays(30)->toDateTimeString();
+            self::$date = $monthAgo;
             $createTempTables = DB::unprepared(DB::raw("
                 SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
                 CREATE TEMPORARY TABLE `temp_m` AS(
                     SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent`
                     FROM `message`
                     WHERE `created_at`
-                    BETWEEN '" . $date->subDays(7)->toDateTimeString() . "'
-                    AND '" . $date->addDays(7)->toDateTimeString() . "'
-                );       
+                    BETWEEN '" . $monthAgo . "'
+                    AND '" . $dateEnd . "'
+                );
                 COMMIT;
             "));
         }
@@ -359,7 +365,7 @@ class Message extends Model
 
         //echo json_encode($saveMessages);
         if(count($saveMessages) == 0){
-            return 'No data';
+            return array_values(['No data', self::$date]);
         }
         else{
             return Message::sortMessages($saveMessages);
@@ -379,7 +385,7 @@ class Message extends Model
 
         //echo json_encode($saveMessages);
         if(count($saveMessages) == 0){
-            return 'No data';
+            return array_values(['No data']);
         }
         else{
             return Message::sortMessages($saveMessages);
@@ -397,23 +403,25 @@ class Message extends Model
         $banned_users = banned_users::select('member_id')->get();
         $isVip = $user->isVip();
         foreach ($messages as $key => &$message){
-            if($banned_users->contains('member_id', $message['to_id'])){
+            $to_id = isset($message["to_id"]) ? $message["to_id"] : null;
+            $from_id = isset($message["from_id"]) ? $message["from_id"] : null;
+            if($banned_users->contains('member_id', $to_id)){
                 unset($messages[$key]);
                 continue;
             }
-            if($banned_users->contains('member_id', $message['from_id']) && $message['from_id'] != $user->id){
+            if($banned_users->contains('member_id', $from_id) && $from_id != $user->id){
                 unset($messages[$key]);
                 continue;
             }
-            if($userBlockList->contains('member_id', $message['from_id']) || $userBlockList->contains('member_id', $message['to_id'])){
+            if($userBlockList->contains('member_id', $from_id) || $userBlockList->contains('member_id', $to_id)){
                 unset($messages[$key]);
                 continue;
             }
             if($message['to_id'] == $user->id) {
-                $msgUser = \App\Models\User::findById($message['from_id']);
+                $msgUser = \App\Models\User::findById($from_id);
             }
             else if($message['from_id'] == $user->id) {
-                $msgUser =  \App\Models\User::findById($message['to_id']);
+                $msgUser =  \App\Models\User::findById($to_id);
             }
             if(\App\Models\Message::onlyShowVip($user, $msgUser, $isVip)) {
                 unset($messages[$key]);
@@ -444,6 +452,7 @@ class Message extends Model
             $messages[$key]['pic'] = $msgUser->meta_()->pic;
             $messages[$key]['content'] = $latestMessage == null ? '' : $latestMessage->content;
         }
+        $messages['date'] = self::$date;
         return array_values($messages);
     }
 

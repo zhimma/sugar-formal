@@ -1,17 +1,19 @@
-<?// todo: 顯示更多、顯示全部邏輯修正?>
 @extends('layouts.master')
 
 @section('app-content')
 <script>
     let d = new Date(), count = 0;
     function showMore(){
-        count++;
-        if(count === 3 && $('.user-list').length > 3){
-            $('.showAll').show();
-        }
-        d.setDate(d.getDate() - 7);
+        $('#showMore').fadeOut(50);
+        $('#warning').fadeIn(100);
+        $('#showAll').fadeOut(50);
+        // count++;
+        // if(count === 3 && $('.user-list').length > 3){
+        //     $('.showAll').show();
+        // }
+        //console.log("Query time:" + d);
         let date = d.getFullYear() + '-' + ( d.getMonth() + 1 ) + '-' + d.getDate();
-        console.log(date);
+        //console.log(date);
         $.ajax({
             type: 'POST',
             url: '{{ route('showMoreMessages') }}',
@@ -27,12 +29,20 @@
             },
             success: function(xhr){
                 console.log(xhr.msg);
-                if(xhr.msg !== ' No data'){
+                $('#showMore').fadeIn(100);
+                $('#warning').fadeOut(100);
+                $('#showAll').fadeIn(100);
+                if(xhr.msg[0] !== 'No data'){
+                    let tmp = xhr.msg[xhr.msg.length - 1];
+                    d = new Date(tmp);
                     fillDatas(xhr.msg);
+                }
+                else{
+                    d = new Date(xhr.msg[1]);
                 }
             },
             error: function(xhr, type){
-                alert('Ajax error!')
+                alert('訊息讀取出現錯誤！敬請重新整理後再嘗試一次，如本錯誤持續出現，請與站長聯絡，謝謝。');
             }
         });
     }
@@ -52,20 +62,23 @@
             },
             success: function(xhr){
                 console.log(xhr.msg);
-                if(xhr.msg !== ' No data'){
+                if(xhr.msg[0] !== ' No data'){
                     fillDatas(xhr.msg, true);
                     $("#showAll").hide();
                     $("#tips").hide();
                 }
             },
             error: function(xhr, type){
-                alert('Ajax error!')
+                alert('訊息讀取出現錯誤！敬請重新整理後再嘗試一次，如本錯誤持續出現，請與站長聯絡，謝謝。');
             }
         });
     }
     function fillDatas(data, isAll = false) {
-        let showMore = $("#showMore"), showAll = $("#showAll");
-        $('#user-list').empty();
+        data.splice(-1,1);
+        let options = $(".options");
+        if(isAll){
+            $('#user-list').empty();
+        }
         for(let i = 0 ; i < data.length ; i++){
             let ele;
             if(data[i]['isAdminMessage'] === 1){
@@ -131,8 +144,9 @@
             ele += "</div></div></div>";
             $('#user-list').append(ele);
             if(!isAll){
-                $('#user-list').append(showMore);
-                $('#user-list').append(showAll);
+                $('#tips').remove();
+                $('#user-list').append(options);
+                $('<p style="color:red;" id="tips">如果發現訊息不完整，請按下全部顯示</p>').insertAfter($('.options'));
             }
         }
         adminMessage();
@@ -339,8 +353,9 @@ $code = Config::get('social.payment.code');
                 @endforeach
             @endif
             <div class="options">
-                <a class="btn btn-danger m-btn m-btn--air m-btn--custom text-white" id="showMore" onclick="showMore();" data-token="{{ csrf_token() }}">顯示更多</a>
-                <a class="btn btn-danger m-btn m-btn--air m-btn--custom text-white" id="showAll" onclick="showAll();" data-token="{{ csrf_token() }}">顯示全部</a>
+                <p style="color:red; font-weight: bold; display: none;" id="warning">載入中，請稍候</p>
+                <a class="btn btn-danger m-btn m-btn--air m-btn--custom text-white" id="showMore" onclick="showMore();" data-token="{{ csrf_token() }}">顯示往前一個月的訊息</a>
+                <a class="btn btn-danger m-btn m-btn--air m-btn--custom text-white" id="showAll" onclick="showAll();" data-token="{{ csrf_token() }}">顯示全部訊息</a>
             </div>
         </div>
 
@@ -459,6 +474,7 @@ $code = Config::get('social.payment.code');
 @section('javascript')
 <script>
 $(document).ready(function(){
+    d = new Date('{{ \App\Models\Message::$date }}');
     @if(isset($m_time))
         let m_time = '{{ $m_time }}';
     @else
