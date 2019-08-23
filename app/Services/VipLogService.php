@@ -41,8 +41,14 @@ class VipLogService {
     }
 
     public function writeLogToFile() {
-        $today = Carbon::now()->format('d') <= 28 ? Carbon::now()->format('d') : 01;
-        $fileName = 'RP_'. $this->business_id . '_' . Carbon::now()->format('Ymd') .'.dat';
+        if(Carbon::now()->format('d') <= 28){
+            $today = Carbon::now()->format('d');
+            $fileName = 'RP_'. $this->business_id . '_' . Carbon::now()->format('Ymd') .'.dat';
+        }
+        else{
+            $today = '01';
+            $fileName = 'RP_'. $this->business_id . '_' . Carbon::now()->addMonth()->startOfMonth()->format('Ymd') .'.dat';
+        }
         $fileContent = $this->business_id . ',' . $this->user_id . ',' . $this->order_id . ',,,' . intval($this->amount) . ',' . $today . ',' . $this->action . ',' . $this->status . ',' . $this->mode;
 
         Storage::append($fileName, $fileContent);
@@ -57,8 +63,14 @@ class VipLogService {
     }
 
     public function writeLogToDB() {
-        $today = Carbon::now()->format('d') <= 28 ? Carbon::now()->format('d') : 01;
-        $fileName = 'RP_'. $this->business_id . '_' . Carbon::now()->format('Ymd') .'.dat';
+        if(Carbon::now()->format('d') <= 28){
+            $today = Carbon::now()->format('d');
+            $fileName = 'RP_'. $this->business_id . '_' . Carbon::now()->format('Ymd') .'.dat';
+        }
+        else{
+            $today = '01';
+            $fileName = 'RP_'. $this->business_id . '_' . Carbon::now()->addMonth()->startOfMonth()->format('Ymd') .'.dat';
+        }
         $fileContent = $this->business_id . ',' . $this->user_id . ',' . $this->order_id . ',,,' . intval($this->amount) . ',' . $today . ',' . $this->action . ',' . $this->status . ',' . $this->mode;
         $log = new \App\Models\VipLogs;
         $log->filename = $fileName;
