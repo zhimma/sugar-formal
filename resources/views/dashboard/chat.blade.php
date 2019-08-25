@@ -41,6 +41,7 @@
                 console.log(xhr.msg);
                 $('#showMore').fadeIn(100);
                 $('#warning').fadeOut(100);
+                clearInterval(dots);
                 $('#showAll').fadeIn(100);
                 if(xhr.msg[0] !== 'No data'){
                     let tmp = xhr.msg[xhr.msg.length - 1];
@@ -87,6 +88,8 @@
                 if(xhr.msg[0] !== ' No data'){
                     fillDatas(xhr.msg, true);
                     $("#showAll").hide();
+                    $('#warning').remove();
+                    clearInterval(dots);
                     $("#tips").hide();
                 }
             },
@@ -205,6 +208,10 @@
         -ms-flex-align: start;
         align-items: flex-start;
         z-index: 1;
+    }
+    .container-form {
+        display: flex;
+        align-items: center;
     }
     /*._3BQlNg {*/
     /*    position: relative;*/
@@ -449,8 +456,15 @@ $code = Config::get('social.payment.code');
                         </div>
 
                         <div class="m-widget3__delete">
-                            <a class='delete-btn' href="{!! route('deleteSingle', ['uid' => $user->id, 'sid' => $to->id, 'ct_time' => $message->created_at, 'content' => $message->content]) !!}">刪除</a>
-                            <a class='report-btn' href="{!! route('reportMessagePage', ['id' => $message->id, 'sid' => $to->id]) !!}">檢舉</a>
+                            <form action="{{ route('deleteSingle') }}" method="post" class="container-form">
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                <input type="hidden" name="uid" value="{{ $user->id }}">
+                                <input type="hidden" name="sid" value="{{ $to->id }}">
+                                <input type="hidden" name="ct_time" value="{{ $message->created_at }}">
+                                <input type="hidden" name="content" value="{{ $message->content }}">
+                                <button class='btn btn-danger'>刪除</button>
+                                <a class='btn btn-danger' href="{!! route('reportMessagePage', ['id' => $message->id, 'sid' => $to->id]) !!}" style="margin-left: 5px;">檢舉</a>
+                            </form>
                         </div>
                     </div>
                 </div>

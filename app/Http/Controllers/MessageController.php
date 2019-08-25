@@ -15,19 +15,35 @@ use Illuminate\Http\Request;
 class MessageController extends Controller {
 
     // handle delete message
-    public function deleteBetween($uid, $sid) {
+    public function deleteBetween(Request $request) {
+        Message::deleteBetween($request->input('uid'), $request->input('sid'));
+
+        return redirect('dashboard/chat');
+    }
+
+    public function deleteBetweenGET($uid, $sid) {
         Message::deleteBetween($uid, $sid);
 
         return redirect('dashboard/chat');
     }
 
-    public function deleteAll($uid) {
-        Message::deleteAll($uid);
+    public function deleteAll(Request $request) {
+        Message::deleteAll($request->input('uid'));
 
         return redirect('dashboard/chat');
     }
 
-    public function deleteSingle($uid, $sid, $ct_time, $content) {
+    public function deleteSingle(Request $request) {
+        $uid = $request->input('uid');
+        $sid = $request->input('sid');
+        $ct_time = $request->input('ct_time');
+        $content = $request->input('content');
+
+        Message::deleteSingle($uid, $sid, $ct_time, $content);
+        return redirect('dashboard/chat/' . $sid);
+    }
+
+    public function deleteSingleGET($uid, $sid, $ct_time, $content) {
         Message::deleteSingle($uid, $sid, $ct_time, $content);
 
         return redirect('dashboard/chat/' . $sid);
