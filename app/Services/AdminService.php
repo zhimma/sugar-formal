@@ -178,12 +178,7 @@ class AdminService
                 array_push($from_id, $result->from_id);
             }
             $result['isBlocked'] = banned_users::where('member_id', 'like', $result->from_id)->get()->first();
-            if(Vip::where('member_id', 'like', $result->from_id)->get()->first()){
-                $result['vip'] = '是';
-            }
-            else{
-                $result['vip'] = '否';
-            }
+            // $result['vip'] = Vip::where('member_id', 'like', $result->from_id)->get()->first();
         }
         $users = array();
         foreach ($to_id as $id){
@@ -198,8 +193,10 @@ class AdminService
             $name = User::select('name')
                 ->where('id', '=', $id)
                 ->get()->first();
+            $vip = Vip::where('member_id', 'like', $id)->get()->first();
             if($name != null){
-                $users[$id] = $name->name;
+                $users[$id]['name'] = $name->name;
+                $users[$id]['vip'] = $vip;
             }
             else{
                 $users[$id] = '資料庫沒有資料';

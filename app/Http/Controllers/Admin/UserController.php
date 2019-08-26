@@ -181,20 +181,35 @@ class UserController extends Controller
 
     public function banUserWithDayAndMessage($user_id, $msg_id, $days){
         //todo : banUserWithDays change way.
+        if (false !== ( strpos($days, '&'))) {
+            $value = explode("&",$days);
+            $days = $value[0];
+            $reason = $value[1];
+        }
         $userBanned = banned_users::where('member_id', $user_id)
             ->get()->first();
         if(!$userBanned){
             $userBanned = new banned_users;
         }
+
         $userBanned->member_id = $user_id;
-        $userBanned->expire_date = Carbon::now()->addDays($days);
+        
+        if($days != 'X') {
+            $userBanned->expire_date = Carbon::now()->addDays($days);
+        }else{
+            $userBanned->expire_date = null;
+        }
+
         $message = Message::select('message.content', 'message.created_at', 'users.name')
             ->join('users', 'message.to_id', '=', 'users.id')
             ->where('message.id', $msg_id)->get()->first();
-        if(isset($message)){
+        if(isset($message) && $days != 'X'){
             $userBanned->message_content = $message->content;
             $userBanned->message_time = $message->created_at;
             $userBanned->recipient_name = $message->name;
+        }
+        if(isset($reason)){
+            $userBanned->reason = $reason;
         }
         $userBanned->save();
         //$user = User::where('id', $user_id)->get()->first();
@@ -442,10 +457,11 @@ class UserController extends Controller
         }
     }
 
-    public function showReportedMessages(){
+    public function showReportedMessages(Request $request){
         $admin = $this->admin->checkAdmin();
         if ($admin){
-            $messages = Message::where('isReported', 1)->orderBy('created_at', 'desc');
+            $messages = Message::where('isReported', 1)->orderBy('created_at', 'desc')
+             ->whereBetween('created_at', array('2019-08-20 00:00',  '2019-08-26 23:59'));
             $datas = $this->admin->fillMessageDatas($messages);
             return view('admin.users.searchMessage')
                 ->with('reported', 1)
