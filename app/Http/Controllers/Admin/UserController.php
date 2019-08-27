@@ -460,8 +460,7 @@ class UserController extends Controller
     public function showReportedMessages(Request $request){
         $admin = $this->admin->checkAdmin();
         if ($admin){
-            $messages = Message::where('isReported', 1)->orderBy('created_at', 'desc')
-             ->whereBetween('created_at', array('2019-08-20 00:00',  '2019-08-26 23:59'));
+            $messages = Message::where('isReported', 1)->orderBy('created_at', 'desc');
             $datas = $this->admin->fillMessageDatas($messages);
             return view('admin.users.searchMessage')
                 ->with('reported', 1)
