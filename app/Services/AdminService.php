@@ -178,6 +178,7 @@ class AdminService
                 array_push($from_id, $result->from_id);
             }
             $result['isBlocked'] = banned_users::where('member_id', 'like', $result->from_id)->get()->first();
+            $result['isBlockedReceiver'] = banned_users::where('member_id', 'like', $result->to_id)->get()->first();
             // $result['vip'] = Vip::where('member_id', 'like', $result->from_id)->get()->first();
         }
         $users = array();

@@ -103,12 +103,20 @@
                 </td>
             </tr>
             @forelse ($results as $key => $result)
-            <tr @if($result['isBlocked']) style="color: #F00;" @endif>
-                <td>
-                    <a href="{{ route('users/advInfo', $result['from_id']) }}" target='_blank'>{{ $users[$result['from_id']]['name'] }}</a>
+            <tr>
+                <td >
+                    <a href="{{ route('users/advInfo', $result['from_id']) }}" target='_blank'  @if($result['isBlocked']) style="color: #F00;" @endif>{{ $users[$result['from_id']]['name'] }}
                     @if(!is_null($users[$result['from_id']]['vip']))
-                    <i class="m-nav__link-icon fa fa-diamond"></i>
+                        <i class="m-nav__link-icon fa fa-diamond"></i>
                     @endif
+                    @if(!is_null($result['isBlocked']))
+                        @if(!is_null($result['isBlocked']['expire_date']))
+                            ({{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                        @else
+                            (永久)
+                        @endif
+                    @endif
+                    </a>
                     <!-- <button type="button" onclick="toggleBanned({{ $result['from_id'] }});" target="_blank" class='text-white btn @if($result['isBlocked']) btn-success @else btn-danger @endif'>@if($result['isBlocked']) ◯ @else 🞫 @endif</button> -->
                 </td>
                 <td>
@@ -119,11 +127,19 @@
                     <a class="btn btn-danger ban-user{{ $key }}" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result->from_id, $result->id]) }} " data-name='{{ $users[$result['from_id']]['name'] }}'>封鎖</a>
                 </td>
                 @endif
-                <td>
-                    <a href="{{ route('users/advInfo', $result['to_id']) }}" target='_blank'>{{ $users[$result['to_id']]['name'] }}</a>
+                <td >
+                    <a href="{{ route('users/advInfo', $result['to_id']) }}" target='_blank'  @if($result['isBlockedReceiver']) style="color: #F00;" @endif>{{ $users[$result['to_id']]['name'] }}
                     @if(!is_null($users[$result['to_id']]['vip']))
-                    <i class="m-nav__link-icon fa fa-diamond"></i>
+                        <i class="m-nav__link-icon fa fa-diamond"></i>
                     @endif
+                    @if(!is_null($result['isBlockedReceiver']))
+                        @if(!is_null($result['isBlockedReceiver']['expire_date']))
+                            ({{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                        @else
+                            (永久)
+                        @endif
+                    @endif
+                    </a>
                 </td>
                 <td>
                     <a href="{{ route('AdminMessengerWithMessageId', [$result->to_id, $result->id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
@@ -136,7 +152,6 @@
                 <td width="45%" style="word-wrap: break-word;">{{ $result['content'] }}</td>
                 @if(isset($reported) && $reported == 1)
                 <td>{{ $result['reportContent'] }}</td>
-
                 @endif
                 <td>{{ $result['created_at'] }}</td>
                 <td style="text-align: center; vertical-align: middle">
