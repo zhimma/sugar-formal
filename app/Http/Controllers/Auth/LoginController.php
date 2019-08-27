@@ -56,12 +56,13 @@ class LoginController extends Controller
         //     return redirect('/admin/search');
         // }
         $banned_users = banned_users::select('*')->where('member_id', \Auth::user()->id)->orderBy('expire_date', 'desc')->get()->first();
-        $now = new \DateTime(Carbon::now()->toDateTimeString());
+        $now = new Carbon;
         if(isset($banned_users) && !isset($banned_users->expire_date)){
             return redirect()->route('banned');    
         }
         else{
             if(isset($banned_users) && isset($banned_users->expire_date) && $now >= $banned_users->expire_date){
+                \Illuminate\Support\Facades\Log::info('User unbanned, ID: ' . $banned_users->member_id . '. Expiry: ' . $banned_users->expire_date);
                 $banned_users->delete();
             }
             $userMeta = UserMeta::where('user_id', \Auth::user()->id)->get()->first();
