@@ -54,6 +54,12 @@
         margin-left: 43px;
         margin-top: -30px;
     }
+    @media  screen and (max-width: 575px) {
+        input[type="radio"] {
+            position: relative;
+            top: 18px;
+        }
+    }
 </style>
 <?php $block_people =  Config::get('social.block.block-people'); ?>
 <div class="m-portlet__head">
@@ -175,6 +181,16 @@
         </select>
                 </div>
             </div>
+            <div class="form-group m-form__group row">
+                <label for="user_engroup" class="col-lg-2 col-md-3 col-form-label">搜索排列順序(降冪)</label>
+                <div class="col-lg-7 form-inline">
+                    <input class="form-control m-input" name="seqtime" value="1"
+                       @if(empty($_GET["seqtime"])||$_GET["seqtime"]==1) checked @endif   checked  type="radio"> 登入時間&nbsp;&nbsp;
+                    <input class="form-control m-input" name="seqtime" value="2"
+                      @if(!empty($_GET["seqtime"])&&$_GET["seqtime"]==2) checked @endif  type="radio"> 註冊時間
+                </div>
+            </div>
+
         @endif
         @endif
         <div class="m-portlet__foot m-portlet__foot--fit">
@@ -231,7 +247,8 @@
                             if (isset($_GET['pic'])) $photo = $_GET['pic'];
                             if (isset($_GET['ageto'])) $ageto = $_GET['ageto'];
                             if (isset($_GET['agefrom'])) $agefrom = $_GET['agefrom'];
-                            $vis = \App\Models\UserMeta::search($county, $district, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $user->engroup, $user->city, $user->area, $user->domain, $user->domainType);
+                            if (isset($_GET['seqtime'])) $seqtime = $_GET['seqtime'];
+                            $vis = \App\Models\UserMeta::search($county, $district, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $user->engroup, $user->city, $user->area, $user->domain, $user->domainType,$seqtime);
                             ?>
                             <?php $icc = 1; ?>
             @if (isset($vis) && sizeof($vis) > 0)
