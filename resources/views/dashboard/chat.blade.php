@@ -534,7 +534,7 @@ $(document).ready(function(){
             let diffInSec = Math.floor(diff / 1000);
             let still = intervalSecs - diffInSec;
             let text = document.getElementById('msgsnd').firstChild;
-            if(diffInSec >= intervalSecs){
+            if(diff < 0 && diffInSec >= intervalSecs){
                 $(".tips").remove();
                 text.data = '回覆';
                 $('#msgsnd').enable(true);
