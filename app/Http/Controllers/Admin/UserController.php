@@ -24,6 +24,7 @@ use App\Models\SimpleTables\member_vip;
 use App\Models\SimpleTables\banned_users;
 use App\Notifications\BannedNotification;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -444,6 +445,31 @@ class UserController extends Controller
         else{
             return redirect()->back()->withErrors(['出現不明錯誤']);
         }
+    }
+
+    public function showReportedCount()
+    {
+        ini_set('memory_limit', '-1');
+        $userData = User::select('users.id','name')->join('user_meta','users.id','=','user_meta.user_id')->where('user_meta.is_active' , '1')->get();
+        $userMessage = Message::select('to_id','from_id', DB::raw('count(*) as count'))->groupBy('to_id','from_id')->get();
+        $isVip =  Vip::select('member_id')->where('active', 1)->orderBy('member_id')->get();
+        $datas = array();
+        $messages = array();
+        $userVip = array();
+        foreach ($userData as $Data) {
+            $datas[$Data->id] = array('name' => $Data->name);
+        }
+        foreach($isVip as $vip) {
+            $userVip[$vip->member_id] = true;
+        }
+        foreach ($userMessage as $Message) {
+            $messages[$Message->to_id][$Message->from_id] = $Message->count;
+        }
+        
+        return view('admin.users.reportedCount')
+            ->with('users', $datas)
+            ->with('msgs', $messages)
+            ->with('vips', $userVip);
     }
 
     public function showMessageSearchPage()
