@@ -55,7 +55,35 @@
         box-shadow: 4px 4px 3px rgba(20%, 20%, 40%, 0.5);
         z-index: 999;
     }
+    .slimimg{
+        width: 500px;
+        position: relative;
+    }
+    .slimimg .imagelabel{
+        position: absolute;
+        left: 20px;
+        font-size: 15px;
+        top: 20px;
+    }
+    .slim {
+        width: 70%;
+        border-radius: 50%;
+    }
+    .slimimg  .upload-submit{
+        position: absolute;
+        left: 185px;
+        bottom: -10px;
+    }
+    @media  (max-width: 500px) {
+        .slimimg{
+            width: 400px;
+            position: relative;
+        }
+         .slimimg  .upload-submit{
+            left: 105px;
+        }
 
+    }
     .wrap {
         display: none;
     }
@@ -153,6 +181,7 @@
         box-shadow: inset 0px 0px 4px 0px rgba(41, 83, 41,0.49);
     }
 </style>
+<link rel="stylesheet" href="/plugins/slim/css/slim.min.css">
 <div class="m-portlet__head">
     <div class="m-portlet__head-tools">
         <ul class="nav nav-tabs m-tabs m-tabs-line m-tabs-line--left m-tabs-line--primary" role="tablist">
@@ -1208,22 +1237,40 @@
             @if (str_contains(url()->current(), 'dashboard'))
                 <div class="tab-pane {{ empty($tabName) || $tabName == 'm_user_profile_tab_4' ? 'active' : '' }}"
                      id="m_user_profile_tab_4">
-
+                    @if (!empty($umeta->pic))
+                    <form class="m-form m-form--fit m-form--label-align-right" method="POST"
+                          action="/dashboard/header2" enctype="multipart/form-data">
+                    @else
                     <form class="m-form m-form--fit m-form--label-align-right" method="POST"
                           action="/dashboard/header" enctype="multipart/form-data">
+                    @endif
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="userId" value="{{$user->id}}">
 
-                        @if (isset($umeta->pic))
-                            <div class="form-group m-form__group row">
-                                <div class="upload-image">
+                        @if (!empty($umeta->pic))
+                            <div class="form-group m-form__group row slimimg" style="margin-bottom: 35px;">
+                                <label class="col-form-label col-lg-1 twzip imagelabel" for="image">頭像照 </label>
+                             <!--    <div class="upload-image slim" data-size="400" data-ratio="1:1" data-save-initial-image="true"
+                                    data-label="點選圖片上傳，點選「編輯」可自行選擇截切畫面" data-max-file-size="8">
                                     <img src="{{$umeta->pic}}"/>
+                                    <input type="file" name="slim[]" id="myCropper" />
                                     @if($user->meta_()->isAvatarHidden == 1) <p
                                             style="color: red; text-align: center; font-weight: bold;">
-                                        大頭照已被隱藏</p> @endif
+                                        大頭照已被隱藏</p> @endif -->
+                                    <!-- <input type="file" name="slim[]" id="myCropper" /> -->
+                                   <!--  <p
+                                            style="color: red; text-align: center; font-weight: bold;">
+                                        大頭照已被隱藏</p>
+                                </div> -->
+                                <div class="upload-image slim" data-size="240,240" data-ratio="1:1" data-save-initial-image="true"
+                                    data-label="點選圖片上傳，點選「編輯」可自行選擇截切畫面" data-max-file-size="8">
+                                    <img src="{{$umeta->pic}}"/>
+                                    <input type="file" name="slim[]" id="myCropper" />
                                 </div>
+                                 <button type="submit"
+                                        class="btn btn-danger m-btn m-btn--air m-btn--custom upload-submit">上傳</button>
                             </div>
-                        @endif
+                        @else
 
                         <div class="form-group m-form__group row">
                             <label class="col-form-label col-lg-1 twzip" for="image">頭像照 </label>
@@ -1242,6 +1289,24 @@
                                 </button>
                             </div>
                         </div>
+                        @endif
+                       <!--  <div class="form-group m-form__group row">
+                            <label class="col-form-label col-lg-1 twzip" for="image">頭像照 </label>
+                            <div></div>
+                            <label class="custom-file">
+                                <input required type="file" id="image" class="custom-file-input" name="image"
+                                       onchange="$(this).parent().children().last().text($(this).val().split('\\').pop());">
+                                <span class="custom-file-control"></span>
+                            </label>
+                            <div class="col-lg-6" style="padding-top: 6px">
+                                <button type="submit"
+                                        class="btn btn-danger m-btn m-btn--air m-btn--custom upload-submit">上傳
+                                </button>&nbsp;&nbsp;
+                                <button type="reset" class="btn btn-outline-danger m-btn m-btn--air m-btn--custom">
+                                    取消
+                                </button>
+                            </div>
+                        </div> -->
                     </form>
 
                     <div class="m-form__seperator m-form__seperator--dashed m-form__seperator--space-2x"></div>
@@ -1461,6 +1526,7 @@
 
 @section ('javascript')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.0.0/cropper.min.js"></script>
+<script src="/plugins/slim/js/slim.kickstart.min.js"></script>
 <script>
     var domainJson = ({
         '請選擇': ['請選擇'],

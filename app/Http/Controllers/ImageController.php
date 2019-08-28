@@ -38,7 +38,6 @@ class ImageController extends Controller
 	    // $this->validate($request, [
         //     'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:22000',
         // ]);
-
         $payload = $request->all();
 
         $userId = $payload['userId'];
@@ -77,6 +76,48 @@ class ImageController extends Controller
             return redirect()->to('/dashboard?img')
                    ->with('success','照片上傳成功')
                    ->with('imageName',$input['imagename']);
+        }
+        else if($admin){
+            return back()->with('message', '照片上傳成功');
+        }
+        else{
+            return back()->withErrors(['出現預期外的錯誤']);
+        }
+    }
+
+    public function resizeImagePostHeader2(Request $request, $admin = false)
+    {
+        // $this->validate($request, [
+        //     'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:22000',
+        // ]);
+        $payload = $request->all();
+        $userId = $payload['userId'];
+        $umeta = User::id_($userId)->meta_();
+
+        $images_arr = $payload['slim'];
+
+        foreach ($images_arr as $key => $value) {
+            $img_data = json_decode($value,true);
+            if ($img_data && sizeof($img_data) > 0) {
+                preg_match('/^(data:\s*image\/(\w+);base64,)/', $img_data['output']['image'], $result);
+                $image_type = $result[2];
+                if (in_array($image_type,array('pjpeg','jpeg','jpg','gif','bmp','png'))) {
+                    if (in_array($image_type, ['pjpeg','jpeg','jpg'])) $image_type = 'jpg';
+                    $image      = str_replace($result[1], '', $img_data['output']['image']);
+                    $image      = str_replace(' ', '+', $image);
+
+                    if (file_put_contents('.'.$umeta->pic, base64_decode($image))) {
+                        return redirect()->to('/dashboard?img')
+                        ->with('success','照片上傳成功');
+                    }
+                }
+            }
+        }
+
+        if(!$admin){
+            return redirect()->to('/dashboard?img')
+                   ->with('success','照片上傳成功')
+                   ;
         }
         else if($admin){
             return back()->with('message', '照片上傳成功');
