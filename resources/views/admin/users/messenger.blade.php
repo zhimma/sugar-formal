@@ -14,7 +14,7 @@
     @if ($errors->count() > 0)
     @else
         @if(!isset($msgs))
-            <h1>發送站長訊息給{{ $user->name }}</h1>
+            <h1>發送站長訊息給{{ (!isset($isReported))? $user->name : $reportedName }}</h1>
             @if(!isset($message))
                 <table class="table table-bordered table-hover">
                     <tr>
@@ -48,19 +48,29 @@
                     </tr>
                 </table>
             @endif
-            <form action="{{ route('admin/send', $user->id) }}" id='message' method='POST'>
+            <form action="{{ route('admin/send', (!isset($isReported))? $user->id : $isReportedId ) }}" id='message' method='POST'>
                 {!! csrf_field() !!}
                 <input type="hidden" value="{{ $admin->id }}" name="admin_id">
-                @if(isset($isPic))
-                    <textarea name="msg" id="msg" class="form-control" cols="80" rows="5">{{ $user->name }}您好，您先前所檢舉{{ $reportedName }}的圖片/大頭照，站長已檢視，認為並無問題，若有疑慮請來訊。</textarea>
+                @if(isset($isPic) && ($isPic))
+                    @if(isset($isReported))
+                    <textarea name="msg" id="msg" class="form-control" cols="80" rows="5">{{ $reportedName }}您好，您被檢舉圖片/大頭照，站長認為並無問題，若有疑慮請來訊。</textarea>
+                    @else
+                        <textarea name="msg" id="msg" class="form-control" cols="80" rows="5">{{ $user->name }}您好，您先前所檢舉{{ $reportedName }}的圖片/大頭照，站長已檢視，認為並無問題，若有疑慮請來訊。</textarea>
+                    @endif
+                @elseif(isset($isReported))
+                    <textarea name="msg" id="msg" class="form-control" cols="80" rows="5">{{ $reportedName }}您好，您被檢舉，站長認為並無問題，若有疑慮請來訊。</textarea>
                 @else
                     <textarea name="msg" id="msg" class="form-control" cols="80" rows="5">@if(isset($message) && !isset($report)){{ $user->name }}您好，您先前所檢舉，由{{ $senderName }}於{{ $message->created_at }}發送的訊息，站長已檢視，認為並無問題，若有疑慮請來訊。@elseif(isset($message) && isset($report)) {{ $user->name }}您好，您先前在{{ $report->created_at }}檢舉了會員「{{ $reportedName }}」，經站長檢視理由，認為此會員並無問題，若有疑慮請來訊。 @endif</textarea>
                 @endif
                 <br>
-                @if(isset($isPic))
+                @if(isset($isPic) && ($isPic))
                     <input type="hidden" name="rollback" value="1">
-                    <input type="hidden" name="pic_id" value="{{ $pic_id }}">
-                @elseif(isset($message) && !isset($report))
+                    @if(isset($isReported))
+                        <input type="hidden" name="pic_id" value="avatar{{$pic_id }}">
+                    @else
+                        <input type="hidden" name="pic_id" value="{{$pic_id }}">
+                    @endif
+                @elseif(isset($message) && !isset($report) && !isset($isReported))
                     <input type="hidden" name="rollback" value="1">
                     <input type="hidden" name="msg_id" value="{{ $message->id }}">
                 @elseif(isset($message) && isset($report))

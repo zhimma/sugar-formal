@@ -200,10 +200,30 @@ class UserController extends Controller
         }else{
             $userBanned->expire_date = null;
         }
-
-        $message = Message::select('message.content', 'message.created_at', 'users.name')
+        if (false !== ( strpos($msg_id, '&'))) {
+            $value = explode("&",$msg_id);
+            $msg_id = $value[0];
+            $msg_database = $value[1];
+        }
+        
+        if(isset($msg_database)){
+            switch($msg_database){
+                case 'Reported':
+                    $message = Reported::select($msg_database.'.content', $msg_database.'.created_at')
+                    ->join('users', $msg_database.'.reported_id', '=', 'users.id')
+                    ->where($msg_database.'.id', $msg_id)->get()->first();
+                break;
+                default:
+                    $message = Message::select('message.content', 'message.created_at', 'users.name')
+                    ->join('users', 'message.to_id', '=', 'users.id')
+                    ->where('message.id', $msg_id)->get()->first();
+                break;
+            }
+        }else{
+            $message = Message::select('message.content', 'message.created_at', 'users.name')
             ->join('users', 'message.to_id', '=', 'users.id')
             ->where('message.id', $msg_id)->get()->first();
+        }
         if(isset($message) && $days != 'X'){
             $userBanned->message_content = $message->content;
             $userBanned->message_time = $message->created_at;
@@ -486,7 +506,7 @@ class UserController extends Controller
     public function showReportedMessages(Request $request){
         $admin = $this->admin->checkAdmin();
         if ($admin){
-            $messages = Message::where('isReported', 1)->orderBy('created_at', 'desc');
+            $messages = Message::where('isReported', 1)->orderBy('created_at', 'desc')->whereBetween('created_at', array('2019-08-20 00:00',  '2019-08-26 23:59'));
             $datas = $this->admin->fillMessageDatas($messages);
             return view('admin.users.searchMessage')
                 ->with('reported', 1)
@@ -548,7 +568,7 @@ class UserController extends Controller
                     $senders = array();
                     foreach ($from_id as $key => $id){
                         $sender = User::where('id', '=', $id)->get()->first();
-                        $vip_tmp = $sender->isVip() ? '是' : '否';
+                        $vip_tmp = $sender->isVip() ? true : false;
                         $senders[$key] = $sender->toArray();
                         $senders[$key]['vip'] = $vip_tmp;
                         $senders[$key]['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first() == true ? true : false;
@@ -729,7 +749,7 @@ class UserController extends Controller
         }
     }
 
-    public function showAdminMessengerWithReportedId($id, $mid, $pic_id = null, $isPic= null)
+    public function showAdminMessengerWithReportedId($id, $mid, $pic_id = null, $isPic= null, $isReported= null)
     {
         $admin = $this->admin->checkAdmin();
         if ($admin){
@@ -743,6 +763,8 @@ class UserController extends Controller
                 ->with('report', $report)
                 ->with('reportedName', $reported->name)
                 ->with('isPic', $isPic)
+                ->with('isReported', $isReported)
+                ->with('isReportedId', $mid)
                 ->with('pic_id', $pic_id);
         }
         else{
@@ -1054,7 +1076,6 @@ class UserController extends Controller
             return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
         }
     }
-
     public function searchReportedPics(Request $request){
         $admin = $this->admin->checkAdmin();
         if ($admin){

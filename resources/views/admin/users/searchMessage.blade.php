@@ -175,13 +175,14 @@
         <table class="table-hover table table-bordered">
             <tr>
                 <td>發送者</td>
+                <td>回覆發送者</td>
+                <td>封鎖發送者</td>
                 <td>註冊時間</td>
                 <td>上線時間</td>
-                <td>VIP</td>
                 <td>收訊者</td>
                 <td>內容</td>
-                <td>已讀</td>
                 <td>發送時間</td>
+                
                 <td>
                     <button id="select_all" class="btn btn-primary" onclick="selectAll();return false;">全選</button>
                     <br>
@@ -195,15 +196,20 @@
             @forelse ($senders as $sender)
             <tr @if($sender['isBlocked']) style="color: #F00;" @endif>
                 <td rowspan="{{ count($sender['messages']) }}">
-                    <a href="{{ route('users/advInfo', $sender['id']) }}" target='_blank'>{{ $sender['name'] }}</a>
-                    <button type="button" onclick="toggleBanned({{ $sender['id'] }});" target="_blank" class='text-white btn @if($sender[' isBlocked']) btn-success @else btn-danger @endif'>@if($sender['isBlocked']) ◯ @else 🞫 @endif</button>
+                    <a href="{{ route('users/advInfo', $sender['id']) }}" target='_blank' @if($sender['isBlocked']) style="color: #F00;" @endif>{{ $sender['name'] }}</a>
+                    @if($sender['vip'])
+                        <i class="m-nav__link-icon fa fa-diamond"></i>
+                    @endif
+                    <!-- <button type="button" onclick="toggleBanned({{ $sender['id'] }});" target="_blank" class='text-white btn @if($sender['isBlocked']) btn-success @else btn-danger @endif'>@if($sender['isBlocked']) ◯ @else 🞫 @endif</button> -->
+                </td>
+                <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][0]['id'] ]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>
+                <td>
+                    <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }} " data-name='{{ $sender['name'] }}'>封鎖</a>
                 </td>
                 <td rowspan="{{ count($sender['messages']) }}">{{ $sender['created_at'] }}</td>
                 <td rowspan="{{ count($sender['messages']) }}">{{ $sender['last_login'] }}</td>
-                <td rowspan="{{ count($sender['messages']) }}">{{ $sender['vip'] }}</td>
                 <td>{{ $receivers[$sender['messages'][0]['to_id']] }}</td>
                 <td width="45%">{{ $sender['messages'][0]['content'] }}</td>
-                <td>{{ $sender['messages'][0]['read'] }}</td>
                 <td>{{ $sender['messages'][0]['created_at'] }}</td>
                 <td style="text-align: center; vertical-align: middle">
                     <input type="checkbox" name="msg_id[]" value="{{ $sender['messages'][0]['id'] }}" class="form-control boxes">
@@ -211,9 +217,13 @@
             </tr>
             @if(count($sender['messages']) > 1)
             @for( $i = 1; $i < count($sender['messages']); $i++) <tr @if($sender['isBlocked']) style="color: #F00;" @endif>
+                <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][$i]['id']]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>
+                <td>
+                    <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }} " data-name='{{ $sender['name'] }}'>封鎖</a>
+                </td>
                 <td>{{ $receivers[$sender['messages'][$i]['to_id']] }}</td>
                 <td width="45%">{{ $sender['messages'][$i]['content'] }}</td>
-                <td>{{ $sender['messages'][$i]['read'] }}</td>
+                <!-- <td>{{ $sender['messages'][$i]['read'] }}</td> -->
                 <td>{{ $sender['messages'][$i]['created_at'] }}</td>
                 <td style="text-align: center; vertical-align: middle">
                     <input type="checkbox" name="msg_id[]" value="{{ $sender['messages'][$i]['id'] }}" class="form-control boxes">
