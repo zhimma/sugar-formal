@@ -8,7 +8,7 @@
         <h3 class="m-portlet__head-text">
         關於我們 <small></small>
         </h3>
-    </div>			
+    </div>
 </div>
 </div>
 <div class="m-portlet__body">

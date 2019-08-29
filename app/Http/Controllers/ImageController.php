@@ -87,9 +87,6 @@ class ImageController extends Controller
 
     public function resizeImagePostHeader2(Request $request, $admin = false)
     {
-        // $this->validate($request, [
-        //     'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:22000',
-        // ]);
         $payload = $request->all();
         $userId = $payload['userId'];
         $umeta = User::id_($userId)->meta_();
@@ -106,7 +103,25 @@ class ImageController extends Controller
                     $image      = str_replace($result[1], '', $img_data['output']['image']);
                     $image      = str_replace(' ', '+', $image);
 
-                    if (file_put_contents('.'.$umeta->pic, base64_decode($image))) {
+                    $now = Carbon::now()->format('Ymd');
+                    $input['imagename'] = $now . rand(100000000,999999999).'.'.$image_type ;
+
+                    $rootPath = public_path('/img/Member');
+                    $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+
+                    if(!is_dir($tempPath)) {
+                        File::makeDirectory($tempPath, 0777, true);
+                    }
+
+                    $destinationPath = '/img/Member/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
+
+                    if (file_put_contents('.'.$destinationPath, base64_decode($image))) {
+                        $umeta = User::id_($userId)->meta_();
+                        if(file_exists('.'.$umeta->pic)){
+                            unlink('.'.$umeta->pic);//將檔案刪除
+                        }
+                        $umeta->pic = $destinationPath;
+                        $umeta->save();
                         return redirect()->to('/dashboard?img')
                         ->with('success','照片上傳成功');
                     }
