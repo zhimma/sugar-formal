@@ -1,7 +1,7 @@
 @include('partials.header')
 
 <body style="padding: 15px;">
-<h1>{{ $user->name }}的所有資料<a href="edit/{{ $user->id }}" class='text-white btn btn-primary'>修改</a></h1>
+<h1>@if($user['vip'] )<i class="fa fa-diamond" style="font-size: 2rem;"></i>@endif{{ $user->name }}的所有資料<a href="edit/{{ $user->id }}" class='text-white btn btn-primary'>修改</a></h1>
 <h4>基本資料</h4>
 <table class='table table-hover table-bordered '>	
 	<tr>
@@ -133,7 +133,7 @@
 	</tr>
 	@forelse ($userMessage as $uM)
 		<tr>
-			<td><a href="{{ route('admin/showMessagesBetween', [$user->id, $uM->to_id]) }}" target="_blank">{{ $to_ids[$uM->to_id] }}</a></td>
+			<td><a href="{{ route('admin/showMessagesBetween', [$user->id, $uM->to_id]) }}" target="_blank">{{ $to_ids[$uM->to_id]['name'] }}@if($to_ids[$uM->to_id]['vip'] )<i class="fa fa-diamond"></i>@endif</a></td>
 			<td>{{ $uM->content }}</td>
 			<td>{{ $uM->created_at }}</td>
             <td style="text-align: center; vertical-align: middle">

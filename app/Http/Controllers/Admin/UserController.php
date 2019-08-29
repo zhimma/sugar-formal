@@ -308,14 +308,22 @@ class UserController extends Controller
         foreach($userMessage as $u){
             if(!array_key_exists($u->to_id, $to_ids)){
                 $to_ids[$u->to_id] = User::select('name')->where('id', $u->to_id)->get()->first();
+                
                 if($to_ids[$u->to_id]){
-                    $to_ids[$u->to_id] = $to_ids[$u->to_id]->name;
+                    $to_ids[$u->to_id]['name'] = $to_ids[$u->to_id]->name;
                 }
                 else{
                     $to_ids[$u->to_id] = '查無資料';
                 }
             }
         }
+        foreach($to_ids as $key => $to_id){
+            $to_ids[$key]['vip'] =  Vip::select('active')->where('member_id', $key)->where('active', 1)->orderBy('created_at', 'desc')->first() !== null;
+        }
+        
+        $isVip = $user->isVip();
+        $user['vip'] = $isVip;
+
         if(str_contains(url()->current(), 'edit')){
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
             $birthday = explode('-', $birthday);

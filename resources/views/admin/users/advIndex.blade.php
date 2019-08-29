@@ -52,7 +52,6 @@
 		<td>標題</td>
 		<td>男/女</td>
 		<td>Email</td>
-		<td>VIP</td>
 		<td>建立時間</td>
 		<td>更新時間</td>
 		<td>上次登入</td>
@@ -63,11 +62,10 @@
 	@forelse ($users as $user)
 	<tr @if($user['isBlocked']) style="color: #FF0000;" @endif>
 		<td class="align-middle">{{ $user['id'] }}</td>
-		<td class="align-middle">{{ $user['name'] }}</td>
+		<td class="align-middle">{{ $user['name'] }} @if($user['vip'] == '是') <i class="m-nav__link-icon fa fa-diamond"></i>@endif @if(isset($user['vip_data']) && $user['vip_data']['expiry'] != "0000-00-00 00:00:00") (到期日: {{ substr($user['vip_data']['expiry'], 0, 10) }}) @endif</td>
 		<td class="align-middle">{{ $user['title'] }}</td>
 		<td class="align-middle">@if($user['engroup']==1) 男 @else 女 @endif</td>
 		<td class="align-middle">{{ $user['email'] }}</td>
-		<td class="align-middle">{{ $user['vip'] }} @if(isset($user['vip_data']) && $user['vip_data']['expiry'] != "0000-00-00 00:00:00") (到期日: {{ substr($user['vip_data']['expiry'], 0, 10) }}) @endif</td>
 		<td class="align-middle">{{ $user['created_at'] }}</td>
 		<td class="align-middle">{{ $user['updated_at'] }}</td>
 		<td class="align-middle">{{ $user['last_login'] }}</td>
