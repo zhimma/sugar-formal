@@ -117,6 +117,7 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function toggleVIP(Request $request){
+       
         if($request->isVip == 1){
             $setVip = 0;
         }
@@ -138,9 +139,21 @@ class UserController extends Controller
         $user = User::select('id', 'email')
                 ->where('id', $request->user_id)
                 ->get()->first();
-
-        return view('admin.users.success')
+        if(isset($request->page)){
+            switch($request->page){
+                case 'advInfo':
+                    return redirect('admin/users/advInfo/'.$request->user_id);
+                break;
+                default:
+                    return view('admin.users.success')
+                            ->with('email', $user->email);
+                break;
+            }
+        }else{
+            return view('admin.users.success')
                ->with('email', $user->email);
+        }
+        
     }
 
     /**
@@ -153,13 +166,36 @@ class UserController extends Controller
             ->get()->first();
         if($userBanned){
             $userBanned->delete();
-            return $this->advSearch($request, 'unban');
+            if(isset($request->page)){
+                switch($request->page){
+                    case 'advInfo':
+                        return redirect('admin/users/advInfo/'.$request->user_id);
+                    break;
+                }
+            }else{
+                return $this->advSearch($request, 'unban');
+            }
         }
         else{
             $userBanned = new banned_users;
             $userBanned->member_id = $request->user_id;
+            if($request->days != 'X'){
+                $userBanned->expire_date = Carbon::now()->addDays($request->days);
+            }
+            if(!empty($request->msg)){
+                $userBanned->reason = $request->msg;
+            }
             $userBanned->save();
-            return $this->advSearch($request, 'ban');
+
+            if(isset($request->page)){
+                switch($request->page){
+                    case 'advInfo':
+                        return redirect('admin/users/advInfo/'.$request->user_id);
+                    break;
+                }
+            }else{
+                return $this->advSearch($request, 'ban');
+            }
         }
 
     }
@@ -298,7 +334,7 @@ class UserController extends Controller
     {
         if (! $id) {
             return redirect(route('users/advSearch'));
-        }        
+        }
         $user = User::where('id', 'like', $id)
                 ->get()->first();
         $userMeta = UserMeta::where('user_id', 'like', $id)
@@ -323,6 +359,8 @@ class UserController extends Controller
         
         $isVip = $user->isVip();
         $user['vip'] = $isVip;
+
+        $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first() == true  ? true : false;
 
         if(str_contains(url()->current(), 'edit')){
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));

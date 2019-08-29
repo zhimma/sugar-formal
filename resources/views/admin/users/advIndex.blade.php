@@ -74,7 +74,11 @@
                 <input type="hidden" value="@if(isset($email )){{ $email }}@endif" name="email">
                 <input type="hidden" value="@if(isset($name)){{ $name }}@endif" name="name">
                 <input type="hidden" value="{{ $user['id'] }}" name="user_id">
-                <button type="submit" class='text-white btn @if($user['isBlocked']) btn-success @else btn-danger @endif'>@if($user['isBlocked']) 解除 @else 封鎖 @endif</button>
+                @if($user['isBlocked'])
+                    <button type="submit" class='text-white btn @if($user['isBlocked']) btn-success @else btn-danger @endif'> 解除 </button>
+                @else 
+                    <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $user['id'] }}" data-sname="@if(isset($name)){{ $name }}@endif" data-email="@if(isset($email )){{ $email }}@endif"  data-name="{{ $user['name'] }}">封鎖</a>
+                @endif
             </form>
         </td>
         <td class="align-middle">
@@ -89,4 +93,55 @@
 @endif
 </body>
 </html>
+<div class="modal fade" id="blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">封鎖</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="toggleUserBlock" method="POST">{!! csrf_field() !!}
+                <input type="hidden" id="blockName"   value="" name="name">
+                <input type="hidden" id="blockEmail"   value="" name="email">
+                <input type="hidden" id="blockUserID" value="" name="user_id">
+                <div class="modal-body">
+                        封鎖時間
+                        <select name="days" class="days">
+                            <option value="3">三天</option>
+                            <option value="7">七天</option>
+                            <option value="30">三十天</option>
+                            <option value="X" selected>永久</option>
+                        </select>
+                        <hr>
+                        封鎖原因
+                        <a class="text-white btn btn-success advertising">廣告</a>
+                        <a class="text-white btn btn-success improper-behavior">非徵求包養行為</a>
+                        <a class="text-white btn btn-success improper-words">用詞不當</a>
+                        <a class="text-white btn btn-success improper-photo">照片不當</a>
+                        <br><br>
+                        <textarea class="form-control m-reason" name="msg" id="msg" rows="4" maxlength="200">廣告</textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class='btn btn-outline-success ban-user'> 送出 </button>
+                    <button type="button" class="btn btn-outline-danger" data-dismiss="modal">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    jQuery(document).ready(function(){
+        $('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
+            if (typeof $(this).data('id') !== 'undefined') {
+                $("#exampleModalLabel").html('封鎖 '+ $(this).data('name'))
+                $("#blockName").val($(this).data('sname'))
+                $("#blockEmail").val($(this).data('email'))
+                $("#blockUserID").val($(this).data('id'))
+            }
+        })
+    });
+</script>
 @stop
