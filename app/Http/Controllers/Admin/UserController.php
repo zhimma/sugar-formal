@@ -362,7 +362,6 @@ class UserController extends Controller
         foreach($to_ids as $key => $to_id){
             $to_ids[$key]['vip'] =  Vip::select('active')->where('member_id', $key)->where('active', 1)->orderBy('created_at', 'desc')->first() !== null;
         }
-        
         $isVip = $user->isVip();
         $user['vip'] = $isVip;
 
@@ -1084,6 +1083,31 @@ class UserController extends Controller
             return redirect('admin/announcement')
                 ->withErrors(['出現不明錯誤，無法刪除站長公告']);
         }
+    }
+
+    /**
+     * Shows web  announcement page.
+     *
+     * @return \Illuminate\Http\Response
+     */
+
+    public function showWebAnnouncement() 
+    {
+        $time = \Carbon\Carbon::now();
+        // $time = '2019-07';
+        $start= date('Y-m-01',strtotime($time));
+        $end= date('Y-m-t',strtotime($time));
+        $userBanned = banned_users::select('users.name','banned_users.*')
+                    ->whereBetween('banned_users.created_at',[($start),($end)])
+                    ->join('users','banned_users.member_id','=','users.id')
+                    ->orderBy('banned_users.created_at','asc')->get();
+        foreach($userBanned as $user){
+            $isVip[$user->member_id] = Vip::select('member_id')->where('member_id', $user->member_id)->get()->first();
+        }
+        
+        return view('admin.adminannouncement_web')
+                ->with('users',$userBanned)
+                ->with('isVip',$isVip);
     }
 
     public function showReportedUsersPage(){
