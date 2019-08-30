@@ -2175,6 +2175,27 @@ select.form-control-lg:not([size]):not([multiple]) {
     -o-transition: all .15s ease-in-out;
     transition: all .15s ease-in-out
 }
+@media (max-width: 576px) {
+    .btn {
+        display: inline-block;
+        font-weight: 400;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        -webkit-user-select: none;
+           -moz-user-select: none;
+            -ms-user-select: none;
+                user-select: none;
+        border: 1px solid transparent;
+        padding: .3rem .7rem;
+        font-size: 1rem;
+        line-height: 1.25;
+        border-radius: .25rem;
+        -webkit-transition: all .15s ease-in-out;
+        -o-transition: all .15s ease-in-out;
+        transition: all .15s ease-in-out
+    }
+}
 .btn:focus,
 .btn:hover {
     text-decoration: none
