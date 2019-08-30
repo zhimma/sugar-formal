@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\DB;
@@ -72,7 +73,13 @@ class Kernel extends ConsoleKernel
             $date = \Carbon\Carbon::createFromFormat("Y-m-d", $date_set)->toDateString();
         }
         else{
-            $date = \Carbon\Carbon::now()->toDateString();
+            //由於異動檔在29號之後一律存至下個月1號，所以從30號開始才要檢查下月檔案(30號檢查的是29號檔案)。
+            if(Carbon::now()->format('d') <= 29){
+                $date = \Carbon\Carbon::now()->toDateString();
+            }
+            else{
+                $date = \Carbon\Carbon::now()->addMonth()->startOfMonth()->toDateString();
+            }
         }
         $datas = \DB::table('viplogs')->where('filename', 'LIKE', '%761404%')->where('created_at', 'LIKE', $date.'%')->get();
         $dateStr = $date;
