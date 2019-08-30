@@ -305,6 +305,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('users/search', 'UserController@search')->name('users/manager');
         Route::get('users/search', 'UserController@index')->name('users/manager');
         Route::post('users/advSearch', 'UserController@advSearch')->name('users/advSearch');
+        Route::post('users/advSearchInfo', 'UserController@advSearchInfo')->name('users/advSearchInfo');
         Route::get('users/advSearch', 'UserController@advIndex');
         Route::get('users/advInfo/{id}', 'UserController@advInfo')->name('users/advInfo');
         Route::get('users/advInfo/edit/{id}', 'UserController@advInfo');

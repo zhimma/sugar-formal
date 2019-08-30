@@ -325,6 +325,12 @@ class UserController extends Controller
                ->with('time', isset($request->time) ? $request->time : null);
     }
 
+    public function advSearchInfo(Request $request)
+    {
+        $users = $this->admin->advSearch($request);
+        return array('users'=> $users);
+    }
+
     /**
      * Display advance information of a member.
      *

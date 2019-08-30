@@ -11,7 +11,7 @@ use App\Models\Message;
 use App\Models\MemberPic;
 use App\Models\SimpleTables\banned_users;
 use PhpParser\Node\Expr\Cast\Object_;
-
+use Illuminate\Support\Facades\DB;
 
 class AdminService
 {
@@ -69,7 +69,7 @@ class AdminService
             $users = User::where('name', 'like', '%' . $request->name . '%');
         }
         else{
-            return redirect(route('users/advSearch'));
+            $users = new User;
         }
         if($request->time =='created_at'){
             $users = $users->orderBy('created_at', 'desc');
@@ -77,7 +77,12 @@ class AdminService
         if($request->time =='login_time'){
             $users = $users->orderBy('last_login', 'desc');
         }
-        $users = $users->get();
+        if( empty($request->email) && empty($request->name)){
+            $users = $users->orderBY('id', 'asc');
+            $users = $users->paginate(10);
+        }else{
+            $users = $users->get();
+        }
         foreach ($users as $user){
             $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first() == true  ? true : false;
             $user['vip'] = $user->isVip() ? '是' : '否';

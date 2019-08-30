@@ -45,7 +45,7 @@
     </div>
 </form><br>
 @if(isset($users))
-<table class='table table-hover table-bordered'>
+<table class='table table-hover table-bordered' id="tableList">
 	<tr>
 		<td>會員ID</td>
 		<td>暱稱</td>
@@ -77,7 +77,7 @@
                 @if($user['isBlocked'])
                     <button type="submit" class='text-white btn @if($user['isBlocked']) btn-success @else btn-danger @endif'> 解除 </button>
                 @else 
-                    <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $user['id'] }}" data-sname="@if(isset($name)){{ $name }}@endif" data-email="@if(isset($email )){{ $email }}@endif"  data-name="{{ $user['name'] }}">封鎖</a>
+                    <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $user['id'] }}" data-sname="@if(isset($name)){{ $name }}@endif" data-email="@if(isset($email )){{ $email }}@endif"  data-name="{{ $user['name'] }}" onclick="setBlockade(this)">封鎖</a>
                 @endif
             </form>
         </td>
@@ -90,6 +90,12 @@
 	<tr>找不到符合條件的資料</tr>
 	@endforelse
 </table>
+<div align="center">
+    <input type="hidden" value="2" id="morePage">
+    @if(!isset($email ) && !isset($name))
+    <button class="btn btn-info" onclick="getUserInfo()">載入更多</button>
+    @endif
+</div>
 @endif
 </body>
 </html>
@@ -133,15 +139,81 @@
 </div>
 
 <script>
-    jQuery(document).ready(function(){
-        $('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
-            if (typeof $(this).data('id') !== 'undefined') {
-                $("#exampleModalLabel").html('封鎖 '+ $(this).data('name'))
-                $("#blockName").val($(this).data('sname'))
-                $("#blockEmail").val($(this).data('email'))
-                $("#blockUserID").val($(this).data('id'))
+    
+    function setBlockade(value){
+        if (typeof $(value).data('id') !== 'undefined') {
+            $("#exampleModalLabel").html('封鎖 '+ $(value).data('name'))
+            $("#blockName").val($(value).data('sname'))
+            $("#blockEmail").val($(value).data('email'))
+            $("#blockUserID").val($(value).data('id'))
+        }
+    }
+    function getUserInfo(){
+        let page = $("#morePage").val();
+        $.ajax({
+            type:"POST",
+            url:"advSearchInfo",
+            data:{
+                _token: '{{csrf_token()}}',
+                page : page,
+            },
+            success:function(msg){
+                if(msg){
+                    $("#morePage").val(msg.users.current_page + 1)
+                    
+                    $.each( msg.users.data, function( keys, value ) {
+                        let tr = $("#tableList").find('tr:last').clone()
+                        let trKey = ['id','name','title','engroup','email','created_at','updated_at','last_login']
+                        let trValue = [];
+                        $.each(trKey , function(values, worth){
+                            if(worth == 'engroup'){
+                                trValue.push((value[worth] == 1) ? '男' : '女')
+                            }else{
+                                trValue.push(value[worth])
+                            }
+                        })
+                        $(tr.find('td').eq(8)).each(function(){
+                            $($(this).find('input')).each(function(){
+                                if($(this).attr("name") == 'user_id'){
+                                    $(this).val(value.id)
+                                }
+                            })
+                            $(this).find('a').attr('data-id',value.id)
+                            $(this).find('a').attr('data-name',value.name)
+                        })
+                        $(tr.find('td').eq(9)).each(function(){
+                            let urlArray = $(this).find('a').attr('href').split('/')
+                            urlArray.pop()
+                            let url =''
+                            $(urlArray).each(function(k, v){
+                                url = url + v +'/'
+                            })
+                            $(this).find('a').attr('href', url+value.id)
+                        })
+                        $(tr.find('td').eq(10)).each(function(){
+                            let urlArray = $(this).find('a').attr('href').split('/')
+                            urlArray.pop()
+                            let url =''
+                            $(urlArray).each(function(k, v){
+                                url = url + v +'/'
+                            })
+                            $(this).find('a').attr('href', url+value.id)
+                        })
+                      
+                        $.each(tr.find('td').slice(0,8), function(key,val){
+                            
+                                val.innerHTML = trValue[key]
+                        })
+
+                        if(value.isBlocked){
+                            tr.css('color','#FF0000')
+                        }
+                        
+                        $('#tableList').append(tr)
+                    });
+                }
             }
         })
-    });
+    }
 </script>
 @stop
