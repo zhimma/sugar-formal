@@ -13,7 +13,7 @@
 </div>
 <div class="m-portlet__body">
     @if(isset($user))
-        <p><h3>註冊成功</h3></p>
+        <p><h3>帳號註冊成功(請到Email信箱收信驗證)</h3></p>
         <p>您已註冊成功，以下是您所填寫的註冊資料：<br>
         暱稱：{{ $user->name }}<br>
         標題：{{ $user->title }}<br>
