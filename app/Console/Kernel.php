@@ -249,7 +249,23 @@ class Kernel extends ConsoleKernel
     }
 
     protected function uploadDatFile(){
-        $date = \Carbon\Carbon::now()->subDay()->toDateString();
+        //由於異動檔在29號開始一律存至下個月1號，所以30號開始一律都不上傳檔案，待下個月再重新開始。
+        //此外，由於原先上傳方式為隔日才上傳前一日的異動檔，故每1號也要跳過上傳。(3/1例外)
+        if(Carbon::now()->format('d') <= 29 && Carbon::now()->format('d') > 1){
+            $date = \Carbon\Carbon::now()->subDay()->toDateString();
+        }
+        elseif(Carbon::now()->format('m-d') == "03-01"){
+            $date = \Carbon\Carbon::now()->subDay()->toDateString();
+        }
+        else{
+            \DB::table('log_dat_file')->insert(
+                [   'upload_check' => 1,
+                    'local_file'   => 'None.',
+                    'remote_file'  => 'None.',
+                    'content' => "本次程序啟動日為本月29、30、31、1號，故上傳程序不會啟動。"]
+            );
+            return "No file, end of the month or the first day of the month.";
+        }
         $date = str_replace('-', '', $date);
         if(file_exists(storage_path('app/RP_761404_'.$date.'.dat'))){
             $fileContent = file_get_contents(storage_path('app/RP_761404_'.$date.'.dat'));
@@ -278,6 +294,18 @@ class Kernel extends ConsoleKernel
     }
 
     protected function checkDatFile(){
+        //由於異動檔在29號開始一律存至下個月1號，所以29號開始一律都不上傳檔案，待下個月再重新開始。
+        //此外，由於原先上傳方式為隔日才上傳前一日的異動檔，故每1號也要跳過上傳。
+        //因上述理由，故前一月30日起至下個月1號，藍新端都不會有異動檔，所以檢查要略過。(3/1例外)
+        if(Carbon::now()->format('m-d') != "03-01" && Carbon::now()->format('d') > 29 && Carbon::now()->format('d') == 1){
+            \DB::table('log_dat_file')->insert(
+                [   'upload_check' => 1,
+                    'local_file'   => 'None.',
+                    'remote_file'  => 'None.',
+                    'content' => "本次程序啟動日為本月29、30、31、1號，故檢查程序不會啟動。"]
+            );
+            return "No file, end of the month or the first day of the month.";
+        }
         $localDate = \Carbon\Carbon::now()->subDay()->toDateString();
         $localDate = str_replace('-', '', $localDate);
         if(file_exists(storage_path('app/RP_761404_'.$localDate.'.dat'))){
