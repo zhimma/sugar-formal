@@ -116,10 +116,25 @@
                         @endif
                         @if(isset($Presults))
                             @foreach ($Presults as $result)
-                            <tr @if($result['isBlocked']) style="color: #F00;" @endif>
+                            <tr>
                                 <td>
-                                    <a href="{{ route('users/advInfo', $result['reporter_id']) }}" target='_blank'>{{ $Pusers[$result['reporter_id']] }}</a>
-                                    <!-- <button type="button" onclick="toggleBanned({{ $result['reporter_id'] }});" target="_blank" class='text-white btn @if($result['isBlocked']) btn-success @else btn-danger @endif'>@if($result['isBlocked']) ◯ @else 🞫 @endif</button> -->
+                                    <a href="{{ route('users/advInfo', $result['reporter_id']) }}" target='_blank' @if($result['isBlocked']) style="color: #F00;" @endif >{{ $users[$result['reporter_id']]['name'] }}
+                                        @if($users[$result['reporter_id']]['vip'] )
+                                            <i class="m-nav__link-icon fa fa-diamond"></i>
+                                        @endif
+                                        @if(!is_null($result['isBlocked']))
+                                            @if(!is_null($result['isBlocked']['expire_date']))
+                                                ({{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                            @else
+                                                (永久)
+                                            @endif
+                                        @endif
+                                        </a>
+                                        {{-- <button type="button" onclick="toggleBanned({{ $result['reporter_id'] }});" target="_blank" class='text-white btn @if($result['isBlocked']) btn-success @else btn-danger @endif'>@if($result['isBlocked']) ◯ @else 🞫 @endif</button>--}}
+
+
+                                    {{-- <a href="{{ route('users/advInfo', $result['reporter_id']) }}" target='_blank'>{{ $Pusers[$result['reporter_id']] }}</a> --}}
+                                    {{-- <button type="button" onclick="toggleBanned({{ $result['reporter_id'] }});" target="_blank" class='text-white btn @if($result['isBlocked']) btn-success @else btn-danger @endif'>@if($result['isBlocked']) ◯ @else 🞫 @endif</button> --}}
                                 </td>
                                 <td>{{ $result['vip'] }}</td>
                                 <td>

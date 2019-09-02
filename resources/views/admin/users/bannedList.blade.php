@@ -24,8 +24,8 @@
         <td>{{ $user->email }}</td>
         <td>{{ $user->name }}</td>
         <td>{{ $user->created_at }}</td>
-        <td>{{ $user->message_content }}</td>
         <td>{{ $user->recipient_name }}</td>
+        <td>{{ $user->message_content }}</td>
         <td>{{ $user->expire_date }}</td>
         <td>
             <form action="userUnblock" method="POST">{!! csrf_field() !!}

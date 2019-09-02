@@ -254,7 +254,7 @@ class AdminService
     public function fillReportedAvatarDatas($results){
         $reporter_id = array();
         $reported_user_id = array();
-        foreach ($results as $result){
+        foreach ($results as &$result){
             if(!in_array($result->reporter_id, $reporter_id)) {
                 array_push($reporter_id, $result->reporter_id);
             }
@@ -295,7 +295,7 @@ class AdminService
     public function fillReportedPicDatas($results){
         $reporter_id = array();
         $reported_user_id = array();
-        foreach ($results as $result){
+        foreach ($results as &$result){
             if(!in_array($result->reporter_id, $reporter_id)) {
                 array_push($reporter_id, $result->reporter_id);
             }
