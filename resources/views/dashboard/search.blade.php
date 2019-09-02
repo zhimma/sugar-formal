@@ -238,6 +238,13 @@
             @foreach ($vis as $vi)
                 <div class="col-md-3 m-widget3__item"  style="border-bottom: none; margin:50px 0;">
                     <?php $visitor = $vi->user() ?>
+                    <?php 
+                        $umeta = $visitor->meta_();
+                        if(isset($umeta->city)){
+                            $umeta->city = explode(",",$umeta->city);
+                            $umeta->area = explode(",",$umeta->area);
+                        }
+                    ?>
                     @if ($visitor !== null && $visitor->engroup != $user->engroup && $visitor->meta_() !== null)
                     <?php $vmeta = $visitor->meta_(); ?>
                     <? $data = \App\Services\UserService::checkRecommendedUser($visitor); ?>
@@ -258,7 +265,12 @@
                                         <span class="m-widget3__username" style="color:red">(此人遭多人檢舉)</span>
                                     @endif
                                     <br />
-                                <p class="user-card" id="card-area">{{$visitor->meta_()->city}} {{$visitor->meta_()->area}}</p>
+                                
+                                    @foreach($umeta->city as $key => $cityval)
+                                    <p class="user-card" id="card-area">
+                                        {{$umeta->city[$key]}} {{$umeta->area[$key]}}
+                                    </p>
+                                    @endforeach
                                                             <!-- {{$visitor->title}} -->
                                 </p>
                 		    </div>

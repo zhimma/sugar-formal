@@ -269,12 +269,18 @@
             $umeta = null;
         } else {
             $umeta = $user->meta_();
-        }?>
+            if(isset($umeta->city)){
+                $umeta->city = explode(",",$umeta->city);
+                $umeta->area = explode(",",$umeta->area);
+            }
+        }
+        ?>
         <?php if (!isset($cur)) {
             $cmeta = null;
         } else {
             $cmeta = $cur->meta_();
-        } ?>
+        }
+        ?>
         @if(str_contains(url()->current(), 'dashboard'))
             <form class="m-form m-form--fit m-form--label-align-right" method="POST" name="user_data" action="/dashboard" id="information">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -352,42 +358,55 @@
                                     </div>
                                 @endif
                                 <div class="m-form__seperator m-form__seperator--dashed m-form__seperator--space-2x"></div>
-
+                                    <!--  個人資料首頁 -->
                                 @if(str_contains(url()->current(), 'dashboard'))
-                                    <div class="form-group m-form__group row twzipcode" id="twzipcode"><label
-                                                class="col-form-label col-lg-2 col-sm-12">縣市</label>
-                                        @else
-                                            <div class="form-group m-form__group row" id="twzipcode"><label
-                                                        class="col-form-label col-lg-2 col-sm-12">縣市</label>
-                                                @endif
-
-                                                <div class="col-lg-5 col-md-10 col-sm-12">
-
-                                                    <!--  個人資料首頁 -->
-                                                    @if (str_contains(url()->current(), 'dashboard'))
-                                                        <div class="twzip" data-role="county" data-name="city"
-                                                             data-value="{{$umeta->city}}">
-                                                        </div>
-                                                        <div class="twzip" data-role="district" data-name="area"
-                                                             data-value="{{$umeta->area}}">
-                                                        </div>
-                                                        <div class="twzip">
-                                                            <input type="hidden" name="isHideArea" value="0">
-                                                            <input type="checkbox" name="isHideArea"
-                                                                   @if($umeta->isHideArea == true) checked
-                                                                   @endif value="1">
-                                                            隱藏鄉鎮區
-                                                        </div>
-                                                    @elseif (isset($cmeta) && !$cmeta->isHideArea)
-                                                        <input class="form-control m-input" disabled
-                                                               value="{{$cmeta->city}} {{$cmeta->area}}">
-                                                    @else
-                                                        <input class="form-control m-input" disabled
-                                                               value="@if(isset($cmeta)){{$cmeta->city}}@endif">
-                                                    @endif
+                                    <div class="form-group m-form__group row">
+                                        <label  class="col-form-label col-lg-2 col-sm-12">
+                                            隱藏鄉鎮區
+                                        </label>
+                                        <div class="col-form-label col-lg-2 col-sm-12">
+                                            <input type="hidden" name="isHideArea" value="0">
+                                            <input type="checkbox" name="isHideArea"
+                                                    @if($umeta->isHideArea == true) checked
+                                                    @endif value="1">
+                                        </div>
+                                        
+                                        <label  class="col-form-label col-lg-2 col-sm-12">
+                                            新增縣市
+                                        </label>
+                                        <div class="col-form-label col-lg-2 col-sm-12">
+                                            <button type="button" id="add_county" class="" name="button">+</button>
+                                        </div>
+                                    </div>
+                                    <div id="county">
+                                    @foreach($umeta->city as $key => $cityval)
+                                        <div class="form-group m-form__group row twzipcode" id="twzipcode">
+                                            <label class="col-form-label col-lg-2 col-sm-12">縣市</label>
+                                            <div class="col-lg-5 col-md-10 col-sm-12">
+                                                <div class="twzip" data-role="county" data-name="@if($key != 0 )city{{$key}}@else{{'city'}}@endif"
+                                                        data-value="{{$umeta->city[$key]}}">
                                                 </div>
-
+                                                <div class="twzip" data-role="district" data-name="@if($key != 0 )area{{$key}}@else{{'area'}}@endif"
+                                                        data-value="{{$umeta->area[$key]}}">
+                                                </div>
                                             </div>
+                                        </div>
+                                    @endforeach
+                                    </div>
+                                @else
+                                    <div class="form-group m-form__group row" id="twzipcode">
+                                        <label class="col-form-label col-lg-2 col-sm-12">縣市</label>
+                                        <div class="col-lg-5 col-md-10 col-sm-12">
+                                        @if (isset($cmeta) && !$cmeta->isHideArea)
+                                            <input class="form-control m-input" disabled
+                                                    value="@foreach($umeta->city as $key => $cityval){{$umeta->city[$key]}}-{{$umeta->area[$key]}}  @endforeach">
+                                        @else
+                                            <input class="form-control m-input" disabled
+                                                    value="@if(isset($cmeta)){{$cmeta->city}}@endif">
+                                        @endif
+                                        </div>
+                                    </div>
+                                @endif
                                             @if ($user->engroup == 2)
                                                 <div class="form-group m-form__group row @if (str_contains(url()->current(), 'dashboard')) twzipcode @endif"><label
                                                             class="col-form-label col-lg-2 col-sm-12">拒絕接受搜索縣市</label>
@@ -1702,6 +1721,24 @@
             $(this).parent('div').remove();
             x--;
         });
+        let county = $("#county")
+        let add_county = $("#add_county")
+        $(add_county).click(function(){
+            if($(county).find('.twzipcode').length < 3) {
+                let county_div = '<div class="form-group m-form__group row twzipcode" >';
+                    county_div+= '<label class="col-form-label col-lg-2 col-sm-12">縣市</label>';
+                    county_div+= '<div class="col-lg-5 col-md-10 col-sm-12">';
+                    county_div+= '<div class="twzip" data-role="county" data-name="city'+$(county).find('.twzipcode').length+'" data-value=""></div>'
+                    county_div+= '<div class="twzip" data-role="district" data-name="area'+$(county).find('.twzipcode').length+'" data-value=""></div>'
+                    county_div+= '</div></div>'
+                $(county).append(county_div)
+                $('.twzipcode').twzipcode({
+                    'detect': true, 'css': ['form-control twzip', 'form-control twzip', 'zipcode']
+                });
+            }else{
+                alert('最多新增3筆')
+            }
+        })
     });
 
     @if (str_contains(url()->current(), 'dashboard'))
