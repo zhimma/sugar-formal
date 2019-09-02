@@ -305,6 +305,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('users/search', 'UserController@search')->name('users/manager');
         Route::get('users/search', 'UserController@index')->name('users/manager');
         Route::post('users/advSearch', 'UserController@advSearch')->name('users/advSearch');
+        Route::post('users/advSearchInfo', 'UserController@advSearchInfo')->name('users/advSearchInfo');
         Route::get('users/advSearch', 'UserController@advIndex');
         Route::get('users/advInfo/{id}', 'UserController@advInfo')->name('users/advInfo');
         Route::get('users/advInfo/edit/{id}', 'UserController@advInfo');
@@ -323,7 +324,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('users/message/showBetween/{id1}/{id2}', 'UserController@showMessagesBetween')->name('admin/showMessagesBetween');
         Route::get('users/message/to/{id}', 'UserController@showAdminMessenger');
         Route::get('users/message/to/{id}/{mid}', 'UserController@showAdminMessengerWithMessageId')->name('AdminMessengerWithMessageId');
-        Route::get('users/message/unreported/to/{id}/{mid}/{pic_id?}/{isPic?}', 'UserController@showAdminMessengerWithReportedId')->name('AdminMessengerWithReportedId');
+        Route::get('users/message/unreported/to/{id}/{mid}/{pic_id?}/{isPic?}/{isReported?}', 'UserController@showAdminMessengerWithReportedId')->name('AdminMessengerWithReportedId');
         Route::post('users/message/send/{id}', 'UserController@sendAdminMessage')->name('admin/send');
         Route::post('users/message/multiple/send', 'UserController@sendAdminMessageMultiple')->name('admin/send/multiple');
         Route::get('users/message/search', 'UserController@showMessageSearchPage')->name('users/message/search');
@@ -355,6 +356,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('announcement/new', 'UserController@showNewAdminAnnouncement')->name('admin/announcement/new');
         Route::post('announcement/new', 'UserController@newAdminAnnouncement')->name('admin/announcement/new');
         Route::get('announcement/read/{id}', 'UserController@showReadAnnouncementUser')->name('admin/announcement/read');
+        Route::get('web/announcement', 'UserController@showWebAnnouncement')->name('admin/web/announcement');
         Route::get('/chat', 'MessageController@chatview')->name('admin/chat');
         Route::get('/chat/{cid}', 'PagesController@chat');
         Route::post('/chat', 'MessageController@postChat');

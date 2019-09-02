@@ -45,14 +45,13 @@
     </div>
 </form><br>
 @if(isset($users))
-<table class='table table-hover table-bordered'>
+<table class='table table-hover table-bordered' id="tableList">
 	<tr>
 		<td>會員ID</td>
 		<td>暱稱</td>
 		<td>標題</td>
 		<td>男/女</td>
 		<td>Email</td>
-		<td>VIP</td>
 		<td>建立時間</td>
 		<td>更新時間</td>
 		<td>上次登入</td>
@@ -63,11 +62,10 @@
 	@forelse ($users as $user)
 	<tr @if($user['isBlocked']) style="color: #FF0000;" @endif>
 		<td class="align-middle">{{ $user['id'] }}</td>
-		<td class="align-middle">{{ $user['name'] }}</td>
+		<td class="align-middle">{{ $user['name'] }} @if($user['vip'] == '是') <i class="m-nav__link-icon fa fa-diamond"></i>@endif @if(isset($user['vip_data']) && $user['vip_data']['expiry'] != "0000-00-00 00:00:00") (到期日: {{ substr($user['vip_data']['expiry'], 0, 10) }}) @endif</td>
 		<td class="align-middle">{{ $user['title'] }}</td>
 		<td class="align-middle">@if($user['engroup']==1) 男 @else 女 @endif</td>
 		<td class="align-middle">{{ $user['email'] }}</td>
-		<td class="align-middle">{{ $user['vip'] }} @if(isset($user['vip_data']) && $user['vip_data']['expiry'] != "0000-00-00 00:00:00") (到期日: {{ substr($user['vip_data']['expiry'], 0, 10) }}) @endif</td>
 		<td class="align-middle">{{ $user['created_at'] }}</td>
 		<td class="align-middle">{{ $user['updated_at'] }}</td>
 		<td class="align-middle">{{ $user['last_login'] }}</td>
@@ -76,7 +74,11 @@
                 <input type="hidden" value="@if(isset($email )){{ $email }}@endif" name="email">
                 <input type="hidden" value="@if(isset($name)){{ $name }}@endif" name="name">
                 <input type="hidden" value="{{ $user['id'] }}" name="user_id">
-                <button type="submit" class='text-white btn @if($user['isBlocked']) btn-success @else btn-danger @endif'>@if($user['isBlocked']) 解除 @else 封鎖 @endif</button>
+                @if($user['isBlocked'])
+                    <button type="submit" class='text-white btn @if($user['isBlocked']) btn-success @else btn-danger @endif'> 解除 </button>
+                @else 
+                    <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $user['id'] }}" data-sname="@if(isset($name)){{ $name }}@endif" data-email="@if(isset($email )){{ $email }}@endif"  data-name="{{ $user['name'] }}" onclick="setBlockade(this)">封鎖</a>
+                @endif
             </form>
         </td>
         <td class="align-middle">
@@ -88,7 +90,130 @@
 	<tr>找不到符合條件的資料</tr>
 	@endforelse
 </table>
+<div align="center">
+    <input type="hidden" value="2" id="morePage">
+    @if(!isset($email ) && !isset($name))
+    <button class="btn btn-info" onclick="getUserInfo()">載入更多</button>
+    @endif
+</div>
 @endif
 </body>
 </html>
+<div class="modal fade" id="blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">封鎖</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="toggleUserBlock" method="POST">{!! csrf_field() !!}
+                <input type="hidden" id="blockName"   value="" name="name">
+                <input type="hidden" id="blockEmail"   value="" name="email">
+                <input type="hidden" id="blockUserID" value="" name="user_id">
+                <div class="modal-body">
+                        封鎖時間
+                        <select name="days" class="days">
+                            <option value="3">三天</option>
+                            <option value="7">七天</option>
+                            <option value="30">三十天</option>
+                            <option value="X" selected>永久</option>
+                        </select>
+                        <hr>
+                        封鎖原因
+                        <a class="text-white btn btn-success advertising">廣告</a>
+                        <a class="text-white btn btn-success improper-behavior">非徵求包養行為</a>
+                        <a class="text-white btn btn-success improper-words">用詞不當</a>
+                        <a class="text-white btn btn-success improper-photo">照片不當</a>
+                        <br><br>
+                        <textarea class="form-control m-reason" name="msg" id="msg" rows="4" maxlength="200">廣告</textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class='btn btn-outline-success ban-user'> 送出 </button>
+                    <button type="button" class="btn btn-outline-danger" data-dismiss="modal">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    
+    function setBlockade(value){
+        if (typeof $(value).data('id') !== 'undefined') {
+            $("#exampleModalLabel").html('封鎖 '+ $(value).data('name'))
+            $("#blockName").val($(value).data('sname'))
+            $("#blockEmail").val($(value).data('email'))
+            $("#blockUserID").val($(value).data('id'))
+        }
+    }
+    function getUserInfo(){
+        let page = $("#morePage").val();
+        $.ajax({
+            type:"POST",
+            url:"advSearchInfo",
+            data:{
+                _token: '{{csrf_token()}}',
+                page : page,
+            },
+            success:function(msg){
+                if(msg){
+                    $("#morePage").val(msg.users.current_page + 1)
+                    
+                    $.each( msg.users.data, function( keys, value ) {
+                        let tr = $("#tableList").find('tr:last').clone()
+                        let trKey = ['id','name','title','engroup','email','created_at','updated_at','last_login']
+                        let trValue = [];
+                        $.each(trKey , function(values, worth){
+                            if(worth == 'engroup'){
+                                trValue.push((value[worth] == 1) ? '男' : '女')
+                            }else{
+                                trValue.push(value[worth])
+                            }
+                        })
+                        $(tr.find('td').eq(8)).each(function(){
+                            $($(this).find('input')).each(function(){
+                                if($(this).attr("name") == 'user_id'){
+                                    $(this).val(value.id)
+                                }
+                            })
+                            $(this).find('a').attr('data-id',value.id)
+                            $(this).find('a').attr('data-name',value.name)
+                        })
+                        $(tr.find('td').eq(9)).each(function(){
+                            let urlArray = $(this).find('a').attr('href').split('/')
+                            urlArray.pop()
+                            let url =''
+                            $(urlArray).each(function(k, v){
+                                url = url + v +'/'
+                            })
+                            $(this).find('a').attr('href', url+value.id)
+                        })
+                        $(tr.find('td').eq(10)).each(function(){
+                            let urlArray = $(this).find('a').attr('href').split('/')
+                            urlArray.pop()
+                            let url =''
+                            $(urlArray).each(function(k, v){
+                                url = url + v +'/'
+                            })
+                            $(this).find('a').attr('href', url+value.id)
+                        })
+                      
+                        $.each(tr.find('td').slice(0,8), function(key,val){
+                            
+                                val.innerHTML = trValue[key]
+                        })
+
+                        if(value.isBlocked){
+                            tr.css('color','#FF0000')
+                        }
+                        
+                        $('#tableList').append(tr)
+                    });
+                }
+            }
+        })
+    }
+</script>
 @stop

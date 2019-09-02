@@ -12,7 +12,9 @@
         <td>會員ID</td>
 		<td>Email</td>
 		<td>名稱</td>
-		<td>封鎖時間</td>
+        <td>封鎖時間</td>
+        <td>傳訊給誰</td>
+        <td>訊息內容</td>
         <td>到期日(自動解除)</td>
 		<td>解除封鎖</td>
 	</tr>
@@ -22,6 +24,8 @@
         <td>{{ $user->email }}</td>
         <td>{{ $user->name }}</td>
         <td>{{ $user->created_at }}</td>
+        <td>{{ $user->message_content }}</td>
+        <td>{{ $user->recipient_name }}</td>
         <td>{{ $user->expire_date }}</td>
         <td>
             <form action="userUnblock" method="POST">{!! csrf_field() !!}

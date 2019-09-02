@@ -1,7 +1,26 @@
 @include('partials.header')
 
 <body style="padding: 15px;">
-<h1>{{ $user->name }}的所有資料<a href="edit/{{ $user->id }}" class='text-white btn btn-primary'>修改</a></h1>
+<h1>
+	@if($user['vip'] )<i class="fa fa-diamond" style="font-size: 2rem;"></i>@endif{{ $user->name }}的所有資料
+	<a href="edit/{{ $user->id }}" class='text-white btn btn-primary'>修改</a>
+	@if($user['isBlocked'])
+		<button type="button" class='text-white btn @if($user['isBlocked']) btn-success @else btn-danger @endif' onclick="Release({{ $user['id'] }})"> 解除封鎖 </button>
+	@else 
+		<a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">封鎖會員</a>
+	@endif
+	
+	@if($user['vip'])
+		<button class="btn btn-info" onclick="VipAction({{($user['vip'])?'1':'0' }},{{ $user['id'] }})"> 取消VIP </button>
+	@else 
+		<button class="btn btn-info" onclick="VipAction({{($user['vip'])?'1':'0' }},{{ $user['id'] }} )"> 升級VIP </button>
+	@endif
+	@if(is_null($userMeta->activation_token))
+		<b style="font-size:18px">已開通會員</b>
+	@else
+		<a href="{{ route('activateUser',$userMeta->activation_token) }}" class="btn btn-success"> 通過認證信 </a>
+	@endif
+</h1>
 <h4>基本資料</h4>
 <table class='table table-hover table-bordered '>	
 	<tr>
@@ -133,7 +152,7 @@
 	</tr>
 	@forelse ($userMessage as $uM)
 		<tr>
-			<td><a href="{{ route('admin/showMessagesBetween', [$user->id, $uM->to_id]) }}" target="_blank">{{ $to_ids[$uM->to_id] }}</a></td>
+			<td><a href="{{ route('admin/showMessagesBetween', [$user->id, $uM->to_id]) }}" target="_blank">{{ $to_ids[$uM->to_id]['name'] }}@if($to_ids[$uM->to_id]['vip'] )<i class="fa fa-diamond"></i>@endif</a></td>
 			<td>{{ $uM->content }}</td>
 			<td>{{ $uM->created_at }}</td>
             <td style="text-align: center; vertical-align: middle">
@@ -164,13 +183,73 @@
 	@endforelse
 </table>
 </body>
+<div class="modal fade" id="blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">封鎖</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="/admin/users/toggleUserBlock" method="POST" id="clickToggleUserBlock">{!! csrf_field() !!}
+				<input type="hidden" value="" name="user_id" id="blockUserID">
+				<input type="hidden" value="advInfo" name="page">
+                <div class="modal-body">
+                        封鎖時間
+                        <select name="days" class="days">
+                            <option value="3">三天</option>
+                            <option value="7">七天</option>
+                            <option value="30">三十天</option>
+                            <option value="X" selected>永久</option>
+                        </select>
+                        <hr>
+                        封鎖原因
+                        <a class="text-white btn btn-success advertising">廣告</a>
+                        <a class="text-white btn btn-success improper-behavior">非徵求包養行為</a>
+                        <a class="text-white btn btn-success improper-words">用詞不當</a>
+                        <a class="text-white btn btn-success improper-photo">照片不當</a>
+                        <br><br>
+                        <textarea class="form-control m-reason" name="msg" id="msg" rows="4" maxlength="200">廣告</textarea>
+                </div>
+                <div class="modal-footer">
+                	<button type="submit" class='btn btn-outline-success ban-user'> 送出 </button>
+                    <button type="button" class="btn btn-outline-danger" data-dismiss="modal">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div>
+	<form action="/admin/users/VIPToggler" method="POST" id="clickVipAction">{{ csrf_field() }}
+		<input type="hidden" value="" name="user_id" id="vipID">
+		<input type="hidden" value="" name="isVip" id="isVip">
+		<input type="hidden" value="advInfo" name="page">
+	</form>
+</div>
+<script src="/js/vendors.bundle.js" type="text/javascript"></script>
 <script>
 jQuery(document).ready(function(){
     $('.delete-btn').on('click',function(e){
         if(!confirm('確定要刪除選取的訊息?')){
             e.preventDefault();
         }
-    });
+	});
+	$('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
+		if (typeof $(this).data('id') !== 'undefined') {
+			$("#exampleModalLabel").html('封鎖 '+ $(this).data('name'))
+			$("#blockUserID").val($(this).data('id'))
+		}
+	})
 });
+function Release(id) {
+	$("#blockUserID").val(id);
+	$("#clickToggleUserBlock").submit();
+}
+function VipAction(isVip, user_id){
+	$("#isVip").val(isVip);
+	$("#vipID").val(user_id);
+	$("#clickVipAction").submit();
+}
 </script>
 </html>

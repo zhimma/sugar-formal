@@ -117,6 +117,7 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function toggleVIP(Request $request){
+       
         if($request->isVip == 1){
             $setVip = 0;
         }
@@ -138,9 +139,21 @@ class UserController extends Controller
         $user = User::select('id', 'email')
                 ->where('id', $request->user_id)
                 ->get()->first();
-
-        return view('admin.users.success')
+        if(isset($request->page)){
+            switch($request->page){
+                case 'advInfo':
+                    return redirect('admin/users/advInfo/'.$request->user_id);
+                break;
+                default:
+                    return view('admin.users.success')
+                            ->with('email', $user->email);
+                break;
+            }
+        }else{
+            return view('admin.users.success')
                ->with('email', $user->email);
+        }
+        
     }
 
     /**
@@ -153,13 +166,36 @@ class UserController extends Controller
             ->get()->first();
         if($userBanned){
             $userBanned->delete();
-            return $this->advSearch($request, 'unban');
+            if(isset($request->page)){
+                switch($request->page){
+                    case 'advInfo':
+                        return redirect('admin/users/advInfo/'.$request->user_id);
+                    break;
+                }
+            }else{
+                return $this->advSearch($request, 'unban');
+            }
         }
         else{
             $userBanned = new banned_users;
             $userBanned->member_id = $request->user_id;
+            if($request->days != 'X'){
+                $userBanned->expire_date = Carbon::now()->addDays($request->days);
+            }
+            if(!empty($request->msg)){
+                $userBanned->reason = $request->msg;
+            }
             $userBanned->save();
-            return $this->advSearch($request, 'ban');
+
+            if(isset($request->page)){
+                switch($request->page){
+                    case 'advInfo':
+                        return redirect('admin/users/advInfo/'.$request->user_id);
+                    break;
+                }
+            }else{
+                return $this->advSearch($request, 'ban');
+            }
         }
 
     }
@@ -200,10 +236,30 @@ class UserController extends Controller
         }else{
             $userBanned->expire_date = null;
         }
-
-        $message = Message::select('message.content', 'message.created_at', 'users.name')
+        if (false !== ( strpos($msg_id, '&'))) {
+            $value = explode("&",$msg_id);
+            $msg_id = $value[0];
+            $msg_database = $value[1];
+        }
+        
+        if(isset($msg_database)){
+            switch($msg_database){
+                case 'Reported':
+                    $message = Reported::select($msg_database.'.content', $msg_database.'.created_at')
+                    ->join('users', $msg_database.'.reported_id', '=', 'users.id')
+                    ->where($msg_database.'.id', $msg_id)->get()->first();
+                break;
+                default:
+                    $message = Message::select('message.content', 'message.created_at', 'users.name')
+                    ->join('users', 'message.to_id', '=', 'users.id')
+                    ->where('message.id', $msg_id)->get()->first();
+                break;
+            }
+        }else{
+            $message = Message::select('message.content', 'message.created_at', 'users.name')
             ->join('users', 'message.to_id', '=', 'users.id')
             ->where('message.id', $msg_id)->get()->first();
+        }
         if(isset($message) && $days != 'X'){
             $userBanned->message_content = $message->content;
             $userBanned->message_time = $message->created_at;
@@ -269,6 +325,12 @@ class UserController extends Controller
                ->with('time', isset($request->time) ? $request->time : null);
     }
 
+    public function advSearchInfo(Request $request)
+    {
+        $users = $this->admin->advSearch($request);
+        return array('users'=> $users);
+    }
+
     /**
      * Display advance information of a member.
      *
@@ -278,7 +340,7 @@ class UserController extends Controller
     {
         if (! $id) {
             return redirect(route('users/advSearch'));
-        }        
+        }
         $user = User::where('id', 'like', $id)
                 ->get()->first();
         $userMeta = UserMeta::where('user_id', 'like', $id)
@@ -288,14 +350,23 @@ class UserController extends Controller
         foreach($userMessage as $u){
             if(!array_key_exists($u->to_id, $to_ids)){
                 $to_ids[$u->to_id] = User::select('name')->where('id', $u->to_id)->get()->first();
+                
                 if($to_ids[$u->to_id]){
-                    $to_ids[$u->to_id] = $to_ids[$u->to_id]->name;
+                    $to_ids[$u->to_id]['name'] = $to_ids[$u->to_id]->name;
                 }
                 else{
                     $to_ids[$u->to_id] = '查無資料';
                 }
             }
         }
+        foreach($to_ids as $key => $to_id){
+            $to_ids[$key]['vip'] =  Vip::select('active')->where('member_id', $key)->where('active', 1)->orderBy('created_at', 'desc')->first() !== null;
+        }
+        $isVip = $user->isVip();
+        $user['vip'] = $isVip;
+
+        $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first() == true  ? true : false;
+
         if(str_contains(url()->current(), 'edit')){
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
             $birthday = explode('-', $birthday);
@@ -486,7 +557,7 @@ class UserController extends Controller
     public function showReportedMessages(Request $request){
         $admin = $this->admin->checkAdmin();
         if ($admin){
-            $messages = Message::where('isReported', 1)->orderBy('created_at', 'desc');
+            $messages = Message::where('isReported', 1)->orderBy('created_at', 'desc')->whereBetween('created_at', array('2019-08-20 00:00',  '2019-08-26 23:59'));
             $datas = $this->admin->fillMessageDatas($messages);
             return view('admin.users.searchMessage')
                 ->with('reported', 1)
@@ -548,7 +619,7 @@ class UserController extends Controller
                     $senders = array();
                     foreach ($from_id as $key => $id){
                         $sender = User::where('id', '=', $id)->get()->first();
-                        $vip_tmp = $sender->isVip() ? '是' : '否';
+                        $vip_tmp = $sender->isVip() ? true : false;
                         $senders[$key] = $sender->toArray();
                         $senders[$key]['vip'] = $vip_tmp;
                         $senders[$key]['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first() == true ? true : false;
@@ -729,7 +800,7 @@ class UserController extends Controller
         }
     }
 
-    public function showAdminMessengerWithReportedId($id, $mid, $pic_id = null, $isPic= null)
+    public function showAdminMessengerWithReportedId($id, $mid, $pic_id = null, $isPic= null, $isReported= null)
     {
         $admin = $this->admin->checkAdmin();
         if ($admin){
@@ -743,6 +814,8 @@ class UserController extends Controller
                 ->with('report', $report)
                 ->with('reportedName', $reported->name)
                 ->with('isPic', $isPic)
+                ->with('isReported', $isReported)
+                ->with('isReportedId', $mid)
                 ->with('pic_id', $pic_id);
         }
         else{
@@ -1012,6 +1085,31 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Shows web  announcement page.
+     *
+     * @return \Illuminate\Http\Response
+     */
+
+    public function showWebAnnouncement() 
+    {
+        $time = \Carbon\Carbon::now();
+        // $time = '2019-07';
+        $start= date('Y-m-01',strtotime($time));
+        $end= date('Y-m-t',strtotime($time));
+        $userBanned = banned_users::select('users.name','banned_users.*')
+                    ->whereBetween('banned_users.created_at',[($start),($end)])
+                    ->join('users','banned_users.member_id','=','users.id')
+                    ->orderBy('banned_users.created_at','asc')->get();
+        foreach($userBanned as $user){
+            $isVip[$user->member_id] = Vip::select('member_id')->where('member_id', $user->member_id)->get()->first();
+        }
+        
+        return view('admin.adminannouncement_web')
+                ->with('users',$userBanned)
+                ->with('isVip',$isVip);
+    }
+
     public function showReportedUsersPage(){
         $admin = $this->admin->checkAdmin();
         if ($admin){
@@ -1054,7 +1152,6 @@ class UserController extends Controller
             return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
         }
     }
-
     public function searchReportedPics(Request $request){
         $admin = $this->admin->checkAdmin();
         if ($admin){

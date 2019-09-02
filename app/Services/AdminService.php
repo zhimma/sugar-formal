@@ -11,7 +11,7 @@ use App\Models\Message;
 use App\Models\MemberPic;
 use App\Models\SimpleTables\banned_users;
 use PhpParser\Node\Expr\Cast\Object_;
-
+use Illuminate\Support\Facades\DB;
 
 class AdminService
 {
@@ -69,7 +69,7 @@ class AdminService
             $users = User::where('name', 'like', '%' . $request->name . '%');
         }
         else{
-            return redirect(route('users/advSearch'));
+            $users = new User;
         }
         if($request->time =='created_at'){
             $users = $users->orderBy('created_at', 'desc');
@@ -77,7 +77,12 @@ class AdminService
         if($request->time =='login_time'){
             $users = $users->orderBy('last_login', 'desc');
         }
-        $users = $users->get();
+        if( empty($request->email) && empty($request->name)){
+            $users = $users->orderBY('id', 'asc');
+            $users = $users->paginate(10);
+        }else{
+            $users = $users->get();
+        }
         foreach ($users as $user){
             $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first() == true  ? true : false;
             $user['vip'] = $user->isVip() ? '是' : '否';
@@ -218,13 +223,8 @@ class AdminService
             if(!in_array($result->reported_id, $reported_id)) {
                 array_push($reported_id, $result->reported_id);
             }
-            $result['isBlocked'] = banned_users::where('member_id', 'like', $result->reported_id)->get()->first();
-            if(Vip::where('member_id', 'like', $result->member_id)->get()->first()){
-                $result['vip'] = '是';
-            }
-            else{
-                $result['vip'] = '否';
-            }
+            $result['isBlocked'] = banned_users::where('member_id', 'like', $result->member_id)->get()->first();
+            $result['isBlockedReceiver'] = banned_users::where('member_id', 'like', $result->reported_id)->get()->first();
         }
         $users = array();
         foreach ($member_id as $id){
@@ -240,7 +240,8 @@ class AdminService
                 ->where('id', '=', $id)
                 ->get()->first();
             if($name != null){
-                $users[$id] = $name->name;
+                $users[$id]['name'] = $name->name;
+                $users[$id]['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
             }
             else{
                 $users[$id] = '資料庫沒有資料';
@@ -260,13 +261,9 @@ class AdminService
             if(!in_array($result->reported_user_id, $reported_user_id)) {
                 array_push($reported_user_id, $result->reported_user_id);
             }
-            $result['isBlocked'] = banned_users::where('member_id', 'like', $result->reported_user_id)->get()->first();
-            if(Vip::where('member_id', 'like', $result->reporter_id)->get()->first()){
-                $result['vip'] = '是';
-            }
-            else{
-                $result['vip'] = '否';
-            }
+            $result['isBlocked'] = banned_users::where('member_id', 'like', $result->reporter_id)->get()->first();
+            $result['isBlockedReceiver'] = banned_users::where('member_id', 'like', $result->reported_user_id)->get()->first();
+            
             $result['pic'] = UserMeta::select('pic')->where('user_id', $result->reported_user_id)->get()->first();
             $result['pic'] = $result['pic']->pic;
         }
@@ -284,7 +281,8 @@ class AdminService
                 ->where('id', '=', $id)
                 ->get()->first();
             if($name != null){
-                $users[$id] = $name->name;
+                $users[$id]['name'] = $name->name;
+                $users[$id]['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
             }
             else{
                 $users[$id] = '資料庫沒有資料';
