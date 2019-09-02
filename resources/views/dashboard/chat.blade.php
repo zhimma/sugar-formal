@@ -108,18 +108,18 @@
             let ele;
             if(data[i]['isAdminMessage'] === 1){
                 if(data[i]['user_name'].includes('站長')){
-                    ele = "<div class='m-widget3__item' id='admin' style='background-color: rgba(164, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(164, 164, 164, 0.7); padding: 14px 28px;'>";
+                    ele = "<div class='m-widget3__item' id='admin' style='background-color: rgba(164, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(164, 164, 164, 0.7); padding: 14px 28px;position: relative;'>";
                 }
                 else{
-                    ele = "<div class='m-widget3__item' id='normal' style='background-color: rgba(164, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(164, 164, 164, 0.7); padding: 14px 28px;'>";
+                    ele = "<div class='m-widget3__item' id='normal' style='background-color: rgba(164, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(164, 164, 164, 0.7); padding: 14px 28px;position: relative;'>";
                 }
             }
             else{
                 if(data[i]['user_name'].includes('站長')){
-                    ele = "<div class='m-widget3__item' id='admin' style='background-color: rgba(244, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7); padding: 14px 28px;'>";
+                    ele = "<div class='m-widget3__item' id='admin' style='background-color: rgba(244, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7); padding: 14px 28px;position: relative;'>";
                 }
                 else{
-                    ele = "<div class='m-widget3__item' id='normal' style='background-color: rgba(244, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7); padding: 14px 28px;'>";
+                    ele = "<div class='m-widget3__item' id='normal' style='background-color: rgba(244, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7); padding: 14px 28px;position: relative;'>";
                 }
             }
             if(data[i]['isPreferred'] === 1){
@@ -188,7 +188,7 @@
 <style>
     .MW4BW_ {
         position: absolute;
-        left: 14px;
+        left: 0px;
         top: 0;
         display: -webkit-box;
         display: -webkit-flex;
@@ -333,10 +333,10 @@ $code = Config::get('social.payment.code');
             ?>
                     @if(!empty($latestMessage))
                         @if(\App\Models\Message::isAdminMessage($latestMessage->content))
-                        <div class="m-widget3__item" @if(str_contains($msgUser->name, '站長')) id='admin' @else id='normal' @endif style="background-color: rgba(164, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(164, 164, 164, 0.7); padding: 14px 28px;">
+                        <div class="m-widget3__item" @if(str_contains($msgUser->name, '站長')) id='admin' @else id='normal' @endif style="background-color: rgba(164, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(164, 164, 164, 0.7); padding: 14px 28px;position: relative;">
 
                         @else
-                        <div class="m-widget3__item" @if(str_contains($msgUser->name, '站長')) id='admin' @else id='normal' @endif style="background-color: rgba(244, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7); padding: 14px 28px;">
+                        <div class="m-widget3__item" @if(str_contains($msgUser->name, '站長')) id='admin' @else id='normal' @endif style="background-color: rgba(244, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7); padding: 14px 28px;position: relative;">
 
                         @endif
                             @if(isset($latestMessage->isPreferred))

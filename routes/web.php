@@ -235,6 +235,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('/dashboard/chatpayLog', 'PagesController@postChatpayLog')->name('chatpayLog');
     Route::post('/dashboard/chatpaycomment', 'PagesController@postChatpayComment')->name('chatpaycomment');
     Route::post('/dashboard/header/{admin?}', 'ImageController@resizeImagePostHeader');
+    Route::post('/dashboard/header2/{admin?}', 'ImageController@resizeImagePostHeader2');
     Route::post('/dashboard/image/{admin?}', 'ImageController@resizeImagePost');
     Route::post('/dashboard/imagedel/{admin?}', 'ImageController@deleteImage');
     Route::post('/dashboard/block', 'PagesController@postBlock');
