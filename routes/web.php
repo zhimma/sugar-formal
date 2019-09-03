@@ -317,7 +317,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('users/pictures', 'UserController@showUserPictures')->name('users/pictures');
         Route::post('users/pictures', 'UserController@searchUserPictures')->name('users/pictures');
         Route::post('users/pictures/modify', 'UserController@modifyUserPictures')->name('users/pictures/modify');
-        Route::get('users/reported/count', 'UserController@showReportedCount')->name('users/reported/count');
+        Route::get('users/reported/count', 'UserController@showReportedCountPage')->name('users/reported/count');
+        Route::post('users/reported/count', 'UserController@showReportedCountList')->name('users/reported/count');
         Route::get('users/board', 'PagesController@board')->name('users/board');
         Route::post('users/board', 'PagesController@board')->name('users/board/search');
         Route::get('users/board/delete/{id}', 'UserController@deleteBoard')->name('users/board/delete');
