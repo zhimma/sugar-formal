@@ -144,7 +144,7 @@ class UserMeta extends Model
         return User::where('id', $this->user_id)->first();
     }
 
-    public static function search($city, $area, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType,$seqtime)
+    public static function search($city, $area, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime)
     {
         if ($engroup == 1)
         {
@@ -175,7 +175,7 @@ class UserMeta extends Model
 
         $bannedUsers = banned_users::select('member_id')->get();
 
-        if(isset($seqtime)&&$seqtime==1)
+        if(isset($seqtime) && $seqtime == 1)
             return $query->whereNotIn('user_id', $bannedUsers)->orderBy('users.last_login', 'desc')->paginate(12);
         else
             return $query->whereNotIn('user_id', $bannedUsers)->orderBy('users.created_at', 'desc')->paginate(12);

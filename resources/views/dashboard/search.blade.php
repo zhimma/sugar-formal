@@ -187,9 +187,9 @@
             <label for="user_engroup" class="col-lg-2 col-md-3 col-form-label">搜索排列順序(降冪)</label>
             <div class="col-lg-7 form-inline">
                 <input class="form-control m-input" name="seqtime" value="1"
-                   @if(empty($_GET["seqtime"])||$_GET["seqtime"]==1) checked @endif   checked  type="radio"> 登入時間&nbsp;&nbsp;
+                   @if( empty( $_GET["seqtime"] ) || $_GET["seqtime"] == 1 ) checked @endif   checked  type="radio"> 登入時間&nbsp;&nbsp;
                 <input class="form-control m-input" name="seqtime" value="2"
-                  @if(!empty($_GET["seqtime"])&&$_GET["seqtime"]==2) checked @endif  type="radio"> 註冊時間
+                  @if( !empty( $_GET["seqtime"] ) && $_GET["seqtime"] == 2 ) checked @endif  type="radio"> 註冊時間
             </div>
         </div>
         @endif

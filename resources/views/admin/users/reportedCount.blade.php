@@ -39,6 +39,7 @@
                 </table>
             </form>
             @if(isset($users))
+                共有 {{ count($users) }} 筆資料
                 <table class="table-hover table table-bordered">
                     <tr>
                         <td>會員</td>
