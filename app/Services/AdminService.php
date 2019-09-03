@@ -196,13 +196,14 @@ class AdminService
             }
         }
         foreach ($users as $id => $user){
-            $name = User::select('name')
+            $name = User::select('name','engroup')
                 ->where('id', '=', $id)
                 ->get()->first();
             $vip = Vip::where('member_id', 'like', $id)->get()->first();
             if($name != null){
                 $users[$id]['name'] = $name->name;
                 $users[$id]['vip'] = $vip;
+                $users[$id]['engroup'] = $name->engroup;
             }
             else{
                 $users[$id] = '資料庫沒有資料';

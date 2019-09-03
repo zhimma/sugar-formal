@@ -104,18 +104,20 @@
             </tr>
             @forelse ($results as $key => $result)
             <tr>
-                <td >
-                    <a href="{{ route('users/advInfo', $result['from_id']) }}" target='_blank'  @if($result['isBlocked']) style="color: #F00;" @endif>{{ $users[$result['from_id']]['name'] }}
-                    @if(!is_null($users[$result['from_id']]['vip']))
-                        <i class="m-nav__link-icon fa fa-diamond"></i>
-                    @endif
-                    @if(!is_null($result['isBlocked']))
-                        @if(!is_null($result['isBlocked']['expire_date']))
-                            ({{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
-                        @else
-                            (永久)
-                        @endif
-                    @endif
+                <td @if($result['isBlocked']) style="background-color:#FFFF00" @endif>
+                    <a href="{{ route('users/advInfo', $result['from_id']) }}" target='_blank' >
+                        <p  @if($users[$result['from_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $users[$result['from_id']]['name'] }}
+                            @if(!is_null($users[$result['from_id']]['vip']))
+                                <i class="m-nav__link-icon fa fa-diamond"></i>
+                            @endif
+                            @if(!is_null($result['isBlocked']))
+                                @if(!is_null($result['isBlocked']['expire_date']))
+                                    ({{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                @else
+                                    (永久)
+                                @endif
+                            @endif
+                        </p>
                     </a>
                     <!-- <button type="button" onclick="toggleBanned({{ $result['from_id'] }});" target="_blank" class='text-white btn @if($result['isBlocked']) btn-success @else btn-danger @endif'>@if($result['isBlocked']) ◯ @else 🞫 @endif</button> -->
                 </td>
@@ -127,18 +129,21 @@
                     <a class="btn btn-danger ban-user{{ $key }}" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result->from_id, $result->id]) }} " data-name='{{ $users[$result['from_id']]['name'] }}'>封鎖</a>
                 </td>
                 @endif
-                <td >
-                    <a href="{{ route('users/advInfo', $result['to_id']) }}" target='_blank'  @if($result['isBlockedReceiver']) style="color: #F00;" @endif>{{ $users[$result['to_id']]['name'] }}
-                    @if(!is_null($users[$result['to_id']]['vip']))
-                        <i class="m-nav__link-icon fa fa-diamond"></i>
-                    @endif
-                    @if(!is_null($result['isBlockedReceiver']))
-                        @if(!is_null($result['isBlockedReceiver']['expire_date']))
-                            ({{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天)
-                        @else
-                            (永久)
-                        @endif
-                    @endif
+                <td @if($result['isBlockedReceiver']) style="background-color:#FFFF00" @endif>
+                    <a href="{{ route('users/advInfo', $result['to_id']) }}" target='_blank'>
+                        <p @if($users[$result['to_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+                            {{ $users[$result['to_id']]['name'] }}
+                            @if(!is_null($users[$result['to_id']]['vip']))
+                                <i class="m-nav__link-icon fa fa-diamond"></i>
+                            @endif
+                            @if(!is_null($result['isBlockedReceiver']))
+                                @if(!is_null($result['isBlockedReceiver']['expire_date']))
+                                    ({{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                @else
+                                    (永久)
+                                @endif
+                            @endif
+                        </p>
                     </a>
                 </td>
                 <td>
