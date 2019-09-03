@@ -518,29 +518,74 @@ class UserController extends Controller
         }
     }
 
-    public function showReportedCount()
+    public function showReportedCountPage()
     {
-        ini_set('memory_limit', '-1');
-        $userData = User::select('users.id','name')->join('user_meta','users.id','=','user_meta.user_id')->where('user_meta.is_active' , '1')->get();
-        $userMessage = Message::select('to_id','from_id', DB::raw('count(*) as count'))->groupBy('to_id','from_id')->get();
-        $isVip =  Vip::select('member_id')->where('active', 1)->orderBy('member_id')->get();
-        $datas = array();
-        $messages = array();
-        $userVip = array();
-        foreach ($userData as $Data) {
-            $datas[$Data->id] = array('name' => $Data->name);
+        $admin = $this->admin->checkAdmin();
+        if ($admin){
+            return view('admin.users.reportedCount');
         }
-        foreach($isVip as $vip) {
-            $userVip[$vip->member_id] = true;
-        }
-        foreach ($userMessage as $Message) {
-            $messages[$Message->to_id][$Message->from_id] = $Message->count;
+        else{
+            return view('admin.users.reportedCount')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
         }
         
-        return view('admin.users.reportedCount')
-            ->with('users', $datas)
-            ->with('msgs', $messages)
-            ->with('vips', $userVip);
+    }
+    public function showReportedCountList(Request $request)
+    {
+        $admin = $this->admin->checkAdmin();
+            if ($admin){
+                $userMessage = Message::select('to_id','from_id', DB::raw('count(*) as count'))->join('users','users.id','message.to_id')->groupBy('to_id','from_id');
+                if($request->date_start){
+                    $userMessage = $userMessage->where('users.last_login', '>', $request->date_start . ' 00:00');
+                }
+                if($request->date_end){
+                    $userMessage = $userMessage->where('users.last_login', '<', $request->date_end . ' 23:59');
+                }
+                $userMessage = $userMessage->get();
+                $users = array();
+                $messages = array();
+
+                foreach ($userMessage as $Message) {
+                    $messages[$Message->to_id][$Message->from_id] = $Message->count;
+                    if(!in_array($Message->to_id, $users)){
+                        array_push($users, $Message->to_id);
+                    }
+                    if(!in_array($Message->from_id, $users)){
+                        array_push($users, $Message->from_id);
+                    }
+                }
+                $userData = new User;
+                if(!is_null($request->date_start) && !is_null($request->date_end)){
+                    $userData = $userData->select('id','name',DB::raw("CASE WHEN last_login BETWEEN '". $request->date_start ." 00:00' AND '".$request->date_end." 23:59'  THEN true ELSE false END AS login"));
+                }
+                if(!is_null($request->date_start) && is_null($request->date_end)){
+                    $userData = $userData->select('id','name',DB::raw("CASE WHEN last_login > '". $request->date_start ." 00:00' THEN true ELSE false END AS 'login'"));
+                }
+                if(is_null($request->date_start) && !is_null($request->date_end)){
+                    $userData = $userData->select('id','name',DB::raw("CASE WHEN last_login < '". $request->date_end ." 23:59' THEN true ELSE false END AS 'login'"));
+                }
+                $userData = $userData->whereIn('id', $users)->get();
+                $isVip =  Vip::select('member_id')->where('active', 1)->orderBy('member_id')->get();
+                $datas = array();
+                $userVip = array();
+
+                foreach ($userData as $Data) {
+                    $datas[$Data->id] = array('name' => $Data->name,'login' => $Data->login );
+                }
+                
+                foreach($isVip as $vip) {
+                    $userVip[$vip->member_id] = true;
+                }
+                
+                return view('admin.users.reportedCount')
+                    ->with('users', $datas)
+                    ->with('msgs', $messages)
+                    ->with('vips', $userVip)
+                    ->with('date_start', isset($request->date_start) ? $request->date_start : null)
+                    ->with('date_end', isset($request->date_end) ? $request->date_end : null);
+            }
+            else{
+                return view('admin.users.reportedUsers')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+            }
     }
 
     public function showMessageSearchPage()

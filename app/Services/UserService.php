@@ -181,6 +181,30 @@ class UserService
      */
     public function update($userId, $payload)
     {
+        $setKeys = ['city','area'];
+        $notLikeKeys = ['area' => 'isHideArea'];
+        foreach($setKeys as $setKey){
+            foreach($payload as $key => $value) {
+                if(preg_match("/$setKey/i", $key)){
+                    if($key != $setKey){
+                        if(is_null($payload[$key])){
+                            unset($payload[$key]);
+                        }else{
+                            if(isset($notLikeKeys[$setKey])){
+                                if(!in_array($key, $notLikeKeys)){
+                                    $payload[$setKey] = $payload[$setKey]. ",". $value;
+                                    unset($payload[$key]);
+                                }
+                            }else{
+                                $payload[$setKey] = $payload[$setKey]. ",". $value;
+                                unset($payload[$key]);
+                            }
+                        }
+                        
+                    }
+                }
+            }
+        }
         if (isset($payload['meta']) && ! isset($payload['meta']['terms_and_cond'])) {
             throw new Exception("You must agree to the terms and conditions.", 1);
         }
