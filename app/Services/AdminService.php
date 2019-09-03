@@ -306,13 +306,11 @@ class AdminService
                 if(!in_array($temp->member_id, $reported_user_id)) {
                     array_push($reported_user_id, $temp->member_id);
                 }
-                $result['isBlocked'] = banned_users::where('member_id', 'like', $temp->member_id)->get()->first();
-                if(Vip::where('member_id', 'like', $result->reporter_id)->get()->first()){
-                    $result['vip'] = '是';
-                }
-                else{
-                    $result['vip'] = '否';
-                }
+               
+                $result['isBlocked'] = banned_users::where('member_id', 'like', $result->reporter_id)->get()->first();
+               
+                $result['isBlockedReceiver'] = banned_users::where('member_id', 'like', $result->reported_user_id)->get()->first();
+                
             }
             else{
                 $result['reported_user_id'] = null;
@@ -336,7 +334,8 @@ class AdminService
                 ->where('id', '=', $id)
                 ->get()->first();
             if($name != null){
-                $users[$id] = $name->name;
+                $users[$id]['name'] = $name->name;
+                $users[$id]['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
             }
             else{
                 $users[$id] = '資料庫沒有資料';
