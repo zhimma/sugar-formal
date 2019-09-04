@@ -510,6 +510,7 @@ $code = Config::get('social.payment.code');
 @section('javascript')
 <script>
 $(document).ready(function(){
+    $.ajaxSetup({ cache: false });
     d = new Date('{{ \App\Models\Message::$date }}');
     @if(isset($m_time))
         let m_time = '{{ $m_time }}';
