@@ -1,7 +1,7 @@
 @extends('admin.main')
 @section('app-content')
 <body style="padding: 15px;">
-<h1>網站公告</h1>
+<h1>網站公告本月封鎖名單</h1>
 
 共{{ $users->count() }}筆資料
 <table class='table table-bordered table-hover'>

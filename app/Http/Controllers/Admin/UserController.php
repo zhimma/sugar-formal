@@ -1145,7 +1145,8 @@ class UserController extends Controller
         $userBanned = banned_users::select('users.name','banned_users.*')
                     ->whereBetween('banned_users.created_at',[($start),($end)])
                     ->join('users','banned_users.member_id','=','users.id')
-                    ->orderBy('banned_users.created_at','asc')->get();
+                    ->orderBy('banned_users.created_at','desc')->get();
+        $isVip = array();
         foreach($userBanned as $user){
             $isVip[$user->member_id] = Vip::select('member_id')->where('member_id', $user->member_id)->get()->first();
         }
