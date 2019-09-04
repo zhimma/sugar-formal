@@ -100,42 +100,26 @@ class Vip extends Model
             $day = $date->format('d');
             $now = \Carbon\Carbon::now();
             $nextMonth = $now->addMonth();
-            //            if($day > $now->day){
-            //                $user = Vip::select('member_id', 'active')
-            //                    ->where('member_id', $member_id)
-            //                    ->where('active', 1)
-            //                    ->update(array('active' => 0));
-            //                $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
-            //            }
-            //            else{
-            //                $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
-            //            }
-            //            $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
-            //            if($date->month == '12'){
-            //                $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year + 1 .'-01-'.$day.' 00:00:00');
-            //            }
-            //            if($date->month == $now->month){
             $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $nextMonth->year.'-'.$nextMonth->month.'-'.$day.' 00:00:00');
             foreach ($user as $u){
                 $u->expiry = $date->toDateTimeString();
                 $u->save();
             }
-            //            }
+            return true;
         }
-        else if($free == 0 && $curUser->engroup == 2){
+        else if($curUser->engroup == 2 && $free == 0){
             //取消當日+3天的時間
             $date = date('Y-m-d 00:00:00' , mktime(0, 0, 0, date('m'), date('d')+4, date('Y')));
             foreach ($user as $u){
                 $u->expiry = $date;
                 $u->save();
             }
-            // todo : 女付費VIP取消
+            return true;
         }
-        return true;
 
         //return Vip::where('member_id', $member_id)->delete();
         //VIP取消權限不再用刪除，而是全改為拔active
-        //return Vip::where('member_id', $member_id)->get()->first()->removeVIP();
+        return Vip::where('member_id', $member_id)->get()->first()->removeVIP();
     }
 
     public function compactCancel(){
