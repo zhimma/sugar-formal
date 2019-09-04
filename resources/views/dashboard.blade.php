@@ -408,19 +408,21 @@
                                         </div>
                                     </div>
                                     <div id="county">
-                                    @foreach($umeta->city as $key => $cityval)
-                                        <div class="form-group m-form__group row twzipcode" id="twzipcode">
-                                            <label class="col-form-label col-lg-2 col-sm-12">縣市</label>
-                                            <div class="col-lg-5 col-md-10 col-sm-12">
-                                                <div class="twzip" data-role="county" data-name="@if($key != 0 )city{{$key}}@else{{'city'}}@endif"
-                                                        data-value="{{$umeta->city[$key]}}">
-                                                </div>
-                                                <div class="twzip" data-role="district" data-name="@if($key != 0 )area{{$key}}@else{{'area'}}@endif"
-                                                        data-value="{{$umeta->area[$key]}}">
+                                    @if(isset($umeta->city))
+                                        @foreach($umeta->city as $key => $cityval)
+                                            <div class="form-group m-form__group row twzipcode" id="twzipcode">
+                                                <label class="col-form-label col-lg-2 col-sm-12">縣市</label>
+                                                <div class="col-lg-5 col-md-10 col-sm-12">
+                                                    <div class="twzip" data-role="county" data-name="@if($key != 0 )city{{$key}}@else{{'city'}}@endif"
+                                                            data-value="{{$umeta->city[$key]}}">
+                                                    </div>
+                                                    <div class="twzip" data-role="district" data-name="@if($key != 0 )area{{$key}}@else{{'area'}}@endif"
+                                                            data-value="{{$umeta->area[$key]}}">
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    @endforeach
+                                        @endforeach
+                                    @endif
                                     </div>
                                 @else
                                     <div class="form-group m-form__group row" id="twzipcode">
