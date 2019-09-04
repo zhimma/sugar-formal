@@ -236,6 +236,7 @@
                             $photo = "";
                             $ageto = "";
                             $agefrom = "";
+                            $seqtime = "";
                             if (isset($_GET['district'])) $district = $_GET['district'];
                             if (isset($_GET['county'])) $county = $_GET['county'];
                             if (isset($_GET['cup'])) $cup = $_GET['cup'];
