@@ -37,8 +37,8 @@ class VipCheck
     public function handle($request, Closure $next)
     {
         $now = new \DateTime(\Carbon\Carbon::now()->toDateTimeString());
-        //If the member is male VIP, then check his expiry date.
-        if ($this->auth->user()->isVip() && $this->auth->user()->engroup == 1) {
+        //If the member is male VIP, then check his expiry date. && $this->auth->user()->engroup == 1
+        if ($this->auth->user()->isVip() ) {
             $userVIP = Vip::where('member_id', $this->auth->user()->id)->get()->first();
             $expiry = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $userVIP->expiry);
             if($now > $expiry && $userVIP->expiry != '0000-00-00 00:00:00'){
