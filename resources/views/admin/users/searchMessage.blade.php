@@ -64,7 +64,7 @@
                 </td>
             </tr>
             <tr>
-                <td colspan="2"><button class='text-white btn btn-primary submit'>搜尋符合條件的訊息</button> 或 <a href="{{ route('users/message/search/reported') }}" class="btn btn-info">搜尋符合條件的被檢舉訊息</a></td>
+                <td colspan="2"><button class='text-white btn btn-primary submit'>搜尋符合條件的訊息</button> 或 <a href="{{ route('users/message/search/reported') }}" class="btn btn-info">檢視所有被檢舉訊息</a></td>
             </tr>
         </table>
     </form>
