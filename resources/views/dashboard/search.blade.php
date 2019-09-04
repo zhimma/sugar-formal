@@ -282,12 +282,13 @@
                                         <span class="m-widget3__username" style="color:red">(此人遭多人檢舉)</span>
                                     @endif
                                     <br />
-                                
+                                    @if(!empty($umeta->city))
                                     @foreach($umeta->city as $key => $cityval)
                                     <p class="user-card" id="card-area">
                                         {{$umeta->city[$key]}} {{$umeta->area[$key]}}
                                     </p>
                                     @endforeach
+                                    @endif
                                                             <!-- {{$visitor->title}} -->
                                 </p>
                 		    </div>
