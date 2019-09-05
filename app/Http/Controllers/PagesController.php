@@ -746,4 +746,27 @@ class PagesController extends Controller
         }
         abort(404);
     }
+
+    public function showWebAnnouncement(Request $request)
+    {
+        $user = $request->user();
+        $time = \Carbon\Carbon::now();
+        $start= date('Y-m-01',strtotime($time->subDay(30)));
+        $end= date('Y-m-t',strtotime($time));
+        $userBanned = banned_users::select('users.name','banned_users.*')
+                    ->whereBetween('banned_users.created_at',[($start),($end)])
+                    ->join('users','banned_users.member_id','=','users.id')
+                    ->orderBy('banned_users.created_at','asc')->get();
+        foreach($userBanned as $userData){
+            if(mb_strlen(trim($userData['name']),"utf-8") <= 3){
+                $userData['name'] = (mb_substr($userData['name'],0 ,1,"utf-8").'***');
+            }else{
+                $userData['name'] = (mb_substr($userData['name'],0 ,3,"utf-8").'***');
+            }
+        }
+        
+        return view('dashboard.adminannouncement_web')
+                ->with('user',$user)
+                ->with('users', $userBanned);
+    }
 }

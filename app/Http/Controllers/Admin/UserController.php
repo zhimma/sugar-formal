@@ -1139,13 +1139,12 @@ class UserController extends Controller
     public function showWebAnnouncement() 
     {
         $time = \Carbon\Carbon::now();
-        // $time = '2019-07';
-        $start= date('Y-m-01',strtotime($time));
+        $start= date('Y-m-01',strtotime($time->subDay(30)));
         $end= date('Y-m-t',strtotime($time));
         $userBanned = banned_users::select('users.name','banned_users.*')
                     ->whereBetween('banned_users.created_at',[($start),($end)])
                     ->join('users','banned_users.member_id','=','users.id')
-                    ->orderBy('banned_users.created_at','desc')->get();
+                    ->orderBy('banned_users.created_at','asc')->get();
         $isVip = array();
         foreach($userBanned as $user){
             $isVip[$user->member_id] = Vip::select('member_id')->where('member_id', $user->member_id)->get()->first();

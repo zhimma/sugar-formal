@@ -121,6 +121,12 @@ if(Auth::user()) $login_user = Auth::user();
 							</a>
 						</li>
 					@endif
+					<li class="m-nav__item">
+						<a href="{!! url('dashboard/announcement') !!}" class="m-nav__link">
+							<i class="m-nav__link-icon flaticon-profile-1"></i>
+							<span class="m-nav__link-text">網站公告</span>
+						</a>
+					</li>
 				@else
 					<!-- $cur->id : /user/view/{$cur->id} -->
 					@if(isset($cur) && $login_user->id != $cur->id)
