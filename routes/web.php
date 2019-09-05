@@ -247,8 +247,10 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::get('/dashboard/reportPic/{user}/{id}/{uid?}', 'PagesController@reportPic')->name('reportPic');
     Route::post('/dashboard/reportPicNext', 'PagesController@reportPicNext')->name('reportPicNext');
     Route::get('/dashboard/upgrade_ec', 'PagesController@upgrade_ec');
+    Route::get('/dashboard/upgrade_esafe', 'PagesController@upgrade_esafe');
     Route::group(['middleware' => ['api']], function() {
         Route::post('/dashboard/upgradepay_ec', 'ECPayment@performPayment')->name('upgradepay_ec');
+        Route::post('/dashboard/upgradepay_esafe', 'EsafePayment@performPayment')->name('upgradepay_esafe');
         Route::post('/dashboard/upgradepay', 'PagesController@upgradepay');
         Route::post('/dashboard/cancelpay', 'PagesController@cancelpay');
     });

@@ -576,6 +576,19 @@ class PagesController extends Controller
         }
     }
 
+    public function upgrade_esafe(Request $request)
+    {
+        $user = $request->user();
+        if ($user)
+        {
+            $log = new \App\Models\LogClickUpgrade();
+            $log->user_id = $user->id;
+            $log->save();
+            return view('dashboard.upgrade_Esafe')
+                ->with('user', $user);
+        }
+    }
+
     public function block(Request $request)
     {
         $user = $request->user();
