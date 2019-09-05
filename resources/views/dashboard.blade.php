@@ -422,6 +422,18 @@
                                                 </div>
                                             </div>
                                         @endforeach
+                                    @else
+                                        <div class="form-group m-form__group row twzipcode" id="twzipcode">
+                                            <label class="col-form-label col-lg-2 col-sm-12">縣市</label>
+                                            <div class="col-lg-5 col-md-10 col-sm-12">
+                                                <div class="twzip" data-role="county" data-name="city"
+                                                        data-value="">
+                                                </div>
+                                                <div class="twzip" data-role="district" data-name="area"
+                                                        data-value="">
+                                                </div>
+                                            </div>
+                                        </div>
                                     @endif
                                     </div>
                                 @else
@@ -1793,10 +1805,11 @@
         let add_county = $("#add_county")
         $(add_county).click(function(){
             if($(county).find('.twzipcode').length < 3) {
+                console.log($(county).find('.twzipcode').length);
                 let county_div = '<div class="form-group m-form__group row twzipcode" >';
                     county_div+= '<label class="col-form-label col-lg-2 col-sm-12">縣市</label>';
                     county_div+= '<div class="col-lg-5 col-md-10 col-sm-12">';
-                    county_div+= '<div class="twzip" data-role="county" data-name="city'+$(county).find('.twzipcode').length+'" data-value=""></div>'
+                    county_div+= '<div class="twzip" data-role="county" data-name="city'+$(county).find('.twzipcode').length+ '" data-value=""></div>'
                     county_div+= '<div class="twzip" data-role="district" data-name="area'+$(county).find('.twzipcode').length+'" data-value=""></div>'
                     county_div+= '</div></div>'
                 $(county).append(county_div)
