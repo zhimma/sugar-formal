@@ -265,10 +265,12 @@
                     ?>
                     @if ($visitor !== null && $visitor->engroup != $user->engroup && $visitor->meta_() !== null)
                     <?php $vmeta = $visitor->meta_(); ?>
-                    <? $data = \App\Services\UserService::checkRecommendedUser($visitor); ?>
+                    <? $data = \App\Services\UserService::checkRecommendedUser($visitor);?>
                         @if($visitor->isVip())
                             <div class="MW4BW_">
-                                @if ($visitor->engroup == 1) <a class="_3BQlNg bgXBUk"  style="color: white; font-weight: bold; font-size: 16px;">&nbsp;VIP&nbsp;</a> @endif @if(isset($data['description'])) <img src="{{ $data['button'] }}" alt="" height="30px" class="preferred"> @endif
+                                @if ($visitor->engroup == 1) <a class="_3BQlNg bgXBUk"  style="color: white; font-weight: bold; font-size: 16px;">&nbsp;VIP&nbsp;</a> @endif @if(isset($data['description']))
+                                <img src="{{ $data['button'] }}" alt="" height="30px" class="{{ (($visitor->engroup == 1)?'preferred':'') }}">
+                                @endif
                             </div>
                         @endif
                         <div class="card m-portlet m-portlet--mobile" style="display: inline-block; width: 100%; margin-bottom: 0; box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7);">
