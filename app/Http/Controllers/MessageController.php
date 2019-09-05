@@ -95,6 +95,9 @@ class MessageController extends Controller {
         $m_time = '';
         if (isset($user)) {
             $isVip = $user->isVip();
+            header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
+            header("Pragma: no-cache"); // HTTP 1.0.
+            header("Expires: 0"); // Proxies.
             return view('dashboard.chat')
                 ->with('user', $user)
                 ->with('m_time', $m_time)
