@@ -19,6 +19,8 @@ class Message extends Model
      *
      * @var string
      */
+    protected $connection = 'mysql2';
+    
     protected $table = 'message';
 
     /**

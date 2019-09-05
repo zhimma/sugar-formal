@@ -54,6 +54,21 @@ return [
             'engine' => null,
         ],
 
+        'mysql2' => [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST_SECOND', '127.0.0.1'),
+            'port' => env('DB_PORT_SECOND', '3306'),
+            'database' => env('DB_DATABASE_SECOND', 'webhelper_sugar'),
+            'username' => env('DB_USERNAME_SECOND', 'webhelper_sugar'),
+            'password' => env('DB_PASSWORD_SECOND', 'webhelper_sugar'),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => null,
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'host' => env('DB_HOST', '127.0.0.1'),
