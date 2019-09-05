@@ -89,7 +89,7 @@ if(Auth::user()) $login_user = Auth::user();
 					</li>
 					@if (!$user->isVip())
 						<li class="m-nav__item">
-							<a href="{!! url('dashboard/upgrade') !!}" class="m-nav__link">
+							<a href="{!! url('dashboard/upgrade_esafe') !!}" class="m-nav__link">
 								<i class="m-nav__link-icon fa fa-diamond"></i>
 								<span class="m-nav__link-text">升級 VIP</span>
 							</a>

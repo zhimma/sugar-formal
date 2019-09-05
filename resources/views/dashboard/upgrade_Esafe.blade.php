@@ -26,7 +26,7 @@
                 </div>
                 <div class="m-portlet__body">
                     <h3>價格: 888 $NTD / 每月</h3><br>
-                    <form class="m-form m-form--fit" action="{{ route('upgradepay_esafe') }}" method=post>
+                    <form class="m-form m-form--fit" action="{{ route('creditPayment') }}" method=post>
                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                         <input type="hidden" name="userId" value="{{$user->id}}">
                         <div class="m-form__actions">

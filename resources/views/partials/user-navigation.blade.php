@@ -140,7 +140,7 @@
                             </a>
                         </li>
                         <li class="m-nav__item">
-                            <a href="{!! url('dashboard/upgrade_ec') !!}" class="m-nav__link">
+                            <a href="{!! url('dashboard/upgrade_esafe') !!}" class="m-nav__link">
                                 <i class="m-nav__link-icon fa fa-diamond"></i>
                                 <span class="m-nav__link-title">
                                 <span class="m-nav__link-wrap">

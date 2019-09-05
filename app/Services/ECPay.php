@@ -1525,11 +1525,7 @@ class ECPay_Credit extends ECPay_Verification
                                 );
     
     function filter_string($arExtend = array(),$InvoiceMark = ''){
-        echo 111;
-        var_dump($arExtend);exit;
-        
         $arExtend = parent::filter_string($arExtend, $InvoiceMark);
-        var_dump($arExtend);exit;
         return $arExtend ;
     }
 }

@@ -178,6 +178,7 @@ class PagesController extends Controller
 
     public function upgradepayLog(Request $request)
     {
+        
         $filename = 'api_datalogger_' . Carbon::now()->format('Y-m-d') . '.log';
         $dataToLog  = 'Time: '   . Carbon::now()->toDateTimeString() . "\n";
         $dataToLog .= 'IP Address: ' . $request->ip() . "\n";
@@ -650,6 +651,68 @@ class PagesController extends Controller
                 $this->logService->writeLogToDB();
                 $this->logService->writeLogToFile();
                 Vip::upgrade($user->id, $payload['P_MerchantNumber'], $payload['P_OrderNumber'], $payload['P_Amount'], $payload['P_CheckSum'], 1, 0);
+                return view('dashboard.upgradesuccess')
+                    ->with('user', $user)->with('message', 'VIP 升級成功！');
+            }
+            else{
+                return view('dashboard.upgradefailed')
+                    ->with('user', $user)->withErrors(['交易系統回傳結果顯示交易未成功，VIP 升級失敗！請檢查信用卡資訊。']);
+            }
+        }
+        else{
+            return view('dashboard.upgradefailed')
+                ->with('user', $user)->withErrors(['交易系統沒有回傳資料，VIP 升級失敗！請檢查網路是否順暢。']);
+        }
+    }
+    public function receive_esafe(Request $request)
+    {
+        $user = $request->user();
+        if ($user == null)
+        {
+            $aid = auth()->id();
+            $user = User::findById($aid);
+        }
+        $payload = $request->all();
+        $pool = '';
+        $count = 0;
+        foreach ($payload as $key => $value){
+            $pool .= 'Row '. $count . ' : ' . $key . ', Value : ' . $value . '
+';//換行
+            $count++;
+        }
+        $infos = new \App\Models\LogUpgradedInfos();
+        $infos->user_id = $user->id;
+        $infos->content = $pool;
+        $infos->save();
+        if (isset($payload['errcode']))
+        {
+            if(Vip::checkByUserAndTxnId($user->id, $payload['ChkValue'])){
+                return view('dashboard.upgradesuccess')
+                    ->with('user', $user)->withErrors(['升級成功後請勿在本頁面重新整理！']);
+            }
+            if($payload['errcode'] == '00'){
+                $pool = '';
+                $count = 0;
+                foreach ($payload as $key => $value){
+                    $pool .= 'Row '. $count . ' : ' . $key . ', Value : ' . $value . '
+';//換行
+                    $count++;
+                }
+                $infos = new \App\Models\LogUpgradedInfosWhenGivingPermission();
+                $infos->user_id = $user->id;
+                $infos->content = $pool;
+                $infos->save();
+                $this->logService->upgradeLog_esafe($payload, $user->id);
+                $this->logService->writeLogToDB();
+                $this->logService->writeLogToFile();
+                $transactionType = '';
+
+                if(isset($payload['Card_Type'])){
+                    $transactionType = 'CreditCard';
+                }                
+
+                
+                Vip::upgrade($user->id, $payload['web'], $payload['buysafeno'], $payload['MN'], $payload['ChkValue'], 1, 0,$transactionType);
                 return view('dashboard.upgradesuccess')
                     ->with('user', $user)->with('message', 'VIP 升級成功！');
             }

@@ -48,7 +48,7 @@ class Vip extends Model
         return $status->free;
     }
 
-    public static function upgrade($member_id, $business_id, $order_id, $amount, $txn_id, $active, $free)
+    public static function upgrade($member_id, $business_id, $order_id, $amount, $txn_id, $active, $free, $transactionType = null)
     {
         $vip = new Vip();
         $vip->member_id = $member_id;
@@ -58,6 +58,7 @@ class Vip extends Model
         $vip->amount = $amount;
         $vip->active = $active;
         $vip->free = $free;
+        $vip->transactionType = $transactionType;
         //$startDate = time();
         //$expiry = date('Y-m-d H:i:s', strtotime('+'.substr($order_id, 0, 2).' day', $startDate));
         //$vip->expiry = $expiry;
