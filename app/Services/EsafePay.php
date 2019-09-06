@@ -56,11 +56,10 @@ class EsafePay_AllInOne {
     public $ServiceURL    = 'ServiceURL';   //服務位置
     public $merchantID    = 'S1234567890'; //商家代號（信用卡）（可登入商家專區至「服務設定」中查詢Buysafe服務的代碼）
     public $transPassword = 'abcd1234'; //交易密碼（可登入商家專區至「密碼修改」處設定，此密碼非後台登入密碼）
-    public $isProduction  = false; //是否為正式平台（true為正式平台，false為測試平台）
     
     function __construct() {
         $this->Send = array(
-            'web' => $this->merchantID,//商家代號
+            'web' => '',//商家代號
             'MN' => 888, //交易金額
             'OrderInfo' => '', //交易內容
             'Td' => '', //商家訂單編號
@@ -78,8 +77,6 @@ class EsafePay_AllInOne {
             'StoreName' => '', //空白(紅陽端提供選擇) or 參考emap_711
             'BuyerCid' => '', //買方統一編號
             'DonationCode' => '', //捐贈碼
-            "InvoiceMark"       => EsafePay_InvoiceState::No,
-            //'ChkValue' => getChkValue($web . $transPassword . $MN . $Term), //交易檢查碼（SHA1雜湊值並轉成大寫）
         );
     }
 
@@ -92,6 +89,7 @@ class EsafePay_AllInOne {
 
     //產生訂單
     function CheckOut($target = "_self") {
+        
         EsafePay_Send::CheckOut($target,$this->Send,'ServiceURL',$this->ServiceURL);
     }
 
@@ -139,7 +137,6 @@ abstract class EsafePay_Aio
         }
 
         
-
         if(!empty($paymentButton))
         {
             $szHtml .=          "<input type=\"submit\" id=\"__paymentButton\" value=\"{$paymentButton}\" />";
@@ -202,13 +199,6 @@ Abstract class EsafePay_Verification
             array_push($arErrors, 'web max langth as 12.');
         }
 
-        if (strlen($arParameters['ReturnURL']) == 0) {
-            array_push($arErrors, 'ReturnURL is required.');
-        }
-        if (strlen($arParameters['ClientBackURL']) > 200) {
-            array_push($arErrors, 'ClientBackURL max langth as 200.');
-        }
-
         if (strlen($arParameters['Td']) == 0) {
             array_push($arErrors, 'Td is required.');
         }
@@ -235,7 +225,6 @@ Abstract class EsafePay_Verification
         // if (strlen($arParameters['ChkValue']) > 1) {
         //     array_push($arErrors, 'ChkValue max langth as 1.');
         // }
-
         if (sizeof($arErrors)>0) throw new \Exception (join('<br>', $arErrors));
 
         return $arParameters ;
@@ -267,11 +256,125 @@ class EsafePay_CreditCard extends EsafePay_Verification
     );
     // 清除多餘的
     function filter_string($arExtend = array()){
+        
         $arPayMentExtend = array_keys($this->arPayMentExtend);
         foreach ($arExtend as $key => $value) {
             if (!in_array($key,$arPayMentExtend )) {
                 unset($arExtend[$key]);
             }
         }
+
+        return $arExtend;
     }
 }
+
+class EsafePay_PayMent extends EsafePay_Verification 
+{
+    public $arPayMentExtend = array(
+        "web" => '',
+        "MN" => 0,
+        'OrderInfo' => '', //交易內容
+        'Td' => '', //商家訂單編號
+        'sna' => '', //消費者姓名
+        'sdt' => '', //消費者電話（不可有特殊符號）
+        'email' => '', //消費者Email
+        'note1' => '', //備註1（自行應用）
+        'note2' => '', //備註2（自行應用）
+        'DueDate' =>'',//繳款期限
+        'UserNo' => '',//用戶編號
+        'BillDate' => '',//列帳日期
+        'ProductName1',//產品名稱
+        'ProductPrice1' => '', //產品單價
+        'ProductQuantity1' => '', //產品數量
+        'AgencyType' =>'', //1 條碼、2 虛擬帳號
+        'AgencyBank' =>'', // 1：中國信託銀行
+        'CargoFlag' => '', //空白 or 0 不需搭配物流、1 搭配物流
+        'StoreID' => '', //空白(紅陽端提供選擇) or 參考emap_711
+        'StoreName' => '', //空白(紅陽端提供選擇) or 參考emap_711
+        'BuyerCid' => '', //買方統一編號
+        'DonationCode' => '', //捐贈碼
+        'ChkValue'=>'',
+    );
+    // 清除多餘的
+    function filter_string($arExtend = array()){
+        
+        $arPayMentExtend = array_keys($this->arPayMentExtend);
+        foreach ($arExtend as $key => $value) {
+            if (!in_array($key,$arPayMentExtend )) {
+                unset($arExtend[$key]);
+            }
+        }
+
+        return $arExtend;
+    }
+    
+}
+class EsafePay_PayCode extends EsafePay_Verification 
+{
+    public $arPayMentExtend = array(
+        "web" => '',
+        "MN" => 0,
+        'OrderInfo' => '', //交易內容
+        'Td' => '', //商家訂單編號
+        'sna' => '', //消費者姓名
+        'sdt' => '', //消費者電話（不可有特殊符號）
+        'email' => '', //消費者Email
+        'note1' => '', //備註1（自行應用）
+        'note2' => '', //備註2（自行應用）
+        'DueDate' =>'',//繳款期限
+        'UserNo' => '',//用戶編號
+        'BillDate' => '',//列帳日期
+        'CargoFlag' => '', //空白 or 0 不需搭配物流、1 搭配物流
+        'StoreID' => '', //空白(紅陽端提供選擇) or 參考emap_711
+        'StoreName' => '', //空白(紅陽端提供選擇) or 參考emap_711
+        'BuyerCid' => '', //買方統一編號
+        'DonationCode' => '', //捐贈碼
+        'ChkValue'=>'',
+    );
+    // 清除多餘的
+    function filter_string($arExtend = array()){
+        
+        $arPayMentExtend = array_keys($this->arPayMentExtend);
+        foreach ($arExtend as $key => $value) {
+            if (!in_array($key,$arPayMentExtend )) {
+                unset($arExtend[$key]);
+            }
+        }
+
+        return $arExtend;
+    }
+}
+
+class EsafePay_WebATM extends EsafePay_Verification 
+{
+    public $arPayMentExtend = array(
+        "web" => '',
+        "MN" => 0,
+        'OrderInfo' => '', //交易內容
+        'Td' => '', //商家訂單編號
+        'sna' => '', //消費者姓名
+        'sdt' => '', //消費者電話（不可有特殊符號）
+        'email' => '', //消費者Email
+        'note1' => '', //備註1（自行應用）
+        'note2' => '', //備註2（自行應用）
+        'CargoFlag' => '', //空白 or 0 不需搭配物流、1 搭配物流
+        'StoreID' => '', //空白(紅陽端提供選擇) or 參考emap_711
+        'StoreName' => '', //空白(紅陽端提供選擇) or 參考emap_711
+        'BuyerCid' => '', //買方統一編號
+        'DonationCode' => '', //捐贈碼
+        'ChkValue'=>'',
+    );
+    // 清除多餘的
+    function filter_string($arExtend = array()){
+        
+        $arPayMentExtend = array_keys($this->arPayMentExtend);
+        foreach ($arExtend as $key => $value) {
+            if (!in_array($key,$arPayMentExtend )) {
+                unset($arExtend[$key]);
+            }
+        }
+
+        return $arExtend;
+    }
+}
+

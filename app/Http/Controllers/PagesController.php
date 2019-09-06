@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
 use App\Models\SimpleTables\banned_users;
 use Session;
+use Illuminate\Support\Facades\DB;
 
 class PagesController extends Controller
 {
@@ -670,6 +671,9 @@ class PagesController extends Controller
         if ($user == null)
         {
             $aid = auth()->id();
+            if(is_null($aid)){
+                $aid = $request['UserNo'];
+            }
             $user = User::findById($aid);
         }
         $payload = $request->all();
@@ -707,12 +711,18 @@ class PagesController extends Controller
                 $this->logService->writeLogToFile();
                 $transactionType = '';
 
-                if(isset($payload['Card_Type'])){
+                if(isset($payload['Card_Type']) && !is_null($payload['Card_Type'])){
                     $transactionType = 'CreditCard';
-                }                
+                }elseif(isset($payload['BarcodeA']) && !is_null($payload['BarcodeA'])){
+                    $transactionType = 'Barcode';
+                }elseif(isset($payload['BarcodeA']) && !is_null($payload['BarcodeA'])){
+                    $transactionType = 'Barcode';
+                }else{
+                    $transactionType = 'WebATM';
+                }                                
 
-                
                 Vip::upgrade($user->id, $payload['web'], $payload['buysafeno'], $payload['MN'], $payload['ChkValue'], 1, 0,$transactionType);
+
                 return view('dashboard.upgradesuccess')
                     ->with('user', $user)->with('message', 'VIP 升級成功！');
             }
@@ -726,6 +736,37 @@ class PagesController extends Controller
                 ->with('user', $user)->withErrors(['交易系統沒有回傳資料，VIP 升級失敗！請檢查網路是否順暢。']);
         }
     }
+
+    public function repaid_esafe(Request $request)
+    {
+        $infos = new \App\Models\VipStore();
+        $infos->user_id = $request->UserNo;
+        $infos->buysafeno = $request->buysafeno;
+        $infos->store_code = $request->Td;
+        $infos->ChkValue = $request->ChkValue;
+        if(isset($request->BarcodeA)){
+            if(!is_null($request->BarcodeA)){
+                $infos->type = 'Barcode';
+            }
+        }
+        if(isset($request->paycode)){
+            if(!is_null($request->paycode)){
+                $infos->type = 'paycode';
+            }
+        }
+
+        
+        if(!$infos->checkByUser($request->UserNo,$request->ChkValue)){
+            $infos->save();
+        }
+
+        $user = User::findById($infos->user_id);
+        
+        
+        return view('dashboard.esafepaystroe')
+                    ->with('user', $user)->with('message', '請儘速至超商繳款');
+    }
+
 
     public function cancel(Request $request)
     {
