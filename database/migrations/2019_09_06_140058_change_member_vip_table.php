@@ -13,10 +13,10 @@ class ChangeMemberVipTable extends Migration
      */
     public function up()
     {
-        Schema::create('member_vip', function (Blueprint $table) {
+        Schema::table('member_vip', function (Blueprint $table) {
            
-            $table->integer('business_id', 50)->change();
-            $table->integer('order_id', 50)->change();
+            $table->string('business_id', 50)->change();
+            $table->string('order_id', 50)->change();
             
         });
     }
