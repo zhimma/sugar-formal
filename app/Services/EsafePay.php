@@ -95,12 +95,6 @@ class EsafePay_AllInOne {
         EsafePay_Send::CheckOut($target,$this->Send,'ServiceURL',$this->ServiceURL);
     }
 
-    //產生訂單html code
-    function CheckOutString($paymentButton = 'Submit', $target = "_self") {
-        $arParameters = array_merge( array('MerchantID' => $this->MerchantID, 'EncryptType' => $this->EncryptType) ,$this->Send);
-        return EsafePay_Send::CheckOutString($paymentButton,$target = "_self",$arParameters,$this->SendExtend,$this->HashKey,$this->HashIV,$this->ServiceURL);
-    }
-
 }
 
 abstract class EsafePay_Aio
@@ -174,6 +168,7 @@ class EsafePay_Send extends EsafePay_Aio
     {
         //宣告付款方式物件
         $PaymentMethod    = 'App\Services\EsafePay_'.$arParameters['ChooseSubPayment'];
+        
         self::$PaymentObj = new $PaymentMethod;
 
         // //檢查參數
@@ -195,14 +190,7 @@ class EsafePay_Send extends EsafePay_Aio
 
 Abstract class EsafePay_Verification
 {
-    // 電子發票延伸參數。
-    public $arInvoice = array(
-           
-        );
-
-    // 付款方式延伸參數
-    public $arPayMentExtend = array();
-
+   
     //檢查共同參數
     public function check_string($arParameters = array()){
 
@@ -277,14 +265,13 @@ class EsafePay_CreditCard extends EsafePay_Verification
         'DonationCode' => '', //捐贈碼
         'ChkValue'=>'',
     );
-
+    // 清除多餘的
     function filter_string($arExtend = array()){
-        $arPayMentExtend = array_merge(array_keys($this->arPayMentExtend), ($arExtend == '') ? array() : $this->arInvoice);
+        $arPayMentExtend = array_keys($this->arPayMentExtend);
         foreach ($arExtend as $key => $value) {
             if (!in_array($key,$arPayMentExtend )) {
                 unset($arExtend[$key]);
             }
         }
-        return $arExtend ;
     }
 }
