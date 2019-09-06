@@ -55,6 +55,13 @@
         box-shadow: 4px 4px 3px rgba(20%, 20%, 40%, 0.5);
         z-index: 999;
     }
+    .upload-p{
+        color: red;
+        font-weight: bold;
+        position: absolute;
+        bottom: 5px;
+        left: 175px;
+    }
     .slimimg{
         width: 500px;
         position: relative;
@@ -72,8 +79,17 @@
     .slimimg  .upload-submit{
         position: absolute;
         left: 185px;
-        bottom: -10px;
+        bottom: -20px;
     }
+    @media screen and (max-width: 768px) {
+        .slimimg  .upload-submit{
+            left: 135px;
+        }
+        .upload-p{
+            left: 126px;
+        }
+    }
+
     @media  (max-width: 500px) {
         .slimimg{
             width: 400px;
@@ -81,6 +97,9 @@
         }
          .slimimg  .upload-submit{
             left: 105px;
+        }
+        .upload-p{
+            left: 97px;
         }
 
     }
@@ -422,18 +441,6 @@
                                                 </div>
                                             </div>
                                         @endforeach
-                                    @else
-                                        <div class="form-group m-form__group row twzipcode" id="twzipcode">
-                                            <label class="col-form-label col-lg-2 col-sm-12">縣市</label>
-                                            <div class="col-lg-5 col-md-10 col-sm-12">
-                                                <div class="twzip" data-role="county" data-name="city"
-                                                        data-value="">
-                                                </div>
-                                                <div class="twzip" data-role="district" data-name="area"
-                                                        data-value="">
-                                                </div>
-                                            </div>
-                                        </div>
                                     @endif
                                     </div>
                                 @else
@@ -1300,8 +1307,11 @@
                                     <img src="{{$umeta->pic}}"/>
                                     <input type="file" name="slim[]" id="myCropper" />
                                 </div>
-                                 <button type="submit"
+                                <button type="submit"
                                         class="btn btn-danger m-btn m-btn--air m-btn--custom upload-submit">上傳</button>
+                                @if($user->meta_()->isAvatarHidden == 1)
+                                    <p class="upload-p">大頭照已被隱藏</p>
+                                @endif
                             </div>
                         @else
 
@@ -1805,11 +1815,10 @@
         let add_county = $("#add_county")
         $(add_county).click(function(){
             if($(county).find('.twzipcode').length < 3) {
-                console.log($(county).find('.twzipcode').length);
                 let county_div = '<div class="form-group m-form__group row twzipcode" >';
                     county_div+= '<label class="col-form-label col-lg-2 col-sm-12">縣市</label>';
                     county_div+= '<div class="col-lg-5 col-md-10 col-sm-12">';
-                    county_div+= '<div class="twzip" data-role="county" data-name="city'+$(county).find('.twzipcode').length+ '" data-value=""></div>'
+                    county_div+= '<div class="twzip" data-role="county" data-name="city'+$(county).find('.twzipcode').length+'" data-value=""></div>'
                     county_div+= '<div class="twzip" data-role="district" data-name="area'+$(county).find('.twzipcode').length+'" data-value=""></div>'
                     county_div+= '</div></div>'
                 $(county).append(county_div)
