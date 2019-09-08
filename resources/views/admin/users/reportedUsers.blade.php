@@ -84,7 +84,7 @@
                             <a href="{{ route('AdminMessengerWithReportedId', [$result->member_id, $result->reported_id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
                         </td>
                         <td>
-                            <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['member_id'], $result['id'] ]) }}&Reported " data-name='{{ $users[$result['member_id']]['name']}}'>封鎖</a>
+                            <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['member_id'], $result['id'] ]) }}&reported " data-name='{{ $users[$result['member_id']]['name']}}'>封鎖</a>
                         </td>
                         <!-- <td>{{ $result['vip'] }}</td> -->
                         <td>
@@ -105,7 +105,7 @@
                             <a href="{{ route('AdminMessengerWithReportedId', [$result->member_id, $result->reported_id, $result->id, 0, 'reported']) }}" target="_blank" class='btn btn-dark'>撰寫</a>
                         </td>
                         <td>
-                            <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['reported_id'], $result['id']]) }}&Reported " data-name='{{ $users[$result['reported_id']]['name']}}'>封鎖</a>
+                            <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['reported_id'], $result['id']]) }}&reported " data-name='{{ $users[$result['reported_id']]['name']}}'>封鎖</a>
                         </td>
                         <td width="45%" style="word-wrap: break-word;">{{ $result['content'] }}</td>
                         
