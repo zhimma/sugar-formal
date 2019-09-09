@@ -213,13 +213,16 @@ class Message extends Model
         return $saveMessages;
     }
 
-    public static function chatArrayAJAX($uid, $messages, $isVip) {
+    public static function chatArrayAJAX($uid, $messages, $isVip,$noVipCount=0) {
         $saveMessages = [];
         $tempMessages = [];
-        $noVipCount = 0;
+        //$noVipCount = 0;
         $isAllDelete = true;
         //$msgShow = User::findById($uid)->meta_()->notifhistory;
         foreach($messages as $key => $message) {
+            if($isVip == 0 && $noVipCount >0 &&$noVipCount >= Config::get('social.limit.show-chat')) {
+                break;
+            }
             // end 1 and 2
             if($message->all_delete_count == 2) {
                 Message::deleteAllMessagesFromDB($message->to_id, $message->from_id);
@@ -247,9 +250,6 @@ class Message extends Model
                 $noVipCount++;
             }
 
-            if($isVip == 0 && $noVipCount == Config::get('social.limit.show-chat')) {
-                break;
-            }
         }
 
         //if($isAllDelete) return NULL;
@@ -274,17 +274,17 @@ class Message extends Model
                 COMMIT;
             "));
         }
-//        $date = \Carbon\Carbon::createFromFormat('Y-m-d', '2018-09-01');
-//        $date_s = $date->subDays(30);
-//        $createTempTables = DB::unprepared(DB::raw("
-//            CREATE TEMPORARY TABLE `temp_m` AS(
-//                SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent`
-//                FROM `message`
-//                WHERE `created_at`
-//                BETWEEN '".$date_s->toDateTimeString()."'
-//                AND '".$date_s->addDays(30)->toDateTimeString()."'
-//            );
-//        "));
+        //        $date = \Carbon\Carbon::createFromFormat('Y-m-d', '2018-09-01');
+        //        $date_s = $date->subDays(30);
+        //        $createTempTables = DB::unprepared(DB::raw("
+        //            CREATE TEMPORARY TABLE `temp_m` AS(
+        //                SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent`
+        //                FROM `message`
+        //                WHERE `created_at`
+        //                BETWEEN '".$date_s->toDateTimeString()."'
+        //                AND '".$date_s->addDays(30)->toDateTimeString()."'
+        //            );
+        //        "));
         if($createTempTables){
             $messages = DB::select(DB::raw("
                 select * from `temp_m` 
@@ -320,7 +320,7 @@ class Message extends Model
         return $saveMessages;
     }
 
-    public static function moreSendersAJAX($uid, $isVip, $date)
+    public static function moreSendersAJAX($uid, $isVip, $date,$noVipCount=0)
     {
         $dropTempTables = DB::unprepared(DB::raw("
             DROP TABLE IF EXISTS temp_m;
@@ -342,13 +342,13 @@ class Message extends Model
                 COMMIT;
             "));
         }
-//        $createTempTables = DB::unprepared(DB::raw("
-//            CREATE TEMPORARY TABLE `temp_m` AS(
-//                SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent`
-//                FROM `message`
-//                WHERE created_at >= '2018-07-01'
-//            );
-//        "));
+        //        $createTempTables = DB::unprepared(DB::raw("
+        //            CREATE TEMPORARY TABLE `temp_m` AS(
+        //                SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent`
+        //                FROM `message`
+        //                WHERE created_at >= '2018-07-01'
+        //            );
+        //        "));
         if($createTempTables){
             $messages = DB::select(DB::raw("
                 select * from `temp_m` 
@@ -362,7 +362,7 @@ class Message extends Model
         if($isVip == 1)
             $saveMessages = Message::chatArrayAJAX($uid, $messages, 1);
         else if($isVip == 0) {
-            $saveMessages = Message::chatArrayAJAX($uid, $messages, 0);
+            $saveMessages = Message::chatArrayAJAX($uid, $messages, 0,$noVipCount);
         }
 
         //echo json_encode($saveMessages);
@@ -449,6 +449,8 @@ class Message extends Model
                 }
             }
             $messages[$key]['user_id'] = $msgUser->id;
+            $messages[$key]['read'] = $latestMessage->read;
+            $messages[$key]['created_at'] = $latestMessage['created_at']->toDateTimeString();
             $messages[$key]['user_name'] = $msgUser->name;
             $messages[$key]['isAvatarHidden'] = $msgUser->meta_()->isAvatarHidden;
             $messages[$key]['pic'] = $msgUser->meta_()->pic;
