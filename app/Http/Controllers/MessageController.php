@@ -11,6 +11,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 
 class MessageController extends Controller {
 
@@ -108,11 +109,12 @@ class MessageController extends Controller {
     public function chatviewMore(Request $request)
     {
         $user_id = $request->uid;
-        $data = Message::moreSendersAJAX($user_id, $request->isVip, $request->date);
+        $data = Message::moreSendersAJAX($user_id, $request->isVip, $request->date,$request->noVipCount);
         if (isset($data)) {
             return response()->json(array(
                 'status' => 1,
-                'msg' => $data
+                'msg' => $data,
+                'noVipCount' => Config::get('social.limit.show-chat')
             ), 200);
         } else {
             return response()->json(array(

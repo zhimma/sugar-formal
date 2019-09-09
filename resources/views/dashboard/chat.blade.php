@@ -24,6 +24,7 @@
         //console.log("Query time:" + d);
         let date = d.getFullYear() + '-' + ( d.getMonth() + 1 ) + '-' + d.getDate();
         //console.log(date);
+        var isVip = '{{ $isVip }}';
         $.ajax({
             type: 'POST',
             url: '{{ route('showMoreMessages') }}',
@@ -31,7 +32,8 @@
                 _token:"{{ csrf_token() }}",
                 date : date,
                 uid : '{{ $user->id }}',
-                isVip : '{{ $isVip }}'
+                isVip : '{{ $isVip }}',
+                noVipCount : $('.m-widget3__header').length
             },
             dataType: 'json',
             headers: {
@@ -47,9 +49,21 @@
                     let tmp = xhr.msg[xhr.msg.length - 1];
                     d = new Date(tmp);
                     fillDatas(xhr.msg);
+                    if(!isVip&&xhr.noVipCount&&$('.m-widget3__header').length>=xhr.noVipCount){
+                        $("#showMore").hide();
+                        $('#warning').remove();
+                        clearInterval(dots);
+                        $("#tips").hide();
+                        $("#showAll").hide();
+                    }
                 }
                 else{
                     d = new Date(xhr.msg[1]);
+                    $("#showMore").hide();
+                    $('#warning').remove();
+                    clearInterval(dots);
+                    $("#tips").hide();
+                    $("#showAll").hide();
                 }
             },
             error: function(xhr, type){
@@ -104,6 +118,7 @@
         if(isAll){
             $('#user-list').empty();
         }
+        var tt=0;
         for(let i = 0 ; i < data.length ; i++){
             let ele;
             if(data[i]['isAdminMessage'] === 1){
@@ -147,8 +162,10 @@
                 ele += "<span class='m-widget3__username'>";
             }
             ele += data[i]['user_name'];
-            ele += "</span><br>";
+            ele += "</span>";
             ele += "<span class='m-widget3__time'>";
+            //if(data[i]['read']=='N')tt++;
+            //ele += (data[i]['read']=='Y') ?" 已讀":" 未讀";
             ele += "</span>";
             if(data[i]['cntr'] === 1){
                 ele += "<br><span class='m-widget3__username' style='color:red'>(此人遭多人檢舉)</span>";
@@ -162,6 +179,12 @@
                 ele += "<p class='m-widget3__text' style='word-wrap: break-word; word-break: break-all'>";
             }
             ele += data[i]['content'];
+            // ele += `
+            //     <br>
+            //     <span class="m-widget3__time" style="font-size: 0.7rem">
+            //         ${data[i]['created_at']}
+            //     </span>
+            // `;
             ele += "</p></div>";
 
             ele += "<div class='m-widget3__delete'>";
