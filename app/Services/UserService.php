@@ -185,7 +185,7 @@ class UserService
         $notLikeKeys = ['area' => 'isHideArea'];
         foreach($setKeys as $setKey){
             foreach($payload as $key => $value) {
-                if(preg_match("/$setKey/i", $key)){
+                if($key!='blockcity'&&$key!='blockarea'&&preg_match("/$setKey/i", $key)){
                     if($key != $setKey){
                         if(is_null($payload[$key])){
                             unset($payload[$key]);
@@ -200,7 +200,6 @@ class UserService
                                 unset($payload[$key]);
                             }
                         }
-                        
                     }
                 }
             }
@@ -208,7 +207,6 @@ class UserService
         if (isset($payload['meta']) && ! isset($payload['meta']['terms_and_cond'])) {
             throw new Exception("You must agree to the terms and conditions.", 1);
         }
-
         try {
             return DB::transaction(function () use ($userId, $payload) {
                 //$user = $this->model->find($userId);
@@ -323,15 +321,17 @@ class UserService
                   $payload['meta']['blockdomainType'] = $payload['blockdomainType'];
                   unset($payload['blockdomainType']);
                   }
-                  if (isset($payload['blockcity']))
+                  if (isset($payload['blockcity'])||empty($payload['blockcity']))
                   {
-                  $payload['meta']['blockcity'] = $payload['blockcity'];
-                  unset($payload['blockcity']);
+                    if(empty($payload['blockcity']))$payload['blockcity']=null;
+                    $payload['meta']['blockcity'] = $payload['blockcity'];
+                    unset($payload['blockcity']);
                   }
-                  if (isset($payload['blockarea']))
+                  if (isset($payload['blockarea'])||empty($payload['blockarea']))
                   {
-                  $payload['meta']['blockarea'] = $payload['blockarea'];
-                  unset($payload['blockarea']);
+                    if(empty($payload['blockarea']))$payload['blockarea']=null;
+                    $payload['meta']['blockarea'] = $payload['blockarea'];
+                    unset($payload['blockarea']);
                   }
                   if (isset($payload['body']))
                   {
@@ -406,7 +406,6 @@ class UserService
                     $this->unassignAllRoles($userId);
                     $this->assignRole($payload['roles'], $userId);
                 }
-
                 $user->update($payload);
                 return $user;
             });
