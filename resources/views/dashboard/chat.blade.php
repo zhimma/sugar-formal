@@ -27,7 +27,7 @@
         var isVip = '{{ $isVip }}';
         $.ajax({
             type: 'POST',
-            url: '{{ route('showMoreMessages') }}',
+            url: '{{ route('showMoreMessages') }}/{{ \Carbon\Carbon::now()->timestamp }}',
             data: {
                 _token:"{{ csrf_token() }}",
                 date : date,
@@ -87,7 +87,7 @@
         }, 100);
         $.ajax({
             type: 'POST',
-            url: '{{ route('showAllMessages') }}',
+            url: '{{ route('showAllMessages') }}/{{ \Carbon\Carbon::now()->timestamp }}',
             data: {
                 _token:"{{ csrf_token() }}",
                 uid : '{{ $user->id }}',
