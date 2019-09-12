@@ -448,8 +448,13 @@
                                         <label class="col-form-label col-lg-2 col-sm-12">縣市</label>
                                         <div class="col-lg-5 col-md-10 col-sm-12">
                                         @if (isset($cmeta) && !$cmeta->isHideArea)
-                                            <input class="form-control m-input" disabled
-                                                    value="@foreach($umeta->city as $key => $cityval){{$umeta->city[$key]}}-{{$umeta->area[$key]}}  @endforeach">
+                                            @if(is_array($umeta->city))
+                                                <input class="form-control m-input" disabled
+                                                       value="@foreach($umeta->city as $key => $cityval){{$umeta->city[$key]}} - {{$umeta->area[$key]}}  @endforeach">
+                                            @else
+                                                <input class="form-control m-input" disabled
+                                                       value="{{$umeta->city}} - {{$umeta->area}}">
+                                            @endif
                                         @else
                                             <input class="form-control m-input" disabled
                                                     value="@if(isset($cmeta)){{$cmeta->city}}@endif">
