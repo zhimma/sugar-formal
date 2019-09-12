@@ -223,7 +223,6 @@
 
                     <div class="m-portlet__foot m-portlet__foot--fit" style="text-align: center">
                         <div class="row m-widget3">
-                            @if (isset($_GET['_token']))
                             <?php
                             $district = "";
                             $county = "";
@@ -237,6 +236,15 @@
                             $ageto = "";
                             $agefrom = "";
                             $seqtime = "";
+                            $umeta = $user->meta_();
+                            if(isset($umeta->city)){
+                                $umeta->city = explode(",",$umeta->city);
+                                $umeta->area = explode(",",$umeta->area);
+                            }
+
+                            ?>
+                            @if (isset($_GET['_token']))
+                            <?php
                             if (isset($_GET['district'])) $district = $_GET['district'];
                             if (isset($_GET['county'])) $county = $_GET['county'];
                             if (isset($_GET['cup'])) $cup = $_GET['cup'];
@@ -249,14 +257,17 @@
                             if (isset($_GET['ageto'])) $ageto = $_GET['ageto'];
                             if (isset($_GET['agefrom'])) $agefrom = $_GET['agefrom'];
                             if (isset($_GET['seqtime'])) $seqtime = $_GET['seqtime'];
-                            $vis = \App\Models\UserMeta::search($county, $district, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $user->engroup, $user->city, $user->area, $user->domain, $user->domainType,$seqtime);
                             ?>
-                            <?php $icc = 1; ?>
+                            @endif
+                            <?php $icc = 1; 
+                                $vis = \App\Models\UserMeta::search($county, $district, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $user->engroup, $umeta->city, $umeta->area, $umeta->domain, $umeta->domainType,$seqtime);
+                            ?>
+            @if (!empty($vis))
             @if (isset($vis) && sizeof($vis) > 0)
             @foreach ($vis as $vi)
                 <div class="col-md-3 m-widget3__item"  style="border-bottom: none; margin:50px 0;">
                     <?php $visitor = $vi->user() ?>
-                    <?php 
+                    <?php
                         $umeta = $visitor->meta_();
                         if(isset($umeta->city)){
                             $umeta->city = explode(",",$umeta->city);
@@ -300,11 +311,11 @@
                 				    <p>{{$visitor->meta_()->city}} {{$visitor->meta_()->area}}<br>年齡: {{$visitor->meta_()->age()}}<br>身高: {{$visitor->meta_()->height}}cm<br>體型: {{$visitor->meta_()->body}}</p>
                                 </a>
                 			</div> -->
-		              </div>
+		               </div>
                 </div>
                             @if ($icc == 1) <?php $icc = 0; ?> @else <?php $icc = 1; ?>@endif
                             @endif
-                            @endforeach
+            @endforeach
                             <div class="page m-form__actions">
                                 {!! $vis->appends(request()->input())->links() !!}
                             </div>
@@ -323,7 +334,7 @@
                     <? $data = \App\Services\UserService::checkRecommendedUser($visitor); ?>
                         @if($visitor->isVip())
                             <div class="MW4BW_">
-                                @if ($visitor->engroup == 1) <a class="_3BQlNg bgXBUk"  style="color: white; font-weight: bold; font-size: 16px;">&nbsp;VIP&nbsp;</a> @endif @if(isset($data['description'])) <img src="{{ $data['button'] }}" alt="" height="30px" class="preferred"> @endif
+                                @if ($visitor->engroup == 1) <a class="_3BQlNg bgXBUk"  style="color: white; font-weight: bold; font-size: 16px;">&nbsp;VIP&nbsp;</a> @endif @if(isset($data['description'])) <img src="{{ $data['button'] }}" alt="" height="30px" class="{{ (($visitor->engroup == 1)?'preferred':'') }}"> @endif
                             </div>
                         @endif
                         <div class="card m-portlet m-portlet--mobile" style="display: inline-block; width: 100%; margin-bottom: 0; box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7);">

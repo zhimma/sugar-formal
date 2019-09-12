@@ -157,10 +157,25 @@ class UserMeta extends Model
 
         if (isset($city) && strlen($city) != 0) $query = $query->where('city','like', '%'.$city.'%');
         if (isset($area) && strlen($area) != 0) $query = $query->where('area','like', '%'.$area.'%');
+        if ($engroup == 2){
+            if (isset($blockcity)){
+                foreach ($blockcity as $k => $v) {
+                    $nn=$k;
+                    $area = $blockarea[$k];
+                    $query->where(function ($query)use ($v,$area) {
+                        $query->where(function ($query)use ($v,$area){
+                            $query->where('blockarea', '<>', $area);
+                            $query->where('blockcity', '=', $v);
+                        });
+                        $query->orWhere('blockcity', '<>', $v);
+                        $query->orWhere('blockcity', NULL);
+                        $query->orWhere('blockarea', NULL);
+                    });
+                }
+            }
+        }
         if ($engroup == 1)
         {
-           if (isset($blockarea) && strlen($blockarea) != 0) $query->where('blockarea', '<>', $blockarea);
-            if (isset($blockcity) && strlen($blockcity) != 0) $query->where('blockcity', '<>', $blockcity);
             if (isset($blockdomain) && strlen($blockdomain) != 0) $query->where('blockdomain', '<>', $blockdomain);
             if (isset($blockdomainType) && strlen($blockdomainType) != 0) $query->where('blockdomainType', '<>', $blockdomainType);
         }
@@ -175,9 +190,9 @@ class UserMeta extends Model
 
         $bannedUsers = banned_users::select('member_id')->get();
 
-        if(isset($seqtime) && $seqtime == 1)
-            return $query->whereNotIn('user_id', $bannedUsers)->orderBy('users.last_login', 'desc')->paginate(12);
-        else
+        if(isset($seqtime) && $seqtime == 2)
             return $query->whereNotIn('user_id', $bannedUsers)->orderBy('users.created_at', 'desc')->paginate(12);
+        else
+            return $query->whereNotIn('user_id', $bannedUsers)->orderBy('users.last_login', 'desc')->paginate(12);
     }
 }
