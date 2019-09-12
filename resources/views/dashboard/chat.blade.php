@@ -534,6 +534,12 @@ $code = Config::get('social.payment.code');
 <script>
 $(document).ready(function(){
     $.ajaxSetup({ cache: false });
+    $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+        // you can use originalOptions.type || options.type to restrict specific type of requests
+        options.data = jQuery.param($.extend(originalOptions.data||{}, {
+            timeStamp: new Date().getTime()
+        }));
+    });
     d = new Date('{{ \App\Models\Message::$date }}');
     @if(isset($m_time))
         let m_time = '{{ $m_time }}';
