@@ -8,7 +8,7 @@
                 檢舉訊息 - 請填寫理由
             </h3>
             <span style="text-align:right;" class="m-portlet__head-text">
-                <a class="btn btn-danger m-btn m-btn--air m-btn--custom" href="/dashboard/chat/{{ $sid }}"> 回去訊息內容</a>
+                <a class="btn btn-danger m-btn m-btn--air m-btn--custom" href="{{ route('chatWithUser', $sid) }}"> 回去訊息內容</a>
             </span>
         </div>
     </div>

@@ -41,18 +41,22 @@ class MessageController extends Controller {
         $content = $request->input('content');
 
         Message::deleteSingle($uid, $sid, $ct_time, $content);
-        return redirect('dashboard/chat/' . $sid);
+        return redirect()->route('chatWithUser', $sid);
+        //return redirect('dashboard/chat/' . $sid);
     }
 
     public function deleteSingleGET($uid, $sid, $ct_time, $content) {
         Message::deleteSingle($uid, $sid, $ct_time, $content);
 
-        return redirect('dashboard/chat/' . $sid);
+        return redirect()->route('chatWithUser', $sid);
+        //return redirect('dashboard/chat/' . $sid);
     }
 
     public function reportMessage(Request $request){
         Message::reportMessage($request->id, $request->content);
-        return redirect('dashboard/chat/' . $request->sid)->with('message', '成功檢舉該筆訊息');
+
+        return redirect()->route('chatWithUser', $request->sid)->with('message', '成功檢舉該筆訊息');
+        //return redirect('dashboard/chat/' . $request->sid)->with('message', '成功檢舉該筆訊息');
     }
 
     public function showReportMessagePage($id, $sid) {

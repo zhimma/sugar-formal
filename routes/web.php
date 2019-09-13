@@ -279,7 +279,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('/dashboard/chat/{randomNo?}', 'MessageController@chatview')->name('chatView');
         Route::post('/dashboard/chat/showMoreMessages/{randomNo?}', 'MessageController@chatviewMore')->name('showMoreMessages');
         Route::post('/dashboard/chat/showAllMessages/{randomNo?}', 'MessageController@chatviewAll')->name('showAllMessages');
-        Route::get('/dashboard/chat/{cid}', 'PagesController@chat')->name('chatWithUser');
+        Route::get('/dashboard/chatShow/{cid}', 'PagesController@chat')->name('chatWithUser');
         Route::get('/dashboard/chat/deleterow/{uid}/{sid}', 'MessageController@deleteBetweenGET')->name('deleteBetweenGET');
         Route::post('/dashboard/chat/deleterow', 'MessageController@deleteBetween')->name('deleteBetween');
         Route::post('/dashboard/chat/deleteall', 'MessageController@deleteAll')->name('deleteAll');

@@ -34,7 +34,7 @@
                                                 <a href="/user/view/{{$postUser->id}}"><img class="m-widget3__img" src="@if($postUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{ $postUser->meta_()->pic }} @endif" onerror="this.src='/img/male-avatar.png'" alt=""></a>
                                             </div>
                                             <div class="m-widget3__info">
-                                            <a href="/dashboard/chat/{{$postUser->id}}">
+                                            <a href="{{ route('chatWithUser', $postUser->id) }}">
                                                 <span class="m-widget3__username">
                                                 {{ $postUser->name }}
                                                 </span><br>

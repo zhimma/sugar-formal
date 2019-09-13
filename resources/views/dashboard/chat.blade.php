@@ -146,14 +146,14 @@
             ele += "<div class='m-widget3__header' style='width:95%'>";
             ele += "<div class='m-widget3__user-img'>";
             if(data[i]['isAvatarHidden'] === 1){
-                ele += "<a href='/dashboard/chat/" + data[i]['user_id'] + "'><img class='m-widget3__img' style='max-width:none' src='makesomeerror' onerror=\"this.src='{{ url('/') }}/img/male-avatar.png'\" alt=''></a></div>";
+                ele += "<a href='/dashboard/chatShow/" + data[i]['user_id'] + "'><img class='m-widget3__img' style='max-width:none' src='makesomeerror' onerror=\"this.src='{{ url('/') }}/img/male-avatar.png'\" alt=''></a></div>";
             }
             else{
-                ele += "<a href='/dashboard/chat/" + data[i]['user_id'] + "'><img class='m-widget3__img' style='max-width:none' src='" + data[i]['pic'] + "' onerror=\"this.src='/img/male-avatar.png'\" alt=''></a></div>";
+                ele += "<a href='/dashboard/chatShow/" + data[i]['user_id'] + "'><img class='m-widget3__img' style='max-width:none' src='" + data[i]['pic'] + "' onerror=\"this.src='/img/male-avatar.png'\" alt=''></a></div>";
             }
 
             ele += "<div class='m-widget3__info'>";
-            ele += "<a href='/dashboard/chat/" + data[i]['user_id'] + "'>";
+            ele += "<a href='/dashboard/chatShow/" + data[i]['user_id'] + "'>";
 
             if(data[i]['user_name'].includes('站長')){
                 ele += "<span class='m-widget3__username' style='color:blue;'>";
@@ -370,11 +370,11 @@ $code = Config::get('social.payment.code');
                             @endif
                             <div class="m-widget3__header" @if(isset($to))style="width:95%"@else style="width:95%" @endif>
                                 <div class="m-widget3__user-img">
-                                    <a href="/dashboard/chat/{{$msgUser->id}}"><img class="m-widget3__img" style="max-width:none" src="@if($msgUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{$msgUser->meta_()->pic}} @endif" onerror="this.src='/img/male-avatar.png'" alt=""></a>
+                                    <a href="{{ route('chatWithUser', $msgUser->id) }}"><img class="m-widget3__img" style="max-width:none" src="@if($msgUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{$msgUser->meta_()->pic}} @endif" onerror="this.src='/img/male-avatar.png'" alt=""></a>
                                 </div>
 
                                 <div class="m-widget3__info">
-                                <a href="/dashboard/chat/{{$msgUser->id}}">
+                                <a href="{{ route('chatWithUser', $msgUser->id) }}">
                                     <span class="m-widget3__username" @if(str_contains($msgUser->name, '站長')) style='color:blue;' @endif>
                                     {{$msgUser->name}}
                                     </span><br>
