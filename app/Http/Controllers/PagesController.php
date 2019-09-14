@@ -88,7 +88,6 @@ class PagesController extends Controller
             'not_contains'  => '請勿使用包含「站長」或「管理員」的字眼做為暱稱！'
         ];
         $validator = \Validator::make($request->all(), $rules, $messages);
-        
         if($validator->fails()){
             return redirect('/dashboard')->withErrors(['請勿使用包含「站長」或「管理員」的字眼做為暱稱！']);
         }

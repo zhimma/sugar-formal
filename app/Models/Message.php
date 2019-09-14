@@ -269,7 +269,7 @@ class Message extends Model
                 CREATE TEMPORARY TABLE `temp_m` AS(
                     SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent`
                     FROM `message`
-                    WHERE created_at >= '".self::$date."'
+                    WHERE created_at >= '".self::$date."' or  (`from_id`='1049' and `to_id` = $uid and `read` = 'N')
                 );
                 COMMIT;
             "));
@@ -287,9 +287,17 @@ class Message extends Model
         //        "));
         if($createTempTables){
             $messages = DB::select(DB::raw("
-                select * from `temp_m` 
-                WHERE  (`to_id` = $uid and `from_id` != $uid) or (`from_id` = $uid and `to_id` != $uid) 
-                order by `created_at` desc 
+                select * from `temp_m`
+                WHERE  (`to_id` = $uid and `from_id` != $uid) or (`from_id` = $uid and `to_id` != $uid)
+                order by (
+                    CASE
+                    WHEN (from_id = '1049')
+                    THEN
+                        1
+                    ELSE
+                        2
+                    END
+                ), `created_at` desc;
             "));
         }
 

@@ -418,7 +418,6 @@
                                                     @if($umeta->isHideArea == true) checked
                                                     @endif value="1">
                                         </div>
-                                        
                                         <label  class="col-form-label col-lg-2 col-sm-12">
                                             新增縣市
                                         </label>
