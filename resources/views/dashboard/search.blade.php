@@ -260,7 +260,7 @@
                             ?>
                             @endif
                             <?php $icc = 1; 
-                                $vis = \App\Models\UserMeta::search($county, $district, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $user->engroup, $umeta->city, $umeta->area, $umeta->domain, $umeta->domainType,$seqtime);
+                                $vis = \App\Models\UserMeta::search($county, $district, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $user->engroup, $umeta->city, $umeta->area, $umeta->blockdomain, $umeta->blockdomainType,$seqtime);
                             ?>
             @if (!empty($vis))
             @if (isset($vis) && sizeof($vis) > 0)
