@@ -176,8 +176,8 @@ class UserMeta extends Model
         }
         if ($engroup == 1)
         {
-            if (isset($blockdomain) && strlen($blockdomain) != 0) $query->where('blockdomain', '<>', $blockdomain);
-            if (isset($blockdomainType) && strlen($blockdomainType) != 0) $query->where('blockdomainType', '<>', $blockdomainType);
+            //if (isset($blockdomain) && strlen($blockdomain) != 0) $query->where('blockdomain', '<>', $blockdomain);
+            //if (isset($blockdomainType) && strlen($blockdomainType) != 0) $query->where('blockdomainType', '<>', $blockdomainType);
         }
         if (isset($cup) && strlen($cup) != 0) $query = $query->where('cup', $cup);
         if (isset($marriage) && strlen($marriage) != 0) $query = $query->where('marriage', $marriage);
