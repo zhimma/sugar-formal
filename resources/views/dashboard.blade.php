@@ -327,6 +327,10 @@
             $cmeta = null;
         } else {
             $cmeta = $cur->meta_();
+            if(isset($cmeta->city)||isset($cmeta->area)){
+                $cmeta->city = explode(",",$cmeta->city);
+                $cmeta->area = explode(",",$cmeta->area);
+            }
         }
         ?>
         @if(str_contains(url()->current(), 'dashboard'))
@@ -447,12 +451,12 @@
                                         <label class="col-form-label col-lg-2 col-sm-12">縣市</label>
                                         <div class="col-lg-5 col-md-10 col-sm-12">
                                         @if (isset($cmeta) && !$cmeta->isHideArea)
-                                            @if(is_array($umeta->city))
+                                            @if(is_array($cmeta->city))
                                                 <input class="form-control m-input" disabled
-                                                       value="@foreach($umeta->city as $key => $cityval){{$umeta->city[$key]}} - {{$umeta->area[$key]}}  @endforeach">
+                                                       value="@foreach($cmeta->city as $key => $cityval){{$cmeta->city[$key]}} - {{$cmeta->area[$key]}}  @endforeach">
                                             @else
                                                 <input class="form-control m-input" disabled
-                                                       value="{{$umeta->city}} - {{$umeta->area}}">
+                                                       value="{{$cmeta->city}} - {{$cmeta->area}}">
                                             @endif
                                         @else
                                             <input class="form-control m-input" disabled
