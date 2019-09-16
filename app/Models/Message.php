@@ -264,15 +264,29 @@ class Message extends Model
             DROP TABLE IF EXISTS temp_m;
         "));
         if(!\Schema::hasTable('temp_m')){
-            $createTempTables = DB::unprepared(DB::raw("
-                SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-                CREATE TEMPORARY TABLE `temp_m` AS(
-                    SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent`
-                    FROM `message`
-                    WHERE created_at >= '".self::$date."' or  (`from_id`='1049' and `to_id` = $uid and `read` = 'N')
-                );
-                COMMIT;
-            "));
+            $admin = User::select('id')->where('email', Config::get('social.admin.email'))->get()->first();
+            if(isset($admin)) {
+                $createTempTables = DB::unprepared(DB::raw("
+                    SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+                    CREATE TEMPORARY TABLE `temp_m` AS(
+                        SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent`
+                        FROM `message`
+                        WHERE created_at >= '".self::$date."' or  (`from_id`= $admin->id and `to_id` = $uid and `read` = 'N')
+                    );
+                    COMMIT;
+                "));
+            }
+            else{
+                $createTempTables = DB::unprepared(DB::raw("
+                    SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+                    CREATE TEMPORARY TABLE `temp_m` AS(
+                        SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent`
+                        FROM `message`
+                        WHERE created_at >= '".self::$date."'
+                    );
+                    COMMIT;
+                "));
+            }
         }
         //        $date = \Carbon\Carbon::createFromFormat('Y-m-d', '2018-09-01');
         //        $date_s = $date->subDays(30);
@@ -286,19 +300,29 @@ class Message extends Model
         //            );
         //        "));
         if($createTempTables){
-            $messages = DB::select(DB::raw("
-                select * from `temp_m`
-                WHERE  (`to_id` = $uid and `from_id` != $uid) or (`from_id` = $uid and `to_id` != $uid)
-                order by (
-                    CASE
-                    WHEN (from_id = '1049')
-                    THEN
-                        1
-                    ELSE
-                        2
-                    END
-                ), `created_at` desc;
-            "));
+            $admin = User::select('id')->where('email', Config::get('social.admin.email'))->get()->first();
+            if(isset($admin)) {
+                $messages = DB::select(DB::raw("
+                    select * from `temp_m`
+                    WHERE  (`to_id` = $uid and `from_id` != $uid) or (`from_id` = $uid and `to_id` != $uid)
+                    order by (
+                        CASE
+                        WHEN (from_id = $admin->id)
+                        THEN
+                            1
+                        ELSE
+                            2
+                        END
+                    ), `created_at` desc;
+                "));
+            }
+            else{
+                $messages = DB::select(DB::raw("
+                    select * from `temp_m`
+                    WHERE  (`to_id` = $uid and `from_id` != $uid) or (`from_id` = $uid and `to_id` != $uid)
+                    order by `created_at` desc;
+                "));
+            }
         }
 
         //$messages = Message::where([['to_id', $uid], ['from_id', '!=', $uid]])->orWhere([['from_id', $uid], ['to_id', '!=',$uid]])->orderBy('created_at', 'desc')->get();
