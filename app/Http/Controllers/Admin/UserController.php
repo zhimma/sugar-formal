@@ -1272,14 +1272,15 @@ class UserController extends Controller
 
     public function inactiveUsers(Request $request)
     {
-        $users = User::join('user_meta', 'users.id', 'user_meta.user_id')
+        $users = ($request->isMethod('post')&&$request->email != null)?User::join('user_meta', 'users.id', 'user_meta.user_id'):User::join('user_meta', 'users.id', 'user_meta.user_id')
             ->where('user_meta.is_active', 0);
         if($request->email != null){
-            $users = $users->where('users.email', $request->email);
+            $users = $users->where('users.email','like' ,"%$request->email%");
         }
         $users = $users->orderBy('users.created_at', 'desc')->paginate(20);
         return view('admin.users.inactiveUsers',[
-            'users' => $users
+            'users' => $users,
+            'email' => $request->email
         ]);
     }
 

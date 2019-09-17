@@ -5,8 +5,8 @@
 <form method="POST" action="{{ route('inactive') }}" class="search_form">
 	{!! csrf_field() !!}
 	<div class="form-group">
-		<label for="email" class="">Email</label>	
-		<input type="email" name='email' class="" style="width:300px;" id="email">
+		<label for="email" class="">Email</label>
+		<input type="text" name='email' class="" style="width:300px;" id="email" value="{{ $email }}">
 	</div>
 	<button type="submit" class="btn btn-primary">送出</button>
 </form>
@@ -32,7 +32,11 @@
 		<td>{{ $user->created_at }}</td>
 		<td>{{ $user->activation_token }}</td>
 		<td>
+			@if($user->is_active==0)
 			<a href="{{ route('activateUser', $user->activation_token)  }}" class="btn btn-success">啟動</a>
+			@else
+			此email已啟動
+			@endif
 		</td>
 	</tr>
 	@empty
