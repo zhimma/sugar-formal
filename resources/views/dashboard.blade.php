@@ -327,9 +327,13 @@
             $cmeta = null;
         } else {
             $cmeta = $cur->meta_();
-            if(isset($cmeta->city)||isset($cmeta->area)){
-                $cmeta->city = explode(",",$cmeta->city);
-                $cmeta->area = explode(",",$cmeta->area);
+            if(isset($cmeta->city) || isset($cmeta->area)){
+                if(str_contains($cmeta->city, ',')){
+                    $cmeta->city = explode(",",$cmeta->city);
+                }
+                if(str_contains($cmeta->area, ',')){
+                    $cmeta->area = explode(",",$cmeta->area);
+                }
             }
         }
         ?>
@@ -431,19 +435,43 @@
                                     </div>
                                     <div id="county">
                                     @if(isset($umeta->city))
-                                        @foreach($umeta->city as $key => $cityval)
+                                        @if(is_array($umeta->city))
+                                            @foreach($umeta->city as $key => $cityval)
+                                                <div class="form-group m-form__group row twzipcode" id="twzipcode">
+                                                    <label class="col-form-label col-lg-2 col-sm-12">縣市</label>
+                                                    <div class="col-lg-5 col-md-10 col-sm-12">
+                                                        <div class="twzip" data-role="county" data-name="@if($key != 0 )city{{$key}}@else{{'city'}}@endif"
+                                                                data-value="{{$umeta->city[$key]}}">
+                                                        </div>
+                                                        <div class="twzip" data-role="district" data-name="@if($key != 0 )area{{$key}}@else{{'area'}}@endif"
+                                                                data-value="{{$umeta->area[$key]}}">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        @else
                                             <div class="form-group m-form__group row twzipcode" id="twzipcode">
                                                 <label class="col-form-label col-lg-2 col-sm-12">縣市</label>
                                                 <div class="col-lg-5 col-md-10 col-sm-12">
-                                                    <div class="twzip" data-role="county" data-name="@if($key != 0 )city{{$key}}@else{{'city'}}@endif"
-                                                            data-value="{{$umeta->city[$key]}}">
+                                                    <div class="twzip" data-role="county" data-name="city" data-value="{{$umeta->city}}">
                                                     </div>
-                                                    <div class="twzip" data-role="district" data-name="@if($key != 0 )area{{$key}}@else{{'area'}}@endif"
-                                                            data-value="{{$umeta->area[$key]}}">
+                                                    <div class="twzip" data-role="district" data-name="area" data-value="{{$umeta->area}}">
                                                     </div>
                                                 </div>
                                             </div>
-                                        @endforeach
+                                        @endif
+                                    @else
+                                        <div class="form-group m-form__group row twzipcode" id="twzipcode">
+                                            <label class="col-form-label col-lg-2 col-sm-12">縣市</label>
+                                            <div class="col-lg-5 col-md-10 col-sm-12">
+                                                <div class="twzip" data-role="county" data-name="city"
+                                                        data-value="">
+                                                </div>
+                                                <div class="twzip" data-role="district" data-name="area"
+                                                        data-value="">
+                                                </div>
+                                            </div>
+                                        </div>
                                     @endif
                                     </div>
                                 @else
@@ -521,7 +549,7 @@
 
                                             <div class="form-group m-form__group row">
                                                 <label class="col-form-label col-lg-2 col-sm-12"> @if(str_contains(url()->current(), 'dashboard'))
-                                                        出生日期@else年齡@endif</label>
+                                                        出生日期 @else 年齡 @endif</label>
                                                 <div class="col-lg-4 col-md-9 col-sm-12 form-inline">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <select name="year" class="form-control"></select>年
