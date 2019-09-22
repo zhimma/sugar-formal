@@ -186,13 +186,32 @@ class UserMeta extends Model
         if (isset($smoking) && strlen($smoking) != 0) $query = $query->where('smoking', $smoking);
         if (isset($drinking) && strlen($drinking) != 0) $query = $query->where('drinking', $drinking);
         if (isset($photo) && strlen($photo) != 0) $query = $query->whereNotNull('pic')->where('pic', '<>', 'NULL');
-        if (isset($agefrom) && isset($ageto) && strlen($agefrom) != 0 && strlen($ageto) != 0) $query = $query->whereBetween('birthdate', [Carbon::now()->subYears($ageto), Carbon::now()->subYears($agefrom)]);
+        if (isset($agefrom) && isset($ageto) && strlen($agefrom) != 0 && strlen($ageto) != 0) {
+            $agefrom = $agefrom < 18 ? 18 : $agefrom;
+            $query = $query->whereBetween('birthdate', [Carbon::now()->subYears($ageto), Carbon::now()->subYears($agefrom)]);
+        }
+
+        $query = $query->where('birthdate', '>=', Carbon::now()->subYears(18));
 
         $bannedUsers = banned_users::select('member_id')->get();
 
-        if(isset($seqtime) && $seqtime == 2)
-            return $query->whereNotIn('user_id', $bannedUsers)->orderBy('users.created_at', 'desc')->paginate(12);
-        else
-            return $query->whereNotIn('user_id', $bannedUsers)->orderBy('users.last_login', 'desc')->paginate(12);
+        $finalResult = null;
+
+        if(isset($seqtime) && $seqtime == 2){
+            $finalResult = $query->whereNotIn('user_id', $bannedUsers)->orderBy('users.created_at', 'desc');
+        }
+        else{
+            $finalResult = $query->whereNotIn('user_id', $bannedUsers)->orderBy('users.last_login', 'desc');
+        }
+
+        foreach($finalResult as $key => &$r){
+            $b = Carbon::createFromFormat('Y-m-d', $r->birthdate);
+            $diff = $b->diffInYears(Carbon::now());
+            if($diff < 18){
+                $finalResult->forget($key);
+            }
+        }
+
+        return $finalResult->paginate(12);
     }
 }
