@@ -119,15 +119,7 @@ class User extends Authenticatable
         if ($engroup == 1) $engroup = 2;
         else if ($engroup == 2) $engroup = 1;
         $bannedUsers = banned_users::select('member_id')->get();
-        $results = User::where('engroup', $engroup)->whereNotIn('id', $bannedUsers)->orderBy('last_login', 'desc');
-
-        foreach($results as $key => &$r){
-            $b = Carbon::createFromFormat('Y-m-d', $r->birthdate);
-            $diff = $b->diffInYears(Carbon::now());
-            if($diff < 18){
-                $results->forget($key);
-            }
-        }
+        $results = User::join('user_meta', 'users.id', '=', 'user_meta.user_id')->where('engroup', $engroup)->whereNotIn('id', $bannedUsers)->where('birthdate', '<', Carbon::now()->subYears(18))->orderBy('last_login', 'desc');
 
         return $results->paginate(12);
     }

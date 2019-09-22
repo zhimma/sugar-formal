@@ -191,27 +191,13 @@ class UserMeta extends Model
             $query = $query->whereBetween('birthdate', [Carbon::now()->subYears($ageto), Carbon::now()->subYears($agefrom)]);
         }
 
-        $query = $query->where('birthdate', '>=', Carbon::now()->subYears(18));
+        $query = $query->where('birthdate', '<', Carbon::now()->subYears(18));
 
         $bannedUsers = banned_users::select('member_id')->get();
 
-        $finalResult = null;
-
-        if(isset($seqtime) && $seqtime == 2){
-            $finalResult = $query->whereNotIn('user_id', $bannedUsers)->orderBy('users.created_at', 'desc');
-        }
-        else{
-            $finalResult = $query->whereNotIn('user_id', $bannedUsers)->orderBy('users.last_login', 'desc');
-        }
-
-        foreach($finalResult as $key => &$r){
-            $b = Carbon::createFromFormat('Y-m-d', $r->birthdate);
-            $diff = $b->diffInYears(Carbon::now());
-            if($diff < 18){
-                $finalResult->forget($key);
-            }
-        }
-
-        return $finalResult->paginate(12);
+        if(isset($seqtime) && $seqtime == 2)
+            return $query->whereNotIn('user_id', $bannedUsers)->orderBy('users.created_at', 'desc')->paginate(12);
+        else
+            return $query->whereNotIn('user_id', $bannedUsers)->orderBy('users.last_login', 'desc')->paginate(12);
     }
 }
