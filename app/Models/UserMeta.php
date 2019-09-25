@@ -144,7 +144,7 @@ class UserMeta extends Model
         return User::where('id', $this->user_id)->first();
     }
 
-    public static function search($city, $area, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime)
+    public static function search($city, $area, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime,$body)
     {
         if ($engroup == 1)
         {
@@ -185,6 +185,7 @@ class UserMeta extends Model
         if (isset($income) && strlen($income) != 0) $query = $query->where('income', $income);
         if (isset($smoking) && strlen($smoking) != 0) $query = $query->where('smoking', $smoking);
         if (isset($drinking) && strlen($drinking) != 0) $query = $query->where('drinking', $drinking);
+        if (isset($body) && strlen($body) != 0) $query = $query->where('body', $body);
         if (isset($photo) && strlen($photo) != 0) $query = $query->whereNotNull('pic')->where('pic', '<>', 'NULL');
         if (isset($agefrom) && isset($ageto) && strlen($agefrom) != 0 && strlen($ageto) != 0) {
             $agefrom = $agefrom < 18 ? 18 : $agefrom;

@@ -236,6 +236,7 @@
                             $ageto = "";
                             $agefrom = "";
                             $seqtime = "";
+                            $body = "";
                             $umeta = $user->meta_();
                             if(isset($umeta->city)){
                                 $umeta->city = explode(",",$umeta->city);
@@ -257,10 +258,12 @@
                             if (isset($_GET['ageto'])) $ageto = $_GET['ageto'];
                             if (isset($_GET['agefrom'])) $agefrom = $_GET['agefrom'];
                             if (isset($_GET['seqtime'])) $seqtime = $_GET['seqtime'];
+                            if (isset($_GET['seqtime'])) $seqtime = $_GET['seqtime'];
+                            if (isset($_GET['body'])) $body = $_GET['body'];
                             ?>
                             @endif
-                            <?php $icc = 1; 
-                                $vis = \App\Models\UserMeta::search($county, $district, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $user->engroup, $umeta->city, $umeta->area, $umeta->blockdomain, $umeta->blockdomainType,$seqtime);
+                            <?php $icc = 1;
+                                $vis = \App\Models\UserMeta::search($county, $district, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $user->engroup, $umeta->city, $umeta->area, $umeta->blockdomain, $umeta->blockdomainType,$seqtime,$body);
                             ?>
             @if (!empty($vis))
             @if (isset($vis) && sizeof($vis) > 0)
