@@ -263,7 +263,7 @@
                             ?>
                             @endif
                             <?php $icc = 1;
-                                $vis = \App\Models\UserMeta::search($county, $district, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $user->engroup, $umeta->city, $umeta->area, $umeta->blockdomain, $umeta->blockdomainType,$seqtime,$body);
+                                $vis = \App\Models\UserMeta::search($county, $district, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $user->engroup, $umeta->city, $umeta->area, $umeta->blockdomain, $umeta->blockdomainType,$seqtime,$body, $user->id);
                             ?>
             @if (!empty($vis))
             @if (isset($vis) && sizeof($vis) > 0)
