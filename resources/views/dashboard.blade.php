@@ -1783,8 +1783,11 @@
             });
 
         $('.twzipcode').twzipcode({
-            'detect': true, 'css': ['form-control twzip', 'form-control twzip', 'zipcode']
+            'detect': true, 'css': ['form-control twzip', 'form-control twzip', 'zipcode'], onCountySelect: function() {
+                    $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
+                }
         });
+
     });
 </script>
 

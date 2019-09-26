@@ -171,6 +171,9 @@ class UserMeta extends Model
                         $query->orWhere('blockcity', NULL);
                         $query->orWhere('blockarea', NULL);
                     });
+                    //判定全區 不搜尋
+                    $blocked_city_user = UserMeta::select('user_id')->where(['blockcity'=>$v,'blockarea'=>null])->get();
+                    if($blocked_city_user)$query->whereNotIn('user_id',  $blocked_city_user);
                 }
             }
         }
