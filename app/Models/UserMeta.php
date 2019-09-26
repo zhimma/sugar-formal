@@ -196,10 +196,11 @@ class UserMeta extends Model
 
         $bannedUsers = banned_users::select('member_id')->get();
         $blockedUsers = blocked::select('member_id')->where('blocked_id',$userid)->get();
+        if($blockedUsers)$query->whereNotIn('user_id', $blockedUsers);
 
         if(isset($seqtime) && $seqtime == 2)
-            return $query->whereNotIn('user_id', $bannedUsers)->whereNotIn('user_id', $blockedUsers)->orderBy('users.created_at', 'desc')->paginate(12);
+            return $query->whereNotIn('user_id', $bannedUsers)->orderBy('users.created_at', 'desc')->paginate(12);
         else
-            return $query->whereNotIn('user_id', $bannedUsers)->whereNotIn('user_id', $blockedUsers)->orderBy('users.last_login', 'desc')->paginate(12);
+            return $query->whereNotIn('user_id', $bannedUsers)->orderBy('users.last_login', 'desc')->paginate(12);
     }
 }
