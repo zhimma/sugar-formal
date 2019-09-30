@@ -362,12 +362,6 @@ class Message extends Model
         if(!\Schema::hasTable('temp_m')) {
             try{
                 $date = \Carbon\Carbon::createFromFormat('Y-m-d', $date);
-            }
-            catch (\Exception $e){
-                Log::debug($e);
-                Log::info('moreSendersAJAX with $date: ' . $dateDebug);
-            }
-            finally{
                 $dateEnd  = $date->toDateTimeString();
                 $monthAgo = $date->subDays(30)->toDateTimeString();
                 self::$date = $monthAgo;
@@ -382,6 +376,11 @@ class Message extends Model
                     );
                     COMMIT;
                 "));
+            }
+            catch (\Exception $e){
+                Log::debug($e);
+                Log::info('moreSendersAJAX with $date: ' . $dateDebug);
+                return false;
             }
         }
         //        $createTempTables = DB::unprepared(DB::raw("
