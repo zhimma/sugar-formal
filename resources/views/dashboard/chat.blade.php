@@ -25,7 +25,7 @@
         let date = d.getFullYear() + '-' + ( d.getMonth() + 1 ) + '-' + d.getDate();
         //console.log(date);
         var isVip = '{{ $isVip }}';
-        
+
         $.ajax({
             type: 'POST',
             url: '{{ route('showMoreMessages') }}/{{ \Carbon\Carbon::now()->timestamp }}',
@@ -34,7 +34,7 @@
                 date : date,
                 uid : '{{ $user->id }}',
                 isVip : '{{ $isVip }}',
-                userAgent: "Agent: " + navigator.userAgent + " Platform: " + navigator.platform,
+                userAgent: "Agent: " + String(navigator.userAgent) + " Platform: " + String(navigator.platform),
                 noVipCount : $('.m-widget3__header').length
             },
             dataType: 'json',
