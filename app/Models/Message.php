@@ -486,8 +486,14 @@ class Message extends Model
                 }
             }
             $messages[$key]['user_id'] = $msgUser->id;
-            $messages[$key]['read'] = $latestMessage->read;
-            $messages[$key]['created_at'] = $latestMessage['created_at']->toDateTimeString();
+            if(isset($latestMessage)){
+                $messages[$key]['read'] = $latestMessage->read;
+                $messages[$key]['created_at'] = $latestMessage['created_at']->toDateTimeString();
+            }
+            else{
+                $messages[$key]['read'] = '';
+                $messages[$key]['created_at'] = '';
+            }
             $messages[$key]['user_name'] = $msgUser->name;
             $messages[$key]['isAvatarHidden'] = $msgUser->meta_()->isAvatarHidden;
             $messages[$key]['pic'] = $msgUser->meta_()->pic;
