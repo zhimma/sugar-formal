@@ -1229,8 +1229,14 @@ class UserController extends Controller
 
     public function customizeMigrationFiles(Request $request){
         $file = null;
-        if(file_exists(storage_path('app/RP_761404_'.\Carbon\Carbon::today()->format('Ymd').'.dat'))){
-            $file = \File::get(storage_path('app/RP_761404_'.\Carbon\Carbon::today()->format('Ymd').'.dat'));
+        if(Carbon::now()->format('d') <= 28){
+            $fileDate = \Carbon\Carbon::now();
+        }
+        else{
+            $fileDate = \Carbon\Carbon::now()->addMonth()->startOfMonth();
+        }
+        if(file_exists(storage_path('app/RP_761404_'.$fileDate->format('Ymd').'.dat'))){
+            $file = \File::get(storage_path('app/RP_761404_'.$fileDate->format('Ymd').'.dat'));
         }
         $date = \Carbon\Carbon::now()->addDay()->day >= 28 ? '01' : \Carbon\Carbon::now()->addDay()->day;
 

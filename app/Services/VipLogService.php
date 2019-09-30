@@ -66,7 +66,13 @@ class VipLogService {
     }
 
     public function customLogToFile($user_id, $order_id, $day, $action){
-        $fileName = 'RP_761404_'. \Carbon\Carbon::today()->format('Ymd') .'.dat';
+        if(Carbon::now()->format('d') <= 28){
+            $fileDate = \Carbon\Carbon::now();
+        }
+        else{
+            $fileDate = \Carbon\Carbon::now()->addMonth()->startOfMonth();
+        }
+        $fileName = 'RP_761404_'. $fileDate->format('Ymd') .'.dat';
         $fileContent = '761404,' . $user_id . ',' . $order_id . ',,,888,' . $day . ',' . $action . ',01,0';
 
         return Storage::append($fileName, $fileContent);
