@@ -96,7 +96,7 @@ class StatController extends Controller
             else{
                 $d->upload_check = '檢查';
             }
-            $d->created_at = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at)->addHours(14);
+            $d->created_at = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at)->addHours(8);
         }
         return view('admin.stats.datFileLog')->with('data', $data);
     }
