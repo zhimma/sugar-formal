@@ -54,10 +54,10 @@
             <table class="table-hover table table-bordered">
                 <tr>
                     <td>檢舉者</td>
-                    <td>回覆檢舉者</td>
+                    <td>回覆檢舉者(回覆後將會自動移除檢舉記錄)</td>
                     <td>封鎖檢舉者</td>
                     <td>被檢舉者</td>
-                    <td>回覆被檢舉者</td>
+                    <td>回覆被檢舉者(回覆後將會自動移除檢舉記錄)</td>
                     <td>封鎖被檢舉者</td>
                     <td>檢舉理由</td>
                     <td>檢舉時間</td>

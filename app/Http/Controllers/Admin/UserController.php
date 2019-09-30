@@ -887,6 +887,7 @@ class UserController extends Controller
             if($request->report_id){
                 $m = Reported::where('id', $request->report_id)->get()->first();
                 $m->delete();
+                return view('admin.users.success_only')->with('message', '傳送成功');
             }
             if($request->pic_id){
                 if(str_contains($request->pic_id, 'avatar')){
