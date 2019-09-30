@@ -33,6 +33,7 @@
                 date : date,
                 uid : '{{ $user->id }}',
                 isVip : '{{ $isVip }}',
+                deviceInfo: navigator,
                 noVipCount : $('.m-widget3__header').length
             },
             dataType: 'json',
