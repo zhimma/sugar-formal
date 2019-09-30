@@ -324,6 +324,12 @@ class PagesController extends Controller
                 Visited::visit($user->id, $uid);
             }
 
+            $checkRecommendedUser['description'] = null;
+            $checkRecommendedUser['stars'] = null;
+            $checkRecommendedUser['background'] = null;
+            $checkRecommendedUser['title'] = null;
+            $checkRecommendedUser['button'] = null;
+            $checkRecommendedUser['height'] = null;
             try{
                 $checkRecommendedUser = $this->service->checkRecommendedUser($targetUser);
             }
