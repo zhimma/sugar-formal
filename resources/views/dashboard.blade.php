@@ -487,8 +487,13 @@
                                                        value="{{$cmeta->city}} - {{$cmeta->area}}">
                                             @endif
                                         @else
-                                            <input class="form-control m-input" disabled
-                                                    value="@if(isset($cmeta)){{$cmeta->city}}@endif">
+                                            @if(is_array($cmeta->city))
+                                                <input class="form-control m-input" disabled
+                                                       value="@foreach($cmeta->city as $key => $cityval){{$cmeta->city[$key]}} - {{$cmeta->area[$key]}}  @endforeach">
+                                            @else
+                                                <input class="form-control m-input" disabled
+                                                       value="@if(isset($cmeta)){{$cmeta->city}}@endif">
+                                            @endif
                                         @endif
                                         </div>
                                     </div>
