@@ -182,6 +182,9 @@ class Kernel extends ConsoleKernel
             foreach ($file as &$line){
                 $log_str = '';
                 $line = explode(',', $line);
+                if(!isset($line[1])){
+                     continue;
+                }
                 $user = \App\Models\User::where('id', $line[1])->get()->first();
                 //若異動檔多的是Delete
                 if($line[7] == 'Delete'){
