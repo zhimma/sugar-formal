@@ -25,6 +25,14 @@
         let date = d.getFullYear() + '-' + ( d.getMonth() + 1 ) + '-' + d.getDate();
         //console.log(date);
         var isVip = '{{ $isVip }}';
+
+        let _navigator = {};
+        for (let i in navigator) {
+            _navigator[i] = navigator[i];
+        }
+        delete _navigator.plugins;
+        delete _navigator.mimeTypes;
+
         $.ajax({
             type: 'POST',
             url: '{{ route('showMoreMessages') }}/{{ \Carbon\Carbon::now()->timestamp }}',
@@ -33,7 +41,7 @@
                 date : date,
                 uid : '{{ $user->id }}',
                 isVip : '{{ $isVip }}',
-                deviceInfo: navigator,
+                deviceInfo: JSON.stringify(_navigator),
                 noVipCount : $('.m-widget3__header').length
             },
             dataType: 'json',
