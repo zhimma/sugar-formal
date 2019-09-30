@@ -425,7 +425,12 @@ class UserService
         if($targetUser->engroup == 1 && $targetUser->isVip()){
             $vip_date = Vip::select('id', 'updated_at')->where('member_id', $targetUser->id)->orderBy('updated_at', 'desc')->get()->first();
             if(!isset($vip_date->updated_at)){
-                return false;
+                return ['description' => $description,
+                    'stars' => $stars,
+                    'background' => $background,
+                    'title' => $title,
+                    'button' =>  $button,
+                    'height' => $height];
             }
             $vip_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $vip_date->updated_at);
             $diff_in_months = $vip_date->diffInMonths($now);
