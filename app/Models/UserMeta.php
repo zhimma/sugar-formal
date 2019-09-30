@@ -144,7 +144,7 @@ class UserMeta extends Model
         return User::where('id', $this->user_id)->first();
     }
 
-    public static function search($city, $area, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime)
+    public static function search($city, $area, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime,$body,$userid)
     {
         if ($engroup == 1)
         {
@@ -171,6 +171,9 @@ class UserMeta extends Model
                         $query->orWhere('blockcity', NULL);
                         $query->orWhere('blockarea', NULL);
                     });
+                    //判定全區 不搜尋
+                    $blocked_city_user = UserMeta::select('user_id')->where(['blockcity'=>$v,'blockarea'=>null])->get();
+                    if($blocked_city_user)$query->whereNotIn('user_id',  $blocked_city_user);
                 }
             }
         }
@@ -185,6 +188,7 @@ class UserMeta extends Model
         if (isset($income) && strlen($income) != 0) $query = $query->where('income', $income);
         if (isset($smoking) && strlen($smoking) != 0) $query = $query->where('smoking', $smoking);
         if (isset($drinking) && strlen($drinking) != 0) $query = $query->where('drinking', $drinking);
+        if (isset($body) && strlen($body) != 0) $query = $query->where('body', $body);
         if (isset($photo) && strlen($photo) != 0) $query = $query->whereNotNull('pic')->where('pic', '<>', 'NULL');
         if (isset($agefrom) && isset($ageto) && strlen($agefrom) != 0 && strlen($ageto) != 0) {
             $agefrom = $agefrom < 18 ? 18 : $agefrom;
@@ -194,6 +198,8 @@ class UserMeta extends Model
         $query = $query->where('birthdate', '<', Carbon::now()->subYears(18));
 
         $bannedUsers = banned_users::select('member_id')->get();
+        $blockedUsers = blocked::select('member_id')->where('blocked_id',$userid)->get();
+        if($blockedUsers)$query->whereNotIn('user_id', $blockedUsers);
 
         if(isset($seqtime) && $seqtime == 2)
             return $query->whereNotIn('user_id', $bannedUsers)->orderBy('users.created_at', 'desc')->paginate(12);

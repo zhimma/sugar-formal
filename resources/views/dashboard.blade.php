@@ -5,10 +5,19 @@
         $(".vipadd").toggle();
     }
 
+    function getAge(birth) {
+        birth = Date.parse(birth.replace('/-/g', "/"));
+        var year = 1000 * 60 * 60 * 24 * 365;
+        var now = new Date();
+        var birthday = new Date(birth);
+        var age = parseInt((now - birthday) / year);
+        return age;
+    }
     function check_engroup() {
         let original_en = "{{ $user->engroup }}";
         let after = $('input[name=engroup]:checked').val();
-        //console.log($('input[name=engroup]:checked').val());
+        let birth = $('select[name=year]').val()+'/'+$('select[name=month]').val()+'/'+$('select[name=day]').val();
+        let age = getAge(birth);
         if (original_en != after && after != null) {
             let r = confirm("確定要改變帳號類型(甜心大哥/大姐、甜心寶貝)嗎？");
             //console.log(r);
@@ -17,6 +26,10 @@
             } else {
                 return false;
             }
+        }
+        if(age < 18){
+            alert("您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。");
+            return false;
         }
         $('#information').submit();
     }
@@ -1642,13 +1655,14 @@
 
     jQuery(document).ready(function () {
         @if(!$user->isAdmin())
-        @if (!$umeta->isAllSet())
-        alert('請寫上基本資料');
-        @elseif (empty($umeta->pic))
-        alert('請加上頭像照');
-                @endif
-                @endif
-
+            @if (!$umeta->isAllSet())
+            alert('請寫上基本資料');
+            @elseif (empty($umeta->pic))
+            alert('請加上頭像照');
+            @elseif ($umeta->age()<18)
+            alert('您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。');
+            @endif
+        @endif
         var BootstrapDatepicker = function () {
                 var t = function () {
                     $("#m_datepicker_1, #m_datepicker_1_validate").datepicker({
@@ -1774,8 +1788,11 @@
             });
 
         $('.twzipcode').twzipcode({
-            'detect': true, 'css': ['form-control twzip', 'form-control twzip', 'zipcode']
+            'detect': true, 'css': ['form-control twzip', 'form-control twzip', 'zipcode'], onCountySelect: function() {
+                    $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
+                }
         });
+
     });
 </script>
 
