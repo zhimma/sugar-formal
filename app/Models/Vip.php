@@ -50,19 +50,26 @@ class Vip extends Model
 
     public static function upgrade($member_id, $business_id, $order_id, $amount, $txn_id, $active, $free, $transactionType = null)
     {
-        $vip = new Vip();
-        $vip->member_id = $member_id;
-        $vip->txn_id = $txn_id;
-        $vip->business_id = $business_id;
-        $vip->order_id = $order_id;
-        $vip->amount = $amount;
-        $vip->active = $active;
-        $vip->free = $free;
-        $vip->transactionType = $transactionType;
-        //$startDate = time();
-        //$expiry = date('Y-m-d H:i:s', strtotime('+'.substr($order_id, 0, 2).' day', $startDate));
-        //$vip->expiry = $expiry;
-        $vip->save();
+        $vipData = Vip::findByIdWithDateDesc($member_id);
+        if(isset($vipData)){
+            $vip = new Vip();
+            $vip->member_id = $member_id;
+            $vip->txn_id = $txn_id;
+            $vip->business_id = $business_id;
+            $vip->order_id = $order_id;
+            $vip->amount = $amount;
+            $vip->active = $active;
+            $vip->free = $free;
+            $vip->transactionType = $transactionType;
+            //$startDate = time();
+            //$expiry = date('Y-m-d H:i:s', strtotime('+'.substr($order_id, 0, 2).' day', $startDate));
+            //$vip->expiry = $expiry;
+            $vip->save();
+        }
+        else{
+            $vipData->order_id = $order_id;
+            $vipData->save();
+        }
 
         VipLog::addToLog($member_id, 'upgrade', $txn_id, 1, $free);
 
@@ -75,6 +82,10 @@ class Vip extends Model
 
     public static function findById($member_id) {
         return Vip::where('member_id', $member_id)->first();
+    }
+
+    public static function findByIdWithDateDesc($member_id) {
+        return Vip::where('member_id', $member_id)->orderBy('created_at', 'desc')->first();
     }
 
     public static function checkByUserAndTxnId($member_id, $txn_id) {
