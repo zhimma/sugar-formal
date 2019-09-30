@@ -329,6 +329,7 @@ class PagesController extends Controller
             $checkRecommendedUser['height'] = null;
             try{
                 $checkRecommendedUser = $this->service->checkRecommendedUser($targetUser);
+                $tracker = $checkRecommendedUser['description'];
             }
             catch (\Exception $e){
                 Log::info($e);
