@@ -34,7 +34,7 @@
                 date : date,
                 uid : '{{ $user->id }}',
                 isVip : '{{ $isVip }}',
-                userAgent: navigator.userAgent || navigator.vendor || window.opera,
+                userAgent: "Agent: " + navigator.userAgent + " Platform: " + navigator.platform,
                 noVipCount : $('.m-widget3__header').length
             },
             dataType: 'json',
