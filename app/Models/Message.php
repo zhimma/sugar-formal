@@ -11,6 +11,7 @@ use App\Notifications\MessageEmail;
 use Illuminate\Support\Facades\Config;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class Message extends Model
 {
@@ -352,27 +353,36 @@ class Message extends Model
         return $saveMessages;
     }
 
-    public static function moreSendersAJAX($uid, $isVip, $date,$noVipCount=0)
+    public static function moreSendersAJAX($uid, $isVip, $date, $noVipCount=0)
     {
         $dropTempTables = DB::unprepared(DB::raw("
             DROP TABLE IF EXISTS temp_m;
         "));
+        $dateDebug = $date;
         if(!\Schema::hasTable('temp_m')) {
-            $date     = \Carbon\Carbon::createFromFormat('Y-m-d', $date);
-            $dateEnd  = $date->toDateTimeString();
-            $monthAgo = $date->subDays(30)->toDateTimeString();
-            self::$date = $monthAgo;
-            $createTempTables = DB::unprepared(DB::raw("
-                SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-                CREATE TEMPORARY TABLE `temp_m` AS(
-                    SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent`
-                    FROM `message`
-                    WHERE `created_at`
-                    BETWEEN '" . $monthAgo . "'
-                    AND '" . $dateEnd . "'
-                );
-                COMMIT;
-            "));
+            try{
+                $date = \Carbon\Carbon::createFromFormat('Y-m-d', $date);
+            }
+            catch (\Exception $e){
+                Log::debug($e);
+                Log::info('moreSendersAJAX with $date: ' . $dateDebug);
+            }
+            finally{
+                $dateEnd  = $date->toDateTimeString();
+                $monthAgo = $date->subDays(30)->toDateTimeString();
+                self::$date = $monthAgo;
+                $createTempTables = DB::unprepared(DB::raw("
+                    SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+                    CREATE TEMPORARY TABLE `temp_m` AS(
+                        SELECT `created_at`, `updated_at`, `to_id`, `from_id`, `content`, `read`, `all_delete_count`, `is_row_delete_1`, `is_row_delete_2`, `is_single_delete_1`, `is_single_delete_2`, `temp_id`, `isReported`, `reportContent`
+                        FROM `message`
+                        WHERE `created_at`
+                        BETWEEN '" . $monthAgo . "'
+                        AND '" . $dateEnd . "'
+                    );
+                    COMMIT;
+                "));
+            }
         }
         //        $createTempTables = DB::unprepared(DB::raw("
         //            CREATE TEMPORARY TABLE `temp_m` AS(
@@ -381,7 +391,7 @@ class Message extends Model
         //                WHERE created_at >= '2018-07-01'
         //            );
         //        "));
-        if($createTempTables){
+        if(isset($createTempTables) && $createTempTables){
             $messages = DB::select(DB::raw("
                 select * from `temp_m` 
                 WHERE  (`to_id` = $uid and `from_id` != $uid) or (`from_id` = $uid and `to_id` != $uid) 
