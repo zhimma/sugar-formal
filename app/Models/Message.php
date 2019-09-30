@@ -6,7 +6,6 @@ use Auth;
 use App\Models\User;
 use App\Models\Blocked;
 use App\Models\SimpleTables\banned_users;
-use App\Http\Requests;
 use Illuminate\Database\Eloquent\Model;
 use App\Notifications\MessageEmail;
 use Illuminate\Support\Facades\Config;
@@ -350,7 +349,7 @@ class Message extends Model
         return $saveMessages;
     }
 
-    public static function moreSendersAJAX($uid, $isVip, $date, $userAgent = null, $noVipCount = 0, Request $request)
+    public static function moreSendersAJAX($uid, $isVip, $date, $userAgent = null, $noVipCount = 0)
     {
         $dropTempTables = DB::unprepared(DB::raw("
             DROP TABLE IF EXISTS temp_m;
@@ -376,7 +375,7 @@ class Message extends Model
             }
             catch (\Exception $e){
                 Log::info('moreSendersAJAX with $date: ' . $dateDebug);
-                Log::info('Useragent: ' . $request->server('HTTP_USER_AGENT'));
+                Log::info('Useragent: ' . $_SERVER['HTTP_USER_AGENT']);
                 return false;
             }
         }
