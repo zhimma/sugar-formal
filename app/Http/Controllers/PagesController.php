@@ -332,7 +332,7 @@ class PagesController extends Controller
                 $tracker = $checkRecommendedUser['description'];
             }
             catch (\Exception $e){
-                Log::info($e);
+                Log::info('Current URL: ' . url()->current());
                 Log::debug('checkRecommendedUser() failed, $targetUser: '. $targetUser);
             }
             finally{
