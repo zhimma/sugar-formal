@@ -199,7 +199,7 @@ class AdminService
             $name = User::select('name','engroup')
                 ->where('id', '=', $id)
                 ->get()->first();
-            $vip = Vip::where('member_id', 'like', $id)->get()->first();
+            $vip = Vip::select('active')->where('member_id', $id)->where('active', 1)->orderBy('created_at', 'desc')->first();
             if($name != null){
                 $users[$id]['name'] = $name->name;
                 $users[$id]['vip'] = $vip;
