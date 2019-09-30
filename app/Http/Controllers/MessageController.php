@@ -116,7 +116,12 @@ class MessageController extends Controller {
                 'status' => 1,
                 'msg' => $data,
                 'noVipCount' => Config::get('social.limit.show-chat')
-            ), 200);
+            ), 200)
+                ->header("Cache-Control", "no-cache, no-store, must-revalidate")
+                ->header("Pragma", "no-cache")
+                ->header("Last-Modified", gmdate("D, d M Y H:i:s")." GMT")
+                ->header("Cache-Control", "post-check=0, pre-check=0", false)
+                ->header("Expires", "Fri, 01 Jan 1990 00:00:00 GMT");
         } else {
             return response()->json(array(
                 'status' => 2,
@@ -133,7 +138,12 @@ class MessageController extends Controller {
             return response()->json(array(
                 'status' => 1,
                 'msg' => $data
-            ), 200);
+            ), 200)
+                ->header("Cache-Control", "no-cache, no-store, must-revalidate")
+                ->header("Pragma", "no-cache")
+                ->header("Last-Modified", gmdate("D, d M Y H:i:s")." GMT")
+                ->header("Cache-Control", "post-check=0, pre-check=0", false)
+                ->header("Expires", "Fri, 01 Jan 1990 00:00:00 GMT");
         } else {
             return response()->json(array(
                 'status' => 2,
