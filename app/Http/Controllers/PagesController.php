@@ -29,7 +29,6 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
 use App\Models\SimpleTables\banned_users;
 use Session;
-use Illuminate\Support\Facades\DB;
 
 class PagesController extends Controller
 {
@@ -176,9 +175,7 @@ class PagesController extends Controller
         }
     }
 
-    public function upgradepayLog(Request $request)
-    {
-        
+    public function upgradepayLog(Request $request) {
         $filename = 'api_datalogger_' . Carbon::now()->format('Y-m-d') . '.log';
         $dataToLog  = 'Time: '   . Carbon::now()->toDateTimeString() . "\n";
         $dataToLog .= 'IP Address: ' . $request->ip() . "\n";
@@ -863,12 +860,10 @@ class PagesController extends Controller
         abort(404);
     }
 
-    public function showWebAnnouncement(Request $request)
-    {
+    public function showWebAnnouncement(Request $request) {
         $user = $request->user();
-        $time = \Carbon\Carbon::now();
-        $start= date('Y-m-01',strtotime($time->subDay(30)));
-        $end= date('Y-m-t',strtotime($time));
+        $start = \Carbon\Carbon::now()->subDays(30)->toDateTimeString();
+        $end = \Carbon\Carbon::now()->toDateTimeString();
         $userBanned = banned_users::select('users.name','banned_users.*')
                     ->whereBetween('banned_users.created_at',[($start),($end)])
                     ->join('users','banned_users.member_id','=','users.id')

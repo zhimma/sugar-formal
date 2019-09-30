@@ -13,6 +13,7 @@
         var age = parseInt((now - birthday) / year);
         return age;
     }
+
     function check_engroup() {
         let original_en = "{{ $user->engroup }}";
         let after = $('input[name=engroup]:checked').val();
@@ -1329,33 +1330,17 @@
             </form>
 
             @if (str_contains(url()->current(), 'dashboard'))
-                <div class="tab-pane {{ empty($tabName) || $tabName == 'm_user_profile_tab_4' ? 'active' : '' }}"
-                     id="m_user_profile_tab_4">
-                    @if (!empty($umeta->pic))
-                    <form class="m-form m-form--fit m-form--label-align-right" method="POST"
-                          action="/dashboard/header2" enctype="multipart/form-data">
+                <div class="tab-pane {{ empty($tabName) || $tabName == 'm_user_profile_tab_4' ? 'active' : '' }}" id="m_user_profile_tab_4">
+                    @if (isset($umeta->pic))
+                        <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/header2" enctype="multipart/form-data">
                     @else
-                    <form class="m-form m-form--fit m-form--label-align-right" method="POST"
-                          action="/dashboard/header" enctype="multipart/form-data">
+                        <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/header" enctype="multipart/form-data">
                     @endif
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="userId" value="{{$user->id}}">
-
-                        @if (!empty($umeta->pic))
+                        @if (isset($umeta->pic))
                             <div class="form-group m-form__group row slimimg" style="margin-bottom: 35px;">
                                 <label class="col-form-label col-lg-1 twzip imagelabel" for="image">頭像照 </label>
-                             <!--    <div class="upload-image slim" data-size="400" data-ratio="1:1" data-save-initial-image="true"
-                                    data-label="點選圖片上傳，點選「編輯」可自行選擇截切畫面" data-max-file-size="8">
-                                    <img src="{{$umeta->pic}}"/>
-                                    <input type="file" name="slim[]" id="myCropper" />
-                                    @if($user->meta_()->isAvatarHidden == 1) <p
-                                            style="color: red; text-align: center; font-weight: bold;">
-                                        大頭照已被隱藏</p> @endif -->
-                                    <!-- <input type="file" name="slim[]" id="myCropper" /> -->
-                                   <!--  <p
-                                            style="color: red; text-align: center; font-weight: bold;">
-                                        大頭照已被隱藏</p>
-                                </div> -->
                                 <div class="upload-image slim" data-size="240,240" data-ratio="1:1" data-save-initial-image="true"
                                     data-label="點選圖片上傳，點選「編輯」可自行選擇截切畫面" data-max-file-size="8">
                                     <img src="{{$umeta->pic}}"/>
@@ -1387,23 +1372,6 @@
                             </div>
                         </div>
                         @endif
-                       <!--  <div class="form-group m-form__group row">
-                            <label class="col-form-label col-lg-1 twzip" for="image">頭像照 </label>
-                            <div></div>
-                            <label class="custom-file">
-                                <input required type="file" id="image" class="custom-file-input" name="image"
-                                       onchange="$(this).parent().children().last().text($(this).val().split('\\').pop());">
-                                <span class="custom-file-control"></span>
-                            </label>
-                            <div class="col-lg-6" style="padding-top: 6px">
-                                <button type="submit"
-                                        class="btn btn-danger m-btn m-btn--air m-btn--custom upload-submit">上傳
-                                </button>&nbsp;&nbsp;
-                                <button type="reset" class="btn btn-outline-danger m-btn m-btn--air m-btn--custom">
-                                    取消
-                                </button>
-                            </div>
-                        </div> -->
                     </form>
 
                     <div class="m-form__seperator m-form__seperator--dashed m-form__seperator--space-2x"></div>
@@ -1792,7 +1760,6 @@
                     $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
                 }
         });
-
     });
 </script>
 

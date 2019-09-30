@@ -58,7 +58,7 @@
                     let tmp = xhr.msg[xhr.msg.length - 1];
                     d = new Date(tmp);
                     fillDatas(xhr.msg);
-                    if(!isVip&&xhr.noVipCount&&$('.m-widget3__header').length>=xhr.noVipCount){
+                    if(!isVip && xhr.noVipCount && $('.m-widget3__header').length >= xhr.noVipCount){
                         $("#showMore").hide();
                         $('#warning').remove();
                         clearInterval(dots);
@@ -173,8 +173,6 @@
             ele += data[i]['user_name'];
             ele += "</span>";
             ele += "<span class='m-widget3__time'>";
-            //if(data[i]['read']=='N')tt++;
-            //ele += (data[i]['read']=='Y') ?" 已讀":" 未讀";
             ele += "</span>";
             if(data[i]['cntr'] === 1){
                 ele += "<br><span class='m-widget3__username' style='color:red'>(此人遭多人檢舉)</span>";
@@ -188,12 +186,6 @@
                 ele += "<p class='m-widget3__text' style='word-wrap: break-word; word-break: break-all'>";
             }
             ele += data[i]['content'];
-            // ele += `
-            //     <br>
-            //     <span class="m-widget3__time" style="font-size: 0.7rem">
-            //         ${data[i]['created_at']}
-            //     </span>
-            // `;
             ele += "</p></div>";
 
             ele += "<div class='m-widget3__delete'>";
@@ -245,34 +237,6 @@
         display: flex;
         align-items: center;
     }
-    /*._3BQlNg {*/
-    /*    position: relative;*/
-    /*    display: -webkit-box;*/
-    /*    display: -webkit-flex;*/
-    /*    display: -moz-box;*/
-    /*    display: -ms-flexbox;*/
-    /*    display: flex;*/
-    /*    -webkit-box-align: center;*/
-    /*    -webkit-align-items: center;*/
-    /*    -moz-box-align: center;*/
-    /*    -ms-flex-align: center;*/
-    /*    align-items: center;*/
-    /*    height: 30px;*/
-    /*    padding: 0 3px;*/
-    /*    border-top-right-radius: .18rem;*/
-    /*    border-bottom-right-radius: .18rem;*/
-    /*    border-top-left-radius: .18rem;*/
-    /*    border-bottom-left-radius: .18rem;*/
-    /*    !*background: currentColor;*!*/
-    /*    background: -webkit-linear-gradient(left, #F45670, #FD7087);*/
-    /*    background: -o-linear-gradient(right, #F45670, #FD7087);*/
-    /*    background: -moz-linear-gradient(right, #F45670, #FD7087);*/
-    /*    background: linear-gradient(to right, #F45670, #FD7087);*/
-    /*    left: -.05rem;*/
-    /*}*/
-    /*.preferred{*/
-    /*    float: left;*/
-    /*}*/
 </style>
 <?php
 $block_people =  Config::get('social.block.block-people');

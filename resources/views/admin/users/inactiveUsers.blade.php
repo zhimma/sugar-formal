@@ -33,9 +33,9 @@
 		<td>{{ $user->activation_token }}</td>
 		<td>
 			@if($user->is_active==0)
-			<a href="{{ route('activateUser', $user->activation_token)  }}" class="btn btn-success">啟動</a>
+				<a href="{{ route('activateUser', $user->activation_token)  }}" class="btn btn-success">啟動</a>
 			@else
-			此email已啟動
+				此 Email 已啟動
 			@endif
 		</td>
 	</tr>

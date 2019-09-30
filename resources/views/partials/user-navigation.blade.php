@@ -1,13 +1,11 @@
 @if(Session::has('original_user'))
-    <li class="m-nav__item m-dropdown m-dropdown--large m-dropdown--arrow m-dropdown--align-center m-dropdown--mobile-full-width m-dropdown--skin-light	m-list-search m-list-search--skin-light"
-        id="m_quicksearch">
+    <li class="m-nav__item m-dropdown m-dropdown--large m-dropdown--arrow m-dropdown--align-center m-dropdown--mobile-full-width m-dropdown--skin-light m-list-search m-list-search--skin-light" id="m_quicksearch">
         <a href="{{ route('escape') }}" class="m-nav__link m-dropdown__toggle">
             回到原使用者
         </a>
     </li>
 @endif
-<li class="m-nav__item m-dropdown m-dropdown--large m-dropdown--arrow m-dropdown--align-center m-dropdown--mobile-full-width m-dropdown--skin-light	m-list-search m-list-search--skin-light"
-    id="m_quicksearch">
+<li class="m-nav__item m-dropdown m-dropdown--large m-dropdown--arrow m-dropdown--align-center m-dropdown--mobile-full-width m-dropdown--skin-light	m-list-search m-list-search--skin-light" id="m_quicksearch">
     <a href="{!! url('dashboard/search') !!}" class="m-nav__link m-dropdown__toggle">
 		<span class="m-nav__link-icon">
 			<i class="flaticon-search-1"></i>
@@ -52,8 +50,7 @@
         </div>
     </li>
 @endif
-<li class="m-nav__item m-topbar__user-profile m-topbar__user-profile--img  m-dropdown m-dropdown--medium m-dropdown--arrow m-dropdown--header-bg-fill m-dropdown--align-right m-dropdown--mobile-full-width m-dropdown--skin-light"
-    data-dropdown-toggle="click">
+<li class="m-nav__item m-topbar__user-profile m-topbar__user-profile--img  m-dropdown m-dropdown--medium m-dropdown--arrow m-dropdown--header-bg-fill m-dropdown--align-right m-dropdown--mobile-full-width m-dropdown--skin-light" data-dropdown-toggle="click">
     <a href="#" class="m-nav__link m-dropdown__toggle">
 		<span class="m-nav__link-icon">
 	        <i class="flaticon-user"></i>

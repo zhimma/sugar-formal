@@ -16,7 +16,7 @@
 		<td>{{ $user->member_id }}</td>
 		<td><a href="{{ route('users/advInfo', $user->member_id) }}" target="_blank">{{ $user->name}} @if(!is_null($isVip[$user->member_id]))<i class="fa fa-diamond"i>@endif</a></td>
 		<td>{{ $user->created_at }}</td>
-		<td>{{ $user->message_content }}</td>
+		<td>{{ $user->reason }}</td>
 	</tr>
 	@empty
 	<tr>

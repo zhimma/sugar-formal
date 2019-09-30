@@ -20,8 +20,6 @@ class Message extends Model
      *
      * @var string
      */
-    protected $connection = 'mysql2';
-    
     protected $table = 'message';
 
     /**
@@ -214,10 +212,9 @@ class Message extends Model
         return $saveMessages;
     }
 
-    public static function chatArrayAJAX($uid, $messages, $isVip,$noVipCount=0) {
+    public static function chatArrayAJAX($uid, $messages, $isVip, $noVipCount = 0) {
         $saveMessages = [];
         $tempMessages = [];
-        //$noVipCount = 0;
         $isAllDelete = true;
         //$msgShow = User::findById($uid)->meta_()->notifhistory;
         foreach($messages as $key => $message) {
@@ -250,7 +247,6 @@ class Message extends Model
                 array_push($saveMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id, 'temp_id' => $message->temp_id,'all_delete_count' => $message->all_delete_count, 'is_row_delete_1' => $message->is_row_delete_1, 'is_row_delete_2' => $message->is_row_delete_2, 'is_single_delete_1' => $message->is_single_delete_1, 'is_single_delete_2' => $message->is_single_delete_2]);
                 $noVipCount++;
             }
-
         }
 
         //if($isAllDelete) return NULL;
@@ -353,7 +349,7 @@ class Message extends Model
         return $saveMessages;
     }
 
-    public static function moreSendersAJAX($uid, $isVip, $date, $deviceInfo = null, $noVipCount=0)
+    public static function moreSendersAJAX($uid, $isVip, $date, $deviceInfo = null, $noVipCount = 0)
     {
         $dropTempTables = DB::unprepared(DB::raw("
             DROP TABLE IF EXISTS temp_m;
@@ -403,7 +399,7 @@ class Message extends Model
         if($isVip == 1)
             $saveMessages = Message::chatArrayAJAX($uid, $messages, 1);
         else if($isVip == 0) {
-            $saveMessages = Message::chatArrayAJAX($uid, $messages, 0,$noVipCount);
+            $saveMessages = Message::chatArrayAJAX($uid, $messages, 0, $noVipCount);
         }
 
         //echo json_encode($saveMessages);
@@ -571,14 +567,6 @@ class Message extends Model
             }
         }
         $unreadCount += $all_msg->whereNotIn('from_id', $blocked_ids)->count();
-        //for($i = 0 ; $i < $block->count(); $i++) {
-        //    if($all_msg->where('from_id', '!=', $block[$i]->blocked_id) != NULL) {
-        //        $unreadCount += $all_msg
-        //                        ->where('from_id', '!=', $block[$i]->blocked_id)
-        //                        ->where('read', 'N')
-        //                        ->count();
-        //    }
-        //}
 
         return $unreadCount;
         //return Message::where([['to_id', $uid],['from_id', '!=', $uid],['from_id', '!=', $block[$i]->blocked_id]])->where('read', 'N')->count();

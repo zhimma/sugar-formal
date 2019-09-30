@@ -1138,9 +1138,8 @@ class UserController extends Controller
 
     public function showWebAnnouncement() 
     {
-        $time = \Carbon\Carbon::now();
-        $start= date('Y-m-01',strtotime($time->subDay(30)));
-        $end= date('Y-m-t',strtotime($time));
+        $start = \Carbon\Carbon::now()->subDays(30)->toDateTimeString();
+        $end = \Carbon\Carbon::now()->toDateTimeString();
         $userBanned = banned_users::select('users.name','banned_users.*')
                     ->whereBetween('banned_users.created_at',[($start),($end)])
                     ->join('users','banned_users.member_id','=','users.id')
@@ -1278,8 +1277,10 @@ class UserController extends Controller
 
     public function inactiveUsers(Request $request)
     {
-        $users = ($request->isMethod('post')&&$request->email != null)?User::join('user_meta', 'users.id', 'user_meta.user_id'):User::join('user_meta', 'users.id', 'user_meta.user_id')
-            ->where('user_meta.is_active', 0);
+        $users = 
+            ($request->isMethod('post') && $request->email != null) ? 
+                User::join('user_meta', 'users.id', 'user_meta.user_id') : 
+                User::join('user_meta', 'users.id', 'user_meta.user_id')->where('user_meta.is_active', 0);
         if($request->email != null){
             $users = $users->where('users.email','like' ,"%$request->email%");
         }

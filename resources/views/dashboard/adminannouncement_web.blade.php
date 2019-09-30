@@ -34,7 +34,7 @@
                 <tr>
                     <td>{{ $userBanned->name}}</td>
                     <td>{{ $userBanned->created_at }}</td>
-                    <td>{{ $userBanned->message_content }}</td>
+                    <td>{{ $userBanned->reason }}</td>
                 </tr>
                 @empty
                 <tr>

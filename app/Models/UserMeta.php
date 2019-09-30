@@ -144,7 +144,7 @@ class UserMeta extends Model
         return User::where('id', $this->user_id)->first();
     }
 
-    public static function search($city, $area, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime,$body,$userid)
+    public static function search($city, $area, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid)
     {
         if ($engroup == 1)
         {
@@ -173,7 +173,7 @@ class UserMeta extends Model
                     });
                     //判定全區 不搜尋
                     $blocked_city_user = UserMeta::select('user_id')->where(['blockcity'=>$v,'blockarea'=>null])->get();
-                    if($blocked_city_user)$query->whereNotIn('user_id',  $blocked_city_user);
+                    if($blocked_city_user)$query->whereNotIn('user_id', $blocked_city_user);
                 }
             }
         }
