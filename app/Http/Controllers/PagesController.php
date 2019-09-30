@@ -324,17 +324,24 @@ class PagesController extends Controller
                 Visited::visit($user->id, $uid);
             }
 
-            $checkRecommendedUser = $this->service->checkRecommendedUser($targetUser);
-
-            return view('dashboard')
-            ->with('user', $user)
-            ->with('cur', $this->service->find($uid))
-            ->with('description', $checkRecommendedUser['description'])
-            ->with('stars', $checkRecommendedUser['stars'])
-            ->with('background', $checkRecommendedUser['background'])
-            ->with('title', $checkRecommendedUser['title'])
-            ->with('button', $checkRecommendedUser['button'])
-            ->with('height', $checkRecommendedUser['height']);
+            try{
+                $checkRecommendedUser = $this->service->checkRecommendedUser($targetUser);
+            }
+            catch (\Exception $e){
+                Log::info($e);
+                Log::debug('checkRecommendedUser() failed, $targetUser: '. $targetUser);
+            }
+            finally{
+                return view('dashboard')
+                    ->with('user', $user)
+                    ->with('cur', $this->service->find($uid))
+                    ->with('description', $checkRecommendedUser['description'])
+                    ->with('stars', $checkRecommendedUser['stars'])
+                    ->with('background', $checkRecommendedUser['background'])
+                    ->with('title', $checkRecommendedUser['title'])
+                    ->with('button', $checkRecommendedUser['button'])
+                    ->with('height', $checkRecommendedUser['height']);
+            }
         }
     }
 
