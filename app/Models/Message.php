@@ -515,7 +515,7 @@ class Message extends Model
         $theMessage = Message::where([['to_id', $uid],['from_id', $sid]])->orWhere([['to_id', $sid],['from_id', $uid]])->orderBy('created_at', 'desc')->first();
         $msgUser = User::findById($sid);
         $data = \App\Services\UserService::checkRecommendedUser($msgUser);
-        if(isset($data['button'])){
+        if(isset($data['button']) && isset($theMessage)){
             $theMessage->isPreferred = 1;
             $theMessage->button = $data['button'];
         }
