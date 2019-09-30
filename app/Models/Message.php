@@ -349,7 +349,7 @@ class Message extends Model
         return $saveMessages;
     }
 
-    public static function moreSendersAJAX($uid, $isVip, $date, $deviceInfo = null, $noVipCount = 0)
+    public static function moreSendersAJAX($uid, $isVip, $date, $userAgent = null, $noVipCount = 0)
     {
         $dropTempTables = DB::unprepared(DB::raw("
             DROP TABLE IF EXISTS temp_m;
@@ -375,7 +375,7 @@ class Message extends Model
             }
             catch (\Exception $e){
                 Log::info('moreSendersAJAX with $date: ' . $dateDebug);
-                Log::info('Device info: ' . $deviceInfo);
+                Log::info('Useragent: ' . $userAgent);
                 return false;
             }
         }
