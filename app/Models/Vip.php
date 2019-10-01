@@ -68,6 +68,9 @@ class Vip extends Model
         }
         else{
             $vipData->order_id = $order_id;
+            $vipData->txn_id = $txn_id;
+            $vipData->amount = $amount;
+            $vipData->active = $active;
             $vipData->save();
         }
 
