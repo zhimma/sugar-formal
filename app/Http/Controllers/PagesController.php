@@ -675,6 +675,59 @@ class PagesController extends Controller
                 ->with('user', $user)->withErrors(['交易系統沒有回傳資料，VIP 升級失敗！請檢查網路是否順暢。']);
         }
     }
+
+    public function upgradepayEC(Request $request)
+    {
+        $user = $request->user();
+        if ($user == null)
+        {
+            $aid = auth()->id();
+            $user = User::findById($aid);
+        }
+        $payload = $request->all();
+        $pool = '';
+        $count = 0;
+        foreach ($payload as $key => $value){
+            $pool .= 'Row '. $count . ' : ' . $key . ', Value : ' . $value . '
+';//換行
+            $count++;
+        }
+        $infos = new \App\Models\LogUpgradedInfos();
+        $infos->user_id = $user->id;
+        $infos->content = $pool;
+        $infos->save();
+        if (isset($payload['RtnCode']))
+        {
+            if($payload['RtnCode'] == 1){
+                $pool = '';
+                $count = 0;
+                foreach ($payload as $key => $value){
+                    $pool .= 'Row '. $count . ' : ' . $key . ', Value : ' . $value . '
+';//換行
+                    $count++;
+                }
+                $infos = new \App\Models\LogUpgradedInfosWhenGivingPermission();
+                $infos->user_id = $user->id;
+                $infos->content = $pool;
+                $infos->save();
+                $this->logService->upgradeLog($payload, $user->id);
+                $this->logService->writeLogToDB();
+                $this->logService->writeLogToFile();
+                Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], $payload['CheckMacValue'], 1, 0);
+                return view('dashboard.upgradesuccess')
+                    ->with('user', $user)->with('message', 'VIP 升級成功！');
+            }
+            else{
+                return view('dashboard.upgradefailed')
+                    ->with('user', $user)->withErrors(['交易系統回傳結果顯示交易未成功，VIP 升級失敗！請檢查信用卡資訊。']);
+            }
+        }
+        else{
+            return view('dashboard.upgradefailed')
+                ->with('user', $user)->withErrors(['交易系統沒有回傳資料，VIP 升級失敗！請檢查網路是否順暢。']);
+        }
+    }
+
     public function receive_esafe(Request $request)
     {
         $user = $request->user();

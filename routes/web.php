@@ -256,6 +256,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('/dashboard/esafePayCode', 'EsafePayment@esafePayCode')->name('esafePayCode');
         Route::post('/dashboard/esafeWebATM', 'EsafePayment@esafeWebATM')->name('esafeWebATM');
         Route::post('/dashboard/upgradepay', 'PagesController@upgradepay');
+        Route::post('/dashboard/upgradepayEC', 'PagesController@upgradepayEC');
         Route::post('/dashboard/receive_esafe', 'PagesController@receive_esafe');
         Route::post('/dashboard/repaid_esafe', 'PagesController@repaid_esafe');
         Route::post('/dashboard/cancelpay', 'PagesController@cancelpay');
