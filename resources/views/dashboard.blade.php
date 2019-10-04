@@ -512,8 +512,8 @@
                                         </div>
                                     </div>
                                 @endif
-                                            @if ($user->engroup == 2)
-                                                <div class="form-group m-form__group row @if (str_contains(url()->current(), 'dashboard')) twzipcode @endif"><label
+                                            @if ($user->engroup == 2 && str_contains(url()->current(), 'dashboard'))
+                                                <div class="form-group m-form__group row twzipcode"><label
                                                             class="col-form-label col-lg-2 col-sm-12">拒絕接受搜索縣市</label>
 
                                                     <div class="col-lg-5 col-md-10 col-sm-12">
