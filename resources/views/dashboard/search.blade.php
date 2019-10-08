@@ -1,6 +1,21 @@
 @extends('layouts.master')
 @section('app-content')
 <style>
+    .pagination li{
+        display: none;
+    }
+    .pagination li a{
+        display: inline-block;
+    }
+    .pagination li.button {
+        display: inline-block;
+    }
+    @media only screen and (min-width: 768px) {
+        .pagination li{
+            display: inline-block;
+        }
+    }
+
     .MW4BW_ {
         position: absolute;
         left: 14px;
@@ -365,7 +380,7 @@
                         @endforeach
                         <div class="page m-form__actions row">
                             <div class="col-md-12 col-xs-12 col-sm-12">
-                                {!! $visitors->appends(request()->input())->links() !!}
+                                {!! $visitors->appends()->links() !!}
                             </div>
                         </div>
                         @endif
