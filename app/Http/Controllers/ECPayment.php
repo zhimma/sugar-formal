@@ -41,6 +41,7 @@ class ECPayment extends Controller
             $obj->Send['TradeDesc']         = "SG-VIP(".$request->userId.")";                                //交易描述
             $obj->Send['ChoosePayment']     = ECPay_PaymentMethod::Credit;             //付款方式:Credit
             // $obj->Send['IgnorePayment']     = ECPay_PaymentMethod::GooglePay ;           //不使用付款方式:GooglePay
+            $obj->Send['CustomField1']      = $request->userId;
 
             //訂單的商品資料
             array_push($obj->Send['Items'], array('Name' => "SG-VIP(".$request->userId.")", 'Price' => (int)"888", 'Currency' => "元", 'Quantity' => (int) "1", 'URL' => ""));

@@ -30,6 +30,16 @@ class VipLogService {
         $this->mode = 0;
     }
 
+    public function upgradeLogEC($payload, $user_id) {
+        $this->user_id = $user_id;
+        $this->business_id = $payload['MerchantID'];
+        $this->order_id = $payload['MerchantTradeNo'];
+        $this->amount = $payload['TradeAmt'];
+        $this->action = 'New';
+        $this->status = '01';
+        $this->mode = 0;
+    }
+
     public function upgradeLog_esafe($payload, $user_id) {
         $this->user_id = $user_id;
         $this->business_id = $payload['web'];

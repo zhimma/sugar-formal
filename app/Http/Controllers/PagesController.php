@@ -678,6 +678,7 @@ class PagesController extends Controller
 
     public function upgradepayEC(Request $request)
     {
+        Log::info($request->all());
         $user = $request->user();
         if ($user == null)
         {
@@ -714,17 +715,14 @@ class PagesController extends Controller
                 $this->logService->writeLogToDB();
                 $this->logService->writeLogToFile();
                 Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], $payload['CheckMacValue'], 1, 0);
-                return view('dashboard.upgradesuccess')
-                    ->with('user', $user)->with('message', 'VIP 升級成功！');
+                return '1|OK';
             }
             else{
-                return view('dashboard.upgradefailed')
-                    ->with('user', $user)->withErrors(['交易系統回傳結果顯示交易未成功，VIP 升級失敗！請檢查信用卡資訊。']);
+                return '0|Error';
             }
         }
         else{
-            return view('dashboard.upgradefailed')
-                ->with('user', $user)->withErrors(['交易系統沒有回傳資料，VIP 升級失敗！請檢查網路是否順暢。']);
+            return '0|No data';
         }
     }
 
