@@ -73,12 +73,12 @@ class Kernel extends ConsoleKernel
             $date = \Carbon\Carbon::createFromFormat("Y-m-d", $date_set)->toDateString();
         }
         else{
-            //由於異動檔在29號之後一律存至下個月1號，所以從30號開始才要檢查下月檔案(30號檢查的是29號檔案)。
-            if(Carbon::now()->format('d') <= 29){
+            //異動檔在29號之後一律存至28號，所以要檢查28號的檔案
+            if(Carbon::now()->format('d') <= 28){
                 $date = \Carbon\Carbon::now()->toDateString();
             }
             else{
-                $date = \Carbon\Carbon::now()->addMonth()->startOfMonth()->toDateString();
+                $date = \Carbon\Carbon::now()->format('Ym').'28';
             }
         }
         $datas = \DB::table('viplogs')->where('filename', 'LIKE', '%761404%')->where('created_at', 'LIKE', $date.'%')->get();
@@ -252,20 +252,19 @@ class Kernel extends ConsoleKernel
     }
 
     protected function uploadDatFile(){
-        //由於異動檔在29號開始一律存至下個月1號，所以30號開始一律都不上傳檔案，待下個月再重新開始。
-        //此外，由於原先上傳方式為隔日才上傳前一日的異動檔，故每1號也要跳過上傳。(3/1例外)
+        //由於異動檔在29號開始一律存至本月28號，所以30號開始一律都不上傳檔案，待下個月再重新開始。
         if(Carbon::now()->format('d') <= 29 && Carbon::now()->format('d') > 1){
             $date = \Carbon\Carbon::now()->subDay()->toDateString();
         }
-        elseif(Carbon::now()->format('m-d') == "03-01"){
-            $date = \Carbon\Carbon::now()->subDay()->toDateString();
+        elseif(Carbon::now()->format('d') == 1){
+            $date = \Carbon\Carbon::now()->subMonth()->format('Ym').'28';
         }
         else{
             \DB::table('log_dat_file')->insert(
                 [   'upload_check' => 1,
                     'local_file'   => 'None.',
                     'remote_file'  => 'None.',
-                    'content' => "本次程序啟動日為本月29、30、31、1號，故上傳程序不會啟動。"]
+                    'content' => "本次程序啟動日為本月29、30、31號，故上傳程序不會啟動。"]
             );
             return "No file, end of the month or the first day of the month.";
         }
