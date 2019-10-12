@@ -66,7 +66,7 @@ class VipLogService {
             $fileName = 'RP_'. $this->business_id . '_' . Carbon::now()->format('Ymd') .'.dat';
         }
         else{
-            $today = '01';
+            $today = '28';
             $fileName = 'RP_'. $this->business_id . '_' . Carbon::now()->addMonth()->startOfMonth()->format('Ymd') .'.dat';
         }
         $fileContent = $this->business_id . ',' . $this->user_id . ',' . $this->order_id . ',,,' . intval($this->amount) . ',' . $today . ',' . $this->action . ',' . $this->status . ',' . $this->mode;
@@ -80,7 +80,7 @@ class VipLogService {
             $fileDate = \Carbon\Carbon::now();
         }
         else{
-            $fileDate = \Carbon\Carbon::now()->addMonth()->startOfMonth();
+            $fileDate = \Carbon\Carbon::now()->format('Ym').'28';
         }
         $fileName = 'RP_761404_'. $fileDate->format('Ymd') .'.dat';
         $fileContent = '761404,' . $user_id . ',' . $order_id . ',,,888,' . $day . ',' . $action . ',01,0';
@@ -94,7 +94,7 @@ class VipLogService {
             $fileName = 'RP_'. $this->business_id . '_' . Carbon::now()->format('Ymd') .'.dat';
         }
         else{
-            $today = '01';
+            $today = '28';
             $fileName = 'RP_'. $this->business_id . '_' . Carbon::now()->addMonth()->startOfMonth()->format('Ymd') .'.dat';
         }
         $fileContent = $this->business_id . ',' . $this->user_id . ',' . $this->order_id . ',,,' . intval($this->amount) . ',' . $today . ',' . $this->action . ',' . $this->status . ',' . $this->mode;
