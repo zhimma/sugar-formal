@@ -70,8 +70,8 @@
                                     @if($users[$result['reporter_id']]['vip'] )
                                         <i class="m-nav__link-icon fa fa-diamond"></i>
                                     @endif
-                                    @if(!is_null($result['isBlocked']))
-                                        @if(!is_null($result['isBlocked']['expire_date']))
+                                    @if(isset($result['isBlocked']))
+                                        @if(isset($result['isBlocked']['expire_date']))
                                             ({{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
                                         @else
                                             (永久)
@@ -128,8 +128,8 @@
                                     @if($Pusers[$result['reporter_id']]['vip'] )
                                         <i class="m-nav__link-icon fa fa-diamond"></i>
                                     @endif
-                                    @if(!is_null($result['isBlocked']))
-                                        @if(!is_null($result['isBlocked']['expire_date']))
+                                    @if(isset($result['isBlocked']))
+                                        @if(isset($result['isBlocked']['expire_date']))
                                             ({{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
                                         @else
                                             (永久)
@@ -166,10 +166,18 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <a href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true, 'reported'] ) }}" target="_blank" class='btn btn-dark'>撰寫</a>
+                                    @if(isset($result->reported_user_id))
+                                        <a href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true, 'reported'] ) }}" target="_blank" class='btn btn-dark'>撰寫</a>
+                                    @else
+                                        照片已刪除或該筆資料不存在。
+                                    @endif
                                 </td>
                                 <td>
-                                <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['reported_user_id'], $result['id']]) }}" data-name='{{ $Pusers[$result['reported_user_id']]['name'] }}'>封鎖</a>
+                                    @if(isset($result['reported_user_id']))
+                                        <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['reported_user_id'], $result['id']]) }}" data-name='{{ $Pusers[$result['reported_user_id']]['name'] }}'>封鎖</a>
+                                    @else
+                                        照片已刪除或該筆資料不存在。
+                                    @endif
                                 </td>
                                 <td>
                                     <img src="{{ $result['pic'] }}" alt="" height="200px">
