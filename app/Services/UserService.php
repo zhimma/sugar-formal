@@ -441,9 +441,9 @@ class UserService
                     break;
                 case 1:
                 case 2:
-                    $background = '../../img/member_tags/bg_1.png';
                     $tip_count = Tip::select('id')->where('member_id', $targetUser->id)->count();
                     if($tip_count >= 1){
+                        $background = '../../img/member_tags/bg_1.png';
                         $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的新進的VIP會員，願意使用站方的車馬費制度。建議甜心可請求".$targetUser->name."向站方支付車馬費與您進行第一次約會。<a href='".url('feature')."' target='_blank'>(甚麼是車馬費?)</a>";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
@@ -454,9 +454,9 @@ class UserService
                     }
                     break;
                 case 3:
-                    $background = '../../img/member_tags/bg_1.png';
                     $tip_count = Tip::select('id')->where('member_id', $targetUser->id)->count();
                     if($tip_count >= 1){
+                        $background = '../../img/member_tags/bg_1.png';
                         $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員，願意使用站方的車馬費制度。建議甜心可請求".$targetUser->name."向站方支付車馬費與您進行第一次約會。<a href='".url('feature')."' target='_blank'>(甚麼是車馬費?)</a>";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
@@ -466,6 +466,7 @@ class UserService
                         $height = '480px';
                     }
                     else{
+                        $background = '../../img/member_tags/bg_1.png';
                         $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
@@ -476,9 +477,9 @@ class UserService
                     }
                     break;
                 case 4:
-                    $background = '../../img/member_tags/bg_1.png';
                     $tip_count = Tip::select('id')->where('member_id', $targetUser->id)->count();
                     if($tip_count >= 1){
+                        $background = '../../img/member_tags/bg_1.png';
                         $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員，願意使用站方的車馬費制度。建議甜心可請求".$targetUser->name."向站方支付車馬費與您進行第一次約會。<a href='".url('feature')."' target='_blank'>(甚麼是車馬費?)</a>";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
@@ -488,6 +489,7 @@ class UserService
                         $height = '480px';
                     }
                     else{
+                        $background = '../../img/member_tags/bg_1.png';
                         $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
