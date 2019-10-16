@@ -236,10 +236,25 @@ class PagesController extends Controller
         return view('privacy')->with('user', $user);
     }
 
+    //站長開講
+    public function notification(Request $request)
+    {
+        $user = $request->user();
+        return view('new/notification')->with('user', $user);
+    }
+
+    //網站使用
+    public function feature(Request $request)
+    {
+        $user = $request->user();
+        return view('new/feature')->with('user', $user);
+    }
+
+    //使用條款
     public function terms(Request $request)
     {
         $user = $request->user();
-        return view('terms')->with('user', $user);
+        return view('new/terms')->with('user', $user);
     }
 
     public function message(Request $request)
@@ -251,7 +266,7 @@ class PagesController extends Controller
     public function contact(Request $request)
     {
         $user = $request->user();
-        return view('contact')->with('user', $user);
+        return view('new/contact')->with('user', $user);
     }
 
     public function about(Request $request)

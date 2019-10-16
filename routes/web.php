@@ -144,6 +144,8 @@ Route::get('/error', 'PagesController@error');
 Route::get('/passwd', 'passwd@passwd');
 Route::get('/', 'PagesController@home');
 Route::get('/privacy', 'PagesController@privacy');
+Route::get('/notification', 'PagesController@notification');
+Route::get('/feature', 'PagesController@feature');
 Route::get('/about', 'PagesController@about');
 Route::get('/terms', 'PagesController@terms');
 Route::get('/contact', 'PagesController@contact');
@@ -271,6 +273,10 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     });
 
     Route::group(['middleware' => ['filled']], function () {
+
+        //新樣板
+        Route::get('/dashboard/chat2/{randomNo?}', 'Message_newController@chatview')->name('chatView');
+        Route::post('/dashboard/chat2/showMessages/{randomNo?}', 'Message_newController@chatviewMore')->name('showMessages');
 
         Route::get('/dashboard/board', 'PagesController@board');
         //Route::get('/dashboard/history', 'PagesController@history');
