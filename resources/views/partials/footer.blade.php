@@ -1,4 +1,3 @@
-
 			<footer class="m-grid__item	m-footer ">
 				<div class="m-container m-container--fluid m-container--full-height m-page__container">
 					<div class="m-stack m-stack--flex-tablet-and-mobile m-stack--ver m-stack--desktop">
@@ -14,16 +13,16 @@
 						<div class="m-stack__item m-stack__item--right m-stack__item--middle m-stack__item--first">
 							<ul class="m-footer__nav m-nav m-nav--inline m--pull-right">
 								<li class="m-nav__item">
-									<a href="{!! url('privacy') !!}" class="m-nav__link">
+									<a href="{!! url('notification') !!}" class="m-nav__link">
 										<span class="m-nav__link-text">
-                                            隱私政策
+                                            站長開講
 										</span>
 									</a>
 								</li>
 								<li class="m-nav__item">
-									<a href="{!! url('about') !!}" class="m-nav__link">
+									<a href="{!! url('feature') !!}" class="m-nav__link">
 										<span class="m-nav__link-text">
-                                            關於我們
+                                            網站使用
 										</span>
 									</a>
 								</li>

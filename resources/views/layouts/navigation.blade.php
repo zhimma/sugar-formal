@@ -36,13 +36,13 @@
                                         @include('partials.user-navigation')
                                     @else
 									<li class="m-nav__item m-dropdown m-dropdown--large m-dropdown--header-bg-fill m-dropdown--arrow m-dropdown--align-center	m-dropdown--mobile-full-width" data-dropdown-toggle="click" data-dropdown-persistent="true">
-    <a class="m-nav__link" style="font-size: 18px; color: gray; padding-top: 20px; position: relative;" href="{!! url('register') !!}">註冊</a>
+    									<a class="m-nav__link" style="font-size: 18px; color: gray; padding-top: 20px; position: relative;" href="{!! url('register') !!}">註冊</a>
                                     <li class="m-nav__item m-dropdown m-dropdown--large m-dropdown--header-bg-fill m-dropdown--arrow m-dropdown--align-center	m-dropdown--mobile-full-width" data-dropdown-toggle="click" data-dropdown-persistent="true">
-    <a class="m-nav__link" style="font-size: 18px; color: gray; padding-top: 20px; position: relative;" href="{!! url('login') !!}">登入</a>
-</li>
-<li class="m-nav__item m-dropdown m-dropdown--large m-dropdown--header-bg-fill m-dropdown--arrow m-dropdown--align-center	m-dropdown--mobile-full-width" data-dropdown-toggle="click" data-dropdown-persistent="true">
-    <span class="m-nav__link" style="font-size: 18px; color: gray; margin-top: 10px;"><i class="fa fa-globe"></i> 台灣</span>
-</li>
+									    <a class="m-nav__link" style="font-size: 18px; color: gray; padding-top: 20px; position: relative;" href="{!! url('login') !!}">登入</a>
+									</li>
+									<li class="m-nav__item m-dropdown m-dropdown--large m-dropdown--header-bg-fill m-dropdown--arrow m-dropdown--align-center	m-dropdown--mobile-full-width" data-dropdown-toggle="click" data-dropdown-persistent="true">
+									    <span class="m-nav__link" style="font-size: 18px; color: gray; margin-top: 10px;"><i class="fa fa-globe"></i> 台灣</span>
+									</li>
                                     @endif
 									</ul>
 								</div>
