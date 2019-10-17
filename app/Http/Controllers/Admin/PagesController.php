@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
 use App\Models\SimpleTables\banned_users;
+use Carbon\Carbon;
 
 class PagesController extends Controller
 {
@@ -32,6 +33,26 @@ class PagesController extends Controller
     {
         $this->service = $userService;
         $this->logService = $logService;
+    }
+
+    public function showECCancellations(Request $request){
+        $now = Carbon::now();
+        $thisMonth = $now->month;
+        if ($request->isMethod('get'))
+        {
+            return view('admin.users.customizeMigrationFiles',
+                ['file' => $file == null ? $file : nl2br($file),
+                    'date' => $date]);
+        }
+        elseif($request->isMethod('post')){
+            $logging = new \App\Services\VipLogService;
+            if($logging->customLogToFile($request->user_id, $request->order_id, $request->day, $request->action)){
+                return back()->with('message', '異動檔修改成功，請在頁面下方查看結果。');
+            }
+            else{
+                return back()->withErrors(['發生不明錯誤(Error002).']);
+            }
+        }
     }
 
     public function chat(Request $request, $cid)
