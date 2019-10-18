@@ -360,7 +360,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('users/VIPToggler', 'UserController@toggleVIP');
         Route::get('users/customizeMigrationFiles', 'UserController@customizeMigrationFiles')->name('users/customize_migration_files');
         Route::post('users/customizeMigrationFiles', 'UserController@customizeMigrationFiles')->name('users/customize_migration_files');
-        Route::get('users/VIP/ECCancellations', 'PagesController@showECCancellations')->name('users/VIP/ECCancellations');
+        Route::match(['get', 'post'], 'users/VIP/ECCancellations', 'PagesController@showECCancellations')->name('users/VIP/ECCancellations');
         Route::get('announcement', 'UserController@showAdminAnnouncement')->name('admin/announcement');
         Route::get('announcement/edit/{id}', 'UserController@showAdminAnnouncementEdit')->name('admin/announcement/edit');
         Route::post('announcement/save', 'UserController@saveAdminAnnouncement')->name('admin/announcement/save');

@@ -37,21 +37,32 @@ class PagesController extends Controller
 
     public function showECCancellations(Request $request){
         $now = Carbon::now();
+        if(isset($request->yearMonth)){
+            $now = Carbon::createFromFormat('Y-m', $request->yearMonth);
+        }
+        $thisYear = $now->year;
         $thisMonth = $now->month;
         $days = $now->daysInMonth;
         $dates = array();
         for( $i = 1 ; $i < $days + 1 ; ++ $i ) {
-            $dates[] = \Carbon\Carbon::createFromDate($now->year, $now->month, $i)->format('Ymd');
+            $dates[] = \Carbon\Carbon::createFromDate($thisYear, $thisMonth, $i)->format('Ymd');
         }
 
-        $contents = null;
+        $contents = array();
         foreach ($dates as $d){
             if(\Storage::exists('RP_3137610_'.$d.'.dat')){
-                $contents .= \Storage::get('RP_3137610_'.$d.'.dat');
-                $contents .= '\n';
+                $eachLine = explode("\n", \Storage::get('RP_3137610_'.$d.'.dat'));
+                foreach ($eachLine as $line){
+                    if(str_contains($line, 'elete')){
+                        $line = explode(',', \Storage::get('RP_3137610_'.$d.'.dat'));
+                        $contents[$d] = $line;
+                    }
+                }
             }
         }
-        return view('admin.users.ECPayCancellation', ['contents' => $contents]);
+        return view('admin.users.ECPayCancellation',
+            ['contents' => $contents,
+             'thisYearMonth' => $thisYear.'-'.$thisMonth]);
     }
 
     public function chat(Request $request, $cid)
