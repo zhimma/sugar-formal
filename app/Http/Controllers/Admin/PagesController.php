@@ -54,8 +54,8 @@ class PagesController extends Controller
                 $eachLine = explode("\n", \Storage::get('RP_3137610_'.$d.'.dat'));
                 foreach ($eachLine as $line){
                     if(str_contains($line, 'elete')){
-                        $line = explode(',', \Storage::get('RP_3137610_'.$d.'.dat'));
-                        $contents[$d] = $line;
+                        $line = explode(',', $line);
+                        array_push($contents, $line);
                     }
                 }
             }

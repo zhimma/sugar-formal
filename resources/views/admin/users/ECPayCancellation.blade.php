@@ -27,14 +27,17 @@
 	</table>
 </form><br>
 @if(isset($contents))
+共 {{ count($contents) }} 筆資料
 <table class='table table-bordered table-hover'>
 	<tr>
+		<th>筆數</th>
 		<th>會員 ID</th>
 		<th>訂單編號</th>
 		<th>取消日期</th>
 	</tr>
-	@forelse ($contents as $c)
+	@forelse ($contents as $key => $c)
 	<tr>
+		<td>{{ $key + 1 }}</td>
 		<td><a href="{{ route('users/advInfo', $c[1]) }}" target="_blank">{{ $c[1] }}</a></td>
 		<td>{{ $c[2] }}</td>
 		<td>{{ old('yearMonth', $thisYearMonth) }}-{{ $c[6] }}</td>
