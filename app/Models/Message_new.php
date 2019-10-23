@@ -428,11 +428,21 @@ class Message_new extends Model
     {
         //  created_at >= '".self::$date."' or  (`from_id`= $admin->id and `to_id` = $uid and `read` = 'N')
         $admin = User::select('id')->where('email', Config::get('social.admin.email'))->get()->first();
-        $query = Message::where([['to_id', $uid]]);
+        $query = Message::where(function($query)use($uid)
+            {
+                $query->where('to_id','=' ,$uid)
+                      ->orWhere('from_id','=',$uid);
+            });
         if($d!='all'){
-            self::$date = \Carbon\Carbon::now()->subDays($d)->toDateTimeString();
+            if($d==7){
+                self::$date =\Carbon\Carbon::now()->startOfWeek()->toDateTimeString();
+            }else if($d==30){
+                self::$date =\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString();
+            }
             $query->where([['created_at','>=',self::$date]]);
         }
+         $query->where([['is_row_delete_1','0']]);
+        //,['is_row_delete_1','0']
         $query->orWhere([['from_id', $admin->id], ['to_id',$uid],['read','N']]);
         $query->orderByRaw('CASE
                         WHEN (from_id = '.$admin->id.')
@@ -442,6 +452,11 @@ class Message_new extends Model
                             2
                         END')->orderBy('created_at', 'desc');
         $messages = $query->get();
+        $mm=[];
+        foreach ($messages as $key => $v) {
+            if(empty($mm[$v->from_id]))$mm[$v->from_id]=0;
+            if($v->read=='N')$mm[$v->from_id]++;
+        }
 
         if($isVip == 1)
             $saveMessages = Message::chatArrayAJAX($uid, $messages, 1);
@@ -454,12 +469,12 @@ class Message_new extends Model
             return array_values(['No data']);
         }
         else{
-            return Message_new::sortMessages($saveMessages);
+            return Message_new::sortMessages($saveMessages,$mm);
         }
         //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
     }
 
-    public static function sortMessages($messages){
+    public static function sortMessages($messages,$mm=[]){
         if ($messages instanceof Illuminate\Database\Eloquent\Collection) {
             $messages = $messages->toArray();
         }
@@ -530,11 +545,7 @@ class Message_new extends Model
             }
             $messages[$key]['content'] = $latestMessage == null ? '' : $latestMessage->content;
 
-            if(!in_array($messages[$key]['from_id'],$aa)){
-                $aa[] = $messages[$key]['from_id'];
-            }else{
-                unset($messages[$key]);
-            }
+            $messages[$key]['read_n']=(!empty($mm[$messages[$key]['from_id']]))?$mm[$messages[$key]['from_id']]:0;
 
         }
         //$messages['date'] = self::$date;

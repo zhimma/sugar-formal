@@ -115,7 +115,7 @@ class Message_newController extends Controller {
             if(!empty($data['date'])){
                 $date = $data['date'];
                 unset($data['date']);
-                $data = array_values($data);
+                //$data = array_values($data);
             }
             return response()->json(array(
                 'status' => 1,

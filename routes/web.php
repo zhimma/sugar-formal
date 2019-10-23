@@ -158,6 +158,7 @@ Route::get('/banned', 'PagesController@banned')->name('banned');
 |--------------------------------------------------------------------------
 */
 Route::get('/login', 'Auth\LoginController@showLoginForm')->name('login');
+Route::get('/login2', 'Auth\LoginController@showLoginForm2')->name('login2');
 Route::post('/login', 'Auth\LoginController@login');
 Route::get('/logout', 'Auth\LoginController@logout')->name('logout');
 
@@ -172,7 +173,8 @@ Route::post('/password/reset', 'Auth\ResetPasswordController@reset');
 | Registration & Activation
 |--------------------------------------------------------------------------
 */
-Route::get('/register', 'Auth\RegisterController@showRegistrationForm')->name('register');
+Route::get('/register', 'Auth\RegisterController@showRegistrationForm2')->name('register');
+Route::get('/register2', 'Auth\RegisterController@showRegistrationForm')->name('register');
 Route::post('/register', 'Auth\RegisterController@register');
 
 Route::get('/activate/token/{token}', 'Auth\ActivateController@activate');

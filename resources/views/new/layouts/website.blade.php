@@ -3,6 +3,6 @@
     @include('new.layouts.navigation')
     @yield("app-content")
     @include('new.partials.footer')
-    @include('partials.scripts')
+    @include('new.partials.scripts')
 </body>
 </html>

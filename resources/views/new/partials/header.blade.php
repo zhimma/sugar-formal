@@ -10,6 +10,7 @@
 		<?php //新樣板css?>
 		<link href="/new/css/bootstrap.min.css" rel="stylesheet">
 		<link href="/new/css/bootstrap-theme.min.css" rel="stylesheet">
+		<link href="/plugins/sweetalert/sweetalert2.css" rel="stylesheet">
 		<link rel="stylesheet" href="/new/css/style.css">
 		<link rel="stylesheet" href="/new/css/swiper.min.css">
 		<?php //新樣板js?>

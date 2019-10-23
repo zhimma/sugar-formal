@@ -28,7 +28,7 @@ class ActivateController extends Controller
     {
         $user = auth()->user();
 
-        return view('auth.activate.email')->with('user', $user)->with('register', true);
+        return view('new.auth.activate.email')->with('user', $user)->with('register', true);
     }
 
     /**

@@ -113,7 +113,7 @@
 
         var Page = {
             page : 1,
-            row  : 8,
+            row  : 15,
             DrawPage:function(total){
                 var total_page  = Math.ceil(total/Page.row) == 0 ? 1 : Math.ceil(total/Page.row);
                 var span_u      = 0;
@@ -139,7 +139,6 @@
                         case 'last': Page.page = parseInt(Page.page) + 1; break;
                         //default: Page.page = parseInt($(this).data('p'));
                     }
-                    console.log(Page.page);
                     Page.DrawPage(total);
                     $('.sjlist>ul').children().slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
                 });
@@ -152,7 +151,7 @@
         var total = 0;//總筆數
         var date=7;
 
-        function liContent(pic,user_name,content,created_at,i){
+        function liContent(pic,user_name,content,created_at,read_n,i){
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
             li +=`
@@ -160,7 +159,7 @@
                     <div class="si_bg">
                         <div class="sjpic"><img src="${pic}" ></div>
                         <div class="sjleft">
-                            <div class="sjtable"><span>${user_name}</span><i class="number">56</i></div>
+                            <div class="sjtable"><span>${user_name}</span>${(read_n!=0?`<i class="number">${read_n}</i>`:'')}</div>
                             <font>${content}</font>
                         </div>
                         <div class="sjright">
@@ -214,8 +213,10 @@
                     // page=page+data_num;
                     // //若有資料時
                     //console.log(res.msg);
+                    var rr=0;
                     $.each(res.msg,function(i,e){
-                        if(e&&e.user_id)li = liContent(e.pic,e.user_name,e.content,e.created_at,i);
+                        rr +=parseInt(e.read_n);
+                        if(e&&e.user_id)li = liContent(e.pic,e.user_name,e.content,e.created_at,e.read_n,i);
                         $('.sjlist>ul').append(li)
                     });
                     //$('.sjlist>ul').html(li);
@@ -225,6 +226,7 @@
                         $('#warning').fadeOut(50);
                     }, 3000);
                     total=res.msg.length;
+                    console.log(rr);
                 }
             })
             .done(function() {
