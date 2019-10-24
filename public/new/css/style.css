@@ -350,7 +350,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .sjleft{width:40%; height:50px; float:left; line-height:25px; margin-left:10px;}
 .sjtable{width:100%; display: table;}
 .sjleft span{ font-size:14px;text-align:left !important; height:25px; float:left;  -webkit-line-clamp:3;white-space:nowrap;display: -webkit-box;-webkit-box-orient: vertical;overflow: hidden; }
-.sjleft font{ font-size:14px;height:25px; overflow:hidden; text-align:left; color:#999999; overflow:hidden; display:block;text-overflow:ellipsis;white-space: nowrap}
+.sjleft font{ width:600px;font-size:14px;height:25px; overflow:hidden; text-align:left; color:#999999; overflow:hidden; display:block;text-overflow:ellipsis;white-space: nowrap}
 .sjleft font img{ height:20px}
 
 .number{ background:#fe92a8; color:#ffffff; border-radius:10px; margin-left:3px; padding:0px 5px; height:20px !important; line-height:20px !important; font-style:normal; font-size:12px; float:left; margin-top:3px;}
@@ -383,13 +383,14 @@ a:hover{ color:#e44e71; text-decoration:none}
 .zixun{ margin:0 auto; padding:0px; display:table;color:#fd5678; font-size:16px;}
 .zixun span{ margin:0px 10px;}
 
-
-@media (max-width:320px) {
-
-	
+/*新增加*/
+@media (max-width:400px) {
+	.chat{width: 100%;}
+	.sjright {clear: both;margin-right: 10px;}
+	.fenye a {margin: 0 10px;}
 }
 @media (max-width:767px) {
-	
+.sjleft font{ width:220px;}	
 .sjlist{width:100%; display:table; margin-bottom:20px;}
 .shou{margin-top:20px; margin-bottom:20px }
 

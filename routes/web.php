@@ -157,8 +157,8 @@ Route::get('/banned', 'PagesController@banned')->name('banned');
 | Login/ Logout/ Password
 |--------------------------------------------------------------------------
 */
-Route::get('/login', 'Auth\LoginController@showLoginForm')->name('login');
-Route::get('/login2', 'Auth\LoginController@showLoginForm2')->name('login2');
+Route::get('/login', 'Auth\LoginController@showLoginForm2')->name('login');
+Route::get('/login2', 'Auth\LoginController@showLoginForm')->name('login2');
 Route::post('/login', 'Auth\LoginController@login');
 Route::get('/logout', 'Auth\LoginController@logout')->name('logout');
 

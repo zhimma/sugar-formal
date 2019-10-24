@@ -2,7 +2,7 @@
 
 @section('app-content')
 
-    <div class="container matop70">
+    <div class="container matop70 chat">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
                 @include('new.dashboard.panel')
@@ -154,6 +154,7 @@
         function liContent(pic,user_name,content,created_at,read_n,i){
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
+            //${content}
             li +=`
                 <li style="${ss}">
                     <div class="si_bg">

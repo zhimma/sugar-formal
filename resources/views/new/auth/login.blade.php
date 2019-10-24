@@ -25,7 +25,7 @@
                             <div class="de_img"><img src="/new/images/lo_11.png"></div>
                             <input name="password" type="password"  class="d_input" placeholder="密碼" required>
                         </div>
-                        <a href="" class="dlpassword">忘記密碼 ?</a>
+                        <a href="{!! url('password/reset') !!}" class="dlpassword">忘記密碼 ?</a>
                         <a href="javascript:void(0);" onclick="" class="dlbut btn-login">登入</a>
                         <a href="{!! url('register') !!}" class="dlbut02">還沒有帳號 ?  免費註冊</a>
                    </div>
