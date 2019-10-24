@@ -428,6 +428,7 @@ class Message_new extends Model
     {
         //  created_at >= '".self::$date."' or  (`from_id`= $admin->id and `to_id` = $uid and `read` = 'N')
         $admin = User::select('id')->where('email', Config::get('social.admin.email'))->get()->first();
+
         $query = Message::where(function($query)use($uid)
             {
                 $query->where('to_id','=' ,$uid)
@@ -441,8 +442,8 @@ class Message_new extends Model
             }
             $query->where([['created_at','>=',self::$date]]);
         }
-         $query->where([['is_row_delete_1','0']]);
-        //,['is_row_delete_1','0']
+        $query->where([['is_row_delete_1','0']]);
+
         $query->orWhere([['from_id', $admin->id], ['to_id',$uid],['read','N']]);
         $query->orderByRaw('CASE
                         WHEN (from_id = '.$admin->id.')
@@ -467,12 +468,12 @@ class Message_new extends Model
         //echo json_encode($saveMessages);
         if(count($saveMessages) == 0){
             return array_values(['No data']);
-        }
-        else{
+        }else{
             return Message_new::sortMessages($saveMessages,$mm);
         }
         //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
     }
+
 
     public static function sortMessages($messages,$mm=[]){
         if ($messages instanceof Illuminate\Database\Eloquent\Collection) {
@@ -546,7 +547,6 @@ class Message_new extends Model
             $messages[$key]['content'] = $latestMessage == null ? '' : $latestMessage->content;
 
             $messages[$key]['read_n']=(!empty($mm[$messages[$key]['from_id']]))?$mm[$messages[$key]['from_id']]:0;
-
         }
         //$messages['date'] = self::$date;
         return $messages;

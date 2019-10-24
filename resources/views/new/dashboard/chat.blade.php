@@ -226,7 +226,6 @@
                         $('#warning').fadeOut(50);
                     }, 3000);
                     total=res.msg.length;
-                    console.log(rr);
                 }
             })
             .done(function() {

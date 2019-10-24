@@ -8,7 +8,6 @@
 					@else
 						<div class="ndlrfont"><a href="{!! url('register') !!}">註冊</a>丨<a href="{!! url('login') !!}">登入</a></div>
 					@endif
-
 				</div>
 			</div>
 		</div>
