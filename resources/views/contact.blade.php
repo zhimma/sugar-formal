@@ -13,9 +13,9 @@
 </div>
 <div class="m-portlet__body">
     <li><h4>站長line：@gxd6999c(包含@哦)</h4></li>
-    <li><h4>站長email：admin@taiwan-sugar.net<h4></li>
+    <li><h4>站長email：admin@sugar-garden.org<h4></li>
     <li><h4>網站問題回報：@wpf0762y<h4></li>
-    <li><h4>網站問題回報：bugreport@taiwan-sugar.net<h4></li>
+    <li><h4>網站問題回報：admin@sugar-garden.org<h4></li>
 </div>
 
 @stop
