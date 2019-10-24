@@ -45,6 +45,11 @@ class LoginController extends Controller
     {
         $this->middleware('guest', ['except' => 'logout']);
     }
+    //新樣板
+    public function showLoginForm2()
+    {
+        return view('new.auth.login');
+    }
 
     /**
      * Check user's role and redirect user based on their role
