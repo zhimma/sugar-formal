@@ -3,6 +3,7 @@
 	<a href="{{ route('stats/date_file_log') }}">異動檔上傳/檢查記錄</a>
 	<a href="{{ route('stats/cron_log') }}">VIP排程檢查記錄</a>
     <a href="{{ route('stats/vip') }}">VIP會員統計資料</a>
+	<a href="{{ route('users/VIP/ECCancellations') }}">綠界 VIP 付費取消資料</a>
 	<a href="{{ route('users/customize_migration_files') }}">異動檔手動修改</a>
 	<a href="{{ route('users/manager') }}">會員搜尋(變更男女、VIP資料)</a>
 	<a href="{{ route('users/advSearch') }}">進階會員搜尋</a>

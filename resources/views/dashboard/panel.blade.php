@@ -68,7 +68,7 @@ if(Auth::user()) $login_user = Auth::user();
 						</a>
 					</li>
 					<li class="m-nav__item">
-						<a href="{!! url('dashboard/chat/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}" class="m-nav__link">
+						<a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}" class="m-nav__link">
 							<i class="m-nav__link-icon flaticon-chat-1"></i>
 							<span class="m-nav__link-text">收件夾 <span class="m-nav__link-badge"><span class="m-badge m-badge--danger">{{ \App\Models\Message::unread($user->id) }}</span></span>  </span>
 						</a>

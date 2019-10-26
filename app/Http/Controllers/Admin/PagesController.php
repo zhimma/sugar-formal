@@ -37,22 +37,32 @@ class PagesController extends Controller
 
     public function showECCancellations(Request $request){
         $now = Carbon::now();
+        if(isset($request->yearMonth)){
+            $now = Carbon::createFromFormat('Y-m', $request->yearMonth);
+        }
+        $thisYear = $now->year;
         $thisMonth = $now->month;
-        if ($request->isMethod('get'))
-        {
-            return view('admin.users.customizeMigrationFiles',
-                ['file' => $file == null ? $file : nl2br($file),
-                    'date' => $date]);
+        $days = $now->daysInMonth;
+        $dates = array();
+        for( $i = 1 ; $i < $days + 1 ; ++ $i ) {
+            $dates[] = \Carbon\Carbon::createFromDate($thisYear, $thisMonth, $i)->format('Ymd');
         }
-        elseif($request->isMethod('post')){
-            $logging = new \App\Services\VipLogService;
-            if($logging->customLogToFile($request->user_id, $request->order_id, $request->day, $request->action)){
-                return back()->with('message', '異動檔修改成功，請在頁面下方查看結果。');
-            }
-            else{
-                return back()->withErrors(['發生不明錯誤(Error002).']);
+
+        $contents = array();
+        foreach ($dates as $d){
+            if(\Storage::exists('RP_3137610_'.$d.'.dat')){
+                $eachLine = explode("\n", \Storage::get('RP_3137610_'.$d.'.dat'));
+                foreach ($eachLine as $line){
+                    if(str_contains($line, 'elete')){
+                        $line = explode(',', $line);
+                        array_push($contents, $line);
+                    }
+                }
             }
         }
+        return view('admin.users.ECPayCancellation',
+            ['contents' => $contents,
+             'thisYearMonth' => $thisYear.'-'.$thisMonth]);
     }
 
     public function chat(Request $request, $cid)

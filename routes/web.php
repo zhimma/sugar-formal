@@ -144,6 +144,8 @@ Route::get('/error', 'PagesController@error');
 Route::get('/passwd', 'passwd@passwd');
 Route::get('/', 'PagesController@home');
 Route::get('/privacy', 'PagesController@privacy');
+Route::get('/notification', 'PagesController@notification');
+Route::get('/feature', 'PagesController@feature');
 Route::get('/about', 'PagesController@about');
 Route::get('/terms', 'PagesController@terms');
 Route::get('/contact', 'PagesController@contact');
@@ -155,7 +157,8 @@ Route::get('/banned', 'PagesController@banned')->name('banned');
 | Login/ Logout/ Password
 |--------------------------------------------------------------------------
 */
-Route::get('/login', 'Auth\LoginController@showLoginForm')->name('login');
+Route::get('/login', 'Auth\LoginController@showLoginForm2')->name('login');
+Route::get('/login2', 'Auth\LoginController@showLoginForm')->name('login2');
 Route::post('/login', 'Auth\LoginController@login');
 Route::get('/logout', 'Auth\LoginController@logout')->name('logout');
 
@@ -170,7 +173,8 @@ Route::post('/password/reset', 'Auth\ResetPasswordController@reset');
 | Registration & Activation
 |--------------------------------------------------------------------------
 */
-Route::get('/register', 'Auth\RegisterController@showRegistrationForm')->name('register');
+Route::get('/register', 'Auth\RegisterController@showRegistrationForm2')->name('register');
+Route::get('/register2', 'Auth\RegisterController@showRegistrationForm')->name('register');
 Route::post('/register', 'Auth\RegisterController@register');
 
 Route::get('/activate/token/{token}', 'Auth\ActivateController@activate');
@@ -272,6 +276,10 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
 
     Route::group(['middleware' => ['filled']], function () {
 
+        //新樣板
+        Route::get('/dashboard/chat2/{randomNo?}', 'Message_newController@chatview')->name('chatView');
+        Route::post('/dashboard/chat2/showMessages/{randomNo?}', 'Message_newController@chatviewMore')->name('showMessages');
+
         Route::get('/dashboard/board', 'PagesController@board');
         //Route::get('/dashboard/history', 'PagesController@history');
         //Route::get('/dashboard/fav', 'PagesController@fav');
@@ -360,7 +368,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('users/VIPToggler', 'UserController@toggleVIP');
         Route::get('users/customizeMigrationFiles', 'UserController@customizeMigrationFiles')->name('users/customize_migration_files');
         Route::post('users/customizeMigrationFiles', 'UserController@customizeMigrationFiles')->name('users/customize_migration_files');
-        Route::get('users/VIP/ECCancellations', 'PagesController@showECCancellations')->name('users/VIP/ECCancellations');
+        Route::match(['get', 'post'], 'users/VIP/ECCancellations', 'PagesController@showECCancellations')->name('users/VIP/ECCancellations');
         Route::get('announcement', 'UserController@showAdminAnnouncement')->name('admin/announcement');
         Route::get('announcement/edit/{id}', 'UserController@showAdminAnnouncementEdit')->name('admin/announcement/edit');
         Route::post('announcement/save', 'UserController@saveAdminAnnouncement')->name('admin/announcement/save');

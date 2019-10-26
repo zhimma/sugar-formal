@@ -19,5 +19,6 @@ config/social.php
 config/social.php
 config/session.php
 config/session.php
+config/app.php
 /.vscode
 *.DS_Store
