@@ -186,6 +186,7 @@ Route::group(['middleware' => ['auth']], function () {
 });
 
 
+
 /*
 |--------------------------------------------------------------------------
 | Vip Free Activation
@@ -245,7 +246,9 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('/dashboard/block', 'PagesController@postBlock');
     Route::post('/dashboard/unblock', 'PagesController@unblock');
     Route::post('/dashboard/fav', 'PagesController@postfav');
+    Route::post('/dashboard/fav_ajax', 'PagesController@fav_ajax')->name('showfav');//新樣板route
     Route::post('/dashboard/fav/remove', 'PagesController@removeFav')->name('fav/remove');
+    Route::post('/dashboard/fav/remove_ajax', 'PagesController@removeFav_ajax')->name('fav/remove_ajax');//新樣板route
     Route::post('/dashboard/report', 'PagesController@report');
     Route::post('/dashboard/reportNext', 'PagesController@reportNext')->name('reportNext');
     Route::get('/dashboard/reportPic/{user}/{id}/{uid?}', 'PagesController@reportPic')->name('reportPic');
@@ -272,6 +275,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('/dashboard/history', 'PagesController@history');
         Route::get('/dashboard/block', 'PagesController@block');
         Route::get('/dashboard/fav', 'PagesController@fav');
+        Route::get('/dashboard/fav2', 'PagesController@fav2');
     });
 
     Route::group(['middleware' => ['filled']], function () {

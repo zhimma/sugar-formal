@@ -23,7 +23,7 @@
                             <input name="password_confirmation" type="password" class="zcinput" placeholder="密碼確認" value="{{old('password_confirmation')}}">
                         </div>
                         <div class="de_input01 dlmarbot">
-                            <input id="name" name="name"  type="text" class="zcinput" placeholder="昵稱" value="{{old('name')}}">
+                            <input id="name" name="name"  type="text" class="zcinput" placeholder="暱稱" value="{{old('name')}}">
                         </div>
                         <div class="de_input01 dlmarbot">
                             <input name="title" type="text" class="zcinput" placeholder="一句話形容自已"  value="{{old('title')}}">
