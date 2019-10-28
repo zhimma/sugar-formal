@@ -10,7 +10,7 @@
 </style>
 <body style="padding: 15px;">
 <h1>綠界 VIP 付費取消資料</h1>
-<form method="POST" action="{{ route('users/VIP/ECCancellations') }}" class="search_form">
+<form method="POST" action="@if (Auth::user()->can('admin')) {{ route('users/VIP/ECCancellations') }} @elseif (Auth::user()->can('readonly')) {{ route('users/VIP/ECCancellations/readOnly') }} @endif" class="search_form">
 	{!! csrf_field() !!}
 	<table class="table-hover table table-bordered" style="width: 50%;">
 		<tr>

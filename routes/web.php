@@ -311,11 +311,11 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     | Admin
     |--------------------------------------------------------------------------
     */
-
+    Route::group(['namespace' => 'Admin', 'middleware' => 'ReadOnly'], function () {
+        Route::match(['get', 'post'], 'users/VIP/ECCancellations/readOnly', 'PagesController@showECCancellations')->name('users/VIP/ECCancellations/readOnly');
+    });
     Route::group(['prefix' => 'admin', 'namespace' => 'Admin', 'middleware' => 'Admin'], function () {
-
         Route::get('dashboard', 'DashboardController@index');
-
         /*
         |--------------------------------------------------------------------------
         | Users
