@@ -174,6 +174,7 @@
                                 </td>
                                 <td>
                                     @if(isset($result['reported_user_id']))
+                                    
                                         <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['reported_user_id'], $result['id']]) }}" data-name='{{ $Pusers[$result['reported_user_id']]['name'] }}'>封鎖</a>
                                     @else
                                         照片已刪除或該筆資料不存在。
