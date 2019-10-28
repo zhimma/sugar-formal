@@ -1,0 +1,32 @@
+html,body{height: 100%;}
+/* 和 header ⼀樣，footer 也採⽤固定⾼度*/
+/* 0 flex-grow, 0 flex-shrink, auto flex-basis */ 
+.head_3{flex: 0 0 auto;}
+.container{flex: 1 0 auto;}
+.bot{
+   flex: 0 0 auto;
+}
+body{ display: flex;flex-direction: column;}
+
+.sjleft font {
+    width: 600px;
+}
+.zcinput {
+    height: 43px;
+    line-height: 43PX;
+    font-size: 15px;
+    padding: 3px;
+}
+.d-none {display: none !important; }
+/*新增加*/
+@media (max-width:400px) {
+	.chat{width: 100%;}
+	/*.sjright {clear: both;margin-right: 10px;}*/
+	.fenye a {margin: 0 10px;}
+	.container{width: 100%;}
+	.wk_lx span {width: 200px;}
+}
+
+@media (max-width:767px) {
+	.sjleft font{ width:220px;}
+}
