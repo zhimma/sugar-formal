@@ -224,7 +224,7 @@ class PagesController extends Controller
             ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
             ->whereNotNull('user_meta.pic')
             ->where('engroup', 2)->inRandomorder()->take(3)->get();
-        return view('welcome')
+        return view('new.welcome')
             ->with('user', $user)
             ->with('imgUserM', $imgUserM)
             ->with('imgUserF', $imgUserF);

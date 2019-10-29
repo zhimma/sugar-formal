@@ -23,10 +23,10 @@ body{ display: flex;flex-direction: column;}
 	.chat{width: 100%;}
 	/*.sjright {clear: both;margin-right: 10px;}*/
 	.fenye a {margin: 0 10px;}
-	.container{width: 100%;}
 	.wk_lx span {width: 200px;}
 }
 
 @media (max-width:767px) {
+	.container{width: 100%;}
 	.sjleft font{ width:220px;}
 }

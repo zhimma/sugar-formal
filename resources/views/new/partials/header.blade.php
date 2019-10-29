@@ -11,12 +11,12 @@
 		<link href="/new/css/bootstrap.min.css" rel="stylesheet">
 		<link href="/new/css/bootstrap-theme.min.css" rel="stylesheet">
 		<link href="/plugins/sweetalert/sweetalert2.css" rel="stylesheet">
-		<link rel="stylesheet" href="/new/css/style.css">
-		<link rel="stylesheet" href="/new/css/style_zero.css">
+		<link rel="stylesheet" href="/new/css/style.css?20191029">
+		<link rel="stylesheet" href="/new/css/style_zero.css?20191029">
 		<link rel="stylesheet" href="/new/css/swiper.min.css">
 		<?php //新樣板js?>
 		<script src="/new/js/bootstrap.min.js"></script>
 		<script src="/new/js/main.js" type="text/javascript"></script>
 
-		<link rel="shortcut icon" href="img/logo/favicon.ico" />
+		<link rel="shortcut icon" href="img/favicon.jpg" />
 	</head>

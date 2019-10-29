@@ -84,7 +84,7 @@
                         <font>${e.city}  ${e.area}</font>
                     </div>
                     <div class="sjright">
-                        <h4 class="fengs"><a href="javascript:" class="remove" data-id="${e.member_fav_id}"><img src="/new/images/ncion_07.png">移除</a><a href=""><img src="/new/images/ncion_09.png">封鎖</a></h4>
+                        <h4 class="fengs"><a href="javascript:" class="remove" data-id="${e.member_fav_id}"><img src="/new/images/ncion_07.png">移除</a></h4>
                     </div>
                 </div>
             </li>

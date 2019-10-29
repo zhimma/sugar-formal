@@ -45,7 +45,7 @@ class MemberFav extends Model
             $fav[$k]['name'] = $favUser->name;
             $fav[$k]['pic'] = $favUser->meta_()->pic;
             if($fav[$k]['pic']==null||!file_exists('.'.$fav[$k]['pic'])){
-                $fav[$k]['pic'] = '/img/male-avatar.png';
+                $fav[$k]['pic'] =($favUser->engroup==1)? '/img/male-avatar.png':'/img/female-avatar.png';
             }
             $fav[$k]['age'] = $favUser->meta_()->age();
             if(isset($favUser->meta_()->city)){
