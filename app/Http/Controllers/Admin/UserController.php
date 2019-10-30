@@ -887,7 +887,6 @@ class UserController extends Controller
             if($request->report_id){
                 $m = Reported::where('id', $request->report_id)->get()->first();
                 $m->delete();
-                return view('admin.users.success_only')->with('message', '傳送成功');
             }
             if($request->pic_id){
                 if(str_contains($request->pic_id, 'avatar')){
@@ -1139,8 +1138,9 @@ class UserController extends Controller
 
     public function showWebAnnouncement() 
     {
-        $start = \Carbon\Carbon::now()->subDays(30)->toDateTimeString();
-        $end = \Carbon\Carbon::now()->toDateTimeString();
+        $time = \Carbon\Carbon::now();
+        $start= date('Y-m-01',strtotime($time->subDay(30)));
+        $end= date('Y-m-t',strtotime($time));
         $userBanned = banned_users::select('users.name','banned_users.*')
                     ->whereBetween('banned_users.created_at',[($start),($end)])
                     ->join('users','banned_users.member_id','=','users.id')
@@ -1229,14 +1229,8 @@ class UserController extends Controller
 
     public function customizeMigrationFiles(Request $request){
         $file = null;
-        if(Carbon::now()->format('d') <= 28){
-            $fileDate = \Carbon\Carbon::now();
-        }
-        else{
-            $fileDate = \Carbon\Carbon::now()->addMonth()->startOfMonth();
-        }
-        if(file_exists(storage_path('app/RP_761404_'.$fileDate->format('Ymd').'.dat'))){
-            $file = \File::get(storage_path('app/RP_761404_'.$fileDate->format('Ymd').'.dat'));
+        if(file_exists(storage_path('app/RP_761404_'.\Carbon\Carbon::today()->format('Ymd').'.dat'))){
+            $file = \File::get(storage_path('app/RP_761404_'.\Carbon\Carbon::today()->format('Ymd').'.dat'));
         }
         $date = \Carbon\Carbon::now()->addDay()->day >= 28 ? '01' : \Carbon\Carbon::now()->addDay()->day;
 
@@ -1278,17 +1272,14 @@ class UserController extends Controller
 
     public function inactiveUsers(Request $request)
     {
-        $users = 
-            ($request->isMethod('post') && $request->email != null) ? 
-                User::join('user_meta', 'users.id', 'user_meta.user_id') : 
-                User::join('user_meta', 'users.id', 'user_meta.user_id')->where('user_meta.is_active', 0);
+        $users = User::join('user_meta', 'users.id', 'user_meta.user_id')
+            ->where('user_meta.is_active', 0);
         if($request->email != null){
-            $users = $users->where('users.email','like' ,"%$request->email%");
+            $users = $users->where('users.email', $request->email);
         }
         $users = $users->orderBy('users.created_at', 'desc')->paginate(20);
         return view('admin.users.inactiveUsers',[
-            'users' => $users,
-            'email' => $request->email
+            'users' => $users
         ]);
     }
 
