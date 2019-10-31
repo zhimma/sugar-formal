@@ -48,6 +48,7 @@
                     </tr>
                 </table>
             @endif
+            @php echo test @php
             <form action="{{ route('admin/send', (!isset($isReported))? $user->id : $isReportedId ) }}" id='message' method='POST'>
                 {!! csrf_field() !!}
                 <input type="hidden" value="{{ $admin->id }}" name="admin_id">
