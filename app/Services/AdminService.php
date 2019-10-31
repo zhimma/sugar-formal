@@ -199,7 +199,7 @@ class AdminService
             $name = User::select('name','engroup')
                 ->where('id', '=', $id)
                 ->get()->first();
-            $vip = Vip::select('active')->where('member_id', $id)->where('active', 1)->orderBy('created_at', 'desc')->first();
+            $vip = Vip::where('member_id', 'like', $id)->get()->first();
             if($name != null){
                 $users[$id]['name'] = $name->name;
                 $users[$id]['vip'] = $vip;
@@ -266,14 +266,15 @@ class AdminService
             $result['isBlockedReceiver'] = banned_users::where('member_id', 'like', $result->reported_user_id)->get()->first();
             
             $result['pic'] = UserMeta::select('pic')->where('user_id', $result->reported_user_id)->get()->first();
-            $result['pic'] = $result['pic']->pic;
+            if(!is_null($result['pic']))
+                $result['pic'] = $result['pic']->pic;
         }
         $users = array();
         foreach ($reporter_id as $id){
             $users[$id] = array();
         }
         foreach ($reported_user_id as $id){
-            if(!in_array($id, $users)){
+            if(!array_key_exists($id, $users)){
                 $users[$id] = array();
             }
         }
@@ -286,7 +287,8 @@ class AdminService
                 $users[$id]['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
             }
             else{
-                $users[$id] = '資料庫沒有資料';
+               $users[$id]['name'] = "查無使用者";
+               $users[$id]['vip'] = "false";
             }
         }
         return ['results' => $results,
@@ -314,9 +316,8 @@ class AdminService
                 
             }
             else{
-                $result['reported_user_id'] = null;
+                $result['name'] = "查無使用者";
                 $result['pic'] = '照片已刪除或該筆資料不存在。';
-                $result['isBlocked'] = '';
                 $result['vip'] = '照片已刪除或該筆資料不存在。';
             }
 
@@ -326,7 +327,7 @@ class AdminService
             $users[$id] = array();
         }
         foreach ($reported_user_id as $id){
-            if(!in_array($id, $users)){
+            if(!array_key_exists($id, $users)){
                 $users[$id] = array();
             }
         }
@@ -339,7 +340,9 @@ class AdminService
                 $users[$id]['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
             }
             else{
-                $users[$id] = '資料庫沒有資料';
+                $users[$id]['name'] = "查無使用者";
+                $users[$id]['vip'] = '照片已刪除或該筆資料不存在。';
+                $users[$id]['expire_date'] = "NULL";
             }
         }
         return ['results' => $results,
@@ -484,7 +487,6 @@ class AdminService
         }
         return false;
     }
-
     public function deletePicture(Request $request)
     {
         $admin = $this->checkAdmin();
