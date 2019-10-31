@@ -64,7 +64,7 @@
                 </td>
             </tr>
             <tr>
-                <td colspan="2"><button class='text-white btn btn-primary submit'>搜尋符合條件的訊息</button> 或 <a href="{{ route('users/message/search/reported') }}" class="btn btn-info">檢視所有被檢舉訊息</a></td>
+                <td colspan="2"><button class='text-white btn btn-primary submit'>搜尋符合條件的訊息</button> 或 <a id="reported_meg" href="{{ route('users/message/search/reported') }}" class="btn btn-info">檢視所有被檢舉訊息</a></td>
             </tr>
         </table>
     </form>
@@ -345,6 +345,12 @@
             if (!confirm('確定要刪除選取的訊息?')) {
                 e.preventDefault();
             }
+        });
+        $('#reported_meg').click(function(event) {
+            let date_start = $('#datepicker_1').val() ? $('#datepicker_1').val() : '1970-01-01';
+            let date_end = $('#datepicker_2').val() ? $('#datepicker_2').val() : $.datepicker.formatDate('yy-mm-dd', new Date());
+            let href = $(this).attr('href');
+            $(this).attr('href', href + "?date_start=" + date_start + "&date_end=" + date_end);
         });
         $('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
             var data_id = '';

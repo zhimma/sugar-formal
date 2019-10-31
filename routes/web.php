@@ -351,7 +351,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('users/message/send/{id}', 'UserController@sendAdminMessage')->name('admin/send');
         Route::post('users/message/multiple/send', 'UserController@sendAdminMessageMultiple')->name('admin/send/multiple');
         Route::get('users/message/search', 'UserController@showMessageSearchPage')->name('users/message/search');
-        Route::get('users/message/search/reported', 'UserController@showReportedMessages')->name('users/message/search/reported');
+        Route::get('users/message/search/reported/{date_start?}/{date_end?}', 'UserController@showReportedMessages')->name('users/message/search/reported');
         Route::post('users/message/search', 'UserController@searchMessage');
         Route::post('users/message/modify', 'UserController@modifyMessage')->name('users/message/modify');
         Route::post('users/message/delete', 'UserController@deleteMessage')->name('users/message/delete');
