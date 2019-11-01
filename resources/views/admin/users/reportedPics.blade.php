@@ -164,26 +164,21 @@
                     @endif
                     @if(isset($Presults))
                         @foreach ($Presults as $result)
-                        {{ $rowIndex += 1}}
+                        <? $rowIndex += 1 ?>
                         <tr >
                             <td>
-                                <?php
-                                // var_dump($result['isBlocked']);
-                                ?>
-                                
                                 <a href="{{ route('users/advInfo', $result['reporter_id']) }}" target='_blank' @if($result['isBlocked']) style="color: #F00;" @endif>
                                     {{ $Pusers[$result['reporter_id']]['name']}}
-                                
-                                @if($Pusers[$result['reporter_id']]['vip'] )
-                                    <i class="m-nav__link-icon fa fa-diamond"></i>
-                                @endif
-                                @if(!is_null($result['isBlocked']))
-                                    @if(!is_null($result['isBlocked']['expire_date']))
-                                        ({{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
-                                    @else
-                                        (永久)
+                                    @if($Pusers[$result['reporter_id']]['vip'] )
+                                        <i class="m-nav__link-icon fa fa-diamond"></i>
                                     @endif
-                                @endif
+                                    @if(!is_null($result['isBlocked']))
+                                        @if(!is_null($result['isBlocked']['expire_date']))
+                                            ({{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                        @else
+                                            (永久)
+                                        @endif
+                                    @endif
                                 </a>
                                 
                                 <!-- <button type="button" onclick="toggleBanned({{ $result['reporter_id'] }});" target="_blank" class='text-white btn @if($result['isBlocked']) btn-success @else btn-danger @endif'>@if($result['isBlocked']) ◯ @else 🞫 @endif</button> -->
