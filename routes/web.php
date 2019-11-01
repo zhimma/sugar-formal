@@ -186,6 +186,7 @@ Route::group(['middleware' => ['auth']], function () {
 });
 
 
+
 /*
 |--------------------------------------------------------------------------
 | Vip Free Activation
@@ -245,7 +246,9 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('/dashboard/block', 'PagesController@postBlock');
     Route::post('/dashboard/unblock', 'PagesController@unblock');
     Route::post('/dashboard/fav', 'PagesController@postfav');
+    Route::post('/dashboard/fav_ajax', 'PagesController@fav_ajax')->name('showfav');//新樣板route
     Route::post('/dashboard/fav/remove', 'PagesController@removeFav')->name('fav/remove');
+    Route::post('/dashboard/fav/remove_ajax', 'PagesController@removeFav_ajax')->name('fav/remove_ajax');//新樣板route
     Route::post('/dashboard/report', 'PagesController@report');
     Route::post('/dashboard/reportNext', 'PagesController@reportNext')->name('reportNext');
     Route::get('/dashboard/reportPic/{user}/{id}/{uid?}', 'PagesController@reportPic')->name('reportPic');
@@ -272,6 +275,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('/dashboard/history', 'PagesController@history');
         Route::get('/dashboard/block', 'PagesController@block');
         Route::get('/dashboard/fav', 'PagesController@fav');
+        Route::get('/dashboard/fav2', 'PagesController@fav2');
     });
 
     Route::group(['middleware' => ['filled']], function () {
@@ -307,11 +311,11 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     | Admin
     |--------------------------------------------------------------------------
     */
-
+    Route::group(['namespace' => 'Admin', 'middleware' => 'ReadOnly'], function () {
+        Route::match(['get', 'post'], 'users/VIP/ECCancellations/readOnly', 'PagesController@showECCancellations')->name('users/VIP/ECCancellations/readOnly');
+    });
     Route::group(['prefix' => 'admin', 'namespace' => 'Admin', 'middleware' => 'Admin'], function () {
-
         Route::get('dashboard', 'DashboardController@index');
-
         /*
         |--------------------------------------------------------------------------
         | Users
@@ -347,7 +351,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('users/message/send/{id}', 'UserController@sendAdminMessage')->name('admin/send');
         Route::post('users/message/multiple/send', 'UserController@sendAdminMessageMultiple')->name('admin/send/multiple');
         Route::get('users/message/search', 'UserController@showMessageSearchPage')->name('users/message/search');
-        Route::get('users/message/search/reported', 'UserController@showReportedMessages')->name('users/message/search/reported');
+        Route::get('users/message/search/reported/{date_start?}/{date_end?}', 'UserController@showReportedMessages')->name('users/message/search/reported');
         Route::post('users/message/search', 'UserController@searchMessage');
         Route::post('users/message/modify', 'UserController@modifyMessage')->name('users/message/modify');
         Route::post('users/message/delete', 'UserController@deleteMessage')->name('users/message/delete');

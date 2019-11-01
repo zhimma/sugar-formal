@@ -224,7 +224,7 @@ class PagesController extends Controller
             ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
             ->whereNotNull('user_meta.pic')
             ->where('engroup', 2)->inRandomorder()->take(3)->get();
-        return view('welcome')
+        return view('new.welcome')
             ->with('user', $user)
             ->with('imgUserM', $imgUserM)
             ->with('imgUserF', $imgUserF);
@@ -513,7 +513,59 @@ class PagesController extends Controller
         return back()->with('message', '移除成功');
     }
 
+    public function removeFav_ajax(Request $request)
+    {
+        if ($request->userId !== $request->favUserId)
+        {
+            MemberFav::remove($request->userId, $request->favUserId);
+            return response()->json(array(
+                'status' => true,
+                'msg' => '移除成功',
+            ), 200)
+                ->header("Cache-Control", "no-cache, no-store, must-revalidate")
+                ->header("Pragma", "no-cache")
+                ->header("Last-Modified", gmdate("D, d M Y H:i:s")." GMT")
+                ->header("Cache-Control", "post-check=0, pre-check=0", false)
+                ->header("Expires", "Fri, 01 Jan 1990 00:00:00 GMT");
+        }
+        return back()->with('message', '移除成功');
+    }
+
     public function fav(Request $request)
+    {
+        $user = $request->user();
+        //$visitors = \App\Models\MemberFav::findBySelf($user->id);
+        //dd($visitors);
+        //$favUser = \App\Models\User::findById($visitor->member_fav_id);
+        if ($user) {
+            return view('new.dashboard.fav')
+            ->with('user', $user);
+        }
+    }
+
+    public function fav_ajax(Request $request)
+    {
+        $user_id = $request->uid;
+        $data = \App\Models\MemberFav::showFav($user_id);
+        if (isset($data)) {
+            return response()->json(array(
+                'status' => 1,
+                'msg' => $data,
+            ), 200)
+                ->header("Cache-Control", "no-cache, no-store, must-revalidate")
+                ->header("Pragma", "no-cache")
+                ->header("Last-Modified", gmdate("D, d M Y H:i:s")." GMT")
+                ->header("Cache-Control", "post-check=0, pre-check=0", false)
+                ->header("Expires", "Fri, 01 Jan 1990 00:00:00 GMT");
+        } else {
+            return response()->json(array(
+                'status' => 2,
+                'msg' => 'fail',
+            ), 500);
+        }
+    }
+
+    public function fav2(Request $request)
     {
         $user = $request->user();
         if ($user) {

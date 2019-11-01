@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
 use App\Models\SimpleTables\banned_users;
+use App\Models\Blocked as blocked;
 use Carbon\Carbon;
 
 class UserMeta extends Model

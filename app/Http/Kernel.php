@@ -63,6 +63,7 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
 		'Admin' => \App\Http\Middleware\Admin::class,
+        'ReadOnly' => \App\Http\Middleware\ReadOnly::class,
 		'permissions' => \App\Http\Middleware\Permissions::class,
 		'roles' => \App\Http\Middleware\Roles::class,
 		'vipc' => \App\Http\Middleware\Vipc::class,

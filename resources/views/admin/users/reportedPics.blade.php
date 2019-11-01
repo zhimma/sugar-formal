@@ -45,37 +45,58 @@
                 </table>
             </form>
             @if(isset($results))
-                <form action="{{ route('users/message/modify') }}" method="post">
-                    {!! csrf_field() !!}
-                    <input type='hidden' class="datepicker_1" name="date_start" data-date-format='yyyy-mm-dd' value="@if(isset($date_start)){{ $date_start }}@endif" class="form-control">
-                    <input type='hidden' class="datepicker_2" name="date_end" data-date-format='yyyy-mm-dd' value="@if(isset($date_end)){{ $date_end }}@endif" class="form-control">
-                    <h3 style="text-align: left;">搜尋結果</h3>
-                    <table class="table-hover table table-bordered">
-                        <tr>
-                            <td>檢舉者</td>
-                            <td>回覆檢舉者</td>
-                            <td>封鎖檢舉者</td>
-                            <td>被檢舉者</td>
-                            <td>回覆被檢舉者</td>
-                            <td>封鎖被檢舉者</td>
-                            <td>圖片</td>
-                            <td>檢舉理由</td>
-                            <td>檢舉時間</td>
-                        </tr>
-                        @if(isset($results))
-                            @foreach ($results as $result)
-                            <tr >
-                                <td>
-                                    <a href="{{ route('users/advInfo', $result['reporter_id']) }}" target='_blank' @if($result['isBlocked']) style="color: #F00;" @endif >{{ $users[$result['reporter_id']]['name'] }}
-                                    @if($users[$result['reporter_id']]['vip'] )
-                                        <i class="m-nav__link-icon fa fa-diamond"></i>
+                <input type='hidden' class="datepicker_1" name="date_start" data-date-format='yyyy-mm-dd' value="@if(isset($date_start)){{ $date_start }}@endif" class="form-control">
+                <input type='hidden' class="datepicker_2" name="date_end" data-date-format='yyyy-mm-dd' value="@if(isset($date_end)){{ $date_end }}@endif" class="form-control">
+                <h3 style="text-align: left;">搜尋結果</h3>
+                <table class="table-hover table table-bordered">
+                    <tr>
+                        <td>檢舉者</td>
+                        <td>回覆檢舉者</td>
+                        <td>封鎖檢舉者</td>
+                        <td>被檢舉者</td>
+                        <td>回覆被檢舉者</td>
+                        <td>封鎖被檢舉者</td>
+                        <td>圖片</td>
+                        <td>刪除照片</td>
+                        <td>檢舉理由</td>
+                        <td>檢舉時間</td>
+                    </tr>
+                    {{ $rowIndex = 0}}
+                    @if(isset($results))
+                        @foreach ($results as $result)
+                        {{ $rowIndex += 1}}
+                        <tr >
+                            <td>
+                                <a href="{{ route('users/advInfo', $result['reporter_id']) }}" target='_blank' @if($result['isBlocked']) style="color: #F00;" @endif >{{ $users[$result['reporter_id']]['name'] }}
+                                @if($users[$result['reporter_id']]['vip'] )
+                                    <i class="m-nav__link-icon fa fa-diamond"></i>
+                                @endif
+                                @if(!is_null($result['isBlocked']))
+                                    @if(!is_null($result['isBlocked']['expire_date']))
+                                        ({{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                    @else
+                                        (永久)
                                     @endif
-                                    @if(isset($result['isBlocked']))
-                                        @if(isset($result['isBlocked']['expire_date']))
-                                            ({{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
-                                        @else
-                                            (永久)
-                                        @endif
+                                @endif
+                                </a>
+                                <!-- <button type="button" onclick="toggleBanned({{ $result['reporter_id'] }});" target="_blank" class='text-white btn @if($result['isBlocked']) btn-success @else btn-danger @endif'>@if($result['isBlocked']) ◯ @else 🞫 @endif</button> -->
+                            </td>
+                            <td>
+                                <a href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
+                            </td>
+                            <td>
+                                <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['reporter_id'], $result['id']]) }}" data-name="{{ $users[$result['reporter_id']]['name'] }}">封鎖</a>
+                            </td>
+                            <td>
+                                <a href="{{ route('users/advInfo', $result['reported_user_id']) }}" target='_blank' @if($result['isBlockedReceiver']) style="color: #F00;" @endif>{{ $users[$result['reported_user_id']]['name'] }}
+                                @if($users[$result['reported_user_id']]['vip'] )
+                                    <i class="m-nav__link-icon fa fa-diamond"></i>
+                                @endif
+                                @if(!is_null($result['isBlockedReceiver']))
+                                    @if(!is_null($result['isBlockedReceiver']['expire_date']))
+                                        ({{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                    @else
+                                        (永久)
                                     @endif
                                     </a>
                                     <!-- <button type="button" onclick="toggleBanned({{ $result['reporter_id'] }});" target="_blank" class='text-white btn @if($result['isBlocked']) btn-success @else btn-danger @endif'>@if($result['isBlocked']) ◯ @else 🞫 @endif</button> -->
@@ -94,106 +115,136 @@
                                     <a href="{{ route('users/advInfo', $result['reported_user_id']) }}" target='_blank' @if($result['isBlockedReceiver']) style="color: #F00;" @endif>{{ $users[$result['reported_user_id']]['name'] }}
                                     @if($users[$result['reported_user_id']]['vip'] )
                                         <i class="m-nav__link-icon fa fa-diamond"></i>
-                                    @endif
-                                    @if(!is_null($result['isBlockedReceiver']))
-                                        @if(!is_null($result['isBlockedReceiver']['expire_date']))
-                                            ({{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天)
-                                        @else
-                                            (永久)
-                                        @endif
-                                    @endif
-                                    </a>
-                                </td>
-                                <td>
-                                    <a href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true, 'reported'] ) }}" target="_blank" class='btn btn-dark'>撰寫</a>
-                                </td>
-                                <td>
-                                    <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['reported_user_id'], $result['id']]) }}" data-name='{{ $users[$result['reported_user_id']]['name'] }}'>封鎖</a>
-                                </td>
-                                <td>
-                                    <img src="{{ $result['pic'] }}" alt="" height="200px">
-                                </td>
-                                <td width="45%" style="word-wrap: break-word;">{{ $result['content'] }}</td>
-                                <td>{{ $result['created_at'] }}</td>
-                            </tr>
-                        @endforeach
-                        @endif
-                        @if(isset($Presults))
-                            @foreach ($Presults as $result)
-                            <tr >
-                                <td>
-                                    <?php
-                                    // var_dump($result['isBlocked']);
-                                    ?>
-                                    
-                                    <a href="{{ route('users/advInfo', $result['reporter_id']) }}" target='_blank' @if($result['isBlocked']) style="color: #F00;" @endif>
-                                        {{ $Pusers[$result['reporter_id']]['name'] }}
-                                    
-                                    @if($Pusers[$result['reporter_id']]['vip'] )
-                                        <i class="m-nav__link-icon fa fa-diamond"></i>
-                                    @endif
-                                    @if(isset($result['isBlocked']))
-                                        @if(isset($result['isBlocked']['expire_date']))
-                                            ({{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
-                                        @else
-                                            (永久)
-                                        @endif
-                                    @endif
-                                    </a>
-                                    
-                                    <!-- <button type="button" onclick="toggleBanned({{ $result['reporter_id'] }});" target="_blank" class='text-white btn @if($result['isBlocked']) btn-success @else btn-danger @endif'>@if($result['isBlocked']) ◯ @else 🞫 @endif</button> -->
-                                </td>
-                                <td>
-                                    <a href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
-                                </td>
-                                <td>
-                                    <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['reporter_id'], $result['id']]) }}" data-name='{{ $Pusers[$result['reporter_id']]['name'] }}'>封鎖</a>
-                                </td>
-                                <td>
-                                    @if(isset($result['reported_user_id']))
-                                        <a href="{{ route('users/advInfo', $result['reported_user_id']) }}" target='_blank' @if($result['isBlockedReceiver']) style="color: #F00;" @endif>
-                                            {{ $Pusers[$result['reported_user_id']]['name'] }}
-                                            @if($Pusers[$result['reported_user_id']]['vip'] )
-                                                <i class="m-nav__link-icon fa fa-diamond"></i>
-                                            @endif
-                                            @if(!is_null($result['isBlockedReceiver']))
-                                                @if(!is_null($result['isBlockedReceiver']['expire_date']))
-                                                    ({{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天)
-                                                @else
-                                                    (永久)
-                                                @endif
-                                            @endif
-                                        </a>
-                                        
-                                    @else
-                                        照片已刪除或該筆資料不存在。
-                                    @endif
-                                </td>
-                                <td>
-                                    @if(isset($result->reported_user_id))
-                                        <a href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true, 'reported'] ) }}" target="_blank" class='btn btn-dark'>撰寫</a>
-                                    @else
-                                        照片已刪除或該筆資料不存在。
-                                    @endif
-                                </td>
-                                <td>
-                                    @if(isset($result['reported_user_id']))
-                                        <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['reported_user_id'], $result['id']]) }}" data-name='{{ $Pusers[$result['reported_user_id']]['name'] }}'>封鎖</a>
-                                    @else
-                                        照片已刪除或該筆資料不存在。
-                                    @endif
-                                </td>
-                                <td>
-                                    <img src="{{ $result['pic'] }}" alt="" height="200px">
-                                </td>
-                                <td width="45%" style="word-wrap: break-word;">{{ $result['content'] }}</td>
+                                @endif
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true, 'reported'] ) }}" target="_blank" class='btn btn-dark'>撰寫</a>
+                            </td>
+                            <td>
+                                <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['reported_user_id'], $result['id']]) }}" data-name="{{ $users[$result['reported_user_id']]['name'] }}">封鎖</a>
+                            </td>
+                            @if(!is_null($result['pic']))
+                            <td>
+                                <img src="{{ $result['pic'] }}" alt="此照片已刪除或不存在" height="200px">
+                            </td>
+                            <td>
+                                <form id="{{$rowIndex}}" action="/admin/users/pictures/modify" method="POST">
+                                    {!! csrf_field() !!}
+                                    <input class="btn btn-danger" type="submit" value="刪除" form="{{$rowIndex}}" onclick="deletePicture({{$rowIndex}})"><br>
+                                    <input type="hidden" name="delete" value="true">
+                                    <input type="hidden" name="avatar_id" value="{{$result['reported_user_id']}}">
+                                    <input type="radio" name="reason[{{$rowIndex}}]" value="非人物照片">非人物照片<br>
+                                    <input type="radio" name="reason[{{$rowIndex}}]" value="盜用圖片">盜用圖片<br>
+                                    <input type="radio" name="reason[{{$rowIndex}}]" value="非本人">非本人<br>
+                                    <input type="radio" name="reason[{{$rowIndex}}]" value="不雅照">不雅照<br>
+                                    其他: <input type="text" name="otherReason[{{$rowIndex}}]"><br>
+                                </form>
+                            </td>
+                            @else
+                            <td>
+                                此會員無上傳照片
+                            </td>
+                            <td>
+                            </td>
+                            @endif
+                            <td width="45%" style="word-wrap: break-word;">{{ $result['content'] }}</td>
+                            <td>{{ $result['created_at'] }}</td>
+                        </tr>
+                    @endforeach
+                    @endif
+                    @if(isset($Presults))
+                        @foreach ($Presults as $result)
+                        {{ $rowIndex += 1}}
+                        <tr >
+                            <td>
+                                <?php
+                                // var_dump($result['isBlocked']);
+                                ?>
                                 
-                                <td>{{ $result['created_at'] }}</td>
-                            </tr>
-                        @endforeach
-                        @endif
-                    </table>
-                </form>
+                                <a href="{{ route('users/advInfo', $result['reporter_id']) }}" target='_blank' @if($result['isBlocked']) style="color: #F00;" @endif>
+                                    {{ $Pusers[$result['reporter_id']]['name']}}
+                                
+                                @if($Pusers[$result['reporter_id']]['vip'] )
+                                    <i class="m-nav__link-icon fa fa-diamond"></i>
+                                @endif
+                                @if(!is_null($result['isBlocked']))
+                                    @if(!is_null($result['isBlocked']['expire_date']))
+                                        ({{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                    @else
+                                        (永久)
+                                    @endif
+                                @endif
+                                </a>
+                                
+                                <!-- <button type="button" onclick="toggleBanned({{ $result['reporter_id'] }});" target="_blank" class='text-white btn @if($result['isBlocked']) btn-success @else btn-danger @endif'>@if($result['isBlocked']) ◯ @else 🞫 @endif</button> -->
+                            </td>
+                            <td>
+                                <a href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
+                            </td>
+                            <td>
+                                <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['reporter_id'], $result['id']]) }}" data-name="{{ $Pusers[$result['reporter_id']]['name'] }}">封鎖</a>
+                            </td>
+                            <td>
+                                @if(isset($result['reported_user_id']))
+                                    <a href="{{ route('users/advInfo', $result['reported_user_id']) }}" target='_blank' @if($result['isBlockedReceiver']) style="color: #F00;" @endif>
+                                        {{ $Pusers[$result['reported_user_id']]['name'] }}
+                                        @if($Pusers[$result['reported_user_id']]['vip'] )
+                                            <i class="m-nav__link-icon fa fa-diamond"></i>
+                                        @endif
+                                        @if(!is_null($result['isBlockedReceiver']))
+                                            @if(!is_null($result['isBlockedReceiver']['expire_date']))
+                                                ({{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                            @else
+                                                (永久)
+                                            @endif
+                                        @endif
+                                    </a>
+                                    
+                                @else
+                                    照片已刪除或該筆資料不存在。
+                                @endif
+                            </td>
+                            <td>
+                                <a href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true, 'reported'] ) }}" target="_blank" class='btn btn-dark'>撰寫</a>
+                            </td>
+                            <td>
+                            <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['reported_user_id'], $result['id']]) }}" data-name="{{ $Pusers[$result['reported_user_id']]['name'] }}">封鎖</a>
+                            </td>
+                            @if(!is_null($result['pic']))
+                            <form>
+                                
+                            </form>
+                            <td>
+                                <img src="{{ $result['pic'] }}" alt="" height="200px">
+                            </td>
+                            <td>
+                                <form id="{{$rowIndex}}" action="/admin/users/pictures/modify" method="POST">
+                                    {!! csrf_field() !!}
+                                    <input class="btn btn-danger" type="submit" value="刪除" form="{{$rowIndex}}" onclick="deletePicture({{$rowIndex}})"><br>
+                                    <input type="hidden" name="delete" value="true">
+                                    <input type="hidden" name="pic_id" value="{{$result['reported_user_id']}}">
+                                    <input type="radio" name="reason[{{$rowIndex}}]" value="非人物照片">非人物照片<br>
+                                    <input type="radio" name="reason[{{$rowIndex}}]" value="盜用圖片">盜用圖片<br>
+                                    <input type="radio" name="reason[{{$rowIndex}}]" value="非本人">非本人<br>
+                                    <input type="radio" name="reason[{{$rowIndex}}]" value="不雅照">不雅照<br>
+                                    其他: <input type="text" name="otherReason[{{$rowIndex}}]"><br>
+                                </form>
+                            </td>
+                            @else
+                            <td>
+                                此會員無上傳照片
+                            </td>
+                            <td>
+                            </td>
+                            @endif
+                            <td width="45%" style="word-wrap: break-word;">{{ $result['content'] }}</td>
+                            
+                            <td>{{ $result['created_at'] }}</td>
+                        </tr>
+                    @endforeach
+                    @endif
+                </table>
             @endif
         @endif
     @endif
@@ -353,5 +404,34 @@
                 $('.ban-user').attr("href", href + '/' + $('.days').val());
             }
         }
+        /*function deletePicture(id){
+            let reported_user_id = $("input[name='reported_user_id[" + id +"]']").val();
+            let picType = $("input[name='picType[" + id +"]']").val();
+            let postData = {};
+            if (picType == 'avatar') {
+                postData = {
+                    delete: true,
+                    avatar_id: reported_user_id
+                }
+            }
+            else {
+                postData = {
+                    delete: true,
+                    pic_id: reported_user_id
+                }
+            }
+            $.ajax({
+                url: '/admin/users/pictures/modify',
+                type: 'POST',
+                data: postData,
+                success: function(response) {
+                    window.localhost.href = response.redirect;
+                },
+                error: function() {
+                    alert("刪除失敗");
+                }
+            }); 
+        }*/
+
     </script>
 @stop
