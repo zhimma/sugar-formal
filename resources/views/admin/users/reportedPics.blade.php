@@ -84,7 +84,11 @@
                                     <a href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
                                 </td>
                                 <td>
-                                    <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['reporter_id'], $result['id']]) }}" data-name='{{ $users[$result['reporter_id']]['name'] }}'>封鎖</a>
+                                    @if(isset($result['reporter_id']))
+                                        <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['reporter_id'], $result['id']]) }}" data-name='{{ $users[$result['reporter_id']]['name'] }}'>封鎖</a>
+                                    @else
+                                        檢舉者資料已不存在
+                                    @endif
                                 </td>
                                 <td>
                                     <a href="{{ route('users/advInfo', $result['reported_user_id']) }}" target='_blank' @if($result['isBlockedReceiver']) style="color: #F00;" @endif>{{ $users[$result['reported_user_id']]['name'] }}
