@@ -61,10 +61,10 @@
                         <td>檢舉理由</td>
                         <td>檢舉時間</td>
                     </tr>
-                    {{ $rowIndex = 0}}
+                    <? $rowIndex = 0; ?>
                     @if(isset($results))
                         @foreach ($results as $result)
-                        {{ $rowIndex += 1}}
+                        <? $rowIndex += 1; ?>
                         <tr >
                             <td>
                                 <a href="{{ route('users/advInfo', $result['reporter_id']) }}" target='_blank' @if($result['isBlocked']) style="color: #F00;" @endif >{{ $users[$result['reporter_id']]['name'] }}
@@ -164,7 +164,7 @@
                     @endif
                     @if(isset($Presults))
                         @foreach ($Presults as $result)
-                        <? $rowIndex += 1 ?>
+                        <? $rowIndex += 1; ?>
                         <tr >
                             <td>
                                 <a href="{{ route('users/advInfo', $result['reporter_id']) }}" target='_blank' @if($result['isBlocked']) style="color: #F00;" @endif>
