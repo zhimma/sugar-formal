@@ -113,10 +113,13 @@ class Vip extends Model
                 ->orderBy('created_at', 'desc')->get();
         if($curUser->engroup == 1){
             $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->created_at);
-            $day = $date->format('d');
+            $day = $date->day;
             $now = \Carbon\Carbon::now();
-            $nextMonth = $now->addMonth();
-            $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $nextMonth->year.'-'.$nextMonth->month.'-'.$day.' 00:00:00');
+            $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
+            if($now->day > $day){
+                $nextMonth = $now->addMonth();
+                $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $nextMonth->year.'-'.$nextMonth->month.'-'.$day.' 00:00:00');
+            }
             foreach ($user as $u){
                 $u->expiry = $date->toDateTimeString();
                 $u->save();
