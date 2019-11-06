@@ -67,7 +67,8 @@ class VipLogService {
         }
         else{
             $today = '28';
-            $fileName = 'RP_'. $this->business_id . '_' . Carbon::now()->addMonth()->startOfMonth()->format('Ymd') .'.dat';
+            // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
+            $fileName = 'RP_'. $this->business_id . '_' . Carbon::now()->addMonthsNoOverflow(1)->startOfMonth()->format('Ymd') .'.dat';
         }
         $fileContent = $this->business_id . ',' . $this->user_id . ',' . $this->order_id . ',,,' . intval($this->amount) . ',' . $today . ',' . $this->action . ',' . $this->status . ',' . $this->mode;
 
@@ -95,7 +96,8 @@ class VipLogService {
         }
         else{
             $today = '28';
-            $fileName = 'RP_'. $this->business_id . '_' . Carbon::now()->addMonth()->startOfMonth()->format('Ymd') .'.dat';
+            // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
+            $fileName = 'RP_'. $this->business_id . '_' . Carbon::now()->addMonthsNoOverflow(1)->startOfMonth()->format('Ymd') .'.dat';
         }
         $fileContent = $this->business_id . ',' . $this->user_id . ',' . $this->order_id . ',,,' . intval($this->amount) . ',' . $today . ',' . $this->action . ',' . $this->status . ',' . $this->mode;
         $log = new \App\Models\VipLogs;

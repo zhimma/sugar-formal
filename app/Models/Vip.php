@@ -121,7 +121,8 @@ class Vip extends Model
             $now = \Carbon\Carbon::now();
             $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
             if($now->day > $day){
-                $nextMonth = $now->addMonth();
+                // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
+                $nextMonth = $now->addMonthsNoOverflow(1);
                 $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $nextMonth->year.'-'.$nextMonth->month.'-'.$day.' 00:00:00');
             }
             foreach ($user as $u){
