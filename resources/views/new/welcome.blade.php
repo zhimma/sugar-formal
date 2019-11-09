@@ -10,7 +10,7 @@
         @media (max-width:767px) {
         .swiper-container {width: 100%;height: auto;border-radius:15px}
         .swiper-container1 {width: 100%;height: auto;border-radius:15px}
-        .swiper-slide {width: 100%;height: 200px !important;margin: 0 auto;padding: 0px;display: table}
+        .swiper-slide {width: 100%;height: 280px !important;margin: 0 auto;padding: 0px;display: table}
         .swiper-slide img {width: 100%;height: 100%;}
         }
         @media (max-width:992px) {

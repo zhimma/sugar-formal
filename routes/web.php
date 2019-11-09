@@ -147,6 +147,7 @@ Route::get('/privacy', 'PagesController@privacy');
 Route::get('/notification', 'PagesController@notification');
 Route::get('/feature', 'PagesController@feature');
 Route::get('/about', 'PagesController@about');
+Route::get('/browse', 'PagesController@browse');
 Route::get('/terms', 'PagesController@terms');
 Route::get('/contact', 'PagesController@contact');
 Route::get('/buyAvip', function (){return view('dashboard.buyAvip');});
@@ -232,8 +233,10 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     |--------------------------------------------------------------------------
     */
     Route::post('/dashboard', 'PagesController@profileUpdate');
+    Route::post('/dashboard2', 'PagesController@profileUpdate_ajax');
     Route::post('dashboard/settings', 'PagesController@settingsUpdate');
     Route::get('/dashboard', 'PagesController@dashboard')->name('dashboard');
+    Route::get('/dashboard2', 'PagesController@dashboard2')->name('dashboard2');
     Route::get('/dashboard/cancel', 'PagesController@showCheckAccount');
     Route::post('/dashboard/chat', 'MessageController@postChat');
     Route::post('/dashboard/chatpay', 'PagesController@postChatpay')->name('chatpay');
