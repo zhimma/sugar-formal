@@ -23,7 +23,9 @@ body{ display: flex;flex-direction: column;}
 	.chat{width: 100%;}
 	/*.sjright {clear: both;margin-right: 10px;}*/
 	.fenye a {margin: 0 10px;}
-	.wk_lx span {width: 200px;}
+	.wk_lx span {width: 200px;margin-bottom: 4px;}
+	.wk_lx {font-size: 16px;}
+	.wk_lx font {padding-left: 25px;}
 }
 
 @media (max-width:767px) {

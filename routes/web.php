@@ -175,7 +175,7 @@ Route::post('/password/reset', 'Auth\ResetPasswordController@reset');
 |--------------------------------------------------------------------------
 */
 Route::get('/register', 'Auth\RegisterController@showRegistrationForm2')->name('register');
-Route::get('/register2', 'Auth\RegisterController@showRegistrationForm')->name('register');
+Route::get('/register2', 'Auth\RegisterController@showRegistrationForm')->name('register2');
 Route::post('/register', 'Auth\RegisterController@register');
 
 Route::get('/activate/token/{token}', 'Auth\ActivateController@activate');

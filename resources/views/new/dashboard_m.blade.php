@@ -136,7 +136,7 @@
                   </dt>
                   <dt>
                       <span>身高（cm）<i>(必填)</i></span>
-                      <span><input  name="height" type="text" class="select_xx01"  placeholder="請填入身高" value="{{$umeta->height}}"></span>
+                      <span><input minlength="3"  data-parsley-minlength="3"  name="height" type="text" class="select_xx01"  placeholder="請填入身高" value="{{$umeta->height}}"></span>
                   </dt>
                   <dt>
                       <span>體型</span>
@@ -160,11 +160,11 @@
                   </dt>
                   <dt>
                       <span>關於我<i>(必填)</i></span>
-                      <span><textarea required data-parsley-errors-messages-disabled name="about" cols="" rows="3" class="select_xx05">{{$umeta->about}}</textarea></span>
+                      <span><textarea minlength="4"  data-parsley-minlength="4" required data-parsley-errors-messages-disabled name="about" cols="" rows="3" class="select_xx05">{{$umeta->about}}</textarea></span>
                   </dt>
                   <dt class="matopj15">
                       <span>期待的約會模式<i>(必填)</i></span>
-                      <span><textarea required data-parsley-errors-messages-disabled name="style" cols="" rows="3" class="select_xx05">{{$umeta->style}}</textarea></span>
+                      <span><textarea minlength="4"  data-parsley-minlength="4" required data-parsley-errors-messages-disabled name="style" cols="" rows="3" class="select_xx05">{{$umeta->style}}</textarea></span>
                   </dt>
                   <dt>
                       <span>產業</span>

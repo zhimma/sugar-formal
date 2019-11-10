@@ -400,7 +400,9 @@ class PagesController extends Controller
         $year = $birthday[0];
         $month = $birthday[1];
         $day = $birthday[2];
-
+        if($year=='1970'){
+            $year=$month=$day='';
+        }
         if ($user) {
             $cancel_notice = $request->session()->get('cancel_notice');
             $message = $request->session()->get('message');
