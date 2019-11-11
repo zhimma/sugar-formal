@@ -4,10 +4,10 @@
 <h1>{{ $id1->name }} 與 {{ $id2->name }} 的所有訊息</h1>
 <table class="table table-hover table-bordered">
 	<tr>
-		<td>發訊</td>
-		<td>收訊</td>
-		<td>內容</td>
-		<td>發送時間</td>
+		<th>發訊</th>
+		<th>收訊</th>
+		<th>內容</th>
+		<th>發送時間</th>
 	</tr>
 	@forelse ($messages as $m)
 		<tr>

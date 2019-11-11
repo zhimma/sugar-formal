@@ -245,7 +245,9 @@ class AdminService
                 $users[$id]['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
             }
             else{
-                $users[$id] = '資料庫沒有資料';
+                $users[$id] = new User;
+                $users[$id]['name'] = '使用者資料不存在';
+                $users[$id]['vip'] = false;
             }
         }
         return ['results' => $results,
@@ -287,7 +289,7 @@ class AdminService
                 $users[$id]['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
             }
             else{
-               $users[$id]['name'] = "查無使用者";
+               $users[$id]['name'] = "使用者資料不存在";
                $users[$id]['vip'] = "false";
             }
         }
@@ -340,7 +342,7 @@ class AdminService
                 $users[$id]['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
             }
             else{
-                $users[$id]['name'] = "查無使用者";
+                $users[$id]['name'] = "使用者資料不存在";
                 $users[$id]['vip'] = '照片已刪除或該筆資料不存在。';
                 $users[$id]['expire_date'] = "NULL";
             }

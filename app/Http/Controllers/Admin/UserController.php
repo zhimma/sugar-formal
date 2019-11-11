@@ -172,9 +172,8 @@ class UserController extends Controller
                         return redirect('admin/users/advInfo/'.$request->user_id);
                     break;
                 }
-            }
-            else{
-                $beenBanned = true;
+            }else{
+                return $this->advSearch($request, 'unban');
             }
         }
         else{
@@ -188,20 +187,15 @@ class UserController extends Controller
             }
             $userBanned->save();
 
-            $beenBanned = false;
-        }
-        if(isset($request->page)){
-            switch($request->page){
-                case 'advInfo':
-                    return redirect('admin/users/advInfo/'.$request->user_id);
-                break;
+            if(isset($request->page)){
+                switch($request->page){
+                    case 'advInfo':
+                        return redirect('admin/users/advInfo/'.$request->user_id);
+                    break;
+                }
+            }else{
+                return $this->advSearch($request, 'ban');
             }
-        }
-        elseif($beenBanned){
-            return $this->advSearch($request, 'unban');
-        }
-        else{
-            return $this->advSearch($request, 'ban');
         }
 
     }
@@ -238,8 +232,7 @@ class UserController extends Controller
         $userBanned->member_id = $user_id;
         
         if($days != 'X') {
-            if(!is_null($userBanned->expire_date))
-                $userBanned->expire_date = Carbon::now()->addDays($days);
+            $userBanned->expire_date = Carbon::now()->addDays($days);
         }else{
             $userBanned->expire_date = null;
         }
@@ -250,6 +243,7 @@ class UserController extends Controller
         }
         
         if(isset($msg_database)){
+            // 如果 reported 找不到訊息，再往message找
             switch($msg_database){
                 case 'Reported':
                     $message = Reported::select($msg_database.'.content', $msg_database.'.created_at')
