@@ -126,7 +126,7 @@
                 </td>
                 @if(isset($reported) && $reported == 1)
                 <td>
-                    <a class="btn btn-danger ban-user{{ $key }}" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result->from_id, $result->id]) }} " data-name='{{ $users[$result['from_id']]['name'] }}'>封鎖</a>
+                    <a class="btn btn-danger ban-user{{ $key }}" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result->from_id, $result->id]) }} " data-name="{{ $users[$result['from_id']]['name'] }}">封鎖</a>
                 </td>
                 @endif
                 <td @if($result['isBlockedReceiver']) style="background-color:#FFFF00" @endif>
@@ -151,7 +151,7 @@
                 </td>
                 @if(isset($reported) && $reported == 1)
                 <td>
-                    <a class="btn btn-danger ban-user{{ $key }}" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result->to_id, $result->id]) }}" data-name='{{ $users[$result['to_id']]['name'] }}'>封鎖</a>
+                    <a class="btn btn-danger ban-user{{ $key }}" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result->to_id, $result->id]) }}" data-name="{{ $users[$result['to_id']]['name'] }}">封鎖</a>
                 </td>
                 @endif
                 <td width="45%" style="word-wrap: break-word;">{{ $result['content'] }}</td>
@@ -209,7 +209,7 @@
                 </td>
                 <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][0]['id'] ]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>
                 <td>
-                    <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }} " data-name='{{ $sender['name'] }}'>封鎖</a>
+                    <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }} " data-name="{{ $sender['name'] }}">封鎖</a>
                 </td>
                 <td rowspan="{{ count($sender['messages']) }}">{{ $sender['created_at'] }}</td>
                 <td rowspan="{{ count($sender['messages']) }}">{{ $sender['last_login'] }}</td>
