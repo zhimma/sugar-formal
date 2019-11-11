@@ -18,6 +18,7 @@
                         <div class="m-loader m-loader--right m-loader--light">
                             <div class="de_input01 dlmarbot ">
                                 <div class="de_img"><img src="/new/images/lo_03.png"></div>
+                                <input  type="password"  class="d-none">
                                 <input name="email" type="email" autocomplete="off" class="d_input" placeholder="帳號 (您的Email)" values="{{ old('email') }}" required>
                             </div>
                         </div>
@@ -43,7 +44,7 @@
                 var error = $('ul.parsley-errors-list li');
                 var msg=[];
                 for (var i = 0; i <error.length; i++) {
-                    msg.i=error.eq(i).html();
+                    msg[i]=error.eq(i).html();
                 }
                 msg = Array.from(new Set(msg));
                 ResultData({

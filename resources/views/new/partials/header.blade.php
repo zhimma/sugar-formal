@@ -20,6 +20,10 @@
 		<script src="/new/js/main.js" type="text/javascript"></script>
 		<script src="/new/js/loading.js" type="text/javascript"></script>
 		<script src="/plugins/sweetalert/sweetalert2.js" type="text/javascript"></script>
-
+		<link href="/plugins/fileuploader2.2/dist/font/font-fileuploader.css" rel="stylesheet" type="text/css">
+		<link href="/plugins/fileuploader2.2/dist/jquery.fileuploader.min.css" rel="stylesheet" type="text/css">
+        <link href="/plugins/fileuploader2.2/css/jquery.fileuploader-theme-thumbnails.css" rel="stylesheet" type="text/css">
+        <link href="/plugins/hopscotch/css/hopscotch.min.css" rel="stylesheet" type="text/css" />
+        <link href="https://unpkg.com/ionicons@4.5.10-0/dist/css/ionicons.min.css" rel="stylesheet">
 		<link rel="shortcut icon" href="/img/favicon.jpg" />
 	</head>

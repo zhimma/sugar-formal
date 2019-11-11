@@ -196,4 +196,37 @@ class ImageController extends Controller
         }
 
     }
+
+    public function fileuploader_image_upload()
+    {
+        // 確保上傳資料夾存在
+        @mkdir($this->img_dir, 0777, true);
+        include( public_path(). '/plugins/fileuploader2/src/class.fileuploader.php');
+        // 上傳圖片
+        $fileUploader = new MyFileUploader('files', array(
+            'fileMaxSize' => 8,
+            'extensions' => ['jpg', 'jpeg', 'png', 'gif'],
+            'required' => true,
+            'uploadDir' => $this->img_dir,
+            'title' => time(),
+            'replace' => false,
+        ));
+        $upload = $fileUploader->upload();
+
+        if ($upload['isSuccess']) {
+            // 製作縮圖
+            // 縮圖檔名: 原檔名後綴 "_thumbnail"
+            $img = $upload['files'][0];
+            $thumbnail = $this->img_dir.basename($img['name'], '.'.$img['extension']).'_thumbnail.'.$img['extension'];
+            if (MyFileUploader::resize($img['file'], 200, 200, $thumbnail, null, 100)) {
+                $return = $this->ReturnHandle(true, '/'.$img['file']);
+            } else {
+                $return = $this->ReturnHandle(false, $this->lang->line('Update_Info_fail'));
+            }
+        } else {
+            $return = $this->ReturnHandle(false, $this->lang->line('Update_Info_fail'));
+        }
+
+        $this->output->set_content_type('application/json')->set_output(json_encode($return));
+    }
 }
