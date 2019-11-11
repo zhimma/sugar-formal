@@ -13,7 +13,7 @@
 	@if($user['vip'])
 		<button class="btn btn-info" onclick="VipAction({{($user['vip'])?'1':'0' }},{{ $user['id'] }})"> 取消VIP </button>
 	@else 
-		<button class="btn btn-info" onclick="VipAction({{($user['vip'])?'1':'0' }},{{ $user['id'] }} )"> 升級VIP </button>
+		<button class="btn btn-info" onclick="VipAction({{($user['vip'])?'1':'0' }},{{ $user['id'] }})"> 升級VIP </button>
 	@endif
 	@if(is_null($userMeta->activation_token))
 		<b style="font-size:18px">已開通會員</b>
@@ -148,15 +148,25 @@
 		<td>發送給</td>
 		<td>內容</td>
 		<td>發送時間</td>
+		<td>回覆收訊者</td>
+		<td>封鎖收訊者</td>
         <td style="text-align: center; vertical-align: middle"><button type="submit" class="btn btn-danger delete-btn">刪除選取</button></td>
 	</tr>
-	@forelse ($userMessage as $uM)
+	@forelse ($userMessage as $key => $message)
 		<tr>
-			<td><a href="{{ route('admin/showMessagesBetween', [$user->id, $uM->to_id]) }}" target="_blank">{{ $to_ids[$uM->to_id]['name'] }}@if($to_ids[$uM->to_id]['vip'] )<i class="fa fa-diamond"></i>@endif</a></td>
-			<td>{{ $uM->content }}</td>
-			<td>{{ $uM->created_at }}</td>
+			<td>
+				<a href="{{ route('admin/showMessagesBetween', [$user->id, $message->to_id]) }}" target="_blank">{{ $to_ids[$message->to_id]['name'] }}@if($to_ids[$message->to_id]['vip'] )<i class="fa fa-diamond"></i>@endif</a>
+			</td>
+			<td>{{ $message->content }}</td>
+			<td>{{ $message->created_at }}</td>
+			<td>
+				<a href="{{ route('AdminMessengerWithMessageId', [$message->to_id, $message->id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
+			</td>
+			<td>
+				<a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$message->to_id, $message->id]) }}" target="_blank">封鎖</a>
+			</td>
             <td style="text-align: center; vertical-align: middle">
-                <input type="checkbox" name="msg_id[]" value="{{ $uM->id }}" class="form-control">
+                <input type="checkbox" name="msg_id[]" value="{{ $message->id }}" class="form-control">
             </td>
 		</tr>
     @empty
@@ -183,7 +193,7 @@
 	@endforelse
 </table>
 </body>
-<div class="modal fade" id="blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+{{-- <div class="modal fade" id="blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -192,7 +202,8 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="/admin/users/toggleUserBlock" method="POST" id="clickToggleUserBlock">{!! csrf_field() !!}
+            <form action="/admin/users/toggleUserBlock" method="POST" id="clickToggleUserBlock">
+            	{!! csrf_field() !!}
 				<input type="hidden" value="" name="user_id" id="blockUserID">
 				<input type="hidden" value="advInfo" name="page">
                 <div class="modal-body">
@@ -219,9 +230,10 @@
             </form>
         </div>
     </div>
-</div>
+</div> --}}
 <div>
-	<form action="/admin/users/VIPToggler" method="POST" id="clickVipAction">{{ csrf_field() }}
+	<form action="/admin/users/VIPToggler" method="POST" id="clickVipAction">
+		{{ csrf_field() }}
 		<input type="hidden" value="" name="user_id" id="vipID">
 		<input type="hidden" value="" name="isVip" id="isVip">
 		<input type="hidden" value="advInfo" name="page">
@@ -235,12 +247,34 @@ jQuery(document).ready(function(){
             e.preventDefault();
         }
 	});
-	$('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
-		if (typeof $(this).data('id') !== 'undefined') {
-			$("#exampleModalLabel").html('封鎖 '+ $(this).data('name'))
-			$("#blockUserID").val($(this).data('id'))
-		}
-	})
+	// $('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
+	// 	if (typeof $(this).data('id') !== 'undefined') {
+	// 		$("#exampleModalLabel").html('封鎖 '+ $(this).data('name'))
+	// 		$("#blockUserID").val($(this).data('id'))
+	// 	}
+	// });
+
+
+/*$('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
+	var data_id = '';
+	if (typeof $(this).data('id') !== 'undefined') {
+		data_id = $(this).data('id');
+		$("#exampleModalLabel").html('封鎖 '+ $(this).data('name'))
+	}
+	$("#send_blockade").attr('href', data_id);
+});*/
+// $('.advertising').on('click', function(e) {
+// 	$('.m-reason').val('廣告');
+// });
+// $('.improper-behavior').on('click', function(e) {
+// 	$('.m-reason').val('非徵求包養行為');
+// });
+// $('.improper-words').on('click', function(e) {
+// 	$('.m-reason').val('用詞不當');
+// });
+// $('.improper-photo').on('click', function(e) {
+// 	$('.m-reason').val('照片不當');
+// });
 });
 function Release(id) {
 	$("#blockUserID").val(id);
@@ -250,6 +284,23 @@ function VipAction(isVip, user_id){
 	$("#isVip").val(isVip);
 	$("#vipID").val(user_id);
 	$("#clickVipAction").submit();
+}
+function setDays(button){
+    
+    let reason = $(".m-reason").val();
+    let days = $(".days").val();
+    button.attr('href', button.attr('href') + '/' + days + '&' + reason);
+    // if open href in a new windows and continue ban user by message
+    // need reset the href from data-id
+    window.location.href = button.attr('href');
+}
+function changeFormContent(form_id , key) {
+    let href = $(".ban-user" + key).data('id');
+    $("#" + form_id + " button[type='submit']").attr({
+        'type': 'button',
+        'href': href,
+        'onClick' : 'setDays($(this))'
+    });    
 }
 </script>
 </html>

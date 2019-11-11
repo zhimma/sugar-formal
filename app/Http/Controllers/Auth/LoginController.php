@@ -57,9 +57,9 @@ class LoginController extends Controller
      */
     public function authenticated(Request $request)
     {
-        // if (auth()->user()->hasRole('admin')) {
-        //     return redirect('/admin/search');
-        // }
+        if (auth()->user()->hasRole('readonly')) {
+             return redirect(route('users/VIP/ECCancellations/readOnly'));
+        }
         $banned_users = banned_users::select('*')->where('member_id', \Auth::user()->id)->orderBy('expire_date', 'desc')->get()->first();
         $now = new Carbon;
         if(isset($banned_users) && !isset($banned_users->expire_date)){

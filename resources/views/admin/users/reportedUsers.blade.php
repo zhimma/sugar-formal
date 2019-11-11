@@ -78,15 +78,13 @@
                                     @endif
                                 @endif
                             </a>
-                            <!-- <button type="button" onclick="toggleBanned({{ $result['member_id'] }});" target="_blank" class='text-white btn @if($result['isBlocked']) btn-success @else btn-danger @endif'>@if($result['isBlocked']) ◯ @else 🞫 @endif</button> -->
                         </td>
                         <td>
                             <a href="{{ route('AdminMessengerWithReportedId', [$result->member_id, $result->reported_id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
                         </td>
                         <td>
-                            <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['member_id'], $result['id'] ]) }}&reported " data-name='{{ $users[$result['member_id']]['name']}}'>封鎖</a>
+                            <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [ $result['member_id'], $result['id'] , 'reported' ] ) }}">封鎖</a>
                         </td>
-                        <!-- <td>{{ $result['vip'] }}</td> -->
                         <td>
                             <a href="{{ route('users/advInfo', $result['reported_id']) }}" target='_blank' @if($result['isBlockedReceiver']) style="color: #F00;" @endif>{{ $users[$result['reported_id']]['name'] }}
                                 @if($users[$result['reported_id']]['vip'])
@@ -105,20 +103,11 @@
                             <a href="{{ route('AdminMessengerWithReportedId', [$result->member_id, $result->reported_id, $result->id, 0, 'reported']) }}" target="_blank" class='btn btn-dark'>撰寫</a>
                         </td>
                         <td>
-                            <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['reported_id'], $result['id']]) }}&reported " data-name='{{ $users[$result['reported_id']]['name']}}'>封鎖</a>
+                            <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$result['reported_id'], $result['id'], 'reported'])}}">封鎖</a>
                         </td>
                         <td width="45%" style="word-wrap: break-word;">{{ $result['content'] }}</td>
                         
                         <td>{{ $result['created_at'] }}</td>
-                        <!-- <td>
-                            <select name="days" id="days">
-                                <option value="3">三天</option>
-                                <option value="7">七天</option>
-                                <option value="14">十四天</option>
-                                <option value="30">三十天</option>
-                            </select>
-                            <a class="btn btn-success ban-user" href="{{ route('banUserWithDayAndMessage', [$result['id'], 0]) }}" onclick="setDays(this)">送出</a>
-                        </td> -->
                     </tr>
                 @empty
                     沒有資料
@@ -129,7 +118,7 @@
     @endif
 @endif
 </body>
-<div class="modal fade" id="blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+{{-- <div class="modal fade" id="blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -161,7 +150,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 <script>
     let date = new Date();
     let year = date.getFullYear();
@@ -228,26 +217,26 @@
                 e.preventDefault();
             }
         });
-        $('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
-            var data_id = '';
-            if (typeof $(this).data('id') !== 'undefined') {
-                data_id = $(this).data('id');
-                $("#exampleModalLabel").html('封鎖 '+ $(this).data('name'))
-            }
-            $("#send_blockade").attr('href', data_id);
-        })
-        $('.advertising').on('click', function(e) {
-            $('.m-reason').val('廣告');
-        });
-        $('.improper-behavior').on('click', function(e) {
-            $('.m-reason').val('非徵求包養行為');
-        });
-        $('.improper-words').on('click', function(e) {
-            $('.m-reason').val('用詞不當');
-        });
-        $('.improper-photo').on('click', function(e) {
-            $('.m-reason').val('照片不當');
-        });
+        // $('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
+        //     var data_id = '';
+        //     if (typeof $(this).data('id') !== 'undefined') {
+        //         data_id = $(this).data('id');
+        //         $("#exampleModalLabel").html('封鎖 '+ $(this).data('name'))
+        //     }
+        //     $("#send_blockade").attr('href', data_id);
+        // })
+        // $('.advertising').on('click', function(e) {
+        //     $('.m-reason').val('廣告');
+        // });
+        // $('.improper-behavior').on('click', function(e) {
+        //     $('.m-reason').val('非徵求包養行為');
+        // });
+        // $('.improper-words').on('click', function(e) {
+        //     $('.m-reason').val('用詞不當');
+        // });
+        // $('.improper-photo').on('click', function(e) {
+        //     $('.m-reason').val('照片不當');
+        // });
     });
 
     function selectAll () {
@@ -275,19 +264,19 @@
         window.open(url + '/admin/users/toggleUserBlock/' + id);
         history.go(0);
     }
-    let count = 0;
-    function setDays(a) {
-        if(count === 0){
-            let href = a.href;
-            let reason = $('.m-reason').val();
-            if(reason != '') {
-                $('.ban-user').attr("href", href + '/' + $('.days').val() + '&' + reason);
-            }else{
-                $('.ban-user').attr("href", href + '/' + $('.days').val() );
-            }
+    // let count = 0;
+    // function setDays(a) {
+    //     if(count === 0){
+    //         let href = a.href;
+    //         let reason = $('.m-reason').val();
+    //         if(reason != '') {
+    //             $('.ban-user').attr("href", href + '/' + $('.days').val() + '&' + reason);
+    //         }else{
+    //             $('.ban-user').attr("href", href + '/' + $('.days').val() );
+    //         }
             
-        }
-        count++;
-    }
+    //     }
+    //     count++;
+    // }
 </script>
 @stop

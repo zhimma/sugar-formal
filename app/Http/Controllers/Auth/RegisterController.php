@@ -93,6 +93,7 @@ class RegisterController extends Controller
             'required'      => ':attribute不可為空',    
             'email.email'   => 'E-mail格式錯誤',
             'email.unique'  => '此 E-mail 已被註冊',
+            'min:6' =>'密碼欄位需6個字元以上',
             'password.confirmed' => '密碼確認錯誤'
         ];
         $attributes = [

@@ -147,6 +147,7 @@ Route::get('/privacy', 'PagesController@privacy');
 Route::get('/notification', 'PagesController@notification');
 Route::get('/feature', 'PagesController@feature');
 Route::get('/about', 'PagesController@about');
+Route::get('/browse', 'PagesController@browse');
 Route::get('/terms', 'PagesController@terms');
 Route::get('/contact', 'PagesController@contact');
 Route::get('/buyAvip', function (){return view('dashboard.buyAvip');});
@@ -174,7 +175,7 @@ Route::post('/password/reset', 'Auth\ResetPasswordController@reset');
 |--------------------------------------------------------------------------
 */
 Route::get('/register', 'Auth\RegisterController@showRegistrationForm2')->name('register');
-Route::get('/register2', 'Auth\RegisterController@showRegistrationForm')->name('register');
+Route::get('/register2', 'Auth\RegisterController@showRegistrationForm')->name('register2');
 Route::post('/register', 'Auth\RegisterController@register');
 
 Route::get('/activate/token/{token}', 'Auth\ActivateController@activate');
@@ -239,8 +240,10 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     |--------------------------------------------------------------------------
     */
     Route::post('/dashboard', 'PagesController@profileUpdate');
+    Route::post('/dashboard2', 'PagesController@profileUpdate_ajax');
     Route::post('dashboard/settings', 'PagesController@settingsUpdate');
     Route::get('/dashboard', 'PagesController@dashboard')->name('dashboard');
+    Route::get('/dashboard2', 'PagesController@dashboard2')->name('dashboard2');
     Route::get('/dashboard/cancel', 'PagesController@showCheckAccount');
     Route::post('/dashboard/chat', 'MessageController@postChat');
     Route::post('/dashboard/chatpay', 'PagesController@postChatpay')->name('chatpay');
@@ -342,7 +345,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('users/toggleUserBlock', 'UserController@toggleUserBlock');
         Route::get('users/toggleUserBlock/{id}', 'UserController@toggleUserBlock_simple')->name('toggleUserBlock');
         Route::post('users/userUnblock', 'UserController@userUnblock');
-        Route::get('users/banUserWithDayAndMessage/{user_id}/{msg_id}/{days?}', 'UserController@banUserWithDayAndMessage')->name('banUserWithDayAndMessage');
+        Route::get('users/banUserWithDayAndMessage/{user_id}/{msg_id}/{isReported?}', 'UserController@showBanUserDialog')->name('banUserWithDayAndMessage');
+        Route::post('users/banUserWithDayAndMessage', 'UserController@banUserWithDayAndMessage');
         Route::get('users/pictures', 'UserController@showUserPictures')->name('users/pictures');
         Route::post('users/pictures', 'UserController@searchUserPictures')->name('users/pictures');
         Route::post('users/pictures/modify', 'UserController@modifyUserPictures')->name('users/pictures/modify');

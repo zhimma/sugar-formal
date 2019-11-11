@@ -198,14 +198,14 @@ a:hover{ color:#e44e71; text-decoration:none}
 .xl_text dt font img{ height:20px}
 
 
-.select_xx{width:49%; border:#d2d2d2 1px solid; border-radius:4px;height:40px; padding:0 6px; color:#999999; background:#ffffff;font-size:15px;}
-.select_xx01{width:100%; border:#d2d2d2 1px solid; border-radius:4px;height:40px; margin-right:1%;padding:0 8px;color:#999999;background:#ffffff; font-size:15px;}
-.select_xx02{width:100%; border:#d2d2d2 1px solid; border-radius:4px;margin-right:1%;padding:5px 6px;color:#999999; line-height:25px;background:#ffffff; display:table;font-size:15px;}
-.select_xx03{width:100%;border-radius:4px;margin-right:0%;padding:5px 6px;color:#999999; line-height:25px;background:#f8f8f8;font-size:15px; }
-.select_xx04{width:92%; border:#d2d2d2 1px solid; border-radius:4px;height:40px; padding:0 12px; color:#999999; background:#ffffff;font-size:15px;}
+.select_xx{width:49%; border:#d2d2d2 1px solid; border-radius:4px;height:40px; padding:0 6px; color:#555; background:#ffffff;font-size:15px;}
+.select_xx01{width:100%; border:#d2d2d2 1px solid; border-radius:4px;height:40px; margin-right:1%;padding:0 8px;color:#555;background:#ffffff; font-size:15px;}
+.select_xx02{width:100%; border:#d2d2d2 1px solid; border-radius:4px;margin-right:1%;padding:5px 6px;color:#555; line-height:25px;background:#ffffff; display:table;font-size:15px;}
+.select_xx03{width:100%;border-radius:4px;margin-right:0%;padding:5px 6px;color:#555; line-height:25px;background:#f8f8f8;font-size:15px; }
+.select_xx04{width:92%; border:#d2d2d2 1px solid; border-radius:4px;height:40px; padding:0 12px; color:#555; background:#ffffff;font-size:15px;}
 
-.select_xx05{width:100%; border:#d2d2d2 1px solid; border-radius:4px;padding:5px 10px;color:#999999; line-height:25px;background:#ffffff;font-size:15px;}
-.select_xx06{width:47%; border:#d2d2d2 1px solid; border-radius:4px;height:40px; padding:0 6px; color:#999999; background:#ffffff;font-size:15px;}
+.select_xx05{width:100%; border:#d2d2d2 1px solid; border-radius:4px;padding:5px 10px;color:#555; line-height:25px;background:#ffffff;font-size:15px;}
+.select_xx06{width:47%; border:#d2d2d2 1px solid; border-radius:4px;height:40px; padding:0 6px; color:#555; background:#ffffff;font-size:15px;}
 
 .se_zlman{width:49%;}
 .se_zlman i{ float:right; margin-right:5px; font-style:normal; line-height:40px; color:#666666 !important}
@@ -214,11 +214,11 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 
 @media (max-width:767px) {
-.select_xx04{width:83%; border:#d2d2d2 1px solid; border-radius:4px;height:40px; padding:0 6px; color:#999999; background:#ffffff}
+.select_xx04{width:83%; border:#d2d2d2 1px solid; border-radius:4px;height:40px; padding:0 6px; color:#555; background:#ffffff}
 
 }
 @media (max-width:370px) {
-.select_xx04{width:80%; border:#d2d2d2 1px solid; border-radius:4px;height:40px; padding:0 6px; color:#999999; background:#ffffff}
+.select_xx04{width:80%; border:#d2d2d2 1px solid; border-radius:4px;height:40px; padding:0 6px; color:#555; background:#ffffff}
 }
 
 .senhs{ background:#f8f8f8; border:none}
@@ -422,7 +422,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 }
 @media (max-width:767px) {
 	
-.sjlist{width:100%; display:table; margin-bottom:20px; min-height:515px}
+.sjlist{width:100%; display:table; margin-bottom:20px; /*min-height:515px*/}
 .shou{margin-top:20px; margin-bottom:20px }
 
 }
@@ -607,7 +607,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .zhuce{width:100%; display:table; margin-bottom:15px}
 .zhuce h2{ font-size:25px; color:#fd5678; text-align:center;font-weight:bold}
 .zhuce h3{ font-size:15px; color:#999999; text-align:center; line-height:35px}
-.zcinput{width:90%; height:40px; background:#f8f8f8; border-radius:50px; display:table; border:none;outline:none; margin-left:5%}
+.zcinput{width:90%; height:40px; background:#f8f8f8; /*border-radius:50px;*/ display:table; border:none;outline:none; margin-left:5%}
 
 
 .de_input02{width:100%; height:40px; background:#f8f8f8; border-radius:25px; display:table; padding:20px 20px}
@@ -1128,15 +1128,15 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 
 .swesy{position:relative;box-shadow: 0 0 10px #cccccc; margin-top:15px; border-radius:15px;width:100%; margin-bottom:10px;}
 .swname{ position:absolute; top:30%;width:50%; text-align:center; z-index:3; color:#ffffff; font-size:24px; font-weight:bold; margin-left:25%}
-.swname span{width:100px; height:35px; line-height:35px; background:rgba(231,93,124,0.7); display:table; margin:0 auto; border-radius:100px; margin-top:5px; font-weight:normal; font-size:18px; padding:0 20px}
+.swname span{overflow : hidden;text-overflow : ellipsis;white-space : nowrap;width:300px; height:45px; line-height:30px; background:rgba(231,93,124,0.7); display:table; margin:0 auto; border-radius:100px; margin-top:5px; font-weight:normal; font-size:18px; padding:15px 20px}
 .swname_s{ background:rgba(115,203,243,0.7) !important; }
 
 
 .swtext{width:90%; display:table; margin-top:15px; margin-left:20px;}
-.swtext h2{ height:20px; line-height:20px; font-size:22px; font-weight:bold; border-left:5px solid #fe92a8; color:#fe92a8; margin-bottom:15px;}
+.swtext h2{ height:20px; line-height:20px; font-size:20px; font-weight:bold; border-left:5px solid #fe92a8; color:#fe92a8; margin-bottom:10px;}
 .swtext h2 i{ font-style:normal; margin-left:8px;}
 
-.swtext h4{ height:20px; line-height:20px; font-size:22px; font-weight:bold; border-left:5px solid #73cbf8; color:#73cbf8; margin-bottom:15px;}
+.swtext h4{ height:20px; line-height:20px; font-size:22px; font-weight:bold; border-left:5px solid #73cbf8; color:#73cbf8; margin-bottom:9px;}
 .swtext h4 i{ font-style:normal; margin-left:8px;}
 
 .swtext h3{width:calc(100% - 15px); float:right; display: inline; color:#666666; font-size:18px;}
@@ -1149,8 +1149,8 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .n_tjleft{width:100%;}
 .n_tuijian_tit{ font-size:26px; line-height:40px;color:#333333; font-weight:bold; display:table;width:100%; padding:0px 0}
 
-.swtext{width:100%; display:table; margin-top:15px; margin-left:0px;}
-.swtext h2{ height:20px; line-height:20px; font-size:16px; font-weight:bold; border-left:5px solid #fe92a8; color:#fe92a8; margin-bottom:10px;}
+.swtext{width:100%; display:table; margin-top:10px; margin-left:0px;}
+.swtext h2{ height:20px; line-height:20px; font-size:16px; font-weight:bold; border-left:5px solid #fe92a8; color:#fe92a8; margin-bottom:9px;}
 .swtext h2 i{ font-style:normal; margin-left:8px;}
 .swtext h3{width:calc(100% - 15px); float:right; display: inline; color:#666666}
 .swtop30{ margin-top:10px !important;}

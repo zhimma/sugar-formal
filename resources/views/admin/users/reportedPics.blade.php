@@ -81,11 +81,11 @@
                                 </a>
                             </td>
                             <td>
-                                <a href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
+                                <a class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" >撰寫</a>
                             </td>
                             <td>
                                 @if(isset($result['reporter_id']))
-                                    <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['reporter_id'], $result['id']]) }}" data-name="{{ $users[$result['reporter_id']]['name'] }}">封鎖</a>
+                                    <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$result['reporter_id'], $result['id']]) }}" target="_blank">封鎖</a>
                                 @else
                                     檢舉者資料已不存在
                                 @endif
@@ -105,11 +105,11 @@
                                 </a>
                             </td>
                             <td>
-                                <a href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true, 'reported'] ) }}" target="_blank" class='btn btn-dark'>撰寫</a>
+                                <a class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" >撰寫</a>
                             </td>
                             <td>
-                                @if(isset($result['reported_user_id']))
-                                    <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['reported_user_id'], $result['id']]) }}" data-name="{{ $users[$result['reported_user_id']]['name'] }}">封鎖</a>
+                                @if(isset($result['reporter_id']))
+                                    <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$result['reported_user_id'], $result['id']]) }}">封鎖</a>
                                 @else
                                     被檢舉者資料已不存在
                                 @endif
@@ -121,7 +121,7 @@
                                 <td>
                                     <form id="{{$rowIndex}}" action="/admin/users/pictures/modify" method="POST">
                                         {!! csrf_field() !!}
-                                        <input class="btn btn-danger" type="submit" value="刪除" form="{{$rowIndex}}" onclick="deletePicture({{$rowIndex}})"><br>
+                                        <input class="btn btn-danger" type="submit" value="刪除" form="{{$rowIndex}}"><br>
                                         <input type="hidden" name="delete" value="true">
                                         <input type="hidden" name="avatar_id" value="{{$result['reported_user_id']}}">
                                         <input type="radio" name="reason[{{$rowIndex}}]" value="非人物照片">非人物照片<br>
@@ -150,6 +150,7 @@
                             <td>
                                 <a href="{{ route('users/advInfo', $result['reporter_id']) }}" target='_blank' @if($result['isBlocked']) style="color: #F00;" @endif>
                                     {{ $Pusers[$result['reporter_id']]['name']}}
+                                
                                     @if($Pusers[$result['reporter_id']]['vip'] )
                                         <i class="m-nav__link-icon fa fa-diamond"></i>
                                     @endif
@@ -163,11 +164,11 @@
                                 </a>
                             </td>
                             <td>
-                                <a href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
+                                <a class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" >撰寫</a>
                             </td>
                             <td>
                                 @if(isset($result['reporter_user_id']))
-                                    <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['reporter_id'], $result['id']]) }}" data-name="{{ $Pusers[$result['reporter_id']]['name'] }}">封鎖</a>
+                                    <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$result['reporter_id'], $result['id']]) }}" target="_blank">封鎖</a>
                                 @else
                                     檢舉者資料已不存在
                                 @endif
@@ -187,40 +188,38 @@
                                             @endif
                                         @endif
                                     </a>
+                                    
                                 @else
                                     照片已刪除或該筆資料不存在。
                                 @endif
                             </td>
                             <td>
-                                <a href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true, 'reported'] ) }}" target="_blank" class='btn btn-dark'>撰寫</a>
+                                <a target="_blank" class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true, 'reported'] ) }}"  >撰寫</a>
                             </td>
                             <td>
                                 @if(isset($result['reported_user_id']))
-                                    <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result['reported_user_id'], $result['id']]) }}" data-name="{{ $Pusers[$result['reported_user_id']]['name'] }}">封鎖</a>
+                                    <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$result['reported_user_id'], $result['id']]) }}" target="_blank">封鎖</a>
                                 @else
                                     被檢舉者資料已不存在
                                 @endif
                             </td>
                             @if(!is_null($result['pic']))
-                                <form>
-
+                            <td>
+                                <img src="{{ $result['pic'] }}" alt="" height="200px" onerror="{{ $result['pic'] }}">
+                            </td>
+                            <td>
+                                <form id="{{$rowIndex}}" action="/admin/users/pictures/modify" method="POST">
+                                    {!! csrf_field() !!}
+                                    <input class="btn btn-danger" type="submit" value="刪除" form="{{$rowIndex}}"><br>
+                                    <input type="hidden" name="delete" value="true">
+                                    <input type="hidden" name="pic_id" value="{{$result['reported_user_id']}}">
+                                    <input type="radio" name="reason[{{$rowIndex}}]" value="非人物照片">非人物照片<br>
+                                    <input type="radio" name="reason[{{$rowIndex}}]" value="盜用圖片">盜用圖片<br>
+                                    <input type="radio" name="reason[{{$rowIndex}}]" value="非本人">非本人<br>
+                                    <input type="radio" name="reason[{{$rowIndex}}]" value="不雅照">不雅照<br>
+                                    其他: <input type="text" name="otherReason[{{$rowIndex}}]"><br>
                                 </form>
-                                <td>
-                                    <img src="{{ $result['pic'] }}" alt="" height="200px" onerror="{{ $result['pic'] }}">
-                                </td>
-                                <td>
-                                    <form id="{{$rowIndex}}" action="/admin/users/pictures/modify" method="POST">
-                                        {!! csrf_field() !!}
-                                        <input class="btn btn-danger" type="submit" value="刪除" form="{{$rowIndex}}" onclick="deletePicture({{$rowIndex}})"><br>
-                                        <input type="hidden" name="delete" value="true">
-                                        <input type="hidden" name="pic_id" value="{{$result['reported_user_id']}}">
-                                        <input type="radio" name="reason[{{$rowIndex}}]" value="非人物照片">非人物照片<br>
-                                        <input type="radio" name="reason[{{$rowIndex}}]" value="盜用圖片">盜用圖片<br>
-                                        <input type="radio" name="reason[{{$rowIndex}}]" value="非本人">非本人<br>
-                                        <input type="radio" name="reason[{{$rowIndex}}]" value="不雅照">不雅照<br>
-                                        其他: <input type="text" name="otherReason[{{$rowIndex}}]"><br>
-                                    </form>
-                                </td>
+                            </td>
                             @else
                                 <td>
                                     此會員無上傳照片
@@ -229,6 +228,7 @@
                                 </td>
                             @endif
                             <td width="45%" style="word-wrap: break-word;">{{ $result['content'] }}</td>
+
                             <td>{{ $result['created_at'] }}</td>
                         </tr>
                     @endforeach
@@ -238,7 +238,7 @@
         @endif
     @endif
     </body>
-    <div class="modal fade" id="blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    {{-- <div class="modal fade" id="blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -270,7 +270,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
     <script>
         let date = new Date();
         let year = date.getFullYear();
@@ -337,26 +337,26 @@
                     e.preventDefault();
                 }
             });
-            $('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
-                var data_id = '';
-                if (typeof $(this).data('id') !== 'undefined') {
-                    data_id = $(this).data('id');
-                    $("#exampleModalLabel").html('封鎖 '+ $(this).data('name'))
-                }
-                $("#send_blockade").attr('href', data_id);
-            })
-            $('.advertising').on('click', function(e) {
-                $('.m-reason').val('廣告');
-            });
-            $('.improper-behavior').on('click', function(e) {
-                $('.m-reason').val('非徵求包養行為');
-            });
-            $('.improper-words').on('click', function(e) {
-                $('.m-reason').val('用詞不當');
-            });
-            $('.improper-photo').on('click', function(e) {
-                $('.m-reason').val('照片不當');
-            });
+            // $('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
+            //     var data_id = '';
+            //     if (typeof $(this).data('id') !== 'undefined') {
+            //         data_id = $(this).data('id');
+            //         $("#exampleModalLabel").html('封鎖 '+ $(this).data('name'))
+            //     }
+            //     $("#send_blockade").attr('href', data_id);
+            // })
+            // $('.advertising').on('click', function(e) {
+            //     $('.m-reason').val('廣告');
+            // });
+            // $('.improper-behavior').on('click', function(e) {
+            //     $('.m-reason').val('非徵求包養行為');
+            // });
+            // $('.improper-words').on('click', function(e) {
+            //     $('.m-reason').val('用詞不當');
+            // });
+            // $('.improper-photo').on('click', function(e) {
+            //     $('.m-reason').val('照片不當');
+            // });
         });
 
         function selectAll () {
@@ -384,15 +384,15 @@
             window.open(url + '/admin/users/toggleUserBlock/' + id);
             history.go(0);
         }
-        function setDays(a) {
-            href = a.href;
-            let reason = $('.m-reason').val();
-            if(reason != '') {
-                $('.ban-user').attr("href", href + '/' + $('.days').val() + '&' + reason);
-            }else{
-                $('.ban-user').attr("href", href + '/' + $('.days').val());
-            }
-        }
+        // function setDays(a) {
+        //     href = a.href;
+        //     let reason = $('.m-reason').val();
+        //     if(reason != '') {
+        //         $('.ban-user').attr("href", href + '/' + $('.days').val() + '&' + reason);
+        //     }else{
+        //         $('.ban-user').attr("href", href + '/' + $('.days').val());
+        //     }
+        // }
         /*function deletePicture(id){
             let reported_user_id = $("input[name='reported_user_id[" + id +"]']").val();
             let picType = $("input[name='picType[" + id +"]']").val();
