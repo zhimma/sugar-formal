@@ -239,7 +239,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .dinone{ display:none}
 .xiliao_input{margin:10px 0 30px 0}
 
-.bot{width:100%; display:table; background: url(/new/images/bot_06.png) no-repeat;background-size:100%; padding:70px 0 20px 0; text-align:center;color:#ee5472;}
+.bot{width:100%; display:table; background: url(../images/bot_06.png) no-repeat;background-size:100%; padding:70px 0 20px 0; text-align:center;color:#ee5472;}
 .bot a{ color:#ee5472}
 .bot img{width:50%; margin:0 auto; padding:0px; display:table; margin-top:15px;}
 
@@ -255,7 +255,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 .viplist{width:100%; display:table; margin-top:20px !important; margin-bottom:10px !important;}
 .viplist ul{width:100%;}
-.viplist ul li{width:30% !important; height:170px !important;float:left; margin:0 0 0 2.4% !important;background-image:url(/new/images/fy_03.png); background-color:#f9f9f9; background-SIZE:90%; background-repeat:no-repeat; background-position:5px 45px !important; padding:30px 0 !important; border-radius:10px; color:#fd8cb4; position:relative;}
+.viplist ul li{width:30% !important; height:170px !important;float:left; margin:0 0 0 2.4% !important;background-image:url(../images/fy_03.png); background-color:#f9f9f9; background-SIZE:90%; background-repeat:no-repeat; background-position:5px 45px !important; padding:30px 0 !important; border-radius:10px; color:#fd8cb4; position:relative;}
 .viplist ul li:last-child{ margin-left:0%; margin-right:0%;}
 
 
@@ -294,7 +294,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 .viplist{width:100%; display:table; margin-top:40px; margin-bottom:20px;}
 .viplist ul{width:100%;}
-.viplist ul li{width:30% !important;float:left; margin:0 0 0 2.4% !important;background-image:url(/new/images/fy_03.png); background-color:#f9f9f9; background-SIZE:90%; background-repeat:no-repeat;padding:30px 0 !important; border-radius:10px; color:#fd8cb4; position:relative;}
+.viplist ul li{width:30% !important;float:left; margin:0 0 0 2.4% !important;background-image:url(../images/fy_03.png); background-color:#f9f9f9; background-SIZE:90%; background-repeat:no-repeat;padding:30px 0 !important; border-radius:10px; color:#fd8cb4; position:relative;}
 .viplist ul li:last-child{ margin-left:0%; margin-right:0%;}
 
 .viptop15{ margin-top:45px;}
@@ -321,7 +321,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .vipbanner01{ display:none}
 .viplist{ margin:0 auto; padding:0px; display:table; margin-top:20px; margin-bottom:20px;}
 .viplist ul{ margin:0 auto}
-.viplist ul li{width:180px; height:240px;float:left;margin:0px 20px; background-image:url(/new/images/fy_03.png); background-color:#f9f9f9; background-repeat:no-repeat; background-position:-5px 40px; padding:50px 0; border-radius:10px; color:#fd8cb4; position:relative}
+.viplist ul li{width:180px; height:240px;float:left;margin:0px 20px; background-image:url(../images/fy_03.png); background-color:#f9f9f9; background-repeat:no-repeat; background-position:-5px 40px; padding:50px 0; border-radius:10px; color:#fd8cb4; position:relative}
 .vipfont{ text-align:center}
 .vipfont h2{ font-size:46px; color:#fd8cb4; font-weight:bold}
 .vipfont h3{ font-size:18px; color:#fd8cb4;}
@@ -397,11 +397,11 @@ a:hover{ color:#e44e71; text-decoration:none}
 .sjright h5  img{ height:16px; vertical-align:middle; margin-left:5px; margin-top:-3px;}
 
 .fengs{ margin-top:20px;}
-.cicd{ font-size:13px; font-style:normal; margin:0 2px;}
+.cicd{ font-size:12px; font-style:normal; margin:0 2px;}
 @media (max-width:767px) {
-.sjright h3{ font-size:13px;}
-.sjright h4{ font-size:13px;}
-.sjright h5{ font-size:13px;}
+.sjright h3{ font-size:12px;}
+.sjright h4{ font-size:12px;}
+.sjright h5{ font-size:12px;}
 .sjright h5  img{ height:14px;}
 
 
@@ -623,7 +623,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .zcbut:hover{ color:#e44e71}
 
 
-.wxsy{width:90%;padding:40px 0; margin:0 auto; display:table;  margin-bottom:30px;}/*min-height:700px;*/
+.wxsy{width:90%;padding:40px 0; margin:0 auto; display:table; min-height:700px; margin-bottom:30px;}
 .wxsy_title{width:100%;text-align:center; font-weight:bold; background:#fcedf1; height:43px; line-height:43px; display:table; color:#e55073; font-size:22px; border-radius:10px;}
 
 .wxsy_k{width:100%;padding:20px 0; margin:0 auto; display:table; border:#fcedf1 1px solid; margin-top:15px;border-radius:10px;}
@@ -924,11 +924,11 @@ a:hover{ color:#e44e71; text-decoration:none}
 background-position: 50% 50%;-webkit-background-size: cover;background-size: cover;}
 
 .addpic{width:90%; margin:0 auto; display:table; margin-top:20px}
-.n_adbut{ background:url(/new/images/1_03.png) no-repeat;width:80px; height:37px; float:right; display:table; margin-bottom:15px;}
+.n_adbut{ background:url(../images/1_03.png) no-repeat;width:80px; height:37px; float:right; display:table; margin-bottom:15px;}
 .n_adbut img{width:20px; margin-left:10px; margin-right:3px;}
 .n_adbut a{ color:#ffffff; line-height:30px;}
 
-.n_adbut01{ background:url(/new/images/1_03.png) no-repeat;width:80px; height:37px; display:table; margin-bottom:15px; margin-left:3%}
+.n_adbut01{ background:url(../images/1_03.png) no-repeat;width:80px; height:37px; display:table; margin-bottom:15px; margin-left:3%}
 .n_adbut01 img{width:13px; margin-left:10px; margin-right:3px;}
 .n_adbut01 a{ color:#ffffff; line-height:30px;}
 
@@ -1089,7 +1089,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .n_tbox01 font img{width:80px; height:80px; margin:0 auto; display:table; margin-top:7px}
 .n_bt{width:100%; display:table}
 .n_bt h2{ color:#fe92a8; font-size:18px; font-weight:bold; text-align:center; line-height:40px;}
-.n_bt span{ /*text-align:center;*/ color:#666666;width:100%; display:table; line-height:25px;font-size: 15px;font-weight: 600;}
+.n_bt span{ text-align:center; color:#666666;width:100%; display:table; line-height:25px;}
 
 
 
@@ -1128,12 +1128,12 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 
 .swesy{position:relative;box-shadow: 0 0 10px #cccccc; margin-top:15px; border-radius:15px;width:100%; margin-bottom:10px;}
 .swname{ position:absolute; top:30%;width:50%; text-align:center; z-index:3; color:#ffffff; font-size:24px; font-weight:bold; margin-left:25%}
-.swname span{width:300px; height:45px; line-height:30px; background:rgba(231,93,124,0.7); display:table; margin:0 auto; border-radius:100px; margin-top:5px; font-weight:normal; font-size:18px; padding:15px 20px}
+.swname span{width:100px; height:35px; line-height:35px; background:rgba(231,93,124,0.7); display:table; margin:0 auto; border-radius:100px; margin-top:5px; font-weight:normal; font-size:18px; padding:0 20px}
 .swname_s{ background:rgba(115,203,243,0.7) !important; }
 
 
 .swtext{width:90%; display:table; margin-top:15px; margin-left:20px;}
-.swtext h2{ height:20px; line-height:20px; font-size:20px; font-weight:bold; border-left:5px solid #fe92a8; color:#fe92a8; margin-bottom:15px;}
+.swtext h2{ height:20px; line-height:20px; font-size:22px; font-weight:bold; border-left:5px solid #fe92a8; color:#fe92a8; margin-bottom:15px;}
 .swtext h2 i{ font-style:normal; margin-left:8px;}
 
 .swtext h4{ height:20px; line-height:20px; font-size:22px; font-weight:bold; border-left:5px solid #73cbf8; color:#73cbf8; margin-bottom:15px;}
@@ -1193,7 +1193,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 }
 
 .n_searchtit{width:100%; height:35px; padding:15px 0; background:#f3f4f8; display:table; margin-top:20px;}
-.n_seline{ background:url(/new/images/3_03.png) repeat-x;width:200px; margin:0 auto;display:table; height:35px; line-height:35px; text-align:center; line-height:35px;}
+.n_seline{ background:url(../images/3_03.png) repeat-x;width:200px; margin:0 auto;display:table; height:35px; line-height:35px; text-align:center; line-height:35px;}
 .n_seline span{ text-align:center; background:#f3f4f8; font-size:18px; padding:0 15px;}
 
 .n_sepeop{width:100%; margin:0 auto; display:table; padding:20px 0 0px 0; min-height:600px}
@@ -1267,9 +1267,9 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .msg>p{float: left;margin:0 10px;padding:15px 8px;background: #f7f6fb;font-size:14px;position: relative;border-radius:10px;max-width:560px ;box-sizing: border-box;color:#333;font-size:14px;}
 .msg1>p {background:#ffcbcb;color:#fff;}
 
-.msg_input{position: absolute;background: url(/new/images/msg-input.png) no-repeat;background-size: 100% 100%;width:12px;height:24px;left: -7px;top:8px;}
+.msg_input{position: absolute;background: url(../images/msg-input.png) no-repeat;background-size: 100% 100%;width:12px;height:24px;left: -7px;top:8px;}
 .show .msg img,.show .msg p,.show .msg{float: right;}
-.show .msg_input{left: auto;right:-6px;background: url(/new/images/img_22.png) center no-repeat;}
+.show .msg_input{left: auto;right:-6px;background: url(../images/img_22.png) center no-repeat;}
 .send,.show{padding-bottom:15px; margin-top:15px;}
 
 .shdel{ position:absolute; bottom:-5px; right:-10px;width:23px}

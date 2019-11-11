@@ -228,11 +228,11 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
 
 
 	/*新切版*/
-    Route::get('mem/mem_member', 'PagesController@mem_member');
-    Route::get('mem/mem_search', 'PagesController@mem_search');
-    Route::get('mem/mem_updatevip', 'PagesController@mem_updatevip');
-    Route::get('mem/women_updatevip', 'PagesController@women_updatevip');
-    Route::get('mem/women_search', 'PagesController@women_search');
+    Route::get('new/mem_member', 'PagesController@mem_member');
+    Route::get('new/mem_search', 'PagesController@mem_search');
+    Route::get('new/mem_updatevip', 'PagesController@mem_updatevip');
+    Route::get('new/women_updatevip', 'PagesController@women_updatevip');
+    Route::get('new/women_search', 'PagesController@women_search');
     /*
     |--------------------------------------------------------------------------
     | Dashboard
