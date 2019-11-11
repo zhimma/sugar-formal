@@ -163,7 +163,7 @@
 				<a href="{{ route('AdminMessengerWithMessageId', [$message->to_id, $message->id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
 			</td>
 			<td>
-				<a class="btn btn-danger ban-user{{ $key }}" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$message->to_id, $message->id]) }}" data-name="{{ $to_ids[$message->to_id]['name']}}">封鎖</a>
+				<a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$message->to_id, $message->id]) }}" target="_blank">封鎖</a>
 			</td>
             <td style="text-align: center; vertical-align: middle">
                 <input type="checkbox" name="msg_id[]" value="{{ $message->id }}" class="form-control">
@@ -193,7 +193,7 @@
 	@endforelse
 </table>
 </body>
-<div class="modal fade" id="blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+{{-- <div class="modal fade" id="blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -230,7 +230,7 @@
             </form>
         </div>
     </div>
-</div>
+</div> --}}
 <div>
 	<form action="/admin/users/VIPToggler" method="POST" id="clickVipAction">
 		{{ csrf_field() }}
@@ -247,12 +247,12 @@ jQuery(document).ready(function(){
             e.preventDefault();
         }
 	});
-	$('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
-		if (typeof $(this).data('id') !== 'undefined') {
-			$("#exampleModalLabel").html('封鎖 '+ $(this).data('name'))
-			$("#blockUserID").val($(this).data('id'))
-		}
-	});
+	// $('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
+	// 	if (typeof $(this).data('id') !== 'undefined') {
+	// 		$("#exampleModalLabel").html('封鎖 '+ $(this).data('name'))
+	// 		$("#blockUserID").val($(this).data('id'))
+	// 	}
+	// });
 
 
 /*$('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
@@ -263,18 +263,18 @@ jQuery(document).ready(function(){
 	}
 	$("#send_blockade").attr('href', data_id);
 });*/
-$('.advertising').on('click', function(e) {
-	$('.m-reason').val('廣告');
-});
-$('.improper-behavior').on('click', function(e) {
-	$('.m-reason').val('非徵求包養行為');
-});
-$('.improper-words').on('click', function(e) {
-	$('.m-reason').val('用詞不當');
-});
-$('.improper-photo').on('click', function(e) {
-	$('.m-reason').val('照片不當');
-});
+// $('.advertising').on('click', function(e) {
+// 	$('.m-reason').val('廣告');
+// });
+// $('.improper-behavior').on('click', function(e) {
+// 	$('.m-reason').val('非徵求包養行為');
+// });
+// $('.improper-words').on('click', function(e) {
+// 	$('.m-reason').val('用詞不當');
+// });
+// $('.improper-photo').on('click', function(e) {
+// 	$('.m-reason').val('照片不當');
+// });
 });
 function Release(id) {
 	$("#blockUserID").val(id);

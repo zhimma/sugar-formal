@@ -338,7 +338,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('users/toggleUserBlock', 'UserController@toggleUserBlock');
         Route::get('users/toggleUserBlock/{id}', 'UserController@toggleUserBlock_simple')->name('toggleUserBlock');
         Route::post('users/userUnblock', 'UserController@userUnblock');
-        Route::get('users/banUserWithDayAndMessage/{user_id}/{msg_id}/{days?}', 'UserController@banUserWithDayAndMessage')->name('banUserWithDayAndMessage');
+        Route::get('users/banUserWithDayAndMessage/{user_id}/{msg_id}/{isReported?}', 'UserController@showBanUserDialog')->name('banUserWithDayAndMessage');
+        Route::post('users/banUserWithDayAndMessage', 'UserController@banUserWithDayAndMessage');
         Route::get('users/pictures', 'UserController@showUserPictures')->name('users/pictures');
         Route::post('users/pictures', 'UserController@searchUserPictures')->name('users/pictures');
         Route::post('users/pictures/modify', 'UserController@modifyUserPictures')->name('users/pictures/modify');
