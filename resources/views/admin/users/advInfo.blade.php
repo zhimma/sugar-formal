@@ -163,7 +163,7 @@
 				<a href="{{ route('AdminMessengerWithMessageId', [$message->to_id, $message->id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
 			</td>
 			<td>
-				<a class="btn btn-danger ban-user{{ $key }}" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$message->to_id, $message->id]) }}" data-name="{{ $to_ids[$message->to_id]['name']}}">封鎖</a>
+				<a class="btn btn-danger ban-user{{ $key }}" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$message->to_id, $message->id]) }}" data-name="{{ $to_ids[$message->to_id]['name']}}" onclick="changeFormContent('clickToggleUserBlock', '{{ $key }}')">封鎖</a>
 			</td>
             <td style="text-align: center; vertical-align: middle">
                 <input type="checkbox" name="msg_id[]" value="{{ $message->id }}" class="form-control">
@@ -252,7 +252,29 @@ jQuery(document).ready(function(){
 			$("#exampleModalLabel").html('封鎖 '+ $(this).data('name'))
 			$("#blockUserID").val($(this).data('id'))
 		}
-	})
+	});
+
+
+/*$('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
+	var data_id = '';
+	if (typeof $(this).data('id') !== 'undefined') {
+		data_id = $(this).data('id');
+		$("#exampleModalLabel").html('封鎖 '+ $(this).data('name'))
+	}
+	$("#send_blockade").attr('href', data_id);
+});*/
+$('.advertising').on('click', function(e) {
+	$('.m-reason').val('廣告');
+});
+$('.improper-behavior').on('click', function(e) {
+	$('.m-reason').val('非徵求包養行為');
+});
+$('.improper-words').on('click', function(e) {
+	$('.m-reason').val('用詞不當');
+});
+$('.improper-photo').on('click', function(e) {
+	$('.m-reason').val('照片不當');
+});
 });
 function Release(id) {
 	$("#blockUserID").val(id);
@@ -262,6 +284,23 @@ function VipAction(isVip, user_id){
 	$("#isVip").val(isVip);
 	$("#vipID").val(user_id);
 	$("#clickVipAction").submit();
+}
+function setDays(button){
+    
+    let reason = $(".m-reason").val();
+    let days = $(".days").val();
+    button.attr('href', button.attr('href') + '/' + days + '&' + reason);
+    // if open href in a new windows and continue ban user by message
+    // need reset the href from data-id
+    window.location.href = button.attr('href');
+}
+function changeFormContent(form_id , key) {
+    let href = $(".ban-user" + key).data('id');
+    $("#" + form_id + " button[type='submit']").attr({
+        'type': 'button',
+        'href': href,
+        'onClick' : 'setDays($(this))'
+    });    
 }
 </script>
 </html>
