@@ -163,7 +163,7 @@
 				<a href="{{ route('AdminMessengerWithMessageId', [$message->to_id, $message->id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
 			</td>
 			<td>
-				<a class="btn btn-danger ban-user{{ $key }}" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$message->to_id, $message->id]) }}" data-name="{{ $to_ids[$message->to_id]['name']}}" onclick="changeFormContent('clickToggleUserBlock', '{{ $key }}')">封鎖</a>
+				<a class="btn btn-danger ban-user{{ $key }}" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$message->to_id, $message->id]) }}" data-name="{{ $to_ids[$message->to_id]['name']}}">封鎖</a>
 			</td>
             <td style="text-align: center; vertical-align: middle">
                 <input type="checkbox" name="msg_id[]" value="{{ $message->id }}" class="form-control">
