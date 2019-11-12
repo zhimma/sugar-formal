@@ -403,6 +403,10 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('stats/cron_log', 'StatController@cronLog')->name('stats/cron_log');
         Route::get('stats/date_file_log', 'StatController@datFileLog')->name('stats/date_file_log');
 
+        /*新增、編輯訊息*/
+        Route::post('users/getmsglib', 'UserController@getMessageLib');
+        Route::post('users/updatemsglib', 'UserController@updateMessageLib');
+        Route::post('users/addmsglib', 'UserController@addMessageLib');
         /*
         |--------------------------------------------------------------------------
         | Roles
