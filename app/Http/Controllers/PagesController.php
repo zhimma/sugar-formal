@@ -417,8 +417,53 @@ class PagesController extends Controller
                     ->with('message', $message)
                     ->with('cancel_notice', $cancel_notice);
             }
+            return view('new.dashboard')
+                ->with('user', $user)
+                ->with('tabName', $tabName)
+                ->with('cur', $user)
+                ->with('year', $year)
+                ->with('month', $month)
+                ->with('day', $day);
+        }
+    }
+
+    public function dashboard_img(Request $request)
+    {
+        $user = $request->user();
+        $url = $request->fullUrl();
+        //echo $url;
+
+        if(str_contains($url, '?img')) {
+            $tabName = 'm_user_profile_tab_4';
+        }
+        else {
+            $tabName = 'm_user_profile_tab_1';
+        }
+
+        $birthday = date('Y-m-d', strtotime($user->meta_()->birthdate));
+        $birthday = explode('-', $birthday);
+        $year = $birthday[0];
+        $month = $birthday[1];
+        $day = $birthday[2];
+        if($year=='1970'){
+            $year=$month=$day='';
+        }
+        if ($user) {
+            $cancel_notice = $request->session()->get('cancel_notice');
+            $message = $request->session()->get('message');
+            if(isset($cancel_notice)){
+                return view('dashboar_img')
+                    ->with('user', $user)
+                    ->with('tabName', $tabName)
+                    ->with('cur', $user)
+                    ->with('year', $year)
+                    ->with('month', $month)
+                    ->with('day', $day)
+                    ->with('message', $message)
+                    ->with('cancel_notice', $cancel_notice);
+            }
             if($user->engroup==1){
-                return view('new.dashboard_m')
+                return view('new.dashboard_img')
                 ->with('user', $user)
                 ->with('tabName', $tabName)
                 ->with('cur', $user)
@@ -426,7 +471,7 @@ class PagesController extends Controller
                 ->with('month', $month)
                 ->with('day', $day);
             }else{
-                return view('new.dashboard')
+                return view('new.dashboard_img')
                 ->with('user', $user)
                 ->with('tabName', $tabName)
                 ->with('cur', $user)

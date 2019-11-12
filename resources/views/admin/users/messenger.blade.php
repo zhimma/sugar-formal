@@ -222,6 +222,7 @@
 </body>
 @if(!isset($msgs))
     <script>
+
         // console.log("{{$msglib}}");
         // var msglib = <?php echo json_encode($msglib); ?>;
         // var msglib = JSON.parse(<?php echo json_encode($msglib); ?>);
@@ -238,6 +239,7 @@
             // '{{$to_user->name}}您好，您被檢舉，站長認為並無問題，若有疑慮請來訊。',
             // '{{$to_user->name}}您好，您被檢舉圖片/大頭照，站長認為並無問題，若有疑慮請來訊。',
             // '{{ $user->name }}您好，您先前所檢舉{{ $to_user->name }}的圖片/大頭照，站長已檢視，認為並無問題，若有疑慮請來訊。',
+
 
             // '{{$user->name}}你好，由於您的暱稱不符站方規定，故已',
             // '{{$user->name}}你好，由於您的標題不符站方規定，故已',

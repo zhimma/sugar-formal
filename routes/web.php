@@ -243,6 +243,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('/dashboard2', 'PagesController@profileUpdate_ajax');
     Route::post('dashboard/settings', 'PagesController@settingsUpdate');
     Route::get('/dashboard', 'PagesController@dashboard')->name('dashboard');
+    Route::get('/dashboard_img', 'PagesController@dashboard_img')->name('dashboard_img');
     Route::get('/dashboard2', 'PagesController@dashboard2')->name('dashboard2');
     Route::get('/dashboard/cancel', 'PagesController@showCheckAccount');
     Route::post('/dashboard/chat', 'MessageController@postChat');
@@ -251,6 +252,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('/dashboard/chatpaycomment', 'PagesController@postChatpayComment')->name('chatpaycomment');
     Route::post('/dashboard/header/{admin?}', 'ImageController@resizeImagePostHeader');
     Route::post('/dashboard/header2/{admin?}', 'ImageController@resizeImagePostHeader2');
+    Route::post('/fileuploader_image_upload', 'ImageController@fileuploader_image_upload')->name('fileuploader_image_upload');
     Route::post('/dashboard/image/{admin?}', 'ImageController@resizeImagePost');
     Route::post('/dashboard/imagedel/{admin?}', 'ImageController@deleteImage');
     Route::post('/dashboard/block', 'PagesController@postBlock');

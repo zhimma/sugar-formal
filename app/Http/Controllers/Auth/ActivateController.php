@@ -41,7 +41,7 @@ class ActivateController extends Controller
         $this->service->sendActivationToken();
         $user = auth()->user();
 
-        return view('auth.activate.token', compact('user'));
+        return view('new.auth.activate.token', compact('user'));
     }
 
     /**

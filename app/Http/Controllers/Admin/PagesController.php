@@ -89,7 +89,7 @@ class PagesController extends Controller
             $keyword = isset($request->keyword) ? $request->keyword : '';
             $messages = $messages->whereDate('board.created_at', '>=', $start)
                 ->whereDate('board.created_at', '<=', $end)
-                ->where('post', 'like', '%' . $keyword .' %');
+                ->where('post', 'like', '%' . $keyword .'%');
         }
         $messages = $messages->orderBy('created_at', 'desc')->paginate(20);
         return view('admin.users.board')->with('messages', $messages)
