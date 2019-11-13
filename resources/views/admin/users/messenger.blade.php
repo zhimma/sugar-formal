@@ -14,33 +14,25 @@
     @if ($errors->count() > 0)
     @else
         @if(!isset($msgs))
+            <h1>新增訊息</h1><p>檢舉者變數|$report|，被檢舉者變數|$reported|   ，範例:|$report|檢舉|$reported|，經站長判別沒有問題。</p>
+            <button class="savemsgbtn btn btn-primary">儲存</button>
+            <form action="" id='msglibform' method='POST'>
+                {!! csrf_field() !!}
+                標題<input type="text" name="title_msglib"></br>
+                訊息<textarea name="textarea_msglib" id="msglib" class="form-control" cols="80" rows="5"></textarea>
+            </form>
             <h1>發送站長訊息給{{ $user->name}}(被檢舉者)</h1>
+            <button class="savebtn btn btn-primary">儲存</button>
                 <table class="table table-bordered table-hover">
                     <tr>
                         <td>預設選項</td>
                         <td>
-                            <button class="btn btn-success tpl">檢舉沒問題</button>
-                            <button class="btn btn-success tpl">檢舉沒問題2</button>
-                            <button class="btn btn-success tpl">被檢舉沒問題</button>
-                            <button class="btn btn-success tpl">圖片檢舉沒問題</button>
-                            <button class="btn btn-success tpl">圖片檢舉沒問題2</button>
-                            <button class="btn btn-success tpl">暱稱</button>
-                            <button class="btn btn-success tpl">標題</button>
-                            <button class="btn btn-success tpl">身高</button>
-                            <button class="btn btn-success tpl">職業</button>
-                            <button class="btn btn-success tpl">體重</button>
-                            <button class="btn btn-success tpl">罩杯</button>
-                            <button class="btn btn-success tpl">體型</button>
-                            <button class="btn btn-success tpl">現況</button>
-                            <button class="btn btn-success tpl">關於我</button>
-                            <button class="btn btn-success tpl">期待的約會模式</button>
-                            <button class="btn btn-success tpl">教育</button>
-                            <!-- <button class="btn btn-success tpl">婚姻</button>
-                            <button class="btn btn-success tpl">喝酒</button>
-                            <button class="btn btn-success tpl">抽菸</button> -->
-                            <button class="btn btn-success tpl">職業</button>
-                            <button class="btn btn-success tpl">資產</button>
-                            <button class="btn btn-success tpl">年收</button>
+                            <form id="idForm">
+                                @foreach($msglib as $msglib)
+                                    <div class="btn btn-success com_tpl tpl" id="{{$msglib->id}}">{{$msglib->title}}</div>
+                                @endforeach
+                            </form>
+                            
                         </td>
                     </tr>
                     <tr>
@@ -107,8 +99,12 @@
                     <tr>
                         <td>預設選項</td>
                         <td>
-                            <button class="btn btn-success tpl2">檢舉沒問題</button>
-                            <button class="btn btn-success tpl2">檢舉沒問題2</button>
+                            <form id="idForm">
+                            @foreach($msglib2 as $msglib)
+                                <div class="btn btn-success com_tpl tpl2" id="{{$msglib->id}}">{{$msglib->title}}</div>
+                            @endforeach
+                            </form>
+                            <!-- <button class="btn btn-success tpl2">檢舉沒問題2</button>
                             <button class="btn btn-success tpl2">被檢舉沒問題</button>
                             <button class="btn btn-success tpl2">圖片檢舉沒問題</button>
                             <button class="btn btn-success tpl2">圖片檢舉沒問題2</button>
@@ -122,13 +118,13 @@
                             <button class="btn btn-success tpl2">現況</button>
                             <button class="btn btn-success tpl2">關於我</button>
                             <button class="btn btn-success tpl2">期待的約會模式</button>
-                            <button class="btn btn-success tpl2">教育</button>
+                            <button class="btn btn-success tpl2">教育</button> -->
                             <!-- <button class="btn btn-success tpl2">婚姻</button>
                             <button class="btn btn-success tpl2">喝酒</button>
                             <button class="btn btn-success tpl2">抽菸</button> -->
-                            <button class="btn btn-success tpl2">職業</button>
+                            <!-- <button class="btn btn-success tpl2">職業</button>
                             <button class="btn btn-success tpl2">資產</button>
-                            <button class="btn btn-success tpl2">年收</button>
+                            <button class="btn btn-success tpl2">年收</button> -->
                         </td>
                     </tr>
                     <tr>
@@ -222,37 +218,48 @@
         @endif
     @endif
 @endif
+
 </body>
 @if(!isset($msgs))
     <script>
-        let template = [
-            @if(is_object($message))
-                '{{$user->name }}您好，您先前所檢舉，由{{ $to_user->name }}於{{ $message->created_at }}發送的訊息，站長已檢視，認為並無問題，若有疑慮請來訊。',
-                '{{ $user->name }}您好，您先前在{{ $message->created_at }}檢舉了會員「{{ $to_user->name }}」，經站長檢視理由，認為此會員並無問題，若有疑慮請來訊',
-            @endif
-            '{{$to_user->name}}您好，您被檢舉，站長認為並無問題，若有疑慮請來訊。',
-            '{{$to_user->name}}您好，您被檢舉圖片/大頭照，站長認為並無問題，若有疑慮請來訊。',
-            '{{ $user->name }}您好，您先前所檢舉{{ $to_user->name }}的圖片/大頭照，站長已檢視，認為並無問題，若有疑慮請來訊。',
 
-            '{{$user->name}}你好，由於您的暱稱不符站方規定，故已',
-            '{{$user->name}}你好，由於您的標題不符站方規定，故已',
-            '{{$user->name}}你好，由於您的身高不符站方規定，故已',
-            '{{$user->name}}你好，由於您的職業不符站方規定，故已',
-            '{{$user->name}}你好，由於您的體重不符站方規定，故已',
-            '{{$user->name}}你好，由於您的罩杯不符站方規定，故已',
-            '{{$user->name}}你好，由於您的體型不符站方規定，故已',
-            '{{$user->name}}你好，由於您的現況不符站方規定，故已',
-            '{{$user->name}}你好，由於您的關於我不符站方規定，故已',
-            '{{$user->name}}你好，由於您的期待的約會模式不符站方規定，故已',
-            '{{$user->name}}你好，由於您的教育不符站方規定，故已',
+        // console.log("{{$msglib}}");
+        // var msglib = <?php echo json_encode($msglib); ?>;
+        // var msglib = JSON.parse(<?php echo json_encode($msglib); ?>);
+        // console.log(msglib);
+        // msglib.forEach(function(element) {
+        //   console.log(element);
+        // });
+        let template = {!! json_encode($msglib_msg) !!};
+        console.log(template);
+        // console.log(template);
+        // let template = [
+            // '{{$user->name }}您好，您先前所檢舉，由{{ $to_user->name }}於{{ $message->created_at }}發送的訊息，站長已檢視，認為並無問題，若有疑慮請來訊。',
+            // '{{ $user->name }}您好，您先前在{{ $message->created_at }}檢舉了會員「{{ $to_user->name }}」，經站長檢視理由，認為此會員並無問題，若有疑慮請來訊',
+            // '{{$to_user->name}}您好，您被檢舉，站長認為並無問題，若有疑慮請來訊。',
+            // '{{$to_user->name}}您好，您被檢舉圖片/大頭照，站長認為並無問題，若有疑慮請來訊。',
+            // '{{ $user->name }}您好，您先前所檢舉{{ $to_user->name }}的圖片/大頭照，站長已檢視，認為並無問題，若有疑慮請來訊。',
+
+
+            // '{{$user->name}}你好，由於您的暱稱不符站方規定，故已',
+            // '{{$user->name}}你好，由於您的標題不符站方規定，故已',
+            // '{{$user->name}}你好，由於您的身高不符站方規定，故已',
+            // '{{$user->name}}你好，由於您的職業不符站方規定，故已',
+            // '{{$user->name}}你好，由於您的體重不符站方規定，故已',
+            // '{{$user->name}}你好，由於您的罩杯不符站方規定，故已',
+            // '{{$user->name}}你好，由於您的體型不符站方規定，故已',
+            // '{{$user->name}}你好，由於您的現況不符站方規定，故已',
+            // '{{$user->name}}你好，由於您的關於我不符站方規定，故已',
+            // '{{$user->name}}你好，由於您的期待的約會模式不符站方規定，故已',
+            // '{{$user->name}}你好，由於您的教育不符站方規定，故已',
             // '{{$user->name}}你好，由於您的婚姻不符站方規定，故已',
             // '{{$user->name}}你好，由於您的喝酒不符站方規定，故已',
             // '{{$user->name}}你好，由於您的抽菸不符站方規定，故已',
-            '{{$user->name}}你好，由於您的職業不符站方規定，故已',
-            '{{$user->name}}你好，由於您的資產不符站方規定，故已',
-            '{{$user->name}}你好，由於您的年收不符站方規定，故已'
-        ],
-        edit = '修改。', del = '刪除。', view='檢視', create='新增',
+            // '{{$user->name}}你好，由於您的職業不符站方規定，故已',
+            // '{{$user->name}}你好，由於您的資產不符站方規定，故已',
+            // '{{$user->name}}你好，由於您的年收不符站方規定，故已'
+        // ];
+        let edit = '修改。', del = '刪除。', view='檢視', create='新增',
         report_user = ['{{$user->name}}', '{{$to_user->name}}']
         now_time = new Date();
 
@@ -260,6 +267,8 @@
             $(".tpl").click(
                 function () {
                     let i = $(".tpl").index(this);
+                    console.log(i);
+                    template[i].replace("$user",'111222333');
                     $('#msg').val(template[i]);
                 }
             ),
@@ -284,6 +293,26 @@
                     $('#msg').val($('#msg').val() + now_time);
                 }
             ),
+            $(".com_tpl").dblclick(
+                function(){
+                    // console.log($(this).attr('id'));
+                    var id = $(this).attr('id');
+                    $.ajax({
+                        type: 'POST',
+                        url: "/admin/users/getmsglib",
+                        data:{
+                            _token: '{{csrf_token()}}',
+                            id : id,
+                        },
+                        dataType:"json",
+                        success: function(res){
+                            console.log(res[0].msg);
+                            var selector = ".com_tpl[id="+id+"]";
+                            var str = '<input type="text" name="'+res[0].id+'" value="'+res[0].msg+'" />'
+                            $(selector).html(str);
+                        // $(this).html(res);
+                      }});
+                }),
         );
 
 
@@ -317,7 +346,36 @@
                 }
             )
         );
+        $(".savebtn").click(function(){
+            $.ajax({
+                type: 'POST',
+                url: "/admin/users/updatemsglib",
+                data:{
+                    _token: '{{csrf_token()}}',
+                    formdata: $("#idForm").serialize(),
+                },
+                dataType:"json",
+                success: function(res){
+                    alert('更新成功');
+                    location.reload();
 
+              }});
+        });
+        $(".savemsgbtn").click(function(){
+            $.ajax({
+                type: 'POST',
+                url: "/admin/users/addmsglib",
+                data:{
+                    _token: '{{csrf_token()}}',
+                    formdata: $("#msglibform").serializeArray(),
+                },
+                dataType:"json",
+                success: function(res){
+                    alert('更新成功');
+                    location.reload();
+              }});
+            // $("#msglibform").submit();
+        });
         // function formatDate(date) {
         //   var hours = date.getHours();
         //   var minutes = date.getMinutes();

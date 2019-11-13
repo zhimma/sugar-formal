@@ -227,6 +227,13 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
 
     Route::get('/user/view/{uid?}', 'PagesController@viewuser');
 
+
+	/*新切版*/
+    Route::get('new/mem_member', 'PagesController@mem_member');
+    Route::get('new/mem_search', 'PagesController@mem_search');
+    Route::get('new/mem_updatevip', 'PagesController@mem_updatevip');
+    Route::get('new/women_updatevip', 'PagesController@women_updatevip');
+    Route::get('new/women_search', 'PagesController@women_search');
     /*
     |--------------------------------------------------------------------------
     | Dashboard
@@ -398,6 +405,10 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('stats/cron_log', 'StatController@cronLog')->name('stats/cron_log');
         Route::get('stats/date_file_log', 'StatController@datFileLog')->name('stats/date_file_log');
 
+        /*新增、編輯訊息*/
+        Route::post('users/getmsglib', 'UserController@getMessageLib');
+        Route::post('users/updatemsglib', 'UserController@updateMessageLib');
+        Route::post('users/addmsglib', 'UserController@addMessageLib');
         /*
         |--------------------------------------------------------------------------
         | Roles
