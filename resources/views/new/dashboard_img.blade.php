@@ -14,6 +14,7 @@
     }
   ?>
   <style type="text/css">
+    .abtn{cursor: pointer;}
     #fileuploader-ajax{font-size: 20px;}
     #fileuploader-ajax a{color:#0275d8;margin-left: 5PX;}
     .abtn{cursor: pointer;}
@@ -53,7 +54,7 @@
                                         </form>
                                     </div>
                                 </div>
-           <a class="vipbut save_images" onclick="cl()">上傳照片</a>
+           <a class="vipbut save_images abtn" onclick="">上傳照片</a>
           </div>
         </div>
       </div>
@@ -62,7 +63,7 @@
   </div>
   <script src="/plugins/hopscotch/js/hopscotch.min.js"></script>
   <script src="/plugins/fileuploader2.2/dist/jquery.fileuploader.min.js"></script>
-  <script src="/new/js/fileuploader-ajax-image.js"></script>
+  <script src="/new/js/fileuploader-ajax-image.js?20191112"></script>
   <script type="text/javascript">
       /* 說明 */
       function tour(which) {
@@ -75,6 +76,7 @@
 
 
       $('.save_images').click(function(){
+          return false;
           waitingDialog.show();
 
           var data = new FormData();
@@ -109,12 +111,12 @@
                 id: "fileuploader-ajax",
                 steps: [
                     {
-                        target: document.querySelector(".fileuploader-thumbnails-input i"),
+                        target: document.querySelector(".fileuploader-thumbnails-input"),
                         content: "按下 + 選擇照片上傳,上傳的第一張照片為大頭照，之後的圖片為生活照，以此類推。",
                         placement: 'top',
                     },
                     {
-                        target: document.querySelector(".fileuploader-thumbnails-input i"),
+                        target: document.querySelector(".fileuploader-thumbnails-input"),
                         content: "選擇照片上傳後，再點選圖片即可做裁切功能。",
                         placement: 'top',
                     },
