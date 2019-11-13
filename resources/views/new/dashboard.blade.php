@@ -538,6 +538,7 @@
 
     </div>
   </div>
+
   <script src="/new/js/birthday.js" type="text/javascript"></script>
   <script src="/js/jquery.twzipcode.min.js" type="text/javascript"></script>
   <script type="text/javascript">
@@ -620,32 +621,32 @@
             return false;
           }
           var form_dump = $(this);
-          var form = $(this).serialize();
-          swal({
-              title: '確定要變更會員資料嗎？',
-              text: "",
-              type: 'warning',
-              showCancelButton: true,
-              confirmButtonText: '確定'
-          }).then(function (isConfirm) {
-            if (isConfirm.value) {
-              $.ajax({
-                url:'{{ route('dashboard2') }}',
-                type: 'POST',
-                dataType: 'JSON',
-                data: form,
-                beforeSend: function () {
-                  waitingDialog.show();
-                },
-                complete: function () {
-                  waitingDialog.hide();
-                },
-                success: function (result) {
-                  ResultData(result);
-                }
-              });
-            }
-          });
+          c4('確定要變更會員資料嗎?');
+          // swal({
+          //     title: '確定要變更會員資料嗎？',
+          //     text: "",
+          //     type: 'warning',
+          //     showCancelButton: true,
+          //     confirmButtonText: '確定'
+          // }).then(function (isConfirm) {
+          //   if (isConfirm.value) {
+          //     $.ajax({
+          //       url:'{{ route('dashboard2') }}',
+          //       type: 'POST',
+          //       dataType: 'JSON',
+          //       data: form,
+          //       beforeSend: function () {
+          //         waitingDialog.show();
+          //       },
+          //       complete: function () {
+          //         waitingDialog.hide();
+          //       },
+          //       success: function (result) {
+          //         ResultData(result);
+          //       }
+          //     });
+          //   }
+          // });
         }
         return false;
       });
@@ -673,6 +674,25 @@
                   type:'warning'
               });
           }
+      });
+      $(document).on('click','.n_left',function(event) {
+        var form = $('form[name=user_data]').serialize();
+        $.ajax({
+          url:'{{ route('dashboard2') }}',
+          type: 'POST',
+          dataType: 'JSON',
+          data: form,
+          beforeSend: function () {
+            $('.blbg').click();
+            waitingDialog.show();
+          },
+          complete: function () {
+            waitingDialog.hide();
+          },
+          success: function (result) {
+            ResultData(result);
+          }
+        });
       });
       //變更會員類型提示
       $(document).on('change','input[name=engroup]',function(){
