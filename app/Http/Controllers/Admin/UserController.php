@@ -335,6 +335,7 @@ class UserController extends Controller
                ->with('users', $users)
                ->with('name', isset($request->name) ? $request->name : null)
                ->with('email', isset($request->email) ? $request->email : null)
+               ->with('keyword', isset($request->keyword) ? $request->keyword : null)
                ->with('member_type', isset($request->member_type) ? $request->member_type : null)
                ->with('time', isset($request->time) ? $request->time : null);
     }
