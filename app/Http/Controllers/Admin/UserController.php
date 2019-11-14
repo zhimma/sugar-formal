@@ -867,7 +867,7 @@ class UserController extends Controller
                 ->with('senderName', $sender->name)
                 ->with('msglib', $msglib)
                 ->with('msglib2', $msglib2)
-                ->with('msglib_msg', $msglib_msg);
+                ->with('msglib_msg', isset($msglib_msg) ? $msglib_msg : null);
         }
         else{
             return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
