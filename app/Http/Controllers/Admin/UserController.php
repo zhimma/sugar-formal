@@ -839,26 +839,22 @@ class UserController extends Controller
 
     public function showAdminMessengerWithMessageId($id, $mid)
     {
-        $msglib = Msglib::get();
-        $msglib2 = Msglib::get();
-        $msglib3 = Msglib::selectraw('msg')->get();
-        
-
         $admin = $this->admin->checkAdmin();
         if ($admin){
-            /*被檢舉者 */
+            $msglib = Msglib::get();
+            $msglib2 = Msglib::get();
+            $msglib3 = Msglib::selectraw('msg')->get();
+            /*檢舉者 */
             $user = $this->service->find($id);
             $message = Message::where('id', $mid)->get()->first();
             $sender = User::where('id', $message->from_id)->get()->first();
-
-
-            /*檢舉者*/
+            /*被檢舉者*/
             $to_user_id = Message::where('id', $mid)->get()->first()->to_id;
             $to_user    = $this->service->find($to_user_id);
-        foreach($msglib3 as $key=>$msg){
-            $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
-            $msglib_msg[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg[$key]);
-        }
+            foreach($msglib3 as $key=>$msg){
+                $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
+                $msglib_msg[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg[$key]);
+            }
             return view('admin.users.messenger')
                 ->with('admin', $admin)
                 ->with('user', $user)
@@ -878,25 +874,32 @@ class UserController extends Controller
     {
         $admin = $this->admin->checkAdmin();
         if ($admin){
-            /*被檢舉者 */
-            $user = $this->service->find($id);
+            $msglib = Msglib::get();
+            $msglib2 = Msglib::get();
+            $msglib3 = Msglib::selectraw('msg')->get();
             $report = Reported::where('member_id', $id)->where('reported_id', $mid)->get()->first();
-            $reported = User::where('id', $mid)->get()->first();
-// dd($user,$reported);
             /*檢舉者*/
-            // $to_user_id = Reported::where('reported_id', $mid)->get()->first();
-            // $to_user    = $this->service->find($to_user_id);
+            $user = $this->service->find($id);
+            /*被檢舉者 */
+            $reported = User::where('id', $mid)->get()->first();
+            foreach($msglib3 as $key=>$msg){
+                $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
+                $msglib_msg[$key] = str_replace('|$reported|',$reported->name, $msglib_msg[$key]);
+            }
             return view('admin.users.messenger')
                 ->with('admin', $admin)
-                ->with('user', $user)
                 ->with('message', 'REPORTEDUSERONLY')
                 ->with('report', $report)
+                ->with('user', $reported)
                 ->with('reportedName', $reported->name)
-                ->with('to_user', $reported)
+                ->with('to_user', $user)
                 ->with('isPic', $isPic)
                 ->with('isReported', $isReported)
                 ->with('isReportedId', $mid)
-                ->with('pic_id', $pic_id);
+                ->with('pic_id', $pic_id)
+                ->with('msglib', $msglib)
+                ->with('msglib2', $msglib2)
+                ->with('msglib_msg', isset($msglib_msg) ? $msglib_msg : null);
         }
         else{
             return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
