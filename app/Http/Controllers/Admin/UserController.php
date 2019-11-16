@@ -840,9 +840,8 @@ class UserController extends Controller
     public function showAdminMessengerWithMessageId($id, $mid)
     {
         $msglib = Msglib::get();
-        $msglib2 = Msglib::get();
-        $msglib3 = Msglib::selectraw('msg')->get();
-        
+        $msglib_report = Msglib::selectraw('id, title, msg')->where('kind','=','report')->get();
+        $msglib_reported = Msglib::selectraw('id, title, msg')->where('kind','=','reported')->get();
 
         $admin = $this->admin->checkAdmin();
         if ($admin){
@@ -855,19 +854,38 @@ class UserController extends Controller
             /*檢舉者*/
             $to_user_id = Message::where('id', $mid)->get()->first()->to_id;
             $to_user    = $this->service->find($to_user_id);
-        foreach($msglib3 as $key=>$msg){
+
+            $message_msg = Message::where('to_id', $to_user->id)->where('from_id',$user->id)->get();            
+
+        foreach($msglib_report as $key=>$msg){
             $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
             $msglib_msg[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg[$key]);
+            $msglib_msg[$key] = str_replace('|$ReportTime|',$message_msg[0]->created_at, $msglib_msg[$key]);
+            $msglib_msg[$key] = str_replace('|$ResponseTime|',$message_msg[0]->updated_at, $msglib_msg[$key]);
         }
+
+        foreach($msglib_reported as $key=>$msg){
+            $msglib_msg2[$key] = str_replace('|$report|',$user->name, $msg['msg']);
+            $msglib_msg2[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg2[$key]);
+            $msglib_msg2[$key] = str_replace('|$ReportTime|',$message_msg[0]->created_at, $msglib_msg2[$key]);
+            $msglib_msg2[$key] = str_replace('|$ResponseTime|',$message_msg[0]->updated_at, $msglib_msg2[$key]);
+        }
+
+
+
             return view('admin.users.messenger')
                 ->with('admin', $admin)
                 ->with('user', $user)
                 ->with('to_user', $to_user)
                 ->with('message', $message)
                 ->with('senderName', $sender->name)
-                ->with('msglib', $msglib)
-                ->with('msglib2', $msglib2)
-                ->with('msglib_msg', $msglib_msg);
+                ->with('msglib', $msglib_report)
+                ->with('msglib2', $msglib_reported)
+                ->with('msglib_report', $msglib_report)
+                ->with('msglib_reported', $msglib_reported)
+                ->with('msglib_msg', $msglib_msg)
+                ->with('message_msg', $message_msg)
+                ->with('msglib_msg2', $msglib_msg2);
         }
         else{
             return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
@@ -1400,20 +1418,64 @@ class UserController extends Controller
         echo json_encode($formdata, JSON_UNESCAPED_UNICODE);
     }
 
+    public function addMessageLibPage(Request $request, $id=0)
+    {
+        if($id!=0){
+            $msglib = MsgLib::where('id', $id)->first();
+            
+            $data = array(
+                'page_title'=> '編輯訊息',
+                'msg_id'=>$msglib->id,
+                'title'=>$msglib->title,
+                'msg'=>$msglib->msg,
+                'isEdit'=>1,
+            );
+        }else{
+            $data = array(
+                'page_title'=> '新增訊息',
+            );
+        }
+        return view('admin.users.messenger_create', $data);
+    }
     public function addMessageLib(Request $request)
     {
-        $info = $request->post();
+        // $info = $request->post();
+        $msg_id = $request->post('msg_id');
+        // dd($msg_id);
+        if($msg_id!=''){
+            $kind  = $request->post('kind');
+            $title = $request->post('title');
+            $msg =   $request->post('content');
+            $data = array(
+                'msg_id'=>$msg_id,
+                'title'=>$title,
+                'msg'=>$msg,
+            );
+            DB::update('update msglib set title=?, msg=?, kind=? where id=?',[$title, $msg, $kind, $msg_id]);
+            return json_encode($data);
+        }else{
+            $kind  = $request->post('kind');
+            $title = $request->post('title');
+            $msg = $request->post('content');
+            $data = array(
+                'title'=>$title,
+                'msg'=>$msg,
+            );
+            // $msglib = Msglib::create(['title','123'])->tosql();
+            DB::insert('insert into msglib (title, msg, kind) values ( ?, ? , ? )',
+            [$title,$msg,$kind]);
+            return json_encode($data);
+        }
+    }
 
-        $title = $info['formdata'][1]['value'];
-        $msg = $info['formdata'][2]['value'];
+    public function delMessageLib(Request $request)
+    {
+        $id = $request->post('id');
+
+        DB::table('msglib')->where('id', '=', $id)->delete();
         $data = array(
-            'title'=>$title,
-            'msg'=>$msg,
+            'status'=>'success',
         );
-        $kind = 'MSG';
-        // $msglib = Msglib::create(['title','123'])->tosql();
-        DB::insert('insert into msglib (title, msg, kind) values ( ?, ? , ? )',
-        [$title,$msg,$kind]);
         return json_encode($data);
     }
 }
