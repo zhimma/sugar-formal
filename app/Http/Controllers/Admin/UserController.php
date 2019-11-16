@@ -860,15 +860,15 @@ class UserController extends Controller
         foreach($msglib_report as $key=>$msg){
             $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
             $msglib_msg[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg[$key]);
-            $msglib_msg[$key] = str_replace('|$ReportTime|',$message_msg[0]->created_at, $msglib_msg[$key]);
-            $msglib_msg[$key] = str_replace('|$ResponseTime|',$message_msg[0]->updated_at, $msglib_msg[$key]);
+            $msglib_msg[$key] = str_replace('|$reportTime|',$message_msg[0]->created_at, $msglib_msg[$key]);
+            $msglib_msg[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg[$key]);
         }
 
         foreach($msglib_reported as $key=>$msg){
             $msglib_msg2[$key] = str_replace('|$report|',$user->name, $msg['msg']);
             $msglib_msg2[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg2[$key]);
-            $msglib_msg2[$key] = str_replace('|$ReportTime|',$message_msg[0]->created_at, $msglib_msg2[$key]);
-            $msglib_msg2[$key] = str_replace('|$ResponseTime|',$message_msg[0]->updated_at, $msglib_msg2[$key]);
+            $msglib_msg2[$key] = str_replace('|$reportTime|',$message_msg[0]->created_at, $msglib_msg2[$key]);
+            $msglib_msg2[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg2[$key]);
         }
 
 
@@ -893,28 +893,64 @@ class UserController extends Controller
     }
 
     public function showAdminMessengerWithReportedId($id, $mid, $pic_id = null, $isPic= null, $isReported= null)
-    {
+    { 
+
+        $msglib = Msglib::get();
+        $msglib_report = Msglib::selectraw('id, title, msg')->where('kind','=','report')->get();
+        $msglib_reported = Msglib::selectraw('id, title, msg')->where('kind','=','reported')->get();
+
         $admin = $this->admin->checkAdmin();
         if ($admin){
             /*被檢舉者 */
             $user = $this->service->find($id);
             $report = Reported::where('member_id', $id)->where('reported_id', $mid)->get()->first();
             $reported = User::where('id', $mid)->get()->first();
-// dd($user,$reported);
+            
+
+            /*被檢舉者 */
+            $user = $this->service->find($id);
+            $reported = Reported::where('member_id', $id)->get()->first();
+            $sender = User::where('id', $reported->reported_id)->get()->first();
+
+
             /*檢舉者*/
-            // $to_user_id = Reported::where('reported_id', $mid)->get()->first();
-            // $to_user    = $this->service->find($to_user_id);
+            $to_user_id = Reported::where('member_id', $id)->get()->first()->reported_id;
+            $to_user    = $this->service->find($to_user_id);
+
+            $message_msg = Reported::where('reported_id', $to_user->id)->where('member_id',$user->id)->get();            
+    
+            foreach($msglib_report as $key=>$msg){
+                $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
+                $msglib_msg[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg[$key]);
+                $msglib_msg[$key] = str_replace('|$reportTime|',$message_msg[0]->created_at, $msglib_msg[$key]);
+                $msglib_msg[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg[$key]);
+            }
+    
+            foreach($msglib_reported as $key=>$msg){
+                $msglib_msg2[$key] = str_replace('|$report|',$user->name, $msg['msg']);
+                $msglib_msg2[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg2[$key]);
+                $msglib_msg2[$key] = str_replace('|$reportTime|',$message_msg[0]->created_at, $msglib_msg2[$key]);
+                $msglib_msg2[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg2[$key]);
+            }
             return view('admin.users.messenger')
                 ->with('admin', $admin)
                 ->with('user', $user)
+                ->with('to_user', $to_user)
                 ->with('message', 'REPORTEDUSERONLY')
                 ->with('report', $report)
                 ->with('reportedName', $reported->name)
-                ->with('to_user', $reported)
+                // ->with('to_user', $reported)
                 ->with('isPic', $isPic)
                 ->with('isReported', $isReported)
                 ->with('isReportedId', $mid)
-                ->with('pic_id', $pic_id);
+                ->with('pic_id', $pic_id)
+                ->with('msglib', $msglib_report)
+                ->with('msglib2', $msglib_reported)
+                ->with('msglib_report', $msglib_report)
+                ->with('msglib_reported', $msglib_reported)
+                ->with('msglib_msg', $msglib_msg)
+                ->with('message_msg', $message_msg)
+                ->with('msglib_msg2', $msglib_msg2);
         }
         else{
             return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
@@ -1270,7 +1306,9 @@ class UserController extends Controller
             $avatars = $avatars->orderBy('created_at', 'desc')->get();
             $pics = $pics->orderBy('created_at', 'desc')->get();
             $avatarDatas = $this->admin->fillReportedAvatarDatas($avatars);
+            // dd($avatarDatas);
             $picDatas = $this->admin->fillReportedPicDatas($pics);
+            // dd($picDatas);
             return view('admin.users.reportedPics')
                 ->with('results', $avatarDatas['results'] ? $avatarDatas['results'] : 1)
                 ->with('users', isset($avatarDatas['users']) ? $avatarDatas['users'] : null)
