@@ -50,9 +50,11 @@
                         <td></td>
                         <td>
                             <form id="idForm">
-                                @foreach($msglib as $msglib)
+                                @forelse($msglib as $msglib)
                                     <div class="btn btn-success com_tpl tpl" id="{{$msglib->id}}">{{$msglib->title}}</div>
-                                @endforeach
+                                @empty
+                                    目前沒有預設選項
+                                @endforelse
                             </form>
                             
                         </td>
@@ -61,8 +63,8 @@
                     <!-- <tr>
                         <td>檢舉者/被檢舉者</td>
                         <td>
-                            檢舉者<button class="btn btn-primary report_user">{{$user->name}}</button>
-                            被檢舉者<button class="btn btn-primary report_user">{{$to_user->name}}</button>
+                            檢舉者<button class="btn btn-primary report_user">{{$to_user->name}}</button>
+                            被檢舉者<button class="btn btn-primary report_user">{{$user->name}}</button>
                         </td>
                     </tr>
                     <tr>
@@ -167,8 +169,8 @@
                     <!-- <tr>
                         <td>檢舉者/被檢舉者</td>
                         <td>
-                            檢舉者<button class="btn btn-primary report_user2">{{$user->name}}</button>
-                            被檢舉者<button class="btn btn-primary report_user2">{{$to_user->name}}</button>
+                            檢舉者<button class="btn btn-primary report_user2">{{$to_user->name}}</button>
+                            被檢舉者<button class="btn btn-primary report_user2">{{$user->name}}</button>
                         </td>
                     </tr>
                     <tr>

@@ -839,21 +839,25 @@ class UserController extends Controller
 
     public function showAdminMessengerWithMessageId($id, $mid)
     {
-        $msglib = Msglib::get();
-        $msglib_report = Msglib::selectraw('id, title, msg')->where('kind','=','report')->get();
-        $msglib_reported = Msglib::selectraw('id, title, msg')->where('kind','=','reported')->get();
+        
+
 
         $admin = $this->admin->checkAdmin();
         if ($admin){
-            /*被檢舉者 */
+            $msglib = Msglib::get();
+            $msglib_report = Msglib::selectraw('id, title, msg')->where('kind','=','report')->get();
+            $msglib_reported = Msglib::selectraw('id, title, msg')->where('kind','=','reported')->get();
+            $msglib = Msglib::get();
+            $msglib2 = Msglib::get();
+            $msglib3 = Msglib::selectraw('msg')->get();
+            /*檢舉者 */
             $user = $this->service->find($id);
             $message = Message::where('id', $mid)->get()->first();
             $sender = User::where('id', $message->from_id)->get()->first();
-
-
-            /*檢舉者*/
+            /*被檢舉者*/
             $to_user_id = Message::where('id', $mid)->get()->first()->to_id;
             $to_user    = $this->service->find($to_user_id);
+
 
             $message_msg = Message::where('to_id', $to_user->id)->where('from_id',$user->id)->get();            
 
@@ -873,6 +877,7 @@ class UserController extends Controller
 
 
 
+
             return view('admin.users.messenger')
                 ->with('admin', $admin)
                 ->with('user', $user)
@@ -886,6 +891,7 @@ class UserController extends Controller
                 ->with('msglib_msg', $msglib_msg)
                 ->with('message_msg', $message_msg)
                 ->with('msglib_msg2', $msglib_msg2);
+
         }
         else{
             return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
@@ -895,17 +901,17 @@ class UserController extends Controller
     public function showAdminMessengerWithReportedId($id, $mid, $pic_id = null, $isPic= null, $isReported= null)
     { 
 
-        $msglib = Msglib::get();
-        $msglib_report = Msglib::selectraw('id, title, msg')->where('kind','=','report')->get();
-        $msglib_reported = Msglib::selectraw('id, title, msg')->where('kind','=','reported')->get();
-
         $admin = $this->admin->checkAdmin();
         if ($admin){
-            /*被檢舉者 */
-            $user = $this->service->find($id);
+            $msglib = Msglib::get();
+            $msglib_report = Msglib::selectraw('id, title, msg')->where('kind','=','report')->get();
+            $msglib_reported = Msglib::selectraw('id, title, msg')->where('kind','=','reported')->get();
+            $msglib = Msglib::get();
+            $msglib2 = Msglib::get();
+            $msglib3 = Msglib::selectraw('msg')->get();
             $report = Reported::where('member_id', $id)->where('reported_id', $mid)->get()->first();
+
             $reported = User::where('id', $mid)->get()->first();
-            
 
             /*被檢舉者 */
             $user = $this->service->find($id);
@@ -936,10 +942,14 @@ class UserController extends Controller
                 ->with('admin', $admin)
                 ->with('user', $user)
                 ->with('to_user', $to_user)
+
                 ->with('message', 'REPORTEDUSERONLY')
                 ->with('report', $report)
+                // ->with('user', $reported)
                 ->with('reportedName', $reported->name)
+
                 // ->with('to_user', $reported)
+
                 ->with('isPic', $isPic)
                 ->with('isReported', $isReported)
                 ->with('isReportedId', $mid)
@@ -951,6 +961,7 @@ class UserController extends Controller
                 ->with('msglib_msg', $msglib_msg)
                 ->with('message_msg', $message_msg)
                 ->with('msglib_msg2', $msglib_msg2);
+
         }
         else{
             return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
