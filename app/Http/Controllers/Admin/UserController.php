@@ -915,16 +915,13 @@ class UserController extends Controller
 
             /*被檢舉者 */
             $user = $this->service->find($id);
-            $reported = Reported::where('member_id', $id)->get()->first();
-            $sender = User::where('id', $reported->reported_id)->get()->first();
-
+            $reported = Reported::get()->first();
+            // $sender = User::where('id', $reported->reported_id)->get()->first();
 
             /*檢舉者*/
             $to_user_id = Reported::where('member_id', $id)->get()->first()->reported_id;
             $to_user    = $this->service->find($to_user_id);
-
             $message_msg = Reported::where('reported_id', $to_user->id)->where('member_id',$user->id)->get();            
-    
             foreach($msglib_report as $key=>$msg){
                 $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
                 $msglib_msg[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg[$key]);
@@ -1269,7 +1266,6 @@ class UserController extends Controller
         $admin = $this->admin->checkAdmin();
         if ($admin){
             $users = Reported::select('*');
-            // dd($users->get(), $request->date_start, $request->date_end);
             if($request->date_start){
                 $users = $users->where('created_at', '>', $request->date_start . ' 00:00');
             }
@@ -1277,9 +1273,7 @@ class UserController extends Controller
                 $users = $users->where('created_at', '<', $request->date_end . ' 23:59');
             }
             $users = $users->orderBy('created_at', 'desc');
-            // dd($users->get());
             $datas = $this->admin->fillReportedDatas($users);
-            // dd($datas);
             return view('admin.users.reportedUsers')
                 ->with('results', $datas['results'])
                 ->with('users', isset($datas['users']) ? $datas['users'] : null)
@@ -1317,9 +1311,8 @@ class UserController extends Controller
             $avatars = $avatars->orderBy('created_at', 'desc')->get();
             $pics = $pics->orderBy('created_at', 'desc')->get();
             $avatarDatas = $this->admin->fillReportedAvatarDatas($avatars);
-            // dd($avatarDatas);
             $picDatas = $this->admin->fillReportedPicDatas($pics);
-            // dd($picDatas);
+
             return view('admin.users.reportedPics')
                 ->with('results', $avatarDatas['results'] ? $avatarDatas['results'] : 1)
                 ->with('users', isset($avatarDatas['users']) ? $avatarDatas['users'] : null)
@@ -1488,9 +1481,7 @@ class UserController extends Controller
     }
     public function addMessageLib(Request $request)
     {
-        // $info = $request->post();
         $msg_id = $request->post('msg_id');
-        // dd($msg_id);
         if($msg_id!=''){
             $kind  = $request->post('kind');
             $title = $request->post('title');
@@ -1510,7 +1501,6 @@ class UserController extends Controller
                 'title'=>$title,
                 'msg'=>$msg,
             );
-            // $msglib = Msglib::create(['title','123'])->tosql();
             DB::insert('insert into msglib (title, msg, kind) values ( ?, ? , ? )',
             [$title,$msg,$kind]);
             return json_encode($data);

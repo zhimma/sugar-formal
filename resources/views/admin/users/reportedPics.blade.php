@@ -63,7 +63,7 @@
                     </tr>
                     <? $rowIndex = 0; ?>
                     @if(isset($results))
-                        @foreach ($results as $result)
+                        @foreach ($results as $rowIndex=>$result)
                         <? $rowIndex += 1; ?>
                         <tr >
                             <td>
