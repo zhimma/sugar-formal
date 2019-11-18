@@ -1159,9 +1159,12 @@ class PagesController extends Controller
                 ->with('users', $userBanned);
     }
 	
-	public function mem_member()
+	public function mem_member(Request $request)
     {
-        return view('new.mem_member');
+        $user_id = '689';
+        $user = User::selectraw('*')->join('user_meta', 'user_meta.user_id','=','users.id')->where('users.id', $user_id)->first();
+        return view('/new/mem_member')
+                ->with('user', $user);
     }
     public function mem_search()
     {
@@ -1178,5 +1181,18 @@ class PagesController extends Controller
     public function women_search()
     {
         return view('new.women_search');
+    }
+
+    public function searchData(Request $request)
+    {
+        $r = $request->post();
+        $page = $request->post('page');
+
+        $user = User::selectraw('*')->join('user_meta', 'user_meta.user_id','=','users.id')->limit(8)->get();
+        $data = array(
+            'page'=>$page,
+            'user'=>$user,
+        );
+        echo json_encode($data);
     }
 }

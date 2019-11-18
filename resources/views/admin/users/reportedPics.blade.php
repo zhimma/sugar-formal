@@ -63,8 +63,8 @@
                     </tr>
                     <?php $rowIndex = 0; ?>
                     @if(isset($results))
-                        @foreach ($results as $result)
-                        <?php $rowIndex += 1; ?>
+                        @foreach ($results as $rowIndex=>$result)
+                        <? $rowIndex += 1; ?>
                         <tr >
                             <td @if($result['isBlockedReceiver']) style="background-color:#FFFF00" @endif>
                                 <p @if($users[$result['reported_user_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
