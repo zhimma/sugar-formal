@@ -2,7 +2,7 @@ function fileuploaderAjaxImage($target, opts) {
     let defaults = {
         url: null,
         ajaxDataImgName: "msg",
-        limit: 10,
+        limit: 6,
         extensions: ["jpg", "jpeg", "png", "gif"],
         fileMaxSize: 8,
         editor: {
@@ -161,7 +161,7 @@ function fileuploaderAjaxImage($target, opts) {
             feedback: "選擇檔案上傳",
             feedback2: "檔案已選取",
             errors: {
-                filesLimit: "最多只允許上傳 ${limit} 個檔案",
+                filesLimit: "最多只允許上傳 ${limit} 張(含大頭照)的照片",
                 filesType: "只允許上傳 ${extensions} 檔案格式",
                 filesSize: "${name} 檔案太大! 檔案上傳上限為 ${maxSize} MB",
                 filesSizeAll: "您選擇的檔案過大! 檔案上傳上限為 ${maxSize} MB",

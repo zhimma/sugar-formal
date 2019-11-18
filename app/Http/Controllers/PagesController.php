@@ -1158,4 +1158,25 @@ class PagesController extends Controller
                 ->with('user',$user)
                 ->with('users', $userBanned);
     }
+	
+	public function mem_member()
+    {
+        return view('new.mem_member');
+    }
+    public function mem_search()
+    {
+        return view('new.mem_search');
+    }
+    public function mem_updatevip()
+    {
+        return view('new.mem_updatevip');
+    }
+    public function women_updatevip()
+    {
+        return view('new.women_updatevip');
+    }
+    public function women_search()
+    {
+        return view('new.women_search');
+    }
 }
