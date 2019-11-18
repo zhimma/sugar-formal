@@ -216,6 +216,7 @@ class AdminService
 
     public function fillReportedDatas($results){
         $results = $results->get();
+        //member_id is reporter id
         $member_id = array();
         $reported_id = array();
         foreach ($results as $result){
@@ -237,18 +238,17 @@ class AdminService
                 $users[$id] = array();
             }
         }
-        foreach ($users as $id => $user){
-            $name = User::select('name')
+        foreach ($users as $id => &$user){
+            $info = User::select('name', 'engroup')
                 ->where('id', '=', $id)
                 ->get()->first();
-            if($name != null){
-                $users[$id]['name'] = $name->name;
-                $users[$id]['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
+            if($info != null){
+                $user['name'] = $info->name;
+                $user['engroup'] = $info->engroup;
+                $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
             }
             else{
-                $users[$id] = new User;
-                $users[$id]['name'] = '使用者資料不存在';
-                $users[$id]['vip'] = false;
+                $user = new User;
             }
         }
         return ['results' => $results,
@@ -281,17 +281,17 @@ class AdminService
                 $users[$id] = array();
             }
         }
-        foreach ($users as $id => $user){
-            $name = User::select('name')
+        foreach ($users as $id => &$user){
+            $info = User::select('name', 'engroup')
                 ->where('id', '=', $id)
                 ->get()->first();
-            if($name != null){
-                $users[$id]['name'] = $name->name;
-                $users[$id]['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
+            if($info != null){
+                $user['name'] = $info->name;
+                $user['engroup'] = $info->engroup;
+                $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
             }
             else{
-               $users[$id]['name'] = "使用者資料不存在";
-               $users[$id]['vip'] = "false";
+               $user = new User;
             }
         }
         return ['results' => $results,
@@ -334,18 +334,17 @@ class AdminService
                 $users[$id] = array();
             }
         }
-        foreach ($users as $id => $user){
-            $name = User::select('name')
+        foreach ($users as $id => &$user){
+            $info = User::select('name', 'engroup')
                 ->where('id', '=', $id)
                 ->get()->first();
-            if($name != null){
-                $users[$id]['name'] = $name->name;
-                $users[$id]['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
+            if($info != null){
+                $user['name'] = $info->name;
+                $user['engroup'] = $info->engroup;
+                $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
             }
             else{
-                $users[$id]['name'] = "使用者資料不存在";
-                $users[$id]['vip'] = '照片已刪除或該筆資料不存在。';
-                $users[$id]['expire_date'] = "NULL";
+                $user = new User;
             }
         }
         return ['results' => $results,
