@@ -219,14 +219,34 @@ class UserController extends Controller
         }
 
     }
-
-    public function banUserWithDayAndMessage($user_id, $msg_id, $days){
-        //todo : banUserWithDays change way.
-        if (false !== ( strpos($days, '&'))) {
-            $value = explode("&",$days);
-            $days = $value[0];
-            $reason = $value[1];
+    public function showBanUserDialog(Request $request){
+        $admin = $this->admin->checkAdmin();
+        if($admin){
+            $bannedUser = users::where('id', $request->user_id)->get()->first();
+            $msg = Message::where('id', $request->msg_id)->get()->first();
+            if(!$bannedUser)
+                return back()->withErrors('查無使用者');
+            else{
+                return view('admin.users.bannedUserDialog')
+                    ->with('msg', $msg)
+                    ->with('bannedUser', $bannedUser)
+                    ->with('isReported', $request->isReported);
+            }     
         }
+        else{
+            return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
+    }
+
+
+    public function banUserWithDayAndMessage(Request $request){
+        //todo : banUserWithDays change way.
+        $user_id = $request->user_id;
+        $msg_id = $request->msg_id;
+        $days = $request->days;
+        $reason = $request->reason;
+        $isReported = $request->isReported;
+
         $userBanned = banned_users::where('member_id', $user_id)
             ->get()->first();
         if(!$userBanned){
@@ -240,30 +260,19 @@ class UserController extends Controller
         }else{
             $userBanned->expire_date = null;
         }
-        if (false !== ( strpos($msg_id, '&'))) {
-            $value = explode("&",$msg_id);
-            $msg_id = $value[0];
-            $msg_database = $value[1];
-        }
+
         
-        if(isset($msg_database)){
-            switch($msg_database){
-                case 'Reported':
-                    $message = Reported::select($msg_database.'.content', $msg_database.'.created_at')
-                    ->join('users', $msg_database.'.reported_id', '=', 'users.id')
-                    ->where($msg_database.'.id', $msg_id)->get()->first();
-                break;
-                default:
-                    $message = Message::select('message.content', 'message.created_at', 'users.name')
-                    ->join('users', 'message.to_id', '=', 'users.id')
-                    ->where('message.id', $msg_id)->get()->first();
-                break;
-            }
-        }else{
+        if($isReported){
+            $message = Reported::select('reported.content', 'reported.created_at')
+            ->join('users', 'reported.reported_id', '=', 'users.id')
+            ->where('reported.id', $msg_id)->get()->first();
+        }
+        else{
             $message = Message::select('message.content', 'message.created_at', 'users.name')
             ->join('users', 'message.to_id', '=', 'users.id')
             ->where('message.id', $msg_id)->get()->first();
         }
+        
         if(isset($message) && $days != 'X'){
             $userBanned->message_content = $message->content;
             $userBanned->message_time = $message->created_at;
@@ -325,6 +334,7 @@ class UserController extends Controller
                ->with('users', $users)
                ->with('name', isset($request->name) ? $request->name : null)
                ->with('email', isset($request->email) ? $request->email : null)
+               ->with('keyword', isset($request->keyword) ? $request->keyword : null)
                ->with('member_type', isset($request->member_type) ? $request->member_type : null)
                ->with('time', isset($request->time) ? $request->time : null);
     }

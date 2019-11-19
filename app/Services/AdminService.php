@@ -58,29 +58,30 @@ class AdminService
      */
     public function advSearch(Request $request)
     {
-        if( $request->email && $request->name ){
-            $users = User::where('email', 'like', '%' . $request->email . '%')
-                ->where('name', 'like', '%' . $request->name . '%');
+        $name = $request->name ? $request->name : "";
+        $email = $request->email ? $request->email : "";
+        $keyword = $request->keyword ? $request->keyword : "";
+        $users = User::where('email', 'like', '%' . $email . '%')
+                ->where('name', 'like', '%' . $name . '%');
+        if($keyword){
+            $users = $users->leftjoin('user_meta', 'users.id', '=', 'user_meta.user_id')
+                            ->where(function($query) use ($keyword){
+                                $query->orWhere('user_meta.about', 'like', '%'.$keyword.'%')
+                                        ->orWhere('user_meta.style', 'like', '%'.$keyword.'%');
+                            });
         }
-        else if( $request->email ){
-            $users = User::where('email', 'like', '%' . $request->email . '%');
-        }
-        else if ( $request->name ){
-            $users = User::where('name', 'like', '%' . $request->name . '%');
+
+        if($request->time){
+            $users = $users->orderBy($request->time, 'desc');
         }
         else{
-            $users = new User;
+            $users = $users->orderBY('users.id', 'asc');
         }
-        if($request->time =='created_at'){
-            $users = $users->orderBy('created_at', 'desc');
-        }
-        if($request->time =='login_time'){
-            $users = $users->orderBy('last_login', 'desc');
-        }
-        if( empty($request->email) && empty($request->name)){
-            $users = $users->orderBY('id', 'asc');
+        
+        if( empty($email) && empty($name) && empty($keyword)){
             $users = $users->paginate(10);
-        }else{
+        }
+        else{
             $users = $users->get();
         }
         foreach ($users as $user){
@@ -94,7 +95,7 @@ class AdminService
             }
         }
         if($request->member_type =='vip'){
-            $users = collect($users)->sortBy('vip', true,true)->reverse()->toArray();
+            $users = collect($users)->sortBy('vip', true, true)->reverse()->toArray();
         }
         if($request->member_type =='banned'){
             $users = collect($users)->sortBy('isBlocked')->reverse()->toArray();
@@ -215,6 +216,7 @@ class AdminService
 
     public function fillReportedDatas($results){
         $results = $results->get();
+        //member_id is reporter id
         $member_id = array();
         $reported_id = array();
         foreach ($results as $result){
@@ -236,18 +238,17 @@ class AdminService
                 $users[$id] = array();
             }
         }
-        foreach ($users as $id => $user){
-            $name = User::select('name')
+        foreach ($users as $id => &$user){
+            $info = User::select('name', 'engroup')
                 ->where('id', '=', $id)
                 ->get()->first();
-            if($name != null){
-                $users[$id]['name'] = $name->name;
-                $users[$id]['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
+            if($info != null){
+                $user['name'] = $info->name;
+                $user['engroup'] = $info->engroup;
+                $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
             }
             else{
-                $users[$id] = new User;
-                $users[$id]['name'] = '使用者資料不存在';
-                $users[$id]['vip'] = false;
+                $user = new User;
             }
         }
         return ['results' => $results,
@@ -280,17 +281,17 @@ class AdminService
                 $users[$id] = array();
             }
         }
-        foreach ($users as $id => $user){
-            $name = User::select('name')
+        foreach ($users as $id => &$user){
+            $info = User::select('name', 'engroup')
                 ->where('id', '=', $id)
                 ->get()->first();
-            if($name != null){
-                $users[$id]['name'] = $name->name;
-                $users[$id]['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
+            if($info != null){
+                $user['name'] = $info->name;
+                $user['engroup'] = $info->engroup;
+                $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
             }
             else{
-               $users[$id]['name'] = "使用者資料不存在";
-               $users[$id]['vip'] = "false";
+               $user = new User;
             }
         }
         return ['results' => $results,
@@ -333,18 +334,17 @@ class AdminService
                 $users[$id] = array();
             }
         }
-        foreach ($users as $id => $user){
-            $name = User::select('name')
+        foreach ($users as $id => &$user){
+            $info = User::select('name', 'engroup')
                 ->where('id', '=', $id)
                 ->get()->first();
-            if($name != null){
-                $users[$id]['name'] = $name->name;
-                $users[$id]['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
+            if($info != null){
+                $user['name'] = $info->name;
+                $user['engroup'] = $info->engroup;
+                $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
             }
             else{
-                $users[$id]['name'] = "使用者資料不存在";
-                $users[$id]['vip'] = '照片已刪除或該筆資料不存在。';
-                $users[$id]['expire_date'] = "NULL";
+                $user = new User;
             }
         }
         return ['results' => $results,
