@@ -97,14 +97,14 @@ if(Auth::user()) $login_user = Auth::user();
 						<li class="m-nav__item">
 							<a href="{!! url('dashboard/cancel') !!}" class="m-nav__link">
 								<i class="m-nav__link-icon fa fa-diamond"></i>
-								<span class="m-nav__link-text">取消 VIP</span>
+								<span class="m-nav__link-text cancelvip">取消 VIP</span>
 							</a>
 						</li>
 					@else
 						<li class="m-nav__item">
 							<a href="{!! url('dashboard/cancel') !!}" class="m-nav__link">
 								<i class="m-nav__link-icon fa fa-diamond"></i>
-								<span class="m-nav__link-text">取消 VIP</span>
+								<span class="m-nav__link-text cancelvip">取消 VIP</span>
 							</a>
 						</li>
 						<li class="m-nav__item">

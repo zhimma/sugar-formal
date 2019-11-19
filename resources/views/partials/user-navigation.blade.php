@@ -153,7 +153,7 @@
                                 <i class="m-nav__link-icon fa fa-diamond"></i>
                                 <span class="m-nav__link-title">
                                 <span class="m-nav__link-wrap">
-                                    <span class="m-nav__link-text">
+                                    <span class="m-nav__link-text cancelvip">
                                         取消 VIP
                                     </span>
                                 </span>
