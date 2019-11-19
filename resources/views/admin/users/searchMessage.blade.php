@@ -119,14 +119,13 @@
                             @endif
                         </p>
                     </a>
-                    <!-- <button type="button" onclick="toggleBanned({{ $result['from_id'] }});" target="_blank" class='text-white btn @if($result['isBlocked']) btn-success @else btn-danger @endif'>@if($result['isBlocked']) ◯ @else 🞫 @endif</button> -->
                 </td>
                 <td>
                     <a href="{{ route('AdminMessengerWithMessageId', [$result->from_id, $result->id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
                 </td>
                 @if(isset($reported) && $reported == 1)
                 <td>
-                    <a class="btn btn-danger ban-user{{ $key }}" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result->from_id, $result->id]) }} " data-name='{{ $users[$result['from_id']]['name'] }}'>封鎖</a>
+                    <a class="btn btn-danger" href="{{ route('banUserWithDayAndMessage', [$result->from_id, $result->id, 'reported']) }}">封鎖</a>
                 </td>
                 @endif
                 <td @if($result['isBlockedReceiver']) style="background-color:#FFFF00" @endif>
@@ -151,7 +150,7 @@
                 </td>
                 @if(isset($reported) && $reported == 1)
                 <td>
-                    <a class="btn btn-danger ban-user{{ $key }}" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$result->to_id, $result->id]) }}" data-name='{{ $users[$result['to_id']]['name'] }}'>封鎖</a>
+                    <a class="btn btn-danger ban-user{{ $key }}" href="{{ route('banUserWithDayAndMessage', [$result->to_id, $result->id]), 'reported' }}">封鎖</a>
                 </td>
                 @endif
                 <td width="45%" style="word-wrap: break-word;">{{ $result['content'] }}</td>
@@ -205,11 +204,10 @@
                     @if($sender['vip'])
                         <i class="m-nav__link-icon fa fa-diamond"></i>
                     @endif
-                    <!-- <button type="button" onclick="toggleBanned({{ $sender['id'] }});" target="_blank" class='text-white btn @if($sender['isBlocked']) btn-success @else btn-danger @endif'>@if($sender['isBlocked']) ◯ @else 🞫 @endif</button> -->
                 </td>
                 <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][0]['id'] ]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>
                 <td>
-                    <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }} " data-name='{{ $sender['name'] }}'>封鎖</a>
+                    <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }}">封鎖</a>
                 </td>
                 <td rowspan="{{ count($sender['messages']) }}">{{ $sender['created_at'] }}</td>
                 <td rowspan="{{ count($sender['messages']) }}">{{ $sender['last_login'] }}</td>
@@ -224,11 +222,10 @@
             @for( $i = 1; $i < count($sender['messages']); $i++) <tr @if($sender['isBlocked']) style="color: #F00;" @endif>
                 <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][$i]['id']]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>
                 <td>
-                    <a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }} " data-name='{{ $sender['name'] }}'>封鎖</a>
+                    <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }} ">封鎖</a>
                 </td>
                 <td>{{ $receivers[$sender['messages'][$i]['to_id']] }}</td>
                 <td width="45%">{{ $sender['messages'][$i]['content'] }}</td>
-                <!-- <td>{{ $sender['messages'][$i]['read'] }}</td> -->
                 <td>{{ $sender['messages'][$i]['created_at'] }}</td>
                 <td style="text-align: center; vertical-align: middle">
                     <input type="checkbox" name="msg_id[]" value="{{ $sender['messages'][$i]['id'] }}" class="form-control boxes">
@@ -260,6 +257,7 @@
                     <select name="days" class="days">
                         <option value="3">三天</option>
                         <option value="7">七天</option>
+                        <option value="15">十五天</option>
                         <option value="30">三十天</option>
                         <option value="X" selected>永久</option>
                     </select>
@@ -352,26 +350,26 @@
             let href = $(this).attr('href');
             $(this).attr('href', href + "?date_start=" + date_start + "&date_end=" + date_end);
         });
-        $('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
-            var data_id = '';
-            if (typeof $(this).data('id') !== 'undefined') {
-                data_id = $(this).data('id');
-                $("#exampleModalLabel").html('封鎖 '+ $(this).data('name'))
-            }
-            $("#send_blockade").attr('href', data_id);
-        })
-        $('.advertising').on('click', function(e) {
-            $('.m-reason').val('廣告');
-        });
-        $('.improper-behavior').on('click', function(e) {
-            $('.m-reason').val('非徵求包養行為');
-        });
-        $('.improper-words').on('click', function(e) {
-            $('.m-reason').val('用詞不當');
-        });
-        $('.improper-photo').on('click', function(e) {
-            $('.m-reason').val('照片不當');
-        });
+        // $('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
+        //     var data_id = '';
+        //     if (typeof $(this).data('id') !== 'undefined') {
+        //         data_id = $(this).data('id');
+        //         $("#exampleModalLabel").html('封鎖 '+ $(this).data('name'))
+        //     }
+        //     $("#send_blockade").attr('href', data_id);
+        // })
+        // $('.advertising').on('click', function(e) {
+        //     $('.m-reason').val('廣告');
+        // });
+        // $('.improper-behavior').on('click', function(e) {
+        //     $('.m-reason').val('非徵求包養行為');
+        // });
+        // $('.improper-words').on('click', function(e) {
+        //     $('.m-reason').val('用詞不當');
+        // });
+        // $('.improper-photo').on('click', function(e) {
+        //     $('.m-reason').val('照片不當');
+        // });
     });
 
     
@@ -403,21 +401,18 @@
         window.open(url + '/admin/users/toggleUserBlock/' + id);
         history.go(0);
     }
-
-    
-    let count = 0;
-
-    function setDays(a, key) {
-        if (count === 0) {
-            let href = a.href;
-            if(key === '') {
-                let reason = $('.m-reason').val();
-                $('.ban-user' + key).attr("href", href + '/' + $('.days' + key).val() + '&' + reason);
-            }else{
-                $('.ban-user' + key).attr("href", href + '/' + $('.days' + key).val());
-            }
-        }
-        count++;
-    }
+    // let count = 0;
+    // function setDays(a, key) {
+    //     if (count === 0) {
+    //         let href = a.href;
+    //         if(key === '') {
+    //             let reason = $('.m-reason').val();
+    //             $('.ban-user' + key).attr("href", href + '/' + $('.days' + key).val() + '&' + reason);
+    //         }else{
+    //             $('.ban-user' + key).attr("href", href + '/' + $('.days' + key).val());
+    //         }
+    //     }
+    //     count++;
+    // }
 </script>
 @stop

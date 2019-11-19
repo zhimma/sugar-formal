@@ -7,6 +7,8 @@ use App\Notifications\MessageEmail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
+use App\Notifications\CancelVipEmail;
+use App\Notifications\NewVipEmail;
 use Carbon\Carbon;
 
 class Vip extends Model
@@ -44,14 +46,14 @@ class Vip extends Model
     {
         $status = Vip::where('member_id', $member_id)->first();
 
-        if($status == NULL) return 1;
-        return $status->free;
+        if($status == NULL) return 0;
+        return !$status->free;
     }
 
     public static function upgrade($member_id, $business_id, $order_id, $amount, $txn_id, $active, $free, $transactionType = null)
     {
         $vipData = Vip::findByIdWithDateDesc($member_id);
-        if(isset($vipData)){
+        if(!isset($vipData)){
             $vip = new Vip();
             $vip->member_id = $member_id;
             $vip->txn_id = $txn_id;
@@ -75,12 +77,14 @@ class Vip extends Model
             $vipData->save();
         }
 
+        $admin = User::findByEmail(Config::get('social.admin.email'));
+
         VipLog::addToLog($member_id, 'upgrade', $txn_id, 1, $free);
 
         $curUser = User::findById($member_id);
         if ($curUser != null)
         {
-            // $curUser->notify(new MessageEmail($member_id, $member_id, "VIP 升級成功！"));
+            $admin->notify(new NewVipEmail($member_id, '761404', $member_id));
         }
     }
 
@@ -102,21 +106,25 @@ class Vip extends Model
         //$curVip->expiry =
         $curUser = User::findById($member_id);
         //$curUserName = User::id_($member_id)->meta_();
+        $admin = User::findByEmail(Config::get('social.admin.email'));
 
         VipLog::addToLog($member_id, 'cancel', 'XXXXXXXXX', 0, $free);
-        if ($curUser != null)
-        {
-            // $curUser->notify(new MessageEmail($member_id, $member_id, "VIP 取消了！"));
+        if ($curUser != null) {
+            $admin->notify(new CancelVipEmail($member_id, '761404', $member_id));
         }
         $user = Vip::select('id', 'expiry', 'created_at')
                 ->where('member_id', $member_id)
                 ->orderBy('created_at', 'desc')->get();
         if($curUser->engroup == 1){
             $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->created_at);
-            $day = $date->format('d');
+            $day = $date->day;
             $now = \Carbon\Carbon::now();
-            $nextMonth = $now->addMonth();
-            $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $nextMonth->year.'-'.$nextMonth->month.'-'.$day.' 00:00:00');
+            $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
+            if($now->day >= $day){
+                // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
+                $nextMonth = $now->addMonthsNoOverflow(1);
+                $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $nextMonth->year.'-'.$nextMonth->month.'-'.$day.' 00:00:00');
+            }
             foreach ($user as $u){
                 $u->expiry = $date->toDateTimeString();
                 $u->save();

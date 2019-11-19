@@ -11,12 +11,19 @@
 		<link href="/new/css/bootstrap.min.css" rel="stylesheet">
 		<link href="/new/css/bootstrap-theme.min.css" rel="stylesheet">
 		<link href="/plugins/sweetalert/sweetalert2.css" rel="stylesheet">
-		<link rel="stylesheet" href="/new/css/style.css?20191029">
-		<link rel="stylesheet" href="/new/css/style_zero.css?20191029">
+		<link rel="stylesheet" href="/new/css/style.css?2019111201">
+		<link rel="stylesheet" href="/new/css/style_zero.css?2019111201">
 		<link rel="stylesheet" href="/new/css/swiper.min.css">
+		<link rel="stylesheet" href="plugins/parsleyjs/parsley.css?20191107">
 		<?php //新樣板js?>
 		<script src="/new/js/bootstrap.min.js"></script>
 		<script src="/new/js/main.js" type="text/javascript"></script>
-
-		<link rel="shortcut icon" href="img/favicon.jpg" />
+		<script src="/new/js/loading.js" type="text/javascript"></script>
+		<script src="/plugins/sweetalert/sweetalert2.js" type="text/javascript"></script>
+		<link href="/plugins/fileuploader2.2/dist/font/font-fileuploader.css" rel="stylesheet" type="text/css">
+		<link href="/plugins/fileuploader2.2/dist/jquery.fileuploader.min.css" rel="stylesheet" type="text/css">
+        <link href="/plugins/fileuploader2.2/css/jquery.fileuploader-theme-thumbnails.css" rel="stylesheet" type="text/css">
+        <link href="/plugins/hopscotch/css/hopscotch.min.css" rel="stylesheet" type="text/css" />
+        <link href="https://unpkg.com/ionicons@4.5.10-0/dist/css/ionicons.min.css" rel="stylesheet">
+		<link rel="shortcut icon" href="/img/favicon.jpg" />
 	</head>

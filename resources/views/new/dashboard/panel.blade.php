@@ -5,12 +5,15 @@
         <div class="leul">
             <ul>
                 <li>
+                    <a href="{!! url('dashboard') !!}"><img src="/new/images/icon_48.png">個人資料</a>
+                </li>
+                <li>
                     <a href="{!! url('dashboard/search') !!}"><img src="/new/images/icon_38.png">搜索</a>
                 </li>
                 <li>
-                    <a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}"><img src="/new/images/icon_45.png">消息</a><span>{{ \App\Models\Message::unread($user->id) }}</span></li>
+                    <a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}"><img src="/new/images/icon_45.png">收件夾</a><span>{{ \App\Models\Message::unread($user->id) }}</span></li>
                 <li>
-                    <a href="{!! url('dashboard') !!}"><img src="/new/images/icon_48.png">我的</a>
+                   <a href="{!! url('browse') !!}"><img src="/new/images/icon_46.png">瀏覽資料</a>
                 </li>
                 <li>
                     <a href="{!! url('logout') !!}"><img src="/new/images/iconout.png">退出</a>

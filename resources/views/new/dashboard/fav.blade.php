@@ -133,7 +133,7 @@
             // }
         })
         .always(function () {
-          $('#warning').css("display", "none");;
+          $('#warning').css("display", "none");
           if (nn == 0) $('.fengsicon').removeClass('d-none');
         });
     }

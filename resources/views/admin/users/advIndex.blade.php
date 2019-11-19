@@ -23,6 +23,14 @@
                 </td>
             </tr>
             <tr>
+                <th>
+                    <label for="keyword" class="">關鍵字</label>
+                </th>
+                <td>
+                    <input type="text" name='keyword' class="" style="width:300px;" id="keyword" value="@if(isset($keyword)){{ $keyword }}@endif">
+                </td>
+            </tr>
+            <tr>
                 <th>排序方式1</th>
                 <td>
                     <input type="radio" name="time" value="created_at" @if(isset($users) && $time=='created_at') checked="true" @endif/>註冊時間
@@ -92,7 +100,7 @@
 </table>
 <div align="center">
     <input type="hidden" value="2" id="morePage">
-    @if(!isset($email ) && !isset($name))
+    @if(!isset($email) && !isset($name) && !isset($keyword))
     <button class="btn btn-info" onclick="getUserInfo()">載入更多</button>
     @endif
 </div>
@@ -117,6 +125,7 @@
                         <select name="days" class="days">
                             <option value="3">三天</option>
                             <option value="7">七天</option>
+                            <option value="15">十五天</option>
                             <option value="30">三十天</option>
                             <option value="X" selected>永久</option>
                         </select>

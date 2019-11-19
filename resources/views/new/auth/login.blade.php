@@ -23,7 +23,7 @@
                         </div>
                         <div class="de_input01 dlmarbot m-loader m-loader--right m-loader--light">
                             <div class="de_img"><img src="/new/images/lo_11.png"></div>
-                            <input name="password" type="password"  class="d_input" placeholder="密碼" required>
+                            <input name="password" type="password"  class="d_input" placeholder="密碼" required >
                         </div>
                         <a href="{!! url('password/reset') !!}" class="dlpassword">忘記密碼 ?</a>
                         <a href="javascript:void(0);" onclick="" class="dlbut btn-login">登入</a>
@@ -34,6 +34,37 @@
         </div>
     </div>
     <script>
+
+        $(document).ready(function() {
+            $("form[name=login]").parsley().on('form:validate', function (formInstance) {
+
+            })
+            .on('form:error', function () {
+                var error = $('ul.parsley-errors-list li');
+                var msg=[];
+                for (var i = 0; i <error.length; i++) {
+                    msg[i]=error.eq(i).html();
+                }
+                msg = Array.from(new Set(msg));
+                ResultData({
+                  msg: msg
+                });
+            })
+            .on('form:success', function () {
+                return true;
+            });
+            @if (isset($errors)&&($errors->count() > 0))
+                errormsg={};
+                for (var i = 0; i <$('ul.quarx-errors li').length; i++) {
+                    errormsg.i=$('ul.quarx-errors li').eq(i).html();
+                }
+                ResultData({
+                    msg: errormsg
+                });
+            @endif
+        });
+        $('.alert-danger').css('display','none');
+
 
         $(".btn-login").click(function(e){
             var email = $("input[name=email]").val();

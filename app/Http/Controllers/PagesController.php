@@ -99,6 +99,59 @@ class PagesController extends Controller
         return redirect('/dashboard')->withErrors(['沒辦法更新']);
     }
 
+    //新版編輯會員資料
+    public function profileUpdate_ajax(Request $request, ProfileUpdateRequest $profileUpdateRequest)
+    {
+        //Custom validation.
+        Validator::extend('not_contains', function($attribute, $value, $parameters)
+        {
+            $words = array('站長', '管理員');
+            foreach ($words as $word)
+            {
+                if (stripos($value, $word) !== false) return false;
+            }
+            return true;
+        });
+        $rules = [
+            'name'     => ['required', 'max:255', 'not_contains'],
+        ];
+        $messages = [
+            'not_contains'  => '請勿使用包含「站長」或「管理員」的字眼做為暱稱！'
+        ];
+        $validator = \Validator::make($request->all(), $rules, $messages);
+        $status_data=[];
+        if($validator->fails()){
+            $status_data =[
+                'status' => false,
+                'msg' => '請勿使用包含「站長」或「管理員」的字眼做為暱稱！',
+            ];
+        }else{
+            if ($this->service->update(auth()->id(), $request->all())) {
+                $status_data =[
+                    'status' => true,
+                    'msg' => '資料更新成功',
+                    'redirect'=>'/dashboard',
+                ];
+            }else{
+                $status_data =[
+                    'status' => true,
+                    'msg' => '無法更新',
+                ];
+            }
+        }
+        if(empty($status_data))
+            $status_data=[
+                    'status' => true,
+                    'msg' => '無法更新',
+            ];
+        return response()->json($status_data, 200)
+                ->header("Cache-Control", "no-cache, no-store, must-revalidate")
+                ->header("Pragma", "no-cache")
+                ->header("Last-Modified", gmdate("D, d M Y H:i:s")." GMT")
+                ->header("Cache-Control", "post-check=0, pre-check=0", false)
+                ->header("Expires", "Fri, 01 Jan 1990 00:00:00 GMT");
+    }
+
     public function postBoard(Request $request)
     {
         Board::post(auth()->id(), $request->all()['msg']);
@@ -275,12 +328,18 @@ class PagesController extends Controller
         return view('about')->with('user', $user);
     }
 
+    public function browse(Request $request)
+    {
+        $user = $request->user();
+        return view('new.browse')->with('user', $user);
+    }
+
     /**
      * Dashboard
      *
      * @return \Illuminate\Http\Response
      */
-    public function dashboard(Request $request)
+    public function dashboard2(Request $request)
     {
         $user = $request->user();
         $url = $request->fullUrl();
@@ -320,6 +379,106 @@ class PagesController extends Controller
             ->with('year', $year)
             ->with('month', $month)
             ->with('day', $day);
+        }
+    }
+
+    public function dashboard(Request $request)
+    {
+        $user = $request->user();
+        $url = $request->fullUrl();
+        //echo $url;
+
+        if(str_contains($url, '?img')) {
+            $tabName = 'm_user_profile_tab_4';
+        }
+        else {
+            $tabName = 'm_user_profile_tab_1';
+        }
+
+        $birthday = date('Y-m-d', strtotime($user->meta_()->birthdate));
+        $birthday = explode('-', $birthday);
+        $year = $birthday[0];
+        $month = $birthday[1];
+        $day = $birthday[2];
+        if($year=='1970'){
+            $year=$month=$day='';
+        }
+        if ($user) {
+            $cancel_notice = $request->session()->get('cancel_notice');
+            $message = $request->session()->get('message');
+            if(isset($cancel_notice)){
+                return view('dashboard')
+                    ->with('user', $user)
+                    ->with('tabName', $tabName)
+                    ->with('cur', $user)
+                    ->with('year', $year)
+                    ->with('month', $month)
+                    ->with('day', $day)
+                    ->with('message', $message)
+                    ->with('cancel_notice', $cancel_notice);
+            }
+            return view('new.dashboard')
+                ->with('user', $user)
+                ->with('tabName', $tabName)
+                ->with('cur', $user)
+                ->with('year', $year)
+                ->with('month', $month)
+                ->with('day', $day);
+        }
+    }
+
+    public function dashboard_img(Request $request)
+    {
+        $user = $request->user();
+        $url = $request->fullUrl();
+        //echo $url;
+
+        if(str_contains($url, '?img')) {
+            $tabName = 'm_user_profile_tab_4';
+        }
+        else {
+            $tabName = 'm_user_profile_tab_1';
+        }
+
+        $birthday = date('Y-m-d', strtotime($user->meta_()->birthdate));
+        $birthday = explode('-', $birthday);
+        $year = $birthday[0];
+        $month = $birthday[1];
+        $day = $birthday[2];
+        if($year=='1970'){
+            $year=$month=$day='';
+        }
+        if ($user) {
+            $cancel_notice = $request->session()->get('cancel_notice');
+            $message = $request->session()->get('message');
+            if(isset($cancel_notice)){
+                return view('dashboar_img')
+                    ->with('user', $user)
+                    ->with('tabName', $tabName)
+                    ->with('cur', $user)
+                    ->with('year', $year)
+                    ->with('month', $month)
+                    ->with('day', $day)
+                    ->with('message', $message)
+                    ->with('cancel_notice', $cancel_notice);
+            }
+            if($user->engroup==1){
+                return view('new.dashboard_img')
+                ->with('user', $user)
+                ->with('tabName', $tabName)
+                ->with('cur', $user)
+                ->with('year', $year)
+                ->with('month', $month)
+                ->with('day', $day);
+            }else{
+                return view('new.dashboard_img')
+                ->with('user', $user)
+                ->with('tabName', $tabName)
+                ->with('cur', $user)
+                ->with('year', $year)
+                ->with('month', $month)
+                ->with('day', $day);
+            }
         }
     }
 
@@ -998,5 +1157,42 @@ class PagesController extends Controller
         return view('dashboard.adminannouncement_web')
                 ->with('user',$user)
                 ->with('users', $userBanned);
+    }
+	
+	public function mem_member(Request $request)
+    {
+        $user_id = '689';
+        $user = User::selectraw('*')->join('user_meta', 'user_meta.user_id','=','users.id')->where('users.id', $user_id)->first();
+        return view('/new/mem_member')
+                ->with('user', $user);
+    }
+    public function mem_search()
+    {
+        return view('new.mem_search');
+    }
+    public function mem_updatevip()
+    {
+        return view('new.mem_updatevip');
+    }
+    public function women_updatevip()
+    {
+        return view('new.women_updatevip');
+    }
+    public function women_search()
+    {
+        return view('new.women_search');
+    }
+
+    public function searchData(Request $request)
+    {
+        $r = $request->post();
+        $page = $request->post('page');
+
+        $user = User::selectraw('*')->join('user_meta', 'user_meta.user_id','=','users.id')->limit(8)->get();
+        $data = array(
+            'page'=>$page,
+            'user'=>$user,
+        );
+        echo json_encode($data);
     }
 }

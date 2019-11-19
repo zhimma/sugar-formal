@@ -46,40 +46,6 @@
 		}
 	}
 
-	function ResultData(result){
-		if(result.status){
-			if(result.msg){
-				swal({
-					title:result.msg,
-					text:(result.text)?result.text:'',
-					type:'success'
-				}).then(() => {
-	                if(result.redirect){
-						location.href=result.redirect;
-					}
-	            });
-				// ,function(){
-				// 	if(result.redirect){
-				// 		location.href=result.redirect;	
-				// 	}
-				// });
-			}
-		}else{
-			if(typeof result.msg == 'object'){
-				error	=	'';
-				$.each(result.msg,function(i,message){
-					error	+=	message+'\n';
-				});
-			}else{
-				error	=	result.msg;
-			}
-			swal({
-				title:error,
-				text:(result.text)?result.text:'',
-				type:'error'
-			});
-		}
-	}
 
 	function ImgHandle(name,img){
         $(name).attr('src','/_upload/images/'+img);
@@ -104,3 +70,82 @@
 	  	window.open(url,'',config='location=no,toolbar=no,resizable=no,scrollbars=no,width='+winW+',height='+winH+',top='+(screen.availHeight/2-winH/2)+',left='+(screen.availWidth/2-winW/2)+'');
 
 	}
+
+	function ResultData2(result){
+		if(result.status){
+			if(result.msg){
+				swal({
+					title:result.msg,
+					text:(result.text)?result.text:'',
+					type:'success'
+				}).then(() => {
+	                if(result.redirect){
+						location.href=result.redirect;
+					}
+	            });
+			}
+		}else{
+			if(typeof result.msg == 'object'){
+				error	=	'';
+				$.each(result.msg,function(i,message){
+					error	+=	message+'\n';
+				});
+			}else{
+				error	=	result.msg;
+			}
+			swal({
+				title:error,
+				text:(result.text)?result.text:'',
+				type:'error'
+			});
+		}
+	}
+
+	function ResultData(result){
+		if(result.status){
+			if(result.msg){
+				c2(result.msg);
+				if(result.redirect){
+					$(document).on('click','.blbg',function(event) {
+				    	location.href=result.redirect;
+				    });
+				}
+			}
+		}else{
+			if(typeof result.msg == 'object'){
+				error	=	'';
+				$.each(result.msg,function(i,message){
+					error	+=	message+'\n';
+				});
+			}else{
+				error	=	result.msg;
+			}
+			swal({
+				title:error,
+				text:(result.text)?result.text:'',
+				type:'error'
+			});
+		}
+	}
+
+	function cl(str) {
+     	$(".blbg").show()
+        $("#tab01").show()
+        $("#tab01 .bltext").text(str);
+    }
+
+    function c2(str) {
+		 $(".blbg").show();
+         $("#tab02").show();
+         $("#tab02 .gxbut").text(str);
+    }
+
+    $(document).on('click','.blbg',function(event) {
+    	$(".blbg").hide();
+        $(".bl").hide();
+    });
+    function c4(str) {
+		 $(".blbg").show()
+         $("#tab04").show()
+         $("#tab04 .bltext").text(str);
+    }
