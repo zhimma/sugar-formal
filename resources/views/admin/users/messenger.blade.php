@@ -24,6 +24,7 @@
             
             <table class="table table-bordered table-hover">
             <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create"><div class="btn btn-success message_block">新增</div></a>
+            <br>
                 <tr>
                     <td>訊息標題</td>
                         <td></td>
@@ -118,6 +119,7 @@
             <div>===================================================================================================</div>
             <table class="table table-bordered table-hover">
             <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create"><div class="btn btn-success message_block">新增</div></a>
+            <br>
                 <tr>
                     <td>訊息標題</td>
                         <td></td>

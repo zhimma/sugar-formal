@@ -232,6 +232,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::get('new/mem_member', 'PagesController@mem_member');
     Route::get('new/mem_search', 'PagesController@mem_search');
     Route::post('searchData', 'PagesController@searchData');
+    Route::post('updateMemberData', 'PagesController@updateMemberData');
+    
     Route::get('new/mem_updatevip', 'PagesController@mem_updatevip');
     Route::get('new/women_updatevip', 'PagesController@women_updatevip');
     Route::get('new/women_search', 'PagesController@women_search');

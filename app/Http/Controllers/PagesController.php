@@ -1161,8 +1161,18 @@ class PagesController extends Controller
 	
 	public function mem_member(Request $request)
     {
-        $user_id = '689';
+        $user_id = $_SESSION['user_id'] ?? '689';
         $user = User::selectraw('*')->join('user_meta', 'user_meta.user_id','=','users.id')->where('users.id', $user_id)->first();
+        // $advanced_data = 
+//         收藏會員次數26
+// 車馬費邀請次數36
+// 發信次數20
+// 過去7天發信次數20
+// 是否封鎖我是
+// 是否看過我否
+// 瀏覽其他會員次數20
+// 被瀏覽次數20
+// 過去7天被瀏覽次數20
         return view('/new/mem_member')
                 ->with('user', $user);
     }
@@ -1186,13 +1196,27 @@ class PagesController extends Controller
     public function searchData(Request $request)
     {
         $r = $request->post();
-        $page = $request->post('page');
-
-        $user = User::selectraw('*')->join('user_meta', 'user_meta.user_id','=','users.id')->limit(8)->get();
+        // dd($r);
+        $page = $request->post('page')??1;
+        $perPage = 8;
+        $skip = $page*$perPage;
+        // dd($page, $skip);
+        $user = User::selectraw('*')->join('user_meta', 'user_meta.user_id','=','users.id')->join('member_pic', 'member_pic.member_id', '=', 'user_meta.user_id')->groupBy('users.id')->skip($skip)->take($perPage)->get();
         $data = array(
             'page'=>$page,
             'user'=>$user,
         );
         echo json_encode($data);
+    }
+
+    public function updateMemberData(Request $request){
+        // User::
+        $r = (array)$request->post('data');
+        foreach($r as $r){
+            $data[$r['name']] = $r['value'];
+        }
+        $users = User::where('id', '289')->first();
+
+        $users->update($data);
     }
 }

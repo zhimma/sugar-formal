@@ -679,6 +679,7 @@ class UserController extends Controller
                             array_push($from_id, $result['from_id']);
                         }
                     }
+
                     //Senders' meta.
                     $senders = array();
                     foreach ($from_id as $key => $id){
@@ -851,12 +852,12 @@ class UserController extends Controller
     {
         
 
-
         $admin = $this->admin->checkAdmin();
         if ($admin){
             $msglib = Msglib::get();
             $msglib_report = Msglib::selectraw('id, title, msg')->where('kind','=','report')->get();
             $msglib_reported = Msglib::selectraw('id, title, msg')->where('kind','=','reported')->get();
+            $msglib_all = Msglib::selectraw('id, title, msg')->get();
             $msglib = Msglib::get();
             $msglib2 = Msglib::get();
             $msglib3 = Msglib::selectraw('msg')->get();
@@ -869,21 +870,32 @@ class UserController extends Controller
             $to_user    = $this->service->find($to_user_id);
 
 
-            $message_msg = Message::where('to_id', $to_user->id)->where('from_id',$user->id)->get();            
-
-        foreach($msglib_report as $key=>$msg){
-            $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
-            $msglib_msg[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg[$key]);
-            $msglib_msg[$key] = str_replace('|$reportTime|',$message_msg[0]->created_at, $msglib_msg[$key]);
-            $msglib_msg[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg[$key]);
+            $message_msg = Message::where('to_id', $to_user->id)->where('from_id',$user->id)->get();   
+        if(!$msglib_report->isEmpty()){
+            foreach($msglib_report as $key=>$msg){
+                $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
+                $msglib_msg[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg[$key]);
+                $msglib_msg[$key] = str_replace('|$reportTime|',$message_msg[0]->created_at, $msglib_msg[$key]);
+                $msglib_msg[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg[$key]);
+            }
+        }else{
+            foreach($msglib_all as $key=>$msg){
+                $msglib_msg[$key] = $msg['msg'];
+            }
         }
-
-        foreach($msglib_reported as $key=>$msg){
-            $msglib_msg2[$key] = str_replace('|$report|',$user->name, $msg['msg']);
-            $msglib_msg2[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg2[$key]);
-            $msglib_msg2[$key] = str_replace('|$reportTime|',$message_msg[0]->created_at, $msglib_msg2[$key]);
-            $msglib_msg2[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg2[$key]);
+        if(!$msglib_reported->isEmpty()){
+            foreach($msglib_reported as $key=>$msg){
+                $msglib_msg2[$key] = str_replace('|$report|',$user->name, $msg['msg']);
+                $msglib_msg2[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg2[$key]);
+                $msglib_msg2[$key] = str_replace('|$reportTime|',$message_msg[0]->created_at, $msglib_msg2[$key]);
+                $msglib_msg2[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg2[$key]);
+            }
+        }else{
+            foreach($msglib_all as $key=>$msg){
+                $msglib_msg2[$key] = $msg['msg'];
+            }
         }
+        
 
 
 
@@ -916,6 +928,7 @@ class UserController extends Controller
             $msglib = Msglib::get();
             $msglib_report = Msglib::selectraw('id, title, msg')->where('kind','=','report')->get();
             $msglib_reported = Msglib::selectraw('id, title, msg')->where('kind','=','reported')->get();
+            $msglib_all      = Msglib::selectraw('id, title, msg')->get();
             $msglib = Msglib::get();
             $msglib2 = Msglib::get();
             $msglib3 = Msglib::selectraw('msg')->get();
@@ -932,18 +945,29 @@ class UserController extends Controller
             $to_user_id = Reported::where('member_id', $id)->get()->first()->reported_id;
             $to_user    = $this->service->find($to_user_id);
             $message_msg = Reported::where('reported_id', $to_user->id)->where('member_id',$user->id)->get();            
-            foreach($msglib_report as $key=>$msg){
-                $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
-                $msglib_msg[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg[$key]);
-                $msglib_msg[$key] = str_replace('|$reportTime|',$message_msg[0]->created_at, $msglib_msg[$key]);
-                $msglib_msg[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg[$key]);
+            if(!$msglib_report->isEmpty()){
+                foreach($msglib_report as $key=>$msg){
+                    $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
+                    $msglib_msg[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg[$key]);
+                    $msglib_msg[$key] = str_replace('|$reportTime|',$message_msg[0]->created_at, $msglib_msg[$key]);
+                    $msglib_msg[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg[$key]);
+                }
+            }else{
+                foreach($msglib_all as $key=>$msg){
+                    $msglib_msg[$key] = $msg['msg'];
+                }
             }
-    
-            foreach($msglib_reported as $key=>$msg){
-                $msglib_msg2[$key] = str_replace('|$report|',$user->name, $msg['msg']);
-                $msglib_msg2[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg2[$key]);
-                $msglib_msg2[$key] = str_replace('|$reportTime|',$message_msg[0]->created_at, $msglib_msg2[$key]);
-                $msglib_msg2[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg2[$key]);
+            if(!$msglib_reported->isEmpty()){
+                foreach($msglib_reported as $key=>$msg){
+                    $msglib_msg2[$key] = str_replace('|$report|',$user->name, $msg['msg']);
+                    $msglib_msg2[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg2[$key]);
+                    $msglib_msg2[$key] = str_replace('|$reportTime|',$message_msg[0]->created_at, $msglib_msg2[$key]);
+                    $msglib_msg2[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg2[$key]);
+                }
+            }else{
+                foreach($msglib_all as $key=>$msg){
+                    $msglib_msg2[$key] = $msg['msg'];
+                }
             }
             return view('admin.users.messenger')
                 ->with('admin', $admin)
