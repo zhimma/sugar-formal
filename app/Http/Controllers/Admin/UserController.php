@@ -943,7 +943,9 @@ class UserController extends Controller
 
             /*檢舉者*/
             $to_user_id = Reported::where('member_id', $id)->get()->first()->reported_id;
+
             $to_user    = $this->service->find($to_user_id);
+
             $message_msg = Reported::where('reported_id', $to_user->id)->where('member_id',$user->id)->get();            
             if(!$msglib_report->isEmpty()){
                 foreach($msglib_report as $key=>$msg){
@@ -1015,21 +1017,21 @@ class UserController extends Controller
                 $m->reportContent = '';
                 $m->save();
             }
-            if($request->report_id){
-                $m = Reported::where('id', $request->report_id)->get()->first();
-                $m->delete();
-            }
-            if($request->pic_id){
-                if(str_contains($request->pic_id, 'avatar')){
-                    $a_id = substr($request->pic_id, 6, strlen($request->pic_id));
-                    $a = ReportedAvatar::where('id', $a_id)->get()->first();
-                    $a->delete();
-                }
-                else{
-                    $p = ReportedPic::where('id', $request->pic_id)->get()->first();
-                    $p->delete();
-                }
-            }
+            // if($request->report_id){
+            //     $m = Reported::where('id', $request->report_id)->get()->first();
+            //     $m->delete();
+            // }
+            // if($request->pic_id){
+            //     if(str_contains($request->pic_id, 'avatar')){
+            //         $a_id = substr($request->pic_id, 6, strlen($request->pic_id));
+            //         $a = ReportedAvatar::where('id', $a_id)->get()->first();
+            //         $a->delete();
+            //     }
+            //     else{
+            //         $p = ReportedPic::where('id', $request->pic_id)->get()->first();
+            //         $p->delete();
+            //     }
+            // }
         }
         return back()->with('message', '傳送成功');
     }
