@@ -956,10 +956,14 @@ class UserController extends Controller
             $message_msg = Reported::where('reported_id', $to_user->id)->where('member_id',$user->id)->get();
 
             if(!$msglib_report->isEmpty()){
+                $created_at = null;
+                if(is_object($message_msg->first())){
+                    $created_at = $message_msg->first()->created_at;
+                }
                 foreach($msglib_report as $key=>$msg){
                     $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
                     $msglib_msg[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg[$key]);
-                    $msglib_msg[$key] = str_replace('|$reportTime|',$message_msg->first()->created_at, $msglib_msg[$key]);
+                    $msglib_msg[$key] = str_replace('|$reportTime|', $created_at, $msglib_msg[$key]);
                     $msglib_msg[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg[$key]);
                 }
             }else{
@@ -968,10 +972,14 @@ class UserController extends Controller
                 }
             }
             if(!$msglib_reported->isEmpty()){
+                $created_at = null;
+                if(is_object($message_msg->first())){
+                    $created_at = $message_msg->first()->created_at;
+                }
                 foreach($msglib_reported as $key=>$msg){
                     $msglib_msg2[$key] = str_replace('|$report|',$user->name, $msg['msg']);
                     $msglib_msg2[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg2[$key]);
-                    $msglib_msg2[$key] = str_replace('|$reportTime|',$message_msg->first()->created_at, $msglib_msg2[$key]);
+                    $msglib_msg2[$key] = str_replace('|$reportTime|', $created_at, $msglib_msg2[$key]);
                     $msglib_msg2[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg2[$key]);
                 }
             }else{
