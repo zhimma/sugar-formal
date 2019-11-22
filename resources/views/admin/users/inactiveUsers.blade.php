@@ -6,7 +6,7 @@
 	{!! csrf_field() !!}
 	<div class="form-group">
 		<label for="email" class="">Email</label>
-		<input type="text" name='email' class="" style="width:300px;" id="email" value="{{ $email }}">
+		<input type="text" name='email' class="" style="width:300px;" id="email" value="{{ old('email') }}">
 	</div>
 	<button type="submit" class="btn btn-primary">送出</button>
 </form>
