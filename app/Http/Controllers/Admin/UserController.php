@@ -942,7 +942,13 @@ class UserController extends Controller
             // $sender = User::where('id', $reported->reported_id)->get()->first();
 
             /*檢舉者*/
-            $to_user_id = Reported::where('member_id', $id)->get()->first()->reported_id;
+            $to_user_id = Reported::where('member_id', $id)->get()->first();
+            if(!isset($to_user_id)){
+                $to_user_id = $id;
+            }
+            else{
+                $to_user_id = $to_user_id->reported_id;
+            }
 
             $to_user    = $this->service->find($to_user_id);
 
