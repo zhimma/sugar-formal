@@ -10,6 +10,7 @@ use App\Models\Reported;
 use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
 use App\Models\SimpleTables\users;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\AdminService;
@@ -952,7 +953,12 @@ class UserController extends Controller
 
             $to_user    = $this->service->find($to_user_id);
 
-            $message_msg = Reported::where('reported_id', $to_user->id)->where('member_id',$user->id)->get();            
+            $message_msg = Reported::where('reported_id', $to_user->id)->where('member_id',$user->id)->get();
+            if(!isset($message_msg)){
+                $message_msg[0] = new Collection();
+                $message_msg[0]->created_at = null;
+            }
+
             if(!$msglib_report->isEmpty()){
                 foreach($msglib_report as $key=>$msg){
                     $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
