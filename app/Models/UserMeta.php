@@ -19,6 +19,7 @@ class UserMeta extends Model
      */
     protected $table = 'user_meta';
 
+    public $timestamps = false;
     /**
      * The attributes that are mass assignable.
      *

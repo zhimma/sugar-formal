@@ -84,24 +84,42 @@
                                 <dt>
                                                         <span>區市</span>
                                                         <span>
-                                                        <select name="" class="select_xx06"><option>連江縣</option><option>B</option></select>
-                                                        <select name="" class="select_xx06 right"><option>南竿鄉</option><option>B</option></select>
+                                                        <!-- <select name="city" id="city" class="select_xx06"><option value="連江縣">連江縣</option><option value="B">B</option></select> -->
+                                                        <select name="myCity" id="myCity" class="select_xx06">
+                                                          <option value="">選擇縣市</option>
+                                                          @foreach($city as $city_rows)
+                                                            <option value="<?php echo $city_rows->AutoNo ?>"><?php echo $city_rows->Name ?></option>
+                                                          @endforeach
+                                                        </select>
+                                                        <!-- <select name="area" id="area" class="select_xx06 right"><option value="南竿鄉">南竿鄉</option><option value="B">B</option></select> -->
+                                                        <select name="myTown" id="myTown" class="select_xx06 right">
+                                                            <option value="">選擇鄉鎮</option>
+                                                        </select>
                                                         </span>
                                                     </dt>
                                    <dt>
                                                         <span>年齡範圍</span>
                                                         <span>
-                                                        <select name="" class="select_xx06 left"><option>連江縣</option><option>B</option></select><div class="sew6">至</div>
-                                                        <select name="" class="select_xx06  right"><option>南竿鄉</option><option>B</option></select>
+                                                        <select name="age_pre" id="age_pre" class="select_xx06 left">
+                                                            @for ($i = 1; $i <= 10; $i++)
+                                                            <option value="{{$i*10}}">{{$i*10}}</option>
+                                                            @endfor
+                                                        </select>
+                                                        <div class="sew6">至</div>
+                                                        <select name="age_next" id="age_next" class="select_xx06  right">
+                                                            @for ($i = 1; $i <= 10; $i++)
+                                                            <option value="{{$i*10}}">{{$i*10}}</option>
+                                                            @endfor
+                                                        </select>
                                                         </span>
                                                     </dt>
                                                      <dt>
                                                          <div class="n_se left">
                                                              <span>預算</span>
                                                            <!-- <select name="" class="select_xx01"><option>100—200萬</option><option>300—400萬</option></select> -->
-                                                           <select class="form-control m-bootstrap-select m_selectpicker" name="budget">
+                                                           <select class="form-control m-bootstrap-select m_selectpicker" name="budget" id="budget">
 
-                                                            <option value="">請選擇</option>
+                                                            <option value="-1">請選擇</option>
 
                                                             <option value="基礎">基礎</option>
 
@@ -117,16 +135,21 @@
                                                          </div>
                                                          <div class="n_se right">
                                                              <span>抽菸</span>
-                                                           <select name="" class="select_xx01"><option>是</option><option>否</option></select>
+                                                           <select name="smoking" id="smoking" class="select_xx01">
+                                                              <option value="-1">請選擇</option>
+                                                              <option value="常抽">常抽</option>
+                                                              <option value="偶爾抽">偶爾抽</option>
+                                                              <option value="不抽">不抽</option>
+                                                           </select>
                                                          </div>
                                 </dt>
                                 <dt>
                                                         <span>體型</span>
                                                         <span class="line20">
-                                                                <label class="n_tx"><input type="checkbox" name="CheckboxGroup1" value="瘦" id="Checkbox"><i>瘦</i></label>
-                                                                <label class="n_tx"><input type="checkbox" name="CheckboxGroup1" value="標準" id="Checkbox1"><i>標準</i></label>
-                                                                <label class="n_tx"><input type="checkbox" name="CheckboxGroup1" value="微胖" id="Checkbox2"><i>微胖</i></label>
-                                                                <label class="n_tx"><input type="checkbox" name="CheckboxGroup1" value="胖" id="Checkbox3"><i>胖</i></label>
+                                                                <label class="n_tx"><input type="radio" name="body" value="瘦" id="body"><i>瘦</i></label>
+                                                                <label class="n_tx"><input type="radio" name="body" value="標準" id="body"><i>標準</i></label>
+                                                                <label class="n_tx"><input type="radio" name="body" value="微胖" id="body"><i>微胖</i></label>
+                                                                <label class="n_tx"><input type="radio" name="body" value="胖" id="body"><i>胖</i></label>
                                                         </span>
                                 </dt>
                                 <dt class="matopj15">
@@ -143,16 +166,36 @@
                                                      <dt class="matopj15">
                                                          <div class="n_se left">
                                                              <span>婚姻</span>
-                                                           <select name="" class="select_xx01"><option value="未婚">未婚</option><option value="已婚">已婚</option></select>
+                                                           <select name="marriage" id="marriage" class="select_xx01">
+                                                              <option value="-1">請選擇</option>
+                                                              <option value="單身">單身</option>
+                                                              <option value="有男友">有男友</option>
+                                                              <option value="未婚">未婚</option>
+                                                              <option value="已婚">已婚</option>
+                                                           </select>
                                                          </div>
                                                          <div class="n_se right">
                                                              <span>喝酒</span>
-                                                           <select name="" class="select_xx01"><option>是</option><option>否</option></select>
+                                                          <select name="drinking" id="drinking" class="select_xx01">
+                                                              <option value="-1">請選擇</option>
+                                                              <option value="常喝">常喝</option>
+                                                              <option value="偶爾喝">偶爾喝</option>
+                                                              <option value="不喝">不喝</option>
+                                                          </select>
                                                          </div>
                                 </dt>
                                 <dt>
                                                        <span>搜索排列顺序</span>
-                                                       <span><select name="" class="select_xx01"><option>登入時間</option><option>2019</option></select></span>
+                                                       <span>
+                                                       <select name="search_sort" id="search_sort" class="select_xx01">
+                                                          <option value="-1">登入時間</option>
+                                                          <option value="2019">2019</option>
+                                                          <option value="2018">2018</option>
+                                                          <option value="2017">2017</option>
+                                                          <option value="2016">2016</option>
+                                                          <option value="2015">2015</option>
+                                                       </select>
+                                                       </span>
                                                   </dt>
                                    </div>
                                              <div class="n_txbut"><div class="n_dlbut">搜索</div><div href="" class="n_zcbut">取消</div></div>
@@ -207,14 +250,17 @@ $(".n_dlbut").click(function(){
   }
     data = {
       "_token"      : "{{ csrf_token() }}",
-      "distriction" : 1,
-      "age"         : 2,
-      "budget"      : 3,
-      "body"        : 4,
+      "city"        : $("#city").val(),
+      "area"        : $("#area").val(),
+      "age_pre"     : $("#age_pre").val(),
+      "age_next"    : $("#age_next").val(),
+      "budget"      : $("#budget").val(),
+      "smoking"     : $("#smoking").val(),
+      "body"        : $("#body").val(),
       "cup"         : $("#cup_size").val(),
-      "marriage"    : 6,
-      "drink"       : 7, 
-      "search_sort" : 8,
+      "marriage"    : $("#marriage").val(),
+      "drinking"    : $("#drinking").val(), 
+      "search_sort" : $("#search_sort").val(),
       'page'        : $(this).attr('id'),
       };
     $.ajax({
@@ -247,6 +293,33 @@ $(".n_dlbut").click(function(){
     }
   });
 });
+</script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		//利用jQuery的ajax把縣市編號(CNo)傳到Town_ajax.php把相對應的區域名稱回傳後印到選擇區域(鄉鎮)下拉選單
+		$('#myCity').change(function(){
+      console.log('test');
+			var CNo= $('#myCity').val();
+      var data = {
+        "_token"      : "{{ csrf_token() }}",
+        'CNo': CNo,
+      };
+			$.ajax({
+				type: "POST",
+				url: '/town_ajax',
+				cache: false,
+				data:data,
+				error: function(){
+					alert('Ajax request 發生錯誤');
+				},
+				success: function(data){
+					$('#myTown').html(data);
+					$('#myZip').val("");//避免重新選擇縣市後郵遞區號還存在，所以在重新選擇縣市後郵遞區號欄位清空
+				}
+			});
+		});
+		
+	});
 </script>
 <style>
 .n_dlbut{ cursor: pointer; }

@@ -77,6 +77,7 @@
 	</style>
 
 	<body>
+	<?=$tip_count;?>
 		<div class="head hetop">
 			<div class="container">
 				<div class="col-sm-12 col-xs-12 col-md-12"><img src="/new/images/icon_41.png" class="logo" />
@@ -188,16 +189,20 @@
 					</div>
 					<!--基本资料-->
 					<form action="#" method="POST" id="basic_info">
+					<input type="hidden" name="id" id="id" value="{{$user->user_id}}">
 					<div class="mintop">
 						<div class="">
 							<div class="ziliao">
-								<div class="ztitle"><span>基本資料</span>Basic information</div><div class="updatedata">更新</div>
+								<div class="ztitle"><span>基本資料</span>Basic information</div>
+								<!-- <div class="updatedata">更新</div> -->
 								<div class="xiliao_input">
 									<div class="xl_input">
 										<dt>
                                                         <span>地區</span>
-                                                        <span><input name="city" type="text" class="select_xx senhs" id="city" placeholder="<?=$user->city;?>" value="<?=$user->city;?>">
-                                                        <input name="area" type="text" class="select_xx senhs right" id="area" placeholder="<?=$user->area;?>" value="<?=$user->area;?>"></span>
+                                                        <span>
+														<input name="city" type="text" class="select_xx senhs" id="city" placeholder="<?=$user->city;?>" value="<?=$user->city;?>">
+                                                        <input name="area" type="text" class="select_xx senhs right" id="area" placeholder="<?=$user->area;?>" value="<?=$user->area;?>">
+														</span>
                                                     </dt>
 										
 										<dt>
@@ -242,11 +247,11 @@
                                                     </dt>
 										<dt>
                                                         <span>婚姻</span>
-                                                        <span><input name="marrage" type="text" class="select_xx01 senhs" id="marrage" placeholder="<?=$user->marriage;?>" value="<?=$user->marriage;?>"></span>
+                                                        <span><input name="marriage" type="text" class="select_xx01 senhs" id="marriage" placeholder="<?=$user->marriage;?>" value="<?=$user->marriage;?>"></span>
                                                     </dt>
 										<dt>
                                                         <span>喝酒</span>
-                                                        <span><input name="drink" type="text" class="select_xx01 senhs" id="drink" placeholder="<?=$user->drinking;?>" value="<?=$user->drinking;?>"></span>
+                                                        <span><input name="drinking" type="text" class="select_xx01 senhs" id="drinking" placeholder="<?=$user->drinking;?>" value="<?=$user->drinking;?>"></span>
                                                     </dt>
 										<dt>
                                                         <span>抽煙</span>
@@ -270,16 +275,16 @@
 									<div class="xl_text">
 										<dt><span>帳號建立時間</span><font><?=$user->created_at;?></font></dt>
 										<dt><span>登入時間</span><font><?=$user->last_login;?></font></dt>
-										<dt><span>被收藏次數</span><font><img src="/new/images/icon_35.png"></font></dt>
-										<dt><span>收藏會員次數</span><font>26</font></dt>
-										<dt><span>車馬費邀請次數</span><font>36</font></dt>
-										<dt><span>發信次數</span><font>20</font></dt>
-										<dt><span>過去7天發信次數</span><font>20</font></dt>
-										<dt><span>是否封鎖我</span><font>是</font></dt>
-										<dt><span>是否看過我</span><font>否</font></dt>
-										<dt><span>瀏覽其他會員次數</span><font>20</font></dt>
-										<dt><span>被瀏覽次數</span><font>20</font></dt>
-										<dt><span>過去7天被瀏覽次數</span><font>20</font></dt>
+										<dt><span>被收藏次數</span><font><img src="/new/images/icon_35.png"><?php if($is_vip){ echo $be_fav_count??0;}?></font></dt>
+										<dt><span>收藏會員次數</span><font><?=$fav_count??0;?></font></dt>
+										<dt><span>車馬費邀請次數</span><font><?=$tip_count??0;?></font></dt>
+										<dt><span>發信次數</span><font><?=$message_count??0;?></font></dt>
+										<dt><span>過去7天發信次數</span><font><?=$message_count_7??0;?></font></dt>
+										<dt><span>是否封鎖我</span><font><?=$is_block_mid??'否';?></font></dt>
+										<dt><span>是否看過我</span><font><?=$is_visit_mid??'是';?></font></dt>
+										<dt><span>瀏覽其他會員次數</span><font><?=$visit_other_count??0?></font></dt>
+										<dt><span>被瀏覽次數</span><font><?=$be_visit_other_count??0;?></font></dt>
+										<dt><span>過去7天被瀏覽次數</span><font><?=$be_visit_other_count_7??0;?></font></dt>
 									</div>
 								</div>
 							</div>
@@ -393,6 +398,7 @@ $(".updatedata").click(function(){
 
 
 </script>
+
 
 
 	</body>
