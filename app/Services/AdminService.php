@@ -465,21 +465,24 @@ class AdminService
         if($type == 'pic'){
             $infos = array();
             foreach ($ids as $key => $id){
-                $p = MemberPic::select('member_id', 'created_at')->where('id', $id)->get()->first();
+                // dd($id);
+                $p = MemberPic::where('id', $id)->first();
                 $infos[$id]['post_time'] = $p->created_at;
-                $u = User::select('id', 'name')->where('id', $p->member_id)->get()->first();
+                $u = User::where('id', $p->member_id)->first();
                 $infos[$id]['user_id'] = $u->id;
                 $infos[$id]['user_name'] = $u->name;
             }
+            
             $datas = ['pic_ids' => $ids,
                 'infos' => $infos];
+// dd($datas);
             return $datas;
         }
         else if($type == 'avatar'){
             $infos = array();
             foreach ($ids as $key => $id){
                 $infos[$id]['post_time'] = '';
-                $u = User::select('name')->where('id', $id)->get()->first();
+                $u = User::select('name')->where('id', $id)->first();
                 $infos[$id]['user_id'] = $id;
                 $infos[$id]['user_name'] = $u->name;
             }
@@ -492,18 +495,24 @@ class AdminService
     public function deletePicture(Request $request)
     {
         $admin = $this->checkAdmin();
+
         if(!$admin){
             return false;
         }
         if($request->pic_id == null && $request->avatar_id == null){
             return null;
         }
+
+
         $pic_ids = is_array($request->pic_id) ? $request->pic_id : array($request->pic_id);
+
         $avatar_ids = is_array($request->avatar_id) ? $request->avatar_id : array($request->avatar_id);
         if($pic_ids[0] != null){
+
             $returnDatas1 = $this->picPreData($pic_ids, 'pic');
             $picInfos = $returnDatas1['infos'];
             $pic_ids = $returnDatas1['pic_ids'];
+
             if(MemberPic::whereIn('id', $pic_ids)->delete()){
 
             }

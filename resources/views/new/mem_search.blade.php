@@ -19,12 +19,26 @@
     <script src="/new/js/jquery-2.1.1.min.js" type="text/javascript"></script>
     <script src="/new/js/main.js" type="text/javascript"></script>
 
+<style>
+.n_dlbut2 {
+    width: 150px;
+    height: 40px;
+    border-radius: 200px;
+    color: #ffffff;
+    text-align: center;
+    line-height: 40px;
+    display: table;
+    font-size: 16px;
+    float: left;
+}
+</style>
   </head>
   <body>
     <div class="nowpage" style="display:hidden"></div>
     <div class="head hetop">
       <div class="container">
-        <div class="col-sm-12 col-xs-12 col-md-12"><img src="/new/images/icon_41.png" class="logo" />
+        <div class="col-sm-12 col-xs-12 col-md-12">
+            <a href="/"><img src="/new/images/icon_41.png" class="logo" /></a>
         </div>
       </div>
     </div>
@@ -33,7 +47,7 @@
         <div class="col-sm-12 col-xs-12 col-md-12">
           <div class="commonMenu">
             <div class="menuTop">
-              <img src="/new/images/icon_41.png" class="logo" />
+              <a href="/"><img src="/new/images/icon_41.png" class="logo" /></a>
               <span id="menuButton"><img src="/new/images/icon.png" class="he_img"></span>
             </div>
             <ul id="menuList" class="change marg30">
@@ -42,10 +56,10 @@
               <div class="heyctop">測試系統賬號</div>
               <div class="helist">
                 <ul>
-                  <li><a href=""><img src="/new/images/icon_38.png">搜索</a></li>
-                  <li><a href=""><img src="/new/images/icon_45.png">訊息</a><span>10</span></li>
-                  <li><a href=""><img src="/new/images/icon_46.png">名單</a></li>
-                  <li><a href=""><img src="/new/images/icon_48.png">我的</a></li>
+                  <li><a href="/new/mem_search"><img src="/new/images/icon_38.png">搜索</a></li>
+                  <li><a href="/dashboard/chat2"><img src="/new/images/icon_45.png">訊息</a><span>10</span></li>
+                  <li><a href="/browse"><img src="/new/images/icon_46.png">名單</a></li>
+                  <li><a href="/dashboard"><img src="/new/images/icon_48.png">我的</a></li>
                 </ul>
               </div>
               <a href="" class="tcbut">LOGOUT</a>
@@ -65,11 +79,11 @@
               <h2>測試系統賬號</h2></div>
             <div class="leul">
               <ul>
-                  <li><a href=""><img src="/new/images/icon_38.png">搜索</a></li>
-                  <li><a href=""><img src="/new/images/icon_45.png">訊息</a><span>10</span></li>
-                  <li><a href=""><img src="/new/images/icon_46.png">名單</a></li>
-                  <li><a href=""><img src="/new/images/icon_48.png">我的</a></li>
-                    <li><a href=""><img src="/new/images/iconout.png">退出</a></li>
+                  <li><a href="/new/mem_search"><img src="/new/images/icon_38.png">搜索</a></li>
+                  <li><a href="/dashboard/chat2"><img src="/new/images/icon_45.png">訊息</a><span>10</span></li>
+                  <li><a href="/browse"><img src="/new/images/icon_46.png">名單</a></li>
+                  <li><a href="/dashboard"><img src="/new/images/icon_48.png">我的</a></li>
+                    <li><a href="/logout"><img src="/new/images/iconout.png">退出</a></li>
               </ul>
             </div>
           </div>
@@ -85,14 +99,14 @@
                                                         <span>區市</span>
                                                         <span>
                                                         <!-- <select name="city" id="city" class="select_xx06"><option value="連江縣">連江縣</option><option value="B">B</option></select> -->
-                                                        <select name="myCity" id="myCity" class="select_xx06">
+                                                        <select name="city" id="city" class="select_xx06">
                                                           <option value="">選擇縣市</option>
                                                           @foreach($city as $city_rows)
                                                             <option value="<?php echo $city_rows->AutoNo ?>"><?php echo $city_rows->Name ?></option>
                                                           @endforeach
                                                         </select>
                                                         <!-- <select name="area" id="area" class="select_xx06 right"><option value="南竿鄉">南竿鄉</option><option value="B">B</option></select> -->
-                                                        <select name="myTown" id="myTown" class="select_xx06 right">
+                                                        <select name="area" id="area" class="select_xx06 right">
                                                             <option value="">選擇鄉鎮</option>
                                                         </select>
                                                         </span>
@@ -222,8 +236,8 @@
                                       
                                </div>
                                  <div class="fenye mabot30">
-                                    <a class="prevpage n_dlbut" id="1">上一頁</a>
-                                    <a class="nextpage n_dlbut" id="1">下一頁</a>
+                                    <a class="prevpage n_dlbut2" id="1">上一頁</a>
+                                    <a class="nextpage n_dlbut2" id="1">下一頁</a>
                                 </div>
         </div>
 

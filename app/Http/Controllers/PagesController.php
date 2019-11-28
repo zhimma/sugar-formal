@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Models\SimpleTables\banned_users;
 use Session;
-
+// use Request;
 class PagesController extends Controller
 {
     public function __construct(UserService $userService, VipLogService $logService)
@@ -1160,9 +1160,13 @@ class PagesController extends Controller
                 ->with('users', $userBanned);
     }
 	
-	public function mem_member($user_id)
+	public function mem_member(Request $request)
     {
-        $mid = 689;
+        $uri = $request->segments();
+        $user_id = $uri[2];
+        $mid = $request->user()->id ?? 689;
+
+        // $mid = isset($_SESSION['user_id'])??689;
         $user_id = $user_id;
         $user = User::selectraw('*')->join('user_meta', 'user_meta.user_id','=','users.id')->where('users.id', $user_id)->first();
 
@@ -1262,40 +1266,40 @@ class PagesController extends Controller
         // dd($page, $skip);
         $user = User::selectraw('*')->join('user_meta', 'user_meta.user_id','=','users.id')->join('member_pic', 'member_pic.member_id', '=', 'user_meta.user_id')->groupBy('users.id')->skip($skip)->take($perPage);
         if($r->city!='-1'){
-            $user->where('city', $r->city);
+            $user->orWhere('city', $r->city);
         }
         if($r->area!='-1'){
-            $user->where('area', $r->area);
+            $user->orWhere('area', $r->area);
         }
         if($r->age_pre!='-1'){
-            $user->where('age_pre', $r->age_pre);
+            $user->where('last_login','>', $r->age_pre);
         }
         if($r->age_next!='-1'){
-            $user->where('age_next', $r->age_next);
+            $user->where('last_login','<', $r->age_next);
         }
         if($r->budget!='-1'){
-            $user->where('budget', $r->budget);
+            $user->orWhere('budget', $r->budget);
         }
         if($r->smoking!='-1'){
-            $user->where('smoking', $r->smoking);
+            $user->orWhere('smoking', $r->smoking);
         }
         if($r->body!='-1'){
-            $user->where('body', $r->body);
+            $user->orWhere('body', $r->body);
         }
         if($r->cup!='-1'){
-            $user->where('cup', $r->cup);
+            $user->orWhere('cup', $r->cup);
         }
         if($r->marriage!='-1'){
-            $user->where('marriage', $r->marriage);
+            $user->orWhere('marriage', $r->marriage);
         }
         if($r->body!='-1'){
-            $user->where('body', $r->body);
+            $user->orWhere('body', $r->body);
         }
         if($r->drinking!='-1'){
-            $user->where('drinking',$r->drinking);
+            $user->orWhere('drinking',$r->drinking);
         }
         if($r->search_sort!='-1'){
-            $user->where('search_sort', $r->search_sort);
+            $user->orWhere('search_sort', $r->search_sort);
         }
 
         $user = $user->get();

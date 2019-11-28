@@ -80,7 +80,8 @@
 	<?=$tip_count;?>
 		<div class="head hetop">
 			<div class="container">
-				<div class="col-sm-12 col-xs-12 col-md-12"><img src="/new/images/icon_41.png" class="logo" />
+				<div class="col-sm-12 col-xs-12 col-md-12">
+					<a href="/"><img src="/new/images/icon_41.png" class="logo" /></a>
 				</div>
 			</div>
 		</div>
@@ -99,13 +100,13 @@
 							<div class="heyctop">測試系統賬號</div>
 							<div class="helist">
 								<ul>
-									<li><a href=""><img src="/new/images/icon_38.png">搜索</a></li>
-									<li><a href=""><img src="/new/images/icon_45.png">訊息</a><span>10</span></li>
-									<li><a href=""><img src="/new/images/icon_46.png">名單</a></li>
-									<li><a href=""><img src="/new/images/icon_48.png">我的</a></li>
+									<li><a href="/new/mem_member"><img src="/new/images/icon_38.png">搜索</a></li>
+									<li><a href="/dashboard/chat2"><img src="/new/images/icon_45.png">訊息</a><span>10</span></li>
+									<li><a href="/browse"><img src="/new/images/icon_46.png">名單</a></li>
+									<li><a href="/dashboard"><img src="/new/images/icon_48.png">我的</a></li>
 								</ul>
 							</div>
-							<a href="" class="tcbut">LOGOUT</a>
+							<a href="/" class="tcbut">LOGOUT</a>
                             </div>
 						</ul>
 					</div>
@@ -122,11 +123,11 @@
 							<h2>測試系統賬號</h2></div>
 						<div class="leul">
 							<ul>
-									<li><a href=""><img src="/new/images/icon_38.png">搜索</a></li>
-									<li><a href=""><img src="/new/images/icon_45.png">訊息</a><span>10</span></li>
-									<li><a href=""><img src="/new/images/icon_46.png">名單</a></li>
-									<li><a href=""><img src="/new/images/icon_48.png">我的</a></li>
-								    <li><a href=""><img src="/new/images/iconout.png">退出</a></li>
+									<li><a href="/new/mem_member"><img src="/new/images/icon_38.png">搜索</a></li>
+									<li><a href="/dashboard/chat2"><img src="/new/images/icon_45.png">訊息</a><span>10</span></li>
+									<li><a href="/browse"><img src="/new/images/icon_46.png">名單</a></li>
+									<li><a href="/dashboard"><img src="/new/images/icon_48.png">我的</a></li>
+								    <li><a href="/logout"><img src="/new/images/iconout.png">退出</a></li>
 							</ul>
 						</div>
 					</div>
@@ -163,11 +164,11 @@
 							</div>
 							<div class="bottub">
 								<ul>
-									<li><img src="/new/images/icon_19.png"><span>新進甜心</span></li>
-									<li><img src="/new/images/icon_21.png"><span>優選會員</span></li>
-									<li><img src="/new/images/icon_23.png"><span>財力認證</span></li>
-									<li><img src="/new/images/icon_25.png"><span>VIP</span></li>
-									<li><img src="/new/images/icon_27.png"><span>警示帳戶</span></li>
+									<li><a href="#"><img src="/new/images/icon_19.png"><span>新進甜心</span></a></li>
+									<li><a href="#"><img src="/new/images/icon_21.png"><span>優選會員</span></a></li>
+									<li><a href="#"><img src="/new/images/icon_23.png"><span>財力認證</span></a></li>
+									<li><a href="#"><img src="/new/images/icon_25.png"><span>VIP</span></a></li>
+									<li><a href="#"><img src="/new/images/icon_27.png"><span>警示帳戶</span></a></li>
 								</ul>
 							</div>
 

@@ -418,6 +418,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('users/message/msglib/create', 'UserController@addMessageLibPage');
         Route::get('users/message/msglib/create/{id}', 'UserController@addMessageLibPage');
         Route::post('users/addmsglib', 'UserController@addMessageLib');
+        Route::post('users/block_user', 'UserController@blockUser');/*封鎖會員*/
+        Route::post('users/unblock_user', 'UserController@unblockUser');/*封鎖會員*/
         /*
         |--------------------------------------------------------------------------
         | Roles
