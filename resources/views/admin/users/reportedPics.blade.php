@@ -109,7 +109,7 @@
                                             <i class="m-nav__link-icon fa fa-diamond"></i>
                                         @endif
                                         @if(!is_null($result['isBlocked']))
-                                            @if(!is_null($result['isBlocked']['expire_date']))
+                                            @if(isset($result['isBlocked']['expire_date']))
                                                 ({{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
                                             @else
                                                 (永久)

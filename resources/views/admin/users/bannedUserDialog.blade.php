@@ -20,7 +20,7 @@
     <form action="/admin/users/banUserWithDayAndMessage" method="POST">
         {!! csrf_field() !!}
         <input type="hidden" name="user_id" value="{{$bannedUser['id']}}">
-        <input type="hidden" name="msg_id" value="{{$msg['id']}}">
+        <input type="hidden" name="msg_id" value="@if(isset($msg['id'])) {{ $msg['id'] }} @endif">
         <input type="hidden" name="isReported" value="{{$isReported}}">
         <div class="modal-body">
             封鎖時間
