@@ -74,6 +74,7 @@ class Vip extends Model
             $vipData->business_id = $business_id;
             $vipData->amount = $amount;
             $vipData->active = $active;
+            $vipData->free = $free;
             $vipData->save();
         }
 
