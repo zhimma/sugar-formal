@@ -158,6 +158,10 @@ class PagesController extends Controller
         return back()->with('message', '留言成功!');
     }
 
+    public  function postChatpayEC(Request $request){
+        return '1|OK';
+    }
+
     public function postChatpay(Request $request)
     {
         $user = $request->user();
