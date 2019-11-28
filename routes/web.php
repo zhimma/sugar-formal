@@ -228,9 +228,11 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::get('/user/view/{uid?}', 'PagesController@viewuser');
 
 
-	/*新切版*/
+    /*新切版*/
     Route::get('new/mem_member', 'PagesController@mem_member');
+    Route::get('new/mem_member/{id}', 'PagesController@mem_member');
     Route::get('new/mem_search', 'PagesController@mem_search');
+    Route::post('town_ajax', 'PagesController@town_ajax');
     Route::post('searchData', 'PagesController@searchData');
     Route::post('updateMemberData', 'PagesController@updateMemberData');
     
@@ -420,6 +422,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('users/message/msglib/create', 'UserController@addMessageLibPage');
         Route::get('users/message/msglib/create/{id}', 'UserController@addMessageLibPage');
         Route::post('users/addmsglib', 'UserController@addMessageLib');
+        Route::post('users/block_user', 'UserController@blockUser');/*封鎖會員*/
+        Route::post('users/unblock_user', 'UserController@unblockUser');/*封鎖會員*/
         /*
         |--------------------------------------------------------------------------
         | Roles

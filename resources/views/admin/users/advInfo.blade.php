@@ -5,9 +5,9 @@
 	@if($user['vip'] )<i class="fa fa-diamond" style="font-size: 2rem;"></i>@endif{{ $user->name }}的所有資料
 	<a href="edit/{{ $user->id }}" class='text-white btn btn-primary'>修改</a>
 	@if($user['isBlocked'])
-		<button type="button" class='text-white btn @if($user['isBlocked']) btn-success @else btn-danger @endif' onclick="Release({{ $user['id'] }})"> 解除封鎖 </button>
+		<button type="button" id="unblock_user" class='text-white btn @if($user["isBlocked"]) btn-success @else btn-danger @endif' onclick="Release({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除封鎖 </button>
 	@else 
-		<a class="btn btn-danger ban-user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">封鎖會員</a>
+		<a class="btn btn-danger ban-user" id="block_user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">封鎖會員</a>
 	@endif
 	
 	@if($user['vip'])
@@ -304,5 +304,41 @@ function changeFormContent(form_id , key) {
         'onClick' : 'setDays($(this))'
     });    
 }
+
+$("#block_user").click(function(){
+	var data = $(this).data();
+	if(confirm('確定封鎖此會員?')){
+		$.ajax({
+			type: 'POST',
+			url: "/admin/users/block_user",
+			data:{
+				_token: '{{csrf_token()}}',
+				data: data,
+			},
+			dataType:"json",
+			success: function(res){
+				alert('封鎖成功');
+				location.reload();
+			}});
+	}
+});
+
+$("#unblock_user").click(function(){
+	var data = $(this).data();
+	if(confirm('確定解除封鎖此會員?')){
+		$.ajax({
+			type: 'POST',
+			url: "/admin/users/unblock_user",
+			data:{
+				_token: '{{csrf_token()}}',
+				data: data,
+			},
+			dataType:"json",
+			success: function(res){
+				alert('解除封鎖成功');
+				location.reload();
+			}});
+	}
+});
 </script>
 </html>

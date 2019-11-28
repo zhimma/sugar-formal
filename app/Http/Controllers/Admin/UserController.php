@@ -466,6 +466,7 @@ class UserController extends Controller
 
     public function modifyUserPictures(Request $request)
     {
+        
         if($request->delete){
             $datas = $this->admin->deletePicture($request);
             if($datas == null){
@@ -1568,5 +1569,37 @@ class UserController extends Controller
             'status'=>'success',
         );
         return json_encode($data);
+    }
+
+    public function blockUser(Request $request)
+    {
+        $data = $request->post('data');
+        $ban = banned_users::where('member_id', $data['id'])->get()->toArray();
+        // dd($ban);
+        if(empty($ban)){
+            DB::table('banned_users')->insert(['member_id'=>$data['id'],'reason'=>'管理者刪除']);
+        }
+
+        $data = array(
+            'code'=>'200',
+            'status'=>'success'
+        );
+        echo json_encode($data);
+    }
+
+    public function unblockUser(Request $request){
+        $data = $request->post('data');
+        // dd($data);
+        $ban = banned_users::where('member_id', $data['id'])->get()->toArray();
+        // dd($ban);
+        if(count($ban)>0){
+           DB::table('banned_users')->where('member_id','=',$data['id'])->delete();
+        }
+
+        $data = array(
+            'code'=>'200',
+            'status'=>'success'
+        );
+        echo json_encode($data);
     }
 }
