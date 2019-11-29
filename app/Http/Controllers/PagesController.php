@@ -907,54 +907,8 @@ class PagesController extends Controller
         }
     }
 
-    public function upgradepayEC(Request $request)
-    {
-        Log::info($request->all());
-        $user = $request->user();
-        if ($user == null)
-        {
-            $aid = auth()->id();
-            $user = User::findById($aid);
-        }
-        $payload = $request->all();
-        $pool = '';
-        $count = 0;
-        foreach ($payload as $key => $value){
-            $pool .= 'Row '. $count . ' : ' . $key . ', Value : ' . $value . '
-';//換行
-            $count++;
-        }
-        $infos = new \App\Models\LogUpgradedInfos();
-        $infos->user_id = $user->id;
-        $infos->content = $pool;
-        $infos->save();
-        if (isset($payload['RtnCode']))
-        {
-            if($payload['RtnCode'] == 1){
-                $pool = '';
-                $count = 0;
-                foreach ($payload as $key => $value){
-                    $pool .= 'Row '. $count . ' : ' . $key . ', Value : ' . $value . '
-';//換行
-                    $count++;
-                }
-                $infos = new \App\Models\LogUpgradedInfosWhenGivingPermission();
-                $infos->user_id = $user->id;
-                $infos->content = $pool;
-                $infos->save();
-                $this->logService->upgradeLog($payload, $user->id);
-                $this->logService->writeLogToDB();
-                $this->logService->writeLogToFile();
-                Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], $payload['CheckMacValue'], 1, 0);
-                return '1|OK';
-            }
-            else{
-                return '0|Error';
-            }
-        }
-        else{
-            return '0|No data';
-        }
+    public function upgradepayEC(Request $request) {
+        return '1|OK';
     }
 
     public function receive_esafe(Request $request)
