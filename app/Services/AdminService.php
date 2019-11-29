@@ -185,29 +185,32 @@ class AdminService
             }
             $result['isBlocked'] = banned_users::where('member_id', 'like', $result->from_id)->get()->first();
             $result['isBlockedReceiver'] = banned_users::where('member_id', 'like', $result->to_id)->get()->first();
-            // $result['vip'] = Vip::where('member_id', 'like', $result->from_id)->get()->first();
         }
         $users = array();
         foreach ($to_id as $id){
             $users[$id] = array();
         }
         foreach ($from_id as $id){
-            if(!in_array($id, $to_id)){
+            if(!array_key_exists($id, $to_id)){
                 $users[$id] = array();
             }
         }
-        foreach ($users as $id => $user){
-            $name = User::select('name','engroup')
+        foreach ($users as $id => &$user){
+            $info = User::select('name','engroup', 'last_login')
                 ->where('id', '=', $id)
                 ->get()->first();
-            $vip = Vip::where('member_id', 'like', $id)->get()->first();
-            if($name != null){
-                $users[$id]['name'] = $name->name;
-                $users[$id]['vip'] = $vip;
-                $users[$id]['engroup'] = $name->engroup;
+            if($info != null){
+                $user['name'] = $info->name;
+                $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
+                $user['engroup'] = $info->engroup;
+                $user['last_login'] = $info->last_login;
             }
             else{
-                $users[$id] = '資料庫沒有資料';
+                $user = array();
+                $user['name'] = "此會員不存在";
+                $user['vip'] = false;
+                $user['engroup'] = -1;
+                $user['last_login'] = "0000-00-00 00:00:00";
             }
         }
         return ['results' => $results,
@@ -219,7 +222,7 @@ class AdminService
         //member_id is reporter id
         $member_id = array();
         $reported_id = array();
-        foreach ($results as $result){
+        foreach ($results as &$result){
             if(!in_array($result->member_id, $member_id)) {
                 array_push($member_id, $result->member_id);
             }
@@ -234,21 +237,26 @@ class AdminService
             $users[$id] = array();
         }
         foreach ($reported_id as $id){
-            if(!in_array($id, $users)){
+            if(!array_key_exists($id, $users)){
                 $users[$id] = array();
             }
         }
         foreach ($users as $id => &$user){
-            $info = User::select('name', 'engroup')
+            $info = User::select('name', 'engroup', 'last_login')
                 ->where('id', '=', $id)
                 ->get()->first();
             if($info != null){
                 $user['name'] = $info->name;
                 $user['engroup'] = $info->engroup;
+                $user['last_login'] = $info->last_login;
                 $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
             }
             else{
-                $user = new User;
+                $user = array();
+                $user['name'] = "此會員不存在";
+                $user['engroup'] = -1;
+                $user['vip'] = false;
+                $user['last_login'] = "0000-00-00 00:00:00";
             }
         }
         return ['results' => $results,
@@ -282,16 +290,21 @@ class AdminService
             }
         }
         foreach ($users as $id => &$user){
-            $info = User::select('name', 'engroup')
+            $info = User::select('name', 'engroup', 'last_login')
                 ->where('id', '=', $id)
                 ->get()->first();
             if($info != null){
                 $user['name'] = $info->name;
                 $user['engroup'] = $info->engroup;
+                $user['last_login'] = $info->last_login;
                 $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
             }
             else{
-               $user = new User;
+                $user = array();
+                $user['name'] = "此會員不存在";
+                $user['engroup'] = -1;
+                $user['vip'] = false;
+                $user['last_login'] = "0000-00-00 00:00:00";
             }
         }
         return ['results' => $results,
@@ -335,16 +348,21 @@ class AdminService
             }
         }
         foreach ($users as $id => &$user){
-            $info = User::select('name', 'engroup')
+            $info = User::select('name', 'engroup', 'last_login')
                 ->where('id', '=', $id)
                 ->get()->first();
             if($info != null){
                 $user['name'] = $info->name;
                 $user['engroup'] = $info->engroup;
+                $user['last_login'] = $info->last_login;
                 $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
             }
             else{
-                $user = new User;
+                $user = array();
+                $user['name'] = "此會員不存在";
+                $user['engroup'] = -1;
+                $user['vip'] = false;
+                $user['last_login'] = "0000-00-00 00:00:00";
             }
         }
         return ['results' => $results,
