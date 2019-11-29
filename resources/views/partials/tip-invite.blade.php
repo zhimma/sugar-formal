@@ -1,14 +1,14 @@
 @section('tip-invite')
 
 @if($user->engroup == 1)
-<form class="m-nav__link" action="{{ route('chatpay_ec') }}" method=post>
+<form class="m-nav__link" action="{{ route('chatpay_ec') }}" method=post id="ecpay">
     <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-    <input type="hidden" name="userId" value="{{$user->id}}">
-    <input type="hidden" name="to" value="@if(isset($to)){{$to->id}}@endif">
+    <input type="hidden" name="userId" value="{{ $user->id }}">
+    <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">
     <button type="submit" style="background: none; border: none; padding: 0">
         <i class="m-nav__link-icon flaticon-profile"></i>
         <span class="m-nav__link-text">車馬費邀請(管道一)</span>
-    </button>&nbsp;&nbsp;
+    </button>
 </form>
 <form action=<?php echo Config::get('social.payment.actionURL') ?> class="m-nav__link" method="POST" id="form1">
     <input type="hidden" name="_token" value="{{ csrf_token() }}" >
