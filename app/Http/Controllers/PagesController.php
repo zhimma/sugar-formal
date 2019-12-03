@@ -908,7 +908,7 @@ class PagesController extends Controller
     }
 
     public function upgradepayEC(Request $request) {
-        return '1|OK';
+        return ['1', 'OK'];
     }
 
     public function receive_esafe(Request $request)
