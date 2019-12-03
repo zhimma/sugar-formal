@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Reported;
+use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -367,6 +369,89 @@ class AdminService
         }
         return ['results' => $results,
             'users' => $users];
+    }
+
+    /**
+     * All of the reported data which contains picture, avator, merssage
+     * and other user report about the user_id.
+     * 
+     * @return data set
+     */
+    public function reportedUserDetails(Request $request){
+
+        $search_id = $request->reported_id;
+        $date_start = $request->date_start ? $request->date_start : '0000-00-00';
+        $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
+
+        $avatarsResult = ReportedAvatar::whereBetween('created_at', array($date_start, $date_end))
+                                    ->orderBy('created_at', 'desc')->get();
+        $picsResult = ReportedPic::whereBetween('created_at', array($date_start, $date_end))
+                                    ->orderBy('created_at', 'desc')->get();
+        $messagesResult = Message::whereBetween('created_at', array($date_start, $date_end))
+                                    ->where('isReported', 1);
+        $reportsResult = Reported::whereBetween('created_at', array($date_start, $date_end))
+                                    ->orderBy('created_at', 'desc');
+
+
+        $messages = $this->fillMessageDatas($messagesResult);
+        $reports = $this->fillReportedDatas($reportsResult);
+        $avatars = $this->fillReportedAvatarDatas($avatarsResult);
+        $pics = $this->fillReportedPicDatas($picsResult);
+
+        $reportedUsers = array();
+
+        // 被檢舉會員的所有被檢舉資料
+        $reportedDataSet = array( 'messages' => $messages['results'],
+                                'reports' => $reports['results'],
+                                'avatars' => $avatars['results'],
+                                'pics' => $pics['results'] );
+
+        foreach($reportedDataSet as $type => $reportedData){
+            foreach($reportedData as $data){
+                // 被檢舉id的欄位名稱
+                switch($type){
+                    case 'messages' :
+                        $reported_id = $data->from_id;
+                        break;
+                    case 'reports' :
+                        $reported_id = $data->reported_id;
+                        break;
+                    default :
+                        $reported_id = $data->reported_user_id;
+                        break;
+                }
+
+                if(!array_key_exists($reported_id, $reportedUsers)){
+                    $reportedUsers[$reported_id] = array();
+                    $reportedUsers[$reported_id]['messages'] =  array();
+                    $reportedUsers[$reported_id]['reports'] =  array();
+                    $reportedUsers[$reported_id]['avatars'] = array();
+                    $reportedUsers[$reported_id]['pics'] =  array();
+                    $reportedUsers[$reported_id]['count'] = 0;
+                }
+                array_push($reportedUsers[$reported_id][$type], $data);
+                $reportedUsers[$reported_id]['count']++ ;
+                $reportedUsers[$reported_id]['last_login'] = &$users[$reported_id]['last_login'];
+            }
+        }
+
+        // Merge data of users by user id
+        $users = $avatars['users'] + $pics['users'] + $messages['users'] + $reports['users'];
+
+        // order by last_login desc
+        uasort($reportedUsers, function($reportedUser, $reportedUser_next) use ($reportedUsers, $users){
+
+            if( $reportedUser['last_login'] < $reportedUser_next['last_login'] )
+                return -1;
+            else
+                return 1;
+        });
+        foreach($users as $id => &$user){
+            $user['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first();
+        }
+
+        return ['reportedUsers' => isset($search_id) ? $reportedUsers[$search_id] : $reportedUsers,
+                'users' => $users];
     }
 
     /**

@@ -546,87 +546,18 @@ class UserController extends Controller
     public function showReportedCountList(Request $request)
     {
         $admin = $this->admin->checkAdmin();
-            if ($admin){
-                $date_start = $request->date_start ? $request->date_start : '0000-00-00';
-                $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
+        if ($admin){
+            $result = $this->admin->reportedUserDetails($request);
 
-                $avatarsResult = ReportedAvatar::whereBetween('created_at', array($date_start, $date_end))
-                                            ->orderBy('created_at', 'desc')->get();
-                $picsResult = ReportedPic::whereBetween('created_at', array($date_start, $date_end))
-                                            ->orderBy('created_at', 'desc')->get();
-                $messagesResult = Message::whereBetween('created_at', array($date_start, $date_end))
-                                            ->where('isReported', 1);
-                $reportsResult = Reported::whereBetween('created_at', array($date_start, $date_end))
-                                            ->orderBy('created_at', 'desc');
-
-
-                $messages = $this->admin->fillMessageDatas($messagesResult);
-                $reports = $this->admin->fillReportedDatas($reportsResult);
-                $avatars = $this->admin->fillReportedAvatarDatas($avatarsResult);
-                $pics = $this->admin->fillReportedPicDatas($picsResult);
-
-                $reportedUsers = array();
-
-                // 被檢舉會員的所有被檢舉資料
-                $reportedDataSet = array( 'messages' => $messages['results'],
-                                        'reports' => $reports['results'],
-                                        'avatars' => $avatars['results'],
-                                        'pics' => $pics['results'] );
-
-                foreach($reportedDataSet as $type => $reportedData){
-                    foreach($reportedData as $data){
-                        // 被檢舉id的欄位名稱
-                        $reported_id = null;
-                        switch($type){
-                            case 'messages' :
-                                $reported_id = $data->from_id;
-                                break;
-                            case 'reports' :
-                                $reported_id = $data->reported_id;
-                                break;
-                            default :
-                                $reported_id = $data->reported_user_id;
-                                break;
-                        }
-
-                        if(!array_key_exists($reported_id, $reportedUsers)){
-                            $reportedUsers[$reported_id] = array();
-                            $reportedUsers[$reported_id]['messages'] =  array();
-                            $reportedUsers[$reported_id]['reports'] =  array();
-                            $reportedUsers[$reported_id]['avatars'] = array();
-                            $reportedUsers[$reported_id]['pics'] =  array();
-                            $reportedUsers[$reported_id]['count'] = 0;
-                        }
-                        array_push($reportedUsers[$reported_id][$type], $data);
-                        $reportedUsers[$reported_id]['count']++ ;
-                        $reportedUsers[$reported_id]['last_login'] = &$users[$reported_id]['last_login'];
-                    }
-                }
-
-                // Merge data of users by user id
-                $users = $avatars['users'] + $pics['users'] + $messages['users'] + $reports['users'];
-
-                // order by last_login desc
-                uasort($reportedUsers, function($reportedUser, $reportedUser_next) use ($reportedUsers, $users){
-
-                    if( $reportedUser['last_login'] < $reportedUser_next['last_login'] )
-                        return -1;
-                    else
-                        return 1;
-                });
-                foreach($users as $id => &$user){
-                    $user['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first();
-                }
-
-                return view('admin.users.reportedCount')
-                    ->with('reportedUsers', $reportedUsers)
-                    ->with('users', $users)
-                    ->with('date_start', isset($request->date_start) ? $request->date_start : null)
-                    ->with('date_end', isset($request->date_end) ? $request->date_end : null);
-            }
-            else{
-                return view('admin.users.reportedUsers')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
-            }
+            return view('admin.users.reportedCount')
+                ->with('reportedUsers', $result['reportedUsers'])
+                ->with('users', $result['users'])
+                ->with('date_start', isset($request->date_start) ? $request->date_start : null)
+                ->with('date_end', isset($request->date_end) ? $request->date_end : null);
+        }
+        else{
+            return view('admin.users.reportedUsers')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
     }
 
     public function showMessageSearchPage()
@@ -1301,6 +1232,21 @@ class UserController extends Controller
         else{
             return view('admin.users.reportedPics')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
         }
+    }
+
+    public function showReportedDetails(Request $request){
+
+        if($this->admin->checkAdmin()){
+            $result = $this->admin->reportedUserDetails($request);
+
+            if($result)
+                return view('admin.users.reportedUserDetails')
+                        ->with('reported_id', $request->reported_id)
+                        ->with('reportedUser', $result['reportedUsers'])
+                        ->with('users', $result['users']);
+            else
+                return back()->withErrors(['無檢舉資料']);            
+        }    
     }
 
     public function customizeMigrationFiles(Request $request){
