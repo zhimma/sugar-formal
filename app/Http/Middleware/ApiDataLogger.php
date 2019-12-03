@@ -121,12 +121,12 @@ class ApiDataLogger{
 
                 if ($CheckMacValue != $payloadCheckMacValue) {
                     Log::info('CheckMacValue verify fail.');
-                    return response('0|Error', 200);
+                    return ['0', 'Error'];
                 }
 
                 if (sizeof($arErrors) > 0) {
                     Log::info($arErrors);
-                    return response('0|Error', 200);
+                    return ['0', 'Error'];
                 }
 
                 $pool = '';
@@ -157,14 +157,14 @@ class ApiDataLogger{
                         $this->logService->writeLogToDB();
                         $this->logService->writeLogToFile();
                         Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0);
-                        return response('1|OK', 200);
+                        return ['1', 'OK'];
                     }
                     else{
-                        return response('0|Error', 200);
+                        return ['0', 'Error'];
                     }
                 }
                 else{
-                    return response('0|No data', 200);
+                    return ['0', 'No data'];
                 }
             }
         }
