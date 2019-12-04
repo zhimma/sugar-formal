@@ -1170,8 +1170,9 @@ class PagesController extends Controller
                 ->with('users', $userBanned);
     }
 	
-    public function showAnnouncement(){
-        return view('new.dashboard.announcement');
+    public function showAnnouncement(Request $request){
+        return view('new.dashboard.announcement')
+                ->with('user', $request->user());
     }
 	public function mem_member()
     {
