@@ -287,6 +287,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     });
     Route::group(['middleware' => ['tipApi']], function () {
         Route::post('/dashboard/chatpay_ec', 'ECPayment@performTipInvite')->name('chatpay_ec');
+        Route::post('/dashboard/postChatpayEC', 'PagesController@postChatpayEC');
     });
     Route::post('/upgradepayLog', 'PagesController@upgradepayLog')->name('upgradepayLog');
 
