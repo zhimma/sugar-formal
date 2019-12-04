@@ -466,7 +466,7 @@ class UserController extends Controller
 
     public function modifyUserPictures(Request $request)
     {
-        
+        // dd($request);
         if($request->delete){
             $datas = $this->admin->deletePicture($request);
             if($datas == null){
@@ -942,17 +942,11 @@ class UserController extends Controller
             $user = $this->service->find($id);
             $reported = Reported::get()->first();
             // $sender = User::where('id', $reported->reported_id)->get()->first();
-
+// dd($id);
             /*檢舉者*/
-            $to_user_id = Reported::where('member_id', $id)->get()->first();
-            if(!isset($to_user_id)){
-                $to_user_id = $id;
-            }
-            else{
-                $to_user_id = $to_user_id->reported_id;
-            }
-
-            $to_user    = $this->service->find($to_user_id);
+            // $to_user_id = Reported::where('member_id', $id)->get()->first();
+           
+            $to_user    = $this->service->find($mid);
 
             $message_msg = Reported::where('reported_id', $to_user->id)->where('member_id',$user->id)->get();
 
