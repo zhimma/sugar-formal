@@ -464,9 +464,7 @@ class UserController extends Controller
             'hiddenSearch' => isset($request->hidden) ? true : false]);
     }
 
-    public function modifyUserPictures(Request $request)
-    {
-        
+    public function modifyUserPictures(Request $request) {
         if($request->delete){
             $datas = $this->admin->deletePicture($request);
             if($datas == null){

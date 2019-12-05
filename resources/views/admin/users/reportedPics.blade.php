@@ -79,7 +79,11 @@
                                         @endif
                                         @if(!is_null($result['isBlockedReceiver']))
                                             @if(!is_null($result['isBlockedReceiver']['expire_date']))
-                                                ({{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                                @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
+                                                    {{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天
+                                                @else
+                                                    已解除封鎖
+                                                @endif
                                             @else
                                                 (永久)
                                             @endif
@@ -109,8 +113,14 @@
                                             <i class="m-nav__link-icon fa fa-diamond"></i>
                                         @endif
                                         @if(!is_null($result['isBlocked']))
-                                            @if(isset($result['isBlocked']['expire_date']))
-                                                ({{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+
+                                            @if(!is_null($result['isBlocked']['expire_date']))
+                                                @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
+                                                    {{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天
+                                                @else
+                                                    已解除封鎖
+                                                @endif
+
                                             @else
                                                 (永久)
                                             @endif
@@ -133,9 +143,9 @@
                                     <img src="{{ $result['pic'] }}" alt="此照片已刪除或不存在" height="200px">
                                 </td>
                                 <td>
-                                    <form id="<?php $rowIndex ?>" action="/admin/users/pictures/modify" method="POST">
+                                    <form id="Form" action="/admin/users/pictures/modify" method="POST">
                                         {!! csrf_field() !!}
-                                        <input class="btn btn-danger" type="submit" value="刪除" form="{{$rowIndex}}"><br>
+                                        <input class="btn btn-danger btn-delete" type="submit" value="刪除"><br>
                                         <input type="hidden" name="delete" value="true">
                                         <input type="hidden" name="avatar_id" value="{{$result['reported_user_id']}}">
                                         <input type="radio" name="reason[{{$rowIndex}}]" value="非人物照片">非人物照片<br>
@@ -170,7 +180,11 @@
                                         @endif
                                         @if(!is_null($result['isBlockedReceiver']))
                                             @if(!is_null($result['isBlockedReceiver']['expire_date']))
-                                                ({{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                                @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
+                                                    {{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天
+                                                @else
+                                                    已解除封鎖
+                                                @endif
                                             @else
                                                 (永久)
                                             @endif
@@ -200,7 +214,11 @@
                                     @endif
                                     @if(!is_null($result['isBlocked']))
                                         @if(!is_null($result['isBlocked']['expire_date']))
-                                            ({{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                            @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
+                                                {{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天
+                                            @else
+                                                已解除封鎖
+                                            @endif
                                         @else
                                             (永久)
                                         @endif
@@ -222,9 +240,9 @@
                                 <img src="{{ $result['pic'] }}" alt="" height="200px" onerror="{{ $result['pic'] }}">
                             </td>
                             <td>
-                                <form id="{{$rowIndex}}" action="/admin/users/pictures/modify" method="POST">
+                                <form id="Form" action="/admin/users/pictures/modify" method="POST">
                                     {!! csrf_field() !!}
-                                    <input class="btn btn-danger" type="submit" value="刪除" form="{{$rowIndex}}"><br>
+                                    <input class="btn btn-danger" type="submit" value="刪除"><br>
                                     <input type="hidden" name="delete" value="true">
                                     <input type="hidden" name="pic_id" value="{{$result['reported_user_id']}}">
                                     <input type="radio" name="reason[{{$rowIndex}}]" value="非人物照片">非人物照片<br>
@@ -436,6 +454,9 @@
                 }
             });
         }*/
-
+// $(".btn-delete").on('click', function(){
+//     $("#Form").submit();
+//     console.log('123');
+// });
     </script>
 @stop
