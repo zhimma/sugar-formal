@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Reported;
+use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -185,29 +187,32 @@ class AdminService
             }
             $result['isBlocked'] = banned_users::where('member_id', 'like', $result->from_id)->get()->first();
             $result['isBlockedReceiver'] = banned_users::where('member_id', 'like', $result->to_id)->get()->first();
-            // $result['vip'] = Vip::where('member_id', 'like', $result->from_id)->get()->first();
         }
         $users = array();
         foreach ($to_id as $id){
             $users[$id] = array();
         }
         foreach ($from_id as $id){
-            if(!in_array($id, $to_id)){
+            if(!array_key_exists($id, $to_id)){
                 $users[$id] = array();
             }
         }
-        foreach ($users as $id => $user){
-            $name = User::select('name','engroup')
+        foreach ($users as $id => &$user){
+            $info = User::select('name','engroup', 'last_login')
                 ->where('id', '=', $id)
                 ->get()->first();
-            $vip = Vip::where('member_id', 'like', $id)->get()->first();
-            if($name != null){
-                $users[$id]['name'] = $name->name;
-                $users[$id]['vip'] = $vip;
-                $users[$id]['engroup'] = $name->engroup;
+            if($info != null){
+                $user['name'] = $info->name;
+                $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
+                $user['engroup'] = $info->engroup;
+                $user['last_login'] = $info->last_login;
             }
             else{
-                $users[$id] = '資料庫沒有資料';
+                $user = array();
+                $user['name'] = "此會員不存在";
+                $user['vip'] = false;
+                $user['engroup'] = -1;
+                $user['last_login'] = "0000-00-00 00:00:00";
             }
         }
         return ['results' => $results,
@@ -219,7 +224,7 @@ class AdminService
         //member_id is reporter id
         $member_id = array();
         $reported_id = array();
-        foreach ($results as $result){
+        foreach ($results as &$result){
             if(!in_array($result->member_id, $member_id)) {
                 array_push($member_id, $result->member_id);
             }
@@ -234,21 +239,26 @@ class AdminService
             $users[$id] = array();
         }
         foreach ($reported_id as $id){
-            if(!in_array($id, $users)){
+            if(!array_key_exists($id, $users)){
                 $users[$id] = array();
             }
         }
         foreach ($users as $id => &$user){
-            $info = User::select('name', 'engroup')
+            $info = User::select('name', 'engroup', 'last_login')
                 ->where('id', '=', $id)
                 ->get()->first();
             if($info != null){
                 $user['name'] = $info->name;
                 $user['engroup'] = $info->engroup;
+                $user['last_login'] = $info->last_login;
                 $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
             }
             else{
-                $user = new User;
+                $user = array();
+                $user['name'] = "此會員不存在";
+                $user['engroup'] = -1;
+                $user['vip'] = false;
+                $user['last_login'] = "0000-00-00 00:00:00";
             }
         }
         return ['results' => $results,
@@ -282,16 +292,21 @@ class AdminService
             }
         }
         foreach ($users as $id => &$user){
-            $info = User::select('name', 'engroup')
+            $info = User::select('name', 'engroup', 'last_login')
                 ->where('id', '=', $id)
                 ->get()->first();
             if($info != null){
                 $user['name'] = $info->name;
                 $user['engroup'] = $info->engroup;
+                $user['last_login'] = $info->last_login;
                 $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
             }
             else{
-               $user = new User;
+                $user = array();
+                $user['name'] = "此會員不存在";
+                $user['engroup'] = -1;
+                $user['vip'] = false;
+                $user['last_login'] = "0000-00-00 00:00:00";
             }
         }
         return ['results' => $results,
@@ -335,20 +350,108 @@ class AdminService
             }
         }
         foreach ($users as $id => &$user){
-            $info = User::select('name', 'engroup')
+            $info = User::select('name', 'engroup', 'last_login')
                 ->where('id', '=', $id)
                 ->get()->first();
             if($info != null){
                 $user['name'] = $info->name;
                 $user['engroup'] = $info->engroup;
+                $user['last_login'] = $info->last_login;
                 $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
             }
             else{
-                $user = new User;
+                $user = array();
+                $user['name'] = "此會員不存在";
+                $user['engroup'] = -1;
+                $user['vip'] = false;
+                $user['last_login'] = "0000-00-00 00:00:00";
             }
         }
         return ['results' => $results,
             'users' => $users];
+    }
+
+    /**
+     * All of the reported data which contains picture, avator, merssage
+     * and other user report about the user_id.
+     * 
+     * @return data set
+     */
+    public function reportedUserDetails(Request $request){
+
+        $search_id = $request->reported_id;
+        $date_start = $request->date_start ? $request->date_start : '0000-00-00';
+        $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
+
+        $avatarsResult = ReportedAvatar::whereBetween('created_at', array($date_start, $date_end))
+                                    ->orderBy('created_at', 'desc')->get();
+        $picsResult = ReportedPic::whereBetween('created_at', array($date_start, $date_end))
+                                    ->orderBy('created_at', 'desc')->get();
+        $messagesResult = Message::whereBetween('created_at', array($date_start, $date_end))
+                                    ->where('isReported', 1);
+        $reportsResult = Reported::whereBetween('created_at', array($date_start, $date_end))
+                                    ->orderBy('created_at', 'desc');
+
+
+        $messages = $this->fillMessageDatas($messagesResult);
+        $reports = $this->fillReportedDatas($reportsResult);
+        $avatars = $this->fillReportedAvatarDatas($avatarsResult);
+        $pics = $this->fillReportedPicDatas($picsResult);
+
+        $reportedUsers = array();
+
+        // 被檢舉會員的所有被檢舉資料
+        $reportedDataSet = array( 'messages' => $messages['results'],
+                                'reports' => $reports['results'],
+                                'avatars' => $avatars['results'],
+                                'pics' => $pics['results'] );
+
+        foreach($reportedDataSet as $type => $reportedData){
+            foreach($reportedData as $data){
+                // 被檢舉id的欄位名稱
+                switch($type){
+                    case 'messages' :
+                        $reported_id = $data->from_id;
+                        break;
+                    case 'reports' :
+                        $reported_id = $data->reported_id;
+                        break;
+                    default :
+                        $reported_id = $data->reported_user_id;
+                        break;
+                }
+
+                if(!array_key_exists($reported_id, $reportedUsers)){
+                    $reportedUsers[$reported_id] = array();
+                    $reportedUsers[$reported_id]['messages'] =  array();
+                    $reportedUsers[$reported_id]['reports'] =  array();
+                    $reportedUsers[$reported_id]['avatars'] = array();
+                    $reportedUsers[$reported_id]['pics'] =  array();
+                    $reportedUsers[$reported_id]['count'] = 0;
+                }
+                array_push($reportedUsers[$reported_id][$type], $data);
+                $reportedUsers[$reported_id]['count']++ ;
+                $reportedUsers[$reported_id]['last_login'] = &$users[$reported_id]['last_login'];
+            }
+        }
+
+        // Merge data of users by user id
+        $users = $avatars['users'] + $pics['users'] + $messages['users'] + $reports['users'];
+
+        // order by last_login desc
+        uasort($reportedUsers, function($reportedUser, $reportedUser_next) use ($reportedUsers, $users){
+
+            if( $reportedUser['last_login'] < $reportedUser_next['last_login'] )
+                return -1;
+            else
+                return 1;
+        });
+        foreach($users as $id => &$user){
+            $user['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first();
+        }
+
+        return ['reportedUsers' => isset($search_id) ? $reportedUsers[$search_id] : $reportedUsers,
+                'users' => $users];
     }
 
     /**

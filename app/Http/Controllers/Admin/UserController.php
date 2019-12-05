@@ -548,60 +548,18 @@ class UserController extends Controller
     public function showReportedCountList(Request $request)
     {
         $admin = $this->admin->checkAdmin();
-            if ($admin){
-                $userMessage = Message::select('to_id','from_id', DB::raw('count(*) as count'))->join('users','users.id','message.to_id')->groupBy('to_id','from_id');
-                if($request->date_start){
-                    $userMessage = $userMessage->where('users.last_login', '>', $request->date_start . ' 00:00');
-                }
-                if($request->date_end){
-                    $userMessage = $userMessage->where('users.last_login', '<', $request->date_end . ' 23:59');
-                }
-                $userMessage = $userMessage->get();
-                $users = array();
-                $messages = array();
+        if ($admin){
+            $result = $this->admin->reportedUserDetails($request);
 
-                foreach ($userMessage as $Message) {
-                    $messages[$Message->to_id][$Message->from_id] = $Message->count;
-                    if(!in_array($Message->to_id, $users)){
-                        array_push($users, $Message->to_id);
-                    }
-                    if(!in_array($Message->from_id, $users)){
-                        array_push($users, $Message->from_id);
-                    }
-                }
-                $userData = new User;
-                if(!is_null($request->date_start) && !is_null($request->date_end)){
-                    $userData = $userData->select('id','name',DB::raw("CASE WHEN last_login BETWEEN '". $request->date_start ." 00:00' AND '".$request->date_end." 23:59'  THEN true ELSE false END AS login"));
-                }
-                if(!is_null($request->date_start) && is_null($request->date_end)){
-                    $userData = $userData->select('id','name',DB::raw("CASE WHEN last_login > '". $request->date_start ." 00:00' THEN true ELSE false END AS 'login'"));
-                }
-                if(is_null($request->date_start) && !is_null($request->date_end)){
-                    $userData = $userData->select('id','name',DB::raw("CASE WHEN last_login < '". $request->date_end ." 23:59' THEN true ELSE false END AS 'login'"));
-                }
-                $userData = $userData->whereIn('id', $users)->get();
-                $isVip =  Vip::select('member_id')->where('active', 1)->orderBy('member_id')->get();
-                $datas = array();
-                $userVip = array();
-
-                foreach ($userData as $Data) {
-                    $datas[$Data->id] = array('name' => $Data->name,'login' => $Data->login );
-                }
-                
-                foreach($isVip as $vip) {
-                    $userVip[$vip->member_id] = true;
-                }
-                
-                return view('admin.users.reportedCount')
-                    ->with('users', $datas)
-                    ->with('msgs', $messages)
-                    ->with('vips', $userVip)
-                    ->with('date_start', isset($request->date_start) ? $request->date_start : null)
-                    ->with('date_end', isset($request->date_end) ? $request->date_end : null);
-            }
-            else{
-                return view('admin.users.reportedUsers')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
-            }
+            return view('admin.users.reportedCount')
+                ->with('reportedUsers', $result['reportedUsers'])
+                ->with('users', $result['users'])
+                ->with('date_start', isset($request->date_start) ? $request->date_start : null)
+                ->with('date_end', isset($request->date_end) ? $request->date_end : null);
+        }
+        else{
+            return view('admin.users.reportedUsers')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
     }
 
     public function showMessageSearchPage()
@@ -618,7 +576,13 @@ class UserController extends Controller
     public function showReportedMessages(Request $request){
         $admin = $this->admin->checkAdmin();
         if ($admin){
-            $messages = Message::where('isReported', 1)->orderBy('created_at', 'desc');
+
+            $date_start = $request->date_start ? $request->date_start : '0000-00-00';
+            $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
+
+            $messages = Message::whereBetween('created_at', array($date_start, $date_end))
+                                ->where('isReported', 1)
+                                ->orderBy('created_at', 'desc');
             $datas = $this->admin->fillMessageDatas($messages);
             return view('admin.users.searchMessage')
                 ->with('reported', 1)
@@ -638,98 +602,90 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function searchMessage(Request $request){
+    public function searchMessage(Request $request) {
         if($request->time =='send_time'){
             $datas = $this->admin->searchMessageBySendTime($request);
         }
-        else{
-            
-            try {
-
-                //Get messages.
-                $results = Message::select('*');
-                if ( $request->msg ) {
-                    $results = $results->where('content', 'like', '%' . $request->msg . '%');
-                }
-                if ( $request->date_start && $request->date_end ) {
-                    $results = $results->whereBetween('created_at', array($request->date_start . ' 00:00', $request->date_end . ' 23:59'));
-                }
-                if ( !$request->msg && !$request->date_start && !$request->date_end) {
-                    $results = null;
-                }
-                
+        else{            
+            if ( !$request->msg && !$request->date_start && !$request->date_end) {
+                $results = null;
             }
-            finally{
+            else {
+                $msg = $request->msg ? $request->msg : '';
+                $date_start = $request->date_start ? $request->date_start : '0000-00-00';
+                $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
 
-                if($results != null){
-                    $temp = $results->get()->toArray();
-                    //Rearranges the messages query results.
-                    $results = array();
-                    array_walk($temp, function (&$value, &$key) use (&$results) {
-                        $results[$value['id']] = $value;
-                    });
-                    //Senders' id.
-                    $to_id = array();
-                    //Receivers' id.
-                    $from_id = array();
+                $results = Message::select('*')
+                                        ->where('content', 'like', '%' . $msg . '%')
+                                        ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
+            }
+            if($results != null){
+                $temp = $results->get()->toArray();
+                //Rearranges the messages query results.
+                $results = array();
+                array_walk($temp, function (&$value, &$key) use (&$results) {
+                    $results[$value['id']] = $value;
+                });
+                //Senders' id.
+                $to_id = array();
+                //Receivers' id.
+                $from_id = array();
 
-                    foreach ($results as $result){
-                        if(!in_array($result['to_id'], $to_id)) {
-                            array_push($to_id, $result['to_id']);
-                        }
-                        if(!in_array($result['from_id'], $from_id)) {
-                            array_push($from_id, $result['from_id']);
-                        }
+                foreach ($results as $result){
+                    if(!in_array($result['to_id'], $to_id)) {
+                        array_push($to_id, $result['to_id']);
                     }
+                    if(!in_array($result['from_id'], $from_id)) {
+                        array_push($from_id, $result['from_id']);
+                    }
+                }
+                //Senders' meta.
+                $senders = array();
+                foreach ($from_id as $key => $id){
+                    $sender = User::where('id', '=', $id)->get()->first();
+                    $vip_tmp = $sender->isVip() ? true : false;
+                    $senders[$key] = $sender->toArray();
+                    $senders[$key]['vip'] = $vip_tmp;
+                    $senders[$key]['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first() == true ? true : false;
+                }
+                //Fills message ids to each sender.
+                foreach ($senders as $key => $sender){
 
-                    //Senders' meta.
-                    $senders = array();
-                    foreach ($from_id as $key => $id){
-                        $sender = User::where('id', '=', $id)->get()->first();
-                        $vip_tmp = $sender->isVip() ? true : false;
-                        $senders[$key] = $sender->toArray();
-                        $senders[$key]['vip'] = $vip_tmp;
-                        $senders[$key]['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first() == true ? true : false;
-                    }
-                    //Fills message ids to each sender.
-                    foreach ($senders as $key => $sender){
-
-                        $senders[$key]['messages'] = array();
-                        foreach ($results as $result) {
-                            if($result['from_id'] == $sender['id']){
-                                array_push($senders[$key]['messages'], $result);
-                            }
-                        }
-                    }
-                    //Receivers' name.
-                    $receivers = array();
-                    foreach ($to_id as $id){
-                        $receivers[$id] = array();
-                    }
-                    foreach ($receivers as $id => $receiver){
-                        $name = User::select('name')
-                            ->where('id', '=', $id)
-                            ->get()->first();
-                        if($name != null){
-                            $receivers[$id] = $name->name;
-                        }
-                        else{
-                            $receivers[$id] = '資料庫沒有資料';
+                    $senders[$key]['messages'] = array();
+                    foreach ($results as $result) {
+                        if($result['from_id'] == $sender['id']){
+                            array_push($senders[$key]['messages'], $result);
                         }
                     }
+                }
+                //Receivers' name.
+                $receivers = array();
+                foreach ($to_id as $id){
+                    $receivers[$id] = array();
+                }
+                foreach ($receivers as $id => $receiver){
+                    $name = User::select('name')
+                        ->where('id', '=', $id)
+                        ->get()->first();
+                    if($name != null){
+                        $receivers[$id] = $name->name;
+                    }
+                    else{
+                        $receivers[$id] = '資料庫沒有資料';
+                    }
+                }
 
-                    if($request->time =='created_at'){
-                        $senders = collect($senders)->sortBy('created_at', true,true)->reverse()->toArray();
-                    }
-                    if($request->time =='login_time'){
-                        $senders = collect($senders)->sortBy('last_login', true,true)->reverse()->toArray();
-                    }
-                    if($request->member_type =='vip'){
-                        $senders = collect($senders)->sortBy('vip', true,true)->reverse()->toArray();
-                    }
-                    if($request->member_type =='banned'){
-                        $senders = collect($senders)->sortBy('isBlocked')->reverse()->toArray();
-                    }
+                if($request->time =='created_at'){
+                    $senders = collect($senders)->sortBy('created_at', true,true)->reverse()->toArray();
+                }
+                if($request->time =='login_time'){
+                    $senders = collect($senders)->sortBy('last_login', true,true)->reverse()->toArray();
+                }
+                if($request->member_type =='vip'){
+                    $senders = collect($senders)->sortBy('vip', true,true)->reverse()->toArray();
+                }
+                if($request->member_type =='banned'){
+                    $senders = collect($senders)->sortBy('isBlocked')->reverse()->toArray();
                 }
             }
         }
@@ -922,96 +878,35 @@ class UserController extends Controller
         }
     }
 
-    public function showAdminMessengerWithReportedId($id, $mid, $pic_id = null, $isPic= null, $isReported= null)
-    { 
-
+    public function showAdminMessengerWithReportedId($id, $reported_id, $pic_id = null, $isPic= null, $isReported= null) {
         $admin = $this->admin->checkAdmin();
         if ($admin){
             $msglib = Msglib::get();
-            $msglib_report = Msglib::selectraw('id, title, msg')->where('kind','=','report')->get();
-            $msglib_reported = Msglib::selectraw('id, title, msg')->where('kind','=','reported')->get();
-            $msglib_all      = Msglib::selectraw('id, title, msg')->get();
-            $msglib = Msglib::get();
             $msglib2 = Msglib::get();
             $msglib3 = Msglib::selectraw('msg')->get();
-            $report = Reported::where('member_id', $id)->where('reported_id', $mid)->get()->first();
-
-            $reported = User::where('id', $mid)->get()->first();
-
-            /*被檢舉者 */
-            $user = $this->service->find($id);
-            $reported = Reported::get()->first();
-            // $sender = User::where('id', $reported->reported_id)->get()->first();
-
+            $report = Reported::where('member_id', $id)->where('reported_id', $reported_id)->get()->first();
             /*檢舉者*/
-            $to_user_id = Reported::where('member_id', $id)->get()->first();
-            if(!isset($to_user_id)){
-                $to_user_id = $id;
-            }
-            else{
-                $to_user_id = $to_user_id->reported_id;
-            }
-
-            $to_user    = $this->service->find($to_user_id);
-
-            $message_msg = Reported::where('reported_id', $to_user->id)->where('member_id',$user->id)->get();
-
-            if(!$msglib_report->isEmpty()){
-                $created_at = null;
-                if(is_object($message_msg->first())){
-                    $created_at = $message_msg->first()->created_at;
-                }
-                foreach($msglib_report as $key=>$msg){
-                    $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
-                    $msglib_msg[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg[$key]);
-                    $msglib_msg[$key] = str_replace('|$reportTime|', $created_at, $msglib_msg[$key]);
-                    $msglib_msg[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg[$key]);
-                }
-            }else{
-                foreach($msglib_all as $key=>$msg){
-                    $msglib_msg[$key] = $msg['msg'];
-                }
-            }
-            if(!$msglib_reported->isEmpty()){
-                $created_at = null;
-                if(is_object($message_msg->first())){
-                    $created_at = $message_msg->first()->created_at;
-                }
-                foreach($msglib_reported as $key=>$msg){
-                    $msglib_msg2[$key] = str_replace('|$report|',$user->name, $msg['msg']);
-                    $msglib_msg2[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg2[$key]);
-                    $msglib_msg2[$key] = str_replace('|$reportTime|', $created_at, $msglib_msg2[$key]);
-                    $msglib_msg2[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg2[$key]);
-                }
-            }else{
-                foreach($msglib_all as $key=>$msg){
-                    $msglib_msg2[$key] = $msg['msg'];
-                }
+            $user = $this->service->find($id);
+            /*被檢舉者 */
+            $reported = User::where('id', $reported_id)->get()->first();
+            foreach($msglib3 as $key=>$msg){
+                $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
+                $msglib_msg[$key] = str_replace('|$reported|',$reported->name, $msglib_msg[$key]);
             }
             return view('admin.users.messenger')
                 ->with('admin', $admin)
-                ->with('user', $user)
-                ->with('to_user', $to_user)
-
                 ->with('message', 'REPORTEDUSERONLY')
                 ->with('report', $report)
-                // ->with('user', $reported)
+                ->with('user', $reported)
                 ->with('reportedName', $reported->name)
-
-                // ->with('to_user', $reported)
-
+                ->with('to_user', $user)
                 ->with('isPic', $isPic)
                 ->with('isReported', $isReported)
                 ->with('isReportedId', $mid)
                 ->with('pic_id', $pic_id)
-                ->with('msglib', $msglib_report)
-                ->with('msglib2', $msglib_reported)
-                ->with('msglib_report', $msglib_report)
-                ->with('msglib_reported', $msglib_reported)
-                ->with('msglib_msg', $msglib_msg)
-                ->with('message_msg', $message_msg)
-                ->with('msglib_msg2', $msglib_msg2);
-
+                ->with('msglib', $msglib)
+                ->with('msglib2', $msglib2)
+                ->with('msglib_msg', isset($msglib_msg) ? $msglib_msg : null);
         }
         else{
             return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
@@ -1351,18 +1246,15 @@ class UserController extends Controller
     public function searchReportedPics(Request $request){
         $admin = $this->admin->checkAdmin();
         if ($admin){
-            $avatars = ReportedAvatar::select('*');
-            $pics = ReportedPic::select('*');
-            if($request->date_start){
-                $avatars = $avatars->where('created_at', '>', $request->date_start . ' 00:00');
-                $pics = $pics->where('created_at', '>', $request->date_start . ' 00:00');
-            }
-            if($request->date_end){
-                $avatars = $avatars->where('created_at', '<', $request->date_end . ' 23:59');
-                $pics = $pics->where('created_at', '<', $request->date_end . ' 23:59');
-            }
-            $avatars = $avatars->orderBy('created_at', 'desc')->get();
-            $pics = $pics->orderBy('created_at', 'desc')->get();
+
+            $date_start = $request->date_start ? $request->date_start : '0000-00-00';
+            $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
+
+            $avatars = ReportedAvatar::whereBetween('created_at', array($date_start, $date_end))
+                                        ->orderBy('created_at', 'desc')->get();
+            $pics = ReportedPic::whereBetween('created_at', array($date_start, $date_end))
+                                ->orderBy('created_at', 'desc')->get();
+
             $avatarDatas = $this->admin->fillReportedAvatarDatas($avatars);
             $picDatas = $this->admin->fillReportedPicDatas($pics);
 
@@ -1377,6 +1269,21 @@ class UserController extends Controller
         else{
             return view('admin.users.reportedPics')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
         }
+    }
+
+    public function showReportedDetails(Request $request){
+
+        if($this->admin->checkAdmin()){
+            $result = $this->admin->reportedUserDetails($request);
+
+            if($result)
+                return view('admin.users.reportedUserDetails')
+                        ->with('reported_id', $request->reported_id)
+                        ->with('reportedUser', $result['reportedUsers'])
+                        ->with('users', $result['users']);
+            else
+                return back()->withErrors(['無檢舉資料']);            
+        }    
     }
 
     public function customizeMigrationFiles(Request $request){

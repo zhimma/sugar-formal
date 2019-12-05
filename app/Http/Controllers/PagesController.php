@@ -923,7 +923,17 @@ class PagesController extends Controller
         $user = $request->user();
         if ($user)
         {
-            return view('dashboard.block')
+            // blocked by user->id
+            $blocks = \App\Models\Blocked::where('member_id', $user->id)->paginate(15);
+
+            $usersInfo = array();
+            foreach($blocks as $blockUser){
+                $id = $blockUser->blocked_id;
+                $usersInfo[$id] = User::findById($id);
+            }
+            return view('new.dashboard.block')
+            ->with('blocks', $blocks)
+            ->with('users', $usersInfo)
             ->with('user', $user);
         }
     }
@@ -1183,6 +1193,7 @@ class PagesController extends Controller
         abort(404);
     }
 
+    // 公告封鎖名單
     public function showWebAnnouncement(Request $request) {
         $user = $request->user();
         $start = \Carbon\Carbon::now()->subDays(30)->toDateTimeString();
@@ -1204,7 +1215,12 @@ class PagesController extends Controller
                 ->with('users', $userBanned);
     }
 	
-	public function mem_member(Request $request)
+    public function showAnnouncement(Request $request){
+        return view('new.dashboard.announcement')
+                ->with('user', $request->user());
+    }
+    
+	public function mem_member()
     {
         $uri = $request->segments();
         $user_id = $uri[2];
