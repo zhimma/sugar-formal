@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Models\SimpleTables\banned_users;
 use Session;
-// use Request;
+
 class PagesController extends Controller
 {
     public function __construct(UserService $userService, VipLogService $logService)
@@ -264,6 +264,92 @@ class PagesController extends Controller
 
 
         return redirect('/dashboard/chat/' . $payload['to'] . '?comment=success')->with('message', '評價成功');
+    }
+
+    /**
+     * cd1 cd2 ts1 ts2
+     */
+    public function cd_1() {
+        //$user = $request->user();
+        $imgUserM = User::select('users.name', 'users.title', 'user_meta.pic')
+            ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->whereNotNull('user_meta.pic')
+            ->where('engroup', 1)->inRandomorder()->take(3)->get();
+        $imgUserF = User::select('users.name', 'users.title', 'user_meta.pic')
+            ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->whereNotNull('user_meta.pic')
+            ->where('engroup', 2)->inRandomorder()->take(3)->get();
+        return view('cd1.welcome')
+            ->with('imgUserM', $imgUserM)
+            ->with('imgUserF', $imgUserF);
+
+    }
+
+    public function cd_2() {
+        $imgUserM = User::select('users.name', 'users.title', 'user_meta.pic')
+            ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->whereNotNull('user_meta.pic')
+            ->where('engroup', 1)->inRandomorder()->take(3)->get();
+        $imgUserF = User::select('users.name', 'users.title', 'user_meta.pic')
+            ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->whereNotNull('user_meta.pic')
+            ->where('engroup', 2)->inRandomorder()->take(3)->get();
+        return view('cd2.welcome')
+            ->with('imgUserM', $imgUserM)
+            ->with('imgUserF', $imgUserF);
+    }
+
+    public function ts_1() {
+        $imgUserM = User::select('users.name', 'users.title', 'user_meta.pic')
+            ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->whereNotNull('user_meta.pic')
+            ->where('engroup', 1)->inRandomorder()->take(3)->get();
+
+        $imgUserF = User::select('users.name', 'users.title', 'user_meta.pic')
+            ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->whereNotNull('user_meta.pic')
+            ->where('engroup', 2)->inRandomorder()->take(3)->get();
+
+        $infoM = User::select('users.id')
+            ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->whereNotNull('user_meta.pic')
+            ->whereNotNull('user_meta.about')
+            ->whereNotNull('user_meta.birthdate')
+            ->whereNotNull('user_meta.city')
+            ->whereNotNull('user_meta.occupation')
+            ->where('engroup', 1)->inRandomorder()->take(1)->first();
+
+        $infoF = User::select('users.id')
+            ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->whereNotNull('user_meta.pic')
+            ->whereNotNull('user_meta.about')
+            ->whereNotNull('user_meta.birthdate')
+            ->whereNotNull('user_meta.city')
+            ->whereNotNull('user_meta.occupation')
+            ->where('engroup', 2)->inRandomorder()->take(1)->first();
+
+        $infoF_d = User::where('id',$infoF->id)->first();
+        $infoM_d = User::where('id',$infoM->id)->first();
+
+        return view('ts1.welcome')
+            ->with('imgUserM', $imgUserM)
+            ->with('imgUserF', $imgUserF)
+            ->with('infoM_d', $infoM_d)
+            ->with('infoF_d', $infoF_d);
+    }
+
+    public function ts_2() {
+        $imgUserM = User::select('users.name', 'users.title', 'user_meta.pic')
+            ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->whereNotNull('user_meta.pic')
+            ->where('engroup', 1)->inRandomorder()->take(3)->get();
+        $imgUserF = User::select('users.name', 'users.title', 'user_meta.pic')
+            ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->whereNotNull('user_meta.pic')
+            ->where('engroup', 2)->inRandomorder()->take(3)->get();
+        return view('ts2.welcome')
+            ->with('imgUserM', $imgUserM)
+            ->with('imgUserF', $imgUserF);
     }
 
     /**
