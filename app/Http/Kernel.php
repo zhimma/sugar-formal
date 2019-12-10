@@ -42,6 +42,10 @@ class Kernel extends HttpKernel
             'bindings',
             \App\Http\Middleware\ApiDataLogger::class,
         ],
+
+        'tipApi' => [
+            \App\Http\Middleware\TipApiDataLogger::class,
+        ],
     ];
 
     /**

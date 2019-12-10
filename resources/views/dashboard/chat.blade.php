@@ -316,7 +316,10 @@ $code = Config::get('social.payment.code');
 //                }
 
                 //echo 'message->to_id = '. $message->to_id . ' message->from_id = '. $message->from_id . ' user->id = ' . $user->id;
-                $latestMessage = \App\Models\Message::latestMessage($user->id, $msgUser->id);
+                $latestMessage = null;
+                if (isset($msgUser)) {
+                    $latestMessage = \App\Models\Message::latestMessage($user->id, $msgUser->id);
+                }
                 // echo '<br/>';
                 // echo json_encode($latestMessage);
             ?>

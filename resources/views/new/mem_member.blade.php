@@ -1,32 +1,3 @@
-@extends('new.layouts.website')
-
-@section('app-content')
-
-    <div class="container matop70">
-      <div class="row">
-        <div class="col-sm-12 col-xs-12 col-md-12">
-          <div class="wxsy">
-             <div class="wxsy_title">網站使用</div>
-             <div class="wxsy_k">
-                          <div class="wknr">
-                                <p>網站的建設方向是要更有效的過濾出真心包養的Daddy，篩選掉無聊的網蟲。 各位大叔可能不知道，一個女會員註冊，會收到數十封的邀約信。 漂亮一點的信件數量更是驚人。所以本站的規畫就是盡量凸顯真心包養大叔的經濟優勢。 目前有更進一步的功能規劃中，如果各位有什麼意見歡迎跟站長聯絡提出。<a href="{!! url('contact') !!}">(聯絡我們)</a></p>
-                                <h3>目前已上線的功能 </h3>
-                                <h4>1：加入VIP</h4>
-                                <p>站長建議各位大叔加入VIP，目前VIP的比較重要的功能是可以無限制收發信，開啟已讀功能以及可以看進階的統計資料。未來會規畫更具財力顯示的VIP階級。 另一方面，VIP算是女方最基本的篩選門檻了，有些女生甚至會關掉普通會員的來信。只看VIP會員的來信。 </p>
-                                <h4>2：車馬費邀請</h4>
-                                <p>站方設計車馬費制度，為了篩選信口開河邀約的Daddy。也就增加了真心約見daddy的能見度。 車馬費制度會由站方先跟Daddy收取一筆1788的車馬費費用。雙方約見。 <span class="org">只要當天雙方順利見完面，不論結果如何，站方扣除部分手續費後，會將 1500 匯入女方指定的銀行帳戶。</span> 當然免不了有些女生會想辦法賺車馬費，網站目前的功能是會以曾經約會的會員可以留言評價(需VIP才能看到)，另一方面網站也會管控銀行帳戶，被太多人投訴的女會員，站方會停權。但站長必須說，無法100%杜絕，所以大家在使用車馬費邀約時，站長只能說這是必要的支出之一。</p>
-
-                          </div>
-             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-@stop
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -106,9 +77,11 @@
 	</style>
 
 	<body>
+	<?=$tip_count;?>
 		<div class="head hetop">
 			<div class="container">
-				<div class="col-sm-12 col-xs-12 col-md-12"><img src="/new/images/icon_41.png" class="logo" />
+				<div class="col-sm-12 col-xs-12 col-md-12">
+					<a href="/"><img src="/new/images/icon_41.png" class="logo" /></a>
 				</div>
 			</div>
 		</div>
@@ -127,13 +100,13 @@
 							<div class="heyctop">測試系統賬號</div>
 							<div class="helist">
 								<ul>
-									<li><a href=""><img src="/new/images/icon_38.png">搜索</a></li>
-									<li><a href=""><img src="/new/images/icon_45.png">訊息</a><span>10</span></li>
-									<li><a href=""><img src="/new/images/icon_46.png">名單</a></li>
-									<li><a href=""><img src="/new/images/icon_48.png">我的</a></li>
+									<li><a href="/new/mem_member"><img src="/new/images/icon_38.png">搜索</a></li>
+									<li><a href="/dashboard/chat2"><img src="/new/images/icon_45.png">訊息</a><span>10</span></li>
+									<li><a href="/browse"><img src="/new/images/icon_46.png">名單</a></li>
+									<li><a href="/dashboard"><img src="/new/images/icon_48.png">我的</a></li>
 								</ul>
 							</div>
-							<a href="" class="tcbut">LOGOUT</a>
+							<a href="/" class="tcbut">LOGOUT</a>
                             </div>
 						</ul>
 					</div>
@@ -150,11 +123,11 @@
 							<h2>測試系統賬號</h2></div>
 						<div class="leul">
 							<ul>
-									<li><a href=""><img src="/new/images/icon_38.png">搜索</a></li>
-									<li><a href=""><img src="/new/images/icon_45.png">訊息</a><span>10</span></li>
-									<li><a href=""><img src="/new/images/icon_46.png">名單</a></li>
-									<li><a href=""><img src="/new/images/icon_48.png">我的</a></li>
-								    <li><a href=""><img src="/new/images/iconout.png">退出</a></li>
+									<li><a href="/new/mem_member"><img src="/new/images/icon_38.png">搜索</a></li>
+									<li><a href="/dashboard/chat2"><img src="/new/images/icon_45.png">訊息</a><span>10</span></li>
+									<li><a href="/browse"><img src="/new/images/icon_46.png">名單</a></li>
+									<li><a href="/dashboard"><img src="/new/images/icon_48.png">我的</a></li>
+								    <li><a href="/logout"><img src="/new/images/iconout.png">退出</a></li>
 							</ul>
 						</div>
 					</div>
@@ -191,11 +164,11 @@
 							</div>
 							<div class="bottub">
 								<ul>
-									<li><img src="/new/images/icon_19.png"><span>新進甜心</span></li>
-									<li><img src="/new/images/icon_21.png"><span>優選會員</span></li>
-									<li><img src="/new/images/icon_23.png"><span>財力認證</span></li>
-									<li><img src="/new/images/icon_25.png"><span>VIP</span></li>
-									<li><img src="/new/images/icon_27.png"><span>警示帳戶</span></li>
+									<li><a href="#"><img src="/new/images/icon_19.png"><span>新進甜心</span></a></li>
+									<li><a href="#"><img src="/new/images/icon_21.png"><span>優選會員</span></a></li>
+									<li><a href="#"><img src="/new/images/icon_23.png"><span>財力認證</span></a></li>
+									<li><a href="#"><img src="/new/images/icon_25.png"><span>VIP</span></a></li>
+									<li><a href="#"><img src="/new/images/icon_27.png"><span>警示帳戶</span></a></li>
 								</ul>
 							</div>
 
@@ -216,77 +189,82 @@
 						</script>
 					</div>
 					<!--基本资料-->
+					<form action="#" method="POST" id="basic_info">
+					<input type="hidden" name="id" id="id" value="{{$user->user_id}}">
 					<div class="mintop">
 						<div class="">
 							<div class="ziliao">
 								<div class="ztitle"><span>基本資料</span>Basic information</div>
+								<!-- <div class="updatedata">更新</div> -->
 								<div class="xiliao_input">
 									<div class="xl_input">
 										<dt>
                                                         <span>地區</span>
-                                                        <span><input name="" type="text" class="select_xx senhs"  placeholder="連江縣">
-                                                        <input name="" type="text" class="select_xx senhs right"  placeholder="南竿鄉"></span>
+                                                        <span>
+														<input name="city" type="text" class="select_xx senhs" id="city" placeholder="<?=$user->city;?>" value="<?=$user->city;?>">
+                                                        <input name="area" type="text" class="select_xx senhs right" id="area" placeholder="<?=$user->area;?>" value="<?=$user->area;?>">
+														</span>
                                                     </dt>
 										
 										<dt>
                                                         <span>預算</span>
-                                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="可商議"></span>
+                                                        <span><input name="budget" type="text" class="select_xx01 senhs" id="budget" placeholder="<?=$user->budget;?>" value="<?=$user->budget;?>"></span>
                                                     </dt>
 										<dt>
                                                         <span>年齡</span>
-                                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="28"></span>
+                                                        <span><input name="age" type="text" class="select_xx01 senhs" id="age" placeholder="<?=$user->age;?>" value="<?=$user->age;?>"></span><!--需新增資料庫資料-->
                                                     </dt>
 										<dt>
                                                         <span>身高（cm）</span>
-                                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="160"></span>
+                                                        <span><input name="height" type="text" class="select_xx01 senhs" id="height" placeholder="<?=$user->height;?>" value="<?=$user->height;?>"></span>
                                                     </dt>
 										<dt>
                                                         <span>體型</span>
-                                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="瘦"></span>
+                                                        <span><input name="body" type="text" class="select_xx01 senhs" id="body" placeholder="<?=$user->body;?>" value="<?=$user->body;?>"></span>
                                                     </dt>
 										<dt>
                                                         <span>CUP</span>
-                                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="A"></span>
+                                                        <span><input name="cup" type="text" class="select_xx01 senhs" id="cup" placeholder="<?=$user->cup;?>" value="<?=$user->cup;?>"></span>
                                                     </dt>
 										<dt>
                                                         <span>關於我</span>
-                                                        <span><div class="select_xx03" >喜歡簡單自然平談喜歡簡單自然平談喜歡簡單自然平談喜歡簡單自然平談喜歡簡單自然平談喜歡簡單自然平談喜歡簡單自然平談素質高喜歡簡單自然平談喜歡簡單自然平談喜歡簡單自然平談素質高</div></span>
+                                                        <span><div name="title" class="select_xx03" id="title"><?=$user->title;?></div></span>
                                                     </dt>
 										<dt>
                                                         <span>期待的約會模式</span>
-                                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="看感覺"></span>
+                                                        <span><input name="date_mode" type="text" class="select_xx01 senhs" id="date_mode" placeholder="看感覺"></span><!--需新增資料庫資料-->
                                                     </dt>
 										<dt>
                                                         <span>產業</span>
-                                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="民生服務"></span>
+                                                        <span><input name="domainType" type="text" class="select_xx01 senhs" id="domainType" placeholder="<?=$user->domainType;?>" value="<?=$user->domainType;?>"></span>
                                                     </dt>
 										<dt>
                                                         <span>職業</span>
-                                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="公務人員"></span>
+                                                        <span><input name="occupation" type="text" class="select_xx01 senhs" id="occupation" placeholder="公務人員"></span><!--需新增資料庫資料-->
                                                     </dt>
 										<dt>
                                                         <span>教育</span>
-                                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="研究生"></span>
+                                                        <span><input name="education" type="text" class="select_xx01 senhs" id="education" placeholder="研究生"></span><!--需新增資料庫資料-->
                                                     </dt>
 										<dt>
                                                         <span>婚姻</span>
-                                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="未婚"></span>
+                                                        <span><input name="marriage" type="text" class="select_xx01 senhs" id="marriage" placeholder="<?=$user->marriage;?>" value="<?=$user->marriage;?>"></span>
                                                     </dt>
 										<dt>
                                                         <span>喝酒</span>
-                                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="喝"></span>
+                                                        <span><input name="drinking" type="text" class="select_xx01 senhs" id="drinking" placeholder="<?=$user->drinking;?>" value="<?=$user->drinking;?>"></span>
                                                     </dt>
 										<dt>
                                                         <span>抽煙</span>
-                                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="不抽"></span>
+                                                        <span><input name="smoking" type="text" class="select_xx01 senhs" id="smoking" placeholder="<?=$user->smoking;?>" value="<?=$user->smoking;?>"></span>
                                                     </dt>
 										<dt>
                                                         <span>收入</span>
-                                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="100—200萬"></span>
+                                                        <span><input name="income" type="text" class="select_xx01 senhs" id="income" placeholder="<?=$user->income;?>" value="<?=$user->income;?>"></span>
                                                     </dt>
 										<dt>
                                                         <span>資產</span>
-                                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="房地產"></span>
+                                                        <span><input name="assets" type="text" class="select_xx01 senhs" id="assets" placeholder="<?=$user->assets;?>" value="<?=$user->assets;?>"></span>
                                                     </dt>
 									</div>
 								</div>
@@ -296,24 +274,25 @@
 								<div class="ztitle"><span>進階資料</span>Advanced materials</div>
 								<div class="xiliao_input">
 									<div class="xl_text">
-										<dt><span>帳號建立時間</span><font>2018-02-03  12:20:36</font></dt>
-										<dt><span>登入時間</span><font>2018-02-03  12:20:36</font></dt>
-										<dt><span>被收藏次數</span><font><img src="/new/images/icon_35.png"></font></dt>
-										<dt><span>收藏會員次數</span><font>26</font></dt>
-										<dt><span>車馬費邀請次數</span><font>36</font></dt>
-										<dt><span>發信次數</span><font>20</font></dt>
-										<dt><span>過去7天發信次數</span><font>20</font></dt>
-										<dt><span>是否封鎖我</span><font>是</font></dt>
-										<dt><span>是否看過我</span><font>否</font></dt>
-										<dt><span>瀏覽其他會員次數</span><font>20</font></dt>
-										<dt><span>被瀏覽次數</span><font>20</font></dt>
-										<dt><span>過去7天被瀏覽次數</span><font>20</font></dt>
+										<dt><span>帳號建立時間</span><font><?=$user->created_at;?></font></dt>
+										<dt><span>登入時間</span><font><?=$user->last_login;?></font></dt>
+										<dt><span>被收藏次數</span><font><img src="/new/images/icon_35.png"><?php if($is_vip){ echo $be_fav_count??0;}?></font></dt>
+										<dt><span>收藏會員次數</span><font><?=$fav_count??0;?></font></dt>
+										<dt><span>車馬費邀請次數</span><font><?=$tip_count??0;?></font></dt>
+										<dt><span>發信次數</span><font><?=$message_count??0;?></font></dt>
+										<dt><span>過去7天發信次數</span><font><?=$message_count_7??0;?></font></dt>
+										<dt><span>是否封鎖我</span><font><?=$is_block_mid??'否';?></font></dt>
+										<dt><span>是否看過我</span><font><?=$is_visit_mid??'是';?></font></dt>
+										<dt><span>瀏覽其他會員次數</span><font><?=$visit_other_count??0?></font></dt>
+										<dt><span>被瀏覽次數</span><font><?=$be_visit_other_count??0;?></font></dt>
+										<dt><span>過去7天被瀏覽次數</span><font><?=$be_visit_other_count_7??0;?></font></dt>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 					<!--基本资料-->
+					</form>
 				</div>
 
 			</div>
@@ -399,6 +378,27 @@
 </script>
 
 
+<script>
+$(".updatedata").click(function(){
+	var data = {
+		"_token"      : "{{ csrf_token() }}",
+		"data"        :$("form").serializeArray()
+	};
+
+	console.log(data);
+	$.ajax({
+    type: "POST",
+    url: "/updateMemberData",
+    data: data,
+    // dataType: "json",
+    success: function(res){
+
+    }
+  });
+});
+
+
+</script>
 
 
 

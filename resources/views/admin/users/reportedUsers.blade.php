@@ -67,7 +67,11 @@
                     <tr >
                         <td @if($result['isBlockedReceiver']) style="background-color:#FFFF00" @endif>
                             <a href="{{ route('users/advInfo', $result['reported_id']) }}" target='_blank'>
-                                <p @if($users[$result['reported_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+                                @if(isset($users[$result['reported_id']]['engroup']))
+                                    <p @if($users[$result['reported_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+                                @else
+                                    <p>
+                                @endif
                                     {{ $users[$result['reported_id']]['name'] }}
                                     @if($users[$result['reported_id']]['vip'])
                                         <i class="m-nav__link-icon fa fa-diamond"></i>
@@ -91,7 +95,11 @@
 
                         <td @if($result['isBlocked']) style="background-color:#FFFF00" @endif>
                             <a href="{{ route('users/advInfo', $result['member_id']) }}" target='_blank'>
-                                <p @if($users[$result['member_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+                                @if(isset($users[$result['member_id']]['engroup']))
+                                    <p @if($users[$result['member_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+                                @else
+                                    <p>
+                                @endif
                                     {{ $users[$result['member_id']]['name'] }}
                                     @if($users[$result['member_id']]['vip'])
                                         <i class="m-nav__link-icon fa fa-diamond"></i>

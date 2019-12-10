@@ -10,6 +10,7 @@ use App\Models\Reported;
 use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
 use App\Models\SimpleTables\users;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\AdminService;
@@ -465,6 +466,7 @@ class UserController extends Controller
 
     public function modifyUserPictures(Request $request)
     {
+        
         if($request->delete){
             $datas = $this->admin->deletePicture($request);
             if($datas == null){
@@ -634,8 +636,15 @@ class UserController extends Controller
                     if(!in_array($result['to_id'], $to_id)) {
                         array_push($to_id, $result['to_id']);
                     }
-                    if(!in_array($result['from_id'], $from_id)) {
-                        array_push($from_id, $result['from_id']);
+
+                    //Senders' meta.
+                    $senders = array();
+                    foreach ($from_id as $key => $id){
+                        $sender = User::where('id', '=', $id)->get()->first();
+                        $vip_tmp = $sender->isVip() ? true : false;
+                        $senders[$key] = $sender->toArray();
+                        $senders[$key]['vip'] = $vip_tmp;
+                        $senders[$key]['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first() == true ? true : false;
                     }
                 }
                 //Senders' meta.
@@ -807,8 +816,14 @@ class UserController extends Controller
 
     public function showAdminMessengerWithMessageId($id, $mid)
     {
+        
+
         $admin = $this->admin->checkAdmin();
         if ($admin){
+            $msglib = Msglib::get();
+            $msglib_report = Msglib::selectraw('id, title, msg')->where('kind','=','report')->get();
+            $msglib_reported = Msglib::selectraw('id, title, msg')->where('kind','=','reported')->get();
+            $msglib_all = Msglib::selectraw('id, title, msg')->get();
             $msglib = Msglib::get();
             $msglib2 = Msglib::get();
             $msglib3 = Msglib::selectraw('msg')->get();
@@ -819,19 +834,52 @@ class UserController extends Controller
             /*被檢舉者*/
             $to_user_id = Message::where('id', $mid)->get()->first()->to_id;
             $to_user    = $this->service->find($to_user_id);
-            foreach($msglib3 as $key=>$msg){
+
+
+            $message_msg = Message::where('to_id', $to_user->id)->where('from_id',$user->id)->get();   
+        if(!$msglib_report->isEmpty()){
+            foreach($msglib_report as $key=>$msg){
                 $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
                 $msglib_msg[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg[$key]);
+                $msglib_msg[$key] = str_replace('|$reportTime|',$message_msg[0]->created_at, $msglib_msg[$key]);
+                $msglib_msg[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg[$key]);
             }
+        }else{
+            foreach($msglib_all as $key=>$msg){
+                $msglib_msg[$key] = $msg['msg'];
+            }
+        }
+        if(!$msglib_reported->isEmpty()){
+            foreach($msglib_reported as $key=>$msg){
+                $msglib_msg2[$key] = str_replace('|$report|',$user->name, $msg['msg']);
+                $msglib_msg2[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg2[$key]);
+                $msglib_msg2[$key] = str_replace('|$reportTime|',$message_msg[0]->created_at, $msglib_msg2[$key]);
+                $msglib_msg2[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg2[$key]);
+            }
+        }else{
+            foreach($msglib_all as $key=>$msg){
+                $msglib_msg2[$key] = $msg['msg'];
+            }
+        }
+        
+
+
+
+
             return view('admin.users.messenger')
                 ->with('admin', $admin)
                 ->with('user', $user)
                 ->with('to_user', $to_user)
                 ->with('message', $message)
                 ->with('senderName', $sender->name)
-                ->with('msglib', $msglib)
-                ->with('msglib2', $msglib2)
-                ->with('msglib_msg', isset($msglib_msg) ? $msglib_msg : null);
+                ->with('msglib', $msglib_report)
+                ->with('msglib2', $msglib_reported)
+                ->with('msglib_report', $msglib_report)
+                ->with('msglib_reported', $msglib_reported)
+                ->with('msglib_msg', $msglib_msg)
+                ->with('message_msg', $message_msg)
+                ->with('msglib_msg2', $msglib_msg2);
+
         }
         else{
             return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
@@ -843,31 +891,90 @@ class UserController extends Controller
         $admin = $this->admin->checkAdmin();
         if ($admin){
             $msglib = Msglib::get();
+            $msglib_report = Msglib::selectraw('id, title, msg')->where('kind','=','report')->get();
+            $msglib_reported = Msglib::selectraw('id, title, msg')->where('kind','=','reported')->get();
+            $msglib_all      = Msglib::selectraw('id, title, msg')->get();
+            $msglib = Msglib::get();
             $msglib2 = Msglib::get();
             $msglib3 = Msglib::selectraw('msg')->get();
             $report = Reported::where('member_id', $id)->where('reported_id', $reported_id)->get()->first();
-            /*檢舉者*/
-            $user = $this->service->find($id);
-            /*被檢舉者 */
+
             $reported = User::where('id', $reported_id)->get()->first();
-            foreach($msglib3 as $key=>$msg){
-                $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
-                $msglib_msg[$key] = str_replace('|$reported|',$reported->name, $msglib_msg[$key]);
+
+            /*被檢舉者 */
+            $user = $this->service->find($id);
+            $reported = Reported::get()->first();
+            // $sender = User::where('id', $reported->reported_id)->get()->first();
+
+            /*檢舉者*/
+            $to_user_id = Reported::where('member_id', $id)->get()->first();
+            if(!isset($to_user_id)){
+                $to_user_id = $id;
+            }
+            else{
+                $to_user_id = $to_user_id->reported_id;
+            }
+
+            $to_user    = $this->service->find($to_user_id);
+
+            $message_msg = Reported::where('reported_id', $to_user->id)->where('member_id',$user->id)->get();
+
+            if(!$msglib_report->isEmpty()){
+                $created_at = null;
+                if(is_object($message_msg->first())){
+                    $created_at = $message_msg->first()->created_at;
+                }
+                foreach($msglib_report as $key=>$msg){
+                    $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
+                    $msglib_msg[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg[$key]);
+                    $msglib_msg[$key] = str_replace('|$reportTime|', $created_at, $msglib_msg[$key]);
+                    $msglib_msg[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg[$key]);
+                }
+            }else{
+                foreach($msglib_all as $key=>$msg){
+                    $msglib_msg[$key] = $msg['msg'];
+                }
+            }
+            if(!$msglib_reported->isEmpty()){
+                $created_at = null;
+                if(is_object($message_msg->first())){
+                    $created_at = $message_msg->first()->created_at;
+                }
+                foreach($msglib_reported as $key=>$msg){
+                    $msglib_msg2[$key] = str_replace('|$report|',$user->name, $msg['msg']);
+                    $msglib_msg2[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg2[$key]);
+                    $msglib_msg2[$key] = str_replace('|$reportTime|', $created_at, $msglib_msg2[$key]);
+                    $msglib_msg2[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg2[$key]);
+                }
+            }else{
+                foreach($msglib_all as $key=>$msg){
+                    $msglib_msg2[$key] = $msg['msg'];
+                }
             }
             return view('admin.users.messenger')
                 ->with('admin', $admin)
+                ->with('user', $user)
+                ->with('to_user', $to_user)
+
                 ->with('message', 'REPORTEDUSERONLY')
                 ->with('report', $report)
-                ->with('user', $reported)
+                // ->with('user', $reported)
                 ->with('reportedName', $reported->name)
-                ->with('to_user', $user)
+
+                // ->with('to_user', $reported)
+
                 ->with('isPic', $isPic)
                 ->with('isReported', $isReported)
                 ->with('isReportedId', $reported->id)
                 ->with('pic_id', $pic_id)
-                ->with('msglib', $msglib)
-                ->with('msglib2', $msglib2)
-                ->with('msglib_msg', isset($msglib_msg) ? $msglib_msg : null);
+                ->with('msglib', $msglib_report)
+                ->with('msglib2', $msglib_reported)
+                ->with('msglib_report', $msglib_report)
+                ->with('msglib_reported', $msglib_reported)
+                ->with('msglib_msg', $msglib_msg)
+                ->with('message_msg', $message_msg)
+                ->with('msglib_msg2', $msglib_msg2);
+
         }
         else{
             return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
@@ -890,21 +997,21 @@ class UserController extends Controller
                 $m->reportContent = '';
                 $m->save();
             }
-            if($request->report_id){
-                $m = Reported::where('id', $request->report_id)->get()->first();
-                $m->delete();
-            }
-            if($request->pic_id){
-                if(str_contains($request->pic_id, 'avatar')){
-                    $a_id = substr($request->pic_id, 6, strlen($request->pic_id));
-                    $a = ReportedAvatar::where('id', $a_id)->get()->first();
-                    $a->delete();
-                }
-                else{
-                    $p = ReportedPic::where('id', $request->pic_id)->get()->first();
-                    $p->delete();
-                }
-            }
+            // if($request->report_id){
+            //     $m = Reported::where('id', $request->report_id)->get()->first();
+            //     $m->delete();
+            // }
+            // if($request->pic_id){
+            //     if(str_contains($request->pic_id, 'avatar')){
+            //         $a_id = substr($request->pic_id, 6, strlen($request->pic_id));
+            //         $a = ReportedAvatar::where('id', $a_id)->get()->first();
+            //         $a->delete();
+            //     }
+            //     else{
+            //         $p = ReportedPic::where('id', $request->pic_id)->get()->first();
+            //         $p->delete();
+            //     }
+            // }
         }
         return back()->with('message', '傳送成功');
     }
@@ -1175,7 +1282,6 @@ class UserController extends Controller
         $admin = $this->admin->checkAdmin();
         if ($admin){
             $users = Reported::select('*');
-            // dd($users->get(), $request->date_start, $request->date_end);
             if($request->date_start){
                 $users = $users->where('created_at', '>', $request->date_start . ' 00:00');
             }
@@ -1183,9 +1289,7 @@ class UserController extends Controller
                 $users = $users->where('created_at', '<', $request->date_end . ' 23:59');
             }
             $users = $users->orderBy('created_at', 'desc');
-            // dd($users->get());
             $datas = $this->admin->fillReportedDatas($users);
-            // dd($datas);
             return view('admin.users.reportedUsers')
                 ->with('results', $datas['results'])
                 ->with('users', isset($datas['users']) ? $datas['users'] : null)
@@ -1221,6 +1325,7 @@ class UserController extends Controller
 
             $avatarDatas = $this->admin->fillReportedAvatarDatas($avatars);
             $picDatas = $this->admin->fillReportedPicDatas($pics);
+
             return view('admin.users.reportedPics')
                 ->with('results', $avatarDatas['results'] ? $avatarDatas['results'] : 1)
                 ->with('users', isset($avatarDatas['users']) ? $avatarDatas['users'] : null)
@@ -1383,20 +1488,93 @@ class UserController extends Controller
         echo json_encode($formdata, JSON_UNESCAPED_UNICODE);
     }
 
+    public function addMessageLibPage(Request $request, $id=0)
+    {
+        if($id!=0){
+            $msglib = MsgLib::where('id', $id)->first();
+            
+            $data = array(
+                'page_title'=> '編輯訊息',
+                'msg_id'=>$msglib->id,
+                'title'=>$msglib->title,
+                'msg'=>$msglib->msg,
+                'isEdit'=>1,
+            );
+        }else{
+            $data = array(
+                'page_title'=> '新增訊息',
+            );
+        }
+        return view('admin.users.messenger_create', $data);
+    }
     public function addMessageLib(Request $request)
     {
-        $info = $request->post();
+        $msg_id = $request->post('msg_id');
+        if($msg_id!=''){
+            $kind  = $request->post('kind');
+            $title = $request->post('title');
+            $msg =   $request->post('content');
+            $data = array(
+                'msg_id'=>$msg_id,
+                'title'=>$title,
+                'msg'=>$msg,
+            );
+            DB::update('update msglib set title=?, msg=?, kind=? where id=?',[$title, $msg, $kind, $msg_id]);
+            return json_encode($data);
+        }else{
+            $kind  = $request->post('kind');
+            $title = $request->post('title');
+            $msg = $request->post('content');
+            $data = array(
+                'title'=>$title,
+                'msg'=>$msg,
+            );
+            DB::insert('insert into msglib (title, msg, kind) values ( ?, ? , ? )',
+            [$title,$msg,$kind]);
+            return json_encode($data);
+        }
+    }
 
-        $title = $info['formdata'][1]['value'];
-        $msg = $info['formdata'][2]['value'];
+    public function delMessageLib(Request $request)
+    {
+        $id = $request->post('id');
+
+        DB::table('msglib')->where('id', '=', $id)->delete();
         $data = array(
-            'title'=>$title,
-            'msg'=>$msg,
+            'status'=>'success',
         );
-        $kind = 'MSG';
-        // $msglib = Msglib::create(['title','123'])->tosql();
-        DB::insert('insert into msglib (title, msg, kind) values ( ?, ? , ? )',
-        [$title,$msg,$kind]);
         return json_encode($data);
+    }
+
+    public function blockUser(Request $request)
+    {
+        $data = $request->post('data');
+        $ban = banned_users::where('member_id', $data['id'])->get()->toArray();
+        // dd($ban);
+        if(empty($ban)){
+            DB::table('banned_users')->insert(['member_id'=>$data['id'],'reason'=>'管理者刪除']);
+        }
+
+        $data = array(
+            'code'=>'200',
+            'status'=>'success'
+        );
+        echo json_encode($data);
+    }
+
+    public function unblockUser(Request $request){
+        $data = $request->post('data');
+        // dd($data);
+        $ban = banned_users::where('member_id', $data['id'])->get()->toArray();
+        // dd($ban);
+        if(count($ban)>0){
+           DB::table('banned_users')->where('member_id','=',$data['id'])->delete();
+        }
+
+        $data = array(
+            'code'=>'200',
+            'status'=>'success'
+        );
+        echo json_encode($data);
     }
 }

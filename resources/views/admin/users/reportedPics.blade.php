@@ -63,11 +63,15 @@
                     </tr>
                     <?php $rowIndex = 0; ?>
                     @if(isset($results))
-                        @foreach ($results as $result)
-                        <?php $rowIndex += 1; ?>
+                        @foreach ($results as $rowIndex=>$result)
+                        <? $rowIndex += 1; ?>
                         <tr >
                             <td @if($result['isBlockedReceiver']) style="background-color:#FFFF00" @endif>
-                                <p @if($users[$result['reported_user_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+                                @if(isset($users[$result['reported_user_id']]['engroup']))
+                                    <p @if($users[$result['reported_user_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+                                @else
+                                    <p>
+                                @endif
                                     <a href="{{ route('users/advInfo', $result['reported_user_id']) }}" target='_blank'>
                                         {{ $users[$result['reported_user_id']]['name'] }}
                                         @if($users[$result['reported_user_id']]['vip'] )
@@ -95,13 +99,17 @@
                             </td>
                             <td @if($result['isBlocked']) style="background-color:#FFFF00" @endif>
                                 <a href="{{ route('users/advInfo', $result['reporter_id']) }}" target='_blank'>
-                                    <p @if($users[$result['reporter_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif data-eng="{{$users[$result['reporter_id']]['engroup']}}">
+                                    @if(isset($users[$result['reporter_id']]['engroup']))
+                                        <p @if($users[$result['reporter_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif data-eng="{{$users[$result['reporter_id']]['engroup']}}">
+                                    @else
+                                        <p>
+                                    @endif
                                         {{ $users[$result['reporter_id']]['name'] }}
                                         @if($users[$result['reporter_id']]['vip'] )
                                             <i class="m-nav__link-icon fa fa-diamond"></i>
                                         @endif
                                         @if(!is_null($result['isBlocked']))
-                                            @if(!is_null($result['isBlocked']['expire_date']))
+                                            @if(isset($result['isBlocked']['expire_date']))
                                                 ({{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
                                             @else
                                                 (永久)
@@ -168,7 +176,7 @@
                                             @endif
                                         @endif
                                     </a>
-                                    
+
                                 @else
                                     照片已刪除或該筆資料不存在。
                                 @endif
@@ -186,7 +194,7 @@
                             <td>
                                 <a href="{{ route('users/advInfo', $result['reporter_id']) }}" target='_blank' @if($result['isBlocked']) style="color: #F00;" @endif>
                                     {{ $Pusers[$result['reporter_id']]['name']}}
-                                
+
                                     @if($Pusers[$result['reporter_id']]['vip'] )
                                         <i class="m-nav__link-icon fa fa-diamond"></i>
                                     @endif
@@ -426,7 +434,7 @@
                 error: function() {
                     alert("刪除失敗");
                 }
-            }); 
+            });
         }*/
 
     </script>

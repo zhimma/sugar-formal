@@ -126,13 +126,19 @@ class Message extends Model
     }
 
     public static function isAdminMessage($content) {
-        if($content == '系統通知: 車馬費邀請') return true;
+        if(strstr($content, '系統通知: 車馬費邀請') != false) {
+            //echo strpos($content, '系統通知: 車馬費邀請');
+            return true;
+        }
         return false;
     }
 
     // show message setting
     public static function onlyShowVip($user, $msgUser, $isVip = false) {
         //return $user->isVip() && !$msgUser->isVip() && $user->meta_()->notifhistory == '顯示VIP會員信件';
+        if (!isset($msgUser)){
+            return false;
+        }
         return $isVip && !$msgUser->isVip() && $user->meta_('notifhistory')->notifhistory == '顯示VIP會員信件';
     }
 
@@ -605,5 +611,21 @@ class Message extends Model
         {
         // $curUser->notify(new MessageEmail($from_id, $to_id, $msg));
         }
+    }
+
+    public static function cutLargeString($string) {
+        //dd($string);
+        $string = strip_tags($string);
+        //echo $string;
+        if (strlen($string) > 20) {
+
+            // truncate string
+            return mb_substr($string, 0, 20, "utf-8") . '...';
+
+            //echo $stringCut;
+            // make sure it ends in a word so assassinate doesn't become ass...
+            //$string = substr($stringCut, 0, strrpos($stringCut, '')). '...';
+        }
+        return $string;
     }
 }

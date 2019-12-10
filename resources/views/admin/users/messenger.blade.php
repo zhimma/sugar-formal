@@ -7,6 +7,12 @@
     vertical-align: middle;
 }
 </style>
+<style>
+.message_block
+{
+    display:inline;
+}
+</style>
 <body style="padding: 15px;">
 @include('partials.errors')
 @include('partials.message')
@@ -14,18 +20,35 @@
     @if ($errors->count() > 0)
     @else
         @if(!isset($msgs))
-            <h1>新增訊息</h1><p>檢舉者變數|$report|，被檢舉者變數|$reported|   ，範例:|$report|檢舉|$reported|，經站長判別沒有問題。</p>
-            <button class="savemsgbtn btn btn-primary">儲存</button>
-            <form action="" id='msglibform' method='POST'>
-                {!! csrf_field() !!}
-                標題<input type="text" name="title_msglib"></br>
-                訊息<textarea name="textarea_msglib" id="msglib" class="form-control" cols="80" rows="5"></textarea>
-            </form>
-            <h1>發送站長訊息給{{ $user->name}}(被檢舉者)</h1>
-            <button class="savebtn btn btn-primary">儲存</button>
+            
+            
+            <table class="table table-bordered table-hover">
+            <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create"><div class="btn btn-success message_block">新增</div></a>
+            <br>
+                <tr>
+                    <td>訊息標題</td>
+                        <td></td>
+                    <td>訊息內容</td>
+                </tr>
+                @foreach($msglib_report as $msglib_report)
+                <tr>
+                    <td>{{$msglib_report->title}}</td>
+                        <td class="btn btn_edit btn-success" id="{{$msglib_report->id}}"><a href="/admin/users/message/msglib/create/{{$msglib_report->id}}" style="color:white">編輯</a></td>
+                        <td class="btn btn_del btn-danger" id="{{$msglib_report->id}}">刪除</td>
+                    <td>{{$msglib_report->msg}}</td>
+                </tr>
+                @endforeach
+            </table>
+
+            
+            
+            <h1>發送站長訊息給{{ $user->name}}(收件者)</h1>
+            <!-- <button class="savebtn btn btn-primary">儲存</button> -->
                 <table class="table table-bordered table-hover">
                     <tr>
                         <td>預設選項</td>
+                        <td></td>
+                        <td></td>
                         <td>
                             <form id="idForm">
                                 @forelse($msglib as $msglib)
@@ -37,7 +60,8 @@
                             
                         </td>
                     </tr>
-                    <tr>
+                
+                    <!-- <tr>
                         <td>檢舉者/被檢舉者</td>
                         <td>
                             檢舉者<button class="btn btn-primary report_user">{{$to_user->name}}</button>
@@ -58,7 +82,7 @@
                         <td>
                             <button class="btn btn-danger now_time">現在時間</button>
                         </td>
-                    </tr>
+                    </tr> -->
                 </table>
             <form action="{{ route('admin/send', (!isset($isReported))? $user->id : $isReportedId ) }}" id='message' method='POST'>
                 {!! csrf_field() !!}
@@ -93,17 +117,32 @@
             </form>
 
             <div>===================================================================================================</div>
+            <table class="table table-bordered table-hover">
+            <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create"><div class="btn btn-success message_block">新增</div></a>
+            <br>
+                <tr>
+                    <td>訊息標題</td>
+                        <td></td>
+                    <td>訊息內容</td>
+                </tr>
+                @foreach($msglib_reported as $msglib_reported)
+                <tr>
+                    <td>{{$msglib_reported->title}}</td>
+                        <td class="btn btn_edit btn-success" id="{{$msglib_reported->id}}"><a href="/admin/users/message/msglib/create/{{$msglib_reported->id}}" style="color:white">編輯</a></td>
+                        <td class="btn btn_del btn-danger" id="{{$msglib_reported->id}}">刪除</td>
+                    <td>{{$msglib_reported->msg}}</td>
+                </tr>
+            @endforeach
+            </table>
             
-
-
-            <h1>發送站長訊息給{{$to_user->name}}(檢舉者)</h1>
+            <h1>發送站長訊息給{{$to_user->name}}(發訊者)</h1>
                 <table class="table table-bordered table-hover">
                     <tr>
                         <td>預設選項</td>
                         <td>
                             <form id="idForm">
-                            @foreach($msglib2 as $msglib)
-                                <div class="btn btn-success com_tpl tpl2" id="{{$msglib->id}}">{{$msglib->title}}</div>
+                            @foreach($msglib2 as $msglib2)
+                                <div class="btn btn-success com_tpl tpl2" id="{{$msglib->id}}">{{$msglib2->title}}</div>
                             @endforeach
                             </form>
                             <!-- <button class="btn btn-success tpl2">檢舉沒問題2</button>
@@ -129,7 +168,7 @@
                             <button class="btn btn-success tpl2">年收</button> -->
                         </td>
                     </tr>
-                    <tr>
+                    <!-- <tr>
                         <td>檢舉者/被檢舉者</td>
                         <td>
                             檢舉者<button class="btn btn-primary report_user2">{{$to_user->name}}</button>
@@ -150,7 +189,7 @@
                         <td>
                             <button class="btn btn-danger now_time2">現在時間</button>
                         </td>
-                    </tr>
+                    </tr> -->
                 </table>
             
             <form action="{{ route('admin/send', (!isset($isReported))? $to_user->id : $isReportedId ) }}" id='message' method='POST'>
@@ -233,34 +272,9 @@
         //   console.log(element);
         // });
         let template = {!! json_encode($msglib_msg) !!};
-        console.log(template);
+        let template2 = {!! json_encode($msglib_msg2) !!};
         // console.log(template);
-        {{--let template = [--}}
-        {{--    '{{$user->name }}您好，您先前所檢舉，由{{ $to_user->name }}於{{ $message->created_at }}發送的訊息，站長已檢視，認為並無問題，若有疑慮請來訊。',--}}
-        {{--    '{{ $user->name }}您好，您先前在{{ $message->created_at }}檢舉了會員「{{ $to_user->name }}」，經站長檢視理由，認為此會員並無問題，若有疑慮請來訊',--}}
-        {{--    '{{$to_user->name}}您好，您被檢舉，站長認為並無問題，若有疑慮請來訊。',--}}
-        {{--    '{{$to_user->name}}您好，您被檢舉圖片/大頭照，站長認為並無問題，若有疑慮請來訊。',--}}
-        {{--   '{{ $user->name }}您好，您先前所檢舉{{ $to_user->name }}的圖片/大頭照，站長已檢視，認為並無問題，若有疑慮請來訊。',--}}
 
-
-        {{--    '{{$user->name}}你好，由於您的暱稱不符站方規定，故已',--}}
-        {{--    '{{$user->name}}你好，由於您的標題不符站方規定，故已',--}}
-        {{--    '{{$user->name}}你好，由於您的身高不符站方規定，故已',--}}
-        {{--    '{{$user->name}}你好，由於您的職業不符站方規定，故已',--}}
-        {{--    '{{$user->name}}你好，由於您的體重不符站方規定，故已',--}}
-        {{--    '{{$user->name}}你好，由於您的罩杯不符站方規定，故已',--}}
-        {{--    '{{$user->name}}你好，由於您的體型不符站方規定，故已',--}}
-        {{--    '{{$user->name}}你好，由於您的現況不符站方規定，故已',--}}
-        {{--    '{{$user->name}}你好，由於您的關於我不符站方規定，故已',--}}
-        {{--    '{{$user->name}}你好，由於您的期待的約會模式不符站方規定，故已',--}}
-        {{--    '{{$user->name}}你好，由於您的教育不符站方規定，故已',--}}
-        {{--    '{{$user->name}}你好，由於您的婚姻不符站方規定，故已',--}}
-        {{--    '{{$user->name}}你好，由於您的喝酒不符站方規定，故已',--}}
-        {{--    '{{$user->name}}你好，由於您的抽菸不符站方規定，故已',--}}
-        {{--    '{{$user->name}}你好，由於您的職業不符站方規定，故已',--}}
-        {{--    '{{$user->name}}你好，由於您的資產不符站方規定，故已',--}}
-        {{--    '{{$user->name}}你好，由於您的年收不符站方規定，故已'--}}
-        {{--];--}}
         let edit = '修改。', del = '刪除。', view='檢視', create='新增',
         report_user = ['{{$user->name}}', '{{$to_user->name}}']
         now_time = new Date();
@@ -295,26 +309,26 @@
                     $('#msg').val($('#msg').val() + now_time);
                 }
             ),
-            $(".com_tpl").dblclick(
-                function(){
-                    // console.log($(this).attr('id'));
-                    var id = $(this).attr('id');
-                    $.ajax({
-                        type: 'POST',
-                        url: "/admin/users/getmsglib",
-                        data:{
-                            _token: '{{csrf_token()}}',
-                            id : id,
-                        },
-                        dataType:"json",
-                        success: function(res){
-                            console.log(res[0].msg);
-                            var selector = ".com_tpl[id="+id+"]";
-                            var str = '<input type="text" name="'+res[0].id+'" value="'+res[0].msg+'" />'
-                            $(selector).html(str);
-                        // $(this).html(res);
-                      }});
-                }),
+            // $(".com_tpl").dblclick(
+            //     function(){
+            //         // console.log($(this).attr('id'));
+            //         var id = $(this).attr('id');
+            //         $.ajax({
+            //             type: 'POST',
+            //             url: "/admin/users/getmsglib",
+            //             data:{
+            //                 _token: '{{csrf_token()}}',
+            //                 id : id,
+            //             },
+            //             dataType:"json",
+            //             success: function(res){
+            //                 console.log(res[0].msg);
+            //                 var selector = ".com_tpl[id="+id+"]";
+            //                 var str = '<input type="text" name="'+res[0].id+'" value="'+res[0].msg+'" />'
+            //                 $(selector).html(str);
+            //             // $(this).html(res);
+            //           }});
+            //     }),
         );
 
 
@@ -323,7 +337,7 @@
             $(".tpl2").click(
                 function () {
                     let i = $(".tpl2").index(this);
-                    $('#msg2').val(template[i]);
+                    $('#msg2').val(template2[i]);
                 }
             ),
             $(".edit2").click(
@@ -363,21 +377,7 @@
 
               }});
         });
-        $(".savemsgbtn").click(function(){
-            $.ajax({
-                type: 'POST',
-                url: "/admin/users/addmsglib",
-                data:{
-                    _token: '{{csrf_token()}}',
-                    formdata: $("#msglibform").serializeArray(),
-                },
-                dataType:"json",
-                success: function(res){
-                    alert('更新成功');
-                    location.reload();
-              }});
-            // $("#msglibform").submit();
-        });
+        
         // function formatDate(date) {
         //   var hours = date.getHours();
         //   var minutes = date.getMinutes();
@@ -396,6 +396,30 @@
             var str_type = $(this).parent().find('.msg').append(text);
             // var selector = '.'.str_type;
             // $(selector).text(text);
+        });
+        $(".btn_del").on('click', function(){
+            var id = $(this).attr('id');
+            var r=confirm("刪除訊息？")
+            if (r==true)
+            {
+                $.ajax({
+                type: 'POST',
+                url: "/admin/users/delmsglib",
+                data:{
+                    _token: '{{csrf_token()}}',
+                    id    : $(this).attr('id'),
+                },
+                dataType:"json",
+                success: function(res){
+                    alert('刪除成功');
+                    location.reload();
+
+            }});
+            }else
+            {
+                alert('刪除失敗');
+            }
+            
         });
     </script>
 @endif

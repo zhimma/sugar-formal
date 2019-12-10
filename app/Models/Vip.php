@@ -74,6 +74,7 @@ class Vip extends Model
             $vipData->business_id = $business_id;
             $vipData->amount = $amount;
             $vipData->active = $active;
+            $vipData->free = $free;
             $vipData->save();
         }
 
@@ -120,7 +121,7 @@ class Vip extends Model
             $day = $date->day;
             $now = \Carbon\Carbon::now();
             $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
-            if($now->day > $day){
+            if($now->day >= $day){
                 // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
                 $nextMonth = $now->addMonthsNoOverflow(1);
                 $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $nextMonth->year.'-'.$nextMonth->month.'-'.$day.' 00:00:00');

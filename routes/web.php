@@ -228,9 +228,14 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::get('/user/view/{uid?}', 'PagesController@viewuser');
 
 
-	/*新切版*/
+    /*新切版*/
     Route::get('new/mem_member', 'PagesController@mem_member');
+    Route::get('new/mem_member/{id}', 'PagesController@mem_member');
     Route::get('new/mem_search', 'PagesController@mem_search');
+    Route::post('town_ajax', 'PagesController@town_ajax');
+    Route::post('searchData', 'PagesController@searchData');
+    Route::post('updateMemberData', 'PagesController@updateMemberData');
+    
     Route::get('new/mem_updatevip', 'PagesController@mem_updatevip');
     Route::get('new/women_updatevip', 'PagesController@women_updatevip');
     Route::get('new/women_search', 'PagesController@women_search');
@@ -279,6 +284,10 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('/dashboard/receive_esafe', 'PagesController@receive_esafe');
         Route::post('/dashboard/repaid_esafe', 'PagesController@repaid_esafe');
         Route::post('/dashboard/cancelpay', 'PagesController@cancelpay');
+    });
+    Route::group(['middleware' => ['tipApi']], function () {
+        Route::post('/dashboard/chatpay_ec', 'ECPayment@performTipInvite')->name('chatpay_ec');
+        Route::post('/dashboard/postChatpayEC', 'PagesController@postChatpayEC');
     });
     Route::post('/upgradepayLog', 'PagesController@upgradepayLog')->name('upgradepayLog');
 
@@ -409,7 +418,13 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         /*新增、編輯訊息*/
         Route::post('users/getmsglib', 'UserController@getMessageLib');
         Route::post('users/updatemsglib', 'UserController@updateMessageLib');
+        
+        Route::post('users/delmsglib', 'UserController@delMessageLib');
+        Route::get('users/message/msglib/create', 'UserController@addMessageLibPage');
+        Route::get('users/message/msglib/create/{id}', 'UserController@addMessageLibPage');
         Route::post('users/addmsglib', 'UserController@addMessageLib');
+        Route::post('users/block_user', 'UserController@blockUser');/*封鎖會員*/
+        Route::post('users/unblock_user', 'UserController@unblockUser');/*封鎖會員*/
         /*
         |--------------------------------------------------------------------------
         | Roles

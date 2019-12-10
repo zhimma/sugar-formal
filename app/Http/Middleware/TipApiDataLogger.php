@@ -1,17 +1,15 @@
 <?php
 namespace App\Http\Middleware;
+use App\Models\Message;
+use App\Models\Tip;
 use App\Models\Vip;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Support\Facades\Log;
 use App\Services\VipLogService;
 
-class ApiDataLogger{
+class TipApiDataLogger{
     private $startTime;
-
-    public function __construct(VipLogService $logService){
-        $this->logService = $logService;
-    }
 
     /**
      * Handle an incoming request.
@@ -61,7 +59,7 @@ class ApiDataLogger{
                 $user = \App\Models\User::findById($request->CustomField1);
                 if ($user == null)
                 {
-                    Log::info('EC payment failed with user id: ' . $request->CustomField1);
+                    Log::info('EC tip payment failed with user id: ' . $request->CustomField1);
                 }
                 $payload = $request->all();
                 // 變數宣告。
@@ -88,7 +86,7 @@ class ApiDataLogger{
 
                 $payloadCheckMacValue = $payload['CheckMacValue'];
                 unset($payload['CheckMacValue']);
-                uksort($payload, array('\App\Http\Middleware\ApiDataLogger','merchantSort'));
+                uksort($payload, array('\App\Http\Middleware\TipApiDataLogger','merchantSort'));
 
                 // 組合字串
                 $sMacValue = 'HashKey=' . config('ecpay.payment.HashKey') ;
@@ -121,12 +119,12 @@ class ApiDataLogger{
 
                 if ($CheckMacValue != $payloadCheckMacValue) {
                     Log::info('CheckMacValue verify fail.');
-                    return ['0', 'Error'];
+                    return response('0|Error', 200);
                 }
 
                 if (sizeof($arErrors) > 0) {
                     Log::info($arErrors);
-                    return ['0', 'Error'];
+                    return response('0|Error', 200);
                 }
 
                 $pool = '';
@@ -136,35 +134,31 @@ class ApiDataLogger{
 ';//換行
                     $count++;
                 }
-                $infos = new \App\Models\LogUpgradedInfos();
+                $infos = new \App\Models\LogChatPayInfos();
                 $infos->user_id = $user->id;
                 $infos->content = $pool;
                 $infos->save();
                 if (isset($payload['RtnCode'])) {
                     if($payload['RtnCode'] == 1){
-                        $pool = '';
-                        $count = 0;
-                        foreach ($payload as $key => $value){
-                            $pool .= 'Row '. $count . ' : ' . $key . ', Value : ' . $value . '
-';//換行
-                            $count++;
+                        Tip::upgrade($user->id, $payload['MerchantTradeNo'], '');
+                        Message::post($user->id, $payload['CustomField2'], "系統通知: 車馬費邀請");
+                        if($user->engroup == 1) {
+                            // 給男會員訊息
+                            Message::post($payload['CustomField1'], $payload['CustomField2'], "系統通知: 車馬費邀請\n您已經向 ". \App\Models\User::findById($payload['CustomField2'])->name ." 發動車馬費邀請。\n流程如下\n1:網站上進行車馬費邀請\n2:網站上訊息約見(重要，站方判斷約見時間地點，以網站留存訊息為準)\n3:雙方見面\n\n如果雙方在第二步就約見失敗。\n將扣除手續費 288 元後，1500匯入您指定的帳戶。也可以用現金袋或者西聯匯款方式進行。\n(聯繫我們有站方聯絡方式)\n\n若雙方有見面意願，被女方放鴿子。\n站方會參照女方提出的證據，判斷是否將尾款交付女方。", false);
+                            Message::post($payload['CustomField2'], $payload['CustomField1'], "系統通知: 車馬費邀請\n". $user->name . " 已經向 您 發動車馬費邀請。\n流程如下\n1:網站上進行車馬費邀請\n2:網站上訊息約見(重要，站方判斷約見時間地點，以網站留存訊息為準)\n3:雙方見面(建議約在知名連鎖店丹堤星巴克或者麥當勞之類)\n\n若成功見面男方沒有提出異議，那站方會在發動後 7~14 個工作天\n將 1500 匯入您指定的帳戶。若您不想提供銀行帳戶。\n也可以用現金袋或者西聯匯款方式進行。\n(聯繫我們有站方聯絡方式)\n\n若男方提出當天女方未到場的爭議。請您提出當天消費的發票證明之。\n所以請約在知名連鎖店以利站方驗證。\n", false);
                         }
-                        $infos = new \App\Models\LogUpgradedInfosWhenGivingPermission();
-                        $infos->user_id = $user->id;
-                        $infos->content = $pool;
-                        $infos->save();
-                        $this->logService->upgradeLogEC($payload, $user->id);
-                        $this->logService->writeLogToDB();
-                        $this->logService->writeLogToFile();
-                        Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0);
-                        return ['1', 'OK'];
+                        else if($user->engroup == 2) {
+                            // 給女會員訊息
+                            // Message::post($user->id, $payload['P_OrderNumber'], "系統通知: 車馬費邀請\n". $user->name . " 已經向 您 發動車馬費邀請。\n流程如下\n1:網站上進行車馬費邀請\n2:網站上訊息約見(重要，站方判斷約見時間地點，以網站留存訊息為準)\n3:雙方見面(建議約在知名連鎖店丹堤星巴克或者麥當勞之類)\n\n若成功見面男方沒有提出異議，那站方會在發動後 7~14 個工作天\n將 1500 匯入您指定的帳戶。若您不想提供銀行帳戶。\n也可以用現金袋或者西聯匯款方式進行。\n(聯繫我們有站方聯絡方式)\n\n若男方提出當天女方未到場的爭議。請您提出當天消費的發票證明之。\n所以請約在知名連鎖店以利站方驗證。\n");
+                        }
+                        return response('1|OK', 200);
                     }
                     else{
-                        return ['0', 'Error'];
+                        return response('0|Error', 200);
                     }
                 }
                 else{
-                    return ['0', 'No data'];
+                    return response('0|No data', 200);
                 }
             }
         }

@@ -27,9 +27,10 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use App\Models\SimpleTables\banned_users;
 use Session;
-
+// use Request;
 class PagesController extends Controller
 {
     public function __construct(UserService $userService, VipLogService $logService)
@@ -156,6 +157,10 @@ class PagesController extends Controller
     {
         Board::post(auth()->id(), $request->all()['msg']);
         return back()->with('message', '留言成功!');
+    }
+
+    public  function postChatpayEC(Request $request){
+        return '1|OK';
     }
 
     public function postChatpay(Request $request)
@@ -912,54 +917,8 @@ class PagesController extends Controller
         }
     }
 
-    public function upgradepayEC(Request $request)
-    {
-        Log::info($request->all());
-        $user = $request->user();
-        if ($user == null)
-        {
-            $aid = auth()->id();
-            $user = User::findById($aid);
-        }
-        $payload = $request->all();
-        $pool = '';
-        $count = 0;
-        foreach ($payload as $key => $value){
-            $pool .= 'Row '. $count . ' : ' . $key . ', Value : ' . $value . '
-';//換行
-            $count++;
-        }
-        $infos = new \App\Models\LogUpgradedInfos();
-        $infos->user_id = $user->id;
-        $infos->content = $pool;
-        $infos->save();
-        if (isset($payload['RtnCode']))
-        {
-            if($payload['RtnCode'] == 1){
-                $pool = '';
-                $count = 0;
-                foreach ($payload as $key => $value){
-                    $pool .= 'Row '. $count . ' : ' . $key . ', Value : ' . $value . '
-';//換行
-                    $count++;
-                }
-                $infos = new \App\Models\LogUpgradedInfosWhenGivingPermission();
-                $infos->user_id = $user->id;
-                $infos->content = $pool;
-                $infos->save();
-                $this->logService->upgradeLog($payload, $user->id);
-                $this->logService->writeLogToDB();
-                $this->logService->writeLogToFile();
-                Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], $payload['CheckMacValue'], 1, 0);
-                return '1|OK';
-            }
-            else{
-                return '0|Error';
-            }
-        }
-        else{
-            return '0|No data';
-        }
+    public function upgradepayEC(Request $request) {
+        return ['1', 'OK'];
     }
 
     public function receive_esafe(Request $request)
@@ -1174,14 +1133,90 @@ class PagesController extends Controller
         return view('new.dashboard.announcement')
                 ->with('user', $request->user());
     }
-	public function mem_member()
+    
+	public function mem_member(Request $request)
     {
-        return view('new.mem_member');
+        $uri = $request->segments();
+        $user_id = $uri[2];
+        $mid = $request->user()->id ?? 689;
+
+        // $mid = isset($_SESSION['user_id'])??689;
+        $user_id = $user_id;
+        $user = User::selectraw('*')->join('user_meta', 'user_meta.user_id','=','users.id')->where('users.id', $user_id)->first();
+
+        /*七天前*/
+        $date = date('Y-m-d H:m:s', strtotime('-7 days'));
+
+        /*車馬費邀請次數*/
+        $tip_count = Tip::where('to_id', $user_id)->get()->count();
+
+        /*收藏會員次數*/
+        $fav_count = MemberFav::where('member_id', $user_id)->get()->count();
+        /*被收藏次數*/
+        $be_fav_count = MemberFav::where('member_fav_id', $user_id)->get()->count();
+
+        /*是否封鎖我*/
+        $is_block_mid = Blocked::where('blocked_id', $mid)->where('member_id', $user_id)->count()==1?'是':'否';
+        /*是否看過我*/
+        $is_visit_mid = Visited::where('visited_id', $mid)->where('member_id', $user_id)->count()==1?'是':'否';
+
+        /*瀏覽其他會員次數*/
+        $visit_other_count  = Visited::where('member_id', $user_id)->count();
+        /*被瀏覽次數*/
+        $be_visit_other_count  = Visited::where('visited_id', $user_id)->count();
+        /*過去7天被瀏覽次數*/
+        $be_visit_other_count_7  = Visited::where('visited_id', $user_id)->where('created_at', '>=', $date)->count();
+
+        /*發信次數*/
+        $message_count = Message::where('from_id', $user_id)->count();
+
+        $message_count_7 = Message::where('from_id', $user_id)->where('created_at', '>=', $date)->count();
+
+        $data = array(
+            'tip_count'=> $tip_count,
+            'fav_count'=> $fav_count,
+            'be_fav_count'=> $be_fav_count,
+            'is_vip' => 0,
+            'is_block_mid' => $is_block_mid,
+            'is_visit_mid' => $is_visit_mid,
+            'visit_other_count' => $visit_other_count,
+            'be_visit_other_count'=>$be_visit_other_count,
+            'be_visit_other_count_7'=>$be_visit_other_count_7,
+            'message_count' => $message_count,
+            'message_count_7' => $message_count_7,
+        );
+        return view('/new/mem_member', $data)
+                ->with('user', $user);
     }
     public function mem_search()
     {
-        return view('new.mem_search');
+        $users = User::selectraw("*")->join('user_meta', 'user_meta.user_id','=','users.id')->get();
+
+        // $City = "select * from City where State=0";
+        // $City_rs = mysql_query($City);
+        $data['city'] = DB::table('city')->get()->toArray();
+
+        return view('new.mem_search', $data);
     }
+    public function town_ajax(Request $request)
+    {
+        $r = $request->post();
+
+        // $Town = "select * from Town where CNo='" . $_POST["CNo"] . "'";
+        $Town_rs = DB::table('town')->where("CNo", $r['CNo'])->get()->toArray();
+
+        $Town_num = count($Town_rs);
+        if ($Town_num > 0) {//縣市編號帶入後如果有資料存在顯示底下區域內容回傳
+            echo "<option value=''>選擇鄉鎮</option>";
+                foreach($Town_rs as $Town_rows){
+                    echo "<option value='" . $Town_rows->AutoNo . "'>" . $Town_rows->Name . "</option>";
+                }
+
+        } else {//縣市編號帶入後如果有資料存在顯示底下內容回傳
+            echo "<option value=''>選擇鄉鎮</option>";
+        }
+    }
+
     public function mem_updatevip()
     {
         return view('new.mem_updatevip');
@@ -1193,5 +1228,73 @@ class PagesController extends Controller
     public function women_search()
     {
         return view('new.women_search');
+    }
+
+    public function searchData(Request $request)
+    {
+        $r = (object)$request->post();
+
+        $page = $request->post('page')??1;
+        $perPage = 8;
+        $skip = $page*$perPage;
+        // dd($page, $skip);
+        $user = User::selectraw('*')->join('user_meta', 'user_meta.user_id','=','users.id')->join('member_pic', 'member_pic.member_id', '=', 'user_meta.user_id')->groupBy('users.id')->skip($skip)->take($perPage);
+        if($r->city!='-1'){
+            $user->orWhere('city', $r->city);
+        }
+        if($r->area!='-1'){
+            $user->orWhere('area', $r->area);
+        }
+        if($r->age_pre!='-1'){
+            $user->where('last_login','>', $r->age_pre);
+        }
+        if($r->age_next!='-1'){
+            $user->where('last_login','<', $r->age_next);
+        }
+        if($r->budget!='-1'){
+            $user->orWhere('budget', $r->budget);
+        }
+        if($r->smoking!='-1'){
+            $user->orWhere('smoking', $r->smoking);
+        }
+        if($r->body!='-1'){
+            $user->orWhere('body', $r->body);
+        }
+        if($r->cup!='-1'){
+            $user->orWhere('cup', $r->cup);
+        }
+        if($r->marriage!='-1'){
+            $user->orWhere('marriage', $r->marriage);
+        }
+        if($r->body!='-1'){
+            $user->orWhere('body', $r->body);
+        }
+        if($r->drinking!='-1'){
+            $user->orWhere('drinking',$r->drinking);
+        }
+        if($r->search_sort!='-1'){
+            $user->orWhere('search_sort', $r->search_sort);
+        }
+
+        $user = $user->get();
+        $data = array(
+            'page'=>$page,
+            'user'=>$user,
+        );
+        echo json_encode($data);
+    }
+
+    public function updateMemberData(Request $request){
+
+        $r = (array)$request->post('data');
+        foreach($r as $r){
+            $data[$r['name']] = $r['value'];
+        }
+
+        $users = User::selectraw("*")->join('user_meta', 'user_meta.user_id','=','users.id')->where('user_meta.user_id', $data['id']);
+        $users->timestamps = false;
+        $users->update($data);
+
+       
     }
 }
