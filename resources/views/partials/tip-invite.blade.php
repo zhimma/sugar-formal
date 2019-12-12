@@ -1,6 +1,9 @@
 @section('tip-invite')
 
 @if($user->engroup == 1)
+<?
+    $orderNumber = $orderNumber.time();
+?>
 <form class="m-nav__link" action="{{ route('chatpay_ec') }}" method=post id="ecpay">
     <input type="hidden" name="_token" value="{{ csrf_token() }}" >
     <input type="hidden" name="userId" value="{{ $user->id }}">

@@ -370,7 +370,8 @@ class UserController extends Controller
                     $to_ids[$u->to_id]['name'] = $to_ids[$u->to_id]->name;
                 }
                 else{
-                    $to_ids[$u->to_id] = '查無資料';
+                    $to_ids[$u->to_id] = array();
+                    $to_ids[$u->to_id]['name'] = '查無資料或使用者資料已刪除';
                 }
             }
         }
