@@ -110,11 +110,15 @@
                                     @endif
                                     @if(!is_null($result['isBlocked']))
                                         @if(!is_null($result['isBlocked']['expire_date']))
+					    @if(isset($result['isBlockedReceiver']['expire_date']))
                                             @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
                                                 {{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天
                                             @else
                                                 已解除封鎖
                                             @endif
+					    @else
+						沒有正確記錄封鎖資料
+					    @endif
                                         @else
                                             (永久)
                                         @endif
