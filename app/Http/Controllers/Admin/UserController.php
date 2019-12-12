@@ -452,7 +452,7 @@ class UserController extends Controller
         }
         foreach ($userNames as $key => $userName){
             $userNames[$key] = User::findById($key);
-            $userNames[$key] = $userNames[$key]->name;
+            $userNames[$key] = isset($userNames[$key]->name) ? $userNames[$key]->name : '會員資料已刪除';
         }
         return view('admin.users.userPictures',
             ['pics' => $pics,
