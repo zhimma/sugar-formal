@@ -1,13 +1,16 @@
 @section('tip-comment')
 
 @if($user->engroup == 1)
+<?
+    $orderNumber = $orderNumber.time();
+?>
 <form action=<?php echo Config::get('social.payment.actionURL') ?> class="m-nav__link" method="POST">
     <input type="hidden" name="_token" value="{{ csrf_token() }}" >
     <input type="hidden" name="userId" value="{{$user->id}}">
-    <input type="hidden" name="to" value="@if(isset($cur)){{$cur->id}}@endif">
+    <input type="hidden" name="to" value="@if(isset($to)){{$to->id}}@endif">
     <input type=hidden name="MerchantNumber" value="761404">
     <input type=hidden name="OrderNumber" value="<?php echo $orderNumber ?>">
-    <input type=hidden name="OrgOrderNumber" value="Test Order">
+    <input type=hidden name="OrgOrderNumber" value="SG-車馬費評價({{$user->id}})">
     <input type=hidden name="ApproveFlag" value="1">
     <input type=hidden name="DepositFlag" value="1">
     <input type=hidden name="iphonepage" value="0">

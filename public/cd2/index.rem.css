@@ -1,0 +1,349 @@
+.box {
+    position: relative;
+    width: 10rem;
+    background: #f3f3f3;
+    overflow: hidden;
+}
+
+.header {
+    width: 10rem;
+    height: 5.6rem;
+    display: flex;
+    justify-content: space-between;
+    background: url(./images/header_bg.png) no-repeat center;
+    background-size: 100% 100%;
+    font-size: 12px;
+    padding-top: 0.2rem;
+    position: relative;
+}
+
+.header_left {
+    width: 4rem;
+    height: 0.9rem;
+    margin-left: 0.4rem;
+}
+
+.header_right {
+    display: inline-block;
+    font-size: 14px;
+    height: 1rem;
+    cursor: pointer;
+    margin: 0.16rem 0.4rem 0 0;
+    color: #fff;
+    font-family: PingFang;
+    opacity: 0.9;
+}
+
+.header_box {
+    width: 8.14rem;
+    left: 0.4rem;
+    height: 3.78rem;
+    background: #fff;
+    position: absolute;
+    bottom: -3.2rem;
+    border-radius: 0.4rem;
+    padding: 0.4rem 0.53rem;
+    font-size: 15px;
+    box-shadow: 0px 0px 24px 8px rgba(0, 0, 0, 0.2);
+    font-family: PingFang;
+    font-weight: bold;
+    color: rgba(51, 51, 51, 1);
+}
+
+.header_pic {
+    width: 8.14rem;
+    display: flex;
+    font-size: 12px;
+    justify-content: space-between;
+    margin-top: 0.34rem;
+}
+
+.header_img {
+    width: 2.4rem;
+    height: 2.4rem;
+    position: relative;
+    color: #fff;
+}
+
+.header_pic1 {
+    background: url(./images/b_img1.png) no-repeat center;
+    background-size: 100% 100%;
+}
+
+.header_pic2 {
+    background: url(./images/b_img2.png) no-repeat center;
+    background-size: 100% 100%;
+}
+
+.header_pic3 {
+    background: url(./images/b_img3.png) no-repeat center;
+    background-size: 100% 100%;
+}
+
+.header_zhezhao {
+    width: 100%;
+    height: 0.5rem;
+    line-height: 0.5rem;
+    background: rgba(0, 0, 0, 0.4);
+    text-align: center;
+    display: inline-block;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    font-size: 10px;
+    font-family: PingFang;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 1);
+}
+
+.header_zhezhao2 {
+    background: transparent;
+}
+
+.b_box {
+    width: 9.6rem;
+    padding: 3.8rem 0.2rem 0.4rem;
+    overflow: hidden;
+    background: #fff;
+}
+
+.b_box_title {
+    font-size: 15px;
+    font-family: PingFang;
+    font-weight: bold;
+    color: rgba(51, 51, 51, 1);
+}
+
+.b_box_containr {
+    width: 9.2rem;
+    display: flex;
+    font-size: 10px;
+    justify-content: space-between;
+    margin-top: 0.34rem;
+}
+
+.b_box_containr1 {
+    width: 2.4rem;
+    /* height: 2.08rem; */
+    overflow: hidden;
+    text-align: center;
+}
+
+.b_box_containr1_img {
+    width: 0.96rem;
+    height: 0.86rem;
+    margin-bottom: 0.2rem;
+}
+
+.b_box_containr1_img1 {
+    width: 0.96rem;
+    height: 0.93rem;
+    margin-bottom: 0.13rem;
+}
+
+.b_box_containr1_img2 {
+    width: 0.74rem;
+    height: 0.98rem;
+    margin-bottom: 0.08rem;
+}
+
+.b_box_containr2 {
+    margin: 0 0.05rem;
+    overflow: hidden;
+    text-align: center;
+}
+
+.b_box_containr3 {
+    width: 3.2rem;
+    text-align: center;
+}
+
+.b_box_text {
+    font-size: 4px;
+    font-family: PingFang;
+    font-weight: 500;
+    color: rgba(102, 102, 102, 1);
+}
+
+.b_box_text1 {
+    font-size: 8px;
+    margin-bottom: 0.14rem;
+    font-family: PingFang;
+    font-weight: bold;
+    color: rgba(51, 51, 51, 1);
+}
+
+.b_box_text_bottom {
+    margin-bottom: 0.2rem;
+}
+
+.b_box_btn {
+    width: 7.46rem;
+    height: 1.06rem;
+    border-radius: 1.06rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    background: #fa6277;
+    margin: 0.4rem auto 0;
+    font-size: 16px;
+    font-family: PingFang;
+}
+
+.c_box {
+    width: 9.6rem;
+    overflow: hidden;
+    padding: 0.43rem 0 0.43rem 0.4rem;
+    margin-top: 0.4rem;
+    background: #fff;
+    font-size: 15px;
+    font-family: LucidaBright;
+    font-weight: bold;
+    color: rgba(51, 51, 51, 1);
+}
+
+.swiper-container {
+    width: 9.6rem;
+    height: 3.6rem;
+    margin: 0.4rem 0;
+}
+
+.swiper-slide {
+    width: 4.9rem !important;
+    height: 3.6rem !important;
+    border-radius: 0.1rem;
+    margin-right: 0.26rem !important;
+    text-align: center;
+    font-size: 18px;
+    background: #fff;
+    width: 4.9rem;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+}
+
+.swiper-slide:last-child {
+    margin-right: 0;
+}
+
+.c_box_pic1 {
+    width: 4.9rem;
+    height: 3.6rem;
+}
+
+.c_box_pic {
+    width: 10.4rem;
+    height: 3.6rem;
+    margin: 0.4rem 0;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.c_box_pic2 {
+    width: 4.9rem;
+    height: 3.6rem;
+    border-radius: 0.1rem;
+}
+
+.c_box_title {
+    font-size: 14px;
+    font-family: PingFang;
+    font-weight: bold;
+    color: rgba(51, 51, 51, 1);
+}
+
+.c_box_container {
+    width: 9.2rem;
+    font-size: 12px;
+    margin-top: 0.2rem;
+    font-family: PingFang;
+    font-weight: 500;
+    color: rgba(51, 51, 51, 1);
+}
+
+.d_box {
+    width: 9.46rem;
+    padding: 0.5rem 0.27rem;
+    background: #fff;
+    margin: 0.4rem 0;
+    font-size: 15px;
+    font-family: PingFang;
+    font-weight: bold;
+    color: rgba(51, 51, 51, 1);
+}
+
+.d_box_img {
+    width: 100%;
+    margin: 0.6rem auto 0.4rem;
+}
+
+.e_box {
+    width: 9.2rem;
+    height: 5.2rem;
+    padding: 0.4rem 0.4rem 0;
+    background: #fff;
+    font-size: 12px;
+    text-align: center;
+    font-family: PingFang;
+    font-weight: bold;
+    color: rgba(51, 51, 51, 1);
+}
+
+.e_box_header {
+    margin-bottom: 0.4rem;
+}
+
+.e_box_header_img {
+    width: 2.79rem;
+    height: 0.6rem;
+    margin: 0 auto;
+}
+
+.e_box_bottom {
+    width: 100%;
+    height: 1.74rem;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.52rem;
+}
+
+.e_box_bottom1 {
+    width: 1.8rem;
+    height: 1.74rem;
+    text-align: center;
+    font-size: 12px;
+    font-family: PingFang;
+    font-weight: 500;
+    color: rgba(51, 51, 51, 1);
+}
+
+
+.e_box_bottom1_img {
+    width: 1.15rem;
+    height: 1.15rem;
+    margin: 0 auto 0.2rem;
+}
+
+/* 20191203 linna modify*/
+.e_box_bottom1 a:link{
+    color: rgba(51, 51, 51, 1);
+    text-decoration: none;
+}
+
+.e_box_bottom1 a:visited{
+    color: rgba(51, 51, 51, 1);
+    text-decoration: none;
+}
+a:link{
+    text-decoration: none;
+}

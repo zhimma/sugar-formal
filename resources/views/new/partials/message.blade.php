@@ -11,7 +11,7 @@
 
 <div class="bl bl_tab" id="tab04">
     <div class="bltitle">提示</div>
-    <div class="n_blnr01 matop20">
+    <div class="n_blnr01">
         <div class="blnr bltext"></div>
         <div class="n_bbutton">
 	        <span><a class="n_left" href="javascript:">送出</a></span>

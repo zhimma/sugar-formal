@@ -42,7 +42,7 @@
 
             
             
-            <h1>發送站長訊息給{{ $user->name}}(收件者)</h1>
+            <h1>發送站長訊息給{{ $user->name}}(發訊者)</h1>
             <!-- <button class="savebtn btn btn-primary">儲存</button> -->
                 <table class="table table-bordered table-hover">
                     <tr>
@@ -135,7 +135,7 @@
             @endforeach
             </table>
             
-            <h1>發送站長訊息給{{$to_user->name}}(發訊者)</h1>
+            <h1>發送站長訊息給{{$to_user->name}}(收件者)</h1>
                 <table class="table table-bordered table-hover">
                     <tr>
                         <td>預設選項</td>
