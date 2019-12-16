@@ -343,19 +343,21 @@
                 });
             $('.last3days').click(
                 function () {
-                    minus_date.setDate(minus_date.getDate() - 2);
-                    $('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
-                    $('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
+                    var days = 3; // Days you want to subtract
+                    var date = new Date();
+                    var last = new Date(date.getTime() - (days * 24 * 60 * 60 * 1000));
+                    $('#datepicker_1').val(last.getFullYear() + '-' + str_pad(last.getMonth()  + 1 ) + '-' + str_pad(last.getDate()));
+                    $('.datepicker_1').val(date.getFullYear() + '-' + str_pad(date.getMonth()) + '-' + str_pad(date.getDate()));
                     set_end_date();
-                    minus_date.setDate(minus_date.getDate() + 2);
                 });
             $('.last10days').click(
                 function () {
-                    minus_date.setDate(minus_date.getDate() - 9);
-                    $('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
-                    $('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
+                    var days = 10; // Days you want to subtract
+                    var date = new Date();
+                    var last = new Date(date.getTime() - (days * 24 * 60 * 60 * 1000));
+                    $('#datepicker_1').val(last.getFullYear() + '-' + str_pad(last.getMonth() + 1 ) + '-' + str_pad(last.getDate()));
+                    $('.datepicker_1').val(date.getFullYear() + '-' + str_pad(date.getMonth()) + '-' + str_pad(date.getDate()));
                     set_end_date();
-                    minus_date.setDate(minus_date.getDate() + 9);
                 });
             $('.last30days').click(
                 function () {
