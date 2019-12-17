@@ -423,9 +423,13 @@ class UserController extends Controller
             $pics = $pics->where('isHidden', 0);
             $avatars = $avatars->where('isAvatarHidden', 0);
         }
-        if($request->days){
-            $pics = $pics->where('updated_at', '>', Carbon::now()->subDays($request->days));
-            $avatars = $avatars->where('updated_at', '>', Carbon::now()->subDays($request->days));
+        if($request->date_start){
+            $pics = $pics->where('updated_at', '>=', $request->date_start);
+            $avatars = $avatars->where('updated_at', '>=', $request->date_start);
+        }
+        if($request->date_end){
+            $pics = $pics->where('updated_at', '<=', $request->date_end);
+            $avatars = $avatars->where('updated_at', '<=', $request->date_end);
         }
         if($request->en_group){
             $users = User::select('id')->where('engroup', $request->en_group)->get();
@@ -458,7 +462,6 @@ class UserController extends Controller
             ['pics' => $pics,
             'avatars' => $avatars,
             'userNames' => $userNames,
-            'days' => isset($request->days) ? $request->days : null,
             'en_group' => isset($request->en_group) ? $request->en_group : null,
             'city' => isset($request->city) ? $request->city : null,
             'area' => isset($request->area) ? $request->area : null,
