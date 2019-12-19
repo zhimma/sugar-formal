@@ -137,6 +137,13 @@ Route::get('/sftp-check-test', function(){
 Route::get('/error', 'PagesController@error');
 
 /*
+ * cd1 cd2 ts1 ts2
+ */
+Route::get('/cd_1', 'PagesController@cd_1');
+Route::get('/cd_2', 'PagesController@cd_2');
+Route::get('/ts_1', 'PagesController@ts_1');
+Route::get('/ts_2', 'PagesController@ts_2');
+/*
 |--------------------------------------------------------------------------
 | Welcome Page
 |--------------------------------------------------------------------------
@@ -280,7 +287,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('/dashboard/reportPicNext', 'PagesController@reportPicNext')->name('reportPicNext');
     Route::get('/dashboard/upgrade_ec', 'PagesController@upgrade_ec');
     Route::get('/dashboard/upgrade_esafe', 'PagesController@upgrade_esafe');
-    Route::get('/dashboard/announcement', 'PagesController@showWebAnnouncement');
+    Route::get('/dashboard/announcement', 'PagesController@showAnnouncement');
     Route::group(['middleware' => ['api']], function() {
         Route::post('/dashboard/upgradepay_ec', 'ECPayment@performPayment')->name('upgradepay_ec');
         Route::post('/dashboard/esafeCreditCard', 'EsafePayment@esafeCreditCard')->name('esafeCreditCard');
@@ -377,7 +384,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('users/message/showBetween/{id1}/{id2}', 'UserController@showMessagesBetween')->name('admin/showMessagesBetween');
         Route::get('users/message/to/{id}', 'UserController@showAdminMessenger');
         Route::get('users/message/to/{id}/{mid}', 'UserController@showAdminMessengerWithMessageId')->name('AdminMessengerWithMessageId');
-        Route::get('users/message/unreported/to/{id}/{mid}/{pic_id?}/{isPic?}/{isReported?}', 'UserController@showAdminMessengerWithReportedId')->name('AdminMessengerWithReportedId');
+        Route::get('users/message/unreported/to/{id}/{reported_id}/{pic_id?}/{isPic?}/{isReported?}', 'UserController@showAdminMessengerWithReportedId')->name('AdminMessengerWithReportedId');
         Route::post('users/message/send/{id}', 'UserController@sendAdminMessage')->name('admin/send');
         Route::post('users/message/multiple/send', 'UserController@sendAdminMessageMultiple')->name('admin/send/multiple');
         Route::get('users/message/search', 'UserController@showMessageSearchPage')->name('users/message/search');
@@ -394,6 +401,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('users/bannedList', 'UserController@showBannedList')->name('users/bannedList');
         Route::get('users/reported', 'UserController@showReportedUsersPage')->name('users/reported');
         Route::post('users/reported', 'UserController@showReportedUsersList')->name('users/reported');
+        Route::post('users/reported/details/{reported_id}/{users?}/{reportedData?}', 'UserController@showReportedDetails')->name('users/reported/details');
         Route::get('users/switch', 'UserController@showUserSwitch')->name('users/switch');
         Route::post('users/switch', 'UserController@switchSearch')->name('users/switch/search');
         Route::get('users/changePassword', 'UserController@changePassword')->name('users/changePassword');

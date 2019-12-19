@@ -4,10 +4,6 @@
 <?php
 $block_people =  Config::get('social.block.block-people');
 $admin_email = Config::get('social.admin.email');
-
-if (isset($to)) $orderNumber = $to->id;
-else $orderNumber = "";
-$code = Config::get('social.payment.code');
 ?>
 <body style="padding: 15px;">
 <h3 style="text-align:left;">

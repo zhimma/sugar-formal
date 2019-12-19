@@ -15,16 +15,27 @@
     {!! csrf_field() !!}
     <table class="table-hover table table-bordered" style="width: 50%;">
         <tr>
-            <th>更新時間</th>
+            <th>開始時間</th>
             <td>
-                <input type="radio" name="days" value="3" @if(!isset($days) || (isset($days) && $days == 3)) checked @endif>3天內</input>
-                <input type="radio" name="days" value="7" @if(isset($days) && $days == 7) checked @endif>7天內</input>
-                <input type="radio" name="days" value="15" @if(isset($days) && $days == 15) checked @endif>15天內</input>
-                <input type="radio" name="days" value="30" @if(isset($days) && $days == 30) checked @endif>30天內</input>
-                <input type="radio" name="days" value="60" @if(isset($days) && $days == 60) checked @endif>60天內</input>
-                <input type="radio" name="days" value="" @if(isset($days) && $days == null) checked @endif>不限</input>
+                <input type='text' id="datepicker_1" name="date_start" data-date-format='yyyy-mm-dd' value="{{ old('date_start') }}" class="form-control">
+            </td>
+        <tr>
+            <th>結束時間</th>
+            <td>
+                <input type='text' id="datepicker_2" name="date_end" data-date-format='yyyy-mm-dd' value="{{ old('date_end') }}" class="form-control">
             </td>
         </tr>
+        <tr>
+            <th>預設時間選項</th>
+            <td>
+                <a class="text-white btn btn-success today">今天</a>
+                <a class="text-white btn btn-success last3days">最近3天</a>
+                <a class="text-white btn btn-success last10days">最近10天</a>
+                <a class="text-white btn btn-success last15days">最近15天</a>
+                <a class="text-white btn btn-success last30days">最近30天</a>
+            </td>
+        </tr>
+
         <tr>
             <th>性別</th>
             <td>
@@ -94,5 +105,80 @@
     $('.twzipcode').twzipcode({
         'detect': true, 'css': ['form-control twzip', 'form-control twzip', 'zipcode']
     });
+    let date = new Date();
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let today = new Date(year, month, day);
+    let minus_date = new Date(today);
+    jQuery(document).ready(function() {
+        jQuery("#datepicker_1").datepicker({
+            dateFormat: 'yy-mm-dd',
+            todayHighlight: !0,
+            orientation: "bottom left",
+            templates: {
+                leftArrow: '<i class="la la-angle-left"></i>',
+                rightArrow: '<i class="la la-angle-right"></i>'
+            }
+        }).val();
+        jQuery("#datepicker_2").datepicker({
+            dateFormat: 'yy-mm-dd',
+            todayHighlight: !0,
+            orientation: "bottom left",
+            templates: {
+                leftArrow: '<i class="la la-angle-left"></i>',
+                rightArrow: '<i class="la la-angle-right"></i>'
+            }
+        }).val();
+
+        $('.today').click(
+            function () {
+                $('#datepicker_1').val(year + '-' + str_pad(month) + '-' + str_pad(day));
+                $('.datepicker_1').val(year + '-' + str_pad(month) + '-' + str_pad(day));
+                set_end_date();
+            });
+        $('.last3days').click(
+            function () {
+                var days = 3; // Days you want to subtract
+                var date = new Date();
+                var last = new Date(date.getTime() - (days * 24 * 60 * 60 * 1000));
+                $('#datepicker_1').val(last.getFullYear() + '-' + str_pad(last.getMonth() + 1) + '-' + str_pad(last.getDate()));
+                $('.datepicker_1').val(date.getFullYear() + '-' + str_pad(date.getMonth()) + '-' + str_pad(date.getDate()));
+                set_end_date();
+            });
+        $('.last10days').click(
+            function () {
+                var days = 10; // Days you want to subtract
+                var date = new Date();
+                var last = new Date(date.getTime() - (days * 24 * 60 * 60 * 1000));
+                $('#datepicker_1').val(last.getFullYear() + '-' + str_pad(last.getMonth() + 1) + '-' + str_pad(last.getDate()));
+                $('.datepicker_1').val(date.getFullYear() + '-' + str_pad(date.getMonth()) + '-' + str_pad(date.getDate()));
+                set_end_date();
+            });
+        $('.last15days').click(
+            function () {
+                var days = 15; // Days you want to subtract
+                var date = new Date();
+                var last = new Date(date.getTime() - (days * 24 * 60 * 60 * 1000));
+                $('#datepicker_1').val(last.getFullYear() + '-' + str_pad(last.getMonth() + 1) + '-' + str_pad(last.getDate()));
+                $('.datepicker_1').val(date.getFullYear() + '-' + str_pad(date.getMonth()) + '-' + str_pad(date.getDate()));
+                set_end_date();
+            });
+        $('.last30days').click(
+            function () {
+                minus_date.setDate(minus_date.getDate() - 29);
+                $('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
+                $('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
+                set_end_date();
+                minus_date.setDate(minus_date.getDate() + 29);
+            });
+    });
+    function set_end_date() {
+        $('#datepicker_2').val(year + '-' + str_pad(month) + '-' + str_pad(day));
+        $('.datepicker_2').val(year + '-' + str_pad(month) + '-' + str_pad(day));
+    }
+    function str_pad(n) {
+        return String("00" + n).slice(-2);
+    }
 </script>
 @stop

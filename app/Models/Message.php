@@ -468,6 +468,10 @@ class Message extends Model
             else if($message['from_id'] == $user->id) {
                 $msgUser =  \App\Models\User::findById($to_id);
             }
+            if(!isset($msgUser)){
+                unset($messages[$key]);
+                continue;
+            }
             if(\App\Models\Message::onlyShowVip($user, $msgUser, $isVip)) {
                 unset($messages[$key]);
                 continue;
@@ -593,7 +597,7 @@ class Message extends Model
         }
     }
 
-    public static function post($from_id, $to_id, $msg)
+    public static function post($from_id, $to_id, $msg, $tip_action = true)
     {
         $message = new Message;
         $message->from_id = $from_id;
@@ -602,7 +606,12 @@ class Message extends Model
         $message->all_delete_count = 0;
         $message->is_row_delete_1 = 0;
         $message->is_row_delete_2 = 0;
-        $message->is_single_delete_1 = 0;
+        if($tip_action == false) {
+            $message->is_single_delete_1 = $to_id;
+        }
+        else{
+            $message->is_single_delete_1 = 0;
+        }
         $message->is_single_delete_2 = 0;
         $message->temp_id = 0;
         $message->save();

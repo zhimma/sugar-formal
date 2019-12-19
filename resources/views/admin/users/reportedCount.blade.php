@@ -12,12 +12,12 @@
                     <tr>
                         <th>開始時間</th>
                         <td>
-                            <input type='text' id="datepicker_1" name="date_start" data-date-format='yyyy-mm-dd' value="@if(isset($date_start)){{ $date_start }}@endif" class="form-control">
+                            <input type='text' id="datepicker_1" name="date_start" data-date-format='yyyy-mm-dd' value="{{ $date_start or "" }}" class="form-control">
                         </td>
                     <tr>
                         <th>結束時間</th>
                         <td>
-                            <input type='text' id="datepicker_2" name="date_end" data-date-format='yyyy-mm-dd' value="@if(isset($date_end)){{ $date_end }}@endif" class="form-control">
+                            <input type='text' id="datepicker_2" name="date_end" data-date-format='yyyy-mm-dd' value="{{ $date_end or "" }}" class="form-control">
                         </td>
                     </tr>
                     <tr>
@@ -38,36 +38,139 @@
                     </tr>
                 </table>
             </form>
-            @if(isset($users))
-                共有 {{ count($users) }} 筆資料
+            @if(isset($reportedUsers))
+                共有 {{ count($reportedUsers) }} 筆資料
                 <table class="table-hover table table-bordered">
                     <tr>
-                        <td>會員</td>
-                        <td>檢舉者(檢舉次數)</td>
+                        <th>被檢舉者</th>
+                        <th>回覆被檢舉者</th>
+                        <th>封鎖被檢舉者</th>
+                        <th>人數</th>
+                        <th width="20%">檢舉訊息</th>
+                        <th width="20%">檢舉會員</th>
+                        <th width="20%">檢舉照片</th>
                     </tr>
-                    @foreach( $users as $keys => $user)
-                    @if($user['login'])
+                    @foreach( $reportedUsers as $id => $reportedUser)
                     <tr>
-                        <td>
-                            @if( isset($vips[$keys]))
-                                    <i class="m-nav__link-icon fa fa-diamond"></i>
-                            @endif
-                            {{ $user['name'] }}({{ $keys }})
+                        <td @if($users[$id]['isBlocked']) style="background-color:#FFFF00" @endif>
+                            <a href="{{ route('users/advInfo', [$id]) }}" target='_blank'>
+                                <p @if($users[$id]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+                                    {{ $users[$id]['name'] }}
+                                    @if($users[$id]['vip'] )
+                                        <i class="m-nav__link-icon fa fa-diamond"></i>
+                                    @endif
+                                    @if(!is_null($users[$id]['isBlocked']))
+                                        @if(!is_null($users[$id]['isBlocked']['expire_date']))
+                                            ({{ round((strtotime($users[$id]['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                        @else
+                                            (永久)
+                                        @endif
+                                    @endif
+                                </p>
+                            </a>
                         </td>
                         <td>
-                            @if(isset($msgs[$keys]))
-                                @foreach($msgs[$keys] as $key => $message)
-                                @if( isset($vips[$key]))
-                                    <i class="m-nav__link-icon fa fa-diamond"></i>
-                                @endif
-                                @if(isset($users[$key]))      
-                                    {{$users[$key]['name'] }} ({{ $message }})  
-                                @endif         
-                                @endforeach
-                            @endif
+                            <a class='btn btn-dark' href="{{ route('admin/send', [$id]) }}" target="_blank" >撰寫</a>
+                        </td>
+                        <td>
+                            <a class="btn btn-danger ban-user" href="{{ route('toggleUserBlock', [$id]) }}">封鎖</a>
+                        </td>
+                        <td>
+                            <form action=" {{ route('users/reported/details', ['reported_id'=>$id]) }}" method="post">
+                                {{ csrf_field() }}
+                                <input type="hidden" name="date_start" value="{{ $date_start or "" }}">
+                                <input type="hidden" name="date_end" value="{{ $date_end or ""}}">
+                                <input type="submit" class="btn" value="{{ $reportedUser['count'] }}">
+                            </form>
+                        </td>
+                        <td>
+                            @foreach( $reportedUser['messages'] as $msg )
+                                <div @if($users[$msg->to_id]['isBlocked']) style="background-color:#FFFF00" @endif>
+                                    <a href="{{ route('users/advInfo', [$msg->to_id]) }}" target='_blank'>
+                                        <p @if($users[$msg->to_id]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+                                            {{ "( ".$users[$msg->to_id]['name'] }}
+                                            @if( $users[$msg->to_id]['vip'] )
+                                                <i class="m-nav__link-icon fa fa-diamond"></i>
+                                            @endif
+                                            @if(!is_null($users[$msg->to_id]['isBlocked']))
+                                                @if(!is_null($users[$msg->to_id]['isBlocked']['expire_date']))
+                                                    ({{ round((strtotime($users[$msg->to_id]['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                                @else
+                                                    (永久)
+                                                @endif
+                                            @endif
+                                            {{ " ".$msg->created_at->format('Y/m/d')." )"}}
+                                        </p>
+                                    </a>
+                                </div>
+                            @endforeach
+                        </td>
+                        <td>
+                            @foreach( $reportedUser['reports'] as $reports )
+                                <div @if($users[$reports->member_id]['isBlocked']) style="background-color:#FFFF00" @endif>
+                                    <a href="{{ route('users/advInfo', [$reports->member_id]) }}" target='_blank'>
+                                        <p @if($users[$reports->member_id]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+                                            {{ "( ".$users[$reports->member_id]['name'] }}
+                                            @if( $users[$reports->member_id]['vip'] )
+                                                <i class="m-nav__link-icon fa fa-diamond"></i>
+                                            @endif
+                                            @if(!is_null($users[$reports->member_id]['isBlocked']))
+                                                @if(!is_null($users[$reports->member_id]['isBlocked']['expire_date']))
+                                                    ({{ round((strtotime($users[$reports->member_id]['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                                @else
+                                                    (永久)
+                                                @endif
+                                            @endif
+                                            {{ " ".$reports->created_at->format('Y/m/d')." )"}}
+                                        </p>
+                                    </a>
+                                </div>
+                            @endforeach
+                        </td>
+                        <td>
+                            @foreach( $reportedUser['avatars'] as $avatar )
+                                <div @if($users[$avatar->reporter_id]['isBlocked']) style="background-color:#FFFF00" @endif>
+                                    <a href="{{ route('users/advInfo', [$avatar->reporter_id]) }}" target='_blank'>
+                                        <p @if($users[$avatar->reporter_id]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+                                            {{ "( ".$users[$avatar->reporter_id]['name'] }}
+                                            @if( $users[$avatar->reporter_id]['vip'] )
+                                                <i class="m-nav__link-icon fa fa-diamond"></i>
+                                            @endif
+                                            @if(!is_null($users[$avatar->reporter_id]['isBlocked']))
+                                                @if(!is_null($users[$avatar->reporter_id]['isBlocked']['expire_date']))
+                                                    ({{ round((strtotime($users[$avatar->reporter_id]['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                                @else
+                                                    (永久)
+                                                @endif
+                                            @endif
+                                            {{ " ".$avatar->created_at->format('Y/m/d')." )"}}
+                                        </p>
+                                    </a>
+                                </div>
+                            @endforeach
+
+                            @foreach( $reportedUser['pics'] as $pic )
+                                <div @if($users[$pic->reporter_id]['isBlocked']) style="background-color:#FFFF00" @endif>
+                                    <a href="{{ route('users/advInfo', [$pic->reporter_id]) }}" target='_blank'>
+                                        <p @if($users[$pic->reporter_id]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+                                            {{ "( ".$users[$pic->reporter_id]['name'] }}
+                                            @if( $users[$pic->reporter_id]['vip'] )
+                                                <i class="m-nav__link-icon fa fa-diamond"></i>
+                                            @endif
+                                            @if(!is_null($users[$pic->reporter_id]['isBlocked']))
+                                                @if(!is_null($users[$pic->reporter_id]['isBlocked']['expire_date']))
+                                                    ({{ round((strtotime($users[$pic->reporter_id]['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                                @else
+                                                    (永久)
+                                                @endif
+                                            @endif
+                                            {{ " ".$pic->created_at->format('Y/m/d')." )"}}
+                                        </p>
+                                    </a>
+                                </div>
+                            @endforeach
                         </td>
                     </tr>
-                    @endif
                     @endforeach
                 </table>
             @endif
