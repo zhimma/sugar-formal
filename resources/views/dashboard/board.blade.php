@@ -63,7 +63,7 @@
                                                     @if(!$canPost)
                                                     <textarea class="form-control m-input" rows="3" id="msg" name="msg" disabled> {{ $canPostSeconds }} 秒後即可再次留言</textarea>
                                                     @else
-                                                    <textarea class="form-control m-input" rows="3" id="msg" name="msg" maxlength="80"></textarea>
+                                                    <textarea class="form-control m-input" onpaste="waitTime()" rows="3" id="msg" name="msg" maxlength="80"></textarea>
                                                     @endif
                                                 </div>
                                             </div>
@@ -84,7 +84,12 @@
 @stop
 
 @section('javascript')
-
+<script>
+function waitTime()
+{
+    console.log('wait');
+}
+</script>
 <script>
 		$(document).ready(function(){
 		    @if (!$user->isVip())

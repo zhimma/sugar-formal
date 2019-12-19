@@ -237,8 +237,16 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('updateMemberData', 'PagesController@updateMemberData');
     
     Route::get('new/mem_updatevip', 'PagesController@mem_updatevip');
+    Route::post('cancelVip', 'PagesController@cancelVip');
     Route::get('new/women_updatevip', 'PagesController@women_updatevip');
     Route::get('new/women_search', 'PagesController@women_search');
+
+
+    Route::post('addReportAvatar', 'PagesController@addReportAvatar');
+    Route::post('addMessage', 'PagesController@addMessage');
+    Route::post('addCollection', 'PagesController@addCollection');
+    Route::post('addReport', 'PagesController@addReport');
+    Route::post('addBlock', 'PagesController@addBlock');
     /*
     |--------------------------------------------------------------------------
     | Dashboard
@@ -380,6 +388,9 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('users/message/edit', 'UserController@editMessage')->name('users/message/edit');
         Route::get('users/pics/reported', 'UserController@showReportedPicsPage')->name('users/pics/reported');
         Route::post('users/pics/reported', 'UserController@searchReportedPics')->name('users/pics/reported');
+        Route::get('users/basic_setting', 'UserController@basicSetting')->name('users/basic_setting');
+        Route::post('users/basic_setting', 'UserController@doBasicSetting')->name('users/basic_setting');
+        
         Route::get('users/bannedList', 'UserController@showBannedList')->name('users/bannedList');
         Route::get('users/reported', 'UserController@showReportedUsersPage')->name('users/reported');
         Route::post('users/reported', 'UserController@showReportedUsersList')->name('users/reported');

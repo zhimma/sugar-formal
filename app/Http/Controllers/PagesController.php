@@ -19,6 +19,7 @@ use App\Models\Vip;
 use App\Models\Tip;
 use App\Models\MemberFav;
 use App\Models\Blocked;
+use App\Models\BasicSetting;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReportRequest;
 use App\Http\Requests\ProfileUpdateRequest;
@@ -29,6 +30,8 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Models\SimpleTables\banned_users;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Input;
 use Session;
 // use Request;
 class PagesController extends Controller
@@ -515,7 +518,13 @@ class PagesController extends Controller
                 Log::debug('checkRecommendedUser() failed, $targetUser: '. $targetUser);
             }
             finally{
-                return view('dashboard')
+                $basic_setting = BasicSetting::where('vipLevel','1')->get()->first();
+                // dd($basic_setting);
+                $data = array(
+                    'timeSet'=> (int)$basic_setting['timeSet'],
+                    'countSet'=> (int)$basic_setting['countSet'],
+                );
+                return view('dashboard', $data)
                     ->with('user', $user)
                     ->with('cur', $this->service->find($uid))
                     ->with('description', $checkRecommendedUser['description'])
@@ -1201,9 +1210,13 @@ class PagesController extends Controller
         }
     }
 
-    public function mem_updatevip()
+    public function mem_updatevip(Request $request)
     {
-        return view('new.mem_updatevip');
+        $mid = $request->user()->id ?? 689;
+        $data = array(
+            'mid'=>$mid,
+        );
+        return view('new.mem_updatevip', $data);
     }
     public function women_updatevip()
     {
@@ -1281,4 +1294,118 @@ class PagesController extends Controller
 
        
     }
+
+    public function cancelVip(Request $request){
+        $acc = $request->get('acc');
+        $pwd = $request->get('pwd');
+        $userId = $request->get('userId');
+        $user_count = User::where('id', $userId)->where('email', $acc)->get()->count();
+        if($user_count>0){
+            
+            // dd( Auth::user()->remember_token);
+            $u = User::where('email', $acc)->first();  
+
+            
+            if (Hash::check($pwd, $u->password)){
+                DB::table('member_vip')->where('member_id', $userId)->update(['active',0]);
+                $data = array(
+                    'code'=>'200',
+                    'msg'=>'修改成功',
+                );
+            }else{
+                $data = array(
+                    'code'=>'400',
+                    'msg' =>'修改失敗',
+                );
+            }
+            
+            return json_encode($data);
+        }else{
+            $data = array(
+                'code'=>'400',
+                'msg'=>'修改失敗',
+            );
+            return json_encode($data);
+        }
+    }
+
+    public function addMessage(Request $request)
+    {
+        $id = $request->get('id');
+        $msg = $request->get('msg');
+        $mid = $request->user()->id;
+        DB::table('message')->insert(
+            ['from_id' => $mid, 'to_id' => $id, 'content'=>$msg, 'created_at'=>now(), 'updated_at'=>now()]
+        );
+        $data = array(
+            'code'=>'200',
+            'msg' =>'寄發訊息成功',
+        );
+        return json_encode($data);
+        
+        
+    }
+    
+    public function addCollection(Request $request)
+    {
+        $id = $request->get('id');
+        $msg = $request->get('msg');
+        $mid = $request->user()->id;
+        DB::table('member_fav')->insert(
+            ['member_id' => $mid, 'member_fav_id' => $id, 'created_at'=>now(), 'updated_at'=>now()]
+        );
+        $data = array(
+            'code'=>'200',
+            'msg' =>'收藏成功',
+        );
+        return json_encode($data);
+    }
+
+    public function addReport(Request $request)
+    {
+        $id = $request->get('id');
+        $msg = $request->get('msg');
+        $mid = $request->user()->id;
+        DB::table('reported')->insert(
+            ['member_id' => $mid, 'reported' => $id, 'created_at'=>now(), 'updated_at'=>now()]
+        );
+        $data = array(
+            'code'=>'200',
+            'msg' =>'檢舉成功',
+        );
+        return json_encode($data);
+    }
+
+
+    public function addBlock(Request $request)
+    {
+        $id = $request->get('id');
+        $msg = $request->get('msg');
+        $mid = $request->user()->id;
+        DB::table('blocked')->insert(
+            ['member_id' => $mid, 'blocked_id' => $id, 'created_at'=>now(), 'updated_at'=>now()]
+        );
+        $data = array(
+            'code'=>'200',
+            'msg' =>'封鎖成功',
+        );
+        return json_encode($data);
+    }
+
+    public function addReportAvatar(Request $request)
+    {
+        $id = $request->get('id');
+        $msg = $request->get('msg');
+        $mid = $request->user()->id;
+        DB::table('reported_avatar')->insert(
+            ['reporter_id' => $mid, 'reported_user_id' => $id, 'created_at'=>now(), 'updated_at'=>now()]
+        );
+        $data = array(
+            'code'=>'200',
+            'msg' =>'檢舉大頭貼成功',
+        );
+        return json_encode($data);
+    }
+
+
 }
