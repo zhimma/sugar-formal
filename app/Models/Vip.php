@@ -117,15 +117,19 @@ class Vip extends Model
                 ->where('member_id', $member_id)
                 ->orderBy('created_at', 'desc')->get();
         if($curUser->engroup == 1){
-            $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->created_at);
+            $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->updated_at);
             $day = $date->day;
             $now = \Carbon\Carbon::now();
             $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
+            if($user[0]->business_id == '3137610' && $now->diffInDays($date) <= 7) {
+                $date = $date->addMonthNoOverflow(1);
+            }
             if($now->day >= $day){
                 // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
                 $nextMonth = $now->addMonthsNoOverflow(1);
                 $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $nextMonth->year.'-'.$nextMonth->month.'-'.$day.' 00:00:00');
             }
+
             foreach ($user as $u){
                 $u->expiry = $date->toDateTimeString();
                 $u->save();
