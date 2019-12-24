@@ -634,20 +634,8 @@ class UserController extends Controller
                     if(!in_array($result['to_id'], $to_id)) {
                         array_push($to_id, $result['to_id']);
                     }
-<<<<<<< HEAD
-
-                    //Senders' meta.
-                    $senders = array();
-                    foreach ($from_id as $key => $id){
-                        $sender = User::where('id', '=', $id)->get()->first();
-                        $vip_tmp = $sender->isVip() ? true : false;
-                        $senders[$key] = $sender->toArray();
-                        $senders[$key]['vip'] = $vip_tmp;
-                        $senders[$key]['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first() == true ? true : false;
-=======
                     if(!in_array($result['from_id'], $from_id)) {
                         array_push($from_id, $result['from_id']);
->>>>>>> master
                     }
                 }
                 //Senders' meta.
@@ -889,72 +877,13 @@ class UserController extends Controller
         }
     }
 
-<<<<<<< HEAD
-    public function showAdminMessengerWithReportedId($id, $reported_id, $pic_id = null, $isPic= null, $isReported= null)
-    {
-=======
     public function showAdminMessengerWithReportedId($id, $reported_id, $pic_id = null, $isPic= null, $isReported= null) {
->>>>>>> master
         $admin = $this->admin->checkAdmin();
         if ($admin){
             $msglib = Msglib::get();
             $msglib2 = Msglib::get();
             $msglib3 = Msglib::selectraw('msg')->get();
             $report = Reported::where('member_id', $id)->where('reported_id', $reported_id)->get()->first();
-<<<<<<< HEAD
-
-            $reported = User::where('id', $reported_id)->get()->first();
-
-            /*被檢舉者 */
-            $user = $this->service->find($id);
-            $reported = Reported::get()->first();
-            // $sender = User::where('id', $reported->reported_id)->get()->first();
-
-            /*檢舉者*/
-            $to_user_id = Reported::where('member_id', $id)->get()->first();
-            if(!isset($to_user_id)){
-                $to_user_id = $id;
-            }
-            else{
-                $to_user_id = $to_user_id->reported_id;
-            }
-
-            $to_user    = $this->service->find($to_user_id);
-
-            $message_msg = Reported::where('reported_id', $to_user->id)->where('member_id',$user->id)->get();
-
-            if(!$msglib_report->isEmpty()){
-                $created_at = null;
-                if(is_object($message_msg->first())){
-                    $created_at = $message_msg->first()->created_at;
-                }
-                foreach($msglib_report as $key=>$msg){
-                    $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
-                    $msglib_msg[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg[$key]);
-                    $msglib_msg[$key] = str_replace('|$reportTime|', $created_at, $msglib_msg[$key]);
-                    $msglib_msg[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg[$key]);
-                }
-            }else{
-                foreach($msglib_all as $key=>$msg){
-                    $msglib_msg[$key] = $msg['msg'];
-                }
-            }
-            if(!$msglib_reported->isEmpty()){
-                $created_at = null;
-                if(is_object($message_msg->first())){
-                    $created_at = $message_msg->first()->created_at;
-                }
-                foreach($msglib_reported as $key=>$msg){
-                    $msglib_msg2[$key] = str_replace('|$report|',$user->name, $msg['msg']);
-                    $msglib_msg2[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg2[$key]);
-                    $msglib_msg2[$key] = str_replace('|$reportTime|', $created_at, $msglib_msg2[$key]);
-                    $msglib_msg2[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg2[$key]);
-                }
-            }else{
-                foreach($msglib_all as $key=>$msg){
-                    $msglib_msg2[$key] = $msg['msg'];
-                }
-=======
             /*檢舉者*/
             $user = $this->service->find($id);
             /*被檢舉者 */
@@ -962,7 +891,6 @@ class UserController extends Controller
             foreach($msglib3 as $key=>$msg){
                 $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
                 $msglib_msg[$key] = str_replace('|$reported|',$reported->name, $msglib_msg[$key]);
->>>>>>> master
             }
             return view('admin.users.messenger')
                 ->with('admin', $admin)

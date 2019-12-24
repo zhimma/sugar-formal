@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\VipLogService;
+use App\Models\Fingerprint;
 use App\Models\Visited;
 use App\Models\Board;
 use App\Models\Message;
@@ -349,6 +350,31 @@ class PagesController extends Controller
         return view('ts2.welcome')
             ->with('imgUserM', $imgUserM)
             ->with('imgUserF', $imgUserF);
+    }
+
+    public function fingerprint(){
+        return view('fingerprint');
+    }
+
+    public function saveFingerprint(Request $request){
+
+        if(Fingerprint::isExist(['fingerprintValue'=>$request->fingerprintValue]))
+            return '找到相符合資料';
+        else{
+            $data = [
+                    'fingerprintValue'=>$request->fingerprintValue,
+                    'browser_name'=>$request->browser_name,
+                    'browser_version'=>$request->browser_version,
+                    'os_name'=>$request->os_name,
+                    'os_version'=>$request->os_version,
+                    'timezone'=>$request->timezone,
+                    'plugins'=>$request->plugins,
+                    'language'=>$request->language
+                ];
+
+            Fingerprint::insert($data);
+            return '已新增至資料庫';
+        }
     }
 
     /**
