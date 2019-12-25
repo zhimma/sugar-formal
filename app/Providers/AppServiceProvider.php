@@ -22,13 +22,15 @@ class AppServiceProvider extends ServiceProvider
             if(isset($user)) {
                 if($user->isVip()) {
                     $vipData = \App\Models\Vip::findByIdWithDateDesc($user->id);
-                    $now = \Carbon\Carbon::now();
-                    $vipDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $vipData->updated_at);
-                    if($vipData->business_id == '3137610' && $now->diffInDays($vipDate) <= 7) {
-                        View::share('vipLessThan7days', true);
-                        View::share('vipData', $vipData);
-                        View::share('vipRenewDay', $vipDate->day);
-                        View::share('vipNextMonth', $vipDate->addMonth());
+                    if(isset($vipData->updated_at)){    //有的優選資格被拔掉的會員不會有 updated_at 的值
+                        $now = \Carbon\Carbon::now();
+                        $vipDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $vipData->updated_at);
+                        if($vipData->business_id == '3137610' && $now->diffInDays($vipDate) <= 7) {
+                            View::share('vipLessThan7days', true);
+                            View::share('vipData', $vipData);
+                            View::share('vipRenewDay', $vipDate->day);
+                            View::share('vipNextMonth', $vipDate->addMonth());
+                        }
                     }
                 }
             }
