@@ -22,6 +22,7 @@ use App\Models\AdminAnnounce;
 use App\Models\VipLog;
 use App\Models\Vip;
 use App\Models\Msglib;
+use App\Models\BasicSetting;
 use App\Models\SimpleTables\member_vip;
 use App\Models\SimpleTables\banned_users;
 use App\Notifications\BannedNotification;
@@ -1510,5 +1511,23 @@ class UserController extends Controller
             'status'=>'success'
         );
         echo json_encode($data);
+    }
+
+    
+    public function basicSetting(Request $request){
+        $data['basic_setting'] = BasicSetting::get()->first();
+
+        return view('user.basic_setting', $data);
+    }
+
+    public function doBasicSetting(Request $request){
+        $vipLevel = $request->post('vipLevel');
+        $gender   = $request->post('gender');
+        $timeSet  = $request->post('timeSet');
+        $countSet = $request->post('countSet');
+        BasicSetting::select('vipLevel', 'gender', 'timeSet', 'countSet')
+        ->where('vipLevel', $vipLevel)
+        ->update(array('gender' => $gender,'timeSet' => $timeSet,'countSet' => $countSet));
+        return redirect()->route('users/basic_setting');
     }
 }

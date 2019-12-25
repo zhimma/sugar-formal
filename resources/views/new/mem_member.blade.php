@@ -1,119 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="format-detection" content="telephone=no" />
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-		<title>男會員</title>
-		<!-- Bootstrap -->
-		<link href="/new/css/bootstrap.min.css" rel="stylesheet">
-		<link href="/new/css/bootstrap-theme.min.css" rel="stylesheet">
-		<!-- owl-carousel-->
-		<!--    css-->
-		<link rel="stylesheet" href="/new/css/style.css">
-		<link rel="stylesheet" href="/new/css/swiper.min.css">
-		<script src="/new/js/bootstrap.min.js"></script>
-		<script src="/new/js/jquery-2.1.1.min.js" type="text/javascript"></script>
-		<script src="/new/js/main.js" type="text/javascript"></script>
+@extends('new.layouts.website')
 
-	</head>
-	<style>
-		.swiper-container {
-			width: 100%;
-			height: auto;
-		}
-		
-		.swiper-slide {
-			width: 100%;
-			height: 280px;
-			margin: 0 auto;
-			padding: 0px;
-			display: table
-		}
-		
-		.swiper-slide img {
-			width: 100%;
-			height: 100%;
-		}
-		
-		@media (max-width:767px) {
-			.swiper-container {
-				width: 100%;
-				height: auto;
-			}
-			.swiper-slide {
-				width: 100%;
-				height: 200px !important;
-				margin: 0 auto;
-				padding: 0px;
-				display: table
-			}
-			.swiper-slide img {
-				width: 100%;
-				height: 100%;
-			}
-		}
-		@media (max-width:992px) {
-			.swiper-container {
-				width: 100%;
-				height: auto;
-			}
-			.swiper-slide {
-				width: 100%;
-				height: 280px;
-				margin: 0 auto;
-				padding: 0px;
-				display: table
-			}
-			.swiper-slide img {
-				width: 100%;
-				height: 100%;
-			}
-		}
-		
-		
-	</style>
-
-	<body>
-	<?=$tip_count;?>
-		<div class="head hetop">
-			<div class="container">
-				<div class="col-sm-12 col-xs-12 col-md-12">
-					<a href="/"><img src="/new/images/icon_41.png" class="logo" /></a>
-				</div>
-			</div>
-		</div>
-		<div class="head heicon">
-			<div class="container">
-				<div class="col-sm-12 col-xs-12 col-md-12">
-					<div class="commonMenu">
-						<div class="menuTop">
-							<img src="/new/images/icon_41.png" class="logo" />
-							<span id="menuButton"><img src="/new/images/icon.png" class="he_img"></span>
-						</div>
-                        
-						<ul id="menuList" class="change marg30">
-                            <div class="comt"><img src="/new/images/t.png"></div>
-                            <div class="coheight">
-							<div class="heyctop">測試系統賬號</div>
-							<div class="helist">
-								<ul>
-									<li><a href="/new/mem_member"><img src="/new/images/icon_38.png">搜索</a></li>
-									<li><a href="/dashboard/chat2"><img src="/new/images/icon_45.png">訊息</a><span>10</span></li>
-									<li><a href="/browse"><img src="/new/images/icon_46.png">名單</a></li>
-									<li><a href="/dashboard"><img src="/new/images/icon_48.png">我的</a></li>
-								</ul>
-							</div>
-							<a href="/" class="tcbut">LOGOUT</a>
-                            </div>
-						</ul>
-					</div>
-				</div>
-			</div>
-		</div>
-
+@section('app-content')
 		<!---->
 		<div class="container matop80">
 			<div class="row">
@@ -145,7 +32,7 @@
 								<div class="swiper-button-next"></div>
 								<div class="swiper-button-prev"></div>
 							</div>
-                             <div class="n_jianj"><a href="">檢舉大頭照</a></div>
+                             <div class="n_jianj"><a class="report_avatar">檢舉大頭照</a></div>
 							<div class="tubiao">
 								<ul>
 									<li>
@@ -307,17 +194,18 @@
 		</div>
         
 <div class="blbg" onclick="gmBtn1()"></div>
+
 <div class="bl bl_tab" id="tab01">
     <div class="bltitle"><span>發送給HEIGH</span></div>
     <div class="n_blnr01 ">
     <textarea name="" cols="" rows="" class="n_nutext">請輸入內容</textarea>
-    <a class="n_bllbut" href="">發信件</a>
+    <div class="n_bllbut addmessage">發信件</div>
     </div>
     <a id="" onclick="gmBtn1()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
 
-<div class="bl gtab" id="tab02">
+<div class="bl gtab addcollection" id="tab02">
 <a href="" class="gxbut">收藏成功！</a>
 </div>
 
@@ -341,7 +229,7 @@
          <div class="n_fengs"><img src="/new/images/iconff_03.png"><span>對方不會知道您封鎖他 </span></div>
          <div class="n_fengs"><img src="/new/images/iconff_06.png"><span>會將對方顯示為退會的用戶</span></div>
          <div class="n_fengs"><img src="/new/images/iconff_08.png"><span>可從設定頁面的[已封鎖用戶名單]中解除</span></div>
-        <a class="n_bllbut matop30" href="">封鎖</a>
+        <a class="n_bllbut matop30 addblock">封鎖</a>
     </div>
     <a id="" onclick="gmBtn1()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
@@ -378,7 +266,107 @@
 </script>
 
 
+
 <script>
+$(".report_avatar").on('click', function(){
+	var msg = "您確定要檢舉大頭貼嗎?"; 
+	if (confirm(msg)==true){ 
+		var data = {
+			"_token"      : "{{ csrf_token() }}",
+			id            : "{{$user->user_id}}",
+		};
+		$.ajax({
+			type: "POST",
+			url: "/addReportAvatar",
+			data: data,
+			dataType: "json",
+			success: function(res){
+				if(res.code=='200'){
+					alert(res.msg);
+					gmBtn1();
+				}
+			}
+		});
+	}
+
+});
+
+$(".collection").on('click', function(){
+	console.log('collection')
+	var data = {
+		"_token"      : "{{ csrf_token() }}",
+		id            : "{{$user->user_id}}",
+	};
+	$.ajax({
+    type: "POST",
+    url: "/addCollection",
+    data: data,
+    dataType: "json",
+    success: function(res){
+		if(res.code=='200'){
+			alert(res.msg);
+		}
+    }
+});
+});
+$(".addmessage").on('click', function(){
+	console.log('message')
+	var data = {
+		"_token"      : "{{ csrf_token() }}",
+		id            : "{{$user->user_id}}",
+		msg           : $(".n_nutext").val(),
+	};
+	$.ajax({
+    type: "POST",
+    url: "/addMessage",
+    data: data,
+    dataType: "json",
+    success: function(res){
+		if(res.code=='200'){
+			alert(res.msg);
+			gmBtn1();
+		}
+    }
+});
+});
+$(".report").on('click', function(){
+	console.log('report')
+	var data = {
+		"_token"      : "{{ csrf_token() }}",
+		id            : "{{$user->user_id}}",
+	};
+	$.ajax({
+    type: "POST",
+    url: "/addReport",
+    data: data,
+    dataType: "json",
+    success: function(res){
+		if(res.code=='200'){
+			alert(res.msg);
+			gmBtn1();
+		}
+    }
+});
+});
+$(".addblock").on('click', function(){
+	console.log('block');
+	var data = {
+		"_token"      : "{{ csrf_token() }}",
+		id            : "{{$user->user_id}}",
+	};
+	$.ajax({
+    type: "POST",
+    url: "/addBlock",
+    data: data,
+    dataType: "json",
+    success: function(res){
+		if(res.code=='200'){
+			alert(res.msg);
+			gmBtn1();
+		}
+    }
+});
+});
 $(".updatedata").click(function(){
 	var data = {
 		"_token"      : "{{ csrf_token() }}",
@@ -402,6 +390,7 @@ $(".updatedata").click(function(){
 
 
 
-	</body>
+
+@stop
 
 </html>
