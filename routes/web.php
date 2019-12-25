@@ -127,6 +127,8 @@ Route::get('/sftp-check-test', function(){
         return "Local file not found, check process didn't initiate.";
     }
 });
+Route::get('/fingerprint', 'PagesController@fingerprint');
+Route::post('/saveFingerprint', 'PagesController@saveFingerprint')->name('saveFingerprint');
 
 /*
 |--------------------------------------------------------------------------
@@ -143,6 +145,7 @@ Route::get('/cd_1', 'PagesController@cd_1');
 Route::get('/cd_2', 'PagesController@cd_2');
 Route::get('/ts_1', 'PagesController@ts_1');
 Route::get('/ts_2', 'PagesController@ts_2');
+
 /*
 |--------------------------------------------------------------------------
 | Welcome Page
