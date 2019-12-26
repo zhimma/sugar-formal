@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminAnnounce;
 use Auth;
 use App\Http\Requests;
 use Carbon\Carbon;
@@ -858,6 +859,40 @@ class PagesController extends Controller
         }
     }
 
+    public function chat2(Request $request, $cid)
+    {
+        $user = $request->user();
+        $m_time = '';
+        if (isset($user)) {
+            $isVip = $user->isVip();
+            $messages = Message::allToFromSender($user->id, $cid);
+            //$messages = Message::allSenders($user->id, 1);
+            if (isset($cid)) {
+                if(!$user->isVip() && $user->engroup == 1){
+                    $m_time = Message::select('created_at')->
+                    where('from_id', $user->id)->
+                    orderBy('created_at', 'desc')->first();
+                    if(isset($m_time)){
+                        $m_time = $m_time->created_at;
+                    }
+                }
+                return view('new.dashboard.chatWithUser')
+                    ->with('user', $user)
+                    ->with('to', $this->service->find($cid))
+                    ->with('m_time', $m_time)
+                    ->with('isVip', $isVip)
+                    ->with('messages', $messages);
+            }
+            else {
+                return view('new.dashboard.chatWithUser')
+                    ->with('user', $user)
+                    ->with('m_time', $m_time)
+                    ->with('isVip', $isVip)
+                    ->with('messages', $messages);
+            }
+        }
+    }
+
     public function chat(Request $request, $cid)
     {
         $user = $request->user();
@@ -1250,8 +1285,17 @@ class PagesController extends Controller
     }
 	
     public function showAnnouncement(Request $request){
+
+        $user = $request->user();
+        $isVip = $user->isVip();
+        $announcement = AdminAnnounce::where('en_group',$user->engroup)->orderBy('sequence','ASC')->get();
+
         return view('new.dashboard.announcement')
-                ->with('user', $request->user());
+            ->with('user', $user)
+            ->with('isVip', $isVip)
+            ->with('announcement',$announcement);
+//        return view('new.dashboard.announcement')
+//                ->with('user', $request->user());
     }
     
 	public function mem_member()

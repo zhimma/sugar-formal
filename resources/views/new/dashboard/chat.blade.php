@@ -12,86 +12,18 @@
                     <font>inbox</font>
                     <a href="" class="shou_but">全部刪除</a>
                 </div>
+                <div class="n_shtab">
+
+{{--                    <h2><span>您目前為高級會員</span>訊息可保存天數：30，可通訊人數:無限</h2>--}}
+                    @if($user->isVip())
+                        <h2><span>您目前為VIP會員</span>訊息可保存天數：180，可通訊人數:無限</h2>
+                        @else
+                        <h2><span>您目前為普通會員</span>訊息可保存天數：7，可通訊人數:10</h2>
+                    @endif
+                </div>
                 <div class="sjlist">
                     <ul>
-                       <!--  <li>
-                            <div class="si_bg">
-                                <div class="sjpic"><img src="/new/images/icon_04.png"></div>
-                                <div class="sjleft">
-                                    <div class="sjtable"><span>Adelle Addde</span><i class="number">9</i></div>
-                                    <font><img src="/new/images/icon_35.png"></font>
-                                </div>
-                                <div class="sjright">
-                                    <h3>08-30  20:00</h3>
-                                    <h4><a href=""><img src="/new/images/del_03.png">刪除</a><a href=""><img src="/new/images/del_05.png">封鎖</a></h4>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="si_bg">
-                                <div class="sjpic"><img src="/new/images/icon_04.png"></div>
-                                <div class="sjleft">
-                                    <div class="sjtable"><span>箬彤Baylee</span><i class="number">56</i></div>
-                                    <font>現在剛下樓，妳在那</font>
-                                </div>
-                                <div class="sjright">
-                                    <h3>08-30  20:00</h3>
-                                    <h4><a href=""><img src="/new/images/del_03.png">刪除</a><a href=""><img src="/new/images/del_05.png">封鎖</a></h4>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="hy_bg03">
-                            <div class="si_bg">
-                                <div class="sjpic"><img src="/new/images/icon_04.png"></div>
-                                <div class="sjleft">
-                                    <div class="sjtable"><span>王嘉蔭嘉</span><i class="number">56</i></div>
-                                    <font>現在剛下樓，妳在那</font>
-                                </div>
-                                <div class="sjright">
-                                    <h3>08-30  20:00</h3>
-                                    <h4><a href=""><img src="/new/images/del_03.png">刪除</a><a href=""><img src="/new/images/del_05.png">封鎖</a></h4>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="hy_bg01">
-                            <div class="si_bg">
-                                <div class="sjpic"><img src="/new/images/icon_04.png"></div>
-                                <div class="sjleft">
-                                    <div class="sjtable"><span>王嘉蔭嘉</span><i class="number">56</i></div>
-                                    <font>現在剛下樓，妳在那</font>
-                                </div>
-                                <div class="sjright">
-                                    <h3>08-30  20:00</h3>
-                                    <h4><a href=""><img src="/new/images/del_03.png">刪除</a><a href=""><img src="/new/images/del_05.png">封鎖</a></h4>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="hy_bg02">
-                            <div class="si_bg">
-                                <div class="sjpic"><img src="/new/images/icon_04.png"></div>
-                                <div class="sjleft">
-                                    <div class="sjtable"><span>王蔭嘉</span><i class="number">56</i></div>
-                                    <font>現在剛下樓，妳在那</font>
-                                </div>
-                                <div class="sjright">
-                                    <h3>08-30  20:00</h3>
-                                    <h4><a href=""><img src="/new/images/del_03.png">刪除</a><a href=""><img src="/new/images/del_05.png">封鎖</a></h4>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="si_bg">
-                                <div class="sjpic"><img src="/new/images/icon_04.png"></div>
-                                <div class="sjleft">
-                                    <div class="sjtable"><span>王嘉嘉</span><i class="number">56</i></div>
-                                    <font>現在剛下樓，妳在那</font>
-                                </div>
-                                <div class="sjright">
-                                    <h3>08-30  20:00</h3>
-                                    <h4><a href=""><img src="/new/images/del_03.png">刪除</a><a href=""><img src="/new/images/del_05.png">封鎖</a></h4>
-                                </div>
-                            </div>
-                        </li> -->
+
                     </ul>
                     <p style="color:red; font-weight: bold; display: none;margin-left: 20px;" id="warning">載入中，請稍候</p>
                     <div class="fenye">
@@ -151,21 +83,30 @@
         var total = 0;//總筆數
         var date=7;
 
-        function liContent(pic,user_name,content,created_at,read_n,i){
+        function liContent(pic,user_name,content,created_at,read_n,i,user_id){
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
+
+
+            var url = '{{ route("chat2WithUser", ":id") }}';
+            url = url.replace(':id', user_id);
+            var del_url = '{!! route('deleteBetween', ['uid' => ':id1', 'sid' => ':id2']) !!}';
+            del_url = del_url.replace(':id1', {{$user->id}});
+            del_url = del_url.replace(':id2', user_id);
             //${content}
             li +=`
                 <li style="${ss}">
                     <div class="si_bg">
+                        <a href="${url}" target="_self">
                         <div class="sjpic"><img src="${pic}" ></div>
                         <div class="sjleft">
                             <div class="sjtable"><span>${user_name}</span>${(read_n!=0?`<i class="number">${read_n}</i>`:'')}</div>
                             <font>${content}</font>
                         </div>
+                        </a>
                         <div class="sjright">
                             <h3>${created_at}</h3>
-                            <h4><a href=""><img src="/new/images/del_03.png">刪除</a><a href=""><img src="/new/images/del_05.png">封鎖</a></h4>
+                            <h4><a href="${del_url}"><img src="/new/images/del_03.png">刪除</a><a href=""><img src="/new/images/del_05.png">封鎖</a></h4>
                         </div>
                     </div>
                 </li>
@@ -217,7 +158,7 @@
                     var rr=0;
                     $.each(res.msg,function(i,e){
                         rr +=parseInt(e.read_n);
-                        if(e&&e.user_id)li = liContent(e.pic,e.user_name,e.content,e.created_at,e.read_n,i);
+                        if(e&&e.user_id)li = liContent(e.pic,e.user_name,e.content,e.created_at,e.read_n,i,e.user_id);
                         $('.sjlist>ul').append(li)
                     });
                     //$('.sjlist>ul').html(li);
