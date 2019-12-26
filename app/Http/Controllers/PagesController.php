@@ -358,11 +358,14 @@ class PagesController extends Controller
 
     public function saveFingerprint(Request $request){
 
-        if(Fingerprint::isExist(['fingerprintValue'=>$request->fingerprintValue]))
+        $fingerprintValue = $request->fingerprintValue;
+        if(Fingerprint::isExist(['fingerprintValue'=>$fingerprintValue]))
             return '找到相符合資料';
         else{
+            
+            $fingerprintValue = Hash::make($fingerprintValue.$request->ip());
             $data = [
-                    'fingerprintValue'=>$request->fingerprintValue,
+                    'fingerprintValue'=>$fingerprintValue,
                     'browser_name'=>$request->browser_name,
                     'browser_version'=>$request->browser_version,
                     'os_name'=>$request->os_name,
