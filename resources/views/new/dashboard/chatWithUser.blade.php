@@ -18,13 +18,14 @@
                     @if(!empty($messages))
                         @foreach ($messages as $message)
                             @php
+                                $msgUser = \App\Models\User::findById($message->from_id);
                                 \App\Models\Message::read($message, $user->id);
                             @endphp
 
                             @if($date_temp != substr($message['created_at'],0,10)) <div class="sebg matopj10">{{substr($message['created_at'],0,10)}}</div>@endif
                             <div class="@if($message['from_id'] == $user->id) show @else send @endif">
                                 <div class="msg @if($message['from_id'] == $user->id) msg1 @endif">
-                                    <img src="/new/images/icon_010.png">
+                                    <img src="@if($message['from_id'] == $user->id) {{$user->meta_()->pic}} @else {{$msgUser->meta_()->pic}} @endif">
                                     <p>
                                         <i class="msg_input"></i>{{$message['content']}}
                                         <a class="delete-btn" data-id="{{ $message['id'] }}" data-ct_time="{{ $message['created_at'] }}" data-content="{{ $message['content'] }}" href=""><img src="/new/images/del.png" @if($message['from_id'] == $user->id) class="shde2" @else class="shdel" @endif></a>
