@@ -12,6 +12,7 @@ use App\Models\UserMeta;
 use App\Models\Message;
 use App\Models\MemberPic;
 use App\Models\SimpleTables\banned_users;
+use App\Repositories\UserRepository;
 use PhpParser\Node\Expr\Cast\Object_;
 use Illuminate\Support\Facades\DB;
 

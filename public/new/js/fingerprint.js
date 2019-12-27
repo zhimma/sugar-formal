@@ -50,7 +50,7 @@ let generateFinger = function(dataSet){
 	}).join(''), 1)
 }
 
-var analysisFingerpirnt = function(handle){
+let analysisFingerpirnt = function(handle){
 
 	Fingerprint2.get( function (components) {
 		let fliterData = []
@@ -66,7 +66,6 @@ var analysisFingerpirnt = function(handle){
 		*	@param int the seed number for hash function
 		*	@return str a hex number which is fingerprint
 		*/ 
- 		
 
 		let data = {
 			fingerprintValue: generateFinger(components),
@@ -77,8 +76,20 @@ var analysisFingerpirnt = function(handle){
 			timezone: fliterData['timezone'],
 			plugins: JSON.stringify(plugins),
 			language: fliterData['language']
-			//_token: '{{ csrf_token() }}'
 		}
 		handle(data)
 	})
+}
+
+let identifyResult = function(token, handle){
+	analysisFingerpirnt(function(data){
+		data['_token'] = token
+		$.post("/saveFingerprint", data, function(result, textStatus, xhr) {
+			handle(result)
+		})
+		.fail(function(result, textStatus, xhr){
+			handle(result)
+		})
+	})
+	
 }

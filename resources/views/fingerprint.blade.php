@@ -17,33 +17,15 @@
 
 			if (window.requestIdleCallback) {
 				requestIdleCallback(function () {
-					analysisFingerpirnt(function(data){
-						// !important
-						// data  include "_token" beacause IE and Edge is not support add 
-						data['_token'] = '{{ csrf_token() }}'
-						console.log(data)
-						$.post("{{ route('saveFingerprint') }}", data, function(result, textStatus, xhr) {
-							console.log(result)
-						})
-						.fail(function(result, textStatus, xhr){
-							//console.log(result)
-						})
-					
+					identifyResult('{{ csrf_token() }}', function(result){
+						console.log(result)
 					})
 				})
 			} 
 			else {
 				setTimeout(function () {
-					analysisFingerpirnt(function(data){
-						data['_token'] = '{{ csrf_token() }}'
-						console.log(data)
-						$.post("{{ route('saveFingerprint') }}", data, function(result, textStatus, xhr) {
-							console.log(result)
-						})
-						.fail(function(result, textStatus, xhr){
-							//console.log(result)
-						})
-					
+					identifyResult('{{ csrf_token() }}', function(result){
+						console.log(result)
 					})
 				}, 500)
 			}
