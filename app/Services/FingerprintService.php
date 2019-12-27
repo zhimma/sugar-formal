@@ -13,6 +13,13 @@ class FingerprintService{
     public function __construct(Fingerprint $fingerprint){
     	$this->model = $fingerprint;
     }
+
+    public static function isExist($fingerprint)
+    {
+    	$result = Fingerprint::where($fingerprint)->count();
+        return $result > 0 ? true : false;
+    }
+    
 }
 
 ?>
