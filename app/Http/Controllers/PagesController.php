@@ -643,10 +643,14 @@ class PagesController extends Controller
                 $basic_setting = BasicSetting::where('vipLevel',$vipLevel)->where('gender',$user->engroup)->get()->first();
                 // dd($basic_setting);
                 
+                if($basic_setting['countSet']==-1){
+                    $basic_setting['countSet'] = 10000;
+                }
                 $data = array(
                     'timeSet'=> (int)$basic_setting['timeSet'],
                     'countSet'=> (int)$basic_setting['countSet'],
                 );
+                
                 return view('dashboard', $data)
                     ->with('user', $user)
                     ->with('cur', $this->service->find($uid))
