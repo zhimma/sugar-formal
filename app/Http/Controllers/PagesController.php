@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminAnnounce;
 use Auth;
 use App\Http\Requests;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\VipLogService;
+use App\Models\Fingerprint;
 use App\Models\Visited;
 use App\Models\Board;
 use App\Models\Message;
@@ -352,6 +354,34 @@ class PagesController extends Controller
         return view('ts2.welcome')
             ->with('imgUserM', $imgUserM)
             ->with('imgUserF', $imgUserF);
+    }
+
+    public function fingerprint(){
+        return view('fingerprint');
+    }
+
+    public function saveFingerprint(Request $request){
+
+        $fingerprintValue = $request->fingerprintValue;
+        if(Fingerprint::isExist(['fingerprintValue'=>$fingerprintValue]))
+            return '找到相符合資料';
+        else{
+            
+            $fingerprintValue = Hash::make($fingerprintValue.$request->ip());
+            $data = [
+                    'fingerprintValue'=>$fingerprintValue,
+                    'browser_name'=>$request->browser_name,
+                    'browser_version'=>$request->browser_version,
+                    'os_name'=>$request->os_name,
+                    'os_version'=>$request->os_version,
+                    'timezone'=>$request->timezone,
+                    'plugins'=>$request->plugins,
+                    'language'=>$request->language
+                ];
+
+            Fingerprint::insert($data);
+            return '已新增至資料庫';
+        }
     }
 
     /**
@@ -840,6 +870,40 @@ class PagesController extends Controller
         }
     }
 
+    public function chat2(Request $request, $cid)
+    {
+        $user = $request->user();
+        $m_time = '';
+        if (isset($user)) {
+            $isVip = $user->isVip();
+            $messages = Message::allToFromSender($user->id, $cid);
+            //$messages = Message::allSenders($user->id, 1);
+            if (isset($cid)) {
+                if(!$user->isVip() && $user->engroup == 1){
+                    $m_time = Message::select('created_at')->
+                    where('from_id', $user->id)->
+                    orderBy('created_at', 'desc')->first();
+                    if(isset($m_time)){
+                        $m_time = $m_time->created_at;
+                    }
+                }
+                return view('new.dashboard.chatWithUser')
+                    ->with('user', $user)
+                    ->with('to', $this->service->find($cid))
+                    ->with('m_time', $m_time)
+                    ->with('isVip', $isVip)
+                    ->with('messages', $messages);
+            }
+            else {
+                return view('new.dashboard.chatWithUser')
+                    ->with('user', $user)
+                    ->with('m_time', $m_time)
+                    ->with('isVip', $isVip)
+                    ->with('messages', $messages);
+            }
+        }
+    }
+
     public function chat(Request $request, $cid)
     {
         $user = $request->user();
@@ -1232,8 +1296,17 @@ class PagesController extends Controller
     }
 	
     public function showAnnouncement(Request $request){
+
+        $user = $request->user();
+        $isVip = $user->isVip();
+        $announcement = AdminAnnounce::where('en_group',$user->engroup)->orderBy('sequence','ASC')->get();
+
         return view('new.dashboard.announcement')
-                ->with('user', $request->user());
+            ->with('user', $user)
+            ->with('isVip', $isVip)
+            ->with('announcement',$announcement);
+//        return view('new.dashboard.announcement')
+//                ->with('user', $request->user());
     }
     
 	public function mem_member()

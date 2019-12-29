@@ -20,27 +20,25 @@
     @if ($errors->count() > 0)
     @else
         @if(!isset($msgs))
-            
-            
-            <table class="table table-bordered table-hover">
-            <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create"><div class="btn btn-success message_block">新增</div></a>
-            <br>
-                <tr>
-                    <td>訊息標題</td>
+	    @if(isset($msglib_report)) 
+                <table class="table table-bordered table-hover">
+                    <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create"><div class="btn btn-success message_block">新增</div></a>
+                    <br>
+                    <tr>
+                        <td>訊息標題</td>
                         <td></td>
-                    <td>訊息內容</td>
-                </tr>
-                @foreach($msglib_report as $msglib_report)
-                <tr>
-                    <td>{{$msglib_report->title}}</td>
-                        <td class="btn btn_edit btn-success" id="{{$msglib_report->id}}"><a href="/admin/users/message/msglib/create/{{$msglib_report->id}}" style="color:white">編輯</a></td>
-                        <td class="btn btn_del btn-danger" id="{{$msglib_report->id}}">刪除</td>
-                    <td>{{$msglib_report->msg}}</td>
-                </tr>
-                @endforeach
-            </table>
-
-            
+                        <td>訊息內容</td>
+                    </tr>
+                    @foreach($msglib_report as $msglib_report)
+                        <tr>
+                            <td>{{$msglib_report->title}}</td>
+                            <td class="btn btn_edit btn-success" id="{{$msglib_report->id}}"><a href="/admin/users/message/msglib/create/{{$msglib_report->id}}" style="color:white">編輯</a></td>
+                            <td class="btn btn_del btn-danger" id="{{$msglib_report->id}}">刪除</td>
+                            <td>{{$msglib_report->msg}}</td>
+                        </tr>
+                    @endforeach
+                </table>
+	@endif            
             
             <h1>發送站長訊息給{{ $user->name}}(發訊者)</h1>
             <!-- <button class="savebtn btn btn-primary">儲存</button> -->
@@ -117,23 +115,25 @@
             </form>
 
             <div>===================================================================================================</div>
-            <table class="table table-bordered table-hover">
-            <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create"><div class="btn btn-success message_block">新增</div></a>
-            <br>
-                <tr>
-                    <td>訊息標題</td>
+	    @if(isset($msglib_reported))
+                <table class="table table-bordered table-hover">
+                    <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create"><div class="btn btn-success message_block">新增</div></a>
+                    <br>
+                    <tr>
+                        <td>訊息標題</td>
                         <td></td>
-                    <td>訊息內容</td>
-                </tr>
-                @foreach($msglib_reported as $msglib_reported)
-                <tr>
-                    <td>{{$msglib_reported->title}}</td>
-                        <td class="btn btn_edit btn-success" id="{{$msglib_reported->id}}"><a href="/admin/users/message/msglib/create/{{$msglib_reported->id}}" style="color:white">編輯</a></td>
-                        <td class="btn btn_del btn-danger" id="{{$msglib_reported->id}}">刪除</td>
-                    <td>{{$msglib_reported->msg}}</td>
-                </tr>
-            @endforeach
-            </table>
+                        <td>訊息內容</td>
+                    </tr>
+                    @foreach($msglib_reported as $msglib_reported)
+                        <tr>
+                            <td>{{$msglib_reported->title}}</td>
+                            <td class="btn btn_edit btn-success" id="{{$msglib_reported->id}}"><a href="/admin/users/message/msglib/create/{{$msglib_reported->id}}" style="color:white">編輯</a></td>
+                            <td class="btn btn_del btn-danger" id="{{$msglib_reported->id}}">刪除</td>
+                            <td>{{$msglib_reported->msg}}</td>
+                        </tr>
+                    @endforeach
+                </table>
+	    @endif
             
             <h1>發送站長訊息給{{$to_user->name}}(收件者)</h1>
                 <table class="table table-bordered table-hover">
@@ -272,7 +272,9 @@
         //   console.log(element);
         // });
         let template = {!! json_encode($msglib_msg) !!};
-        let template2 = {!! json_encode($msglib_msg2) !!};
+	@if(isset($msglib_msg2))
+            let template2 = {!! json_encode($msglib_msg2) !!};
+	@endif
         // console.log(template);
 
         let edit = '修改。', del = '刪除。', view='檢視', create='新增',

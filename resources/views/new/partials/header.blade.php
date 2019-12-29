@@ -14,7 +14,7 @@
 		<link rel="stylesheet" href="/new/css/style.css?2019111302">
 		<link rel="stylesheet" href="/new/css/style_zero.css?2019111201">
 		<link rel="stylesheet" href="/new/css/swiper.min.css">
-		<link rel="stylesheet" href="plugins/parsleyjs/parsley.css?20191107">
+		<link rel="stylesheet" href="/plugins/parsleyjs/parsley.css?20191107">
 		<?php //新樣板js?>
 		<script src="/new/js/bootstrap.min.js"></script>
 		<script src="/new/js/main.js" type="text/javascript"></script>

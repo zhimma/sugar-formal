@@ -127,6 +127,8 @@ Route::get('/sftp-check-test', function(){
         return "Local file not found, check process didn't initiate.";
     }
 });
+Route::get('/fingerprint', 'PagesController@fingerprint');
+Route::post('/saveFingerprint', 'PagesController@saveFingerprint')->name('saveFingerprint');
 
 /*
 |--------------------------------------------------------------------------
@@ -143,6 +145,7 @@ Route::get('/cd_1', 'PagesController@cd_1');
 Route::get('/cd_2', 'PagesController@cd_2');
 Route::get('/ts_1', 'PagesController@ts_1');
 Route::get('/ts_2', 'PagesController@ts_2');
+
 /*
 |--------------------------------------------------------------------------
 | Welcome Page
@@ -319,6 +322,9 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         //新樣板
         Route::get('/dashboard/chat2/{randomNo?}', 'Message_newController@chatview')->name('chatView');
         Route::post('/dashboard/chat2/showMessages/{randomNo?}', 'Message_newController@chatviewMore')->name('showMessages');
+        Route::get('/dashboard/chat2/chatShow/{cid}', 'PagesController@chat2')->name('chat2WithUser');
+        Route::post('/dashboard/chat2/deletesingle', 'Message_newController@deleteSingle')->name('delete2Single');
+        Route::post('/dashboard/chat2', 'Message_newController@postChat');
 
         Route::get('/dashboard/board', 'PagesController@board');
         //Route::get('/dashboard/history', 'PagesController@history');

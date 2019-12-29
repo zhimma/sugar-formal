@@ -113,7 +113,7 @@ class Vip extends Model
         if ($curUser != null) {
             $admin->notify(new CancelVipEmail($member_id, '761404', $member_id));
         }
-        $user = Vip::select('id', 'expiry', 'created_at')
+        $user = Vip::select('id', 'expiry', 'created_at', 'updated_at')
                 ->where('member_id', $member_id)
                 ->orderBy('created_at', 'desc')->get();
         if($curUser->engroup == 1){

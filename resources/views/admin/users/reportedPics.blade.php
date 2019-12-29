@@ -113,16 +113,18 @@
                                             <i class="m-nav__link-icon fa fa-diamond"></i>
                                         @endif
                                         @if(!is_null($result['isBlocked']))
-
-                                            @if(!is_null($result['isBlocked']['expire_date']))
-                                                @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
-                                                    {{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天
-                                                @else
-                                                    已解除封鎖
+					    @if(isset($result['isBlockedReceiver']['expire_date']))
+						@if(!is_null($result['isBlocked']['expire_date']))
+                                                    @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
+                                                        {{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天
+                                                    @else
+                                                        已解除封鎖
+                                                    @endif
+                                            	@else
+                                                    (永久)
                                                 @endif
-
-                                            @else
-                                                (永久)
+					    @else
+                                                無資料
                                             @endif
                                         @endif
                                     </p>
@@ -179,15 +181,19 @@
                                             <i class="m-nav__link-icon fa fa-diamond"></i>
                                         @endif
                                         @if(!is_null($result['isBlockedReceiver']))
-                                            @if(!is_null($result['isBlockedReceiver']['expire_date']))
-                                                @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
-                                                    {{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天
+					    @if(isset($result['isBlockedReceiver']['expire_date']))
+                                                @if(!is_null($result['isBlockedReceiver']['expire_date']))
+                                                    @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
+                                                        {{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天
+                                                    @else
+                                                        已解除封鎖
+                                                    @endif
                                                 @else
-                                                    已解除封鎖
+                                                    (永久)
                                                 @endif
-                                            @else
-                                                (永久)
-                                            @endif
+ 					    @else
+					        無資料
+					    @endif
                                         @endif
                                     </a>
 
@@ -213,15 +219,19 @@
                                         <i class="m-nav__link-icon fa fa-diamond"></i>
                                     @endif
                                     @if(!is_null($result['isBlocked']))
-                                        @if(!is_null($result['isBlocked']['expire_date']))
-                                            @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
-                                                {{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天
+					@if(isset($result['isBlockedReceiver']['expire_date']))
+                                            @if(!is_null($result['isBlocked']['expire_date']))
+                                                @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
+                                                    {{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天
+                                                @else
+                                                    已解除封鎖
+                                                @endif
                                             @else
-                                                已解除封鎖
+                                                (永久)
                                             @endif
-                                        @else
-                                            (永久)
-                                        @endif
+				        @else
+					    無資料
+					@endif
                                     @endif
                                 </a>
                             </td>
