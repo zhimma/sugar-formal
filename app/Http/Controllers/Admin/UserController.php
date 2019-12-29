@@ -1526,8 +1526,8 @@ class UserController extends Controller
         $timeSet  = $request->post('timeSet');
         $countSet = $request->post('countSet');
         BasicSetting::select('vipLevel', 'gender', 'timeSet', 'countSet')
-        ->where('vipLevel', $vipLevel)
-        ->update(array('gender' => $gender,'timeSet' => $timeSet,'countSet' => $countSet));
+        ->where('vipLevel', $vipLevel)->where('gender', $gender)
+        ->update(array('timeSet' => $timeSet,'countSet' => $countSet));
         return redirect()->route('users/basic_setting');
     }
 }

@@ -302,11 +302,11 @@ $(document).ready(function(){
     var bodyMain = document.getElementById('msg');
     
     
-    if(GetDateDiff(countTime, now, "minute")>10){
+    if(GetDateDiff(countTime, now, "minute")>"{{$timeSet}}"){
         delete_cookie('count');
         delete_cookie('countTime');
     }
-    if(GetDateDiff(countTime, now, "minute")<=10){
+    if(GetDateDiff(countTime, now, "minute")<="{{$timeSet}}"){
     if(count>"{{(int)$countSet}}"){
         console.log(count, "{{$countSet}}");
 

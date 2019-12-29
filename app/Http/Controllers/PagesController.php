@@ -578,6 +578,7 @@ class PagesController extends Controller
     public function viewuser(Request $request, $uid = -1)
     {
         $user = $request->user();
+        // dd($user);
 
         if (isset($user) && isset($uid)) {
             $targetUser = User::where('id', $uid)->get()->first();
@@ -603,8 +604,15 @@ class PagesController extends Controller
                 Log::debug('checkRecommendedUser() failed, $targetUser: '. $targetUser);
             }
             finally{
-                $basic_setting = BasicSetting::where('vipLevel','1')->get()->first();
+                if($user->vip_record=='0000-00-00 00:00:00'){
+                    $vipLevel = 0;
+                }else{
+                    $vipLevel = 1;
+                }
+                // dd($vipLevel);
+                $basic_setting = BasicSetting::where('vipLevel',$vipLevel)->where('gender',$user->engroup)->get()->first();
                 // dd($basic_setting);
+                
                 $data = array(
                     'timeSet'=> (int)$basic_setting['timeSet'],
                     'countSet'=> (int)$basic_setting['countSet'],
