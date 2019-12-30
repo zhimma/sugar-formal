@@ -46,6 +46,7 @@ let fliterPluginsIE = function(plugins){
 let generateFinger = function(dataSet){
 	return Fingerprint2.x64hash128(
 		dataSet.map(function(element) {
+			console.log(element)
 			return element.value
 	}).join(''), 1)
 }
