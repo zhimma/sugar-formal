@@ -4,6 +4,9 @@
 
 <div class="container matop70">
     <div class="row">
+        <div class="col-sm-2 col-xs-2 col-md-2 dinone">
+            @include('new.dashboard.panel')
+        </div>
         <div class="col-sm-12 col-xs-12 col-md-10">
             <div class="fs_name">
                 <div class="fs_title">本月封鎖名單<h2>共{{ $blocks->count() }}筆資料</h2></div>
@@ -11,8 +14,8 @@
                     <table>
                         <tr class="fs_tb">
                             <th style=" border-radius:5px 0 0 5px;">名稱</th>
-                            <th>封鎖原因</td>
-                            <th>開始日期</td>
+                            <th>封鎖原因</th>
+                            <th>開始日期</th>
                             <th style=" border-radius:0 5px 5px 0;">封鎖時間</th>
                         </tr>
                         @foreach ($blocks as $block)
