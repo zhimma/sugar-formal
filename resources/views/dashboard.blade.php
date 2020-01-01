@@ -1,5 +1,10 @@
 @extends('layouts.master')
 @section('app-content')
+<?php
+if (isset($cur)) $orderNumber = $cur->id;
+else $orderNumber = "";
+$code = Config::get('social.payment.code');
+?>
 <script>
     function vipadditional() {
         $(".vipadd").toggle();
@@ -420,7 +425,60 @@ $(document).ready(function(){
                         </button>
                     </form>
                 </li>
-            @endif
+            
+                @if (isset($cur) && $user->isVip() && $user->id != $cur->id)
+                    <li class="nav-item m-tabs__item d-md-none">
+                        <form action="{!! url('dashboard/fav') !!}" class="m-nav__link nav-link m-tabs__link"
+                                method="POST">
+                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="userId" value="{{$user->id}}">
+                            <input type="hidden" name="to" value="{{$cur->id}}">
+                            <button type="submit" style="background: none; border: none; padding: 0">
+                                <span class="m-nav__link-text">收藏</span>
+                            </button>
+                        </form>
+                    </li>
+
+                    <?php $isBlocked = \App\Models\Blocked::isBlocked($user->id, $cur->id);?>
+                    @if(!$isBlocked)
+                        <li class="nav-item m-tabs__item d-md-none">
+                            <form action="{!! url('dashboard/block') !!}" class="m-nav__link nav-link m-tabs__link"
+                                    method="POST">
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="userId" value="{{$user->id}}">
+                                <input type="hidden" name="to" value="{{$cur->id}}">
+                                <button type="submit" style="background: none; border: none; padding: 0">
+                                    <span class="m-nav__link-text">封鎖</span>
+                                </button>
+                            </form>
+                        </li>
+                    @else
+                        <li class="nav-item m-tabs__item d-md-none">
+                            <form action="{!! url('dashboard/unblock') !!}"
+                                    class="m-nav__link nav-link m-tabs__link" method="POST">
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="userId" value="{{$user->id}}">
+                                <input type="hidden" name="to" value="{{$cur->id}}">
+                                <button type="submit" style="background: none; border: none; padding: 0">
+                                    <span class="m-nav__link-text">解除封鎖</span>
+                                </button>
+                            </form>
+                        </li>
+                        @endif
+                    @endif
+
+                    @if ($user->engroup == 1 && isset($cur) && $user->id != $cur->id)
+                        @if(!\App\Models\Tip::isComment($user->id, $cur->id) && $user->isVip() && \App\Models\Tip::isCommentNoEnd($user->id, $cur->id))
+                            <li class="nav-item m-tabs__item d-md-none">
+                                @include('partials.tip-comment')
+                            </li>
+                        @else
+                            <li class="nav-item m-tabs__item d-md-none">
+                                @include('partials.tip-invite')
+                            </li>
+                        @endif
+                    @endif
+                @endif
         </ul>
         @if(isset($cur) && $user->id !== $cur->id && isset($description))
             <img src="{{ $button }}" alt="" height="30px" style="margin: 20px 0 20px 0; float: right; right: 0;" onclick="showDescription()">
@@ -489,7 +547,7 @@ $(document).ready(function(){
 
                     @if (str_contains(url()->current(), 'dashboard'))
                         <div class="form-group m-form__group row">
-                            <label for="example-text-input" class="col-lg-2 col-md-3 col-form-label">暱稱</label>
+                            <label for="example-text-input" class="col-lg-2 col-md-3 col-form-label">暱稱<span style="color:red">(必填)</span></label>
                             <div class="col-lg-7">
                                 <input class="form-control m-input" name="name" type="text" maxlength="10"
                                        value="{{$user->name}}">
@@ -498,7 +556,7 @@ $(document).ready(function(){
                     @endif
                     @if (str_contains(url()->current(), 'dashboard'))
                         <div class="form-group m-form__group row">
-                            <label for="title" class="col-lg-2 col-md-3 col-form-label">標題</label>
+                            <label for="title" class="col-lg-2 col-md-3 col-form-label">標題<span style="color:red">(必填)</span></label>
                             <div class="col-lg-7">
                                 <input class="form-control m-input" name="title" type="text" maxlength="20"
                                        value="{{$user->title}}">
@@ -657,7 +715,12 @@ $(document).ready(function(){
 
 
                                             <div class="form-group m-form__group row">
-                                                <label class="col-form-label col-lg-2 col-sm-12">預算</label>
+                                                @if (str_contains(url()->current(), 'dashboard'))
+                                                    <label class="col-form-label col-lg-2 col-sm-12">預算&nbsp;<span
+                                                                style="color:red">(必填)</span></label>
+                                                @else
+                                                    <label class="col-form-label col-lg-2 col-sm-12">預算</label>
+                                                @endif
                                                 <div class="col-lg-4 col-md-9 col-sm-12">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <select class="form-control m-bootstrap-select m_selectpicker"
@@ -688,7 +751,8 @@ $(document).ready(function(){
 
                                             <div class="form-group m-form__group row">
                                                 <label class="col-form-label col-lg-2 col-sm-12"> @if(str_contains(url()->current(), 'dashboard'))
-                                                        出生日期 @else 年齡 @endif</label>
+                                                    出生日期&nbsp;<span style="color:red">(必填)</span>@else 年齡 @endif
+                                                </label>
                                                 <div class="col-lg-4 col-md-9 col-sm-12 form-inline">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <select name="year" class="form-control"></select>年
@@ -750,8 +814,12 @@ $(document).ready(function(){
                                             </div>
 
                                             <div class="form-group m-form__group row">
-                                                <label for="height" class="col-lg-2 col-md-3 col-form-label">身高
-                                                    (cm)</label>
+                                                @if (str_contains(url()->current(), 'dashboard'))
+                                                    <label class="col-form-label col-lg-2 col-sm-12">身高
+                                                        (cm)&nbsp;<span style="color:red">(必填)</span></label>
+                                                @else
+                                                    <label class="col-form-label col-lg-2 col-sm-12">身高 (cm)</label>
+                                                @endif
                                                 <div class="col-lg-7">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <input class="form-control m-input" name="height"
@@ -866,8 +934,12 @@ $(document).ready(function(){
                                             </div>
 
                                             <div class="form-group m-form__group row">
-                                                <label for="example-text-input"
-                                                       class="col-lg-2 col-form-label">關於我</label>
+                                                @if (str_contains(url()->current(), 'dashboard'))
+                                                    <label class="col-form-label col-lg-2 col-sm-12">關於我&nbsp;<span
+                                                                style="color:red">(必填)</span></label>
+                                                @else
+                                                    <label class="col-form-label col-lg-2 col-sm-12">關於我</label>
+                                                @endif
                                                 <div class="col-lg-8">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <textarea class="form-control m-input" type="textarea"
@@ -881,7 +953,12 @@ $(document).ready(function(){
                                             </div>
 
                                             <div class="form-group m-form__group row">
-                                                <label for="example-text-input" class="col-lg-2 col-form-label">期待的約會模式</label>
+                                                @if (str_contains(url()->current(), 'dashboard'))
+                                                    <label class="col-form-label col-lg-2 col-sm-12">期待的約會模式&nbsp;<span
+                                                                style="color:red">(必填)</span></label>
+                                                @else
+                                                    <label class="col-form-label col-lg-2 col-sm-12">期待的約會模式</label>
+                                                @endif
                                                 <div class="col-lg-8">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <textarea class="form-control m-input" type="textarea"
@@ -1129,7 +1206,12 @@ $(document).ready(function(){
 
 
                                             <div class="form-group m-form__group row">
-                                                <label class="col-form-label col-lg-2 col-sm-12">教育</label>
+                                                @if (str_contains(url()->current(), 'dashboard'))
+                                                    <label class="col-form-label col-lg-2 col-sm-12">教育&nbsp;<span
+                                                                style="color:red">(必填)</span></label>
+                                                @else
+                                                    <label class="col-form-label col-lg-2 col-sm-12">教育</label>
+                                                @endif
                                                 <div class="col-lg-4 col-md-9 col-sm-12">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <select class="form-control m-bootstrap-select m_selectpicker"
@@ -1160,7 +1242,12 @@ $(document).ready(function(){
                                             </div>
 
                                             <div class="form-group m-form__group row">
-                                                <label class="col-form-label col-lg-2 col-sm-12">婚姻</label>
+                                                @if (str_contains(url()->current(), 'dashboard'))
+                                                    <label class="col-form-label col-lg-2 col-sm-12">婚姻&nbsp;<span
+                                                                style="color:red">(必填)</span></label>
+                                                @else
+                                                    <label class="col-form-label col-lg-2 col-sm-12">婚姻</label>
+                                                @endif
                                                 <div class="col-lg-4 col-md-9 col-sm-12">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <select class="form-control m-bootstrap-select m_selectpicker"
@@ -1196,7 +1283,12 @@ $(document).ready(function(){
 
 
                                             <div class="form-group m-form__group row">
-                                                <label class="col-form-label col-lg-2 col-sm-12">喝酒</label>
+                                                @if (str_contains(url()->current(), 'dashboard'))
+                                                    <label class="col-form-label col-lg-2 col-sm-12">喝酒&nbsp;<span
+                                                                style="color:red">(必填)</span></label>
+                                                @else
+                                                    <label class="col-form-label col-lg-2 col-sm-12">喝酒</label>
+                                                @endif
                                                 <div class="col-lg-4 col-md-9 col-sm-12">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <select class="form-control m-bootstrap-select m_selectpicker"
@@ -1221,7 +1313,12 @@ $(document).ready(function(){
                                             </div>
 
                                             <div class="form-group m-form__group row">
-                                                <label class="col-form-label col-lg-2 col-sm-12">抽菸</label>
+                                                @if (str_contains(url()->current(), 'dashboard'))
+                                                    <label class="col-form-label col-lg-2 col-sm-12">抽菸&nbsp;<span
+                                                                style="color:red">(必填)</span></label>
+                                                @else
+                                                    <label class="col-form-label col-lg-2 col-sm-12">抽菸</label>
+                                                @endif
                                                 <div class="col-lg-4 col-md-9 col-sm-12">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <select class="form-control m-bootstrap-select m_selectpicker"
@@ -1283,11 +1380,16 @@ $(document).ready(function(){
                                                     </div>
                                                 </div>
                                                 <div class="form-group m-form__group row">
-                                                    <label class="col-form-label col-lg-2 col-sm-12">資產</label>
+                                                    @if (str_contains(url()->current(), 'dashboard'))
+                                                        <label class="col-form-label col-lg-2 col-sm-12">資產&nbsp;<span
+                                                                    style="color:red">(必填)</span></label>
+                                                    @else
+                                                        <label class="col-form-label col-lg-2 col-sm-12">資產</label>
+                                                    @endif
                                                     <div class="col-lg-5 col-md-10 col-sm-12">
                                                         @if (str_contains(url()->current(), 'dashboard'))
-                                                            <input class="form-control m-input" name="assets"
-                                                                   value="{{$umeta->assets}}">
+                                                            <input class="form-control m-input" type="number"
+                                                                    name="assets" value="{{$umeta->assets}}">
                                                         @else
                                                             <input class="form-control m-input" disabled
                                                                    value="@if(isset($cmeta)){{$cmeta->assets}}@endif">
@@ -2016,7 +2118,6 @@ $(document).ready(function(){
     validate_date();
     @endif
 </script>
-
 @stop
 
 @endif
