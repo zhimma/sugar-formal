@@ -220,124 +220,127 @@ $code = Config::get('social.payment.code');
     }
 </style>
 <script>
-function doCookieSetup(name, value) {
-  var expires = new Date();
-  //有效時間保存 2 天 2*24*60*60*1000
-  expires.setTime(expires.getTime() + 172800000);
-  document.cookie = name + "=" + escape(value) + ";expires=" + expires.toGMTString()
-}
-function getCookie(name) {
-  var arg = escape(name) + "=";
-  var nameLen = arg.length;
-  var cookieLen = document.cookie.length;
-  var i = 0;
-  while (i <cookieLen) {
-    var j = i + nameLen;
-    if (document.cookie.substring(i, j) == arg) return getCookieValueByIndex(j);
-    i = document.cookie.indexOf(" ", i) + 1;
-    if (i == 0) break;
-  }
-  return null;
-}
-function delete_cookie( name ) {
-  document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-}
-function getCookieValueByIndex(startIndex) {
-  var endIndex = document.cookie.indexOf(";", startIndex);
-  if (endIndex == -1) endIndex = document.cookie.length;
-  return unescape(document.cookie.substring(startIndex, endIndex));
-}
-function GetDateDiff(startTime, endTime, diffType) { 
-    //將xxxx-xx-xx的時間格式，轉換為 xxxx/xx/xx的格式 
-    startTime = startTime.replace(/\-/g, "/"); 
-    endTime = endTime.replace(/\-/g, "/"); 
-    //將計算間隔類性字元轉換為小寫 
-    diffType = diffType.toLowerCase(); 
-    var sTime = new Date(startTime); //開始時間 
-    var eTime = new Date(endTime); //結束時間 
-    //作為除數的數字 
-    var divNum = 1; 
-    switch (diffType) { 
-        case "second": 
-            divNum = 1000; 
-            break; 
-        case "minute": 
-            divNum = 1000 * 60; 
-            break; 
-        case "hour": 
-            divNum = 1000 * 3600; 
-            break; 
-        case "day": 
-            divNum = 1000 * 3600 * 24; 
-            break; 
-        default: 
-            break; 
-    } 
-    return parseInt((eTime.getTime() - sTime.getTime()) / parseInt(divNum)); 
-} 
-function htmlencode(s){
-    var div = document.createElement('div');
-    div.appendChild(document.createTextNode(s));
-    return div.innerHTML;
-}
-function htmldecode(s){
-    var div = document.createElement('div');
-    div.innerHTML = s;
-    return div.innerText || div.textContent;
-}
-
-
-/*取得次數*/
-var count=getCookie('count');
-if(count==undefined){
-    count=0;
-}
-/*取得現在時間*/
-var today=new Date();
-var now = today.getFullYear()+'/'+(today.getMonth()+1)+'/'+today.getDate()+' '+today.getHours()+':'+today.getMinutes()+':'+today.getSeconds();
-// console.log(now);
-// var now       = 20191216215141;
-/*取得紀錄時間*/
-var countTime = getCookie('countTime');
-console.log(countTime);
-if(countTime==undefined){
-    countTime = now;
-}
-$(document).ready(function(){
-    var bodyMain = document.getElementById('msg');
-    
-    
-    if(GetDateDiff(countTime, now, "minute")>"{{$timeSet}}"){
-        delete_cookie('count');
-        delete_cookie('countTime');
-    }
-    if(GetDateDiff(countTime, now, "minute")<="{{$timeSet}}"){
-    if(count>"{{(int)$countSet}}"){
-        console.log(count, "{{$countSet}}");
-
-            // debugger;
-            console.log('3')
-            //禁止複製
-            bodyMain.oncopy = function(){
-            return false;
-            }
-            //禁止貼上
-            bodyMain.onpaste = function(){
-            return false;
-            }
-
-    }else{
-        console.log('2');
-        doCookieSetup('countTime',now);
-        bodyMain.onpaste = function(){
-            count++;
-            console.log(count);
-            doCookieSetup('count',count);
+    @if(isset($timeSet) && isset($countSet))
+        function doCookieSetup(name, value) {
+            var expires = new Date();
+            //有效時間保存 2 天 2*24*60*60*1000
+            expires.setTime(expires.getTime() + 172800000);
+            document.cookie = name + "=" + escape(value) + ";expires=" + expires.toGMTString()
         }
-    }
-}
-    
-});
+
+        function getCookie(name) {
+            var arg = escape(name) + "=";
+            var nameLen = arg.length;
+            var cookieLen = document.cookie.length;
+            var i = 0;
+            while (i <cookieLen) {
+                var j = i + nameLen;
+                if (document.cookie.substring(i, j) == arg) return getCookieValueByIndex(j);
+                i = document.cookie.indexOf(" ", i) + 1;
+                if (i == 0) break;
+            }
+            return null;
+        }
+
+        function delete_cookie( name ) {
+            document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+        }
+
+        function getCookieValueByIndex(startIndex) {
+            var endIndex = document.cookie.indexOf(";", startIndex);
+            if (endIndex == -1) endIndex = document.cookie.length;
+            return unescape(document.cookie.substring(startIndex, endIndex));
+        }
+
+        function GetDateDiff(startTime, endTime, diffType) {
+            //將xxxx-xx-xx的時間格式，轉換為 xxxx/xx/xx的格式
+            startTime = startTime.replace(/\-/g, "/");
+            endTime = endTime.replace(/\-/g, "/");
+            //將計算間隔類性字元轉換為小寫
+            diffType = diffType.toLowerCase();
+            var sTime = new Date(startTime); //開始時間
+            var eTime = new Date(endTime); //結束時間
+            //作為除數的數字
+            var divNum = 1;
+            switch (diffType) {
+                case "second":
+                    divNum = 1000;
+                    break;
+                case "minute":
+                    divNum = 1000 * 60;
+                    break;
+                case "hour":
+                    divNum = 1000 * 3600;
+                    break;
+                case "day":
+                    divNum = 1000 * 3600 * 24;
+                    break;
+                default:
+                    break;
+            }
+            return parseInt((eTime.getTime() - sTime.getTime()) / parseInt(divNum));
+        }
+
+        function htmlencode(s){
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(s));
+            return div.innerHTML;
+        }
+
+        function htmldecode(s){
+            var div = document.createElement('div');
+            div.innerHTML = s;
+            return div.innerText || div.textContent;
+        }
+
+        /*取得次數*/
+        var count=getCookie('count');
+        if(count==undefined){
+            count=0;
+        }
+
+        /*取得現在時間*/
+        var today=new Date();
+        var now = today.getFullYear()+'/'+(today.getMonth()+1)+'/'+today.getDate()+' '+today.getHours()+':'+today.getMinutes()+':'+today.getSeconds();
+        // console.log(now);
+        // var now       = 20191216215141;
+        /*取得紀錄時間*/
+        var countTime = getCookie('countTime');
+        console.log(countTime);
+        if(countTime==undefined){
+            countTime = now;
+        }
+
+        $(document).ready(function(){
+            var bodyMain = document.getElementById('msg');
+            if(GetDateDiff(countTime, now, "minute")>"{{$timeSet}}"){
+                delete_cookie('count');
+                delete_cookie('countTime');
+            }
+            if(GetDateDiff(countTime, now, "minute")<="{{$timeSet}}"){
+                if(count>"{{(int)$countSet}}"){
+                    console.log(count, "{{$countSet}}");
+                    //禁止複製
+                    bodyMain.oncopy = function(){
+                        return false;
+                    }
+                    //禁止貼上
+                    bodyMain.onpaste = function(){
+                        return false;
+                    }
+
+                }
+                else{
+                    doCookieSetup('countTime',now);
+                    bodyMain.onpaste = function(){
+                        count++;
+                        console.log(count);
+                        doCookieSetup('count',count);
+                    }
+                }
+            }
+        });
+    @endif
 </script>
 <link rel="stylesheet" href="/plugins/slim/css/slim.min.css">
 <div class="m-portlet__head">

@@ -361,12 +361,10 @@ class PagesController extends Controller
     }
 
     public function saveFingerprint(Request $request){
-
         $fingerprintValue = $request->fingerprintValue;
         if(Fingerprint::isExist(['fingerprintValue'=>$fingerprintValue]))
             return '找到相符合資料';
         else{
-            
             $fingerprintValue = Hash::make($fingerprintValue.$request->ip());
             $data = [
                     'fingerprintValue'=>$fingerprintValue,
@@ -642,14 +640,18 @@ class PagesController extends Controller
                 // dd($vipLevel);
                 $basic_setting = BasicSetting::where('vipLevel',$vipLevel)->where('gender',$user->engroup)->get()->first();
                 // dd($basic_setting);
-                
-                if($basic_setting['countSet']==-1){
-                    $basic_setting['countSet'] = 10000;
+
+                $data = array();
+
+                if(isset($basic_setting['countSet'])){
+                    if($basic_setting['countSet']==-1){
+                        $basic_setting['countSet'] = 10000;
+                    }
+                    $data = array(
+                        'timeSet'=> (int)$basic_setting['timeSet'],
+                        'countSet'=> (int)$basic_setting['countSet'],
+                    );
                 }
-                $data = array(
-                    'timeSet'=> (int)$basic_setting['timeSet'],
-                    'countSet'=> (int)$basic_setting['countSet'],
-                );
                 
                 return view('dashboard', $data)
                     ->with('user', $user)
@@ -1592,6 +1594,4 @@ class PagesController extends Controller
         );
         return json_encode($data);
     }
-
-
 }
