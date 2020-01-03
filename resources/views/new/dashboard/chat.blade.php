@@ -11,6 +11,7 @@
                 <div class="shou"><span>收件夾</span>
                     <font>inbox</font>
                     <a href="" class="shou_but">全部刪除</a>
+                    <a onclick="c3()"><img src="/new/images/ncion_03.png" class="whoicon02 marlr10"></a>
                 </div>
                 <div class="n_shtab">
 
@@ -41,9 +42,9 @@
 
         </div>
     </div>
-    <script>
 
-        var Page = {
+    <script>
+            var Page = {
             page : 1,
             row  : 15,
             DrawPage:function(total){
@@ -90,9 +91,11 @@
 
             var url = '{{ route("chat2WithUser", ":id") }}';
             url = url.replace(':id', user_id);
-            var del_url = '{!! route('deleteBetween', ['uid' => ':id1', 'sid' => ':id2']) !!}';
-            del_url = del_url.replace(':id1', {{$user->id}});
-            del_url = del_url.replace(':id2', user_id);
+            var del_url = '{!! url("/dashboard/chat2/deleterow/:uid/:sid") !!}';
+
+            var sid = <?php echo $user->id?>;
+            del_url = del_url.replace(':uid', sid);
+            del_url = del_url.replace(':sid', user_id);
             //${content}
             li +=`
                 <li style="${ss}">
@@ -106,7 +109,7 @@
                         </a>
                         <div class="sjright">
                             <h3>${created_at}</h3>
-                            <h4><a href="${del_url}"><img src="/new/images/del_03.png">刪除</a><a href=""><img src="/new/images/del_05.png">封鎖</a></h4>
+                            <h4><a href="javascript:void(0)" onclick="chk_delete('${del_url}');"><img src="/new/images/del_03.png">刪除</a><a href=""><img src="/new/images/del_05.png">封鎖</a></h4>
                         </div>
                     </div>
                 </li>
@@ -186,6 +189,70 @@
             date= $('input[name=RadioGroup1]:checked').val();
             LoadTable()
         });
+
+        function chk_delete(url){
+            c4('確定要刪除嗎?');
+            $(".n_left").on('click', function() {
+                window.location = url;
+            });
+            return false;
+        }
+
+        $('.shou_but').on('click', function() {
+            c4('確定要全部刪除嗎?');
+            $(".n_left").on('click', function() {
+                //window.location = {!! route('delete2All', ['uid' => $user->id]) !!};
+                $.post('{{ route('delete2All') }}', {
+                    uid: '{{ $user->id }}',
+                    _token: '{{ csrf_token() }}'
+                }, function (data) {
+                    window.location.reload();
+                });
+            });
+            return false;
+        });
+
+
     </script>
 
+@stop
+
+@section('javascript')
+    <div class="bl bl_tab" id="tab03">
+        <div class="bltitle">設定</div>
+        <div class="blnr02 ">
+            <h2>信息通知</h2>
+            <select name="notifmessage" id="notifmessage" class="blinput">
+                <option value="收到即通知" @if($user->meta_()->notifmessage=='收到即通知') selected @endif>收到即通知</option>
+                <option value="每天通知一次" @if($user->meta_()->notifmessage=='每天通知一次') selected @endif>每天通知一次</option>
+                <option value="不通知" @if($user->meta_()->notifmessage=='不通知') selected @endif>不通知</option>
+            </select>
+            <h2>收信設定</h2>
+            <select name="notifhistory" id="notifhistory" class="blinput">
+                <option value="顯示普通會員信件" @if($user->meta_()->notifhistory=='顯示普通會員信件') selected @endif>顯示普通會員信件</option>
+                <option value="顯示VIP會員信件" @if($user->meta_()->notifhistory=='顯示VIP會員信件') selected @endif>顯示VIP會員信件</option>
+                <option value="顯示全部會員信件" @if($user->meta_()->notifhistory=='顯示全部會員信件') selected @endif>顯示全部會員信件</option>
+            </select>
+
+            <a class="blbut" href="">更新資料</a>
+        </div>
+        <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+    </div>
+
+
+    <script>
+        $('.blbut').on('click', function() {
+            $("#tab03").hide();
+            $.post('{{ route('chatSet') }}', {
+                uid: '{{ $user->id }}',
+                notifmessage:$('#notifmessage').val(),
+                notifhistory:$('#notifhistory').val(),
+                _token: '{{ csrf_token() }}'
+            }, function (data) {
+                //$("#tab03").hide();
+                show_message('資料更新成功');
+                //window.location.reload();
+            });
+        });
+    </script>
 @stop

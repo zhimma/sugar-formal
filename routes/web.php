@@ -281,6 +281,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('/dashboard/imagedel/{admin?}', 'ImageController@deleteImage');
     Route::post('/dashboard/block', 'PagesController@postBlock');
     Route::post('/dashboard/unblock', 'PagesController@unblock');
+    Route::post('/dashboard/unblockajax', 'PagesController@unblockAJAX')->name('unblockAJAX'); //new route
+    Route::post('/dashboard/unblockAll', 'PagesController@unblockAll')->name('unblockAll'); //new route
     Route::post('/dashboard/fav', 'PagesController@postfav');
     Route::post('/dashboard/fav_ajax', 'PagesController@fav_ajax')->name('showfav');//新樣板route
     Route::post('/dashboard/fav/remove', 'PagesController@removeFav')->name('fav/remove');
@@ -326,6 +328,11 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('/dashboard/chat2/chatShow/{cid}', 'PagesController@chat2')->name('chat2WithUser');
         Route::post('/dashboard/chat2/deletesingle', 'Message_newController@deleteSingle')->name('delete2Single');
         Route::post('/dashboard/chat2', 'Message_newController@postChat');
+        Route::get('/dashboard/chat2/deleterow/{uid}/{sid}', 'Message_newController@deleteBetweenGET')->name('delete2BetweenGET');
+        Route::post('/dashboard/chat2/deleteall', 'Message_newController@deleteAll')->name('delete2All');
+        Route::post('/dashboard/chat2/chatSet', 'Message_newController@chatSet')->name('chatSet');
+
+        Route::get('/dashboard/banned', 'PagesController@dashboard_banned');
 
         Route::get('/dashboard/board', 'PagesController@board');
         //Route::get('/dashboard/history', 'PagesController@history');

@@ -9,6 +9,10 @@
 <a href="" class="gxbut"></a>
 </div>
 
+<div class="bl bla gtab" id="tab_message">
+    <a href="" class="gxbut"></a>
+</div>
+
 <div class="bl bl_tab" id="tab04">
     <div class="bltitle">提示</div>
     <div class="n_blnr01">

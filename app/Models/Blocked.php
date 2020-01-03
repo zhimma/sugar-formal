@@ -55,6 +55,10 @@ class Blocked extends Model
         return Blocked::where([['member_id', $uid],['blocked_id', $bid]])->delete();
     }
 
+    public static function unblockAll($uid) {
+        return Blocked::where('member_id', $uid)->delete();
+    }
+
     public static function block($member_id, $blocked_id)
     {
         $blocked = new Blocked;

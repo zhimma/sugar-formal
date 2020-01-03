@@ -452,7 +452,7 @@ class PagesController extends Controller
     public function browse(Request $request)
     {
         $user = $request->user();
-        return view('new.browse')->with('user', $user);
+        return view('new.browse')->with('user', $user)->with('cur', $user);
     }
 
     /**
@@ -792,6 +792,23 @@ class PagesController extends Controller
         }
 
         return back()->with('message', '解除封鎖成功');
+    }
+
+    public function unblockAJAX(Request $request)
+    {
+        $bid = $request->to;
+        $aid = $request->uid;
+
+        if($aid !== $bid)
+        {
+            Blocked::unblock($aid, $bid);
+        }
+        return response()->json(['save' => 'ok']);
+    }
+    public function unblockAll(Request $request)
+    {
+        Blocked::unblockAll($request->uid);
+        return response()->json(['save' => 'ok']);
     }
 
     public function postfav(Request $request)
@@ -1260,7 +1277,24 @@ class PagesController extends Controller
         }
     }
 
-    
+
+    public function dashboard_banned(Request $request)
+    {
+        $user = $request->user();
+
+        $time = \Carbon\Carbon::now();
+        $start= date('Y-m-01',strtotime($time->subDay(30)));
+        $end= date('Y-m-t',strtotime($time));
+
+        $count = banned_users::select('*')->whereBetween('banned_users.created_at',[($start),($end)])->count();
+        $banned_users = banned_users::select('*')->whereBetween('banned_users.created_at',[($start),($end)])
+            ->join('users','banned_users.member_id','=','users.id')
+            ->orderBy('banned_users.created_at','asc')->paginate(15);
+        return view('new.dashboard.banned')
+            ->with('banned_user', $banned_users)
+            ->with('user', $user)
+            ->with('count',$count);
+    }
 
     /**
      * Check the user is banned or not then show notice page.

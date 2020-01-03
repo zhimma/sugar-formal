@@ -3,17 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Message;
 use App\Models\Message_new;
 use App\Models\AnnouncementRead;
-use App\Http\Requests;
 use App\Models\SimpleTables\banned_users;
 use App\Models\User;
+use App\Models\UserMeta;
+use App\Services\UserService;
+use App\Services\VipLogService;
 use Carbon\Carbon;
+use Gloudemans\Shoppingcart\Facades\Cart as Cart;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 
 class Message_newController extends Controller {
+
 
     // handle delete message
     public function deleteBetween(Request $request) {
@@ -25,23 +30,27 @@ class Message_newController extends Controller {
     public function deleteBetweenGET($uid, $sid) {
         Message::deleteBetween($uid, $sid);
 
-        return redirect('dashboard/chat');
+        return redirect('dashboard/chat2/'.csrf_token().Carbon::now()->timestamp);
+        //return redirect('dashboard/chat2/{randomNo?}');
     }
 
     public function deleteAll(Request $request) {
-        Message::deleteAll($request->input('uid'));
-
-        return redirect('dashboard/chat');
+        Message::deleteAll($request->uid);
+        return response()->json(['save' => 'ok']);
+        //return redirect('dashboard/chat');
+        //return redirect('dashboard/chat2/'.csrf_token().Carbon::now()->timestamp);
     }
 
     public function deleteSingle(Request $request) {
-        $uid = $request->input('uid');
-        $sid = $request->input('sid');
-        $ct_time = $request->input('ct_time');
-        $content = $request->input('content');
+        $uid = $request->uid;
+        $sid = $request->sid;
+        $ct_time = $request->ct_time;
+        $content = $request->content;
+        $id = $request->id;
 
         Message::deleteSingle($uid, $sid, $ct_time, $content);
-        return redirect()->route('chatWithUser', $sid);
+        return response()->json(['save' => 'ok']);
+//        return redirect()->route('chat2WithUser', $sid);
         //return redirect('dashboard/chat/' . $sid);
     }
 
@@ -50,6 +59,17 @@ class Message_newController extends Controller {
 
         return redirect()->route('chatWithUser', $sid);
         //return redirect('dashboard/chat/' . $sid);
+    }
+
+    public function chatSet(Request $request) {
+        $user = UserMeta::where('user_id',$request->uid)->first();
+        if ($user) {
+            $user->update([
+                'notifmessage' => $request->notifmessage,
+                'notifhistory' => $request->notifhistory
+            ]);
+            return response()->json(['save' => 'ok']);
+        }
     }
 
     public function reportMessage(Request $request){
@@ -63,6 +83,7 @@ class Message_newController extends Controller {
         $user = Auth::user();
         return view('dashboard.reportMessage')->with('id', $id)->with('sid', $sid)->with('user', $user);
     }
+
 
     public function postChat(Request $request)
     {
@@ -110,7 +131,7 @@ class Message_newController extends Controller {
     public function chatviewMore(Request $request)
     {
         $user_id = $request->uid;
-        $data = Message_new::allSendersAJAX($user_id, $request->isVip,$request->date);
+        $data = Message_new::allSendersAJAX($user_id, $request->isVip,$request->date,$request->sid);
         if (isset($data)) {
             if(!empty($data['date'])){
                 $date = $data['date'];

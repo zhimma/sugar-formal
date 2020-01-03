@@ -28,7 +28,7 @@
                                     <img src="@if($message['from_id'] == $user->id) {{$user->meta_()->pic}} @else {{$msgUser->meta_()->pic}} @endif">
                                     <p>
                                         <i class="msg_input"></i>{{$message['content']}}
-                                        <a class="delete-btn" data-id="{{ $message['id'] }}" data-ct_time="{{ $message['created_at'] }}" data-content="{{ $message['content'] }}" href=""><img src="/new/images/del.png" @if($message['from_id'] == $user->id) class="shde2" @else class="shdel" @endif></a>
+                                        <a class="delete-btn" data-id="{{ $message['id'] }}" data-ct_time="{{ $message['created_at'] }}" data-content="{{ $message['content'] }}" href="javascript:void(0);"><img src="/new/images/del.png" @if($message['from_id'] == $user->id) class="shde2" @else class="shdel" @endif></a>
                                         <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @else dr_r @endif">
                                             @if(!$isVip)
                                                 <img src="/new/images/icon_35.png">
@@ -203,22 +203,23 @@
 
                 $('.delete-btn').on('click',function(){
 
-                    // alert($(this).data('ct_time'));
-                    if(!confirm('確定要刪除?')){
-                        e.preventDefault();
-                    }else{
-                        //$('.deleteMsg').submit();
+                    c4('確定要刪除嗎?');
+
+                    var ct_time = $(this).data('ct_time');
+                    var content = $(this).data('content');
+                    var id = $(this).data('id');
+                    $(".n_left").on('click', function() {
                         $.post('{{ route('delete2Single') }}', {
                             uid: '{{ $user->id }}',
                             sid: '{{ $to->id }}',
-                            ct_time: $(this).data('ct_time'),
-                            content: $(this).data('content'),
-                            id: $(this).data('id'),
+                            ct_time: ct_time,
+                            content: content,
+                            id: id,
                             _token: '{{ csrf_token() }}'
                         }, function (data) {
                             window.location.reload();
                         });
-                    }
+                    });
                 });
             </script>
 

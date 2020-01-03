@@ -129,8 +129,8 @@
 	}
 
 	function cl(str) {
-     	$(".blbg").show()
-        $("#tab01").show()
+     	$(".blbg").show();
+        $("#tab01").show();
         $("#tab01 .bltext").text(str);
     }
 
@@ -140,12 +140,24 @@
          $("#tab02 .gxbut").text(str);
     }
 
+	function c3() {
+		$(".blbg").show();
+		$("#tab03").show();
+	}
+
     $(document).on('click','.blbg',function(event) {
     	$(".blbg").hide();
         $(".bl").hide();
     });
     function c4(str) {
-		 $(".blbg").show()
-         $("#tab04").show()
+		 $(".blbg").show();
+         $("#tab04").show();
          $("#tab04 .bltext").text(str);
     }
+
+	function show_message(str) {
+		//$(".blbg").show();
+		$("#tab_message").show();
+		$("#tab_message .gxbut").text(str);
+	}
+
