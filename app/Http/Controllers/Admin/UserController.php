@@ -832,7 +832,7 @@ class UserController extends Controller
 
 
             $message_msg = Message::where('to_id', $to_user->id)->where('from_id',$user->id)->get();   
-        if(!$msglib_report->isEmpty() && isset($message_msg)){
+        if(!$msglib_report->isEmpty() && isset($message_msg[0])){
             foreach($msglib_report as $key=>$msg){
                 $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
                 $msglib_msg[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg[$key]);
@@ -844,7 +844,7 @@ class UserController extends Controller
                 $msglib_msg[$key] = $msg['msg'];
             }
         }
-        if(!$msglib_reported->isEmpty() && isset($message_msg)){
+        if(!$msglib_reported->isEmpty() && isset($message_msg[0])){
             foreach($msglib_reported as $key=>$msg){
                 $msglib_msg2[$key] = str_replace('|$report|',$user->name, $msg['msg']);
                 $msglib_msg2[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg2[$key]);
