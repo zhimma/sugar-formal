@@ -25,7 +25,7 @@
                             <input  data-parsley-equalto="#pw" required name="password_confirmation" type="password" class="zcinput" placeholder="密碼確認" value="{{old('password_confirmation')}}" autocomplete="off">
                         </div>
                         <div class="de_input01 dlmarbot">
-                            <input required id="name" name="name"  type="text" class="zcinput" placeholder="暱稱" value="{{old('name')}}">
+                            <input required id="name" name="name"  type="text" class="zcinput" placeholder="暱稱 (至多八個字)" value="{{old('name')}}" maxlength="8">
                         </div>
                         <div class="de_input01 dlmarbot">
                             <input required name="title" type="text" class="zcinput" placeholder="一句話形容自已"  value="{{old('title')}}">
