@@ -40,7 +40,7 @@
             <br><br>
             <textarea class="form-control m-reason" name="reason" id="msg" rows="4" maxlength="200">廣告</textarea>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer" style="text-align: left!important; display: block!important;">
             <input type="submit" id="send_blockade" class="btn btn-outline-success ban-user" value="送出">
             <button type="button" class="btn btn-outline-danger cancel" data-dismiss="modal">取消</button>
         </div>  

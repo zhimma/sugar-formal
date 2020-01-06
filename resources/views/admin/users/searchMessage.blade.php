@@ -125,7 +125,7 @@
                 </td>
                 @if(isset($reported) && $reported == 1)
                 <td>
-                    <a class="btn btn-danger" href="{{ route('banUserWithDayAndMessage', [$result->from_id, $result->id, 'reported']) }}">封鎖</a>
+                    <a class="btn btn-danger" href="{{ route('banUserWithDayAndMessage', [$result->from_id, $result->id, 'reported']) }}" target="_blank">封鎖</a>
                 </td>
                 @endif
                 <td @if($result['isBlockedReceiver']) style="background-color:#FFFF00" @endif>
@@ -150,7 +150,7 @@
                 </td>
                 @if(isset($reported) && $reported == 1)
                 <td>
-                    <a class="btn btn-danger ban-user{{ $key }}" href="{{ route('banUserWithDayAndMessage', [$result->to_id, $result->id]), 'reported' }}">封鎖</a>
+                    <a class="btn btn-danger ban-user{{ $key }}" href="{{ route('banUserWithDayAndMessage', [$result->to_id, $result->id]), 'reported' }}" target="_blank">封鎖</a>
                 </td>
                 @endif
                 <td width="45%" style="word-wrap: break-word;">{{ $result['content'] }}</td>
@@ -207,7 +207,7 @@
                 </td>
                 <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][0]['id'] ]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>
                 <td>
-                    <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }}">封鎖</a>
+                    <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }}" target="_blank">封鎖</a>
                 </td>
                 <td rowspan="{{ count($sender['messages']) }}">{{ $sender['created_at'] }}</td>
                 <td rowspan="{{ count($sender['messages']) }}">{{ $sender['last_login'] }}</td>
@@ -222,7 +222,7 @@
             @for( $i = 1; $i < count($sender['messages']); $i++) <tr @if($sender['isBlocked']) style="color: #F00;" @endif>
                 <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][$i]['id']]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>
                 <td>
-                    <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }} ">封鎖</a>
+                    <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }} " target="_blank">封鎖</a>
                 </td>
                 <td>{{ $receivers[$sender['messages'][$i]['to_id']] }}</td>
                 <td width="45%">{{ $sender['messages'][$i]['content'] }}</td>

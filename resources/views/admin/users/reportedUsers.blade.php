@@ -94,7 +94,7 @@
                             <a href="{{ route('AdminMessengerWithReportedId', [$result->member_id, $result->reported_id, $result->id, 0, 'reported']) }}" target="_blank" class='btn btn-dark'>撰寫</a>
                         </td>
                         <td>
-                            <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$result['reported_id'], $result['id'], 'reported'])}}">封鎖</a>
+                            <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$result['reported_id'], $result['id'], 'reported'])}}" target="_blank">封鎖</a>
                         </td>
 
                         <td @if($result['isBlocked']) style="background-color:#FFFF00" @endif>
@@ -130,7 +130,7 @@
                             <a href="{{ route('AdminMessengerWithReportedId', [$result->member_id, $result->reported_id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
                         </td>
                         <td>
-                            <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [ $result['member_id'], $result['id'] , 'reported' ] ) }}">封鎖</a>
+                            <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [ $result['member_id'], $result['id'] , 'reported' ] ) }}" target="_blank">封鎖</a>
                         </td>
 
                         <td width="45%" style="word-wrap: break-word;">{{ $result['content'] }}</td>
