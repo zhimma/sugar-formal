@@ -832,7 +832,7 @@ class UserController extends Controller
 
 
             $message_msg = Message::where('to_id', $to_user->id)->where('from_id',$user->id)->get();   
-        if(!$msglib_report->isEmpty()){
+        if(!$msglib_report->isEmpty() && isset($message_msg[0])){
             foreach($msglib_report as $key=>$msg){
                 $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
                 $msglib_msg[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg[$key]);
@@ -844,7 +844,7 @@ class UserController extends Controller
                 $msglib_msg[$key] = $msg['msg'];
             }
         }
-        if(!$msglib_reported->isEmpty()){
+        if(!$msglib_reported->isEmpty() && isset($message_msg[0])){
             foreach($msglib_reported as $key=>$msg){
                 $msglib_msg2[$key] = str_replace('|$report|',$user->name, $msg['msg']);
                 $msglib_msg2[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg2[$key]);
@@ -887,6 +887,8 @@ class UserController extends Controller
             $msglib = Msglib::get();
             $msglib2 = Msglib::get();
             $msglib3 = Msglib::selectraw('msg')->get();
+            $msglib_report = Msglib::selectraw('id, title, msg')->where('kind','=','report')->get();
+            $msglib_reported = Msglib::selectraw('id, title, msg')->where('kind','=','reported')->get();
             $report = Reported::where('member_id', $id)->where('reported_id', $reported_id)->get()->first();
             /*檢舉者*/
             $user = $this->service->find($id);
@@ -909,6 +911,8 @@ class UserController extends Controller
                 ->with('pic_id', $pic_id)
                 ->with('msglib', $msglib)
                 ->with('msglib2', $msglib2)
+                ->with('msglib_report', $msglib_report)
+                ->with('msglib_reported', $msglib_reported)
                 ->with('msglib_msg', isset($msglib_msg) ? $msglib_msg : null);
         }
         else{
