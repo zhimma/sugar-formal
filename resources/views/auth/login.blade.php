@@ -1,4 +1,7 @@
 @include('partials.header')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/2.1.0/fingerprint2.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/0.7.20/ua-parser.js"></script>
+<script src="{{ url('/new/js/fingerprint.js') }}"></script>
 <body class="m--skin- m-header--fixed m-header--fixed-mobile m-footer--push" >
     <div class="m-grid m-grid--hor m-grid--root m-page">
         @include('layouts.navigation')
@@ -25,7 +28,7 @@
                 <form class="m-login__form m-form" method="POST" action="/login">
                     {!! csrf_field() !!}
                     <div class="form-group m-form__group">
-                        <input class="form-control m-input" type="email" placeholder="帳號 (您的E-mail)" name="email" values="{{ old('email') }}" autocomplete="off">
+                        <input class="form-control m-input" type="email" placeholder="帳號 (您的E-mail)" name="email" values="{{ old('email') }}" autocomplete="off" id="email">
                     </div>
                     <div class="form-group m-form__group">
                         <input class="form-control m-input m-login__form-input--last" type="password" placeholder="密碼" name="password" id="password">
@@ -45,13 +48,13 @@
                         </div>
                     </div>
                     <div class="m-login__form-action">
-                        <button type="submit" id="m_login_signin_submit" class="btn btn-danger m-btn m-btn--pill m-btn--custom m-btn--air m-login__btn m-login__btn--primary">
+                        <button type="submit" id="m_login_signin_submit" class="btn btn-danger m-btn m-btn--pill m-btn--custom m-btn--air m-login__btn m-login__btn--primary" onclick="backendProcess()">
                             登錄
                         </button>
                     </div>
                 </form>
             </div>
-          <div class="m-login__account">
+            <div class="m-login__account">
                 <span class="m-login__account-msg">
                 還沒有帳號 ?
                 </span>
@@ -60,12 +63,36 @@
                 免費註冊
                 </a>
             </div>
-        </div>
-            </div>
+            <div class="">
+                <p style="color:red; font-size:14px; font-weight:bold;">本站系統改版，如有舊帳號無法登入，帳號資料不正常，請點右下聯絡我們。跟站方聯繫</p>
         </div>
     </div>
-        @include('partials.footer')
-        @include('partials.scripts')
-        <script src="/js/login.js" type="text/javascript"></script>
+</div>
+</div>
+<script>
+    var backendProcess = function(){
+        let email =  document.getElementById('email').value;
+        if(email != null || email != ""){
+            if (window.requestIdleCallback) {
+                requestIdleCallback(function () {
+                    identifyResult('{{ csrf_token() }}', $('#email').val(), function(result){
+                        console.log(result)
+                    })
+                })
+            }
+            else {
+                setTimeout(function () {
+                    identifyResult('{{ csrf_token() }}', $('#email').val(), function(result){
+                        console.log(result)
+                    })
+                }, 500)
+            }
+        }
+    }
+</script>
+@include('partials.footer')
+</div>
+@include('partials.scripts')
+<script src="/js/login.js" type="text/javascript"></script>
 </body>
 </html>

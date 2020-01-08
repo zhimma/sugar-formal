@@ -60,13 +60,13 @@ let analysisFingerpirnt = function(handle){
 		let device_os = UAparser.getOS()
 		let browser = UAparser.getBrowser()
 		let plugins = browser['name'] == "IE" ? fliterPluginsIE(fliterData['plugins']) : fliterPlugins(fliterData['plugins'])
-		/** 
+		/**
 		*	Generate fingerprint by hash function
-		*	
+		*
 		*	@param str the value of the all components
 		*	@param int the seed number for hash function
 		*	@return str a hex number which is fingerprint
-		*/ 
+		*/
 
 		let data = {
 			fingerprintValue: generateFinger(components),
@@ -82,8 +82,10 @@ let analysisFingerpirnt = function(handle){
 	})
 }
 
-let identifyResult = function(token, handle){
+jQuery.noConflict();
+let identifyResult = function(token, str, handle){
 	analysisFingerpirnt(function(data){
+		data['email'] = str
 		data['_token'] = token
 		$.post("/saveFingerprint", data, function(result, textStatus, xhr) {
 			handle(result)

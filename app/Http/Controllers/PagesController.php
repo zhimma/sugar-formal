@@ -365,17 +365,19 @@ class PagesController extends Controller
         if(Fingerprint::isExist(['fingerprintValue'=>$fingerprintValue]))
             return '找到相符合資料';
         else{
+            $user = User::findByEmail($request->email);
             $fingerprintValue = Hash::make($fingerprintValue.$request->ip());
             $data = [
-                    'fingerprintValue'=>$fingerprintValue,
-                    'browser_name'=>$request->browser_name,
-                    'browser_version'=>$request->browser_version,
-                    'os_name'=>$request->os_name,
-                    'os_version'=>$request->os_version,
-                    'timezone'=>$request->timezone,
-                    'plugins'=>$request->plugins,
-                    'language'=>$request->language
-                ];
+                'user_id' => isset($user) ? $user->id : null,
+                'fingerprintValue'=>$fingerprintValue,
+                'browser_name'=>$request->browser_name,
+                'browser_version'=>$request->browser_version,
+                'os_name'=>$request->os_name,
+                'os_version'=>$request->os_version,
+                'timezone'=>$request->timezone,
+                'plugins'=>$request->plugins,
+                'language'=>$request->language
+            ];
 
             Fingerprint::insert($data);
             return '已新增至資料庫';
