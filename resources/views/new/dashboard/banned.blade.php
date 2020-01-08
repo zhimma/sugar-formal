@@ -15,14 +15,14 @@
                                 <th style=" border-radius:5px 0 0 5px;">名稱</th>
                                 <th>封鎖原因</td>
                                 <th>開始日期</td>
-                                <th style=" border-radius:0 5px 5px 0;">封鎖時間</th>
+                                <th style=" border-radius:0 5px 5px 0;">解除時間</th>
                             </tr>
                             @foreach($banned_user as $row)
                             <tr>
                                 <td>{{$row->member_id}}</td>
                                 <td>{{$row->reason}}</td>
                                 <td>{{$row->created_at}}</td>
-                                <td>{{$row->expire_date}}</td>
+                                <td>@if($row->expire_date<>''){{$row->expire_date}}@else - @endif</td>
                             </tr>
                             @endforeach
                         </table>

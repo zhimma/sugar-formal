@@ -15,8 +15,8 @@
                             <div class="embg_1">
                             <h3>您已註冊成功，以下是您所填寫的註冊資料：</h3>
                             <h3>暱稱：{{ $user->name }}</h3>
-                            <h3>標題：{{ $user->title }}</h3>
                             <h3>帳號類型：@if($user->engroup == 2)<b>甜心寶貝</b>@else<b>甜心爹地</b>@endif</h3>
+                            <h3>一句話形容自己：{{ $user->title }}</h3>
                             <h3>Email：<span>{{ $user->email }} (若Email填寫錯誤，請重新註冊)</span></h3>
                             </div>
                     </div>

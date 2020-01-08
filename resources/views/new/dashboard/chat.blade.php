@@ -11,7 +11,7 @@
                 <div class="shou"><span>收件夾</span>
                     <font>inbox</font>
                     <a href="" class="shou_but">全部刪除</a>
-                    <a onclick="c3()"><img src="/new/images/ncion_03.png" class="whoicon02 marlr10"></a>
+                    <a href="javascript:void(0);" onclick="c3()"><img src="/new/images/ncion_03.png" class="whoicon02 marlr10"></a>
                 </div>
                 <div class="n_shtab">
 
@@ -41,6 +41,27 @@
             </div>
 
         </div>
+    </div>
+
+    <div class="bl bl_tab" id="tab03">
+        <div class="bltitle">設定</div>
+        <div class="blnr02 ">
+            <h2>信息通知</h2>
+            <select name="notifmessage" id="notifmessage" class="blinput">
+                <option value="收到即通知" @if($user->meta_()->notifmessage=='收到即通知') selected @endif>收到即通知</option>
+                <option value="每天通知一次" @if($user->meta_()->notifmessage=='每天通知一次') selected @endif>每天通知一次</option>
+                <option value="不通知" @if($user->meta_()->notifmessage=='不通知') selected @endif>不通知</option>
+            </select>
+            <h2>收信設定</h2>
+            <select name="notifhistory" id="notifhistory" class="blinput">
+                <option value="顯示普通會員信件" @if($user->meta_()->notifhistory=='顯示普通會員信件') selected @endif>顯示普通會員信件</option>
+                <option value="顯示VIP會員信件" @if($user->meta_()->notifhistory=='顯示VIP會員信件') selected @endif>顯示VIP會員信件</option>
+                <option value="顯示全部會員信件" @if($user->meta_()->notifhistory=='顯示全部會員信件') selected @endif>顯示全部會員信件</option>
+            </select>
+
+            <a class="blbut" href="">更新資料</a>
+        </div>
+        <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
 
     <script>
@@ -109,7 +130,8 @@
                         </a>
                         <div class="sjright">
                             <h3>${created_at}</h3>
-                            <h4><a href="javascript:void(0)" onclick="chk_delete('${del_url}');"><img src="/new/images/del_03.png">刪除</a><a href=""><img src="/new/images/del_05.png">封鎖</a></h4>
+                            <h4><a href="javascript:void(0)" onclick="chk_delete('${del_url}');"><img src="/new/images/del_03.png">刪除</a>
+                                <a href="javascript:void(0)" onclick="block('${user_id}');"><img src="/new/images/del_05.png">封鎖</a></h4>
                         </div>
                     </div>
                 </li>
@@ -190,10 +212,29 @@
             LoadTable()
         });
 
-        function chk_delete(url){
+        function chk_delete(url) {
             c4('確定要刪除嗎?');
-            $(".n_left").on('click', function() {
+            $(".n_left").on('click', function () {
+                $("#tab04").hide();
+                show_message('刪除成功');
                 window.location = url;
+            });
+            return false;
+        }
+
+        function block(sid){
+            c4('確定要封鎖嗎?');
+            var sid = sid;
+            $(".n_left").on('click', function() {
+                $.post('{{ route('postBlockAJAX') }}', {
+                    uid: '{{ $user->id }}',
+                    sid: sid,
+                    _token: '{{ csrf_token() }}'
+                }, function (data) {
+                    $("#tab04").hide();
+                    show_message('封鎖成功');
+                    window.location.reload();
+                });
             });
             return false;
         }
@@ -206,11 +247,18 @@
                     uid: '{{ $user->id }}',
                     _token: '{{ csrf_token() }}'
                 }, function (data) {
+                    $("#tab04").hide();
+                    show_message('刪除成功');
                     window.location.reload();
                 });
             });
             return false;
         });
+
+            function c3() {
+                $(".blbg").show();
+                $("#tab03").show();
+            }
 
 
     </script>
@@ -218,26 +266,7 @@
 @stop
 
 @section('javascript')
-    <div class="bl bl_tab" id="tab03">
-        <div class="bltitle">設定</div>
-        <div class="blnr02 ">
-            <h2>信息通知</h2>
-            <select name="notifmessage" id="notifmessage" class="blinput">
-                <option value="收到即通知" @if($user->meta_()->notifmessage=='收到即通知') selected @endif>收到即通知</option>
-                <option value="每天通知一次" @if($user->meta_()->notifmessage=='每天通知一次') selected @endif>每天通知一次</option>
-                <option value="不通知" @if($user->meta_()->notifmessage=='不通知') selected @endif>不通知</option>
-            </select>
-            <h2>收信設定</h2>
-            <select name="notifhistory" id="notifhistory" class="blinput">
-                <option value="顯示普通會員信件" @if($user->meta_()->notifhistory=='顯示普通會員信件') selected @endif>顯示普通會員信件</option>
-                <option value="顯示VIP會員信件" @if($user->meta_()->notifhistory=='顯示VIP會員信件') selected @endif>顯示VIP會員信件</option>
-                <option value="顯示全部會員信件" @if($user->meta_()->notifhistory=='顯示全部會員信件') selected @endif>顯示全部會員信件</option>
-            </select>
 
-            <a class="blbut" href="">更新資料</a>
-        </div>
-        <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
-    </div>
 
 
     <script>

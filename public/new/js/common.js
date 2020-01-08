@@ -140,11 +140,6 @@
          $("#tab02 .gxbut").text(str);
     }
 
-	function c3() {
-		$(".blbg").show();
-		$("#tab03").show();
-	}
-
     $(document).on('click','.blbg',function(event) {
     	$(".blbg").hide();
         $(".bl").hide();

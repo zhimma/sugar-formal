@@ -13,7 +13,7 @@
         <div class="n_zy"><span>瀏覽資料</span></div>
         <div class="n_zytab">
             <li><a href="{!! url('dashboard/announcement') !!}"><img src="/new/images/z_01.png"><span>站方公告</span></a></li>  
-            <li><a href=""><img src="/new/images/z_02.png"><span>懲處名單</span></a></li>  
+            <li><a href="{!! url('/dashboard/banned') !!}"><img src="/new/images/z_02.png"><span>懲處名單</span></a></li>
             <li><a href="{!! url('dashboard/board') !!}"><img src="/new/images/z_03.png"><span>留言板</span></a></li>  
             <li><a href=""><img src="/new/images/z_04.png"><span>誰來看我</span></a></li>
             @if ($user->isVip())
