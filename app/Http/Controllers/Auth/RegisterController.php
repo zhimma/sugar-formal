@@ -47,6 +47,12 @@ class RegisterController extends Controller
     {
         return view('new.auth.register');
     }
+    //heary樣板
+    public function showRegistrationForm_heary()
+    {
+        return view('heary.auth.register');
+    }
+    
     /**
      * Get a validator for an incoming registration request.
      *

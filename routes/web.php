@@ -156,7 +156,9 @@ Route::get('/passwd', 'passwd@passwd');
 Route::get('/', 'PagesController@home');
 Route::get('/privacy', 'PagesController@privacy');
 Route::get('/notification', 'PagesController@notification');
-Route::get('/feature', 'PagesController@feature');
+//樣板切換為heary
+// Route::get('/feature', 'PagesController@feature');
+Route::get('/feature', 'PagesController@feature_heary');
 Route::get('/about', 'PagesController@about');
 Route::get('/browse', 'PagesController@browse');
 Route::get('/terms', 'PagesController@terms');
@@ -185,7 +187,9 @@ Route::post('/password/reset', 'Auth\ResetPasswordController@reset');
 | Registration & Activation
 |--------------------------------------------------------------------------
 */
-Route::get('/register', 'Auth\RegisterController@showRegistrationForm2')->name('register');
+//樣板切換為heary
+// Route::get('/register', 'Auth\RegisterController@showRegistrationForm2')->name('register');
+Route::get('/register', 'Auth\RegisterController@showRegistrationForm_heary')->name('register');
 Route::get('/register2', 'Auth\RegisterController@showRegistrationForm')->name('register2');
 Route::post('/register', 'Auth\RegisterController@register');
 
@@ -317,7 +321,9 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('/dashboard/board', 'PagesController@postBoard');
         Route::get('/dashboard/history', 'PagesController@history');
         Route::get('/dashboard/block', 'PagesController@block');
-        Route::get('/dashboard/fav', 'PagesController@fav');
+        //樣板切換為heary
+        Route::get('/dashboard/fav', 'PagesController@fav_heary');
+        // Route::get('/dashboard/fav', 'PagesController@fav');
         Route::get('/dashboard/fav2', 'PagesController@fav2');
     });
 
