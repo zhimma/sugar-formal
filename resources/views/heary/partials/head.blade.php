@@ -7,8 +7,8 @@
     <link href="/css/vendors.bundle.css" rel="stylesheet" type="text/css">
     <link href="/css/bootstrap.min.css" type="text/css" rel="stylesheet">
     <link href="/css/iconfont.css" type="text/css" rel="stylesheet">
-    <link href="/css/new_css.css" type="text/css" rel="stylesheet">
-    <link href="/css/style-new.css?v2" type="text/css" rel="stylesheet">
+    <link href="/css/new_css.css?v2" type="text/css" rel="stylesheet">
+    <link href="/css/style-new.css?v10" type="text/css" rel="stylesheet">
     <script src="/js/analytics.js"></script>
     <script src="/js/jquery.min.js"></script>
     <!-- Global site tag (gtag.js) - Google Analytics -->

@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="/plugins/parsleyjs/parsley.css">
     <script src="js/jquery.min.js"></script>
         <style>
+            p {
+                margin: 0 0 0px;
+            }
             .lytitle {
                 width: 100%;
                 background: #faeded;
@@ -20,6 +23,10 @@
                 color: #e65757;
                 font-size: 20px;
                 font-weight: bold;
+            }
+            .footer2 {
+                background: url(../images/5.png) center no-repeat;
+                background-size: 100% 100%;
             }
             .lytitle i {
                 width: 4px;
@@ -31,7 +38,35 @@
                 float: left;
                 margin-top: 15px;
             }
+
             h3.weui-t_c{margin-top: 0;}
+
+            .container2 {
+                padding: 50px 15px 50px 15px;
+                margin-right: auto;
+                margin-left: auto;
+            }
+
+            @media (min-width: 1200px){
+                .container2 {
+                    width: 640px;
+                }
+            }
+            @media (min-width: 992px){
+            .container2 {
+                    width: 640px;
+                }
+            }
+            @media (min-width: 768px){
+            .container2 {
+                    width: 640px;
+                }
+            }
+            @media  (min-width:1080px){
+                .footer2{
+                    height: auto;
+                    padding-bottom: 30px;
+                }
         </style>
  <body >
 
@@ -86,7 +121,7 @@
                     <div><img src="images/sjzc2_03.png" width="14"></div>
                     <div class="weui-flex__item weui-pl10">
                         <input type="password" style="display:none" />
-                        <input type="email" class="form02" placeholder="E-mail信箱（也是您未來的帳號）"  value="{{old('email')}}" required name="email" autocomplete="off" ></div>
+                        <input type="email" class="form02" placeholder="E-mail信箱（帳號）"  value="{{old('email')}}" required name="email" autocomplete="off" ></div>
                 </div>
             </div>
             <div class="weui-mt10">
@@ -126,23 +161,23 @@
             </div>
         </form>
     </div>
-    <div class="footer weui-t_c weui-white">
-    <h3 class="weui-pt30"><img src="images/homeicon.png" class="weui-pt30"></h3>
-    <p class="weui-f18 weui-c_9">TAIWAN/台灣</p>
-    <div class="container">
-      <div class="row">
-        <div class="col-md-3"> <a href="/terms" class="weui-white">使用條款/隱私政策</a> </div>
-        <div class="col-md-3"> <a href="/feature" class="weui-white">網站使用</a> </div>
-        <div class="col-md-3"> <a href="/notification" class="weui-white">站長開講</a> </div>
-        <div class="col-md-3"> <a href="/contact" class="weui-white">聯絡我們</a> </div>
-      </div>
+    <div class="footer2 weui-t_c weui-white">
+        <h3 class="weui-pt30"><img src="/images/homeicon.png" class="weui-pt30"></h3>
+        <p class="weui-f18 weui-c_9">TAIWAN/台灣</p>
+        <div class="container2">
+        <div class="row">
+            <div class="col-md-3"> <a href="/terms" class="weui-white">使用條款/隱私政策</a> </div>
+            <div class="col-md-3"> <a href="/feature" class="weui-white">網站使用</a> </div>
+            <div class="col-md-3"> <a href="/notification" class="weui-white">站長開講</a> </div>
+            <div class="col-md-3"> <a href="/contact" class="weui-white">聯絡我們</a> </div>
+        </div>
+        </div>
+        <p class="weui-c_9">2007 - 2018 官方網站 在一個或多個國家註冊</p>
     </div>
-    <p class="weui-c_9">2007 - 2018 官方網站 在一個或多個國家註冊</p>
-  </div>
-  </div>
+</div>
 <script src="js/vendors.bundle.js" type="text/javascript"></script>
 <script src="js/scripts.bundle.js" type="text/javascript"></script>
-<script src="js/messages_zh_TW.min.js"></script>
+<script src="js/messages_zh_TW.min.js?v1"></script>
 <script src="js/jquery.twzipcode.min.js" type="text/javascript"></script>
 <script src="js/login.js" type="text/javascript"></script>
 </body>

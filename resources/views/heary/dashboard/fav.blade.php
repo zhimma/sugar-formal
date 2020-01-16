@@ -12,13 +12,13 @@
         <div class="col-sm-12 col-xs-12 col-md-3 zleft">
             @include('heary.dashboard.panel')
         </div>
-        <div class="col-md-9" style="background-color:white;height: 100%;">
+        <div class="col-md-9" style="background-color:white;">
             <div class="p100 weui-f18">
                 <div class="lytitle ffs"><i></i>收藏會員
                     <a href="javascript:" class="yichu_t">移除</a>
                 </div>
                 <div class="row weui-t_c weui-mt30">
-                    <div class="row weui-t_c weui_mt19 sjlist">
+                    <div class="row weui-t_c weui_mt19 sjlist" style="height: 54%;">
                         <ul>
                             <!-- 迴圈收藏人物-->
                         </ul>
