@@ -81,7 +81,7 @@
                                             @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
                                                 {{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天
                                             @else
-                                                已解除封鎖
+                                                此會員登入後將自動解除封鎖
                                             @endif
                                         @else
                                             (永久)
@@ -114,7 +114,7 @@
                                                 @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
                                                     {{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天
                                                 @else
-                                                    已解除封鎖
+                                                    此會員登入後將自動解除封鎖
                                                 @endif
                                             @else
                                                 沒有正確記錄封鎖資料
