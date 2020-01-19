@@ -120,7 +120,7 @@ function fileuploaderAjaxImage($target, opts) {
                     item.html.find(".progress-holder").hide();
                     item.renderThumbnail();
 
-                    item.html.find(".fileuploader-action-popup, .fileuploader-item-image").show();
+                    item.html.find(".fileuploader-item-image").show();
                 }, 400);
             },
             onError: function(item) {

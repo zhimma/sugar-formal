@@ -550,7 +550,187 @@ class PagesController extends Controller
         }
     }
 
+    function base64_image_content($base64_image_content,$path){
+        //匹配出圖片的格式
+        if (preg_match('/^(data:\s*image\/(\w );base64,)/', $base64_image_content, $result)){
+        $type = $result[2];
+        $new_file = $path."/".date('Ymd',time())."/";
+        if(!file_exists($new_file)){
+        //檢查是否有該資料夾，如果沒有就建立，並給予最高許可權
+        mkdir($new_file, 0700);
+        }
+        $new_file = $new_file.time().".{$type}";
+        if (file_put_contents($new_file, base64_decode(str_replace($result[1], '', $base64_image_content)))){
+        return '/'.$new_file;
+        }else{
+        return false;
+        }
+        }else{
+        return false;
+        }
+        }
     public function dashboard_img(Request $request)
+    {
+        $user = $request->user();
+        $url = $request->fullUrl();
+        //echo $url;
+
+        if(str_contains($url, '?img')) {
+            $tabName = 'm_user_profile_tab_4';
+        }
+        else {
+            $tabName = 'm_user_profile_tab_1';
+        }
+
+
+        $member_pics = DB::table('member_pic')->select('*')->where('member_id',$user->id)->get()->take(6);
+
+
+        $birthday = date('Y-m-d', strtotime($user->meta_()->birthdate));
+        $birthday = explode('-', $birthday);
+        $year = $birthday[0];
+        $month = $birthday[1];
+        $day = $birthday[2];
+        if($year=='1970'){
+            $year=$month=$day='';
+        }
+        if ($user) {
+            $cancel_notice = $request->session()->get('cancel_notice');
+            $message = $request->session()->get('message');
+            if(isset($cancel_notice)){
+                return view('dashboar_img')
+                    ->with('user', $user)
+                    ->with('tabName', $tabName)
+                    ->with('cur', $user)
+                    ->with('year', $year)
+                    ->with('month', $month)
+                    ->with('day', $day)
+                    ->with('message', $message)
+                    ->with('cancel_notice', $cancel_notice);
+            }
+            if($user->engroup==1){
+                return view('new.dashboard_img')
+                ->with('user', $user)
+                ->with('tabName', $tabName)
+                ->with('cur', $user)
+                ->with('year', $year)
+                ->with('month', $month)
+                ->with('day', $day)
+                ->with('member_pics', $member_pics);
+            }else{
+                return view('new.dashboard_img')
+                ->with('user', $user)
+                ->with('tabName', $tabName)
+                ->with('cur', $user)
+                ->with('year', $year)
+                ->with('month', $month)
+                ->with('day', $day)
+                ->with('member_pics', $member_pics);
+            }
+        }
+    }
+
+    public function save_img(Request $request)
+    {
+        
+        $user=$request->user();
+        $data = json_decode($request->data);
+        // dd($data);
+        $member_pics = $data->name;
+        $pic_infos = $data->reader;
+// dd($member_pics);
+
+//VER.1
+        // $this->base64_image_content($pic_infos[0], '/public/new/img/Member');
+        // define('UPLOAD_PATH', '/new/img/Member/');
+        // $img = str_replace('data:image/png;base64,', '', $pic_infos[0]);
+        // $img = str_replace(' ', '+', $img);
+        // $data = base64_decode($img);
+        // $file = UPLOAD_PATH;
+        // // dump($file);
+        // dd($data, $file);
+        // $success = file_put_contents('icon_010.txt', '12345');
+        // $output = ($success) ? '<img src="'. $file .'" alt="Canvas Image" />' : '<p>Unable to save the file.</p>';
+// dd($output);
+
+
+//VER.2
+
+// $file = base64_decode($pic_infos[0]);
+// // dd($file);
+//             $folderName = '/public/new/img/Member/';
+//             $safeName = str_random(10).'.'.'png';
+//             $destinationPath = $folderName;
+//             // dd($safeName);
+//             file_put_contents($safeName, $file);
+
+           //save new file path into db
+            // $userObj->profile_pic = $safeName;
+            $data = array(
+                'code'=>'200',
+            );
+
+            if(count($member_pics)==0){
+                $data = array(
+                    'code'=>'600'
+                );
+                // dd('123');
+            }else{
+                // dd('456');
+                //VER.3
+                for($i=0;$i<count($member_pics);$i++){
+                    $pic_count = DB::table('member_pic')->where('member_id', $user->id)->count();
+                    if($pic_count>=6){
+                        $data = array(
+                            'code'=>'400',
+                        );
+                        break;
+                    }
+                        $now = date("Ymdhis", strtotime(now()));
+                        $image = $pic_infos[$i];  // your base64 encoded
+
+                        // $image = str_replace('data:image/png;base64,', '', $image);
+                        // $image = str_replace(' ', '+', $image);
+                        // $imageName = str_random(10).'.'.'png';
+                        list($type, $image) = explode(';', $image);
+                        list(, $image)      = explode(',', $image);
+                        $image = base64_decode($image);
+                        \File::put(public_path(). '/Member_pics' .'/'. $user->id.'_'.$now.$member_pics[$i], $image);
+
+
+
+                            DB::table('member_pic')->insert(
+                                array('member_id' => $user->id, 'pic' => '/Member_pics'.'/'.$user->id.'_'.$now.$member_pics[$i], 'isHidden' => 0, 'created_at'=>now(), 'updated_at'=>now())
+                            );
+                            
+                            
+                }
+                $is_vip = $user->isVip();
+                
+                
+                if(($pic_count+1)>=4 && $is_vip==0 &&$user->engroup=2){
+                    DB::table('member_vip')->insert(array('member_id'=>$user->id,'active'=>1, 'free'=>1));
+                    
+                    $data = array(
+                        'code'=>'800'
+                    );
+                }
+            }
+
+
+
+
+
+// dd($data);
+        // foreach($member_pics as $key=>$member_pic){
+            
+        //     DB::table('member_pic')->insert(
+        //         array('member_id' => $user->id, 'pic' => date("Ymdhis", strtotime(now())).$member_pic, 'isHidden' => 0, 'created_at'=>now(), 'updated_at'=>now())
+        //     );
+        // }
+        echo json_encode($data);
+    }
+    public function dashboard_img_new(Request $request)
     {
         $user = $request->user();
         $url = $request->fullUrl();

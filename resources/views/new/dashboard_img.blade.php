@@ -36,14 +36,50 @@
             <li><a href=""><img src="/new/images/mm_09.png"><span>VIP</span></a></li>
           </div>
           <div class="addpic g_inputt">
-            <div class="n_adbut"><a href=""><img src="/new/images/1_06.png">預覽</a></div>
+            <div class="n_adbut"><a onclick="window.location.reload()" style="cursor:pointer"><img src="/new/images/1_06.png">預覽</a></div>
             <ul class="n_ulpic">
-              <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_03.png"></div><b class="img" style="background:url(/new/images/ph_11.png); background-size:100% 100%"></b></li>
-               <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(/new/images/ph_10.png); background-size:100% 100%"></b></li>
+            @if($user->engroup==1)
+                @php $count = 6-count($member_pics) @endphp
+                  
+                    @foreach($member_pics as $key=>$member_pic)
+                    <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url('{{$member_pic->pic}}'); background-size:100% 100%"></b></li>
+                    @endforeach
+
+                @if($count>0)
+                    @for($i=0;$i<$count;$i++)
+                    <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(/new/images/ph_12.png); background-size:100% 100%"></b></li>
+                    @endfor
+                @endif 
+            @else
+                @php 
+                    $count = 6-count($member_pics);
+                    $count_vip = 4-count($member_pics);
+                @endphp
+                
+                    @foreach($member_pics as $key=>$member_pic)
+                    <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url('{{$member_pic->pic}}'); background-size:100% 100%"></b></li>
+                    @endforeach
+
+                @if($count>0)
+                    @if($count_vip>0)
+                        @for($i=0;$i<$count_vip;$i++)
+                        <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(/new/images/ph_10.png); background-size:100% 100%"></b></li>
+                        @endfor
+                        @for($i=0;$i<($count-$count_vip);$i++)
+                        <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(/new/images/ph_12.png); background-size:100% 100%"></b></li>
+                        @endfor
+                    @else
+                        @for($i=0;$i<$count;$i++)
+                        <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(/new/images/ph_12.png); background-size:100% 100%"></b></li>
+                        @endfor
+                    @endif
+                @endif 
+            @endif
+               <!-- <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(/new/images/ph_10.png); background-size:100% 100%"></b></li>
                <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(/new/images/ph_10.png); background-size:100% 100%"></b></li>
                <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(/new/images/ph_10.png); background-size:100% 100%"></b></li>
                <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(/new/images/ph_12.png); background-size:100% 100%"></b></li>
-               <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(/new/images/ph_12.png); background-size:100% 100%"></b></li>
+               <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(/new/images/ph_12.png); background-size:100% 100%"></b></li> -->
            </ul>
             <h2 class="h5" id="fileuploader-ajax">上傳照片<a href="javascript:;"  onclick="tour(fileuploader_ajax_tour)"><i class="ion ion-md-help-circle"></i></a></h2>
                                 <div class="row mb-4">
@@ -54,17 +90,21 @@
                                         </form>
                                     </div>
                                 </div>
-           <a class="vipbut save_images abtn" onclick="">上傳照片</a>
+           <a class="vipbut save_images abtn">上傳照片</a>
           </div>
         </div>
       </div>
 
     </div>
   </div>
+  
   <script src="/plugins/hopscotch/js/hopscotch.min.js"></script>
   <script src="/plugins/fileuploader2.2/dist/jquery.fileuploader.min.js"></script>
   <script src="/new/js/fileuploader-ajax-image.js?20191112"></script>
   <script type="text/javascript">
+
+     
+   
       /* 說明 */
       function tour(which) {
           hopscotch.startTour(which);
@@ -73,39 +113,142 @@
           data:{_token:"{{ csrf_token() }}"},
           url: '{!! url('fileuploader_image_upload') !!}',
       });
+      var toArray = function (Ob) {
+            try {
+                return Array.prototype.slice.call(Ob);
+            } catch (e) {
+                var arr = [];
+                for (var i = 0, len = s.length; i < len; i++) {
+                    arr[i] = s[i];
+                }
+                return arr;
+            }
+        }
+        let object1 = {
+            '0': 3,
+            '1': 13,
+            '2': 23,
+            '3': 33,
+            'length': 5,
+            'name': 330
+        }
 
-
-      $('.save_images').click(function(){
-          return false;
-          waitingDialog.show();
+      $('.save_images').on('click',function(){
+        //   console.log('123');
+        //   return false;
+        //   waitingDialog.show();
 
           var data = new FormData();
           var api = $.fileuploader.getInstance($('input[name="files[]"]'));
           var fileList = api.getFileList();
-          var _list = [];
-          var _editor = [];
-
+          console.log('1',api.getOptions());
+          console.log('2',api.getInputEl());
+          console.log('3',api.getNewInputEl());
+          console.log('4',api.getListEl());
+          console.log('5',api.getListInputEl());
+          console.log('6',api.getFiles());
+          console.log('7',api.getChoosedFiles());
+          console.log('8',api.getAppendedFiles());
+          var _name = [];
+          var _reader = [];
+          console.log(data)
+          console.log(fileList)
           $.each(fileList, function(i, item) {
-              _list.push(item.name);
-              _editor.push(item.editor);
+              _name.push(item.file.name);
+              _reader.push(item.reader.src);
           });
+          
+        //   console.log(_list, _editor, JSON.stringify(_editor));
           // 使用者選取的圖片
-          data.append('fileuploader_images', JSON.stringify(_list));
+        //   data.append('fileuploader_images', JSON.stringify(_list));
+        //   console.log(data);
           // 使用者選取圖片的裁切資訊
-          data.append('fileuploader_editor', JSON.stringify(_editor));
+        //   data.append('fileuploader_editor', JSON.stringify(_editor));
           // 新增的圖片
-          data.append('fileuploader_uploaded_images', JSON.stringify(api.getUploadedFiles().map(e=>e.name)));
+        //   console.log(data);
+        //   data.append('fileuploader_uploaded_images', JSON.stringify(api.getUploadedFiles().map(e=>e.name)));
+        //   console.log(data);
+        //   data = toArray(fileList);
+        //   console.log(data[0]);
+        //   data_array = JSON.parse(data[0])
+        //   console.log(data_array);
+            data['name'] = _name;
+            data['reader']=_reader;
+            console.log(data);
+            
           $.ajax({
-              url: '/Backend/Template/save_images',
+              url: '/dashboard/save_img',
               type: 'POST',
-              data: data,
-              processData: false,
-              contentType: false,
-          }).then((result) => {
-              waitingDialog.hide();
+            //   dataType:'json',
+              data: {
+                  'data':JSON.stringify(data),
+                //   "editor": JSON.stringify(_editor),
+                  "_token": "{{ csrf_token() }}"
+                  },
+                success: function(res){
 
-              ResultData(result);
-          })
+                    
+                    
+            //         console.log(res['code']);
+              res = JSON.parse(res);
+              waitingDialog.hide();
+              if(res.code=='200'){
+                Swal.fire({
+                position: 'center',
+                icon: 'success',
+                title: '上傳成功',
+                showConfirmButton: false,
+                timer: 1500
+                });
+                window.location.reload();
+              }else if(res.code=='400'){
+                Swal.fire({
+                position: 'center',
+                icon: 'success',
+                title: '超過數量限制',
+                showConfirmButton: false,
+                timer: 1500
+                });
+                window.location.reload();
+              }else if(res.code=='600'){
+                Swal.fire({
+                position: 'center',
+                icon: 'success',
+                title: '請選取照片',
+                showConfirmButton: false,
+                timer: 1500
+                });
+                window.location.reload();
+              }else if(res.code=='800'){
+                Swal.fire({
+                position: 'center',
+                icon: 'success',
+                title: '照片上傳成功<br>已升級為VIP會員',
+                showConfirmButton: false,
+                timer: 1500
+                });
+                window.location.reload();
+              }else{
+                Swal.fire({
+                position: 'top-end',
+                icon: 'failed',
+                title: '上傳失敗',
+                showConfirmButton: false,
+                timer: 1500
+                });
+                window.location.reload();
+              }
+                },
+            //   processData: false,
+            //   contentType: false,
+          });
+           
+              
+              
+// console.log('success')
+            //   ResultData('this is test');
+              
+          
       })
       var fileuploader_ajax_tour = {
                 id: "fileuploader-ajax",
@@ -135,7 +278,7 @@
       $(document).ready(function() {
         
       });
-
+  
   </script>
 
 @stop

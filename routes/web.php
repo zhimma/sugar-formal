@@ -268,6 +268,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('dashboard/settings', 'PagesController@settingsUpdate');
     Route::get('/dashboard', 'PagesController@dashboard')->name('dashboard');
     Route::get('/dashboard_img', 'PagesController@dashboard_img')->name('dashboard_img');
+    Route::post('/dashboard/save_img','PagesController@save_img');
+    // Route::get('/dashboard_img_new', 'PagesController@dashboard_img')->name('dashboard_img');
     Route::get('/dashboard2', 'PagesController@dashboard2')->name('dashboard2');
     Route::get('/dashboard/cancel', 'PagesController@showCheckAccount');
     Route::post('/dashboard/chat', 'MessageController@postChat');
