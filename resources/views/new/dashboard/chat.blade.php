@@ -26,7 +26,15 @@
                     <ul>
 
                     </ul>
-                    <p style="color:red; font-weight: bold; display: none;margin-left: 20px;" id="warning">載入中，請稍候</p>
+{{--                    <p style="color:red; font-weight: bold; display: none;margin-left: 20px;" id="warning">載入中，請稍候</p>--}}
+                    <p style="width: 20%;margin: 0 auto;" id="warning">
+                        <img src="/new/images/Spin-1s-75px.svg">
+                    </p>
+
+                    <div class="nodata" style="display: none;">
+                        <div class="fengsicon"><img src="/new/images/chatnodata.png" class="feng_img"><span>您目前尚無訊息</span></div>
+                    </div>
+
                     <div class="fenye">
                         <!-- <a href="javascript:" class="page-link" data-p="next">上一頁</a>
                         <a href="javascript:" class="page-link" data-p="last">下一頁</a> -->
@@ -124,8 +132,8 @@
                         <a href="${url}" target="_self">
                         <div class="sjpic"><img src="${pic}" ></div>
                         <div class="sjleft">
-                            <div class="sjtable"><span>${user_name}</span>${(read_n!=0?`<i class="number">${read_n}</i>`:'')}</div>
-                            <font>${content}</font>
+                            <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
+                            <span class="box"><font class="ellipsis">${content}</font></span>
                         </div>
                         </a>
                         <div class="sjright">
@@ -165,10 +173,12 @@
                     let dots = window.setInterval( function() {
                         let wait = document.getElementById("warning");
                         if ( wait.innerHTML.length > length )
-                            wait.innerText = text;
+                            //wait.innerText = text;
+                            $('#warning').fadeOut(100);
                         else
-                            wait.innerText += ".";
-                    }, 200);
+                            //wait.innerText += ".";
+                            $('#warning').fadeOut(100);
+                    }, 0);
                 },
                 complete: function () {
                 },
@@ -191,8 +201,14 @@
                         Page.DrawPage(res.msg.length);
                         $('.sjlist>ul').children().slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
                         $('#warning').fadeOut(50);
-                    }, 3000);
+                    }, 100);
                     total=res.msg.length;
+                    //alert(rr);
+                    if(isNaN(rr)){
+                        $('.nodata').show();
+                    }else{
+                        $('.nodata').hide();
+                    }
                 }
             })
             .done(function() {
@@ -268,7 +284,16 @@
 @section('javascript')
 
 
-
+<style>
+    .box {
+        width: 100%;
+    }
+    .ellipsis {
+        overflow:hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+</style>
     <script>
         $('.blbut').on('click', function() {
             $("#tab03").hide();

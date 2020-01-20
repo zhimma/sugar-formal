@@ -402,6 +402,7 @@ class PagesController extends Controller
             ->where('engroup', 2)->inRandomorder()->take(3)->get();
         return view('new.welcome')
             ->with('user', $user)
+            ->with('cur', $user)
             ->with('imgUserM', $imgUserM)
             ->with('imgUserF', $imgUserF);
     }
@@ -553,22 +554,23 @@ class PagesController extends Controller
     function base64_image_content($base64_image_content,$path){
         //匹配出圖片的格式
         if (preg_match('/^(data:\s*image\/(\w );base64,)/', $base64_image_content, $result)){
-        $type = $result[2];
-        $new_file = $path."/".date('Ymd',time())."/";
-        if(!file_exists($new_file)){
-        //檢查是否有該資料夾，如果沒有就建立，並給予最高許可權
-        mkdir($new_file, 0700);
-        }
-        $new_file = $new_file.time().".{$type}";
-        if (file_put_contents($new_file, base64_decode(str_replace($result[1], '', $base64_image_content)))){
-        return '/'.$new_file;
+            $type = $result[2];
+            $new_file = $path."/".date('Ymd',time())."/";
+            if(!file_exists($new_file)){
+                //檢查是否有該資料夾，如果沒有就建立，並給予最高許可權
+                mkdir($new_file, 0700);
+            }
+            $new_file = $new_file.time().".{$type}";
+            if (file_put_contents($new_file, base64_decode(str_replace($result[1], '', $base64_image_content)))){
+                return '/'.$new_file;
+            }else{
+                return false;
+            }
         }else{
-        return false;
+            return false;
         }
-        }else{
-        return false;
-        }
-        }
+    }
+
     public function dashboard_img(Request $request)
     {
         $user = $request->user();
@@ -582,9 +584,7 @@ class PagesController extends Controller
             $tabName = 'm_user_profile_tab_1';
         }
 
-
         $member_pics = DB::table('member_pic')->select('*')->where('member_id',$user->id)->get()->take(6);
-
 
         $birthday = date('Y-m-d', strtotime($user->meta_()->birthdate));
         $birthday = explode('-', $birthday);
@@ -610,37 +610,37 @@ class PagesController extends Controller
             }
             if($user->engroup==1){
                 return view('new.dashboard_img')
-                ->with('user', $user)
-                ->with('tabName', $tabName)
-                ->with('cur', $user)
-                ->with('year', $year)
-                ->with('month', $month)
-                ->with('day', $day)
-                ->with('member_pics', $member_pics);
+                    ->with('user', $user)
+                    ->with('tabName', $tabName)
+                    ->with('cur', $user)
+                    ->with('year', $year)
+                    ->with('month', $month)
+                    ->with('day', $day)
+                    ->with('member_pics', $member_pics);
             }else{
                 return view('new.dashboard_img')
-                ->with('user', $user)
-                ->with('tabName', $tabName)
-                ->with('cur', $user)
-                ->with('year', $year)
-                ->with('month', $month)
-                ->with('day', $day)
-                ->with('member_pics', $member_pics);
+                    ->with('user', $user)
+                    ->with('tabName', $tabName)
+                    ->with('cur', $user)
+                    ->with('year', $year)
+                    ->with('month', $month)
+                    ->with('day', $day)
+                    ->with('member_pics', $member_pics);
             }
         }
     }
 
     public function save_img(Request $request)
     {
-        
+
         $user=$request->user();
         $data = json_decode($request->data);
         // dd($data);
         $member_pics = $data->name;
         $pic_infos = $data->reader;
-// dd($member_pics);
+        // dd($member_pics);
 
-//VER.1
+        //VER.1
         // $this->base64_image_content($pic_infos[0], '/public/new/img/Member');
         // define('UPLOAD_PATH', '/new/img/Member/');
         // $img = str_replace('data:image/png;base64,', '', $pic_infos[0]);
@@ -651,85 +651,86 @@ class PagesController extends Controller
         // dd($data, $file);
         // $success = file_put_contents('icon_010.txt', '12345');
         // $output = ($success) ? '<img src="'. $file .'" alt="Canvas Image" />' : '<p>Unable to save the file.</p>';
-// dd($output);
+        // dd($output);
 
 
-//VER.2
+        //VER.2
 
-// $file = base64_decode($pic_infos[0]);
-// // dd($file);
-//             $folderName = '/public/new/img/Member/';
-//             $safeName = str_random(10).'.'.'png';
-//             $destinationPath = $folderName;
-//             // dd($safeName);
-//             file_put_contents($safeName, $file);
+        // $file = base64_decode($pic_infos[0]);
+        // // dd($file);
+        //             $folderName = '/public/new/img/Member/';
+        //             $safeName = str_random(10).'.'.'png';
+        //             $destinationPath = $folderName;
+        //             // dd($safeName);
+        //             file_put_contents($safeName, $file);
 
-           //save new file path into db
-            // $userObj->profile_pic = $safeName;
+        //save new file path into db
+        // $userObj->profile_pic = $safeName;
+        $data = array(
+            'code'=>'200',
+        );
+
+        if(count($member_pics)==0){
             $data = array(
-                'code'=>'200',
+                'code'=>'600'
             );
-
-            if(count($member_pics)==0){
-                $data = array(
-                    'code'=>'600'
-                );
-                // dd('123');
-            }else{
-                // dd('456');
-                //VER.3
-                for($i=0;$i<count($member_pics);$i++){
-                    $pic_count = DB::table('member_pic')->where('member_id', $user->id)->count();
-                    if($pic_count>=6){
-                        $data = array(
-                            'code'=>'400',
-                        );
-                        break;
-                    }
-                        $now = date("Ymdhis", strtotime(now()));
-                        $image = $pic_infos[$i];  // your base64 encoded
-
-                        // $image = str_replace('data:image/png;base64,', '', $image);
-                        // $image = str_replace(' ', '+', $image);
-                        // $imageName = str_random(10).'.'.'png';
-                        list($type, $image) = explode(';', $image);
-                        list(, $image)      = explode(',', $image);
-                        $image = base64_decode($image);
-                        \File::put(public_path(). '/Member_pics' .'/'. $user->id.'_'.$now.$member_pics[$i], $image);
-
-
-
-                            DB::table('member_pic')->insert(
-                                array('member_id' => $user->id, 'pic' => '/Member_pics'.'/'.$user->id.'_'.$now.$member_pics[$i], 'isHidden' => 0, 'created_at'=>now(), 'updated_at'=>now())
-                            );
-                            
-                            
-                }
-                $is_vip = $user->isVip();
-                
-                
-                if(($pic_count+1)>=4 && $is_vip==0 &&$user->engroup=2){
-                    DB::table('member_vip')->insert(array('member_id'=>$user->id,'active'=>1, 'free'=>1));
-                    
+            // dd('123');
+        }else{
+            // dd('456');
+            //VER.3
+            for($i=0;$i<count($member_pics);$i++){
+                $pic_count = DB::table('member_pic')->where('member_id', $user->id)->count();
+                if($pic_count>=6){
                     $data = array(
-                        'code'=>'800'
+                        'code'=>'400',
                     );
+                    break;
                 }
+                $now = date("Ymdhis", strtotime(now()));
+                $image = $pic_infos[$i];  // your base64 encoded
+
+                // $image = str_replace('data:image/png;base64,', '', $image);
+                // $image = str_replace(' ', '+', $image);
+                // $imageName = str_random(10).'.'.'png';
+                list($type, $image) = explode(';', $image);
+                list(, $image)      = explode(',', $image);
+                $image = base64_decode($image);
+                \File::put(public_path(). '/Member_pics' .'/'. $user->id.'_'.$now.$member_pics[$i], $image);
+
+
+
+                DB::table('member_pic')->insert(
+                    array('member_id' => $user->id, 'pic' => '/Member_pics'.'/'.$user->id.'_'.$now.$member_pics[$i], 'isHidden' => 0, 'created_at'=>now(), 'updated_at'=>now())
+                );
+
+
             }
+            $is_vip = $user->isVip();
+
+
+            if(($pic_count+1)>=4 && $is_vip==0 &&$user->engroup=2){
+                DB::table('member_vip')->insert(array('member_id'=>$user->id,'active'=>1, 'free'=>1));
+
+                $data = array(
+                    'code'=>'800'
+                );
+            }
+        }
 
 
 
 
 
-// dd($data);
+        // dd($data);
         // foreach($member_pics as $key=>$member_pic){
-            
+
         //     DB::table('member_pic')->insert(
         //         array('member_id' => $user->id, 'pic' => date("Ymdhis", strtotime(now())).$member_pic, 'isHidden' => 0, 'created_at'=>now(), 'updated_at'=>now())
         //     );
         // }
         echo json_encode($data);
     }
+
     public function dashboard_img_new(Request $request)
     {
         $user = $request->user();
@@ -767,22 +768,51 @@ class PagesController extends Controller
             }
             if($user->engroup==1){
                 return view('new.dashboard_img')
-                ->with('user', $user)
-                ->with('tabName', $tabName)
-                ->with('cur', $user)
-                ->with('year', $year)
-                ->with('month', $month)
-                ->with('day', $day);
+                    ->with('user', $user)
+                    ->with('tabName', $tabName)
+                    ->with('cur', $user)
+                    ->with('year', $year)
+                    ->with('month', $month)
+                    ->with('day', $day);
             }else{
                 return view('new.dashboard_img')
-                ->with('user', $user)
-                ->with('tabName', $tabName)
-                ->with('cur', $user)
-                ->with('year', $year)
-                ->with('month', $month)
-                ->with('day', $day);
+                    ->with('user', $user)
+                    ->with('tabName', $tabName)
+                    ->with('cur', $user)
+                    ->with('year', $year)
+                    ->with('month', $month)
+                    ->with('day', $day);
             }
         }
+    }
+
+    public function view_changepassword(Request $request)
+    {
+        $user = $request->user();
+        return view('new.dashboard.password')->with('user', $user)->with('cur', $user);
+    }
+
+    public function changePassword(Request $request){
+            $user = $request->user();
+            if($request->input('password') != $request->input('password_confirmation')){
+                return back()->with('message', '確認新密碼不符合，請重新操作');
+            }
+
+           // dd(Hash::make($request->input('old_password')));
+            if( Hash::check($request->input('old_password'),$user->password) ) {
+                $password = $request->input('password') == null ? '123456' : $request->input('password');
+                $user->password = bcrypt($password);
+                $user->save();
+                return back()->with('message', '更新成功');
+            }else{
+                return back()->with('message', '原密碼有誤，請重新操作');
+            }
+    }
+
+    public function view_vip(Request $request)
+    {
+        $user = $request->user();
+        return view('new.dashboard.vip')->with('user', $user)->with('cur', $user);
     }
 
     public function viewuser(Request $request, $uid = -1)
@@ -847,6 +877,69 @@ class PagesController extends Controller
             }
         }
     }
+    public function viewuser2(Request $request, $uid = -1)
+    {
+        $user = $request->user();
+        //dd($user);
+
+        if (isset($user) && isset($uid)) {
+            $targetUser = User::where('id', $uid)->get()->first();
+            if (!isset($targetUser)) {
+                return view('errors.nodata');
+            }
+            if ($user->id != $uid) {
+                Visited::visit($user->id, $uid);
+            }
+
+                /*七天前*/
+                $date = date('Y-m-d H:m:s', strtotime('-7 days'));
+
+                /*車馬費邀請次數*/
+                $tip_count = Tip::where('to_id', $uid)->get()->count();
+
+                /*收藏會員次數*/
+                $fav_count = MemberFav::where('member_id', $uid)->get()->count();
+                /*被收藏次數*/
+                $be_fav_count = MemberFav::where('member_fav_id', $uid)->get()->count();
+
+                /*是否封鎖我*/
+                $is_block_mid = Blocked::where('blocked_id', $user->id)->where('member_id', $uid)->count() == 1 ? '是' : '否';
+                /*是否看過我*/
+                $is_visit_mid = Visited::where('visited_id', $user->id)->where('member_id', $uid)->count() == 1 ? '是' : '否';
+
+                /*瀏覽其他會員次數*/
+                $visit_other_count = Visited::where('member_id', $uid)->count();
+                /*被瀏覽次數*/
+                $be_visit_other_count = Visited::where('visited_id', $uid)->count();
+                /*過去7天被瀏覽次數*/
+                $be_visit_other_count_7 = Visited::where('visited_id', $uid)->where('created_at', '>=', $date)->count();
+
+                /*發信次數*/
+                $message_count = Message::where('from_id', $uid)->count();
+
+                $message_count_7 = Message::where('from_id', $uid)->where('created_at', '>=', $date)->count();
+
+                $data = array(
+                    'tip_count' => $tip_count,
+                    'fav_count' => $fav_count,
+                    'be_fav_count' => $be_fav_count,
+                    'is_vip' => 0,
+                    'is_block_mid' => $is_block_mid,
+                    'is_visit_mid' => $is_visit_mid,
+                    'visit_other_count' => $visit_other_count,
+                    'be_visit_other_count' => $be_visit_other_count,
+                    'be_visit_other_count_7' => $be_visit_other_count_7,
+                    'message_count' => $message_count,
+                    'message_count_7' => $message_count_7,
+                );
+
+                return view('new.dashboard.viewuser', $data)
+                    ->with('user', $user)
+                    ->with('to', $this->service->find($uid))
+                    ->with('cur', $user);
+            }
+
+    }
 
     public function report(Request $request)
     {
@@ -878,6 +971,16 @@ class PagesController extends Controller
         Reported::report($request->aid, $request->uid, $request->content);
         return redirect('/user/view/'.$request->uid)->with('message', '檢舉成功');
     }
+
+    public function reportPost(Request $request){
+        if(empty($this->customTrim($request->content))){
+            $user = $request->user();
+            return redirect('/dashboard/viewuser/'.$request->uid);
+        }
+        Reported::report($request->aid, $request->uid, $request->content);
+        return redirect('/dashboard/viewuser/'.$request->uid)->with('message', '檢舉成功');
+    }
+
 
     public function reportPic($reporter_id, $pic_id, $uid = null)
     {
@@ -962,6 +1065,26 @@ class PagesController extends Controller
         return back()->with('message', '封鎖成功');
     }
 
+    public function postBlockAJAX(Request $request)
+    {
+        $bid = $request->sid;
+        $aid = $request->uid;
+
+        if ($aid !== $bid)
+        {
+            $isBlocked = Blocked::isBlocked($aid, $bid);
+            if(!$isBlocked) {
+                Blocked::block($aid, $bid);
+                //有收藏名單則刪除
+                $isFav = MemberFav::where('member_id', $aid)->where('member_fav_id',$bid)->count();
+                if($isFav>0){
+                    MemberFav::remove($aid, $bid);
+                }
+            }
+        }
+        return response()->json(['save' => 'ok']);
+    }
+
     public function unblock(Request $request)
     {
         $payload = $request->all();
@@ -1003,6 +1126,20 @@ class PagesController extends Controller
             MemberFav::fav($aid, $uid);
         }
         return back()->with('message', '收藏成功');
+    }
+
+    public function postfavAJAX(Request $request)
+    {
+        $uid = $request->to;
+        $aid = $request->uid;
+        if ($aid !== $uid)
+        {
+            $isFav = MemberFav::where('member_id', $aid)->where('member_fav_id',$uid)->count();
+            if($isFav==0) {
+                MemberFav::fav($aid, $uid);
+            }
+        }
+        return response()->json(['save' => 'ok']);
     }
 
     public function removeFav(Request $request)
@@ -1157,11 +1294,29 @@ class PagesController extends Controller
         }
     }
 
+    public function visited(Request $request)
+    {
+        $user = $request->user();
+        if ($user) {
+            $visitors = Visited::findBySelf($user->id);
+            //$visitors = Visited::unique(Visited::where('visited_id', $user->id)->distinct()->orderBy('created_at', 'desc')->paginate(15), "member_id", "created_at");
+            return view('new.dashboard.visited')
+                ->with('user', $user)
+                ->with('visitors', $visitors);
+        }
+    }
+
     public function search(Request $request)
     {
         $user = $request->user();
 
         return view('dashboard.search')->with('user', $user);
+    }
+    public function search2(Request $request)
+    {
+        $user = $request->user();
+
+        return view('new.dashboard.search')->with('user', $user);
     }
 
     public function upgrade(Request $request)

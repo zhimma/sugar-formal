@@ -61,9 +61,10 @@
                     msg[i]=error.eq(i).html();
                 }
                 msg = Array.from(new Set(msg));
-                ResultData({
-                  msg: msg
-                });
+                // ResultData({
+                //   msg: msg
+                // });
+                c2(msg);
             })
             .on('form:success', function () {
                 return true;
@@ -74,9 +75,10 @@
                     errormsg[i]=$('ul.quarx-errors li').eq(i).html();
                 }
                 errormsg = Array.from(new Set(errormsg));
-                ResultData({
-                    msg: errormsg
-                });
+                // ResultData({
+                //     msg: errormsg
+                // });
+                c2(errormsg);
             @endif
         });
         $('.alert-danger').css('display','none');

@@ -134,7 +134,8 @@ function fileuploaderAjaxImage($target, opts) {
                     progressBar.find(".fileuploader-progressbar .bar").width(data.percentage + "%");
                 }
 
-                item.html.find(".fileuploader-action-popup, .fileuploader-item-image").hide();
+                //item.html.find(".fileuploader-action-popup, .fileuploader-item-image").hide();
+                item.html.find(".fileuploader-item-image").show();
             },
         },
         sorter: {

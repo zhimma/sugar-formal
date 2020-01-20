@@ -32,8 +32,8 @@
           <div class="g_pwicon">
             <li><a href="{!! url('dashboard') !!}"><img src="/new/images/mm_03.png"><span>基本資料</span></a></li>
             <li><a href="{!! url('dashboard_img') !!}"><img src="/new/images/mm_16.png"><span>照片管理</span></a></li>
-            <li><a href=""><img src="/new/images/mm_07.png"><span>更改密碼</span></a></li>
-            <li><a href=""><img src="/new/images/mm_09.png"><span>VIP</span></a></li>
+            <li><a href="{!! url('/dashboard/password') !!}"><img src="/new/images/mm_07.png"><span>更改密碼</span></a></li>
+            <li><a href="{!! url('/dashboard/vip') !!}"><img src="/new/images/mm_09.png"><span>VIP</span></a></li>
           </div>
           <div class="addpic g_inputt">
             <div class="n_adbut"><a onclick="window.location.reload()" style="cursor:pointer"><img src="/new/images/1_06.png">預覽</a></div>

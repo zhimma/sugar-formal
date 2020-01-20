@@ -10,8 +10,11 @@
         <div class="col-sm-12 col-xs-12 col-md-10">
             <div class="shou"><span>封鎖</span>
                 <font>The blockade</font>
+                @if(count($blocks)>0)
                 <a href="" class="shou_but">全部解除</a>
+                @endif
             </div>
+            @if(count($blocks)>0)
             <div class="sjlist">
                 <ul>
                     @foreach ($blocks as $block)
@@ -31,12 +34,19 @@
                     @endforeach
 
                 </ul>
+                @if(count($blocks)>15)
                 <div class="fenye">
                     <a id="prePage" href="{{ $blocks->previousPageUrl() }}">上一頁</a>
                     <a id="nextPage" href="{{ $blocks->nextPageUrl() }}">下一頁</a>
                 </div>
+                @endif
 
             </div>
+            @else
+            <div class="sjlist">
+                <div class="fengsicon"><img src="/new/images/fs_06.png" class="feng_img"><span>暫無資料</span></div>
+            </div>
+            @endif
 
 
 {{--            <div class="fs_name">--}}
