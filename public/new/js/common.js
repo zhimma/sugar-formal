@@ -151,8 +151,13 @@
     }
 
 	function show_message(str) {
-		//$(".blbg").show();
+		$(".blbg").show();
 		$("#tab_message").show();
 		$("#tab_message .gxbut").text(str);
+	}
+
+	function show_block() {
+		$(".blbg").show();
+		$("#tab_block").show();
 	}
 

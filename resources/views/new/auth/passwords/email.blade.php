@@ -7,7 +7,7 @@
 		<div class="col-sm-12 col-xs-12 col-md-12">
 			<div class="commonMenu">
 				<div class="menuTop">
-					<img src="images/icon_41.png" class="logo" />
+					<img src="/new/images/icon_41.png" class="logo" />
                     <div class="ndlrfont"><a href="">註冊</a>丨<a href="">登入</a></div>
 					<!--<span id="menuButton"><img src="images/icon.png" class="he_img"></span>-->
 				</div>
@@ -49,7 +49,7 @@
 	                        <h3 class="yzfont">1. 每次更改密碼連結的有效時間為60分鐘，請務必把握時間。</h3>
 	                        <h3 class="yzfont">2. 若您收到多封更改密碼的信件，請以最新那封為主，舊的信都會失效。</h3>
 	                    </div>
-	                    <input class="dlbut" type="submit" value="更改密碼" onclick="tips()">
+	                    <input class="dlbut" type="submit" value="更改密碼" onclick="tips()" style="border-style: none;">
                     </form>
                </div>
             </div>
@@ -61,7 +61,7 @@
 <div class="bl_tab" id="tab01">
     <div class="bltitle">提示</div>
     <div class="blnr bltext">我們已經通過電子郵件發送您的密碼重置鏈接！</div>
-    <a id="" onclick="gmBtn1()" class="bl_gb"><img src="images/gb_icon.png"></a>
+    <a id="" onclick="gmBtn1()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
 <script>

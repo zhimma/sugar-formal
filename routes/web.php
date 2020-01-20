@@ -185,6 +185,7 @@ Route::post('/password/reset', 'Auth\ResetPasswordController@reset');
 | Registration & Activation
 |--------------------------------------------------------------------------
 */
+Route::get('/checkAdult', 'Auth\RegisterController@checkAdult');
 Route::get('/register', 'Auth\RegisterController@showRegistrationForm2')->name('register');
 Route::get('/register2', 'Auth\RegisterController@showRegistrationForm')->name('register2');
 Route::post('/register', 'Auth\RegisterController@register');
@@ -237,6 +238,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     });
 
     Route::get('/user/view/{uid?}', 'PagesController@viewuser');
+    //Route::get('/user/view2/{uid?}', 'PagesController@viewuser2'); //new route
 
 
     /*新切版*/
@@ -268,6 +270,10 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('dashboard/settings', 'PagesController@settingsUpdate');
     Route::get('/dashboard', 'PagesController@dashboard')->name('dashboard');
     Route::get('/dashboard_img', 'PagesController@dashboard_img')->name('dashboard_img');
+    Route::post('/dashboard/save_img','PagesController@save_img');
+    Route::get('/dashboard/password', 'PagesController@view_changepassword'); //new route
+    Route::post('/dashboard/changepassword', 'PagesController@changePassword'); //new route
+    Route::get('/dashboard/vip', 'PagesController@view_vip'); //new route
     Route::get('/dashboard2', 'PagesController@dashboard2')->name('dashboard2');
     Route::get('/dashboard/cancel', 'PagesController@showCheckAccount');
     Route::post('/dashboard/chat', 'MessageController@postChat');
@@ -285,11 +291,13 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('/dashboard/unblockajax', 'PagesController@unblockAJAX')->name('unblockAJAX'); //new route
     Route::post('/dashboard/unblockAll', 'PagesController@unblockAll')->name('unblockAll'); //new route
     Route::post('/dashboard/fav', 'PagesController@postfav');
+    Route::post('/dashboard/poatfavajax', 'PagesController@postfavAJAX')->name('postfavAJAX');//new route
     Route::post('/dashboard/fav_ajax', 'PagesController@fav_ajax')->name('showfav');//新樣板route
     Route::post('/dashboard/fav/remove', 'PagesController@removeFav')->name('fav/remove');
     Route::post('/dashboard/fav/remove_ajax', 'PagesController@removeFav_ajax')->name('fav/remove_ajax');//新樣板route
     Route::post('/dashboard/report', 'PagesController@report');
     Route::post('/dashboard/reportNext', 'PagesController@reportNext')->name('reportNext');
+    Route::post('/dashboard/reportPost', 'PagesController@reportPost')->name('reportPost');
     Route::get('/dashboard/reportPic/{user}/{id}/{uid?}', 'PagesController@reportPic')->name('reportPic');
     Route::post('/dashboard/reportPicNext', 'PagesController@reportPicNext')->name('reportPicNext');
     Route::get('/dashboard/upgrade_ec', 'PagesController@upgrade_ec');
@@ -332,14 +340,19 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('/dashboard/chat2/deleterow/{uid}/{sid}', 'Message_newController@deleteBetweenGET')->name('delete2BetweenGET');
         Route::post('/dashboard/chat2/deleteall', 'Message_newController@deleteAll')->name('delete2All');
         Route::post('/dashboard/chat2/chatSet', 'Message_newController@chatSet')->name('chatSet');
+        Route::post('/dashboard/announcement_post', 'Message_newController@announcePost')->name('announcePost');
 
         Route::get('/dashboard/banned', 'PagesController@dashboard_banned');
+        Route::get('/dashboard/visited', 'PagesController@visited');
+        Route::get('/dashboard/viewuser/{uid?}', 'PagesController@viewuser2'); //new route
 
         Route::get('/dashboard/board', 'PagesController@board');
         //Route::get('/dashboard/history', 'PagesController@history');
         //Route::get('/dashboard/fav', 'PagesController@fav');
         Route::get('/dashboard/upgradesuccess', 'PagesController@upgradesuccess');
-        Route::get('/dashboard/search', 'PagesController@search');
+        //Route::get('/dashboard/search', 'PagesController@search');
+        Route::get('/dashboard/search', 'PagesController@search2');//new route
+        Route::get('/dashboard/search2', 'PagesController@search');
         Route::get('/dashboard/chat/{randomNo?}', 'MessageController@chatview')->name('chatView');
         Route::post('/dashboard/chat/showMoreMessages/{randomNo?}', 'MessageController@chatviewMore')->name('showMoreMessages');
         Route::post('/dashboard/chat/showAllMessages/{randomNo?}', 'MessageController@chatviewAll')->name('showAllMessages');

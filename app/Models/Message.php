@@ -46,7 +46,7 @@ class Message extends Model
         if($message->is_row_delete_1 == 0) {
             Message::deleteRowMessage($uid, $sid, 0);
         }
-        else if($message->is_row_delete_2 == 0) {
+        else if($message->is_single_delete_1 <> 0 && $message->is_single_delete_2 == 0) {
             Message::deleteRowMessage($uid, $sid, 1);
         }
     }
@@ -104,17 +104,22 @@ class Message extends Model
     }
 
     public static function deleteSingle($uid, $sid, $ct_time, $content) {
-        $message = Message::where([['to_id', $uid], ['from_id', $sid], ['created_at', $ct_time], ['content', $content]])->orWhere([['to_id', $sid], ['from_id', $uid], ['created_at', $ct_time], ['content', $content]])->first();
+        $message = Message::where([['to_id', $uid], ['from_id', $sid], ['created_at', $ct_time], ['content', $content]])
+            ->orWhere([['to_id', $sid], ['from_id', $uid], ['created_at', $ct_time], ['content', $content]])
+            ->first();
+
+//        $message = Message::where('id',$id)->first();
         //echo json_encode($message);
         //echo 'uid = ' . $uid . ' sid = ' . $sid;
-        if(!isset($message)){
-            return false;
-        }
-        if($message->is_single_delete_1 == 0) {
-            Message::deleteSingleMessage($message, $uid, $sid, $ct_time, $content, 0);
-        }
-        else if($message->is_single_delete_2 == 0) {
-            Message::deleteSingleMessage($message, $uid, $sid, $ct_time, $content, 1);
+//        if(!isset($message)){
+//            return false;
+//        }
+        if($message) {
+            if($message->is_single_delete_1 == 0) {
+                Message::deleteSingleMessage($message, $uid, $sid, $ct_time, $content, 0);
+            }elseif($message->is_single_delete_1 <> 0 && $message->is_single_delete_2 == 0) {
+                Message::deleteSingleMessage($message, $uid, $sid, $ct_time, $content, 1);
+            }
         }
     }
 
@@ -204,7 +209,8 @@ class Message extends Model
             // add messages to array
             if(!in_array(['to_id' => $message->to_id, 'from_id' => $message->from_id], $tempMessages) && !in_array(['to_id' => $message->from_id, 'from_id' => $message->to_id], $tempMessages)) {
                 array_push($tempMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id]);
-                array_push($saveMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id, 'temp_id' => $message->temp_id,'all_delete_count' => $message->all_delete_count, 'is_row_delete_1' => $message->is_row_delete_1, 'is_row_delete_2' => $message->is_row_delete_2, 'is_single_delete_1' => $message->is_single_delete_1, 'is_single_delete_2' => $message->is_single_delete_2]);
+                array_push($saveMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id, 'temp_id' => $message->temp_id,'all_delete_count' => $message->all_delete_count, 'is_row_delete_1' => $message->is_row_delete_1,
+                    'is_row_delete_2' => $message->is_row_delete_2, 'is_single_delete_1' => $message->is_single_delete_1, 'is_single_delete_2' => $message->is_single_delete_2,'content'=>$message->content]);
                 $noVipCount++;
             }
 
@@ -556,7 +562,7 @@ class Message extends Model
             return Message::where([['to_id', $uid],['from_id', $sid],['created_at', '<=', $blockTime->created_at]])->orWhere([['from_id', $uid],['to_id', $sid]])->distinct()->orderBy('created_at', 'desc')->paginate(10);
         }
 
-        return Message::where([['to_id', $uid],['from_id', $sid]])->orWhere([['from_id', $uid],['to_id', $sid]])->distinct()->orderBy('created_at', 'desc')->paginate(10);
+        return Message::where([['to_id', $uid],['from_id', $sid],['is_single_delete_1','<>',$uid]])->orWhere([['from_id', $uid],['to_id', $sid],['is_single_delete_1','<>',$uid]])->distinct()->orderBy('created_at', 'desc')->paginate(10);
     }
 
     public static function unread($uid)

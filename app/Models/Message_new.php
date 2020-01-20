@@ -424,7 +424,7 @@ class Message_new extends Model
         //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
     }
 
-    public static function allSendersAJAX($uid, $isVip,$d=7)
+    public static function allSendersAJAX($uid, $isVip,$d=7,$sid)
     {
         //  created_at >= '".self::$date."' or  (`from_id`= $admin->id and `to_id` = $uid and `read` = 'N')
         $admin = User::select('id')->where('email', Config::get('social.admin.email'))->get()->first();
@@ -442,7 +442,7 @@ class Message_new extends Model
             }
             $query->where([['created_at','>=',self::$date]]);
         }
-        $query->where([['is_row_delete_1','0']]);
+        $query->where([['is_row_delete_1','<>',$uid]]);
 
         $query->orWhere([['from_id', $admin->id], ['to_id',$uid],['read','N']]);
         $query->orderByRaw('CASE

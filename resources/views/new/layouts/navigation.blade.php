@@ -6,7 +6,7 @@
 					</a>
 					@if (Auth::user() && Request::path() != '/activate' && Request::path() != '/activate/send-token')
 					@else
-						<div class="ndlrfont"><a href="{!! url('register') !!}">註冊</a>丨<a href="{!! url('login') !!}">登入</a></div>
+						<div class="ndlrfont"><a href="{!! url('/checkAdult') !!}">註冊</a>丨<a href="{!! url('login') !!}">登入</a></div>
 					@endif
 				</div>
 			</div>
@@ -22,7 +22,7 @@
 							@if (Auth::user() && Request::path() != '/activate' && Request::path() != '/activate/send-token')
 							<span id="menuButton"><img src="/new/images/icon.png" class="he_img"></span>
 							@else
-							<div class="ndlrfont"><a href="{!! url('register') !!}">註冊</a>丨<a href="{!! url('login') !!}">登入</a></div>
+							<div class="ndlrfont"><a href="{!! url('/checkAdult') !!}">註冊</a>丨<a href="{!! url('login') !!}">登入</a></div>
 							@endif
 						</div>
 						@if (Auth::user() && Request::path() != '/activate' && Request::path() != '/activate/send-token')

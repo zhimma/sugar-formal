@@ -46,9 +46,10 @@
                     msg[i]=error.eq(i).html();
                 }
                 msg = Array.from(new Set(msg));
-                ResultData({
-                  msg: msg
-                });
+                // ResultData({
+                //   msg: msg
+                // });
+                c2(msg);
             })
             .on('form:success', function () {
                 return true;
@@ -58,9 +59,10 @@
                 for (var i = 0; i <$('ul.quarx-errors li').length; i++) {
                     errormsg.i=$('ul.quarx-errors li').eq(i).html();
                 }
-                ResultData({
-                    msg: errormsg
-                });
+                // ResultData({
+                //     msg: errormsg
+                // });
+                c2(errormsg);
             @endif
         });
         $('.alert-danger').css('display','none');
@@ -71,10 +73,11 @@
             var password = $("input[name=password]").val();
             var t = $(this).closest("form");
             if(email.length==0||password.length==0){
-                swal({
-                    title:'請輸入帳號或密碼',
-                    type:'error'
-                });
+                c2('請輸入帳號或密碼');
+                // swal({
+                //     title:'請輸入帳號或密碼',
+                //     type:'error'
+                // });
             }else{
                 t.submit();
             }

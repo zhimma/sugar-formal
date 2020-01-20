@@ -50,7 +50,9 @@ a:hover{ color:#e44e71; text-decoration:none}
 .hetop{ display:none}
 .he_img{ height:20px; margin-top:14px; cursor:pointer}
 .heyingc{ position:absolute; background:#ffffff; right:10px;width:130px; top:70px; border-radius:20px; z-index:2;}
-.heyctop{ background:#fbccd4; padding:15px 0;border-radius:10px 10px 0px 0px; text-align:center; color:#FFFFFF; line-height:30PX; font-size:16px;}
+.heyctop{ background:#fbccd4; padding:15px 0;border-radius:10px 10px 0px 0px; text-align:center; color:#FFFFFF; line-height:30PX; font-size:16px;overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;}
 
 .tcbut{width:100px; height:30px; border:#fd5678 1px solid; text-align:center; color:#fd5678; line-height:30px; margin:0 auto; display:table; margin-bottom:10px; border-radius:30px;}
 .tcbut:hover{ background:#fd5678; color:#ffffff}
@@ -87,7 +89,9 @@ a:hover{ color:#e44e71; text-decoration:none}
 .hetop{ display:none}
 .he_img{ height:20px; margin-top:14px; cursor:pointer}
 .heyingc{ position:absolute; background:#ffffff; right:10px;width:130px; top:70px; border-radius:20px; z-index:2;}
-.heyctop{ background:#fbccd4; padding:15px 0;border-radius:10px 10px 0px 0px; text-align:center; color:#FFFFFF; line-height:30PX; font-size:16px;}
+.heyctop{ background:#fbccd4; padding:15px 0;border-radius:10px 10px 0px 0px; text-align:center; color:#FFFFFF; line-height:30PX; font-size:16px;overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;}
 
 .tcbut{width:100px; height:30px; border:#fd5678 1px solid; text-align:center; color:#fd5678; line-height:30px; margin:0 auto; display:table; margin-bottom:10px; border-radius:30px;}
 .tcbut:hover{ background:#fd5678; color:#ffffff}
@@ -810,7 +814,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 }
 @media (max-width:320px) {
-.bltext{font-size:12px;}
+/*.bltext{font-size:12px;}*/
 }
 @media (max-width:320px) {
 .wd_xsy{min-height:450px;}
@@ -1268,7 +1272,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .msg1>p {background:#ffcbcb;color:#fff;}
 
 .msg_input{position: absolute;background: url(../images/msg-input.png) no-repeat;background-size: 100% 100%;width:12px;height:24px;left: -7px;top:8px;}
-.show .msg img,.show .msg p,.show .msg{float: right;}
+.show .msg img,.show .msg p,.show .msg{float: right; word-break: break-all;}
 .show .msg_input{left: auto;right:-6px;background: url(../images/img_22.png) center no-repeat;}
 .send,.show{padding-bottom:15px; margin-top:15px;}
 
