@@ -879,7 +879,6 @@ class UserController extends Controller
         $admin = $this->admin->checkAdmin();
         if ($admin){
             $msglib = Msglib::get();
-            $msglib2 = Msglib::get();
             $msglib3 = Msglib::selectraw('msg')->get();
             $msglib_report = Msglib::selectraw('id, title, msg')->where('kind','=','report')->get();
             $msglib_reported = Msglib::selectraw('id, title, msg')->where('kind','=','reported')->get();
@@ -913,7 +912,7 @@ class UserController extends Controller
                 ->with('isReportedId', $reported_id)
                 ->with('pic_id', $pic_id)
                 ->with('msglib', $msglib)
-                ->with('msglib2', $msglib2)
+                ->with('msglib2', $msglib_reported)
                 ->with('msglib_report', $msglib_report)
                 ->with('msglib_reported', $msglib_reported)
                 ->with('msglib_msg', isset($msglib_msg) ? $msglib_msg : null)
