@@ -887,7 +887,7 @@ class UserController extends Controller
             $user = $this->service->find($id);
             /*被檢舉者 */
             $reported = User::where('id', $reported_id)->get()->first();
-            foreach($msglib3 as $key=>$msg){
+            foreach($msglib_report as $key => $msg){
                 $msglib_msg[$key] = str_replace('|$report|', $user->name, $msg['msg']);
                 $msglib_msg[$key] = str_replace('|$reported|', $reported->name, $msglib_msg[$key]);
                 $msglib_msg[$key] = str_replace('|$reportTime|', $report->created_at, $msglib_msg[$key]);
