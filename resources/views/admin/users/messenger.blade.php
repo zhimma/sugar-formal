@@ -40,7 +40,7 @@
                 </table>
 	@endif            
             
-            <h1>發送站長訊息給{{ $user->name}}(發訊者)</h1>
+            <h1>發送站長訊息給{{ $from_user->name}}(發訊者)</h1>
             <!-- <button class="savebtn btn btn-primary">儲存</button> -->
                 <table class="table table-bordered table-hover">
                     <tr>
@@ -94,7 +94,7 @@
                 @elseif(isset($isReported))
                     <textarea name="msg" id="msg" class="form-control" cols="80" rows="5">{{ $reportedName }}您好，您被檢舉，站長認為並無問題，若有疑慮請來訊。</textarea>
                 @else
-                    <textarea name="msg" id="msg" class="form-control" cols="80" rows="5">@if(isset($message) && !isset($report)){{ $user->name }}您好，您先前所檢舉，由{{ $senderName }}於{{ $message->created_at }}發送的訊息，站長已檢視，認為並無問題，若有疑慮請來訊。@elseif(isset($message) && isset($report)) {{ $user->name }}您好，您先前在{{ $report->created_at }}檢舉了會員「{{ $reportedName }}」，經站長檢視理由，認為此會員並無問題，若有疑慮請來訊。 @endif</textarea>
+                    <textarea name="msg" id="msg" class="form-control" cols="80" rows="5">@if(isset($message) && !isset($report)){{ $from_user->name }}您好，您先前所檢舉，由{{ $senderName }}於{{ $message->created_at }}發送的訊息，站長已檢視，認為並無問題，若有疑慮請來訊。@elseif(isset($message) && isset($report)) {{ $from_user->name }}您好，您先前在{{ $report->created_at }}檢舉了會員「{{ $reportedName }}」，經站長檢視理由，認為此會員並無問題，若有疑慮請來訊。 @endif</textarea>
                 @endif
                 <br>
                 @if(isset($isPic) && ($isPic))
@@ -278,7 +278,7 @@
         // console.log(template);
 
         let edit = '修改。', del = '刪除。', view='檢視', create='新增',
-        report_user = ['{{$user->name}}', '{{$to_user->name}}']
+        report_user = ['{{$from_user->name}}', '{{$to_user->name}}']
         now_time = new Date();
 
         $(document).ready(

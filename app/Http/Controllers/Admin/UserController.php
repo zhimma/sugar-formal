@@ -809,10 +809,7 @@ class UserController extends Controller
         }
     }
 
-    public function showAdminMessengerWithMessageId($id, $mid)
-    {
-        
-
+    public function showAdminMessengerWithMessageId($id, $mid) {
         $admin = $this->admin->checkAdmin();
         if ($admin){
             $msglib = Msglib::get();
@@ -829,42 +826,39 @@ class UserController extends Controller
             /*被檢舉者*/
             $to_user_id = Message::where('id', $mid)->get()->first()->to_id;
             $to_user    = $this->service->find($to_user_id);
-
-
             $message_msg = Message::where('to_id', $to_user->id)->where('from_id',$user->id)->get();   
-        if(!$msglib_report->isEmpty() && isset($message_msg[0])){
-            foreach($msglib_report as $key=>$msg){
-                $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
-                $msglib_msg[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg[$key]);
-                $msglib_msg[$key] = str_replace('|$reportTime|',$message_msg[0]->created_at, $msglib_msg[$key]);
-                $msglib_msg[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg[$key]);
+            if(!$msglib_report->isEmpty() && isset($message_msg[0])){
+                foreach($msglib_report as $key=>$msg){
+                    $msglib_msg[$key] = str_replace('|$report|', $user->name, $msg['msg']);
+                    $msglib_msg[$key] = str_replace('|$reported|', $to_user->name, $msglib_msg[$key]);
+                    $msglib_msg[$key] = str_replace('|$reportTime|', $message_msg[0]->created_at, $msglib_msg[$key]);
+                    $msglib_msg[$key] = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $msglib_msg[$key]);
+                }
             }
-        }else{
-            foreach($msglib_all as $key=>$msg){
-                $msglib_msg[$key] = $msg['msg'];
+            else{
+                foreach($msglib_all as $key=>$msg){
+                    $msglib_msg[$key] = $msg['msg'];
+                }
             }
-        }
-        if(!$msglib_reported->isEmpty() && isset($message_msg[0])){
-            foreach($msglib_reported as $key=>$msg){
-                $msglib_msg2[$key] = str_replace('|$report|',$user->name, $msg['msg']);
-                $msglib_msg2[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg2[$key]);
-                $msglib_msg2[$key] = str_replace('|$reportTime|',$message_msg[0]->created_at, $msglib_msg2[$key]);
-                $msglib_msg2[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg2[$key]);
+            if(!$msglib_reported->isEmpty() && isset($message_msg[0])){
+                foreach($msglib_reported as $key=>$msg){
+                    $msglib_msg2[$key] = str_replace('|$report|', $user->name, $msg['msg']);
+                    $msglib_msg2[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg2[$key]);
+                    $msglib_msg2[$key] = str_replace('|$reportTime|', $message_msg[0]->created_at, $msglib_msg2[$key]);
+                    $msglib_msg2[$key] = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $msglib_msg2[$key]);
+                }
             }
-        }else{
-            foreach($msglib_all as $key=>$msg){
-                $msglib_msg2[$key] = $msg['msg'];
+            else{
+                foreach($msglib_all as $key=>$msg){
+                    $msglib_msg2[$key] = $msg['msg'];
+                }
             }
-        }
-        
-
-
-
 
             return view('admin.users.messenger')
                 ->with('admin', $admin)
                 ->with('user', $user)
                 ->with('to_user', $to_user)
+                ->with('from_user', $sender)
                 ->with('message', $message)
                 ->with('senderName', $sender->name)
                 ->with('msglib', $msglib_report)
@@ -895,8 +889,10 @@ class UserController extends Controller
             /*被檢舉者 */
             $reported = User::where('id', $reported_id)->get()->first();
             foreach($msglib3 as $key=>$msg){
-                $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
-                $msglib_msg[$key] = str_replace('|$reported|',$reported->name, $msglib_msg[$key]);
+                $msglib_msg[$key] = str_replace('|$report|', $user->name, $msg['msg']);
+                $msglib_msg[$key] = str_replace('|$reported|', $reported->name, $msglib_msg[$key]);
+                $msglib_msg[$key] = str_replace('|$reportTime|', $report->created_at, $msglib_msg[$key]);
+                $msglib_msg[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg[$key]);
             }
             return view('admin.users.messenger')
                 ->with('admin', $admin)
@@ -904,6 +900,7 @@ class UserController extends Controller
                 ->with('report', $report)
                 ->with('user', $reported)
                 ->with('reportedName', $reported->name)
+                ->with('from_user', $reported)
                 ->with('to_user', $user)
                 ->with('isPic', $isPic)
                 ->with('isReported', $isReported)
