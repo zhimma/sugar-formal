@@ -22,7 +22,7 @@
         @if(!isset($msgs))
 	    @if(isset($msglib_report)) 
                 <table class="table table-bordered table-hover">
-                    <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create/reported" target="_blank"><div class="btn btn-success message_block">新增</div></a>
+                    <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create/reporter" target="_blank"><div class="btn btn-success message_block">新增</div></a>
                     <br>
                     <tr>
                         <td>訊息標題</td>
@@ -32,7 +32,7 @@
                     @foreach($msglib_report as $msglib_report)
                         <tr>
                             <td>{{$msglib_report->title}}</td>
-                            <td class="btn btn_edit btn-success" id="{{$msglib_report->id}}"><a href="/admin/users/message/msglib/create/reported/{{$msglib_report->id}}" style="color:white" target="_blank">編輯</a></td>
+                            <td class="btn btn_edit btn-success" id="{{$msglib_report->id}}"><a href="/admin/users/message/msglib/create/reporter/{{$msglib_report->id}}" style="color:white" target="_blank">編輯</a></td>
                             <td class="btn btn_del btn-danger" id="{{$msglib_report->id}}">刪除</td>
                             <td>{{$msglib_report->msg}}</td>
                         </tr>
@@ -117,7 +117,7 @@
             <div>===================================================================================================</div>
 	    @if(isset($msglib_reported))
                 <table class="table table-bordered table-hover">
-                    <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create/reporter" target="_blank"><div class="btn btn-success message_block">新增</div></a>
+                    <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create/reported" target="_blank"><div class="btn btn-success message_block">新增</div></a>
                     <br>
                     <tr>
                         <td>訊息標題</td>
@@ -127,7 +127,7 @@
                     @foreach($msglib_reported as $msglib_reported)
                         <tr>
                             <td>{{$msglib_reported->title}}</td>
-                            <td class="btn btn_edit btn-success" id="{{$msglib_reported->id}}"><a href="/admin/users/message/msglib/create/reporter/{{$msglib_reported->id}}" style="color:white" target="_blank">編輯</a></td>
+                            <td class="btn btn_edit btn-success" id="{{$msglib_reported->id}}"><a href="/admin/users/message/msglib/create/reported/{{$msglib_reported->id}}" style="color:white" target="_blank">編輯</a></td>
                             <td class="btn btn_del btn-danger" id="{{$msglib_reported->id}}">刪除</td>
                             <td>{{$msglib_reported->msg}}</td>
                         </tr>
