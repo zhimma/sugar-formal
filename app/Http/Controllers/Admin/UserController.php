@@ -1449,6 +1449,45 @@ class UserController extends Controller
         }
         return view('admin.users.messenger_create', $data);
     }
+
+    public function addMessageLibPageReporter(Request $request, $id=0)
+    {
+        if( $id != 0){
+            $msglib = MsgLib::where('id', $id)->first();
+            $data = array(
+                'page_title'=> '編輯訊息',
+                'msg_id'=>$msglib->id,
+                'title'=>$msglib->title,
+                'msg'=>$msglib->msg,
+                'isEdit'=>1,
+            );
+        }else{
+            $data = array(
+                'page_title'=> '新增訊息',
+            );
+        }
+        return view('admin.users.messenger_create', $data);
+    }
+
+    public function addMessageLibPageReported(Request $request, $id=0)
+    {
+        if( $id != 0){
+            $msglib = MsgLib::where('id', $id)->first();
+            $data = array(
+                'page_title'=> '編輯訊息',
+                'msg_id'=>$msglib->id,
+                'title'=>$msglib->title,
+                'msg'=>$msglib->msg,
+                'isEdit'=>1,
+            );
+        }else{
+            $data = array(
+                'page_title'=> '新增訊息',
+            );
+        }
+        return view('admin.users.messenger_create', $data);
+    }
+
     public function addMessageLib(Request $request)
     {
         $msg_id = $request->post('msg_id');

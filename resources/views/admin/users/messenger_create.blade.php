@@ -25,8 +25,8 @@
                 <input type="hidden" name="msg_id" id="msg_id" value="{{$msg_id??''}}">
                 種類
                 <select name="kind" id="kind">
-                    <option value="report">檢舉者</option>
-                    <option value="reported">被檢舉者</option>
+                    <option value="report" @if(str_contains(url()->current(), 'reporter')) selected @endif>檢舉者</option>
+                    <option value="reported" @if(str_contains(url()->current(), 'reported')) selected @endif>被檢舉者</option>
                 </select>
                 標題<input type="text" name="title_msglib" id="msglib_title" value="{{$title??''}}"></br>
                 訊息<textarea name="textarea_msglib" id="msglib_content" class="form-control" cols="80" rows="5">{{$msg??''}}</textarea>

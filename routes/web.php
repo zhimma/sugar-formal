@@ -468,7 +468,11 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         
         Route::post('users/delmsglib', 'UserController@delMessageLib');
         Route::get('users/message/msglib/create', 'UserController@addMessageLibPage');
+        Route::get('users/message/msglib/create/reporter', 'UserController@addMessageLibPageReporter');
+        Route::get('users/message/msglib/create/reported', 'UserController@addMessageLibPageReported');
         Route::get('users/message/msglib/create/{id}', 'UserController@addMessageLibPage');
+        Route::get('users/message/msglib/create/reporter/{id}', 'UserController@addMessageLibPageReporter');
+        Route::get('users/message/msglib/create/reported/{id}', 'UserController@addMessageLibPageReported');
         Route::post('users/addmsglib', 'UserController@addMessageLib');
         Route::post('users/block_user', 'UserController@blockUser');/*封鎖會員*/
         Route::post('users/unblock_user', 'UserController@unblockUser');/*封鎖會員*/
