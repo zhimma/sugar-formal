@@ -911,7 +911,7 @@ class UserController extends Controller
                 ->with('isReported', $isReported)
                 ->with('isReportedId', $reported_id)
                 ->with('pic_id', $pic_id)
-                ->with('msglib', $msglib)
+                ->with('msglib', $msglib_report)
                 ->with('msglib2', $msglib_reported)
                 ->with('msglib_report', $msglib_report)
                 ->with('msglib_reported', $msglib_reported)
