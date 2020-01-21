@@ -894,6 +894,12 @@ class UserController extends Controller
                 $msglib_msg[$key] = str_replace('|$reportTime|', $report->created_at, $msglib_msg[$key]);
                 $msglib_msg[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg[$key]);
             }
+            foreach($msglib_reported as $key => $msg){
+                $msglib_msg2[$key] = str_replace('|$report|', $user->name, $msg['msg']);
+                $msglib_msg2[$key] = str_replace('|$reported|', $reported->name, $msglib_msg2[$key]);
+                $msglib_msg2[$key] = str_replace('|$reportTime|', $report->created_at, $msglib_msg2[$key]);
+                $msglib_msg2[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg2[$key]);
+            }
             return view('admin.users.messenger')
                 ->with('admin', $admin)
                 ->with('message', 'REPORTEDUSERONLY')
@@ -911,7 +917,7 @@ class UserController extends Controller
                 ->with('msglib_report', $msglib_report)
                 ->with('msglib_reported', $msglib_reported)
                 ->with('msglib_msg', isset($msglib_msg) ? $msglib_msg : null)
-                ->with('msglib_msg2', isset($msglib_msg) ? $msglib_msg : null);
+                ->with('msglib_msg2', isset($msglib_msg2) ? $msglib_msg2 : null);
         }
         else{
             return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
