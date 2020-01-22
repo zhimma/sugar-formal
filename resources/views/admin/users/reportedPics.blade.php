@@ -73,10 +73,13 @@
                                     <p>
                                 @endif
                                     <a href="{{ route('users/advInfo', $result['reported_user_id']) }}" target='_blank'>
-                                        {{ $users[$result['reported_user_id']]['name'] }}
+                                        {{ $users[$result['reported_user_id']]['name'] }}——
                                         @if($users[$result['reported_user_id']]['vip'] )
                                             <i class="m-nav__link-icon fa fa-diamond"></i>
                                         @endif
+                                        @for($i = 0; $i < $users[$result['reported_user_id']]['tipcount']; $i++)
+                                            👍
+                                        @endfor
                                         @if(!is_null($result['isBlockedReceiver']))
                                             @if(!is_null($result['isBlockedReceiver']['expire_date']))
                                                 @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
@@ -108,10 +111,13 @@
                                     @else
                                         <p>
                                     @endif
-                                        {{ $users[$result['reporter_id']]['name'] }}
+                                        {{ $users[$result['reporter_id']]['name'] }}——
                                         @if($users[$result['reporter_id']]['vip'] )
                                             <i class="m-nav__link-icon fa fa-diamond"></i>
                                         @endif
+                                        @for($i = 0; $i < $users[$result['reporter_id']]['tipcount']; $i++)
+                                            👍
+                                        @endfor
                                         @if(!is_null($result['isBlocked']))
 					                        @if(isset($result['isBlockedReceiver']['expire_date']))
 						                        @if(!is_null($result['isBlocked']['expire_date']))
@@ -176,10 +182,13 @@
                             <td>
                                 @if(isset($result['reported_user_id']))
                                     <a href="{{ route('users/advInfo', $result['reported_user_id']) }}" target='_blank' @if($result['isBlockedReceiver']) style="color: #F00;" @endif>
-                                        {{ $Pusers[$result['reported_user_id']]['name'] }}
+                                        {{ $Pusers[$result['reported_user_id']]['name'] }}——
                                         @if($Pusers[$result['reported_user_id']]['vip'] )
                                             <i class="m-nav__link-icon fa fa-diamond"></i>
                                         @endif
+                                        @for($i = 0; $i < $Pusers[$result['reported_user_id']]['tipcount']; $i++)
+                                            👍
+                                        @endfor
                                         @if(!is_null($result['isBlockedReceiver']))
 					                        @if(isset($result['isBlockedReceiver']['expire_date']))
                                                 @if(!is_null($result['isBlockedReceiver']['expire_date']))
@@ -213,11 +222,13 @@
                             </td>
                             <td>
                                 <a href="{{ route('users/advInfo', $result['reporter_id']) }}" target='_blank' @if($result['isBlocked']) style="color: #F00;" @endif>
-                                    {{ $Pusers[$result['reporter_id']]['name']}}
-
+                                    {{ $Pusers[$result['reporter_id']]['name'] }}——
                                     @if($Pusers[$result['reporter_id']]['vip'] )
                                         <i class="m-nav__link-icon fa fa-diamond"></i>
                                     @endif
+                                    @for($i = 0; $i < $Pusers[$result['reporter_id']]['tipcount']; $i++)
+                                        👍
+                                    @endfor
                                     @if(!is_null($result['isBlocked']))
 					                    @if(isset($result['isBlockedReceiver']['expire_date']))
                                             @if(!is_null($result['isBlocked']['expire_date']))

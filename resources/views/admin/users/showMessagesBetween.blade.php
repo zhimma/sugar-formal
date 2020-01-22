@@ -15,16 +15,48 @@
 		<tr>
 			<td>
 				@if($message->from_id == $id1->id) 
-					<a href="{{ route('users/advInfo', [$message->from_id]) }} ">{{ $id1->name }}</a> 
+					<a href="{{ route('users/advInfo', [$message->from_id]) }} ">
+						{{ $id1->name }}——
+						@for($i = 0; $i < $id1->tipcount; $i++)
+						    👍
+						@endfor
+						@if($id1->vip)
+							<i class="fa fa-diamond"></i>
+						@endif
+					</a> 
 				@else
-					<a href="{{ route('users/advInfo', [$message->to_id]) }} ">{{ $id2->name }}</a>  
+					<a href="{{ route('users/advInfo', [$message->to_id]) }} ">
+						{{ $id2->name }}——
+						@for($i = 0; $i < $id2->tipcount; $i++)
+						    👍
+						@endfor
+						@if($id2->vip)
+							<i class="fa fa-diamond"></i>
+						@endif
+					</a>  
 				@endif
 			</td>
 			<td>
 				@if($message->from_id != $id1->id) 
-					<a href="{{ route('users/advInfo', [$id1->id]) }} ">{{ $id1->name }}</a> 
+					<a href="{{ route('users/advInfo', [$id1->id]) }} ">
+						{{ $id1->name }}——
+						@for($i = 0; $i < $id1->tipcount; $i++)
+						    👍
+						@endfor
+						@if($id1->vip)
+							<i class="fa fa-diamond"></i>
+						@endif
+					</a> 
 				@else 
-					<a href="{{ route('users/advInfo', [$message->to_id]) }} ">{{ $id2->name }}</a>  
+					<a href="{{ route('users/advInfo', [$message->to_id]) }} ">
+						{{ $id2->name }}——
+						@for($i = 0; $i < $id2->tipcount; $i++)
+						    👍
+						@endfor
+						@if($id2->vip)
+							<i class="fa fa-diamond"></i>
+						@endif
+					</a>  
 				@endif
 			</td>
 			<td>

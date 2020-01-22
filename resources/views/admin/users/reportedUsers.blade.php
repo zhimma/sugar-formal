@@ -72,10 +72,13 @@
                                 @else
                                     <p>
                                 @endif
-                                    {{ $users[$result['reported_id']]['name'] }}
+                                    {{ $users[$result['reported_id']]['name'] }}——
                                     @if($users[$result['reported_id']]['vip'])
                                         <i class="m-nav__link-icon fa fa-diamond"></i>
                                     @endif
+                                    @for($i = 0; $i < $users[$result['reported_id']]['tipcount']; $i++)
+                                        👍
+                                    @endfor
                                     @if(!is_null($result['isBlockedReceiver']))
                                         @if(!is_null($result['isBlockedReceiver']['expire_date']))
                                             @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
@@ -104,10 +107,13 @@
                                 @else
                                     <p>
                                 @endif
-                                    {{ $users[$result['member_id']]['name'] }}
+                                    {{ $users[$result['member_id']]['name'] }}——
                                     @if($users[$result['member_id']]['vip'])
                                         <i class="m-nav__link-icon fa fa-diamond"></i>
                                     @endif
+                                    @for($i = 0; $i < $users[$result['member_id']]['tipcount']; $i++)
+                                        👍
+                                    @endfor
                                     @if(!is_null($result['isBlocked']))
                                         @if(!is_null($result['isBlocked']['expire_date']))
                                             @if(isset($result['isBlockedReceiver']['expire_date']))

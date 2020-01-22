@@ -21,6 +21,7 @@ use App\Models\UserMeta;
 use App\Models\AdminAnnounce;
 use App\Models\VipLog;
 use App\Models\Vip;
+use App\Models\Tip;
 use App\Models\Msglib;
 use App\Models\BasicSetting;
 use App\Models\SimpleTables\member_vip;
@@ -368,6 +369,7 @@ class UserController extends Controller
                 $to_ids[$u->to_id] = User::select('name')->where('id', $u->to_id)->get()->first();
                 
                 if($to_ids[$u->to_id]){
+                    $to_ids[$u->to_id]['tipcount'] = Tip::TipCount_ChangeGood($u->to_id);
                     $to_ids[$u->to_id]['name'] = $to_ids[$u->to_id]->name;
                 }
                 else{
@@ -609,7 +611,7 @@ class UserController extends Controller
         if($request->time =='send_time'){
             $datas = $this->admin->searchMessageBySendTime($request);
         }
-        else{            
+        else{
             if ( !$request->msg && !$request->date_start && !$request->date_end) {
                 $results = null;
             }
@@ -622,6 +624,7 @@ class UserController extends Controller
                                         ->where('content', 'like', '%' . $msg . '%')
                                         ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
             }
+            $senders = array(); //更換位置 不然Undefined variable: senders at 712
             if($results != null){
                 $temp = $results->get()->toArray();
                 //Rearranges the messages query results.
@@ -643,13 +646,13 @@ class UserController extends Controller
                     }
                 }
                 //Senders' meta.
-                $senders = array();
                 foreach ($from_id as $key => $id){
                     $sender = User::where('id', '=', $id)->get()->first();
-                    $vip_tmp = $sender->isVip() ? true : false;
+                    // $vip_tmp = $sender->isVip() ? true : false;
                     $senders[$key] = $sender->toArray();
-                    $senders[$key]['vip'] = $vip_tmp;
+                    $senders[$key]['vip'] = Vip::vip_diamond($id);
                     $senders[$key]['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first() == true ? true : false;
+                    $senders[$key]['tipcount'] = Tip::TipCount_ChangeGood($id);
                 }
                 //Fills message ids to each sender.
                 foreach ($senders as $key => $sender){
@@ -671,7 +674,9 @@ class UserController extends Controller
                         ->where('id', '=', $id)
                         ->get()->first();
                     if($name != null){
-                        $receivers[$id] = $name->name;
+                        $receivers[$id]['name'] = $name->name;
+                        $receivers[$id]['tipcount'] = Tip::TipCount_ChangeGood($id);
+                        $receivers[$id]['vip'] = Vip::vip_diamond($id);
                     }
                     else{
                         $receivers[$id] = '資料庫沒有資料';
@@ -987,6 +992,10 @@ class UserController extends Controller
         $messages = Message::allToFromSender($id1, $id2);
         $id1 = User::where('id', $id1)->get()->first();
         $id2 = User::where('id', $id2)->get()->first();
+        $id1->tipcount = Tip::TipCount_ChangeGood($id1->id);
+        $id2->tipcount = Tip::TipCount_ChangeGood($id2->id);
+        $id1->vip = (Vip::where('member_id', 'like', $id1->id)->get()->first()) ? true : false;
+        $id2->vip = (Vip::where('member_id', 'like', $id2->id)->get()->first()) ? true : false;
         return view('admin.users.showMessagesBetween', compact('messages', 'id1', 'id2'));
     }
 

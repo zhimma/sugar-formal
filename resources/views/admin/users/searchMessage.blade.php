@@ -106,7 +106,8 @@
             <tr>
                 <td @if($result['isBlocked']) style="background-color:#FFFF00" @endif>
                     <a href="{{ route('users/advInfo', $result['from_id']) }}" target='_blank' >
-                        <p  @if($users[$result['from_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $users[$result['from_id']]['name'] }}
+                        <p  @if($users[$result['from_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+                            {{ $users[$result['from_id']]['name'] }}——
                             @if(!is_null($users[$result['from_id']]['vip']))
                                 <i class="m-nav__link-icon fa fa-diamond"></i>
                             @endif
@@ -117,6 +118,9 @@
                                     (永久)
                                 @endif
                             @endif
+                            @for($z = 0; $z < $users[$result['from_id']]['tipcount']; $z++)
+                                👍
+                            @endfor
                         </p>
                     </a>
                 </td>
@@ -131,7 +135,7 @@
                 <td @if($result['isBlockedReceiver']) style="background-color:#FFFF00" @endif>
                     <a href="{{ route('users/advInfo', $result['to_id']) }}" target='_blank'>
                         <p @if($users[$result['to_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
-                            {{ $users[$result['to_id']]['name'] }}
+                            {{ $users[$result['to_id']]['name'] }}——
                             @if(!is_null($users[$result['to_id']]['vip']))
                                 <i class="m-nav__link-icon fa fa-diamond"></i>
                             @endif
@@ -142,6 +146,9 @@
                                     (永久)
                                 @endif
                             @endif
+                            @for($z = 0; $z < $users[$result['to_id']]['tipcount']; $z++)
+                                👍
+                            @endfor
                         </p>
                     </a>
                 </td>
@@ -198,44 +205,56 @@
                 </td>
             </tr>
             @forelse ($senders as $sender)
-            <tr @if($sender['isBlocked']) style="color: #F00;" @endif>
-                <td rowspan="{{ count($sender['messages']) }}">
-                    <a href="{{ route('users/advInfo', $sender['id']) }}" target='_blank' @if($sender['isBlocked']) style="color: #F00;" @endif>{{ $sender['name'] }}</a>
-                    @if($sender['vip'])
-                        <i class="m-nav__link-icon fa fa-diamond"></i>
-                    @endif
-                </td>
-                <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][0]['id'] ]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>
-                <td>
-                    <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }}" target="_blank">封鎖</a>
-                </td>
-                <td rowspan="{{ count($sender['messages']) }}">{{ $sender['created_at'] }}</td>
-                <td rowspan="{{ count($sender['messages']) }}">{{ $sender['last_login'] }}</td>
-                <td>{{ $receivers[$sender['messages'][0]['to_id']] }}</td>
-                <td width="45%">{{ $sender['messages'][0]['content'] }}</td>
-                <td>{{ $sender['messages'][0]['created_at'] }}</td>
-                <td style="text-align: center; vertical-align: middle">
-                    <input type="checkbox" name="msg_id[]" value="{{ $sender['messages'][0]['id'] }}" class="form-control boxes">
-                </td>
-            </tr>
-            @if(count($sender['messages']) > 1)
-            @for( $i = 1; $i < count($sender['messages']); $i++) <tr @if($sender['isBlocked']) style="color: #F00;" @endif>
-                <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][$i]['id']]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>
-                <td>
-                    <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }} " target="_blank">封鎖</a>
-                </td>
-                <td>{{ $receivers[$sender['messages'][$i]['to_id']] }}</td>
-                <td width="45%">{{ $sender['messages'][$i]['content'] }}</td>
-                <td>{{ $sender['messages'][$i]['created_at'] }}</td>
-                <td style="text-align: center; vertical-align: middle">
-                    <input type="checkbox" name="msg_id[]" value="{{ $sender['messages'][$i]['id'] }}" class="form-control boxes">
-                </td>
+                <tr>
+                    <td rowspan="{{ count($sender['messages']) }}" @if($sender['isBlocked']) style="background-color:#FFFF00" @endif>
+                        <a href="{{ route('users/advInfo', $sender['id']) }}" target='_blank' >
+                            {{ $sender['name'] }}——
+                            @for($z = 0; $z < $sender['tipcount']; $z++)
+                                👍
+                            @endfor
+                        </a>
+                    </td>
+                    <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][0]['id'] ]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>
+                    <td>
+                        <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }}" target="_blank">封鎖</a>
+                    </td>
+                    <td rowspan="{{ count($sender['messages']) }}">{{ $sender['created_at'] }}</td>
+                    <td rowspan="{{ count($sender['messages']) }}">{{ $sender['last_login'] }}</td>
+                    <td>
+                        {{ $receivers[$sender['messages'][0]['to_id']]['name'] }}——
+                        @for($z = 0; $z < $receivers[$sender['messages'][0]['to_id']]['tipcount']; $z++)
+                            👍
+                        @endfor
+                    </td>
+                    <td width="45%">{{ $sender['messages'][0]['content'] }}</td>
+                    <td>{{ $sender['messages'][0]['created_at'] }}</td>
+                    <td style="text-align: center; vertical-align: middle">
+                        <input type="checkbox" name="msg_id[]" value="{{ $sender['messages'][0]['id'] }}" class="form-control boxes">
+                    </td>
                 </tr>
-                @endfor
+                @if(count($sender['messages']) > 1)
+                    @for( $i = 1; $i < count($sender['messages']); $i++) <tr>
+                        <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][$i]['id']]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>
+                        <td>
+                            <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }} " target="_blank">封鎖</a>
+                        </td>
+                        <td @if($sender['isBlocked']) style="background-color:#FFFF00" @endif>
+                            {{ $receivers[$sender['messages'][$i]['to_id']]['name'] }}——
+                            @for($z = 0; $z < $receivers[$sender['messages'][$i]['to_id']]['tipcount']; $z++)
+                                👍
+                            @endfor
+                        </td>
+                        <td width="45%">{{ $sender['messages'][$i]['content'] }}</td>
+                        <td>{{ $sender['messages'][$i]['created_at'] }}</td>
+                        <td style="text-align: center; vertical-align: middle">
+                            <input type="checkbox" name="msg_id[]" value="{{ $sender['messages'][$i]['id'] }}" class="form-control boxes">
+                        </td>
+                        </tr>
+                    @endfor
                 @endif
-                @empty
+            @empty
                 沒有資料
-                @endforelse
+            @endforelse
         </table>
     </form>
     @endif

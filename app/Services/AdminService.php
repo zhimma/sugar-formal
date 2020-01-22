@@ -8,6 +8,7 @@ use App\Models\ReportedPic;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Vip;
+use App\Models\Tip;
 use App\Models\UserMeta;
 use App\Models\Message;
 use App\Models\MemberPic;
@@ -205,6 +206,7 @@ class AdminService
             if($info != null){
                 $user['name'] = $info->name;
                 $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
+                $user['tipcount'] = Tip::TipCount_ChangeGood($id);
                 $user['engroup'] = $info->engroup;
                 $user['last_login'] = $info->last_login;
             }
@@ -253,6 +255,7 @@ class AdminService
                 $user['engroup'] = $info->engroup;
                 $user['last_login'] = $info->last_login;
                 $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
+                $user['tipcount'] = Tip::TipCount_ChangeGood($id);
             }
             else{
                 $user = array();
@@ -301,6 +304,7 @@ class AdminService
                 $user['engroup'] = $info->engroup;
                 $user['last_login'] = $info->last_login;
                 $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
+                $user['tipcount'] = Tip::TipCount_ChangeGood($id);
             }
             else{
                 $user = array();
@@ -359,6 +363,7 @@ class AdminService
                 $user['engroup'] = $info->engroup;
                 $user['last_login'] = $info->last_login;
                 $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
+                $user['tipcount'] = Tip::TipCount_ChangeGood($id);
             }
             else{
                 $user = array();

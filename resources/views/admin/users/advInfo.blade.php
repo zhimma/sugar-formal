@@ -155,7 +155,16 @@
 	@forelse ($userMessage as $key => $message)
 		<tr>
 			<td>
-				<a href="{{ route('admin/showMessagesBetween', [$user->id, $message->to_id]) }}" target="_blank">{{ $to_ids[$message->to_id]['name'] }}@if($to_ids[$message->to_id]['vip'] )<i class="fa fa-diamond"></i>@endif</a>
+				<a href="{{ route('admin/showMessagesBetween', [$user->id, $message->to_id]) }}" target="_blank">
+					{{ $to_ids[$message->to_id]['name'] }}
+					——
+					@if($to_ids[$message->to_id]['vip'] )
+						<i class="fa fa-diamond"></i>
+					@endif
+					@for($i = 0; $i < $to_ids[$message->to_id]['tipcount']; $i++)
+					    👍
+					@endfor
+				</a>
 			</td>
 			<td>{{ $message->content }}</td>
 			<td>{{ $message->created_at }}</td>
