@@ -184,13 +184,22 @@ class UserMeta extends Model
             //if (isset($blockdomain) && strlen($blockdomain) != 0) $query->where('blockdomain', '<>', $blockdomain);
             //if (isset($blockdomainType) && strlen($blockdomainType) != 0) $query->where('blockdomainType', '<>', $blockdomainType);
         }
-        if (isset($cup) && count($cup) != 0) $query = $query->whereIn('cup', $cup);
+        // dd($cup);
+        if (isset($cup)&&$cup!=''){
+            if(count($cup) > 0){
+                $query = $query->whereIn('cup', $cup);
+            }
+        }
         if (isset($marriage) && strlen($marriage) != 0) $query = $query->where('marriage', $marriage);
         if (isset($budget) && strlen($budget) != 0) $query = $query->where('budget', $budget);
         if (isset($income) && strlen($income) != 0) $query = $query->where('income', $income);
         if (isset($smoking) && strlen($smoking) != 0) $query = $query->where('smoking', $smoking);
         if (isset($drinking) && strlen($drinking) != 0) $query = $query->where('drinking', $drinking);
-        if (isset($body) && count($body) != 0) $query = $query->whereIn('body', $body);
+        if (isset($body)&&$body!=''){
+            if(count($body) > 0){
+                $query = $query->whereIn('body', $body);
+            }
+        }
         if (isset($photo) && strlen($photo) != 0) $query = $query->whereNotNull('pic')->where('pic', '<>', 'NULL');
         if (isset($agefrom) && isset($ageto) && strlen($agefrom) != 0 && strlen($ageto) != 0) {
             $agefrom = $agefrom < 18 ? 18 : $agefrom;
