@@ -508,6 +508,8 @@ class PagesController extends Controller
 
     public function dashboard(Request $request)
     {
+
+        
         $user = $request->user();
         $url = $request->fullUrl();
         //echo $url;

@@ -7,11 +7,19 @@
         $umeta = null;
     } else {
         $umeta = $user->meta_();
+        $umeta_block = [];
+        // dd($umeta);
         if(isset($umeta->city)){
             $umeta->city = explode(",",$umeta->city);
             $umeta->area = explode(",",$umeta->area);
         }
+
+        if(isset($umeta->blockcity)){
+          $umeta->blockcity = explode(",",$umeta->blockcity);
+          $umeta->blockarea = explode(",",$umeta->blockarea);
+      }
     }
+    
   ?>
   <style type="text/css">
     .abtn{cursor: pointer;}
@@ -60,6 +68,7 @@
                   <dt>
                     <span>地區<i>(必填)</i></span>
                     <div id="county">
+                    
                       @if(isset($umeta->city))
                         @if(is_array($umeta->city))
                             @foreach($umeta->city as $key => $cityval)
@@ -100,25 +109,46 @@
                       </span>-->
                   </dt>
                   @if($user->engroup==2)
+                   
                   <dt class="matopj15">
                       <span>拒絕接受搜索縣市</span>
                       <div id="block_county">
+                      @if(isset($umeta->blockcity))
+                        @if(is_array($umeta->blockcity))
+                          @foreach($umeta->blockcity as $key => $cityval)
+                              <div class="twzipcode">
+                                <div class="twzip " data-role="county"
+                                    data-name="blockcity"
+                                    data-value="{{$umeta->blockcity[$key]}}">
+                                </div>
+                                <div class="twzip right" data-role="district"
+                                    data-name="blockarea"
+                                    data-value="{{$umeta->blockarea[$key]}}">
+                                </div>
+                              </div>
+                          @endforeach
+                        @else
                           <div class="twzipcode">
-                            <div class="twzip " data-role="county"
-                                 data-name="blockcity"
-                                 data-value="{{$umeta->blockcity}}">
+                            <div class="twzip" data-role="county" data-name="blockcity" data-value="{{$umeta->blockcity}}">
                             </div>
-                            <div class="twzip right" data-role="district"
-                                 data-name="blockarea"
-                                 data-value="{{$umeta->blockarea}}">
+                            <div class="twzip right" data-role="district" data-name="blockarea" data-value="{{$umeta->blockarea}}">
                             </div>
                           </div>
+                        @endif
+                      @else
+                          <div class="twzipcode">
+                            <div class="twzip" data-role="county" data-name="blockcity" data-value="">
+                            </div>
+                            <div class="twzip right" data-role="district" data-name="blockarea" data-value="">
+                            </div>
+                          </div>
+                      @endif
                       </div>
-{{--                      <div class="n_xqline">--}}
-{{--                          <div class="right" style="margin-bottom: 10px;">--}}
-{{--                              <a href="javascript:" id="add_block_county"><img src="/new/images/jh.png">新增縣市</a>--}}
-{{--                          </div>--}}
-{{--                      </div>--}}
+                      <div class="n_xqline">
+                          <div class="right" style="margin-bottom: 10px;">
+                              <a href="javascript:" id="add_block_county"><img src="/new/images/jh.png">新增縣市</a>
+                          </div>
+                      </div>
                   </dt>
                   @endif
                   <dt class="">
@@ -686,6 +716,7 @@
         let block_county = $("#block_county");
         let add_block_county = $("#add_block_county");
         $(add_block_county).click(function(){
+          console.log($(block_county).find('.twzipcode').length)
             if($(block_county).find('.twzipcode').length < 3) {
                 let county_div=`
                 <div class="twzipcode">
