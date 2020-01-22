@@ -157,28 +157,29 @@ class UserMeta extends Model
 
         $query = UserMeta::where('users.engroup', $engroup)->join('users', 'user_id', '=', 'users.id');
 
-        if (isset($city) && strlen($city) != 0) $query = $query->where('city','like', '%'.$city.'%');
-        if (isset($area) && strlen($area) != 0) $query = $query->where('area','like', '%'.$area.'%');
-        if ($engroup == 2){
-            if (isset($blockcity)){
-                foreach ($blockcity as $k => $v) {
-                    $nn=$k;
-                    $area = $blockarea[$k];
-                    $query->where(function ($query)use ($v,$area) {
-                        $query->where(function ($query)use ($v,$area){
-                            $query->where('blockarea', '<>', $area);
-                            $query->where('blockcity', '=', $v);
-                        });
-                        $query->orWhere('blockcity', '<>', $v);
-                        $query->orWhere('blockcity', NULL);
-                        $query->orWhere('blockarea', NULL);
-                    });
-                    //判定全區 不搜尋
-                    $blocked_city_user = UserMeta::select('user_id')->where(['blockcity'=>$v,'blockarea'=>null])->get();
-                    if($blocked_city_user)$query->whereNotIn('user_id', $blocked_city_user);
-                }
-            }
-        }
+        // if (isset($city) && strlen($city) != 0) $query = $query->where('city','like', '%'.$city.'%');
+        // if (isset($area) && strlen($area) != 0) $query = $query->where('area','like', '%'.$area.'%');
+        // if ($engroup == 2){
+        //     if (isset($blockcity)){
+        //         foreach ($blockcity as $k => $v) {
+        //             $nn=$k;
+        //             $area = $blockarea[$k];
+        //             $query->where(function ($query)use ($v,$area) {
+        //                 $query->where(function ($query)use ($v,$area){
+        //                     $query->where('blockarea', '<>', $area);
+        //                     $query->where('blockcity', '=', $v);
+        //                 });
+        //                 $query->orWhere('blockcity', '<>', $v);
+        //                 $query->orWhere('blockcity', NULL);
+        //                 $query->orWhere('blockarea', NULL);
+        //             });
+        //             //判定全區 不搜尋
+        //             $blocked_city_user = UserMeta::select('user_id')->where(['blockcity'=>$v,'blockarea'=>null])->get();
+        //             if($blocked_city_user)$query->whereNotIn('user_id', $blocked_city_user);
+        //         }
+        //     }
+        // }
+        
         if ($engroup == 1)
         {
             //if (isset($blockdomain) && strlen($blockdomain) != 0) $query->where('blockdomain', '<>', $blockdomain);
@@ -212,9 +213,27 @@ class UserMeta extends Model
         $blockedUsers = blocked::select('blocked_id')->where('member_id',$userid)->get();
         if($blockedUsers)$query->whereNotIn('user_id', $blockedUsers);
 
+
+        $block = UserMeta::where('users.id', $userid)->join('users', 'user_id', '=', 'users.id')->get()->first();
+        $user_city = explode(',',$block->city);
+        $user_area = explode(',',$block->area);
+       
+
+        /*判斷搜尋的使用者的blockcity, blockarea是否為搜索者的city, area*/
+        $block_user = [];
+        $user_filter = $query->get();
+        foreach($user_filter as $user_filter){
+            $block_c = explode(',',$user_filter->blockcity);
+            $block_a = explode(',',$user_filter->blockarea);
+            if(array_intersect($block_c, $user_city) && array_intersect($block_a, $user_area) ){
+                array_push($block_user,$user_filter->user_id);
+            }
+        }
+
+
         if(isset($seqtime) && $seqtime == 2)
-            return $query->whereNotIn('user_id', $bannedUsers)->whereNotIn('user_id', $blockedUsers)->orderBy('users.created_at', 'desc')->paginate(12);
+            return $query->whereNotIn('user_id', $bannedUsers)->whereNotIn('user_id', $block_user)->whereNotIn('user_id', $blockedUsers)->orderBy('users.created_at', 'desc')->paginate(12);
         else
-            return $query->whereNotIn('user_id', $bannedUsers)->whereNotIn('user_id', $blockedUsers)->orderBy('users.last_login', 'desc')->paginate(12);
+            return $query->whereNotIn('user_id', $bannedUsers)->whereNotIn('user_id', $block_user)->whereNotIn('user_id', $blockedUsers)->orderBy('users.last_login', 'desc')->paginate(12);
     }
 }
