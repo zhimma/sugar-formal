@@ -17,22 +17,34 @@
 				@if($message->from_id == $id1->id) 
 					<a href="{{ route('users/advInfo', [$message->from_id]) }} ">
 						{{ $id1->name }}——
+						@if($id1->vip)
+						    @if($id1->vip=='diamond_black')
+						        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+						    @else
+						        @for($z = 0; $z < $id1->vip; $z++)
+						            <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+						        @endfor
+						    @endif
+						@endif
 						@for($i = 0; $i < $id1->tipcount; $i++)
 						    👍
 						@endfor
-						@if($id1->vip)
-							<i class="fa fa-diamond"></i>
-						@endif
 					</a> 
 				@else
 					<a href="{{ route('users/advInfo', [$message->to_id]) }} ">
 						{{ $id2->name }}——
+						@if($id2->vip)
+						    @if($id2->vip=='diamond_black')
+						        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+						    @else
+						        @for($z = 0; $z < $id2->vip; $z++)
+						            <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+						        @endfor
+						    @endif
+						@endif
 						@for($i = 0; $i < $id2->tipcount; $i++)
 						    👍
 						@endfor
-						@if($id2->vip)
-							<i class="fa fa-diamond"></i>
-						@endif
 					</a>  
 				@endif
 			</td>
@@ -40,22 +52,34 @@
 				@if($message->from_id != $id1->id) 
 					<a href="{{ route('users/advInfo', [$id1->id]) }} ">
 						{{ $id1->name }}——
+						@if($id1->vip)
+						    @if($id1->vip=='diamond_black')
+						        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+						    @else
+						        @for($z = 0; $z < $id1->vip; $z++)
+						            <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+						        @endfor
+						    @endif
+						@endif
 						@for($i = 0; $i < $id1->tipcount; $i++)
 						    👍
 						@endfor
-						@if($id1->vip)
-							<i class="fa fa-diamond"></i>
-						@endif
 					</a> 
 				@else 
 					<a href="{{ route('users/advInfo', [$message->to_id]) }} ">
 						{{ $id2->name }}——
+						@if($id2->vip)
+						    @if($id2->vip=='diamond_black')
+						        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+						    @else
+						        @for($z = 0; $z < $id2->vip; $z++)
+						            <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+						        @endfor
+						    @endif
+						@endif
 						@for($i = 0; $i < $id2->tipcount; $i++)
 						    👍
 						@endfor
-						@if($id2->vip)
-							<i class="fa fa-diamond"></i>
-						@endif
 					</a>  
 				@endif
 			</td>

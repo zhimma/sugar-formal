@@ -370,6 +370,7 @@ class UserController extends Controller
                 
                 if($to_ids[$u->to_id]){
                     $to_ids[$u->to_id]['tipcount'] = Tip::TipCount_ChangeGood($u->to_id);
+                    $to_ids[$u->to_id]['vip'] = Vip::vip_diamond($u->to_id);
                     $to_ids[$u->to_id]['name'] = $to_ids[$u->to_id]->name;
                 }
                 else{
@@ -377,9 +378,6 @@ class UserController extends Controller
                     $to_ids[$u->to_id]['name'] = '查無資料或使用者資料已刪除';
                 }
             }
-        }
-        foreach($to_ids as $key => $to_id){
-            $to_ids[$key]['vip'] =  Vip::select('active')->where('member_id', $key)->where('active', 1)->orderBy('created_at', 'desc')->first() !== null;
         }
         $isVip = $user->isVip();
         $user['vip'] = $isVip;
@@ -992,10 +990,12 @@ class UserController extends Controller
         $messages = Message::allToFromSender($id1, $id2);
         $id1 = User::where('id', $id1)->get()->first();
         $id2 = User::where('id', $id2)->get()->first();
+
         $id1->tipcount = Tip::TipCount_ChangeGood($id1->id);
         $id2->tipcount = Tip::TipCount_ChangeGood($id2->id);
-        $id1->vip = (Vip::where('member_id', 'like', $id1->id)->get()->first()) ? true : false;
-        $id2->vip = (Vip::where('member_id', 'like', $id2->id)->get()->first()) ? true : false;
+
+        $id1->vip = Vip::vip_diamond($id1->id);
+        $id2->vip = Vip::vip_diamond($id2->id);
         return view('admin.users.showMessagesBetween', compact('messages', 'id1', 'id2'));
     }
 

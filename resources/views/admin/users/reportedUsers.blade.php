@@ -74,7 +74,13 @@
                                 @endif
                                     {{ $users[$result['reported_id']]['name'] }}——
                                     @if($users[$result['reported_id']]['vip'])
-                                        <i class="m-nav__link-icon fa fa-diamond"></i>
+                                        @if($users[$result['reported_id']]['vip']=='diamond_black')
+                                            <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+                                        @else
+                                            @for($z = 0; $z < $users[$result['reported_id']]['vip']; $z++)
+                                                <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+                                            @endfor
+                                        @endif
                                     @endif
                                     @for($i = 0; $i < $users[$result['reported_id']]['tipcount']; $i++)
                                         👍
@@ -109,7 +115,13 @@
                                 @endif
                                     {{ $users[$result['member_id']]['name'] }}——
                                     @if($users[$result['member_id']]['vip'])
-                                        <i class="m-nav__link-icon fa fa-diamond"></i>
+                                        @if($users[$result['member_id']]['vip']=='diamond_black')
+                                            <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+                                        @else
+                                            @for($z = 0; $z < $users[$result['member_id']]['vip']; $z++)
+                                                <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+                                            @endfor
+                                        @endif
                                     @endif
                                     @for($i = 0; $i < $users[$result['member_id']]['tipcount']; $i++)
                                         👍

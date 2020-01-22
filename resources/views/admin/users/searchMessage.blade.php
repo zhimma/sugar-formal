@@ -108,8 +108,14 @@
                     <a href="{{ route('users/advInfo', $result['from_id']) }}" target='_blank' >
                         <p  @if($users[$result['from_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
                             {{ $users[$result['from_id']]['name'] }}——
-                            @if(!is_null($users[$result['from_id']]['vip']))
-                                <i class="m-nav__link-icon fa fa-diamond"></i>
+                            @if($users[$result['from_id']]['vip'])
+                                @if($users[$result['from_id']]['vip']=='diamond_black')
+                                    <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+                                @else
+                                    @for($z = 0; $z < $users[$result['from_id']]['vip']; $z++)
+                                        <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+                                    @endfor
+                                @endif
                             @endif
                             @if(!is_null($result['isBlocked']))
                                 @if(!is_null($result['isBlocked']['expire_date']))
@@ -136,8 +142,14 @@
                     <a href="{{ route('users/advInfo', $result['to_id']) }}" target='_blank'>
                         <p @if($users[$result['to_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
                             {{ $users[$result['to_id']]['name'] }}——
-                            @if(!is_null($users[$result['to_id']]['vip']))
-                                <i class="m-nav__link-icon fa fa-diamond"></i>
+                            @if($users[$result['to_id']]['vip'])
+                                @if($users[$result['to_id']]['vip']=='diamond_black')
+                                    <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+                                @else
+                                    @for($z = 0; $z < $users[$result['to_id']]['vip']; $z++)
+                                        <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+                                    @endfor
+                                @endif
                             @endif
                             @if(!is_null($result['isBlockedReceiver']))
                                 @if(!is_null($result['isBlockedReceiver']['expire_date']))
@@ -209,6 +221,15 @@
                     <td rowspan="{{ count($sender['messages']) }}" @if($sender['isBlocked']) style="background-color:#FFFF00" @endif>
                         <a href="{{ route('users/advInfo', $sender['id']) }}" target='_blank' >
                             {{ $sender['name'] }}——
+                            @if($sender['vip'])
+                                @if($sender['vip']=='diamond_black')
+                                    <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+                                @else
+                                    @for($z = 0; $z < $sender['vip']; $z++)
+                                        <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+                                    @endfor
+                                @endif
+                            @endif
                             @for($z = 0; $z < $sender['tipcount']; $z++)
                                 👍
                             @endfor
@@ -222,6 +243,15 @@
                     <td rowspan="{{ count($sender['messages']) }}">{{ $sender['last_login'] }}</td>
                     <td>
                         {{ $receivers[$sender['messages'][0]['to_id']]['name'] }}——
+                        @if($receivers[$sender['messages'][0]['to_id']]['vip'])
+                            @if($receivers[$sender['messages'][0]['to_id']]['vip']=='diamond_black')
+                                <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+                            @else
+                                @for($z = 0; $z < $receivers[$sender['messages'][0]['to_id']]['vip']; $z++)
+                                    <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+                                @endfor
+                            @endif
+                        @endif
                         @for($z = 0; $z < $receivers[$sender['messages'][0]['to_id']]['tipcount']; $z++)
                             👍
                         @endfor
@@ -240,6 +270,15 @@
                         </td>
                         <td @if($sender['isBlocked']) style="background-color:#FFFF00" @endif>
                             {{ $receivers[$sender['messages'][$i]['to_id']]['name'] }}——
+                            @if($receivers[$sender['messages'][$i]['to_id']]['vip'])
+                                @if($receivers[$sender['messages'][$i]['to_id']]['vip']=='diamond_black')
+                                    <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+                                @else
+                                    @for($z = 0; $z < $receivers[$sender['messages'][$i]['to_id']]['vip']; $z++)
+                                        <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+                                    @endfor
+                                @endif
+                            @endif
                             @for($z = 0; $z < $receivers[$sender['messages'][$i]['to_id']]['tipcount']; $z++)
                                 👍
                             @endfor

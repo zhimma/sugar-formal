@@ -158,8 +158,14 @@
 				<a href="{{ route('admin/showMessagesBetween', [$user->id, $message->to_id]) }}" target="_blank">
 					{{ $to_ids[$message->to_id]['name'] }}
 					——
-					@if($to_ids[$message->to_id]['vip'] )
-						<i class="fa fa-diamond"></i>
+					@if($to_ids[$message->to_id]['vip'])
+					    @if($to_ids[$message->to_id]['vip']=='diamond_black')
+					        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+					    @else
+					        @for($z = 0; $z < $to_ids[$message->to_id]['vip']; $z++)
+					            <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+					        @endfor
+					    @endif
 					@endif
 					@for($i = 0; $i < $to_ids[$message->to_id]['tipcount']; $i++)
 					    👍

@@ -74,8 +74,14 @@
                                 @endif
                                     <a href="{{ route('users/advInfo', $result['reported_user_id']) }}" target='_blank'>
                                         {{ $users[$result['reported_user_id']]['name'] }}——
-                                        @if($users[$result['reported_user_id']]['vip'] )
-                                            <i class="m-nav__link-icon fa fa-diamond"></i>
+                                        @if($users[$result['reported_user_id']]['vip'])
+                                            @if($users[$result['reported_user_id']]['vip']=='diamond_black')
+                                                <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+                                            @else
+                                                @for($z = 0; $z < $users[$result['reported_user_id']]['vip']; $z++)
+                                                    <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+                                                @endfor
+                                            @endif
                                         @endif
                                         @for($i = 0; $i < $users[$result['reported_user_id']]['tipcount']; $i++)
                                             👍
@@ -112,8 +118,14 @@
                                         <p>
                                     @endif
                                         {{ $users[$result['reporter_id']]['name'] }}——
-                                        @if($users[$result['reporter_id']]['vip'] )
-                                            <i class="m-nav__link-icon fa fa-diamond"></i>
+                                        @if($users[$result['reporter_id']]['vip'])
+                                            @if($users[$result['reporter_id']]['vip']=='diamond_black')
+                                                <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+                                            @else
+                                                @for($z = 0; $z < $users[$result['reporter_id']]['vip']; $z++)
+                                                    <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+                                                @endfor
+                                            @endif
                                         @endif
                                         @for($i = 0; $i < $users[$result['reporter_id']]['tipcount']; $i++)
                                             👍
@@ -183,8 +195,14 @@
                                 @if(isset($result['reported_user_id']))
                                     <a href="{{ route('users/advInfo', $result['reported_user_id']) }}" target='_blank' @if($result['isBlockedReceiver']) style="color: #F00;" @endif>
                                         {{ $Pusers[$result['reported_user_id']]['name'] }}——
-                                        @if($Pusers[$result['reported_user_id']]['vip'] )
-                                            <i class="m-nav__link-icon fa fa-diamond"></i>
+                                        @if($Pusers[$result['reported_user_id']]['vip'])
+                                            @if($Pusers[$result['reported_user_id']]['vip']=='diamond_black')
+                                                <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+                                            @else
+                                                @for($z = 0; $z < $Pusers[$result['reported_user_id']]['vip']; $z++)
+                                                    <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+                                                @endfor
+                                            @endif
                                         @endif
                                         @for($i = 0; $i < $Pusers[$result['reported_user_id']]['tipcount']; $i++)
                                             👍
@@ -223,8 +241,14 @@
                             <td>
                                 <a href="{{ route('users/advInfo', $result['reporter_id']) }}" target='_blank' @if($result['isBlocked']) style="color: #F00;" @endif>
                                     {{ $Pusers[$result['reporter_id']]['name'] }}——
-                                    @if($Pusers[$result['reporter_id']]['vip'] )
-                                        <i class="m-nav__link-icon fa fa-diamond"></i>
+                                    @if($Pusers[$result['reporter_id']]['vip'])
+                                        @if($Pusers[$result['reporter_id']]['vip']=='diamond_black')
+                                            <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+                                        @else
+                                            @for($z = 0; $z < $Pusers[$result['reporter_id']]['vip']; $z++)
+                                                <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+                                            @endfor
+                                        @endif
                                     @endif
                                     @for($i = 0; $i < $Pusers[$result['reporter_id']]['tipcount']; $i++)
                                         👍

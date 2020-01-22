@@ -205,7 +205,7 @@ class AdminService
                 ->get()->first();
             if($info != null){
                 $user['name'] = $info->name;
-                $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
+                $user['vip'] = Vip::vip_diamond($id);
                 $user['tipcount'] = Tip::TipCount_ChangeGood($id);
                 $user['engroup'] = $info->engroup;
                 $user['last_login'] = $info->last_login;
@@ -254,7 +254,7 @@ class AdminService
                 $user['name'] = $info->name;
                 $user['engroup'] = $info->engroup;
                 $user['last_login'] = $info->last_login;
-                $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
+                $user['vip'] = Vip::vip_diamond($id);
                 $user['tipcount'] = Tip::TipCount_ChangeGood($id);
             }
             else{
@@ -303,7 +303,7 @@ class AdminService
                 $user['name'] = $info->name;
                 $user['engroup'] = $info->engroup;
                 $user['last_login'] = $info->last_login;
-                $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
+                $user['vip'] = Vip::vip_diamond($id);
                 $user['tipcount'] = Tip::TipCount_ChangeGood($id);
             }
             else{
@@ -362,7 +362,7 @@ class AdminService
                 $user['name'] = $info->name;
                 $user['engroup'] = $info->engroup;
                 $user['last_login'] = $info->last_login;
-                $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
+                $user['vip'] = Vip::vip_diamond($id);
                 $user['tipcount'] = Tip::TipCount_ChangeGood($id);
             }
             else{
