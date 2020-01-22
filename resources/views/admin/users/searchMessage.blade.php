@@ -117,6 +117,9 @@
                                     @endfor
                                 @endif
                             @endif
+                            @for($z = 0; $z < $users[$result['from_id']]['tipcount']; $z++)
+                                👍
+                            @endfor
                             @if(!is_null($result['isBlocked']))
                                 @if(!is_null($result['isBlocked']['expire_date']))
                                     ({{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
@@ -124,9 +127,6 @@
                                     (永久)
                                 @endif
                             @endif
-                            @for($z = 0; $z < $users[$result['from_id']]['tipcount']; $z++)
-                                👍
-                            @endfor
                         </p>
                     </a>
                 </td>
@@ -151,6 +151,9 @@
                                     @endfor
                                 @endif
                             @endif
+                            @for($z = 0; $z < $users[$result['to_id']]['tipcount']; $z++)
+                                👍
+                            @endfor
                             @if(!is_null($result['isBlockedReceiver']))
                                 @if(!is_null($result['isBlockedReceiver']['expire_date']))
                                     ({{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天)
@@ -158,9 +161,6 @@
                                     (永久)
                                 @endif
                             @endif
-                            @for($z = 0; $z < $users[$result['to_id']]['tipcount']; $z++)
-                                👍
-                            @endfor
                         </p>
                     </a>
                 </td>
@@ -233,6 +233,13 @@
                             @for($z = 0; $z < $sender['tipcount']; $z++)
                                 👍
                             @endfor
+                            @if(!is_null($sender['isBlocked']))
+                                @if(!is_null($sender['isBlocked']['expire_date']))
+                                    ({{ round((strtotime($sender['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                @else
+                                    (永久)
+                                @endif
+                            @endif
                         </a>
                     </td>
                     <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][0]['id'] ]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>
@@ -241,7 +248,7 @@
                     </td>
                     <td rowspan="{{ count($sender['messages']) }}">{{ $sender['created_at'] }}</td>
                     <td rowspan="{{ count($sender['messages']) }}">{{ $sender['last_login'] }}</td>
-                    <td>
+                    <td @if($receivers[$sender['messages'][0]['to_id']]['isBlockedReceiver']) style="background-color:#FFFF00" @endif>
                         {{ $receivers[$sender['messages'][0]['to_id']]['name'] }}——
                         @if($receivers[$sender['messages'][0]['to_id']]['vip'])
                             @if($receivers[$sender['messages'][0]['to_id']]['vip']=='diamond_black')
@@ -255,6 +262,13 @@
                         @for($z = 0; $z < $receivers[$sender['messages'][0]['to_id']]['tipcount']; $z++)
                             👍
                         @endfor
+                        @if(!is_null($receivers[$sender['messages'][0]['to_id']]['isBlockedReceiver']))
+                            @if(!is_null($receivers[$sender['messages'][0]['to_id']]['isBlockedReceiver']['expire_date']))
+                                ({{ round((strtotime($receivers[$sender['messages'][0]['to_id']]['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                            @else
+                                (永久)
+                            @endif
+                        @endif
                     </td>
                     <td width="45%">{{ $sender['messages'][0]['content'] }}</td>
                     <td>{{ $sender['messages'][0]['created_at'] }}</td>
@@ -268,7 +282,7 @@
                         <td>
                             <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }} " target="_blank">封鎖</a>
                         </td>
-                        <td @if($sender['isBlocked']) style="background-color:#FFFF00" @endif>
+                        <td @if($receivers[$sender['messages'][$i]['to_id']]['isBlockedReceiver']) style="background-color:#FFFF00" @endif>
                             {{ $receivers[$sender['messages'][$i]['to_id']]['name'] }}——
                             @if($receivers[$sender['messages'][$i]['to_id']]['vip'])
                                 @if($receivers[$sender['messages'][$i]['to_id']]['vip']=='diamond_black')
@@ -282,6 +296,13 @@
                             @for($z = 0; $z < $receivers[$sender['messages'][$i]['to_id']]['tipcount']; $z++)
                                 👍
                             @endfor
+                            @if(!is_null($receivers[$sender['messages'][$i]['to_id']]['isBlockedReceiver']))
+                                @if(!is_null($receivers[$sender['messages'][$i]['to_id']]['isBlockedReceiver']['expire_date']))
+                                    ({{ round((strtotime($receivers[$sender['messages'][$i]['to_id']]['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                @else
+                                    (永久)
+                                @endif
+                            @endif
                         </td>
                         <td width="45%">{{ $sender['messages'][$i]['content'] }}</td>
                         <td>{{ $sender['messages'][$i]['created_at'] }}</td>

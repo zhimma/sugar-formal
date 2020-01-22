@@ -2,7 +2,20 @@
 
 <body style="padding: 15px;">
 <h1>
-	@if($user['vip'] )<i class="fa fa-diamond" style="font-size: 2rem;"></i>@endif{{ $user->name }}的所有資料
+	{{ $user->name }}——
+	@if($user['vip'])
+	    @if($user['vip']=='diamond_black')
+	        <img src="/img/diamond_black.png" style="height: 2.5rem;width: 2.5rem;">
+	    @else
+	        @for($z = 0; $z < $user['vip']; $z++)
+	            <img src="/img/diamond.png" style="height: 2.5rem;width: 2.5rem;">
+	        @endfor
+	    @endif
+	@endif
+	@for($i = 0; $i < $user['tipcount']; $i++)
+	    👍
+	@endfor
+	的所有資料
 	<a href="edit/{{ $user->id }}" class='text-white btn btn-primary'>修改</a>
 	@if($user['isBlocked'])
 		<button type="button" id="unblock_user" class='text-white btn @if($user["isBlocked"]) btn-success @else btn-danger @endif' onclick="Release({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除封鎖 </button>

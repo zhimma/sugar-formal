@@ -379,9 +379,9 @@ class UserController extends Controller
                 }
             }
         }
-        $isVip = $user->isVip();
-        $user['vip'] = $isVip;
 
+        $user['tipcount'] = Tip::TipCount_ChangeGood($id);
+        $user['vip'] = Vip::vip_diamond($id);
         $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first() == true  ? true : false;
 
         if(str_contains(url()->current(), 'edit')){
@@ -649,7 +649,7 @@ class UserController extends Controller
                     // $vip_tmp = $sender->isVip() ? true : false;
                     $senders[$key] = $sender->toArray();
                     $senders[$key]['vip'] = Vip::vip_diamond($id);
-                    $senders[$key]['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first() == true ? true : false;
+                    $senders[$key]['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first();
                     $senders[$key]['tipcount'] = Tip::TipCount_ChangeGood($id);
                 }
                 //Fills message ids to each sender.
@@ -675,6 +675,7 @@ class UserController extends Controller
                         $receivers[$id]['name'] = $name->name;
                         $receivers[$id]['tipcount'] = Tip::TipCount_ChangeGood($id);
                         $receivers[$id]['vip'] = Vip::vip_diamond($id);
+                        $receivers[$id]['isBlockedReceiver'] = banned_users::where('member_id', 'like', $id)->get()->first();
                     }
                     else{
                         $receivers[$id] = '資料庫沒有資料';
