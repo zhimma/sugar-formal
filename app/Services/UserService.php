@@ -181,6 +181,31 @@ class UserService
      */
     public function update($userId, $payload)
     {
+        $setBlockKeys = ['blockcity','blockarea'];
+        $notLikeBlockKeys = ['blockarea' => 'isHideArea'];
+        foreach($setBlockKeys as $setBlockKeys){
+            // dump($setBlockKeys);
+            foreach($payload as $key => $value) {
+                
+                if($key!='blockcity'&&$key!='blockarea'&&preg_match("/$setBlockKeys/i", $key)){
+                    if($key != $setBlockKeys){
+                        if(is_null($payload[$key])){
+                            unset($payload[$key]);
+                        }else{
+                            if(isset($notLikeBlockKeys[$setBlockKeys])){
+                                if(!in_array($key, $notLikeBlockKeys)){
+                                    $payload[$setBlockKeys] = $payload[$setBlockKeys]. ",". $value;
+                                    unset($payload[$key]);
+                                 }
+                            }else{
+                                $payload[$setBlockKeys] = $payload[$setBlockKeys]. ",". $value;
+                                unset($payload[$key]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
         $setKeys = ['city','area'];
         $notLikeKeys = ['area' => 'isHideArea'];
         foreach($setKeys as $setKey){
@@ -204,6 +229,7 @@ class UserService
                 }
             }
         }
+        
         if (isset($payload['meta']) && ! isset($payload['meta']['terms_and_cond'])) {
             throw new Exception("You must agree to the terms and conditions.", 1);
         }
@@ -321,15 +347,13 @@ class UserService
                   $payload['meta']['blockdomainType'] = $payload['blockdomainType'];
                   unset($payload['blockdomainType']);
                   }
-                  if (isset($payload['blockcity'])||empty($payload['blockcity']))
+                  if (isset($payload['blockcity']))
                   {
-                    if(empty($payload['blockcity']))$payload['blockcity']=null;
                     $payload['meta']['blockcity'] = $payload['blockcity'];
                     unset($payload['blockcity']);
                   }
-                  if (isset($payload['blockarea'])||empty($payload['blockarea']))
+                  if (isset($payload['blockarea']))
                   {
-                    if(empty($payload['blockarea']))$payload['blockarea']=null;
                     $payload['meta']['blockarea'] = $payload['blockarea'];
                     unset($payload['blockarea']);
                   }

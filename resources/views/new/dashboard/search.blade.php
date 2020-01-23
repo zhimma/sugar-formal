@@ -57,22 +57,22 @@
                         <dt>
                             <span>體型</span>
                             <span class="line20">
-                                    <label class="n_tx"><input type="radio" name="body" value="瘦" id="radio" @if( !empty( $_GET["body"] ) && $_GET["body"] == "瘦" ) checked @endif><i>瘦</i></label>
-                                    <label class="n_tx"><input type="radio" name="body" value="標準" id="radio1" @if( !empty( $_GET["body"] ) && $_GET["body"] == "標準" ) checked @endif><i>標準</i></label>
-                                    <label class="n_tx"><input type="radio" name="body" value="微胖" id="radio2" @if( !empty( $_GET["body"] ) && $_GET["body"] == "微胖" ) checked @endif><i>微胖</i></label>
-                                    <label class="n_tx"><input type="radio" name="body" value="胖" id="radio3" @if( !empty( $_GET["body"] ) && $_GET["body"] == "胖" ) checked @endif><i>胖</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="body[]" value="瘦" id="radio" @if( !empty( $_GET["body"] ) && $_GET["body"] == "瘦" ) checked @endif><i>瘦</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="body[]" value="標準" id="radio1" @if( !empty( $_GET["body"] ) && $_GET["body"] == "標準" ) checked @endif><i>標準</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="body[]" value="微胖" id="radio2" @if( !empty( $_GET["body"] ) && $_GET["body"] == "微胖" ) checked @endif><i>微胖</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="body[]" value="胖" id="radio3" @if( !empty( $_GET["body"] ) && $_GET["body"] == "胖" ) checked @endif><i>胖</i></label>
                             </span>
                         </dt>
                         @if ($user->engroup == 1)
                         <dt class="matopj15">
                             <span>CUP</span>
                             <span class="line20">
-                                    <label class="n_tx"><input type="radio" name="cup" value="A" id="Check" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "A" ) checked @endif><i>A</i></label>
-                                    <label class="n_tx"><input type="radio" name="cup" value="B" id="Check1" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "B" ) checked @endif><i>B</i></label>
-                                    <label class="n_tx"><input type="radio" name="cup" value="C" id="Check2" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "C" ) checked @endif><i>C</i></label>
-                                    <label class="n_tx"><input type="radio" name="cup" value="D" id="Check3" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "D" ) checked @endif><i>D</i></label>
-                                    <label class="n_tx"><input type="radio" name="cup" value="E" id="Check4" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "E" ) checked @endif><i>E</i></label>
-                                    <label class="n_tx"><input type="radio" name="cup" value="F" id="Check5" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "F" ) checked @endif><i>F</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="cup[]" value="A" id="Check" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "A" ) checked @endif><i>A</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="cup[]" value="B" id="Check1" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "B" ) checked @endif><i>B</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="cup[]" value="C" id="Check2" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "C" ) checked @endif><i>C</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="cup[]" value="D" id="Check3" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "D" ) checked @endif><i>D</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="cup[]" value="E" id="Check4" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "E" ) checked @endif><i>E</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="cup[]" value="F" id="Check5" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "F" ) checked @endif><i>F</i></label>
                             </span>
                         </dt>
                         @else
