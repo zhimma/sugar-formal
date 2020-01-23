@@ -120,11 +120,12 @@
 			}else{
 				error	=	result.msg;
 			}
-			swal({
-				title:error,
-				text:(result.text)?result.text:'',
-				type:'error'
-			});
+			c2(error);
+			// swal({
+			// 	title:error,
+			// 	text:(result.text)?result.text:'',
+			// 	type:'error'
+			// });
 		}
 	}
 
@@ -143,12 +144,20 @@
     $(document).on('click','.blbg',function(event) {
     	$(".blbg").hide();
         $(".bl").hide();
+		$(".gg_tab").hide();
+		window.location.reload();
     });
     function c4(str) {
 		 $(".blbg").show();
          $("#tab04").show();
          $("#tab04 .bltext").text(str);
     }
+
+	function c5(str) {
+		$(".blbg").show();
+		$("#tab05").show();
+		$("#tab05 .bltext").text(str);
+	}
 
 	function show_message(str) {
 		$(".blbg").show();

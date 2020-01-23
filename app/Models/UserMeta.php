@@ -157,8 +157,8 @@ class UserMeta extends Model
 
         $query = UserMeta::where('users.engroup', $engroup)->join('users', 'user_id', '=', 'users.id');
 
-        // if (isset($city) && strlen($city) != 0) $query = $query->where('city','like', '%'.$city.'%');
-        // if (isset($area) && strlen($area) != 0) $query = $query->where('area','like', '%'.$area.'%');
+         if (isset($city) && strlen($city) != 0) $query = $query->where('city','like', '%'.$city.'%');
+         if (isset($area) && strlen($area) != 0) $query = $query->where('area','like', '%'.$area.'%');
         // if ($engroup == 2){
         //     if (isset($blockcity)){
         //         foreach ($blockcity as $k => $v) {

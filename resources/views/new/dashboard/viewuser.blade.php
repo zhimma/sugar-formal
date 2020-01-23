@@ -67,44 +67,67 @@
                     <div class="metx">
                         <div class="swiper-container photo">
                             <div class="swiper-wrapper">
-                                <div class="swiper-slide"><img src="{{$to->meta_()->pic}}"></div>
-{{--                                <div class="swiper-slide"><img src="/new/images/icon_04.png"></div>--}}
-{{--                                <div class="swiper-slide"><img src="/new/images/icon_03.png"></div>--}}
+                                <div class="swiper-slide" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="{{$to->meta_()->pic}}"></div>
+
+                                @foreach($member_pic as $row)
+                                    <div class="swiper-slide" data-type="pic" data-sid="{{$to->id}}" data-pic_id="{{$row->id}}"><img src="{{$row->pic}}"></div>
+                                @endforeach
                             </div>
                             <!-- Add Arrows -->
                             <div class="swiper-button-next"></div>
                             <div class="swiper-button-prev"></div>
                         </div>
-                        <div class="n_jianj"><a href="">檢舉大頭照</a></div>
+                        <div class="n_jianj"><a onclick="show_reportPic()">檢舉大頭照</a></div>
                         <div class="tubiao">
                             <ul>
                                 <li>
                                     <a onclick="show_chat()"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
                                 </li>
+                                @if($user->isVip())
                                 <li>
                                     <a class="addFav"><img src="/new/images/icon_08.png" class="tubiao_i"><span>收藏</span></a>
                                 </li>
+                                @else
+                                    <li>
+                                        <img src="/new/images/icon_08.png" class="tubiao_i"><span>收藏</span>
+                                        <span><img src="/new/images/icon_36.png" class="tap-vip"></span>
+                                    </li>
+                                @endif
                                 <li>
                                     <a onclick="show_banned()"><img src="/new/images/icon_10.png" class="tubiao_i"><span>檢舉</span></a>
                                 </li>
+                                @if($user->isVip())
+                                    <?php $isBlocked = \App\Models\Blocked::isBlocked($user->id, $to->id);?>
                                 <li>
+                                    @if($isBlocked)
+                                    <a class="unblock"><img src="/new/images/icon_12_h.png" class="tubiao_i"><span>解除封鎖</span></a>
+                                    @else
                                     <a onclick="show_block()"><img src="/new/images/icon_12.png" class="tubiao_i"><span>封鎖</span></a>
+                                    @endif
                                 </li>
+                                @else
+
+                                    <li>
+                                        <img src="/new/images/icon_08.png" class="tubiao_i"><span>封鎖</span>
+                                        <span><img src="/new/images/icon_36.png" class="tap-vip"></span>
+                                    </li>
+                                @endif
                             </ul>
                         </div>
                         <div class="bottub">
                             <ul>
                                 <?php
-                                $now = \Carbon\Carbon::now();
-                                $registration_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $to->created_at);
+                                $now = Carbon\Carbon::now();
+                                $registration_date = Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $to->created_at);
                                 $diff_in_months = $registration_date->diffInMonths($now);
                                 ?>
                                 @if($diff_in_months==0)
                                 <li><img src="/new/images/icon_19.png"><span>新進甜心</span></li>
                                 @endif
-                                <li><img src="/new/images/icon_21.png"><span>優選會員</span></li>
-                                <li><img src="/new/images/icon_23.png"><span>財力認證</span></li>
+{{--                                <li><img src="/new/images/icon_21.png"><span>優選會員</span></li>--}}
+{{--                                <li><img src="/new/images/icon_23.png"><span>財力認證</span></li>--}}
                                 @if($to->isVip())
+                                <li><img src="/new/images/icon_21.png"><span>優選會員</span></li>
                                 <li><img src="/new/images/icon_25.png"><span>VIP</span></li>
                                 @endif
 {{--                                <li><img src="/new/images/icon_27.png"><span>警示帳戶</span></li>--}}
@@ -144,10 +167,6 @@
                                     </dt>
                                     <dt>
                                         <span>地區</span>
-{{--                                        <span>--}}
-{{--                                            <input name="" type="text" class="select_xx senhs"  placeholder="{{$to->meta_()->city}}" disabled="disabled">--}}
-{{--                                            <input name="" type="text" class="select_xx senhs right"  placeholder="{{$to->meta_()->area}}" disabled="disabled">--}}
-{{--                                        </span>--}}
                                         <?php
                                         if (!isset($user)) {
                                             $umeta = null;
@@ -188,14 +207,14 @@
                                         <span>身高（cm）</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->height}}" disabled="disabled"></span>
                                     </dt>
-                                    <dt>
-                                        <span>體型</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->body}}" disabled="disabled"></span>
-                                    </dt>
-                                    <dt>
-                                        <span>CUP</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->cup}}" disabled="disabled"></span>
-                                    </dt>
+{{--                                    <dt>--}}
+{{--                                        <span>體型</span>--}}
+{{--                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->body}}" disabled="disabled"></span>--}}
+{{--                                    </dt>--}}
+{{--                                    <dt>--}}
+{{--                                        <span>CUP</span>--}}
+{{--                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->cup}}" disabled="disabled"></span>--}}
+{{--                                    </dt>--}}
                                     <dt>
                                         <span>關於我</span>
                                         <span><div class="select_xx03" >{{$to->meta_()->about}}</div></span>
@@ -246,7 +265,7 @@
                                 <div class="xl_text">
                                     <dt><span>帳號建立時間</span><font>{{$to->created_at}}</font></dt>
                                     <dt><span>登入時間</span><font>{{$to->last_login}}</font></dt>
-                                    <dt><span>被收藏次數</span>@if($to->isVip()) <font>{{$be_fav_count}}</font> @else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    <dt><span>被收藏次數</span>@if($user->isVip()) <font>{{$be_fav_count}}</font> @else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>收藏會員次數</span><font>{{$fav_count}}</font></dt>
                                     <dt><span>車馬費邀請次數</span><font>{{$tip_count}}</font></dt>
                                     <dt><span>發信次數</span><font>{{$message_count}}</font></dt>
@@ -291,12 +310,29 @@
                 {!! csrf_field() !!}
                 <input type="hidden" name="aid" value="{{$user->id}}">
                 <input type="hidden" name="uid" value="{{$to->id}}">
-            <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請輸入檢舉理由"></textarea>
-            <div class="n_bbutton">
-                <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>
-{{--                <span><a class="n_left" href="">送出</a></span>--}}
-{{--                <span><a class="n_right" href="">返回</a></span>--}}
-            </div>
+                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請輸入檢舉理由"></textarea>
+                <div class="n_bbutton">
+                    <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>
+                </div>
+            </form>
+        </div>
+        <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+    </div>
+
+    <div class="bl bl_tab" id="show_reportPic">
+        <div class="bltitle"><span>檢舉{{$to->name}}</span></div>
+        <div class="n_blnr01 ">
+            <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ route('reportPicNextNew') }}">
+                {!! csrf_field() !!}
+                <input type="hidden" name="aid" value="{{$user->id}}">
+                <input type="hidden" name="uid" value="{{$to->id}}">
+                <input type="hidden" name="picType" value="">
+                <input type="hidden" name="pic_id" value="">
+
+                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請輸入檢舉理由" required></textarea>
+                <div class="n_bbutton">
+                    <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>
+                </div>
             </form>
         </div>
         <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
@@ -316,6 +352,14 @@
         $("#show_banned").show();
     }
 
+    function show_reportPic() {
+        $(".blbg").show();
+        $("#show_reportPic").show();
+        // alert($('.swiper-slide-active').data('type'));
+        $('input[name="picType"]').val($('.swiper-slide-active').data('type'));
+        $('input[name="pic_id"]').val($('.swiper-slide-active').data('pic_id'));
+    }
+
     $(".but_block").on('click', function() {
         $.post('{{ route('postBlockAJAX') }}', {
             uid: '{{ $user->id }}',
@@ -323,8 +367,23 @@
             _token: '{{ csrf_token() }}'
         }, function (data) {
             $("#tab_block").hide();
-            show_message('封鎖成功');
-            //window.location.reload();
+            c2('封鎖成功');
+        });
+    });
+
+    $('.unblock').on('click', function() {
+        c4('確定要解除封鎖嗎?');
+        var uid='{{ $user->id }}';
+        var to='{{$to->id}}';
+        $(".n_left").on('click', function() {
+            $.post('{{ route('unblockAJAX') }}', {
+                uid: uid,
+                to: to,
+                _token: '{{ csrf_token() }}'
+            }, function (data) {
+                $("#tab04").hide();
+                show_message('已解除封鎖');
+            });
         });
     });
 
@@ -334,9 +393,15 @@
             to: '{{$to->id}}',
             _token: '{{ csrf_token() }}'
         }, function (data) {
-            //$("#tab_block").hide();
-            c2('收藏成功');
-            //window.location.reload();
+            if(data.save=='ok') {
+                c2('收藏成功');
+            }else if(data.save=='error'){
+                c2('收藏失敗');
+            }else if(data.isBlocked){
+                c2('封鎖中無法收藏');
+            }else if(data.isFav){
+                c2('已在收藏名單中');
+            }
         });
     });
 

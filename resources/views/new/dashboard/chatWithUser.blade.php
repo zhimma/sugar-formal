@@ -39,15 +39,16 @@
                                 <div class="msg @if($message['from_id'] == $user->id) msg1 @endif">
                                     <img src="@if($message['from_id'] == $user->id) {{$user->meta_()->pic}} @else {{$msgUser->meta_()->pic}} @endif">
                                     <p>
-                                        <i class="msg_input"></i>{{nl2br($message['content'])}}
+                                        <i class="msg_input"></i>{!! nl2br($message['content']) !!}
                                         <a class="delete-btn" data-id="{{ $message['id'] }}" data-ct_time="{{ $message['created_at'] }}" data-content="{{ $message['content'] }}" href="javascript:void(0);"><img src="/new/images/del.png" @if($message['from_id'] == $user->id) class="shde2" @else class="shdel" @endif></a>
                                         <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @else dr_r @endif">
+                                            <span>{{ substr($message['created_at'],11,5) }}</span>
                                             @if(!$isVip)
                                                 <img src="/new/images/icon_35.png">
                                             @else
                                             <span>@if($message['read'] == "Y" && $message['from_id'] == $user->id) 已讀 @elseif($message['read'] == "N" && $message['from_id'] == $user->id) 未讀 @endif</span>
                                             @endif
-                                            <span>{{ substr($message['created_at'],11,5) }}</span>
+
 
                                         </font>
                                     </p>
@@ -59,8 +60,10 @@
                         @endforeach
                     @endif
             </div>
-                <div class="m-form__actions" style="text-align: center;">
-                    {!! $messages->appends(request()->input())->links() !!}
+                <div class="fenye" style="text-align: center;">
+{{--                    {!! $messages->appends(request()->input())->links() !!}--}}
+                    <a id="prePage" href="{{ $messages->previousPageUrl() }}">上一頁</a>
+                    <a id="nextPage" href="{{ $messages->nextPageUrl() }}">下一頁</a>
                 </div>
                 <div class="se_text_bot">
                     <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/chat2" id="chatForm">
@@ -123,7 +126,7 @@
                                 text.data = '還有' + still + '秒才能回覆';
                             }
                         },100);
-                        $("<a href='{!! url('dashboard/upgrade') !!}' style='color: red;' class='tips'>成為VIP即可解除此限制<br></a>").insertBefore('#msgsnd');
+                        $("<a href='{!! url('dashboard/upgrade') !!}' style='color: red;' class='tips'>成為VIP即可知道對方是否讀取信件哦！<br></a>").insertBefore('#msgsnd');
                     }
 
                     $('#msg').keyup(function() {
@@ -230,7 +233,9 @@
                             id: id,
                             _token: '{{ csrf_token() }}'
                         }, function (data) {
-                            window.location.reload();
+                            //window.location.reload();
+                            $("#tab04").hide();
+                            c2('刪除成功');
                         });
                     });
                 });

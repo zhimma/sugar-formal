@@ -41,7 +41,7 @@
             <li><a href="{!! url('/dashboard/vip') !!}"><img src="/new/images/mm_09.png"><span>VIP</span></a></li>
           </div>
           <div class="addpic g_inputt">
-            <div class="n_adbut"><a href=""><img src="/new/images/1_06.png">預覽</a></div>
+            <div class="n_adbut"><a href="/dashboard/viewuser/{{$user->id}}"><img src="/new/images/1_06.png">預覽</a></div>
             <div class="xiliao_input">
                <form class="m-form m-form--fit m-form--label-align-right" method="POST" name="user_data" action="/dashboard" id="information"data-parsley-validate novalidate>
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -49,7 +49,7 @@
                 <div class="n_input">
                   <dt>
                     <span>暱稱<i>(必填)</i></span>
-                    <span><input name="name" type="text" class="select_xx01"  placeholder="請輸入" value="{{$user->name}}" required data-parsley-errors-messages-disabled></span>
+                    <span><input name="name" type="text" class="select_xx01"  placeholder="請輸入" value="{{$user->name}}" required data-parsley-errors-messages-disabled maxlength="8"></span>
                   </dt>
                   <dt>
                     <span>一句話形容自己<i>(必填)</i></span>
@@ -575,7 +575,14 @@
 
     </div>
   </div>
-
+<script>
+    $(document).ready(function() {
+        @if(Session::has('message'))
+        c5('{{Session::get('message')}}');
+        <?php session()->forget('message');?>
+        @endif
+    });
+</script>
   <script src="/new/js/birthday.js" type="text/javascript"></script>
   <script src="/js/jquery.twzipcode.min.js" type="text/javascript"></script>
   <script type="text/javascript">
@@ -788,6 +795,8 @@
       setDomain(1);
       $('#domain option[value="{{ $umeta->domain }}"]').attr('selected',true);
     });
+
+
   </script>
 
 @stop

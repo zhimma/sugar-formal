@@ -204,7 +204,7 @@
                     }, 100);
                     total=res.msg.length;
                     //alert(rr);
-                    if(isNaN(rr)){
+                    if(isNaN(rr) || rr==0){
                         $('.nodata').show();
                     }else{
                         $('.nodata').hide();

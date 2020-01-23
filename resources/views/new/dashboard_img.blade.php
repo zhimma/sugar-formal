@@ -100,7 +100,7 @@
   
   <script src="/plugins/hopscotch/js/hopscotch.min.js"></script>
   <script src="/plugins/fileuploader2.2/dist/jquery.fileuploader.min.js"></script>
-  <script src="/new/js/fileuploader-ajax-image.js?20191112"></script>
+  <script src="/new/js/fileuploader-ajax-image.js"></script>
   <script type="text/javascript">
 
      
@@ -193,50 +193,55 @@
               res = JSON.parse(res);
               waitingDialog.hide();
               if(res.code=='200'){
-                Swal.fire({
-                position: 'center',
-                icon: 'success',
-                title: '上傳成功',
-                showConfirmButton: false,
-                timer: 1500
-                });
-                window.location.reload();
+                  c2('上傳成功');
+                // Swal.fire({
+                // position: 'center',
+                // icon: 'success',
+                // title: '上傳成功',
+                // showConfirmButton: false,
+                // timer: 1500
+                // });
+                // window.location.reload();
               }else if(res.code=='400'){
-                Swal.fire({
-                position: 'center',
-                icon: 'success',
-                title: '超過數量限制',
-                showConfirmButton: false,
-                timer: 1500
-                });
-                window.location.reload();
+                  c2('超過數量限制');
+                // Swal.fire({
+                // position: 'center',
+                // icon: 'success',
+                // title: '超過數量限制',
+                // showConfirmButton: false,
+                // timer: 1500
+                // });
+                // window.location.reload();
               }else if(res.code=='600'){
-                Swal.fire({
-                position: 'center',
-                icon: 'success',
-                title: '請選取照片',
-                showConfirmButton: false,
-                timer: 1500
-                });
-                window.location.reload();
+                  c2('請選取照片');
+                // Swal.fire({
+                // position: 'center',
+                // icon: 'success',
+                // title: '請選取照片',
+                // showConfirmButton: false,
+                // timer: 1500
+                // });
+                // window.location.reload();
               }else if(res.code=='800'){
-                Swal.fire({
-                position: 'center',
-                icon: 'success',
-                title: '照片上傳成功<br>已升級為VIP會員',
-                showConfirmButton: false,
-                timer: 1500
-                });
-                window.location.reload();
+                  c2('照片上傳成功<br>已升級為VIP會員');
+                // Swal.fire({
+                // position: 'center',
+                // icon: 'success',
+                // title: '照片上傳成功<br>已升級為VIP會員',
+                // showConfirmButton: false,
+                // timer: 1500
+                // });
+                // window.location.reload();
               }else{
-                Swal.fire({
-                position: 'top-end',
-                icon: 'failed',
-                title: '上傳失敗',
-                showConfirmButton: false,
-                timer: 1500
-                });
-                window.location.reload();
+                  c2('上傳失敗');
+                // Swal.fire({
+                // position: 'top-end',
+                // icon: 'failed',
+                // title: '上傳失敗',
+                // showConfirmButton: false,
+                // timer: 1500
+                // });
+                // window.location.reload();
               }
                 },
             //   processData: false,

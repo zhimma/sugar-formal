@@ -11,10 +11,10 @@
 		<link href="/new/css/bootstrap.min.css" rel="stylesheet">
 		<link href="/new/css/bootstrap-theme.min.css" rel="stylesheet">
 		<link href="/plugins/sweetalert/sweetalert2.css" rel="stylesheet">
-		<link rel="stylesheet" href="/new/css/style.css?2019111302">
-		<link rel="stylesheet" href="/new/css/style_zero.css?2019111201">
+		<link rel="stylesheet" href="/new/css/style.css">
+		<link rel="stylesheet" href="/new/css/style_zero.css">
 		<link rel="stylesheet" href="/new/css/swiper.min.css">
-		<link rel="stylesheet" href="/plugins/parsleyjs/parsley.css?20191107">
+		<link rel="stylesheet" href="/plugins/parsleyjs/parsley.css">
 		<?php //新樣板js?>
 		<script src="/new/js/bootstrap.min.js"></script>
 		<script src="/new/js/main.js" type="text/javascript"></script>

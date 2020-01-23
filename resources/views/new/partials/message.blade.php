@@ -35,3 +35,10 @@
     </div>
     <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
+
+
+<div class="bl bl_tab" id="tab05">
+    <div class="bltitle">提示</div>
+    <div class="blnr bltext"></div>
+    <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+</div>

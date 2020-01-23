@@ -43,6 +43,8 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 .matop70{ margin-top:90px;}
 
+.getNum span{ position:absolute; right:44px; top:-5px; background:#F00; border-radius:100px; color:#ffffff; height:15px; width:15px; line-height:14px; font-size:8px;text-align:center}
+
 @media (max-width:767px) {
 .matop70{ margin-top:70px;}
 
@@ -585,6 +587,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 @media (max-width:320px) {
 .matop50{ margin-top:40px;}
 .qxtop70{margin-top:120px}
+    .matop120{ margin-top:70px;}
 
 }
 
@@ -1268,7 +1271,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .msg>img{width:40px; height:40px;float: left; border-radius:100px;}
 
 
-.msg>p{float: left;margin:0 10px;padding:15px 8px;background: #f7f6fb;font-size:14px;position: relative;border-radius:10px;max-width:560px ;box-sizing: border-box;color:#333;font-size:14px;}
+.msg>p{float: left;margin:0 10px;padding:15px 8px;background: #f7f6fb;font-size:14px;position: relative;border-radius:10px;max-width:560px ;box-sizing: border-box;color:#333;font-size:14px;word-break: break-all;}
 .msg1>p {background:#ffcbcb;color:#fff;}
 
 .msg_input{position: absolute;background: url(../images/msg-input.png) no-repeat;background-size: 100% 100%;width:12px;height:24px;left: -7px;top:8px;}
@@ -1309,6 +1312,11 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .msg1>p {background:#ffcbcb;color:#fff;}
 }
 
+.tap-vip{
+    width: 56px;
+    top: -40px;
+    position: relative;
+}
 
 
 

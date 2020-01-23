@@ -10,8 +10,8 @@
                 <div class="g_password">
                     <div class="g_pwicon">
                         <li><a href="{!! url('dashboard') !!}"><img src="/new/images/mm_03.png"><span>基本資料</span></a></li>
-                        <li><a href="{!! url('dashboard_img') !!}"><img src="/new/images/mm_16.png"><span>照片管理</span></a></li>
-                        <li><a href="{!! url('/dashboard/password') !!}"><img src="/new/images/mm_07.png"><span>更改密碼</span></a></li>
+                        <li><a href="{!! url('dashboard_img') !!}"><img src="/new/images/mm_05.png"><span>照片管理</span></a></li>
+                        <li><a href="{!! url('/dashboard/password') !!}"><img src="/new/images/mm_17.png"><span>更改密碼</span></a></li>
                         <li><a href="{!! url('/dashboard/vip') !!}"><img src="/new/images/mm_09.png"><span>VIP</span></a></li>
                     </div>
                     <div class="de_input g_inputt">

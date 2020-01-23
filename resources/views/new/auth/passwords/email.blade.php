@@ -7,8 +7,8 @@
 		<div class="col-sm-12 col-xs-12 col-md-12">
 			<div class="commonMenu">
 				<div class="menuTop">
-					<img src="/new/images/icon_41.png" class="logo" />
-                    <div class="ndlrfont"><a href="">註冊</a>丨<a href="">登入</a></div>
+					<a href="{!! url('') !!}"><img src="/new/images/icon_41.png" class="logo" /></a>
+                    <div class="ndlrfont"><a href="{!! url('/checkAdult') !!}">註冊</a>丨<a href="{!! url('login') !!}">登入</a></div>
 					<!--<span id="menuButton"><img src="images/icon.png" class="he_img"></span>-->
 				</div>
 				<!--<ul id="menuList" class="change marg30">
@@ -36,7 +36,7 @@
 		<div class="col-sm-12 col-xs-12 col-md-12">
 		    <div class="wd_xsy">
 		    	@include('partials.errors')
-				@include('partials.status')
+{{--				@include('partials.status')--}}
                	<div class="wxsy_title">忘記密碼</div>
                	<div class="wxsy_k">
                		<form class="m-login__form m-form" method="POST" action="/password/email" onsubmit="return check()">

@@ -27,7 +27,7 @@
                         </div>
                         <a href="{!! url('password/reset') !!}" class="dlpassword">忘記密碼 ?</a>
                         <a href="javascript:void(0);" onclick="" class="dlbut btn-login">登入</a>
-                        <a href="{!! url('register') !!}" class="dlbut02">還沒有帳號 ?  免費註冊</a>
+                        <a href="{!! url('/checkAdult') !!}" class="dlbut02">還沒有帳號 ?  免費註冊</a>
                    </div>
                 </form>
             </div>
@@ -46,10 +46,10 @@
                     msg[i]=error.eq(i).html();
                 }
                 msg = Array.from(new Set(msg));
-                // ResultData({
-                //   msg: msg
-                // });
-                c2(msg);
+                ResultData({
+                  msg: msg
+                });
+                //c2(msg);
             })
             .on('form:success', function () {
                 return true;
@@ -59,10 +59,10 @@
                 for (var i = 0; i <$('ul.quarx-errors li').length; i++) {
                     errormsg.i=$('ul.quarx-errors li').eq(i).html();
                 }
-                // ResultData({
-                //     msg: errormsg
-                // });
-                c2(errormsg);
+                ResultData({
+                    msg: errormsg
+                });
+                //c2(errormsg);
             @endif
         });
         $('.alert-danger').css('display','none');

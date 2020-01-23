@@ -75,12 +75,16 @@
         var li='';
         var ss =((i+1)>Page.row)?'display:none;':'display:none;';
         var c = (e.vip)?'hy_bg01':'';
+
+        var url = '{!! url("/dashboard/viewuser/:uid") !!}';
+        url = url.replace(':uid', e.member_fav_id);
+
         li +=`
             <li  style="${ss}" class="${c}">
                 <div class="si_bg">
-                    <div class="sjpic"><img src="${e.pic}"></div>
+                    <div class="sjpic"><a href="${url}"><img src="${e.pic}"></a></div>
                     <div class="sjleft">
-                        <div class="sjtable"><span>${e.name}<i class="cicd">●</i>${e.age}</span></div>
+                        <div class="sjtable"><span><a href="${url}">${e.name}<i class="cicd">●</i>${e.age}</a></span></div>
                         <font>${e.city}  ${e.area}</font>
                     </div>
                     <div class="sjright">
@@ -198,10 +202,10 @@
                 success: function (result) {
                     $("#tab04").hide();
                     show_message('移除成功');
-                    ResultData(result);
-                    if (result.status) {
-                        LoadTable();
-                    }
+                    // ResultData(result);
+                    // if (result.status) {
+                    //     LoadTable();
+                    // }
                 }
             });
         });

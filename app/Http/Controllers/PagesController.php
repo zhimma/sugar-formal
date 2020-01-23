@@ -549,7 +549,8 @@ class PagesController extends Controller
                 ->with('cur', $user)
                 ->with('year', $year)
                 ->with('month', $month)
-                ->with('day', $day);
+                ->with('day', $day)
+                ->with('cancel_notice', $cancel_notice);
         }
     }
 
@@ -934,11 +935,12 @@ class PagesController extends Controller
                     'message_count' => $message_count,
                     'message_count_7' => $message_count_7,
                 );
-
+                $member_pic = DB::table('member_pic')->where('member_id',$uid)->where('pic','<>',$targetUser->meta_()->pic)->get();
                 return view('new.dashboard.viewuser', $data)
                     ->with('user', $user)
                     ->with('to', $this->service->find($uid))
-                    ->with('cur', $user);
+                    ->with('cur', $user)
+                    ->with('member_pic',$member_pic);
             }
 
     }
@@ -1048,6 +1050,16 @@ class PagesController extends Controller
         return redirect('/user/view/'.$request->reported_user_id)->with('message', '檢舉成功');
     }
 
+    public function reportPicNextNew(Request $request){
+        if($request->picType=='avatar'){
+            ReportedAvatar::report($request->aid, $request->uid, $request->content);
+        }
+        if($request->picType=='pic'){
+            ReportedPic::report($request->aid, $request->pic_id, $request->content);
+        }
+        return back()->with('message', '檢舉成功');
+    }
+
     private function customTrim($str)
     {
         $search = array(" ","　","\n","\r","\t");
@@ -1137,11 +1149,17 @@ class PagesController extends Controller
         if ($aid !== $uid)
         {
             $isFav = MemberFav::where('member_id', $aid)->where('member_fav_id',$uid)->count();
-            if($isFav==0) {
+            $isBlocked = Blocked::isBlocked($aid, $uid);
+            if($isFav==0 && !$isBlocked) {
                 MemberFav::fav($aid, $uid);
+                return response()->json(['save' => 'ok']);
+            }else if($isBlocked){
+                return response()->json(['isBlocked' => 'true']);
+            }else if($isFav>0){
+                return response()->json(['isFav' => 'true']);
             }
         }
-        return response()->json(['save' => 'ok']);
+        return response()->json(['save' => 'error']);
     }
 
     public function removeFav(Request $request)
@@ -1581,7 +1599,9 @@ class PagesController extends Controller
                     $date = date('Y年m月d日', strtotime($data->expiry));
                     $request->session()->flash('cancel_notice', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
                     $request->session()->save();
-                    return redirect('/dashboard')->with('user', $user)->with('message', 'VIP 取消成功！')->with('cancel_notice', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
+                    return redirect('/dashboard')->with('user', $user)->with('message', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
+                    //return back()->with('user', $user)->with('message', 'VIP 取消成功！')->with('cancel_notice', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
+
                 }
                 else{
                     $log = new \App\Models\LogCancelVipFailed();
@@ -1589,6 +1609,7 @@ class PagesController extends Controller
                     $log->reason = 'File saving failed.';
                     $log->save();
                     return redirect('/dashboard')->with('user', $user)->withErrors(['VIP 取消失敗！'])->with('cancel_notice', '本次VIP取消資訊沒有成功寫入，請再試一次。');
+                    //return back()->with('user', $user)->withErrors(['VIP 取消失敗！'])->with('cancel_notice', '本次VIP取消資訊沒有成功寫入，請再試一次。');
                 }
             }
             else{
@@ -1601,6 +1622,8 @@ class PagesController extends Controller
         else{
             Log::error('User not found while canceling VIP.');
         }
+
+        return back()->with('message', 'error');
     }
 
     public function showCheckAccount(Request $request) {

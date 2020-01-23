@@ -12,10 +12,10 @@
                     <div class="fs_table">
                         <table>
                             <tr class="fs_tb">
-                                <th style=" border-radius:5px 0 0 5px;">名稱</th>
-                                <th>封鎖原因</td>
-                                <th>開始日期</td>
-                                <th style=" border-radius:0 5px 5px 0;">解除時間</th>
+                                <th width="25%" style=" border-radius:5px 0 0 5px;">名稱</th>
+                                <th width="25%">封鎖原因</th>
+                                <th width="25%">開始日期</th>
+                                <th width="25%" style=" border-radius:0 5px 5px 0;">解除時間</th>
                             </tr>
                             @foreach($banned_user as $row)
                             <tr>

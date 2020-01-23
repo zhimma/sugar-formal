@@ -11,7 +11,7 @@
                     <font>search</font>
                 </div>
 
-                <form action="{!! url('dashboard/search2') !!}" method="GET">
+                <form action="{!! url('dashboard/search') !!}" method="GET">
                     <input type="hidden" name="_token" value="{{csrf_token()}}" >
                 <div class="n_search">
                     <div class="n_input">
@@ -19,11 +19,11 @@
                             <span>地區</span>
                             <span>
                                 <span class="twzipcode" id="twzipcode" style="display: inline-flex;">
-                                <span class="select_xx07 twzip" data-role="county" data-name="county"></span>
-                                <span class="select_xx07 twzip" data-role="district" data-name="district"></span>
-                                    @if ($user->isVip())
-                                        <span class="twzip"><input class="m-input" type="checkbox" id="pic" name="pic"> 照片</span>
-                                    @endif
+                                <span class="select_xx07 twzip left" data-role="county" data-name="county" style="padding-right: 12px;"></span>
+                                <span class="select_xx07 twzip right" data-role="district" data-name="district" style="padding-left: 12px;"></span>
+{{--                                    @if ($user->isVip())--}}
+{{--                                        <span class="twzip"><input class="m-input" type="checkbox" id="pic" name="pic"> 照片</span>--}}
+{{--                                    @endif--}}
                                 </span>
 {{--                            <select name="" class="select_xx06"><option>連江縣</option><option>B</option></select>--}}
 {{--                            <select name="" class="select_xx06 right"><option>南竿鄉</option><option>B</option></select>--}}
@@ -206,12 +206,14 @@
                                     </a>
                                 </li>
                         @endforeach
+                    @else
+                        <div class="fengsicon"><img src="/new/images/loupe.png" class="feng_img"><span>沒有資料</span></div>
                     @endif
 
                 </div>
                 <div class="fenye mabot30">
-                    <a id="prePage" href="{{ $vis->previousPageUrl() }}">上一頁</a>
-                    <a id="nextPage" href="{{ $vis->nextPageUrl() }}">下一頁</a>
+                    <a id="prePage" href="{{ $vis->previousPageUrl() }}&_token={{csrf_token()}}&county={{$county}}&district={{$district}}&cup={{$cup}}&marriage={{$marriage}}&budget={{$budget}}&smoking={{$smoking}}&drinking={{$drinking}}&ageto={{$ageto}}&agefrom={{$agefrom}}&seqtime={{$seqtime}}&body={{$body}}">上一頁</a>
+                    <a id="nextPage" href="{{ $vis->nextPageUrl() }}&_token={{csrf_token()}}&county={{$county}}&district={{$district}}&cup={{$cup}}&marriage={{$marriage}}&budget={{$budget}}&smoking={{$smoking}}&drinking={{$drinking}}&ageto={{$ageto}}&agefrom={{$agefrom}}&seqtime={{$seqtime}}&body={{$body}}">下一頁</a>
                 </div>
             </div>
 
@@ -225,7 +227,7 @@
             width: 100%;
             border-radius: 4px;
             height: 40px;
-            padding: 0 6px;
+            /*padding: 0 6px;*/
             color: #555;
             background: #ffffff;
             font-size: 15px;
