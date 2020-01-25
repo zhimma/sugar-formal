@@ -36,13 +36,19 @@
             <li><a href="{!! url('/dashboard/vip') !!}"><img src="/new/images/mm_09.png"><span>VIP</span></a></li>
           </div>
           <div class="addpic g_inputt">
-            <div class="n_adbut"><a onclick="window.location.reload()" style="cursor:pointer"><img src="/new/images/1_06.png">預覽</a></div>
+          <div class="n_adbut"><a onclick="window.location.reload()" style="cursor:pointer"><img src="/new/images/1_06.png">預覽</a></div>
+          <div class="n_adbut editAllBtn"><a style="cursor:pointer"><img src="/new/images/1_06.png">編輯</a></div>
+          <div class="n_adbut recoverAllBtn" style="display:none"><a style="cursor:pointer"><img src="/new/images/1_06.png">復原</a></div>
             <ul class="n_ulpic">
             @if($user->engroup==1)
                 @php $count = 6-count($member_pics) @endphp
                   
                     @foreach($member_pics as $key=>$member_pic)
-                    <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url('{{$member_pic->pic}}'); background-size:100% 100%"></b></li>
+                    @if($key==0)
+                    <li class="write_img editBtn" id="{{$member_pic->id}}"><div class="delpicBtn"><img src="/new/images/gb_icon01.png" width="30px" height="30px"></div><div class="n_ulhh"><img src="/new/images/ph_03.png"></div><b class="img" style="background:url('{{$member_pic->pic}}'); background-size:100% 100%"></b></li>
+                    @else
+                    <li class="write_img editBtn" id="{{$member_pic->id}}"><div class="delpicBtn"><img src="/new/images/gb_icon01.png" width="30px" height="30px"></div><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url('{{$member_pic->pic}}'); background-size:100% 100%"></b></li>
+                    @endif
                     @endforeach
 
                 @if($count>0)
@@ -57,7 +63,11 @@
                 @endphp
                 
                     @foreach($member_pics as $key=>$member_pic)
-                    <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url('{{$member_pic->pic}}'); background-size:100% 100%"></b></li>
+                    @if($key==0)
+                    <li class="write_img editBtn" id="{{$member_pic->id}}"><div class="delpicBtn"><img src="/new/images/gb_icon01.png" width="30px" height="30px"></div><div class="n_ulhh"><img src="/new/images/ph_03.png"></div><b class="img" style="background:url('{{$member_pic->pic}}'); background-size:100% 100%"></b></li>
+                    @else
+                    <li class="write_img editBtn" id="{{$member_pic->id}}"><div class="delpicBtn"><img src="/new/images/gb_icon01.png" width="30px" height="30px"></div><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url('{{$member_pic->pic}}'); background-size:100% 100%"></b></li>
+                    @endif
                     @endforeach
 
                 @if($count>0)
@@ -75,6 +85,7 @@
                     @endif
                 @endif 
             @endif
+            
                <!-- <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(/new/images/ph_10.png); background-size:100% 100%"></b></li>
                <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(/new/images/ph_10.png); background-size:100% 100%"></b></li>
                <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(/new/images/ph_10.png); background-size:100% 100%"></b></li>
@@ -285,5 +296,49 @@
       });
   
   </script>
+    <script>
+             $(document).ready(function(){
+              $(".delpicBtn").on('click', function(){
+              var id = $(this).parents('.write_img').attr('id');
+               
+              var r=confirm("確認刪除此照片？")
+              if (r==true)
+              {
+                $.ajax({
+                  url: '/dashboard/delPic',
+                  type: 'POST',
+                  data: {
+                      'pic_id': id,
+                      "_token": "{{ csrf_token() }}"
+                      },
+                    success: function(res){
+                      res = JSON.parse(res);
+                      if(res.code=='200'){
+                        window.location.reload();
+                      }
+                    },
+
+              });
+              }
+              
+             });
+             });
+
+             $(document).ready(function(){
+              $(".editAllBtn").on('click',function(){
+                $(this).css('display', 'none');
+                $(".recoverAllBtn").css('display','block');
+                $(".delpicBtn").css('display','block');
+             });
+
+             $(".recoverAllBtn").on('click',function(){
+                $(this).css('display', 'none');
+                $(".editAllBtn").css('display','block');
+                $(".delpicBtn").css('display','none');
+             });
+             });
+            
+             
+           </script>
 
 @stop

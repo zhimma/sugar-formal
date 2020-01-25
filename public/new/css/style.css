@@ -1318,7 +1318,15 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
     position: relative;
 }
 
-
+.delpicBtn{
+    display:none;
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    top: 3px;
+    right: 0;
+    z-index: 3;
+    }
 
 
 
