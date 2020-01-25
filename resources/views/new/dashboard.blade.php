@@ -100,7 +100,7 @@
                       <div class="right" style="margin-bottom: 10px;">
                         <a href="javascript:" id="add_county"><img src="/new/images/jh.png">新增縣市</a>
                         <input type="hidden" name="isHideArea" value="0">
-                        <input name="isHideArea" type="checkbox" @if($umeta->isHideArea == true) checked @endif value="1"> 隱藏鄉鎮區
+                        <input name="isHideArea" type="checkbox" @if($umeta->isHideArea == true) checked @endif value="1"> 隱藏鄉鎮市區
                       </div>
                     </div>
                     <!-- <span class="matop10">
@@ -407,7 +407,7 @@
                       <span>
                         <input type="hidden" name="day" value="01">
                         <div class="se_zlman left">
-                          <select  class="select_xx04" name="domainType" id="domainType" onchange="setDomain(0);">
+                          <select  class="select_xx04 left" name="domainType" id="domainType" onchange="setDomain(0);">
                             <option value="">請選擇</option>
                             <option value="資訊科技"
                                     @if($umeta->domainType == '資訊科技') selected @endif>
@@ -432,7 +432,7 @@
                           </select>
                         </div>
                         <div class="se_zlman right">
-                          <select class="select_xx04" name="domain" id="domain">
+                          <select class="select_xx04 right" name="domain" id="domain">
                           </select>
                         </div>
                       </span>

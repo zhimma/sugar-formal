@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Models\Message_new;
 use App\Models\AnnouncementRead;
+use App\Models\AdminAnnounce;
 use App\Models\SimpleTables\banned_users;
 use App\Models\User;
 use App\Models\UserMeta;
@@ -112,7 +113,7 @@ class Message_newController extends Controller {
             }
         }
         Message::post(auth()->id(), $payload['to'], $payload['msg']);
-        return back();
+        return back()->with('message','發送成功');
     }
 
     public function chatview(Request $request)
@@ -221,6 +222,19 @@ class Message_newController extends Controller {
             'status' => 1,
             'msg' => 'already exists.',
         ), 200);
+    }
+
+    public function announcePost(Request $request)
+    {
+        $user = User::where('id', $request->uid)->first();
+        $announceRead = AnnouncementRead::select('announcement_id')->where('user_id',$request->uid)->get();
+        $announcement = AdminAnnounce::where('en_group', $user->engroup)->whereNotIn('id', $announceRead)->orderBy('sequence', 'desc')->get();
+        //$announcement = $announcement->content;
+        //$announcement = str_replace(PHP_EOL, '\n', $announcement);
+        foreach ($announcement as &$a){
+            $a = str_replace(array("\r\n", "\r", "\n"), "<br>", $a);
+        }
+        return response()->json($announcement);
     }
 
 }

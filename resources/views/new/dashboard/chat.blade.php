@@ -203,10 +203,10 @@
                         $('#warning').fadeOut(50);
                     }, 100);
                     total=res.msg.length;
-                    //alert(rr);
-                    if(isNaN(rr) || rr==0){
+                    // alert(rr);
+                    if(isNaN(rr) || (isNaN(rr) && rr==0)){
                         $('.nodata').show();
-                    }else{
+                    }else if(rr>0){
                         $('.nodata').hide();
                     }
                 }

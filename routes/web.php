@@ -271,6 +271,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::get('/dashboard', 'PagesController@dashboard')->name('dashboard');
     Route::get('/dashboard_img', 'PagesController@dashboard_img')->name('dashboard_img');
     Route::post('/dashboard/save_img','PagesController@save_img');
+    Route::post('/dashboard/delPic', 'PagesController@delPic');
     // Route::get('/dashboard_img_new', 'PagesController@dashboard_img')->name('dashboard_img');
     Route::get('/dashboard/password', 'PagesController@view_changepassword'); //new route
     Route::post('/dashboard/changepassword', 'PagesController@changePassword'); //new route

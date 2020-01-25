@@ -12,13 +12,12 @@
                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                         <input type="hidden" name="userId" value="{{ $user->id }}">
                         <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">
-                        <button type="submit" style="background: none; border: none; padding: 0;position: absolute; right:10px;top:10px;">
+                        <button type="submit" class="paypay">
 {{--                            <i class="m-nav__link-icon flaticon-profile"></i>--}}
 {{--                            <span class="m-nav__link-text">車馬費邀請(管道一)</span>--}}
                             <img src="/new/images/xq_03.png" class="xrgimg">
                         </button>
                     </form>
-{{--                    <a href=""><img src="/new/images/xq_03.png" class="xrgimg"></a>--}}
                 </div>
 
                 <div class="message">
@@ -41,9 +40,10 @@
                                     <p>
                                         <i class="msg_input"></i>{!! nl2br($message['content']) !!}
                                         <a class="delete-btn" data-id="{{ $message['id'] }}" data-ct_time="{{ $message['created_at'] }}" data-content="{{ $message['content'] }}" href="javascript:void(0);"><img src="/new/images/del.png" @if($message['from_id'] == $user->id) class="shde2" @else class="shdel" @endif></a>
-                                        <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @else dr_r @endif">
+                                        <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
                                             <span>{{ substr($message['created_at'],11,5) }}</span>
-                                            @if(!$isVip)
+                                            @if(!$isVip && $message['from_id'] == $user->id)
+                                                <span>已讀/未讀</span>
                                                 <img src="/new/images/icon_35.png">
                                             @else
                                             <span>@if($message['read'] == "Y" && $message['from_id'] == $user->id) 已讀 @elseif($message['read'] == "N" && $message['from_id'] == $user->id) 未讀 @endif</span>
@@ -60,11 +60,13 @@
                         @endforeach
                     @endif
             </div>
+                @if(!empty($messages) && count($messages)>10)
                 <div class="fenye" style="text-align: center;">
 {{--                    {!! $messages->appends(request()->input())->links() !!}--}}
                     <a id="prePage" href="{{ $messages->previousPageUrl() }}">上一頁</a>
                     <a id="nextPage" href="{{ $messages->nextPageUrl() }}">下一頁</a>
                 </div>
+                @endif
                 <div class="se_text_bot">
                     <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/chat2" id="chatForm">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
@@ -78,6 +80,7 @@
 
                 </div>
         </div>
+    </div>
     </div>
 
 @stop
@@ -217,6 +220,7 @@
                     }
                 }
 
+                $(".blbg").hide();
                 $('.delete-btn').on('click',function(){
 
                     c4('確定要刪除嗎?');

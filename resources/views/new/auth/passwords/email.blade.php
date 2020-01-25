@@ -35,7 +35,7 @@
 	<div class="row">
 		<div class="col-sm-12 col-xs-12 col-md-12">
 		    <div class="wd_xsy">
-		    	@include('partials.errors')
+{{--		    	@include('partials.errors')--}}
 {{--				@include('partials.status')--}}
                	<div class="wxsy_title">忘記密碼</div>
                	<div class="wxsy_k">
@@ -57,11 +57,11 @@
 	</div>
 </div>
 
-<div class="blbg" onclick="gmBtn1()"></div>
-<div class="bl_tab" id="tab01">
+<div class="blbg" onclick="$('.blbg').click();"></div>
+<div class="bl bl_tab" id="error_email">
     <div class="bltitle">提示</div>
-    <div class="blnr bltext">我們已經通過電子郵件發送您的密碼重置鏈接！</div>
-    <a id="" onclick="gmBtn1()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+    <div class="blnr bltext">我們無法找到具有該電子郵件的用戶.</div>
+    <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
 <script>
@@ -75,20 +75,27 @@
 	function tips() {
 
 		if(!check()){
-			$(".bltext").text('請輸入電子郵件')
+			//$(".bltext").text('請輸入電子郵件')
+			c5('請輸入電子郵件');
 		}
-		else{
-			$(".bltext").text('我們已經通過電子郵件發送您的密碼重置鏈接！')
-		}
-		$(".blbg").show()
-        $("#tab01").show()
     }
-    function gmBtn1(){
-        $(".blbg").hide()
-        $(".bl_tab").hide()	
-			
-    }
-    
+
+
+	@if (isset($errors) && $errors->count() > 0)
+	@foreach($errors->all() as $error)
+	<?php if($error == 'The email must be a valid email address.'){$error='我們無法找到具有該電子郵件的用戶.';}?>
+	$(".bltext").text('{{$error}}');
+	$(".blbg").show();
+	$("#error_email").show();
+	@endforeach
+	@endif
+
+	@if (Session::has('status'))
+	$(".bltext").text('{{ Session::get('status') }}');
+	$(".blbg").show();
+	$("#error_email").show();
+	@endif
+
 </script>
 
 @stop

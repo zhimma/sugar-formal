@@ -165,6 +165,7 @@
                                         <span>一句話形容自己</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->title}}" disabled="disabled"></span>
                                     </dt>
+                                    @if($to->meta_()->isHideArea == '0')
                                     <dt>
                                         <span>地區</span>
                                         <?php
@@ -194,6 +195,7 @@
                                             </span>
                                         @endif
                                     </dt>
+                                    @endif
 
                                     <dt>
                                         <span>預算</span>
@@ -371,6 +373,7 @@
         });
     });
 
+
     $('.unblock').on('click', function() {
         c4('確定要解除封鎖嗎?');
         var uid='{{ $user->id }}';
@@ -404,9 +407,9 @@
             }
         });
     });
-
-     @if (Session::has('message') && Session::get('message') == '檢舉成功')
-     c2('檢舉成功');
+    
+     @if (Session::has('message'))
+     c2('{{Session::get('message')}}');
      @endif
 
 </script>
