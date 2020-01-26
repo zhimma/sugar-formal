@@ -989,6 +989,22 @@ class PagesController extends Controller
                     'message_count_7' => $message_count_7,
                 );
                 $member_pic = DB::table('member_pic')->where('member_id',$uid)->where('pic','<>',$targetUser->meta_()->pic)->get();
+                $isVip = DB::select('select * from member_vip where member_id=?', array($user->id));
+                if(count($isVip)>0){
+                    $vipLevel = 1;
+                }else{
+                    $vipLevel = 0;
+                }
+                // dd($vipLevel, $user->engroup);
+                $basic_setting = BasicSetting::where('vipLevel',$vipLevel)->where('gender',$user->engroup)->get()->first();
+                // dd($user);
+                if(isset($basic_setting['countSet'])){
+                    if($basic_setting['countSet']==-1){
+                        $basic_setting['countSet'] = 10000;
+                    }
+                    $data['timeSet']  = (int)$basic_setting['timeSet'];
+                    $data['countSet'] = (int)$basic_setting['countSet'];
+                }
                 return view('new.dashboard.viewuser', $data)
                     ->with('user', $user)
                     ->with('to', $this->service->find($uid))
