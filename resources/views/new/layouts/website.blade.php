@@ -76,6 +76,7 @@
                 loop: false,
                 margin: 0,
                 responsiveClass: true,
+                autoHeight:true,
                 responsive: {
                     0: {
                         items: 1,
