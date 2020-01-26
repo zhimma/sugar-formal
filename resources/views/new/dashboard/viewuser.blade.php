@@ -197,66 +197,111 @@
                                     </dt>
                                     @endif
 
+                                    @if(!empty($to->meta_()->budget))
                                     <dt>
                                         <span>預算</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->budget}}" disabled="disabled"></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->age()))
                                     <dt>
                                         <span>年齡</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->age()}}" disabled="disabled"></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->height))
                                     <dt>
                                         <span>身高（cm）</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->height}}" disabled="disabled"></span>
                                     </dt>
-{{--                                    <dt>--}}
-{{--                                        <span>體型</span>--}}
-{{--                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->body}}" disabled="disabled"></span>--}}
-{{--                                    </dt>--}}
-{{--                                    <dt>--}}
-{{--                                        <span>CUP</span>--}}
-{{--                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->cup}}" disabled="disabled"></span>--}}
-{{--                                    </dt>--}}
+                                    @endif
+
+                                    @if(!empty($to->meta_()->body))
+                                    <dt>
+                                        <span>體型</span>
+                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->body}}" disabled="disabled"></span>
+                                    </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->cup))
+                                    <dt>
+                                        <span>CUP</span>
+                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->cup}}" disabled="disabled"></span>
+                                    </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->about))
                                     <dt>
                                         <span>關於我</span>
                                         <span><div class="select_xx03" >{{$to->meta_()->about}}</div></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->style))
                                     <dt>
                                         <span>期待的約會模式</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->style}}" disabled="disabled"></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->domainType))
                                     <dt>
                                         <span>產業</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->domainType}}" disabled="disabled"></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->occupation) && $to->meta_()->isHideOccupation == '0')
                                     <dt>
                                         <span>職業</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->occupation}}" disabled="disabled"></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->education))
                                     <dt>
                                         <span>教育</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->education}}" disabled="disabled"></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->marriage))
                                     <dt>
                                         <span>婚姻</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->marriage}}" disabled="disabled"></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->drinking))
                                     <dt>
                                         <span>喝酒</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->drinking}}" disabled="disabled"></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->smoking))
                                     <dt>
                                         <span>抽煙</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->smoking}}" disabled="disabled"></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->income))
                                     <dt>
                                         <span>收入</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->income}}" disabled="disabled"></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->assets))
                                     <dt>
                                         <span>資產</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->assets}}" disabled="disabled"></span>
                                     </dt>
+                                    @endif
+
                                 </div>
                             </div>
                         </div>
@@ -407,7 +452,7 @@
             }
         });
     });
-    
+
      @if (Session::has('message'))
      c2('{{Session::get('message')}}');
      @endif

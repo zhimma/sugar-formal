@@ -18,7 +18,7 @@
     <div class="n_blnr01">
         <div class="blnr bltext"></div>
         <div class="n_bbutton">
-	        <span><a class="n_left" href="javascript:">送出</a></span>
+	        <span><a class="n_left" href="javascript:">確認</a></span>
 	        <span><a onclick="$('.blbg').click();" class="n_right" href="javascript:">返回</a></span>
 	    </div>
     </div>
@@ -35,9 +35,9 @@
     <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
-
+<div class="announce_bg" id="announce_bg" onclick="gmBtnNoReload()" style="display:none;"></div>
 <div class="bl bl_tab" id="tab05">
     <div class="bltitle">提示</div>
     <div class="blnr bltext"></div>
-    <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+    <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>

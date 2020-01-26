@@ -208,13 +208,13 @@ a:hover{ color:#e44e71; text-decoration:none}
 .select_xx01{width:100%; border:#d2d2d2 1px solid; border-radius:4px;height:40px; margin-right:1%;padding:0 8px;color:#555;background:#ffffff; font-size:15px;}
 .select_xx02{width:100%; border:#d2d2d2 1px solid; border-radius:4px;margin-right:1%;padding:5px 6px;color:#555; line-height:25px;background:#ffffff; display:table;font-size:15px;}
 .select_xx03{width:100%;border-radius:4px;margin-right:0%;padding:5px 6px;color:#555; line-height:25px;background:#f8f8f8;font-size:15px; }
-.select_xx04{width:100%; border:#d2d2d2 1px solid; border-radius:4px;height:40px; padding:0 12px; color:#555; background:#ffffff;font-size:15px;}
+.select_xx04{width:93%; border:#d2d2d2 1px solid; border-radius:4px;height:40px; padding:0 12px; color:#555; background:#ffffff;font-size:15px;}
 
 .select_xx05{width:100%; border:#d2d2d2 1px solid; border-radius:4px;padding:5px 10px;color:#555; line-height:25px;background:#ffffff;font-size:15px;}
 .select_xx06{width:47%; border:#d2d2d2 1px solid; border-radius:4px;height:40px; padding:0 6px; color:#555; background:#ffffff;font-size:15px;}
 
 .se_zlman{width:49%;}
-.se_zlman i{ float:right; margin-right:5px; font-style:normal; line-height:40px; color:#666666 !important}
+.se_zlman i{ float:right; /*margin-right:5px;*/ font-style:normal; line-height:40px; color:#666666 !important}
 
 .sew6{width:6%; text-align:center; float:left; line-height:40px;}
 
@@ -227,7 +227,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .select_xx04{border:#d2d2d2 1px solid; border-radius:4px;height:40px; padding:0 6px; color:#555; background:#ffffff}
 }
 @media (max-width:414px) {
-    .select_xx04{width:100%;}
+    .select_xx04{width:87%;}
 }
 .senhs{ background:#f8f8f8; border:none}
 
@@ -1325,9 +1325,10 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .se_tbut{width:200px; height:40px; background:#fe92a8; border-radius:200px; color:#ffffff; text-align:center; line-height:40px; margin:0 auto;display:table; border-style: unset;}
 .se_tbut:hover{ color:#ffffff}
 
-@media (max-height:575px) {
+@media (max-height:578px) {
     .dengl{
         padding: 0;
+        margin-top: -20px;
     }
 }
 

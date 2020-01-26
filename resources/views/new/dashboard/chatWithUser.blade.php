@@ -7,7 +7,7 @@
                 @include('new.dashboard.panel')
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
-                <div class="shouxq"><a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}"><img src="/new/images/xq_06.png" class="xlimg"></a><span>收件夾 - {{$to->name}}</span>
+                <div class="shouxq"><a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}"><img src="/new/images/xq_06.png" class="xlimg"></a><span>收件夾 - <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a></span>
                     <form class="" action="{{ route('chatpay_ec') }}" method=post id="ecpay">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                         <input type="hidden" name="userId" value="{{ $user->id }}">

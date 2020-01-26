@@ -654,7 +654,7 @@ class PagesController extends Controller
         /*移除Vip資格*/
         $is_vip = $user->isVip();
         $pic_count = DB::table('member_pic')->where('member_id', $user->id)->count();
-        if(($pic_count+1)<4 && $is_vip==1 &&$user->engroup=2){
+        if(($pic_count+1)<4 && $is_vip==1 &&$user->engroup==2){
             DB::table('member_vip')->where('member_id',$user->id)->update(['active'=>0, 'free'=>1]);
 
             $data = array(
@@ -749,7 +749,7 @@ class PagesController extends Controller
             $is_vip = $user->isVip();
 
 
-            if(($pic_count+1)>=4 && $is_vip==0 &&$user->engroup=2){
+            if(($pic_count+1)>=4 && $is_vip==0 &&$user->engroup==2){
                 $isVipCount = DB::table('member_vip')->where('member_id',$user->id)->count();
                 if($isVipCount==0){
                     DB::table('member_vip')->insert(array('member_id'=>$user->id,'active'=>1, 'free'=>1));

@@ -407,7 +407,7 @@
                       <span>
                         <input type="hidden" name="day" value="01">
                         <div class="se_zlman left">
-                          <select  class="select_xx04 left" name="domainType" id="domainType" onchange="setDomain(0);">
+                          <select  class="select_xx2 left" name="domainType" id="domainType" onchange="setDomain(0);">
                             <option value="">請選擇</option>
                             <option value="資訊科技"
                                     @if($umeta->domainType == '資訊科技') selected @endif>
@@ -432,7 +432,7 @@
                           </select>
                         </div>
                         <div class="se_zlman right">
-                          <select class="select_xx04 right" name="domain" id="domain">
+                          <select class="select_xx2 right" name="domain" id="domain">
                           </select>
                         </div>
                       </span>
@@ -632,22 +632,26 @@
         var age = parseInt((now - birthday) / year);
         return age;
       }
+
       @if(!$user->isAdmin())
         @if (!$umeta->isAllSet())
-          swal({
-            title:'請寫上基本資料。',
-            type:'warning'
-          });
+        c5('請寫上基本資料。');
+          // swal({
+          //   title:'請寫上基本資料。',
+          //   type:'warning'
+          // });
         @elseif (empty($umeta->pic))
-          swal({
-            title:'請加上頭像照。',
-            type:'warning'
-          });
+        c5('請加上頭像照。');
+          // swal({
+          //   title:'請加上頭像照。',
+          //   type:'warning'
+          // });
         @elseif ($umeta->age()<18)
-          swal({
-            title:'您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。',
-            type:'warning'
-          });
+        c5('您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。');
+          // swal({
+          //   title:'您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。',
+          //   type:'warning'
+          // });
         @endif
       @endif
       //ajax_表單送出
@@ -658,10 +662,11 @@
           console.log(birth);
           let age = getAge(birth);
           if(age < 18){
-            swal({
-                title:'您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。',
-                type:'warning'
-            });
+          c5('您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。');
+            // swal({
+            //     title:'您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。',
+            //     type:'warning'
+            // });
             return false;
           }
           var form_dump = $(this);
@@ -713,10 +718,11 @@
                   }
               });
           }else{
-              swal({
-                  title:'最多新增3筆',
-                  type:'warning'
-              });
+              c5('最多新增3筆');
+              // swal({
+              //     title:'最多新增3筆',
+              //     type:'warning'
+              // });
           }
       });
 
@@ -740,11 +746,11 @@
                     }
                 });
             }else{
-                //c2("最多新增3筆");
-                swal({
-                    title:'最多新增3筆',
-                    type:'warning'
-                });
+                c5('最多新增3筆');
+                // swal({
+                //     title:'最多新增3筆',
+                //     type:'warning'
+                // });
             }
         });
 
