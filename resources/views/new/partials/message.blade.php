@@ -25,6 +25,19 @@
     <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
+<div class="bl bl_tab" id="tab06">	
+    <div class="bltitle">提示</div>	
+    <div class="n_blnr01">	
+        <div class="blnr bltext"></div>	
+        <div class="remove_callback"></div>	
+        <div class="n_bbutton">	
+	        <span><a class="n_left" onclick="$.fn.fileuploader.defaults.dialogs.remove_pic(true)" style="cursor:pointer">送出</a></span>	
+	        <span><a class="n_right" onclick="$('#tab06').hide();$('.blbg').hide()" style="cursor:pointer">返回</a></span>	
+	    </div>	
+    </div>	
+    <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>	
+</div>	
+
 <div class="bl bl_tab" id="tab_block">
     <div class="bltitle"><span>是否要封鎖他</span></div>
     <div class="n_blnr01 matop20">
