@@ -1,5 +1,12 @@
 @extends('new.layouts.website')
-
+<style>
+    .chatWith > img {
+        width: 40px;
+        height: 40px;
+        float: left;
+        border-radius: 100px;
+    }
+</style>
 @section('app-content')
     <div class="container matop70 chat">
         <div class="row">
@@ -36,7 +43,13 @@
                             @if($date_temp != substr($message['created_at'],0,10)) <div class="sebg matopj10">{{substr($message['created_at'],0,10)}}</div>@endif
                             <div class="@if($message['from_id'] == $user->id) show @else send @endif">
                                 <div class="msg @if($message['from_id'] == $user->id) msg1 @endif">
-                                    <img src="@if($message['from_id'] == $user->id) {{$user->meta_()->pic}} @else {{$msgUser->meta_()->pic}} @endif">
+                                    @if($message['from_id'] == $user->id)
+                                        <img src="{{$user->meta_()->pic}}">
+                                    @else
+                                        <a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">
+                                            <img src="{{$msgUser->meta_()->pic}}">
+                                        </a>
+                                    @endif
                                     <p>
                                         <i class="msg_input"></i>{!! nl2br($message['content']) !!}
                                         <a class="delete-btn" data-id="{{ $message['id'] }}" data-ct_time="{{ $message['created_at'] }}" data-content="{{ $message['content'] }}" href="javascript:void(0);"><img src="/new/images/del.png" @if($message['from_id'] == $user->id) class="shde2" @else class="shdel" @endif></a>
