@@ -57,22 +57,22 @@
                         <dt>
                             <span>體型</span>
                             <span class="line20">
-                                    <label class="n_tx"><input type="checkbox" name="body[]" value="瘦" id="radio" @if( !empty( $_GET["body"] ) && $_GET["body"] == "瘦" ) checked @endif><i>瘦</i></label>
-                                    <label class="n_tx"><input type="checkbox" name="body[]" value="標準" id="radio1" @if( !empty( $_GET["body"] ) && $_GET["body"] == "標準" ) checked @endif><i>標準</i></label>
-                                    <label class="n_tx"><input type="checkbox" name="body[]" value="微胖" id="radio2" @if( !empty( $_GET["body"] ) && $_GET["body"] == "微胖" ) checked @endif><i>微胖</i></label>
-                                    <label class="n_tx"><input type="checkbox" name="body[]" value="胖" id="radio3" @if( !empty( $_GET["body"] ) && $_GET["body"] == "胖" ) checked @endif><i>胖</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="body[0]" value="瘦" id="radio" @if( old('body[0]') == "瘦" ) checked @endif><i>瘦</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="body[1]" value="標準" id="radio1" @if( old('body[1]') == "標準" ) checked @endif><i>標準</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="body[2]" value="微胖" id="radio2" @if( old('body[2]') == "微胖" ) checked @endif><i>微胖</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="body[3]" value="胖" id="radio3" @if( old('body[3]') == "胖" ) checked @endif><i>胖</i></label>
                             </span>
                         </dt>
                         @if ($user->engroup == 1)
                         <dt class="matopj15">
                             <span>CUP</span>
                             <span class="line20">
-                                    <label class="n_tx"><input type="checkbox" name="cup[]" value="A" id="Check" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "A" ) checked @endif><i>A</i></label>
-                                    <label class="n_tx"><input type="checkbox" name="cup[]" value="B" id="Check1" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "B" ) checked @endif><i>B</i></label>
-                                    <label class="n_tx"><input type="checkbox" name="cup[]" value="C" id="Check2" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "C" ) checked @endif><i>C</i></label>
-                                    <label class="n_tx"><input type="checkbox" name="cup[]" value="D" id="Check3" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "D" ) checked @endif><i>D</i></label>
-                                    <label class="n_tx"><input type="checkbox" name="cup[]" value="E" id="Check4" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "E" ) checked @endif><i>E</i></label>
-                                    <label class="n_tx"><input type="checkbox" name="cup[]" value="F" id="Check5" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "F" ) checked @endif><i>F</i></label>
+                                <label class="n_tx"><input type="checkbox" name="cup[]" value="A" id="Check" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "A" ) checked @endif><i>A</i></label>
+                                <label class="n_tx"><input type="checkbox" name="cup[]" value="B" id="Check1" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "B" ) checked @endif><i>B</i></label>
+                                <label class="n_tx"><input type="checkbox" name="cup[]" value="C" id="Check2" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "C" ) checked @endif><i>C</i></label>
+                                <label class="n_tx"><input type="checkbox" name="cup[]" value="D" id="Check3" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "D" ) checked @endif><i>D</i></label>
+                                <label class="n_tx"><input type="checkbox" name="cup[]" value="E" id="Check4" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "E" ) checked @endif><i>E</i></label>
+                                <label class="n_tx"><input type="checkbox" name="cup[]" value="F" id="Check5" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "F" ) checked @endif><i>F</i></label>
                             </span>
                         </dt>
                         @else
@@ -172,16 +172,16 @@
                             ?>
                                 <li class="nt_fg">
                                     <div class="n_seicon">
-                                        <?php
-//                                        $now = Carbon\Carbon::now();
-//                                        $registration_date = Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $visitor->created_at);
-//                                        $diff_in_months = $registration_date->diffInMonths($now);
-                                        ?>
-{{--                                        @if($diff_in_months==0)<img src="/new/images/b_01.png">@endif--}}
-                                        <img src="/new/images/b_02.png">
-                                        <img src="/new/images/b_03.png">
+                                        <? $data = \App\Services\UserService::checkRecommendedUser($visitor);?>
+                                        @if(isset($data['description']) && $visitor->engroup == 2)
+                                            <img src="/new/images/b_01.png">
+                                        @endif
+                                        @if(isset($data['description']) && $visitor->engroup == 1)
+                                            <img src="/new/images/b_02.png">
+                                        @endif
+{{---------財力認證尚未實作-------------- <img src="/new/images/b_03.png">--}}
                                         @if($visitor->isVip())<img src="/new/images/b_04.png">@endif
-{{--                                        <img src="/new/images/b_05.png">--}}
+{{---------警示帳戶尚未實作-------------- <img src="/new/images/b_05.png">--}}
                                     </div>
                                     <a href="/dashboard/viewuser/{{$visitor->id}}">
                                     <div class="nt_photo"><img src="@if($visitor->meta_()->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->meta_()->pic}} @endif" @if ($visitor->engroup == 1) onerror="this.src='/img/male-avatar.png'" @else onerror="this.src='/img/female-avatar.png'" @endif></div>
@@ -190,16 +190,20 @@
                                         <h3>
                                             @if(!empty($umeta->city))
                                                 @foreach($umeta->city as $key => $cityval)
-                                                    {{$umeta->city[$key]}}<span>{{$umeta->area[$key]}}</span>
+                                                    @if ($loop->first)
+                                                        {{$umeta->city[$key]}} {{$umeta->area[$key]}}
+                                                    @else
+                                                        <span>{{$umeta->city[$key]}} {{$umeta->area[$key]}}</span>
+                                                    @endif
                                                 @endforeach
                                             @endif
 {{--                                            臺北市<span>臺中區</span>--}}
 
-                                                @if($user->isVip())
+                                            @if($user->isVip())
                                                 <span>{{ $visitor->meta_()->occupation }}</span>
-                                                @else
+                                            @else
                                                 <span><img src="/new/images/icon_35.png" class="nt_img"></span>
-                                                @endif
+                                            @endif
                                         </h3>
                                         <h3>最後上線時間：{{$visitor->last_login}}</h3>
                                     </div>
@@ -212,10 +216,10 @@
 
                 </div>
                 @if (sizeof($vis)>=12)
-                <div class="fenye mabot30">
-                    <a id="prePage" href="{{ $vis->previousPageUrl() }}&_token={{csrf_token()}}&county={{$county}}&district={{$district}}&cup={{$cup}}&marriage={{$marriage}}&budget={{$budget}}&smoking={{$smoking}}&drinking={{$drinking}}&ageto={{$ageto}}&agefrom={{$agefrom}}&seqtime={{$seqtime}}&body={{$body}}">上一頁</a>
-                    <a id="nextPage" href="{{ $vis->nextPageUrl() }}&_token={{csrf_token()}}&county={{$county}}&district={{$district}}&cup={{$cup}}&marriage={{$marriage}}&budget={{$budget}}&smoking={{$smoking}}&drinking={{$drinking}}&ageto={{$ageto}}&agefrom={{$agefrom}}&seqtime={{$seqtime}}&body={{$body}}">下一頁</a>
-                </div>
+                    <div class="fenye mabot30">
+                        <a id="prePage" href="{{ $vis->appends(request()->input())->previousPageUrl() }}">上一頁</a>
+                        <a id="nextPage" href="{{ $vis->appends(request()->input())->nextPageUrl() }}">下一頁</a>
+                    </div>
                 @endif
             </div>
 

@@ -169,10 +169,10 @@
                                     <dt>
                                         <span>地區</span>
                                         <?php
-                                        if (!isset($user)) {
+                                        if (!isset($to)) {
                                             $umeta = null;
                                         } else {
-                                            $umeta = $user->meta_();
+                                            $umeta = $to->meta_();
                                             if(isset($umeta->city)){
                                                 $umeta->city = explode(",",$umeta->city);
                                                 $umeta->area = explode(",",$umeta->area);
