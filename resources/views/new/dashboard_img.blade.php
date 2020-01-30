@@ -53,7 +53,7 @@
 
                 @if($count>0)
                     @for($i=0;$i<$count;$i++)
-                    <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(/new/images/ph_12.png); background-size:100% 100%"></b></li>
+                    <li class="write_img"><div class="n_ulhh"><img src="@if($i==0 && $count==6) /new/images/ph_03.png @else /new/images/ph_05.png @endif"></div><b class="img" style="background:url(/new/images/ph_12.png); background-size:100% 100%"></b></li>
                     @endfor
                 @endif 
             @else
@@ -73,7 +73,7 @@
                 @if($count>0)
                     @if($count_vip>0)
                         @for($i=0;$i<$count_vip;$i++)
-                        <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(/new/images/ph_10.png); background-size:100% 100%"></b></li>
+                        <li class="write_img"><div class="n_ulhh"><img src="@if($i==0 &&$count_vip==4) /new/images/ph_03.png @else /new/images/ph_05.png @endif"></div><b class="img" style="background:url('@if($i==0 &&$count_vip==4) /new/images/ph_11.png @else /new/images/ph_10.png @endif'); background-size:100% 100%"></b></li>
                         @endfor
                         @for($i=0;$i<($count-$count_vip);$i++)
                         <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(/new/images/ph_12.png); background-size:100% 100%"></b></li>
