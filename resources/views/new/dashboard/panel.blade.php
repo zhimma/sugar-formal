@@ -1,3 +1,4 @@
+@if(isset($user))
     <div class="leftbg">
         <div class="leftimg"><img src="{{ $user->meta_()->pic }}">
             <h2 style="word-break: break-all;">@if (str_contains(url()->current(), 'dashboard')) {{ $user->name }} @elseif (isset($cur)) {{ $cur->name }} @endif
@@ -22,4 +23,5 @@
             </ul>
         </div>
     </div>
+@endif
 
