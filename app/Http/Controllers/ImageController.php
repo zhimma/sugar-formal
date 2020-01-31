@@ -194,7 +194,6 @@ class ImageController extends Controller
         else{
             return back()->withErrors(['出現預期外的錯誤']);
         }
-
     }
 
     public function fileuploader_image_upload()
