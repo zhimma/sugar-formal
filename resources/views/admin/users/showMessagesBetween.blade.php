@@ -29,6 +29,17 @@
 						@for($i = 0; $i < $id1->tipcount; $i++)
 						    👍
 						@endfor
+						@if(!is_null($id1->isBlocked))
+						    @if(!is_null($id1->isBlocked->expire_date))
+						        @if(round((strtotime($id1->isBlocked->expire_date) - getdate()[0])/3600/24)>0)
+						            {{ round((strtotime($id1->isBlocked->expire_date) - getdate()[0])/3600/24 ) }}天
+						        @else
+						            此會員登入後將自動解除封鎖
+						        @endif
+						    @else
+						        (永久)
+						    @endif
+						@endif
 					</a> 
 				@else
 					<a href="{{ route('users/advInfo', [$message->to_id]) }} ">
@@ -45,6 +56,17 @@
 						@for($i = 0; $i < $id2->tipcount; $i++)
 						    👍
 						@endfor
+						@if(!is_null($id2->isBlocked))
+						    @if(!is_null($id2->isBlocked->expire_date))
+						        @if(round((strtotime($id2->isBlocked->expire_date) - getdate()[0])/3600/24)>0)
+						            {{ round((strtotime($id2->isBlocked->expire_date) - getdate()[0])/3600/24 ) }}天
+						        @else
+						            此會員登入後將自動解除封鎖
+						        @endif
+						    @else
+						        (永久)
+						    @endif
+						@endif
 					</a>  
 				@endif
 			</td>
@@ -64,6 +86,17 @@
 						@for($i = 0; $i < $id1->tipcount; $i++)
 						    👍
 						@endfor
+						@if(!is_null($id1->isBlockedReceiver))
+						    @if(!is_null($id1->isBlockedReceiver->expire_date))
+						        @if(round((strtotime($id1->isBlockedReceiver->expire_date) - getdate()[0])/3600/24)>0)
+						            {{ round((strtotime($id1->isBlockedReceiver->expire_date) - getdate()[0])/3600/24 ) }}天
+						        @else
+						            此會員登入後將自動解除封鎖
+						        @endif
+						    @else
+						        (永久)
+						    @endif
+						@endif
 					</a> 
 				@else 
 					<a href="{{ route('users/advInfo', [$message->to_id]) }} ">
@@ -80,6 +113,17 @@
 						@for($i = 0; $i < $id2->tipcount; $i++)
 						    👍
 						@endfor
+						@if(!is_null($id2->isBlockedReceiver))
+						    @if(!is_null($id2->isBlockedReceiver->expire_date))
+						        @if(round((strtotime($id2->isBlockedReceiver->expire_date) - getdate()[0])/3600/24)>0)
+						            {{ round((strtotime($id2->isBlockedReceiver->expire_date) - getdate()[0])/3600/24 ) }}天
+						        @else
+						            此會員登入後將自動解除封鎖
+						        @endif
+						    @else
+						        (永久)
+						    @endif
+						@endif
 					</a>  
 				@endif
 			</td>

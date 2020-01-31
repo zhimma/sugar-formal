@@ -209,6 +209,14 @@ class AdminService
                 $user['tipcount'] = Tip::TipCount_ChangeGood($id);
                 $user['engroup'] = $info->engroup;
                 $user['last_login'] = $info->last_login;
+                //近一月曾被檢舉次數
+                $date_start =  date("Y-m-d H:i:s",strtotime("-1 month"));;
+                $date_end = date("Y-m-d H:i:s");
+                $avatarsResult = ReportedAvatar::whereBetween('created_at', array($date_start, $date_end))->where('reported_user_id', $id)->count();
+                $picsResult = ReportedPic::whereBetween('created_at', array($date_start, $date_end))->where('reported_pic_id', $id)->count();
+                $user['picsResult'] = $picsResult + $avatarsResult;
+                $user['messagesResult'] = Message::whereBetween('created_at', array($date_start, $date_end))->where('from_id', $id)->where('isReported', 1)->count();
+                $user['reportsResult'] = Reported::whereBetween('created_at', array($date_start, $date_end))->where('reported_id', $id)->count();
             }
             else{
                 $user = array();
@@ -256,6 +264,14 @@ class AdminService
                 $user['last_login'] = $info->last_login;
                 $user['vip'] = Vip::vip_diamond($id);
                 $user['tipcount'] = Tip::TipCount_ChangeGood($id);
+                //近一月曾被檢舉次數
+                $date_start =  date("Y-m-d H:i:s",strtotime("-1 month"));;
+                $date_end = date("Y-m-d H:i:s");
+                $avatarsResult = ReportedAvatar::whereBetween('created_at', array($date_start, $date_end))->where('reported_user_id', $id)->count();
+                $picsResult = ReportedPic::whereBetween('created_at', array($date_start, $date_end))->where('reported_pic_id', $id)->count();
+                $user['picsResult'] = $picsResult + $avatarsResult;
+                $user['messagesResult'] = Message::whereBetween('created_at', array($date_start, $date_end))->where('from_id', $id)->where('isReported', 1)->count();
+                $user['reportsResult'] = Reported::whereBetween('created_at', array($date_start, $date_end))->where('reported_id', $id)->count();
             }
             else{
                 $user = array();
@@ -305,6 +321,14 @@ class AdminService
                 $user['last_login'] = $info->last_login;
                 $user['vip'] = Vip::vip_diamond($id);
                 $user['tipcount'] = Tip::TipCount_ChangeGood($id);
+                //近一月曾被檢舉次數
+                $date_start =  date("Y-m-d H:i:s",strtotime("-1 month"));;
+                $date_end = date("Y-m-d H:i:s");
+                $avatarsResult = ReportedAvatar::whereBetween('created_at', array($date_start, $date_end))->where('reported_user_id', $id)->count();
+                $picsResult = ReportedPic::whereBetween('created_at', array($date_start, $date_end))->where('reported_pic_id', $id)->count();
+                $user['picsResult'] = $picsResult + $avatarsResult;
+                $user['messagesResult'] = Message::whereBetween('created_at', array($date_start, $date_end))->where('from_id', $id)->where('isReported', 1)->count();
+                $user['reportsResult'] = Reported::whereBetween('created_at', array($date_start, $date_end))->where('reported_id', $id)->count();
             }
             else{
                 $user = array();

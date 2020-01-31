@@ -415,12 +415,16 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('users/message/delete', 'UserController@deleteMessage')->name('users/message/delete');
         Route::post('users/message/edit', 'UserController@editMessage')->name('users/message/edit');
         Route::get('users/pics/reported', 'UserController@showReportedPicsPage')->name('users/pics/reported');
+        //補上檢舉照片時間的GET
+        Route::get('users/pics/reported/{date_start?}/{date_end?}', 'UserController@searchReportedPics')->name('users/pics/reported');
         Route::post('users/pics/reported', 'UserController@searchReportedPics')->name('users/pics/reported');
         Route::get('users/basic_setting', 'UserController@basicSetting')->name('users/basic_setting');
         Route::post('users/basic_setting', 'UserController@doBasicSetting')->name('users/basic_setting');
         
         Route::get('users/bannedList', 'UserController@showBannedList')->name('users/bannedList');
         Route::get('users/reported', 'UserController@showReportedUsersPage')->name('users/reported');
+        //補上檢舉會員時間的GET
+        Route::get('users/reported/{date_start?}/{date_end?}', 'UserController@showReportedUsersList')->name('users/reported');
         Route::post('users/reported', 'UserController@showReportedUsersList')->name('users/reported');
         Route::post('users/reported/details/{reported_id}/{users?}/{reportedData?}', 'UserController@showReportedDetails')->name('users/reported/details');
         Route::get('users/switch', 'UserController@showUserSwitch')->name('users/switch');

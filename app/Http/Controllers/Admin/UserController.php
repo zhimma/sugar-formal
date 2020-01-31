@@ -126,22 +126,40 @@ class UserController extends Controller
     public function toggleVIP(Request $request){
        
         if($request->isVip == 1){
+            //關閉VIP權限
             $setVip = 0;
-        }
-        else{
+            $user = Vip::select('member_id', 'active')
+                    ->where('member_id', $request->user_id)
+                    ->where('active', $request->isVip)
+                    ->update(array('active' => $setVip));
+        }else{
+            //提供VIP權限
             $setVip = 1;
+            $tmpsql = Vip::select('expiry')->where('member_id', $request->user_id)->get()->first();
+            if(isset($tmpsql)){
+                //提供權限如果有到期時間的 就提供一個月
+                if($tmpsql->expiry != '0000-00-00 00:00:00'){
+                    $user = Vip::select('member_id', 'active')
+                        ->where('member_id', $request->user_id)
+                        ->where('active', $request->isVip)
+                        ->update(array('active' => $setVip,'expiry' => Carbon::now()->addDays(30)));
+                }else{
+                    $user = Vip::select('member_id', 'active')
+                        ->where('member_id', $request->user_id)
+                        ->where('active', $request->isVip)
+                        ->update(array('active' => $setVip));
+                }
+            }else{
+                //從來都沒VIP資料的
+                $vip_user = new Vip;
+                $vip_user->member_id = $request->user_id;
+                $vip_user->active = $setVip;
+                $vip_user->created_at =  Carbon::now()->toDateTimeString();
+                $vip_user->save();
+            }
+            
         }
-        $user = Vip::select('member_id', 'active')
-                ->where('member_id', $request->user_id)
-                ->where('active', $request->isVip)
-                ->update(array('active' => $setVip));
-        if($user == 0){
-            $vip_user = new Vip;
-            $vip_user->member_id = $request->user_id;
-            $vip_user->active = $setVip;
-            $vip_user->created_at =  Carbon::now()->toDateTimeString();
-            $vip_user->save();
-        }
+
         VipLog::addToLog($request->user_id, $setVip == 0 ? 'manual_cancel' : 'manual_upgrade', 'Manual Setting', $setVip, 1);
         $user = User::select('id', 'email')
                 ->where('id', $request->user_id)
@@ -372,6 +390,7 @@ class UserController extends Controller
                     $to_ids[$u->to_id]['tipcount'] = Tip::TipCount_ChangeGood($u->to_id);
                     $to_ids[$u->to_id]['vip'] = Vip::vip_diamond($u->to_id);
                     $to_ids[$u->to_id]['name'] = $to_ids[$u->to_id]->name;
+                    $to_ids[$u->to_id]['isBlocked'] = banned_users::where('member_id', 'like', $u->to_id)->get()->first();
                 }
                 else{
                     $to_ids[$u->to_id] = array();
@@ -382,7 +401,7 @@ class UserController extends Controller
 
         $user['tipcount'] = Tip::TipCount_ChangeGood($id);
         $user['vip'] = Vip::vip_diamond($id);
-        $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first() == true  ? true : false;
+        $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first();
 
         if(str_contains(url()->current(), 'edit')){
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
@@ -622,7 +641,7 @@ class UserController extends Controller
                                         ->where('content', 'like', '%' . $msg . '%')
                                         ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
             }
-            $senders = array(); //更換位置 不然Undefined variable: senders at 712
+            $senders = array(); //先宣告 否則報錯
             if($results != null){
                 $temp = $results->get()->toArray();
                 //Rearranges the messages query results.
@@ -651,6 +670,14 @@ class UserController extends Controller
                     $senders[$key]['vip'] = Vip::vip_diamond($id);
                     $senders[$key]['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first();
                     $senders[$key]['tipcount'] = Tip::TipCount_ChangeGood($id);
+                    //近一月曾被檢舉次數
+                    $date_start =  date("Y-m-d H:i:s",strtotime("-1 month"));;
+                    $date_end = date("Y-m-d H:i:s");
+                    $avatarsResult = ReportedAvatar::whereBetween('created_at', array($date_start, $date_end))->where('reported_user_id', $id)->count();
+                    $picsResult = ReportedPic::whereBetween('created_at', array($date_start, $date_end))->where('reported_pic_id', $id)->count();
+                    $senders[$key]['picsResult'] = $picsResult + $avatarsResult;
+                    $senders[$key]['messagesResult'] = Message::whereBetween('created_at', array($date_start, $date_end))->where('from_id', $id)->where('isReported', 1)->count();
+                    $senders[$key]['reportsResult'] = Reported::whereBetween('created_at', array($date_start, $date_end))->where('reported_id', $id)->count();
                 }
                 //Fills message ids to each sender.
                 foreach ($senders as $key => $sender){
@@ -997,6 +1024,14 @@ class UserController extends Controller
 
         $id1->vip = Vip::vip_diamond($id1->id);
         $id2->vip = Vip::vip_diamond($id2->id);
+
+        $id1->isBlocked = banned_users::where('member_id', 'like', $id1->id)->get()->first();
+        $id1->isBlockedReceiver = banned_users::where('member_id', 'like', $id1->id)->get()->first();
+
+        $id2->isBlocked = banned_users::where('member_id', 'like', $id2->id)->get()->first();
+        $id2->isBlockedReceiver = banned_users::where('member_id', 'like', $id2->id)->get()->first();
+
+
         return view('admin.users.showMessagesBetween', compact('messages', 'id1', 'id2'));
     }
 

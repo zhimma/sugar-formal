@@ -15,6 +15,17 @@
 	@for($i = 0; $i < $user['tipcount']; $i++)
 	    👍
 	@endfor
+	@if(!is_null($user['isBlocked']))
+	    @if(!is_null($user['isBlocked']['expire_date']))
+	        @if(round((strtotime($user['isBlocked']['expire_date']) - getdate()[0])/3600/24)>0)
+	            {{ round((strtotime($user['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天
+	        @else
+	            此會員登入後將自動解除封鎖
+	        @endif
+	    @else
+	        (永久)
+	    @endif
+	@endif
 	的所有資料
 	<a href="edit/{{ $user->id }}" class='text-white btn btn-primary'>修改</a>
 	@if($user['isBlocked'])
@@ -183,6 +194,13 @@
 					@for($i = 0; $i < $to_ids[$message->to_id]['tipcount']; $i++)
 					    👍
 					@endfor
+					@if(!is_null($to_ids[$message->to_id]['isBlocked']))
+					    @if(!is_null($to_ids[$message->to_id]['isBlocked']['expire_date']))
+					        ({{ round((strtotime($to_ids[$message->to_id]['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+					    @else
+					        (永久)
+					    @endif
+					@endif
 				</a>
 			</td>
 			<td>{{ $message->content }}</td>

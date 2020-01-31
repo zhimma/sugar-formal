@@ -78,6 +78,7 @@
         <table class="table-hover table table-bordered">
             <tr>
                 <td>發送者</td>
+                <th>曾被檢舉</th>
                 <td>回覆發送者</td>
                 @if(isset($reported) && $reported == 1)
                 <td>封鎖發送者</td>
@@ -122,13 +123,22 @@
                             @endfor
                             @if(!is_null($result['isBlocked']))
                                 @if(!is_null($result['isBlocked']['expire_date']))
-                                    ({{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                    @if(round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24)>0)
+                                        {{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天
+                                    @else
+                                        此會員登入後將自動解除封鎖
+                                    @endif
                                 @else
                                     (永久)
                                 @endif
                             @endif
                         </p>
                     </a>
+                </td>
+                <td style="white-space:nowrap;">
+                    <a target='_blank' href="/admin/users/message/search/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $users[$result['from_id']]['messagesResult'] }}</a> /
+                    <a target='_blank' href="/admin/users/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $users[$result['from_id']]['reportsResult'] }}</a> /
+                    <a target='_blank' href="/admin/users/pics/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $users[$result['from_id']]['picsResult'] }}</a>
                 </td>
                 <td>
                     <a href="{{ route('AdminMessengerWithMessageId', [$result->from_id, $result->id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
@@ -156,7 +166,11 @@
                             @endfor
                             @if(!is_null($result['isBlockedReceiver']))
                                 @if(!is_null($result['isBlockedReceiver']['expire_date']))
-                                    ({{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                    @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
+                                        {{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天
+                                    @else
+                                        此會員登入後將自動解除封鎖
+                                    @endif
                                 @else
                                     (永久)
                                 @endif
@@ -198,6 +212,7 @@
         <table class="table-hover table table-bordered">
             <tr>
                 <td>發送者</td>
+                <th>曾被檢舉</th>
                 <td>回覆發送者</td>
                 <td>封鎖發送者</td>
                 <td>註冊時間</td>
@@ -235,12 +250,21 @@
                             @endfor
                             @if(!is_null($sender['isBlocked']))
                                 @if(!is_null($sender['isBlocked']['expire_date']))
-                                    ({{ round((strtotime($sender['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                    @if(round((strtotime($sender['isBlocked']['expire_date']) - getdate()[0])/3600/24)>0)
+                                        {{ round((strtotime($sender['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天
+                                    @else
+                                        此會員登入後將自動解除封鎖
+                                    @endif
                                 @else
                                     (永久)
                                 @endif
                             @endif
                         </a>
+                    </td>
+                    <td rowspan="{{ count($sender['messages']) }}" style="white-space:nowrap;">
+                        <a target='_blank' href="/admin/users/message/search/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $sender['messagesResult'] }}</a> /
+                        <a target='_blank' href="/admin/users/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $sender['reportsResult'] }}</a> /
+                        <a target='_blank' href="/admin/users/pics/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $sender['picsResult'] }}</a>
                     </td>
                     <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][0]['id'] ]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>
                     <td>
@@ -264,7 +288,11 @@
                         @endfor
                         @if(!is_null($receivers[$sender['messages'][0]['to_id']]['isBlockedReceiver']))
                             @if(!is_null($receivers[$sender['messages'][0]['to_id']]['isBlockedReceiver']['expire_date']))
-                                ({{ round((strtotime($receivers[$sender['messages'][0]['to_id']]['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                @if(round((strtotime($receivers[$sender['messages'][0]['to_id']]['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
+                                    {{ round((strtotime($receivers[$sender['messages'][0]['to_id']]['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天
+                                @else
+                                    此會員登入後將自動解除封鎖
+                                @endif
                             @else
                                 (永久)
                             @endif
@@ -298,7 +326,11 @@
                             @endfor
                             @if(!is_null($receivers[$sender['messages'][$i]['to_id']]['isBlockedReceiver']))
                                 @if(!is_null($receivers[$sender['messages'][$i]['to_id']]['isBlockedReceiver']['expire_date']))
-                                    ({{ round((strtotime($receivers[$sender['messages'][$i]['to_id']]['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                    @if(round((strtotime($receivers[$sender['messages'][$i]['to_id']]['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
+                                        {{ round((strtotime($receivers[$sender['messages'][$i]['to_id']]['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天
+                                    @else
+                                        此會員登入後將自動解除封鎖
+                                    @endif
                                 @else
                                     (永久)
                                 @endif
