@@ -420,6 +420,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 .fenye{ margin:0 auto; padding:0px; display:table; margin-top:20px; height:40px; margin-bottom:20px;}
 .fenye a{ float:left; margin:0 20px; border:#fd5678 1px solid; text-align: center; color:#fd5678; padding:0px 27px; border-radius:200px; line-height:35px; font-size:16px; text-align: center}
+.fenye a:hover{background-color: #fd5678;color:#ffffff;}
 .zixun{ margin:0 auto; padding:0px; display:table;color:#fd5678; font-size:16px;}
 .zixun span{ margin:0px 10px;}
 
@@ -651,6 +652,9 @@ a:hover{ color:#e44e71; text-decoration:none}
 .wk_lx img{ float:left; margin-right:5px; height:22px}
 .wk_lx span{width:100px; float:left; color:#333333}
 .wk_lx font{color:#666666}
+
+
+
 @media (max-width:320px) {
 .wk_lx font{ float:right;width: calc(100% - 30px);}
 }  
@@ -754,6 +758,8 @@ a:hover{ color:#e44e71; text-decoration:none}
 .wordbg h3{ color:#666666; line-height:22px;}
 .wiword{ color:#fd90b6 !important; font-weight:bold; line-height:28px !important;}
 
+.wpaword {width: 600px;}
+
 .blbg{width:100%; height:100%;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 9;display:none;}
 .announce_bg{width:100%; height:100%;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 9;display:none;}
 .bl_tab{width:36%;background:#e2e8ff; border:#8a9fef 2px solid;border-radius:5px;position: fixed;left:32%;top: 20%;z-index: 10;display:none;}
@@ -811,7 +817,9 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 .gg_bg{width:310px; margin:0 auto; padding:0px; display:table; position:relative}
 
-
+    .wpaword {
+        width: 90%;
+    }
 }
 @media (max-width:370px) {
 .ggbut{width:140px;height: 40px;background:linear-gradient(90deg,#fe7293 0%,#e44f71 100%);border-radius: 200px;color: #ffffff;text-align: center;line-height: 40px;display: table;margin: 0 auto;font-size:16px; margin-top:30px;}
@@ -1222,8 +1230,8 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .n_seicon img:last-child{ margin-right:0 !important}
 
 
-.nt_photo{width:100%;height:280px; border-radius:0 0 10px 10px}	
-.nt_photo img{width:100%; height:280px;border-radius:0 0 10px 10px}
+.nt_photo{/*width:100%;*/height:280px; border-radius:0 0 10px 10px}
+.nt_photo img{/*width:100%;*/ max-width:100%; height:280px;border-radius:0 0 10px 10px; display: block;margin: 0 auto;}
 
 .nt_bot{width:100%;border-radius:0 0 10px 10px;position:absolute; bottom:0; color:#ffffff; padding:5px 0}
 .nt_bot h2{ font-size:16px; font-weight:bold;width:94%; margin:0 auto; line-height:25px}
@@ -1253,8 +1261,8 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .n_seicon img{height:26px; float:left; margin-right:4px; float:left}
 .n_seicon img:last-child{ margin-right:0 !important}
 
-.nt_photo{width:100%;height:240px; border-radius:0 0 10px 10px}	
-.nt_photo img{width:100%; height:240px; border-radius:0 0 10px 10px}
+.nt_photo{/*width:100%;*/height:240px; border-radius:0 0 10px 10px}
+.nt_photo img{/*width:100%;*/ max-width:100%;height:240px; border-radius:0 0 10px 10px;display: block;margin: 0 auto;}
 
 
 
@@ -1284,8 +1292,8 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .n_seicon img{height:23px; float:left; margin-right:2px; float:left}
 .n_seicon img:last-child{ margin-right:0 !important}
 
-.nt_photo{width:100%;height:260px; border-radius:0 0 10px 10px}	
-.nt_photo img{width:100%; height:260px;border-radius:0 0 10px 10px}
+.nt_photo{/*width:100%;*/height:260px; border-radius:0 0 10px 10px}
+.nt_photo img{/*width:100%;*/ max-width:100%; height:260px;border-radius:0 0 10px 10px;display: block;margin: 0 auto;}
 }
 
 

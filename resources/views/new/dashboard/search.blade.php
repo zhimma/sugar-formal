@@ -202,7 +202,7 @@
                                             @if($user->isVip())
                                                 <span>{{ $visitor->meta_()->occupation }}</span>
                                             @else
-                                                <span><img src="/new/images/icon_35.png" class="nt_img"></span>
+                                                <span><span style="padding-left: 5px;">職業</span><img src="/new/images/icon_35.png" class="nt_img"></span>
                                             @endif
                                         </h3>
                                         <h3>最後上線時間：{{$visitor->last_login}}</h3>
