@@ -518,8 +518,8 @@ class Message_new extends Model
                 $latestMessage = \App\Models\Message::latestMessage($user->id, $msgUser->id);
             }
             else{
-                Log::info('Null object found, $user:', $user);
-                Log::info('Null object found, msgUser id:', $to_id . " or " . $from_id);
+                Log::info('Null object found, $user: ' . $user->id);
+                Log::info('Null object found, msgUser id: ' . $to_id . " or " . $from_id);
             }
             if(!empty($latestMessage)){
                 if(\App\Models\Message::isAdminMessage($latestMessage->content)){

@@ -8,12 +8,15 @@
 
     @if(str_contains(url()->current(), 'dashboard'))
     <?php
-    $announceRead = \App\Models\AnnouncementRead::select('announcement_id')->where('user_id', \Auth::user()->id)->get();
-    $announcement = \App\Models\AdminAnnounce::where('en_group', \Auth::user()->engroup)->whereNotIn('id', $announceRead)->orderBy('sequence', 'desc')->get();
-    foreach ($announcement as &$a){
-        $a = str_replace(array("\r\n", "\r", "\n"), "<br>", $a);
-    }
-    $cc=0;
+        $user = \Auth::user();
+        if(isset($user)){
+            $announceRead = \App\Models\AnnouncementRead::select('announcement_id')->where('user_id', $user->id)->get();
+            $announcement = \App\Models\AdminAnnounce::where('en_group', $user->engroup)->whereNotIn('id', $announceRead)->orderBy('sequence', 'desc')->get();
+            foreach ($announcement as &$a){
+                $a = str_replace(array("\r\n", "\r", "\n"), "<br>", $a);
+            }
+            $cc=0;
+        }
     ?>
     @if(count($announcement)>0)
         <div class="announce_bg" onclick="gmBtn1()" style="display:none;"></div>
