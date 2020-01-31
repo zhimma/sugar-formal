@@ -36,8 +36,8 @@
             <li><a href="{!! url('/dashboard/vip') !!}"><img src="/new/images/mm_09.png"><span>VIP</span></a></li>
           </div>
           <div class="addpic g_inputt">
-          <div class="n_adbut"><a onclick="window.location.reload()" style="cursor:pointer"><img src="/new/images/1_06.png">預覽</a></div>
-          <div class="n_adbut editAllBtn"><a style="cursor:pointer"><img src="/new/images/1_06.png">編輯</a></div>
+          <div class="n_adbut"><a href="/dashboard/viewuser/{{$user->id}}" style="cursor:pointer"><img src="/new/images/1_06.png">預覽</a></div>
+          <div class="n_adbut editAllBtn"><a style="cursor:pointer"><img src="/new/images/pencil-edit-button.png">編輯</a></div>
           <div class="n_adbut recoverAllBtn" style="display:none"><a style="cursor:pointer"><img src="/new/images/1_06.png">復原</a></div>
             <ul class="n_ulpic">
             @if($user->engroup==1)
@@ -53,7 +53,7 @@
 
                 @if($count>0)
                     @for($i=0;$i<$count;$i++)
-                    <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(/new/images/ph_12.png); background-size:100% 100%"></b></li>
+                    <li class="write_img"><div class="n_ulhh"><img src="@if($i==0 && $count==6) /new/images/ph_03.png @else /new/images/ph_05.png @endif"></div><b class="img" style="background:url(/new/images/ph_12.png); background-size:100% 100%"></b></li>
                     @endfor
                 @endif 
             @else
@@ -73,7 +73,7 @@
                 @if($count>0)
                     @if($count_vip>0)
                         @for($i=0;$i<$count_vip;$i++)
-                        <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(/new/images/ph_10.png); background-size:100% 100%"></b></li>
+                        <li class="write_img"><div class="n_ulhh"><img src="@if($i==0 &&$count_vip==4) /new/images/ph_03.png @else /new/images/ph_05.png @endif"></div><b class="img" style="background:url('@if($i==0 &&$count_vip==4) /new/images/ph_11.png @else /new/images/ph_10.png @endif'); background-size:100% 100%"></b></li>
                         @endfor
                         @for($i=0;$i<($count-$count_vip);$i++)
                         <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(/new/images/ph_12.png); background-size:100% 100%"></b></li>
@@ -234,7 +234,7 @@
                 // });
                 // window.location.reload();
               }else if(res.code=='800'){
-                  c2('照片上傳成功<br>已升級為VIP會員');
+                  c2('照片上傳成功，已升級為VIP會員');
                 // Swal.fire({
                 // position: 'center',
                 // icon: 'success',
@@ -301,25 +301,32 @@
               $(".delpicBtn").on('click', function(){
               var id = $(this).parents('.write_img').attr('id');
                
-              var r=confirm("確認刪除此照片？")
-              if (r==true)
-              {
-                $.ajax({
-                  url: '/dashboard/delPic',
-                  type: 'POST',
-                  data: {
-                      'pic_id': id,
-                      "_token": "{{ csrf_token() }}"
-                      },
-                    success: function(res){
-                      res = JSON.parse(res);
-                      if(res.code=='200'){
-                        window.location.reload();
-                      }
-                    },
 
-              });
-              }
+              // var r=confirm("確認刪除此照片？")
+                  c4('確認刪除此照片？');
+              // if (r==true)
+              // {
+                  $(".n_left").on('click', function() {
+                      $.ajax({
+                          url: '/dashboard/delPic',
+                          type: 'POST',
+                          data: {
+                              'pic_id': id,
+                              "_token": "{{ csrf_token() }}"
+                          },
+                          success: function (res) {
+                              res = JSON.parse(res);
+                              if (res.code == '200') {
+                                  // window.location.reload();
+                                  $("#tab04").hide();
+                                  c2('刪除成功');
+                              }
+                          },
+
+                      });
+                  });
+              // }
+
               
              });
              });

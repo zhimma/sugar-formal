@@ -11,6 +11,7 @@
 									回到原使用者
 								</a></div>
 						@endif
+					    @if(!str_contains(url()->current(), 'dashboard'))
 						<div class="ndlrfont">
 							<a href="{!! url('dashboard/search') !!}"><img src="/new/images/icon_38.png"></a>
 							<span class="getNum">
@@ -20,8 +21,8 @@
 								<span>{{ \App\Models\Message::unread($user->id) }}</span>
 							</span>
 							<a href="{!! url('dashboard') !!}"><img src="/new/images/icon_48.png"></a>
-
 						</div>
+						@endif
 					@else
 						<div class="ndlrfont"><a href="{!! url('/checkAdult') !!}">註冊</a>丨<a href="{!! url('login') !!}">登入</a></div>
 					@endif

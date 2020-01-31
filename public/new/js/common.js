@@ -154,7 +154,7 @@
     }
 
 	function c5(str) {
-		$(".blbg").show();
+		$(".announce_bg").show();
 		$("#tab05").show();
 		$("#tab05 .bltext").text(str);
 	}
@@ -176,4 +176,18 @@
 		$(".blbg").show();
 		$("#tab_block").show();
 	}
+
+	function gmBtnNoReload(){
+		$(".announce_bg").hide();
+		$(".blbg").hide();
+		$(".bl").hide();
+		$(".gg_tab").hide();
+	}
+
+	// $(document).on('click','.announce_bg',function(event) {
+	// 	$(".announce_bg").hide();
+	// 	$(".blbg").hide();
+	// 	$(".bl").hide();
+	// 	$(".gg_tab").hide();
+	// });
 

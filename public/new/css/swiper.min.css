@@ -133,9 +133,9 @@
 	margin-top: -15px;
 	z-index: 10;
 	cursor: pointer;
-	-moz-background-size: 27px 44px;
-	-webkit-background-size: 27px 44px;
-	background-size: 27px 44px;
+	-moz-background-size: 21px 36px;
+	-webkit-background-size: 21px 36px;
+	background-size: 21px 36px;
 	background-position: center;
 	background-repeat: no-repeat
 }
@@ -149,7 +149,7 @@
 
 .swiper-button-prev,
 .swiper-container-rtl .swiper-button-next {
-	background-image: url(../images/jt_03.png);
+	background-image: url(../images/xq_06.png);
 	left: 10px;
 	right: auto
 }
@@ -166,7 +166,7 @@
 
 .swiper-button-next,
 .swiper-container-rtl .swiper-button-prev {
-	background-image: url(../images/jt_04.png);
+	background-image: url(../images/xq_07.png);
 	right: 10px;
 	left: auto
 }

@@ -43,7 +43,7 @@
           <div class="addpic g_inputt">
             <div class="n_adbut"><a href="/dashboard/viewuser/{{$user->id}}"><img src="/new/images/1_06.png">預覽</a></div>
             <div class="xiliao_input">
-               <form class="m-form m-form--fit m-form--label-align-right" method="POST" name="user_data" action="/dashboard" id="information"data-parsley-validate novalidate>
+               <form class="m-form m-form--fit m-form--label-align-right" method="POST" name="user_data" action="" id="information"data-parsley-validate novalidate>
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="userId" value="{{$user->id}}">
                 <div class="n_input">
@@ -100,7 +100,7 @@
                       <div class="right" style="margin-bottom: 10px;">
                         <a href="javascript:" id="add_county"><img src="/new/images/jh.png">新增縣市</a>
                         <input type="hidden" name="isHideArea" value="0">
-                        <input name="isHideArea" type="checkbox" @if($umeta->isHideArea == true) checked @endif value="1"> 隱藏鄉鎮區
+                        <input name="isHideArea" type="checkbox" @if($umeta->isHideArea == true) checked @endif value="1"> 隱藏鄉鎮市區
                       </div>
                     </div>
                     <!-- <span class="matop10">
@@ -407,7 +407,7 @@
                       <span>
                         <input type="hidden" name="day" value="01">
                         <div class="se_zlman left">
-                          <select  class="select_xx04" name="domainType" id="domainType" onchange="setDomain(0);">
+                          <select  class="select_xx2 left" name="domainType" id="domainType" onchange="setDomain(0);">
                             <option value="">請選擇</option>
                             <option value="資訊科技"
                                     @if($umeta->domainType == '資訊科技') selected @endif>
@@ -432,7 +432,7 @@
                           </select>
                         </div>
                         <div class="se_zlman right">
-                          <select class="select_xx04" name="domain" id="domain">
+                          <select class="select_xx2 right" name="domain" id="domain">
                           </select>
                         </div>
                       </span>
@@ -632,22 +632,26 @@
         var age = parseInt((now - birthday) / year);
         return age;
       }
+
       @if(!$user->isAdmin())
         @if (!$umeta->isAllSet())
-          swal({
-            title:'請寫上基本資料。',
-            type:'warning'
-          });
+        c5('請寫上基本資料。');
+          // swal({
+          //   title:'請寫上基本資料。',
+          //   type:'warning'
+          // });
         @elseif (empty($umeta->pic))
-          swal({
-            title:'請加上頭像照。',
-            type:'warning'
-          });
+        c5('請加上頭像照。');
+          // swal({
+          //   title:'請加上頭像照。',
+          //   type:'warning'
+          // });
         @elseif ($umeta->age()<18)
-          swal({
-            title:'您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。',
-            type:'warning'
-          });
+        c5('您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。');
+          // swal({
+          //   title:'您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。',
+          //   type:'warning'
+          // });
         @endif
       @endif
       //ajax_表單送出
@@ -658,10 +662,11 @@
           console.log(birth);
           let age = getAge(birth);
           if(age < 18){
-            swal({
-                title:'您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。',
-                type:'warning'
-            });
+          c5('您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。');
+            // swal({
+            //     title:'您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。',
+            //     type:'warning'
+            // });
             return false;
           }
           var form_dump = $(this);
@@ -713,10 +718,11 @@
                   }
               });
           }else{
-              swal({
-                  title:'最多新增3筆',
-                  type:'warning'
-              });
+              c5('最多新增3筆');
+              // swal({
+              //     title:'最多新增3筆',
+              //     type:'warning'
+              // });
           }
       });
 
@@ -740,11 +746,11 @@
                     }
                 });
             }else{
-                //c2("最多新增3筆");
-                swal({
-                    title:'最多新增3筆',
-                    type:'warning'
-                });
+                c5('最多新增3筆');
+                // swal({
+                //     title:'最多新增3筆',
+                //     type:'warning'
+                // });
             }
         });
 
@@ -756,14 +762,19 @@
           dataType: 'JSON',
           data: form,
           beforeSend: function () {
-            $('.blbg').click();
+           // $('.blbg').click();
             waitingDialog.show();
           },
           complete: function () {
+
+              //c4('更新成功');
+            window.location.reload();
             waitingDialog.hide();
+
           },
           success: function (result) {
             ResultData(result);
+            window.location.reload();
           }
         });
       });

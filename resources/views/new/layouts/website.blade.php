@@ -16,7 +16,7 @@
     $cc=0;
     ?>
     @if(count($announcement)>0)
-        <div class="blbg" onclick="gmBtn1()" style="display:none;"></div>
+        <div class="announce_bg" onclick="gmBtn1()" style="display:none;"></div>
         <div class="gg_tab" id="" style="display: none;">
             <div class="owl-carousel owl-theme">
 
@@ -45,6 +45,7 @@
             </div>
         </div>
     @endif
+    @yield("javascript")
 
     <link rel="stylesheet" href="/new/owlcarousel/assets/owl.carousel.min.css">
     <link rel="stylesheet" href="/new/owlcarousel/assets/owl.theme.default.min.css">
@@ -52,9 +53,13 @@
     <script>
 
         function gmBtn1(){
-            $(".blbg").hide();
-            $(".bl").hide();
+            $(".announce_bg").hide();
+            // $(".blbg").hide();
+            // $(".bl_gb").hide();
             $(".gg_tab").hide();
+            if($('#tab05').is(":visible")){
+                $("#announce_bg").show();
+            }
         }
 
         function disableAnnounce(aid){
@@ -75,7 +80,7 @@
         }
         $(document).ready(function() {
             @if(count($announcement)>0)
-            $('.blbg').show();
+            $('.announce_bg').show();
             $(".gg_tab").show();
             @endif
             $('.owl-carousel').owlCarousel({
@@ -101,6 +106,6 @@
         })
     </script>
     @endif
-    @yield("javascript")
+
 </body>
 </html>

@@ -45,7 +45,7 @@
                                         <h2>888</h2>
                                         <h3>$NTD/每月</h3>
                                     </div>
-                                    <div class="vipcion"><img src="images/bicon.png"></div>
+                                    <div class="vipcion"><img src="/new/images/bicon.png"></div>
                                 </li>
                                 @endif
 
@@ -86,7 +86,7 @@
                                     <input type=hidden name="checksum" value="<?php print md5("761404"."30".$orderNumber.$code."1") ?>">
                                     <input type=hidden name="Englishmode" value="0">
 
-                                    <button type="submit" class="n_vip01 v_butright" style="border-style: none;">購買方式1</button>
+                                    <button type="submit" class="n_vip01 v_butright" style="border-style: none;">購買方式2</button>
                                 </form>
 
                             </span>

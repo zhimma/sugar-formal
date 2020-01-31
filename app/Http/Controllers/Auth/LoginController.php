@@ -141,7 +141,7 @@ class LoginController extends Controller
             }
             if (empty($userMeta->pic)) {
                 $request->session()->reflash();
-                return view('noAvatar');
+                //return view('noAvatar');
             }
             return redirect('/dashboard');
         }

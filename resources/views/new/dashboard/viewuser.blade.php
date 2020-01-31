@@ -8,7 +8,7 @@
         }
 
         .swiper-slide {
-            width: 100%;
+            /*width: 100%;*/
             height: 280px;
             margin: 0 auto;
             padding: 0px;
@@ -16,8 +16,11 @@
         }
 
         .swiper-slide img {
-            width: 100%;
+            /*width: 100%;*/
+            max-width: 100%;
             height: 100%;
+            display: block;
+            margin: 0 auto;
         }
 
         @media (max-width:767px) {
@@ -26,15 +29,18 @@
                 height: auto;
             }
             .swiper-slide {
-                width: 100%;
+                /*width: 100%;*/
                 height: 200px !important;
                 margin: 0 auto;
                 padding: 0px;
                 display: table
             }
             .swiper-slide img {
-                width: 100%;
+                /*width: 100%;*/
+                max-width: 100%;
                 height: 100%;
+                display: block;
+                margin: 0 auto;
             }
         }
         @media (max-width:992px) {
@@ -43,15 +49,18 @@
                 height: auto;
             }
             .swiper-slide {
-                width: 100%;
+                /*width: 100%;*/
                 height: 280px;
                 margin: 0 auto;
                 padding: 0px;
                 display: table
             }
             .swiper-slide img {
-                width: 100%;
+                /*width: 100%;*/
+                max-width: 100%;
                 height: 100%;
+                display: block;
+                margin: 0 auto;
             }
         }
 
@@ -116,21 +125,19 @@
                         </div>
                         <div class="bottub">
                             <ul>
-                                <?php
-                                $now = Carbon\Carbon::now();
-                                $registration_date = Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $to->created_at);
-                                $diff_in_months = $registration_date->diffInMonths($now);
-                                ?>
-                                @if($diff_in_months==0)
+                                <? $data = \App\Services\UserService::checkRecommendedUser($to);
+                                echo $data['description'];?>
+                                @if(isset($data['description']) && $to->engroup == 2)
                                 <li><img src="/new/images/icon_19.png"><span>新進甜心</span></li>
                                 @endif
-{{--                                <li><img src="/new/images/icon_21.png"><span>優選會員</span></li>--}}
-{{--                                <li><img src="/new/images/icon_23.png"><span>財力認證</span></li>--}}
-                                @if($to->isVip())
+                                @if(isset($data['description']) && $to->engroup == 1)
                                 <li><img src="/new/images/icon_21.png"><span>優選會員</span></li>
+                                @endif
+{{--                            <li><img src="/new/images/icon_23.png"><span>財力認證</span></li>--}}
+                                @if($to->isVip())
                                 <li><img src="/new/images/icon_25.png"><span>VIP</span></li>
                                 @endif
-{{--                                <li><img src="/new/images/icon_27.png"><span>警示帳戶</span></li>--}}
+{{--                            <li><img src="/new/images/icon_27.png"><span>警示帳戶</span></li>--}}
                             </ul>
                         </div>
 
@@ -165,13 +172,14 @@
                                         <span>一句話形容自己</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->title}}" disabled="disabled"></span>
                                     </dt>
+                                    @if($to->meta_()->isHideArea == '0')
                                     <dt>
                                         <span>地區</span>
                                         <?php
-                                        if (!isset($user)) {
+                                        if (!isset($to)) {
                                             $umeta = null;
                                         } else {
-                                            $umeta = $user->meta_();
+                                            $umeta = $to->meta_();
                                             if(isset($umeta->city)){
                                                 $umeta->city = explode(",",$umeta->city);
                                                 $umeta->area = explode(",",$umeta->area);
@@ -194,67 +202,113 @@
                                             </span>
                                         @endif
                                     </dt>
+                                    @endif
 
+                                    @if(!empty($to->meta_()->budget))
                                     <dt>
                                         <span>預算</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->budget}}" disabled="disabled"></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->age()))
                                     <dt>
                                         <span>年齡</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->age()}}" disabled="disabled"></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->height))
                                     <dt>
                                         <span>身高（cm）</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->height}}" disabled="disabled"></span>
                                     </dt>
-{{--                                    <dt>--}}
-{{--                                        <span>體型</span>--}}
-{{--                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->body}}" disabled="disabled"></span>--}}
-{{--                                    </dt>--}}
-{{--                                    <dt>--}}
-{{--                                        <span>CUP</span>--}}
-{{--                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->cup}}" disabled="disabled"></span>--}}
-{{--                                    </dt>--}}
+                                    @endif
+
+                                    @if(!empty($to->meta_()->body))
+                                    <dt>
+                                        <span>體型</span>
+                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->body}}" disabled="disabled"></span>
+                                    </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->cup))
+                                    <dt>
+                                        <span>CUP</span>
+                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->cup}}" disabled="disabled"></span>
+                                    </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->about))
                                     <dt>
                                         <span>關於我</span>
                                         <span><div class="select_xx03" >{{$to->meta_()->about}}</div></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->style))
                                     <dt>
                                         <span>期待的約會模式</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->style}}" disabled="disabled"></span>
+                                        <span><div class="select_xx03" >{{$to->meta_()->style}}"</div></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->domainType))
                                     <dt>
                                         <span>產業</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->domainType}}" disabled="disabled"></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->occupation) && $to->meta_()->isHideOccupation == '0')
                                     <dt>
                                         <span>職業</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->occupation}}" disabled="disabled"></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->education))
                                     <dt>
                                         <span>教育</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->education}}" disabled="disabled"></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->marriage))
                                     <dt>
                                         <span>婚姻</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->marriage}}" disabled="disabled"></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->drinking))
                                     <dt>
                                         <span>喝酒</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->drinking}}" disabled="disabled"></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->smoking))
                                     <dt>
                                         <span>抽煙</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->smoking}}" disabled="disabled"></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->income))
                                     <dt>
                                         <span>收入</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->income}}" disabled="disabled"></span>
                                     </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->assets))
                                     <dt>
                                         <span>資產</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->assets}}" disabled="disabled"></span>
                                     </dt>
+                                    @endif
+
                                 </div>
                             </div>
                         </div>
@@ -497,6 +551,7 @@
         });
     });
 
+
     $('.unblock').on('click', function() {
         c4('確定要解除封鎖嗎?');
         var uid='{{ $user->id }}';
@@ -531,8 +586,8 @@
         });
     });
 
-     @if (Session::has('message') && Session::get('message') == '檢舉成功')
-     c2('檢舉成功');
+     @if (Session::has('message'))
+     c2('{{Session::get('message')}}');
      @endif
 
      $("#msgsnd").on('click', function(){
