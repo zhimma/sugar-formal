@@ -428,7 +428,8 @@ class Message_new extends Model
     {
         //  created_at >= '".self::$date."' or  (`from_id`= $admin->id and `to_id` = $uid and `read` = 'N')
         $admin = User::select('id')->where('email', Config::get('social.admin.email'))->get()->first();
-
+        $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $uid)->get();
+        $banned_users = banned_users::select('member_id')->get();
         $query = Message::where(function($query)use($uid)
             {
                 $query->where('to_id','=' ,$uid)
@@ -443,8 +444,11 @@ class Message_new extends Model
             $query->where([['created_at','>=',self::$date]]);
         }
         $query->where([['is_row_delete_1','<>',$uid]]);
-
         $query->orWhere([['from_id', $admin->id], ['to_id',$uid],['read','N']]);
+        $query->whereNotIn('to_id', $userBlockList);
+        $query->whereNotIn('from_id', $userBlockList);
+        $query->whereNotIn('to_id', $banned_users);
+        $query->whereNotIn('from_id', $banned_users);
         $query->orderByRaw('CASE
                         WHEN (from_id = '.$admin->id.')
                         THEN
@@ -510,7 +514,13 @@ class Message_new extends Model
                 unset($messages[$key]);
                 continue;
             }
-            $latestMessage = \App\Models\Message::latestMessage($user->id, $msgUser->id);
+            if(isset($user->id) && isset($msgUser->id)){
+                $latestMessage = \App\Models\Message::latestMessage($user->id, $msgUser->id);
+            }
+            else{
+                Log::info('Null object found, $user:', $user);
+                Log::info('Null object found, msgUser id:', $to_id . " or " . $from_id);
+            }
             if(!empty($latestMessage)){
                 if(\App\Models\Message::isAdminMessage($latestMessage->content)){
                     $messages[$key]['isAdminMessage'] = 1;

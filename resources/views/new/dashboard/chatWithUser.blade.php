@@ -98,165 +98,163 @@
 
 @stop
 @section('javascript')
-            <script>
-                // $(document).ready(function(){
-                    $.ajaxSetup({ cache: false });
-                    $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-                        // you can use originalOptions.type || options.type to restrict specific type of requests
-                        options.data = jQuery.param($.extend(originalOptions.data||{}, {
-                            timeStamp: new Date().getTime()
-                        }));
-                    });
-                    d = new Date('{{ \App\Models\Message::$date }}');
-                            @if(isset($m_time))
-                    let m_time = '{{ $m_time }}';
-                            @else
-                    let m_time = '';
-                    @endif
-                    if(m_time){
-                        let intervalID = setInterval(function() {
-                            let intervalSecs = 60;
-                                    @if(isset($m_time))
-                            let m_time = '{{ $m_time }}';
-                                    @else
-                            let m_time = '';
-                            @endif
-                            // Split timestamp into [ Y, M, D, h, m, s ]
-                            let t = m_time.split(/[- :]/);
-                            // Apply each element to the Date function
-                            m_time = new Date(Date.UTC(t[0], t[1] - 1, t[2], t[3], t[4], t[5]));
-                            m_time.setHours(m_time.getHours() - 8);
-                            let now = new Date();
-                            let diff = now.getTime() - m_time.getTime();
-                            let diffInSec = Math.floor(diff / 1000);
-                            let still = intervalSecs - diffInSec;
-                            let text = document.getElementById('msgsnd').firstChild;
-                            if(diff < 0 && diffInSec >= intervalSecs){
-                                $(".tips").remove();
-                                text.data = '回覆';
-                                $('#msgsnd').enable(true);
-                                clearInterval(intervalID);
-                            }
-                            else{
-                                $('#msgsnd').enable(false);
-                                text.data = '還有' + still + '秒才能回覆';
-                            }
-                        },100);
-                        $("<a href='{!! url('dashboard/upgrade') !!}' style='color: red;' class='tips'>成為VIP即可知道對方是否讀取信件哦！<br></a>").insertBefore('#msgsnd');
-                    }
-
-                    $('#msg').keyup(function() {
-                        let msgsnd = $('.msgsnd');
-                        if(!$.trim($("#msg").val())){
-                            $('.alert').remove();
-                            $("<a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a>").insertAfter(this);
-                            msgsnd.prop('disabled', true);
-                        }
-                        else {
-                           $('.alert').remove();
-                            msgsnd.prop('disabled', !checkForm());
-                        }
-                    });
-                {{--    $("#showhide").click(function(){--}}
-                {{--        if ($("user-list").isHidden()) {--}}
-                {{--            $("user-list").show();--}}
-                {{--        }--}}
-                {{--        else {--}}
-                {{--            $("user-list").hide();--}}
-                {{--        }--}}
-                {{--    });--}}
-                    setTimeout(function() {
-                        window.location.reload();
-                    }, 300000);
-                {{--    $('#admin').each(--}}
-                {{--        function (){--}}
-                {{--            $(this).insertBefore($('#normal'));--}}
-                {{--        }--}}
-                {{--    );--}}
-                //     $('#delete-btn').on('click',function(e){
-                //         if(!confirm('確定要刪除?')){
-                //             e.preventDefault();
-                //         }else{
-                //             //$('.deleteMsg').submit();
-                //         }
-                //     });
-                {{--    // $('.report-btn').on('click',function(e){--}}
-                {{--    //     if(!confirm('確定要檢舉?')){--}}
-                {{--    //         e.preventDefault();--}}
-                {{--    //     }--}}
-                {{--    // });--}}
-                {{--    if($('.user-list').length <= 3){--}}
-                {{--        $('<p style="color:red;" id="tips">如果發現訊息不完整，請按下全部顯示</p>').insertAfter($('.options'));--}}
-                {{--    }--}}
-                {{--    else{--}}
-                {{--        $('.showAll').hide();--}}
-                {{--    }--}}
-                {{--});--}}
-                $('#chatForm').submit(function () {
-                    let content = $('#msg').val(), msgsnd = $('.msgsnd');
-                    if($.trim(content) == "" ){
-                        $('.alert').remove();
-                        $("<a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a>").insertAfter($('.msg'));
-                        msgsnd.prop('disabled', true);
-                        return checkForm;
-                    }
-                    else {
-                        $('.alert').remove();
-                        return checkForm;
-                    }
-                });
-                function checkForm(){
-                            @if(isset($m_time))
-                    let m_time = '{{ $m_time }}';
-                            @else
-                    let m_time = '';
-                    @endif
-                    if(m_time) {
-                        let intervalSecs = 60;
-                                @if(isset($m_time))
-                        let m_time = '{{ $m_time }}';
-                                @else
-                        let m_time = '';
-                        @endif
-                        // Split timestamp into [ Y, M, D, h, m, s ]
-                        let t = m_time.split(/[- :]/);
-                        // Apply each element to the Date function
-                        m_time = new Date(Date.UTC(t[0], t[1] - 1, t[2], t[3], t[4], t[5]));
-                        m_time.setHours(m_time.getHours() - 8);
-                        let now = new Date();
-                        let diff = now.getTime() - m_time.getTime();
-                        let diffInSec = Math.floor(diff / 1000);
-                        return diffInSec >= intervalSecs;
-                    }
-                    else{
-                        return true;
-                    }
+<script>
+    // $(document).ready(function(){
+        $.ajaxSetup({ cache: false });
+        $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+            // you can use originalOptions.type || options.type to restrict specific type of requests
+            options.data = jQuery.param($.extend(originalOptions.data||{}, {
+                timeStamp: new Date().getTime()
+            }));
+        });
+        d = new Date('{{ \App\Models\Message::$date }}');
+                @if(isset($m_time))
+        let m_time = '{{ $m_time }}';
+                @else
+        let m_time = '';
+        @endif
+        if(m_time){
+            let intervalID = setInterval(function() {
+                let intervalSecs = 60;
+                        @if(isset($m_time))
+                let m_time = '{{ $m_time }}';
+                        @else
+                let m_time = '';
+                @endif
+                // Split timestamp into [ Y, M, D, h, m, s ]
+                let t = m_time.split(/[- :]/);
+                // Apply each element to the Date function
+                m_time = new Date(Date.UTC(t[0], t[1] - 1, t[2], t[3], t[4], t[5]));
+                m_time.setHours(m_time.getHours() - 8);
+                let now = new Date();
+                let diff = now.getTime() - m_time.getTime();
+                let diffInSec = Math.floor(diff / 1000);
+                let still = intervalSecs - diffInSec;
+                let text = document.getElementById('msgsnd').firstChild;
+                if(diff < 0 && diffInSec >= intervalSecs){
+                    $(".tips").remove();
+                    text.data = '回覆';
+                    $('#msgsnd').enable(true);
+                    clearInterval(intervalID);
                 }
+                else{
+                    $('#msgsnd').enable(false);
+                    text.data = '還有' + still + '秒才能回覆';
+                }
+            },100);
+            $("<a href='{!! url('dashboard/upgrade') !!}' style='color: red;' class='tips'>成為VIP即可知道對方是否讀取信件哦！<br></a>").insertBefore('#msgsnd');
+        }
 
-                $(".blbg").hide();
-                $('.delete-btn').on('click',function(){
+        $('#msg').keyup(function() {
+            let msgsnd = $('.msgsnd');
+            if(!$.trim($("#msg").val())){
+                $('.alert').remove();
+                $("<a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a>").insertAfter(this);
+                msgsnd.prop('disabled', true);
+            }
+            else {
+               $('.alert').remove();
+                msgsnd.prop('disabled', !checkForm());
+            }
+        });
+    {{--    $("#showhide").click(function(){--}}
+    {{--        if ($("user-list").isHidden()) {--}}
+    {{--            $("user-list").show();--}}
+    {{--        }--}}
+    {{--        else {--}}
+    {{--            $("user-list").hide();--}}
+    {{--        }--}}
+    {{--    });--}}
+        setTimeout(function() {
+            window.location.reload();
+        }, 300000);
+    {{--    $('#admin').each(--}}
+    {{--        function (){--}}
+    {{--            $(this).insertBefore($('#normal'));--}}
+    {{--        }--}}
+    {{--    );--}}
+    //     $('#delete-btn').on('click',function(e){
+    //         if(!confirm('確定要刪除?')){
+    //             e.preventDefault();
+    //         }else{
+    //             //$('.deleteMsg').submit();
+    //         }
+    //     });
+    {{--    // $('.report-btn').on('click',function(e){--}}
+    {{--    //     if(!confirm('確定要檢舉?')){--}}
+    {{--    //         e.preventDefault();--}}
+    {{--    //     }--}}
+    {{--    // });--}}
+    {{--    if($('.user-list').length <= 3){--}}
+    {{--        $('<p style="color:red;" id="tips">如果發現訊息不完整，請按下全部顯示</p>').insertAfter($('.options'));--}}
+    {{--    }--}}
+    {{--    else{--}}
+    {{--        $('.showAll').hide();--}}
+    {{--    }--}}
+    {{--});--}}
+    $('#chatForm').submit(function () {
+        let content = $('#msg').val(), msgsnd = $('.msgsnd');
+        if($.trim(content) == "" ){
+            $('.alert').remove();
+            $("<a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a>").insertAfter($('.msg'));
+            msgsnd.prop('disabled', true);
+            return checkForm;
+        }
+        else {
+            $('.alert').remove();
+            return checkForm;
+        }
+    });
+    function checkForm(){
+                @if(isset($m_time))
+        let m_time = '{{ $m_time }}';
+                @else
+        let m_time = '';
+        @endif
+        if(m_time) {
+            let intervalSecs = 60;
+                    @if(isset($m_time))
+            let m_time = '{{ $m_time }}';
+                    @else
+            let m_time = '';
+            @endif
+            // Split timestamp into [ Y, M, D, h, m, s ]
+            let t = m_time.split(/[- :]/);
+            // Apply each element to the Date function
+            m_time = new Date(Date.UTC(t[0], t[1] - 1, t[2], t[3], t[4], t[5]));
+            m_time.setHours(m_time.getHours() - 8);
+            let now = new Date();
+            let diff = now.getTime() - m_time.getTime();
+            let diffInSec = Math.floor(diff / 1000);
+            return diffInSec >= intervalSecs;
+        }
+        else{
+            return true;
+        }
+    }
 
-                    c4('確定要刪除嗎?');
+    $(".blbg").hide();
+    $('.delete-btn').on('click',function(){
 
-                    var ct_time = $(this).data('ct_time');
-                    var content = $(this).data('content');
-                    var id = $(this).data('id');
-                    $(".n_left").on('click', function() {
-                        $.post('{{ route('delete2Single') }}', {
-                            uid: '{{ $user->id }}',
-                            sid: '{{ $to->id }}',
-                            ct_time: ct_time,
-                            content: content,
-                            id: id,
-                            _token: '{{ csrf_token() }}'
-                        }, function (data) {
-                            //window.location.reload();
-                            $("#tab04").hide();
-                            c2('刪除成功');
-                        });
-                    });
-                });
-            </script>
+        c4('確定要刪除嗎?');
 
-
+        var ct_time = $(this).data('ct_time');
+        var content = $(this).data('content');
+        var id = $(this).data('id');
+        $(".n_left").on('click', function() {
+            $.post('{{ route('delete2Single') }}', {
+                uid: '{{ $user->id }}',
+                sid: '{{ $to->id }}',
+                ct_time: ct_time,
+                content: content,
+                id: id,
+                _token: '{{ csrf_token() }}'
+            }, function (data) {
+                //window.location.reload();
+                $("#tab04").hide();
+                c2('刪除成功');
+            });
+        });
+    });
+</script>
 @stop
