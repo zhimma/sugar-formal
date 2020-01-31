@@ -8,7 +8,7 @@
         }
 
         .swiper-slide {
-            width: 100%;
+            /*width: 100%;*/
             height: 280px;
             margin: 0 auto;
             padding: 0px;
@@ -16,8 +16,11 @@
         }
 
         .swiper-slide img {
-            width: 100%;
+            /*width: 100%;*/
+            max-width: 100%;
             height: 100%;
+            display: block;
+            margin: 0 auto;
         }
 
         @media (max-width:767px) {
@@ -26,15 +29,18 @@
                 height: auto;
             }
             .swiper-slide {
-                width: 100%;
+                /*width: 100%;*/
                 height: 200px !important;
                 margin: 0 auto;
                 padding: 0px;
                 display: table
             }
             .swiper-slide img {
-                width: 100%;
+                /*width: 100%;*/
+                max-width: 100%;
                 height: 100%;
+                display: block;
+                margin: 0 auto;
             }
         }
         @media (max-width:992px) {
@@ -43,15 +49,18 @@
                 height: auto;
             }
             .swiper-slide {
-                width: 100%;
+                /*width: 100%;*/
                 height: 280px;
                 margin: 0 auto;
                 padding: 0px;
                 display: table
             }
             .swiper-slide img {
-                width: 100%;
+                /*width: 100%;*/
+                max-width: 100%;
                 height: 100%;
+                display: block;
+                margin: 0 auto;
             }
         }
 
@@ -116,21 +125,19 @@
                         </div>
                         <div class="bottub">
                             <ul>
-                                <?php
-                                $now = Carbon\Carbon::now();
-                                $registration_date = Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $to->created_at);
-                                $diff_in_months = $registration_date->diffInMonths($now);
-                                ?>
-                                @if($diff_in_months==0)
+                                <? $data = \App\Services\UserService::checkRecommendedUser($to);
+                                echo $data['description'];?>
+                                @if(isset($data['description']) && $to->engroup == 2)
                                 <li><img src="/new/images/icon_19.png"><span>新進甜心</span></li>
                                 @endif
-{{--                                <li><img src="/new/images/icon_21.png"><span>優選會員</span></li>--}}
-{{--                                <li><img src="/new/images/icon_23.png"><span>財力認證</span></li>--}}
-                                @if($to->isVip())
+                                @if(isset($data['description']) && $to->engroup == 1)
                                 <li><img src="/new/images/icon_21.png"><span>優選會員</span></li>
+                                @endif
+{{--                            <li><img src="/new/images/icon_23.png"><span>財力認證</span></li>--}}
+                                @if($to->isVip())
                                 <li><img src="/new/images/icon_25.png"><span>VIP</span></li>
                                 @endif
-{{--                                <li><img src="/new/images/icon_27.png"><span>警示帳戶</span></li>--}}
+{{--                            <li><img src="/new/images/icon_27.png"><span>警示帳戶</span></li>--}}
                             </ul>
                         </div>
 
@@ -242,7 +249,7 @@
                                     @if(!empty($to->meta_()->style))
                                     <dt>
                                         <span>期待的約會模式</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->style}}" disabled="disabled"></span>
+                                        <span><div class="select_xx03" >{{$to->meta_()->style}}"</div></span>
                                     </dt>
                                     @endif
 
