@@ -19,7 +19,7 @@
         }
     ?>
     @if(isset($announcement) && count($announcement) > 0)
-        <div class="announce_bg" onclick="gmBtn1()" style="display:none;"></div>
+        <div class="announce_bg" onclick="gmBtnNoReload()" style="display:none;"></div>
         <div class="gg_tab" id="" style="display: none;">
             <div class="owl-carousel owl-theme">
                 @foreach($announcement as $key =>  $a)
