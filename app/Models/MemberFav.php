@@ -41,19 +41,21 @@ class MemberFav extends Model
         $fav = Visited::unique(MemberFav::where([['member_id', $uid],['member_fav_id', '!=', $uid]])->distinct()->orderBy('created_at', 'desc')->get(), "member_fav_id");
         foreach ($fav as $k => $f) {
             $favUser = \App\Models\User::findById($f->member_fav_id);
-            $fav[$k]['name'] = $favUser->name;
-            $fav[$k]['pic'] = $favUser->meta_()->pic;
-            if($fav[$k]['pic']==null||!file_exists('.'.$fav[$k]['pic'])){
-                $fav[$k]['pic'] =($favUser->engroup==1)? '/img/male-avatar.png':'/img/female-avatar.png';
+            if(isset($favUser)){
+                $fav[$k]['name'] = $favUser->name;
+                $fav[$k]['pic'] = $favUser->meta_()->pic;
+                if($fav[$k]['pic']==null||!file_exists('.'.$fav[$k]['pic'])){
+                    $fav[$k]['pic'] =($favUser->engroup==1)? '/img/male-avatar.png':'/img/female-avatar.png';
+                }
+                $fav[$k]['age'] = $favUser->meta_()->age();
+                if(isset($favUser->meta_()->city)){
+                    $favUser->city = explode(",",$favUser->meta_()->city);
+                    $favUser->area = explode(",",$favUser->meta_()->area);
+                }
+                $fav[$k]['city'] = (!empty($favUser->city))?$favUser->city[0]:'';
+                $fav[$k]['area'] = (!empty($favUser->area))?$favUser->area[0]:'';
+                $fav[$k]['vip'] = $favUser->isVip();
             }
-            $fav[$k]['age'] = $favUser->meta_()->age();
-            if(isset($favUser->meta_()->city)){
-                $favUser->city = explode(",",$favUser->meta_()->city);
-                $favUser->area = explode(",",$favUser->meta_()->area);
-            }
-            $fav[$k]['city'] = (!empty($favUser->city))?$favUser->city[0]:'';
-            $fav[$k]['area'] = (!empty($favUser->area))?$favUser->area[0]:'';
-            $fav[$k]['vip'] = $favUser->isVip();
         }
         return $fav;
     }
