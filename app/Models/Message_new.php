@@ -516,47 +516,47 @@ class Message_new extends Model
             }
             if(isset($user->id) && isset($msgUser->id)){
                 $latestMessage = \App\Models\Message::latestMessage($user->id, $msgUser->id);
+                if(!empty($latestMessage)){
+                    if(\App\Models\Message::isAdminMessage($latestMessage->content)){
+                        $messages[$key]['isAdminMessage'] = 1;
+                    }
+                    else{
+                        $messages[$key]['isAdminMessage'] = 0;
+                    }
+                    if(\App\Models\Reported::cntr($msgUser->id) >= $block_people ){
+                        $messages[$key]['cntr'] = 1;
+                    }
+                    else{
+                        $messages[$key]['cntr'] = 0;
+                    }
+                    if(isset($latestMessage->isPreferred)){
+                        $message['isPreferred'] = 1;
+                        $message['button'] = $latestMessage->button;
+                    }
+                }
+                $messages[$key]['user_id'] = $msgUser->id;
+                if(isset($latestMessage)){
+                    $messages[$key]['read'] = $latestMessage->read;
+                    $messages[$key]['created_at'] = $latestMessage['created_at']->toDateTimeString();
+                }
+                else{
+                    $messages[$key]['read'] = '';
+                    $messages[$key]['created_at'] = '';
+                }
+                $messages[$key]['user_name'] = $msgUser->name;
+                $messages[$key]['isAvatarHidden'] = $msgUser->meta_()->isAvatarHidden;
+                $messages[$key]['pic'] = $msgUser->meta_()->pic;
+                if($messages[$key]['pic']==null||!file_exists('.'.$messages[$key]['pic'])){
+                    $messages[$key]['pic'] = '/img/male-avatar.png';
+                }
+                $messages[$key]['content'] = $latestMessage == null ? '' : $latestMessage->content;
+
+                $messages[$key]['read_n']=(!empty($mm[$messages[$key]['from_id']]))?$mm[$messages[$key]['from_id']]:0;
             }
             else{
                 Log::info('Null object found, $user: ' . $user->id);
                 Log::info('Null object found, msgUser id: ' . $to_id . " or " . $from_id);
             }
-            if(!empty($latestMessage)){
-                if(\App\Models\Message::isAdminMessage($latestMessage->content)){
-                    $messages[$key]['isAdminMessage'] = 1;
-                }
-                else{
-                    $messages[$key]['isAdminMessage'] = 0;
-                }
-                if(\App\Models\Reported::cntr($msgUser->id) >= $block_people ){
-                    $messages[$key]['cntr'] = 1;
-                }
-                else{
-                    $messages[$key]['cntr'] = 0;
-                }
-                if(isset($latestMessage->isPreferred)){
-                    $message['isPreferred'] = 1;
-                    $message['button'] = $latestMessage->button;
-                }
-            }
-            $messages[$key]['user_id'] = $msgUser->id;
-            if(isset($latestMessage)){
-                $messages[$key]['read'] = $latestMessage->read;
-                $messages[$key]['created_at'] = $latestMessage['created_at']->toDateTimeString();
-            }
-            else{
-                $messages[$key]['read'] = '';
-                $messages[$key]['created_at'] = '';
-            }
-            $messages[$key]['user_name'] = $msgUser->name;
-            $messages[$key]['isAvatarHidden'] = $msgUser->meta_()->isAvatarHidden;
-            $messages[$key]['pic'] = $msgUser->meta_()->pic;
-            if($messages[$key]['pic']==null||!file_exists('.'.$messages[$key]['pic'])){
-                $messages[$key]['pic'] = '/img/male-avatar.png';
-            }
-            $messages[$key]['content'] = $latestMessage == null ? '' : $latestMessage->content;
-
-            $messages[$key]['read_n']=(!empty($mm[$messages[$key]['from_id']]))?$mm[$messages[$key]['from_id']]:0;
         }
         //$messages['date'] = self::$date;
         return $messages;

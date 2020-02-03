@@ -93,9 +93,6 @@
                         </form>
                     </div>
                 </div>
-            @else
-                發生錯誤，請將網址一併向客服回報，謝謝。
-            @endif
         </div>
     </div>
     </div>

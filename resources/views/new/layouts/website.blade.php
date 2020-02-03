@@ -59,26 +59,28 @@
             }
         }
 
-        function disableAnnounce(aid){
-            $.ajax({
-                type: 'POST',
-                url: '{{ route('announceRead') }}',
-                data: { uid: "{{ $user->id }}", aid: aid, _token: "{{ csrf_token() }}"},
-                success: function(xhr, status, error){
-                    console.log(xhr);
-                    console.log(error);
-                },
-                error: function(xhr, status, error){
-                    console.log(xhr);
-                    console.log(status);
-                    console.log(error);
-                }
-            });
-        }
+        @if(isset($user))
+            function disableAnnounce(aid){
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ route('announceRead') }}',
+                    data: { uid: "{{ $user->id }}", aid: aid, _token: "{{ csrf_token() }}"},
+                    success: function(xhr, status, error){
+                        console.log(xhr);
+                        console.log(error);
+                    },
+                    error: function(xhr, status, error){
+                        console.log(xhr);
+                        console.log(status);
+                        console.log(error);
+                    }
+                });
+            }
+        @endif
         $(document).ready(function() {
-            @if(count($announcement)>0)
-            $('.announce_bg').show();
-            $(".gg_tab").show();
+            @if(isset($announcement) && count($announcement) > 0)
+                $('.announce_bg').show();
+                $(".gg_tab").show();
             @endif
             $('.owl-carousel').owlCarousel({
                 loop: false,
