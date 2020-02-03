@@ -232,7 +232,7 @@
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->cup))
+                                    @if(!empty($to->meta_()->cup) && $to->meta_()->isHideCup == '0')
                                     <dt>
                                         <span>CUP</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->cup}}" disabled="disabled"></span>
@@ -249,7 +249,7 @@
                                     @if(!empty($to->meta_()->style))
                                     <dt>
                                         <span>期待的約會模式</span>
-                                        <span><div class="select_xx03" >{{$to->meta_()->style}}"</div></span>
+                                        <span><div class="select_xx03" >{{$to->meta_()->style}}</div></span>
                                     </dt>
                                     @endif
 
@@ -317,18 +317,18 @@
                             <div class="ztitle"><span>進階資料</span>Advanced materials</div>
                             <div class="xiliao_input">
                                 <div class="xl_text">
-                                    <dt><span>帳號建立時間</span><font>{{$to->created_at}}</font></dt>
-                                    <dt><span>登入時間</span><font>{{$to->last_login}}</font></dt>
+                                    <dt><span>帳號建立時間</span>@if($user->isVip())<font>{{$to->created_at}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    <dt><span>登入時間</span>@if($user->isVip())<font>{{$to->last_login}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>被收藏次數</span>@if($user->isVip()) <font>{{$be_fav_count}}</font> @else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>收藏會員次數</span><font>{{$fav_count}}</font></dt>
-                                    <dt><span>車馬費邀請次數</span><font>{{$tip_count}}</font></dt>
-                                    <dt><span>發信次數</span><font>{{$message_count}}</font></dt>
-                                    <dt><span>過去7天發信次數</span><font>{{$message_count_7}}</font></dt>
-                                    <dt><span>是否封鎖我</span><font>{{$is_block_mid}}</font></dt>
-                                    <dt><span>是否看過我</span><font>{{$is_visit_mid}}</font></dt>
-                                    <dt><span>瀏覽其他會員次數</span><font>{{$visit_other_count}}</font></dt>
-                                    <dt><span>被瀏覽次數</span><font>{{$be_visit_other_count}}</font></dt>
-                                    <dt><span>過去7天被瀏覽次數</span><font>{{$be_visit_other_count_7}}</font></dt>
+                                    <dt><span>收藏會員次數</span>@if($user->isVip())<font>{{$fav_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    <dt><span>車馬費邀請次數</span>@if($user->isVip())<font>{{$tip_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    <dt><span>發信次數</span>@if($user->isVip())<font>{{$message_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    <dt><span>過去7天發信次數</span>@if($user->isVip())<font>{{$message_count_7}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    <dt><span>是否封鎖我</span>@if($user->isVip())<font>{{$is_block_mid}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    <dt><span>是否看過我</span>@if($user->isVip())<font>{{$is_visit_mid}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    <dt><span>瀏覽其他會員次數</span>@if($user->isVip())<font>{{$visit_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    <dt><span>被瀏覽次數</span>@if($user->isVip())<font>{{$be_visit_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    <dt><span>過去7天被瀏覽次數</span>@if($user->isVip())<font>{{$be_visit_other_count_7}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                 </div>
                             </div>
                         </div>
@@ -354,7 +354,7 @@
             </form>
 
         </div>
-        <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+        <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
 
     <div class="bl bl_tab" id="show_banned">
@@ -370,7 +370,7 @@
                 </div>
             </form>
         </div>
-        <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+        <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
 
     <div class="bl bl_tab" id="show_reportPic">
@@ -389,7 +389,7 @@
                 </div>
             </form>
         </div>
-        <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+        <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
 
 @stop
@@ -523,12 +523,14 @@
 </script>
 <script>
     function show_chat() {
-        $(".blbg").show();
+        //$(".blbg").show();
+        $(".announce_bg").show();
         $("#show_chat").show();
     }
 
     function show_banned() {
-        $(".blbg").show();
+        //$(".blbg").show();
+        $(".announce_bg").show();
         $("#show_banned").show();
     }
 
@@ -546,8 +548,11 @@
             sid: '{{$to->id}}',
             _token: '{{ csrf_token() }}'
         }, function (data) {
-            $("#tab_block").hide();
-            c2('封鎖成功');
+            if(data.save=='ok') {
+                $("#tab_block").hide();
+                $(".blbg").hide();
+                c2('封鎖成功');
+            }
         });
     });
 

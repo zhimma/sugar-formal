@@ -19,7 +19,7 @@
                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                         <input type="hidden" name="userId" value="{{ $user->id }}">
                         <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">
-                        <button type="submit" class="paypay">
+                        <button type="button" class="paypay" onclick="checkPay()">
 {{--                            <i class="m-nav__link-icon flaticon-profile"></i>--}}
 {{--                            <span class="m-nav__link-text">車馬費邀請(管道一)</span>--}}
                             <img src="/new/images/xq_03.png" class="xrgimg">
@@ -30,72 +30,87 @@
                 <div class="message">
 
 
-                    @php
-                        $date_temp='';
-                    @endphp
-                    @if(!empty($messages))
-                        @foreach ($messages as $message)
-                            @php
-                                $msgUser = \App\Models\User::findById($message->from_id);
-                                \App\Models\Message::read($message, $user->id);
-                            @endphp
+                    <div class="message">
+                        @php
+                            $date_temp='';
+                        @endphp
+                        @if(!empty($messages))
+                            @foreach ($messages as $message)
+                                @php
+                                    $msgUser = \App\Models\User::findById($message->from_id);
+                                    \App\Models\Message::read($message, $user->id);
+                                @endphp
 
-                            @if($date_temp != substr($message['created_at'],0,10)) <div class="sebg matopj10">{{substr($message['created_at'],0,10)}}</div>@endif
-                            <div class="@if($message['from_id'] == $user->id) show @else send @endif">
-                                <div class="msg @if($message['from_id'] == $user->id) msg1 @endif">
-                                    @if($message['from_id'] == $user->id)
-                                        <img src="{{$user->meta_()->pic}}">
-                                    @else
-                                        <a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">
-                                            <img src="{{$msgUser->meta_()->pic}}">
-                                        </a>
-                                    @endif
-                                    <p>
-                                        <i class="msg_input"></i>{!! nl2br($message['content']) !!}
-                                        <a class="delete-btn" data-id="{{ $message['id'] }}" data-ct_time="{{ $message['created_at'] }}" data-content="{{ $message['content'] }}" href="javascript:void(0);"><img src="/new/images/del.png" @if($message['from_id'] == $user->id) class="shde2" @else class="shdel" @endif></a>
-                                        <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
-                                            <span>{{ substr($message['created_at'],11,5) }}</span>
-                                            @if(!$isVip && $message['from_id'] == $user->id)
-                                                <span>已讀/未讀</span>
-                                                <img src="/new/images/icon_35.png">
-                                            @else
-                                            <span>@if($message['read'] == "Y" && $message['from_id'] == $user->id) 已讀 @elseif($message['read'] == "N" && $message['from_id'] == $user->id) 未讀 @endif</span>
-                                            @endif
+                                @if($date_temp != substr($message['created_at'],0,10)) <div class="sebg matopj10">{{substr($message['created_at'],0,10)}}</div>@endif
+                                <div class="@if($message['from_id'] == $user->id) show @else send @endif">
+                                    <div class="msg @if($message['from_id'] == $user->id) msg1 @endif">
+                                        @if($message['from_id'] == $user->id)
+                                            <img src="{{$user->meta_()->pic}}">
+                                        @else
+                                            <a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">
+                                                <img src="{{$msgUser->meta_()->pic}}">
+                                            </a>
+                                        @endif
+                                        <p>
+                                            <i class="msg_input"></i>{!! nl2br($message['content']) !!}
+                                            <a class="delete-btn" data-id="{{ $message['id'] }}" data-ct_time="{{ $message['created_at'] }}" data-content="{{ $message['content'] }}" href="javascript:void(0);"><img src="/new/images/del.png" @if($message['from_id'] == $user->id) class="shde2" @else class="shdel" @endif></a>
+                                            <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
+                                                <span>{{ substr($message['created_at'],11,5) }}</span>
+                                                @if(!$isVip && $message['from_id'] == $user->id)
+                                                    <span>已讀/未讀</span>
+                                                    <img src="/new/images/icon_35.png">
+                                                @else
+                                                <span>@if($message['read'] == "Y" && $message['from_id'] == $user->id) 已讀 @elseif($message['read'] == "N" && $message['from_id'] == $user->id) 未讀 @endif</span>
+                                                @endif
 
 
-                                        </font>
-                                    </p>
+                                            </font>
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
-                            @php
-                                $date_temp = substr($message['created_at'],0,10);
-                            @endphp
-                        @endforeach
+                                @php
+                                    $date_temp = substr($message['created_at'],0,10);
+                                @endphp
+                            @endforeach
+                        @endif
+                    </div>
+                    @if(!empty($messages) && count($messages)>10)
+                        <div class="fenye" style="text-align: center;">
+        {{--                    {!! $messages->appends(request()->input())->links() !!}--}}
+                            <a id="prePage" href="{{ $messages->previousPageUrl() }}">上一頁</a>
+                            <a id="nextPage" href="{{ $messages->nextPageUrl() }}">下一頁</a>
+                        </div>
                     @endif
-            </div>
-                @if(!empty($messages) && count($messages)>10)
-                <div class="fenye" style="text-align: center;">
-{{--                    {!! $messages->appends(request()->input())->links() !!}--}}
-                    <a id="prePage" href="{{ $messages->previousPageUrl() }}">上一頁</a>
-                    <a id="nextPage" href="{{ $messages->nextPageUrl() }}">下一頁</a>
-                </div>
-                @endif
-                <div class="se_text_bot">
-                    <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/chat2" id="chatForm">
-                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-                        <input type="hidden" name="userId" value="{{$user->id}}">
-                        <input type="hidden" name="to" value="{{$to->id}}">
-                        <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
-                        <textarea name="msg" cols="" rows="" class="se_text msg" id="msg" placeholder="請輸入" required></textarea>
-{{--                        <a href="javascript:document.getElementById('chatForm').submit();" id="msgsnd" class="se_tbut matop20 msgsnd">回復</a>--}}
-                        <input type="submit" id="msgsnd" class="se_tbut matop20 msgsnd" value="回復">
-                    </form>
-
+                    <div class="se_text_bot">
+                        <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/chat2" id="chatForm">
+                            <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                            <input type="hidden" name="userId" value="{{$user->id}}">
+                            <input type="hidden" name="to" value="{{$to->id}}">
+                            <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
+                            <textarea name="msg" cols="" rows="" class="se_text msg" id="msg" placeholder="請輸入" required></textarea>
+    {{--                        <a href="javascript:document.getElementById('chatForm').submit();" id="msgsnd" class="se_tbut matop20 msgsnd">回復</a>--}}
+                            <input type="submit" id="msgsnd" class="se_tbut matop20 msgsnd" value="回復">
+                        </form>
+                    </div>
                 </div>
         </div>
     </div>
     </div>
-
+    <div class="bl bl_tab" id="tab_payAlert">
+        <div class="bltitle"><span>車馬費說明</span></div>
+        <div class="n_blnr01 matop20">
+            <div class="n_fengs"><span>這筆費用是用來向女方表達見面的誠意<br></span></div>
+            <div class="n_fengs"><span><br>●若約見順利<br>站方在扣除 288 手續費，交付 1500 與女方。<br></span></div>
+            <div class="n_fengs"><span><br>●若有爭議(例如放鴿子)<br>站方將依女方提供的證明資料，決定是否交付款項與女方。<br></span></div>
+            <div class="n_fengs"><span><br>●爭議處理<br>若女方提出證明文件，則交付款項予女方。<br>若女方於於約見日五日內未提出相關證明文件。<br>將扣除手續費後匯回男方指定帳戶。<br></span></div>
+            <div class="n_fengs"><span><br>注意：此費用一經匯出，即全權交由本站裁決處置。<br>本人絕無異議，若不同意請按取消鍵返回。</span></div>
+            <div class="n_bbutton">
+                <span><a class="n_left" href="javascript:">確認</a></span>
+                <span><a onclick="$('.blbg').click();" class="n_right" href="javascript:">取消</a></span>
+            </div>
+        </div>
+        <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+    </div>
 @stop
 @section('javascript')
 <script>
@@ -142,7 +157,7 @@
                     text.data = '還有' + still + '秒才能回覆';
                 }
             },100);
-            $("<a href='{!! url('dashboard/upgrade') !!}' style='color: red;' class='tips'>成為VIP即可知道對方是否讀取信件哦！<br></a>").insertBefore('#msgsnd');
+            $("<a href='{!! url('dashboard/vip') !!}' style='color: red;' class='tips'>成為VIP即可知道對方是否讀取信件哦！<br></a>").insertBefore('#msgsnd');
         }
 
         $('#msg').keyup(function() {
@@ -256,5 +271,16 @@
             });
         });
     });
+
+    function  checkPay(){
+        $(".blbg").show();
+        $('#tab_payAlert').show();
+        $(".n_left").on('click', function() {
+           //alert(1);
+            $(".blbg").hide();
+            $('#tab_payAlert').hide();
+            $( "#ecpay" ).submit();
+        });
+    }
 </script>
 @stop

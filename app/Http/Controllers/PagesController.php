@@ -967,9 +967,9 @@ class PagesController extends Controller
                 $be_fav_count = MemberFav::where('member_fav_id', $uid)->get()->count();
 
                 /*是否封鎖我*/
-                $is_block_mid = Blocked::where('blocked_id', $user->id)->where('member_id', $uid)->count() == 1 ? '是' : '否';
+                $is_block_mid = Blocked::where('blocked_id', $user->id)->where('member_id', $uid)->count() >= 1 ? '是' : '否';
                 /*是否看過我*/
-                $is_visit_mid = Visited::where('visited_id', $user->id)->where('member_id', $uid)->count() == 1 ? '是' : '否';
+                $is_visit_mid = Visited::where('visited_id', $user->id)->where('member_id', $uid)->count() >= 1 ? '是' : '否';
 
                 /*瀏覽其他會員次數*/
                 $visit_other_count = Visited::where('member_id', $uid)->count();
@@ -1171,9 +1171,10 @@ class PagesController extends Controller
                 if($isFav>0){
                     MemberFav::remove($aid, $bid);
                 }
+                return response()->json(['save' => 'ok']);
             }
         }
-        return response()->json(['save' => 'ok']);
+        return response()->json(['save' => 'error']);
     }
 
     public function unblock(Request $request)
