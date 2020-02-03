@@ -1,4 +1,4 @@
-@extends('new.layouts.website')
+@extends('layouts.master')
 
 @section('app-content')
 <div class="container matop70">
@@ -14,14 +14,7 @@
             <div class="sjlist">
                 <ul>
 
-                </ul>
-                <!-- <p style="color:red; font-weight: bold; display: none;margin-left: 20px;" id="warning">載入中，請稍候</p> -->
-                <p style="width: 20%;margin: 0 auto;" id="warning">
-                  <img src="/new/images/Spin-1s-75px.svg">
-                </p>
-                <div class="fengsicon d-none"><img src="/new/images/fs_03.png" class="feng_img"><span>暫無收藏</span></div>
-                <div class="fenye">
-                </div>
+<?php $icc = 1; ?>
 
             </div>
         </div>
@@ -86,9 +79,48 @@
                     <div class="sjleft">
                         <div class="sjtable"><span><a href="${url}">${e.name}<i class="cicd">●</i>${e.age}</a></span></div>
                         <font>${e.city}  ${e.area}</font>
+<div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text">
+                                    收藏會員
+                                </h3>
+                            </div>
+                        </div>
                     </div>
-                    <div class="sjright">
-                        <h4 class="fengs"><a href="javascript:" class="remove" data-id="${e.member_fav_id}"><img src="/new/images/ncion_07.png">移除</a></h4>
+                    <div class="m-portlet__body">
+                        <div class="m-widget3">
+                            <?php $visitors = \App\Models\MemberFav::findBySelf($user->id) ?>
+                            @foreach ($visitors as $visitor)
+                                <?php $favUser = \App\Models\User::findById($visitor->member_fav_id) ?>
+                            <div class="m-widget3__item" @if ($icc == 1) <?php echo 'style="border-bottom: none !important; background-color: rgba(244, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7); padding: 16px 32px; 0px 32px"'; $icc = 0?>@else <?php $icc = 1; echo'style="border-bottom: none !important; padding: 14px 28px 0px 28px;"'; ?> @endif>
+                                <div class="m-widget3__header">
+                                    <div class="m-widget3__user-img">
+                                        <a href="/user/view/{{$favUser->id}}"><img class="m-widget3__img" src="@if($favUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{ $favUser->meta_()->pic }} @endif" onerror="this.src='/img/male-avatar.png'" alt=""></a>
+                                    </div>
+                                    <div class="m-widget3__info">
+                                        <span class="m-widget3__username">
+                                        {{ $favUser->name }} @if ($favUser->isVip()) (VIP) @endif
+                                        </span><br>
+                                        <span class="m-widget3__time">
+                                        {{ $visitor->created_at }}
+                                        </span>
+                                        <form action="{{ route('fav/remove') }}" method="POST">
+                                            <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                            <input type="hidden" name="userId" value="{{$user->id}}">
+                                            <input type="hidden" name="favUserId" value="{{$favUser->id}}">
+                                            <button type="submit" class="btn btn-danger">
+                                                移除
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="m-widget3__body">
+                                </div>
+                            </div>
+
+                            @endforeach
+                        </div>
                     </div>
                 </div>
             </li>
