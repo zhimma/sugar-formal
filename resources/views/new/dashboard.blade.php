@@ -225,6 +225,12 @@
                           </option>
                         </select>
                       </span>
+                      <div class="n_xqline">
+                          <div class="right" style="margin-bottom: 10px;">
+                              <input type="hidden" name="isHideCup" value="0">
+                              <input name="isHideCup" type="checkbox" @if($umeta->isHideCup == true) checked @endif value="1"> 隱藏CUP
+                          </div>
+                      </div>
                   </dt>
                   @endif
                   <dt>

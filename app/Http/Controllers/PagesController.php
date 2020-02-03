@@ -425,6 +425,13 @@ class PagesController extends Controller
     {
         $user = $request->user();
         return view('new/feature')->with('user', $user);
+    }    
+
+    //網站使用heary
+    public function feature_heary(Request $request)
+    {
+        $user = $request->user();
+        return view('heary/feature')->with('user', $user);
     }
 
     //使用條款
@@ -959,9 +966,9 @@ class PagesController extends Controller
                 $be_fav_count = MemberFav::where('member_fav_id', $uid)->get()->count();
 
                 /*是否封鎖我*/
-                $is_block_mid = Blocked::where('blocked_id', $user->id)->where('member_id', $uid)->count() == 1 ? '是' : '否';
+                $is_block_mid = Blocked::where('blocked_id', $user->id)->where('member_id', $uid)->count() >= 1 ? '是' : '否';
                 /*是否看過我*/
-                $is_visit_mid = Visited::where('visited_id', $user->id)->where('member_id', $uid)->count() == 1 ? '是' : '否';
+                $is_visit_mid = Visited::where('visited_id', $user->id)->where('member_id', $uid)->count() >= 1 ? '是' : '否';
 
                 /*瀏覽其他會員次數*/
                 $visit_other_count = Visited::where('member_id', $uid)->count();
@@ -1147,9 +1154,10 @@ class PagesController extends Controller
                 if($isFav>0){
                     MemberFav::remove($aid, $bid);
                 }
+                return response()->json(['save' => 'ok']);
             }
         }
-        return response()->json(['save' => 'ok']);
+        return response()->json(['save' => 'error']);
     }
 
     public function unblock(Request $request)
@@ -1250,6 +1258,18 @@ class PagesController extends Controller
         //$favUser = \App\Models\User::findById($visitor->member_fav_id);
         if ($user) {
             return view('new.dashboard.fav')
+            ->with('user', $user);
+        }
+    }    
+
+    public function fav_heary(Request $request)
+    {
+        $user = $request->user();
+        //$visitors = \App\Models\MemberFav::findBySelf($user->id);
+        //dd($visitors);
+        //$favUser = \App\Models\User::findById($visitor->member_fav_id);
+        if ($user) {
+            return view('heary.dashboard.fav')
             ->with('user', $user);
         }
     }

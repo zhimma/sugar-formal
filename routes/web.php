@@ -156,7 +156,9 @@ Route::get('/passwd', 'passwd@passwd');
 Route::get('/', 'PagesController@home');
 Route::get('/privacy', 'PagesController@privacy');
 Route::get('/notification', 'PagesController@notification');
-Route::get('/feature', 'PagesController@feature');
+//樣板切換為heary
+// Route::get('/feature', 'PagesController@feature');
+Route::get('/feature', 'PagesController@feature_heary');
 Route::get('/about', 'PagesController@about');
 Route::get('/dashboard/browse', 'PagesController@browse');
 Route::get('/terms', 'PagesController@terms');
@@ -186,7 +188,9 @@ Route::post('/password/reset', 'Auth\ResetPasswordController@reset');
 |--------------------------------------------------------------------------
 */
 Route::get('/checkAdult', 'Auth\RegisterController@checkAdult');
-Route::get('/register', 'Auth\RegisterController@showRegistrationForm2')->name('register');
+//樣板切換為heary
+// Route::get('/register', 'Auth\RegisterController@showRegistrationForm2')->name('register');
+Route::get('/register', 'Auth\RegisterController@showRegistrationForm_heary')->name('register');
 Route::get('/register2', 'Auth\RegisterController@showRegistrationForm')->name('register2');
 Route::post('/register', 'Auth\RegisterController@register');
 
@@ -328,7 +332,9 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('/dashboard/board', 'PagesController@postBoard');
         Route::get('/dashboard/history', 'PagesController@history');
         Route::get('/dashboard/block', 'PagesController@block');
-        Route::get('/dashboard/fav', 'PagesController@fav');
+        //樣板切換為heary
+        Route::get('/dashboard/fav', 'PagesController@fav_heary');
+        // Route::get('/dashboard/fav', 'PagesController@fav');
         Route::get('/dashboard/fav2', 'PagesController@fav2');
     });
 
@@ -425,12 +431,16 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('users/message/delete', 'UserController@deleteMessage')->name('users/message/delete');
         Route::post('users/message/edit', 'UserController@editMessage')->name('users/message/edit');
         Route::get('users/pics/reported', 'UserController@showReportedPicsPage')->name('users/pics/reported');
+        //補上檢舉照片時間的GET
+        Route::get('users/pics/reported/{date_start?}/{date_end?}', 'UserController@searchReportedPics')->name('users/pics/reported');
         Route::post('users/pics/reported', 'UserController@searchReportedPics')->name('users/pics/reported');
         Route::get('users/basic_setting', 'UserController@basicSetting')->name('users/basic_setting');
         Route::post('users/basic_setting', 'UserController@doBasicSetting')->name('users/basic_setting');
         
         Route::get('users/bannedList', 'UserController@showBannedList')->name('users/bannedList');
         Route::get('users/reported', 'UserController@showReportedUsersPage')->name('users/reported');
+        //補上檢舉會員時間的GET
+        Route::get('users/reported/{date_start?}/{date_end?}', 'UserController@showReportedUsersList')->name('users/reported');
         Route::post('users/reported', 'UserController@showReportedUsersList')->name('users/reported');
         Route::post('users/reported/details/{reported_id}/{users?}/{reportedData?}', 'UserController@showReportedDetails')->name('users/reported/details');
         Route::get('users/switch', 'UserController@showUserSwitch')->name('users/switch');

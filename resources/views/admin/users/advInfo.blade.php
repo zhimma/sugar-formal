@@ -2,7 +2,31 @@
 
 <body style="padding: 15px;">
 <h1>
-	@if($user['vip'] )<i class="fa fa-diamond" style="font-size: 2rem;"></i>@endif{{ $user->name }}的所有資料
+	{{ $user->name }}——
+	@if($user['vip'])
+	    @if($user['vip']=='diamond_black')
+	        <img src="/img/diamond_black.png" style="height: 2.5rem;width: 2.5rem;">
+	    @else
+	        @for($z = 0; $z < $user['vip']; $z++)
+	            <img src="/img/diamond.png" style="height: 2.5rem;width: 2.5rem;">
+	        @endfor
+	    @endif
+	@endif
+	@for($i = 0; $i < $user['tipcount']; $i++)
+	    👍
+	@endfor
+	@if(!is_null($user['isBlocked']))
+	    @if(!is_null($user['isBlocked']['expire_date']))
+	        @if(round((strtotime($user['isBlocked']['expire_date']) - getdate()[0])/3600/24)>0)
+	            {{ round((strtotime($user['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天
+	        @else
+	            此會員登入後將自動解除封鎖
+	        @endif
+	    @else
+	        (永久)
+	    @endif
+	@endif
+	的所有資料
 	<a href="edit/{{ $user->id }}" class='text-white btn btn-primary'>修改</a>
 	@if($user['isBlocked'])
 		<button type="button" id="unblock_user" class='text-white btn @if($user["isBlocked"]) btn-success @else btn-danger @endif' onclick="Release({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除封鎖 </button>
@@ -155,7 +179,29 @@
 	@forelse ($userMessage as $key => $message)
 		<tr>
 			<td>
-				<a href="{{ route('admin/showMessagesBetween', [$user->id, $message->to_id]) }}" target="_blank">{{ $to_ids[$message->to_id]['name'] }}@if($to_ids[$message->to_id]['vip'] )<i class="fa fa-diamond"></i>@endif</a>
+				<a href="{{ route('admin/showMessagesBetween', [$user->id, $message->to_id]) }}" target="_blank">
+					{{ $to_ids[$message->to_id]['name'] }}
+					——
+					@if($to_ids[$message->to_id]['vip'])
+					    @if($to_ids[$message->to_id]['vip']=='diamond_black')
+					        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+					    @else
+					        @for($z = 0; $z < $to_ids[$message->to_id]['vip']; $z++)
+					            <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+					        @endfor
+					    @endif
+					@endif
+					@for($i = 0; $i < $to_ids[$message->to_id]['tipcount']; $i++)
+					    👍
+					@endfor
+					@if(!is_null($to_ids[$message->to_id]['isBlocked']))
+					    @if(!is_null($to_ids[$message->to_id]['isBlocked']['expire_date']))
+					        ({{ round((strtotime($to_ids[$message->to_id]['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+					    @else
+					        (永久)
+					    @endif
+					@endif
+				</a>
 			</td>
 			<td>{{ $message->content }}</td>
 			<td>{{ $message->created_at }}</td>

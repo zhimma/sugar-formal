@@ -23,7 +23,7 @@
                         <div class="si_bg">
                             <div class="sjpic"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><img src="{{ $blockedUser->meta_()->pic }}"></a></div>
                             <div class="sjleft">
-                                <div class="sjtable"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><span>{{$blockedUser->name}}<i class="cicd">●</i>{{ $blockedUser->meta_()->age() }}</span></a></div>
+                                <div class="sjtable"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><span>{{$blockedUser->name}}<!-- <i class="cicd">●</i>{{ $blockedUser->meta_()->age() }}--></span></a></div>
                                 <font>{{ $blockedUser->meta_()->city }} {{ $blockedUser->meta_()->area }}</font>
                             </div>
                             <div class="sjright">
