@@ -18,10 +18,11 @@
             $cc=0;
         }
     ?>
-    @if(isset($announcement) && count($announcement) > 0)
+    @if(count($announcement)>0)
         <div class="announce_bg" onclick="gmBtn1()" style="display:none;"></div>
         <div class="gg_tab" id="" style="display: none;">
             <div class="owl-carousel owl-theme">
+
                 @foreach($announcement as $key =>  $a)
                     <?php $cc = $cc+1;?>
                     <div class="item">
