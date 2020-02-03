@@ -51,7 +51,6 @@
                 <table class="table-hover table table-bordered">
                     <tr>
                         <th>被檢舉者</th>
-                        <th>曾被檢舉</th>
                         <th>回覆被檢舉者</th>
                         <th>封鎖被檢舉者</th>
                         <th>檢舉者</th>
@@ -74,19 +73,10 @@
                                     <p>
                                 @endif
                                     <a href="{{ route('users/advInfo', $result['reported_user_id']) }}" target='_blank'>
-                                        {{ $users[$result['reported_user_id']]['name'] }}——
-                                        @if($users[$result['reported_user_id']]['vip'])
-                                            @if($users[$result['reported_user_id']]['vip']=='diamond_black')
-                                                <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
-                                            @else
-                                                @for($z = 0; $z < $users[$result['reported_user_id']]['vip']; $z++)
-                                                    <img src="/img/diamond.png" style="height: 16px;width: 16px;">
-                                                @endfor
-                                            @endif
+                                        {{ $users[$result['reported_user_id']]['name'] }}
+                                        @if($users[$result['reported_user_id']]['vip'] )
+                                            <i class="m-nav__link-icon fa fa-diamond"></i>
                                         @endif
-                                        @for($i = 0; $i < $users[$result['reported_user_id']]['tipcount']; $i++)
-                                            👍
-                                        @endfor
                                         @if(!is_null($result['isBlockedReceiver']))
                                             @if(!is_null($result['isBlockedReceiver']['expire_date']))
                                                 @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
@@ -100,11 +90,6 @@
                                         @endif
                                     </a>
                                 </p>
-                            </td>
-                            <td style="white-space:nowrap;">
-                                <a target='_blank' href="/admin/users/message/search/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $users[$result['reported_user_id']]['messagesResult'] }}</a> /
-                                <a target='_blank' href="/admin/users/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $users[$result['reported_user_id']]['reportsResult'] }}</a> /
-                                <a target='_blank' href="/admin/users/pics/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $users[$result['reported_user_id']]['picsResult'] }}</a>
                             </td>
                             <td>
                                 <a class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" >撰寫</a>
@@ -123,19 +108,10 @@
                                     @else
                                         <p>
                                     @endif
-                                        {{ $users[$result['reporter_id']]['name'] }}——
-                                        @if($users[$result['reporter_id']]['vip'])
-                                            @if($users[$result['reporter_id']]['vip']=='diamond_black')
-                                                <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
-                                            @else
-                                                @for($z = 0; $z < $users[$result['reporter_id']]['vip']; $z++)
-                                                    <img src="/img/diamond.png" style="height: 16px;width: 16px;">
-                                                @endfor
-                                            @endif
+                                        {{ $users[$result['reporter_id']]['name'] }}
+                                        @if($users[$result['reporter_id']]['vip'] )
+                                            <i class="m-nav__link-icon fa fa-diamond"></i>
                                         @endif
-                                        @for($i = 0; $i < $users[$result['reporter_id']]['tipcount']; $i++)
-                                            👍
-                                        @endfor
                                         @if(!is_null($result['isBlocked']))
 					                        @if(isset($result['isBlockedReceiver']['expire_date']))
 						                        @if(!is_null($result['isBlocked']['expire_date']))
@@ -200,19 +176,10 @@
                             <td>
                                 @if(isset($result['reported_user_id']))
                                     <a href="{{ route('users/advInfo', $result['reported_user_id']) }}" target='_blank' @if($result['isBlockedReceiver']) style="color: #F00;" @endif>
-                                        {{ $Pusers[$result['reported_user_id']]['name'] }}——
-                                        @if($Pusers[$result['reported_user_id']]['vip'])
-                                            @if($Pusers[$result['reported_user_id']]['vip']=='diamond_black')
-                                                <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
-                                            @else
-                                                @for($z = 0; $z < $Pusers[$result['reported_user_id']]['vip']; $z++)
-                                                    <img src="/img/diamond.png" style="height: 16px;width: 16px;">
-                                                @endfor
-                                            @endif
+                                        {{ $Pusers[$result['reported_user_id']]['name'] }}
+                                        @if($Pusers[$result['reported_user_id']]['vip'] )
+                                            <i class="m-nav__link-icon fa fa-diamond"></i>
                                         @endif
-                                        @for($i = 0; $i < $Pusers[$result['reported_user_id']]['tipcount']; $i++)
-                                            👍
-                                        @endfor
                                         @if(!is_null($result['isBlockedReceiver']))
 					                        @if(isset($result['isBlockedReceiver']['expire_date']))
                                                 @if(!is_null($result['isBlockedReceiver']['expire_date']))
@@ -222,10 +189,10 @@
                                                         此會員登入後將自動解除封鎖
                                                     @endif
                                                 @else
-                                                    此會員登入後將自動解除封鎖
+                                                    (永久)
                                                 @endif
                                             @else
-                                                (永久)
+                                                無資料
                                             @endif
                                         @endif
                                     </a>
@@ -246,33 +213,25 @@
                             </td>
                             <td>
                                 <a href="{{ route('users/advInfo', $result['reporter_id']) }}" target='_blank' @if($result['isBlocked']) style="color: #F00;" @endif>
-                                    {{ $Pusers[$result['reporter_id']]['name'] }}——
-                                    @if($Pusers[$result['reporter_id']]['vip'])
-                                        @if($Pusers[$result['reporter_id']]['vip']=='diamond_black')
-                                            <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
-                                        @else
-                                            @for($z = 0; $z < $Pusers[$result['reporter_id']]['vip']; $z++)
-                                                <img src="/img/diamond.png" style="height: 16px;width: 16px;">
-                                            @endfor
-                                        @endif
+                                    {{ $Pusers[$result['reporter_id']]['name']}}
+
+                                    @if($Pusers[$result['reporter_id']]['vip'] )
+                                        <i class="m-nav__link-icon fa fa-diamond"></i>
                                     @endif
-                                    @for($i = 0; $i < $Pusers[$result['reporter_id']]['tipcount']; $i++)
-                                        👍
-                                    @endfor
                                     @if(!is_null($result['isBlocked']))
 					                    @if(isset($result['isBlockedReceiver']['expire_date']))
                                             @if(!is_null($result['isBlocked']['expire_date']))
-                                                @if(round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24)>0)
-                                                    {{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天
+                                                @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
+                                                    {{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天
                                                 @else
                                                     此會員登入後將自動解除封鎖
                                                 @endif
                                             @else
-                                                此會員登入後將自動解除封鎖
+                                                (永久)
                                             @endif
-                                        @else
-                                            (永久)
-                                        @endif
+				                        @else
+					                        無資料
+					                    @endif
                                     @endif
                                 </a>
                             </td>

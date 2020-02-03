@@ -425,13 +425,6 @@ class PagesController extends Controller
     {
         $user = $request->user();
         return view('new/feature')->with('user', $user);
-    }    
-
-    //網站使用heary
-    public function feature_heary(Request $request)
-    {
-        $user = $request->user();
-        return view('heary/feature')->with('user', $user);
     }
 
     //使用條款
@@ -1258,18 +1251,6 @@ class PagesController extends Controller
         //$favUser = \App\Models\User::findById($visitor->member_fav_id);
         if ($user) {
             return view('new.dashboard.fav')
-            ->with('user', $user);
-        }
-    }    
-
-    public function fav_heary(Request $request)
-    {
-        $user = $request->user();
-        //$visitors = \App\Models\MemberFav::findBySelf($user->id);
-        //dd($visitors);
-        //$favUser = \App\Models\User::findById($visitor->member_fav_id);
-        if ($user) {
-            return view('heary.dashboard.fav')
             ->with('user', $user);
         }
     }

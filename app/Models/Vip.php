@@ -161,37 +161,4 @@ class Vip extends Model
             ->update(array('active' => 0, 'expiry' => null));
         return $user;
     }
-
-    public static function vip_diamond($id){
-        //黑鑽 曾經是 vip現在不是 & 現在是 vip 但已經選擇取消不續約
-        $vip_black = Vip::where('member_id', $id)->where(function($query)
-            {$query->where('active', 0)->orwhere('expiry', '!=' , '0000-00-00 00:00:00');}
-            )->orderBy('created_at', 'desc')->get()->first() !== null;
-
-        if($vip_black)return 'diamond_black';
-        
-        //現在是VIP且無取消續約的
-        $vip_ing = Vip::where('member_id', $id)
-            ->where('active', 1)
-            ->where('expiry','0000-00-00 00:00:00')
-            ->orderBy('created_at', 'desc')
-            ->get()->first() != null ? true : false;
-        //連續續約月數轉換鑽石數
-        if($vip_ing){
-            $now = \Carbon\Carbon::now();
-            $vip_date = Vip::select('id', 'created_at')->where('member_id', $id)->orderBy('created_at', 'desc')->get()->first();
-            $vip_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $vip_date->created_at);
-            $vip_mon = $vip_date->diffInMonths($now);
-            if($vip_mon<2){
-                $vip_diamond = 1;
-            }elseif(in_array($vip_mon,array(2,3,4))){
-                $vip_diamond = 2;
-            }elseif($vip_mon>=5){
-                $vip_diamond = 3;
-            }
-            return $vip_diamond;
-        }
-        return null;
-    }
-
 }
