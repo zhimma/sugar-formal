@@ -1,5 +1,7 @@
 @extends('new.layouts.website')
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/2.1.0/fingerprint2.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/0.7.20/ua-parser.js"></script>
+<script src="{{ url('/new/js/fingerprint.js') }}"></script>
 @section('app-content')
 
 	<div class="container logtop">
@@ -18,7 +20,7 @@
                         <div class="m-loader m-loader--right m-loader--light">
                             <div class="de_input01 dlmarbot ">
                                 <div class="de_img"><img src="/new/images/lo_03.png"></div>
-                                <input name="email" type="email" autocomplete="off" class="d_input" placeholder="帳號 (您的Email)" values="{{ old('email') }}" required>
+                                <input name="email" type="email" autocomplete="off" id="email" class="d_input" placeholder="帳號 (您的Email)" values="{{ old('email') }}" required>
                             </div>
                         </div>
                         <div class="de_input01 dlmarbot m-loader m-loader--right m-loader--light">
@@ -26,7 +28,7 @@
                             <input name="password" type="password"  class="d_input" placeholder="密碼" required >
                         </div>
                         <a href="{!! url('password/reset') !!}" class="dlpassword">忘記密碼 ?</a>
-                        <a href="javascript:void(0);" onclick="" class="dlbut btn-login">登入</a>
+                        <a href="javascript:void(0);" onclick="backendProcess()" class="dlbut btn-login">登入</a>
                         <a href="{!! url('/checkAdult') !!}" class="dlbut02">還沒有帳號 ?  免費註冊</a>
                    </div>
                 </form>
@@ -34,6 +36,25 @@
         </div>
     </div>
     <script>
+        var backendProcess = function(){
+            let email =  document.getElementById('email').value;
+            if(email != null || email != ""){
+                if (window.requestIdleCallback) {
+                    requestIdleCallback(function () {
+                        identifyResult('{{ csrf_token() }}', $('#email').val(), function(result){
+                            console.log(result)
+                        })
+                    })
+                }
+                else {
+                    setTimeout(function () {
+                        identifyResult('{{ csrf_token() }}', $('#email').val(), function(result){
+                            console.log(result)
+                        })
+                    }, 500)
+                }
+            }
+        }
 
         $(document).ready(function() {
             $("form[name=login]").parsley().on('form:validate', function (formInstance) {
