@@ -369,6 +369,7 @@ class PagesController extends Controller
             $fingerprintValue = Hash::make($fingerprintValue.$request->ip());
             $data = [
                 'user_id' => isset($user) ? $user->id : null,
+                'ip' => request()->ip(),
                 'fingerprintValue'=>$fingerprintValue,
                 'browser_name'=>$request->browser_name,
                 'browser_version'=>$request->browser_version,

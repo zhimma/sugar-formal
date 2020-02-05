@@ -82,7 +82,6 @@ let analysisFingerpirnt = function(handle){
 	})
 }
 
-jQuery.noConflict();
 let identifyResult = function(token, str, handle){
 	analysisFingerpirnt(function(data){
 		data['email'] = str
