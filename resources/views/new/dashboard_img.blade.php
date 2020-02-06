@@ -110,7 +110,7 @@
   </div>
   
   <script src="/plugins/hopscotch/js/hopscotch.min.js"></script>
-  <script src="/plugins/fileuploader2.2/dist/jquery.fileuploader.min.js"></script>
+  <script src="/plugins/fileuploader2.2/src/jquery.fileuploader.js"></script>
   <script src="/new/js/fileuploader-ajax-image.js"></script>
   <script type="text/javascript">
 
@@ -301,6 +301,7 @@
               $(".delpicBtn").on('click', function(){
               var id = $(this).parents('.write_img').attr('id');
                
+
               // var r=confirm("確認刪除此照片？")
                   c4('確認刪除此照片？');
               // if (r==true)
@@ -325,6 +326,7 @@
                       });
                   });
               // }
+
               
              });
              });

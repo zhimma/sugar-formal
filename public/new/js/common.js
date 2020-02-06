@@ -159,6 +159,13 @@
 		$("#tab05 .bltext").text(str);
 	}
 
+	function c6(str) {	
+		console.log(str);	
+		$(".blbg").show();	
+		$("#tab06").show();	
+		$("#tab06 .bltext").text(str);	
+   }
+
 	function show_message(str) {
 		$(".blbg").show();
 		$("#tab_message").show();

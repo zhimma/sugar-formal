@@ -778,7 +778,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .ggtext{ text-align:center}
 .gg_gb{position:absolute; top:9px; right:5px;}
 .gg_gb img{width:30px;}
-.ggnr01{width:90%; margin:0 auto; display:table; padding:20px 0 20px 0;color:#666666}
+.ggnr01{width:80%; margin-left:11%; margin-right:11%; display:inline-block; padding:20px 0 20px 0;color:#666666}
 .gg_nr{ line-height:25px; display:table}
 
 
@@ -802,6 +802,8 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 .gg_pager{width:30px; height:30px; position:absolute; right:0px; top:35px}
 .gg_pager img{width:30px; height:30px;}
+
+
 
 
 .gtab{width:80%;position: fixed;left:10%;top:40%;z-index: 10;display:none;}
@@ -1356,6 +1358,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
     position: relative;
 }
 
+
 .paypay{
     background: none;
     border: none;
@@ -1383,6 +1386,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
     }
 }
 
+
 .delpicBtn{
     display:none;
     width: 30px;
@@ -1391,9 +1395,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
     top: 3px;
     right: 0;
     z-index: 3;
+
 }
-
-
-
 
 

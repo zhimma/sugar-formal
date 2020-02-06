@@ -128,8 +128,8 @@ Route::get('/sftp-check-test', function(){
         return "Local file not found, check process didn't initiate.";
     }
 });
-Route::get('/fingerprint', 'PagesController@fingerprint');
-Route::post('/saveFingerprint', 'PagesController@saveFingerprint')->name('saveFingerprint');
+// Route::get('/fingerprint', 'PagesController@fingerprint');
+// Route::post('/saveFingerprint', 'PagesController@saveFingerprint')->name('saveFingerprint');
 
 /*
 |--------------------------------------------------------------------------
@@ -214,6 +214,10 @@ Route::group(['middleware' => ['auth']], function () {
 */
 
 Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], function () {
+
+
+    Route::get('Fingerprint', 'Fingerprint@index');
+    Route::post('Fingerprint/addFingerprint', 'Fingerprint@addFingerprint');
 
     /*
     |--------------------------------------------------------------------------
