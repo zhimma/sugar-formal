@@ -74,7 +74,7 @@
                                     <p>
                                 @endif
                                     {{ $users[$result['reported_id']]['name'] }}
-                                    @if($users[$result['reported_id']]['vip'] OR $users[$result['reported_id']]['tipcount']>0)
+                                    @if($users[$result['reported_id']]['vip'] OR (isset($users[$result['reported_id']]['tipcount']) AND $users[$result['reported_id']]['tipcount'] > 0))
                                         ——
                                     @endif
                                     @if($users[$result['reported_id']]['vip'])
@@ -86,9 +86,13 @@
                                             @endfor
                                         @endif
                                     @endif
-                                    @for($i = 0; $i < $users[$result['reported_id']]['tipcount']; $i++)
-                                        👍
-                                    @endfor
+                                    @if(isset($users[$result['reported_id']]['tipcount']))
+                                        @for($i = 0; $i < $users[$result['reported_id']]['tipcount']; $i++)
+                                            👍
+                                        @endfor
+                                    @else
+                                        {{ logger('reportedUsers, line 80 tipcount does not exists, user id: ' . $result['reported_id']) }}
+                                    @endif
                                     @if(!is_null($result['isBlockedReceiver']))
                                         @if(!is_null($result['isBlockedReceiver']['expire_date']))
                                             @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
@@ -103,11 +107,18 @@
                                 </p>
                             </a> 
                         </td>
-                        <td style="white-space:nowrap;font-size:17px;">
-                            <a target='_blank' href="/admin/users/message/search/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $users[$result['reported_id']]['messagesResult'] }}</a> /
-                            <a target='_blank' href="/admin/users/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $users[$result['reported_id']]['reportsResult'] }}</a> /
-                            <a target='_blank' href="/admin/users/pics/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $users[$result['reported_id']]['picsResult'] }}</a>
-                        </td>
+                        @if(isset($users[$result['reported_id']]['messagesResult']))
+                            <td style="white-space:nowrap;font-size:17px;">
+                                <a target='_blank' href="/admin/users/message/search/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $users[$result['reported_id']]['messagesResult'] }}</a> /
+                                <a target='_blank' href="/admin/users/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $users[$result['reported_id']]['reportsResult'] }}</a> /
+                                <a target='_blank' href="/admin/users/pics/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $users[$result['reported_id']]['picsResult'] }}</a>
+                            </td>
+                        @else
+                            <td rowspan="1" style="white-space:nowrap;font-size:17px;">
+                                無資料
+                            </td>
+                            {{ logger('reportedUsers, line 110 messagesResult does not exists, user id: ' . $result['reported_id']) }}
+                        @endif
                         <td>
                             <a href="{{ route('AdminMessengerWithReportedId', [$result->member_id, $result->reported_id, $result->id, 0, 'reported']) }}" target="_blank" class='btn btn-dark'>撰寫</a>
                         </td>
@@ -123,7 +134,7 @@
                                     <p>
                                 @endif
                                     {{ $users[$result['member_id']]['name'] }}
-                                    @if($users[$result['member_id']]['vip'] OR $users[$result['member_id']]['tipcount']>0)
+                                    @if($users[$result['member_id']]['vip'] OR (isset($users[$result['member_id']]['tipcount']) AND $users[$result['member_id']]['tipcount'] > 0))
                                         ——
                                     @endif
                                     @if($users[$result['member_id']]['vip'])
@@ -135,9 +146,13 @@
                                             @endfor
                                         @endif
                                     @endif
-                                    @for($i = 0; $i < $users[$result['member_id']]['tipcount']; $i++)
-                                        👍
-                                    @endfor
+                                    @if(isset($users[$result['member_id']]['tipcount']))
+                                        @for($i = 0; $i < $users[$result['member_id']]['tipcount']; $i++)
+                                            👍
+                                        @endfor
+                                    @else
+                                        {{ logger('reportedUsers, line 137 tipcount does not exists, user id: ' . $result['member_id']) }}
+                                    @endif
                                     @if(!is_null($result['isBlocked']))
                                         @if(!is_null($result['isBlocked']['expire_date']))
                                             @if(isset($result['isBlockedReceiver']['expire_date']))

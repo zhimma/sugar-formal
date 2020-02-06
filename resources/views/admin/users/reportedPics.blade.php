@@ -75,7 +75,7 @@
                                     <p>
                                 @endif
                                         {{ $users[$result['reported_user_id']]['name'] }}
-                                        @if($users[$result['reported_user_id']]['vip'] OR $users[$result['reported_user_id']]['tipcount']>0)
+                                        @if($users[$result['reported_user_id']]['vip'] OR (isset($users[$result['reported_user_id']]['tipcount']) AND $users[$result['reported_user_id']]['tipcount'] > 0))
                                             ——
                                         @endif
                                         @if($users[$result['reported_user_id']]['vip'])
@@ -87,9 +87,13 @@
                                                 @endfor
                                             @endif
                                         @endif
-                                        @for($i = 0; $i < $users[$result['reported_user_id']]['tipcount']; $i++)
-                                            👍
-                                        @endfor
+                                        @if(isset($users[$result['reported_user_id']]['tipcount']))
+                                            @for($i = 0; $i < $users[$result['reported_user_id']]['tipcount']; $i++)
+                                                👍
+                                            @endfor
+                                        @else
+                                            {{ logger('reportedPics, line 78 tipcount does not exists.') }}
+                                        @endif
                                         @if(!is_null($result['isBlockedReceiver']))
                                             @if(!is_null($result['isBlockedReceiver']['expire_date']))
                                                 @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
@@ -127,7 +131,7 @@
                                         <p>
                                     @endif
                                         {{ $users[$result['reporter_id']]['name'] }}
-                                        @if($users[$result['reporter_id']]['vip'] OR $users[$result['reporter_id']]['tipcount']>0)
+                                        @if($users[$result['reporter_id']]['vip'] OR (isset($users[$result['reporter_id']]['tipcount']) AND $users[$result['reporter_id']]['tipcount'] > 0))
                                             ——
                                         @endif
                                         @if($users[$result['reporter_id']]['vip'])
@@ -139,9 +143,13 @@
                                                 @endfor
                                             @endif
                                         @endif
-                                        @for($i = 0; $i < $users[$result['reporter_id']]['tipcount']; $i++)
-                                            👍
-                                        @endfor
+                                        @if(isset($users[$result['reporter_id']]['tipcount']))
+                                            @for($i = 0; $i < $users[$result['reporter_id']]['tipcount']; $i++)
+                                                👍
+                                            @endfor
+                                        @else
+                                            {{ logger('reportedPics, line 134 tipcount does not exists, user id: ' . $result['reporter_id']) }}
+                                        @endif
                                         @if(!is_null($result['isBlocked']))
 					                        @if(isset($result['isBlockedReceiver']['expire_date']))
 						                        @if(!is_null($result['isBlocked']['expire_date']))
@@ -207,7 +215,7 @@
                                 @if(isset($result['reported_user_id']))
                                     <a href="{{ route('users/advInfo', $result['reported_user_id']) }}" target='_blank' @if($result['isBlockedReceiver']) style="color: #F00;" @endif>
                                         {{ $Pusers[$result['reported_user_id']]['name'] }}
-                                        @if($Pusers[$result['reported_user_id']]['vip'] OR $Pusers[$result['reported_user_id']]['tipcount']>0)
+                                        @if($Pusers[$result['reported_user_id']]['vip'] OR (isset($Pusers[$result['reported_user_id']]['tipcount']) AND $Pusers[$result['reported_user_id']]['tipcount'] > 0))
                                             ——
                                         @endif
                                         @if($Pusers[$result['reported_user_id']]['vip'])
@@ -219,9 +227,13 @@
                                                 @endfor
                                             @endif
                                         @endif
-                                        @for($i = 0; $i < $Pusers[$result['reported_user_id']]['tipcount']; $i++)
-                                            👍
-                                        @endfor
+                                        @if(isset($Pusers[$result['reported_user_id']]['tipcount']))
+                                            @for($i = 0; $i < $Pusers[$result['reported_user_id']]['tipcount']; $i++)
+                                                👍
+                                            @endfor
+                                        @else
+                                            {{ logger('reportedPics, line 218 tipcount does not exists.') }}
+                                        @endif
                                         @if(!is_null($result['isBlockedReceiver']))
 					                        @if(isset($result['isBlockedReceiver']['expire_date']))
                                                 @if(!is_null($result['isBlockedReceiver']['expire_date']))
@@ -256,7 +268,7 @@
                             <td>
                                 <a href="{{ route('users/advInfo', $result['reporter_id']) }}" target='_blank' @if($result['isBlocked']) style="color: #F00;" @endif>
                                     {{ $Pusers[$result['reporter_id']]['name'] }}
-                                    @if($Pusers[$result['reporter_id']]['vip'] OR $Pusers[$result['reporter_id']]['tipcount']>0)
+                                    @if($Pusers[$result['reporter_id']]['vip'] OR (isset($Pusers[$result['reporter_id']]['tipcount']) AND $Pusers[$result['reporter_id']]['tipcount'] > 0))
                                         ——
                                     @endif
                                     @if($Pusers[$result['reporter_id']]['vip'])
@@ -268,9 +280,13 @@
                                             @endfor
                                         @endif
                                     @endif
-                                    @for($i = 0; $i < $Pusers[$result['reporter_id']]['tipcount']; $i++)
-                                        👍
-                                    @endfor
+                                    @if(isset($Pusers[$result['reporter_id']]['tipcount']))
+                                        @for($i = 0; $i < $Pusers[$result['reporter_id']]['tipcount']; $i++)
+                                            👍
+                                        @endfor
+                                    @else
+                                        {{ logger('reportedPics, line 271 tipcount does not exists, user id: ' . $result['reporter_id']) }}
+                                    @endif
                                     @if(!is_null($result['isBlocked']))
 					                    @if(isset($result['isBlockedReceiver']['expire_date']))
                                             @if(!is_null($result['isBlocked']['expire_date']))

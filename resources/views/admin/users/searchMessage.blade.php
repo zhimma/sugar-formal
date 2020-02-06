@@ -109,7 +109,7 @@
                     <a href="{{ route('users/advInfo', $result['from_id']) }}" target='_blank' >
                         <p  @if($users[$result['from_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
                             {{ $users[$result['from_id']]['name'] }}
-                            @if($users[$result['from_id']]['vip'] OR $users[$result['from_id']]['tipcount']>0)
+                            @if($users[$result['from_id']]['vip'] OR (isset($users[$result['from_id']]['tipcount']) AND $users[$result['from_id']]['tipcount'] > 0))
                                 ——
                             @endif
                             @if($users[$result['from_id']]['vip'])
@@ -121,9 +121,13 @@
                                     @endfor
                                 @endif
                             @endif
-                            @for($z = 0; $z < $users[$result['from_id']]['tipcount']; $z++)
-                                👍
-                            @endfor
+                            @if(isset($users[$result['from_id']]['tipcount']))
+                                @for($z = 0; $z < $users[$result['from_id']]['tipcount']; $z++)
+                                    👍
+                                @endfor
+                            @else
+                                {{ logger('searchMessage, line 112 tipcount does not exists.') }}
+                            @endif
                             @if(!is_null($result['isBlocked']))
                                 @if(!is_null($result['isBlocked']['expire_date']))
                                     @if(round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24)>0)
@@ -138,11 +142,18 @@
                         </p>
                     </a>
                 </td>
-                <td style="white-space:nowrap;font-size:17px;">
-                    <a target='_blank' href="/admin/users/message/search/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $users[$result['from_id']]['messagesResult'] }}</a> /
-                    <a target='_blank' href="/admin/users/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $users[$result['from_id']]['reportsResult'] }}</a> /
-                    <a target='_blank' href="/admin/users/pics/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $users[$result['from_id']]['picsResult'] }}</a>
-                </td>
+                @if(isset($users[$result['from_id']]['messagesResult']))
+                    <td style="white-space:nowrap;font-size:17px;">
+                        <a target='_blank' href="/admin/users/message/search/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $users[$result['from_id']]['messagesResult'] }}</a> /
+                        <a target='_blank' href="/admin/users/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $users[$result['from_id']]['reportsResult'] }}</a> /
+                        <a target='_blank' href="/admin/users/pics/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $users[$result['from_id']]['picsResult'] }}</a>
+                    </td>
+                @else
+                    <td rowspan="1" style="white-space:nowrap;font-size:17px;">
+                        無資料
+                    </td>
+                    {{ logger('searchMessage, line 145 messagesResult does not exists, user id: ' . $result['from_id']) }}
+                @endif
                 <td>
                     <a href="{{ route('AdminMessengerWithMessageId', [$result->from_id, $result->id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
                 </td>
@@ -155,7 +166,7 @@
                     <a href="{{ route('users/advInfo', $result['to_id']) }}" target='_blank'>
                         <p @if($users[$result['to_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
                             {{ $users[$result['to_id']]['name'] }}
-                            @if($users[$result['to_id']]['vip'] OR $users[$result['to_id']]['tipcount']>0)
+                            @if($users[$result['to_id']]['vip'] OR (isset($users[$result['to_id']]['tipcount']) AND $users[$result['to_id']]['tipcount'] > 0))
                                 ——
                             @endif
                             @if($users[$result['to_id']]['vip'])
@@ -167,9 +178,13 @@
                                     @endfor
                                 @endif
                             @endif
-                            @for($z = 0; $z < $users[$result['to_id']]['tipcount']; $z++)
-                                👍
-                            @endfor
+                            @if(isset($users[$result['to_id']]['tipcount']))
+                                @for($z = 0; $z < $users[$result['to_id']]['tipcount']; $z++)
+                                    👍
+                                @endfor
+                            @else
+                                {{ logger('searchMessage, line 162 tipcount does not exists.') }}
+                            @endif
                             @if(!is_null($result['isBlockedReceiver']))
                                 @if(!is_null($result['isBlockedReceiver']['expire_date']))
                                     @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
@@ -242,7 +257,7 @@
                     <td rowspan="{{ count($sender['messages']) }}" @if($sender['isBlocked']) style="background-color:#FFFF00" @endif>
                         <a href="{{ route('users/advInfo', $sender['id']) }}" target='_blank' >
                             {{ $sender['name'] }}
-                            @if($sender['vip'] OR $sender['tipcount']>0)
+                            @if($sender['vip'] OR (isset($sender['tipcount']) AND $sender['tipcount'] > 0))
                                 ——
                             @endif
                             @if($sender['vip'])
@@ -254,9 +269,13 @@
                                     @endfor
                                 @endif
                             @endif
-                            @for($z = 0; $z < $sender['tipcount']; $z++)
-                                👍
-                            @endfor
+                            @if(isset($sender['tipcount']))
+                                @for($z = 0; $z < $sender['tipcount']; $z++)
+                                    👍
+                                @endfor
+                            @else
+                                {{ logger('searchMessage, line 253 tipcount does not exists.') }}
+                            @endif
                             @if(!is_null($sender['isBlocked']))
                                 @if(!is_null($sender['isBlocked']['expire_date']))
                                     @if(round((strtotime($sender['isBlocked']['expire_date']) - getdate()[0])/3600/24)>0)
@@ -270,11 +289,18 @@
                             @endif
                         </a>
                     </td>
-                    <td rowspan="{{ count($sender['messages']) }}" style="white-space:nowrap;font-size:17px;">
-                        <a target='_blank' href="/admin/users/message/search/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $sender['messagesResult'] }}</a> /
-                        <a target='_blank' href="/admin/users/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $sender['reportsResult'] }}</a> /
-                        <a target='_blank' href="/admin/users/pics/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $sender['picsResult'] }}</a>
-                    </td>
+                    @if(isset($sender['messagesResult']))
+                        <td rowspan="{{ count($sender['messages']) }}" style="white-space:nowrap;font-size:17px;">
+                            <a target='_blank' href="/admin/users/message/search/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $sender['messagesResult'] }}</a> /
+                            <a target='_blank' href="/admin/users/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $sender['reportsResult'] }}</a> /
+                            <a target='_blank' href="/admin/users/pics/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $sender['picsResult'] }}</a>
+                        </td>
+                    @else
+                        <td rowspan="1" style="white-space:nowrap;font-size:17px;">
+                            無資料
+                        </td>
+                        {{ logger('searchMessage, line 292 messagesResult does not exists, user id: ' . $sender['id']) }}
+                    @endif
                     <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][0]['id'] ]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>
                     <td>
                         <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }}" target="_blank">封鎖</a>
@@ -283,7 +309,7 @@
                     <td rowspan="{{ count($sender['messages']) }}">{{ $sender['last_login'] }}</td>
                     <td @if($receivers[$sender['messages'][0]['to_id']]['isBlockedReceiver']) style="background-color:#FFFF00" @endif>
                         {{ $receivers[$sender['messages'][0]['to_id']]['name'] }}
-                        @if($receivers[$sender['messages'][0]['to_id']]['vip'] OR $receivers[$sender['messages'][0]['to_id']]['tipcount']>0)
+                        @if($receivers[$sender['messages'][0]['to_id']]['vip'] OR (isset($receivers[$sender['messages'][0]['to_id']]['tipcount']) AND $receivers[$sender['messages'][0]['to_id']]['tipcount'] > 0))
                             ——
                         @endif
                         @if($receivers[$sender['messages'][0]['to_id']]['vip'])
@@ -295,9 +321,13 @@
                                 @endfor
                             @endif
                         @endif
-                        @for($z = 0; $z < $receivers[$sender['messages'][0]['to_id']]['tipcount']; $z++)
-                            👍
-                        @endfor
+                        @if(isset($receivers[$sender['messages'][0]['to_id']]['tipcount']))
+                            @for($z = 0; $z < $receivers[$sender['messages'][0]['to_id']]['tipcount']; $z++)
+                                👍
+                            @endfor
+                        @else
+                            {{ logger('searchMessage, line 298 tipcount does not exists.') }}
+                        @endif
                         @if(!is_null($receivers[$sender['messages'][0]['to_id']]['isBlockedReceiver']))
                             @if(!is_null($receivers[$sender['messages'][0]['to_id']]['isBlockedReceiver']['expire_date']))
                                 @if(round((strtotime($receivers[$sender['messages'][0]['to_id']]['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
@@ -324,7 +354,7 @@
                         </td>
                         <td @if($receivers[$sender['messages'][$i]['to_id']]['isBlockedReceiver']) style="background-color:#FFFF00" @endif>
                             {{ $receivers[$sender['messages'][$i]['to_id']]['name'] }}
-                            @if($receivers[$sender['messages'][$i]['to_id']]['vip'] OR $receivers[$sender['messages'][$i]['to_id']]['tipcount']>0)
+                            @if($receivers[$sender['messages'][$i]['to_id']]['vip'] OR (isset($receivers[$sender['messages'][$i]['to_id']]['tipcount']) AND $receivers[$sender['messages'][$i]['to_id']]['tipcount'] > 0))
                                 ——
                             @endif
                             @if($receivers[$sender['messages'][$i]['to_id']]['vip'])
@@ -336,9 +366,13 @@
                                     @endfor
                                 @endif
                             @endif
-                            @for($z = 0; $z < $receivers[$sender['messages'][$i]['to_id']]['tipcount']; $z++)
-                                👍
-                            @endfor
+                            @if(isset($receivers[$sender['messages'][$i]['to_id']]['tipcount']))
+                                @for($z = 0; $z < $receivers[$sender['messages'][$i]['to_id']]['tipcount']; $z++)
+                                    👍
+                                @endfor
+                            @else
+                                {{ logger('searchMessage, line 343 tipcount does not exists.') }}
+                            @endif
                             @if(!is_null($receivers[$sender['messages'][$i]['to_id']]['isBlockedReceiver']))
                                 @if(!is_null($receivers[$sender['messages'][$i]['to_id']]['isBlockedReceiver']['expire_date']))
                                     @if(round((strtotime($receivers[$sender['messages'][$i]['to_id']]['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)

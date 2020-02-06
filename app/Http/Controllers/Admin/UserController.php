@@ -400,6 +400,9 @@ class UserController extends Controller
         }
         $user = User::where('id', 'like', $id)
                 ->get()->first();
+        if(!isset($user)){
+            return '<h1>會員資料已刪除。</h1>';
+        }
         $userMeta = UserMeta::where('user_id', 'like', $id)
                 ->get()->first();
         $userMessage = Message::where('from_id', $id)->orderBy('created_at', 'desc')->paginate(config('social.admin.showMessageCount'));
