@@ -7,7 +7,7 @@ $admin_email = Config::get('social.admin.email');
 ?>
 <body style="padding: 15px;">
 <h3 style="text-align:left;">
-    信箱 @if(isset($to)) - {{$to->name}}@endif @if(isset($to))
+    站長信箱 @if(isset($to)) - {{$to->name}}@endif @if(isset($to))
         <a class="btn btn-info" href="/admin/chat"> 回去信箱</a>
     @endif
 </h3>
@@ -33,7 +33,6 @@ $admin_email = Config::get('social.admin.email');
                 return false;
             }
         ?>
-
         @if(!empty($messages))
             @foreach ($messages as $message)
                 @if(\App\Models\User::isBanned($message['from_id']) || \App\Models\User::isBanned($message['to_id']))
@@ -58,27 +57,25 @@ $admin_email = Config::get('social.admin.email');
             ?>
                     @if(!empty($latestMessage))
                         @if(\App\Models\Message::isAdminMessage($latestMessage->content))
-                        <div class="box1" @if(str_contains($msgUser->name, '站長')) id='admin' @else id='normal' @endif style="background-color: white; border: 1px solid; margin: 4px;">
-
+                            <div class="box1" @if(str_contains($msgUser->name, '站長')) id='admin' @else id='normal' @endif style="background-color: white; border: 1px solid; margin: 4px;">
                         @else
-                        <div class="box1" @if(str_contains($msgUser->name, '站長')) id='admin' @else id='normal' @endif style="background-color: white; border: 1px solid; margin: 4px;">
-
+                            <div class="box1" @if(str_contains($msgUser->name, '站長')) id='admin' @else id='normal' @endif style="background-color: white; border: 1px solid; margin: 4px;">
                         @endif
-                            <div class="" @if(isset($to))style="width:95%"@else style="width:95%" @endif>
+                            <div  style="padding:5px">
                                 <a href="/admin/chat/{{$msgUser->id}}"><img style="max-width:75px;" src="{{$msgUser->meta_()->pic}}" onerror="this.src='/img/male-avatar.png'" alt=""></a>
-
-
                                 <a href="/admin/chat/{{$msgUser->id}}" class="btn btn-success">
                                     <span class="" @if(str_contains($msgUser->name, '站長')) style='color:blue;' @endif>
-                                    {{$msgUser->name}}
+                                        {{$msgUser->name}}
                                     </span>
-                                    @if(\App\Models\Reported::cntr($msgUser->id) >= $block_people ) <br><span style="color:red">(此人遭多人檢舉)</span>
+                                    @if(\App\Models\Reported::cntr($msgUser->id) >= $block_people )
+                                        <br><span style="color:red">(此人遭多人檢舉)</span>
                                     @endif
-                                    </a>
-
-                                    <p style="word-wrap: break-word; word-break: break-all">
-                                        最新訊息：{{$latestMessage->content}}
-                                    </p>
+                                </a>
+                                最新訊息：{{$latestMessage->content}}
+                                <!-- <p style="word-wrap: break-word; word-break: break-all">
+                                    <button id="msgsnd" type="submit" class="btn btn-info">回覆</button>
+                                    <textarea class="form-control" style="display:inline;width: 90%;" rows="1" id="msg" required="" name="msg" maxlength="500"></textarea>
+                                </p> -->
                             </div>
                         </div>
                     @endif

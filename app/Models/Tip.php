@@ -96,5 +96,16 @@ class Tip extends Model
 
         if(empty($toUser)) return NULL;
         return $toUser;
+    }    
+
+    public static function TipCount_ChangeGood($id) {
+        $tipcount = Tip::where('member_id', $id)->orWhere('to_id','=',$id)->count();
+        if(in_array($tipcount,array(2,3,4))){
+            $tipcount = 2;
+        }elseif($tipcount>=5){
+            $tipcount = 3;
+        }
+        return $tipcount;
     }
+
 }
