@@ -180,16 +180,22 @@ class Vip extends Model
         if($vip_ing){
             $now = \Carbon\Carbon::now();
             $vip_date = Vip::select('id', 'created_at')->where('member_id', $id)->orderBy('created_at', 'desc')->get()->first();
-            $vip_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $vip_date->created_at);
-            $vip_mon = $vip_date->diffInMonths($now);
-            if($vip_mon<2){
-                $vip_diamond = 1;
-            }elseif(in_array($vip_mon,array(2,3,4))){
-                $vip_diamond = 2;
-            }elseif($vip_mon>=5){
-                $vip_diamond = 3;
+            if(isset($vip_date->created_at)){
+                $vip_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $vip_date->created_at);
+                $vip_mon = $vip_date->diffInMonths($now);
+                if($vip_mon < 2){
+                    $vip_diamond = 1;
+                }elseif(in_array($vip_mon, array(2,3,4))){
+                    $vip_diamond = 2;
+                }elseif($vip_mon >= 5){
+                    $vip_diamond = 3;
+                }
+                return $vip_diamond;   
             }
-            return $vip_diamond;
+            else{
+                Log::info('VIP created_at is null, user id: ' . $id);
+                return false;
+            }
         }
         return null;
     }

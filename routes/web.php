@@ -156,9 +156,7 @@ Route::get('/passwd', 'passwd@passwd');
 Route::get('/', 'PagesController@home');
 Route::get('/privacy', 'PagesController@privacy');
 Route::get('/notification', 'PagesController@notification');
-//樣板切換為heary
-// Route::get('/feature', 'PagesController@feature');
-Route::get('/feature', 'PagesController@feature_heary');
+Route::get('/feature', 'PagesController@feature');
 Route::get('/about', 'PagesController@about');
 Route::get('/dashboard/browse', 'PagesController@browse');
 Route::get('/terms', 'PagesController@terms');
@@ -188,9 +186,7 @@ Route::post('/password/reset', 'Auth\ResetPasswordController@reset');
 |--------------------------------------------------------------------------
 */
 Route::get('/checkAdult', 'Auth\RegisterController@checkAdult');
-//樣板切換為heary
-// Route::get('/register', 'Auth\RegisterController@showRegistrationForm2')->name('register');
-Route::get('/register', 'Auth\RegisterController@showRegistrationForm_heary')->name('register');
+Route::get('/register', 'Auth\RegisterController@showRegistrationForm2')->name('register');
 Route::get('/register2', 'Auth\RegisterController@showRegistrationForm')->name('register2');
 Route::post('/register', 'Auth\RegisterController@register');
 
@@ -331,14 +327,13 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('/dashboard/postChatpayEC', 'PagesController@postChatpayEC');
     });
     Route::post('/upgradepayLog', 'PagesController@upgradepayLog')->name('upgradepayLog');
+    Route::post('/dashboard/deleteboard', 'BoardController@deleteBoard')->name('deleteBoard');
 
     Route::group(['middleware' => ['vipc']], function () {
         Route::post('/dashboard/board', 'PagesController@postBoard');
         Route::get('/dashboard/history', 'PagesController@history');
         Route::get('/dashboard/block', 'PagesController@block');
-        //樣板切換為heary
-        Route::get('/dashboard/fav', 'PagesController@fav_heary');
-        // Route::get('/dashboard/fav', 'PagesController@fav');
+        Route::get('/dashboard/fav', 'PagesController@fav');
         Route::get('/dashboard/fav2', 'PagesController@fav2');
     });
 
@@ -398,8 +393,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         | Users
         |--------------------------------------------------------------------------
         */
-        Route::get('manualSQL', 'UserController@manualSQL');
-        Route::get('querier', 'UserController@querier')->name('querier');
+        //Route::get('manualSQL', 'UserController@manualSQL');
+        //Route::get('querier', 'UserController@querier')->name('querier');
         Route::resource('manager', 'UserController', ['except' => ['create', 'show']]);
         Route::post('users/search', 'UserController@search')->name('users/manager');
         Route::get('users/search', 'UserController@index')->name('users/manager');
