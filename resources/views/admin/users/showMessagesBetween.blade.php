@@ -16,7 +16,10 @@
 			<td>
 				@if($message->from_id == $id1->id) 
 					<a href="{{ route('users/advInfo', [$message->from_id]) }} ">
-						{{ $id1->name }}——
+						{{ $id1->name }}
+						@if($id1->vip OR $id1->tipcount>0)
+						    ——
+						@endif
 						@if($id1->vip)
 						    @if($id1->vip=='diamond_black')
 						        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
@@ -43,7 +46,10 @@
 					</a> 
 				@else
 					<a href="{{ route('users/advInfo', [$message->to_id]) }} ">
-						{{ $id2->name }}——
+						{{ $id2->name }}
+						@if($id2->vip OR $id2->tipcount>0)
+						    ——
+						@endif
 						@if($id2->vip)
 						    @if($id2->vip=='diamond_black')
 						        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
@@ -73,7 +79,10 @@
 			<td>
 				@if($message->from_id != $id1->id) 
 					<a href="{{ route('users/advInfo', [$id1->id]) }} ">
-						{{ $id1->name }}——
+						{{ $id1->name }}
+						@if($id1->vip OR $id1->tipcount>0)
+						    ——
+						@endif
 						@if($id1->vip)
 						    @if($id1->vip=='diamond_black')
 						        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
@@ -100,7 +109,10 @@
 					</a> 
 				@else 
 					<a href="{{ route('users/advInfo', [$message->to_id]) }} ">
-						{{ $id2->name }}——
+						{{ $id2->name }}
+						@if($id2->vip OR $id2->tipcount>0)
+						    ——
+						@endif
 						@if($id2->vip)
 						    @if($id2->vip=='diamond_black')
 						        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">

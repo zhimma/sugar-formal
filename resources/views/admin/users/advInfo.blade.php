@@ -188,7 +188,9 @@
 			<td>
 				<a href="{{ route('admin/showMessagesBetween', [$user->id, $message->to_id]) }}" target="_blank">
 					{{ $to_ids[$message->to_id]['name'] }}
-					——
+					@if($to_ids[$message->to_id]['vip'] OR $to_ids[$message->to_id]['tipcount']>0)
+					    ——
+					@endif
 					@if($to_ids[$message->to_id]['vip'])
 					    @if($to_ids[$message->to_id]['vip']=='diamond_black')
 					        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
