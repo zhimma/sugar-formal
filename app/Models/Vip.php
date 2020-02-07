@@ -62,7 +62,7 @@ class Vip extends Model
             $vip->amount = $amount;
             $vip->active = $active;
             $vip->free = $free;
-            $vip->transactionType = $transactionType;
+            //$vip->transactionType = $transactionType;
             //$startDate = time();
             //$expiry = date('Y-m-d H:i:s', strtotime('+'.substr($order_id, 0, 2).' day', $startDate));
             //$vip->expiry = $expiry;
