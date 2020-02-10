@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Config;
 use App\Models\SimpleTables\banned_users;
 use App\Models\Blocked as blocked;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class UserMeta extends Model
 {
@@ -204,7 +205,12 @@ class UserMeta extends Model
         if (isset($photo) && strlen($photo) != 0) $query = $query->whereNotNull('pic')->where('pic', '<>', 'NULL');
         if (isset($agefrom) && isset($ageto) && strlen($agefrom) != 0 && strlen($ageto) != 0) {
             $agefrom = $agefrom < 18 ? 18 : $agefrom;
-            $query = $query->whereBetween('birthdate', [Carbon::now()->subYears($ageto), Carbon::now()->subYears($agefrom)]);
+            try{
+                $query = $query->whereBetween('birthdate', [Carbon::now()->subYears($ageto), Carbon::now()->subYears($agefrom)]);
+            }
+            catch(Exception $e){
+                Log::info('Searching function exception occurred, $agefrom: ' . $agefrom . ', $ageto: ' . $ageto);
+            }
         }
 
         $query = $query->where('birthdate', '<', Carbon::now()->subYears(18));

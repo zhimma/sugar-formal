@@ -80,8 +80,11 @@ class MemberFav extends Model
     {
         if($fav_id!='all'){
             $fav = MemberFav::where('member_id', $member_id)->where('member_fav_id', $fav_id)->get()->first();
-            $fav->delete();
-        }else{
+            if(isset($fav)){
+                $fav->delete();
+            }
+        }
+        else{
             MemberFav::where('member_id', $member_id)->delete();
         }
     }
