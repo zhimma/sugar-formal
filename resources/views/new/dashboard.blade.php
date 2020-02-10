@@ -41,7 +41,10 @@
             <li><a href="{!! url('/dashboard/vip') !!}"><img src="/new/images/mm_09.png"><span>VIP</span></a></li>
           </div>
           <div class="addpic g_inputt">
-            <div class="n_adbut"><a href="/dashboard/viewuser/{{$user->id}}"><img src="/new/images/1_06.png">預覽</a></div>
+
+            <div class="n_adbut">
+                <a href="/dashboard/viewuser/{{$user->id}}"><img src="/new/images/1_06.png">預覽</a></div>
+              <div class="n_adbut"><a href="" style="padding-left: 10px;">身份驗證</a></div>
             <div class="xiliao_input">
                <form class="m-form m-form--fit m-form--label-align-right" method="POST" name="user_data" action="" id="information"data-parsley-validate novalidate>
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -768,12 +771,11 @@
           dataType: 'JSON',
           data: form,
           beforeSend: function () {
-           // $('.blbg').click();
+              $('#tab04').hide();
             waitingDialog.show();
           },
           complete: function () {
 
-              //c4('更新成功');
             window.location.reload();
             waitingDialog.hide();
 
@@ -796,16 +798,18 @@
               $("input[name=engroup][value=2]").prop('checked',true);
               $("input[name=engroup][value=1]").prop('checked',false);
             }
-            swal({
-              title:'您已經改變過帳號類型(甜心大哥/大姐、甜心寶貝)，每個帳號只能變更一次',
-              type:'warning'
-            });
+                  c4('您已經改變過帳號類型(甜心大哥/大姐、甜心寶貝)，每個帳號只能變更一次');
+            // swal({
+            //   title:'您已經改變過帳號類型(甜心大哥/大姐、甜心寶貝)，每個帳號只能變更一次',
+            //   type:'warning'
+            // });
           @else
-            swal(
-              '確定要改變帳號類型(甜心大哥/大姐、甜心寶貝)嗎?，每個帳號只能變更一次',
-              '',
-              'warning'
-            );
+                  c4('確定要改變帳號類型(甜心大哥/大姐、甜心寶貝)嗎?，每個帳號只能變更一次');
+            // swal(
+            //   '確定要改變帳號類型(甜心大哥/大姐、甜心寶貝)嗎?，每個帳號只能變更一次',
+            //   '',
+            //   'warning'
+            // );
           @endif
       });
 

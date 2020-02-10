@@ -316,8 +316,12 @@
                           },
                           success: function (res) {
                               res = JSON.parse(res);
-                              if (res.code == '200') {
-                                  // window.location.reload();
+
+                              //alert(res.code);
+                              if(res.code == '800'){
+                                  $("#tab04").hide();
+                                  c2('照片少於4張照片，未達VIP資格');
+                              }else if(res.code == '200'){
                                   $("#tab04").hide();
                                   c2('刪除成功');
                               }

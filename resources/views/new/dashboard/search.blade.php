@@ -18,7 +18,7 @@
                         <dt>
                             <span>地區</span>
                             <span>
-                                <span class="twzipcode" id="twzipcode" style="display: inline-flex;">
+                                <span class="twzipcode" id="twzipcode" style="display:inline-flex; ">
                                 <span class="select_xx07 left" data-role="county" data-name="county" style=""></span>
                                 <span class="select_xx07 right" data-role="district" data-name="district" style=""></span>
 {{--                                    @if ($user->isVip())--}}
@@ -32,9 +32,9 @@
                         <dt>
                             <span>年齡範圍</span>
                             <span style="display: inline-flex;">
-                                <input class="select_xx06" name="agefrom" type="number" value="@if(!empty($_GET['agefrom'])) {{$_GET['agefrom'] }} @endif">
+                                <input class="select_xx06" name="agefrom" type="number" value="@if(!empty($_GET['agefrom'])){{$_GET['agefrom'] }}@endif">
                                 <div class="sew6">至</div>
-                                <input class="select_xx06 right" name="ageto" type="number" value="@if(!empty($_GET['ageto'])) {{$_GET['ageto'] }} @endif">
+                                <input class="select_xx06 right" name="ageto" type="number" value="@if(!empty($_GET['ageto'])){{$_GET['ageto'] }}@endif">
                             </span>
                         </dt>
                         <dt>
@@ -57,22 +57,23 @@
                         <dt>
                             <span>體型</span>
                             <span class="line20">
-                                    <label class="n_tx"><input type="checkbox" name="body[0]" value="瘦" id="radio" @if( old('body[0]') == "瘦" ) checked @endif><i>瘦</i></label>
-                                    <label class="n_tx"><input type="checkbox" name="body[1]" value="標準" id="radio1" @if( old('body[1]') == "標準" ) checked @endif><i>標準</i></label>
-                                    <label class="n_tx"><input type="checkbox" name="body[2]" value="微胖" id="radio2" @if( old('body[2]') == "微胖" ) checked @endif><i>微胖</i></label>
-                                    <label class="n_tx"><input type="checkbox" name="body[3]" value="胖" id="radio3" @if( old('body[3]') == "胖" ) checked @endif><i>胖</i></label>
+<!--                                --><?//=$_GET["body"][0]?>
+                                    <label class="n_tx"><input type="checkbox" name="body[0]" value="瘦" id="radio" @if( !empty( $_GET["body"][0] ) && $_GET["body"][0] == "瘦" ) checked @endif><i>瘦</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="body[1]" value="標準" id="radio1" @if( !empty( $_GET["body"][1] ) && $_GET["body"][1] == "標準" ) checked @endif><i>標準</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="body[2]" value="微胖" id="radio2" @if( !empty( $_GET["body"][2] ) && $_GET["body"][2] == "微胖" ) checked @endif><i>微胖</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="body[3]" value="胖" id="radio3" @if( !empty( $_GET["body"][3] ) && $_GET["body"][3] == "胖" ) checked @endif><i>胖</i></label>
                             </span>
                         </dt>
                         @if ($user->engroup == 1)
                         <dt class="matopj15">
                             <span>CUP</span>
                             <span class="line20">
-                                <label class="n_tx"><input type="checkbox" name="cup[]" value="A" id="Check" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "A" ) checked @endif><i>A</i></label>
-                                <label class="n_tx"><input type="checkbox" name="cup[]" value="B" id="Check1" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "B" ) checked @endif><i>B</i></label>
-                                <label class="n_tx"><input type="checkbox" name="cup[]" value="C" id="Check2" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "C" ) checked @endif><i>C</i></label>
-                                <label class="n_tx"><input type="checkbox" name="cup[]" value="D" id="Check3" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "D" ) checked @endif><i>D</i></label>
-                                <label class="n_tx"><input type="checkbox" name="cup[]" value="E" id="Check4" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "E" ) checked @endif><i>E</i></label>
-                                <label class="n_tx"><input type="checkbox" name="cup[]" value="F" id="Check5" @if( !empty( $_GET["cup"] ) && $_GET["cup"] == "F" ) checked @endif><i>F</i></label>
+                                <label class="n_tx"><input type="checkbox" name="cup[]" value="A" id="Check" @if( !empty( $_GET["cup"][0] ) && $_GET["cup"][0] == "A" ) checked @endif><i>A</i></label>
+                                <label class="n_tx"><input type="checkbox" name="cup[]" value="B" id="Check1" @if( !empty( $_GET["cup"][1] ) && $_GET["cup"][1] == "B" ) checked @endif><i>B</i></label>
+                                <label class="n_tx"><input type="checkbox" name="cup[]" value="C" id="Check2" @if( !empty( $_GET["cup"][2] ) && $_GET["cup"][2] == "C" ) checked @endif><i>C</i></label>
+                                <label class="n_tx"><input type="checkbox" name="cup[]" value="D" id="Check3" @if( !empty( $_GET["cup"][3] ) && $_GET["cup"][3] == "D" ) checked @endif><i>D</i></label>
+                                <label class="n_tx"><input type="checkbox" name="cup[]" value="E" id="Check4" @if( !empty( $_GET["cup"][4] ) && $_GET["cup"][4] == "E" ) checked @endif><i>E</i></label>
+                                <label class="n_tx"><input type="checkbox" name="cup[]" value="F" id="Check5" @if( !empty( $_GET["cup"][5] ) && $_GET["cup"][5] == "F" ) checked @endif><i>F</i></label>
                             </span>
                         </dt>
                         @else
@@ -205,7 +206,7 @@
                                                 <span><span style="padding-left: 5px;">職業</span><img src="/new/images/icon_35.png" class="nt_img"></span>
                                             @endif
                                         </h3>
-                                        <h3>最後上線時間：{{$visitor->last_login}}</h3>
+                                        <h3>最後上線時間：{{substr($visitor->last_login,0,16)}}</h3>
                                     </div>
                                     </a>
                                 </li>
@@ -254,11 +255,12 @@
     $(document).ready(function(){
     //var BootstrapDatepicker=function(){var t=function(){$("#m_datepicker_1, #m_datepicker_1_validate").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_1_modal").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_2, #m_datepicker_2_validate").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_2_modal").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_3, #m_datepicker_3_validate").datepicker({todayBtn:"linked",clearBtn:!0,todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_3_modal").datepicker({todayBtn:"linked",clearBtn:!0,todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_1").datepicker({orientation:"top left",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_2").datepicker({orientation:"top right",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_3").datepicker({orientation:"bottom left",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_4").datepicker({orientation:"bottom right",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_5").datepicker({todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_6").datepicker({todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}})};return{init:function(){t()}}}();jQuery(document).ready(function(){BootstrapDatepicker.init()});
    // var BootstrapSelect=function(){var t=function(){$(".m_selectpicker").selectpicker()};return{init:function(){t()}}}();jQuery(document).ready(function(){BootstrapSelect.init()});
-    $('.twzipcode').twzipcode({
-    'detect': true, 'css': ['select_xx07', 'select_xx07', 'zipcode'], onCountySelect: function() {
-    $("select[name='district']").prepend('<option selected value="">全市</option>');
-    }
-    });
+        $('.twzipcode').twzipcode({
+            'detect': true,
+            'css': ['select_xx07', 'select_xx07', 'zipcode'], onCountySelect: function() {
+            $("select[name='district']").prepend('<option selected value="">全市</option>');
+            }
+        });
     $('input[name="zipcode"]').remove();
     });
     </script>

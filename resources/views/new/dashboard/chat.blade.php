@@ -72,6 +72,22 @@
         <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
 
+    <div class="bl bl_tab" id="show_banned">
+        <div class="bltitle banned_name"><span></span></div>
+        <div class="n_blnr01 ">
+            <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ route('reportPost') }}">
+                {!! csrf_field() !!}
+                <input type="hidden" name="aid" value="{{$user->id}}">
+                <input type="hidden" name="uid" value="">
+                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請輸入檢舉理由"></textarea>
+                <div class="n_bbutton">
+                    <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>
+                </div>
+            </form>
+        </div>
+        <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+    </div>
+
     <script>
             var Page = {
             page : 1,
@@ -122,7 +138,7 @@
             url = url.replace(':id', user_id);
             var del_url = '{!! url("/dashboard/chat2/deleterow/:uid/:sid") !!}';
 
-            var sid = <?php echo $user->id?>;
+            var sid = <?=$user->id?>;
             del_url = del_url.replace(':uid', sid);
             del_url = del_url.replace(':sid', user_id);
             //${content}
@@ -139,7 +155,8 @@
                         <div class="sjright">
                             <h3>${created_at}</h3>
                             <h4><a href="javascript:void(0)" onclick="chk_delete('${del_url}');"><img src="/new/images/del_03.png">刪除</a>
-                                <a href="javascript:void(0)" onclick="block('${user_id}');"><img src="/new/images/del_05.png">封鎖</a></h4>
+                                <a href="javascript:void(0)" onclick="block('${user_id}');"><img src="/new/images/del_05.png">封鎖</a>
+<!--                                <a href="javascript:void(0)" onclick="banned('${user_id}','${user_name}');"><img src="/new/images/icon_100.png">檢舉</a></h4>-->
                         </div>
                     </div>
                 </li>
@@ -254,6 +271,27 @@
             });
             return false;
         }
+
+            function banned(sid,name){
+                $("input[name='uid']").val(sid);
+                $(".banned_name").append("<span>" + name + "</span>")
+                $(".announce_bg").show();
+                $("#show_banned").show();
+                {{--c4('確定要封鎖嗎?');--}}
+                {{--var sid = sid;--}}
+                {{--$(".n_left").on('click', function() {--}}
+                {{--    $.post('{{ route('postBlockAJAX') }}', {--}}
+                {{--        uid: '{{ $user->id }}',--}}
+                {{--        sid: sid,--}}
+                {{--        _token: '{{ csrf_token() }}'--}}
+                {{--    }, function (data) {--}}
+                {{--        $("#tab04").hide();--}}
+                {{--        show_message('封鎖成功');--}}
+                {{--        window.location.reload();--}}
+                {{--    });--}}
+                {{--});--}}
+                {{--return false;--}}
+            }
 
         $('.shou_but').on('click', function() {
             c4('確定要全部刪除嗎?');

@@ -663,12 +663,13 @@ class PagesController extends Controller
             $data = array(
                 'code'=>'800'
             );
+        }else {
+
+
+            $data = array(
+                'code' => '200'
+            );
         }
-
-
-        $data = array(
-            'code'=>'200'
-        );
 
         return json_encode($data);
     }
@@ -1060,7 +1061,8 @@ class PagesController extends Controller
             return redirect('/dashboard/viewuser/'.$request->uid);
         }
         Reported::report($request->aid, $request->uid, $request->content);
-        return redirect('/dashboard/viewuser/'.$request->uid)->with('message', '檢舉成功');
+//        return redirect('/dashboard/viewuser/'.$request->uid)->with('message', '檢舉成功');
+        return back()->with('message', '檢舉成功');
     }
 
 
