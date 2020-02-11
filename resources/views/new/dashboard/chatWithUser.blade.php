@@ -16,16 +16,16 @@
             <div class="col-sm-12 col-xs-12 col-md-10">
                 @if(isset($to))
                     <div class="shouxq"><a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}"><img src="/new/images/xq_06.png" class="xlimg"></a><span>收件夾 - <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a></span>
+                        @if($user->engroup==1)
                         <form class="" action="{{ route('chatpay_ec') }}" method=post id="ecpay">
                             <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                             <input type="hidden" name="userId" value="{{ $user->id }}">
                             <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">
                             <button type="button" class="paypay" onclick="checkPay()">
-    {{--                            <i class="m-nav__link-icon flaticon-profile"></i>--}}
-    {{--                            <span class="m-nav__link-text">車馬費邀請(管道一)</span>--}}
                                 <img src="/new/images/xq_03.png" class="xrgimg">
                             </button>
                         </form>
+                        @endif
                     </div>
                 @else
                     {{ logger('Chat with non-existing user: ' . url()->current()) }}
@@ -104,7 +104,7 @@
     </div>
     <div class="bl bl_tab" id="tab_payAlert">
         <div class="bltitle"><span>車馬費說明</span></div>
-        <div class="n_blnr01 matop20" style="height: 300px;overflow: auto;">
+        <div class="n_blnr01 matop20">
             <div class="n_fengs"><span>這筆費用是用來向女方表達見面的誠意<br></span></div>
             <div class="n_fengs"><span><br>●若約見順利<br>站方在扣除 288 手續費，交付 1500 與女方。<br></span></div>
             <div class="n_fengs"><span><br>●若有爭議(例如放鴿子)<br>站方將依女方提供的證明資料，決定是否交付款項與女方。<br></span></div>
