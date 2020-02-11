@@ -259,28 +259,28 @@
     }
 
     $(".blbg").hide();
-    $('.delete-btn').on('click',function(){
-
-        c4('確定要刪除嗎?');
-
-        var ct_time = $(this).data('ct_time');
-        var content = $(this).data('content');
-        var id = $(this).data('id');
-        $(".n_left").on('click', function() {
-            $.post('{{ route('delete2Single') }}', {
-                uid: '{{ $user->id }}',
-                sid: '{{ $to->id }}',
-                ct_time: ct_time,
-                content: content,
-                id: id,
-                _token: '{{ csrf_token() }}'
-            }, function (data) {
-                //window.location.reload();
-                $("#tab04").hide();
-                c2('刪除成功');
+    @if(isset($to))
+        $('.delete-btn').on('click',function(){
+            c4('確定要刪除嗎?');
+            var ct_time = $(this).data('ct_time');
+            var content = $(this).data('content');
+            var id = $(this).data('id');
+            $(".n_left").on('click', function() {
+                $.post('{{ route('delete2Single') }}', {
+                    uid: '{{ $user->id }}',
+                    sid: '{{ $to->id }}',
+                    ct_time: ct_time,
+                    content: content,
+                    id: id,
+                    _token: '{{ csrf_token() }}'
+                }, function (data) {
+                    //window.location.reload();
+                    $("#tab04").hide();
+                    c2('刪除成功');
+                });
             });
         });
-    });
+    @endif
 
     function  checkPay(){
         $(".blbg").show();

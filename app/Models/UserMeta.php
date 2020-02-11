@@ -208,12 +208,19 @@ class UserMeta extends Model
             try{
                 $query = $query->whereBetween('birthdate', [Carbon::now()->subYears($ageto), Carbon::now()->subYears($agefrom)]);
             }
-            catch(Exception $e){
-                Log::info('Searching function exception occurred, $agefrom: ' . $agefrom . ', $ageto: ' . $ageto);
+            catch(\Exception $e){
+                Log::info('Searching function exception occurred, user id: ' . $userid . ', $agefrom: ' . $agefrom . ', $ageto: ' . $ageto);
+                Log::info('Useragent: ' . $_SERVER['HTTP_USER_AGENT']);
             }
         }
 
-        $query = $query->where('birthdate', '<', Carbon::now()->subYears(18));
+        try{
+            $query = $query->where('birthdate', '<', Carbon::now()->subYears(18));
+        }
+        catch(\Exception $e){
+            Log::info('Searching function exception occurred, user id: ' . $userid);
+            Log::info('Useragent: ' . $_SERVER['HTTP_USER_AGENT']);
+        }
 
         $bannedUsers = banned_users::select('member_id')->get();
         $blockedUsers = blocked::select('blocked_id')->where('member_id',$userid)->get();
