@@ -600,10 +600,15 @@ class AdminService
             foreach ($ids as $key => $id){
                 // dd($id);
                 $p = MemberPic::where('id', $id)->first();
-                $infos[$id]['post_time'] = $p->created_at;
-                $u = User::where('id', $p->member_id)->first();
-                $infos[$id]['user_id'] = $u->id;
-                $infos[$id]['user_name'] = $u->name;
+                if(isset($p)){
+                    $infos[$id]['post_time'] = $p->created_at;
+                    $u = User::where('id', $p->member_id)->first();
+                    $infos[$id]['user_id'] = $u->id;
+                    $infos[$id]['user_name'] = $u->name;
+                }
+                else{
+                    continue;
+                }
             }
             
             $datas = ['pic_ids' => $ids,
