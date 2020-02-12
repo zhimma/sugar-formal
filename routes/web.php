@@ -429,6 +429,9 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('users/message/delete', 'UserController@deleteMessage')->name('users/message/delete');
         Route::post('users/message/edit', 'UserController@editMessage')->name('users/message/edit');
         Route::get('users/pics/reported', 'UserController@showReportedPicsPage')->name('users/pics/reported');
+        Route::get('users/reported', 'UserController@showReportedUsersPage')->name('users/reported');
+        Route::post('users/reported', 'UserController@showReportedUsersList')->name('users/reported');
+        Route::post('users/reported/details/{reported_id}/{users?}/{reportedData?}', 'UserController@showReportedDetails')->name('users/reported/details');
         //曾被檢舉
         Route::get('users/pics/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@searchReportedPics')->name('users/pics/reported');
         Route::get('users/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@showReportedUsersList')->name('users/reported');
@@ -438,9 +441,6 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('users/basic_setting', 'UserController@basicSetting')->name('users/basic_setting');
         Route::post('users/basic_setting', 'UserController@doBasicSetting')->name('users/basic_setting');
         Route::get('users/bannedList', 'UserController@showBannedList')->name('users/bannedList');
-        Route::get('users/reported', 'UserController@showReportedUsersPage')->name('users/reported');
-        Route::post('users/reported', 'UserController@showReportedUsersList')->name('users/reported');
-        Route::post('users/reported/details/{reported_id}/{users?}/{reportedData?}', 'UserController@showReportedDetails')->name('users/reported/details');
         Route::get('users/switch', 'UserController@showUserSwitch')->name('users/switch');
         Route::post('users/switch', 'UserController@switchSearch')->name('users/switch/search');
         Route::get('users/changePassword', 'UserController@changePassword')->name('users/changePassword');
