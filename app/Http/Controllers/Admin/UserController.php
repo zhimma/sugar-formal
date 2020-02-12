@@ -124,13 +124,11 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function toggleVIP(Request $request){
-       
         if($request->isVip == 1){
             //關閉VIP權限
             $setVip = 0;
             $user = Vip::select('member_id', 'active')
                     ->where('member_id', $request->user_id)
-                    ->where('active', $request->isVip)
                     ->update(array('active' => $setVip));
         }else{
             //提供VIP權限
@@ -141,12 +139,10 @@ class UserController extends Controller
                 if($tmpsql->expiry != '0000-00-00 00:00:00'){
                     $user = Vip::select('member_id', 'active')
                         ->where('member_id', $request->user_id)
-                        ->where('active', $request->isVip)
                         ->update(array('active' => $setVip,'expiry' => Carbon::now()->addDays(30)));
                 }else{
                     $user = Vip::select('member_id', 'active')
                         ->where('member_id', $request->user_id)
-                        ->where('active', $request->isVip)
                         ->update(array('active' => $setVip));
                 }
             }else{
@@ -409,13 +405,14 @@ class UserController extends Controller
         $to_ids = array();
         foreach($userMessage as $u){
             if(!array_key_exists($u->to_id, $to_ids)){
-                $to_ids[$u->to_id] = User::select('name')->where('id', $u->to_id)->get()->first();
+                $to_ids[$u->to_id] = User::select('name','engroup')->where('id', $u->to_id)->get()->first();
                 
                 if($to_ids[$u->to_id]){
                     $to_ids[$u->to_id]['tipcount'] = Tip::TipCount_ChangeGood($u->to_id);
                     $to_ids[$u->to_id]['vip'] = Vip::vip_diamond($u->to_id);
                     $to_ids[$u->to_id]['name'] = $to_ids[$u->to_id]->name;
                     $to_ids[$u->to_id]['isBlocked'] = banned_users::where('member_id', 'like', $u->to_id)->get()->first();
+                    $to_ids[$u->to_id]['engroup'] = $to_ids[$u->to_id]->engroup;
                 }
                 else{
                     $to_ids[$u->to_id] = array();
@@ -438,8 +435,8 @@ class UserController extends Controller
         }
         $isVip = $user->isVip();
         $user['isvip'] = $isVip;
-        $user['tipcount'] = Tip::TipCount_ChangeGood($id);
-        $user['vip'] = Vip::vip_diamond($id);
+        $user['tipcount'] = Tip::TipCount_ChangeGood($user->id);
+        $user['vip'] = Vip::vip_diamond($user->id);
         $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first();
 
         if(str_contains(url()->current(), 'edit')){
@@ -649,6 +646,7 @@ class UserController extends Controller
                 ->with('reported', 1)
                 ->with('results', $datas['results'])
                 ->with('users', isset($datas['users']) ? $datas['users'] : null)
+                ->with('reported_id', isset($request->reported_id) ? $request->reported_id : null)
                 ->with('msg', isset($datas['msg']) ? $datas['msg'] : null)
                 ->with('date_start', isset($datas['date_start']) ? $datas['date_start'] : null)
                 ->with('date_end', isset($datas['date_end']) ? $datas['date_end'] : null);
@@ -709,14 +707,14 @@ class UserController extends Controller
                     $senders[$key]['vip'] = Vip::vip_diamond($id);
                     $senders[$key]['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first();
                     $senders[$key]['tipcount'] = Tip::TipCount_ChangeGood($id);
-                    //近一月曾被檢舉次數
+                    //被檢舉者近一月曾被不同人檢舉次數
                     $date_start =  date("Y-m-d H:i:s",strtotime("-1 month"));;
                     $date_end = date("Y-m-d H:i:s");
-                    $avatarsResult = ReportedAvatar::whereBetween('created_at', array($date_start, $date_end))->where('reported_user_id', $id)->count();
-                    $picsResult = ReportedPic::whereBetween('created_at', array($date_start, $date_end))->where('reported_pic_id', $id)->count();
+                    $avatarsResult = count(ReportedAvatar::whereBetween('created_at', array($date_start, $date_end))->where('reported_user_id', $id)->groupBy('reporter_id')->get());
+                    $picsResult = count(ReportedPic::whereBetween('created_at', array($date_start, $date_end))->where('reported_pic_id', $id)->groupBy('reporter_id')->get());
                     $senders[$key]['picsResult'] = $picsResult + $avatarsResult;
-                    $senders[$key]['messagesResult'] = Message::whereBetween('created_at', array($date_start, $date_end))->where('from_id', $id)->where('isReported', 1)->count();
-                    $senders[$key]['reportsResult'] = Reported::whereBetween('created_at', array($date_start, $date_end))->where('reported_id', $id)->count();
+                    $senders[$key]['messagesResult'] = count(Message::whereBetween('created_at', array($date_start, $date_end))->where('from_id', $id)->where('isReported', 1)->groupBy('to_id')->get());
+                    $senders[$key]['reportsResult'] = count(Reported::whereBetween('created_at', array($date_start, $date_end))->where('reported_id', $id)->groupBy('member_id')->get());
                 }
                 //Fills message ids to each sender.
                 foreach ($senders as $key => $sender){
@@ -734,7 +732,7 @@ class UserController extends Controller
                     $receivers[$id] = array();
                 }
                 foreach ($receivers as $id => $receiver){
-                    $name = User::select('name')
+                    $name = User::select('name','engroup')
                         ->where('id', '=', $id)
                         ->get()->first();
                     if($name != null){
@@ -742,6 +740,7 @@ class UserController extends Controller
                         $receivers[$id]['tipcount'] = Tip::TipCount_ChangeGood($id);
                         $receivers[$id]['vip'] = Vip::vip_diamond($id);
                         $receivers[$id]['isBlockedReceiver'] = banned_users::where('member_id', 'like', $id)->get()->first();
+                        $receivers[$id]['engroup'] = $name->engroup;
                     }
                     else{
                         $receivers[$id] = '資料庫沒有資料';
@@ -1330,6 +1329,7 @@ class UserController extends Controller
             return view('admin.users.reportedUsers')
                 ->with('results', $datas['results'])
                 ->with('users', isset($datas['users']) ? $datas['users'] : null)
+                ->with('reported_id', isset($request->reported_id) ? $request->reported_id : null)
                 ->with('date_start', isset($request->date_start) ? $request->date_start : null)
                 ->with('date_end', isset($request->date_end) ? $request->date_end : null);
         }
@@ -1368,6 +1368,7 @@ class UserController extends Controller
                 ->with('users', isset($avatarDatas['users']) ? $avatarDatas['users'] : null)
                 ->with('Presults', $picDatas['results'] ? $picDatas['results'] :null)
                 ->with('Pusers', isset($picDatas['users']) ? $picDatas['users'] : null)
+                ->with('reported_id', isset($request->reported_id) ? $request->reported_id : null)
                 ->with('date_start', isset($request->date_start) ? $request->date_start : null)
                 ->with('date_end', isset($request->date_end) ? $request->date_end : null);
         }

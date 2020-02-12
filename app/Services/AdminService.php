@@ -189,6 +189,14 @@ class AdminService
             }
             $result['isBlocked'] = banned_users::where('member_id', 'like', $result->from_id)->get()->first();
             $result['isBlockedReceiver'] = banned_users::where('member_id', 'like', $result->to_id)->get()->first();
+            //被檢舉者近一月曾被不同人檢舉次數
+            $date_start =  date("Y-m-d H:i:s",strtotime("-1 month"));;
+            $date_end = date("Y-m-d H:i:s");
+            $avatarsResult = count(ReportedAvatar::whereBetween('created_at', array($date_start, $date_end))->where('reported_user_id', $result->to_id)->groupBy('reporter_id')->get());
+            $picsResult = count(ReportedPic::whereBetween('created_at', array($date_start, $date_end))->where('reported_pic_id', $result->to_id)->groupBy('reporter_id')->get());
+            $result['picsResult'] = $picsResult + $avatarsResult;
+            $result['messagesResult'] = count(Message::whereBetween('created_at', array($date_start, $date_end))->where('from_id', $result->to_id)->where('isReported', 1)->groupBy('to_id')->get());
+            $result['reportsResult'] = count(Reported::whereBetween('created_at', array($date_start, $date_end))->where('reported_id', $result->to_id)->groupBy('member_id')->get());
         }
         $users = array();
         foreach ($to_id as $id){
@@ -209,14 +217,6 @@ class AdminService
                 $user['tipcount'] = Tip::TipCount_ChangeGood($id);
                 $user['engroup'] = $info->engroup;
                 $user['last_login'] = $info->last_login;
-                //近一月曾被檢舉次數
-                $date_start =  date("Y-m-d H:i:s",strtotime("-1 month"));;
-                $date_end = date("Y-m-d H:i:s");
-                $avatarsResult = ReportedAvatar::whereBetween('created_at', array($date_start, $date_end))->where('reported_user_id', $id)->count();
-                $picsResult = ReportedPic::whereBetween('created_at', array($date_start, $date_end))->where('reported_pic_id', $id)->count();
-                $user['picsResult'] = $picsResult + $avatarsResult;
-                $user['messagesResult'] = Message::whereBetween('created_at', array($date_start, $date_end))->where('from_id', $id)->where('isReported', 1)->count();
-                $user['reportsResult'] = Reported::whereBetween('created_at', array($date_start, $date_end))->where('reported_id', $id)->count();
             }
             else{
                 $user = array();
@@ -244,6 +244,14 @@ class AdminService
             }
             $result['isBlocked'] = banned_users::where('member_id', 'like', $result->member_id)->get()->first();
             $result['isBlockedReceiver'] = banned_users::where('member_id', 'like', $result->reported_id)->get()->first();
+            //被檢舉者近一月曾被不同人檢舉次數
+            $date_start =  date("Y-m-d H:i:s",strtotime("-1 month"));;
+            $date_end = date("Y-m-d H:i:s");
+            $avatarsResult = count(ReportedAvatar::whereBetween('created_at', array($date_start, $date_end))->where('reported_user_id', $result->reported_id)->groupBy('reporter_id')->get());
+            $picsResult = count(ReportedPic::whereBetween('created_at', array($date_start, $date_end))->where('reported_pic_id', $result->reported_id)->groupBy('reporter_id')->get());
+            $result['picsResult'] = $picsResult + $avatarsResult;
+            $result['messagesResult'] = count(Message::whereBetween('created_at', array($date_start, $date_end))->where('from_id', $result->reported_id)->where('isReported', 1)->groupBy('to_id')->get());
+            $result['reportsResult'] = count(Reported::whereBetween('created_at', array($date_start, $date_end))->where('reported_id', $result->reported_id)->groupBy('member_id')->get());
         }
         $users = array();
         foreach ($member_id as $id){
@@ -264,14 +272,6 @@ class AdminService
                 $user['last_login'] = $info->last_login;
                 $user['vip'] = Vip::vip_diamond($id);
                 $user['tipcount'] = Tip::TipCount_ChangeGood($id);
-                //近一月曾被檢舉次數
-                $date_start =  date("Y-m-d H:i:s",strtotime("-1 month"));;
-                $date_end = date("Y-m-d H:i:s");
-                $avatarsResult = ReportedAvatar::whereBetween('created_at', array($date_start, $date_end))->where('reported_user_id', $id)->count();
-                $picsResult = ReportedPic::whereBetween('created_at', array($date_start, $date_end))->where('reported_pic_id', $id)->count();
-                $user['picsResult'] = $picsResult + $avatarsResult;
-                $user['messagesResult'] = Message::whereBetween('created_at', array($date_start, $date_end))->where('from_id', $id)->where('isReported', 1)->count();
-                $user['reportsResult'] = Reported::whereBetween('created_at', array($date_start, $date_end))->where('reported_id', $id)->count();
             }
             else{
                 $user = array();
@@ -297,7 +297,16 @@ class AdminService
             }
             $result['isBlocked'] = banned_users::where('member_id', 'like', $result->reporter_id)->get()->first();
             $result['isBlockedReceiver'] = banned_users::where('member_id', 'like', $result->reported_user_id)->get()->first();
-            
+
+            //被檢舉者近一月曾被不同人檢舉次數
+            $date_start =  date("Y-m-d H:i:s",strtotime("-1 month"));;
+            $date_end = date("Y-m-d H:i:s");
+            $avatarsResult = count(ReportedAvatar::whereBetween('created_at', array($date_start, $date_end))->where('reported_user_id', $result->reported_user_id)->groupBy('reporter_id')->get());
+            $picsResult = count(ReportedPic::whereBetween('created_at', array($date_start, $date_end))->where('reported_pic_id', $result->reported_user_id)->groupBy('reporter_id')->get());
+            $result['picsResult'] = $picsResult + $avatarsResult;
+            $result['messagesResult'] = count(Message::whereBetween('created_at', array($date_start, $date_end))->where('from_id', $result->reported_user_id)->where('isReported', 1)->groupBy('to_id')->get());
+            $result['reportsResult'] = count(Reported::whereBetween('created_at', array($date_start, $date_end))->where('reported_id', $result->reported_user_id)->groupBy('member_id')->get());
+
             $result['pic'] = UserMeta::select('pic')->where('user_id', $result->reported_user_id)->get()->first();
             if(!is_null($result['pic']))
                 $result['pic'] = $result['pic']->pic;
@@ -321,14 +330,6 @@ class AdminService
                 $user['last_login'] = $info->last_login;
                 $user['vip'] = Vip::vip_diamond($id);
                 $user['tipcount'] = Tip::TipCount_ChangeGood($id);
-                //近一月曾被檢舉次數
-                $date_start =  date("Y-m-d H:i:s",strtotime("-1 month"));;
-                $date_end = date("Y-m-d H:i:s");
-                $avatarsResult = ReportedAvatar::whereBetween('created_at', array($date_start, $date_end))->where('reported_user_id', $id)->count();
-                $picsResult = ReportedPic::whereBetween('created_at', array($date_start, $date_end))->where('reported_pic_id', $id)->count();
-                $user['picsResult'] = $picsResult + $avatarsResult;
-                $user['messagesResult'] = Message::whereBetween('created_at', array($date_start, $date_end))->where('from_id', $id)->where('isReported', 1)->count();
-                $user['reportsResult'] = Reported::whereBetween('created_at', array($date_start, $date_end))->where('reported_id', $id)->count();
             }
             else{
                 $user = array();
@@ -356,10 +357,18 @@ class AdminService
                 if(!in_array($temp->member_id, $reported_user_id)) {
                     array_push($reported_user_id, $temp->member_id);
                 }
-               
                 $result['isBlocked'] = banned_users::where('member_id', 'like', $result->reporter_id)->get()->first();
-               
                 $result['isBlockedReceiver'] = banned_users::where('member_id', 'like', $result->reported_user_id)->get()->first();
+
+                //被檢舉者近一月曾被不同人檢舉次數
+                $date_start =  date("Y-m-d H:i:s",strtotime("-1 month"));;
+                $date_end = date("Y-m-d H:i:s");
+                $avatarsResult = count(ReportedAvatar::whereBetween('created_at', array($date_start, $date_end))->where('reported_user_id', $result->reported_user_id)->groupBy('reporter_id')->get());
+                $picsResult = count(ReportedPic::whereBetween('created_at', array($date_start, $date_end))->where('reported_pic_id', $result->reported_user_id)->groupBy('reporter_id')->get());
+                $result['picsResult'] = $picsResult + $avatarsResult;
+                $result['messagesResult'] = count(Message::whereBetween('created_at', array($date_start, $date_end))->where('from_id', $result->reported_user_id)->where('isReported', 1)->groupBy('to_id')->get());
+                $result['reportsResult'] = count(Reported::whereBetween('created_at', array($date_start, $date_end))->where('reported_id', $result->reported_user_id)->groupBy('member_id')->get());
+
                 
             }
             else{

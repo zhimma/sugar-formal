@@ -553,26 +553,58 @@ pre code {
     padding-left: 15px;
     width: 100%
 }
+.msgtext_width{
+    width: 80%;
+    float:right;
+}
+.msg_textarea{
+    padding: .65rem 1.25rem;
+    line-height: 1.25;
+    border-radius: .25rem;
+}
 @media (min-width: 576px) {
     .container {
         max-width: 540px
+    }
+    .msgtext_width{
+        width: 85%;
+        float:right;
     }
 }
 @media (min-width: 768px) {
     .container {
         max-width: 720px
     }
+    .msgtext_width{
+        width: 88%;
+        float:right;
+    }
 }
 @media (min-width: 992px) {
     .container {
         max-width: 960px
+    }
+    .msgtext_width{
+        width: 90%;
+        float:right;
     }
 }
 @media (min-width: 1200px) {
     .container {
         max-width: 1140px
     }
+    .msgtext_width{
+        width: 93%;
+        float:right;
+    }
 }
+@media (min-width: 1400px) {
+    .msgtext_width{
+        width: 95%;
+        float:right;
+    }
+}
+
 .container-fluid {
     width: 100%;
     margin-right: auto;
