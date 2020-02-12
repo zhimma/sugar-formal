@@ -216,10 +216,14 @@
 
                 </div>
                 @if (sizeof($vis)>=12)
-                    <div class="fenye mabot30">
-                        <a id="prePage" href="{{ $vis->appends(request()->input())->previousPageUrl() }}">上一頁</a>
-                        <a id="nextPage" href="{{ $vis->appends(request()->input())->nextPageUrl() }}">下一頁</a>
+
+                    <div style="text-align: center;">
+                    {!! $vis->appends(request()->input())->links() !!}
                     </div>
+{{--                        <div class="fenye mabot30">--}}
+{{--                        <a id="prePage" href="{{ $vis->appends(request()->input())->previousPageUrl() }}">上一頁</a>--}}
+{{--                        <a id="nextPage" href="{{ $vis->appends(request()->input())->nextPageUrl() }}">下一頁</a>--}}
+{{--                    </div>--}}
                 @endif
             </div>
 

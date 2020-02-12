@@ -16,16 +16,16 @@
             <div class="col-sm-12 col-xs-12 col-md-10">
                 @if(isset($to))
                     <div class="shouxq"><a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}"><img src="/new/images/xq_06.png" class="xlimg"></a><span>收件夾 - <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a></span>
+                        @if($user->engroup==1)
                         <form class="" action="{{ route('chatpay_ec') }}" method=post id="ecpay">
                             <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                             <input type="hidden" name="userId" value="{{ $user->id }}">
                             <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">
                             <button type="button" class="paypay" onclick="checkPay()">
-    {{--                            <i class="m-nav__link-icon flaticon-profile"></i>--}}
-    {{--                            <span class="m-nav__link-text">車馬費邀請(管道一)</span>--}}
                                 <img src="/new/images/xq_03.png" class="xrgimg">
                             </button>
                         </form>
+                        @endif
                     </div>
                 @else
                     {{ logger('Chat with non-existing user: ' . url()->current()) }}
@@ -56,7 +56,10 @@
                                         @endif
                                         <p>
                                             <i class="msg_input"></i>{!! nl2br($message['content']) !!}
-                                            <a class="delete-btn" data-id="{{ $message['id'] }}" data-ct_time="{{ $message['created_at'] }}" data-content="{{ $message['content'] }}" href="javascript:void(0);"><img src="/new/images/del.png" @if($message['from_id'] == $user->id) class="shde2" @else class="shdel" @endif></a>
+{{--                                            <a class="delete-btn" data-id="{{ $message['id'] }}" data-ct_time="{{ $message['created_at'] }}" data-content="{{ $message['content'] }}" href="javascript:void(0);"><img src="/new/images/del.png" @if($message['from_id'] == $user->id) class="shde2" @else class="shdel" @endif></a>--}}
+                                            @if($message['from_id'] != $user->id)
+                                                <a href="javascript:void(0)" class="" onclick="banned('{{$msgUser->id}}','{{$msgUser->name}}');" title="檢舉"><img src="/new/images/ban.png" class="shdel" alt="檢舉"></a>
+                                            @endif
                                             <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
                                                 <span>{{ substr($message['created_at'],11,5) }}</span>
                                                 @if(!$isVip && $message['from_id'] == $user->id)
@@ -120,6 +123,22 @@
             </div>
         </div>
         <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+    </div>
+
+    <div class="bl bl_tab" id="show_banned">
+        <div class="bltitle banned_name"><span></span></div>
+        <div class="n_blnr01 ">
+            <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ route('reportPost') }}">
+                {!! csrf_field() !!}
+                <input type="hidden" name="aid" value="{{$user->id}}">
+                <input type="hidden" name="uid" value="">
+                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請輸入檢舉理由"></textarea>
+                <div class="n_bbutton">
+                    <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>
+                </div>
+            </form>
+        </div>
+        <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
 @stop
 @section('javascript')
@@ -292,5 +311,29 @@
             $( "#ecpay" ).submit();
         });
     }
+
+    if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+        $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+    }
+    $(window).scroll(function() {
+        if($(window).scrollTop() + $(window).height() > $(document).height() - 50) {
+            // alert("bottom!");
+            $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+            $('.se_text_bot').addClass('se_text_bot_add_bottom');
+        }else{
+            $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+        }
+    });
+
+    function banned(sid,name){
+        $("input[name='uid']").val(sid);
+        $(".banned_name").append("<span>" + name + "</span>")
+        $(".announce_bg").show();
+        $("#show_banned").show();
+    }
+
+    @if (Session::has('message'))
+    c2('{{Session::get('message')}}');
+    @endif
 </script>
 @stop

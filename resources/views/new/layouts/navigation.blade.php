@@ -11,7 +11,7 @@
 									回到原使用者
 								</a></div>
 						@endif
-					    @if(!str_contains(url()->current(), 'dashboard'))
+					    @if(!str_contains(url()->current(), 'dashboard') && !str_contains(url()->current(), 'contact') && !str_contains(url()->current(), 'notification') && !str_contains(url()->current(), 'feature') && !str_contains(url()->current(), 'terms') && Auth::user() && Request::path() != '/activate' && Request::path() != '/activate/send-token')
 						<div class="ndlrfont">
 							<a href="{!! url('dashboard/search') !!}"><img src="/new/images/icon_38.png"></a>
 							<span class="getNum">
@@ -47,7 +47,8 @@
 						<ul id="menuList" class="change marg30">
                             <div class="comt"><img src="/new/images/t.png"></div>
                             <div class="coheight">
-							<div class="heyctop">@if (str_contains(url()->current(), 'dashboard')) {{ $user->name }} @elseif (isset($cur)) {{ $cur->name }} @endif @if (((isset($cur) && $cur->isVip() && $cur->engroup == '1')) || ($user->isVip() && str_contains(url()->current(), 'dashboard'))) (VIP) @endif</div>
+{{--							<div class="heyctop">@if (str_contains(url()->current(), 'dashboard')) {{ $user->name }} @elseif (isset($cur)) {{ $cur->name }} @endif @if (((isset($cur) && $cur->isVip() && $cur->engroup == '1')) || ($user->isVip() && str_contains(url()->current(), 'dashboard'))) (VIP) @endif</div>--}}
+							<div class="heyctop">{{ $user->name }}@if($user->isVip()) (VIP) @endif</div>
 							<div class="helist">
 								<ul>
 									<li>

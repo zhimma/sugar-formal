@@ -242,14 +242,14 @@
                                     @if(!empty($to->meta_()->about))
                                     <dt>
                                         <span>關於我</span>
-                                        <span><div class="select_xx03" >{{$to->meta_()->about}}</div></span>
+                                        <span><div class="select_xx03" >{!! nl2br($to->meta_()->about) !!}</div></span>
                                     </dt>
                                     @endif
 
                                     @if(!empty($to->meta_()->style))
                                     <dt>
                                         <span>期待的約會模式</span>
-                                        <span><div class="select_xx03" >{{$to->meta_()->style}}</div></span>
+                                        <span><div class="select_xx03" >{!! nl2br($to->meta_()->style) !!}</div></span>
                                     </dt>
                                     @endif
 
@@ -317,8 +317,8 @@
                             <div class="ztitle"><span>進階資料</span>Advanced materials</div>
                             <div class="xiliao_input">
                                 <div class="xl_text">
-                                    <dt><span>帳號建立時間</span>@if($user->isVip())<font>{{$to->created_at}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>登入時間</span>@if($user->isVip())<font>{{$to->last_login}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    <dt><span>帳號建立時間</span>@if($user->isVip())<font>{{substr($to->created_at,0,10)}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    <dt><span>登入時間</span>@if($user->isVip())<font>{{substr($to->last_login,0,10)}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>被收藏次數</span>@if($user->isVip()) <font>{{$be_fav_count}}</font> @else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>收藏會員次數</span>@if($user->isVip())<font>{{$fav_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>車馬費邀請次數</span>@if($user->isVip())<font>{{$tip_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
@@ -396,6 +396,22 @@
 
 @section('javascript')
 <script>
+    $( document ).ready(function() {
+        @if($is_block_mid=='是')
+        $('.container').hide();
+        $('.gg_tab').hide();
+        $('.n_right').hide();
+        c4('此用戶已關閉資料');
+        $(".n_left").on('click', function() {
+            $('#tab04').hide();
+            if (document.referrer != "") {
+                window.history.back();
+            }else{
+                location.href = '/dashboard/search';
+            }
+        });
+        @endif
+    });
     @if(isset($timeSet) && isset($countSet))
         function doCookieSetup(name, value) {
             console.log('count1');
