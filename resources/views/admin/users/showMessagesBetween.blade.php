@@ -16,126 +16,134 @@
 			<td>
 				@if($message->from_id == $id1->id) 
 					<a href="{{ route('users/advInfo', [$message->from_id]) }} ">
-						{{ $id1->name }}
-						@if($id1->vip OR $id1->tipcount>0)
-						    ——
-						@endif
-						@if($id1->vip)
-						    @if($id1->vip=='diamond_black')
-						        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
-						    @else
-						        @for($z = 0; $z < $id1->vip; $z++)
-						            <img src="/img/diamond.png" style="height: 16px;width: 16px;">
-						        @endfor
-						    @endif
-						@endif
-						@for($i = 0; $i < $id1->tipcount; $i++)
-						    👍
-						@endfor
-						@if(!is_null($id1->isBlocked))
-						    @if(!is_null($id1->isBlocked->expire_date))
-						        @if(round((strtotime($id1->isBlocked->expire_date) - getdate()[0])/3600/24)>0)
-						            {{ round((strtotime($id1->isBlocked->expire_date) - getdate()[0])/3600/24 ) }}天
-						        @else
-						            此會員登入後將自動解除封鎖
-						        @endif
-						    @else
-						        (永久)
-						    @endif
-						@endif
+						<p @if($id1->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+							{{ $id1->name }}
+							@if($id1->vip OR $id1->tipcount>0)
+							    ——
+							@endif
+							@if($id1->vip)
+							    @if($id1->vip=='diamond_black')
+							        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+							    @else
+							        @for($z = 0; $z < $id1->vip; $z++)
+							            <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+							        @endfor
+							    @endif
+							@endif
+							@for($i = 0; $i < $id1->tipcount; $i++)
+							    👍
+							@endfor
+							@if(!is_null($id1->isBlocked))
+							    @if(!is_null($id1->isBlocked->expire_date))
+							        @if(round((strtotime($id1->isBlocked->expire_date) - getdate()[0])/3600/24)>0)
+							            {{ round((strtotime($id1->isBlocked->expire_date) - getdate()[0])/3600/24 ) }}天
+							        @else
+							            此會員登入後將自動解除封鎖
+							        @endif
+							    @else
+							        (永久)
+							    @endif
+							@endif
+						</p>
 					</a> 
 				@else
 					<a href="{{ route('users/advInfo', [$message->to_id]) }} ">
-						{{ $id2->name }}
-						@if($id2->vip OR $id2->tipcount>0)
-						    ——
-						@endif
-						@if($id2->vip)
-						    @if($id2->vip=='diamond_black')
-						        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
-						    @else
-						        @for($z = 0; $z < $id2->vip; $z++)
-						            <img src="/img/diamond.png" style="height: 16px;width: 16px;">
-						        @endfor
-						    @endif
-						@endif
-						@for($i = 0; $i < $id2->tipcount; $i++)
-						    👍
-						@endfor
-						@if(!is_null($id2->isBlocked))
-						    @if(!is_null($id2->isBlocked->expire_date))
-						        @if(round((strtotime($id2->isBlocked->expire_date) - getdate()[0])/3600/24)>0)
-						            {{ round((strtotime($id2->isBlocked->expire_date) - getdate()[0])/3600/24 ) }}天
-						        @else
-						            此會員登入後將自動解除封鎖
-						        @endif
-						    @else
-						        (永久)
-						    @endif
-						@endif
+						<p @if($id2->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+							{{ $id2->name }}
+							@if($id2->vip OR $id2->tipcount>0)
+							    ——
+							@endif
+							@if($id2->vip)
+							    @if($id2->vip=='diamond_black')
+							        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+							    @else
+							        @for($z = 0; $z < $id2->vip; $z++)
+							            <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+							        @endfor
+							    @endif
+							@endif
+							@for($i = 0; $i < $id2->tipcount; $i++)
+							    👍
+							@endfor
+							@if(!is_null($id2->isBlocked))
+							    @if(!is_null($id2->isBlocked->expire_date))
+							        @if(round((strtotime($id2->isBlocked->expire_date) - getdate()[0])/3600/24)>0)
+							            {{ round((strtotime($id2->isBlocked->expire_date) - getdate()[0])/3600/24 ) }}天
+							        @else
+							            此會員登入後將自動解除封鎖
+							        @endif
+							    @else
+							        (永久)
+							    @endif
+							@endif
+						</p>
 					</a>  
 				@endif
 			</td>
 			<td>
 				@if($message->from_id != $id1->id) 
 					<a href="{{ route('users/advInfo', [$id1->id]) }} ">
-						{{ $id1->name }}
-						@if($id1->vip OR $id1->tipcount>0)
-						    ——
-						@endif
-						@if($id1->vip)
-						    @if($id1->vip=='diamond_black')
-						        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
-						    @else
-						        @for($z = 0; $z < $id1->vip; $z++)
-						            <img src="/img/diamond.png" style="height: 16px;width: 16px;">
-						        @endfor
-						    @endif
-						@endif
-						@for($i = 0; $i < $id1->tipcount; $i++)
-						    👍
-						@endfor
-						@if(!is_null($id1->isBlockedReceiver))
-						    @if(!is_null($id1->isBlockedReceiver->expire_date))
-						        @if(round((strtotime($id1->isBlockedReceiver->expire_date) - getdate()[0])/3600/24)>0)
-						            {{ round((strtotime($id1->isBlockedReceiver->expire_date) - getdate()[0])/3600/24 ) }}天
-						        @else
-						            此會員登入後將自動解除封鎖
-						        @endif
-						    @else
-						        (永久)
-						    @endif
-						@endif
+						<p @if($id1->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+							{{ $id1->name }}
+							@if($id1->vip OR $id1->tipcount>0)
+							    ——
+							@endif
+							@if($id1->vip)
+							    @if($id1->vip=='diamond_black')
+							        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+							    @else
+							        @for($z = 0; $z < $id1->vip; $z++)
+							            <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+							        @endfor
+							    @endif
+							@endif
+							@for($i = 0; $i < $id1->tipcount; $i++)
+							    👍
+							@endfor
+							@if(!is_null($id1->isBlockedReceiver))
+							    @if(!is_null($id1->isBlockedReceiver->expire_date))
+							        @if(round((strtotime($id1->isBlockedReceiver->expire_date) - getdate()[0])/3600/24)>0)
+							            {{ round((strtotime($id1->isBlockedReceiver->expire_date) - getdate()[0])/3600/24 ) }}天
+							        @else
+							            此會員登入後將自動解除封鎖
+							        @endif
+							    @else
+							        (永久)
+							    @endif
+							@endif
+						</p>
 					</a> 
 				@else 
 					<a href="{{ route('users/advInfo', [$message->to_id]) }} ">
-						{{ $id2->name }}
-						@if($id2->vip OR $id2->tipcount>0)
-						    ——
-						@endif
-						@if($id2->vip)
-						    @if($id2->vip=='diamond_black')
-						        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
-						    @else
-						        @for($z = 0; $z < $id2->vip; $z++)
-						            <img src="/img/diamond.png" style="height: 16px;width: 16px;">
-						        @endfor
-						    @endif
-						@endif
-						@for($i = 0; $i < $id2->tipcount; $i++)
-						    👍
-						@endfor
-						@if(!is_null($id2->isBlockedReceiver))
-						    @if(!is_null($id2->isBlockedReceiver->expire_date))
-						        @if(round((strtotime($id2->isBlockedReceiver->expire_date) - getdate()[0])/3600/24)>0)
-						            {{ round((strtotime($id2->isBlockedReceiver->expire_date) - getdate()[0])/3600/24 ) }}天
-						        @else
-						            此會員登入後將自動解除封鎖
-						        @endif
-						    @else
-						        (永久)
-						    @endif
-						@endif
+						<p @if($id2->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+							{{ $id2->name }}
+							@if($id2->vip OR $id2->tipcount>0)
+							    ——
+							@endif
+							@if($id2->vip)
+							    @if($id2->vip=='diamond_black')
+							        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+							    @else
+							        @for($z = 0; $z < $id2->vip; $z++)
+							            <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+							        @endfor
+							    @endif
+							@endif
+							@for($i = 0; $i < $id2->tipcount; $i++)
+							    👍
+							@endfor
+							@if(!is_null($id2->isBlockedReceiver))
+							    @if(!is_null($id2->isBlockedReceiver->expire_date))
+							        @if(round((strtotime($id2->isBlockedReceiver->expire_date) - getdate()[0])/3600/24)>0)
+							            {{ round((strtotime($id2->isBlockedReceiver->expire_date) - getdate()[0])/3600/24 ) }}天
+							        @else
+							            此會員登入後將自動解除封鎖
+							        @endif
+							    @else
+							        (永久)
+							    @endif
+							@endif
+						</p>
 					</a>  
 				@endif
 			</td>

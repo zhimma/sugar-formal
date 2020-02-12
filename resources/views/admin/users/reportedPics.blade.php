@@ -66,14 +66,17 @@
                     @if(isset($results))
                         @foreach ($results as $rowIndex=>$result)
                         <? $rowIndex += 1; ?>
+
+                        @if(isset($reported_id))
+                            @if ($result['reported_user_id'] != $reported_id)
+                                @continue
+                            @endif
+                        @endif
+                        
                         <tr >
                             <td @if($result['isBlockedReceiver']) style="background-color:#FFFF00" @endif>
                                 <a href="{{ route('users/advInfo', $result['reported_user_id']) }}" target='_blank'>
-                                @if(isset($users[$result['reported_user_id']]['engroup']))
                                     <p @if($users[$result['reported_user_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
-                                @else
-                                    <p>
-                                @endif
                                         {{ $users[$result['reported_user_id']]['name'] }}
                                         @if($users[$result['reported_user_id']]['vip'] OR $users[$result['reported_user_id']]['tipcount']>0)
                                             ——
@@ -105,9 +108,18 @@
                                 </a>
                             </td>
                             <td style="white-space:nowrap;font-size:17px;">
-                                <a target='_blank' href="/admin/users/message/search/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $users[$result['reported_user_id']]['messagesResult'] }}</a> /
-                                <a target='_blank' href="/admin/users/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $users[$result['reported_user_id']]['reportsResult'] }}</a> /
-                                <a target='_blank' href="/admin/users/pics/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}">{{ $users[$result['reported_user_id']]['picsResult'] }}</a>
+                                <a target='_blank' 
+                                    href="/admin/users/message/search/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}/{{$result['reported_user_id']}}">
+                                    {{ $result['messagesResult'] }}
+                                </a> /
+                                <a target='_blank' 
+                                    href="/admin/users/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}/{{$result['reported_user_id']}}">
+                                    {{ $result['reportsResult'] }}
+                                </a> /
+                                <a target='_blank' 
+                                    href="/admin/users/pics/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}/{{$result['reported_user_id']}}">
+                                    {{ $result['picsResult'] }}
+                                </a>
                             </td>
                             <td>
                                 <a class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" >撰寫</a>
@@ -243,6 +255,20 @@
                                     照片已刪除或該筆資料不存在。
                                 @endif
                             </td>
+                            <td style="white-space:nowrap;font-size:17px;">
+                                <a target='_blank' 
+                                    href="/admin/users/message/search/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}/{{$result['reported_user_id']}}">
+                                    {{ $result['messagesResult'] }}
+                                </a> /
+                                <a target='_blank' 
+                                    href="/admin/users/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}/{{$result['reported_user_id']}}">
+                                    {{ $result['reportsResult'] }}
+                                </a> /
+                                <a target='_blank' 
+                                    href="/admin/users/pics/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}/{{$result['reported_user_id']}}">
+                                    {{ $result['picsResult'] }}
+                                </a>
+                            </td>
                             <td>
                                 <a target="_blank" class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true, 'reported'] ) }}"  >撰寫</a>
                             </td>
@@ -292,7 +318,7 @@
                                 <a class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" >撰寫</a>
                             </td>
                             <td>
-                                @if(isset($result['reporter_user_id']))
+                                @if(isset($result['reported_user_id']))
                                     <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$result['reporter_id'], $result['id']]) }}" target="_blank">封鎖</a>
                                 @else
                                     檢舉者資料已不存在
