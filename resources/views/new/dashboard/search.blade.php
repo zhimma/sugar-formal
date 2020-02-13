@@ -183,7 +183,7 @@
                                         @if($visitor->isVip())<img src="/new/images/b_04.png">@endif
 {{---------警示帳戶尚未實作-------------- <img src="/new/images/b_05.png">--}}
                                     </div>
-                                    <a href="/dashboard/viewuser/{{$visitor->id}}">
+                                    <a href="/dashboard/viewuser/{{$visitor->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">
                                     <div class="nt_photo"><img src="@if($visitor->meta_()->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->meta_()->pic}} @endif" @if ($visitor->engroup == 1) onerror="this.src='/img/male-avatar.png'" @else onerror="this.src='/img/female-avatar.png'" @endif></div>
                                     <div class="nt_bot nt_bgco">
                                         <h2>{{ $visitor->name }}<span>{{ $visitor->meta_()->age() }}歲</span></h2>

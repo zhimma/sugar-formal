@@ -345,12 +345,13 @@
         <div class="bltitle"><span>發送給{{$to->name}}</span></div>
         <div class="n_blnr01 ">
 
-            <form class="m-form m-form--fit m-form--label-align-right" id="chatForm">
+            <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                 <input type="hidden" name="userId" id="userId" value="{{$user->id}}">
                 <input type="hidden" name="to" id="to" value="{{$to->id}}">
+                <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}" value="{{ \Carbon\Carbon::now()->timestamp }}">
                 <textarea name="msg" id="msg" cols="" rows="" class="n_nutext" placeholder="請輸入內容" required></textarea>
-                <input type="submit" id="msgsnd" class="n_bllbut" value="發信件" style="border-style: none;">
+                <input type="submit" class="n_bllbut" value="發信件" style="border-style: none;">
             </form>
 
         </div>
@@ -411,6 +412,19 @@
             }
         });
         @endif
+    });
+    $('#chatForm').submit(function () {
+        let content = $('#msg').val(), msgsnd = $('.msgsnd');
+        if($.trim(content) == "" ){
+            $('.alert').remove();
+            $("<a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a>").insertAfter($('.msg'));
+            msgsnd.prop('disabled', true);
+            return checkForm;
+        }
+        else {
+            $('.alert').remove();
+            return checkForm;
+        }
     });
     @if(isset($timeSet) && isset($countSet))
         function doCookieSetup(name, value) {

@@ -20,7 +20,7 @@
                                 @if(isset($histUser))
                                     <li @if($histUser->isVip()) class="hy_bg01" @endif>
                                         <div class="si_bg">
-                                            <a href="/dashboard/viewuser/{{$histUser->id}}">
+                                            <a href="/dashboard/viewuser/{{$histUser->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">
                                             <div class="sjpic"><img src="@if($histUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{$histUser->meta_()->pic}} @endif" onerror="this.src='/img/male-avatar.png'"></div>
                                             <div class="sjleft">
                                                 <div class="sjtable"><span>{{ $histUser->name }}<i class="cicd">●</i>{{ $histUser->meta_()->age() }}</span></div>
