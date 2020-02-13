@@ -89,11 +89,12 @@
                     @endif
                     @if(isset($to))
                         <div class="se_text_bot">
-                            <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/chat2" id="chatForm">
+                            <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm">
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                 <input type="hidden" name="userId" value="{{$user->id}}">
                                 <input type="hidden" name="to" value="{{$to->id}}">
                                 <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
+                                <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}" value="{{ \Carbon\Carbon::now()->timestamp }}">
                                 <textarea name="msg" cols="" rows="" class="se_text msg" id="msg" placeholder="請輸入" required></textarea>
         {{--                        <a href="javascript:document.getElementById('chatForm').submit();" id="msgsnd" class="se_tbut matop20 msgsnd">回復</a>--}}
                                 <input type="submit" id="msgsnd" class="se_tbut matop20 msgsnd" value="回復">

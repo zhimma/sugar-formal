@@ -614,13 +614,14 @@
      $("#msgsnd").on('click', function(){
          
         $.ajax({
-            url: '/dashboard/chat2',
+            url: '/dashboard/chat2/{{ Carbon\Carbon::now()->timestamp }}',
             type: 'POST',
             data: {
                 _token   :"{{ csrf_token() }}",
                 userId   : $("#userId").val(),
                 to       : $("#to").val(),
                 msg      : $("#msg").val(),
+                {{ \Carbon\Carbon::now()->timestamp }} : "{{ \Carbon\Carbon::now()->timestamp }}"
             },
             success: function(response) {
                window.location.reload();
