@@ -35,7 +35,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\SimpleTables\banned_users;
 use Illuminate\Support\Facades\Input;
 use Session;
-
+use App\Http\Controllers\Common;
 class PagesController extends Controller
 {
     public function __construct(UserService $userService, VipLogService $logService)
@@ -674,7 +674,8 @@ class PagesController extends Controller
 
     public function save_img(Request $request)
     {
-
+        $common = new Common();
+        // dd($common->get_exif('/new/images/test05.jpg'));
         $user=$request->user();
         $user_id = $user->id;
         $data = json_decode($request->data);
@@ -794,6 +795,7 @@ class PagesController extends Controller
         // }
         echo json_encode($data);
     }
+    
 
     public function dashboard_img_new(Request $request)
     {
@@ -2067,5 +2069,21 @@ class PagesController extends Controller
             'msg' =>'檢舉大頭貼成功',
         );
         return json_encode($data);
+    }
+
+    public function member_auth_phone(Request $rquest){
+        return view('/auth/member_auth_phone');
+    }
+
+    public function member_auth_photo(Request $rquest){
+        return view('/auth/member_auth_photo');
+    }
+
+    public function hint_auth1(Request $rquest){
+        return view('/auth/hint_auth1');
+    }
+
+    public function hint_auth2(Request $rquest){
+        return view('/auth/hint_auth2');
     }
 }
