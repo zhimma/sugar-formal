@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
-use App\Notifications\MessageEmail;
+use App\Notifications\TipEmail;
 
 class Tip extends Model
 {
@@ -68,9 +68,9 @@ class Tip extends Model
 
         if ($curUser != null && $toUser != null)
         {
-            $admin->notify(new MessageEmail($member_id, $to_id, "車馬費通知 : ". $curUser->name . '發給' . $toUser->name));
-            $curUser->notify(new MessageEmail($member_id, $member_id, "車馬費邀請成功發送給 ".$toUser->name));
-            $toUser->notify(new MessageEmail($to_id, $to_id, "收到".$curUser->name."的車馬費邀請！"));
+            $admin->notify(new TipEmail($member_id, $to_id, Config::get('social.payment.tip-amount'), '761404', $member_id));
+            // $curUser->notify(new MessageEmail($member_id, $member_id, "車馬費邀請成功發送給 ".$toUser->name));
+            // $toUser->notify(new MessageEmail($to_id, $to_id, "收到".$curUser->name."的車馬費邀請！"));
         }
     }
 
@@ -96,5 +96,16 @@ class Tip extends Model
 
         if(empty($toUser)) return NULL;
         return $toUser;
+    }    
+
+    public static function TipCount_ChangeGood($id) {
+        $tipcount = Tip::where('member_id', $id)->orWhere('to_id','=',$id)->count();
+        if(in_array($tipcount,array(2,3,4))){
+            $tipcount = 2;
+        }elseif($tipcount>=5){
+            $tipcount = 3;
+        }
+        return $tipcount;
     }
+
 }

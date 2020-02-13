@@ -4309,6 +4309,7 @@
                     item.popup.html.on('click', '[data-action="remove"]', function(e) {
                         item.popup.close();
                         item.remove();
+						c2('刪除成功');
                     }).on('click', '[data-action="cancel"]', function(e) {
                         item.popup.close();
                     }).on('click', '[data-action="save"]', function(e) {

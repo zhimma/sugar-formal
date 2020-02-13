@@ -457,10 +457,14 @@ class Message_new extends Model
                             2
                         END')->orderBy('created_at', 'desc');
         $messages = $query->get();
-        $mm=[];
+        $mm = [];
         foreach ($messages as $key => $v) {
-            if(empty($mm[$v->from_id]))$mm[$v->from_id]=0;
-            if($v->read=='N')$mm[$v->from_id]++;
+            if(!isset($mm[$v->from_id])){
+                $mm[$v->from_id] = 0;
+            }
+            if($v->read=='N'){
+                $mm[$v->from_id]++;
+            }
         }
 
         if($isVip == 1)
@@ -555,7 +559,12 @@ class Message_new extends Model
             }
             else{
                 Log::info('Null object found, $user: ' . $user->id);
-                Log::info('Null object found, msgUser id: ' . $to_id . " or " . $from_id);
+                if(!isset($user->id)){
+                    Log::info('User null.');
+                }
+                if(!isset($msgUser->id)){
+                    Log::info('msgUser null: ' . $to_id . " or " . $from_id);
+                }
             }
         }
         //$messages['date'] = self::$date;

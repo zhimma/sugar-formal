@@ -209,7 +209,7 @@ class Message extends Model
             // add messages to array
             if(!in_array(['to_id' => $message->to_id, 'from_id' => $message->from_id], $tempMessages) && !in_array(['to_id' => $message->from_id, 'from_id' => $message->to_id], $tempMessages)) {
                 array_push($tempMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id]);
-                array_push($saveMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id, 'temp_id' => $message->temp_id,'all_delete_count' => $message->all_delete_count, 'is_row_delete_1' => $message->is_row_delete_1,
+                array_push($saveMessages, ['created_at' => $message->created_at,'to_id' => $message->to_id, 'from_id' => $message->from_id, 'temp_id' => $message->temp_id,'all_delete_count' => $message->all_delete_count, 'is_row_delete_1' => $message->is_row_delete_1,
                     'is_row_delete_2' => $message->is_row_delete_2, 'is_single_delete_1' => $message->is_single_delete_1, 'is_single_delete_2' => $message->is_single_delete_2,'content'=>$message->content]);
                 $noVipCount++;
             }
@@ -359,6 +359,23 @@ class Message extends Model
         $saveMessages = Message::chatArray($uid, $messages, 1);
 
         return $saveMessages;
+    }
+
+    public static function daySendersAdmin($uid, $isVip,$day_page){   
+        $s = date('Y-m-d H:i:s',strtotime(($day_page-1).'day'));
+        $e = date('Y-m-d H:i:s',strtotime($day_page.'day'));
+        $messages = DB::select(DB::raw("
+            select * from `message` 
+            WHERE  ((`to_id` = $uid and `from_id` != $uid) or (`from_id` = $uid and `to_id` != $uid))
+            AND created_at BETWEEN '".$s."' AND '".$e."'
+            order by `created_at` desc 
+        "));
+        $saveMessages = Message::chatArray($uid, $messages, 1);
+        return $saveMessages;
+    }
+
+    public static function ChcekReplyMsg($uid, $sid,$time){
+        return  Message::where([['to_id', $sid],['from_id', $uid],['created_at', '>=', $time]])->first() !== null;
     }
 
     public static function moreSendersAJAX($uid, $isVip, $date, $userAgent = null, $noVipCount = 0)

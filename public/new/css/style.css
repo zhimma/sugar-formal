@@ -762,7 +762,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 .blbg{width:100%; height:100%;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 9;display:none;}
 .announce_bg{width:100%; height:100%;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 9;display:none;}
-.bl_tab{width:36%;background:#e2e8ff; border:#8a9fef 2px solid;border-radius:5px;position: fixed;left:32%;top: 20%;z-index: 10;display:none;}
+.bl_tab{width:36%;background:#e2e8ff; border:#8a9fef 2px solid;border-radius:5px;position: fixed;left:32%;top: 8%;z-index: 10;display:none;}
 .bltitle{width:100%; height:45px; line-height:45px; background:#8a9fef; color:#ffffff; text-align:center; font-size:18px;}
 .bltitle span{ float:left; margin-left:15px;}
 .blnr{width:95%; margin:0 auto; display:table; padding:30px 0 50px 0;/*color:#666666;*/color:#6783c7;font-size: 18px;}
@@ -830,10 +830,14 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 }
 @media (max-width:320px) {
-/*.bltext{font-size:12px;}*/
-}
-@media (max-width:320px) {
 .wd_xsy{min-height:450px;}
+
+    .n_left {
+        width: 100px !important;
+    }
+    .n_right {
+        width: 100px !important;
+    }
 }
 
 
@@ -978,7 +982,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .n_ulhh img{width:100%}
 
 }
-.n_blnr01 {width:90%;margin: 0 auto;display: table;padding:20px 0 20px 0;color: #666666;}
+.n_blnr01 {width:90%;margin: 0 auto;padding:20px 0 20px 0;color: #666666;}
 .n_nutext{width:100%; min-height:100px; background:#ffffff; border:none; padding:5px; color:#666666; border-radius:5px;}
 .n_blbut{margin-top:15px;}
 

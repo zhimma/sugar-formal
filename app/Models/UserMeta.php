@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Config;
 use App\Models\SimpleTables\banned_users;
 use App\Models\Blocked as blocked;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class UserMeta extends Model
 {
@@ -204,14 +205,27 @@ class UserMeta extends Model
         if (isset($photo) && strlen($photo) != 0) $query = $query->whereNotNull('pic')->where('pic', '<>', 'NULL');
         if (isset($agefrom) && isset($ageto) && strlen($agefrom) != 0 && strlen($ageto) != 0) {
             $agefrom = $agefrom < 18 ? 18 : $agefrom;
-            $query = $query->whereBetween('birthdate', [Carbon::now()->subYears($ageto), Carbon::now()->subYears($agefrom)]);
+            try{
+                $query = $query->whereBetween('birthdate', [Carbon::now()->subYears($ageto), Carbon::now()->subYears($agefrom)]);
+            }
+            catch(\Exception $e){
+                Log::info('Searching function exception occurred, user id: ' . $userid . ', $agefrom: ' . $agefrom . ', $ageto: ' . $ageto);
+                Log::info('Useragent: ' . $_SERVER['HTTP_USER_AGENT']);
+            }
         }
 
-        $query = $query->where('birthdate', '<', Carbon::now()->subYears(18));
+        try{
+            $query = $query->where('birthdate', '<', Carbon::now()->subYears(18));
+        }
+        catch(\Exception $e){
+            Log::info('Searching function exception occurred, user id: ' . $userid);
+            Log::info('Useragent: ' . $_SERVER['HTTP_USER_AGENT']);
+        }
 
         $bannedUsers = banned_users::select('member_id')->get();
         $blockedUsers = blocked::select('blocked_id')->where('member_id',$userid)->get();
-        if($blockedUsers)$query->whereNotIn('user_id', $blockedUsers);
+        //if($blockedUsers)$query->whereNotIn('user_id', $blockedUsers);
+        $beBlockedUsers = blocked::select('member_id')->where('blocked_id',$userid)->get();
 
 
         $block = UserMeta::where('users.id', $userid)->join('users', 'user_id', '=', 'users.id')->get()->first();
@@ -232,8 +246,8 @@ class UserMeta extends Model
 
 
         if(isset($seqtime) && $seqtime == 2)
-            return $query->whereNotIn('user_id', $bannedUsers)->whereNotIn('user_id', $block_user)->whereNotIn('user_id', $blockedUsers)->orderBy('users.created_at', 'desc')->paginate(12);
+            return $query->whereNotIn('user_id', $bannedUsers)->whereNotIn('user_id', $block_user)->whereNotIn('user_id', $blockedUsers)->whereNotIn('user_id', $beBlockedUsers)->orderBy('users.created_at', 'desc')->paginate(12);
         else
-            return $query->whereNotIn('user_id', $bannedUsers)->whereNotIn('user_id', $block_user)->whereNotIn('user_id', $blockedUsers)->orderBy('users.last_login', 'desc')->paginate(12);
+            return $query->whereNotIn('user_id', $bannedUsers)->whereNotIn('user_id', $block_user)->whereNotIn('user_id', $blockedUsers)->whereNotIn('user_id', $beBlockedUsers)->orderBy('users.last_login', 'desc')->paginate(12);
     }
 }

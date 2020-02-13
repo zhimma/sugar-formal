@@ -7,7 +7,11 @@ $admin_email = Config::get('social.admin.email');
 ?>
 <body style="padding: 15px;">
 <h3 style="text-align:left;">
-    信箱 @if(isset($to)) - {{$to->name}}@endif @if(isset($to))
+    站長信箱 
+    @if(isset($to))
+    	 - {{$to->name}}
+    @endif 
+    @if(isset($to))
         <a class="btn btn-info" href="/admin/chat"> 回去信箱</a>
     @endif
 </h3>
@@ -19,9 +23,16 @@ $admin_email = Config::get('social.admin.email');
         ?>
     <div id="user-list" style="display:inline-block; width: 100%;">
         <?php
-            $messages = \App\Models\Message::allSendersAdmin($user->id, 1);
+        	$day_page = 0;//預設今日
+        	if(isset($_GET['day_page'])) $day_page = $_GET['day_page'];
+            $messages = \App\Models\Message::daySendersAdmin($user->id, 1, $day_page);
             // echo json_encode($messages);
         ?>
+        @if(!isset($to))
+            <a href="/admin/chat?day_page={{ $day_page-1 }}">上一頁</a>
+            <a href="/admin/chat">首頁</a>
+        	<a href="/admin/chat?day_page={{ $day_page+1 }}">下一頁</a>
+        @endif
         <?php /*$msgUserRead =  \App\Models\Message::getSendersRead($msgUser->id, $user->id);*/
             $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get()->toArray();
             function search($value, $array) {
@@ -33,7 +44,6 @@ $admin_email = Config::get('social.admin.email');
                 return false;
             }
         ?>
-
         @if(!empty($messages))
             @foreach ($messages as $message)
                 @if(\App\Models\User::isBanned($message['from_id']) || \App\Models\User::isBanned($message['to_id']))
@@ -43,42 +53,41 @@ $admin_email = Config::get('social.admin.email');
                     @continue
                 @endif
             <?php
-
+                $ChcekReplyMsg = true;
                 if($message['to_id'] == $user->id) {
                     $msgUser = \App\Models\User::findById($message['from_id']);
+                    //當前24小時訊息 查詢如果沒有站長回復訊息的就給藍底回復框
+                    $ChcekReplyMsg = \App\Models\Message::ChcekReplyMsg($message['to_id'], $message['from_id'],$message['created_at']);
                 }
                 else if($message['from_id'] == $user->id) {
                     $msgUser =  \App\Models\User::findById($message['to_id']);
                 }
-
-                //echo 'message->to_id = '. $message->to_id . ' message->from_id = '. $message->from_id . ' user->id = ' . $user->id;
                 $latestMessage = \App\Models\Message::latestMessage($user->id, $msgUser->id);
-                // echo '<br/>';
-                // echo json_encode($latestMessage);
             ?>
                     @if(!empty($latestMessage))
-                        @if(\App\Models\Message::isAdminMessage($latestMessage->content))
+                        {{-- @if(\App\Models\Message::isAdminMessage($latestMessage->content)) --}}
                         <div class="box1" @if(str_contains($msgUser->name, '站長')) id='admin' @else id='normal' @endif style="background-color: white; border: 1px solid; margin: 4px;">
-
-                        @else
-                        <div class="box1" @if(str_contains($msgUser->name, '站長')) id='admin' @else id='normal' @endif style="background-color: white; border: 1px solid; margin: 4px;">
-
-                        @endif
-                            <div class="" @if(isset($to))style="width:95%"@else style="width:95%" @endif>
+                            <div @if(!$ChcekReplyMsg) style="background-color:#D2E9FF;padding:5px" @else style="padding:5px" @endif>
                                 <a href="/admin/chat/{{$msgUser->id}}"><img style="max-width:75px;" src="{{$msgUser->meta_()->pic}}" onerror="this.src='/img/male-avatar.png'" alt=""></a>
-
-
                                 <a href="/admin/chat/{{$msgUser->id}}" class="btn btn-success">
                                     <span class="" @if(str_contains($msgUser->name, '站長')) style='color:blue;' @endif>
-                                    {{$msgUser->name}}
+                                        {{$msgUser->name}}
                                     </span>
-                                    @if(\App\Models\Reported::cntr($msgUser->id) >= $block_people ) <br><span style="color:red">(此人遭多人檢舉)</span>
+                                    @if(\App\Models\Reported::cntr($msgUser->id) >= $block_people )
+                                        <br><span style="color:red">(此人遭多人檢舉)</span>
                                     @endif
-                                    </a>
-
-                                    <p style="word-wrap: break-word; word-break: break-all">
-                                        最新訊息：{{$latestMessage->content}}
-                                    </p>
+                                </a>
+                                最新訊息：{{$message['content']}}
+                                @if(!$ChcekReplyMsg)
+                                	<form class="" style="padding:2px" method="POST" action="/admin/chat">
+                                	    <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                	    <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                	    <input type="hidden" name="userId" value="{{ $user->id }}">
+                                	    <input type="hidden" name="to" value="{{ $msgUser->id }}">
+                                	    <button id="msgsnd2" type="submit" class="btn btn-info">回覆</button>
+                                	    <textarea class="msgtext_width msg_textarea" rows="1" id="msg2" required name="msg" maxlength="500"></textarea>
+                                	</form>
+                                @endif
                             </div>
                         </div>
                     @endif
@@ -158,14 +167,15 @@ $admin_email = Config::get('social.admin.email');
             <form class="form-control" method="POST" action="/admin/chat">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-                <input type="hidden" name="userId" value="{{$user->id}}">
-                <input type="hidden" name="to" value="{{$to->id}}">
+                <input type="hidden" name="userId" value="{{ $user->id }}">
+                <input type="hidden" name="to" value="{{ $to->id }}">
                 <textarea class="form-control" rows="4" id="msg" required name="msg" maxlength="500"></textarea>
                 <button id="msgsnd" type="submit" class="btn btn-info">回覆</button>&nbsp;&nbsp;
                 <button type="reset" class="btn btn-outline-info">取消</button>
             </form>
         </div>
     </div>
+    
 @endif
 
 </body>
@@ -184,6 +194,21 @@ $(document).ready(function(){
             $('#msgsnd').prop('disabled', true);
         }
     });
+    $('#msg2').on('keyup' , function() {
+        if($('#msg2').val().length > 0 ){
+            $('#msgsnd2').prop('disabled', false);
+        }
+        else {
+            $('#msgsnd2').prop('disabled', true);
+        }
+    });
+    $('#last').on('keyup' , function() {
+        
+    });
+    $('#next').on('keyup' , function() {
+        
+    });
+
     $("#showhide").click(function(){
         if ($("user-list").isHidden()) {
             $("user-list").show();

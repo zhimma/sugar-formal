@@ -182,7 +182,10 @@ class User extends Authenticatable
     public function isVip()
     {
         //return Vip::where('member_id', $this->id)->where('expiry', '>=',   Carbon::now())->orderBy('created_at', 'desc')->first() !== null;
-        return Vip::select('active')->where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first() !== null;
+        // return Vip::select('active')->where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first() !== null;
+        return Vip::select('active')->where('member_id', $this->id)->where('active', 1)->where(function($query)
+                    {$query->where('expiry', '0000-00-00 00:00:00')->orwhere('expiry', '>=', Carbon::now());}
+                    )->orderBy('created_at', 'desc')->first() !== null;
     }
 
     public function isFreeVip()

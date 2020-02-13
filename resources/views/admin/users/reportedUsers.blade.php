@@ -55,6 +55,7 @@
             <table class="table-hover table table-bordered">
                 <tr>
                     <th>被檢舉者</th>
+                    <th title="近一月(訊息/會員/照片)">曾被檢舉</th>
                     <th>回覆被檢舉者(回覆後將會自動移除檢舉記錄)</th>
                     <th>封鎖被檢舉者</th>
                     <th>檢舉者</th>
@@ -64,17 +65,34 @@
                     <th>檢舉時間</th>
                 </tr>
                 @forelse ($results as $result)
+                    @if(isset($reported_id))
+                        @if ($result['reported_id'] != $reported_id)
+                            @continue
+                        @endif
+                    @endif
                     <tr >
                         <td @if($result['isBlockedReceiver']) style="background-color:#FFFF00" @endif>
                             <a href="{{ route('users/advInfo', $result['reported_id']) }}" target='_blank'>
-                                @if(isset($users[$result['reported_id']]['engroup']))
-                                    <p @if($users[$result['reported_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
-                                @else
-                                    <p>
-                                @endif
+                                <p @if($users[$result['reported_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
                                     {{ $users[$result['reported_id']]['name'] }}
+                                    @if($users[$result['reported_id']]['vip'] OR (isset($users[$result['reported_id']]['tipcount']) AND $users[$result['reported_id']]['tipcount'] > 0))
+                                        ——
+                                    @endif
                                     @if($users[$result['reported_id']]['vip'])
-                                        <i class="m-nav__link-icon fa fa-diamond"></i>
+                                        @if($users[$result['reported_id']]['vip']=='diamond_black')
+                                            <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+                                        @else
+                                            @for($z = 0; $z < $users[$result['reported_id']]['vip']; $z++)
+                                                <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+                                            @endfor
+                                        @endif
+                                    @endif
+                                    @if(isset($users[$result['reported_id']]['tipcount']))
+                                        @for($i = 0; $i < $users[$result['reported_id']]['tipcount']; $i++)
+                                            👍
+                                        @endfor
+                                    @else
+                                        {{ logger('reportedUsers, line 80 tipcount does not exists, user id: ' . $result['reported_id']) }}
                                     @endif
                                     @if(!is_null($result['isBlockedReceiver']))
                                         @if(!is_null($result['isBlockedReceiver']['expire_date']))
@@ -90,6 +108,18 @@
                                 </p>
                             </a> 
                         </td>
+                        @if(isset($result['messagesResult']))
+                            <td style="white-space:nowrap;font-size:17px;">
+                                <a target='_blank' href="/admin/users/message/search/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}/{{$result['reported_id']}}">{{ $result['messagesResult'] }}</a> /
+                                <a target='_blank' href="/admin/users/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}/{{$result['reported_id']}}">{{ $result['reportsResult'] }}</a> /
+                                <a target='_blank' href="/admin/users/pics/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}/{{$result['reported_id']}}">{{ $result['picsResult'] }}</a>
+                            </td>
+                        @else
+                            <td rowspan="1" style="white-space:nowrap;font-size:17px;">
+                                無資料
+                            </td>
+                            {{ logger('reportedUsers, line 110 messagesResult does not exists, user id: ' . $result['reported_id']) }}
+                        @endif
                         <td>
                             <a href="{{ route('AdminMessengerWithReportedId', [$result->member_id, $result->reported_id, $result->id, 0, 'reported']) }}" target="_blank" class='btn btn-dark'>撰寫</a>
                         </td>
@@ -105,19 +135,35 @@
                                     <p>
                                 @endif
                                     {{ $users[$result['member_id']]['name'] }}
+                                    @if($users[$result['member_id']]['vip'] OR (isset($users[$result['member_id']]['tipcount']) AND $users[$result['member_id']]['tipcount'] > 0))
+                                        ——
+                                    @endif
                                     @if($users[$result['member_id']]['vip'])
-                                        <i class="m-nav__link-icon fa fa-diamond"></i>
+                                        @if($users[$result['member_id']]['vip']=='diamond_black')
+                                            <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+                                        @else
+                                            @for($z = 0; $z < $users[$result['member_id']]['vip']; $z++)
+                                                <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+                                            @endfor
+                                        @endif
+                                    @endif
+                                    @if(isset($users[$result['member_id']]['tipcount']))
+                                        @for($i = 0; $i < $users[$result['member_id']]['tipcount']; $i++)
+                                            👍
+                                        @endfor
+                                    @else
+                                        {{ logger('reportedUsers, line 137 tipcount does not exists, user id: ' . $result['member_id']) }}
                                     @endif
                                     @if(!is_null($result['isBlocked']))
                                         @if(!is_null($result['isBlocked']['expire_date']))
                                             @if(isset($result['isBlockedReceiver']['expire_date']))
-                                                @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
-                                                    {{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天
+                                                @if(round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24)>0)
+                                                    {{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天
                                                 @else
                                                     此會員登入後將自動解除封鎖
                                                 @endif
                                             @else
-                                                沒有正確記錄封鎖資料
+                                                此會員登入後將自動解除封鎖
                                             @endif
                                         @else
                                             (永久)

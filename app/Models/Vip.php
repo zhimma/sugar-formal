@@ -62,7 +62,7 @@ class Vip extends Model
             $vip->amount = $amount;
             $vip->active = $active;
             $vip->free = $free;
-            $vip->transactionType = $transactionType;
+            //$vip->transactionType = $transactionType;
             //$startDate = time();
             //$expiry = date('Y-m-d H:i:s', strtotime('+'.substr($order_id, 0, 2).' day', $startDate));
             //$vip->expiry = $expiry;
@@ -161,4 +161,35 @@ class Vip extends Model
             ->update(array('active' => 0, 'expiry' => null));
         return $user;
     }
+
+    public static function vip_diamond($id){
+        //黑鑽 曾經是 vip現在不是 & 現在是 vip 但已經選擇取消不續約
+        $sqltmp = Vip::select('member_id', 'active', 'expiry')->where('member_id', $id)->orderBy('created_at', 'desc')->get()->first();
+        if($sqltmp){
+            if($sqltmp->active == '0' OR $sqltmp->expiry != '0000-00-00 00:00:00') return 'diamond_black';
+            //現在是VIP且無取消續約的 連續續約月數轉換鑽石數
+            if($sqltmp->active == '1' OR $sqltmp->expiry = '0000-00-00 00:00:00'){
+                $now = \Carbon\Carbon::now();
+                $vip_date = Vip::select('id', 'created_at')->where('member_id', $id)->orderBy('created_at', 'desc')->get()->first();
+                if(isset($vip_date) && isset($vip_date->created_at)){
+                    $vip_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $vip_date->created_at);
+                    $vip_mon = $vip_date->diffInMonths($now);
+                    if($vip_mon<2){
+                        $vip_diamond = 1;
+                    }elseif(in_array($vip_mon,array(2,3,4))){
+                        $vip_diamond = 2;
+                    }elseif($vip_mon>=5){
+                        $vip_diamond = 3;
+                    }
+                    return $vip_diamond;
+                }
+                else{
+                    Log::info('VIP created_at is null, user id: ' . $id);
+                    return false;
+                }
+            }
+        }
+        return null;
+    }
+
 }

@@ -371,6 +371,7 @@ class PagesController extends Controller
             $fingerprintValue = Hash::make($fingerprintValue.$request->ip());
             $data = [
                 'user_id' => isset($user) ? $user->id : null,
+                'ip' => request()->ip(),
                 'fingerprintValue'=>$fingerprintValue,
                 'browser_name'=>$request->browser_name,
                 'browser_version'=>$request->browser_version,
@@ -656,20 +657,19 @@ class PagesController extends Controller
         /*移除Vip資格*/
         $is_vip = $user->isVip();
         $pic_count = DB::table('member_pic')->where('member_id', $user->id)->count();
-
         if(($pic_count+1)<4 && $is_vip==1 &&$user->engroup==2){
-
             DB::table('member_vip')->where('member_id',$user->id)->update(['active'=>0, 'free'=>1]);
 
             $data = array(
                 'code'=>'800'
             );
+        }else {
+
+
+            $data = array(
+                'code' => '200'
+            );
         }
-
-
-        $data = array(
-            'code'=>'200'
-        );
 
         return json_encode($data);
     }
@@ -733,49 +733,37 @@ class PagesController extends Controller
                     break;
                 }
                 $now = date("Ymdhis", strtotime(now()));
-                $image = $pic_infos[$i];  // your base64 encoded
-
-                // $image = str_replace('data:image/png;base64,', '', $image);
-                // $image = str_replace(' ', '+', $image);
-                // $imageName = str_random(10).'.'.'png';
-                list($type, $image) = explode(';', $image);
-                list(, $image)      = explode(',', $image);
-                $image = base64_decode($image);
-                \File::put(public_path(). '/Member_pics' .'/'. $user->id.'_'.$now.$member_pics[$i], $image);
-
-
-
-                DB::table('member_pic')->insert(
-                    array('member_id' => $user->id, 'pic' => '/Member_pics'.'/'.$user->id.'_'.$now.$member_pics[$i], 'isHidden' => 0, 'created_at'=>now(), 'updated_at'=>now())
-                );
-
-
+                if(isset($pic_infos[$i])){
+                    $image = $pic_infos[$i];  // your base64 encoded
+                    // $image = str_replace('data:image/png;base64,', '', $image);
+                    // $image = str_replace(' ', '+', $image);
+                    // $imageName = str_random(10).'.'.'png';
+                    list($type, $image) = explode(';', $image);
+                    list(, $image)      = explode(',', $image);
+                    $image = base64_decode($image);
+                    \File::put(public_path(). '/Member_pics' .'/'. $user->id.'_'.$now.$member_pics[$i], $image);
+                    DB::table('member_pic')->insert(
+                        array('member_id' => $user->id, 'pic' => '/Member_pics'.'/'.$user->id.'_'.$now.$member_pics[$i], 'isHidden' => 0, 'created_at'=>now(), 'updated_at'=>now())
+                    );
+                }
+                else{
+                    Log::info('save_img() failed, user id: ' . $user_id);
+                    return false;
+                }
             }
             $is_vip = $user->isVip();
-
-
-
             if(($pic_count+1)>=4 && $is_vip==0 &&$user->engroup==2){
-
                 $isVipCount = DB::table('member_vip')->where('member_id',$user->id)->count();
                 if($isVipCount==0){
                     DB::table('member_vip')->insert(array('member_id'=>$user->id,'active'=>1, 'free'=>1));
                 }else{
                     DB::table('member_vip')->where('member_id',$user->id)->update(['active'=>1, 'free'=>1]);
                 }
-
-
                 $data = array(
                     'code'=>'800'
                 );
             }
-
-            
         }
-
-
-       
-
 
         /*設第一張照片為大頭貼*/
         $avatar = DB::table('member_pic')->where('member_id', $user_id)->orderBy('id', 'asc')->get()->first();
@@ -785,9 +773,6 @@ class PagesController extends Controller
             $avatarPic = $avatar->pic;
         }
         DB::table('user_meta')->where('user_id', $user_id)->update(['pic'=>$avatarPic]);
-
-
-
         // dd($data);
         // foreach($member_pics as $key=>$member_pic){
 
@@ -1065,7 +1050,8 @@ class PagesController extends Controller
             return redirect('/dashboard/viewuser/'.$request->uid);
         }
         Reported::report($request->aid, $request->uid, $request->content);
-        return redirect('/dashboard/viewuser/'.$request->uid)->with('message', '檢舉成功');
+//        return redirect('/dashboard/viewuser/'.$request->uid)->with('message', '檢舉成功');
+        return back()->with('message', '檢舉成功');
     }
 
 

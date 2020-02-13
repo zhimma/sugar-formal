@@ -78,6 +78,7 @@
         <table class="table-hover table table-bordered">
             <tr>
                 <td>發送者</td>
+                <th>曾被檢舉</th>
                 <td>回覆發送者</td>
                 @if(isset($reported) && $reported == 1)
                 <td>封鎖發送者</td>
@@ -103,21 +104,61 @@
                 </td>
             </tr>
             @forelse ($results as $key => $result)
+            @if(isset($reported_id))
+                @if ($result['from_id'] != $reported_id)
+                    @continue
+                @endif
+            @endif
             <tr>
                 <td @if($result['isBlocked']) style="background-color:#FFFF00" @endif>
                     <a href="{{ route('users/advInfo', $result['from_id']) }}" target='_blank' >
-                        <p  @if($users[$result['from_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $users[$result['from_id']]['name'] }}
-                            @if(!is_null($users[$result['from_id']]['vip']))
-                                <i class="m-nav__link-icon fa fa-diamond"></i>
+                        <p  @if($users[$result['from_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+                            {{ $users[$result['from_id']]['name'] }}
+                            @if($users[$result['from_id']]['vip'] OR (isset($users[$result['from_id']]['tipcount']) AND $users[$result['from_id']]['tipcount'] > 0))
+                                ——
+                            @endif
+                            @if($users[$result['from_id']]['vip'])
+                                @if($users[$result['from_id']]['vip']=='diamond_black')
+                                    <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+                                @else
+                                    @for($z = 0; $z < $users[$result['from_id']]['vip']; $z++)
+                                        <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+                                    @endfor
+                                @endif
+                            @endif
+                            @if(isset($users[$result['from_id']]['tipcount']))
+                                @for($z = 0; $z < $users[$result['from_id']]['tipcount']; $z++)
+                                    👍
+                                @endfor
+                            @else
+                                {{ logger('searchMessage, line 112 tipcount does not exists.') }}
                             @endif
                             @if(!is_null($result['isBlocked']))
                                 @if(!is_null($result['isBlocked']['expire_date']))
-                                    ({{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                    @if(round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24)>0)
+                                        {{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天
+                                    @else
+                                        此會員登入後將自動解除封鎖
+                                    @endif
                                 @else
                                     (永久)
                                 @endif
                             @endif
                         </p>
+                    </a>
+                </td>
+                <td style="white-space:nowrap;font-size:17px;">
+                    <a target='_blank' 
+                    	href="/admin/users/message/search/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}/{{$result['from_id']}}">
+                    	{{ $result['messagesResult'] }}
+                    </a> /
+                    <a target='_blank' 
+                    	href="/admin/users/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}/{{$result['from_id']}}">
+                    	{{ $result['reportsResult'] }}
+                    </a> /
+                    <a target='_blank' 
+                    	href="/admin/users/pics/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}/{{$result['from_id']}}">
+                    	{{ $result['picsResult'] }}
                     </a>
                 </td>
                 <td>
@@ -132,12 +173,32 @@
                     <a href="{{ route('users/advInfo', $result['to_id']) }}" target='_blank'>
                         <p @if($users[$result['to_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
                             {{ $users[$result['to_id']]['name'] }}
-                            @if(!is_null($users[$result['to_id']]['vip']))
-                                <i class="m-nav__link-icon fa fa-diamond"></i>
+                            @if($users[$result['to_id']]['vip'] OR (isset($users[$result['to_id']]['tipcount']) AND $users[$result['to_id']]['tipcount'] > 0))
+                                ——
+                            @endif
+                            @if($users[$result['to_id']]['vip'])
+                                @if($users[$result['to_id']]['vip']=='diamond_black')
+                                    <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+                                @else
+                                    @for($z = 0; $z < $users[$result['to_id']]['vip']; $z++)
+                                        <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+                                    @endfor
+                                @endif
+                            @endif
+                            @if(isset($users[$result['to_id']]['tipcount']))
+                                @for($z = 0; $z < $users[$result['to_id']]['tipcount']; $z++)
+                                    👍
+                                @endfor
+                            @else
+                                {{ logger('searchMessage, line 162 tipcount does not exists.') }}
                             @endif
                             @if(!is_null($result['isBlockedReceiver']))
                                 @if(!is_null($result['isBlockedReceiver']['expire_date']))
-                                    ({{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                    @if(round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
+                                        {{ round((strtotime($result['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天
+                                    @else
+                                        此會員登入後將自動解除封鎖
+                                    @endif
                                 @else
                                     (永久)
                                 @endif
@@ -179,6 +240,7 @@
         <table class="table-hover table table-bordered">
             <tr>
                 <td>發送者</td>
+                <th>曾被檢舉</th>
                 <td>回覆發送者</td>
                 <td>封鎖發送者</td>
                 <td>註冊時間</td>
@@ -198,44 +260,149 @@
                 </td>
             </tr>
             @forelse ($senders as $sender)
-            <tr @if($sender['isBlocked']) style="color: #F00;" @endif>
-                <td rowspan="{{ count($sender['messages']) }}">
-                    <a href="{{ route('users/advInfo', $sender['id']) }}" target='_blank' @if($sender['isBlocked']) style="color: #F00;" @endif>{{ $sender['name'] }}</a>
-                    @if($sender['vip'])
-                        <i class="m-nav__link-icon fa fa-diamond"></i>
-                    @endif
-                </td>
-                <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][0]['id'] ]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>
-                <td>
-                    <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }}" target="_blank">封鎖</a>
-                </td>
-                <td rowspan="{{ count($sender['messages']) }}">{{ $sender['created_at'] }}</td>
-                <td rowspan="{{ count($sender['messages']) }}">{{ $sender['last_login'] }}</td>
-                <td>{{ $receivers[$sender['messages'][0]['to_id']] }}</td>
-                <td width="45%">{{ $sender['messages'][0]['content'] }}</td>
-                <td>{{ $sender['messages'][0]['created_at'] }}</td>
-                <td style="text-align: center; vertical-align: middle">
-                    <input type="checkbox" name="msg_id[]" value="{{ $sender['messages'][0]['id'] }}" class="form-control boxes">
-                </td>
-            </tr>
-            @if(count($sender['messages']) > 1)
-            @for( $i = 1; $i < count($sender['messages']); $i++) <tr @if($sender['isBlocked']) style="color: #F00;" @endif>
-                <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][$i]['id']]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>
-                <td>
-                    <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }} " target="_blank">封鎖</a>
-                </td>
-                <td>{{ $receivers[$sender['messages'][$i]['to_id']] }}</td>
-                <td width="45%">{{ $sender['messages'][$i]['content'] }}</td>
-                <td>{{ $sender['messages'][$i]['created_at'] }}</td>
-                <td style="text-align: center; vertical-align: middle">
-                    <input type="checkbox" name="msg_id[]" value="{{ $sender['messages'][$i]['id'] }}" class="form-control boxes">
-                </td>
+                <tr>
+                    <td rowspan="{{ count($sender['messages']) }}" @if($sender['isBlocked']) style="background-color:#FFFF00" @endif>
+                        <a href="{{ route('users/advInfo', $sender['id']) }}" target='_blank' >
+                            <p @if($sender['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+                                {{ $sender['name'] }}
+                                @if($sender['vip'] OR $sender['tipcount']>0)
+                                    ——
+                                @endif
+                                @if($sender['vip'])
+                                    @if($sender['vip']=='diamond_black')
+                                        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+                                    @else
+                                        @for($z = 0; $z < $sender['vip']; $z++)
+                                            <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+                                        @endfor
+                                    @endif
+                                @endif
+                                @for($z = 0; $z < $sender['tipcount']; $z++)
+                                    👍
+                                @endfor
+                                @if(!is_null($sender['isBlocked']))
+                                    @if(!is_null($sender['isBlocked']['expire_date']))
+                                        @if(round((strtotime($sender['isBlocked']['expire_date']) - getdate()[0])/3600/24)>0)
+                                            {{ round((strtotime($sender['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天
+                                        @else
+                                            此會員登入後將自動解除封鎖
+                                        @endif
+                                    @else
+                                        (永久)
+                                    @endif
+                                @endif
+                            </p>
+                        </a>
+                    </td>
+                    <td rowspan="{{ count($sender['messages']) }}" style="white-space:nowrap;font-size:17px;">
+                        <a target='_blank' 
+                        	href="/admin/users/message/search/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}/{{$sender['id']}}">
+                        	{{ $sender['messagesResult'] }}
+                        </a> /
+                        <a target='_blank' 
+                        href="/admin/users/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}/{{$sender['id']}}">
+                    		{{ $sender['reportsResult'] }}
+                    	</a> /
+                        <a target='_blank' 
+                        	href="/admin/users/pics/reported/{{date('Y-m-d', strtotime('-1 month'))}}/{{date('Y-m-d',time())}}/{{$sender['id']}}">
+                        	{{ $sender['picsResult'] }}
+                        </a>
+                    </td>
+                    <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][0]['id'] ]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>
+                    <td>
+                        <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }}" target="_blank">封鎖</a>
+                    </td>
+                    <td rowspan="{{ count($sender['messages']) }}">{{ $sender['created_at'] }}</td>
+                    <td rowspan="{{ count($sender['messages']) }}">{{ $sender['last_login'] }}</td>
+                    <td @if($receivers[$sender['messages'][0]['to_id']]['isBlockedReceiver']) style="background-color:#FFFF00" @endif>
+                        <a href="{{ route('users/advInfo', $sender['messages'][0]['to_id']) }}" target='_blank' >
+                            <p @if($receivers[$sender['messages'][0]['to_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+                                {{ $receivers[$sender['messages'][0]['to_id']]['name'] }}
+                                @if($receivers[$sender['messages'][0]['to_id']]['vip'] OR $receivers[$sender['messages'][0]['to_id']]['tipcount']>0)
+                                    ——
+                                @endif
+                                @if($receivers[$sender['messages'][0]['to_id']]['vip'])
+                                    @if($receivers[$sender['messages'][0]['to_id']]['vip']=='diamond_black')
+                                        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+                                    @else
+                                        @for($z = 0; $z < $receivers[$sender['messages'][0]['to_id']]['vip']; $z++)
+                                            <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+                                        @endfor
+                                    @endif
+                                @endif
+                                @for($z = 0; $z < $receivers[$sender['messages'][0]['to_id']]['tipcount']; $z++)
+                                    👍
+                                @endfor
+                                @if(!is_null($receivers[$sender['messages'][0]['to_id']]['isBlockedReceiver']))
+                                    @if(!is_null($receivers[$sender['messages'][0]['to_id']]['isBlockedReceiver']['expire_date']))
+                                        @if(round((strtotime($receivers[$sender['messages'][0]['to_id']]['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
+                                            {{ round((strtotime($receivers[$sender['messages'][0]['to_id']]['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天
+                                        @else
+                                            此會員登入後將自動解除封鎖
+                                        @endif
+                                    @else
+                                        (永久)
+                                    @endif
+                                @endif
+                            </p>
+                        </a>
+                    </td>
+                    <td width="45%">{{ $sender['messages'][0]['content'] }}</td>
+                    <td>{{ $sender['messages'][0]['created_at'] }}</td>
+                    <td style="text-align: center; vertical-align: middle">
+                        <input type="checkbox" name="msg_id[]" value="{{ $sender['messages'][0]['id'] }}" class="form-control boxes">
+                    </td>
                 </tr>
-                @endfor
+                @if(count($sender['messages']) > 1)
+                    @for( $i = 1; $i < count($sender['messages']); $i++) <tr>
+                        <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][$i]['id']]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>
+                        <td>
+                            <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }} " target="_blank">封鎖</a>
+                        </td>
+                        <td @if($receivers[$sender['messages'][$i]['to_id']]['isBlockedReceiver']) style="background-color:#FFFF00" @endif>
+                            <a href="{{ route('users/advInfo', $sender['messages'][$i]['to_id']) }}" target='_blank' >
+                                <p @if($receivers[$sender['messages'][$i]['to_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+                                    {{ $receivers[$sender['messages'][$i]['to_id']]['name'] }}
+                                    @if($receivers[$sender['messages'][$i]['to_id']]['vip'] OR $receivers[$sender['messages'][$i]['to_id']]['tipcount']>0)
+                                        ——
+                                    @endif
+                                    @if($receivers[$sender['messages'][$i]['to_id']]['vip'])
+                                        @if($receivers[$sender['messages'][$i]['to_id']]['vip']=='diamond_black')
+                                            <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+                                        @else
+                                            @for($z = 0; $z < $receivers[$sender['messages'][$i]['to_id']]['vip']; $z++)
+                                                <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+                                            @endfor
+                                        @endif
+                                    @endif
+                                    @for($z = 0; $z < $receivers[$sender['messages'][$i]['to_id']]['tipcount']; $z++)
+                                        👍
+                                    @endfor
+                                    @if(!is_null($receivers[$sender['messages'][$i]['to_id']]['isBlockedReceiver']))
+                                        @if(!is_null($receivers[$sender['messages'][$i]['to_id']]['isBlockedReceiver']['expire_date']))
+                                            @if(round((strtotime($receivers[$sender['messages'][$i]['to_id']]['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24)>0)
+                                                {{ round((strtotime($receivers[$sender['messages'][$i]['to_id']]['isBlockedReceiver']['expire_date']) - getdate()[0])/3600/24 ) }}天
+                                            @else
+                                                此會員登入後將自動解除封鎖
+                                            @endif
+                                        @else
+                                            (永久)
+                                        @endif
+                                    @endif
+                                <p>
+                            </a>
+                        </td>
+                        <td width="45%">{{ $sender['messages'][$i]['content'] }}</td>
+                        <td>{{ $sender['messages'][$i]['created_at'] }}</td>
+                        <td style="text-align: center; vertical-align: middle">
+                            <input type="checkbox" name="msg_id[]" value="{{ $sender['messages'][$i]['id'] }}" class="form-control boxes">
+                        </td>
+                        </tr>
+                    @endfor
                 @endif
-                @empty
+            @empty
                 沒有資料
-                @endforelse
+            @endforelse
         </table>
     </form>
     @endif

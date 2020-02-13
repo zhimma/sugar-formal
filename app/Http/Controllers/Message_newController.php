@@ -86,7 +86,7 @@ class Message_newController extends Controller {
     }
 
 
-    public function postChat(Request $request)
+    public function postChat(Request $request, $randomNo = null)
     {
         $banned = banned_users::where('member_id', Auth::user()->id)
             ->whereNotNull('expire_date')
