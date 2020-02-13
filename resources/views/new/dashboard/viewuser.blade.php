@@ -470,35 +470,35 @@
             return div.innerText || div.textContent;
         }
         /*取得次數*/
-        console.log('count8');
-        var count=getCookie('count');
-        if(count==undefined){
-            count=0;
-        }
+        // console.log('count8');
+        // var count=getCookie('count');
+        // if(count==undefined){
+        //     count=0;
+        // }
         /*取得現在時間*/
-        var today=new Date();
-        var now = today.getFullYear()+'/'+(today.getMonth()+1)+'/'+today.getDate()+' '+today.getHours()+':'+today.getMinutes()+':'+today.getSeconds();
-        // console.log(now);
-        // var now       = 20191216215141;
-        /*取得紀錄時間*/
-        var countTime = getCookie('countTime');
-        console.log(countTime);
-        if(countTime==undefined){
-            countTime = now;
-        }
+        // var today=new Date();
+        // var now = today.getFullYear()+'/'+(today.getMonth()+1)+'/'+today.getDate()+' '+today.getHours()+':'+today.getMinutes()+':'+today.getSeconds();
+        // // console.log(now);
+        // // var now       = 20191216215141;
+        // /*取得紀錄時間*/
+        // var countTime = getCookie('countTime');
+        // console.log(countTime);
+        // if(countTime==undefined){
+        //     countTime = now;
+        // }
         $(document).ready(function(){
-            console.log('count9');
             var bodyMain = document.getElementById('msg');
-            if(GetDateDiff(countTime, now, "minute")>"{{$timeSet}}"){
-                console.log('count10');
-                delete_cookie('count');
-                delete_cookie('countTime');
-            }
-            if(GetDateDiff(countTime, now, "minute")<="{{$timeSet}}"){
-                console.log('count11');
-                if(count>"{{(int)$countSet}}"){
-                    console.log('count12');
-                    console.log(count, "{{$countSet}}");
+            // if(GetDateDiff(countTime, now, "minute")>"{{$timeSet}}"){
+            //     // console.log('count10');
+            //     delete_cookie('count');
+            //     delete_cookie('countTime');
+            // }
+            // if(GetDateDiff(countTime, now, "minute")<="{{$timeSet}}"){
+                // console.log('count11');
+                if("{{$isVip!=1}}" && "{{$engroup!=1}}"){
+                    
+                    // console.log('count12');
+                    // console.log(count, "{{$countSet}}");
                     //禁止複製
                     bodyMain.oncopy = function(){
                         return false;
@@ -508,16 +508,16 @@
                         return false;
                     }
                 }
-                else{
-                    console.log('count13');
-                    doCookieSetup('countTime',now);
-                    bodyMain.onpaste = function(){
-                        count++;
-                        console.log(count);
-                        doCookieSetup('count',count);
-                    }
-                }
-            }
+                // else{
+                //     // console.log('count13');
+                //     doCookieSetup('countTime',now);
+                //     bodyMain.onpaste = function(){
+                //         count++;
+                //         console.log(count);
+                //         doCookieSetup('count',count);
+                //     }
+                // }
+            // }
         });
     @endif
 </script>

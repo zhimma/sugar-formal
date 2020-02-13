@@ -22,6 +22,7 @@ use App\Models\Tip;
 use App\Models\MemberFav;
 use App\Models\Blocked;
 use App\Models\BasicSetting;
+use App\Models\Posts;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReportRequest;
 use App\Http\Requests\ProfileUpdateRequest;
@@ -36,6 +37,7 @@ use App\Models\SimpleTables\banned_users;
 use Illuminate\Support\Facades\Input;
 use Session;
 use App\Http\Controllers\Common;
+
 class PagesController extends Controller
 {
     public function __construct(UserService $userService, VipLogService $logService)
@@ -946,8 +948,7 @@ class PagesController extends Controller
     public function viewuser2(Request $request, $uid = -1)
     {
         $user = $request->user();
-        //dd($user);
-
+        
         if (isset($user) && isset($uid)) {
             $targetUser = User::where('id', $uid)->get()->first();
             if (!isset($targetUser)) {
@@ -1015,11 +1016,14 @@ class PagesController extends Controller
                     $data['timeSet']  = (int)$basic_setting['timeSet'];
                     $data['countSet'] = (int)$basic_setting['countSet'];
                 }
+                $isVip = $user->isVip() ? '1':'0';
                 return view('new.dashboard.viewuser', $data)
                     ->with('user', $user)
                     ->with('to', $this->service->find($uid))
                     ->with('cur', $user)
-                    ->with('member_pic',$member_pic);
+                    ->with('member_pic',$member_pic)
+                    ->with('isVip', $isVip)
+                    ->with('engroup', $user->engroup);
             }
 
     }
