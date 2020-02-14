@@ -131,6 +131,18 @@ Route::get('/sftp-check-test', function(){
 Route::get('/fingerprint', 'PagesController@fingerprint');
 Route::post('/saveFingerprint', 'PagesController@saveFingerprint')->name('saveFingerprint');
 
+
+/*
+|--------------------------------------------------------------------------
+| API
+|--------------------------------------------------------------------------
+*/
+Route::post('/Common/get_message', 'Common@get_message');
+Route::post('/Common/checkcode_during', 'Common@checkcode_during');
+Route::get('/Common/get_exif', 'Common@get_exif');
+Route::post('/Common/upload_img', 'Common@upload_img');
+
+
 /*
 |--------------------------------------------------------------------------
 | Error Handler Redirect Page
@@ -264,6 +276,18 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('addCollection', 'PagesController@addCollection');
     Route::post('addReport', 'PagesController@addReport');
     Route::post('addBlock', 'PagesController@addBlock');
+
+    /*會員驗證*/
+    Route::get('member_auth_phone', 'PagesController@member_auth_phone');
+    Route::post('member_auth_phone_process', 'PagesController@member_auth_phone_process');
+    Route::get('member_auth_photo', 'PagesController@member_auth_photo');
+
+    Route::get('hint_auth1', 'PagesController@hint_auth1');
+    Route::get('hint_auth2', 'PagesController@hint_auth2');
+
+
+    /*會員驗證END*/
+
     /*
     |--------------------------------------------------------------------------
     | Dashboard
