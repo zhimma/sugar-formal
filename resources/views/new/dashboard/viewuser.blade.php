@@ -351,7 +351,7 @@
                 <input type="hidden" name="to" id="to" value="{{$to->id}}">
                 <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}" value="{{ \Carbon\Carbon::now()->timestamp }}">
                 <textarea name="msg" id="msg" cols="" rows="" class="n_nutext" placeholder="請輸入內容" required></textarea>
-                <input type="submit" class="n_bllbut" value="發信件" style="border-style: none;">
+                <input type="submit" class="n_bllbut msgsnd" value="發信件" style="border-style: none;">
             </form>
 
         </div>
