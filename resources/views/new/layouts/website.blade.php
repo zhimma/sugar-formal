@@ -37,7 +37,7 @@
                             
                             <div class="gg_bg">
                                 
-                                <a class="ggbut" href="" onclick="disableAnnounce( {{ $a->id }} )" style="bottom: 10px;">不要顯示本廣告</a>
+                                <a class="ggbut" href="" onclick="disableAnnounce( {{ $a->id }} )" style="bottom: 10px;">不要顯示本公告</a>
                                 
                             </div>
                         </div>
@@ -48,6 +48,11 @@
             </div>
         </div>
     @endif
+
+    <?php
+            //check banned user
+
+    ?>
     @yield("javascript")
 
     <link rel="stylesheet" href="/new/owlcarousel/assets/owl.carousel.min.css">
