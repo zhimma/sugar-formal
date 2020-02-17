@@ -507,7 +507,7 @@ class Message_new extends Model
                 unset($messages[$key]);
                 continue;
             }
-            if(/*$userBlockList->contains('member_id', $from_id) || */$userBlockList->contains('blocked_id', $to_id)){
+            if($userBlockList->contains('member_id', $from_id) || $userBlockList->contains('member_id', $to_id)){
                 unset($messages[$key]);
                 continue;
             }

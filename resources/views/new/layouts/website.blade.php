@@ -35,6 +35,11 @@
                                 <a href="javascript:void(0);" class="gg_pager"><img src="/new/images/bk_05.png" ></a>
                                 </div>
                             
+                            <div class="gg_bg">
+                                
+                                <a class="ggbut" href="" onclick="disableAnnounce( {{ $a->id }} )" style="bottom: 10px;">不要顯示本公告</a>
+                                
+                            </div>
                         </div>
                         <a id="" onclick="gmBtn1()" class="bl_gb"><img src="/new/images/gb_icon01.png" style="width: 30px;"></a>
                     </div>
@@ -43,6 +48,11 @@
             </div>
         </div>
     @endif
+
+    <?php
+            //check banned user
+
+    ?>
     @yield("javascript")
 
     <link rel="stylesheet" href="/new/owlcarousel/assets/owl.carousel.min.css">
