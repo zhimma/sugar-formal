@@ -759,6 +759,7 @@ class PagesController extends Controller
                     return false;
                 }
             }
+            /* 此段沒有必要，middleware 中的 FemaleVipActive 會處理這個判斷
             $is_vip = $user->isVip();
             if(($pic_count+1)>=4 && $is_vip==0 &&$user->engroup==2){
                 $isVipCount = DB::table('member_vip')->where('member_id',$user->id)->count();
@@ -770,7 +771,7 @@ class PagesController extends Controller
                 $data = array(
                     'code'=>'800'
                 );
-            }
+            }*/
         }
 
         /*設第一張照片為大頭貼*/
@@ -1978,7 +1979,11 @@ class PagesController extends Controller
 
             
             if (Hash::check($pwd, $u->password)){
-                DB::table('member_vip')->where('member_id', $userId)->update(['active',0]);
+                // 不要輕易使用 DB 方式去修改資料庫，應盡可能使用現有的功能和 model 去處理資料，否則
+                // 如這一部分程式而言，VIP 這個 model 在取消時還會進行 log 記錄，如果直接用 DB，將
+                // 會造成取消 VIP 卻沒有任何記錄，updated_at 也不會有任何變動。
+                // DB::table('member_vip')->where('member_id', $userId)->update(['active',0]);
+                Vip::cancel($userId, 0);
                 $data = array(
                     'code'=>'200',
                     'msg'=>'修改成功',
