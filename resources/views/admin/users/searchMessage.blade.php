@@ -114,9 +114,6 @@
                     <a href="{{ route('users/advInfo', $result['from_id']) }}" target='_blank' >
                         <p  @if($users[$result['from_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
                             {{ $users[$result['from_id']]['name'] }}
-                            @if($users[$result['from_id']]['vip'] OR (isset($users[$result['from_id']]['tipcount']) AND $users[$result['from_id']]['tipcount'] > 0))
-                                ——
-                            @endif
                             @if($users[$result['from_id']]['vip'])
                                 @if($users[$result['from_id']]['vip']=='diamond_black')
                                     <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
@@ -173,9 +170,6 @@
                     <a href="{{ route('users/advInfo', $result['to_id']) }}" target='_blank'>
                         <p @if($users[$result['to_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
                             {{ $users[$result['to_id']]['name'] }}
-                            @if($users[$result['to_id']]['vip'] OR (isset($users[$result['to_id']]['tipcount']) AND $users[$result['to_id']]['tipcount'] > 0))
-                                ——
-                            @endif
                             @if($users[$result['to_id']]['vip'])
                                 @if($users[$result['to_id']]['vip']=='diamond_black')
                                     <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
@@ -265,9 +259,6 @@
                         <a href="{{ route('users/advInfo', $sender['id']) }}" target='_blank' >
                             <p @if($sender['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
                                 {{ $sender['name'] }}
-                                @if($sender['vip'] OR $sender['tipcount']>0)
-                                    ——
-                                @endif
                                 @if($sender['vip'])
                                     @if($sender['vip']=='diamond_black')
                                         <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
@@ -318,9 +309,6 @@
                         <a href="{{ route('users/advInfo', $sender['messages'][0]['to_id']) }}" target='_blank' >
                             <p @if($receivers[$sender['messages'][0]['to_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
                                 {{ $receivers[$sender['messages'][0]['to_id']]['name'] }}
-                                @if($receivers[$sender['messages'][0]['to_id']]['vip'] OR $receivers[$sender['messages'][0]['to_id']]['tipcount']>0)
-                                    ——
-                                @endif
                                 @if($receivers[$sender['messages'][0]['to_id']]['vip'])
                                     @if($receivers[$sender['messages'][0]['to_id']]['vip']=='diamond_black')
                                         <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
@@ -363,9 +351,6 @@
                             <a href="{{ route('users/advInfo', $sender['messages'][$i]['to_id']) }}" target='_blank' >
                                 <p @if($receivers[$sender['messages'][$i]['to_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
                                     {{ $receivers[$sender['messages'][$i]['to_id']]['name'] }}
-                                    @if($receivers[$sender['messages'][$i]['to_id']]['vip'] OR $receivers[$sender['messages'][$i]['to_id']]['tipcount']>0)
-                                        ——
-                                    @endif
                                     @if($receivers[$sender['messages'][$i]['to_id']]['vip'])
                                         @if($receivers[$sender['messages'][$i]['to_id']]['vip']=='diamond_black')
                                             <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
