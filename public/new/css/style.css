@@ -1367,7 +1367,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
     background: none;
     border: none;
     padding: 0;
-    position: absolute;
+    /*position: absolute;*/
     right:30px;
     top:10px;
 }
@@ -1400,6 +1400,12 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
     right: 0;
     z-index: 3;
 
+}
+
+.pagination>.sg-pages-active>a{
+    background-color: #f5c2c0;
+    border-color: #ee5472;
+    color: #ffffff;
 }
 
 
