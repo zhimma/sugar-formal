@@ -30,15 +30,9 @@
                         <div class="ggnr01 ">
                         <div class="gg_nr">{!! nl2br($a->content) !!}</div>
                         <div class="gg_bg">
-                                <a href="javascript:void(0);" class="gg_page"><img src="/new/images/bk_03.png"></a>
-                                <a class="ggbut" href="" onclick="disableAnnounce( {{ $a->id }} )" style="bottom: 10px;">不要顯示本公告</a>
-                                <a href="javascript:void(0);" class="gg_pager"><img src="/new/images/bk_05.png" ></a>
-                                </div>
-                            
-                            <div class="gg_bg">
-                                
-                                <a class="ggbut" href="" onclick="disableAnnounce( {{ $a->id }} )" style="bottom: 10px;">不要顯示本公告</a>
-                                
+                            <a href="javascript:void(0);" class="gg_page"><img src="/new/images/bk_03.png"></a>
+                            <a class="ggbut" href="" onclick="disableAnnounce( {{ $a->id }} )" style="bottom: 10px;">不要顯示本公告</a>
+                            <a href="javascript:void(0);" class="gg_pager"><img src="/new/images/bk_05.png" ></a>
                             </div>
                         </div>
                         <a id="" onclick="gmBtn1()" class="bl_gb"><img src="/new/images/gb_icon01.png" style="width: 30px;"></a>
