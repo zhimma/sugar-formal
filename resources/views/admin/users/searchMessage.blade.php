@@ -307,7 +307,11 @@
                     <td rowspan="{{ count($sender['messages']) }}">{{ $sender['last_login'] }}</td>
                     <td @if($receivers[$sender['messages'][0]['to_id']]['isBlockedReceiver']) style="background-color:#FFFF00" @endif>
                         <a href="{{ route('users/advInfo', $sender['messages'][0]['to_id']) }}" target='_blank' >
-                            <p @if($receivers[$sender['messages'][0]['to_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+                            @if(isset($receivers[$sender['messages'][0]['to_id']]['engroup']))
+                                <p @if($receivers[$sender['messages'][0]['to_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+                            @else
+                                <p>此會員資料已佚失
+                            @endif
                                 {{ $receivers[$sender['messages'][0]['to_id']]['name'] }}
                                 @if($receivers[$sender['messages'][0]['to_id']]['vip'])
                                     @if($receivers[$sender['messages'][0]['to_id']]['vip']=='diamond_black')

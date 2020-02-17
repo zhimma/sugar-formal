@@ -535,7 +535,7 @@ class UserService
                     break;
             }
         }
-        elseif ($targetUser->engroup == 2 && $targetUser->isVip()){
+        elseif ($targetUser->engroup == 2 && $targetUser->isVip() && isset($targetUser->created_at)){
             $registration_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $targetUser->created_at);
             $diff_in_months = $registration_date->diffInMonths($now);
             if($diff_in_months == 0){

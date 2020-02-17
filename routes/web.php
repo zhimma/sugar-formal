@@ -131,6 +131,18 @@ Route::get('/sftp-check-test', function(){
 Route::get('/fingerprint', 'PagesController@fingerprint');
 Route::post('/saveFingerprint', 'PagesController@saveFingerprint')->name('saveFingerprint');
 
+
+/*
+|--------------------------------------------------------------------------
+| API
+|--------------------------------------------------------------------------
+*/
+Route::post('/Common/get_message', 'Common@get_message');
+Route::post('/Common/checkcode_during', 'Common@checkcode_during');
+Route::get('/Common/get_exif', 'Common@get_exif');
+Route::post('/Common/upload_img', 'Common@upload_img');
+
+
 /*
 |--------------------------------------------------------------------------
 | Error Handler Redirect Page
@@ -264,6 +276,18 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('addCollection', 'PagesController@addCollection');
     Route::post('addReport', 'PagesController@addReport');
     Route::post('addBlock', 'PagesController@addBlock');
+
+    /*會員驗證*/
+    Route::get('member_auth_phone', 'PagesController@member_auth_phone');
+    Route::post('member_auth_phone_process', 'PagesController@member_auth_phone_process');
+    Route::get('member_auth_photo', 'PagesController@member_auth_photo');
+
+    Route::get('hint_auth1', 'PagesController@hint_auth1');
+    Route::get('hint_auth2', 'PagesController@hint_auth2');
+
+
+    /*會員驗證END*/
+
     /*
     |--------------------------------------------------------------------------
     | Dashboard
@@ -344,7 +368,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('/dashboard/chat2/showMessages/{randomNo?}', 'Message_newController@chatviewMore')->name('showMessages');
         Route::get('/dashboard/chat2/chatShow/{cid}', 'PagesController@chat2')->name('chat2WithUser');
         Route::post('/dashboard/chat2/deletesingle', 'Message_newController@deleteSingle')->name('delete2Single');
-        Route::post('/dashboard/chat2', 'Message_newController@postChat');
+        Route::post('/dashboard/chat2/{randomNo?}', 'Message_newController@postChat');
         Route::get('/dashboard/chat2/deleterow/{uid}/{sid}', 'Message_newController@deleteBetweenGET')->name('delete2BetweenGET');
         Route::post('/dashboard/chat2/deleteall', 'Message_newController@deleteAll')->name('delete2All');
         Route::post('/dashboard/chat2/chatSet', 'Message_newController@chatSet')->name('chatSet');
@@ -365,6 +389,10 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('/dashboard/chat/showMoreMessages/{randomNo?}', 'MessageController@chatviewMore')->name('showMoreMessages');
         Route::post('/dashboard/chat/showAllMessages/{randomNo?}', 'MessageController@chatviewAll')->name('showAllMessages');
         Route::get('/dashboard/chatShow/{cid}', 'PagesController@chat')->name('chatWithUser');
+
+        // delete message
+        // Route::get('/dashboard/chat/deleteall/{uid}', ['uses' => 'MessageController@deleteAll', 'as' => 'deleteAll']);
+        // Route::get('/dashboard/chat/deletesingle/{uid}/{sid}/{ct_time}/{content}', ['uses' => 'MessageController@deleteSingle', 'as' => 'deleteSingle']);
         Route::get('/dashboard/chat/deleterow/{uid}/{sid}', 'MessageController@deleteBetweenGET')->name('deleteBetweenGET');
         Route::post('/dashboard/chat/deleterow', 'MessageController@deleteBetween')->name('deleteBetween');
         Route::post('/dashboard/chat/deleteall', 'MessageController@deleteAll')->name('deleteAll');
@@ -429,6 +457,9 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('users/message/delete', 'UserController@deleteMessage')->name('users/message/delete');
         Route::post('users/message/edit', 'UserController@editMessage')->name('users/message/edit');
         Route::get('users/pics/reported', 'UserController@showReportedPicsPage')->name('users/pics/reported');
+        Route::get('users/reported', 'UserController@showReportedUsersPage')->name('users/reported');
+        Route::post('users/reported', 'UserController@showReportedUsersList')->name('users/reported');
+        Route::post('users/reported/details/{reported_id}/{users?}/{reportedData?}', 'UserController@showReportedDetails')->name('users/reported/details');
         //曾被檢舉
         Route::get('users/pics/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@searchReportedPics')->name('users/pics/reported');
         Route::get('users/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@showReportedUsersList')->name('users/reported');
@@ -438,9 +469,6 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('users/basic_setting', 'UserController@basicSetting')->name('users/basic_setting');
         Route::post('users/basic_setting', 'UserController@doBasicSetting')->name('users/basic_setting');
         Route::get('users/bannedList', 'UserController@showBannedList')->name('users/bannedList');
-        Route::get('users/reported', 'UserController@showReportedUsersPage')->name('users/reported');
-        Route::post('users/reported', 'UserController@showReportedUsersList')->name('users/reported');
-        Route::post('users/reported/details/{reported_id}/{users?}/{reportedData?}', 'UserController@showReportedDetails')->name('users/reported/details');
         Route::get('users/switch', 'UserController@showUserSwitch')->name('users/switch');
         Route::post('users/switch', 'UserController@switchSearch')->name('users/switch/search');
         Route::get('users/changePassword', 'UserController@changePassword')->name('users/changePassword');

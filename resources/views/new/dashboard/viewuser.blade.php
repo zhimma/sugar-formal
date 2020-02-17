@@ -345,12 +345,13 @@
         <div class="bltitle"><span>發送給{{$to->name}}</span></div>
         <div class="n_blnr01 ">
 
-            <form class="m-form m-form--fit m-form--label-align-right" id="chatForm">
+            <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                 <input type="hidden" name="userId" id="userId" value="{{$user->id}}">
                 <input type="hidden" name="to" id="to" value="{{$to->id}}">
+                <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}" value="{{ \Carbon\Carbon::now()->timestamp }}">
                 <textarea name="msg" id="msg" cols="" rows="" class="n_nutext" placeholder="請輸入內容" required></textarea>
-                <input type="submit" id="msgsnd" class="n_bllbut" value="發信件" style="border-style: none;">
+                <input type="submit" class="n_bllbut msgsnd" value="發信件" style="border-style: none;">
             </form>
 
         </div>
@@ -411,6 +412,19 @@
             }
         });
         @endif
+    });
+    $('#chatForm').submit(function () {
+        let content = $('#msg').val(), msgsnd = $('.msgsnd');
+        if($.trim(content) == "" ){
+            $('.alert').remove();
+            $("<a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a>").insertAfter($('.msg'));
+            msgsnd.prop('disabled', true);
+            return checkForm;
+        }
+        else {
+            $('.alert').remove();
+            return checkForm;
+        }
     });
     @if(isset($timeSet) && isset($countSet))
         function doCookieSetup(name, value) {
@@ -486,35 +500,35 @@
             return div.innerText || div.textContent;
         }
         /*取得次數*/
-        console.log('count8');
-        var count=getCookie('count');
-        if(count==undefined){
-            count=0;
-        }
+        // console.log('count8');
+        // var count=getCookie('count');
+        // if(count==undefined){
+        //     count=0;
+        // }
         /*取得現在時間*/
-        var today=new Date();
-        var now = today.getFullYear()+'/'+(today.getMonth()+1)+'/'+today.getDate()+' '+today.getHours()+':'+today.getMinutes()+':'+today.getSeconds();
-        // console.log(now);
-        // var now       = 20191216215141;
-        /*取得紀錄時間*/
-        var countTime = getCookie('countTime');
-        console.log(countTime);
-        if(countTime==undefined){
-            countTime = now;
-        }
+        // var today=new Date();
+        // var now = today.getFullYear()+'/'+(today.getMonth()+1)+'/'+today.getDate()+' '+today.getHours()+':'+today.getMinutes()+':'+today.getSeconds();
+        // // console.log(now);
+        // // var now       = 20191216215141;
+        // /*取得紀錄時間*/
+        // var countTime = getCookie('countTime');
+        // console.log(countTime);
+        // if(countTime==undefined){
+        //     countTime = now;
+        // }
         $(document).ready(function(){
-            console.log('count9');
             var bodyMain = document.getElementById('msg');
-            if(GetDateDiff(countTime, now, "minute")>"{{$timeSet}}"){
-                console.log('count10');
-                delete_cookie('count');
-                delete_cookie('countTime');
-            }
-            if(GetDateDiff(countTime, now, "minute")<="{{$timeSet}}"){
-                console.log('count11');
-                if(count>"{{(int)$countSet}}"){
-                    console.log('count12');
-                    console.log(count, "{{$countSet}}");
+            // if(GetDateDiff(countTime, now, "minute")>"{{$timeSet}}"){
+            //     // console.log('count10');
+            //     delete_cookie('count');
+            //     delete_cookie('countTime');
+            // }
+            // if(GetDateDiff(countTime, now, "minute")<="{{$timeSet}}"){
+                // console.log('count11');
+                if("{{$isVip!=1}}" && "{{$engroup!=1}}"){
+                    
+                    // console.log('count12');
+                    // console.log(count, "{{$countSet}}");
                     //禁止複製
                     bodyMain.oncopy = function(){
                         return false;
@@ -524,16 +538,16 @@
                         return false;
                     }
                 }
-                else{
-                    console.log('count13');
-                    doCookieSetup('countTime',now);
-                    bodyMain.onpaste = function(){
-                        count++;
-                        console.log(count);
-                        doCookieSetup('count',count);
-                    }
-                }
-            }
+                // else{
+                //     // console.log('count13');
+                //     doCookieSetup('countTime',now);
+                //     bodyMain.onpaste = function(){
+                //         count++;
+                //         console.log(count);
+                //         doCookieSetup('count',count);
+                //     }
+                // }
+            // }
         });
     @endif
 </script>
@@ -614,13 +628,14 @@
      $("#msgsnd").on('click', function(){
          
         $.ajax({
-            url: '/dashboard/chat2',
+            url: '/dashboard/chat2/{{ Carbon\Carbon::now()->timestamp }}',
             type: 'POST',
             data: {
                 _token   :"{{ csrf_token() }}",
                 userId   : $("#userId").val(),
                 to       : $("#to").val(),
                 msg      : $("#msg").val(),
+                {{ \Carbon\Carbon::now()->timestamp }} : "{{ \Carbon\Carbon::now()->timestamp }}"
             },
             success: function(response) {
                window.location.reload();

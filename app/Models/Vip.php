@@ -171,7 +171,7 @@ class Vip extends Model
             if($sqltmp->active == '1' OR $sqltmp->expiry = '0000-00-00 00:00:00'){
                 $now = \Carbon\Carbon::now();
                 $vip_date = Vip::select('id', 'created_at')->where('member_id', $id)->orderBy('created_at', 'desc')->get()->first();
-                if(isset($vip_date)){
+                if(isset($vip_date) && isset($vip_date->created_at)){
                     $vip_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $vip_date->created_at);
                     $vip_mon = $vip_date->diffInMonths($now);
                     if($vip_mon<2){

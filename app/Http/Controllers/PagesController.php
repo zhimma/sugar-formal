@@ -23,6 +23,7 @@ use App\Models\Tip;
 use App\Models\MemberFav;
 use App\Models\Blocked;
 use App\Models\BasicSetting;
+use App\Models\Posts;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReportRequest;
 use App\Http\Requests\ProfileUpdateRequest;
@@ -36,6 +37,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\SimpleTables\banned_users;
 use Illuminate\Support\Facades\Input;
 use Session;
+use App\Http\Controllers\Common;
 
 class PagesController extends Controller
 {
@@ -682,7 +684,8 @@ class PagesController extends Controller
 
     public function save_img(Request $request)
     {
-
+        $common = new Common();
+        // dd($common->get_exif('/new/images/test05.jpg'));
         $user=$request->user();
         $user_id = $user->id;
         $data = json_decode($request->data);
@@ -787,6 +790,7 @@ class PagesController extends Controller
         // }
         echo json_encode($data);
     }
+    
 
     public function dashboard_img_new(Request $request)
     {
@@ -937,8 +941,7 @@ class PagesController extends Controller
     public function viewuser2(Request $request, $uid = -1)
     {
         $user = $request->user();
-        //dd($user);
-
+        
         if (isset($user) && isset($uid)) {
             $targetUser = User::where('id', $uid)->get()->first();
             if (!isset($targetUser)) {
@@ -1007,12 +1010,15 @@ class PagesController extends Controller
                     $data['countSet'] = (int)$basic_setting['countSet'];
                 }
                 $blockadepopup = AdminCommoneText::getCommonText(5);//id5封鎖說明popup
+                $isVip = $user->isVip() ? '1':'0';
                 return view('new.dashboard.viewuser', $data)
                     ->with('user', $user)
                     ->with('blockadepopup', $blockadepopup)
                     ->with('to', $this->service->find($uid))
                     ->with('cur', $user)
-                    ->with('member_pic',$member_pic);
+                    ->with('member_pic',$member_pic)
+                    ->with('isVip', $isVip)
+                    ->with('engroup', $user->engroup);
             }
 
     }
@@ -2070,5 +2076,21 @@ class PagesController extends Controller
             'msg' =>'檢舉大頭貼成功',
         );
         return json_encode($data);
+    }
+
+    public function member_auth_phone(Request $rquest){
+        return view('/auth/member_auth_phone');
+    }
+
+    public function member_auth_photo(Request $rquest){
+        return view('/auth/member_auth_photo');
+    }
+
+    public function hint_auth1(Request $rquest){
+        return view('/auth/hint_auth1');
+    }
+
+    public function hint_auth2(Request $rquest){
+        return view('/auth/hint_auth2');
     }
 }
