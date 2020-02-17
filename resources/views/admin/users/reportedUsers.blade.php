@@ -75,9 +75,6 @@
                             <a href="{{ route('users/advInfo', $result['reported_id']) }}" target='_blank'>
                                 <p @if($users[$result['reported_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
                                     {{ $users[$result['reported_id']]['name'] }}
-                                    @if($users[$result['reported_id']]['vip'] OR (isset($users[$result['reported_id']]['tipcount']) AND $users[$result['reported_id']]['tipcount'] > 0))
-                                        ——
-                                    @endif
                                     @if($users[$result['reported_id']]['vip'])
                                         @if($users[$result['reported_id']]['vip']=='diamond_black')
                                             <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
@@ -135,9 +132,6 @@
                                     <p>
                                 @endif
                                     {{ $users[$result['member_id']]['name'] }}
-                                    @if($users[$result['member_id']]['vip'] OR (isset($users[$result['member_id']]['tipcount']) AND $users[$result['member_id']]['tipcount'] > 0))
-                                        ——
-                                    @endif
                                     @if($users[$result['member_id']]['vip'])
                                         @if($users[$result['member_id']]['vip']=='diamond_black')
                                             <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">

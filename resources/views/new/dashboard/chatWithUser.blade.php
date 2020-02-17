@@ -113,11 +113,16 @@
     <div class="bl bl_tab" id="tab_payAlert">
         <div class="bltitle"><span>車馬費說明</span></div>
         <div class="n_blnr01 matop20">
-            <div class="n_fengs"><span>這筆費用是用來向女方表達見面的誠意<br></span></div>
+            <div class="n_fengs">
+            @if(isset($tippopup))
+                {!! $tippopup !!}
+            @endif
+            </div>
+            <!-- <div class="n_fengs"><span>這筆費用是用來向女方表達見面的誠意<br></span></div>
             <div class="n_fengs"><span><br>●若約見順利<br>站方在扣除 288 手續費，交付 1500 與女方。<br></span></div>
             <div class="n_fengs"><span><br>●若有爭議(例如放鴿子)<br>站方將依女方提供的證明資料，決定是否交付款項與女方。<br></span></div>
             <div class="n_fengs"><span><br>●爭議處理<br>若女方提出證明文件，則交付款項予女方。<br>若女方於於約見日五日內未提出相關證明文件。<br>將扣除手續費後匯回男方指定帳戶。<br></span></div>
-            <div class="n_fengs"><span><br>注意：此費用一經匯出，即全權交由本站裁決處置。<br>本人絕無異議，若不同意請按取消鍵返回。</span></div>
+            <div class="n_fengs"><span><br>注意：此費用一經匯出，即全權交由本站裁決處置。<br>本人絕無異議，若不同意請按取消鍵返回。</span></div> -->
             <div class="n_bbutton">
                 <span><a class="n_left" href="javascript:">確認</a></span>
                 <span><a onclick="$('.blbg').click();" class="n_right" href="javascript:">取消</a></span>
