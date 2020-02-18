@@ -228,7 +228,7 @@ Route::group(['middleware' => ['auth']], function () {
 Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], function () {
 
 
-    Route::get('Fingerprint', 'Fingerprint@index');
+    Route::get('Fingerprint2', 'Fingerprint@index');
     Route::post('Fingerprint/addFingerprint', 'Fingerprint@addFingerprint');
 
     /*
