@@ -792,7 +792,6 @@ class PagesController extends Controller
         echo json_encode($data);
     }
     
-
     public function dashboard_img_new(Request $request)
     {
         $user = $request->user();
