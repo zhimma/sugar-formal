@@ -9,8 +9,8 @@
             <th class="text-center">編輯框 NAME取代對方名稱 DATE取代VIP到期日</th>
             <th class="text-center" style="white-space:nowrap;">操作</th>
         </tr>
-        @foreach($commonetext as $a)
-        <form action="{{ route('admin/commonetext/save', $a->id) }}" method="post">
+        @foreach($commontext as $a)
+        <form action="{{ route('admin/commontext/save', $a->id) }}" method="post">
             {!! csrf_field() !!}
             <tr class="template">
                 <td class="text-center show" style="white-space:nowrap;">

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminAnnounce;
-use App\Models\AdminCommoneText;
+use App\Models\AdminCommonText;
 use Auth;
 use App\Http\Requests;
 use Carbon\Carbon;
@@ -201,9 +201,9 @@ class PagesController extends Controller
                 Message::post($user->id, $targetUserID, "系統通知: 車馬費邀請");
                 if($user->engroup == 1) {
                     //取資料庫並替換名字
-                    $tip_msg1 = AdminCommoneText::getCommonText(1);//id2給男會員訊息
+                    $tip_msg1 = AdminCommonText::getCommonText(1);//id2給男會員訊息
                     $tip_msg1 = str_replace('NAME', User::findById($targetUserID)->name, $tip_msg1);
-                    $tip_msg2 = AdminCommoneText::getCommonText(2);//id3給女會員訊息
+                    $tip_msg2 = AdminCommonText::getCommonText(2);//id3給女會員訊息
                     $tip_msg2 = str_replace('NAME', $user->name, $tip_msg2);
                     // 給男會員訊息
                     // Message::post($user->id, $targetUserID, "系統通知: 車馬費邀請\n您已經向 ". User::findById($targetUserID)->name ." 發動車馬費邀請。\n流程如下\n1:網站上進行車馬費邀請\n2:網站上訊息約見(重要，站方判斷約見時間地點，以網站留存訊息為準)\n3:雙方見面\n\n如果雙方在第二步就約見失敗。\n將扣除手續費 288 元後，1500匯入您指定的帳戶。也可以用現金袋或者西聯匯款方式進行。\n(聯繫我們有站方聯絡方式)\n\n若雙方有見面意願，被女方放鴿子。\n站方會參照女方提出的證據，判斷是否將尾款交付女方。", false);
@@ -1009,7 +1009,7 @@ class PagesController extends Controller
                     $data['timeSet']  = (int)$basic_setting['timeSet'];
                     $data['countSet'] = (int)$basic_setting['countSet'];
                 }
-                $blockadepopup = AdminCommoneText::getCommonText(5);//id5封鎖說明popup
+                $blockadepopup = AdminCommonText::getCommonText(5);//id5封鎖說明popup
                 $isVip = $user->isVip() ? '1':'0';
                 return view('new.dashboard.viewuser', $data)
                     ->with('user', $user)
@@ -1318,7 +1318,7 @@ class PagesController extends Controller
         $m_time = '';
         if (isset($user)) {
             $isVip = $user->isVip();
-            $tippopup = AdminCommoneText::getCommonText(3);//id3車馬費popup說明
+            $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
             $messages = Message::allToFromSender($user->id, $cid);
             //$messages = Message::allSenders($user->id, 1);
             if (isset($cid)) {
@@ -1681,7 +1681,7 @@ class PagesController extends Controller
                     $data = Vip::where('member_id', $user->id)->where('expiry', '!=', '0000-00-00 00:00:00')->get()->first();
                     $date = date('Y年m月d日', strtotime($data->expiry));
 
-                    $offVIP = AdminCommoneText::getCommonText(4);
+                    $offVIP = AdminCommonText::getCommonText(4);
                     $offVIP = str_replace('DATE', $date, $offVIP);
 
                     $request->session()->flash('cancel_notice', $offVIP);

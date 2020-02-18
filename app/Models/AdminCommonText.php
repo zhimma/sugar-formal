@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
-class AdminCommoneText extends Model
+class AdminCommonText extends Model
 {
     /**
      * The database table used by the model.
@@ -26,20 +26,20 @@ class AdminCommoneText extends Model
     protected $fillable = [];
 
     public static function getCommonText($id){
-        $tmp = AdminCommoneText::select('content')->where('id', $id)->first();
+        $tmp = AdminCommonText::select('content')->where('id', $id)->first();
         return $tmp->content;
     }
     
     public static function checkContent(Request $request) {
-        return  AdminCommoneText::where([['id', $request->id],['content', $request->content]])->first() !== null;
+        return  AdminCommonText::where([['id', $request->id],['content', $request->content]])->first() !== null;
     }
 
     public static function checkContent2($id, $content) {
-        return  AdminCommoneText::where([['id', $id],['content', $content]])->first() !== null;
+        return  AdminCommonText::where([['id', $id],['content', $content]])->first() !== null;
     }
 
     public static function saveCommoneText(Request $request) {
-        $a = AdminCommoneText::select('*')->where('id', '=', $request->id)->first();
+        $a = AdminCommonText::select('*')->where('id', '=', $request->id)->first();
         $a->content = $request->content;
         $a->save();
         return true;

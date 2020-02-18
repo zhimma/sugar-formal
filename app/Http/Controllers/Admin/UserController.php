@@ -19,7 +19,7 @@ use App\Http\Requests\UserInviteRequest;
 use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\AdminAnnounce;
-use App\Models\AdminCommoneText;
+use App\Models\AdminCommonText;
 use App\Models\VipLog;
 use App\Models\Vip;
 use App\Models\Tip;
@@ -1207,21 +1207,21 @@ class UserController extends Controller
 
     public function showAdminCommoneText()
     {
-        $a = AdminCommoneText::orderBy('id', 'asc')->where('status', 1)->get()->all();
-        return view('admin.admincommonetext')->with('commonetext', $a);
+        $a = AdminCommonText::orderBy('id', 'asc')->where('status', 1)->get()->all();
+        return view('admin.admincommontext')->with('commontext', $a);
     }
 
     public function saveAdminCommoneText(Request $request)
     {
-        if( AdminCommoneText::checkContent2($request->id, $request->content2) AND AdminCommoneText::checkContent2($request->id, $request->content) ){
+        if( AdminCommonText::checkContent2($request->id, $request->content2) AND AdminCommonText::checkContent2($request->id, $request->content) ){
             return back()->withErrors(['請修改後再送出']);
-        }elseif(AdminCommoneText::checkContent2($request->id, $request->content2)){
-            $a = AdminCommoneText::select('*')->where('id', '=', $request->id)->first();
+        }elseif(AdminCommonText::checkContent2($request->id, $request->content2)){
+            $a = AdminCommonText::select('*')->where('id', '=', $request->id)->first();
             $a->content = $request->content;
             $a->save();
             return back()->with('message', '成功修改');
-        }elseif (AdminCommoneText::checkContent2($request->id, $request->content)){
-            $a = AdminCommoneText::select('*')->where('id', '=', $request->id)->first();
+        }elseif (AdminCommonText::checkContent2($request->id, $request->content)){
+            $a = AdminCommonText::select('*')->where('id', '=', $request->id)->first();
             $a->content = $request->content2;
             $a->save();
             return back()->with('message', '成功修改');
