@@ -1205,13 +1205,13 @@ class UserController extends Controller
         return view('admin.adminannouncement')->with('announce', $a);
     } 
 
-    public function showAdminCommoneText()
+    public function showAdminCommonText()
     {
         $a = AdminCommonText::orderBy('id', 'asc')->where('status', 1)->get()->all();
         return view('admin.admincommontext')->with('commontext', $a);
     }
 
-    public function saveAdminCommoneText(Request $request)
+    public function saveAdminCommonText(Request $request)
     {
         if( AdminCommonText::checkContent2($request->id, $request->content2) AND AdminCommonText::checkContent2($request->id, $request->content) ){
             return back()->withErrors(['請修改後再送出']);

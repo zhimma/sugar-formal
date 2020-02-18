@@ -38,7 +38,7 @@ class AdminCommonText extends Model
         return  AdminCommonText::where([['id', $id],['content', $content]])->first() !== null;
     }
 
-    public static function saveCommoneText(Request $request) {
+    public static function saveCommonText(Request $request) {
         $a = AdminCommonText::select('*')->where('id', '=', $request->id)->first();
         $a->content = $request->content;
         $a->save();
