@@ -53,6 +53,13 @@
     .dropdown-content a:hover {background-color: #e44e71; color: #ffffff;}
 
     .show {display: block;}
+    .alert{
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        position: inherit;
+        float: left;
+    }
 </style>
 @section('app-content')
     <div class="container matop70 chat">
@@ -87,7 +94,7 @@
                                             <input type=hidden name="ApproveFlag" value="1">
                                             <input type=hidden name="DepositFlag" value="1">
                                             <input type=hidden name="iphonepage" value="0">
-                                            <input type=hidden name="Amount" value="{{ Config::get('social.payment.tip-amount') }}">
+                                            <input type=hidden name="Amount" value={{ Config::get('social.payment.tip-amount') }}>
                                             <input type=hidden name="op" value="AcceptPayment">
                                             <input type=hidden name="checksum" value="{{ md5("761404".$orderNumber.$code.Config::get('social.payment.tip-amount')) }}">
                                             <input type=hidden name="ReturnURL" value="{{ route('chatpay') }}">
@@ -129,10 +136,10 @@
                                 <div class="@if($message['from_id'] == $user->id) show @else send @endif">
                                     <div class="msg @if($message['from_id'] == $user->id) msg1 @endif">
                                         @if($message['from_id'] == $user->id)
-                                            <img src="@if($user->meta_()->pic==null || !file_exists($user->meta_()->pic))/img/male-avatar.png @else{{$user->meta_()->pic}}@endif">
+                                            <img src="@if(file_exists( public_path().$user->meta_()->pic )){{$user->meta_()->pic}} @else/img/male-avatar.png @endif">
                                         @else
                                             <a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">
-                                                <img src="@if($msgUser->meta_()->pic==null || !file_exists('.'.$msgUser->meta_()->pic))/img/male-avatar.png @else{{$msgUser->meta_()->pic}}@endif">
+                                                <img src="@if(file_exists( public_path().$msgUser->meta_()->pic )){{$msgUser->meta_()->pic}} @else/img/male-avatar.png @endif">
                                             </a>
                                         @endif
                                         <p>
@@ -285,7 +292,7 @@
             let msgsnd = $('.msgsnd');
             if(!$.trim($("#msg").val())){
                 $('.alert').remove();
-                $("<a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a>").insertAfter(this);
+                $("<div><a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a></div>").insertAfter(this);
                 msgsnd.prop('disabled', true);
             }
             else {

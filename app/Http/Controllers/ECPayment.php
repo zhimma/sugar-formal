@@ -113,7 +113,7 @@ class ECPayment extends Controller
             //基本參數(請依系統規劃自行調整)
             $MerchantTradeNo = "SGTIP" . time();
             $obj->Send['ReturnURL'] = Config::get('ecpay.payment' . $envStr . '.postChatpayReturnURL');    //付款完成通知回傳的網址
-            $obj->Send['ClientBackURL'] = route('chatView');
+            $obj->Send['ClientBackURL'] = route('chat2View');
             $obj->Send['MerchantTradeNo'] = $MerchantTradeNo;                        //訂單編號
             $obj->Send['MerchantTradeDate'] = date('Y/m/d H:i:s');                     //交易時間
             $obj->Send['TotalAmount'] = 1788;                                     //交易金額
