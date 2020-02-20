@@ -77,19 +77,19 @@
                                     </a>
                                     <a href="#">
                                         <?php $orderNumber = \App\Models\Vip::lastid() . $user->id; $code = Config::get('social.payment.code');?>
-                                        <form action=<?php echo Config::get('social.payment.actionURL') ?> class="m-nav__link" method="POST" id="form1">
+                                        <form action="{{ Config::get('social.payment.actionURL') }}" class="m-nav__link" method="POST" id="form1">
                                             <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-                                            <input type="hidden" name="userId" value="{{$user->id}}">
-                                            <input type="hidden" name="to" value="@if(isset($to)){{$to->id}}@endif">
+                                            <input type="hidden" name="userId" value="{{ $user->id }}">
+                                            <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">
                                             <input type=hidden name="MerchantNumber" value="761404">
-                                            <input type=hidden name="OrderNumber" value="<?php echo $orderNumber; ?>">
-                                            <input type=hidden name="OrgOrderNumber" value="SG-車馬費({{$user->id}})">
+                                            <input type=hidden name="OrderNumber" value="{{ $orderNumber }}">
+                                            <input type=hidden name="OrgOrderNumber" value="SG-車馬費({{ $user->id }})">
                                             <input type=hidden name="ApproveFlag" value="1">
                                             <input type=hidden name="DepositFlag" value="1">
                                             <input type=hidden name="iphonepage" value="0">
-                                            <input type=hidden name="Amount" value="1788">
+                                            <input type=hidden name="Amount" value="{{ Config::get('social.payment.tip-amount') }}">
                                             <input type=hidden name="op" value="AcceptPayment">
-                                            <input type=hidden name="checksum" value="<?php print md5("761404".$orderNumber.$code."1"); ?>">
+                                            <input type=hidden name="checksum" value="{{ md5("761404".$orderNumber.$code.Config::get('social.payment.tip-amount')) }}">
                                             <input type=hidden name="ReturnURL" value="{{ route('chatpay') }}">
                                             <button type="button" class="paypay" onclick="checkPay('form1')">車馬費管道2</button>
                                         </form>
