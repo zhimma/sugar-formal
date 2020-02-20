@@ -20,7 +20,7 @@ return [
         'ReturnURL' => "http://www.sugar-garden.org/dashboard/upgradepayEC",  //背景傳送付款結果的網址
         'postChatpayReturnURL' => "https://www.sugar-garden.org/dashboard/postChatpayEC",  //背景傳送車馬費付款結果的網址
         'PeriodReturnURL' => "http://www.sugar-garden.org/dashboard/upgradepayEC",  //背景傳送定期定額付款交易結果的網址
-        'ClientBackURL' => "http://www.sugar-garden.org/dashboard/upgradepay", //返回商店的網址
+        'ClientBackURL' => "http://www.sugar-garden.org/dashboard/chat2", //返回商店的網址
         // 'OrderResultURL' => "http://www.sugar-garden.org/dashboard/upgradepay",  //付款結果的網址，若不設則會使用綠界的付款結果
     ],
     'payment_test' => [
