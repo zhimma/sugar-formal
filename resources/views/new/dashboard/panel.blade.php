@@ -1,6 +1,8 @@
 @if(isset($user))
+
     <div class="leftbg">
-        <div class="leftimg"><img src="{{ $user->meta_()->pic }}">
+        <div class="leftimg">
+            <img src="@if(file_exists( public_path().$user->meta_()->pic )){{$user->meta_()->pic}} @else/img/male-avatar.png @endif">
             <h2 style="word-break: break-all;">@if (str_contains(url()->current(), 'dashboard')) {{ $user->name }} @elseif (isset($cur)) {{ $cur->name }} @endif
                 @if (((isset($cur) && $cur->isVip() && $cur->engroup == '1')) || ($user->isVip() && str_contains(url()->current(), 'dashboard'))) (VIP) @endif</h2>
         </div>
@@ -23,5 +25,7 @@
             </ul>
         </div>
     </div>
+
+
 @endif
 
