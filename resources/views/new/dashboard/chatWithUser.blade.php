@@ -87,7 +87,7 @@
                                             <input type=hidden name="ApproveFlag" value="1">
                                             <input type=hidden name="DepositFlag" value="1">
                                             <input type=hidden name="iphonepage" value="0">
-                                            <input type=hidden name="Amount" value="1">
+                                            <input type=hidden name="Amount" value="1788">
                                             <input type=hidden name="op" value="AcceptPayment">
                                             <input type=hidden name="checksum" value="<?php print md5("761404".$orderNumber.$code."1"); ?>">
                                             <input type=hidden name="ReturnURL" value="{{ route('chatpay') }}">
