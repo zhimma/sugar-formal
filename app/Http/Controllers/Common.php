@@ -114,13 +114,13 @@ class Common extends Controller {
         return $data;
     }
 
-    public function get_exif($avatar_path)
+    public function get_exif()
     {
         $now_time    = strtotime('now');
         // $avatar_name = $request->get('avatar_name');
         // $avatar_path = $request->get('avatar_path','');//需為絕對路徑
-        // $avatar_path = url('/new/images/test01.jpg');
-        $avatar_path = url($avatar_path);
+        $avatar_path = url('/new/images/0123456/0123.jpg');
+        // $avatar_path = url($avatar_path);
         $exif = exif_read_data($avatar_path, 'IFD0');
         // echo $exif===false ? "No header data found.<br />\n" : "Image contains headers<br />\n";
         // dd($exif);
@@ -134,6 +134,7 @@ class Common extends Controller {
         }else{
             // "Image contains headers";
             $exif = exif_read_data($avatar_path);
+            dd($exif);
             // echo "test2.jpg:<br />\n";
             $exif_data = array();
             foreach ($exif as $key => $section) {

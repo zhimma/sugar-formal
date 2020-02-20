@@ -293,6 +293,12 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     | Dashboard
     |--------------------------------------------------------------------------
     */
+    Route::get('/dashboard/posts_list', 'PagesController@posts_list');/*投稿列表功能*/
+    Route::get('/dashboard/post_detail/{pid}', 'PagesController@post_detail');
+    Route::post('/dashboard/getPosts', 'PagesController@getPosts');/*動態取得列表資料*/
+    Route::get('/dashboard/posts', 'PagesController@posts');/*投稿功能*/
+    Route::post('/dashboard/doPosts', 'PagesController@doPosts');/*投稿功能*/
+    Route::post('/dashboard/post_views', 'PagesController@post_views');
     Route::post('/dashboard', 'PagesController@profileUpdate');
     Route::post('/dashboard2', 'PagesController@profileUpdate_ajax');
     Route::post('dashboard/settings', 'PagesController@settingsUpdate');
