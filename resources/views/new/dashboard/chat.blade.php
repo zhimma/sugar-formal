@@ -183,18 +183,21 @@
                 },
                 beforeSend:function(){//表單發送前做的事
                     $('.sjlist>ul').html('');
-                    $('#warning').fadeIn(100);
+                    $('#warning').fadeIn(150);
                     let wait = document.getElementById("warning");
                     let text = '載入中，請稍候';
                     let length = wait.innerHTML.length + 10;
                     let dots = window.setInterval( function() {
                         let wait = document.getElementById("warning");
-                        if ( wait.innerHTML.length > length )
+                        if (wait.innerHTML.length > length) {
                             //wait.innerText = text;
-                            $('#warning').fadeOut(100);
-                        else
+                            //$('#warning').fadeOut(150);
+                            $('#warning').hide();
+                        } else {
                             //wait.innerText += ".";
-                            $('#warning').fadeOut(100);
+                            //$('#warning').fadeOut(150);
+                        }
+
                     }, 0);
                 },
                 complete: function () {
@@ -217,7 +220,7 @@
                     setTimeout(function(){
                         Page.DrawPage(res.msg.length);
                         $('.sjlist>ul').children().slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
-                        $('#warning').fadeOut(50);
+                        $('#warning').fadeOut(150);
                     }, 100);
                     total=res.msg.length;
                     // alert(rr);
@@ -226,6 +229,7 @@
                     }else if(rr>0){
                         $('.nodata').hide();
                     }
+
                 }
             })
             .done(function() {
