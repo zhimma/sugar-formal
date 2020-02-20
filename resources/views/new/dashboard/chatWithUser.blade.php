@@ -6,6 +6,53 @@
         float: left;
         border-radius: 100px;
     }
+
+    .dropbtn {
+        /*background-color: #3498DB;*/
+        /*color: white;*/
+        /*padding: 16px;*/
+        /*font-size: 16px;*/
+        border: none;
+        cursor: pointer;
+    }
+
+    .dropbtn:hover, .dropbtn:focus {
+        /*background-color: #2980B9;*/
+    }
+
+    .dropdown {
+        position: relative;
+        display: inline-block;
+        float: right;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        color: #e44e71;
+        background-color: #ffe4e7;
+        min-width: 100px;
+        overflow: auto;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+        border-radius: 5px;
+    }
+
+    .dropdown-content a {
+        color: #e44e71;
+        padding: 6px 6px 0 12px;
+        text-decoration: none;
+        display: block;
+    }
+
+    .dropdown-content.show{
+        right: 0;
+        margin-top: 35px;
+        padding: 0;
+    }
+    .dropdown-content a:hover {background-color: #e44e71; color: #ffffff;}
+
+    .show {display: block;}
 </style>
 @section('app-content')
     <div class="container matop70 chat">
@@ -17,20 +64,54 @@
                 @if(isset($to))
                     <div class="shouxq"><a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}"><img src="/new/images/xq_06.png" class="xlimg"></a><span>收件夾 - <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a></span>
                         @if($user->engroup==1)
-                        <form class="" action="{{ route('chatpay_ec') }}" method=post id="ecpay">
-                            <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-                            <input type="hidden" name="userId" value="{{ $user->id }}">
-                            <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">
-                            <button type="button" class="paypay" onclick="checkPay()">
-                                <img src="/new/images/xq_03.png" class="xrgimg">
-                            </button>
-                        </form>
+                            <div class="dropdown">
+                                <img onclick="dropFun()" class="dropbtn xrgimg" src="/new/images/xq_03.png">
+                                <div id="myDropdown" class="dropdown-content">
+                                    <a href="#">
+                                        <form class="" action="{{ route('chatpay_ec') }}" method=post id="ecpay">
+                                            <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                            <input type="hidden" name="userId" value="{{ $user->id }}">
+                                            <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">
+                                            <button type="button" class="paypay" onclick="checkPay('ecpay')">車馬費管道1</button>
+                                        </form>
+                                    </a>
+                                    <a href="#">
+                                        <?php $orderNumber = \App\Models\Vip::lastid() . $user->id; $code = Config::get('social.payment.code');?>
+                                        <form action="{{ Config::get('social.payment.actionURL') }}" class="m-nav__link" method="POST" id="form1">
+                                            <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                            <input type="hidden" name="userId" value="{{ $user->id }}">
+                                            <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">
+                                            <input type=hidden name="MerchantNumber" value="761404">
+                                            <input type=hidden name="OrderNumber" value="{{ $orderNumber }}">
+                                            <input type=hidden name="OrgOrderNumber" value="SG-車馬費({{ $user->id }})">
+                                            <input type=hidden name="ApproveFlag" value="1">
+                                            <input type=hidden name="DepositFlag" value="1">
+                                            <input type=hidden name="iphonepage" value="0">
+                                            <input type=hidden name="Amount" value="{{ Config::get('social.payment.tip-amount') }}">
+                                            <input type=hidden name="op" value="AcceptPayment">
+                                            <input type=hidden name="checksum" value="{{ md5("761404".$orderNumber.$code.Config::get('social.payment.tip-amount')) }}">
+                                            <input type=hidden name="ReturnURL" value="{{ route('chatpay') }}">
+                                            <button type="button" class="paypay" onclick="checkPay('form1')">車馬費管道2</button>
+                                        </form>
+                                    </a>
+                                </div>
+                            </div>
                         @endif
+{{--                        @if($user->engroup==1)--}}
+{{--                        <form class="" action="{{ route('chatpay_ec') }}" method=post id="ecpay">--}}
+{{--                            <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
+{{--                            <input type="hidden" name="userId" value="{{ $user->id }}">--}}
+{{--                            <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">--}}
+{{--                            <button type="button" class="paypay" onclick="checkPay()">--}}
+{{--                                <img src="/new/images/xq_03.png" class="xrgimg">--}}
+{{--                            </button>--}}
+{{--                        </form>--}}
+{{--                        @endif--}}
                     </div>
                 @else
                     {{ logger('Chat with non-existing user: ' . url()->current()) }}
                 @endif
-                <div class="message">
+                <div class="message msg_scroll">
 
 
                     <div class="message">
@@ -48,10 +129,10 @@
                                 <div class="@if($message['from_id'] == $user->id) show @else send @endif">
                                     <div class="msg @if($message['from_id'] == $user->id) msg1 @endif">
                                         @if($message['from_id'] == $user->id)
-                                            <img src="{{$user->meta_()->pic}}">
+                                            <img src="@if($user->meta_()->pic==null || !file_exists($user->meta_()->pic))/img/male-avatar.png @else{{$user->meta_()->pic}}@endif">
                                         @else
                                             <a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">
-                                                <img src="{{$msgUser->meta_()->pic}}">
+                                                <img src="@if($msgUser->meta_()->pic==null || !file_exists('.'.$msgUser->meta_()->pic))/img/male-avatar.png @else{{$msgUser->meta_()->pic}}@endif">
                                             </a>
                                         @endif
                                         <p>
@@ -79,16 +160,21 @@
                                 @endphp
                             @endforeach
                         @endif
-                    </div>
-                    @if(!empty($messages) && count($messages)>10)
-                        <div class="fenye" style="text-align: center;">
-        {{--                    {!! $messages->appends(request()->input())->links() !!}--}}
-                            <a id="prePage" href="{{ $messages->previousPageUrl() }}">上一頁</a>
-                            <a id="nextPage" href="{{ $messages->nextPageUrl() }}">下一頁</a>
+                        <div style="text-align: center;">
+                                                {!! $messages->appends(request()->input())->links('pagination::sg-pages') !!}
+{{--                            <a id="prePage" href="{{ $messages->previousPageUrl() }}">上一頁</a>--}}
+{{--                            <a id="nextPage" href="{{ $messages->nextPageUrl() }}">下一頁</a>--}}
                         </div>
-                    @endif
+                    </div>
+{{--                    @if(!empty($messages) && count($messages)>10)--}}
+{{--                        <div class="fenye" style="text-align: center;">--}}
+{{--        --}}{{--                    {!! $messages->appends(request()->input())->links() !!}--}}
+{{--                            <a id="prePage" href="{{ $messages->previousPageUrl() }}">上一頁</a>--}}
+{{--                            <a id="nextPage" href="{{ $messages->nextPageUrl() }}">下一頁</a>--}}
+{{--                        </div>--}}
+{{--                    @endif--}}
                     @if(isset($to))
-                        <div class="se_text_bot">
+                        <div class="se_text_bot se_text_bot_add_bottom">
                             <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm">
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                 <input type="hidden" name="userId" value="{{$user->id}}">
@@ -97,7 +183,7 @@
                                 <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}" value="{{ \Carbon\Carbon::now()->timestamp }}">
                                 <textarea name="msg" cols="" rows="" class="se_text msg" id="msg" placeholder="請輸入" required></textarea>
         {{--                        <a href="javascript:document.getElementById('chatForm').submit();" id="msgsnd" class="se_tbut matop20 msgsnd">回復</a>--}}
-                                <input type="submit" id="msgsnd" class="se_tbut matop20 msgsnd" value="回復">
+                                <input type="submit" id="msgsnd" class="se_tbut matop20 msgsnd" value="回覆">
                             </form>
                         </div>
                     @else
@@ -307,28 +393,36 @@
         });
     @endif
 
-    function  checkPay(){
+    function  checkPay(id){
         $(".blbg").show();
         $('#tab_payAlert').show();
         $(".n_left").on('click', function() {
-           //alert(1);
+            //alert(1);
             $(".blbg").hide();
             $('#tab_payAlert').hide();
-            $( "#ecpay" ).submit();
+            $('#'+id).submit();
         });
     }
 
-    if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
-        $('.se_text_bot').removeClass('se_text_bot_add_bottom');
-    }
+
+
+    // if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+    //     $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+    // }
+
     $(window).scroll(function() {
         if($(window).scrollTop() + $(window).height() > $(document).height() - 50) {
             // alert("bottom!");
-            $('.se_text_bot').removeClass('se_text_bot_add_bottom');
-            $('.se_text_bot').addClass('se_text_bot_add_bottom');
-        }else{
-            $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+            if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+                $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+            }else {
+                $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+                $('.se_text_bot').addClass('se_text_bot_add_bottom');
+            }
         }
+        /*else{
+            $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+        }*/
     });
 
     function banned(sid,name){
@@ -339,7 +433,23 @@
     }
 
     @if (Session::has('message'))
-    c2('{{Session::get('message')}}');
+    c3('{{Session::get('message')}}');
     @endif
+
+    function dropFun() {
+        document.getElementById("myDropdown").classList.toggle("show");
+    }
+    window.onclick = function(event) {
+        if (!event.target.matches('.dropbtn')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            var i;
+            for (i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    }
 </script>
 @stop

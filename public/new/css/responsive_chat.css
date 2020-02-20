@@ -1,0 +1,142 @@
+.message{width:94%; margin:0 auto; display:flow-root; max-height:400px; /*margin-bottom:40px;*/ overflow-y: auto}
+.se_text_bot {
+    margin:0 auto; display:table; position: fixed; bottom: 10px; padding-right: 6%;
+    width: 100%;
+    max-width: 1000px;
+    z-index: 9;
+}
+
+.se_text_bot_add_bottom{
+    bottom: 125px;
+}
+.msg_scroll{
+    overflow-y: hidden;
+}
+
+#tab_payAlert{
+    height: 70%;
+    overflow: auto;
+}
+
+
+/* chat web height */
+@media (min-height:578px) and (max-width: 1024px){
+    .message{
+        max-height: 250px;
+    }
+    .se_text_bot {
+        /*width: 80%;*/
+    }
+}
+@media (min-height:829px) and (max-width: 1024px){
+    .message{
+        max-height: 380px;
+    }
+    .se_text_bot {
+        /*width: 80%;*/
+    }
+}
+
+@media (min-height:911px) and (max-width: 1024px){
+    .message{
+        max-height: 460px;
+    }
+    .se_text_bot {
+        /*width: 80%;*/
+        width: 100%;
+        max-width: 780px;
+    }
+}
+@media (min-height:1023px) and (max-width: 768px) {
+    .se_text_bot {
+        /*width: 80%;*/
+        width: 100%;
+        max-width: 780px;
+    }
+}
+@media (min-height:1366px) and (max-width: 1024px){
+    .message{
+        max-height: 460px;
+    }
+    .se_text_bot {
+        /*width: 80%;*/
+        width: 100%;
+        max-width: 1020px;
+    }
+}
+@media (min-height:768px) and (max-width: 1024px){
+    .se_text_bot {
+        /*width: 80%;*/
+        width: 100%;
+        max-width: 780px;
+    }
+}
+/* chat mobile start */
+@media (min-height:568px) and (max-width: 320px) {
+    .message{
+        max-height: 200px;
+    }
+    .se_text{
+        height: 60px;
+    }
+    .matop20{margin-top:10px !important;}
+
+}
+@media (min-height:640px) and (max-width: 360px) {
+    .message{
+        max-height: 270px;
+    }
+    .se_text{
+        height: 70px;
+    }
+    .matop20{margin-top:10px !important;}
+
+}
+@media (min-height:667px) and (max-width: 375px) {
+    .message{
+        max-height: 250px;
+    }
+    .se_text{
+        height: 100px;
+    }
+}
+@media (min-height:731px) and (max-width: 411px){
+    .message{
+        max-height: 320px;
+    }
+    .se_text{
+        height: 100px;
+    }
+}
+@media (min-height:736px) and (max-width: 414px) {
+    .message{
+        max-height: 290px;
+    }
+    /*.se_text_bot {*/
+    /*    bottom: 10px;*/
+    /*}*/
+}
+
+@media (min-height:812px) and (max-width: 375px) {
+    .message{
+        max-height: 365px;
+    }
+}
+@media (min-height:823px) and (max-width: 411px) {
+    .message{
+        max-height: 410px;
+    }
+}
+
+@media (min-height:1024px) and (max-width: 768px){
+    .message{
+        max-height: 590px;
+    }
+    .matop20{margin-top:20px !important;}
+}
+@media (min-height:1365px) and (max-width: 1024px){
+    .message{
+        max-height: 900px;
+    }
+}
+/* chat mobile end */

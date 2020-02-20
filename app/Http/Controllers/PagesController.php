@@ -664,9 +664,14 @@ class PagesController extends Controller
 
         /*移除Vip資格*/
         $is_vip = $user->isVip();
+        $isFreeVip = $user->isFreeVip();
         $pic_count = DB::table('member_pic')->where('member_id', $user->id)->count();
-        if(($pic_count+1)<4 && $is_vip==1 &&$user->engroup==2){
-            DB::table('member_vip')->where('member_id',$user->id)->update(['active'=>0, 'free'=>1]);
+        if(($pic_count+1)<4 && $is_vip==1 &&$user->engroup==2 && $isFreeVip){
+            // 不要輕易使用 DB 方式去修改資料庫，應盡可能使用現有的功能和 model 去處理資料，否則
+            // 如這一部分程式而言，VIP 這個 model 在取消時還會進行 log 記錄，如果直接用 DB，將
+            // 會造成取消 VIP 卻沒有任何記錄，updated_at 也不會有任何變動。
+            //DB::table('member_vip')->where('member_id',$user->id)->update(['active'=>0, 'free'=>1]);
+            Vip::cancel($user->id, 1);
 
             $data = array(
                 'code'=>'800'

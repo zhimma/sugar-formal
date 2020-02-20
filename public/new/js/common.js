@@ -141,6 +141,12 @@
          $("#tab02 .gxbut").text(str);
     }
 
+	function c3(str) {
+		$(".announce_bg").show();
+		$("#tab02").show();
+		$("#tab02 .gxbut").text(str);
+	}
+
     $(document).on('click','.blbg',function(event) {
     	$(".blbg").hide();
         $(".bl").hide();

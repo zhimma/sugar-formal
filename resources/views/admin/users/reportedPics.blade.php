@@ -66,13 +66,11 @@
                     @if(isset($results))
                         @foreach ($results as $rowIndex=>$result)
                         <? $rowIndex += 1; ?>
-
                         @if(isset($reported_id))
                             @if ($result['reported_user_id'] != $reported_id)
                                 @continue
                             @endif
                         @endif
-                        
                         <tr >
                             <td @if($result['isBlockedReceiver']) style="background-color:#FFFF00" @endif>
                                 <a href="{{ route('users/advInfo', $result['reported_user_id']) }}" target='_blank'>
@@ -216,6 +214,11 @@
                     @if(isset($Presults))
                         @foreach ($Presults as $result)
                         <? $rowIndex += 1; ?>
+                        @if(isset($reported_id))
+                            @if ($result['reported_user_id'] != $reported_id)
+                                @continue
+                            @endif
+                        @endif
                         <tr >
                             <td>
                                 @if(isset($result['reported_user_id']))
