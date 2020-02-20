@@ -731,12 +731,12 @@ class PagesController extends Controller
                 'code'=>'600'
             );
             // dd('123');
-        }else{
+        }
+        else{
             // dd('456');
             //VER.3
             $pic_count = MemberPic::where('member_id', $user->id)->count();
             for($i=0;$i<count($member_pics);$i++){
-
                 if($pic_count>=6){
                     $data = array(
                         'code'=>'400',
@@ -756,7 +756,8 @@ class PagesController extends Controller
                     MemberPic::insert(
                         array('member_id' => $user->id, 'pic' => '/Member_pics'.'/'.$user->id.'_'.$now.$member_pics[$i], 'isHidden' => 0, 'created_at'=>now(), 'updated_at'=>now())
                     );
-                }else{
+                }
+                else{
                     Log::info('save_img() failed, user id: ' . $user->id);
                     return false;
                 }
@@ -790,7 +791,6 @@ class PagesController extends Controller
             if(!is_null($avatar)){
                 UserMeta::uploadUserHeader($user->id,$avatar->pic);
             }
-
         }
 
 
