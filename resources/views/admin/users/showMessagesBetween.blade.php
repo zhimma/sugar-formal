@@ -18,9 +18,6 @@
 					<a href="{{ route('users/advInfo', [$message->from_id]) }} ">
 						<p @if($id1->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
 							{{ $id1->name }}
-							@if($id1->vip OR $id1->tipcount>0)
-							    ——
-							@endif
 							@if($id1->vip)
 							    @if($id1->vip=='diamond_black')
 							        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
@@ -50,9 +47,6 @@
 					<a href="{{ route('users/advInfo', [$message->to_id]) }} ">
 						<p @if($id2->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
 							{{ $id2->name }}
-							@if($id2->vip OR $id2->tipcount>0)
-							    ——
-							@endif
 							@if($id2->vip)
 							    @if($id2->vip=='diamond_black')
 							        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
@@ -85,9 +79,6 @@
 					<a href="{{ route('users/advInfo', [$id1->id]) }} ">
 						<p @if($id1->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
 							{{ $id1->name }}
-							@if($id1->vip OR $id1->tipcount>0)
-							    ——
-							@endif
 							@if($id1->vip)
 							    @if($id1->vip=='diamond_black')
 							        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
@@ -117,9 +108,6 @@
 					<a href="{{ route('users/advInfo', [$message->to_id]) }} ">
 						<p @if($id2->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
 							{{ $id2->name }}
-							@if($id2->vip OR $id2->tipcount>0)
-							    ——
-							@endif
 							@if($id2->vip)
 							    @if($id2->vip=='diamond_black')
 							        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">

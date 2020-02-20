@@ -225,7 +225,7 @@
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->body))
+                                    @if(!empty($to->meta_()->body) && $to->meta_()->body != null && $to->meta_()->body != 'null')
                                     <dt>
                                         <span>體型</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->body}}" disabled="disabled"></span>
@@ -253,14 +253,14 @@
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->domainType))
+                                    @if(!empty($to->meta_()->domainType) && $to->meta_()->domainType != null && $to->meta_()->domainType != 'null')
                                     <dt>
                                         <span>產業</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->domainType}}" disabled="disabled"></span>
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->occupation) && $to->meta_()->isHideOccupation == '0')
+                                    @if(!empty($to->meta_()->occupation) && $to->meta_()->isHideOccupation == '0' && $user->isVip())
                                     <dt>
                                         <span>職業</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->occupation}}" disabled="disabled"></span>

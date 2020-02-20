@@ -228,7 +228,7 @@ Route::group(['middleware' => ['auth']], function () {
 Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], function () {
 
 
-    Route::get('Fingerprint', 'Fingerprint@index');
+    Route::get('Fingerprint2', 'Fingerprint@index');
     Route::post('Fingerprint/addFingerprint', 'Fingerprint@addFingerprint');
 
     /*
@@ -370,7 +370,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::group(['middleware' => ['filled']], function () {
 
         //新樣板
-        Route::get('/dashboard/chat2/{randomNo?}', 'Message_newController@chatview')->name('chatView');
+        Route::get('/dashboard/chat2/{randomNo?}', 'Message_newController@chatview')->name('chat2View');
         Route::post('/dashboard/chat2/showMessages/{randomNo?}', 'Message_newController@chatviewMore')->name('showMessages');
         Route::get('/dashboard/chat2/chatShow/{cid}', 'PagesController@chat2')->name('chat2WithUser');
         Route::post('/dashboard/chat2/deletesingle', 'Message_newController@deleteSingle')->name('delete2Single');
@@ -499,6 +499,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('/chat', 'MessageController@chatview')->name('admin/chat');
         Route::get('/chat/{cid}', 'PagesController@chat');
         Route::post('/chat', 'MessageController@postChat');
+        Route::get('commontext', 'UserController@showAdminCommonText')->name('admin/commontext');
+        Route::post('commontext/save', 'UserController@saveAdminCommonText')->name('admin/commontext/save');
         Route::get('users/inactive', 'UserController@inactiveUsers')->name('inactive');
         Route::post('users/inactive', 'UserController@inactiveUsers')->name('inactive');
         Route::get('users/activate/token/{token}', 'UserController@activateUser')->name('activateUser');

@@ -46,13 +46,13 @@
                 <a href="/dashboard/viewuser/{{$user->id}}"><img src="/new/images/1_06.png">預覽</a></div>
               <div class="n_adbut"><a href="" style="padding-left: 10px;">身份驗證</a></div>
             <div class="xiliao_input">
-               <form class="m-form m-form--fit m-form--label-align-right" method="POST" name="user_data" action="" id="information"data-parsley-validate novalidate>
+               <form class="m-form m-form--fit m-form--label-align-right" method="POST" name="user_data" action="" id="information" data-parsley-validate novalidate>
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="userId" value="{{$user->id}}">
                 <div class="n_input">
                   <dt>
                     <span>暱稱<i>(必填)</i></span>
-                    <span><input name="name" type="text" class="select_xx01"  placeholder="請輸入" value="{{$user->name}}" required data-parsley-errors-messages-disabled maxlength="8"></span>
+                    <span><input name="name" id="name" type="text" class="select_xx01"  placeholder="至多八個字" value="{{$user->name}}" required data-parsley-errors-messages-disabled maxlength="8"></span>
                   </dt>
                   <dt>
                     <span>一句話形容自己<i>(必填)</i></span>
@@ -191,7 +191,7 @@
                   </dt>
                   <dt>
                       <span>身高（cm）<i>(必填)</i></span>
-                      <span><input minlength="3"  data-parsley-minlength="3" name="height" type="text" class="select_xx01"  placeholder="請填入身高" value="{{$umeta->height}}"></span>
+                      <span><input minlength="3" data-parsley-minlength="3" name="height" id="height" type="number" class="select_xx01"  placeholder="請輸入數字範圍140～210" value="{{$umeta->height}}" title="請輸入140~210範圍"></span>
                   </dt>
                   @if($user->engroup==2)
 {{--                  <dt>--}}
@@ -240,7 +240,7 @@
                       <span>體型</span>
                       <span>
                         <select name="body"  class="select_xx01">
-                          <option value="">請選擇</option>
+                          <option value=null>請選擇</option>
                           <option value="瘦"
                                   @if($umeta->body == '瘦') selected @endif>瘦
                           </option>
@@ -406,8 +406,7 @@
                       </span>
                       <div class="right" style="margin: 10px 0 -5px 10px;">
                         <input type="hidden" name="isHideOccupation" value="0">
-                        <input name="isHideArea" type="checkbox"  @if($umeta->isHideOccupation == true) checked
-                                                                       @endif value="1"> 隱藏職業
+                        <input type="checkbox" name="isHideOccupation"  @if($umeta->isHideOccupation == true) checked @endif value="1"> 隱藏職業
                       </div>
                   </dt>
                   @else
@@ -417,7 +416,7 @@
                         <input type="hidden" name="day" value="01">
                         <div class="se_zlman left">
                           <select  class="select_xx2 left" name="domainType" id="domainType" onchange="setDomain(0);">
-                            <option value="">請選擇</option>
+                            <option value=null>請選擇</option>
                             <option value="資訊科技"
                                     @if($umeta->domainType == '資訊科技') selected @endif>
                                 資訊科技
@@ -448,7 +447,9 @@
                   </dt>
                   <dt>
                       <span>職業<i></i></span>
-                      <span><input name="occupation" type="text" class="select_xx01"  placeholder="請填入職業"></span>
+                      <span>
+                          <input name="occupation" type="text" class="select_xx01"  placeholder="請填入職業" @if(!empty($umeta->occupation))value="{{$umeta->occupation}}"@endif>
+                      </span>
                   </dt>
                   @endif
                   <dt>
@@ -570,7 +571,7 @@
                   </dt>
                   <dt>
                       <span>資產<i>(必填)</i></span>
-                      <span><input required data-parsley-errors-messages-disabled name="assets" value="{{$umeta->assets}}" type="number" class="select_xx01"  placeholder="請填入資產"></span>
+                      <span><input required data-parsley-errors-messages-disabled name="assets" id="assets" value="{{$umeta->assets}}" type="number" class="select_xx01"  placeholder="請輸入數字範圍0～10000000000"></span>
                   </dt>
                   @endif
                 </div>
@@ -791,7 +792,7 @@
            @if($user->engroup_change > 0)
             var engroup = "{{ $user->engroup }}";
             if(engroup==1){
-              console.log('123');
+              //console.log('123');
               $("input[name=engroup][value=1]").prop('checked',true);
               $("input[name=engroup][value=2]").prop('checked',false);
             }else{
@@ -815,6 +816,29 @@
 
       setDomain(1);
       $('#domain option[value="{{ $umeta->domain }}"]').attr('selected',true);
+
+
+      //validation
+        $("#name").keyup(function() {
+            if(this.value.length>=8){
+                c3('至多八個字');
+            }
+        });
+
+        $("#height").on("change", function() {
+            var val = Math.abs(parseInt(this.value, 10) || 1);
+            if(this.value>210 || this.value<140) {
+                c3('請輸入數字範圍140～210');
+                this.value = val > 210 ? 210 : val < 140 ? 140 : val ;
+            }
+        });
+
+        $("#assets").keyup(function() {
+            if($.isNumeric(this.value) == false){
+                c3('請輸入數字範圍0～10000000000');
+            }
+        });
+
     });
 
 

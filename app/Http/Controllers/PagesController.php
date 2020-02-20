@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminAnnounce;
+use App\Models\AdminCommonText;
 use Auth;
 use App\Http\Requests;
 use Carbon\Carbon;
@@ -23,6 +24,8 @@ use App\Models\MemberFav;
 use App\Models\Blocked;
 use App\Models\BasicSetting;
 use App\Models\Posts;
+use App\Models\UserMeta;
+use App\Models\MemberPic;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReportRequest;
 use App\Http\Requests\ProfileUpdateRequest;
@@ -168,6 +171,7 @@ class PagesController extends Controller
     }
 
     public  function postChatpayEC(Request $request){
+
         return '1|OK';
     }
 
@@ -200,23 +204,30 @@ class PagesController extends Controller
                 Tip::upgrade($user->id, $targetUserID, $payload['P_CheckSum']);
                 Message::post($user->id, $targetUserID, "系統通知: 車馬費邀請");
                 if($user->engroup == 1) {
+                    //取資料庫並替換名字
+                    $tip_msg1 = AdminCommonText::getCommonText(1);//id2給男會員訊息
+                    $tip_msg1 = str_replace('NAME', User::findById($targetUserID)->name, $tip_msg1);
+                    $tip_msg2 = AdminCommonText::getCommonText(2);//id3給女會員訊息
+                    $tip_msg2 = str_replace('NAME', $user->name, $tip_msg2);
                     // 給男會員訊息
-                    Message::post($user->id, $targetUserID, "系統通知: 車馬費邀請\n您已經向 ". User::findById($targetUserID)->name ." 發動車馬費邀請。\n流程如下\n1:網站上進行車馬費邀請\n2:網站上訊息約見(重要，站方判斷約見時間地點，以網站留存訊息為準)\n3:雙方見面\n\n如果雙方在第二步就約見失敗。\n將扣除手續費 288 元後，1500匯入您指定的帳戶。也可以用現金袋或者西聯匯款方式進行。\n(聯繫我們有站方聯絡方式)\n\n若雙方有見面意願，被女方放鴿子。\n站方會參照女方提出的證據，判斷是否將尾款交付女方。", false);
-                    Message::post($targetUserID, $user->id, "系統通知: 車馬費邀請\n". $user->name . " 已經向 您 發動車馬費邀請。\n流程如下\n1:網站上進行車馬費邀請\n2:網站上訊息約見(重要，站方判斷約見時間地點，以網站留存訊息為準)\n3:雙方見面(建議約在知名連鎖店丹堤星巴克或者麥當勞之類)\n\n若成功見面男方沒有提出異議，那站方會在發動後 7~14 個工作天\n將 1500 匯入您指定的帳戶。若您不想提供銀行帳戶。\n也可以用現金袋或者西聯匯款方式進行。\n(聯繫我們有站方聯絡方式)\n\n若男方提出當天女方未到場的爭議。請您提出當天消費的發票證明之。\n所以請約在知名連鎖店以利站方驗證。\n", false);
+                    // Message::post($user->id, $targetUserID, "系統通知: 車馬費邀請\n您已經向 ". User::findById($targetUserID)->name ." 發動車馬費邀請。\n流程如下\n1:網站上進行車馬費邀請\n2:網站上訊息約見(重要，站方判斷約見時間地點，以網站留存訊息為準)\n3:雙方見面\n\n如果雙方在第二步就約見失敗。\n將扣除手續費 288 元後，1500匯入您指定的帳戶。也可以用現金袋或者西聯匯款方式進行。\n(聯繫我們有站方聯絡方式)\n\n若雙方有見面意願，被女方放鴿子。\n站方會參照女方提出的證據，判斷是否將尾款交付女方。", false);
+                    // Message::post($targetUserID, $user->id, "系統通知: 車馬費邀請\n". $user->name . " 已經向 您 發動車馬費邀請。\n流程如下\n1:網站上進行車馬費邀請\n2:網站上訊息約見(重要，站方判斷約見時間地點，以網站留存訊息為準)\n3:雙方見面(建議約在知名連鎖店丹堤星巴克或者麥當勞之類)\n\n若成功見面男方沒有提出異議，那站方會在發動後 7~14 個工作天\n將 1500 匯入您指定的帳戶。若您不想提供銀行帳戶。\n也可以用現金袋或者西聯匯款方式進行。\n(聯繫我們有站方聯絡方式)\n\n若男方提出當天女方未到場的爭議。請您提出當天消費的發票證明之。\n所以請約在知名連鎖店以利站方驗證。\n", false);
+                    Message::post($user->id, $targetUserID, $tip_msg1, false);
+                    Message::post($targetUserID, $user->id, $tip_msg2, false);
                 }
                 else if($user->engroup == 2) {
                     // 給女會員訊息
                     // Message::post($user->id, $payload['P_OrderNumber'], "系統通知: 車馬費邀請\n". $user->name . " 已經向 您 發動車馬費邀請。\n流程如下\n1:網站上進行車馬費邀請\n2:網站上訊息約見(重要，站方判斷約見時間地點，以網站留存訊息為準)\n3:雙方見面(建議約在知名連鎖店丹堤星巴克或者麥當勞之類)\n\n若成功見面男方沒有提出異議，那站方會在發動後 7~14 個工作天\n將 1500 匯入您指定的帳戶。若您不想提供銀行帳戶。\n也可以用現金袋或者西聯匯款方式進行。\n(聯繫我們有站方聯絡方式)\n\n若男方提出當天女方未到場的爭議。請您提出當天消費的發票證明之。\n所以請約在知名連鎖店以利站方驗證。\n");
                 }
                 //return redirect('/dashboard/chat/' . $payload['P_OrderNumber'] . '?invite=success');
-                return redirect()->route('chatWithUser', [ 'id' => $targetUserID ])->with('message', '車馬費已成功發送！');
+                return redirect()->route('chat2WithUser', [ 'id' => $targetUserID ])->with('message', '車馬費已成功發送！');
             }
             else{
-                return redirect()->route('chatWithUser', [ 'id' => $targetUserID ])->withErrors(['交易系統回傳結果顯示交易未成功，車馬費無法發送！請檢查信用卡資訊。']);
+                return redirect()->route('chat2WithUser', [ 'id' => $targetUserID ])->withErrors(['交易系統回傳結果顯示交易未成功，車馬費無法發送！請檢查信用卡資訊。']);
             }
         }
         else{
-            return redirect()->route('chatView')->withErrors(['交易系統沒有回傳資料，車馬費無法發送！請檢查網路是否順暢。']);
+            return redirect()->route('chat2View')->withErrors(['交易系統沒有回傳資料，車馬費無法發送！請檢查網路是否順暢。']);
         }
     }
 
@@ -591,7 +602,7 @@ class PagesController extends Controller
             $tabName = 'm_user_profile_tab_1';
         }
 
-        $member_pics = DB::table('member_pic')->select('*')->where('member_id',$user->id)->get()->take(6);
+        $member_pics = MemberPic::select('*')->where('member_id',$user->id)->get()->take(6);
 
         $birthday = date('Y-m-d', strtotime($user->meta_()->birthdate));
         $birthday = explode('-', $birthday);
@@ -643,23 +654,24 @@ class PagesController extends Controller
 
         $pic_id = $request->pic_id;
 
-        DB::table('member_pic')->where('member_id', $user_id)->where('id', $pic_id)->delete();
-
+        MemberPic::where('member_id', $user_id)->where('id', $pic_id)->delete();
 
         /*設第一張照片為大頭貼*/
-        $avatar = DB::table('member_pic')->where('member_id', $user_id)->orderBy('id', 'asc')->get()->first();
-        if(is_null($avatar)){
-            $avatarPic = '';
-        }else{
-            $avatarPic = $avatar->pic;
+        $avatar = MemberPic::where('member_id', $user->id)->orderBy('id', 'asc')->first();
+        if(!is_null($avatar)){
+            UserMeta::uploadUserHeader($user->id,$avatar->pic);
         }
-        DB::table('user_meta')->where('user_id', $user_id)->update(['pic'=>$avatarPic]);
 
         /*移除Vip資格*/
         $is_vip = $user->isVip();
+        $isFreeVip = $user->isFreeVip();
         $pic_count = DB::table('member_pic')->where('member_id', $user->id)->count();
-        if(($pic_count+1)<4 && $is_vip==1 &&$user->engroup==2){
-            DB::table('member_vip')->where('member_id',$user->id)->update(['active'=>0, 'free'=>1]);
+        if(($pic_count)<4 && $is_vip==1 &&$user->engroup==2 && $isFreeVip){
+            // 不要輕易使用 DB 方式去修改資料庫，應盡可能使用現有的功能和 model 去處理資料，否則
+            // 如這一部分程式而言，VIP 這個 model 在取消時還會進行 log 記錄，如果直接用 DB，將
+            // 會造成取消 VIP 卻沒有任何記錄，updated_at 也不會有任何變動。
+            //DB::table('member_vip')->where('member_id',$user->id)->update(['active'=>0, 'free'=>1]);
+            Vip::cancel($user->id, 1);
 
             $data = array(
                 'code'=>'800'
@@ -713,20 +725,19 @@ class PagesController extends Controller
 
         //save new file path into db
         // $userObj->profile_pic = $safeName;
-        $data = array(
-            'code'=>'200',
-        );
+
 
         if(count($member_pics)==0){
             $data = array(
                 'code'=>'600'
             );
             // dd('123');
-        }else{
+        }
+        else{
             // dd('456');
             //VER.3
+            $pic_count = MemberPic::where('member_id', $user->id)->count();
             for($i=0;$i<count($member_pics);$i++){
-                $pic_count = DB::table('member_pic')->where('member_id', $user->id)->count();
                 if($pic_count>=6){
                     $data = array(
                         'code'=>'400',
@@ -743,15 +754,20 @@ class PagesController extends Controller
                     list(, $image)      = explode(',', $image);
                     $image = base64_decode($image);
                     \File::put(public_path(). '/Member_pics' .'/'. $user->id.'_'.$now.$member_pics[$i], $image);
-                    DB::table('member_pic')->insert(
+                    MemberPic::insert(
                         array('member_id' => $user->id, 'pic' => '/Member_pics'.'/'.$user->id.'_'.$now.$member_pics[$i], 'isHidden' => 0, 'created_at'=>now(), 'updated_at'=>now())
                     );
                 }
                 else{
-                    Log::info('save_img() failed, user id: ' . $user_id);
+                    Log::info('save_img() failed, user id: ' . $user->id);
                     return false;
                 }
             }
+
+            $data = array(
+                'code'=>'200',
+            );
+            /* 此段沒有必要，middleware 中的 FemaleVipActive 會處理這個判斷
             $is_vip = $user->isVip();
             if(($pic_count+1)>=4 && $is_vip==0 &&$user->engroup==2){
                 $isVipCount = DB::table('member_vip')->where('member_id',$user->id)->count();
@@ -763,17 +779,22 @@ class PagesController extends Controller
                 $data = array(
                     'code'=>'800'
                 );
+            }*/
+
+            $pic_count_final = MemberPic::where('member_id', $user->id)->count();
+            if(($pic_count_final+1)>=4 && $user->engroup==2){
+                $data = array(
+                    'code'=>'800'
+                );
+            }
+            /*設第一張照片為大頭貼*/
+            $avatar = MemberPic::where('member_id', $user->id)->orderBy('id', 'asc')->first();
+            if(!is_null($avatar)){
+                UserMeta::uploadUserHeader($user->id,$avatar->pic);
             }
         }
 
-        /*設第一張照片為大頭貼*/
-        $avatar = DB::table('member_pic')->where('member_id', $user_id)->orderBy('id', 'asc')->get()->first();
-        if(is_null($avatar)){
-            $avatarPic = '';
-        }else{
-            $avatarPic = $avatar->pic;
-        }
-        DB::table('user_meta')->where('user_id', $user_id)->update(['pic'=>$avatarPic]);
+
         // dd($data);
         // foreach($member_pics as $key=>$member_pic){
 
@@ -784,7 +805,6 @@ class PagesController extends Controller
         echo json_encode($data);
     }
     
-
     public function dashboard_img_new(Request $request)
     {
         $user = $request->user();
@@ -1002,9 +1022,11 @@ class PagesController extends Controller
                     $data['timeSet']  = (int)$basic_setting['timeSet'];
                     $data['countSet'] = (int)$basic_setting['countSet'];
                 }
+                $blockadepopup = AdminCommonText::getCommonText(5);//id5封鎖說明popup
                 $isVip = $user->isVip() ? '1':'0';
                 return view('new.dashboard.viewuser', $data)
                     ->with('user', $user)
+                    ->with('blockadepopup', $blockadepopup)
                     ->with('to', $this->service->find($uid))
                     ->with('cur', $user)
                     ->with('member_pic',$member_pic)
@@ -1309,6 +1331,7 @@ class PagesController extends Controller
         $m_time = '';
         if (isset($user)) {
             $isVip = $user->isVip();
+            $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
             $messages = Message::allToFromSender($user->id, $cid);
             //$messages = Message::allSenders($user->id, 1);
             if (isset($cid)) {
@@ -1325,6 +1348,7 @@ class PagesController extends Controller
                     ->with('to', $this->service->find($cid))
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
+                    ->with('tippopup', $tippopup)
                     ->with('messages', $messages);
             }
             else {
@@ -1332,6 +1356,7 @@ class PagesController extends Controller
                     ->with('user', $user)
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
+                    ->with('tippopup', $tippopup)
                     ->with('messages', $messages);
             }
         }
@@ -1668,9 +1693,13 @@ class PagesController extends Controller
                     Vip::cancel($user->id, 0);
                     $data = Vip::where('member_id', $user->id)->where('expiry', '!=', '0000-00-00 00:00:00')->get()->first();
                     $date = date('Y年m月d日', strtotime($data->expiry));
-                    $request->session()->flash('cancel_notice', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
+
+                    $offVIP = AdminCommonText::getCommonText(4);
+                    $offVIP = str_replace('DATE', $date, $offVIP);
+
+                    $request->session()->flash('cancel_notice', $offVIP);
                     $request->session()->save();
-                    return redirect('/dashboard')->with('user', $user)->with('message', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
+                    return redirect('/dashboard')->with('user', $user)->with('message', $offVIP);
                     //return back()->with('user', $user)->with('message', 'VIP 取消成功！')->with('cancel_notice', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
 
                 }
@@ -1962,7 +1991,11 @@ class PagesController extends Controller
 
             
             if (Hash::check($pwd, $u->password)){
-                DB::table('member_vip')->where('member_id', $userId)->update(['active',0]);
+                // 不要輕易使用 DB 方式去修改資料庫，應盡可能使用現有的功能和 model 去處理資料，否則
+                // 如這一部分程式而言，VIP 這個 model 在取消時還會進行 log 記錄，如果直接用 DB，將
+                // 會造成取消 VIP 卻沒有任何記錄，updated_at 也不會有任何變動。
+                // DB::table('member_vip')->where('member_id', $userId)->update(['active',0]);
+                Vip::cancel($userId, 0);
                 $data = array(
                     'code'=>'200',
                     'msg'=>'修改成功',

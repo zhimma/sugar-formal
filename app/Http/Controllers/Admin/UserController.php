@@ -19,6 +19,7 @@ use App\Http\Requests\UserInviteRequest;
 use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\AdminAnnounce;
+use App\Models\AdminCommonText;
 use App\Models\VipLog;
 use App\Models\Vip;
 use App\Models\Tip;
@@ -1202,6 +1203,29 @@ class UserController extends Controller
     {
         $a = AdminAnnounce::orderBy('sequence', 'asc')->get()->all();
         return view('admin.adminannouncement')->with('announce', $a);
+    } 
+
+    public function showAdminCommonText()
+    {
+        $a = AdminCommonText::orderBy('id', 'asc')->where('status', 1)->get()->all();
+        return view('admin.admincommontext')->with('commontext', $a);
+    }
+
+    public function saveAdminCommonText(Request $request)
+    {
+        if( AdminCommonText::checkContent2($request->id, $request->content2) AND AdminCommonText::checkContent2($request->id, $request->content) ){
+            return back()->withErrors(['請修改後再送出']);
+        }elseif(AdminCommonText::checkContent2($request->id, $request->content2)){
+            $a = AdminCommonText::select('*')->where('id', '=', $request->id)->first();
+            $a->content = $request->content;
+            $a->save();
+            return back()->with('message', '成功修改');
+        }elseif (AdminCommonText::checkContent2($request->id, $request->content)){
+            $a = AdminCommonText::select('*')->where('id', '=', $request->id)->first();
+            $a->content = $request->content2;
+            $a->save();
+            return back()->with('message', '成功修改');
+        }
     }
 
     public function showReadAnnouncementUser($id)

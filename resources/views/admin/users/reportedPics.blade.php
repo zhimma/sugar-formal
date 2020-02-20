@@ -66,21 +66,16 @@
                     @if(isset($results))
                         @foreach ($results as $rowIndex=>$result)
                         <? $rowIndex += 1; ?>
-
                         @if(isset($reported_id))
                             @if ($result['reported_user_id'] != $reported_id)
                                 @continue
                             @endif
                         @endif
-                        
                         <tr >
                             <td @if($result['isBlockedReceiver']) style="background-color:#FFFF00" @endif>
                                 <a href="{{ route('users/advInfo', $result['reported_user_id']) }}" target='_blank'>
                                     <p @if($users[$result['reported_user_id']]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
                                         {{ $users[$result['reported_user_id']]['name'] }}
-                                        @if($users[$result['reported_user_id']]['vip'] OR (isset($users[$result['reported_user_id']]['tipcount']) AND $users[$result['reported_user_id']]['tipcount'] > 0))
-                                            ——
-                                        @endif
                                         @if($users[$result['reported_user_id']]['vip'])
                                             @if($users[$result['reported_user_id']]['vip']=='diamond_black')
                                                 <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
@@ -143,9 +138,6 @@
                                         <p>
                                     @endif
                                         {{ $users[$result['reporter_id']]['name'] }}
-                                        @if($users[$result['reporter_id']]['vip'] OR (isset($users[$result['reporter_id']]['tipcount']) AND $users[$result['reporter_id']]['tipcount'] > 0))
-                                            ——
-                                        @endif
                                         @if($users[$result['reporter_id']]['vip'])
                                             @if($users[$result['reporter_id']]['vip']=='diamond_black')
                                                 <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
@@ -222,14 +214,16 @@
                     @if(isset($Presults))
                         @foreach ($Presults as $result)
                         <? $rowIndex += 1; ?>
+                        @if(isset($reported_id))
+                            @if ($result['reported_user_id'] != $reported_id)
+                                @continue
+                            @endif
+                        @endif
                         <tr >
                             <td>
                                 @if(isset($result['reported_user_id']))
                                     <a href="{{ route('users/advInfo', $result['reported_user_id']) }}" target='_blank' @if($result['isBlockedReceiver']) style="color: #F00;" @endif>
                                         {{ $Pusers[$result['reported_user_id']]['name'] }}
-                                        @if($Pusers[$result['reported_user_id']]['vip'] OR (isset($Pusers[$result['reported_user_id']]['tipcount']) AND $Pusers[$result['reported_user_id']]['tipcount'] > 0))
-                                            ——
-                                        @endif
                                         @if($Pusers[$result['reported_user_id']]['vip'])
                                             @if($Pusers[$result['reported_user_id']]['vip']=='diamond_black')
                                                 <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
@@ -294,9 +288,6 @@
                             <td>
                                 <a href="{{ route('users/advInfo', $result['reporter_id']) }}" target='_blank' @if($result['isBlocked']) style="color: #F00;" @endif>
                                     {{ $Pusers[$result['reporter_id']]['name'] }}
-                                    @if($Pusers[$result['reporter_id']]['vip'] OR (isset($Pusers[$result['reporter_id']]['tipcount']) AND $Pusers[$result['reporter_id']]['tipcount'] > 0))
-                                        ——
-                                    @endif
                                     @if($Pusers[$result['reporter_id']]['vip'])
                                         @if($Pusers[$result['reporter_id']]['vip']=='diamond_black')
                                             <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
