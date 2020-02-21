@@ -219,11 +219,6 @@
                                 @endif
                             @endif
                         <? $rowIndex += 1; ?>
-                        @if(isset($reported_id))
-                            @if ($result['reported_user_id'] != $reported_id)
-                                @continue
-                            @endif
-                        @endif
                         <tr >
                             <td>
                                 @if(isset($result['reported_user_id']))
