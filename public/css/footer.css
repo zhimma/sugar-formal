@@ -1,0 +1,12 @@
+/* terms */
+h3, h2 {
+    text-align: center;
+}
+p {
+    line-height: 35px;
+}
+
+/* contact */
+li {
+    list-style: none;
+}

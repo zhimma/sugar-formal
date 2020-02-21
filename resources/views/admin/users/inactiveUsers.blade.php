@@ -1,0 +1,52 @@
+@extends('admin.main')
+@section('app-content')
+<body style="padding: 15px;">
+<h1>未啟動會員</h1>
+<form method="POST" action="{{ route('inactive') }}" class="search_form">
+	{!! csrf_field() !!}
+	<div class="form-group">
+		<label for="email" class="">Email</label>
+		<input type="text" name='email' class="" style="width:300px;" id="email" value="{{ old('email') }}">
+	</div>
+	<button type="submit" class="btn btn-primary">送出</button>
+</form>
+<br>
+@if(isset($users))
+共 {{ $users->total() }} 筆資料
+<table class='table table-bordered table-hover'>
+	<tr>
+		<th>Email</th>
+		<th>名稱</th>
+		<th>男/女</th>
+		<th>註冊時間</th>
+		<th>Token</th>
+		<th>啟動帳號</th>
+	</tr>
+	@forelse ($users as $user)
+	<tr>
+		<td>{{ $user->email }}</td>
+		<td>
+            <a href="advInfo/{{ $user->user_id }}" target="_blank">{{ $user->name }}</a>
+        </td>
+		<td>@if($user->engroup == '1') 男 @else 女 @endif</td>
+		<td>{{ $user->created_at }}</td>
+		<td>{{ $user->activation_token }}</td>
+		<td>
+			@if($user->is_active==0)
+				<a href="{{ route('activateUser', $user->activation_token)  }}" class="btn btn-success">啟動</a>
+			@else
+				此 Email 已啟動
+			@endif
+		</td>
+	</tr>
+	@empty
+	<tr>
+	找不到資料
+	</tr>
+	@endforelse
+</table>
+{{ $users->links() }}
+@endif
+</body>
+</html>
+@stop
