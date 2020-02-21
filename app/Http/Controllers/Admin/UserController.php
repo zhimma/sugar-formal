@@ -264,11 +264,13 @@ class UserController extends Controller
         if($admin){
             $bannedUser = users::where('id', $request->user_id)->get()->first();
             $msg = Message::where('id', $request->msg_id)->get()->first();
+            $banReason = DB::table('reason_list')->select('content')->where('type', 'ban')->get();
             if(!$bannedUser)
                 return back()->withErrors('查無使用者');
             else{
                 return view('admin.users.bannedUserDialog')
                     ->with('msg', $msg)
+                    ->with('banReason', $banReason)
                     ->with('bannedUser', $bannedUser)
                     ->with('isReported', $request->isReported);
             }     
@@ -285,6 +287,13 @@ class UserController extends Controller
         $msg_id = $request->msg_id;
         $days = $request->days;
         $reason = $request->reason;
+        $addreason = $request->addreason;
+        //勾選加入常用列表後新增
+        if($addreason){
+            if(DB::table('reason_list')->where([['type', 'ban'],['content', $reason]])->first() == null){
+                DB::table('reason_list')->insert(['type' => 'ban', 'content' => $reason]);
+            }
+        }
         $isReported = $request->isReported;
 
         $userBanned = banned_users::where('member_id', $user_id)
@@ -526,6 +535,16 @@ class UserController extends Controller
     }
 
     public function modifyUserPictures(Request $request) {
+        //勾選加入常用列表後新增
+        $addreason = $request->addreason;
+        $otherReason = $request->otherReason;
+        if($addreason){
+            if(DB::table('reason_list')->where([['type', 'pic'],['content', $otherReason]])->first() == null){
+                DB::table('reason_list')->insert(['type' => 'pic', 'content' => $otherReason]);
+            }
+        }
+        $msglib_delpic = Msglib::selectraw('id, title, msg')->where('kind','=','delpic')->get();
+
         if($request->delete){
             $datas = $this->admin->deletePicture($request);
             if($datas == null){
@@ -541,6 +560,7 @@ class UserController extends Controller
                         ->with('admin', $datas['admin'])
                         ->with('msgs', $datas['msgs'])
                         ->with('msgs2', $datas['msgs2'])
+                        ->with('msglib_delpic', $msglib_delpic)
                         ->with('template', $datas['template']);
                 }
                 else{
@@ -563,6 +583,7 @@ class UserController extends Controller
                         ->with('admin', $datas['admin'])
                         ->with('msgs', $datas['msgs'])
                         ->with('msgs2', $datas['msgs2'])
+                        ->with('msglib_delpic', $msglib_delpic)
                         ->with('template', $datas['template']);
                 }
                 else{
@@ -709,13 +730,10 @@ class UserController extends Controller
                     $senders[$key]['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first();
                     $senders[$key]['tipcount'] = Tip::TipCount_ChangeGood($id);
                     //被檢舉者近一月曾被不同人檢舉次數
-                    $date_start =  date("Y-m-d H:i:s",strtotime("-1 month"));;
-                    $date_end = date("Y-m-d H:i:s");
-                    $avatarsResult = count(ReportedAvatar::whereBetween('created_at', array($date_start, $date_end))->where('reported_user_id', $id)->groupBy('reporter_id')->get());
-                    $picsResult = count(ReportedPic::whereBetween('created_at', array($date_start, $date_end))->where('reported_pic_id', $id)->groupBy('reporter_id')->get());
-                    $senders[$key]['picsResult'] = $picsResult + $avatarsResult;
-                    $senders[$key]['messagesResult'] = count(Message::whereBetween('created_at', array($date_start, $date_end))->where('from_id', $id)->where('isReported', 1)->groupBy('to_id')->get());
-                    $senders[$key]['reportsResult'] = count(Reported::whereBetween('created_at', array($date_start, $date_end))->where('reported_id', $id)->groupBy('member_id')->get());
+                    $tmp = $this->admin->reports_month($id);
+                    $senders[$key]['picsResult'] = $tmp['picsResult'];
+                    $senders[$key]['messagesResult'] = $tmp['messagesResult'];
+                    $senders[$key]['reportsResult'] = $tmp['reportsResult'];
                 }
                 //Fills message ids to each sender.
                 foreach ($senders as $key => $sender){
@@ -1383,11 +1401,14 @@ class UserController extends Controller
                                         ->orderBy('created_at', 'desc')->get();
             $pics = ReportedPic::whereBetween('created_at', array($date_start, $date_end))
                                 ->orderBy('created_at', 'desc')->get();
-
+            
             $avatarDatas = $this->admin->fillReportedAvatarDatas($avatars);
             $picDatas = $this->admin->fillReportedPicDatas($pics);
 
+            $picReason = DB::table('reason_list')->select('content')->where('type', 'pic')->get();
+
             return view('admin.users.reportedPics')
+                ->with('picReason', $picReason)
                 ->with('results', $avatarDatas['results'] ? $avatarDatas['results'] : 1)
                 ->with('users', isset($avatarDatas['users']) ? $avatarDatas['users'] : null)
                 ->with('Presults', $picDatas['results'] ? $picDatas['results'] :null)

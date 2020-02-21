@@ -29,9 +29,11 @@ $admin_email = Config::get('social.admin.email');
             // echo json_encode($messages);
         ?>
         @if(!isset($to))
-            <a href="/admin/chat?day_page={{ $day_page-1 }}">上一頁</a>
-            <a href="/admin/chat">首頁</a>
-        	<a href="/admin/chat?day_page={{ $day_page+1 }}">下一頁</a>
+            <a href="/admin/chat?day_page={{ $day_page-1 }}" class="text-white btn btn-success">前一日</a>
+            <a href="/admin/chat" class="text-white btn btn-success">今日</a>
+            @if($day_page < 0)
+                <a href="/admin/chat?day_page={{ $day_page+1 }}" class="text-white btn btn-success">後一日</a>
+            @endif
         @endif
         <?php /*$msgUserRead =  \App\Models\Message::getSendersRead($msgUser->id, $user->id);*/
             $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get()->toArray();
