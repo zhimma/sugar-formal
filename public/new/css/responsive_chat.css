@@ -25,7 +25,8 @@
         max-height: 250px;
     }
     .se_text_bot {
-        /*width: 80%;*/
+        width: 100%;
+        max-width: 900px;
     }
 }
 @media (min-height:829px) and (max-width: 1024px){

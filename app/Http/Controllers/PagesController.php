@@ -24,6 +24,8 @@ use App\Models\MemberFav;
 use App\Models\Blocked;
 use App\Models\BasicSetting;
 use App\Models\Posts;
+use App\Models\UserMeta;
+use App\Models\MemberPic;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReportRequest;
 use App\Http\Requests\ProfileUpdateRequest;
@@ -168,6 +170,7 @@ class PagesController extends Controller
     }
 
     public  function postChatpayEC(Request $request){
+
         return '1|OK';
     }
 
@@ -216,14 +219,14 @@ class PagesController extends Controller
                     // Message::post($user->id, $payload['P_OrderNumber'], "系統通知: 車馬費邀請\n". $user->name . " 已經向 您 發動車馬費邀請。\n流程如下\n1:網站上進行車馬費邀請\n2:網站上訊息約見(重要，站方判斷約見時間地點，以網站留存訊息為準)\n3:雙方見面(建議約在知名連鎖店丹堤星巴克或者麥當勞之類)\n\n若成功見面男方沒有提出異議，那站方會在發動後 7~14 個工作天\n將 1500 匯入您指定的帳戶。若您不想提供銀行帳戶。\n也可以用現金袋或者西聯匯款方式進行。\n(聯繫我們有站方聯絡方式)\n\n若男方提出當天女方未到場的爭議。請您提出當天消費的發票證明之。\n所以請約在知名連鎖店以利站方驗證。\n");
                 }
                 //return redirect('/dashboard/chat/' . $payload['P_OrderNumber'] . '?invite=success');
-                return redirect()->route('chatWithUser', [ 'id' => $targetUserID ])->with('message', '車馬費已成功發送！');
+                return redirect()->route('chat2WithUser', [ 'id' => $targetUserID ])->with('message', '車馬費已成功發送！');
             }
             else{
-                return redirect()->route('chatWithUser', [ 'id' => $targetUserID ])->withErrors(['交易系統回傳結果顯示交易未成功，車馬費無法發送！請檢查信用卡資訊。']);
+                return redirect()->route('chat2WithUser', [ 'id' => $targetUserID ])->withErrors(['交易系統回傳結果顯示交易未成功，車馬費無法發送！請檢查信用卡資訊。']);
             }
         }
         else{
-            return redirect()->route('chatView')->withErrors(['交易系統沒有回傳資料，車馬費無法發送！請檢查網路是否順暢。']);
+            return redirect()->route('chat2View')->withErrors(['交易系統沒有回傳資料，車馬費無法發送！請檢查網路是否順暢。']);
         }
     }
 
@@ -598,7 +601,7 @@ class PagesController extends Controller
             $tabName = 'm_user_profile_tab_1';
         }
 
-        $member_pics = DB::table('member_pic')->select('*')->where('member_id',$user->id)->get()->take(6);
+        $member_pics = MemberPic::select('*')->where('member_id',$user->id)->get()->take(6);
 
         $birthday = date('Y-m-d', strtotime($user->meta_()->birthdate));
         $birthday = explode('-', $birthday);
@@ -650,23 +653,19 @@ class PagesController extends Controller
 
         $pic_id = $request->pic_id;
 
-        DB::table('member_pic')->where('member_id', $user_id)->where('id', $pic_id)->delete();
-
+        MemberPic::where('member_id', $user_id)->where('id', $pic_id)->delete();
 
         /*設第一張照片為大頭貼*/
-        $avatar = DB::table('member_pic')->where('member_id', $user_id)->orderBy('id', 'asc')->get()->first();
-        if(is_null($avatar)){
-            $avatarPic = '';
-        }else{
-            $avatarPic = $avatar->pic;
+        $avatar = MemberPic::where('member_id', $user->id)->orderBy('id', 'asc')->first();
+        if(!is_null($avatar)){
+            UserMeta::uploadUserHeader($user->id,$avatar->pic);
         }
-        DB::table('user_meta')->where('user_id', $user_id)->update(['pic'=>$avatarPic]);
 
         /*移除Vip資格*/
         $is_vip = $user->isVip();
         $isFreeVip = $user->isFreeVip();
         $pic_count = DB::table('member_pic')->where('member_id', $user->id)->count();
-        if(($pic_count+1)<4 && $is_vip==1 &&$user->engroup==2 && $isFreeVip){
+        if(($pic_count)<4 && $is_vip==1 &&$user->engroup==2 && $isFreeVip){
             // 不要輕易使用 DB 方式去修改資料庫，應盡可能使用現有的功能和 model 去處理資料，否則
             // 如這一部分程式而言，VIP 這個 model 在取消時還會進行 log 記錄，如果直接用 DB，將
             // 會造成取消 VIP 卻沒有任何記錄，updated_at 也不會有任何變動。
@@ -725,20 +724,19 @@ class PagesController extends Controller
 
         //save new file path into db
         // $userObj->profile_pic = $safeName;
-        $data = array(
-            'code'=>'200',
-        );
+
 
         if(count($member_pics)==0){
             $data = array(
                 'code'=>'600'
             );
             // dd('123');
-        }else{
+        }
+        else{
             // dd('456');
             //VER.3
+            $pic_count = MemberPic::where('member_id', $user->id)->count();
             for($i=0;$i<count($member_pics);$i++){
-                $pic_count = DB::table('member_pic')->where('member_id', $user->id)->count();
                 if($pic_count>=6){
                     $data = array(
                         'code'=>'400',
@@ -755,15 +753,19 @@ class PagesController extends Controller
                     list(, $image)      = explode(',', $image);
                     $image = base64_decode($image);
                     \File::put(public_path(). '/Member_pics' .'/'. $user->id.'_'.$now.$member_pics[$i], $image);
-                    DB::table('member_pic')->insert(
+                    MemberPic::insert(
                         array('member_id' => $user->id, 'pic' => '/Member_pics'.'/'.$user->id.'_'.$now.$member_pics[$i], 'isHidden' => 0, 'created_at'=>now(), 'updated_at'=>now())
                     );
                 }
                 else{
-                    Log::info('save_img() failed, user id: ' . $user_id);
+                    Log::info('save_img() failed, user id: ' . $user->id);
                     return false;
                 }
             }
+
+            $data = array(
+                'code'=>'200',
+            );
             /* 此段沒有必要，middleware 中的 FemaleVipActive 會處理這個判斷
             $is_vip = $user->isVip();
             if(($pic_count+1)>=4 && $is_vip==0 &&$user->engroup==2){
@@ -777,16 +779,21 @@ class PagesController extends Controller
                     'code'=>'800'
                 );
             }*/
+
+            $pic_count_final = MemberPic::where('member_id', $user->id)->count();
+            if(($pic_count_final+1)>=4 && $user->engroup==2){
+                $data = array(
+                    'code'=>'800'
+                );
+            }
+            /*設第一張照片為大頭貼*/
+            $avatar = MemberPic::where('member_id', $user->id)->orderBy('id', 'asc')->first();
+            if(!is_null($avatar)){
+                UserMeta::uploadUserHeader($user->id,$avatar->pic);
+            }
         }
 
-        /*設第一張照片為大頭貼*/
-        $avatar = DB::table('member_pic')->where('member_id', $user_id)->orderBy('id', 'asc')->get()->first();
-        if(is_null($avatar)){
-            $avatarPic = '';
-        }else{
-            $avatarPic = $avatar->pic;
-        }
-        DB::table('user_meta')->where('user_id', $user_id)->update(['pic'=>$avatarPic]);
+
         // dd($data);
         // foreach($member_pics as $key=>$member_pic){
 

@@ -10,6 +10,7 @@ use App\Models\SimpleTables\banned_users;
 use App\Models\Blocked as blocked;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class UserMeta extends Model
 {
@@ -129,9 +130,9 @@ class UserMeta extends Model
         return substr($string, 0, -3).'未填寫！';
     }
 
-    // public static function uploadUserHeader($uid, $fieldContent) {
-    //     return DB::table('user_meta')->where('user_id', $uid)->update(['pic' => $fieldContent]);
-    // }
+     public static function uploadUserHeader($uid, $fieldContent) {
+         return DB::table('user_meta')->where('user_id', $uid)->update(['pic' => $fieldContent]);
+     }
 
     /**
      * User
