@@ -65,12 +65,12 @@
                     <?php $rowIndex = 0; ?>
                     @if(isset($results))
                         @foreach ($results as $rowIndex=>$result)
-                        <? $rowIndex += 1; ?>
-                        @if(isset($reported_id))
-                            @if ($result['reported_user_id'] != $reported_id)
-                                @continue
+                            @if(isset($reported_id))
+                                @if ($result['reported_user_id'] != $reported_id)
+                                    @continue
+                                @endif
                             @endif
-                        @endif
+                        <? $rowIndex += 1; ?>
                         <tr >
                             <td @if($result['isBlockedReceiver']) style="background-color:#FFFF00" @endif>
                                 <a href="{{ route('users/advInfo', $result['reported_user_id']) }}" target='_blank'>
@@ -192,11 +192,11 @@
                                         <input class="btn btn-danger btn-delete" type="submit" value="刪除"><br>
                                         <input type="hidden" name="delete" value="true">
                                         <input type="hidden" name="avatar_id" value="{{$result['reported_user_id']}}">
-                                        <input type="radio" name="reason[{{$rowIndex}}]" value="非人物照片">非人物照片<br>
-                                        <input type="radio" name="reason[{{$rowIndex}}]" value="盜用圖片">盜用圖片<br>
-                                        <input type="radio" name="reason[{{$rowIndex}}]" value="非本人">非本人<br>
-                                        <input type="radio" name="reason[{{$rowIndex}}]" value="不雅照">不雅照<br>
-                                        其他: <input type="text" name="otherReason[{{$rowIndex}}]"><br>
+                                        @foreach($picReason as $a)
+                                            <input type="radio" name="reason[{{$rowIndex}}]" value="{{ $a->content }}">{{ $a->content }}<br>
+                                        @endforeach
+                                        其他: <input type="text" name="otherReason"><br>
+                                        <input type="checkbox" name="addreason">加入常用原因
                                     </form>
                                 </td>
                             @else
@@ -213,6 +213,11 @@
                     @endif
                     @if(isset($Presults))
                         @foreach ($Presults as $result)
+                            @if(isset($reported_id))
+                                @if ($result['reported_user_id'] != $reported_id)
+                                    @continue
+                                @endif
+                            @endif
                         <? $rowIndex += 1; ?>
                         @if(isset($reported_id))
                             @if ($result['reported_user_id'] != $reported_id)
@@ -333,7 +338,7 @@
                             </td>
                             @if(!is_null($result['pic']))
                             <td>
-                                <img src="{{ $result['pic'] }}" alt="" height="200px" onerror="{{ $result['pic'] }}">
+                                <img src="{{ $result['pic'] }}" alt="此照片已刪除或不存在" height="200px">
                             </td>
                             <td>
                                 <form id="Form" action="/admin/users/pictures/modify" method="POST" target="_blank">
@@ -341,11 +346,11 @@
                                     <input class="btn btn-danger" type="submit" value="刪除"><br>
                                     <input type="hidden" name="delete" value="true">
                                     <input type="hidden" name="pic_id" value="{{$result['reported_user_id']}}">
-                                    <input type="radio" name="reason[{{$rowIndex}}]" value="非人物照片">非人物照片<br>
-                                    <input type="radio" name="reason[{{$rowIndex}}]" value="盜用圖片">盜用圖片<br>
-                                    <input type="radio" name="reason[{{$rowIndex}}]" value="非本人">非本人<br>
-                                    <input type="radio" name="reason[{{$rowIndex}}]" value="不雅照">不雅照<br>
-                                    其他: <input type="text" name="otherReason[{{$rowIndex}}]"><br>
+                                    @foreach($picReason as $a)
+                                        <input type="radio" name="reason[{{$rowIndex}}]" value="{{ $a->content }}">{{ $a->content }}<br>
+                                    @endforeach
+                                    其他: <input type="text" name="otherReason"><br>
+                                    <input type="checkbox" name="addreason">加入常用原因
                                 </form>
                             </td>
                             @else
