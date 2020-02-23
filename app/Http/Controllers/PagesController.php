@@ -41,6 +41,7 @@ use Illuminate\Support\Facades\Input;
 use Session;
 use App\Http\Controllers\Common;
 
+
 class PagesController extends Controller
 {
     public function __construct(UserService $userService, VipLogService $logService)
@@ -2109,4 +2110,160 @@ class PagesController extends Controller
     public function hint_auth2(Request $rquest){
         return view('/auth/hint_auth2');
     }
+
+    public function posts_list(Request $request)
+    {
+        $posts = Posts::selectraw('users.name as uname, users.engroup as uengroup, posts.anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->orderBy('posts.id','desc')->paginate(10);
+        
+        // foreach($posts['data'] as $key=>$post){
+        //     array_push($posts['data'][$key], $post['pcontents']);
+        // }
+        // dd($posts);
+        $data = array(
+            'posts' => $posts
+        );
+
+        $user = $request->user();
+        if ($user)
+        {
+            // blocked by user->id
+            $blocks = \App\Models\Blocked::where('member_id', $user->id)->paginate(15);
+
+            $usersInfo = array();
+            foreach($blocks as $blockUser){
+                $id = $blockUser->blocked_id;
+                $usersInfo[$id] = User::findById($id);
+            }
+            
+        }
+        
+
+        return view('/dashboard/posts_list', $data)
+        ->with('blocks', $blocks)
+        ->with('users', $usersInfo)
+        ->with('user', $user);
+
+
+            
+    }
+
+    public function post_detail(Request $request)
+    {
+        $user = $request->user();
+        
+
+        $pid = $request->pid;
+        $this->post_views($pid);
+        $posts = Posts::selectraw('users.name as uname, users.engroup as uengroup, posts.anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->where('posts.id', $pid)->get();
+        $data = array(
+            'posts' => $posts
+        );
+
+        return view('/dashboard/post_detail', $data)->with('user', $user);;
+    }
+
+    public function getPosts(Request $request)
+    {
+        $page = $request->page;
+        $perPage = 10;
+        $startPost = $page*$perPage;
+        
+        /*撈取資料*/
+    }
+
+    public function posts(Request $request)
+    {
+        $user = $request->user();
+        $url = $request->fullUrl();
+        //echo $url;
+
+        if(str_contains($url, '?img')) {
+            $tabName = 'm_user_profile_tab_4';
+        }
+        else {
+            $tabName = 'm_user_profile_tab_1';
+        }
+
+        $member_pics = DB::table('member_pic')->select('*')->where('member_id',$user->id)->get()->take(6);
+
+        $birthday = date('Y-m-d', strtotime($user->meta_()->birthdate));
+        $birthday = explode('-', $birthday);
+        $year = $birthday[0];
+        $month = $birthday[1];
+        $day = $birthday[2];
+        if($year=='1970'){
+            $year=$month=$day='';
+        }
+        if ($user) {
+            $cancel_notice = $request->session()->get('cancel_notice');
+            $message = $request->session()->get('message');
+            if(isset($cancel_notice)){
+                return view('/dashboard/posts')
+                    ->with('user', $user)
+                    ->with('tabName', $tabName)
+                    ->with('cur', $user)
+                    ->with('year', $year)
+                    ->with('month', $month)
+                    ->with('day', $day)
+                    ->with('message', $message)
+                    ->with('cancel_notice', $cancel_notice);
+            }
+            if($user->engroup==1){
+                return view('/dashboard/posts')
+                    ->with('user', $user)
+                    ->with('tabName', $tabName)
+                    ->with('cur', $user)
+                    ->with('year', $year)
+                    ->with('month', $month)
+                    ->with('day', $day)
+                    ->with('member_pics', $member_pics);
+            }else{
+                return view('/dashboard/posts')
+                    ->with('user', $user)
+                    ->with('tabName', $tabName)
+                    ->with('cur', $user)
+                    ->with('year', $year)
+                    ->with('month', $month)
+                    ->with('day', $day)
+                    ->with('member_pics', $member_pics);
+            }
+        }
+    }
+
+    public function doPosts(Request $request)
+    {
+        $posts = new Posts;
+        $anonymous = $request->get('anonymous','no');
+        $combine   = $request->get('combine','no');
+        $agreement = $request->get('agreement','no');
+        $posts->title      = $request->get('title');
+        $posts->contents   = $request->get('contents');
+        $user=$request->user();
+        $posts->user_id = $user->id;
+
+        $posts->anonymous = $anonymous=='on' ? '1':'0';
+        $posts->combine   = $combine=='on'   ? '1':'0';
+        $posts->agreement = $agreement=='on' ? '1':'0';
+// dd($posts);
+        if($posts->anonymous=='1' && $posts->combine=='1' && $posts->agreement=='1'){
+            $result = $posts->save();
+            // Session::flash('message', '資料更新成功');
+            return redirect('/dashboard/posts_list');
+        }else{
+            return redirect('/dashboard/posts');
+        }
+
+
+
+    }
+
+    public function post_views($pid)
+    {
+        $views = Posts::where('id', $pid)->first()->views;
+        $update = array(
+            'views'=>$views+1,
+        );
+        Posts::where('id', $pid)->update($update);
+    }
+    
 }
