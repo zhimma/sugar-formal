@@ -6,7 +6,7 @@
     </li>
 @endif
 <li class="m-nav__item m-dropdown m-dropdown--large m-dropdown--arrow m-dropdown--align-center m-dropdown--mobile-full-width m-dropdown--skin-light	m-list-search m-list-search--skin-light" id="m_quicksearch">
-    <a href="{!! url('dashboard/search') !!}" class="m-nav__link m-dropdown__toggle">
+    <a href="{!! url('dashboard/search2') !!}" class="m-nav__link m-dropdown__toggle">
 		<span class="m-nav__link-icon">
 			<i class="flaticon-search-1"></i>
             <!-- <img src="/img/sugar_0926-07.png" alt="" width="23" height="23"> -->
@@ -87,7 +87,7 @@
                         </li>
 
                         <li class="m-nav__item">
-                            <a href="{!! url('dashboard') !!}" class="m-nav__link">
+                            <a href="{!! url('dashboard2') !!}" class="m-nav__link">
                                 <i class="m-nav__link-icon flaticon-profile-1"></i>
                                 <span class="m-nav__link-title">
 									<span class="m-nav__link-wrap">
@@ -112,7 +112,7 @@
                                 </a>
                             </li>
                             <li class="m-nav__item">
-                                <a href="{!! url('dashboard/fav') !!}" class="m-nav__link">
+                                <a href="{!! url('dashboard/fav2') !!}" class="m-nav__link">
                                     <i class="m-nav__link-icon fa fa-diamond"></i>
                                     <span class="m-nav__link-title">
                                         <span class="m-nav__link-wrap">

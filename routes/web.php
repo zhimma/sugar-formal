@@ -130,7 +130,8 @@ Route::get('/sftp-check-test', function(){
 });
 Route::get('/fingerprint', 'PagesController@fingerprint');
 Route::post('/saveFingerprint', 'PagesController@saveFingerprint')->name('saveFingerprint');
-
+Route::get('Fingerprint2', 'Fingerprint@index');
+Route::post('Fingerprint2/addFingerprint', 'Fingerprint@addFingerprint');
 
 /*
 |--------------------------------------------------------------------------
@@ -226,10 +227,6 @@ Route::group(['middleware' => ['auth']], function () {
 */
 
 Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], function () {
-
-
-    Route::get('Fingerprint2', 'Fingerprint@index');
-    Route::post('Fingerprint/addFingerprint', 'Fingerprint@addFingerprint');
 
     /*
     |--------------------------------------------------------------------------
@@ -364,6 +361,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('/dashboard/board', 'PagesController@postBoard');
         Route::get('/dashboard/history', 'PagesController@history');
         Route::get('/dashboard/block', 'PagesController@block');
+        Route::get('/dashboard/block2', 'PagesController@block2');
         Route::get('/dashboard/fav', 'PagesController@fav');
         Route::get('/dashboard/fav2', 'PagesController@fav2');
     });
