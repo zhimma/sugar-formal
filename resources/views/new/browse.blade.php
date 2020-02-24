@@ -16,6 +16,7 @@
             <li><a href="{!! url('/dashboard/banned') !!}"><img src="/new/images/z_02.png"><span>懲處名單</span></a></li>
 {{--            <li><a href="{!! url('dashboard/board') !!}"><img src="/new/images/z_03.png"><span>留言板</span></a></li>--}}
             <li><a href="{!! url('dashboard/visited') !!}"><img src="/new/images/z_04.png"><span>誰來看我</span></a></li>
+            <li><a href="{!! url('dashboard/posts_list') !!}"><img src="/new/images/z_04.png"><span>投稿</span></a></li>
             @if (isset($user) && $user->isVip())
                 <li><a href="{!! url('dashboard/fav') !!}"><img src="/new/images/z_05.png"><span>收藏名單</span></a></li>
                 <li><a href="{!! url('dashboard/block') !!}"><img src="/new/images/z_06.png"><span>封鎖名單</span></a></li>
