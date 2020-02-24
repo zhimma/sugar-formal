@@ -2095,8 +2095,8 @@ class PagesController extends Controller
         return json_encode($data);
     }
 
-    public function member_auth_phone(Request $rquest){
-        return view('/auth/member_auth_phone');
+    public function member_auth(Request $rquest){
+        return view('/auth/member_auth');
     }
 
     public function member_auth_photo(Request $rquest){
@@ -2113,7 +2113,7 @@ class PagesController extends Controller
 
     public function posts_list(Request $request)
     {
-        $posts = Posts::selectraw('users.name as uname, users.engroup as uengroup, posts.anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->orderBy('posts.id','desc')->paginate(10);
+        $posts = Posts::selectraw('users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->orderBy('posts.id','desc')->paginate(10);
         
         // foreach($posts['data'] as $key=>$post){
         //     array_push($posts['data'][$key], $post['pcontents']);
@@ -2154,7 +2154,7 @@ class PagesController extends Controller
 
         $pid = $request->pid;
         $this->post_views($pid);
-        $posts = Posts::selectraw('users.name as uname, users.engroup as uengroup, posts.anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->where('posts.id', $pid)->get();
+        $posts = Posts::selectraw('users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->where('posts.id', $pid)->get();
         $data = array(
             'posts' => $posts
         );
@@ -2233,19 +2233,21 @@ class PagesController extends Controller
     public function doPosts(Request $request)
     {
         $posts = new Posts;
-        $anonymous = $request->get('anonymous','no');
-        $combine   = $request->get('combine','no');
+        // $anonymous = $request->get('anonymous','no');
+        // $combine   = $request->get('combine','no');
+        $is_anonymous = $request->get('is_anonymous');
         $agreement = $request->get('agreement','no');
         $posts->title      = $request->get('title');
         $posts->contents   = $request->get('contents');
         $user=$request->user();
         $posts->user_id = $user->id;
 
-        $posts->anonymous = $anonymous=='on' ? '1':'0';
-        $posts->combine   = $combine=='on'   ? '1':'0';
+        // $posts->anonymous = $anonymous=='on' ? '1':'0';
+        // $posts->combine   = $combine=='on'   ? '1':'0';
+        $posts->is_anonymous = $is_anonymous;
         $posts->agreement = $agreement=='on' ? '1':'0';
-// dd($posts);
-        if($posts->anonymous=='1' && $posts->combine=='1' && $posts->agreement=='1'){
+
+        if(($posts->is_anonymous=='anonymous' || $posts->is_anonymous=='combine') && $posts->agreement=='1'){
             $result = $posts->save();
             // Session::flash('message', '資料更新成功');
             return redirect('/dashboard/posts_list');
