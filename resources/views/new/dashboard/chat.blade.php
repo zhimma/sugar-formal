@@ -91,7 +91,7 @@
     <script>
             var Page = {
             page : 1,
-            row  : 15,
+            row  : 10,
             DrawPage:function(total){
                 var total_page  = Math.ceil(total/Page.row) == 0 ? 1 : Math.ceil(total/Page.row);
                 var span_u      = 0;
@@ -223,10 +223,10 @@
                         $('#warning').fadeOut(150);
                     }, 100);
                     total=res.msg.length;
-                    // alert(rr);
-                    if(isNaN(rr) || (isNaN(rr) && rr==0)){
+                    //alert(total);
+                    if(isNaN(rr) || (isNaN(rr) && rr==0) || total==0){
                         $('.nodata').show();
-                    }else if(rr>0){
+                    }else if(rr>0 || total>0){
                         $('.nodata').hide();
                     }
 

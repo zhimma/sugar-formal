@@ -126,7 +126,8 @@
                         <div class="bottub">
                             <ul>
                                 <? $data = \App\Services\UserService::checkRecommendedUser($to);
-                                echo $data['description'];?>
+                                //echo $data['description'];
+                                ?>
                                 @if(isset($data['description']) && $to->engroup == 2)
                                 <li><img src="/new/images/icon_19.png"><span>新進甜心</span></li>
                                 @endif
@@ -403,6 +404,9 @@
         $('.gg_tab').hide();
         $('.n_right').hide();
         c4('此用戶已關閉資料');
+        $('.n_bbutton span').css('width','100%');
+        $('.n_bbutton').css('width','10%');
+        $('.n_left').css('margin-right','0px');
         $(".n_left").on('click', function() {
             $('#tab04').hide();
             if (document.referrer != "") {
@@ -578,11 +582,11 @@
             sid: '{{$to->id}}',
             _token: '{{ csrf_token() }}'
         }, function (data) {
-            if(data.save=='ok') {
+            // if(data.save=='ok') {
                 $("#tab_block").hide();
-                $(".blbg").hide();
-                c2('封鎖成功');
-            }
+                // $(".blbg").hide();
+                show_message('封鎖成功');
+            // }
         });
     });
 

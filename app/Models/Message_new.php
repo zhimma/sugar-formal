@@ -553,7 +553,7 @@ class Message_new extends Model
                 $messages[$key]['user_name'] = $msgUser->name;
                 $messages[$key]['isAvatarHidden'] = $msgUser->meta_()->isAvatarHidden;
                 $messages[$key]['pic'] = $msgUser->meta_()->pic;
-                if($messages[$key]['pic']==null||!file_exists('.'.$messages[$key]['pic'])){
+                if(!file_exists( public_path().$msgUser->meta_()->pic )){
                     $messages[$key]['pic'] = '/img/male-avatar.png';
                 }
                 $messages[$key]['content'] = $latestMessage == null ? '' : $latestMessage->content;

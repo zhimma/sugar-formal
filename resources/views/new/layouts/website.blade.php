@@ -7,6 +7,7 @@
     @include('new.partials.scripts')
 
     @if(str_contains(url()->current(), 'dashboard'))
+
     <?php
         $user = \Auth::user();
         if(isset($user)){
@@ -43,10 +44,7 @@
         </div>
     @endif
 
-    <?php
-            //check banned user
 
-    ?>
     @yield("javascript")
 
     <link rel="stylesheet" href="/new/owlcarousel/assets/owl.carousel.min.css">
@@ -109,7 +107,11 @@
 
         })
     </script>
+
+    <script src="https://kit.fontawesome.com/e76a5f74cc.js" crossorigin="anonymous"></script>
     @endif
+
+
 
 </body>
 </html>

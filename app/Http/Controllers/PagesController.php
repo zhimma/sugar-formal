@@ -1765,12 +1765,12 @@ class PagesController extends Controller
         $user = $request->user();
 
         $time = \Carbon\Carbon::now();
-        $start= date('Y-m-01',strtotime($time->subDay(30)));
-        $end= date('Y-m-t',strtotime($time));
+        $start= date('Y-m-01 hh:mm:ss',strtotime($time->subDay(30)));
+        $end= date('Y-m-t hh:mm:ss',strtotime($time));
 
         $count = banned_users::select('*')->whereBetween('banned_users.created_at',[($start),($end)])->count();
         $banned_users = banned_users::select('*')->whereBetween('banned_users.created_at',[($start),($end)])
-            ->join('users','banned_users.member_id','=','users.id')
+//            ->join('users','banned_users.member_id','=','users.id')
             ->orderBy('banned_users.created_at','asc')->paginate(15);
         return view('new.dashboard.banned')
             ->with('banned_user', $banned_users)

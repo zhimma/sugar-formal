@@ -60,6 +60,20 @@
         position: inherit;
         float: left;
     }
+    .shdel {
+        background-color: #ffffff;
+        border-radius: 10px;
+        width: 16px !important;
+        height: 16px !important;
+        bottom: -1px !important;
+        border: #f5f5f5 1px solid;
+    }
+    .shdel>i {
+        font-size: 3pt;
+        color: #e44e71 ;
+        padding-top: 2px;
+
+    }
 </style>
 @section('app-content')
     <div class="container matop70 chat">
@@ -146,7 +160,10 @@
                                             <i class="msg_input"></i>{!! nl2br($message['content']) !!}
 {{--                                            <a class="delete-btn" data-id="{{ $message['id'] }}" data-ct_time="{{ $message['created_at'] }}" data-content="{{ $message['content'] }}" href="javascript:void(0);"><img src="/new/images/del.png" @if($message['from_id'] == $user->id) class="shde2" @else class="shdel" @endif></a>--}}
                                             @if($message['from_id'] != $user->id)
-                                                <a href="javascript:void(0)" class="" onclick="banned('{{$msgUser->id}}','{{$msgUser->name}}');" title="檢舉"><img src="/new/images/ban.png" class="shdel" alt="檢舉"></a>
+                                                <a href="javascript:void(0)" class="" onclick="banned('{{$msgUser->id}}','{{$msgUser->name}}');" title="檢舉">
+{{--                                                    <img src="/new/images/ban.png" class="shdel" alt="檢舉">--}}
+                                                    <span class="shdel"><i class="fas fa-user-slash"></i></span>
+                                                </a>
                                             @endif
                                             <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
                                                 <span>{{ substr($message['created_at'],11,5) }}</span>
