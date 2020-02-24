@@ -186,6 +186,16 @@ class UserController extends Controller
     public function toggleUserBlock(Request $request){
         $userBanned = banned_users::where('member_id', $request->user_id)
             ->get()->first();
+
+        $reason = $request->reason;
+        $addreason = $request->addreason;
+        //勾選加入常用列表後新增
+        if($addreason){
+            if(DB::table('reason_list')->where([['type', 'ban'],['content', $reason]])->first() == null){
+                DB::table('reason_list')->insert(['type' => 'ban', 'content' => $reason]);
+            }
+        }
+        
         if($userBanned){
             $userBanned->delete();
             if(isset($request->page)){
@@ -448,6 +458,7 @@ class UserController extends Controller
         $user['tipcount'] = Tip::TipCount_ChangeGood($user->id);
         $user['vip'] = Vip::vip_diamond($user->id);
         $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first();
+        $banReason = DB::table('reason_list')->select('content')->where('type', 'ban')->get();
 
         if(str_contains(url()->current(), 'edit')){
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
@@ -465,6 +476,7 @@ class UserController extends Controller
         else{
             return view('admin.users.advInfo')
                    ->with('userMeta', $userMeta)
+                   ->with('banReason', $banReason)
                    ->with('user', $user)
                    ->with('userMessage', $userMessage)
                    ->with('to_ids', $to_ids);

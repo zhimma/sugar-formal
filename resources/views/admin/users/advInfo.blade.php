@@ -271,12 +271,15 @@
                         </select>
                         <hr>
                         封鎖原因
-                        <a class="text-white btn btn-success advertising">廣告</a>
-                        <a class="text-white btn btn-success improper-behavior">非徵求包養行為</a>
-                        <a class="text-white btn btn-success improper-words">用詞不當</a>
-                        <a class="text-white btn btn-success improper-photo">照片不當</a>
+                        @foreach($banReason as $a)
+                            <a class="text-white btn btn-success banReason">{{ $a->content }}</a>
+                        @endforeach
                         <br><br>
-                        <textarea class="form-control m-reason" name="msg" id="msg" rows="4" maxlength="200">廣告</textarea>
+                        <textarea class="form-control m-reason" name="reason" id="msg" rows="4" maxlength="200">廣告</textarea>
+                        <label style="margin:10px 0px;">
+                            <input type="checkbox" name="addreason" style="vertical-align:middle;width:20px;height:20px;"/>
+                            <sapn style="vertical-align:middle;">加入常用封鎖原因</sapn>
+                        </label>
                 </div>
                 <div class="modal-footer">
                 	<button type="submit" class='btn btn-outline-success ban-user'> 送出 </button>
@@ -326,6 +329,14 @@ jQuery(document).ready(function(){
 	// 	}
 	// 	$("#send_blockade").attr('href', data_id);
 	// });
+
+	$(".banReason").each( function(){
+	    $(this).bind("click" , function(){
+	        var id = $("a").index(this);
+	        var clickval = $("a").eq(id).text();
+	        $('.m-reason').val(clickval);
+	    });
+	});
 
 	$('.advertising').on('click', function(e) {
 		$('.m-reason').val('廣告');
