@@ -130,7 +130,8 @@ Route::get('/sftp-check-test', function(){
 });
 Route::get('/fingerprint', 'PagesController@fingerprint');
 Route::post('/saveFingerprint', 'PagesController@saveFingerprint')->name('saveFingerprint');
-
+Route::get('Fingerprint2', 'Fingerprint@index');
+Route::post('Fingerprint2/addFingerprint', 'Fingerprint@addFingerprint');
 
 /*
 |--------------------------------------------------------------------------
@@ -226,10 +227,6 @@ Route::group(['middleware' => ['auth']], function () {
 */
 
 Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], function () {
-
-
-    Route::get('Fingerprint2', 'Fingerprint@index');
-    Route::post('Fingerprint2/addFingerprint', 'Fingerprint@addFingerprint');
 
     /*
     |--------------------------------------------------------------------------
