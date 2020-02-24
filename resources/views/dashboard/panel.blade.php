@@ -42,7 +42,7 @@ if(Auth::user()) $login_user = Auth::user();
 						<span class="m-nav__section-text">Section</span>
 					</li>
 					<li class="m-nav__item d-none d-md-block">
-						<a href="{!! url('dashboard') !!}" class="m-nav__link">
+						<a href="{!! url('dashboard2') !!}" class="m-nav__link">
 							<i class="m-nav__link-icon flaticon-profile-1"></i>
 							<span class="m-nav__link-title">
 								<span class="m-nav__link-wrap">
@@ -62,7 +62,7 @@ if(Auth::user()) $login_user = Auth::user();
 						</a>
 					</li> -->
 					<li class="m-nav__item">
-						<a href="{!! url('dashboard/search') !!}" class="m-nav__link">
+						<a href="{!! url('dashboard/search2') !!}" class="m-nav__link">
 							<i class="m-nav__link-icon flaticon-search-1"></i>
 							<span class="m-nav__link-text">搜索</span>
 						</a>
@@ -108,14 +108,14 @@ if(Auth::user()) $login_user = Auth::user();
 							</a>
 						</li>
 						<li class="m-nav__item">
-							<a href="{!! url('dashboard/fav') !!}" class="m-nav__link">
+							<a href="{!! url('dashboard/fav2') !!}" class="m-nav__link">
 								<i class="m-nav__link-icon fa fa-diamond"></i>
 								<span class="m-nav__link-text">我的收藏</span>
 							</a>
 						</li>
 
 						<li class="m-nav__item">
-							<a href="{!! url('dashboard/block') !!}" class="m-nav__link">
+							<a href="{!! url('dashboard/block2') !!}" class="m-nav__link">
 								<i class="m-nav__link-icon fa fa-diamond"></i>
 								<span class="m-nav__link-text">我的封鎖名單</span>
 							</a>
@@ -236,6 +236,33 @@ if(Auth::user()) $login_user = Auth::user();
         <button type="submit" class="btn btn-danger">送出</button>
 
 		<button type="button" class="btn btn-outline-danger" data-dismiss="modal">取消</button>
+	</form>
+  </div>
+</div>
+</div>
+</div>
+
+<div class="modal fade" id="m_modal_2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal-dialog" role="document">
+<div class="modal-content">
+  <div class="modal-header">
+	<h5 class="modal-title" id="exampleModalLabel">車馬費信息給 @if(isset($cur)) {{ $cur->name }} @elseif(isset($to)) {{ $to->name }} @endif</h5>
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	  <span aria-hidden="true">&times;</span>
+	</button>
+  </div>
+  <div class="modal-body">
+  <form method="POST" action="/dashboard/chatpaycomment">
+  <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+	<input type="hidden" name="userId" value="{{$user->id}}">
+	<input type="hidden" name="to" value="@if(isset($cur)){{$cur->id}} @elseif(isset($to)){{$to->id}}@endif">
+		   <textarea class="form-control m-input" name="msg" id="msg" rows="4"></textarea>
+  </div>
+  <div class="modal-footer">
+
+	<button type="submit" class="btn btn-danger">送出</button>
+
+	<button type="button" class="btn btn-outline-danger" data-dismiss="modal">取消</button>
 		</form>
       </div>
     </div>

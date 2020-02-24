@@ -1494,6 +1494,26 @@ class PagesController extends Controller
         }
     }
 
+    public function block2(Request $request)
+    {
+        $user = $request->user();
+        if ($user)
+        {
+            // blocked by user->id
+            $blocks = \App\Models\Blocked::where('member_id', $user->id)->paginate(15);
+
+            $usersInfo = array();
+            foreach($blocks as $blockUser){
+                $id = $blockUser->blocked_id;
+                $usersInfo[$id] = User::findById($id);
+            }
+            return view('dashboard.block')
+                ->with('blocks', $blocks)
+                ->with('users', $usersInfo)
+                ->with('user', $user);
+        }
+    }
+
     public function upgradesuccess(Request $request)
     {
         $user = $request->user();

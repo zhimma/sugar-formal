@@ -21,14 +21,19 @@ class Fingerprint extends Controller {
 
 
 		$fp_components = array();
-		foreach($components as $components){
-			$fp_components[$components['key']] = $components['value'];
-		}
+        try{
+            foreach($components as $components){
+                $fp_components[$components['key']] = $components['value'];
+            }
+        }
+        catch(\Exception $e){
+            return false;
+        }
 
 
 		
 		/*是否有Fp紀錄在資料庫*/
-		$isFp = DB::table('fingerprint')->where('fp', $fp)->get()->count();
+		$isFp = DB::table('fingerprint2')->where('fp', $fp)->get()->count();
 
 		
 		if($isFp<=0){
@@ -36,7 +41,7 @@ class Fingerprint extends Controller {
 			$fp_components['batterylevel'] = $batterylevel;
 			unset($fp_components['plugins']);
 			
-			$result = DB::table('fingerprint')->insert($fp_components);
+			$result = DB::table('fingerprint2')->insert($fp_components);
 		}
 		if(isset($result)&&$result==true){
 			$res = array(
