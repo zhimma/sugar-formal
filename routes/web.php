@@ -361,6 +361,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('/dashboard/board', 'PagesController@postBoard');
         Route::get('/dashboard/history', 'PagesController@history');
         Route::get('/dashboard/block', 'PagesController@block');
+        Route::get('/dashboard/block2', 'PagesController@block2');
         Route::get('/dashboard/fav', 'PagesController@fav');
         Route::get('/dashboard/fav2', 'PagesController@fav2');
     });

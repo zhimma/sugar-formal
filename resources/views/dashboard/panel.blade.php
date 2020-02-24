@@ -42,7 +42,7 @@ if(Auth::user()) $login_user = Auth::user();
 						<span class="m-nav__section-text">Section</span>
 					</li>
 					<li class="m-nav__item d-none d-md-block">
-						<a href="{!! url('dashboard') !!}" class="m-nav__link">
+						<a href="{!! url('dashboard2') !!}" class="m-nav__link">
 							<i class="m-nav__link-icon flaticon-profile-1"></i>
 							<span class="m-nav__link-title">
 								<span class="m-nav__link-wrap">
@@ -62,7 +62,7 @@ if(Auth::user()) $login_user = Auth::user();
 						</a>
 					</li> -->
 					<li class="m-nav__item">
-						<a href="{!! url('dashboard/search') !!}" class="m-nav__link">
+						<a href="{!! url('dashboard/search2') !!}" class="m-nav__link">
 							<i class="m-nav__link-icon flaticon-search-1"></i>
 							<span class="m-nav__link-text">搜索</span>
 						</a>
@@ -108,14 +108,14 @@ if(Auth::user()) $login_user = Auth::user();
 							</a>
 						</li>
 						<li class="m-nav__item">
-							<a href="{!! url('dashboard/fav') !!}" class="m-nav__link">
+							<a href="{!! url('dashboard/fav2') !!}" class="m-nav__link">
 								<i class="m-nav__link-icon fa fa-diamond"></i>
 								<span class="m-nav__link-text">我的收藏</span>
 							</a>
 						</li>
 
 						<li class="m-nav__item">
-							<a href="{!! url('dashboard/block') !!}" class="m-nav__link">
+							<a href="{!! url('dashboard/block2') !!}" class="m-nav__link">
 								<i class="m-nav__link-icon fa fa-diamond"></i>
 								<span class="m-nav__link-text">我的封鎖名單</span>
 							</a>
