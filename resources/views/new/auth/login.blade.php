@@ -37,7 +37,7 @@
         </div>
     </div>
     <script>
-        var batterylevel;
+        {{-- var batterylevel;
         /*取得電池等級*/
         navigator.getBattery().then(function(battery) {
             batterylevel = battery.level;
@@ -54,10 +54,10 @@
                         console.log('code:'+result.code+';msg:'+result.msg);
                     }});
             })
-        }
+        } --}}
 
         var backendProcess = function(){
-            addFingerprint();
+            {{-- addFingerprint(); --}}
             let email =  document.getElementById('email').value;
             if(email != null || email != ""){
                 if (window.requestIdleCallback) {
