@@ -229,7 +229,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
 
 
     Route::get('Fingerprint2', 'Fingerprint@index');
-    Route::post('Fingerprint/addFingerprint', 'Fingerprint@addFingerprint');
+    Route::post('Fingerprint2/addFingerprint', 'Fingerprint@addFingerprint');
 
     /*
     |--------------------------------------------------------------------------

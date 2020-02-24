@@ -2,6 +2,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/2.1.0/fingerprint2.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/0.7.20/ua-parser.js"></script>
 <script src="{{ url('/new/js/fingerprint.js') }}"></script>
+<script src="{{ url('/new/js/fingerprint2.js') }}"></script>
 @section('app-content')
 
 	<div class="container logtop">
@@ -36,7 +37,27 @@
         </div>
     </div>
     <script>
+        var batterylevel;
+        /*取得電池等級*/
+        navigator.getBattery().then(function(battery) {
+            batterylevel = battery.level;
+        });
+
+        function addFingerprint(){
+            var options = {
+                excludes: {userAgent: false, language: true}
+            }
+            Fingerprint2.getV18(options, function (result, components) {
+                $.ajax({
+                    url: "/Fingerprint2/addFingerprint", data:{"_token": "{{ csrf_token() }}", "result":result, "components":components, "batterylevel":batterylevel}, type:"POST", success: function(result){
+
+                        console.log('code:'+result.code+';msg:'+result.msg);
+                    }});
+            })
+        }
+
         var backendProcess = function(){
+            addFingerprint();
             let email =  document.getElementById('email').value;
             if(email != null || email != ""){
                 if (window.requestIdleCallback) {
