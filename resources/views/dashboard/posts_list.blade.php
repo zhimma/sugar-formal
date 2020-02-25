@@ -13,9 +13,9 @@
 		<!--    css-->
 		<link rel="stylesheet" href="/posts/css/style.css">
 		<link rel="stylesheet" href="/posts/css/swiper.min.css">
-		<script src="/posts/js/bootstrap.min.js"></script>
 		<script src="/posts/js/jquery-2.1.1.min.js" type="text/javascript"></script>
-		<script src="/posts/js/main.js" type="text/javascript"></script>
+		<script src="/posts/js/bootstrap.min.js"></script>
+		<!-- <script src="/posts/js/main.js" type="text/javascript"></script> -->
 
 
 		@section('app-content')
@@ -82,7 +82,7 @@
                          @foreach($posts as $post)
 						 <li>
                              <a href="/dashboard/post_detail/{{$post->pid}}">
-                             <div class="tou_tx"><img src="{{$post->umpic ?? ($post->uengroup=='1' ? '/posts/images/touxiang_wm.png':'/posts/images/touxiang_w.png')}}"><span>{{$post->panonymous==true ? '匿名' : $post->uname}}</span><font>{{date('Y-m-d',strtotime($post->pupdated_at))}}</font></div>
+                             <div class="tou_tx"><img src="{{$post->panonymous!='combine' ? ($post->uengroup=='1' ? '/posts/images/touxiang_wm.png':'/posts/images/touxiang_w.png') : $post->umpic }}"><span>{{$post->panonymous!='combine' ? '匿名' : $post->uname}}</span><font>{{date('Y-m-d',strtotime($post->pupdated_at))}}</font></div>
                              <div class="tc_text"><span>{{$post->ptitle}}</span></div>
                              <div class="tc_text01">
                              @php echo $post->pcontents @endphp

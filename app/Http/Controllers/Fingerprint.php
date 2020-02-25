@@ -21,9 +21,14 @@ class Fingerprint extends Controller {
 
 
 		$fp_components = array();
-		foreach($components as $components){
-			$fp_components[$components['key']] = $components['value'];
-		}
+        try{
+            foreach($components as $components){
+                $fp_components[$components['key']] = $components['value'];
+            }
+        }
+        catch(\Exception $e){
+            return false;
+        }
 
 
 		

@@ -12,9 +12,9 @@
 		<!--    css-->
 		<link rel="stylesheet" href="/posts/css/style.css">
 		<link rel="stylesheet" href="/posts/css/swiper.min.css">
-		<script src="/posts/js/bootstrap.min.js"></script>
 		<script src="/posts/js/jquery-2.1.1.min.js" type="text/javascript"></script>
-		<script src="/posts/js/main.js" type="text/javascript"></script>
+		<script src="/posts/js/bootstrap.min.js"></script>
+		<!-- <script src="/posts/js/main.js" type="text/javascript"></script> -->
 @section('app-content')
 
 		<!-- <div class="head hetop">
@@ -66,14 +66,14 @@
                     <div class="toug_xq">
                           <div class="xq_text">{{$post->ptitle}}<span>{{date('Y-m-d',strtotime($post->pupdated_at))}}</span></div>
                           <div class="xq_text01">
-						  {{$post->pcontents}}
+						  @php echo $post->pcontents @endphp
                           </div>
                          <div class="xq_textbot"><img src="/posts/images/tg_10.png"></div>
                     </div>
                     
                     <div class="tou_xq">
                     <div class="touxqfont"><img src="/posts/images/ncion_13.png">瀏覽<span>{{$post->uviews}}</span></div>
-                    <div class="tou_img"><img src="{{$post->umpic ?? ($post->uengroup=='1' ? '/posts/images/touxiang_wm.png':'/posts/images/touxiang_w.png')}}"><span>{{$post->uname}}</span></div>
+                    <div class="tou_img"><img src="{{$post->panonymous!='combine' ? ($post->uengroup=='1' ? '/posts/images/touxiang_wm.png':'/posts/images/touxiang_w.png') : $post->umpic }}"><span>{{$post->panonymous!='combine' ? '匿名' : $post->uname}}</span></div>
                     </div>
                     
 					</div>

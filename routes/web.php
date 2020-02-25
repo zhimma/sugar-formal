@@ -142,6 +142,7 @@ Route::post('/Common/get_message', 'Common@get_message');
 Route::post('/Common/checkcode_during', 'Common@checkcode_during');
 Route::get('/Common/get_exif', 'Common@get_exif');
 Route::post('/Common/upload_img', 'Common@upload_img');
+Route::post('/Common/save_img', 'Common@save_img');
 
 
 /*
@@ -275,7 +276,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('addBlock', 'PagesController@addBlock');
 
     /*會員驗證*/
-    Route::get('member_auth_phone', 'PagesController@member_auth_phone');
+    Route::get('member_auth', 'PagesController@member_auth');
     Route::post('member_auth_phone_process', 'PagesController@member_auth_phone_process');
     Route::get('member_auth_photo', 'PagesController@member_auth_photo');
 

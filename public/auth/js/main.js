@@ -6,11 +6,11 @@ var bottomTxt = '\n' +
 $(function () {
     $('#menuButton').click(function (){ // 菜单栏
         if ($('#menuList').hasClass('ulHeight')) {
-            $(this).find('img').attr({'src': 'images/icon.png'})
+            $(this).find('img').attr({'src': '/images/icon.png'})
             $('#menuList').removeClass('ulHeight')
             $('.menuBg').hide()
         } else {
-            $(this).find('img').attr({'src': 'images/menu.png'})
+            $(this).find('img').attr({'src': '/images/menu.png'})
             $('#menuList').addClass('ulHeight')
             $('.menuBg').fadeIn()
         }
