@@ -65,7 +65,7 @@
                                          <div class="zybg_new_bg">
                                                <div class="zybg_new">
                                                    <select name="" class="zy_select"><option>台灣</option><option>大陸</option></select>
-                                                   <input name="" type="text" id="phone" class="xy_input" placeholder="請輸入手機號碼">
+                                                   <input name="" type="text" id="mobile" class="xy_input" placeholder="請輸入手機號碼">
                                                </div>
                                                <a id="auth_phone" class="zybg_right" style="cursor:pointer">驗證</a>
                                          </div>
@@ -222,7 +222,7 @@ $("#get_auth_code").on('click', function(){
 		url: '/Common/get_message',
 		data:{
 			_token: '{{csrf_token()}}',
-			'phone': $("#mobile").val(),
+			'mobile': $("#mobile").val(),
 		},
 		success: function(res) {
 			console.log(res);
@@ -316,5 +316,9 @@ function readURL(input) {
 $("#imgInp").change(function() {
   readURL(this);
 });
-</script>
 
+
+$("#prev_img").click(function () {
+    $("#imgInp").trigger('click');
+});
+</script>
