@@ -17,7 +17,7 @@
                 <form name="login" action="/login" method="POST" class="dengl"  data-parsley-validate novalidate>
                     {!! csrf_field() !!}
                     <div class="dengl_h" id="login">登入</div>
-                    <div id="notice" class="de_input">請啟用 Javascript 才可使用本網站。</div>
+                    <div id="notice" class="de_input">請啟用 Javascript 才可使用本網站。若有問題請按<a href="{!! url('contact') !!}">聯絡我們</a>向站長聯繫。</div>
 {{--                    <div class="de_input">--}}
 {{--                        <div class="m-loader m-loader--right m-loader--light">--}}
 {{--                            <div class="de_input01 dlmarbot ">--}}
