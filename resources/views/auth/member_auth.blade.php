@@ -31,8 +31,7 @@
 					<div class="commonMenu">
 						<div class="menuTop">
 							<img src="/auth/images/icon_41.png" class="logo" />
-                            <div class="ndlrfont"><a href="">註冊</a>丨<a href="">登入</a></div>
-							<!--<span id="menuButton"><img src="images/icon.png" class="he_img"></span>-->
+                            <!-- <div class="ndlrfont"><a href="">註冊</a>丨<a href="">登入</a></div> -->
 						</div>
 						<!--<ul id="menuList" class="change marg30">
                             <div class="comt"><img src="images/t.png"></div>
@@ -67,11 +66,11 @@
                                                    <select name="" class="zy_select"><option>台灣</option><option>大陸</option></select>
                                                    <input name="" type="text" id="mobile" class="xy_input" placeholder="請輸入手機號碼">
                                                </div>
-                                               <a id="auth_phone" class="zybg_right" style="cursor:pointer">驗證</a>
+                                               <a id="get_auth_code" class="zybg_right" style="cursor:pointer">獲取驗證碼</a>
                                          </div>
                                          <div class="zybg_new02">
                                                <input name="" type="text" id="checkcode" class="xy_input xy_left" placeholder="請輸入驗證碼">
-                                               <a id="get_auth_code" class="xy_yanx">獲取驗證碼</a>
+                                               <a id="auth_phone" class="xy_yanx"><div style="width:70px; text-align:center">驗證</div></a>
                                          </div>
                                         </div>
                                       

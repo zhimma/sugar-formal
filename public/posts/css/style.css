@@ -1388,10 +1388,10 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 }
 
 /*投稿*/
-.toug_but{width:95px; background:#fe92a8; border-radius:100px; height:24px; line-height:24px; color:#ffffff; text-align:center; float:right; font-size:13px;    margin-top: 13px;}
+.toug_but{width:95px; background:#fd5678; border-radius:100px; height:24px; line-height:24px; color:#ffffff; text-align:center; float:right; font-size:13px;    margin-top: 13px;}
 .toug_but img{ height:16px; vertical-align: sub}
 
-.toug_back{background:#fe92a8; border-radius:100px; height:24px; line-height:24px; color:#ffffff; text-align:center; float:right; font-size:13px;margin-top: 13px; padding:0 10px;}
+.toug_back{background:#fd5678; border-radius:100px; height:24px; line-height:24px; color:#ffffff; text-align:center; float:right; font-size:13px;margin-top: 13px; padding:0 10px;}
 
 
 .tou_list{width:94%; margin:0 auto; display:table;}

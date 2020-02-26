@@ -2174,7 +2174,7 @@ class PagesController extends Controller
 
         $pid = $request->pid;
         $this->post_views($pid);
-        $posts = Posts::selectraw('users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->where('posts.id', $pid)->get();
+        $posts = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->where('posts.id', $pid)->get();
         $data = array(
             'posts' => $posts
         );
@@ -2267,7 +2267,7 @@ class PagesController extends Controller
         $posts->is_anonymous = $is_anonymous;
         $posts->agreement = $agreement=='on' ? '1':'0';
 
-        if(($posts->is_anonymous=='anonymous' || $posts->is_anonymous=='combine') && $posts->agreement=='1'){
+        if(($posts->is_anonymous=='anonymous' || $posts->is_anonymous=='combine')){
             $result = $posts->save();
             // Session::flash('message', '資料更新成功');
             return redirect('/dashboard/posts_list');
