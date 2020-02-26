@@ -376,10 +376,12 @@ class PagesController extends Controller
 
     public function saveFingerprint(Request $request){
         $fingerprintValue = $request->fingerprintValue;
-        if(Fingerprint::isExist(['fingerprintValue'=>$fingerprintValue]))
+        $user = User::findByEmail($request->email);
+        if(Fingerprint::isExist(['fingerprintValue'=>$fingerprintValue])){
+            Log::info('User id: ' . isset($user) ? $user->id : null . ', fingerprint value: ' . $fingerprintValue);
             return '找到相符合資料';
+        }
         else{
-            $user = User::findByEmail($request->email);
             $fingerprintValue = Hash::make($fingerprintValue.$request->ip());
             $data = [
                 'user_id' => isset($user) ? $user->id : null,
@@ -662,28 +664,9 @@ class PagesController extends Controller
             UserMeta::uploadUserHeader($user->id,$avatar->pic);
         }
 
-        /*移除Vip資格*/
-        $is_vip = $user->isVip();
-        $isFreeVip = $user->isFreeVip();
-        $pic_count = DB::table('member_pic')->where('member_id', $user->id)->count();
-        if(($pic_count)<4 && $is_vip==1 &&$user->engroup==2 && $isFreeVip){
-            // 不要輕易使用 DB 方式去修改資料庫，應盡可能使用現有的功能和 model 去處理資料，否則
-            // 如這一部分程式而言，VIP 這個 model 在取消時還會進行 log 記錄，如果直接用 DB，將
-            // 會造成取消 VIP 卻沒有任何記錄，updated_at 也不會有任何變動。
-            //DB::table('member_vip')->where('member_id',$user->id)->update(['active'=>0, 'free'=>1]);
-            Vip::cancel($user->id, 1);
-
-            $data = array(
-                'code'=>'800'
-            );
-        }else {
-
-
-            $data = array(
-                'code' => '200'
-            );
-        }
-
+        $data = array(
+            'code' => '200'
+        );
         return json_encode($data);
     }
 
