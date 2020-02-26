@@ -48,7 +48,12 @@ class LoginController extends Controller
     //新樣板
     public function showLoginForm2()
     {
-        return view('new.auth.login');
+        return view('new.auth.login')
+            ->header("Cache-Control", "no-cache, no-store, must-revalidate")
+            ->header("Pragma", "no-cache")
+            ->header("Last-Modified", gmdate("D, d M Y H:i:s")." GMT")
+            ->header("Cache-Control", "post-check=0, pre-check=0", false)
+            ->header("Expires", "Fri, 01 Jan 1990 00:00:00 GMT");
     }
 
     /**
