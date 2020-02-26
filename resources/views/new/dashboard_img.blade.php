@@ -93,6 +93,7 @@
                <li class="write_img"><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(/new/images/ph_12.png); background-size:100% 100%"></b></li> -->
            </ul>
             <h2 class="h5" id="fileuploader-ajax">上傳照片<a href="javascript:;"  onclick="tour(fileuploader_ajax_tour)"><i class="ion ion-md-help-circle"></i></a></h2>
+              <h4>如照片無法順利上傳，請點擊頁面最下方聯絡我們加站長 line 洽詢。</h4>
                                 <div class="row mb-4">
                                     <div class="col-sm-12 col-lg-12">
                                         <form action="/Backend/Template/save_images">
