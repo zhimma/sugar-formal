@@ -14,29 +14,48 @@
         </div>
         <div class="row">
             <div class="col-sm-12 col-xs-12 col-md-12">
-                <form class="" name="login" action="/login" method="POST" class="dengl"  data-parsley-validate novalidate>
+                <form name="login" action="/login" method="POST" class="dengl"  data-parsley-validate novalidate>
                     {!! csrf_field() !!}
-                   <div class="dengl_h">登入</div>
-                   <div class="de_input">
-                        <div class="m-loader m-loader--right m-loader--light">
-                            <div class="de_input01 dlmarbot ">
-                                <div class="de_img"><img src="/new/images/lo_03.png"></div>
-                                <input name="email" type="email" autocomplete="off" id="email" class="d_input" placeholder="帳號 (您的Email)" values="{{ old('email') }}" required>
-                            </div>
-                        </div>
-                        <div class="de_input01 dlmarbot m-loader m-loader--right m-loader--light">
-                            <div class="de_img"><img src="/new/images/lo_11.png"></div>
-                            <input name="password" type="password"  class="d_input" placeholder="密碼" required >
-                        </div>
-                        <a href="{!! url('password/reset') !!}" class="dlpassword">忘記密碼 ?</a>
-                        <a href="javascript:void(0);" onclick="backendProcess()" class="dlbut btn-login">登入</a>
-                        <a href="{!! url('/checkAdult') !!}" class="dlbut02">還沒有帳號 ?  免費註冊</a>
-                   </div>
+                    <div class="dengl_h" id="login">登入</div>
+                    <div id="notice" class="de_input">請啟用 Javascript 才可使用本網站。若有問題請按<a href="{!! url('contact') !!}">聯絡我們</a>向站長聯繫。</div>
+{{--                    <div class="de_input">--}}
+{{--                        <div class="m-loader m-loader--right m-loader--light">--}}
+{{--                            <div class="de_input01 dlmarbot ">--}}
+{{--                                <div class="de_img"><img src="/new/images/lo_03.png"></div>--}}
+{{--                                <input name="email" type="email" autocomplete="off" id="email" class="d_input" placeholder="帳號 (您的Email)" values="{{ old('email') }}" required>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                        <div class="de_input01 dlmarbot m-loader m-loader--right m-loader--light">--}}
+{{--                            <div class="de_img"><img src="/new/images/lo_11.png"></div>--}}
+{{--                            <input name="password" type="password"  class="d_input" placeholder="密碼" required >--}}
+{{--                        </div>--}}
+{{--                        <a href="{!! url('password/reset') !!}" class="dlpassword">忘記密碼 ?</a>--}}
+{{--                        <a href="javascript:void(0);" onclick="backendProcess()" class="dlbut btn-login">登入</a>--}}
+{{--                        <a href="{!! url('/checkAdult') !!}" class="dlbut02">還沒有帳號 ?  免費註冊</a>--}}
+{{--                    </div>--}}
                 </form>
             </div>
         </div>
     </div>
     <script>
+                let form = "<div class=\"de_input\">\n" +
+            "                        <div class=\"m-loader m-loader--right m-loader--light\">\n" +
+            "                            <div class=\"de_input01 dlmarbot \">\n" +
+            "                                <div class=\"de_img\"><img src=\"/new/images/lo_03.png\"></div>\n" +
+            "                                <input name=\"email\" type=\"email\" autocomplete=\"off\" id=\"email\" class=\"d_input\" placeholder=\"帳號 (您的Email)\" values=\"{{ old('email') }}\" required>\n" +
+            "                            </div>\n" +
+            "                        </div>\n" +
+            "                        <div class=\"de_input01 dlmarbot m-loader m-loader--right m-loader--light\">\n" +
+            "                            <div class=\"de_img\"><img src=\"/new/images/lo_11.png\"></div>\n" +
+            "                            <input name=\"password\" type=\"password\"  class=\"d_input\" placeholder=\"密碼\" required >\n" +
+            "                        </div>\n" +
+            "                        <a href=\"{!! url('password/reset') !!}\" class=\"dlpassword\">忘記密碼 ?</a>\n" +
+            "                        <a href=\"javascript:void(0);\" onclick=\"backendProcess()\" class=\"dlbut btn-login\">登入</a>\n" +
+            "                        <a href=\"{!! url('/checkAdult') !!}\" class=\"dlbut02\">還沒有帳號 ?  免費註冊</a>\n" +
+            "                   </div>";
+        $("#notice").remove();
+        $("#login").after(form);
+
         {{-- var batterylevel;
         /*取得電池等級*/
         navigator.getBattery().then(function(battery) {

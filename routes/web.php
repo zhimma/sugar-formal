@@ -51,7 +51,7 @@ Route::get('/banned', 'PagesController@banned')->name('banned');
 |--------------------------------------------------------------------------
 */
 Route::get('/login', 'Auth\LoginController@showLoginForm2')->name('login');
-Route::get('/login2', 'Auth\LoginController@showLoginForm')->name('login2');
+Route::get('/login3ik3pIKe', 'Auth\LoginController@showLoginForm')->name('login2');
 Route::post('/login', 'Auth\LoginController@login');
 Route::get('/logout', 'Auth\LoginController@logout')->name('logout');
 
