@@ -1331,12 +1331,7 @@ class PagesController extends Controller
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
                     ->with('tippopup', $tippopup)
-                    ->with('messages', $messages)
-                    ->header("Cache-Control", "no-cache, no-store, must-revalidate")
-                    ->header("Pragma", "no-cache")
-                    ->header("Last-Modified", gmdate("D, d M Y H:i:s")." GMT")
-                    ->header("Cache-Control", "post-check=0, pre-check=0", false)
-                    ->header("Expires", "Fri, 01 Jan 1990 00:00:00 GMT");
+                    ->with('messages', $messages);
             }
             else {
                 return view('new.dashboard.chatWithUser')
