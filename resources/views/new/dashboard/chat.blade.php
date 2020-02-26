@@ -1,3 +1,9 @@
+<?
+header("Cache-Control: no-cache, no-store, must-revalidate, post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
+?>
 @extends('new.layouts.website')
 
 @section('app-content')
