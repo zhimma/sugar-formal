@@ -34,7 +34,8 @@
 				plugins: "autosave",
 				mobile: {
 					theme: 'mobile',
-				}
+				},
+				branding: false
 				});
             }
             else {
@@ -43,7 +44,8 @@
 				language: 'zh_TW',
 				plugins: "autosave",
 				autosave_ask_before_unload: true,
-				autosave_interval: "5s"
+				autosave_interval: "5s",
+				branding: false
 				});
             }
 			
@@ -343,6 +345,7 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
 	// 		return false;
 	// 	}
 	// }
+	
 </script>
 
 
