@@ -142,6 +142,7 @@ class Common extends Controller {
         // $avatar_path = url('/new/images/0123456/0123.jpg');
         $avatar_path = url($avatar_path);
         $exif = exif_read_data($avatar_path, 'IFD0');
+        // dd($exif);
         // echo $exif===false ? "No header data found.<br />\n" : "Image contains headers<br />\n";
         // dd($exif);
         if(empty($exif)){
