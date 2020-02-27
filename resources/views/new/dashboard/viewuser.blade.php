@@ -392,7 +392,6 @@
         </div>
         <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
-
 @stop
 
 @section('javascript')
@@ -517,23 +516,9 @@
             }
             if(GetDateDiff(countTime, now, "minute")<="{{$timeSet}}"){
                 //console.log('count11');
-                {{-- 普通男會員 --}}
-                if( "{{ $isVip != 1 }}" && "{{ $engroup == 1 }}"){
+                if(count >= {{$countSet}}){
                     // console.log('count12');
                     console.log("countM: {{$countSet}}");
-                    //禁止複製
-                    bodyMain.oncopy = function(){
-                        return false;
-                    }
-                    //禁止貼上
-                    bodyMain.onpaste = function(){
-                        return false;
-                    }
-                }
-                {{-- 所有女會員 --}}
-                if("{{ $engroup == 2 }}"){
-                    // console.log('count12');
-                    console.log("countF: {{$countSet}}");
                     //禁止複製
                     bodyMain.oncopy = function(){
                         return false;
