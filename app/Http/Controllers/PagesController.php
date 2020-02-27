@@ -41,7 +41,6 @@ use Illuminate\Support\Facades\Input;
 use Session;
 use App\Http\Controllers\Common;
 
-
 class PagesController extends Controller
 {
     public function __construct(UserService $userService, VipLogService $logService)
@@ -989,8 +988,7 @@ class PagesController extends Controller
                     'message_count_7' => $message_count_7,
                 );
                 $member_pic = DB::table('member_pic')->where('member_id',$uid)->where('pic','<>',$targetUser->meta_()->pic)->get();
-                $isVip = DB::select('select * from member_vip where member_id=?', array($user->id));
-                if(count($isVip)>0){
+                if($user->isVip()){
                     $vipLevel = 1;
                 }else{
                     $vipLevel = 0;

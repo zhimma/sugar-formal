@@ -392,7 +392,6 @@
         </div>
         <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
-
 @stop
 
 @section('javascript')
@@ -413,29 +412,21 @@
         });
         @endif
     });
-    $('#chatForm').submit(function () {
-        let content = $('#msg').val(), msgsnd = $('.msgsnd');
-        if($.trim(content) == "" ){
-            $('.alert').remove();
-            $("<a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a>").insertAfter($('.msg'));
-            msgsnd.prop('disabled', true);
-            return checkForm;
-        }
-        else {
-            $('.alert').remove();
-            return checkForm;
-        }
-    });
+    @if (isset($errors) && $errors->count() > 0)
+        @foreach ($errors->all() as $error)
+            c5('{{ $error }}');
+        @endforeach
+    @endif
     @if(isset($timeSet) && isset($countSet))
         function doCookieSetup(name, value) {
-            console.log('count1');
+            //console.log('count1');
             var expires = new Date();
             //有效時間保存 2 天 2*24*60*60*1000
             expires.setTime(expires.getTime() + 172800000);
             document.cookie = name + "=" + escape(value) + ";expires=" + expires.toGMTString()
         }
         function getCookie(name) {
-            console.log('count2');
+            //console.log('count2');
             var arg = escape(name) + "=";
             var nameLen = arg.length;
             var cookieLen = document.cookie.length;
@@ -449,17 +440,17 @@
             return null;
         }
         function delete_cookie( name ) {
-            console.log('count3');
+            //console.log('count3');
             document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
         }
         function getCookieValueByIndex(startIndex) {
-            console.log('count4');
+            //console.log('count4');
             var endIndex = document.cookie.indexOf(";", startIndex);
             if (endIndex == -1) endIndex = document.cookie.length;
             return unescape(document.cookie.substring(startIndex, endIndex));
         }
         function GetDateDiff(startTime, endTime, diffType) {
-            console.log('count5');
+            //console.log('count5');
             //將xxxx-xx-xx的時間格式，轉換為 xxxx/xx/xx的格式
             startTime = startTime.replace(/\-/g, "/");
             endTime = endTime.replace(/\-/g, "/");
@@ -488,47 +479,46 @@
             return parseInt((eTime.getTime() - sTime.getTime()) / parseInt(divNum));
         }
         function htmlencode(s){
-            console.log('count6');
+            //console.log('count6');
             var div = document.createElement('div');
             div.appendChild(document.createTextNode(s));
             return div.innerHTML;
         }
         function htmldecode(s){
-            console.log('count7');
+            //console.log('count7');
             var div = document.createElement('div');
             div.innerHTML = s;
             return div.innerText || div.textContent;
         }
         /*取得次數*/
-        // console.log('count8');
-        // var count=getCookie('count');
-        // if(count==undefined){
-        //     count=0;
-        // }
+        //console.log('count8');
+        var count=getCookie('count');
+        if(count==undefined){
+            count=0;
+        }
         /*取得現在時間*/
-        // var today=new Date();
-        // var now = today.getFullYear()+'/'+(today.getMonth()+1)+'/'+today.getDate()+' '+today.getHours()+':'+today.getMinutes()+':'+today.getSeconds();
-        // // console.log(now);
-        // // var now       = 20191216215141;
-        // /*取得紀錄時間*/
-        // var countTime = getCookie('countTime');
-        // console.log(countTime);
-        // if(countTime==undefined){
-        //     countTime = now;
-        // }
+        var today=new Date();
+        var now = today.getFullYear()+'/'+(today.getMonth()+1)+'/'+today.getDate()+' '+today.getHours()+':'+today.getMinutes()+':'+today.getSeconds();
+        // console.log(now);
+        // var now       = 20191216215141;
+        /*取得紀錄時間*/
+        var countTime = getCookie('countTime');
+        console.log(countTime);
+        if(countTime==undefined){
+            countTime = now;
+        }
         $(document).ready(function(){
             var bodyMain = document.getElementById('msg');
-            // if(GetDateDiff(countTime, now, "minute")>"{{$timeSet}}"){
-            //     // console.log('count10');
-            //     delete_cookie('count');
-            //     delete_cookie('countTime');
-            // }
-            // if(GetDateDiff(countTime, now, "minute")<="{{$timeSet}}"){
-                // console.log('count11');
-                if("{{$isVip!=1}}" && "{{$engroup!=1}}"){
-                    
+            if(GetDateDiff(countTime, now, "minute")>"{{$timeSet}}"){
+                //console.log('count10');
+                delete_cookie('count');
+                delete_cookie('countTime');
+            }
+            if(GetDateDiff(countTime, now, "minute")<="{{$timeSet}}"){
+                //console.log('count11');
+                if(count >= {{$countSet}}){
                     // console.log('count12');
-                    // console.log(count, "{{$countSet}}");
+                    console.log("countM: {{$countSet}}");
                     //禁止複製
                     bodyMain.oncopy = function(){
                         return false;
@@ -538,16 +528,16 @@
                         return false;
                     }
                 }
-                // else{
-                //     // console.log('count13');
-                //     doCookieSetup('countTime',now);
-                //     bodyMain.onpaste = function(){
-                //         count++;
-                //         console.log(count);
-                //         doCookieSetup('count',count);
-                //     }
-                // }
-            // }
+                else{
+                    // console.log('count13');
+                    doCookieSetup('countTime',now);
+                    bodyMain.onpaste = function(){
+                        count++;
+                        console.log("countTime: " + count);
+                        doCookieSetup('count',count);
+                    }
+                }
+            }
         });
     @endif
 </script>
