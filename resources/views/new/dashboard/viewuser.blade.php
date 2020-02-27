@@ -529,8 +529,21 @@
             // }
             // if(GetDateDiff(countTime, now, "minute")<="{{$timeSet}}"){
                 // console.log('count11');
-                if("{{$isVip!=1}}" && "{{$engroup!=1}}"){
-                    
+                {{-- 普通男會員 --}}
+                if( "{{ $isVip != 1 }}" && "{{ $engroup == 1 }}"){
+                    // console.log('count12');
+                    // console.log(count, "{{$countSet}}");
+                    //禁止複製
+                    bodyMain.oncopy = function(){
+                        return false;
+                    }
+                    //禁止貼上
+                    bodyMain.onpaste = function(){
+                        return false;
+                    }
+                }
+                {{-- 所有女會員 --}}
+                if("{{ $engroup == 2 }}"){
                     // console.log('count12');
                     // console.log(count, "{{$countSet}}");
                     //禁止複製
