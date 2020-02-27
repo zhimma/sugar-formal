@@ -41,7 +41,6 @@ use Illuminate\Support\Facades\Input;
 use Session;
 use App\Http\Controllers\Common;
 
-
 class PagesController extends Controller
 {
     public function __construct(UserService $userService, VipLogService $logService)
