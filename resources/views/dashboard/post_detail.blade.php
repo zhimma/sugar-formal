@@ -69,8 +69,8 @@
                     <div class="t_xqheight">
                     <div class="toug_xq">
                           <div class="xq_text">{{$post->ptitle}}<span>{{date('Y-m-d',strtotime($post->pupdated_at))}}</span></div>
-                          <div class="xq_text01">
-							<div style="margin-left:30px">
+                          <div class="xq_text01" style="word-break: break-all;">
+							<div style="margin-left:30px;margin-right:30px">
 						  		@php echo $post->pcontents @endphp
 							</div>
                           </div>
@@ -79,7 +79,7 @@
                     
                     <div class="tou_xq">
                     <div class="touxqfont"><img src="/posts/images/ncion_13.png">瀏覽<span>{{$post->uviews}}</span></div>
-                    <a href="/dashboard/viewuser/{{$post->uid}}"><div class="tou_img"><img src="{{$post->panonymous!='combine' ? ($post->uengroup=='1' ? '/posts/images/touxiang_wm.png':'/posts/images/touxiang_w.png') : $post->umpic }}"><span>{{$post->panonymous!='combine' ? '匿名' : $post->uname}}</span></div></a>
+                    <a href="{{$post->panonymous!='combine' ? '#':'/dashboard/viewuser/'.$post->uid}}"><div class="tou_img"><img src="{{$post->panonymous!='combine' ? ($post->uengroup=='1' ? '/posts/images/touxiang_wm.png':'/posts/images/touxiang_w.png') : $post->umpic }}"><span>{{$post->panonymous!='combine' ? '匿名' : $post->uname}}</span></div></a>
                     </div>
                     
 					</div>

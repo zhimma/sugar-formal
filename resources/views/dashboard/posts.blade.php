@@ -35,7 +35,14 @@
 				mobile: {
 					theme: 'mobile',
 				},
-				branding: false
+				toolbar: "save",
+				branding: false,
+				menubar: false,
+				toolbar : "bold italic underline | alignleft aligncenter alignright | forecolor | removeformat | pagebreak | undo redo | code ",
+				verify_html : false, 
+		        verify_css_classes : true, 
+		        cleanup : false, 
+		        cleanup_on_startup : false, 
 				});
             }
             else {
@@ -43,9 +50,16 @@
 				selector: '#contents',
 				language: 'zh_TW',
 				plugins: "autosave",
+				toolbar: "save",
 				autosave_ask_before_unload: true,
 				autosave_interval: "5s",
-				branding: false
+				branding: false,
+				menubar: false,
+				toolbar : "bold italic underline | alignleft aligncenter alignright | forecolor | removeformat | pagebreak | undo redo | code ",
+				verify_html : false, 
+		        verify_css_classes : true, 
+		        cleanup : false, 
+		        cleanup_on_startup : false, 
 				});
             }
 			
@@ -68,7 +82,6 @@
 		.tou_tx, .tc_text{
 			font-style:normal !important;
 		}
-
 	</style>
 	</head>
 
@@ -194,7 +207,7 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
 				<div class="col-sm-12 col-xs-12 col-md-10">
 					 <div class="two_tg">
                            <div class="two_gtitle"><img src="/posts/images/tg_15.png">投稿
-						   <a href="/dashboard/posts_list" class="toug_back">返回</a>
+						   <a href="/dashboard/posts_list" class="toug_back" style="margin-top:7px !important">返回</a>
 						   </div>
                            <div class="tow_input">
                                  
@@ -210,7 +223,7 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
 								<input type="checkbox" name="agreement">同意站方匿名行銷使用(男會員贈送一個月vip，女會員給一個 tag)</br>
 								<input type="submit"> -->
 
-								<input name="title" type="text" id="title" class="tw_input"  placeholder="#標題">
+								<input name="title" type="text" id="title" class="tw_input"  placeholder="#標題" style="font-size:16px">
                                  <textarea  name="contents" id="contents" cols="" rows="" class="tw_textinput" placeholder="#内容" style="border-radius:20px"></textarea>
                                  <div class="ti_kuang">
                                        <div class="ti_title">點這裡變更身分</div>

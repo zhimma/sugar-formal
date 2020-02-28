@@ -78,7 +78,7 @@
 				</div>
 				<div class="col-sm-12 col-xs-12 col-md-10">
 					<div class="shou"><span>投稿列表</span>
-						<font>Submit for publication</font>
+						<font>Submit</font>
 						<a href="/dashboard/posts" class="toug_but"><img src="/posts/images/tg_03.png">我要投稿</a>
 					</div>
 					<div class="tou_list">
@@ -88,8 +88,8 @@
 						 <li>
                              <a href="/dashboard/post_detail/{{$post->pid}}">
                              <div class="tou_tx"><img src="{{$post->panonymous!='combine' ? ($post->uengroup=='1' ? '/posts/images/touxiang_wm.png':'/posts/images/touxiang_w.png') : $post->umpic }}"><span>{{$post->panonymous!='combine' ? '匿名' : $post->uname}}</span><font>{{date('Y-m-d',strtotime($post->pupdated_at))}}</font></div>
-                             <div class="tc_text"><span>{{$post->ptitle}}</span></div>
-                             <div class="tc_text01">
+                             <div class="tc_text" id="title"><span>{{$post->ptitle}}</span></div>
+                             <div class="tc_text01" style="word-break: break-all;">
 							 <div class="article" style="margin-left: 30px;margin-right:30px">
                              @php echo $post->pcontents @endphp
 							 </div>
@@ -102,7 +102,46 @@
                     
                     <div class="tc_page mabot20">
                                 <nav aria-label="Page navigation">
-								  {{ $posts->links() }}
+								  <!-- {{ $posts->links() }} -->
+								  @if ($posts->hasPages())
+									    <ul class="pagination pagination">
+									        {{-- Previous Page Link --}}
+									        @if ($posts->onFirstPage())
+									            <li class="disabled"><span>&laquo;</span></li>
+									        @else
+									            <li><a href="{{ $posts->previousPageUrl() }}" rel="prev">&laquo;</a></li>
+									        @endif
+
+									        @if($posts->currentPage() > 3)
+									            <li class="hidden-xs"><a href="{{ $posts->url(1) }}">1</a></li>
+									        @endif
+									        @if($posts->currentPage() > 4)
+									            <li class="disabled hidden-xs"><span>...</span></li>
+									        @endif
+									        @foreach(range(1, $posts->lastPage()) as $i)
+									            @if($i >= $posts->currentPage() - 2 && $i <= $posts->currentPage() + 2)
+									                @if ($i == $posts->currentPage())
+									                    <li class="active"><span>{{ $i }}</span></li>
+									                @else
+									                    <li><a href="{{ $posts->url($i) }}">{{ $i }}</a></li>
+									                @endif
+									            @endif
+									        @endforeach
+									        @if($posts->currentPage() < $posts->lastPage() - 3)
+									            <li class="disabled hidden-xs"><span>...</span></li>
+									        @endif
+									        @if($posts->currentPage() < $posts->lastPage() - 2)
+									            <li class="hidden-xs"><a href="{{ $posts->url($posts->lastPage()) }}">{{ $posts->lastPage() }}</a></li>
+									        @endif
+
+									        {{-- Next Page Link --}}
+									        @if ($posts->hasMorePages())
+									            <li><a href="{{ $posts->nextPageUrl() }}" rel="next">&raquo;</a></li>
+									        @else
+									            <li class="disabled"><span>&raquo;</span></li>
+									        @endif
+									    </ul>
+									@endif
                                 </nav>
                                 </div>
                     
@@ -134,9 +173,9 @@
 .pagination > li > span:hover{
     z-index: 3;
     color: #23527c !important;
-    background-color: #fd5577 !important;
+    background-color: #f5c2c0 !important;
 	border-color: #ddd !important;
-	border-color:#ff2c2c !important;
+	border-color:#ee5472 !important;
 	color:white !important;
 }
 
@@ -148,9 +187,8 @@
     .pagination > .active > span:focus {
         z-index: 3;
     color: #23527c !important;
-    background-color: #fd5577 !important;
-	border-color: #ddd !important;
-	border-color:#ff2c2c !important;
+    background-color: #f5c2c0 !important;
+	border-color:#ee5472 !important;
 	color:white !important;
 	}
 	
@@ -163,6 +201,14 @@ $(document).ready(function(){
         if(len>150){
             var str="";
             str=$(this).html().substring(0,150)+"...（閱讀更多）";  
+            $(this).html(str);                 
+        }
+	});
+	$("#title").each(function(){
+        var len=$(this).text().length;   
+        if(len>50){
+            var str="";
+            str=$(this).html().substring(0,50)+"...";  
             $(this).html(str);                 
         }
     });
