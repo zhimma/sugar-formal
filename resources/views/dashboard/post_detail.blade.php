@@ -1,3 +1,6 @@
+<style>
+	.toug_back:hover{ color:white !important; text-decoration:none !important}
+</style>
 @extends('new.layouts.website')
 <meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
