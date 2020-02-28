@@ -27,9 +27,6 @@ class Visited extends Model
         'created_at'
     ];
 
-    public $timestamps = false;
-
-
     public static function unique($array,$key_id = null, $key_create = null) {
 
         if(null == $key_id){
