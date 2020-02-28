@@ -274,7 +274,7 @@
         let m_time = '';
         @endif
         if(m_time){
-            let intervalID = setInterval(function() {
+            {{-- let intervalID = setInterval(function() {
                 let intervalSecs = 60;
                         @if(isset($m_time))
                 let m_time = '{{ $m_time }}';
@@ -294,14 +294,14 @@
                 if(diff < 0 && diffInSec >= intervalSecs){
                     $(".tips").remove();
                     text.data = '回覆';
-                    $('#msgsnd').enable(true);
+                    jQuery('#msgsnd').enable(true);
                     clearInterval(intervalID);
                 }
                 else{
-                    $('#msgsnd').enable(false);
+                    jQuery('#msgsnd').enable(false);
                     text.data = '還有' + still + '秒才能回覆';
                 }
-            },100);
+            },100); --}}
             $("<a href='{!! url('dashboard/vip') !!}' style='color: red;' class='tips'>成為VIP即可知道對方是否讀取信件哦！<br></a>").insertBefore('#msgsnd');
         }
 
@@ -386,7 +386,8 @@
             let now = new Date();
             let diff = now.getTime() - m_time.getTime();
             let diffInSec = Math.floor(diff / 1000);
-            return diffInSec >= intervalSecs;
+            //return diffInSec >= intervalSecs;
+            return true;
         }
         else{
             return true;
@@ -457,7 +458,13 @@
     }
 
     @if (Session::has('message'))
-    c3('{{Session::get('message')}}');
+        c3('{{ Session::get('message') }}');
+    @endif
+
+    @if (isset($errors) && $errors->count() > 0)
+        @foreach ($errors->all() as $error)
+            c5('{{ $error }}');
+        @endforeach
     @endif
 
     function dropFun() {

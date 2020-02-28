@@ -515,7 +515,7 @@ $(document).ready(function(){
     @else
         let m_time = '';
     @endif
-    if(m_time){
+    {{--if(m_time){
         let intervalID = setInterval(function() {
             let intervalSecs = 60;
             @if(isset($m_time))
@@ -545,7 +545,7 @@ $(document).ready(function(){
             }
         },100);
         $("<a href='{!! url('dashboard/upgrade') !!}' style='color: red;' class='tips'>成為VIP即可解除此限制<br></a>").insertBefore('#msgsnd');
-    }
+    }  --}}
     $('.msg').keyup(function() {
         let content = $('.msg').val(), msgsnd = $('.msgsnd');
         if($.trim(content) == "" ){
@@ -601,6 +601,7 @@ $('#chatForm').submit(function () {
     }
     else {
         $('.alert').remove();
+        msgsnd.prop('disabled', false);
         return checkForm;
     }
 });
@@ -625,7 +626,8 @@ function checkForm(){
         let now = new Date();
         let diff = now.getTime() - m_time.getTime();
         let diffInSec = Math.floor(diff / 1000);
-        return diffInSec >= intervalSecs;
+        //return diffInSec >= intervalSecs;
+        return true;
     }
     else{
         return true;
