@@ -31,15 +31,21 @@
                 tinymce.init({
 				selector: '#contents',
 				language: 'zh_TW',
+				plugins: "autosave",
 				mobile: {
 					theme: 'mobile',
-				}
+				},
+				branding: false
 				});
             }
             else {
                 tinymce.init({
 				selector: '#contents',
 				language: 'zh_TW',
+				plugins: "autosave",
+				autosave_ask_before_unload: true,
+				autosave_interval: "5s",
+				branding: false
 				});
             }
 			
@@ -48,6 +54,21 @@
 		.icon_pointer{
 			cursor:pointer;
 		}
+		.tox.tox-tinymce {
+			border-radius: 20px;
+		}
+		body#tinymce {
+			font-size: 16px !important;
+		}
+
+		.toug_back:hover{
+			color:white !important; text-decoration:none !important
+		}
+
+		.tou_tx, .tc_text{
+			font-style:normal !important;
+		}
+
 	</style>
 	</head>
 
@@ -190,7 +211,7 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
 								<input type="submit"> -->
 
 								<input name="title" type="text" id="title" class="tw_input"  placeholder="#標題">
-                                 <textarea  name="contents" id="contents" cols="" rows="" class="tw_textinput" placeholder="#内容"></textarea>
+                                 <textarea  name="contents" id="contents" cols="" rows="" class="tw_textinput" placeholder="#内容" style="border-radius:20px"></textarea>
                                  <div class="ti_kuang">
                                        <div class="ti_title">點這裡變更身分</div>
                                        <h2 class="matop15"><i class='input_style radio_bg'><input type="radio"  name="is_anonymous" id="is_anonymous" value="anonymous"></i>匿名於站內發布</h2>
@@ -234,7 +255,7 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
 <div class="bl bl_tab bl_tab_01" id="tab02">
     <div class="bltitle_a"><span class="font14" style="text-align:center;float:none !important">提示</span></div>
     <div class="n_blnr02 matop10">
-         <div class="n_fengs" style="text-align:center;width:100%;">投稿失敗，<br>請勾選所有選項再試一次！</div>
+         <div class="n_fengs" style="text-align:center;width:100%;">投稿失敗，<br>請勾選投稿身份！</div>
     </div>
     <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/posts/images/gb_icon.png"></a>
 </div>
@@ -258,6 +279,7 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
 <script>
 // $(".blbg").show();
 //          	$("#tab01").show();
+
 	function cl() {
 		var title = $("#title").val();
 		// var contents = $("#contents").val();
@@ -267,14 +289,25 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
          	$("#tab_title").show();
 			return false;
 		}
+
+
+		var content = tinyMCE.editors[$('#contents').attr('id')].getContent();
+		if(content.length <=0 ){
+			$(".blbg").show();
+			$("#tab_contents").show();
+			return false;
+		}
 		// if (contents == "") {
 		// 	$(".blbg").show();
         //  	$("#tab_contents").show();
 		// 	return false;
 		// }
-		console.log($("#is_anonymous").parent('.radio_bg_check').size())
+		// console.log($("body#tinymce").html());return false;
+		// console.log($("#is_anonymous").parent('.radio_bg_check').size())
 		// $("#agreement").parent('.checkbox_bg_check').size()>0
-		if(($("#is_anonymous").val()=='anonymous' || $("#is_anonymous").val()=='combine')){
+		// console.log($("#is_anonymous").val()); return false;
+		
+		if($("#is_anonymous").parent('.radio_bg_check').size()){
 			$(".blbg").show();
          	$("#tab01").show();
 			$("#posts").submit();
@@ -312,6 +345,7 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
 	// 		return false;
 	// 	}
 	// }
+	
 </script>
 
 

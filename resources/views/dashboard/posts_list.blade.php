@@ -1,4 +1,6 @@
-
+<style>
+	.toug_but:hover{ color:white !important; text-decoration:none !important}
+</style>
 
 @extends('new.layouts.website')
 
