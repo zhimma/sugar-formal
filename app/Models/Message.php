@@ -443,7 +443,14 @@ class Message extends Model
 
     public static function allSendersAJAX($uid, $isVip)
     {
-        $messages = Message::where([['to_id', $uid], ['from_id', '!=', $uid]])->orWhere([['from_id', $uid], ['to_id', '!=',$uid]])->orderBy('created_at', 'desc')->get();
+        $userBlockList = Blocked::select('blocked_id')->where('member_id', $uid)->get();
+        $banned_users = banned_users::select('member_id')->get();
+        $messages = Message::where([['to_id', $uid], ['from_id', '!=', $uid]])->orWhere([['from_id', $uid], ['to_id', '!=',$uid]])->orderBy('created_at', 'desc');
+        $messages->whereNotIn('to_id', $userBlockList);
+        $messages->whereNotIn('from_id', $userBlockList);
+        $messages->whereNotIn('to_id', $banned_users);
+        $messages->whereNotIn('from_id', $banned_users);
+        $messages = $messages->get();
 
         if($isVip == 1)
             $saveMessages = Message::chatArrayAJAX($uid, $messages, 1);
