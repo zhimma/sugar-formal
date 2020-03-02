@@ -28,6 +28,10 @@ class Blocked extends Model
         return Blocked::where('member_id', $uid)->get();
     }
 
+    public static function getAllBlockedId($uid) {
+        return Blocked::select('blocked_id')->where('member_id', $uid)->get();
+    }
+
     public static function getBlockTime($uid, $sid) {
         $block = Blocked::where([['member_id', $uid],['blocked_id', $sid]])->first();
         //echo $block->created_at;

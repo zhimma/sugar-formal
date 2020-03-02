@@ -143,7 +143,13 @@ Route::post('/Common/checkcode_during', 'Common@checkcode_during');
 Route::get('/Common/get_exif', 'Common@get_exif');
 Route::post('/Common/upload_img', 'Common@upload_img');
 Route::post('/Common/save_img', 'Common@save_img');
-
+Route::group(['middleware' => ['api']], function() {
+    Route::post('/dashboard/upgradepayEC', 'PagesController@upgradepayEC');
+});
+Route::group(['middleware' => ['tipApi']], function () {
+    Route::post('/dashboard/chatpay_ec', 'ECPayment@performTipInvite')->name('chatpay_ec');
+    Route::post('/dashboard/postChatpayEC', 'PagesController@postChatpayEC');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -346,14 +352,9 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('/dashboard/esafePayCode', 'EsafePayment@esafePayCode')->name('esafePayCode');
         Route::post('/dashboard/esafeWebATM', 'EsafePayment@esafeWebATM')->name('esafeWebATM');
         Route::post('/dashboard/upgradepay', 'PagesController@upgradepay');
-        Route::post('/dashboard/upgradepayEC', 'PagesController@upgradepayEC');
         Route::post('/dashboard/receive_esafe', 'PagesController@receive_esafe');
         Route::post('/dashboard/repaid_esafe', 'PagesController@repaid_esafe');
         Route::post('/dashboard/cancelpay', 'PagesController@cancelpay');
-    });
-    Route::group(['middleware' => ['tipApi']], function () {
-        Route::post('/dashboard/chatpay_ec', 'ECPayment@performTipInvite')->name('chatpay_ec');
-        Route::post('/dashboard/postChatpayEC', 'PagesController@postChatpayEC');
     });
     Route::post('/upgradepayLog', 'PagesController@upgradepayLog')->name('upgradepayLog');
     Route::post('/dashboard/deleteboard', 'BoardController@deleteBoard')->name('deleteBoard');
