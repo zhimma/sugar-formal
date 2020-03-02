@@ -2114,8 +2114,7 @@ class PagesController extends Controller
 
     public function posts_list(Request $request)
     {
-        $posts = Posts::selectraw('users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->orderBy('posts.id','desc')->paginate(10);
-        
+        $posts = Posts::selectraw('users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->orderBy('posts.updated_at','desc')->paginate(10);
         // foreach($posts['data'] as $key=>$post){
         //     array_push($posts['data'][$key], $post['pcontents']);
         // }
@@ -2248,6 +2247,13 @@ class PagesController extends Controller
         $posts->is_anonymous = $is_anonymous;
         $posts->agreement = $agreement=='on' ? '1':'0';
 
+        if(strlen($posts->title)>=99){
+            return redirect('/dashboard/posts')->withErrors(['標題超過字數限制']);
+        }
+
+        if(strlen($posts->contents)>=9999){
+            return redirect('/dashboard/posts')->withErrors(['內容超過字數限制']);
+        }
         if(($posts->is_anonymous=='anonymous' || $posts->is_anonymous=='combine')){
             $result = $posts->save();
             // Session::flash('message', '資料更新成功');

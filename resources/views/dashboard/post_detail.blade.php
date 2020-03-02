@@ -62,13 +62,18 @@
 				</div>
 				<div class="col-sm-12 col-xs-12 col-md-10">
 					<div class="shou"><span>心情故事</span>
-						<font>whisper tale</font>
+						<font>Whisper tale</font>
 						<a href="/dashboard/posts_list" class="toug_back">返回</a>
 					</div>
 					@foreach($posts as $post)
                     <div class="t_xqheight">
                     <div class="toug_xq">
-                          <div class="xq_text">{{$post->ptitle}}<span>{{date('Y-m-d',strtotime($post->pupdated_at))}}</span></div>
+                          <div class="xq_text" style="word-break: break-all;">
+                          	<div style="margin-left: 30px;margin-right:30px">
+                          		{{$post->ptitle}}
+                          		<span>{{date('Y-m-d',strtotime($post->pupdated_at))}}</span>
+                          	</div>
+                          </div>
                           <div class="xq_text01" style="word-break: break-all;">
 							<div style="margin-left:30px;margin-right:30px">
 						  		@php echo $post->pcontents @endphp

@@ -15,8 +15,13 @@ class Common extends Controller {
         $username = '54666024';
         $password = 'zxcvbnm';
         $Mobile   = $request->get('mobile');
-
-
+        if(is_null($Mobile)){
+            $data = array(
+                'code'=>'410',
+                'msg_info'=>'請填寫手機號碼'
+            );
+            return json_encode($data);
+        }
         $check_repeat_during = $this->check_repeat_during($Mobile);
         // dd($check_repeat_during);
         if($check_repeat_during['code']!='600'){
@@ -120,11 +125,18 @@ class Common extends Controller {
         // $phone = $request->get('phone');
         $now_time    = strtotime('now');
         $data = DB::table('short_message')->where('mobile', $Mobile)->first();
-        if($now_time-300<=strtotime($data->createdate)){
-            $data = array(
-                'code'=>'600',
-                'msg' =>'五分鐘內不可重複傳送',
-            );
+        if(isset($data)){
+            if($now_time-300<=strtotime($data->createdate)){
+                $data = array(
+                    'code'=>'600',
+                    'msg' =>'五分鐘內不可重複傳送',
+                );
+            }else{
+                $data = array(
+                    'code'=>'200',
+                    'msg' =>'',
+                );
+            }
         }else{
             $data = array(
                 'code'=>'200',

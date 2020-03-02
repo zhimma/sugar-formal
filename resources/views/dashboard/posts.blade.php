@@ -20,32 +20,7 @@
 		<script src="/posts/js/main.js" type="text/javascript"></script>
 		<script src='/plugins/tinymce/tinymce.js' referrerpolicy="origin"></script>
 		<script>
-			 if (navigator.userAgent.match(/Android/i)
-                || navigator.userAgent.match(/webOS/i)
-            || navigator.userAgent.match(/iPhone/i)
-            || navigator.userAgent.match(/iPad/i)
-            || navigator.userAgent.match(/iPod/i)
-            || navigator.userAgent.match(/BlackBerry/i)
-            || navigator.userAgent.match(/Windows Phone/i)
-            ) {
-                tinymce.init({
-				selector: '#contents',
-				language: 'zh_TW',
-				plugins: "autosave",
-				mobile: {
-					theme: 'mobile',
-				},
-				toolbar: "save",
-				branding: false,
-				menubar: false,
-				toolbar : "bold italic underline | alignleft aligncenter alignright | forecolor | removeformat | pagebreak | undo redo | code ",
-				verify_html : false, 
-		        verify_css_classes : true, 
-		        cleanup : false, 
-		        cleanup_on_startup : false, 
-				});
-            }
-            else {
+			
                 tinymce.init({
 				selector: '#contents',
 				language: 'zh_TW',
@@ -55,15 +30,37 @@
 				autosave_interval: "5s",
 				branding: false,
 				menubar: false,
-				toolbar : "bold italic underline | alignleft aligncenter alignright | forecolor | removeformat | pagebreak | undo redo | code ",
+				toolbar : "bold underline | alignleft aligncenter alignright | forecolor | removeformat | pagebreak | code | fontselect | fontsizeselect | undo redo",
 				verify_html : false, 
 		        verify_css_classes : true, 
 		        cleanup : false, 
 		        cleanup_on_startup : false, 
 				});
-            }
+
 			
 		</script>
+		<style>
+		@media (max-width:320px) {
+			.tox-tinymce{
+				width: 300px !important;
+			}
+		}
+		@media (min-width:321px) and (max-width:375px) {
+			.tox-tinymce{
+				width:350px !important;
+			}
+		}
+		@media (min-width:376px) and (max-width:414px) {
+			.tox-tinymce{
+				width:385px !important;
+			}
+		}
+		@media (min-width:415px) and (max-width:768px){
+			.tox-tinymce{
+				width:720px !important;
+			}
+		}
+</style>
 	<style>
 		.icon_pointer{
 			cursor:pointer;
@@ -81,6 +78,13 @@
 
 		.tou_tx, .tc_text{
 			font-style:normal !important;
+		}
+		
+
+
+		/*tinymce RWD*/
+		.tox .tox-tbtn {
+		
 		}
 	</style>
 	</head>
@@ -240,13 +244,7 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
 			</div>
 		</div>
 
-		<div class="bot chbottom">
-			<a href="">站長開講</a> 丨
-			<a href=""> 網站使用</a> 丨
-			<a href=""> 使用條款</a> 丨
-			<a href=""> 聯絡我們</a>
-			<img src="/posts/images/bot_10.png">
-		</div>
+		@include('/new/partials/footer')
         
         
 
@@ -289,6 +287,18 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
     <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/posts/images/gb_icon.png"></a>
 </div>
 
+<div class="bl bl_tab bl_tab_error" id="tab_error">
+    <div class="bltitle_a"><span class="font14" style="text-align:center;float:none !important">錯誤</span></div>
+    <div class="n_blnr02 matop10">
+         <div class="n_fengs" style="text-align:center;width:100%;">
+		 @if($errors->any())
+			{!! implode('', $errors->all('<div class="error">:message</div>')) !!}
+		@endif
+		 </div>
+    </div>
+    <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/posts/images/gb_icon.png"></a>
+</div>
+
 <script>
 // $(".blbg").show();
 //          	$("#tab01").show();
@@ -319,8 +329,8 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
 		// console.log($("#is_anonymous").parent('.radio_bg_check').size())
 		// $("#agreement").parent('.checkbox_bg_check').size()>0
 		// console.log($("#is_anonymous").val()); return false;
-		
-		if($("#is_anonymous").parent('.radio_bg_check').size()){
+		console.log($(".ti_kuang").find('.radio_bg_check').size(), $(".ti_kuang").find('.radio_bg_check').size())
+		if($(".ti_kuang").find('.radio_bg_check').size()>0){
 			$(".blbg").show();
          	$("#tab01").show();
 			$("#posts").submit();
@@ -330,13 +340,18 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
 		}
 		
     }
-
+// $(document).ready(function(){
+// 	if($(document).hasClass('error')){
+// 		$(".blbg").show();
+// 		$("#tab_error").show();
+// 	}
+// });
 	
-	$(document).ready(function(){
-		if($("#is_anonymous").parent('.checkbox_bg_check').size()>0){
-			$(this).attr('')
-		}
-	});
+	// $(document).ready(function(){
+	// 	if($("#is_anonymous").parent('.checkbox_bg_check').size()>0){
+	// 		$(this).attr('')
+	// 	}
+	// });
 
     function gmBtn1(){
         $(".blbg").hide()

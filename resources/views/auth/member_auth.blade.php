@@ -79,7 +79,7 @@
                                       <div class="de_input">
                                           <div class="yanzheng_1">驗證2</div>
                                           <div id="photo" class="zy_kuang">
-                                              <img id="prev_img" src="/auth/images/photo_01.png">
+                                              <img id="prev_img" src="/auth/images/photo_01.png" style="cursor:pointer;">
                                               <span>上傳照片</span>
 											  <input type='file' id="imgInp" />
                                           </div>
@@ -188,7 +188,25 @@
 	
 
 
+<div class="blbg tab_has_send" onclick="gmBtn1()" style="display: none;"></div>
+<div class="bl bl_tab bl_tab_has_send" id="tab04" style="display: none;">
+    <div class="bltitle_a"><span>提示</span></div>
+    <div class="n_blnr02 matop10">
+         <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
+         <div class="n_fengs" style="text-align:center;width:100%;">驗證碼已送出</div>
+    </div>
+    <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
+</div>
 
+<div class="blbg tab_has_send_error" onclick="gmBtn1()" style="display: none;"></div>
+<div class="bl bl_tab bl_tab_has_send_error" id="tab04" style="display: none;">
+    <div class="bltitle_a"><span>提示</span></div>
+    <div class="n_blnr02 matop10">
+         <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
+         <div class="n_fengs tab_has_send_error_msg" style="text-align:center;width:100%;"></div>
+    </div>
+    <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
+</div>
 
 
 	</body>
@@ -225,6 +243,15 @@ $("#get_auth_code").on('click', function(){
 		},
 		success: function(res) {
 			console.log(res);
+			res = JSON.parse(res);
+			if(res.code=='200'){
+				$(".tab_has_send").css('display','block');
+				$(".bl_tab_has_send").css('display','block');
+			}else{
+				$(".tab_has_send_error_msg").text(res.msg_info);
+				$(".tab_has_send_error").css('display','block');
+				$(".bl_tab_has_send_error").css('display','block');
+			}
 		}
 	});
 });
