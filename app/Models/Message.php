@@ -600,7 +600,7 @@ class Message extends Model
         $query = Message::where(function($query)use($uid)
         {
             $query->where('to_id','=' ,$uid)
-                ->orWhere('from_id','=',$uid);
+                ->where('from_id','!=',$uid);
         });
         $all_msg = $query->whereNotIn('from_id', $banned_users)
             ->whereNotIn('to_id', $banned_users)

@@ -555,6 +555,7 @@ class Message_new extends Model
                 }
                 $messages[$key]['content'] = $latestMessage == null ? '' : $latestMessage->content;
 
+                // todo: $messages[$key]['read_n']= isset($mm[$messages[$key]['from_id']]) ? $mm[$messages[$key]['from_id']]: 0; 較佳？
                 $messages[$key]['read_n']=(!empty($mm[$messages[$key]['from_id']] && $messages[$key]['from_id']==$msgUser->id))?$mm[$messages[$key]['from_id']]:0;
             }
             else{
