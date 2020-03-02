@@ -443,7 +443,14 @@ class Message extends Model
 
     public static function allSendersAJAX($uid, $isVip)
     {
-        $messages = Message::where([['to_id', $uid], ['from_id', '!=', $uid]])->orWhere([['from_id', $uid], ['to_id', '!=',$uid]])->orderBy('created_at', 'desc')->get();
+        $userBlockList = Blocked::select('blocked_id')->where('member_id', $uid)->get();
+        $banned_users = banned_users::select('member_id')->get();
+        $messages = Message::where([['to_id', $uid], ['from_id', '!=', $uid]])->orWhere([['from_id', $uid], ['to_id', '!=',$uid]])->orderBy('created_at', 'desc');
+        $messages->whereNotIn('to_id', $userBlockList);
+        $messages->whereNotIn('from_id', $userBlockList);
+        $messages->whereNotIn('to_id', $banned_users);
+        $messages->whereNotIn('from_id', $banned_users);
+        $messages = $messages->get();
 
         if($isVip == 1)
             $saveMessages = Message::chatArrayAJAX($uid, $messages, 1);
@@ -587,28 +594,28 @@ class Message extends Model
         // block information
         //
         $user = User::findById($uid);
-        $block = Blocked::getAllBlock($uid);
+        $block = Blocked::getAllBlockedId($uid);
         $banned_users = banned_users::select('member_id')->get();
-        $all_msg = Message::where([['to_id', $uid],['from_id', '!=', $uid], ['is_row_delete_1', '=' ,0], ['temp_id', '=', 0]])->where('read', 'N')->whereNotIn('from_id', $banned_users);
+
+        $query = Message::where(function($query)use($uid)
+        {
+            $query->where('to_id','=' ,$uid)
+                ->orWhere('from_id','=',$uid);
+        });
+        $all_msg = $query->whereNotIn('from_id', $banned_users)
+            ->whereNotIn('to_id', $banned_users)
+            ->whereNotIn('from_id', $block)
+            ->whereNotIn('to_id', $block)
+            ->where([['is_row_delete_1', '=' ,0], ['temp_id', '=', 0]])
+            ->where('read', 'N');
         if($user->meta_()->notifhistory == '顯示VIP會員信件') {
             //$allVip = \App\Models\Vip::allVip();
             //$all_msg = $all_msg->whereIn('from_id', $allVip);
             $all_msg = $all_msg->join('member_vip', 'member_vip.member_id', '=', 'message.from_id');
         }
-        $unreadCount = 0;
-        if($block->count() == 0) return $all_msg->count();
-        //echo $block->count();
-        //echo 'count = '. $block->count();
-        $blocked_ids = array();
-        foreach($block as $b) {
-            if(!in_array($b->blocked_id, $blocked_ids)){
-                array_push($blocked_ids, $b->blocked_id);
-            }
-        }
-        $unreadCount += $all_msg->whereNotIn('from_id', $blocked_ids)->count();
+        $unreadCount = $all_msg->count();
 
         return $unreadCount;
-        //return Message::where([['to_id', $uid],['from_id', '!=', $uid],['from_id', '!=', $block[$i]->blocked_id]])->where('read', 'N')->count();
     }
 
     public static function read($message, $uid)

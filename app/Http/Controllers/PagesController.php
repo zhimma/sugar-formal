@@ -1561,7 +1561,7 @@ class PagesController extends Controller
     }
 
     public function upgradepayEC(Request $request) {
-        return ['1', 'OK'];
+        return Session::get('status');
     }
 
     public function receive_esafe(Request $request)
