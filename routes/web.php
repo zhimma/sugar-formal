@@ -297,6 +297,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     | Dashboard
     |--------------------------------------------------------------------------
     */
+    
+    Route::post('/dashboard/postAcceptor', 'PagesController@postAcceptor');/*投稿列表功能*/
     Route::get('/dashboard/posts_list', 'PagesController@posts_list');/*投稿列表功能*/
     // Route::get('/dashboard/post_detail/', 'PagesController@post_detail');
     Route::get('/dashboard/post_detail/{pid}', 'PagesController@post_detail');

@@ -332,7 +332,7 @@ function readURL(input) {
     var reader = new FileReader();
     
     reader.onload = function(e) {
-      $('#prev_img').attr('src', e.target.result).css('width','300px');
+      $('#prev_img').attr('src', e.target.result).css('width','80%');
     }
     
     reader.readAsDataURL(input.files[0]);

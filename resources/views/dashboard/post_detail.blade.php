@@ -7,7 +7,7 @@
 		<meta name="format-detection" content="telephone=no" />
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-		<title>投稿详情</title>
+		<title>投稿詳情</title>
 		<!-- Bootstrap -->
 		<link href="/posts/css/bootstrap.min.css" rel="stylesheet">
 		<link href="/posts/css/bootstrap-theme.min.css" rel="stylesheet">
@@ -63,7 +63,7 @@
 				<div class="col-sm-12 col-xs-12 col-md-10">
 					<div class="shou"><span>心情故事</span>
 						<font>Whisper tale</font>
-						<a href="/dashboard/posts_list" class="toug_back">返回</a>
+						<a href="{{url()->previous()}}" class="toug_back">返回</a>
 					</div>
 					@foreach($posts as $post)
                     <div class="t_xqheight">
@@ -71,7 +71,7 @@
                           <div class="xq_text" style="word-break: break-all;">
                           	<div style="margin-left: 30px;margin-right:30px">
                           		{{$post->ptitle}}
-                          		<span>{{date('Y-m-d',strtotime($post->pupdated_at))}}</span>
+                          		<span>{{date('Y-m-d',strtotime($post->pcreated_at))}}</span>
                           	</div>
                           </div>
                           <div class="xq_text01" style="word-break: break-all;">

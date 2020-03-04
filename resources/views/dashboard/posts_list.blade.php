@@ -34,6 +34,11 @@
 				width:350px !important;
 			}
 		}
+		.read-more:hover {
+		  color:#e44e71;
+		}
+
+
 </style>
 @extends('new.layouts.website')
 
@@ -120,8 +125,8 @@
                          @foreach($posts as $post)
 						 <li>
                              <a href="/dashboard/post_detail/{{$post->pid}}">
-                             <div class="tou_tx"><img src="{{$post->panonymous!='combine' ? ($post->uengroup=='1' ? '/posts/images/touxiang_wm.png':'/posts/images/touxiang_w.png') : $post->umpic }}"><span>{{$post->panonymous!='combine' ? '匿名' : $post->uname}}</span><font>{{date('Y-m-d',strtotime($post->pupdated_at))}}</font></div>
-                             <div class="tc_text" id="title" >
+                             <div class="tou_tx"><img src="{{$post->panonymous!='combine' ? ($post->uengroup=='1' ? '/posts/images/touxiang_wm.png':'/posts/images/touxiang_w.png') : $post->umpic }}"><span>{{$post->panonymous!='combine' ? '匿名' : $post->uname}}</span><font>{{date('Y-m-d',strtotime($post->pcreated_at))}}</font></div>
+                             <div class="tc_text" id="title">
                              	<div style="margin-left: 30px;margin-right:30px">
                              		<span style="padding-left: 5px !important;">{{$post->ptitle}}</span>
                              	</div>
@@ -139,7 +144,7 @@
 							 </div>
 							 
 							 </div>
-							 <p style="text-align:right;margin-top: 10px;margin-right:30px;">(閱讀更多)</p>
+							 <p class="read-more" style="text-align:right;margin-top: 10px;margin-right:30px;">(閱讀更多)</p>
                              </div>
                             </a>
                          </li>
@@ -149,48 +154,9 @@
                     
                     <div class="tc_page mabot20">
                                 <nav aria-label="Page navigation">
-								  <!-- {{ $posts->links() }} -->
-								  @if ($posts->hasPages())
-									    <ul class="pagination pagination">
-									        {{-- Previous Page Link --}}
-									        @if ($posts->onFirstPage())
-									            <li class="disabled"><span>&laquo;</span></li>
-									        @else
-									            <li><a href="{{ $posts->previousPageUrl() }}" rel="prev">&laquo;</a></li>
-									        @endif
-
-									        @if($posts->currentPage() > 2)
-									            <li><a href="{{ $posts->url(1) }}">1</a></li>
-									        @endif
-									        @if($posts->currentPage() > 3)
-									            <li class="disabled"><span>...</span></li>
-									        @endif
-
-									        @foreach(range(1, $posts->lastPage()) as $i)
-									            @if($i >= $posts->currentPage() - 1 && $i <= $posts->currentPage() + 1)
-									                @if ($i == $posts->currentPage())
-									                    <li class="active"><span>{{ $i }}</span></li>
-									                @else
-									                    <li><a href="{{ $posts->url($i) }}">{{ $i }}</a></li>
-									                @endif
-									            @endif
-									        @endforeach
-									        @if($posts->currentPage() < $posts->lastPage() - 2)
-									            <li class="disabled"><span>...</span></li>
-									        @endif
-									        @if($posts->currentPage() < $posts->lastPage() - 1)
-									            <li><a href="{{ $posts->url($posts->lastPage()) }}">{{ $posts->lastPage() }}</a></li>
-									        @endif
-
-									        {{-- Next Page Link --}}
-									        @if ($posts->hasMorePages())
-									            <li><a href="{{ $posts->nextPageUrl() }}" rel="next">&raquo;</a></li>
-									        @else
-									            <li class="disabled"><span>&raquo;</span></li>
-									        @endif
-									    </ul>
-									@endif
+								  {{ $posts->links('pagination::sg-pages') }}
                                 </nav>
+
                                 </div>
                     
                     

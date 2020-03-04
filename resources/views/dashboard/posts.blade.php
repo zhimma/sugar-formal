@@ -24,17 +24,54 @@
                 tinymce.init({
 				selector: '#contents',
 				language: 'zh_TW',
-				plugins: "autosave",
-				toolbar: "save",
+				plugins: [
+					"autosave",
+					"advlist autolink lists link image charmap print preview anchor",
+					// "searchreplace visualblocks code fullscreen",
+					"insertdatetime media table contextmenu paste jbimages"
+					],
+					
+				// images_upload_url: '/dashboard/postAcceptor',
+				  automatic_uploads: false,
+				  autosave_ask_before_unload: true,
+				  autosave_prefix: "tinymce-autosave-{path}{query}-{id}-",
+				  autosave_restore_when_empty: true,
+	// 			  images_upload_handler: function (blobInfo, success, failure) {
+    //        var xhr, formData;
+    //        xhr = new XMLHttpRequest();
+    //        xhr.withCredentials = false;
+    //        xhr.open('POST', '/dashboard/postAcceptor');
+    //        var token = '{{ csrf_token() }}';
+    //        xhr.setRequestHeader("X-CSRF-Token", token);
+    //        xhr.onload = function() {
+    //            var json;
+    //            if (xhr.status != 200) {
+    //                failure('HTTP Error: ' + xhr.status);
+    //                return;
+    //            }
+    //            json = JSON.parse(xhr.responseText);
+
+    //            if (!json || typeof json.location != 'string') {
+    //                failure('Invalid JSON: ' + xhr.responseText);
+    //                return;
+    //            }
+    //            success(json.location);
+    //        };
+    //        formData = new FormData();
+    //        formData.append('file', blobInfo.blob(), blobInfo.filename());
+    //        xhr.send(formData);
+    //    },
+				toolbar: ["save","restoredraft"],
 				autosave_ask_before_unload: true,
 				autosave_interval: "5s",
 				branding: false,
 				menubar: false,
-				toolbar : "bold underline | alignleft aligncenter alignright | forecolor | removeformat | pagebreak | code | fontselect | fontsizeselect | undo redo",
+				toolbar : "bold underline | link image jbimages | alignleft aligncenter alignright | forecolor | removeformat | pagebreak | code | fontselect | fontsizeselect | undo redo",
 				verify_html : false, 
 		        verify_css_classes : true, 
 		        cleanup : false, 
 		        cleanup_on_startup : false, 
+				
 				});
 
 			
@@ -211,7 +248,7 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
 				<div class="col-sm-12 col-xs-12 col-md-10">
 					 <div class="two_tg">
                            <div class="two_gtitle"><img src="/posts/images/tg_15.png">投稿
-						   <a href="/dashboard/posts_list" class="toug_back" style="margin-top:7px !important">返回</a>
+						   <a href="{{url()->previous()}}" class="toug_back" style="margin-top:7px !important">返回</a>
 						   </div>
                            <div class="tow_input">
                                  
@@ -230,9 +267,9 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
 								<input name="title" type="text" id="title" class="tw_input"  placeholder="#標題" style="font-size:16px">
                                  <textarea  name="contents" id="contents" cols="" rows="" class="tw_textinput" placeholder="#内容" style="border-radius:20px"></textarea>
                                  <div class="ti_kuang">
-                                       <div class="ti_title">點這裡變更身分</div>
-                                       <h2 class="matop15"><i class='input_style radio_bg'><input type="radio"  name="is_anonymous" id="is_anonymous" value="anonymous"></i>匿名於站內發布</h2>
-                                       <h2><i class='input_style radio_bg'><input type="radio" name="is_anonymous" id="is_anonymous" value="combine"></i>站內發布與本站帳號連結</h2>
+                                       <div class="ti_title">選擇投稿身分</div>
+                                       <h2 class="matop15"><i class='input_style radio_bg'><input type="radio"  name="is_anonymous" id="is_anonymous" value="anonymous"></i>匿名於站內投稿</h2>
+                                       <h2><i class='input_style radio_bg'><input type="radio" name="is_anonymous" id="is_anonymous" value="combine"></i>與本站帳號連結投稿</h2>
                                  </div>
                                  <div class="ticheckbox"><i class='input_style radio_bg'><input type="checkbox" name="agreement" id="agreement"></i>同意站方匿名行銷使用</div>
 								<a  class="dlbut icon_pointer"  onclick="cl()">確定</a>
@@ -373,7 +410,7 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
 	// 		return false;
 	// 	}
 	// }
-	
+	$(".bot").addClass('chbottom');
 </script>
 
 

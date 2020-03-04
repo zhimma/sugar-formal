@@ -225,14 +225,10 @@ class Common extends Controller {
         
         $user_id = $user->id;
         // $data = json_decode($request->data);
-        // dd($data);
-        $member_pics = $request->name;
-        // dd($member_pics);
-        // dd($member_pics);
-        $pic_infos = $request->reader;
-        // dd($member_pics);
-        // dd($pic_infos);
 
+        $pic_infos = $request->reader;
+
+        // $member_pics = $request->name;
         //VER.1
         // $this->base64_image_content($pic_infos[0], '/public/new/img/Member');
         // define('UPLOAD_PATH', '/new/img/Member/');
@@ -285,12 +281,14 @@ class Common extends Controller {
                 // $image = str_replace('data:image/png;base64,', '', $image);
                 // $image = str_replace(' ', '+', $image);
                 // $imageName = str_random(10).'.'.'png';
+                // dd($image);
                 list($type, $image) = explode(';', $image);
                 list(, $image)      = explode(',', $image);
                 $image = base64_decode($image);
-                \File::put(public_path(). '/Member_pics' .'/'. $user->id.'_'.$now.$member_pics.'.jpg', $image);
+                // dd($user->id, $member_pics);
+                \File::put(public_path(). '/Member_pics' .'/'. $user->id.'_'.md5($now).'.jpg', $image);
 
-                $get_exif = $this->get_exif('/Member_pics' .'/'. $user->id.'_'.$now.$member_pics.'.jpg');
+                $get_exif = $this->get_exif('/Member_pics' .'/'. $user->id.'_'.md5($now).'.jpg');
                 $status = json_decode($get_exif)->code;
                 if($status=='200'){
 
