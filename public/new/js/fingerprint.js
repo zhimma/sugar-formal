@@ -46,7 +46,7 @@ let fliterPluginsIE = function(plugins){
 let generateFinger = function(dataSet){
 	return Fingerprint2.x64hash128(
 		dataSet.map(function(element) {
-			console.log(element)
+			// console.log(element)
 			return element.value
 	}).join(''), 1)
 }
@@ -79,6 +79,37 @@ let analysisFingerpirnt = function(handle){
 			language: fliterData['language']
 		}
 		handle(data)
+	})
+}
+
+let analysisFingerpirntForm = function(handle){
+
+	Fingerprint2.get( function (components) {
+		let fliterData = []
+		fliterData = fliter(components)
+		let UAparser = new UAParser(fliterData['userAgent'])
+		let device_os = UAparser.getOS()
+		let browser = UAparser.getBrowser()
+		let plugins = browser['name'] == "IE" ? fliterPluginsIE(fliterData['plugins']) : fliterPlugins(fliterData['plugins'])
+		/**
+		 *	Generate fingerprint by hash function
+		 *
+		 *	@param str the value of the all components
+		 *	@param int the seed number for hash function
+		 *	@return str a hex number which is fingerprint
+		 */
+
+		let data = {
+			fingerprintValue: generateFinger(components),
+			browser_name: browser['name'],
+			browser_version: browser['version'],
+			os_name: device_os['name'],
+			os_version: device_os['version'],
+			timezone: fliterData['timezone'],
+			plugins: JSON.stringify(plugins),
+			language: fliterData['language']
+		}
+		return (data);
 	})
 }
 

@@ -381,18 +381,45 @@ class PagesController extends Controller
             return '找到相符合資料';
         }
         else{
-            $fingerprintValue = Hash::make($fingerprintValue.$request->ip());
+            $fingerprintValue = Hash::make($fingerprintValue . $request->ip());
             $data = [
                 'user_id' => isset($user) ? $user->id : null,
                 'ip' => request()->ip(),
-                'fingerprintValue'=>$fingerprintValue,
-                'browser_name'=>$request->browser_name,
-                'browser_version'=>$request->browser_version,
-                'os_name'=>$request->os_name,
-                'os_version'=>$request->os_version,
-                'timezone'=>$request->timezone,
-                'plugins'=>$request->plugins,
-                'language'=>$request->language
+                'fingerprintValue' => $fingerprintValue,
+                'browser_name' => $request->browser_name,
+                'browser_version' => $request->browser_version,
+                'os_name' => $request->os_name,
+                'os_version' => $request->os_version,
+                'timezone' => $request->timezone,
+                'plugins' => $request->plugins,
+                'language' => $request->language
+            ];
+
+            Fingerprint::insert($data);
+            return '已新增至資料庫';
+        }
+    }
+
+    public function saveFingerprintPOST($payload){
+        $fingerprintValue = $payload['fingerprintValue'];
+        $user = User::findByEmail($payload['email']);
+        if(Fingerprint::isExist(['fingerprintValue'=>$fingerprintValue])){
+            Log::info('User id: ' . isset($user) ? $user->id : null . ', fingerprint value: ' . $fingerprintValue);
+            return '找到相符合資料';
+        }
+        else{
+            $fingerprintValue = Hash::make($fingerprintValue . $payload['ip']);
+            $data = [
+                'user_id' => isset($user) ? $user->id : null,
+                'ip' => $payload['ip'],
+                'fingerprintValue' => $fingerprintValue,
+                'browser_name' => $payload['browser_name'],
+                'browser_version' => $payload['browser_version'],
+                'os_name' => $payload['os_name'],
+                'os_version' => $payload['os_version'],
+                'timezone' => $payload['timezone'],
+                'plugins' => $payload['plugins'],
+                'language' => $payload['language']
             ];
 
             Fingerprint::insert($data);
