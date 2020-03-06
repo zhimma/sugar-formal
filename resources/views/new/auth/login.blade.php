@@ -107,9 +107,18 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
         var batterylevel;
         /*取得電池等級*/
-        navigator.getBattery().then(function(battery) {
-            batterylevel = battery.level;
-        });
+        @php
+            $iPod    = stripos($_SERVER['HTTP_USER_AGENT'],"iPod");
+            $iPhone  = stripos($_SERVER['HTTP_USER_AGENT'],"iPhone");
+            $iPad    = stripos($_SERVER['HTTP_USER_AGENT'],"iPad");
+        @endphp
+        @if( $iPod || $iPhone || $iPad)
+            batterylevel = 'iOS';
+        @else
+            navigator.getBattery().then(function(battery) {
+                batterylevel = battery.level;
+            });
+        @endif
 
         function addFingerprint(){
             var options = {
