@@ -91,9 +91,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         @if( $iPod || $iPhone || $iPad)
             batterylevel = 'iOS';
         @else
-            navigator.getBattery().then(function(battery) {
-                batterylevel = battery.level;
-            });
+            if (typeof navigator.getBattery() === "object") {
+                navigator.getBattery().then(function(battery) {
+                    batterylevel = battery.level;
+                });
+            }
+            else {
+                batterylevel = 'N/A';
+            }
         @endif
 
         function addFingerprint(){
