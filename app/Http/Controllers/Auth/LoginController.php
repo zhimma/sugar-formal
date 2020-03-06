@@ -194,20 +194,22 @@ class LoginController extends Controller
         // }
         if (\Auth::attempt(['email' => $request->email, 'password' => $request->password],$request->remember)) {
             $payload = $request->all();
-            $uid = \Auth::user()->id;
-            $ip = $request->ip();
-            $isFp = \DB::table('fingerprint2')
-                ->where('fp', $payload['fp'])
-                ->where('user_id', $uid)
-                ->where('ip', $ip)
-                ->get()->count();
-            if($isFp <= 0){
-                unset($payload['_token']);
-                unset($payload['email']);
-                unset($payload['password']);
-                $payload['user_id'] = $uid;
-                $payload['ip'] = $ip;
-                $result = \DB::table('fingerprint2')->insert($payload);
+            if(isset($payload['fp'])){
+                $uid = \Auth::user()->id;
+                $ip = $request->ip();
+                $isFp = \DB::table('fingerprint2')
+                    ->where('fp', $payload['fp'])
+                    ->where('user_id', $uid)
+                    ->where('ip', $ip)
+                    ->get()->count();
+                if($isFp <= 0){
+                    unset($payload['_token']);
+                    unset($payload['email']);
+                    unset($payload['password']);
+                    $payload['user_id'] = $uid;
+                    $payload['ip'] = $ip;
+                    $result = \DB::table('fingerprint2')->insert($payload);
+                }
             }
             return $this->sendLoginResponse($request);
         }
