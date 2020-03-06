@@ -22,15 +22,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             <div class="col-sm-12 col-xs-12 col-md-12">
                 <form name="login" action="/login" method="POST" class="dengl"  data-parsley-validate novalidate>
                     {!! csrf_field() !!}
-{{--                    <input type="hidden" name="fingerprintValue" id="fingerprintValue">--}}
-{{--                    <input type="hidden" name="browser_name" id="browser_name">--}}
-{{--                    <input type="hidden" name="browser_version" id="browser_version">--}}
-{{--                    <input type="hidden" name="os_name" id="os_name">--}}
-{{--                    <input type="hidden" name="os_version" id="os_version">--}}
-{{--                    <input type="hidden" name="timezone" id="timezone">--}}
-{{--                    <input type="hidden" name="plugins" id="plugins">--}}
-{{--                    <input type="hidden" name="language" id="language">--}}
-
                     <input type="hidden" name="fp" id="fp">
                     <input type="hidden" name="userAgent" id="userAgent">
                     <input type="hidden" name="webdriver" id="webdriver">
@@ -67,21 +58,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                     <div class="dengl_h" id="login">登入</div>
                     <div id="notice" class="de_input">如果看不到輸入框請開啟 JavaScript 後重新嘗試。若有問題請按下方 <a href="{!! url('contact') !!}" style="color: #33B2FF; text-decoration: underline;">聯絡我們</a> 加站長 line 回報。</div>
-{{--                    <div class="de_input">--}}
-{{--                        <div class="m-loader m-loader--right m-loader--light">--}}
-{{--                            <div class="de_input01 dlmarbot ">--}}
-{{--                                <div class="de_img"><img src="/new/images/lo_03.png"></div>--}}
-{{--                                <input name="email" type="email" autocomplete="off" id="email" class="d_input" placeholder="帳號 (您的Email)" values="{{ old('email') }}" required>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                        <div class="de_input01 dlmarbot m-loader m-loader--right m-loader--light">--}}
-{{--                            <div class="de_img"><img src="/new/images/lo_11.png"></div>--}}
-{{--                            <input name="password" type="password"  class="d_input" placeholder="密碼" required >--}}
-{{--                        </div>--}}
-{{--                        <a href="{!! url('password/reset') !!}" class="dlpassword">忘記密碼 ?</a>--}}
-{{--                        <a href="javascript:void(0);" onclick="backendProcess()" class="dlbut btn-login">登入</a>--}}
-{{--                        <a href="{!! url('/checkAdult') !!}" class="dlbut02">還沒有帳號 ?  免費註冊</a>--}}
-{{--                    </div>--}}
                 </form>
             </div>
         </div>
