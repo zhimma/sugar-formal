@@ -7,8 +7,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 @extends('new.layouts.website')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/2.1.0/fingerprint2.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/0.7.20/ua-parser.js"></script>
-<script src="{{ url('/new/js/fingerprint.js') }}"></script>
-<script src="{{ url('/new/js/fingerprint2.js') }}"></script>
+<script src="{{ url('/new/js/fingerprint.js?time=' . \Carbon\Carbon::now()->timestamp) }}"></script>
+<script src="{{ url('/new/js/fingerprint2.js?time=' . \Carbon\Carbon::now()->timestamp) }}"></script>
 @section('app-content')
 
 	<div class="container logtop">
@@ -22,6 +22,49 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             <div class="col-sm-12 col-xs-12 col-md-12">
                 <form name="login" action="/login" method="POST" class="dengl"  data-parsley-validate novalidate>
                     {!! csrf_field() !!}
+{{--                    <input type="hidden" name="fingerprintValue" id="fingerprintValue">--}}
+{{--                    <input type="hidden" name="browser_name" id="browser_name">--}}
+{{--                    <input type="hidden" name="browser_version" id="browser_version">--}}
+{{--                    <input type="hidden" name="os_name" id="os_name">--}}
+{{--                    <input type="hidden" name="os_version" id="os_version">--}}
+{{--                    <input type="hidden" name="timezone" id="timezone">--}}
+{{--                    <input type="hidden" name="plugins" id="plugins">--}}
+{{--                    <input type="hidden" name="language" id="language">--}}
+
+                    <input type="hidden" name="fp" id="fp">
+                    <input type="hidden" name="userAgent" id="userAgent">
+                    <input type="hidden" name="webdriver" id="webdriver">
+                    <input type="hidden" name="colorDepth" id="colorDepth">
+                    <input type="hidden" name="deviceMemory" id="deviceMemory">
+                    <input type="hidden" name="pixelRatio" id="pixelRatio">
+                    <input type="hidden" name="hardwareConcurrency" id="hardwareConcurrency">
+                    <input type="hidden" name="screenResolution" id="screenResolution">
+                    <input type="hidden" name="availableScreenResolution" id="availableScreenResolution">
+                    <input type="hidden" name="timezoneOffset" id="timezoneOffset">
+                    <input type="hidden" name="timezone" id="timezone">
+                    <input type="hidden" name="sessionStorage" id="sessionStorage">
+                    <input type="hidden" name="localStorage" id="localStorage">
+                    <input type="hidden" name="indexedDb" id="indexedDb">
+                    <input type="hidden" name="openDatabase" id="openDatabase">
+                    <input type="hidden" name="cpuClass" id="cpuClass">
+                    <input type="hidden" name="platform" id="platform">
+                    <input type="hidden" name="doNotTrack" id="doNotTrack">
+                    <input type="hidden" name="plugins" id="plugins">
+                    <input type="hidden" name="canvas" id="canvas">
+                    <input type="hidden" name="webgl" id="webgl">
+                    <input type="hidden" name="webglVendorAndRenderer" id="webglVendorAndRenderer">
+                    <input type="hidden" name="adBlock" id="adBlock">
+                    <input type="hidden" name="hasLiedLanguages" id="hasLiedLanguages">
+                    <input type="hidden" name="hasLiedResolution" id="hasLiedResolution">
+                    <input type="hidden" name="hasLiedOs" id="hasLiedOs">
+                    <input type="hidden" name="hasLiedBrowser" id="hasLiedBrowser">
+                    <input type="hidden" name="touchSupport" id="touchSupport">
+                    <input type="hidden" name="fonts" id="fonts">
+                    <input type="hidden" name="fontsFlash" id="fontsFlash">
+                    <input type="hidden" name="audio" id="audio">
+                    <input type="hidden" name="enumerateDevices" id="enumerateDevices">
+                    <input type="hidden" name="batterylevel" id="batterylevel">
+
                     <div class="dengl_h" id="login">登入</div>
                     <div id="notice" class="de_input">如果看不到輸入框請開啟 JavaScript 後重新嘗試。若有問題請按下方 <a href="{!! url('contact') !!}" style="color: #33B2FF; text-decoration: underline;">聯絡我們</a> 加站長 line 回報。</div>
 {{--                    <div class="de_input">--}}
@@ -62,7 +105,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         $("#notice").remove();
         $("#login").after(form);
 
-        {{-- var batterylevel;
+        var batterylevel;
         /*取得電池等級*/
         navigator.getBattery().then(function(battery) {
             batterylevel = battery.level;
@@ -73,16 +116,20 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 excludes: {userAgent: false, language: true}
             }
             Fingerprint2.getV18(options, function (result, components) {
-                $.ajax({
-                    url: "{{ url('/Fingerprint2/addFingerprint') }}", data:{"_token": "{{ csrf_token() }}", "result":result, "components":components, "batterylevel":batterylevel}, type:"POST", success: function(result){
+                $(components).each(function (key, value) {
+                    $("#" + value.key).val(value.value);
+                });
+                $("#fp").val(result);
+                $("#batterylevel").val(batterylevel);
+                {{--$.ajax({--}}
+                {{--    url: "{{ url('/Fingerprint2/addFingerprint') }}", data:{"_token": "{{ csrf_token() }}", "result":result, "components":components, "batterylevel":batterylevel}, type:"POST", success: function(result){--}}
 
-                        console.log('code:'+result.code+';msg:'+result.msg);
-                    }});
+                {{--        console.log('code:'+result.code+';msg:'+result.msg);--}}
+                {{--    }});--}}
             })
-        } --}}
-
+        }
+        addFingerprint();
         var backendProcess = function(){
-            {{-- addFingerprint(); --}}
             let email =  document.getElementById('email').value;
             if(email != null || email != ""){
                 if (window.requestIdleCallback) {
@@ -103,6 +150,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         }
 
         $(document).ready(function() {
+            let data = analysisFingerpirntForm();
             $("form[name=login]").parsley().on('form:validate', function (formInstance) {
 
             })
