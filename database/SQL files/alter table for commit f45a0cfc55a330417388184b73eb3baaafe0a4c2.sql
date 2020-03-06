@@ -1,5 +1,5 @@
 ALTER TABLE `fingerprint2` 
-ADD COLUMN `ip` VARCHAR(32) NULL AFTER `fp`
+ADD COLUMN `ip` VARCHAR(32) NULL AFTER `fp`,
 CHANGE COLUMN `userAgent` `userAgent` VARCHAR(100) NULL DEFAULT null COMMENT '使用者代理' ,
 CHANGE COLUMN `webdriver` `webdriver` VARCHAR(50) NULL DEFAULT null COMMENT 'webdriver' ,
 CHANGE COLUMN `language` `language` VARCHAR(30) NULL DEFAULT null COMMENT '語言' ,
