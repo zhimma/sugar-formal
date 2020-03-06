@@ -163,7 +163,7 @@ class Common extends Controller {
                 'code'=>'600',
                 'msg' =>$msg
             );
-            echo  json_encode($data, JSON_UNESCAPED_UNICODE);
+            return  json_encode($data, JSON_UNESCAPED_UNICODE);
         }else{
             // "Image contains headers";
             $exif = exif_read_data($avatar_path);
@@ -179,6 +179,7 @@ class Common extends Controller {
             // }
             // dd('1');
             // dd($exif_data);
+            // dd($exif);
             /*判斷照片是否在十分鐘內*/
             if($now_time-600<strtotime($exif['DateTimeOriginal'])){
                 $data = array(
@@ -192,6 +193,7 @@ class Common extends Controller {
                 );
             }
             // return $data;
+           
             return json_encode($data, JSON_UNESCAPED_UNICODE);
         } 
         
@@ -286,10 +288,12 @@ class Common extends Controller {
                 list(, $image)      = explode(',', $image);
                 $image = base64_decode($image);
                 // dd($user->id, $member_pics);
-                \File::put(public_path(). '/Member_pics' .'/'. $user->id.'_'.md5($now).'.jpg', $image);
+                \File::put(public_path(). '/Member_pics' .'/'. $user->id.'_'.md5($now).'.png', $image);
 
-                $get_exif = $this->get_exif('/Member_pics' .'/'. $user->id.'_'.md5($now).'.jpg');
+                $get_exif = $this->get_exif('/Member_pics' .'/'. $user->id.'_'.md5($now).'.png');
+                // dd($get_exif);
                 $status = json_decode($get_exif)->code;
+                // dd($status);
                 if($status=='200'){
 
                     DB::table('member_pic')->insert(

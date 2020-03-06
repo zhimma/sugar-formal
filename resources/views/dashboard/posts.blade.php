@@ -12,6 +12,7 @@
 		<link href="/posts/css/bootstrap.min.css" rel="stylesheet">
 		<link href="/posts/css/bootstrap-theme.min.css" rel="stylesheet">
 		<!-- owl-carousel-->
+		<meta name="csrf-token" content="{{ csrf_token() }}" />
 		<!--    css-->
 		<link rel="stylesheet" href="/posts/css/style.css">
 		<link rel="stylesheet" href="/posts/css/swiper.min.css">
@@ -22,6 +23,7 @@
 		<script>
 			
                 tinymce.init({
+				invalid_elements : "script",
 				selector: '#contents',
 				language: 'zh_TW',
 				plugins: [
@@ -35,7 +37,42 @@
 				  automatic_uploads: false,
 				  autosave_ask_before_unload: true,
 				  autosave_prefix: "tinymce-autosave-{path}{query}-{id}-",
-				  autosave_restore_when_empty: true,
+				  autosave_restore_when_empty: false,
+				  file_picker_types: 'file image media',
+				  automatic_uploads: true,
+				//   images_upload_credentials: true,
+				//   images_upload_handler: function (blobInfo, success, failure) {
+				// 	var xhr, formData;
+
+				// 	xhr = new XMLHttpRequest();
+				// 	xhr.withCredentials = false;
+				// 	xhr.open('POST', '/dashboard/postAcceptor');
+
+				// 	xhr.onload = function() {
+				// 	var json;
+
+				// 	if (xhr.status != 200) {
+				// 		failure('HTTP Error: ' + xhr.status);
+				// 		return;
+				// 	}
+
+				// 	json = JSON.parse(xhr.responseText);
+
+				// 	if (!json || typeof json.location != 'string') {
+				// 		failure('Invalid JSON: ' + xhr.responseText);
+				// 		return;
+				// 	}
+
+				// 	success(json.location);
+				// 	};
+
+				// 	formData = new FormData();
+				// 	formData.append('file', blobInfo.blob(), blobInfo.filename());
+				// 	formData.append('_token', $('meta[name="csrf-token"]').attr('content') );
+				// 	xhr.send(formData);
+				// },
+
+
 	// 			  images_upload_handler: function (blobInfo, success, failure) {
     //        var xhr, formData;
     //        xhr = new XMLHttpRequest();
@@ -66,7 +103,8 @@
 				autosave_interval: "5s",
 				branding: false,
 				menubar: false,
-				toolbar : "bold underline | link image jbimages | alignleft aligncenter alignright | forecolor | removeformat | pagebreak | code | fontselect | fontsizeselect | undo redo",
+				autosave_ask_before_unload: true,
+				toolbar : "restoredraft | bold underline | link image jbimages | alignleft aligncenter alignright | forecolor | removeformat | pagebreak | code | fontselect | fontsizeselect | undo redo",
 				verify_html : false, 
 		        verify_css_classes : true, 
 		        cleanup : false, 

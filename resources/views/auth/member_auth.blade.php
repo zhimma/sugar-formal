@@ -22,6 +22,27 @@
 			#photo>input {
 				display:none;
 			}
+			.upload_width{
+				width:80% !important;
+			}
+			#photo .delBtn{
+				position:relative;
+				text-align:right !important;
+				right:10%;
+
+			}
+		</style>
+		<style>
+			@media (min-width:993px){
+			.chbottom{ position:fixed; bottom:0}
+			}
+			@media (min-width:761px) and (max-width:992px) {
+			.chbottom{ position:fixed; bottom:0}
+			}
+			@media (max-width:760px) {
+
+			.chbottom{ position: static;}
+			}
 		</style>
 	</head>
 	<body>
@@ -79,7 +100,9 @@
                                       <div class="de_input">
                                           <div class="yanzheng_1">驗證2</div>
                                           <div id="photo" class="zy_kuang">
+										  	  
                                               <img id="prev_img" src="/auth/images/photo_01.png" style="cursor:pointer;">
+											  <div class="delBtn" style="display:none;"><img id="del" src="/new/images/gb_icon01.png" style="cursor:pointer;width:30px;height:30px;right:0"></div>
                                               <span>上傳照片</span>
 											  <input type='file' id="imgInp" />
                                           </div>
@@ -105,13 +128,7 @@
 			</div>
 		</div>
 
-		<div class="bot foot_pc">
-			<a href="">站長開講</a> 丨
-			<a href=""> 網站使用</a> 丨
-			<a href=""> 使用條款</a> 丨
-			<a href=""> 聯絡我們</a>
-			<img src="/auth/images/bot_10.png">
-		</div>
+		@include('/new/partials/footer')
 
 
 
@@ -186,7 +203,15 @@
     <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
 </div>
 	
-
+<div class="blbg tab_auth_fail" onclick="gmBtn1()" style="display: none;"></div>
+<div class="bl bl_tab bl_tab_auth_fail" id="tab04" style="display: none;">
+    <div class="bltitle_a"><span>提示</span></div>
+    <div class="n_blnr02 matop10">
+         <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
+         <div class="n_fengs" style="text-align:center;width:100%;">驗證失敗</div>
+    </div>
+    <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
+</div>
 
 <div class="blbg tab_has_send" onclick="gmBtn1()" style="display: none;"></div>
 <div class="bl bl_tab bl_tab_has_send" id="tab04" style="display: none;">
@@ -317,6 +342,9 @@ $("#auth_photo").on('click', function(){
 			}else if(res.code=='404'){
 				$(".tab_auth_fail").css('display', 'block');
 				$(".bl_tab_auth_fail").css('display','block');
+			}else{
+				$(".tab_auth_fail").css('display', 'block');
+				$(".bl_tab_auth_fail").css('display','block');
 			}
 			
 		}
@@ -332,7 +360,8 @@ function readURL(input) {
     var reader = new FileReader();
     
     reader.onload = function(e) {
-      $('#prev_img').attr('src', e.target.result).css('width','80%');
+      $('#prev_img').attr('src', e.target.result).addClass('upload_width');
+	  $(".delBtn").css('display','block');
     }
     
     reader.readAsDataURL(input.files[0]);
@@ -342,9 +371,17 @@ function readURL(input) {
 $("#imgInp").change(function() {
   readURL(this);
 });
-
+$(".delBtn").click(function(){
+	$("#prev_img").attr('src','/auth/images/photo_01.png').removeClass('upload_width');
+});
 
 $("#prev_img").click(function () {
     $("#imgInp").trigger('click');
 });
+
+$(document).ready(function(){
+	$(".bot").addClass('chbottom');
+});
+
 </script>
+
