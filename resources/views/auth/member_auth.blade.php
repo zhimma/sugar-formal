@@ -102,7 +102,7 @@
                                           <div id="photo" class="zy_kuang">
 										  	  
                                               <img id="prev_img" src="/auth/images/photo_01.png" style="cursor:pointer;">
-											  <div class="delBtn" style="display:none;"><img id="del" src="/new/images/gb_icon01.png" style="cursor:pointer;width:30px;height:30px;right:0"></div>
+											  <!-- <div class="delBtn" style="display:none;"><img id="del" src="/new/images/gb_icon01.png" style="cursor:pointer;width:30px;height:30px;right:0"></div> -->
                                               <span>上傳照片</span>
 											  <input type='file' id="imgInp" />
                                           </div>
@@ -193,8 +193,8 @@
     <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
 </div>
 
-<div class="blbg tab_auth_fail" onclick="gmBtn1()" style="display: none;"></div>
-<div class="bl bl_tab bl_tab_auth_fail" id="tab04" style="display: none;">
+<div class="blbg tab_auth_fail_10" onclick="gmBtn1()" style="display: none;"></div>
+<div class="bl bl_tab bl_tab_auth_fail_10" id="tab04" style="display: none;">
     <div class="bltitle_a"><span>提示</span></div>
     <div class="n_blnr02 matop10">
          <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
@@ -209,6 +209,16 @@
     <div class="n_blnr02 matop10">
          <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
          <div class="n_fengs" style="text-align:center;width:100%;">驗證失敗</div>
+    </div>
+    <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
+</div>
+
+<div class="blbg tab_auth_fail_date" onclick="gmBtn1()" style="display: none;"></div>
+<div class="bl bl_tab bl_tab_auth_fail_date" id="tab04" style="display: none;">
+    <div class="bltitle_a"><span>提示</span></div>
+    <div class="n_blnr02 matop10">
+         <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
+         <div class="n_fengs" style="text-align:center;width:100%;">驗證失敗，沒有日期資訊</div>
     </div>
     <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
 </div>
@@ -299,6 +309,7 @@ $("#auth_phone").on('click', function(){
 
 				$("#photo").addClass('yx_font');
 				$("#auth_photo").removeClass('yx_butco');
+				// $("#photo").append('<input type="file" id="imgInp">');
 			}else if(res.code=='600'){
 				$(".tab_error_checkcode").css('display', 'block');
 				$(".bl_tab_error_checkcode").css('display','block');
@@ -314,11 +325,11 @@ $("#auth_phone").on('click', function(){
 $("#auth_photo").on('click', function(){
 	// console.log($('#imgInp')['context']['images'][1]['src']);
 	var formData = new FormData();
-	formData = $('#imgInp')['context']['images'][1]['src'];
-// console.log(formData);
+	reader = $('#imgInp')['context']['images'][1]['src'];
+console.log($('#imgInp'));
 	var data = {
 			_token: '{{csrf_token()}}',
-			"reader": formData,
+			"reader": reader,
 			"name":'123',
 		}
 	$.ajax({
@@ -339,12 +350,15 @@ $("#auth_photo").on('click', function(){
 				$(".tab_auth_success").css('display', 'block');
 				$(".bl_tab_auth_success").css('display','block');
 				window.location.href="/dashboard";
+			}else if(res.code=='400'){
+				$(".tab_auth_fail_10").css('display', 'block');
+				$(".bl_tab_auth_fail_10").css('display','block');
 			}else if(res.code=='404'){
 				$(".tab_auth_fail").css('display', 'block');
 				$(".bl_tab_auth_fail").css('display','block');
-			}else{
-				$(".tab_auth_fail").css('display', 'block');
-				$(".bl_tab_auth_fail").css('display','block');
+			}else if(res.code=='600'){
+				$(".tab_auth_fail_date").css('display', 'block');
+				$(".bl_tab_auth_fail_date").css('display','block');
 			}
 			
 		}
@@ -361,7 +375,7 @@ function readURL(input) {
     
     reader.onload = function(e) {
       $('#prev_img').attr('src', e.target.result).addClass('upload_width');
-	  $(".delBtn").css('display','block');
+	//   $(".delBtn").css('display','block');
     }
     
     reader.readAsDataURL(input.files[0]);

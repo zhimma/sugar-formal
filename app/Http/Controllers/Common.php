@@ -153,7 +153,9 @@ class Common extends Controller {
         // $avatar_path = $request->get('avatar_path','');//需為絕對路徑
         // $avatar_path = url('/new/images/0123456/0123.jpg');
         $avatar_path = url($avatar_path);
-        $exif = exif_read_data($avatar_path, 'IFD0');
+        
+        $exif = @exif_read_data($avatar_path, 'IFD0');
+        // dd($exif);
         // dd($exif);
         // echo $exif===false ? "No header data found.<br />\n" : "Image contains headers<br />\n";
         // dd($exif);
@@ -181,15 +183,22 @@ class Common extends Controller {
             // dd($exif_data);
             // dd($exif);
             /*判斷照片是否在十分鐘內*/
-            if($now_time-600<strtotime($exif['DateTimeOriginal'])){
-                $data = array(
-                    'code'=>'200',
-                    'msg'=>'此照片可以使用'
-                );
+            if(isset($exif['DateTimeOriginal'])){
+                if($now_time-600<strtotime($exif['DateTimeOriginal'])){
+                    $data = array(
+                        'code'=>'200',
+                        'msg'=>'此照片可以使用'
+                    );
+                }else{
+                    $data = array(
+                        'code'=>'400',
+                        'msg'=>'此照片過期或非您的個人手機現在拍的照片，請再拍一張照片，並在十分鐘內上傳'
+                    );
+                }
             }else{
                 $data = array(
-                    'code'=>'400',
-                    'msg'=>'此照片過期或非您的個人手機現在拍的照片，請再拍一張照片，並在十分鐘內上傳'
+                    'code' => '600',
+                    'msg'  => '沒有日期資訊'
                 );
             }
             // return $data;
@@ -216,8 +225,8 @@ class Common extends Controller {
         // dd($request);
         // dump('123');
         // $common = new Common();
-        
-        
+        // dd('1');
+    
         // dd($get_exif, $status);
         // $get_exif = json_decode($get_exif);
             
@@ -297,7 +306,7 @@ class Common extends Controller {
                 if($status=='200'){
 
                     DB::table('member_pic')->insert(
-                        array('member_id' => $user->id, 'pic' => '/Member_pics'.'/'.$user->id.'_'.$now.$member_pics, 'isHidden' => 0, 'created_at'=>now(), 'updated_at'=>now())
+                        array('member_id' => $user->id, 'pic' => '/Member_pics'.'/'.$user->id.'_'.md5($now), 'isHidden' => 0, 'created_at'=>now(), 'updated_at'=>now())
                     );
 
                     
@@ -342,8 +351,10 @@ class Common extends Controller {
                     // }
                     echo json_encode($data);
                 }else{
+                    $exif = json_decode($get_exif);
                     $data = array(
-                        'code'=>'404'
+                        'code'=>$exif->code,
+                        'msg'=>$exif->msg
                     );
                     echo json_encode($data);
                 }
