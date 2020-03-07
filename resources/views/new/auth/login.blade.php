@@ -84,12 +84,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         var batterylevel;
         /*取得電池等級*/
         @php
-            $iPod    = stripos($_SERVER['HTTP_USER_AGENT'],"iPod");
-            $iPhone  = stripos($_SERVER['HTTP_USER_AGENT'],"iPhone");
-            $iPad    = stripos($_SERVER['HTTP_USER_AGENT'],"iPad");
+            $iPod    = stripos($_SERVER['HTTP_USER_AGENT'], "iPod");
+            $iPhone  = stripos($_SERVER['HTTP_USER_AGENT'], "iPhone");
+            $iPad    = stripos($_SERVER['HTTP_USER_AGENT'], "iPad");
+            $Firefox = stripos($_SERVER['HTTP_USER_AGENT'], "Firefox");
         @endphp
-        @if( $iPod || $iPhone || $iPad)
+        @if( $iPod || $iPhone || $iPad )
             batterylevel = 'iOS';
+        @elseif( $Firefox )
+            batterylevel = 'FF';
         @else
             if (typeof navigator.getBattery() === "object") {
                 navigator.getBattery().then(function(battery) {
