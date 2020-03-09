@@ -74,35 +74,18 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             "                            <div class=\"de_img\"><img src=\"/new/images/lo_11.png\"></div>\n" +
             "                            <input name=\"password\" type=\"password\"  class=\"d_input\" placeholder=\"密碼\" required >\n" +
             "                        </div>\n" +
-            "                        <a href=\"{!! url('password/reset') !!}\" class=\"dlpassword\">忘記密碼 ?</a>\n" +
+            "                        <div class='wknr'>" +
+            "                            <h4>若有開啟 AdBlock，請使用無痕模式登入。</h4>" +
+            "                            <a href=\"{!! url('password/reset') !!}\" class=\"dlpassword\">忘記密碼 ?</a>\n" +
+            "                        </div>" +
             "                        <a href=\"javascript:void(0);\" onclick=\"backendProcess()\" class=\"dlbut btn-login\">登入</a>\n" +
             "                        <a href=\"{!! url('/checkAdult') !!}\" class=\"dlbut02\">還沒有帳號 ?  免費註冊</a>\n" +
             "                   </div>";
         $("#notice").remove();
         $("#login").after(form);
 
-        var batterylevel;
+        var batterylevel = "XX";
         /*取得電池等級*/
-        @php
-            $iPod    = stripos($_SERVER['HTTP_USER_AGENT'], "iPod");
-            $iPhone  = stripos($_SERVER['HTTP_USER_AGENT'], "iPhone");
-            $iPad    = stripos($_SERVER['HTTP_USER_AGENT'], "iPad");
-            $Firefox = stripos($_SERVER['HTTP_USER_AGENT'], "Firefox");
-        @endphp
-        @if( $iPod || $iPhone || $iPad )
-            batterylevel = 'iOS';
-        @elseif( $Firefox )
-            batterylevel = 'FF';
-        @else
-            if (typeof navigator.getBattery() === "object") {
-                navigator.getBattery().then(function(battery) {
-                    batterylevel = battery.level;
-                });
-            }
-            else {
-                batterylevel = 'N/A';
-            }
-        @endif
 
         function addFingerprint(){
             var options = {
