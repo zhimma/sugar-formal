@@ -124,13 +124,16 @@
                              
                          @foreach($posts as $post)
 						 <li>
-                             <a href="/dashboard/post_detail/{{$post->pid}}">
+                            
                              <div class="tou_tx"><img src="{{$post->panonymous!='combine' ? ($post->uengroup=='1' ? '/posts/images/touxiang_wm.png':'/posts/images/touxiang_w.png') : $post->umpic }}"><span>{{$post->panonymous!='combine' ? '匿名' : $post->uname}}</span><font>{{date('Y-m-d',strtotime($post->pcreated_at))}}</font></div>
-                             <div class="tc_text" id="title">
+							 <a href="/dashboard/post_detail/{{$post->pid}}">
+							 <div class="tc_text" id="title">
                              	<div style="margin-left: 30px;margin-right:30px">
                              		<span style="padding-left: 5px !important;">{{$post->ptitle}}</span>
                              	</div>
                              </div>
+							 </a>
+							
                              <div class="tc_text01" style="word-break: break-all;">
 							 <div class="article" style="margin-left: 30px;margin-right:30px">
 							 <div class="contents" style="width:100%">
@@ -144,9 +147,11 @@
 							 </div>
 							 
 							 </div>
+							 <a href="/dashboard/post_detail/{{$post->pid}}">
 							 <p class="read-more" style="text-align:right;margin-top: 10px;margin-right:30px;">(閱讀更多)</p>
-                             </div>
-                            </a>
+							 </a>
+							 </div>
+                            
                          </li>
 						 @endforeach
                         </ul>

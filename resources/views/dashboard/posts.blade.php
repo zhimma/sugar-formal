@@ -40,37 +40,38 @@
 				  autosave_restore_when_empty: false,
 				  file_picker_types: 'file image media',
 				  automatic_uploads: true,
+				  file_picker_types: 'image',
 				//   images_upload_credentials: true,
-				//   images_upload_handler: function (blobInfo, success, failure) {
-				// 	var xhr, formData;
+				  images_upload_handler: function (blobInfo, success, failure) {
+					var xhr, formData;
 
-				// 	xhr = new XMLHttpRequest();
-				// 	xhr.withCredentials = false;
-				// 	xhr.open('POST', '/dashboard/postAcceptor');
+					xhr = new XMLHttpRequest();
+					xhr.withCredentials = false;
+					xhr.open('POST', '/dashboard/postAcceptor');
 
-				// 	xhr.onload = function() {
-				// 	var json;
+					xhr.onload = function() {
+					var json;
 
-				// 	if (xhr.status != 200) {
-				// 		failure('HTTP Error: ' + xhr.status);
-				// 		return;
-				// 	}
+					if (xhr.status != 200) {
+						failure('HTTP Error: ' + xhr.status);
+						return;
+					}
 
-				// 	json = JSON.parse(xhr.responseText);
+					json = JSON.parse(xhr.responseText);
 
-				// 	if (!json || typeof json.location != 'string') {
-				// 		failure('Invalid JSON: ' + xhr.responseText);
-				// 		return;
-				// 	}
+					if (!json || typeof json.location != 'string') {
+						failure('Invalid JSON: ' + xhr.responseText);
+						return;
+					}
 
-				// 	success(json.location);
-				// 	};
+					success(json.location);
+					};
 
-				// 	formData = new FormData();
-				// 	formData.append('file', blobInfo.blob(), blobInfo.filename());
-				// 	formData.append('_token', $('meta[name="csrf-token"]').attr('content') );
-				// 	xhr.send(formData);
-				// },
+					formData = new FormData();
+					formData.append('file', blobInfo.blob(), blobInfo.filename());
+					formData.append('_token', $('meta[name="csrf-token"]').attr('content') );
+					xhr.send(formData);
+				},
 
 
 	// 			  images_upload_handler: function (blobInfo, success, failure) {

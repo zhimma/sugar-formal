@@ -103,7 +103,7 @@
 										  	  
                                               <img id="prev_img" src="/auth/images/photo_01.png" style="cursor:pointer;">
 											  <!-- <div class="delBtn" style="display:none;"><img id="del" src="/new/images/gb_icon01.png" style="cursor:pointer;width:30px;height:30px;right:0"></div> -->
-                                              <span>上傳照片</span>
+                                              <span>請用手機拍攝照片，並於十分鐘內上傳</span>
 											  <input type='file' id="imgInp" />
                                           </div>
                                           <a id="auth_photo" class="dlbut yx_butco" style="cursor:pointer">驗證</a>
