@@ -48,7 +48,7 @@
             {!! $blockadepopup !!}
         @endif
         </div>
-        <a class="n_bllbut matop30 but_block" href="">封鎖</a>
+        <a class="n_bllbut matop30 but_block">封鎖</a>
     </div>
     <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>

@@ -59,7 +59,10 @@ class Visited extends Model
 
     public static function findBySelf($uid)
     {
-        return Visited::unique(Visited::where('visited_id', $uid)->distinct()->orderBy('created_at', 'desc')->get(), "member_id", "created_at");
+        //加入排除封鎖名單
+        $blocks = Blocked::select('blocked_id')->where('member_id', $uid)->get();
+        return Visited::unique(Visited::where('visited_id', $uid)->whereNotIn('member_id',$blocks)->distinct()->orderBy('created_at', 'desc')->get(), "member_id", "created_at");
+
     }
 
     public static function visit($member_id, $visited_id)

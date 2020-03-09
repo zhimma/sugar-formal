@@ -117,7 +117,7 @@
                                 @else
 
                                     <li>
-                                        <img src="/new/images/icon_08.png" class="tubiao_i"><span>封鎖</span>
+                                        <img src="/new/images/icon_12.png" class="tubiao_i"><span>封鎖</span>
                                         <span><img src="/new/images/icon_36.png" class="tap-vip"></span>
                                     </li>
                                 @endif
@@ -250,14 +250,16 @@
                                     @if(!empty($to->meta_()->style))
                                     <dt>
                                         <span>期待的約會模式</span>
-                                        <span><div class="select_xx03" >{!! nl2br($to->meta_()->style) !!}</div></span>
+                                        <span>
+                                            <div class="select_xx03" >{!! nl2br($to->meta_()->style) !!}</div>
+                                        </span>
                                     </dt>
                                     @endif
 
                                     @if(!empty($to->meta_()->domainType) && $to->meta_()->domainType != null && $to->meta_()->domainType != 'null')
                                     <dt>
                                         <span>產業</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->domainType}}" disabled="disabled"></span>
+                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->domainType}}  @if(!empty($to->meta_()->domain) && $to->meta_()->domain != null && $to->meta_()->domain != 'null'){{$to->meta_()->domain}}@endif" disabled="disabled"></span>
                                     </dt>
                                     @endif
 

@@ -54,7 +54,7 @@
 
         function gmBtn1(){
             $(".announce_bg").hide();
-            // $(".blbg").hide();
+            $("#tab02").hide();
             // $(".bl_gb").hide();
             $(".gg_tab").hide();
             if($('#tab05').is(":visible")){

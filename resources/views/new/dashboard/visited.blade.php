@@ -13,6 +13,7 @@
 {{--                    <a onclick="cl()"><img src="/new/images/ncion_03.png"  class="whoicon"></a>--}}
                 </div>
                 <div class="sjlist">
+                    @if(count($visitors)>0)
                     <ul>
                         @foreach ($visitors as $visitor)
                             <?php $histUser = \App\Models\User::findById($visitor->member_id);
@@ -39,6 +40,11 @@
                                 @endif
                         @endforeach
                     </ul>
+                    @else
+                        <div class="sjlist">
+                            <div class="fengsicon"><img src="/new/images/fs_06.png" class="feng_img"><span>暫無資料</span></div>
+                        </div>
+                    @endif
 {{--                    <div class="fenye">--}}
 {{--                        <a id="prePage" href="{{ $visitors->previousPageUrl() }}">上一頁</a>--}}
 {{--                        <a id="nextPage" href="{{ $visitors->nextPageUrl() }}">下一頁</a>--}}

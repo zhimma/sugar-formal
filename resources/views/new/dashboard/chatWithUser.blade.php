@@ -72,7 +72,9 @@
         font-size: 3pt;
         color: #e44e71 ;
         padding-top: 2px;
-
+    }
+    .message_fixed{
+        position: fixed;
     }
 </style>
 @section('app-content')
@@ -150,10 +152,10 @@
                                 <div class="@if($message['from_id'] == $user->id) show @else send @endif">
                                     <div class="msg @if($message['from_id'] == $user->id) msg1 @endif">
                                         @if($message['from_id'] == $user->id)
-                                            <img src="@if(file_exists( public_path().$user->meta_()->pic )){{$user->meta_()->pic}} @else/img/male-avatar.png @endif">
+                                            <img src="@if(file_exists( public_path().$user->meta_()->pic ) && $user->meta_()->pic != ""){{$user->meta_()->pic}} @else/img/male-avatar.png @endif">
                                         @else
                                             <a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">
-                                                <img src="@if(file_exists( public_path().$msgUser->meta_()->pic )){{$msgUser->meta_()->pic}} @else/img/male-avatar.png @endif">
+                                                <img src="@if(file_exists( public_path().$msgUser->meta_()->pic ) && $msgUser->meta_()->pic != ""){{$msgUser->meta_()->pic}} @else/img/male-avatar.png @endif">
                                             </a>
                                         @endif
                                         <p>
@@ -207,6 +209,7 @@
                                 <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}" value="{{ \Carbon\Carbon::now()->timestamp }}">
                                 <textarea name="msg" cols="" rows="" class="se_text msg" id="msg" placeholder="請輸入" required></textarea>
         {{--                        <a href="javascript:document.getElementById('chatForm').submit();" id="msgsnd" class="se_tbut matop20 msgsnd">回復</a>--}}
+                                <div class="message_fixed"></div>
                                 <input type="submit" id="msgsnd" class="se_tbut matop20 msgsnd" value="回覆">
                             </form>
                         </div>
@@ -221,7 +224,7 @@
     </div>
     </div>
     <div class="bl bl_tab" id="tab_payAlert">
-        <div class="bltitle"><span>車馬費說明</span></div>
+        <div class="bltitle bltitle_fixed"><span>車馬費說明</span></div>
         <div class="n_blnr01 matop20">
             <div class="n_fengs">
             @if(isset($tippopup))
@@ -238,7 +241,7 @@
                 <span><a onclick="$('.blbg').click();" class="n_right" href="javascript:">取消</a></span>
             </div>
         </div>
-        <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+        <a id="" onclick="$('.blbg').click();" class="bl_gb bl_gb_fixed"><img src="/new/images/gb_icon.png"></a>
     </div>
 
     <div class="bl bl_tab" id="show_banned">
@@ -302,18 +305,24 @@
                     text.data = '還有' + still + '秒才能回覆';
                 }
             },100); --}}
-            $("<a href='{!! url('dashboard/vip') !!}' style='color: red;' class='tips'>成為VIP即可知道對方是否讀取信件哦！<br></a>").insertBefore('#msgsnd');
+            {{--$("<a href='{!! url('dashboard/vip') !!}' style='color: red;' class='tips'>成為VIP即可知道對方是否讀取信件哦！<br></a>").insertBefore('#msgsnd');--}}
+            $( ".message_fixed" ).append( "<div><a href='{!! url('dashboard/vip') !!}' style='color: red;' class='tips'>成為VIP即可知道對方是否讀取信件哦！</a></div>" );
         }
 
-        $('#msg').keyup(function() {
+        $('#msg').keyup(function(e) {
             let msgsnd = $('.msgsnd');
-            if(!$.trim($("#msg").val())){
+
+            if(e.key == " "){
                 $('.alert').remove();
-                $("<div><a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a></div>").insertAfter(this);
+                // $("<div><a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a></div>").insertAfter(this);
+                $( ".message_fixed" ).html();
+                $( ".message_fixed" ).append( "<div><a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a></div>" );
                 msgsnd.prop('disabled', true);
-            }
-            else {
-               $('.alert').remove();
+            }else if(e.key == "Backspace" && $.trim($("#msg").val()).length > 0){
+                $('.alert').remove();
+                msgsnd.prop('disabled', !checkForm());
+            }else{
+                $('.alert').remove();
                 msgsnd.prop('disabled', !checkForm());
             }
         });
@@ -356,7 +365,9 @@
         let content = $('#msg').val(), msgsnd = $('.msgsnd');
         if($.trim(content) == "" ){
             $('.alert').remove();
-            $("<a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a>").insertAfter($('.msg'));
+            // $("<a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a>").insertAfter($('.msg'));
+            $( ".message_fixed" ).html();
+            $( ".message_fixed" ).append( "<div><a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a></div>" );
             msgsnd.prop('disabled', true);
             return checkForm;
         }
@@ -431,23 +442,49 @@
 
 
 
-    // if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
-    //     $('.se_text_bot').removeClass('se_text_bot_add_bottom');
-    // }
+
+    $(document).ready(function() {
+        if (window.matchMedia('(min-width: 1263px)').matches && window.matchMedia('(min-height:578px)').matches && window.matchMedia('(max-width: 1263px)').matches && window.matchMedia('(max-height:578px)').matches) {
+            $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+        }else if (window.matchMedia('(min-width: 1280px)').matches && window.matchMedia('(min-height:601px)').matches && window.matchMedia('(max-width: 1280px)').matches && window.matchMedia('(max-height:601px)').matches) {
+            $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+        } else {
+            $('.se_text_bot').addClass('se_text_bot_add_bottom');
+            // alert(1);
+        }
+    });
 
     $(window).scroll(function() {
-        if($(window).scrollTop() + $(window).height() > $(document).height() - 50) {
-            // alert("bottom!");
+        if($(window).scrollTop() + $(window).height() > $(document).height()-50) {
+             // alert($(document).height());
             if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
                 $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+                if (window.matchMedia('(min-width: 1263px)').matches && window.matchMedia('(min-height:578px)').matches && window.matchMedia('(max-width: 1263px)').matches && window.matchMedia('(max-height:578px)').matches)
+                    {
+                        $('.se_text_bot').addClass('se_text_bot_add_bottom');
+                        // alert(1);
+                    }else if (window.matchMedia('(min-width: 1280px)').matches && window.matchMedia('(min-height:601px)').matches) {
+                        $('.se_text_bot').addClass('se_text_bot_add_bottom');
+                    }else {
+                        $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+                    }
             }else {
                 $('.se_text_bot').removeClass('se_text_bot_add_bottom');
-                $('.se_text_bot').addClass('se_text_bot_add_bottom');
+                // // $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+                // if (window.matchMedia('(min-width: 1263px)').matches && window.matchMedia('(min-height:578px)').matches && window.matchMedia('(max-width: 1263px)').matches && window.matchMedia('(max-height:578px)').matches)
+                // {
+                //     $('.se_text_bot').addClass('se_text_bot_add_bottom');
+                // }else if (window.matchMedia('(min-width: 1280px)').matches && window.matchMedia('(min-height:601px)').matches) {
+                //     $('.se_text_bot').addClass('se_text_bot_add_bottom');
+                //     alert(1);
+                // }else {
+                //     $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+                // }
             }
         }
-        /*else{
+        else{
             $('.se_text_bot').removeClass('se_text_bot_add_bottom');
-        }*/
+        }
     });
 
     function banned(sid,name){

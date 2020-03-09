@@ -305,7 +305,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('/dashboard/doPosts', 'PagesController@doPosts');/*投稿功能*/
     Route::post('/dashboard/post_views', 'PagesController@post_views');
     Route::post('/dashboard', 'PagesController@profileUpdate');
-    Route::post('/dashboard2', 'PagesController@profileUpdate_ajax');
+    Route::post('/dashboard2', 'PagesController@profileUpdate_ajax')->name('dashboard2');
     Route::post('dashboard/settings', 'PagesController@settingsUpdate');
     Route::get('/dashboard', 'PagesController@dashboard')->name('dashboard');
     Route::get('/dashboard_img', 'PagesController@dashboard_img')->name('dashboard_img');
@@ -315,7 +315,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::get('/dashboard/password', 'PagesController@view_changepassword'); //new route
     Route::post('/dashboard/changepassword', 'PagesController@changePassword'); //new route
     Route::get('/dashboard/vip', 'PagesController@view_vip'); //new route
-    Route::get('/dashboard2', 'PagesController@dashboard2')->name('dashboard2');
+    Route::get('/dashboard2', 'PagesController@dashboard2');
     Route::get('/dashboard/cancel', 'PagesController@showCheckAccount');
     Route::post('/dashboard/chat', 'MessageController@postChat');
     Route::post('/dashboard/chatpay', 'PagesController@postChatpay')->name('chatpay');
