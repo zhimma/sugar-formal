@@ -160,10 +160,12 @@ class ApiDataLogger{
                         return '1|OK';
                     }
                     else{
+                        Log::info("Error: RtnCode didn't set.");
                         return '0|Error';
                     }
                 }
                 else{
+                    Log::info("Error: No data.");
                     return '0|No data';
                 }
             }

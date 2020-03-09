@@ -164,10 +164,12 @@ class TipApiDataLogger{
                         return response('1|OK', 200);
                     }
                     else{
+                        Log::info("Error: RtnCode didn't set.");
                         return response('0|Error', 200);
                     }
                 }
                 else{
+                    Log::info("Error: No data.");
                     return response('0|No data', 200);
                 }
             }
