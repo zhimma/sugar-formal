@@ -85,7 +85,7 @@
                                          <div class="zybg_new_bg">
                                                <div class="zybg_new">
                                                    <select name="" class="zy_select"><option>台灣</option><option>大陸</option></select>
-                                                   <input name="" type="text" id="mobile" class="xy_input" placeholder="請輸入手機號碼">
+                                                   <input name="" type="text" id="mobile" class="xy_input" placeholder="手機號碼">
                                                </div>
                                                <a id="get_auth_code" class="zybg_right" style="cursor:pointer">獲取驗證碼</a>
                                          </div>
