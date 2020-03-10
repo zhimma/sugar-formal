@@ -105,6 +105,7 @@
 				branding: false,
 				menubar: false,
 				autosave_ask_before_unload: true,
+				autosave_restore_when_empty: true,
 				toolbar : "restoredraft | bold underline | link image jbimages | alignleft aligncenter alignright | forecolor | removeformat | pagebreak | code | fontselect | fontsizeselect | undo redo",
 				verify_html : false, 
 		        verify_css_classes : true, 
