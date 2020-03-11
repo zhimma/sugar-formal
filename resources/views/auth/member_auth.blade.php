@@ -104,7 +104,7 @@
                                               <img id="prev_img" src="/auth/images/photo_01.png" style="cursor:pointer;">
 											  <!-- <div class="delBtn" style="display:none;"><img id="del" src="/new/images/gb_icon01.png" style="cursor:pointer;width:30px;height:30px;right:0"></div> -->
                                               <span>請用手機拍攝照片，並於十分鐘內上傳</span>
-											  <input type='file' id="imgInp" />
+											  <!-- <input type='file' id="imgInp" /> -->
                                           </div>
                                           <a id="auth_photo" class="dlbut yx_butco" style="cursor:pointer">驗證</a>
                                       </div>
@@ -309,7 +309,7 @@ $("#auth_phone").on('click', function(){
 
 				$("#photo").addClass('yx_font');
 				$("#auth_photo").removeClass('yx_butco');
-				// $("#photo").append('<input type="file" id="imgInp">');
+				$("#photo").append('<input type="file" id="imgInp">');
 			}else if(res.code=='600'){
 				$(".tab_error_checkcode").css('display', 'block');
 				$(".bl_tab_error_checkcode").css('display','block');

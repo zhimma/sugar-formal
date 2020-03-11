@@ -14,6 +14,8 @@ class AppServiceProvider extends ServiceProvider
      * @return void
      */
     public function boot(Factory $validator) {
+
+        \Debugbar::disable();
         //檢查會員 VIP 是否為綠界，若為綠界，則檢查是否為下一週期前七天內取消，若是，則設定變數
         View::composer('*', function($view) {
             if (\Auth::check()){

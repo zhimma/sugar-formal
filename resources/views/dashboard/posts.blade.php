@@ -22,99 +22,200 @@
 		<script src='/plugins/tinymce/tinymce.js' referrerpolicy="origin"></script>
 		<script>
 			
-                tinymce.init({
-				invalid_elements : "script",
-				selector: '#contents',
-				language: 'zh_TW',
-				plugins: [
-					"autosave",
-					"advlist autolink lists link image charmap print preview anchor",
-					// "searchreplace visualblocks code fullscreen",
-					"insertdatetime media table contextmenu paste jbimages"
-					],
+                // tinymce.init({
+				// invalid_elements : "script",
+				// selector: '#contents',
+				// language: 'zh_TW',
+				// plugins: [
+				// 	"autosave",
+				// 	"advlist autolink lists link image charmap print preview anchor",
+				// 	// "searchreplace visualblocks code fullscreen",
+				// 	"insertdatetime media table contextmenu paste jbimages"
+				// 	],
 					
-				// images_upload_url: '/dashboard/postAcceptor',
-				  automatic_uploads: false,
-				  autosave_ask_before_unload: true,
-				  autosave_prefix: "tinymce-autosave-{path}{query}-{id}-",
-				  autosave_restore_when_empty: false,
-				  file_picker_types: 'file image media',
-				  automatic_uploads: true,
-				  file_picker_types: 'image',
-				//   images_upload_credentials: true,
-				  images_upload_handler: function (blobInfo, success, failure) {
-					var xhr, formData;
+				// // images_upload_url: '/dashboard/postAcceptor',
+				//   automatic_uploads: false,
+				//   autosave_ask_before_unload: true,
+				//   autosave_prefix: "tinymce-autosave-{path}{query}-{id}-",
+				//   autosave_restore_when_empty: false,
+				//   file_picker_types: 'file image media',
+				//   automatic_uploads: true,
+				//   file_picker_types: 'image',
+				// //   images_upload_credentials: true,
+				// file_picker_callback: function(callback, value, meta) {
+				// 	// Provide file and text for the link dialog
+				// 	if (meta.filetype == 'file') {
+				// 	callback('mypage.html', {text: 'My text'});
+				// 	}
 
-					xhr = new XMLHttpRequest();
-					xhr.withCredentials = false;
-					xhr.open('POST', '/dashboard/postAcceptor');
+				// 	// Provide image and alt text for the image dialog
+				// 	if (meta.filetype == 'image') {
+				// 	callback('myimage.jpg', {alt: 'My alt text'});
+				// 	}
 
-					xhr.onload = function() {
-					var json;
+				// 	// Provide alternative source and posted for the media dialog
+				// 	if (meta.filetype == 'media') {
+				// 	callback('movie.mp4', {source2: 'alt.ogg', poster: 'image.jpg'});
+				// 	}
+				// },
+				//   images_upload_handler: function (blobInfo, success, failure) {
+				// 	var xhr, formData;
 
-					if (xhr.status != 200) {
-						failure('HTTP Error: ' + xhr.status);
-						return;
-					}
+				// 	xhr = new XMLHttpRequest();
+				// 	xhr.withCredentials = false;
+				// 	xhr.open('POST', '/dashboard/postAcceptor');
 
-					json = JSON.parse(xhr.responseText);
+				// 	xhr.onload = function() {
+				// 	var json;
 
-					if (!json || typeof json.location != 'string') {
-						failure('Invalid JSON: ' + xhr.responseText);
-						return;
-					}
+				// 	if (xhr.status != 200) {
+				// 		failure('HTTP Error: ' + xhr.status);
+				// 		return;
+				// 	}
 
-					success(json.location);
-					};
+				// 	json = JSON.parse(xhr.responseText);
 
-					formData = new FormData();
-					formData.append('file', blobInfo.blob(), blobInfo.filename());
-					formData.append('_token', $('meta[name="csrf-token"]').attr('content') );
-					xhr.send(formData);
-				},
+				// 	if (!json || typeof json.location != 'string') {
+				// 		failure('Invalid JSON: ' + xhr.responseText);
+				// 		return;
+				// 	}
 
+				// 	success(json.location);
+				// 	};
 
-	// 			  images_upload_handler: function (blobInfo, success, failure) {
-    //        var xhr, formData;
-    //        xhr = new XMLHttpRequest();
-    //        xhr.withCredentials = false;
-    //        xhr.open('POST', '/dashboard/postAcceptor');
-    //        var token = '{{ csrf_token() }}';
-    //        xhr.setRequestHeader("X-CSRF-Token", token);
-    //        xhr.onload = function() {
-    //            var json;
-    //            if (xhr.status != 200) {
-    //                failure('HTTP Error: ' + xhr.status);
-    //                return;
-    //            }
-    //            json = JSON.parse(xhr.responseText);
-
-    //            if (!json || typeof json.location != 'string') {
-    //                failure('Invalid JSON: ' + xhr.responseText);
-    //                return;
-    //            }
-    //            success(json.location);
-    //        };
-    //        formData = new FormData();
-    //        formData.append('file', blobInfo.blob(), blobInfo.filename());
-    //        xhr.send(formData);
-    //    },
-				toolbar: ["save","restoredraft"],
-				autosave_ask_before_unload: true,
-				autosave_interval: "5s",
-				branding: false,
-				menubar: false,
-				autosave_ask_before_unload: true,
-				autosave_restore_when_empty: true,
-				toolbar : "restoredraft | bold underline | link image jbimages | alignleft aligncenter alignright | forecolor | removeformat | pagebreak | code | fontselect | fontsizeselect | undo redo",
-				verify_html : false, 
-		        verify_css_classes : true, 
-		        cleanup : false, 
-		        cleanup_on_startup : false, 
+				// 	formData = new FormData();
+				// 	formData.append('file', blobInfo.blob(), blobInfo.filename());
+				// 	formData.append('_token', $('meta[name="csrf-token"]').attr('content') );
+				// 	xhr.send(formData);
+				// },
+				// setup: (editor) => {
+				// 	editor.ui.registry.addButton('myCustomToolbarButton', {
+				// 	text: '清空',
+				// 	onAction: () => tinyMCE.activeEditor.setContent(''),
+				// 	});
+				// },
+				// toolbar: ["save","restoredraft"],
+				// autosave_ask_before_unload: true,
+				// autosave_interval: "5s",
+				// branding: false,
+				// menubar: false,
+				// autosave_ask_before_unload: true,
+				// autosave_restore_when_empty: true,
+				// toolbar : "restoredraft | myCustomToolbarButton | bold underline | link image jbimages | alignleft aligncenter alignright | forecolor | removeformat | pagebreak | code | fontselect | fontsizeselect | undo redo",
+				// verify_html : false, 
+		        // verify_css_classes : true, 
+		        // cleanup : false, 
+		        // cleanup_on_startup : false, 
 				
-				});
+				// });
 
 			
+tinymce.init({
+	selector: '#contents',
+  
+  
+  image_title: true,
+
+  automatic_uploads: true,
+
+  images_upload_handler: function (blobInfo, success, failure) {
+    var xhr, formData;
+
+    xhr = new XMLHttpRequest();
+    xhr.withCredentials = false;
+    xhr.open('POST', '/dashboard/postAcceptor');
+
+    xhr.onload = function() {
+      var json;
+
+      if (xhr.status != 200) {
+        failure('HTTP Error: ' + xhr.status);
+        return;
+      }
+
+      json = JSON.parse(xhr.responseText);
+
+      if (!json || typeof json.location != 'string') {
+        failure('Invalid JSON: ' + xhr.responseText);
+        return;
+      }
+
+      success('/'+json.location);
+    };
+
+    formData = new FormData();
+    formData.append('file', blobInfo.blob(), blobInfo.filename());
+	formData.append('_token', $('meta[name="csrf-token"]').attr('content') );
+
+    xhr.send(formData);
+  },
+
+
+  file_picker_types: 'image',
+  images_upload_url: '/dashboard/postAcceptor',
+//   file_picker_callback: function (cb, value, meta) {
+//     var input = document.createElement('input');
+//     input.setAttribute('type', 'file');
+//     input.setAttribute('accept', 'image/*');
+
+
+//     input.onchange = function () {
+//       var file = this.files[0];
+
+//       var reader = new FileReader();
+//       reader.onload = function () {
+//         var id = 'blobid' + (new Date()).getTime();
+//         var blobCache =  tinymce.activeEditor.editorUpload.blobCache;
+//         var base64 = reader.result.split(',')[1];
+//         var blobInfo = blobCache.create(id, file, base64);
+//         blobCache.add(blobInfo);
+
+//         cb(blobInfo.blobUri(), { title: file.name });
+//       };
+//       reader.readAsDataURL(file);
+//     };
+
+//     input.click();
+//   },
+  plugins: 'image code',
+  toolbar: "restoredraft | myCustomToolbarButton | bold underline | link image jbimages | alignleft aligncenter alignright | forecolor | removeformat | pagebreak | code | fontselect | fontsizeselect | undo redo",
+//   toolbar: ["save","restoredraft"],
+  invalid_elements : "script",
+language: 'zh_TW',
+images_dataimg_filter: function(img) {
+   return img.hasAttribute('internal-blob');
+  },
+plugins: [
+	"autosave",
+	"advlist autolink lists link image charmap print preview anchor",
+	"insertdatetime media table contextmenu paste jbimages"
+	],
+  autosave_ask_before_unload: true,
+  autosave_interval: "5s",
+  branding: false,
+  menubar: false,
+  autosave_ask_before_unload: true,
+  autosave_restore_when_empty: true,
+  verify_html : false, 
+  verify_css_classes : true, 
+  cleanup : false, 
+  cleanup_on_startup : false, 
+  automatic_uploads: false,
+	autosave_ask_before_unload: true,
+	autosave_prefix: "tinymce-autosave-{path}{query}-{id}-",
+	autosave_restore_when_empty: false,
+	file_picker_types: 'file image media',
+	automatic_uploads: true,
+	file_picker_types: 'image',
+  setup: (editor) => {
+		editor.ui.registry.addButton('myCustomToolbarButton', {
+		text: '清空',
+		onAction: () => tinyMCE.activeEditor.setContent(''),
+		});
+	},
+  
+});
+
 		</script>
 		<style>
 		@media (max-width:320px) {

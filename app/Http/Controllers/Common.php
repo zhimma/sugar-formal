@@ -169,7 +169,7 @@ class Common extends Controller {
         }else{
             // "Image contains headers";
             $exif = exif_read_data($avatar_path);
-            // dd($exif);
+            dd($exif);
             // echo "test2.jpg:<br />\n";
             // $exif_data = array();
             // foreach ($exif as $key => $section) {
@@ -280,10 +280,11 @@ class Common extends Controller {
             //VER.3
             // for($i=0;$i<count($member_pics);$i++){
                 // dump($i);
-                $pic_count = DB::table('member_pic')->where('member_id', $user->id)->count();
-                if($pic_count>=6){
+                $pic_count = DB::table('auth_img')->where('user_id', $user->id)->where('status', 1)->count();
+                if($pic_count>=1){
                     $data = array(
                         'code'=>'400',
+                        'msg' =>'您已經驗證過了'
                     );
                     // break;
                 }
@@ -305,40 +306,40 @@ class Common extends Controller {
                 // dd($status);
                 if($status=='200'){
 
-                    DB::table('member_pic')->insert(
-                        array('member_id' => $user->id, 'pic' => '/Member_pics'.'/'.$user->id.'_'.md5($now), 'isHidden' => 0, 'created_at'=>now(), 'updated_at'=>now())
+                    DB::table('auth_img')->insert(
+                        array('user_id' => $user->id, 'path' => '/Member_pics'.'/'.$user->id.'_'.md5($now), 'status'=>1, 'created_at'=>now(), 'updated_at'=>now())
                     );
 
                     
                 
                     
                 // }
-                    $is_vip = $user->isVip();
+                    // $is_vip = $user->isVip();
 
 
 
-                    if(($pic_count+1)>=4 && $is_vip==0 &&$user->engroup==2){
+                    // if(($pic_count+1)>=4 && $is_vip==0 &&$user->engroup==2){
 
-                        $isVipCount = DB::table('member_vip')->where('member_id',$user->id)->count();
-                        if($isVipCount==0){
-                            DB::table('member_vip')->insert(array('member_id'=>$user->id,'active'=>1, 'free'=>1));
-                        }else{
-                            DB::table('member_vip')->where('member_id',$user->id)->update(['active'=>1, 'free'=>1]);
-                        }
+                    //     $isVipCount = DB::table('member_vip')->where('member_id',$user->id)->count();
+                    //     if($isVipCount==0){
+                    //         DB::table('member_vip')->insert(array('member_id'=>$user->id,'active'=>1, 'free'=>1));
+                    //     }else{
+                    //         DB::table('member_vip')->where('member_id',$user->id)->update(['active'=>1, 'free'=>1]);
+                    //     }
 
 
-                        $data = array(
-                            'code'=>'800'
-                        );
-                    }
-                    /*設第一張照片為大頭貼*/
-                    $avatar = DB::table('member_pic')->where('member_id', $user_id)->orderBy('id', 'asc')->get()->first();
-                    if(is_null($avatar)){
-                        $avatarPic = '';
-                    }else{
-                        $avatarPic = $avatar->pic;
-                    }
-                    DB::table('user_meta')->where('user_id', $user_id)->update(['pic'=>$avatarPic]);
+                    //     $data = array(
+                    //         'code'=>'800'
+                    //     );
+                    // }
+                    // /*設第一張照片為大頭貼*/
+                    // $avatar = DB::table('member_pic')->where('member_id', $user_id)->orderBy('id', 'asc')->get()->first();
+                    // if(is_null($avatar)){
+                    //     $avatarPic = '';
+                    // }else{
+                    //     $avatarPic = $avatar->pic;
+                    // }
+                    // DB::table('user_meta')->where('user_id', $user_id)->update(['pic'=>$avatarPic]);
 
 
 
