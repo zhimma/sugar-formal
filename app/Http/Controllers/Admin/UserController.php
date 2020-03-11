@@ -136,16 +136,9 @@ class UserController extends Controller
             $setVip = 1;
             $tmpsql = Vip::select('expiry')->where('member_id', $request->user_id)->get()->first();
             if(isset($tmpsql)){
-                //提供權限如果有到期時間的 就提供一個月
-                if($tmpsql->expiry != '0000-00-00 00:00:00'){
-                    $user = Vip::select('member_id', 'active')
-                        ->where('member_id', $request->user_id)
-                        ->update(array('active' => $setVip,'expiry' => Carbon::now()->addDays(30)));
-                }else{
-                    $user = Vip::select('member_id', 'active')
-                        ->where('member_id', $request->user_id)
-                        ->update(array('active' => $setVip));
-                }
+                $user = Vip::select('member_id', 'active')
+                    ->where('member_id', $request->user_id)
+                    ->update(array('active' => $setVip));
             }else{
                 //從來都沒VIP資料的
                 $vip_user = new Vip;

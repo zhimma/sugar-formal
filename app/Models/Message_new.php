@@ -254,6 +254,48 @@ class Message_new extends Model
         return $saveMessages;
     }
 
+    public static function newChatArrayAJAX($uid, $messages) {
+        $saveMessages = [];
+        $tempMessages = [];
+        $isAllDelete = true;
+        //$msgShow = User::findById($uid)->meta_()->notifhistory;
+        foreach($messages as $key => $message) {
+            //            if($isVip == 0 && $noVipCount >0 &&$noVipCount >= Config::get('social.limit.show-chat')) {
+            //                break;
+            //            }
+            // end 1 and 2
+            if($message->all_delete_count == 2) {
+                Message::deleteAllMessagesFromDB($message->to_id, $message->from_id);
+            }
+            if($message->all_delete_count == 1 && ($message->is_row_delete_1 == $message->to_id || $message->is_row_delete_2 == $message->to_id || $message->is_row_delete_1 == $message->from_id || $message->is_row_delete_2 == $message->from_id)) {
+                Message::deleteAllMessagesFromDB($message->to_id, $message->from_id);
+            }
+
+            // delete row messages
+            if($message->is_row_delete_1 == $uid || $message->is_row_delete_2 == $uid) {
+                unset($messages[$key]);
+                continue;
+            }
+
+            // delete all messages
+            if($uid == $message->temp_id && $message->all_delete_count == 1 && $isAllDelete == true) {
+                unset($messages[$key]);
+                continue;
+            }
+
+            // add messages to array
+            if(!in_array(['to_id' => $message->to_id, 'from_id' => $message->from_id], $tempMessages) && !in_array(['to_id' => $message->from_id, 'from_id' => $message->to_id], $tempMessages)) {
+                array_push($tempMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id]);
+                array_push($saveMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id, 'temp_id' => $message->temp_id,'all_delete_count' => $message->all_delete_count, 'is_row_delete_1' => $message->is_row_delete_1, 'is_row_delete_2' => $message->is_row_delete_2, 'is_single_delete_1' => $message->is_single_delete_1, 'is_single_delete_2' => $message->is_single_delete_2]);
+                //$noVipCount++;
+            }
+        }
+
+        //if($isAllDelete) return NULL;
+
+        return $saveMessages;
+    }
+
     public static function allSenders($uid, $isVip,$date)
     {
         self::$date = \Carbon\Carbon::now()->subDays($date)->toDateTimeString();
@@ -467,11 +509,12 @@ class Message_new extends Model
             }
         }
 
-        if($isVip == 1)
-            $saveMessages = Message::chatArrayAJAX($uid, $messages, 1);
-        else if($isVip == 0) {
-            $saveMessages = Message::chatArrayAJAX($uid, $messages, 0);
-        }
+        $saveMessages = Message_new::newChatArrayAJAX($uid, $messages);
+//        if($isVip == 1)
+//            $saveMessages = Message_new::newChatArrayAJAX($uid, $messages, 1);
+//        else if($isVip == 0) {
+//            $saveMessages = Message_new::newChatArrayAJAX($uid, $messages, 0);
+//        }
 
         //echo json_encode($saveMessages);
         if(count($saveMessages) == 0){
@@ -504,7 +547,7 @@ class Message_new extends Model
                 unset($messages[$key]);
                 continue;
             }
-            if($userBlockList->contains('member_id', $from_id) || $userBlockList->contains('member_id', $to_id)){
+            if($userBlockList->contains('blocked_id', $from_id) || $userBlockList->contains('blocked_id', $to_id)){
                 unset($messages[$key]);
                 continue;
             }
@@ -550,12 +593,15 @@ class Message_new extends Model
                 $messages[$key]['user_name'] = $msgUser->name;
                 $messages[$key]['isAvatarHidden'] = $msgUser->meta_()->isAvatarHidden;
                 $messages[$key]['pic'] = $msgUser->meta_()->pic;
-                if($messages[$key]['pic']==null||!file_exists('.'.$messages[$key]['pic'])){
+                if(!file_exists( public_path().$msgUser->meta_()->pic )){
                     $messages[$key]['pic'] = '/img/male-avatar.png';
                 }
                 $messages[$key]['content'] = $latestMessage == null ? '' : $latestMessage->content;
 
+                // todo: $messages[$key]['read_n']= isset($mm[$messages[$key]['from_id']]) ? $mm[$messages[$key]['from_id']]: 0; 較佳？
                 $messages[$key]['read_n']=(!empty($mm[$messages[$key]['from_id']] && $messages[$key]['from_id']==$msgUser->id))?$mm[$messages[$key]['from_id']]:0;
+//                $messages[$key]['read_n']= isset($mm[$messages[$key]['from_id']]) ? $mm[$messages[$key]['from_id']]: 0;
+                $messages[$key]['isVip']=$msgUser->isVip();
             }
             else{
                 Log::info('Null object found, $user: ' . $user->id);
@@ -568,6 +614,7 @@ class Message_new extends Model
             }
         }
         //$messages['date'] = self::$date;
+//        array_multisort($messages[1]['created_at'],SORT_DESC, SORT_STRING);
         return $messages;
     }
 

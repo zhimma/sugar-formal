@@ -19,8 +19,8 @@
                             <span>地區</span>
                             <span>
                                 <span class="twzipcode" id="twzipcode" style="display: inline-flex;">
-                                <span class="select_xx07 left" data-role="county" data-name="county" style=""></span>
-                                <span class="select_xx07 right" data-role="district" data-name="district" style=""></span>
+                                <span class="select_xx07 left" data-role="county" data-name="county" data-value="@if(!empty($_GET['county'])){{$_GET['county'] }}@endif" style=""></span>
+                                <span class="select_xx07 right" data-role="district" data-name="district" data-value="@if(!empty($_GET['district'])){{$_GET['district']}}@endif" style=""></span>
 {{--                                    @if ($user->isVip())--}}
 {{--                                        <span class="twzip"><input class="m-input" type="checkbox" id="pic" name="pic"> 照片</span>--}}
 {{--                                    @endif--}}
@@ -32,15 +32,15 @@
                         <dt>
                             <span>年齡範圍</span>
                             <span style="display: inline-flex;">
-                                <input class="select_xx06" name="agefrom" type="number" value="@if(!empty($_GET['agefrom'])){{$_GET['agefrom'] }}@endif">
+                                <input class="select_xx06" name="agefrom" id="agefrom" type="number" value="@if(!empty($_GET['agefrom'])){{$_GET['agefrom'] }}@endif">
                                 <div class="sew6">至</div>
-                                <input class="select_xx06 right" name="ageto" type="number" value="@if(!empty($_GET['ageto'])){{$_GET['ageto'] }}@endif">
+                                <input class="select_xx06 right" name="ageto" id="ageto" type="number" value="@if(!empty($_GET['ageto'])){{$_GET['ageto'] }}@endif">
                             </span>
                         </dt>
                         <dt>
                             <div class="n_se left">
                                 <span>預算</span>
-                                <select name="budget" class="select_xx01">
+                                <select name="budget" id="budget" class="select_xx01">
                                     <option value="">請選擇</option>
                                     <option value="基礎" @if( !empty( $_GET["budget"] ) && $_GET["budget"] == "基礎" ) selected @endif>基礎</option>
                                     <option value="進階" @if( !empty( $_GET["budget"] ) && $_GET["budget"] == "進階" ) selected @endif>進階</option>
@@ -51,7 +51,12 @@
                             </div>
                             <div class="n_se right">
                                 <span>抽菸</span>
-                                <select name="" class="select_xx01"><option>是</option><option>否</option></select>
+                                <select name="smoking" id="smoking" class="select_xx01">
+                                    <option value="">請選擇</option>
+                                    <option value="不抽" @if( !empty( $_GET["smoking"] ) && $_GET["smoking"] == "不抽" ) selected @endif>不抽</option>
+                                    <option value="偶爾抽" @if( !empty( $_GET["smoking"] ) && $_GET["smoking"] == "偶爾抽" ) selected @endif>偶爾抽</option>
+                                    <option value="常抽" @if( !empty( $_GET["smoking"] ) && $_GET["smoking"] == "常抽" ) selected @endif>常抽</option>
+                                </select>
                             </div>
                         </dt>
                         <dt>
@@ -79,7 +84,7 @@
                         <dt class="matopj15">
                             <div class="n_se left">
                                 <span>婚姻</span>
-                                <select name="marriage" class="select_xx01">
+                                <select name="marriage" id="marriage" class="select_xx01">
                                     <option value="">請選擇</option>
                                     <option value="已婚" @if( !empty( $_GET["marriage"] ) && $_GET["marriage"] == "已婚" ) selected @endif>已婚</option>
                                     <option value="分居" @if( !empty( $_GET["marriage"] ) && $_GET["marriage"] == "分居" ) selected @endif>分居</option>
@@ -89,7 +94,7 @@
                             </div>
                             <div class="n_se right">
                                 <span>喝酒</span>
-                                <select name="drinking" class="select_xx01">
+                                <select name="drinking" id="drinking" class="select_xx01">
                                     <option value="">請選擇</option>
                                     <option value="不喝" @if( !empty( $_GET["drinking"] ) && $_GET["drinking"] == "不喝" ) selected @endif>不喝</option>
                                     <option value="偶爾喝" @if( !empty( $_GET["drinking"] ) && $_GET["drinking"] == "偶爾喝" ) selected @endif>偶爾喝</option>
@@ -99,9 +104,9 @@
                         </dt>
                         @endif
                         <dt>
-                            <span>搜索排列顺序</span>
+                            <span>順序</span>
                             <span>
-                                <select name="seqtime" class="select_xx01">
+                                <select name="seqtime" id="seqtime" class="select_xx01">
                                     <option value="1" @if( !empty( $_GET["seqtime"] ) && $_GET["seqtime"] == 1 ) selected @endif>登入時間</option>
                                     <option value="2" @if( !empty( $_GET["seqtime"] ) && $_GET["seqtime"] == 2 ) selected @endif>註冊時間</option>
                                 </select>
@@ -180,7 +185,7 @@
                                             <img src="/new/images/b_02.png">
                                         @endif
 {{---------財力認證尚未實作-------------- <img src="/new/images/b_03.png">--}}
-                                        @if($visitor->isVip())<img src="/new/images/b_04.png">@endif
+                                        @if($visitor->isVip() && $visitor->engroup == 1)<img src="/new/images/b_04.png">@endif
 {{---------警示帳戶尚未實作-------------- <img src="/new/images/b_05.png">--}}
                                     </div>
                                     <a href="/dashboard/viewuser/{{$visitor->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">
@@ -252,6 +257,41 @@
             padding-left: 10px;
         }
     </style>
+    <script>
+        $('.n_zcbut').click(function(){
+
+            $("#agefrom").attr("value","");
+            $("#ageto").attr("value","");
+
+            $("input[type='checkbox']").attr("checked", false);
+
+            @if(!empty($_GET['seqtime']))
+            $("#seqtime option[value='{{$_GET['seqtime']}}']").attr('selected', false);
+            @endif
+            $("#seqtime option[value='']").attr('selected', true);
+
+            @if(!empty($_GET['marriage']))
+            $("#marriage option[value='{{$_GET['marriage']}}']").attr('selected', false);
+            @endif
+            $("#marriage option[value='']").attr('selected', true);
+
+            @if(!empty($_GET['smoking']))
+                $("#smoking option[value='{{$_GET['smoking']}}']").attr('selected', false);
+            @endif
+            $("#smoking option[value='']").attr('selected', true);
+
+            @if(!empty($_GET['drinking']))
+                $("#drinking option[value='{{$_GET['drinking']}}']").attr('selected', false);
+            @endif
+            $("#drinking option[value='']").attr('selected', true);
+
+            @if(!empty($_GET['budget']))
+                $("#budget option[value='{{$_GET['budget']}}']").attr('selected', false);
+            @endif
+            $("#budget option[value='']").attr('selected', true);
+
+        });
+    </script>
     <script src="/js/jquery.twzipcode.min.js" type="text/javascript"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/cropperjs/1.0.0/cropper.min.js"></script>
     <script>
@@ -264,6 +304,8 @@
     }
     });
     $('input[name="zipcode"]').remove();
+
+
     });
     </script>
 @stop

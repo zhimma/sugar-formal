@@ -117,7 +117,7 @@
                                 @else
 
                                     <li>
-                                        <img src="/new/images/icon_08.png" class="tubiao_i"><span>封鎖</span>
+                                        <img src="/new/images/icon_12.png" class="tubiao_i"><span>封鎖</span>
                                         <span><img src="/new/images/icon_36.png" class="tap-vip"></span>
                                     </li>
                                 @endif
@@ -126,7 +126,8 @@
                         <div class="bottub">
                             <ul>
                                 <? $data = \App\Services\UserService::checkRecommendedUser($to);
-                                echo $data['description'];?>
+                                //echo $data['description'];
+                                ?>
                                 @if(isset($data['description']) && $to->engroup == 2)
                                 <li><img src="/new/images/icon_19.png"><span>新進甜心</span></li>
                                 @endif
@@ -249,14 +250,16 @@
                                     @if(!empty($to->meta_()->style))
                                     <dt>
                                         <span>期待的約會模式</span>
-                                        <span><div class="select_xx03" >{!! nl2br($to->meta_()->style) !!}</div></span>
+                                        <span>
+                                            <div class="select_xx03" >{!! nl2br($to->meta_()->style) !!}</div>
+                                        </span>
                                     </dt>
                                     @endif
 
                                     @if(!empty($to->meta_()->domainType) && $to->meta_()->domainType != null && $to->meta_()->domainType != 'null')
                                     <dt>
                                         <span>產業</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->domainType}}" disabled="disabled"></span>
+                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->domainType}}  @if(!empty($to->meta_()->domain) && $to->meta_()->domain != null && $to->meta_()->domain != 'null'){{$to->meta_()->domain}}@endif" disabled="disabled"></span>
                                     </dt>
                                     @endif
 
@@ -402,6 +405,9 @@
         $('.gg_tab').hide();
         $('.n_right').hide();
         c4('此用戶已關閉資料');
+        $('.n_bbutton span').css('width','100%');
+        $('.n_bbutton').css('width','10%');
+        $('.n_left').css('margin-right','0px');
         $(".n_left").on('click', function() {
             $('#tab04').hide();
             if (document.referrer != "") {
@@ -568,11 +574,11 @@
             sid: '{{$to->id}}',
             _token: '{{ csrf_token() }}'
         }, function (data) {
-            if(data.save=='ok') {
+            // if(data.save=='ok') {
                 $("#tab_block").hide();
-                $(".blbg").hide();
-                c2('封鎖成功');
-            }
+                // $(".blbg").hide();
+                show_message('封鎖成功');
+            // }
         });
     });
 

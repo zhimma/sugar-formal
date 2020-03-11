@@ -189,7 +189,7 @@ class UserMeta extends Model
         // dd($cup);
         if (isset($cup)&&$cup!=''){
             if(count($cup) > 0){
-                $query = $query->whereIn('cup', $cup);
+                $query = $query->whereIn('cup', $cup)->where('isHideCup',0);
             }
         }
         if (isset($marriage) && strlen($marriage) != 0) $query = $query->where('marriage', $marriage);
