@@ -8,19 +8,20 @@ use App\Models\SimpleTables\banned_users;
 class UserRepository
 {
     /**
-     * @var model
+     * @var model user
+     * @var model banned_users
      */
-    protected static $user;
-    protected static $banned_users;
+    protected  $user;
+    protected  $banned_users;
 
     /**
-     * @param models User
-     * @param models banned_users
+     * @param model User
+     * @param model banned_users
      */
     public function __construct(User $user, banned_users $banned_users)
     {
-        self::$user = $user;
-        self::$banned_users = $banned_users;
+        $this->user = $user;
+        $this->banned_users = $banned_users;
     }
 
    	/** 
@@ -30,7 +31,7 @@ class UserRepository
      */
     public static function all()
     {
-        return self::$user->get()->toArray();
+        return $this->user->get()->toArray();
     }
 
     /**
@@ -41,7 +42,7 @@ class UserRepository
      */
     public static function findById($ids)
     {
-        return self::$user->where('id', $isd)->first()->toArray();
+        return $this->user->where('id', $isd)->first()->toArray();
     }
 }
 ?>
