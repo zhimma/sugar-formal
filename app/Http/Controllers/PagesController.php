@@ -2269,7 +2269,7 @@ class PagesController extends Controller
         $is_anonymous = $request->get('is_anonymous');
         $agreement = $request->get('agreement','no');
         $posts->title      = $request->get('title');
-        $posts->contents   = $request->get('contents');
+        $posts->contents   = str_replace('..','',$request->get('contents'));
         $user=$request->user();
         $posts->user_id = $user->id;
 
@@ -2351,9 +2351,9 @@ class PagesController extends Controller
             // Respond to the successful upload with JSON.
             // Use a location key to specify the path to the saved image resource.
             // { location : '/your/uploaded/image/file'}
-
+// dd($filetowrite);
             echo json_encode(array('location' => $filetowrite));
-      
+            
         } else {
             // Notify editor that the upload failed
             @header("HTTP/1.1 500 Server Error");

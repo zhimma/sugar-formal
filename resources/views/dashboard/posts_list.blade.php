@@ -38,6 +38,8 @@
 		  color:#e44e71;
 		}
 
+		
+
 
 </style>
 @extends('new.layouts.website')

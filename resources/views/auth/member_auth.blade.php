@@ -19,9 +19,7 @@
 		<script src="/auth/js/bootstrap.min.js"></script>
 		<script src="/auth/js/main.js" type="text/javascript"></script>
 		<style>
-			#photo>input {
-				display:none;
-			}
+			
 			.upload_width{
 				width:80% !important;
 			}
@@ -31,6 +29,7 @@
 				right:10%;
 
 			}
+
 		</style>
 		<style>
 			@media (min-width:993px){
@@ -103,10 +102,14 @@
 										  	  
                                               <img id="prev_img" src="/auth/images/photo_01.png" style="cursor:pointer;">
 											  <!-- <div class="delBtn" style="display:none;"><img id="del" src="/new/images/gb_icon01.png" style="cursor:pointer;width:30px;height:30px;right:0"></div> -->
-                                              <span>請用手機拍攝照片，並於十分鐘內上傳</span>
-											  <!-- <input type='file' id="imgInp" /> -->
+											  <span>請用手機拍攝照片，並於十分鐘內上傳</span>
+											  <!-- <div classs="mask"> -->
+											  	<input type='hidden' id="imgInp"/>
+											  <!-- </div> -->
                                           </div>
                                           <a id="auth_photo" class="dlbut yx_butco" style="cursor:pointer">驗證</a>
+                                          <br>
+										  <a onclick="history.go(-1)" id="auth_photo" class="dlbut yx_butco" style="cursor:pointer;background-color:#fe92a8">取消</a>
                                       </div>
 									  </form>
 										<!-- <form runat="server">
@@ -180,7 +183,7 @@
     </div>
     <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
 </div>
-	
+
 
 
 <div class="blbg tab_auth_success" onclick="gmBtn1()" style="display: none;"></div>
@@ -189,6 +192,16 @@
     <div class="n_blnr02 matop10">
          <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
          <div class="n_fengs" style="text-align:center;width:100%;">驗證成功，3秒後將導回個人資料頁面</div>
+    </div>
+    <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
+</div>
+
+<div class="blbg tab_auth_already" onclick="gmBtn1()" style="display: none;"></div>
+<div class="bl bl_tab bl_tab_auth_already" id="tab04" style="display: none;">
+    <div class="bltitle_a"><span>提示</span></div>
+    <div class="n_blnr02 matop10">
+         <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
+         <div class="n_fengs" style="text-align:center;width:100%;">驗證失敗，您已經驗證過了</div>
     </div>
     <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
 </div>
@@ -309,7 +322,8 @@ $("#auth_phone").on('click', function(){
 
 				$("#photo").addClass('yx_font');
 				$("#auth_photo").removeClass('yx_butco');
-				$("#photo").append('<input type="file" id="imgInp">');
+				// $("#photo").append('<input type="file" id="imgInp">');
+				$("#photo").find('input').attr('type','file').css('display','none');
 			}else if(res.code=='600'){
 				$(".tab_error_checkcode").css('display', 'block');
 				$(".bl_tab_error_checkcode").css('display','block');
@@ -349,7 +363,11 @@ console.log($('#imgInp'));
 			// 	$("#auth_photo").removeClass('yx_butco');
 				$(".tab_auth_success").css('display', 'block');
 				$(".bl_tab_auth_success").css('display','block');
-				window.location.href="/dashboard";
+				setTimeout("window.location.href='/dashboard';",3000);
+				
+			}else if(res.code=='201'){
+				$(".tab_auth_already").css('display', 'block');
+				$(".bl_tab_auth_already").css('display','block');
 			}else if(res.code=='400'){
 				$(".tab_auth_fail_10").css('display', 'block');
 				$(".bl_tab_auth_fail_10").css('display','block');

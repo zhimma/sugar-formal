@@ -139,8 +139,8 @@ tinymce.init({
         failure('Invalid JSON: ' + xhr.responseText);
         return;
       }
-
-      success('/'+json.location);
+	  json.location = '/'+json.location;
+      success(json.location);
     };
 
     formData = new FormData();
