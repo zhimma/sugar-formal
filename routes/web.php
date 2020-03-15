@@ -498,7 +498,15 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('announcement/new', 'UserController@showNewAdminAnnouncement')->name('admin/announcement/new');
         Route::post('announcement/new', 'UserController@newAdminAnnouncement')->name('admin/announcement/new');
         Route::get('announcement/read/{id}', 'UserController@showReadAnnouncementUser')->name('admin/announcement/read');
-        Route::get('masterwords', 'UserController@masterwords')->name('admin/masterwords');
+
+        Route::get('masterwords', 'UserController@showMasterwords')->name('admin/masterwords');
+        Route::get('masterwords/edit/{id}', 'UserController@showAdminMasterWordsEdit')->name('admin/masterwords/edit');
+        Route::post('masterwords/save', 'UserController@saveAdminMasterWords')->name('admin/masterwords/save');
+        Route::get('masterwords/delete/{id?}', 'UserController@deleteAdminMasterWords')->name('admin/masterwords/delete');
+        Route::get('masterwords/new', 'UserController@showNewAdminMasterWords')->name('admin/masterwords/new');
+        Route::post('masterwords/new', 'UserController@newAdminMasterWords')->name('admin/masterwords/new');
+        Route::get('masterwords/read/{id}', 'UserController@showReadMasterWords')->name('admin/masterwords/read');
+
         Route::get('web/announcement', 'UserController@showWebAnnouncement')->name('admin/web/announcement');
         Route::get('/chat', 'MessageController@chatview')->name('admin/chat');
         Route::get('/chat/{cid}', 'PagesController@chat');
