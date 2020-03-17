@@ -1710,4 +1710,42 @@ class UserController extends Controller
         ->update(array('timeSet' => $timeSet,'countSet' => $countSet));
         return redirect()->route('users/basic_setting');
     }
+
+    public function showImplicitlyBannedUsers(){
+        $result = \DB::table('banned_users_implicitly')
+            ->select('users.email', 'users.last_login', 'users.name', 'banned_users_implicitly.*')
+            ->join('users', 'users.id', '=', 'banned_users_implicitly.user_id')
+            ->orderBy('created_at', 'desc')->paginate(20);
+        foreach ($result as &$r){
+            $r->count = Message::where('from_id', $r->user_id)->where('created_at', '>=', \Carbon\Carbon::now()->subDays(3))->count();
+        }
+
+        foreach ($result as &$r){
+            $users = explode(", ", $r->target);
+            foreach ($users as &$u){
+                $u = User::findById($u);
+            }
+            $r->target = $users;
+        }
+        return view('admin.users.bannedListImplicitly')->with('users', $result);
+    }
+
+    public function showWarningUsers(){
+        $result = \DB::table('warning_users')
+            ->select('users.email', 'users.last_login', 'users.name', 'warning_users.*')
+            ->join('users', 'users.id', '=', 'warning_users.user_id')
+            ->orderBy('created_at', 'desc')->paginate(20);
+        foreach ($result as &$r){
+            $r->count = Message::where('from_id', $r->user_id)->where('created_at', '>=', \Carbon\Carbon::now()->subDays(3))->count();
+        }
+
+        foreach ($result as &$r){
+            $users = explode(", ", $r->target);
+            foreach ($users as &$u){
+                $u = User::findById($u);
+            }
+            $r->target = $users;
+        }
+        return view('admin.users.warningList')->with('users', $result);
+    }
 }

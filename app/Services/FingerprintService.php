@@ -59,12 +59,15 @@ class FingerprintService{
             }
         }
         if(count($final_result) > 0){
-            $ids = array_map(function ($array) { return $array->user_id; }, $final_result);
-            \DB::table('warning_users')->insert(
-                ['user_id' => $userId,
-                'target' => implode(", ", $ids),
-                'created_at' => \Carbon\Carbon::now()]
-            );
+            $exist = \DB::table('warning_users')->where('user_id', $userId)->first();
+            if(!$exist){
+                $ids = array_map(function ($array) { return $array->user_id; }, $final_result);
+                \DB::table('warning_users')->insert(
+                    ['user_id' => $userId,
+                        'target' => implode(", ", $ids),
+                        'created_at' => \Carbon\Carbon::now()]
+                );
+            }
         }
     }
 }

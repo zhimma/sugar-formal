@@ -709,4 +709,11 @@ class UserService
         $user = $this->find($userId);
         $user->roles()->detach();
     }
+
+    public static function getBannedId(){
+        $banned = \App\Models\SimpleTables\banned_users::select('member_id AS user_id')->get();
+        $implicitlyBanned = \App\Models\BannedUsersImplicitly::select('user_id')->get();
+
+        return $implicitlyBanned->toBase()->merge($banned);
+    }
 }

@@ -5,7 +5,6 @@ namespace App\Models;
 use Auth;
 use App\Models\User;
 use App\Models\Blocked;
-use App\Models\SimpleTables\banned_users;
 use Illuminate\Database\Eloquent\Model;
 use App\Notifications\MessageEmail;
 use Illuminate\Support\Facades\Config;
@@ -165,7 +164,7 @@ class Message extends Model
         $isAllDelete = true;
         //$msgShow = User::findById($uid)->meta_()->notifhistory;
         $user = \Auth::user();
-        $banned_users = \App\Models\SimpleTables\banned_users::select('member_id')->get();
+        $banned_users = \App\Services\UserService::getBannedId();
         foreach($messages as $key => &$message) {
             if($banned_users->contains('member_id', $message->to_id)){
                 unset($messages[$key]);
@@ -444,7 +443,7 @@ class Message extends Model
     public static function allSendersAJAX($uid, $isVip)
     {
         $userBlockList = Blocked::select('blocked_id')->where('member_id', $uid)->get();
-        $banned_users = banned_users::select('member_id')->get();
+        $banned_users = \App\Services\UserService::getBannedId();
         $messages = Message::where([['to_id', $uid], ['from_id', '!=', $uid]])->orWhere([['from_id', $uid], ['to_id', '!=',$uid]])->orderBy('created_at', 'desc');
         $messages->whereNotIn('to_id', $userBlockList);
         $messages->whereNotIn('from_id', $userBlockList);
@@ -475,7 +474,7 @@ class Message extends Model
         $user = Auth::user();
         $block_people =  Config::get('social.block.block-people');
         $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
-        $banned_users = banned_users::select('member_id')->get();
+        $banned_users = \App\Services\UserService::getBannedId();
         $isVip = $user->isVip();
         foreach ($messages as $key => &$message){
             $to_id = isset($message["to_id"]) ? $message["to_id"] : null;
@@ -595,7 +594,7 @@ class Message extends Model
         //
         $user = User::findById($uid);
         $block = Blocked::getAllBlockedId($uid);
-        $banned_users = banned_users::select('member_id')->get();
+        $banned_users = \App\Services\UserService::getBannedId();
 
         $query = Message::where(function($query)use($uid)
         {
