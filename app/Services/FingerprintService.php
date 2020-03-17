@@ -33,38 +33,40 @@ class FingerprintService{
         if(isset($fingerprint['user_id'])){ unset($fingerprint['user_id']); }
         if(isset($fingerprint['email'])){ unset($fingerprint['email']); }
         if(isset($fingerprint['password'])){ unset($fingerprint['password']); }
-        $result = Fingerprint2::where($fingerprint)->get();
-        $final_result = array();
+        $result = Fingerprint2::join('banned_users', 'banned_users.member_id', '=', 'fingerprint2.user_id')
+            ->where($fingerprint)->get()->first();
+        /*$final_result = array();
         foreach($result as $r){
             if($r->user_id != $userId){
                 array_push($final_result, $r);
             }
-        }
-        if(count($final_result) > 0){
-            $ids = array_map(function ($array) { return $array->user_id; }, $final_result);
+        }*/
+        if(count($result) > 0){
+            // $ids = array_map(function ($array) { return $array->user_id; }, $final_result);
             \DB::table('banned_users_implicitly')->insert(
-                ['user_id' => $userId,
-                 'target' => implode(", ", $ids),
+                ['user_id' => $result->user_id,
+                 'target' => $userId,
                 'created_at' => \Carbon\Carbon::now()]
             );
         }
     }
 
     public function judgeUserFingerprintCanvasOnly($userId, $fingerprint){
-        $result = Fingerprint2::where('canvas', $fingerprint['canvas'])->get();
-        $final_result = array();
+        $result = Fingerprint2::join('banned_users', 'banned_users.member_id', '=', 'fingerprint2.user_id')
+            ->where('canvas', $fingerprint['canvas'])->get()->first();
+        /*$final_result = array();
         foreach($result as $r){
             if($r->user_id != $userId){
                 array_push($final_result, $r);
             }
-        }
-        if(count($final_result) > 0){
+        }*/
+        if(count($result) > 0){
             $exist = \DB::table('warning_users')->where('user_id', $userId)->first();
             if(!$exist){
-                $ids = array_map(function ($array) { return $array->user_id; }, $final_result);
+                // $ids = array_map(function ($array) { return $array->user_id; }, $final_result);
                 \DB::table('warning_users')->insert(
-                    ['user_id' => $userId,
-                        'target' => implode(", ", $ids),
+                    ['user_id' => $result->user_id,
+                        'target' => $userId,
                         'created_at' => \Carbon\Carbon::now()]
                 );
             }
