@@ -14,4 +14,6 @@ CREATE TABLE `warning_users` (
 
 ALTER TABLE `fingerprint2` 
 CHANGE COLUMN `canvas` `canvas` TEXT(50000) NOT NULL COMMENT 'canvas',
-CHANGE COLUMN `webgl` `webgl` TEXT(20000) NOT NULL COMMENT 'webgl' ;
+CHANGE COLUMN `webgl` `webgl` TEXT(20000) NOT NULL COMMENT 'webgl', 
+CHANGE COLUMN `userAgent` `userAgent` VARCHAR(200) NULL DEFAULT NULL COMMENT '使用者代理' ;
+

@@ -29,7 +29,6 @@ class FingerprintService{
         if(isset($fingerprint['ip'])){ unset($fingerprint['ip']); }
         if(isset($fingerprint['fp'])){ unset($fingerprint['fp']); }
         if(isset($fingerprint['pixelRatio'])){ unset($fingerprint['pixelRatio']); }
-        if(isset($fingerprint['userAgent'])){ unset($fingerprint['userAgent']); }
         if(isset($fingerprint['_token'])){ unset($fingerprint['_token']); }
         if(isset($fingerprint['user_id'])){ unset($fingerprint['user_id']); }
         if(isset($fingerprint['email'])){ unset($fingerprint['email']); }
