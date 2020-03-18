@@ -10,8 +10,8 @@
     共 {{ $users->total() }} 筆資料
     <table class='table table-bordered table-hover'>
         <tr>
-            <td>會員ID</td>
-            <td>Email(暱稱)</td>
+            <td>永久封鎖會員 ID</td>
+            <td>永久封鎖會員 Email(暱稱)</td>
             <td>最新上站時間</td>
             <td>近三天發文數</td>
             <td>比對目標</td>
@@ -24,16 +24,11 @@
                 <td>{{ $user->last_login }}</td>
                 <td>{{ $user->count }}</td>
                 <td>
-                    @foreach($user->target as $t)
-                        @if(isset($t))
-                            <a href="advInfo/{{ $t->id }}" target="_blank">{{ $t->name }}</a>
-                        @else
-                            {{ logger('Empty data found in warningList, user id: ' . $user->user_id) }}
-                        @endif
-                        @if(!$loop->last)
-                            ,
-                        @endif
-                    @endforeach
+                    @if(isset($user->target))
+                        <a href="advInfo/{{ $user->target->id }}" target="_blank">{{ $user->target->name }}</a>
+                    @else
+                        {{ logger('Empty data found in warningList, user id: ' . $user->user_id) }}
+                    @endif
                 </td>
                 <td>{{ $user->created_at }}</td>
             </tr>

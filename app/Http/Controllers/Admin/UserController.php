@@ -1711,10 +1711,10 @@ class UserController extends Controller
         return redirect()->route('users/basic_setting');
     }
 
-    public function showImplicitlyBannedUsers(){
-        $result = \DB::table('banned_users_implicitly')
-            ->select('users.email', 'users.last_login', 'users.name', 'banned_users_implicitly.*')
-            ->join('users', 'users.id', '=', 'banned_users_implicitly.user_id')
+    public function showSuspectedMultiLogin(){
+        $result = \DB::table('suspected_multi_login')
+            ->select('users.email', 'users.last_login', 'users.name', 'suspected_multi_login.*')
+            ->join('users', 'users.id', '=', 'suspected_multi_login.user_id')
             ->orderBy('created_at', 'desc')->paginate(20);
         foreach ($result as &$r){
             $r->count = Message::where('from_id', $r->user_id)->where('created_at', '>=', \Carbon\Carbon::now()->subDays(3))->count();
@@ -1726,6 +1726,21 @@ class UserController extends Controller
                 $u = User::findById($u);
             }
             $r->target = $users;
+        }
+        return view('admin.users.suspectedMultiLoginList')->with('users', $result);
+    }
+
+    public function showImplicitlyBannedUsers(){
+        $result = \DB::table('banned_users_implicitly')
+            ->select('users.email', 'users.last_login', 'users.name', 'banned_users_implicitly.*')
+            ->join('users', 'users.id', '=', 'banned_users_implicitly.user_id')
+            ->orderBy('created_at', 'desc')->paginate(20);
+        foreach ($result as &$r){
+            $r->count = Message::where('from_id', $r->user_id)->where('created_at', '>=', \Carbon\Carbon::now()->subDays(3))->count();
+        }
+
+        foreach ($result as &$r){
+            $r->target = User::findById($r->target);
         }
         return view('admin.users.bannedListImplicitly')->with('users', $result);
     }
@@ -1740,11 +1755,7 @@ class UserController extends Controller
         }
 
         foreach ($result as &$r){
-            $users = explode(", ", $r->target);
-            foreach ($users as &$u){
-                $u = User::findById($u);
-            }
-            $r->target = $users;
+            $r->target = User::findById($r->target);
         }
         return view('admin.users.warningList')->with('users', $result);
     }
