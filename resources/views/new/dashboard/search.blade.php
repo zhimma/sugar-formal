@@ -11,7 +11,7 @@
                     <font>search</font>
                 </div>
 
-                <form action="{!! url('dashboard/search') !!}" method="post">
+                <form action="{!! url('dashboard/search') !!}" method="GET">
                     <input type="hidden" name="_token" value="{{csrf_token()}}" >
                     <div class="n_search">
                         <div class="n_input">
@@ -19,8 +19,8 @@
                                 <span>地區</span>
                                 <span>
                                 <span class="twzipcode" id="twzipcode" style="display: inline-flex;">
-                                <span class="select_xx07 left" data-role="county" data-name="county" data-value="@if(!empty($_POST['county'])){{$_POST['county'] }}@endif" style=""></span>
-                                <span class="select_xx07 right" data-role="district" data-name="district" data-value="@if(!empty($_POST['district'])){{$_POST['district']}}@endif" style=""></span>
+                                <span class="select_xx07 left" data-role="county" data-name="county" data-value="@if(!empty($_GET['county'])){{$_GET['county'] }}@endif" style=""></span>
+                                <span class="select_xx07 right" data-role="district" data-name="district" data-value="@if(!empty($_GET['district'])){{$_GET['district']}}@endif" style=""></span>
 {{--                                    @if ($user->isVip())--}}
                                     {{--                                        <span class="twzip"><input class="m-input" type="checkbox" id="pic" name="pic"> 照片</span>--}}
                                     {{--                                    @endif--}}
@@ -32,9 +32,9 @@
                             <dt>
                                 <span>年齡範圍</span>
                                 <span style="display: inline-flex;">
-                                <input class="select_xx06" name="agefrom" id="agefrom" type="number" value="@if(!empty($_POST['agefrom'])){{$_POST['agefrom'] }}@endif">
+                                <input class="select_xx06" name="agefrom" id="agefrom" type="number" value="@if(!empty($_GET['agefrom'])){{$_GET['agefrom'] }}@endif">
                                 <div class="sew6">至</div>
-                                <input class="select_xx06 right" name="ageto" id="ageto" type="number" value="@if(!empty($_POST['ageto'])){{$_POST['ageto'] }}@endif">
+                                <input class="select_xx06 right" name="ageto" id="ageto" type="number" value="@if(!empty($_GET['ageto'])){{$_GET['ageto'] }}@endif">
                             </span>
                             </dt>
                             <dt>
@@ -42,42 +42,42 @@
                                     <span>預算</span>
                                     <select name="budget" id="budget" class="select_xx01">
                                         <option value="">請選擇</option>
-                                        <option value="基礎" @if( !empty( $_POST["budget"] ) && $_POST["budget"] == "基礎" ) selected @endif>基礎</option>
-                                        <option value="進階" @if( !empty( $_POST["budget"] ) && $_POST["budget"] == "進階" ) selected @endif>進階</option>
-                                        <option value="高級" @if( !empty( $_POST["budget"] ) && $_POST["budget"] == "高級" ) selected @endif>高級</option>
-                                        <option value="最高" @if( !empty( $_POST["budget"] ) && $_POST["budget"] == "最高" ) selected @endif>最高</option>
-                                        <option value="可商議" @if( !empty( $_POST["budget"] ) && $_POST["budget"] == "可商議" ) selected @endif>可商議</option>
+                                        <option value="基礎" @if( !empty( $_GET["budget"] ) && $_GET["budget"] == "基礎" ) selected @endif>基礎</option>
+                                        <option value="進階" @if( !empty( $_GET["budget"] ) && $_GET["budget"] == "進階" ) selected @endif>進階</option>
+                                        <option value="高級" @if( !empty( $_GET["budget"] ) && $_GET["budget"] == "高級" ) selected @endif>高級</option>
+                                        <option value="最高" @if( !empty( $_GET["budget"] ) && $_GET["budget"] == "最高" ) selected @endif>最高</option>
+                                        <option value="可商議" @if( !empty( $_GET["budget"] ) && $_GET["budget"] == "可商議" ) selected @endif>可商議</option>
                                     </select>
                                 </div>
                                 <div class="n_se right">
                                     <span>抽菸</span>
                                     <select name="smoking" id="smoking" class="select_xx01">
                                         <option value="">請選擇</option>
-                                        <option value="不抽" @if( !empty( $_POST["smoking"] ) && $_POST["smoking"] == "不抽" ) selected @endif>不抽</option>
-                                        <option value="偶爾抽" @if( !empty( $_POST["smoking"] ) && $_POST["smoking"] == "偶爾抽" ) selected @endif>偶爾抽</option>
-                                        <option value="常抽" @if( !empty( $_POST["smoking"] ) && $_POST["smoking"] == "常抽" ) selected @endif>常抽</option>
+                                        <option value="不抽" @if( !empty( $_GET["smoking"] ) && $_GET["smoking"] == "不抽" ) selected @endif>不抽</option>
+                                        <option value="偶爾抽" @if( !empty( $_GET["smoking"] ) && $_GET["smoking"] == "偶爾抽" ) selected @endif>偶爾抽</option>
+                                        <option value="常抽" @if( !empty( $_GET["smoking"] ) && $_GET["smoking"] == "常抽" ) selected @endif>常抽</option>
                                     </select>
                                 </div>
                             </dt>
                             <dt>
                                 <span>體型</span>
                                 <span class="line20">
-                                    <label class="n_tx"><input type="checkbox" name="body[0]" value="瘦" id="radio" @if( !empty( $_POST["body"][0] ) && $_POST["body"][0] == "瘦" ) checked @endif><i>瘦</i></label>
-                                    <label class="n_tx"><input type="checkbox" name="body[1]" value="標準" id="radio1" @if( !empty( $_POST["body"][1] ) && $_POST["body"][1] == "標準" ) checked @endif><i>標準</i></label>
-                                    <label class="n_tx"><input type="checkbox" name="body[2]" value="微胖" id="radio2" @if( !empty( $_POST["body"][2] ) && $_POST["body"][2] == "微胖" ) checked @endif><i>微胖</i></label>
-                                    <label class="n_tx"><input type="checkbox" name="body[3]" value="胖" id="radio3" @if( !empty( $_POST["body"][3] ) && $_POST["body"][3] == "胖" ) checked @endif><i>胖</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="body[0]" value="瘦" id="radio" @if( !empty( $_GET["body"][0] ) && $_GET["body"][0] == "瘦" ) checked @endif><i>瘦</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="body[1]" value="標準" id="radio1" @if( !empty( $_GET["body"][1] ) && $_GET["body"][1] == "標準" ) checked @endif><i>標準</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="body[2]" value="微胖" id="radio2" @if( !empty( $_GET["body"][2] ) && $_GET["body"][2] == "微胖" ) checked @endif><i>微胖</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="body[3]" value="胖" id="radio3" @if( !empty( $_GET["body"][3] ) && $_GET["body"][3] == "胖" ) checked @endif><i>胖</i></label>
                             </span>
                             </dt>
                             @if ($user->engroup == 1)
                                 <dt class="matopj15">
                                     <span>CUP</span>
                                     <span class="line20">
-                                <label class="n_tx"><input type="checkbox" name="cup[0]" value="A" id="Check" @if( !empty( $_POST["cup"][0] ) && $_POST["cup"][0] == "A" ) checked @endif><i>A</i></label>
-                                <label class="n_tx"><input type="checkbox" name="cup[1]" value="B" id="Check1" @if( !empty( $_POST["cup"][1] ) && $_POST["cup"][1] == "B" ) checked @endif><i>B</i></label>
-                                <label class="n_tx"><input type="checkbox" name="cup[2]" value="C" id="Check2" @if( !empty( $_POST["cup"][2] ) && $_POST["cup"][2] == "C" ) checked @endif><i>C</i></label>
-                                <label class="n_tx"><input type="checkbox" name="cup[3]" value="D" id="Check3" @if( !empty( $_POST["cup"][3] ) && $_POST["cup"][3] == "D" ) checked @endif><i>D</i></label>
-                                <label class="n_tx"><input type="checkbox" name="cup[4]" value="E" id="Check4" @if( !empty( $_POST["cup"][4] ) && $_POST["cup"][4] == "E" ) checked @endif><i>E</i></label>
-                                <label class="n_tx"><input type="checkbox" name="cup[5]" value="F" id="Check5" @if( !empty( $_POST["cup"][5] ) && $_POST["cup"][5] == "F" ) checked @endif><i>F</i></label>
+                                <label class="n_tx"><input type="checkbox" name="cup[0]" value="A" id="Check" @if( !empty( $_GET["cup"][0] ) && $_GET["cup"][0] == "A" ) checked @endif><i>A</i></label>
+                                <label class="n_tx"><input type="checkbox" name="cup[1]" value="B" id="Check1" @if( !empty( $_GET["cup"][1] ) && $_GET["cup"][1] == "B" ) checked @endif><i>B</i></label>
+                                <label class="n_tx"><input type="checkbox" name="cup[2]" value="C" id="Check2" @if( !empty( $_GET["cup"][2] ) && $_GET["cup"][2] == "C" ) checked @endif><i>C</i></label>
+                                <label class="n_tx"><input type="checkbox" name="cup[3]" value="D" id="Check3" @if( !empty( $_GET["cup"][3] ) && $_GET["cup"][3] == "D" ) checked @endif><i>D</i></label>
+                                <label class="n_tx"><input type="checkbox" name="cup[4]" value="E" id="Check4" @if( !empty( $_GET["cup"][4] ) && $_GET["cup"][4] == "E" ) checked @endif><i>E</i></label>
+                                <label class="n_tx"><input type="checkbox" name="cup[5]" value="F" id="Check5" @if( !empty( $_GET["cup"][5] ) && $_GET["cup"][5] == "F" ) checked @endif><i>F</i></label>
                             </span>
                                 </dt>
                             @else
@@ -86,19 +86,19 @@
                                         <span>婚姻</span>
                                         <select name="marriage" id="marriage" class="select_xx01">
                                             <option value="">請選擇</option>
-                                            <option value="已婚" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "已婚" ) selected @endif>已婚</option>
-                                            <option value="分居" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "分居" ) selected @endif>分居</option>
-                                            <option value="單身" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "單身" ) selected @endif>單身</option>
-                                            <option value="有男友" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "有男友" ) selected @endif>有男友</option>
+                                            <option value="已婚" @if( !empty( $_GET["marriage"] ) && $_GET["marriage"] == "已婚" ) selected @endif>已婚</option>
+                                            <option value="分居" @if( !empty( $_GET["marriage"] ) && $_GET["marriage"] == "分居" ) selected @endif>分居</option>
+                                            <option value="單身" @if( !empty( $_GET["marriage"] ) && $_GET["marriage"] == "單身" ) selected @endif>單身</option>
+                                            <option value="有男友" @if( !empty( $_GET["marriage"] ) && $_GET["marriage"] == "有男友" ) selected @endif>有男友</option>
                                         </select>
                                     </div>
                                     <div class="n_se right">
                                         <span>喝酒</span>
                                         <select name="drinking" id="drinking" class="select_xx01">
                                             <option value="">請選擇</option>
-                                            <option value="不喝" @if( !empty( $_POST["drinking"] ) && $_POST["drinking"] == "不喝" ) selected @endif>不喝</option>
-                                            <option value="偶爾喝" @if( !empty( $_POST["drinking"] ) && $_POST["drinking"] == "偶爾喝" ) selected @endif>偶爾喝</option>
-                                            <option value="常喝" @if( !empty( $_POST["drinking"] ) && $_POST["drinking"] == "常喝" ) selected @endif>常喝</option>
+                                            <option value="不喝" @if( !empty( $_GET["drinking"] ) && $_GET["drinking"] == "不喝" ) selected @endif>不喝</option>
+                                            <option value="偶爾喝" @if( !empty( $_GET["drinking"] ) && $_GET["drinking"] == "偶爾喝" ) selected @endif>偶爾喝</option>
+                                            <option value="常喝" @if( !empty( $_GET["drinking"] ) && $_GET["drinking"] == "常喝" ) selected @endif>常喝</option>
                                         </select>
                                     </div>
                                 </dt>
@@ -107,8 +107,8 @@
                                 <span>順序</span>
                                 <span>
                                 <select name="seqtime" id="seqtime" class="select_xx01">
-                                    <option value="1" @if( !empty( $_POST["seqtime"] ) && $_POST["seqtime"] == 1 ) selected @endif>登入時間</option>
-                                    <option value="2" @if( !empty( $_POST["seqtime"] ) && $_POST["seqtime"] == 2 ) selected @endif>註冊時間</option>
+                                    <option value="1" @if( !empty( $_GET["seqtime"] ) && $_GET["seqtime"] == 1 ) selected @endif>登入時間</option>
+                                    <option value="2" @if( !empty( $_GET["seqtime"] ) && $_GET["seqtime"] == 2 ) selected @endif>註冊時間</option>
                                 </select>
                             </span>
                             </dt>
@@ -142,22 +142,22 @@
                 }
 
                 ?>
-                @if (isset($_POST['_token']))
+                @if (isset($_GET['_token']))
                     <?php
-                    if (isset($_POST['district'])) $district = $_POST['district'];
-                    if (isset($_POST['county'])) $county = $_POST['county'];
-                    if (isset($_POST['cup'])) $cup = $_POST['cup'];
-                    if (isset($_POST['marriage'])) $marriage = $_POST['marriage'];
-                    if (isset($_POST['budget'])) $budget = $_POST['budget'];
-                    if (isset($_POST['income'])) $income = $_POST['income'];
-                    if (isset($_POST['smoking'])) $smoking = $_POST['smoking'];
-                    if (isset($_POST['drinking'])) $drinking = $_POST['drinking'];
-                    if (isset($_POST['pic'])) $photo = $_POST['pic'];
-                    if (isset($_POST['ageto'])) $ageto = $_POST['ageto'];
-                    if (isset($_POST['agefrom'])) $agefrom = $_POST['agefrom'];
-                    if (isset($_POST['seqtime'])) $seqtime = $_POST['seqtime'];
-                    if (isset($_POST['seqtime'])) $seqtime = $_POST['seqtime'];
-                    if (isset($_POST['body'])) $body = $_POST['body'];
+                    if (isset($_GET['district'])) $district = $_GET['district'];
+                    if (isset($_GET['county'])) $county = $_GET['county'];
+                    if (isset($_GET['cup'])) $cup = $_GET['cup'];
+                    if (isset($_GET['marriage'])) $marriage = $_GET['marriage'];
+                    if (isset($_GET['budget'])) $budget = $_GET['budget'];
+                    if (isset($_GET['income'])) $income = $_GET['income'];
+                    if (isset($_GET['smoking'])) $smoking = $_GET['smoking'];
+                    if (isset($_GET['drinking'])) $drinking = $_GET['drinking'];
+                    if (isset($_GET['pic'])) $photo = $_GET['pic'];
+                    if (isset($_GET['ageto'])) $ageto = $_GET['ageto'];
+                    if (isset($_GET['agefrom'])) $agefrom = $_GET['agefrom'];
+                    if (isset($_GET['seqtime'])) $seqtime = $_GET['seqtime'];
+                    if (isset($_GET['seqtime'])) $seqtime = $_GET['seqtime'];
+                    if (isset($_GET['body'])) $body = $_GET['body'];
                     ?>
                 @endif
                 <?php $icc = 1;
@@ -265,28 +265,28 @@
 
             $("input[type='checkbox']").attr("checked", false);
 
-            @if(!empty($_POST['seqtime']))
-            $("#seqtime option[value='{{$_POST['seqtime']}}']").attr('selected', false);
+            @if(!empty($_GET['seqtime']))
+            $("#seqtime option[value='{{$_GET['seqtime']}}']").attr('selected', false);
             @endif
             $("#seqtime option[value='']").attr('selected', true);
 
-            @if(!empty($_POST['marriage']))
-            $("#marriage option[value='{{$_POST['marriage']}}']").attr('selected', false);
+            @if(!empty($_GET['marriage']))
+            $("#marriage option[value='{{$_GET['marriage']}}']").attr('selected', false);
             @endif
             $("#marriage option[value='']").attr('selected', true);
 
-            @if(!empty($_POST['smoking']))
-            $("#smoking option[value='{{$_POST['smoking']}}']").attr('selected', false);
+            @if(!empty($_GET['smoking']))
+            $("#smoking option[value='{{$_GET['smoking']}}']").attr('selected', false);
             @endif
             $("#smoking option[value='']").attr('selected', true);
 
-            @if(!empty($_POST['drinking']))
-            $("#drinking option[value='{{$_POST['drinking']}}']").attr('selected', false);
+            @if(!empty($_GET['drinking']))
+            $("#drinking option[value='{{$_GET['drinking']}}']").attr('selected', false);
             @endif
             $("#drinking option[value='']").attr('selected', true);
 
-            @if(!empty($_POST['budget']))
-            $("#budget option[value='{{$_POST['budget']}}']").attr('selected', false);
+            @if(!empty($_GET['budget']))
+            $("#budget option[value='{{$_GET['budget']}}']").attr('selected', false);
             @endif
             $("#budget option[value='']").attr('selected', true);
 
