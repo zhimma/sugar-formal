@@ -13,7 +13,7 @@
         <span class="m-nav__link-text">車馬費邀請(管道一)</span>
     </button>
 </form>
-<form action=<?php echo Config::get('social.payment.actionURL') ?> class="m-nav__link" method="POST" id="form1">
+<form action="<?php echo Config::get('social.payment.actionURL'); ?>" class="m-nav__link" method="POST" id="form1">
     <input type="hidden" name="_token" value="{{ csrf_token() }}" >
     <input type="hidden" name="userId" value="{{$user->id}}">
     <input type="hidden" name="to" value="@if(isset($to)){{$to->id}}@endif">

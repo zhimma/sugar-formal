@@ -29,9 +29,9 @@ class UserRepository
    	 *
      * @return array users
      */
-    public static function all()
+    public function all()
     {
-        return $this->user->get()->toArray();
+        return $this->user->get();
     }
 
     /**
@@ -40,9 +40,30 @@ class UserRepository
      * @param array ids
      * @return array users
      */
-    public static function findById($ids)
+    public function findById($ids)
     {
-        return $this->user->where('id', $isd)->first()->toArray();
+        return $this->user->where('id', $isd)->first();
+    }
+
+    /**
+    * find all girls
+    *
+    * @return array users
+    **/
+    public function findAllGirls()
+    {
+        return $this->user->where('engroup', '2');
+    }
+
+    /**
+    * find by city
+    *
+    * @param string city 
+    */
+    public function findByCity($city)
+    {
+        $city = str_replace('台', "臺", $city);
+        return $this->user->where('city', $city);
     }
 }
 ?>

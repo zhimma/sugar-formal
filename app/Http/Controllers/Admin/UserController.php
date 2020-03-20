@@ -1692,7 +1692,6 @@ class UserController extends Controller
         );
         echo json_encode($data);
     }
-
     
     public function basicSetting(Request $request){
         $data['basic_setting'] = BasicSetting::get()->first();
@@ -1759,4 +1758,52 @@ class UserController extends Controller
         }
         return view('admin.users.warningList')->with('users', $result);
     }
+
+    public function statisticsReply(Request $request){
+        if($request->isMethod('GET')){
+            return view('admin.users.statisticsReply');
+        }
+        else{
+            $start = $request->date_start;
+            $end = $request->date_end;
+
+            $repliedCount = count($this->service->selectTipMessageReplied($start, $end));
+            $tipMessage = [
+                'replied' => $repliedCount,
+                'totalInvitation' => $repliedCount + count(\App\Models\Tip::selectTipMessage($start, $end))
+            ];
+
+            $TaipeiAndVip = $this->service->averageReceiveMessage(['新北市', '臺北市'], $isVip = true);
+            $TaipeiAndNotVip = $this->service->averageReceiveMessage(['新北市', '臺北市'], $isVip = false);
+            $Vip = $this->service->averageReceiveMessage([], $isVip = true);
+            $NotVip = $this->service->averageReceiveMessage([], $isVip = false);
+
+            $data = [
+                'tipMessage' => $tipMessage,
+                'TaipeiAndVip' => $TaipeiAndVip,
+                'TaipeiAndNotVip' => $TaipeiAndNotVip,
+                'Vip' => $Vip,
+                'NotVip' => $NotVip
+            ];
+
+            $tipMessage = $tipMessage['totalInvitation'] != 0 ? number_format($tipMessage['replied']/$tipMessage['totalInvitation'], 2) : "無資料";
+            $TaipeiAndVip = $TaipeiAndVip['users'] != 0 ? number_format($TaipeiAndVip['messages']/$TaipeiAndVip['users'], 2) : "無資料";
+            $TaipeiAndNotVip = $TaipeiAndNotVip['users'] != 0 ? number_format($TaipeiAndNotVip['messages']/$TaipeiAndNotVip['users'], 2) : "無資料";
+            $Vip = $Vip['users'] != 0 ? number_format($Vip['messages']/$Vip['users'], 2) : "無資料";
+            $NotVip = $NotVip['users'] != 0 ? number_format($NotVip['messages']/$NotVip['users'], 2) : "無資料";
+
+            $percentage = [
+                'tipMessage' => $tipMessage,
+                'TaipeiAndVip' => $TaipeiAndVip,
+                'TaipeiAndNotVip' => $TaipeiAndNotVip,
+                'Vip' => $Vip,
+                'NotVip' => $NotVip,
+            ];
+            
+            return view('admin.users.statisticsReply')
+                ->with('data', $data)
+                ->with('percentage', $percentage);
+        }
+    }
+
 }

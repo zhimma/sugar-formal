@@ -13,6 +13,8 @@ use Exception;
 use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\Role;
+use App\Models\Message;
+use App\Repositories\UserRepository;
 use App\Events\UserRegisteredEmail;
 use App\Notifications\ActivateUserEmail;
 use Illuminate\Support\Facades\Schema;
@@ -181,31 +183,6 @@ class UserService
      */
     public function update($userId, $payload)
     {
-        $setBlockKeys = ['blockcity','blockarea'];
-        $notLikeBlockKeys = ['blockarea' => 'isHideArea'];
-        foreach($setBlockKeys as $setBlockKeys){
-            // dump($setBlockKeys);
-            foreach($payload as $key => $value) {
-                
-                if($key!='blockcity'&&$key!='blockarea'&&preg_match("/$setBlockKeys/i", $key)){
-                    if($key != $setBlockKeys){
-                        if(is_null($payload[$key])){
-                            unset($payload[$key]);
-                        }else{
-                            if(isset($notLikeBlockKeys[$setBlockKeys])){
-                                if(!in_array($key, $notLikeBlockKeys)){
-                                    $payload[$setBlockKeys] = $payload[$setBlockKeys]. ",". $value;
-                                    unset($payload[$key]);
-                                 }
-                            }else{
-                                $payload[$setBlockKeys] = $payload[$setBlockKeys]. ",". $value;
-                                unset($payload[$key]);
-                            }
-                        }
-                    }
-                }
-            }
-        }
         $setKeys = ['city','area'];
         $notLikeKeys = ['area' => 'isHideArea'];
         foreach($setKeys as $setKey){
@@ -229,7 +206,6 @@ class UserService
                 }
             }
         }
-        
         if (isset($payload['meta']) && ! isset($payload['meta']['terms_and_cond'])) {
             throw new Exception("You must agree to the terms and conditions.", 1);
         }
@@ -347,13 +323,15 @@ class UserService
                   $payload['meta']['blockdomainType'] = $payload['blockdomainType'];
                   unset($payload['blockdomainType']);
                   }
-                  if (isset($payload['blockcity']))
+                  if (isset($payload['blockcity'])||empty($payload['blockcity']))
                   {
+                    if(empty($payload['blockcity']))$payload['blockcity']=null;
                     $payload['meta']['blockcity'] = $payload['blockcity'];
                     unset($payload['blockcity']);
                   }
-                  if (isset($payload['blockarea']))
+                  if (isset($payload['blockarea'])||empty($payload['blockarea']))
                   {
+                    if(empty($payload['blockarea']))$payload['blockarea']=null;
                     $payload['meta']['blockarea'] = $payload['blockarea'];
                     unset($payload['blockarea']);
                   }
@@ -535,7 +513,7 @@ class UserService
                     break;
             }
         }
-        elseif ($targetUser->engroup == 2 && $targetUser->isVip() && isset($targetUser->created_at)){
+        elseif ($targetUser->engroup == 2 && $targetUser->isVip()){
             $registration_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $targetUser->created_at);
             $diff_in_months = $registration_date->diffInMonths($now);
             if($diff_in_months == 0){
@@ -709,11 +687,55 @@ class UserService
         $user = $this->find($userId);
         $user->roles()->detach();
     }
+    /**
+     * 有回覆車馬費邀請的訊息
+     *
+     * @param date start
+     * @param date end
+     * @return array result
+     */
 
-    public static function getBannedId(){
-        $banned = \App\Models\SimpleTables\banned_users::select('member_id AS user_id')->get();
-        $implicitlyBanned = \App\Models\BannedUsersImplicitly::select('target AS user_id')->get();
+    public function selectTipMessageReplied($start, $end)
+    {
+        $tipMessages = Tip::selectTipMessage($start, $end);
+        $result = array();
+        foreach($tipMessages as $message)
+        {
+            // from_id 邀請 to_id
+            if($message->to_id != NULL)
+                $isReply = Message::isReplied($message->from_id, $message->to_id, $message->created_at);
+            if($isReply)
+                array_push($result, $message);
+        }
+        return $result;
+    }
 
-        return $implicitlyBanned->toBase()->merge($banned);
+    public function averageReceiveMessage($city = [], $isVip = NULL, $engroup = 2)
+    {
+        $users = User::where('engroup', $engroup);
+
+        if($city != [])
+        {
+            $users = $users->leftjoin('user_meta', 'user_meta.user_id', '=', 'users.id')
+                            ->whereIn('city', $city);
+        }
+
+        $users = $users->get();
+        if($isVip != NULL)
+        {
+            $users = $users->filter(function($item) use ($isVip){
+                    $isVip = $isVip ? 1 : 0;
+                    return $item->isVip() == $isVip;
+                });
+        }
+
+        $users = $users->pluck('id');
+
+        if($users->count() > 0)
+            $messages = Message::whereIn('to_id', $users->all())->get()->count();
+        else
+            $messages = 0;
+
+        return ['users' => $users->count(), 'messages' => $messages];
     }
 }
