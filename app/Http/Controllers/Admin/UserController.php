@@ -1691,8 +1691,7 @@ class UserController extends Controller
             'status'=>'success'
         );
         echo json_encode($data);
-    }
-    
+    }    
     public function basicSetting(Request $request){
         $data['basic_setting'] = BasicSetting::get()->first();
 
