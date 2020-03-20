@@ -466,7 +466,7 @@ class Message_new extends Model
         //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
     }
 
-    public static function allSendersAJAX($uid, $isVip,$d=7,$sid)
+    public static function allSendersAJAX($uid, $isVip,$d=7,$page)
     {
         //  created_at >= '".self::$date."' or  (`from_id`= $admin->id and `to_id` = $uid and `read` = 'N')
         $admin = User::select('id')->where('email', Config::get('social.admin.email'))->get()->first();
@@ -477,14 +477,16 @@ class Message_new extends Model
             $query->where('to_id','=' ,$uid)
                 ->orWhere('from_id','=',$uid);
         });
-        if($d!='all'){
+        //if($d!='all'){
             if($d==7){
                 self::$date =\Carbon\Carbon::now()->startOfWeek()->toDateTimeString();
             }else if($d==30){
                 self::$date =\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString();
+            }else if($d=='all'){
+                self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
             }
             $query->where([['created_at','>=',self::$date]]);
-        }
+        //}
         $query->whereNotIn('to_id', $userBlockList);
         $query->whereNotIn('from_id', $userBlockList);
         $query->whereNotIn('to_id', $banned_users);
@@ -498,7 +500,7 @@ class Message_new extends Model
                         ELSE
                             2
                         END')->orderBy('created_at', 'desc');
-        $messages = $query->get();
+        $messages = $query->offset(0)->limit(100)->get();
         $mm = [];
         foreach ($messages as $key => $v) {
             if(!isset($mm[$v->from_id])){
@@ -602,6 +604,7 @@ class Message_new extends Model
                 $messages[$key]['read_n']=(!empty($mm[$messages[$key]['from_id']] && $messages[$key]['from_id']==$msgUser->id))?$mm[$messages[$key]['from_id']]:0;
 //                $messages[$key]['read_n']= isset($mm[$messages[$key]['from_id']]) ? $mm[$messages[$key]['from_id']]: 0;
                 $messages[$key]['isVip']=$msgUser->isVip();
+//                $messages[$key]['total_counts'] = $messages_count;
             }
             else{
                 Log::info('Null object found, $user: ' . $user->id);
