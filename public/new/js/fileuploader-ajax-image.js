@@ -120,7 +120,7 @@ function fileuploaderAjaxImage($target, opts) {
                     item.html.find(".progress-holder").hide();
                     item.renderThumbnail();
 
-                    item.html.find(".fileuploader-action-popup, .fileuploader-item-image").show();
+                    item.html.find(".fileuploader-item-image").show();
                 }, 400);
             },
             onError: function(item) {
@@ -134,7 +134,8 @@ function fileuploaderAjaxImage($target, opts) {
                     progressBar.find(".fileuploader-progressbar .bar").width(data.percentage + "%");
                 }
 
-                item.html.find(".fileuploader-action-popup, .fileuploader-item-image").hide();
+                //item.html.find(".fileuploader-action-popup, .fileuploader-item-image").hide();
+                item.html.find(".fileuploader-item-image").show();
             },
         },
         sorter: {

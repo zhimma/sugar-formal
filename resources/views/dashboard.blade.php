@@ -1,5 +1,10 @@
 @extends('layouts.master')
 @section('app-content')
+<?php
+if (isset($cur)) $orderNumber = $cur->id;
+else $orderNumber = "";
+$code = Config::get('social.payment.code');
+?>
 <script>
     function vipadditional() {
         $(".vipadd").toggle();
@@ -214,6 +219,129 @@
         box-shadow: inset 0px 0px 4px 0px rgba(41, 83, 41,0.49);
     }
 </style>
+<script>
+    @if(isset($timeSet) && isset($countSet))
+        function doCookieSetup(name, value) {
+            var expires = new Date();
+            //有效時間保存 2 天 2*24*60*60*1000
+            expires.setTime(expires.getTime() + 172800000);
+            document.cookie = name + "=" + escape(value) + ";expires=" + expires.toGMTString()
+        }
+
+        function getCookie(name) {
+            var arg = escape(name) + "=";
+            var nameLen = arg.length;
+            var cookieLen = document.cookie.length;
+            var i = 0;
+            while (i <cookieLen) {
+                var j = i + nameLen;
+                if (document.cookie.substring(i, j) == arg) return getCookieValueByIndex(j);
+                i = document.cookie.indexOf(" ", i) + 1;
+                if (i == 0) break;
+            }
+            return null;
+        }
+
+        function delete_cookie( name ) {
+            document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+        }
+
+        function getCookieValueByIndex(startIndex) {
+            var endIndex = document.cookie.indexOf(";", startIndex);
+            if (endIndex == -1) endIndex = document.cookie.length;
+            return unescape(document.cookie.substring(startIndex, endIndex));
+        }
+
+        function GetDateDiff(startTime, endTime, diffType) {
+            //將xxxx-xx-xx的時間格式，轉換為 xxxx/xx/xx的格式
+            startTime = startTime.replace(/\-/g, "/");
+            endTime = endTime.replace(/\-/g, "/");
+            //將計算間隔類性字元轉換為小寫
+            diffType = diffType.toLowerCase();
+            var sTime = new Date(startTime); //開始時間
+            var eTime = new Date(endTime); //結束時間
+            //作為除數的數字
+            var divNum = 1;
+            switch (diffType) {
+                case "second":
+                    divNum = 1000;
+                    break;
+                case "minute":
+                    divNum = 1000 * 60;
+                    break;
+                case "hour":
+                    divNum = 1000 * 3600;
+                    break;
+                case "day":
+                    divNum = 1000 * 3600 * 24;
+                    break;
+                default:
+                    break;
+            }
+            return parseInt((eTime.getTime() - sTime.getTime()) / parseInt(divNum));
+        }
+
+        function htmlencode(s){
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(s));
+            return div.innerHTML;
+        }
+
+        function htmldecode(s){
+            var div = document.createElement('div');
+            div.innerHTML = s;
+            return div.innerText || div.textContent;
+        }
+
+        /*取得次數*/
+        var count=getCookie('count');
+        if(count==undefined){
+            count=0;
+        }
+
+        /*取得現在時間*/
+        var today=new Date();
+        var now = today.getFullYear()+'/'+(today.getMonth()+1)+'/'+today.getDate()+' '+today.getHours()+':'+today.getMinutes()+':'+today.getSeconds();
+        // console.log(now);
+        // var now       = 20191216215141;
+        /*取得紀錄時間*/
+        var countTime = getCookie('countTime');
+        console.log(countTime);
+        if(countTime==undefined){
+            countTime = now;
+        }
+
+        $(document).ready(function(){
+            var bodyMain = document.getElementById('msg');
+            if(GetDateDiff(countTime, now, "minute")>"{{$timeSet}}"){
+                delete_cookie('count');
+                delete_cookie('countTime');
+            }
+            if(GetDateDiff(countTime, now, "minute")<="{{$timeSet}}"){
+                if(count>"{{(int)$countSet}}"){
+                    console.log(count, "{{$countSet}}");
+                    //禁止複製
+                    bodyMain.oncopy = function(){
+                        return false;
+                    }
+                    //禁止貼上
+                    bodyMain.onpaste = function(){
+                        return false;
+                    }
+
+                }
+                else{
+                    doCookieSetup('countTime',now);
+                    bodyMain.onpaste = function(){
+                        count++;
+                        console.log(count);
+                        doCookieSetup('count',count);
+                    }
+                }
+            }
+        });
+    @endif
+</script>
 <link rel="stylesheet" href="/plugins/slim/css/slim.min.css">
 <div class="m-portlet__head">
     <div class="m-portlet__head-tools">
@@ -300,7 +428,60 @@
                         </button>
                     </form>
                 </li>
-            @endif
+            
+                @if (isset($cur) && $user->isVip() && $user->id != $cur->id)
+                    <li class="nav-item m-tabs__item d-md-none">
+                        <form action="{!! url('dashboard/fav') !!}" class="m-nav__link nav-link m-tabs__link"
+                                method="POST">
+                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="userId" value="{{$user->id}}">
+                            <input type="hidden" name="to" value="{{$cur->id}}">
+                            <button type="submit" style="background: none; border: none; padding: 0">
+                                <span class="m-nav__link-text">收藏</span>
+                            </button>
+                        </form>
+                    </li>
+
+                    <?php $isBlocked = \App\Models\Blocked::isBlocked($user->id, $cur->id);?>
+                    @if(!$isBlocked)
+                        <li class="nav-item m-tabs__item d-md-none">
+                            <form action="{!! url('dashboard/block') !!}" class="m-nav__link nav-link m-tabs__link"
+                                    method="POST">
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="userId" value="{{$user->id}}">
+                                <input type="hidden" name="to" value="{{$cur->id}}">
+                                <button type="submit" style="background: none; border: none; padding: 0">
+                                    <span class="m-nav__link-text">封鎖</span>
+                                </button>
+                            </form>
+                        </li>
+                    @else
+                        <li class="nav-item m-tabs__item d-md-none">
+                            <form action="{!! url('dashboard/unblock') !!}"
+                                    class="m-nav__link nav-link m-tabs__link" method="POST">
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="userId" value="{{$user->id}}">
+                                <input type="hidden" name="to" value="{{$cur->id}}">
+                                <button type="submit" style="background: none; border: none; padding: 0">
+                                    <span class="m-nav__link-text">解除封鎖</span>
+                                </button>
+                            </form>
+                        </li>
+                        @endif
+                    @endif
+
+                    @if ($user->engroup == 1 && isset($cur) && $user->id != $cur->id)
+                        @if(!\App\Models\Tip::isComment($user->id, $cur->id) && $user->isVip() && \App\Models\Tip::isCommentNoEnd($user->id, $cur->id))
+                            <li class="nav-item m-tabs__item d-md-none">
+                                @include('partials.tip-comment')
+                            </li>
+                        @else
+                            <li class="nav-item m-tabs__item d-md-none">
+                                @include('partials.tip-invite')
+                            </li>
+                        @endif
+                    @endif
+                @endif
         </ul>
         @if(isset($cur) && $user->id !== $cur->id && isset($description))
             <img src="{{ $button }}" alt="" height="30px" style="margin: 20px 0 20px 0; float: right; right: 0;" onclick="showDescription()">
@@ -369,7 +550,7 @@
 
                     @if (str_contains(url()->current(), 'dashboard'))
                         <div class="form-group m-form__group row">
-                            <label for="example-text-input" class="col-lg-2 col-md-3 col-form-label">暱稱</label>
+                            <label for="example-text-input" class="col-lg-2 col-md-3 col-form-label">暱稱<span style="color:red">(必填)</span></label>
                             <div class="col-lg-7">
                                 <input class="form-control m-input" name="name" type="text" maxlength="10"
                                        value="{{$user->name}}">
@@ -378,7 +559,7 @@
                     @endif
                     @if (str_contains(url()->current(), 'dashboard'))
                         <div class="form-group m-form__group row">
-                            <label for="title" class="col-lg-2 col-md-3 col-form-label">標題</label>
+                            <label for="title" class="col-lg-2 col-md-3 col-form-label">標題<span style="color:red">(必填)</span></label>
                             <div class="col-lg-7">
                                 <input class="form-control m-input" name="title" type="text" maxlength="20"
                                        value="{{$user->title}}">
@@ -537,7 +718,12 @@
 
 
                                             <div class="form-group m-form__group row">
-                                                <label class="col-form-label col-lg-2 col-sm-12">預算</label>
+                                                @if (str_contains(url()->current(), 'dashboard'))
+                                                    <label class="col-form-label col-lg-2 col-sm-12">預算&nbsp;<span
+                                                                style="color:red">(必填)</span></label>
+                                                @else
+                                                    <label class="col-form-label col-lg-2 col-sm-12">預算</label>
+                                                @endif
                                                 <div class="col-lg-4 col-md-9 col-sm-12">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <select class="form-control m-bootstrap-select m_selectpicker"
@@ -568,7 +754,8 @@
 
                                             <div class="form-group m-form__group row">
                                                 <label class="col-form-label col-lg-2 col-sm-12"> @if(str_contains(url()->current(), 'dashboard'))
-                                                        出生日期 @else 年齡 @endif</label>
+                                                    出生日期&nbsp;<span style="color:red">(必填)</span>@else 年齡 @endif
+                                                </label>
                                                 <div class="col-lg-4 col-md-9 col-sm-12 form-inline">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <select name="year" class="form-control"></select>年
@@ -630,8 +817,12 @@
                                             </div>
 
                                             <div class="form-group m-form__group row">
-                                                <label for="height" class="col-lg-2 col-md-3 col-form-label">身高
-                                                    (cm)</label>
+                                                @if (str_contains(url()->current(), 'dashboard'))
+                                                    <label class="col-form-label col-lg-2 col-sm-12">身高
+                                                        (cm)&nbsp;<span style="color:red">(必填)</span></label>
+                                                @else
+                                                    <label class="col-form-label col-lg-2 col-sm-12">身高 (cm)</label>
+                                                @endif
                                                 <div class="col-lg-7">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <input class="form-control m-input" name="height"
@@ -746,8 +937,12 @@
                                             </div>
 
                                             <div class="form-group m-form__group row">
-                                                <label for="example-text-input"
-                                                       class="col-lg-2 col-form-label">關於我</label>
+                                                @if (str_contains(url()->current(), 'dashboard'))
+                                                    <label class="col-form-label col-lg-2 col-sm-12">關於我&nbsp;<span
+                                                                style="color:red">(必填)</span></label>
+                                                @else
+                                                    <label class="col-form-label col-lg-2 col-sm-12">關於我</label>
+                                                @endif
                                                 <div class="col-lg-8">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <textarea class="form-control m-input" type="textarea"
@@ -761,7 +956,12 @@
                                             </div>
 
                                             <div class="form-group m-form__group row">
-                                                <label for="example-text-input" class="col-lg-2 col-form-label">期待的約會模式</label>
+                                                @if (str_contains(url()->current(), 'dashboard'))
+                                                    <label class="col-form-label col-lg-2 col-sm-12">期待的約會模式&nbsp;<span
+                                                                style="color:red">(必填)</span></label>
+                                                @else
+                                                    <label class="col-form-label col-lg-2 col-sm-12">期待的約會模式</label>
+                                                @endif
                                                 <div class="col-lg-8">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <textarea class="form-control m-input" type="textarea"
@@ -1009,7 +1209,12 @@
 
 
                                             <div class="form-group m-form__group row">
-                                                <label class="col-form-label col-lg-2 col-sm-12">教育</label>
+                                                @if (str_contains(url()->current(), 'dashboard'))
+                                                    <label class="col-form-label col-lg-2 col-sm-12">教育&nbsp;<span
+                                                                style="color:red">(必填)</span></label>
+                                                @else
+                                                    <label class="col-form-label col-lg-2 col-sm-12">教育</label>
+                                                @endif
                                                 <div class="col-lg-4 col-md-9 col-sm-12">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <select class="form-control m-bootstrap-select m_selectpicker"
@@ -1040,7 +1245,12 @@
                                             </div>
 
                                             <div class="form-group m-form__group row">
-                                                <label class="col-form-label col-lg-2 col-sm-12">婚姻</label>
+                                                @if (str_contains(url()->current(), 'dashboard'))
+                                                    <label class="col-form-label col-lg-2 col-sm-12">婚姻&nbsp;<span
+                                                                style="color:red">(必填)</span></label>
+                                                @else
+                                                    <label class="col-form-label col-lg-2 col-sm-12">婚姻</label>
+                                                @endif
                                                 <div class="col-lg-4 col-md-9 col-sm-12">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <select class="form-control m-bootstrap-select m_selectpicker"
@@ -1076,7 +1286,12 @@
 
 
                                             <div class="form-group m-form__group row">
-                                                <label class="col-form-label col-lg-2 col-sm-12">喝酒</label>
+                                                @if (str_contains(url()->current(), 'dashboard'))
+                                                    <label class="col-form-label col-lg-2 col-sm-12">喝酒&nbsp;<span
+                                                                style="color:red">(必填)</span></label>
+                                                @else
+                                                    <label class="col-form-label col-lg-2 col-sm-12">喝酒</label>
+                                                @endif
                                                 <div class="col-lg-4 col-md-9 col-sm-12">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <select class="form-control m-bootstrap-select m_selectpicker"
@@ -1101,7 +1316,12 @@
                                             </div>
 
                                             <div class="form-group m-form__group row">
-                                                <label class="col-form-label col-lg-2 col-sm-12">抽菸</label>
+                                                @if (str_contains(url()->current(), 'dashboard'))
+                                                    <label class="col-form-label col-lg-2 col-sm-12">抽菸&nbsp;<span
+                                                                style="color:red">(必填)</span></label>
+                                                @else
+                                                    <label class="col-form-label col-lg-2 col-sm-12">抽菸</label>
+                                                @endif
                                                 <div class="col-lg-4 col-md-9 col-sm-12">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <select class="form-control m-bootstrap-select m_selectpicker"
@@ -1163,11 +1383,16 @@
                                                     </div>
                                                 </div>
                                                 <div class="form-group m-form__group row">
-                                                    <label class="col-form-label col-lg-2 col-sm-12">資產</label>
+                                                    @if (str_contains(url()->current(), 'dashboard'))
+                                                        <label class="col-form-label col-lg-2 col-sm-12">資產&nbsp;<span
+                                                                    style="color:red">(必填)</span></label>
+                                                    @else
+                                                        <label class="col-form-label col-lg-2 col-sm-12">資產</label>
+                                                    @endif
                                                     <div class="col-lg-5 col-md-10 col-sm-12">
                                                         @if (str_contains(url()->current(), 'dashboard'))
-                                                            <input class="form-control m-input" name="assets"
-                                                                   value="{{$umeta->assets}}">
+                                                            <input class="form-control m-input" type="number"
+                                                                    name="assets" value="{{$umeta->assets}}">
                                                         @else
                                                             <input class="form-control m-input" disabled
                                                                    value="@if(isset($cmeta)){{$cmeta->assets}}@endif">

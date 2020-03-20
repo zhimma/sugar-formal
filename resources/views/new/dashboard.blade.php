@@ -7,16 +7,24 @@
         $umeta = null;
     } else {
         $umeta = $user->meta_();
+        $umeta_block = [];
+        // dd($umeta);
         if(isset($umeta->city)){
             $umeta->city = explode(",",$umeta->city);
             $umeta->area = explode(",",$umeta->area);
         }
+
+        if(isset($umeta->blockcity)){
+          $umeta->blockcity = explode(",",$umeta->blockcity);
+          $umeta->blockarea = explode(",",$umeta->blockarea);
+      }
     }
+    
   ?>
   <style type="text/css">
     .abtn{cursor: pointer;}
-    .twzip {display: inline-block !important;width: auto !important;min-width: 45%;margin-right: 10PX;}
-    .select_xx2{width: 100%;border: #d2d2d2 1px solid;border-radius: 4px;height: 40px;padding: 0 6px;color:#555;background:#ffffff;font-size: 15px;margin-top: 10px;}
+    .twzip {display: inline-block !important;width: auto !important;min-width: 49%;/*margin-right: 10PX;*/}
+    .select_xx2{width: 100%;border: #d2d2d2 1px solid;border-radius: 4px;height: 40px;padding: 0 6px;color:#555;background:#ffffff;font-size: 15px;margin-bottom: 10px;}
   </style>
 
 	<div class="container matop70 chat">
@@ -29,22 +37,25 @@
           <div class="g_pwicon">
             <li><a href="{!! url('dashboard') !!}"><img src="/new/images/mm_15.png"><span>基本資料</span></a></li>
             <li><a href="{!! url('dashboard_img') !!}"><img src="/new/images/mm_05.png"><span>照片管理</span></a></li>
-            <li><a href=""><img src="/new/images/mm_07.png"><span>更改密碼</span></a></li>
-            <li><a href=""><img src="/new/images/mm_09.png"><span>VIP</span></a></li>
+            <li><a href="{!! url('/dashboard/password') !!}"><img src="/new/images/mm_07.png"><span>更改密碼</span></a></li>
+            <li><a href="{!! url('/dashboard/vip') !!}"><img src="/new/images/mm_09.png"><span>VIP</span></a></li>
           </div>
           <div class="addpic g_inputt">
-            <div class="n_adbut"><a href=""><img src="/new/images/1_06.png">預覽</a></div>
+
+            <div class="n_adbut">
+                <a href="/dashboard/viewuser/{{$user->id}}"><img src="/new/images/1_06.png">預覽</a></div>
+              <div class="n_adbut"><a href="/member_auth/" style="padding-left: 10px;">身份驗證</a></div>
             <div class="xiliao_input">
-               <form class="m-form m-form--fit m-form--label-align-right" method="POST" name="user_data" action="/dashboard" id="information"data-parsley-validate novalidate>
+               <form class="m-form m-form--fit m-form--label-align-right" method="POST" name="user_data" action="" id="information" data-parsley-validate novalidate>
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="userId" value="{{$user->id}}">
                 <div class="n_input">
                   <dt>
                     <span>暱稱<i>(必填)</i></span>
-                    <span><input name="name" type="text" class="select_xx01"  placeholder="請輸入" value="{{$user->name}}" required data-parsley-errors-messages-disabled></span>
+                    <span><input name="name" id="name" type="text" class="select_xx01"  placeholder="至多八個字" value="{{$user->name}}" required data-parsley-errors-messages-disabled maxlength="8"></span>
                   </dt>
                   <dt>
-                    <span>標題<i>(必填)</i></span>
+                    <span>一句話形容自己<i>(必填)</i></span>
                     <span><input name="title" type="text" class="select_xx01"  placeholder="請輸入" value="{{$user->title}}" required data-parsley-errors-messages-disabled></span>
                   </dt>
                   <dt>
@@ -60,13 +71,14 @@
                   <dt>
                     <span>地區<i>(必填)</i></span>
                     <div id="county">
+                    
                       @if(isset($umeta->city))
                         @if(is_array($umeta->city))
                             @foreach($umeta->city as $key => $cityval)
                               <div class="twzipcode">
                                 <div class="twzip" data-role="county" data-name="@if($key != 0 )city{{$key}}@else{{'city'}}@endif" data-value="{{$umeta->city[$key]}}">
                                 </div>
-                                <div class="twzip" data-role="district" data-name="@if($key != 0 )area{{$key}}@else{{'area'}}@endif" data-value="{{$umeta->area[$key]}}">
+                                <div class="twzip right" data-role="district" data-name="@if($key != 0 )area{{$key}}@else{{'area'}}@endif" data-value="{{$umeta->area[$key]}}">
                                 </div>
                               </div>
                             @endforeach
@@ -74,7 +86,7 @@
                           <div class="twzipcode">
                             <div class="twzip" data-role="county" data-name="city" data-value="{{$umeta->city}}">
                             </div>
-                            <div class="twzip" data-role="district" data-name="area" data-value="{{$umeta->area}}">
+                            <div class="twzip right" data-role="district" data-name="area" data-value="{{$umeta->area}}">
                             </div>
                           </div>
                         @endif
@@ -82,16 +94,16 @@
                           <div class="twzipcode">
                             <div class="twzip" data-role="county" data-name="city" data-value="">
                             </div>
-                            <div class="twzip" data-role="district" data-name="area" data-value="">
+                            <div class="twzip right" data-role="district" data-name="area" data-value="">
                             </div>
                           </div>
                       @endif
                     </div>
                     <div class="n_xqline">
-                      <div class="" style="margin-bottom: 10px;">
+                      <div class="right" style="margin-bottom: 10px;">
                         <a href="javascript:" id="add_county"><img src="/new/images/jh.png">新增縣市</a>
                         <input type="hidden" name="isHideArea" value="0">
-                        <input name="isHideArea" type="checkbox" @if($umeta->isHideArea == true) checked @endif value="1">隱藏鄉鎮區
+                        <input name="isHideArea" type="checkbox" @if($umeta->isHideArea == true) checked @endif value="1"> 隱藏鄉鎮市區
                       </div>
                     </div>
                     <!-- <span class="matop10">
@@ -100,17 +112,45 @@
                       </span>-->
                   </dt>
                   @if($user->engroup==2)
+                   
                   <dt class="matopj15">
                       <span>拒絕接受搜索縣市</span>
-                      <div class="twzipcode">
-                        <div class="twzip" data-role="county"
-                             data-name="blockcity"
-                             data-value="{{$umeta->blockcity}}">
-                        </div>
-                        <div class="twzip" data-role="district"
-                             data-name="blockarea"
-                             data-value="{{$umeta->blockarea}}">
-                        </div>
+                      <div id="block_county">
+                      @if(isset($umeta->blockcity))
+                        @if(is_array($umeta->blockcity))
+                          @foreach($umeta->blockcity as $key => $cityval)
+                              <div class="twzipcode">
+                                <div class="twzip " data-role="county"
+                                    data-name="blockcity"
+                                    data-value="{{$umeta->blockcity[$key]}}">
+                                </div>
+                                <div class="twzip right" data-role="district"
+                                    data-name="blockarea"
+                                    data-value="{{$umeta->blockarea[$key]}}">
+                                </div>
+                              </div>
+                          @endforeach
+                        @else
+                          <div class="twzipcode">
+                            <div class="twzip" data-role="county" data-name="blockcity" data-value="{{$umeta->blockcity}}">
+                            </div>
+                            <div class="twzip right" data-role="district" data-name="blockarea" data-value="{{$umeta->blockarea}}">
+                            </div>
+                          </div>
+                        @endif
+                      @else
+                          <div class="twzipcode">
+                            <div class="twzip" data-role="county" data-name="blockcity" data-value="">
+                            </div>
+                            <div class="twzip right" data-role="district" data-name="blockarea" data-value="">
+                            </div>
+                          </div>
+                      @endif
+                      </div>
+                      <div class="n_xqline">
+                          <div class="right" style="margin-bottom: 10px;">
+                              <a href="javascript:" id="add_block_county"><img src="/new/images/jh.png">新增縣市</a>
+                          </div>
                       </div>
                   </dt>
                   @endif
@@ -151,20 +191,20 @@
                   </dt>
                   <dt>
                       <span>身高（cm）<i>(必填)</i></span>
-                      <span><input minlength="3"  data-parsley-minlength="3" name="height" type="text" class="select_xx01"  placeholder="請填入身高" value="{{$umeta->height}}"></span>
+                      <span><input minlength="3" data-parsley-minlength="3" name="height" id="height" type="number" class="select_xx01"  placeholder="請輸入數字範圍140～210" value="{{$umeta->height}}" title="請輸入140~210範圍"></span>
                   </dt>
                   @if($user->engroup==2)
+{{--                  <dt>--}}
+{{--                      <span>體重（kg）</span>--}}
+{{--                      <span><input minlength="2"  data-parsley-minlength="2" name="weight" type="text" class="select_xx01"  placeholder="請填入體重" value="{{$umeta->weight}}"></span>--}}
+{{--                      <div class="right" style="margin: 10px 0 -5px 10px;">--}}
+{{--                        <input type="hidden" name="isHideWeight" value="0">--}}
+{{--                        <input name="isHideArea" type="checkbox"  @if($umeta->isHideWeight == true) checked--}}
+{{--                                                                       @endif value="1"> 隱藏體重--}}
+{{--                      </div>--}}
+{{--                  </dt>--}}
                   <dt>
-                      <span>體重（kg）</span>
-                      <span><input minlength="2"  data-parsley-minlength="2" name="weight" type="text" class="select_xx01"  placeholder="請填入體重" value="{{$umeta->weight}}"></span>
-                      <div class="" style="margin: 10px 0 -5px 10px;">
-                        <input type="hidden" name="isHideWeight" value="0">
-                        <input name="isHideArea" type="checkbox"  @if($umeta->isHideWeight == true) checked
-                                                                       @endif value="1">隱藏體重
-                      </div>
-                  </dt>
-                  <dt>
-                      <span>Cup</span>
+                      <span>CUP</span>
                       <span>
                         <select name="cup"  class="select_xx01" >
                           <option value="">請選擇</option>
@@ -188,13 +228,19 @@
                           </option>
                         </select>
                       </span>
+                      <div class="n_xqline">
+                          <div class="right" style="margin-bottom: 10px;">
+                              <input type="hidden" name="isHideCup" value="0">
+                              <input name="isHideCup" type="checkbox" @if($umeta->isHideCup == true) checked @endif value="1"> 隱藏CUP
+                          </div>
+                      </div>
                   </dt>
                   @endif
                   <dt>
                       <span>體型</span>
                       <span>
                         <select name="body"  class="select_xx01">
-                          <option value="">請選擇</option>
+                          <option value=null>請選擇</option>
                           <option value="瘦"
                                   @if($umeta->body == '瘦') selected @endif>瘦
                           </option>
@@ -219,7 +265,7 @@
                       <span><textarea minlength="4"  data-parsley-minlength="4" required data-parsley-errors-messages-disabled name="style" cols="" rows="3" class="select_xx05">{{$umeta->style}}</textarea></span>
                   </dt>
                   @if($user->engroup==2)
-                  <dt>
+                  <dt class="matopj15">
                       <span>現況<i>(必填)</i></span>
                       <span>
                         <select required data-parsley-errors-messages-disabled name="situation"  class="select_xx01">
@@ -251,7 +297,7 @@
                       <span>職業</span>
                       <span>
                         <select name="occupation"  class="select_xx01">
-                          <option value="">請選擇</option>
+                          <option value=null>請選擇</option>
                           <option value="學生"
                                   @if($umeta->occupation == '學生') selected @endif>
                               學生
@@ -358,20 +404,19 @@
                           </option>
                         </select>
                       </span>
-                      <div class="" style="margin: 10px 0 -5px 10px;">
+                      <div class="right" style="margin: 10px 0 -5px 10px;">
                         <input type="hidden" name="isHideOccupation" value="0">
-                        <input name="isHideArea" type="checkbox"  @if($umeta->isHideOccupation == true) checked
-                                                                       @endif value="1">隱藏職業
+                        <input type="checkbox" name="isHideOccupation"  @if($umeta->isHideOccupation == true) checked @endif value="1"> 隱藏職業
                       </div>
                   </dt>
                   @else
-                  <dt>
+                  <dt class="matopj15">
                       <span>產業</span>
                       <span>
                         <input type="hidden" name="day" value="01">
                         <div class="se_zlman left">
-                          <select  class="select_xx04" name="domainType" id="domainType" onchange="setDomain(0);">
-                            <option value="">請選擇</option>
+                          <select  class="select_xx2 left" name="domainType" id="domainType" onchange="setDomain(0);">
+                            <option value=null>請選擇</option>
                             <option value="資訊科技"
                                     @if($umeta->domainType == '資訊科技') selected @endif>
                                 資訊科技
@@ -395,14 +440,17 @@
                           </select>
                         </div>
                         <div class="se_zlman right">
-                          <select class="select_xx04" name="domain" id="domain">
+                          <select class="select_xx2 right" name="domain" id="domain">
                           </select>
                         </div>
                       </span>
                   </dt>
-                  <dt>
+                  <dt class="matopj15">
                       <span>職業<i></i></span>
-                      <span><input name="occupation" type="text" class="select_xx01"  placeholder="請填入職業"></span>
+                      <span>
+                          <input name="occupation" type="text" class="select_xx01"  placeholder="請填入職業" @if(!empty($umeta->occupation) && $umeta->occupation != 'null')value="{{$umeta->occupation}}" @endif>
+                          <input name="occupation" id="occupation" type="hidden" value=null>
+                      </span>
                   </dt>
                   @endif
                   <dt>
@@ -524,7 +572,7 @@
                   </dt>
                   <dt>
                       <span>資產<i>(必填)</i></span>
-                      <span><input required data-parsley-errors-messages-disabled name="assets" value="{{$umeta->assets}}" type="number" class="select_xx01"  placeholder="請填入資產"></span>
+                      <span><input required data-parsley-errors-messages-disabled name="assets" id="assets" value="{{$umeta->assets}}" type="number" class="select_xx01"  placeholder="請輸入數字範圍0～10000000000"></span>
                   </dt>
                   @endif
                 </div>
@@ -538,7 +586,14 @@
 
     </div>
   </div>
-
+<script>
+    $(document).ready(function() {
+        @if(Session::has('message'))
+        c5('{{Session::get('message')}}');
+        <?php session()->forget('message');?>
+        @endif
+    });
+</script>
   <script src="/new/js/birthday.js" type="text/javascript"></script>
   <script src="/js/jquery.twzipcode.min.js" type="text/javascript"></script>
   <script type="text/javascript">
@@ -561,7 +616,7 @@
     });
     function setDomain(initial) {
         var domain = eval(domainJson);
-        $("#domain").html('<option value="">請選擇</option>');
+        $("#domain").html('<option value=null>請選擇</option>');
         //删除所有的option
         $('#domain option:not(:first)').remove();
 
@@ -569,7 +624,7 @@
         //console.log('type is ' + type);
         if (!initial) {
             $("#domain option").remove();
-            $("#domain").append('<option value="">請選擇</option>');
+            $("#domain").append('<option value=null>請選擇</option>');
         }
         for (var i in domain[type]) {
             //console.log(domain[type][i]);
@@ -588,22 +643,26 @@
         var age = parseInt((now - birthday) / year);
         return age;
       }
+
       @if(!$user->isAdmin())
         @if (!$umeta->isAllSet())
-          swal({
-            title:'請寫上基本資料。',
-            type:'warning'
-          });
+        c5('請寫上基本資料。');
+          // swal({
+          //   title:'請寫上基本資料。',
+          //   type:'warning'
+          // });
         @elseif (empty($umeta->pic))
-          swal({
-            title:'請加上頭像照。',
-            type:'warning'
-          });
+        c5('請加上頭像照。');
+          // swal({
+          //   title:'請加上頭像照。',
+          //   type:'warning'
+          // });
         @elseif ($umeta->age()<18)
-          swal({
-            title:'您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。',
-            type:'warning'
-          });
+        c5('您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。');
+          // swal({
+          //   title:'您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。',
+          //   type:'warning'
+          // });
         @endif
       @endif
       //ajax_表單送出
@@ -614,10 +673,11 @@
           console.log(birth);
           let age = getAge(birth);
           if(age < 18){
-            swal({
-                title:'您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。',
-                type:'warning'
-            });
+          c5('您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。');
+            // swal({
+            //     title:'您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。',
+            //     type:'warning'
+            // });
             return false;
           }
           var form_dump = $(this);
@@ -658,7 +718,7 @@
                 <div class="twzipcode">
                   <div class="twzip" data-role="county" data-name="city${$(county).find('.twzipcode').length}" data-value="">
                   </div>
-                  <div class="twzip" data-role="district" data-name="area${$(county).find('.twzipcode').length}" data-value="">
+                  <div class="twzip right" data-role="district" data-name="area${$(county).find('.twzipcode').length}" data-value="">
                   </div>
                 </div>
               `;
@@ -669,13 +729,51 @@
                   }
               });
           }else{
-              swal({
-                  title:'最多新增3筆',
-                  type:'warning'
-              });
+              c5('最多新增3筆');
+              // swal({
+              //     title:'最多新增3筆',
+              //     type:'warning'
+              // });
           }
       });
+
+        let block_county = $("#block_county");
+        let add_block_county = $("#add_block_county");
+        $(add_block_county).click(function(){
+          console.log($(block_county).find('.twzipcode').length)
+            if($(block_county).find('.twzipcode').length < 3) {
+                let county_div=`
+                <div class="twzipcode">
+                  <div class="twzip" data-role="county" data-name="blockcity${$(block_county).find('.twzipcode').length}" data-value="">
+                  </div>
+                  <div class="twzip right" data-role="district" data-name="blockarea${$(block_county).find('.twzipcode').length}" data-value="">
+                  </div>
+                </div>
+              `;
+                $(block_county).append(county_div)
+                $('.twzipcode').twzipcode({
+                    'detect': true, 'css':['select_xx2', 'select_xx2', 'd-none'], onCountySelect: function() {
+                        // $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
+                    }
+                });
+            }else{
+                c5('最多新增3筆');
+                // swal({
+                //     title:'最多新增3筆',
+                //     type:'warning'
+                // });
+            }
+        });
+
+
       $(document).on('click','.n_left',function(event) {
+
+          if( $('input[name=occupation]').val() == '' ) {
+              $('#occupation').show();
+          }else{
+              $('#occupation').remove();
+          }
+
         var form = $('form[name=user_data]').serialize();
         $.ajax({
           url:'{{ route('dashboard2') }}',
@@ -683,14 +781,18 @@
           dataType: 'JSON',
           data: form,
           beforeSend: function () {
-            $('.blbg').click();
+              $('#tab04').hide();
             waitingDialog.show();
           },
           complete: function () {
+
+            window.location.reload();
             waitingDialog.hide();
+
           },
           success: function (result) {
             ResultData(result);
+            window.location.reload();
           }
         });
       });
@@ -699,29 +801,56 @@
            @if($user->engroup_change > 0)
             var engroup = "{{ $user->engroup }}";
             if(engroup==1){
-              console.log('123');
+              //console.log('123');
               $("input[name=engroup][value=1]").prop('checked',true);
               $("input[name=engroup][value=2]").prop('checked',false);
             }else{
               $("input[name=engroup][value=2]").prop('checked',true);
               $("input[name=engroup][value=1]").prop('checked',false);
             }
-            swal({
-              title:'您已經改變過帳號類型(甜心大哥/大姐、甜心寶貝)，每個帳號只能變更一次',
-              type:'warning'
-            });
+                  c4('您已經改變過帳號類型(甜心大哥/大姐、甜心寶貝)，每個帳號只能變更一次');
+            // swal({
+            //   title:'您已經改變過帳號類型(甜心大哥/大姐、甜心寶貝)，每個帳號只能變更一次',
+            //   type:'warning'
+            // });
           @else
-            swal(
-              '確定要改變帳號類型(甜心大哥/大姐、甜心寶貝)嗎?，每個帳號只能變更一次',
-              '',
-              'warning'
-            );
+                  c4('確定要改變帳號類型(甜心大哥/大姐、甜心寶貝)嗎?，每個帳號只能變更一次');
+            // swal(
+            //   '確定要改變帳號類型(甜心大哥/大姐、甜心寶貝)嗎?，每個帳號只能變更一次',
+            //   '',
+            //   'warning'
+            // );
           @endif
       });
 
       setDomain(1);
       $('#domain option[value="{{ $umeta->domain }}"]').attr('selected',true);
+
+
+      //validation
+        $("#name").keyup(function() {
+            if(this.value.length>=8){
+                c3('至多八個字');
+            }
+        });
+
+        $("#height").on("change", function() {
+            var val = Math.abs(parseInt(this.value, 10) || 1);
+            if(this.value>210 || this.value<140) {
+                c3('請輸入數字範圍140～210');
+                this.value = val > 210 ? 210 : val < 140 ? 140 : val ;
+            }
+        });
+
+        $("#assets").keyup(function() {
+            if($.isNumeric(this.value) == false){
+                c3('請輸入數字範圍0～10000000000');
+            }
+        });
+
     });
+
+
   </script>
 
 @stop

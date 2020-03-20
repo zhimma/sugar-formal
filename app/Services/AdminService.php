@@ -8,6 +8,7 @@ use App\Models\ReportedPic;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Vip;
+use App\Models\Tip;
 use App\Models\UserMeta;
 use App\Models\Message;
 use App\Models\MemberPic;
@@ -188,6 +189,11 @@ class AdminService
             }
             $result['isBlocked'] = banned_users::where('member_id', 'like', $result->from_id)->get()->first();
             $result['isBlockedReceiver'] = banned_users::where('member_id', 'like', $result->to_id)->get()->first();
+            //被檢舉者近一月曾被不同人檢舉次數
+            $tmp = $this->reports_month($result->from_id);
+            $result['picsResult'] = $tmp['picsResult'];
+            $result['messagesResult'] = $tmp['messagesResult'];
+            $result['reportsResult'] = $tmp['reportsResult'];
         }
         $users = array();
         foreach ($to_id as $id){
@@ -204,7 +210,8 @@ class AdminService
                 ->get()->first();
             if($info != null){
                 $user['name'] = $info->name;
-                $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
+                $user['vip'] = Vip::vip_diamond($id);
+                $user['tipcount'] = Tip::TipCount_ChangeGood($id);
                 $user['engroup'] = $info->engroup;
                 $user['last_login'] = $info->last_login;
             }
@@ -234,6 +241,11 @@ class AdminService
             }
             $result['isBlocked'] = banned_users::where('member_id', 'like', $result->member_id)->get()->first();
             $result['isBlockedReceiver'] = banned_users::where('member_id', 'like', $result->reported_id)->get()->first();
+            //被檢舉者近一月曾被不同人檢舉次數
+            $tmp = $this->reports_month($result->reported_id);
+            $result['picsResult'] = $tmp['picsResult'];
+            $result['messagesResult'] = $tmp['messagesResult'];
+            $result['reportsResult'] = $tmp['reportsResult'];
         }
         $users = array();
         foreach ($member_id as $id){
@@ -252,7 +264,8 @@ class AdminService
                 $user['name'] = $info->name;
                 $user['engroup'] = $info->engroup;
                 $user['last_login'] = $info->last_login;
-                $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
+                $user['vip'] = Vip::vip_diamond($id);
+                $user['tipcount'] = Tip::TipCount_ChangeGood($id);
             }
             else{
                 $user = array();
@@ -278,7 +291,13 @@ class AdminService
             }
             $result['isBlocked'] = banned_users::where('member_id', 'like', $result->reporter_id)->get()->first();
             $result['isBlockedReceiver'] = banned_users::where('member_id', 'like', $result->reported_user_id)->get()->first();
-            
+
+            //被檢舉者近一月曾被不同人檢舉次數
+            $tmp = $this->reports_month($result->reported_user_id);
+            $result['picsResult'] = $tmp['picsResult'];
+            $result['messagesResult'] = $tmp['messagesResult'];
+            $result['reportsResult'] = $tmp['reportsResult'];
+
             $result['pic'] = UserMeta::select('pic')->where('user_id', $result->reported_user_id)->get()->first();
             if(!is_null($result['pic']))
                 $result['pic'] = $result['pic']->pic;
@@ -300,7 +319,8 @@ class AdminService
                 $user['name'] = $info->name;
                 $user['engroup'] = $info->engroup;
                 $user['last_login'] = $info->last_login;
-                $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
+                $user['vip'] = Vip::vip_diamond($id);
+                $user['tipcount'] = Tip::TipCount_ChangeGood($id);
             }
             else{
                 $user = array();
@@ -312,6 +332,27 @@ class AdminService
         }
         return ['results' => $results,
             'users' => $users];
+    }
+
+    //被檢舉者近一月被不同人檢舉次數 照片/訊息/會員
+    public function reports_month($id){
+        $date_start =  date("Y-m-d H:i:s",strtotime("-1 month"));;
+        $date_end = date("Y-m-d H:i:s");
+        $avatarsResult = count(ReportedAvatar::whereBetween('created_at', array($date_start, $date_end))
+            ->where('reported_user_id', $id)->groupBy('reporter_id')->get());
+        $picid = MemberPic::select('id')->where('member_id', $id)->get();
+        $picsResult = 0;
+        foreach ($picid as $v) {
+            $picsResult += count(ReportedPic::whereBetween('created_at', array($date_start, $date_end))
+                ->where('reported_pic_id', $v->id)->groupBy('reporter_id')->get());
+        }
+        $result['picsResult'] = $picsResult + $avatarsResult;
+        $result['messagesResult'] = count(Message::whereBetween('created_at', array($date_start, $date_end))
+            ->where('from_id', $id)->where('isReported', 1)->groupBy('to_id')->get());
+        $result['reportsResult'] = count(Reported::whereBetween('created_at', array($date_start, $date_end))
+            ->where('reported_id', $id)->groupBy('member_id')->get());
+
+        return $result;
     }
 
     public function fillReportedPicDatas($results){
@@ -328,11 +369,13 @@ class AdminService
                 if(!in_array($temp->member_id, $reported_user_id)) {
                     array_push($reported_user_id, $temp->member_id);
                 }
-               
                 $result['isBlocked'] = banned_users::where('member_id', 'like', $result->reporter_id)->get()->first();
-               
                 $result['isBlockedReceiver'] = banned_users::where('member_id', 'like', $result->reported_user_id)->get()->first();
-                
+                //被檢舉者近一月曾被不同人檢舉次數
+                $tmp = $this->reports_month($result->reported_user_id);
+                $result['picsResult'] = $tmp['picsResult'];
+                $result['messagesResult'] = $tmp['messagesResult'];
+                $result['reportsResult'] = $tmp['reportsResult'];
             }
             else{
                 $result['name'] = "查無使用者";
@@ -358,7 +401,8 @@ class AdminService
                 $user['name'] = $info->name;
                 $user['engroup'] = $info->engroup;
                 $user['last_login'] = $info->last_login;
-                $user['vip'] = (Vip::where('member_id', 'like', $id)->get()->first()) ? true : false;
+                $user['vip'] = Vip::vip_diamond($id);
+                $user['tipcount'] = Tip::TipCount_ChangeGood($id);
             }
             else{
                 $user = array();
@@ -382,7 +426,7 @@ class AdminService
 
         $search_id = $request->reported_id;
         $date_start = $request->date_start ? $request->date_start : '0000-00-00';
-        $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
+        $date_end = $request->date_end ? $request->date_end. ' 23:59:59' : date('Y-m-d'). ' 23:59:59';
 
         $avatarsResult = ReportedAvatar::whereBetween('created_at', array($date_start, $date_end))
                                     ->orderBy('created_at', 'desc')->get();
@@ -571,10 +615,17 @@ class AdminService
             foreach ($ids as $key => $id){
                 // dd($id);
                 $p = MemberPic::where('id', $id)->first();
-                $infos[$id]['post_time'] = $p->created_at;
-                $u = User::where('id', $p->member_id)->first();
-                $infos[$id]['user_id'] = $u->id;
-                $infos[$id]['user_name'] = $u->name;
+                if(isset($p)){
+                    $infos[$id]['post_time'] = $p->created_at;
+                    $u = User::where('id', $p->member_id)->first();
+                    if(isset($u)){
+                        $infos[$id]['user_id'] = $u->id;
+                        $infos[$id]['user_name'] = $u->name;
+                    }
+                }
+                else{
+                    continue;
+                }
             }
             
             $datas = ['pic_ids' => $ids,

@@ -47,6 +47,12 @@ class RegisterController extends Controller
     {
         return view('new.auth.register');
     }
+
+    //新樣板
+    public function checkAdult()
+    {
+        return view('new.adult');
+    }
     /**
      * Get a validator for an incoming registration request.
      *

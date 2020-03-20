@@ -5,9 +5,9 @@
  * Version: 2.2 (01-Apr-2019)
  * License: https://innostudio.de/fileuploader/documentation/#license
  */
-(function($) {
+ (function($) {
     "use strict";
-	
+	var c_delete;
     $.fn.fileuploader = function(q) {
         return this.each(function(t, r) {
 			var s = $(r), // input element
@@ -515,19 +515,19 @@
                                         return false;
 
 									var m = $(this).closest(n.thumbnails._selectors.item),
-                                        item = f.files.find(m),
-										c = function(a) {
+                                        item = f.files.find(m);
+										c_delete = function(a) {
 											f.files.remove(item);
 										};
-                                    
+
                                     if (item) {
                                         if (item.upload && item.upload.status != 'successful') {
                                             f.upload.cancel(item);
                                         } else {
                                             if (n.thumbnails.removeConfirmation) {
-                                                n.dialogs.confirm(f._assets.textParse(n.captions.removeConfirmation, item), c);
+                                                n.dialogs.confirm(f._assets.textParse(n.captions.removeConfirmation, item), c_delete);
                                             } else {
-                                                c();
+												c6('確認要刪除照片嗎?');
                                             }
                                         }
                                     }
@@ -4309,6 +4309,7 @@
                     item.popup.html.on('click', '[data-action="remove"]', function(e) {
                         item.popup.close();
                         item.remove();
+						c2('刪除成功');
                     }).on('click', '[data-action="cancel"]', function(e) {
                         item.popup.close();
                     }).on('click', '[data-action="save"]', function(e) {
@@ -4321,7 +4322,7 @@
                 onHide: null
             },
 			itemPrepend: false,
-			removeConfirmation: true,
+			removeConfirmation: false,
 			startImageRenderer: true,
 			synchronImages: true,
             useObjectUrl: false,
@@ -4387,7 +4388,14 @@
             },
             confirm: function(text, callback) {
                 confirm(text) ? callback() : null;
-            }
+			},
+			remove_pic:function(status){	
+				if(status==true){
+					c_delete();
+					$('#tab06').hide();
+					$('.blbg').hide();
+				}
+			}
         },
         captions: {
             button: function(options) { return 'Browse ' + (options.limit == 1 ? 'file' : 'files'); },

@@ -33,9 +33,11 @@ document.getElementById(id+"_a").className="n_viphover";
 </script>
 
 	<body>
+		
 		<div class="head hetop">
 			<div class="container">
-				<div class="col-sm-12 col-xs-12 col-md-12"><img src="/new/images/icon_41.png" class="logo" />
+				<div class="col-sm-12 col-xs-12 col-md-12">
+					<a href="/"><img src="/new/images/icon_41.png" class="logo" /></a>
 				</div>
 			</div>
 		</div>
@@ -75,11 +77,11 @@ document.getElementById(id+"_a").className="n_viphover";
 							<h2>測試系統賬號</h2></div>
 						<div class="leul">
 							<ul>
-									<li><a href=""><img src="/new/images/icon_38.png">搜索</a></li>
-									<li><a href=""><img src="/new/images/icon_45.png">訊息</a><span>10</span></li>
-									<li><a href=""><img src="/new/images/icon_46.png">名單</a></li>
-									<li><a href=""><img src="/new/images/icon_48.png">我的</a></li>
-								    <li><a href=""><img src="/new/images/iconout.png">退出</a></li>
+									<li><a href="/new/mem_search"><img src="/new/images/icon_38.png">搜索</a></li>
+									<li><a href="/dashboard/chat2"><img src="/new/images/icon_45.png">訊息</a><span>10</span></li>
+									<li><a href="/browse"><img src="/new/images/icon_46.png">名單</a></li>
+									<li><a href="/dashboard"><img src="/new/images/icon_48.png">我的</a></li>
+								    <li><a href="/logout"><img src="/new/images/iconout.png">退出</a></li>
 							</ul>
 						</div>
 					</div>
@@ -87,10 +89,10 @@ document.getElementById(id+"_a").className="n_viphover";
 				<div class="col-sm-12 col-xs-12 col-md-10">
 					    <div class="g_password">
                              <div class="g_pwicon">
-                                  <li><a href=""><img src="/new/images/mm_03.png"><span>基本資料</span></a></li> 
-                                  <li><a href=""><img src="/new/images/mm_05.png"><span>照片管理</span></a></li> 
-                                  <li><a href=""><img src="/new/images/mm_07.png"><span>更改密碼</span></a></li> 
-                                  <li><a href=""><img src="/new/images/mm_18.png"><span>VIP</span></a></li> 
+                                  <li><a href="/dashboard"><img src="/new/images/mm_03.png"><span>基本資料</span></a></li> 
+                                  <li><a href="/dashboard_img"><img src="/new/images/mm_05.png"><span>照片管理</span></a></li> 
+                                  <li><a href="/dashboard"><img src="/new/images/mm_07.png"><span>更改密碼</span></a></li> 
+                                  <li><a href="/dashboard"><img src="/new/images/mm_18.png"><span>VIP</span></a></li> 
                              </div>       
                              <div class="n_viptitle">
                                   <a href="#" onclick='return changediv("vip")' id="vip_a" class="n_viphover" target=_parent>升级VIP</a>
@@ -116,7 +118,18 @@ document.getElementById(id+"_a").className="n_viphover";
                                                 </li>
                                             </ul>
                                 </div>
-                               <div class="n_vipbut"><span><a href="" class="n_vip01 v_butleft">購買方式1</a></span><span><a href="" class="n_vip01 v_butright">購買方式2</a></span></div>
+								<form class="m-form m-form--fit" action="http://localsugargarden.org/dashboard/esafeCreditCard" method="post" id="Form">
+									<input type="hidden" name="_token" value="{{ csrf_token() }}" >
+									<input type="hidden" name="userId" value="{{$mid}}" id="userId">
+									<div class="n_vipbut">
+										<span>
+											<a  id="buyvip1" class="n_vip01 v_butleft">購買方式1</a>
+										</span>
+										<span><a  id="buyvip2" class="n_vip01 v_butright">購買方式2
+											</a>
+										</span>
+									</div>
+								</form>
                                <div class="vipline"><img src="/new/images/VIP_05.png"></div>
                                <div class="vipbongn">
                                         <h2>VIP功能</h2>
@@ -136,10 +149,12 @@ document.getElementById(id+"_a").className="n_viphover";
                                         
                          
                              </div>      
+							
                             <div class="de_input n_viptop20 n_viphig"  id="vip2" style="display:none">
-                                  <div class="de_input01 dlmarbot"><div class="de_img"><img src="/new/images/lo_03.png"></div><input name="" type="text" class="d_input" placeholder="帳號 (您的Email)"></div>
-                                  <div class="de_input01 dlmarbot"><div class="de_img"><img src="/new/images/lo_11.png"></div><input name="" type="password" class="d_input" placeholder="密碼"></div>
-                                  <a href="" class="dlpassword">忘記密碼 ?</a>
+                                  <div class="de_input01 dlmarbot"><div class="de_img"><img src="/new/images/lo_03.png"></div><input name="acc" id="acc" type="text" class="d_input" placeholder="帳號 (您的Email)"></div>
+                                  <div class="de_input01 dlmarbot"><div class="de_img"><img src="/new/images/lo_11.png"></div><input name="pwd" id="pwd" type="password" class="d_input" placeholder="密碼"></div>
+								  <input type="hidden" name="userId" value="{{$mid}}" id="userId">
+                                  <a href="http://localsugargarden.org/password/reset" class="dlpassword">忘記密碼 ?</a>
                                   <a  class="dlbut" onclick="cl()">確認</a>
                             </div>      
                                                        
@@ -163,14 +178,44 @@ document.getElementById(id+"_a").className="n_viphover";
 
 <script>
 	function cl() {
-		 $(".blbg").show()
-         $("#tab01").show()
+		var r=confirm("確認取消VIP?")
+		if (r==true)
+		{
+			$.ajax({
+			type: 'POST',
+			url: "/cancelVip",
+			data:{
+				_token: '{{csrf_token()}}',
+				acc   : $("#acc").val(),
+				pwd   : $("#pwd").val(),
+				userId   : $("#userId").val(),
+			},
+			dataType:"json",
+			success: function(res){
+				if(res.code=='200'){
+					$(".blbg").show();
+					$("#tab01").show();
+					location.reload();
+				}else{
+					alert('更改失敗');
+					location.reload();
+				}
+			}});
+		}
+
+		
+		 
     }
     function gmBtn1(){
         $(".blbg").hide()
         $(".gtab").hide()	
 			
     }
+</script>
+<script>
+$("#buyvip1").click(function(){
+	$("#Form").submit();
+});
 </script>
 
 	</body>

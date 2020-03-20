@@ -8,9 +8,9 @@ html,body{height: 100%;}
 }
 body{ display: flex;flex-direction: column;}
 
-.sjleft font {
-    width: 600px;
-}
+/*.sjleft font {*/
+/*    width: 600px;*/
+/*}*/
 .zcinput {
     height: 43px;
     line-height: 43PX;
@@ -29,9 +29,9 @@ body{ display: flex;flex-direction: column;}
 }
 
 @media (max-width:767px) {
-	.swname span {display: block;width: 180px;line-height: 20px;}
+	.swname span {display: block;width: 180px;line-height: 15px;}
 	.container{width: 100%;}
-	.sjleft font{ width:220px;}
+	/*.sjleft font{ width:220px;}*/
 }
 
 /*======= loading過場 =======*/

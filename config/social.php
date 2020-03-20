@@ -14,7 +14,7 @@ return [
         'block-people' => 1000
     ],
     'limit' => [
-        'show-chat' => 3,
+        'show-chat' => 10,
         'board-days' => 86400
     ],
     'vip' => [
@@ -32,7 +32,8 @@ return [
     'payment' => [
         'returnURL' => "http://sugar.formal/dashboard/upgradepay",
         'actionURL' => "https://testmaple2.neweb.com.tw/NewebmPP/cdcard.jsp",
-        'code' => "abcd1234"
+        'code' => "abcd1234",
+        'tip-amount' => 1788
     ],
     'admin' => [
         'email' => 'mmmaya111@gmail.com',

@@ -254,6 +254,48 @@ class Message_new extends Model
         return $saveMessages;
     }
 
+    public static function newChatArrayAJAX($uid, $messages) {
+        $saveMessages = [];
+        $tempMessages = [];
+        $isAllDelete = true;
+        //$msgShow = User::findById($uid)->meta_()->notifhistory;
+        foreach($messages as $key => $message) {
+            //            if($isVip == 0 && $noVipCount >0 &&$noVipCount >= Config::get('social.limit.show-chat')) {
+            //                break;
+            //            }
+            // end 1 and 2
+            if($message->all_delete_count == 2) {
+                Message::deleteAllMessagesFromDB($message->to_id, $message->from_id);
+            }
+            if($message->all_delete_count == 1 && ($message->is_row_delete_1 == $message->to_id || $message->is_row_delete_2 == $message->to_id || $message->is_row_delete_1 == $message->from_id || $message->is_row_delete_2 == $message->from_id)) {
+                Message::deleteAllMessagesFromDB($message->to_id, $message->from_id);
+            }
+
+            // delete row messages
+            if($message->is_row_delete_1 == $uid || $message->is_row_delete_2 == $uid) {
+                unset($messages[$key]);
+                continue;
+            }
+
+            // delete all messages
+            if($uid == $message->temp_id && $message->all_delete_count == 1 && $isAllDelete == true) {
+                unset($messages[$key]);
+                continue;
+            }
+
+            // add messages to array
+            if(!in_array(['to_id' => $message->to_id, 'from_id' => $message->from_id], $tempMessages) && !in_array(['to_id' => $message->from_id, 'from_id' => $message->to_id], $tempMessages)) {
+                array_push($tempMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id]);
+                array_push($saveMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id, 'temp_id' => $message->temp_id,'all_delete_count' => $message->all_delete_count, 'is_row_delete_1' => $message->is_row_delete_1, 'is_row_delete_2' => $message->is_row_delete_2, 'is_single_delete_1' => $message->is_single_delete_1, 'is_single_delete_2' => $message->is_single_delete_2]);
+                //$noVipCount++;
+            }
+        }
+
+        //if($isAllDelete) return NULL;
+
+        return $saveMessages;
+    }
+
     public static function allSenders($uid, $isVip,$date)
     {
         self::$date = \Carbon\Carbon::now()->subDays($date)->toDateTimeString();
@@ -424,16 +466,17 @@ class Message_new extends Model
         //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
     }
 
-    public static function allSendersAJAX($uid, $isVip,$d=7)
+    public static function allSendersAJAX($uid, $isVip,$d=7,$sid)
     {
         //  created_at >= '".self::$date."' or  (`from_id`= $admin->id and `to_id` = $uid and `read` = 'N')
         $admin = User::select('id')->where('email', Config::get('social.admin.email'))->get()->first();
-
+        $userBlockList = Blocked::select('blocked_id')->where('member_id', $uid)->get();
+        $banned_users = banned_users::select('member_id')->get();
         $query = Message::where(function($query)use($uid)
-            {
-                $query->where('to_id','=' ,$uid)
-                      ->orWhere('from_id','=',$uid);
-            });
+        {
+            $query->where('to_id','=' ,$uid)
+                ->orWhere('from_id','=',$uid);
+        });
         if($d!='all'){
             if($d==7){
                 self::$date =\Carbon\Carbon::now()->startOfWeek()->toDateTimeString();
@@ -442,8 +485,11 @@ class Message_new extends Model
             }
             $query->where([['created_at','>=',self::$date]]);
         }
-        $query->where([['is_row_delete_1','0']]);
-
+        $query->whereNotIn('to_id', $userBlockList);
+        $query->whereNotIn('from_id', $userBlockList);
+        $query->whereNotIn('to_id', $banned_users);
+        $query->whereNotIn('from_id', $banned_users);
+        $query->where([['is_row_delete_1','<>',$uid]]);
         $query->orWhere([['from_id', $admin->id], ['to_id',$uid],['read','N']]);
         $query->orderByRaw('CASE
                         WHEN (from_id = '.$admin->id.')
@@ -453,17 +499,22 @@ class Message_new extends Model
                             2
                         END')->orderBy('created_at', 'desc');
         $messages = $query->get();
-        $mm=[];
+        $mm = [];
         foreach ($messages as $key => $v) {
-            if(empty($mm[$v->from_id]))$mm[$v->from_id]=0;
-            if($v->read=='N')$mm[$v->from_id]++;
+            if(!isset($mm[$v->from_id])){
+                $mm[$v->from_id] = 0;
+            }
+            if($v->read=='N'){
+                $mm[$v->from_id]++;
+            }
         }
 
-        if($isVip == 1)
-            $saveMessages = Message::chatArrayAJAX($uid, $messages, 1);
-        else if($isVip == 0) {
-            $saveMessages = Message::chatArrayAJAX($uid, $messages, 0);
-        }
+        $saveMessages = Message_new::newChatArrayAJAX($uid, $messages);
+//        if($isVip == 1)
+//            $saveMessages = Message_new::newChatArrayAJAX($uid, $messages, 1);
+//        else if($isVip == 0) {
+//            $saveMessages = Message_new::newChatArrayAJAX($uid, $messages, 0);
+//        }
 
         //echo json_encode($saveMessages);
         if(count($saveMessages) == 0){
@@ -496,7 +547,7 @@ class Message_new extends Model
                 unset($messages[$key]);
                 continue;
             }
-            if($userBlockList->contains('member_id', $from_id) || $userBlockList->contains('member_id', $to_id)){
+            if($userBlockList->contains('blocked_id', $from_id) || $userBlockList->contains('blocked_id', $to_id)){
                 unset($messages[$key]);
                 continue;
             }
@@ -510,45 +561,60 @@ class Message_new extends Model
                 unset($messages[$key]);
                 continue;
             }
-            $latestMessage = \App\Models\Message::latestMessage($user->id, $msgUser->id);
-            if(!empty($latestMessage)){
-                if(\App\Models\Message::isAdminMessage($latestMessage->content)){
-                    $messages[$key]['isAdminMessage'] = 1;
+            if(isset($user->id) && isset($msgUser->id)){
+                $latestMessage = \App\Models\Message::latestMessage($user->id, $msgUser->id);
+                if(!empty($latestMessage)){
+                    if(\App\Models\Message::isAdminMessage($latestMessage->content)){
+                        $messages[$key]['isAdminMessage'] = 1;
+                    }
+                    else{
+                        $messages[$key]['isAdminMessage'] = 0;
+                    }
+                    if(\App\Models\Reported::cntr($msgUser->id) >= $block_people ){
+                        $messages[$key]['cntr'] = 1;
+                    }
+                    else{
+                        $messages[$key]['cntr'] = 0;
+                    }
+                    if(isset($latestMessage->isPreferred)){
+                        $message['isPreferred'] = 1;
+                        $message['button'] = $latestMessage->button;
+                    }
+                }
+                $messages[$key]['user_id'] = $msgUser->id;
+                if(isset($latestMessage)){
+                    $messages[$key]['read'] = $latestMessage->read;
+                    $messages[$key]['created_at'] = $latestMessage['created_at']->toDateTimeString();
                 }
                 else{
-                    $messages[$key]['isAdminMessage'] = 0;
+                    $messages[$key]['read'] = '';
+                    $messages[$key]['created_at'] = '';
                 }
-                if(\App\Models\Reported::cntr($msgUser->id) >= $block_people ){
-                    $messages[$key]['cntr'] = 1;
+                $messages[$key]['user_name'] = $msgUser->name;
+                $messages[$key]['isAvatarHidden'] = $msgUser->meta_()->isAvatarHidden;
+                $messages[$key]['pic'] = $msgUser->meta_()->pic;
+                if(!file_exists( public_path().$msgUser->meta_()->pic )){
+                    $messages[$key]['pic'] = '/img/male-avatar.png';
                 }
-                else{
-                    $messages[$key]['cntr'] = 0;
-                }
-                if(isset($latestMessage->isPreferred)){
-                    $message['isPreferred'] = 1;
-                    $message['button'] = $latestMessage->button;
-                }
-            }
-            $messages[$key]['user_id'] = $msgUser->id;
-            if(isset($latestMessage)){
-                $messages[$key]['read'] = $latestMessage->read;
-                $messages[$key]['created_at'] = $latestMessage['created_at']->toDateTimeString();
+                $messages[$key]['content'] = $latestMessage == null ? '' : $latestMessage->content;
+
+                // todo: $messages[$key]['read_n']= isset($mm[$messages[$key]['from_id']]) ? $mm[$messages[$key]['from_id']]: 0; 較佳？
+                $messages[$key]['read_n']=(!empty($mm[$messages[$key]['from_id']] && $messages[$key]['from_id']==$msgUser->id))?$mm[$messages[$key]['from_id']]:0;
+//                $messages[$key]['read_n']= isset($mm[$messages[$key]['from_id']]) ? $mm[$messages[$key]['from_id']]: 0;
+                $messages[$key]['isVip']=$msgUser->isVip();
             }
             else{
-                $messages[$key]['read'] = '';
-                $messages[$key]['created_at'] = '';
+                Log::info('Null object found, $user: ' . $user->id);
+                if(!isset($user->id)){
+                    Log::info('User null.');
+                }
+                if(!isset($msgUser->id)){
+                    Log::info('msgUser null: ' . $to_id . " or " . $from_id);
+                }
             }
-            $messages[$key]['user_name'] = $msgUser->name;
-            $messages[$key]['isAvatarHidden'] = $msgUser->meta_()->isAvatarHidden;
-            $messages[$key]['pic'] = $msgUser->meta_()->pic;
-            if($messages[$key]['pic']==null||!file_exists('.'.$messages[$key]['pic'])){
-                $messages[$key]['pic'] = '/img/male-avatar.png';
-            }
-            $messages[$key]['content'] = $latestMessage == null ? '' : $latestMessage->content;
-
-            $messages[$key]['read_n']=(!empty($mm[$messages[$key]['from_id']]))?$mm[$messages[$key]['from_id']]:0;
         }
         //$messages['date'] = self::$date;
+//        array_multisort($messages[1]['created_at'],SORT_DESC, SORT_STRING);
         return $messages;
     }
 

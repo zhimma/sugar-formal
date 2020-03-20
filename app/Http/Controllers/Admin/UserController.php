@@ -19,9 +19,12 @@ use App\Http\Requests\UserInviteRequest;
 use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\AdminAnnounce;
+use App\Models\AdminCommonText;
 use App\Models\VipLog;
 use App\Models\Vip;
+use App\Models\Tip;
 use App\Models\Msglib;
+use App\Models\BasicSetting;
 use App\Models\SimpleTables\member_vip;
 use App\Models\SimpleTables\banned_users;
 use App\Notifications\BannedNotification;
@@ -122,24 +125,31 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function toggleVIP(Request $request){
-       
         if($request->isVip == 1){
+            //關閉VIP權限
             $setVip = 0;
-        }
-        else{
+            $user = Vip::select('member_id', 'active')
+                    ->where('member_id', $request->user_id)
+                    ->update(array('active' => $setVip));
+        }else{
+            //提供VIP權限
             $setVip = 1;
+            $tmpsql = Vip::select('expiry')->where('member_id', $request->user_id)->get()->first();
+            if(isset($tmpsql)){
+                $user = Vip::select('member_id', 'active')
+                    ->where('member_id', $request->user_id)
+                    ->update(array('active' => $setVip));
+            }else{
+                //從來都沒VIP資料的
+                $vip_user = new Vip;
+                $vip_user->member_id = $request->user_id;
+                $vip_user->active = $setVip;
+                $vip_user->created_at =  Carbon::now()->toDateTimeString();
+                $vip_user->save();
+            }
+            
         }
-        $user = Vip::select('member_id', 'active')
-                ->where('member_id', $request->user_id)
-                ->where('active', $request->isVip)
-                ->update(array('active' => $setVip));
-        if($user == 0){
-            $vip_user = new Vip;
-            $vip_user->member_id = $request->user_id;
-            $vip_user->active = $setVip;
-            $vip_user->created_at =  Carbon::now()->toDateTimeString();
-            $vip_user->save();
-        }
+
         VipLog::addToLog($request->user_id, $setVip == 0 ? 'manual_cancel' : 'manual_upgrade', 'Manual Setting', $setVip, 1);
         $user = User::select('id', 'email')
                 ->where('id', $request->user_id)
@@ -220,16 +230,40 @@ class UserController extends Controller
         }
 
     }
+
+    public function toggleRecommendedUser(Request $request){
+        //給優選三個月
+        if($request->Recommended == 1){
+            $user = Vip::select('member_id')
+                ->where('member_id', $request->user_id)
+                ->update(array('updated_at' => Carbon::now()->subMonths(3)));
+        }elseif($request->Recommended == 0){
+            //取消優選
+            if (is_numeric($request->user_id)){
+                DB::select(DB::raw("update member_vip set updated_at = null where member_id = $request->user_id"));
+            }
+        }
+        if(isset($request->page)){
+            switch($request->page){
+                case 'advInfo':
+                    return redirect('admin/users/advInfo/'.$request->user_id);
+                break;
+            }
+        }
+    }
+
     public function showBanUserDialog(Request $request){
         $admin = $this->admin->checkAdmin();
         if($admin){
             $bannedUser = users::where('id', $request->user_id)->get()->first();
             $msg = Message::where('id', $request->msg_id)->get()->first();
+            $banReason = DB::table('reason_list')->select('content')->where('type', 'ban')->get();
             if(!$bannedUser)
                 return back()->withErrors('查無使用者');
             else{
                 return view('admin.users.bannedUserDialog')
                     ->with('msg', $msg)
+                    ->with('banReason', $banReason)
                     ->with('bannedUser', $bannedUser)
                     ->with('isReported', $request->isReported);
             }     
@@ -246,6 +280,13 @@ class UserController extends Controller
         $msg_id = $request->msg_id;
         $days = $request->days;
         $reason = $request->reason;
+        $addreason = $request->addreason;
+        //勾選加入常用列表後新增
+        if($addreason){
+            if(DB::table('reason_list')->where([['type', 'ban'],['content', $reason]])->first() == null){
+                DB::table('reason_list')->insert(['type' => 'ban', 'content' => $reason]);
+            }
+        }
         $isReported = $request->isReported;
 
         $userBanned = banned_users::where('member_id', $user_id)
@@ -358,16 +399,23 @@ class UserController extends Controller
         }
         $user = User::where('id', 'like', $id)
                 ->get()->first();
+        if(!isset($user)){
+            return '<h1>會員資料已刪除。</h1>';
+        }
         $userMeta = UserMeta::where('user_id', 'like', $id)
                 ->get()->first();
         $userMessage = Message::where('from_id', $id)->orderBy('created_at', 'desc')->paginate(config('social.admin.showMessageCount'));
         $to_ids = array();
         foreach($userMessage as $u){
             if(!array_key_exists($u->to_id, $to_ids)){
-                $to_ids[$u->to_id] = User::select('name')->where('id', $u->to_id)->get()->first();
+                $to_ids[$u->to_id] = User::select('name','engroup')->where('id', $u->to_id)->get()->first();
                 
                 if($to_ids[$u->to_id]){
+                    $to_ids[$u->to_id]['tipcount'] = Tip::TipCount_ChangeGood($u->to_id);
+                    $to_ids[$u->to_id]['vip'] = Vip::vip_diamond($u->to_id);
                     $to_ids[$u->to_id]['name'] = $to_ids[$u->to_id]->name;
+                    $to_ids[$u->to_id]['isBlocked'] = banned_users::where('member_id', 'like', $u->to_id)->get()->first();
+                    $to_ids[$u->to_id]['engroup'] = $to_ids[$u->to_id]->engroup;
                 }
                 else{
                     $to_ids[$u->to_id] = array();
@@ -375,13 +423,24 @@ class UserController extends Controller
                 }
             }
         }
-        foreach($to_ids as $key => $to_id){
-            $to_ids[$key]['vip'] =  Vip::select('active')->where('member_id', $key)->where('active', 1)->orderBy('created_at', 'desc')->first() !== null;
+
+        // 給予、取消優選
+        $now = \Carbon\Carbon::now();
+        $vip_date = Vip::select('id', 'updated_at')->where('member_id', $user->id)->orderBy('updated_at', 'desc')->get()->first();
+        if(isset($vip_date->updated_at)){
+            $vip_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $vip_date->updated_at);
+            $diff_in_months = $vip_date->diffInMonths($now);
+            //未滿一個月給予優選
+            $user['Recommended'] = $diff_in_months == 0? 1: 0;
+        }else{
+            //NULL的給予優選
+            $user['Recommended'] = 1;
         }
         $isVip = $user->isVip();
-        $user['vip'] = $isVip;
-
-        $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first() == true  ? true : false;
+        $user['isvip'] = $isVip;
+        $user['tipcount'] = Tip::TipCount_ChangeGood($user->id);
+        $user['vip'] = Vip::vip_diamond($user->id);
+        $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first();
 
         if(str_contains(url()->current(), 'edit')){
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
@@ -423,9 +482,13 @@ class UserController extends Controller
             $pics = $pics->where('isHidden', 0);
             $avatars = $avatars->where('isAvatarHidden', 0);
         }
-        if($request->days){
-            $pics = $pics->where('updated_at', '>', Carbon::now()->subDays($request->days));
-            $avatars = $avatars->where('updated_at', '>', Carbon::now()->subDays($request->days));
+        if($request->date_start){
+            $pics = $pics->where('updated_at', '>=', $request->date_start);
+            $avatars = $avatars->where('updated_at', '>=', $request->date_start);
+        }
+        if($request->date_end){
+            $pics = $pics->where('updated_at', '<=', $request->date_end);
+            $avatars = $avatars->where('updated_at', '<=', $request->date_end);
         }
         if($request->en_group){
             $users = User::select('id')->where('engroup', $request->en_group)->get();
@@ -458,7 +521,6 @@ class UserController extends Controller
             ['pics' => $pics,
             'avatars' => $avatars,
             'userNames' => $userNames,
-            'days' => isset($request->days) ? $request->days : null,
             'en_group' => isset($request->en_group) ? $request->en_group : null,
             'city' => isset($request->city) ? $request->city : null,
             'area' => isset($request->area) ? $request->area : null,
@@ -466,6 +528,16 @@ class UserController extends Controller
     }
 
     public function modifyUserPictures(Request $request) {
+        //勾選加入常用列表後新增
+        $addreason = $request->addreason;
+        $otherReason = $request->otherReason;
+        if($addreason){
+            if(DB::table('reason_list')->where([['type', 'pic'],['content', $otherReason]])->first() == null){
+                DB::table('reason_list')->insert(['type' => 'pic', 'content' => $otherReason]);
+            }
+        }
+        $msglib_delpic = Msglib::selectraw('id, title, msg')->where('kind','=','delpic')->get();
+
         if($request->delete){
             $datas = $this->admin->deletePicture($request);
             if($datas == null){
@@ -481,6 +553,7 @@ class UserController extends Controller
                         ->with('admin', $datas['admin'])
                         ->with('msgs', $datas['msgs'])
                         ->with('msgs2', $datas['msgs2'])
+                        ->with('msglib_delpic', $msglib_delpic)
                         ->with('template', $datas['template']);
                 }
                 else{
@@ -503,6 +576,7 @@ class UserController extends Controller
                         ->with('admin', $datas['admin'])
                         ->with('msgs', $datas['msgs'])
                         ->with('msgs2', $datas['msgs2'])
+                        ->with('msglib_delpic', $msglib_delpic)
                         ->with('template', $datas['template']);
                 }
                 else{
@@ -577,7 +651,7 @@ class UserController extends Controller
         if ($admin){
 
             $date_start = $request->date_start ? $request->date_start : '0000-00-00';
-            $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
+            $date_end = $request->date_end ? $request->date_end . ' 23:59:59': date('Y-m-d'). ' 23:59:59';
 
             $messages = Message::whereBetween('created_at', array($date_start, $date_end))
                                 ->where('isReported', 1)
@@ -587,6 +661,7 @@ class UserController extends Controller
                 ->with('reported', 1)
                 ->with('results', $datas['results'])
                 ->with('users', isset($datas['users']) ? $datas['users'] : null)
+                ->with('reported_id', isset($request->reported_id) ? $request->reported_id : null)
                 ->with('msg', isset($datas['msg']) ? $datas['msg'] : null)
                 ->with('date_start', isset($datas['date_start']) ? $datas['date_start'] : null)
                 ->with('date_end', isset($datas['date_end']) ? $datas['date_end'] : null);
@@ -605,7 +680,7 @@ class UserController extends Controller
         if($request->time =='send_time'){
             $datas = $this->admin->searchMessageBySendTime($request);
         }
-        else{            
+        else{
             if ( !$request->msg && !$request->date_start && !$request->date_end) {
                 $results = null;
             }
@@ -618,6 +693,7 @@ class UserController extends Controller
                                         ->where('content', 'like', '%' . $msg . '%')
                                         ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
             }
+            $senders = array(); //先宣告 否則報錯
             if($results != null){
                 $temp = $results->get()->toArray();
                 //Rearranges the messages query results.
@@ -639,13 +715,18 @@ class UserController extends Controller
                     }
                 }
                 //Senders' meta.
-                $senders = array();
                 foreach ($from_id as $key => $id){
                     $sender = User::where('id', '=', $id)->get()->first();
-                    $vip_tmp = $sender->isVip() ? true : false;
+                    // $vip_tmp = $sender->isVip() ? true : false;
                     $senders[$key] = $sender->toArray();
-                    $senders[$key]['vip'] = $vip_tmp;
-                    $senders[$key]['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first() == true ? true : false;
+                    $senders[$key]['vip'] = Vip::vip_diamond($id);
+                    $senders[$key]['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first();
+                    $senders[$key]['tipcount'] = Tip::TipCount_ChangeGood($id);
+                    //被檢舉者近一月曾被不同人檢舉次數
+                    $tmp = $this->admin->reports_month($id);
+                    $senders[$key]['picsResult'] = $tmp['picsResult'];
+                    $senders[$key]['messagesResult'] = $tmp['messagesResult'];
+                    $senders[$key]['reportsResult'] = $tmp['reportsResult'];
                 }
                 //Fills message ids to each sender.
                 foreach ($senders as $key => $sender){
@@ -663,11 +744,15 @@ class UserController extends Controller
                     $receivers[$id] = array();
                 }
                 foreach ($receivers as $id => $receiver){
-                    $name = User::select('name')
+                    $name = User::select('name','engroup')
                         ->where('id', '=', $id)
                         ->get()->first();
                     if($name != null){
-                        $receivers[$id] = $name->name;
+                        $receivers[$id]['name'] = $name->name;
+                        $receivers[$id]['tipcount'] = Tip::TipCount_ChangeGood($id);
+                        $receivers[$id]['vip'] = Vip::vip_diamond($id);
+                        $receivers[$id]['isBlockedReceiver'] = banned_users::where('member_id', 'like', $id)->get()->first();
+                        $receivers[$id]['engroup'] = $name->engroup;
                     }
                     else{
                         $receivers[$id] = '資料庫沒有資料';
@@ -805,10 +890,7 @@ class UserController extends Controller
         }
     }
 
-    public function showAdminMessengerWithMessageId($id, $mid)
-    {
-        
-
+    public function showAdminMessengerWithMessageId($id, $mid) {
         $admin = $this->admin->checkAdmin();
         if ($admin){
             $msglib = Msglib::get();
@@ -825,42 +907,39 @@ class UserController extends Controller
             /*被檢舉者*/
             $to_user_id = Message::where('id', $mid)->get()->first()->to_id;
             $to_user    = $this->service->find($to_user_id);
-
-
             $message_msg = Message::where('to_id', $to_user->id)->where('from_id',$user->id)->get();   
-        if(!$msglib_report->isEmpty()){
-            foreach($msglib_report as $key=>$msg){
-                $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
-                $msglib_msg[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg[$key]);
-                $msglib_msg[$key] = str_replace('|$reportTime|',$message_msg[0]->created_at, $msglib_msg[$key]);
-                $msglib_msg[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg[$key]);
+            if(!$msglib_report->isEmpty()){
+                foreach($msglib_report as $key=>$msg){
+                    $msglib_msg[$key] = str_replace('|$report|', $user->name, $msg['msg']);
+                    $msglib_msg[$key] = str_replace('|$reported|', $sender->name, $msglib_msg[$key]);
+                    $msglib_msg[$key] = str_replace('|$reportTime|', isset($message_msg[0]) ? $message_msg[0]->created_at : null, $msglib_msg[$key]);
+                    $msglib_msg[$key] = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $msglib_msg[$key]);
+                }
             }
-        }else{
-            foreach($msglib_all as $key=>$msg){
-                $msglib_msg[$key] = $msg['msg'];
+            else{
+                foreach($msglib_all as $key=>$msg){
+                    $msglib_msg[$key] = $msg['msg'];
+                }
             }
-        }
-        if(!$msglib_reported->isEmpty()){
-            foreach($msglib_reported as $key=>$msg){
-                $msglib_msg2[$key] = str_replace('|$report|',$user->name, $msg['msg']);
-                $msglib_msg2[$key] = str_replace('|$reported|',$to_user->name, $msglib_msg2[$key]);
-                $msglib_msg2[$key] = str_replace('|$reportTime|',$message_msg[0]->created_at, $msglib_msg2[$key]);
-                $msglib_msg2[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg2[$key]);
+            if(!$msglib_reported->isEmpty()){
+                foreach($msglib_reported as $key=>$msg){
+                    $msglib_msg2[$key] = str_replace('|$report|', $user->name, $msg['msg']);
+                    $msglib_msg2[$key] = str_replace('|$reported|',$sender->name, $msglib_msg2[$key]);
+                    $msglib_msg2[$key] = str_replace('|$reportTime|', isset($message_msg[0]) ? $message_msg[0]->created_at : null, $msglib_msg2[$key]);
+                    $msglib_msg2[$key] = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $msglib_msg2[$key]);
+                }
             }
-        }else{
-            foreach($msglib_all as $key=>$msg){
-                $msglib_msg2[$key] = $msg['msg'];
+            else{
+                foreach($msglib_all as $key=>$msg){
+                    $msglib_msg2[$key] = $msg['msg'];
+                }
             }
-        }
-        
-
-
-
 
             return view('admin.users.messenger')
                 ->with('admin', $admin)
                 ->with('user', $user)
                 ->with('to_user', $to_user)
+                ->with('from_user', $sender)
                 ->with('message', $message)
                 ->with('senderName', $sender->name)
                 ->with('msglib', $msglib_report)
@@ -877,20 +956,40 @@ class UserController extends Controller
         }
     }
 
-    public function showAdminMessengerWithReportedId($id, $reported_id, $pic_id = null, $isPic= null, $isReported= null) {
+    public function showAdminMessengerWithReportedId($id, $reported_id, $pic_id = null, $isPic = null, $isReported= null) {
+        // $isPic 為被檢舉之表格 ID
         $admin = $this->admin->checkAdmin();
         if ($admin){
             $msglib = Msglib::get();
-            $msglib2 = Msglib::get();
             $msglib3 = Msglib::selectraw('msg')->get();
+            $msglib_report = Msglib::selectraw('id, title, msg')->where('kind','=','report')->get();
+            $msglib_reported = Msglib::selectraw('id, title, msg')->where('kind','=','reported')->get();
             $report = Reported::where('member_id', $id)->where('reported_id', $reported_id)->get()->first();
+            if(isset($isPic)){
+                $a = ReportedAvatar::where('reporter_id', $id)->where('reported_user_id', $reported_id)->get()->first();
+                $b = ReportedPic::where('reporter_id', $id)->get()->first();
+                if(isset($a) && isset($b)){
+                    $report = $a->id == $isPic ? $a : $b;
+                }
+                else{
+                    $report = isset($a) ? $a : $b;
+                }
+            }
             /*檢舉者*/
             $user = $this->service->find($id);
             /*被檢舉者 */
             $reported = User::where('id', $reported_id)->get()->first();
-            foreach($msglib3 as $key=>$msg){
-                $msglib_msg[$key] = str_replace('|$report|',$user->name, $msg['msg']);
-                $msglib_msg[$key] = str_replace('|$reported|',$reported->name, $msglib_msg[$key]);
+            foreach($msglib_report as $key => $msg){
+                $msglib_msg[$key] = str_replace('|$report|', $user->name, $msg['msg']);
+                $msglib_msg[$key] = str_replace('|$reported|', $reported->name, $msglib_msg[$key]);
+                $msglib_msg[$key] = str_replace('|$reportTime|', isset($report->created_at) ? $report->created_at : null, $msglib_msg[$key]);
+                $msglib_msg[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg[$key]);
+            }
+            foreach($msglib_reported as $key => $msg){
+                $msglib_msg2[$key] = str_replace('|$report|', $user->name, $msg['msg']);
+                $msglib_msg2[$key] = str_replace('|$reported|', $reported->name, $msglib_msg2[$key]);
+                $msglib_msg2[$key] = str_replace('|$reportTime|', isset($report->created_at) ? $report->created_at : null, $msglib_msg2[$key]);
+                $msglib_msg2[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg2[$key]);
             }
             return view('admin.users.messenger')
                 ->with('admin', $admin)
@@ -898,14 +997,18 @@ class UserController extends Controller
                 ->with('report', $report)
                 ->with('user', $reported)
                 ->with('reportedName', $reported->name)
+                ->with('from_user', $reported)
                 ->with('to_user', $user)
                 ->with('isPic', $isPic)
                 ->with('isReported', $isReported)
-                ->with('isReportedId', $reported->id)
+                ->with('isReportedId', $reported_id)
                 ->with('pic_id', $pic_id)
-                ->with('msglib', $msglib)
-                ->with('msglib2', $msglib2)
-                ->with('msglib_msg', isset($msglib_msg) ? $msglib_msg : null);
+                ->with('msglib', $msglib_report)
+                ->with('msglib2', $msglib_reported)
+                ->with('msglib_report', $msglib_report)
+                ->with('msglib_reported', $msglib_reported)
+                ->with('msglib_msg', isset($msglib_msg) ? $msglib_msg : null)
+                ->with('msglib_msg2', isset($msglib_msg2) ? $msglib_msg2 : null);
         }
         else{
             return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
@@ -979,6 +1082,20 @@ class UserController extends Controller
         $messages = Message::allToFromSender($id1, $id2);
         $id1 = User::where('id', $id1)->get()->first();
         $id2 = User::where('id', $id2)->get()->first();
+
+        $id1->tipcount = Tip::TipCount_ChangeGood($id1->id);
+        $id2->tipcount = Tip::TipCount_ChangeGood($id2->id);
+
+        $id1->vip = Vip::vip_diamond($id1->id);
+        $id2->vip = Vip::vip_diamond($id2->id);
+
+        $id1->isBlocked = banned_users::where('member_id', 'like', $id1->id)->get()->first();
+        $id1->isBlockedReceiver = banned_users::where('member_id', 'like', $id1->id)->get()->first();
+
+        $id2->isBlocked = banned_users::where('member_id', 'like', $id2->id)->get()->first();
+        $id2->isBlockedReceiver = banned_users::where('member_id', 'like', $id2->id)->get()->first();
+
+
         return view('admin.users.showMessagesBetween', compact('messages', 'id1', 'id2'));
     }
 
@@ -1097,6 +1214,29 @@ class UserController extends Controller
     {
         $a = AdminAnnounce::orderBy('sequence', 'asc')->get()->all();
         return view('admin.adminannouncement')->with('announce', $a);
+    } 
+
+    public function showAdminCommonText()
+    {
+        $a = AdminCommonText::orderBy('id', 'asc')->where('status', 1)->get()->all();
+        return view('admin.admincommontext')->with('commontext', $a);
+    }
+
+    public function saveAdminCommonText(Request $request)
+    {
+        if( AdminCommonText::checkContent2($request->id, $request->content2) AND AdminCommonText::checkContent2($request->id, $request->content) ){
+            return back()->withErrors(['請修改後再送出']);
+        }elseif(AdminCommonText::checkContent2($request->id, $request->content2)){
+            $a = AdminCommonText::select('*')->where('id', '=', $request->id)->first();
+            $a->content = $request->content;
+            $a->save();
+            return back()->with('message', '成功修改');
+        }elseif (AdminCommonText::checkContent2($request->id, $request->content)){
+            $a = AdminCommonText::select('*')->where('id', '=', $request->id)->first();
+            $a->content = $request->content2;
+            $a->save();
+            return back()->with('message', '成功修改');
+        }
     }
 
     public function showReadAnnouncementUser($id)
@@ -1224,6 +1364,7 @@ class UserController extends Controller
             return view('admin.users.reportedUsers')
                 ->with('results', $datas['results'])
                 ->with('users', isset($datas['users']) ? $datas['users'] : null)
+                ->with('reported_id', isset($request->reported_id) ? $request->reported_id : null)
                 ->with('date_start', isset($request->date_start) ? $request->date_start : null)
                 ->with('date_end', isset($request->date_end) ? $request->date_end : null);
         }
@@ -1247,21 +1388,25 @@ class UserController extends Controller
         if ($admin){
 
             $date_start = $request->date_start ? $request->date_start : '0000-00-00';
-            $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
+            $date_end = $request->date_end ? $request->date_end. ' 23:59:59' : date('Y-m-d'). ' 23:59:59';
 
             $avatars = ReportedAvatar::whereBetween('created_at', array($date_start, $date_end))
                                         ->orderBy('created_at', 'desc')->get();
             $pics = ReportedPic::whereBetween('created_at', array($date_start, $date_end))
                                 ->orderBy('created_at', 'desc')->get();
-
+            
             $avatarDatas = $this->admin->fillReportedAvatarDatas($avatars);
             $picDatas = $this->admin->fillReportedPicDatas($pics);
 
+            $picReason = DB::table('reason_list')->select('content')->where('type', 'pic')->get();
+
             return view('admin.users.reportedPics')
+                ->with('picReason', $picReason)
                 ->with('results', $avatarDatas['results'] ? $avatarDatas['results'] : 1)
                 ->with('users', isset($avatarDatas['users']) ? $avatarDatas['users'] : null)
                 ->with('Presults', $picDatas['results'] ? $picDatas['results'] :null)
                 ->with('Pusers', isset($picDatas['users']) ? $picDatas['users'] : null)
+                ->with('reported_id', isset($request->reported_id) ? $request->reported_id : null)
                 ->with('date_start', isset($request->date_start) ? $request->date_start : null)
                 ->with('date_end', isset($request->date_end) ? $request->date_end : null);
         }
@@ -1438,6 +1583,45 @@ class UserController extends Controller
         }
         return view('admin.users.messenger_create', $data);
     }
+
+    public function addMessageLibPageReporter(Request $request, $id=0)
+    {
+        if( $id != 0){
+            $msglib = MsgLib::where('id', $id)->first();
+            $data = array(
+                'page_title'=> '編輯訊息',
+                'msg_id'=>$msglib->id,
+                'title'=>$msglib->title,
+                'msg'=>$msglib->msg,
+                'isEdit'=>1,
+            );
+        }else{
+            $data = array(
+                'page_title'=> '新增訊息',
+            );
+        }
+        return view('admin.users.messenger_create', $data);
+    }
+
+    public function addMessageLibPageReported(Request $request, $id=0)
+    {
+        if( $id != 0){
+            $msglib = MsgLib::where('id', $id)->first();
+            $data = array(
+                'page_title'=> '編輯訊息',
+                'msg_id'=>$msglib->id,
+                'title'=>$msglib->title,
+                'msg'=>$msglib->msg,
+                'isEdit'=>1,
+            );
+        }else{
+            $data = array(
+                'page_title'=> '新增訊息',
+            );
+        }
+        return view('admin.users.messenger_create', $data);
+    }
+
     public function addMessageLib(Request $request)
     {
         $msg_id = $request->post('msg_id');
@@ -1507,5 +1691,72 @@ class UserController extends Controller
             'status'=>'success'
         );
         echo json_encode($data);
+    }
+
+    
+    public function basicSetting(Request $request){
+        $data['basic_setting'] = BasicSetting::get()->first();
+
+        return view('user.basic_setting', $data);
+    }
+
+    public function doBasicSetting(Request $request){
+        $vipLevel = $request->post('vipLevel');
+        $gender   = $request->post('gender');
+        $timeSet  = $request->post('timeSet');
+        $countSet = $request->post('countSet');
+        BasicSetting::select('vipLevel', 'gender', 'timeSet', 'countSet')
+        ->where('vipLevel', $vipLevel)->where('gender', $gender)
+        ->update(array('timeSet' => $timeSet,'countSet' => $countSet));
+        return redirect()->route('users/basic_setting');
+    }
+
+    public function showSuspectedMultiLogin(){
+        $result = \DB::table('suspected_multi_login')
+            ->select('users.email', 'users.last_login', 'users.name', 'suspected_multi_login.*')
+            ->join('users', 'users.id', '=', 'suspected_multi_login.user_id')
+            ->orderBy('created_at', 'desc')->paginate(20);
+        foreach ($result as &$r){
+            $r->count = Message::where('from_id', $r->user_id)->where('created_at', '>=', \Carbon\Carbon::now()->subDays(3))->count();
+        }
+
+        foreach ($result as &$r){
+            $users = explode(", ", $r->target);
+            foreach ($users as &$u){
+                $u = User::findById($u);
+            }
+            $r->target = $users;
+        }
+        return view('admin.users.suspectedMultiLoginList')->with('users', $result);
+    }
+
+    public function showImplicitlyBannedUsers(){
+        $result = \DB::table('banned_users_implicitly')
+            ->select('users.email', 'users.last_login', 'users.name', 'banned_users_implicitly.*')
+            ->join('users', 'users.id', '=', 'banned_users_implicitly.user_id')
+            ->orderBy('created_at', 'desc')->paginate(20);
+        foreach ($result as &$r){
+            $r->count = Message::where('from_id', $r->user_id)->where('created_at', '>=', \Carbon\Carbon::now()->subDays(3))->count();
+        }
+
+        foreach ($result as &$r){
+            $r->target = User::findById($r->target);
+        }
+        return view('admin.users.bannedListImplicitly')->with('users', $result);
+    }
+
+    public function showWarningUsers(){
+        $result = \DB::table('warning_users')
+            ->select('users.email', 'users.last_login', 'users.name', 'warning_users.*')
+            ->join('users', 'users.id', '=', 'warning_users.user_id')
+            ->orderBy('created_at', 'desc')->paginate(20);
+        foreach ($result as &$r){
+            $r->count = Message::where('from_id', $r->user_id)->where('created_at', '>=', \Carbon\Carbon::now()->subDays(3))->count();
+        }
+
+        foreach ($result as &$r){
+            $r->target = User::findById($r->target);
+        }
+        return view('admin.users.warningList')->with('users', $result);
     }
 }

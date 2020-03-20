@@ -5,7 +5,6 @@ namespace App\Models;
 use Auth;
 use App\Models\User;
 use App\Models\Blocked;
-use App\Models\SimpleTables\banned_users;
 use Illuminate\Database\Eloquent\Model;
 use App\Notifications\MessageEmail;
 use Illuminate\Support\Facades\Config;
@@ -46,7 +45,7 @@ class Message extends Model
         if($message->is_row_delete_1 == 0) {
             Message::deleteRowMessage($uid, $sid, 0);
         }
-        else if($message->is_row_delete_2 == 0) {
+        else if($message->is_single_delete_1 <> 0 && $message->is_single_delete_2 == 0) {
             Message::deleteRowMessage($uid, $sid, 1);
         }
     }
@@ -104,17 +103,22 @@ class Message extends Model
     }
 
     public static function deleteSingle($uid, $sid, $ct_time, $content) {
-        $message = Message::where([['to_id', $uid], ['from_id', $sid], ['created_at', $ct_time], ['content', $content]])->orWhere([['to_id', $sid], ['from_id', $uid], ['created_at', $ct_time], ['content', $content]])->first();
+        $message = Message::where([['to_id', $uid], ['from_id', $sid], ['created_at', $ct_time], ['content', $content]])
+            ->orWhere([['to_id', $sid], ['from_id', $uid], ['created_at', $ct_time], ['content', $content]])
+            ->first();
+
+//        $message = Message::where('id',$id)->first();
         //echo json_encode($message);
         //echo 'uid = ' . $uid . ' sid = ' . $sid;
-        if(!isset($message)){
-            return false;
-        }
-        if($message->is_single_delete_1 == 0) {
-            Message::deleteSingleMessage($message, $uid, $sid, $ct_time, $content, 0);
-        }
-        else if($message->is_single_delete_2 == 0) {
-            Message::deleteSingleMessage($message, $uid, $sid, $ct_time, $content, 1);
+//        if(!isset($message)){
+//            return false;
+//        }
+        if($message) {
+            if($message->is_single_delete_1 == 0) {
+                Message::deleteSingleMessage($message, $uid, $sid, $ct_time, $content, 0);
+            }elseif($message->is_single_delete_1 <> 0 && $message->is_single_delete_2 == 0) {
+                Message::deleteSingleMessage($message, $uid, $sid, $ct_time, $content, 1);
+            }
         }
     }
 
@@ -160,7 +164,7 @@ class Message extends Model
         $isAllDelete = true;
         //$msgShow = User::findById($uid)->meta_()->notifhistory;
         $user = \Auth::user();
-        $banned_users = \App\Models\SimpleTables\banned_users::select('member_id')->get();
+        $banned_users = \App\Services\UserService::getBannedId();
         foreach($messages as $key => &$message) {
             if($banned_users->contains('member_id', $message->to_id)){
                 unset($messages[$key]);
@@ -204,7 +208,8 @@ class Message extends Model
             // add messages to array
             if(!in_array(['to_id' => $message->to_id, 'from_id' => $message->from_id], $tempMessages) && !in_array(['to_id' => $message->from_id, 'from_id' => $message->to_id], $tempMessages)) {
                 array_push($tempMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id]);
-                array_push($saveMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id, 'temp_id' => $message->temp_id,'all_delete_count' => $message->all_delete_count, 'is_row_delete_1' => $message->is_row_delete_1, 'is_row_delete_2' => $message->is_row_delete_2, 'is_single_delete_1' => $message->is_single_delete_1, 'is_single_delete_2' => $message->is_single_delete_2]);
+                array_push($saveMessages, ['created_at' => $message->created_at,'to_id' => $message->to_id, 'from_id' => $message->from_id, 'temp_id' => $message->temp_id,'all_delete_count' => $message->all_delete_count, 'is_row_delete_1' => $message->is_row_delete_1,
+                    'is_row_delete_2' => $message->is_row_delete_2, 'is_single_delete_1' => $message->is_single_delete_1, 'is_single_delete_2' => $message->is_single_delete_2,'content'=>$message->content]);
                 $noVipCount++;
             }
 
@@ -355,6 +360,23 @@ class Message extends Model
         return $saveMessages;
     }
 
+    public static function daySendersAdmin($uid, $isVip,$day_page){   
+        $s = date('Y-m-d H:i:s',strtotime(($day_page-1).'day'));
+        $e = date('Y-m-d H:i:s',strtotime($day_page.'day'));
+        $messages = DB::select(DB::raw("
+            select * from `message` 
+            WHERE  ((`to_id` = $uid and `from_id` != $uid) or (`from_id` = $uid and `to_id` != $uid))
+            AND created_at BETWEEN '".$s."' AND '".$e."'
+            order by `created_at` desc 
+        "));
+        $saveMessages = Message::chatArray($uid, $messages, 1);
+        return $saveMessages;
+    }
+
+    public static function ChcekReplyMsg($uid, $sid,$time){
+        return  Message::where([['to_id', $sid],['from_id', $uid],['created_at', '>=', $time]])->first() !== null;
+    }
+
     public static function moreSendersAJAX($uid, $isVip, $date, $userAgent = null, $noVipCount = 0)
     {
         $dropTempTables = DB::unprepared(DB::raw("
@@ -420,7 +442,14 @@ class Message extends Model
 
     public static function allSendersAJAX($uid, $isVip)
     {
-        $messages = Message::where([['to_id', $uid], ['from_id', '!=', $uid]])->orWhere([['from_id', $uid], ['to_id', '!=',$uid]])->orderBy('created_at', 'desc')->get();
+        $userBlockList = Blocked::select('blocked_id')->where('member_id', $uid)->get();
+        $banned_users = \App\Services\UserService::getBannedId();
+        $messages = Message::where([['to_id', $uid], ['from_id', '!=', $uid]])->orWhere([['from_id', $uid], ['to_id', '!=',$uid]])->orderBy('created_at', 'desc');
+        $messages->whereNotIn('to_id', $userBlockList);
+        $messages->whereNotIn('from_id', $userBlockList);
+        $messages->whereNotIn('to_id', $banned_users);
+        $messages->whereNotIn('from_id', $banned_users);
+        $messages = $messages->get();
 
         if($isVip == 1)
             $saveMessages = Message::chatArrayAJAX($uid, $messages, 1);
@@ -445,7 +474,7 @@ class Message extends Model
         $user = Auth::user();
         $block_people =  Config::get('social.block.block-people');
         $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
-        $banned_users = banned_users::select('member_id')->get();
+        $banned_users = \App\Services\UserService::getBannedId();
         $isVip = $user->isVip();
         foreach ($messages as $key => &$message){
             $to_id = isset($message["to_id"]) ? $message["to_id"] : null;
@@ -556,7 +585,7 @@ class Message extends Model
             return Message::where([['to_id', $uid],['from_id', $sid],['created_at', '<=', $blockTime->created_at]])->orWhere([['from_id', $uid],['to_id', $sid]])->distinct()->orderBy('created_at', 'desc')->paginate(10);
         }
 
-        return Message::where([['to_id', $uid],['from_id', $sid]])->orWhere([['from_id', $uid],['to_id', $sid]])->distinct()->orderBy('created_at', 'desc')->paginate(10);
+        return Message::where([['to_id', $uid],['from_id', $sid],['is_single_delete_1','<>',$uid]])->orWhere([['from_id', $uid],['to_id', $sid],['is_single_delete_1','<>',$uid]])->distinct()->orderBy('created_at', 'desc')->paginate(10);
     }
 
     public static function unread($uid)
@@ -564,28 +593,28 @@ class Message extends Model
         // block information
         //
         $user = User::findById($uid);
-        $block = Blocked::getAllBlock($uid);
-        $banned_users = banned_users::select('member_id')->get();
-        $all_msg = Message::where([['to_id', $uid],['from_id', '!=', $uid], ['is_row_delete_1', '=' ,0], ['temp_id', '=', 0]])->where('read', 'N')->whereNotIn('from_id', $banned_users);
+        $block = Blocked::getAllBlockedId($uid);
+        $banned_users = \App\Services\UserService::getBannedId();
+
+        $query = Message::where(function($query)use($uid)
+        {
+            $query->where('to_id','=' ,$uid)
+                ->where('from_id','!=',$uid);
+        });
+        $all_msg = $query->whereNotIn('from_id', $banned_users)
+            ->whereNotIn('to_id', $banned_users)
+            ->whereNotIn('from_id', $block)
+            ->whereNotIn('to_id', $block)
+            ->where([['is_row_delete_1', '=' ,0], ['temp_id', '=', 0]])
+            ->where('read', 'N');
         if($user->meta_()->notifhistory == '顯示VIP會員信件') {
             //$allVip = \App\Models\Vip::allVip();
             //$all_msg = $all_msg->whereIn('from_id', $allVip);
             $all_msg = $all_msg->join('member_vip', 'member_vip.member_id', '=', 'message.from_id');
         }
-        $unreadCount = 0;
-        if($block->count() == 0) return $all_msg->count();
-        //echo $block->count();
-        //echo 'count = '. $block->count();
-        $blocked_ids = array();
-        foreach($block as $b) {
-            if(!in_array($b->blocked_id, $blocked_ids)){
-                array_push($blocked_ids, $b->blocked_id);
-            }
-        }
-        $unreadCount += $all_msg->whereNotIn('from_id', $blocked_ids)->count();
+        $unreadCount = $all_msg->count();
 
         return $unreadCount;
-        //return Message::where([['to_id', $uid],['from_id', '!=', $uid],['from_id', '!=', $block[$i]->blocked_id]])->where('read', 'N')->count();
     }
 
     public static function read($message, $uid)

@@ -2,18 +2,49 @@
 
 <body style="padding: 15px;">
 <h1>
-	@if($user['vip'] )<i class="fa fa-diamond" style="font-size: 2rem;"></i>@endif{{ $user->name }}的所有資料
+	{{ $user->name }}
+	@if($user['vip'])
+	    @if($user['vip']=='diamond_black')
+	        <img src="/img/diamond_black.png" style="height: 2.5rem;width: 2.5rem;">
+	    @else
+	        @for($z = 0; $z < $user['vip']; $z++)
+	            <img src="/img/diamond.png" style="height: 2.5rem;width: 2.5rem;">
+	        @endfor
+	    @endif
+	@endif
+	@for($i = 0; $i < $user['tipcount']; $i++)
+	    👍
+	@endfor
+	@if(!is_null($user['isBlocked']))
+	    @if(!is_null($user['isBlocked']['expire_date']))
+	        @if(round((strtotime($user['isBlocked']['expire_date']) - getdate()[0])/3600/24)>0)
+	            {{ round((strtotime($user['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天
+	        @else
+	            此會員登入後將自動解除封鎖
+	        @endif
+	    @else
+	        (永久)
+	    @endif
+	@endif
+	的所有資料
 	<a href="edit/{{ $user->id }}" class='text-white btn btn-primary'>修改</a>
 	@if($user['isBlocked'])
 		<button type="button" id="unblock_user" class='text-white btn @if($user["isBlocked"]) btn-success @else btn-danger @endif' onclick="Release({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除封鎖 </button>
 	@else 
-		<a class="btn btn-danger ban-user" id="block_user" href="#" data-target="#blockade" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">封鎖會員</a>
+		<a class="btn btn-danger ban-user" id="block_user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">封鎖會員</a>
 	@endif
 	
-	@if($user['vip'])
-		<button class="btn btn-info" onclick="VipAction({{($user['vip'])?'1':'0' }},{{ $user['id'] }})"> 取消VIP </button>
+	@if($user['isvip'])
+		<button class="btn btn-info" onclick="VipAction({{($user['isvip'])?'1':'0' }},{{ $user['id'] }})"> 取消VIP </button>
+		@if($user->engroup==1)
+			@if($user->Recommended==1)
+				<button class="btn btn-info" onclick="RecommendedToggler({{ $user['id'] }},'1')">給予優選</button>
+			@else
+				<button class="btn btn-danger ban-user" onclick="RecommendedToggler({{ $user['id'] }},'0')">取消優選</button>
+			@endif
+		@endif
 	@else 
-		<button class="btn btn-info" onclick="VipAction({{($user['vip'])?'1':'0' }},{{ $user['id'] }})"> 升級VIP </button>
+		<button class="btn btn-info" onclick="VipAction({{($user['isvip'])?'1':'0' }},{{ $user['id'] }})"> 升級VIP </button>
 	@endif
 	@if(is_null($userMeta->activation_token))
 		<b style="font-size:18px">已開通會員</b>
@@ -155,7 +186,30 @@
 	@forelse ($userMessage as $key => $message)
 		<tr>
 			<td>
-				<a href="{{ route('admin/showMessagesBetween', [$user->id, $message->to_id]) }}" target="_blank">{{ $to_ids[$message->to_id]['name'] }}@if($to_ids[$message->to_id]['vip'] )<i class="fa fa-diamond"></i>@endif</a>
+				<a href="{{ route('admin/showMessagesBetween', [$user->id, $message->to_id]) }}" target="_blank">
+					<p @if($to_ids[$message->to_id]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+						{{ $to_ids[$message->to_id]['name'] }}
+						@if($to_ids[$message->to_id]['vip'])
+						    @if($to_ids[$message->to_id]['vip']=='diamond_black')
+						        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+						    @else
+						        @for($z = 0; $z < $to_ids[$message->to_id]['vip']; $z++)
+						            <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+						        @endfor
+						    @endif
+						@endif
+						@for($i = 0; $i < $to_ids[$message->to_id]['tipcount']; $i++)
+						    👍
+						@endfor
+						@if(!is_null($to_ids[$message->to_id]['isBlocked']))
+						    @if(!is_null($to_ids[$message->to_id]['isBlocked']['expire_date']))
+						        ({{ round((strtotime($to_ids[$message->to_id]['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+						    @else
+						        (永久)
+						    @endif
+						@endif
+					</p>
+				</a>
 			</td>
 			<td>{{ $message->content }}</td>
 			<td>{{ $message->created_at }}</td>
@@ -240,6 +294,14 @@
 		<input type="hidden" value="advInfo" name="page">
 	</form>
 </div>
+<div>
+	<form action="/admin/users/RecommendedToggler" method="POST" id="toggleRecommendedUser">
+		{{ csrf_field() }}
+		<input type="hidden" value="" name="user_id" id="RecommendedUserID">
+		<input type="hidden" value="" name="Recommended" id="Recommended">
+		<input type="hidden" value="advInfo" name="page">
+	</form>
+</div>
 <script src="/js/vendors.bundle.js" type="text/javascript"></script>
 <script>
 jQuery(document).ready(function(){
@@ -287,6 +349,11 @@ function VipAction(isVip, user_id){
 	$("#vipID").val(user_id);
 	$("#clickVipAction").submit();
 }
+function RecommendedToggler(user_id,Recommended){
+	$("#RecommendedUserID").val(user_id);
+	$("#Recommended").val(Recommended);
+	$("#toggleRecommendedUser").submit();
+}
 function setDays(button){
     
     let reason = $(".m-reason").val();
@@ -305,24 +372,6 @@ function changeFormContent(form_id , key) {
     });    
 }
 
-$("#block_user").click(function(){
-	var data = $(this).data();
-	if(confirm('確定封鎖此會員?')){
-		$.ajax({
-			type: 'POST',
-			url: "/admin/users/block_user",
-			data:{
-				_token: '{{csrf_token()}}',
-				data: data,
-			},
-			dataType:"json",
-			success: function(res){
-				alert('封鎖成功');
-				location.reload();
-			}});
-	}
-});
-
 $("#unblock_user").click(function(){
 	var data = $(this).data();
 	if(confirm('確定解除封鎖此會員?')){
@@ -338,6 +387,9 @@ $("#unblock_user").click(function(){
 				alert('解除封鎖成功');
 				location.reload();
 			}});
+	}
+	else{
+		return false;
 	}
 });
 </script>

@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Middleware;
 use App\Models\Message;
+use App\Models\AdminCommonText;
 use App\Models\Tip;
 use App\Models\Vip;
 use Carbon\Carbon;
@@ -141,11 +142,21 @@ class TipApiDataLogger{
                 if (isset($payload['RtnCode'])) {
                     if($payload['RtnCode'] == 1){
                         Tip::upgrade($user->id, $payload['MerchantTradeNo'], '');
-                        Message::post($user->id, $payload['CustomField2'], "系統通知: 車馬費邀請");
+                        // Message::post($user->id, $payload['CustomField2'], "系統通知: 車馬費邀請");
                         if($user->engroup == 1) {
+                            //取資料庫並替換名字
+                            $tip_msg1 = AdminCommonText::getCommonText(1);//id2給男會員訊息
+                            $tip_msg1 = str_replace('NAME', \App\Models\User::findById($payload['CustomField2'])->name, $tip_msg1);
+                            $tip_msg2 = AdminCommonText::getCommonText(2);//id3給女會員訊息
+                            $tip_msg2 = str_replace('NAME', $user->name, $tip_msg2);
+                            // 給男會員訊息（需在發送方的訊息框看到，所以是由男會員發送）
+                            Message::post($payload['CustomField1'], $payload['CustomField2'], $tip_msg1, false);
+                            // 給女會員訊息（需在接收方的訊息框看到，所以是由女會員發送）
+                            Message::post($payload['CustomField2'], $payload['CustomField1'], $tip_msg2, false);
+
                             // 給男會員訊息
-                            Message::post($payload['CustomField1'], $payload['CustomField2'], "系統通知: 車馬費邀請\n您已經向 ". \App\Models\User::findById($payload['CustomField2'])->name ." 發動車馬費邀請。\n流程如下\n1:網站上進行車馬費邀請\n2:網站上訊息約見(重要，站方判斷約見時間地點，以網站留存訊息為準)\n3:雙方見面\n\n如果雙方在第二步就約見失敗。\n將扣除手續費 288 元後，1500匯入您指定的帳戶。也可以用現金袋或者西聯匯款方式進行。\n(聯繫我們有站方聯絡方式)\n\n若雙方有見面意願，被女方放鴿子。\n站方會參照女方提出的證據，判斷是否將尾款交付女方。", false);
-                            Message::post($payload['CustomField2'], $payload['CustomField1'], "系統通知: 車馬費邀請\n". $user->name . " 已經向 您 發動車馬費邀請。\n流程如下\n1:網站上進行車馬費邀請\n2:網站上訊息約見(重要，站方判斷約見時間地點，以網站留存訊息為準)\n3:雙方見面(建議約在知名連鎖店丹堤星巴克或者麥當勞之類)\n\n若成功見面男方沒有提出異議，那站方會在發動後 7~14 個工作天\n將 1500 匯入您指定的帳戶。若您不想提供銀行帳戶。\n也可以用現金袋或者西聯匯款方式進行。\n(聯繫我們有站方聯絡方式)\n\n若男方提出當天女方未到場的爭議。請您提出當天消費的發票證明之。\n所以請約在知名連鎖店以利站方驗證。\n", false);
+                            // Message::post($payload['CustomField1'], $payload['CustomField2'], "系統通知: 車馬費邀請\n您已經向 ". \App\Models\User::findById($payload['CustomField2'])->name ." 發動車馬費邀請。\n流程如下\n1:網站上進行車馬費邀請\n2:網站上訊息約見(重要，站方判斷約見時間地點，以網站留存訊息為準)\n3:雙方見面\n\n如果雙方在第二步就約見失敗。\n將扣除手續費 288 元後，1500匯入您指定的帳戶。也可以用現金袋或者西聯匯款方式進行。\n(聯繫我們有站方聯絡方式)\n\n若雙方有見面意願，被女方放鴿子。\n站方會參照女方提出的證據，判斷是否將尾款交付女方。", false);
+                            // Message::post($payload['CustomField2'], $payload['CustomField1'], "系統通知: 車馬費邀請\n". $user->name . " 已經向 您 發動車馬費邀請。\n流程如下\n1:網站上進行車馬費邀請\n2:網站上訊息約見(重要，站方判斷約見時間地點，以網站留存訊息為準)\n3:雙方見面(建議約在知名連鎖店丹堤星巴克或者麥當勞之類)\n\n若成功見面男方沒有提出異議，那站方會在發動後 7~14 個工作天\n將 1500 匯入您指定的帳戶。若您不想提供銀行帳戶。\n也可以用現金袋或者西聯匯款方式進行。\n(聯繫我們有站方聯絡方式)\n\n若男方提出當天女方未到場的爭議。請您提出當天消費的發票證明之。\n所以請約在知名連鎖店以利站方驗證。\n", false);
                         }
                         else if($user->engroup == 2) {
                             // 給女會員訊息
@@ -154,10 +165,12 @@ class TipApiDataLogger{
                         return response('1|OK', 200);
                     }
                     else{
+                        Log::info("Error: RtnCode didn't set.");
                         return response('0|Error', 200);
                     }
                 }
                 else{
+                    Log::info("Error: No data.");
                     return response('0|No data', 200);
                 }
             }

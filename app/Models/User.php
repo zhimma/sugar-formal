@@ -19,7 +19,6 @@ use Carbon\Carbon;
 class User extends Authenticatable
 {
     use Notifiable;
-    public $timestamps = false;
     /**
      * The database table used by the model.
      *
@@ -181,8 +180,13 @@ class User extends Authenticatable
 
     public function isVip()
     {
-        //return Vip::where('member_id', $this->id)->where('expiry', '>=',   Carbon::now())->orderBy('created_at', 'desc')->first() !== null;
+        // Middleware 下的 VipCheck 會將「是 VIP」但「過期」的會員取消權限，
+        // 如果這邊就先針對到期日過濾掉的話，後續會導致問題，如下次重新付費升級
+        // 會依舊顯示非 VIP
         return Vip::select('active')->where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first() !== null;
+        // return Vip::select('active')->where('member_id', $this->id)->where('active', 1)->where(function($query)
+        //             {$query->where('expiry', '0000-00-00 00:00:00')->orwhere('expiry', '>=', Carbon::now());}
+        //            )->orderBy('created_at', 'desc')->first() !== null;
     }
 
     public function isFreeVip()
@@ -207,7 +211,7 @@ class User extends Authenticatable
     public function existHeaderImage() {
         $pics = MemberPic::where('member_id', $this->id)->count();
         //echo $pics;
-        return isset($this->meta_()->pic) && ($pics >= 3);
+        return isset($this->meta_()->pic) && ($pics >= 4);
     }
 
     public function isActive() {

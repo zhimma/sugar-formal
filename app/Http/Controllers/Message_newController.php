@@ -3,17 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Message;
 use App\Models\Message_new;
 use App\Models\AnnouncementRead;
-use App\Http\Requests;
+use App\Models\AdminAnnounce;
 use App\Models\SimpleTables\banned_users;
 use App\Models\User;
+use App\Models\UserMeta;
+use App\Services\UserService;
+use App\Services\VipLogService;
 use Carbon\Carbon;
+use Gloudemans\Shoppingcart\Facades\Cart as Cart;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 
 class Message_newController extends Controller {
+
 
     // handle delete message
     public function deleteBetween(Request $request) {
@@ -25,23 +31,27 @@ class Message_newController extends Controller {
     public function deleteBetweenGET($uid, $sid) {
         Message::deleteBetween($uid, $sid);
 
-        return redirect('dashboard/chat');
+        return redirect('dashboard/chat2/'.csrf_token().Carbon::now()->timestamp);
+        //return redirect('dashboard/chat2/{randomNo?}');
     }
 
     public function deleteAll(Request $request) {
-        Message::deleteAll($request->input('uid'));
-
-        return redirect('dashboard/chat');
+        Message::deleteAll($request->uid);
+        return response()->json(['save' => 'ok']);
+        //return redirect('dashboard/chat');
+        //return redirect('dashboard/chat2/'.csrf_token().Carbon::now()->timestamp);
     }
 
     public function deleteSingle(Request $request) {
-        $uid = $request->input('uid');
-        $sid = $request->input('sid');
-        $ct_time = $request->input('ct_time');
-        $content = $request->input('content');
+        $uid = $request->uid;
+        $sid = $request->sid;
+        $ct_time = $request->ct_time;
+        $content = $request->content;
+        $id = $request->id;
 
         Message::deleteSingle($uid, $sid, $ct_time, $content);
-        return redirect()->route('chatWithUser', $sid);
+        return response()->json(['save' => 'ok']);
+//        return redirect()->route('chat2WithUser', $sid);
         //return redirect('dashboard/chat/' . $sid);
     }
 
@@ -50,6 +60,17 @@ class Message_newController extends Controller {
 
         return redirect()->route('chatWithUser', $sid);
         //return redirect('dashboard/chat/' . $sid);
+    }
+
+    public function chatSet(Request $request) {
+        $user = UserMeta::where('user_id',$request->uid)->first();
+        if ($user) {
+            $user->update([
+                'notifmessage' => $request->notifmessage,
+                'notifhistory' => $request->notifhistory
+            ]);
+            return response()->json(['save' => 'ok']);
+        }
     }
 
     public function reportMessage(Request $request){
@@ -64,7 +85,8 @@ class Message_newController extends Controller {
         return view('dashboard.reportMessage')->with('id', $id)->with('sid', $sid)->with('user', $user);
     }
 
-    public function postChat(Request $request)
+
+    public function postChat(Request $request, $randomNo = null)
     {
         $banned = banned_users::where('member_id', Auth::user()->id)
             ->whereNotNull('expire_date')
@@ -79,10 +101,24 @@ class Message_newController extends Controller {
         if(!isset($payload['msg'])){
             return back()->withErrors(['請勿僅輸入空白！']);
         }
-        if(!Auth::user()->isVIP()){
+        $user = Auth::user();
+        // 非 VIP: 一律限 60 秒發一次。
+        // 女會員: 無論是否 VIP，一律限 60 秒發一次。
+        if(!$user->isVIP()){
             $m_time = Message::select('created_at')->
-                where('from_id', Auth::user()->id)->
-                orderBy('created_at', 'desc')->first();
+            where('from_id', $user->id)->
+            orderBy('created_at', 'desc')->first();
+            if(isset($m_time)) {
+                $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
+                if ($diffInSecs < 60) {
+                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每分鐘限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
+                }
+            }
+        }
+        else if($user->engroup == 2) {
+            $m_time = Message::select('created_at')->
+            where('from_id', $user->id)->
+            orderBy('created_at', 'desc')->first();
             if(isset($m_time)) {
                 $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
                 if ($diffInSecs < 60) {
@@ -91,7 +127,7 @@ class Message_newController extends Controller {
             }
         }
         Message::post(auth()->id(), $payload['to'], $payload['msg']);
-        return back();
+        return back()->with('message','發送成功');
     }
 
     public function chatview(Request $request)
@@ -110,7 +146,7 @@ class Message_newController extends Controller {
     public function chatviewMore(Request $request)
     {
         $user_id = $request->uid;
-        $data = Message_new::allSendersAJAX($user_id, $request->isVip,$request->date);
+        $data = Message_new::allSendersAJAX($user_id, $request->isVip,$request->date,$request->sid);
         if (isset($data)) {
             if(!empty($data['date'])){
                 $date = $data['date'];
@@ -200,6 +236,19 @@ class Message_newController extends Controller {
             'status' => 1,
             'msg' => 'already exists.',
         ), 200);
+    }
+
+    public function announcePost(Request $request)
+    {
+        $user = User::where('id', $request->uid)->first();
+        $announceRead = AnnouncementRead::select('announcement_id')->where('user_id',$request->uid)->get();
+        $announcement = AdminAnnounce::where('en_group', $user->engroup)->whereNotIn('id', $announceRead)->orderBy('sequence', 'desc')->get();
+        //$announcement = $announcement->content;
+        //$announcement = str_replace(PHP_EOL, '\n', $announcement);
+        foreach ($announcement as &$a){
+            $a = str_replace(array("\r\n", "\r", "\n"), "<br>", $a);
+        }
+        return response()->json($announcement);
     }
 
 }

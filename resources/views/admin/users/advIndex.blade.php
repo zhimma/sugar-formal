@@ -34,7 +34,7 @@
                 <th>排序方式1</th>
                 <td>
                     <input type="radio" name="time" value="created_at" @if(isset($users) && $time=='created_at') checked="true" @endif/>註冊時間
-                    <input type="radio" name="time" value="login_time" @if(isset($users) && $time=='login_time') checked="true" @endif/>上線時間
+                    <input type="radio" name="time" value="last_login" @if(isset($users) && $time=='login_time') checked="true" @endif/>上線時間
                 </td>
             </tr>
             <tr>

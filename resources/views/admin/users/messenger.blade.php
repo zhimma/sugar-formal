@@ -20,35 +20,31 @@
     @if ($errors->count() > 0)
     @else
         @if(!isset($msgs))
-            
-            
-            <table class="table table-bordered table-hover">
-            <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create"><div class="btn btn-success message_block">新增</div></a>
-            <br>
-                <tr>
-                    <td>訊息標題</td>
+	    @if(isset($msglib_report)) 
+                <table class="table table-bordered table-hover">
+                    <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create/reporter" target="_blank"><div class="btn btn-success message_block">新增</div></a>
+                    <br>
+                    <tr>
+                        <td>訊息標題</td>
                         <td></td>
-                    <td>訊息內容</td>
-                </tr>
-                @foreach($msglib_report as $msglib_report)
-                <tr>
-                    <td>{{$msglib_report->title}}</td>
-                        <td class="btn btn_edit btn-success" id="{{$msglib_report->id}}"><a href="/admin/users/message/msglib/create/{{$msglib_report->id}}" style="color:white">編輯</a></td>
-                        <td class="btn btn_del btn-danger" id="{{$msglib_report->id}}">刪除</td>
-                    <td>{{$msglib_report->msg}}</td>
-                </tr>
-                @endforeach
-            </table>
-
+                        <td>訊息內容</td>
+                    </tr>
+                    @foreach($msglib_report as $msglib_report)
+                        <tr>
+                            <td>{{$msglib_report->title}}</td>
+                            <td class="btn btn_edit btn-success" id="{{$msglib_report->id}}"><a href="/admin/users/message/msglib/create/reporter/{{$msglib_report->id}}" style="color:white" target="_blank">編輯</a></td>
+                            <td class="btn btn_del btn-danger" id="{{$msglib_report->id}}">刪除</td>
+                            <td>{{$msglib_report->msg}}</td>
+                        </tr>
+                    @endforeach
+                </table>
+	@endif            
             
-            
-            <h1>發送站長訊息給{{ $user->name}}(發訊者)</h1>
+            <h1>發送站長訊息給{{ $from_user->name}}(發訊者)</h1>
             <!-- <button class="savebtn btn btn-primary">儲存</button> -->
                 <table class="table table-bordered table-hover">
                     <tr>
                         <td>預設選項</td>
-                        <td></td>
-                        <td></td>
                         <td>
                             <form id="idForm">
                                 @forelse($msglib as $msglib)
@@ -96,7 +92,7 @@
                 @elseif(isset($isReported))
                     <textarea name="msg" id="msg" class="form-control" cols="80" rows="5">{{ $reportedName }}您好，您被檢舉，站長認為並無問題，若有疑慮請來訊。</textarea>
                 @else
-                    <textarea name="msg" id="msg" class="form-control" cols="80" rows="5">@if(isset($message) && !isset($report)){{ $user->name }}您好，您先前所檢舉，由{{ $senderName }}於{{ $message->created_at }}發送的訊息，站長已檢視，認為並無問題，若有疑慮請來訊。@elseif(isset($message) && isset($report)) {{ $user->name }}您好，您先前在{{ $report->created_at }}檢舉了會員「{{ $reportedName }}」，經站長檢視理由，認為此會員並無問題，若有疑慮請來訊。 @endif</textarea>
+                    <textarea name="msg" id="msg" class="form-control" cols="80" rows="5">@if(isset($message) && !isset($report)){{ $from_user->name }}您好，您先前所檢舉，由{{ $senderName }}於{{ $message->created_at }}發送的訊息，站長已檢視，認為並無問題，若有疑慮請來訊。@elseif(isset($message) && isset($report)) {{ $from_user->name }}您好，您先前在{{ $report->created_at }}檢舉了會員「{{ $reportedName }}」，經站長檢視理由，認為此會員並無問題，若有疑慮請來訊。 @endif</textarea>
                 @endif
                 <br>
                 @if(isset($isPic) && ($isPic))
@@ -117,23 +113,25 @@
             </form>
 
             <div>===================================================================================================</div>
-            <table class="table table-bordered table-hover">
-            <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create"><div class="btn btn-success message_block">新增</div></a>
-            <br>
-                <tr>
-                    <td>訊息標題</td>
+	    @if(isset($msglib_reported))
+                <table class="table table-bordered table-hover">
+                    <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create/reported" target="_blank"><div class="btn btn-success message_block">新增</div></a>
+                    <br>
+                    <tr>
+                        <td>訊息標題</td>
                         <td></td>
-                    <td>訊息內容</td>
-                </tr>
-                @foreach($msglib_reported as $msglib_reported)
-                <tr>
-                    <td>{{$msglib_reported->title}}</td>
-                        <td class="btn btn_edit btn-success" id="{{$msglib_reported->id}}"><a href="/admin/users/message/msglib/create/{{$msglib_reported->id}}" style="color:white">編輯</a></td>
-                        <td class="btn btn_del btn-danger" id="{{$msglib_reported->id}}">刪除</td>
-                    <td>{{$msglib_reported->msg}}</td>
-                </tr>
-            @endforeach
-            </table>
+                        <td>訊息內容</td>
+                    </tr>
+                    @foreach($msglib_reported as $msglib_reported)
+                        <tr>
+                            <td>{{$msglib_reported->title}}</td>
+                            <td class="btn btn_edit btn-success" id="{{$msglib_reported->id}}"><a href="/admin/users/message/msglib/create/reported/{{$msglib_reported->id}}" style="color:white" target="_blank">編輯</a></td>
+                            <td class="btn btn_del btn-danger" id="{{$msglib_reported->id}}">刪除</td>
+                            <td>{{$msglib_reported->msg}}</td>
+                        </tr>
+                    @endforeach
+                </table>
+	    @endif
             
             <h1>發送站長訊息給{{$to_user->name}}(收件者)</h1>
                 <table class="table table-bordered table-hover">
@@ -224,34 +222,71 @@
                 <button type='submit' class='text-white btn btn-primary'>送出</button>
             </form>
         @else
+            <table class="table table-bordered table-hover">
+                <a href="/admin/users/message/msglib/create/delpic" style="color:white" target="_blank"><div class="btn btn_edit btn-success">新增</div></a>
+                <tr>
+                    <td>訊息標題</td>
+                    <td>操作</td>
+                    <td>訊息內容</td>
+                </tr>
+                 @foreach($msglib_delpic as $msglib) 
+                    <tr>
+                        <td>{{$msglib->title}}</td>
+                        <td class="btn btn_edit btn-success" id="{{$msglib->id}}">
+                            <a href="/admin/users/message/msglib/create/delpic/{{$msglib->id}}" style="color:white" target="_blank">編輯</a>
+                        </td>
+                        <td class="btn btn_del btn-danger" id="{{$msglib->id}}">刪除</td>
+                        <td>{{$msglib->msg}}</td>
+                    </tr>
+                @endforeach
+            </table>
+            <table class="table table-bordered table-hover">
+                <tr>
+                    <td>預設選項</td>
+                    <td>
+                        <form id="idForm">
+                            @forelse($msglib_delpic as $msglib)
+                                <div class="btn btn-success com_tpl tpl3" id="{{$msglib->id}}">{{$msglib->title}}</div>
+                            @empty
+                                目前沒有預設選項
+                            @endforelse
+                        </form>
+                    </td>
+                </tr>
+            </table>
             @if(isset($msgs2) || $msgs2 == 0)
-            <form action="{{ route('admin/send/multiple') }}" id='message' method='POST'>
-                {!! csrf_field() !!}
-                <input type="hidden" value="{{ $admin->id }}" name="admin_id">
-                @if($msgs != 0)
-                    @foreach( $msgs as $msg )
-                        <h3 style="text-align: left">發送給{{ $msg['user_name'] }}</h3>
-                        <input type="hidden" value="{{ $msg['user_id'] }}" name="to[]">
-                        <textarea name="msg[]" class="form-control" cols="80" rows="5">{{ $msg['user_name'] }}{{ $template['pic']['head'] }}{{ $msg['post_time'] }}{{ $template['pic']['body'] }}</textarea><br>
-                    @endforeach
-                @endif
-                @if($msgs2 != 0)
-                    @foreach( $msgs2 as $msg )
-                        <h3 style="text-align: left">發送給{{ $msg['user_name'] }}</h3>
-                        <input type="hidden" value="{{ $msg['user_id'] }}" name="to[]">
-                        <textarea name="msg[]" class="form-control" cols="80" rows="5">{{ $msg['user_name'] }}{{ $template['avatar']['head'] }}{{ $template['avatar']['body'] }}</textarea><br>
-                    @endforeach
-                @endif
-                <button type='submit' class='text-white btn btn-primary'>送出</button>
-            </form>
+                <form action="{{ route('admin/send/multiple') }}" id='message' method='POST'>
+                    {!! csrf_field() !!}
+                    <input type="hidden" value="{{ $admin->id }}" name="admin_id">
+                    @if($msgs != 0)
+                        @foreach( $msgs as $msg )
+                            <h3 style="text-align: left">發送給{{ $msg['user_name'] }}</h3>
+                            <input class="name3" type="hidden" value="{{ $msg['user_name'] }}">
+                            <input class="time3" type="hidden" value="{{ $msg['post_time'] }}">
+                            <input type="hidden" value="{{ $msg['user_id'] }}" name="to[]">
+                            <textarea name="msg[]" id="msg3" class="form-control msg3" cols="80" rows="5">{{ $msg['user_name'] }}{{ $template['pic']['head'] }}{{ $msg['post_time'] }}{{ $template['pic']['body'] }}</textarea><br>
+                        @endforeach
+                    @endif
+                    @if($msgs2 != 0)
+                        @foreach( $msgs2 as $msg )
+                            <h3 style="text-align: left">發送給{{ $msg['user_name'] }}</h3>
+                            <input class="name3" type="hidden" value="{{ $msg['user_name'] }}">
+                            <input type="hidden" value="{{ $msg['user_id'] }}" name="to[]">
+                            <textarea name="msg[]" id="msg3" class="form-control msg3" cols="80" rows="5">{{ $msg['user_name'] }}{{ $template['avatar']['head'] }}{{ $template['avatar']['body'] }}</textarea><br>
+                        @endforeach
+                    @endif
+                    <button type='submit' class='text-white btn btn-primary'>送出</button>
+                </form>
             @else
                 <form action="{{ route('admin/send/multiple') }}" id='message' method='POST'>
                     {!! csrf_field() !!}
                     <input type="hidden" value="{{ $admin->id }}" name="admin_id">
                     @foreach( $msgs as $msg )
                         <h3 style="text-align: left">發送給{{ $msg['name'] }}</h3>
+                        <input class="name3" type="hidden" value="{{ $msg['name'] }}">
+                        <input class="time3" type="hidden" value="{{ $msg['post_time'] }}">
                         <input type="hidden" value="{{ $msg['from_id'] }}" name="to[]">
-                        <textarea name="msg[]" class="form-control" cols="80" rows="5">{{ $msg['name'] }}{{ $template['head'] }}{{ $msg['post_time'] }}{{ $template['body'] }}</textarea><br>
+                        <textarea name="msg[]" id="msg3" class="form-control msg3" cols="80" rows="5">{{ $msg['name'] }}{{ $template['head'] }}{{ $msg['post_time'] }}{{ $template['body'] }}</textarea><br>
                     @endforeach
                     <button type='submit' class='text-white btn btn-primary'>送出</button>
                 </form>
@@ -272,18 +307,19 @@
         //   console.log(element);
         // });
         let template = {!! json_encode($msglib_msg) !!};
-        let template2 = {!! json_encode($msglib_msg2) !!};
+    	@if(isset($msglib_msg2))
+                let template2 = {!! json_encode($msglib_msg2) !!};
+    	@endif
         // console.log(template);
 
         let edit = '修改。', del = '刪除。', view='檢視', create='新增',
-        report_user = ['{{$user->name}}', '{{$to_user->name}}']
+        report_user = ['{{$from_user->name}}', '{{$to_user->name}}']
         now_time = new Date();
 
         $(document).ready(
             $(".tpl").click(
                 function () {
                     let i = $(".tpl").index(this);
-                    console.log(i);
                     template[i].replace("$user",'111222333');
                     $('#msg').val(template[i]);
                 }
@@ -332,7 +368,6 @@
         );
 
 
-
         $(document).ready(
             $(".tpl2").click(
                 function () {
@@ -362,6 +397,7 @@
                 }
             )
         );
+        
         $(".savebtn").click(function(){
             $.ajax({
                 type: 'POST',
@@ -420,6 +456,49 @@
                 alert('刪除失敗');
             }
             
+        });
+    </script>
+
+@else
+    <script>
+        let template3 = {!! json_encode($msglib_delpic) !!};
+        $(document).ready(
+            $(".tpl3").click(
+                function () {
+                    let i = $(".tpl3").index(this);
+                    msg = template3[i].msg;
+                    $('.msg3').each(function (k, v) {
+                        name = $('.name3').eq(k).val();
+                        time = $('.time3').eq(k).val();
+                        time = time?time:'';
+                        msg2 = msg;
+                        msg2 = msg2.replace('NAME', name);
+                        msg2 = msg2.replace('TIME', time);
+                        $('.msg3').eq(k).val(msg2);
+                    });
+                }
+            )
+        );
+        $(".btn_del").on('click', function(){
+            var id = $(this).attr('id');
+            var r=confirm("刪除訊息？")
+            if (r==true){
+                $.ajax({
+                type: 'POST',
+                url: "/admin/users/delmsglib",
+                data:{
+                    _token: '{{csrf_token()}}',
+                    id    : $(this).attr('id'),
+                },
+                dataType:"json",
+                success: function(res){
+                    alert('刪除成功');
+                    location.reload();
+
+                }});
+            }else{
+                alert('刪除失敗');
+            }
         });
     </script>
 @endif

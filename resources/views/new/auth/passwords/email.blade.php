@@ -7,8 +7,8 @@
 		<div class="col-sm-12 col-xs-12 col-md-12">
 			<div class="commonMenu">
 				<div class="menuTop">
-					<img src="images/icon_41.png" class="logo" />
-                    <div class="ndlrfont"><a href="">註冊</a>丨<a href="">登入</a></div>
+					<a href="{!! url('') !!}"><img src="/new/images/icon_41.png" class="logo" /></a>
+                    <div class="ndlrfont"><a href="{!! url('/checkAdult') !!}">註冊</a>丨<a href="{!! url('login') !!}">登入</a></div>
 					<!--<span id="menuButton"><img src="images/icon.png" class="he_img"></span>-->
 				</div>
 				<!--<ul id="menuList" class="change marg30">
@@ -35,8 +35,8 @@
 	<div class="row">
 		<div class="col-sm-12 col-xs-12 col-md-12">
 		    <div class="wd_xsy">
-		    	@include('partials.errors')
-				@include('partials.status')
+{{--		    	@include('partials.errors')--}}
+{{--				@include('partials.status')--}}
                	<div class="wxsy_title">忘記密碼</div>
                	<div class="wxsy_k">
                		<form class="m-login__form m-form" method="POST" action="/password/email" onsubmit="return check()">
@@ -49,7 +49,7 @@
 	                        <h3 class="yzfont">1. 每次更改密碼連結的有效時間為60分鐘，請務必把握時間。</h3>
 	                        <h3 class="yzfont">2. 若您收到多封更改密碼的信件，請以最新那封為主，舊的信都會失效。</h3>
 	                    </div>
-	                    <input class="dlbut" type="submit" value="更改密碼" onclick="tips()">
+	                    <input class="dlbut" type="submit" value="更改密碼" onclick="tips()" style="border-style: none;">
                     </form>
                </div>
             </div>
@@ -57,11 +57,11 @@
 	</div>
 </div>
 
-<div class="blbg" onclick="gmBtn1()"></div>
-<div class="bl_tab" id="tab01">
+<div class="blbg" onclick="$('.blbg').click();"></div>
+<div class="bl bl_tab" id="error_email">
     <div class="bltitle">提示</div>
-    <div class="blnr bltext">我們已經通過電子郵件發送您的密碼重置鏈接！</div>
-    <a id="" onclick="gmBtn1()" class="bl_gb"><img src="images/gb_icon.png"></a>
+    <div class="blnr bltext">我們無法找到具有該電子郵件的用戶.</div>
+    <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
 <script>
@@ -75,20 +75,27 @@
 	function tips() {
 
 		if(!check()){
-			$(".bltext").text('請輸入電子郵件')
+			//$(".bltext").text('請輸入電子郵件')
+			c5('請輸入電子郵件');
 		}
-		else{
-			$(".bltext").text('我們已經通過電子郵件發送您的密碼重置鏈接！')
-		}
-		$(".blbg").show()
-        $("#tab01").show()
     }
-    function gmBtn1(){
-        $(".blbg").hide()
-        $(".bl_tab").hide()	
-			
-    }
-    
+
+
+	@if (isset($errors) && $errors->count() > 0)
+	@foreach($errors->all() as $error)
+	<?php if($error == 'The email must be a valid email address.'){$error='我們無法找到具有該電子郵件的用戶.';}?>
+	$(".bltext").text('{{$error}}');
+	$(".blbg").show();
+	$("#error_email").show();
+	@endforeach
+	@endif
+
+	@if (Session::has('status'))
+	$(".bltext").text('{{ Session::get('status') }}');
+	$(".blbg").show();
+	$("#error_email").show();
+	@endif
+
 </script>
 
 @stop
