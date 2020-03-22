@@ -80,12 +80,12 @@ class Vip extends Model
 
         $admin = User::findByEmail(Config::get('social.admin.email'));
 
-        VipLog::addToLog($member_id, 'upgrade', $txn_id, 1, $free);
+        VipLog::addToLog($member_id, 'upgrade, order id: ' . $order_id, $txn_id, 1, $free);
 
         $curUser = User::findById($member_id);
         if ($curUser != null)
         {
-            $admin->notify(new NewVipEmail($member_id, '761404', $member_id));
+            $admin->notify(new NewVipEmail($member_id, $business_id, $member_id));
         }
     }
 
