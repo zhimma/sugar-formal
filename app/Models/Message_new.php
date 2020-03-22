@@ -483,7 +483,11 @@ class Message_new extends Model
             }else if($d==30){
                 self::$date =\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString();
             }else if($d=='all'){
-                self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
+                if($isVip) {
+                    self::$date = \Carbon\Carbon::parse("180 days ago")->toDateTimeString();
+                }else{
+                    self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
+                }
             }
             $query->where([['created_at','>=',self::$date]]);
         //}
@@ -500,7 +504,7 @@ class Message_new extends Model
                         ELSE
                             2
                         END')->orderBy('created_at', 'desc');
-        $messages = $query->offset(0)->limit(100)->get();
+        $messages = $query->get();
         $mm = [];
         foreach ($messages as $key => $v) {
             if(!isset($mm[$v->from_id])){
