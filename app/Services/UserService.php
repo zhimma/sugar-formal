@@ -687,6 +687,24 @@ class UserService
         $user = $this->find($userId);
         $user->roles()->detach();
     }
+    
+    /**
+     * Message is replied from reciever
+     *
+     * @param int msg_id
+     *
+     * @return bool
+     */
+    public function beenRepliedMessage($msg_id)
+    {
+        $msg = Message::where('id', $msg_id);
+        $replied = Message::where('id', '>', $msg->id)
+            ->where('from_id', $msg->to_id)
+            ->where('to_id', $msg->from_id)
+            ->where('content', 'NOT LIKE', '系統通知%');
+        return $replied->count() == 0 ? true : false;
+    }
+
     /**
      * 有回覆車馬費邀請的訊息
      *
@@ -695,7 +713,7 @@ class UserService
      * @return array result
      */
 
-    public function selectTipMessageReplied($start, $end)
+    public function selectTipMessagesReplied($start, $end)
     {
         $tipMessages = Tip::selectTipMessage($start, $end);
         $result = array();
@@ -710,7 +728,7 @@ class UserService
         return $result;
     }
 
-    public function averageReceiveMessage($city = [], $isVip = NULL, $engroup = 2)
+    public function averageReceiveMessages($city = [], $isVip = NULL, $engroup = 2)
     {
         $users = User::where('engroup', $engroup);
 
@@ -737,5 +755,120 @@ class UserService
             $messages = 0;
 
         return ['users' => $users->count(), 'messages' => $messages];
+    }
+
+    /**
+     * Get all recommended member
+     *
+     * @return collection
+     */
+    public function getRecommendMembers()
+    {
+        $members = Vip::leftjoin('member_tip', 'member_tip.member_id', '=', 'member_vip.member_id')
+            ->where('active', 1)
+            ->where('expire_date', '!=', '0000-00-00 00:00:00')
+            ->where(function($query){
+                ///成為VIP超過三個月
+                $query->where('created_at', '<', Carbon::now()->subMonths(3))
+                ->orWhere(function($query){
+                    //或成為VIP超過一個月且有使用車馬費邀請過
+                    $query->where('created_at', '<', Carbon::now()->subMonths(1));
+                });
+            });
+        return $members->get();
+    }
+
+    /**
+     * Is recommend member
+     *
+     * @param int id
+     *
+     * @return bool
+     */
+    public function isRecommendMember($id)
+    {
+        $member = Vip::leftjoin('member_tip', 'member_tip.member_id', '=', 'member_vip.member_id')
+            ->where('member_vip.member_id', $id)
+            ->where('active', 1)
+            ->where('expire_date', '!=', '0000-00-00 00:00:00')
+            ->where(function($query){
+                ///成為VIP超過三個月
+                $query->where('created_at', '<', Carbon::now()->subMonths(3))
+                ->orWhere(function($query){
+                    //或成為VIP超過一個月且有使用車馬費邀請過
+                    $query->where('created_at', '<', Carbon::now()->subMonths(1));
+                });
+            });
+
+        return $member->first() ? true : false;
+    }
+    /**
+     * Grouping male member
+     *
+     * @param array users Array of User model
+     *
+     * @return array The keys are 'normal', 'vip', 'recommend'
+     */
+    public function groupingMale($users)
+    {
+        $results = array('Recommend'=>array(), 'Vip'=>array(), 'Normal'=>array());
+        foreach($users as $user)
+        {
+            if($this->isRecommendMember($user->id))
+            {
+                array_push($results['Recommend'], $user);
+            }
+            else if($user->isVip())
+            {
+                array_push($results['Vip'], $user);
+            }
+            else
+            {
+                array_push($results['Normal'], $user);
+            }
+        }
+        return $results;
+    }
+
+    /**
+     * 日期區間內, 所有男 or 女會員發送的訊息
+     *
+     * @param int gender
+     * @param date start
+     * @param date end
+     *
+     * @return collection
+     */
+    public function selectMessagesByGender($start, $end, $gender)
+    {
+        $query = Message::leftjoin('users', 'from_id', '=', 'users.id')
+            ->where('engroup', $gender)
+            ->whereBetween('message.created_at', [$start, $end]);
+
+        return $query->get();
+    }
+    /**
+     * 日期區間內, 男會員被回覆的訊息比
+     *
+     * @param date start
+     * @param date end
+     *
+     * @return array 
+     */
+    public function repliedMessagesProportion($start, $end)
+    {
+        $messages = $this->selectMessagesByGender($start, $end, 1);
+        $replied = $messages->filter(function($msg){
+            if($this->beenRepliedMessage($msg->id))
+                return $msg;
+        });
+
+        $groupingMsg = $messages->pluck('from_id');
+        $groupingMsg = $this->groupingMale($groupingMsg);
+
+        $groupingReplied = $replied->pluck('from_id');
+        $groupingReplied = $this->groupingMale($groupingReplied);
+
+        return ['messages' => $groupingMsg, 'replied' => $groupingReplied];
     }
 }

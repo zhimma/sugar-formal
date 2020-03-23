@@ -1765,42 +1765,62 @@ class UserController extends Controller
         else{
             $start = $request->date_start;
             $end = $request->date_end;
+            $place = 4;
 
-            $repliedCount = count($this->service->selectTipMessageReplied($start, $end));
+            // 車馬費回覆
+            $repliedCount = count($this->service->selectTipMessagesReplied($start, $end));
             $tipMessage = [
                 'replied' => $repliedCount,
                 'totalInvitation' => $repliedCount + count(\App\Models\Tip::selectTipMessage($start, $end))
             ];
+            $count = ['tipMessage' => $tipMessage];
 
-            $TaipeiAndVip = $this->service->averageReceiveMessage(['新北市', '臺北市'], $isVip = true);
-            $TaipeiAndNotVip = $this->service->averageReceiveMessage(['新北市', '臺北市'], $isVip = false);
-            $Vip = $this->service->averageReceiveMessage([], $isVip = true);
-            $NotVip = $this->service->averageReceiveMessage([], $isVip = false);
+            $tipMessage = $tipMessage['totalInvitation'] != 0 ? $tipMessage['replied']/$tipMessage['totalInvitation'] : 0;
+            $percentage = ['tipMessage' => round($tipMessage, $place)];
 
-            $data = [
-                'tipMessage' => $tipMessage,
-                'TaipeiAndVip' => $TaipeiAndVip,
-                'TaipeiAndNotVip' => $TaipeiAndNotVip,
-                'Vip' => $Vip,
-                'NotVip' => $NotVip
-            ];
+            //男會員被回覆比例
+            $repliedMsg = $this->service->repliedMessagesProportion($start, $end);
+            $normal = count($repliedMsg['messages']['Normal']);
+            $vip = count($repliedMsg['messages']['Vip']);
+            $recommend = count($repliedMsg['messages']['Recommend']);
+            $repliedNormal = count($repliedMsg['replied']['Normal']);
+            $repliedVip = count($repliedMsg['replied']['Vip']);
+            $repliedRecommend = count($repliedMsg['replied']['Recommend']);
 
-            $tipMessage = $tipMessage['totalInvitation'] != 0 ? number_format($tipMessage['replied']/$tipMessage['totalInvitation'], 2) : "無資料";
-            $TaipeiAndVip = $TaipeiAndVip['users'] != 0 ? number_format($TaipeiAndVip['messages']/$TaipeiAndVip['users'], 2) : "無資料";
-            $TaipeiAndNotVip = $TaipeiAndNotVip['users'] != 0 ? number_format($TaipeiAndNotVip['messages']/$TaipeiAndNotVip['users'], 2) : "無資料";
-            $Vip = $Vip['users'] != 0 ? number_format($Vip['messages']/$Vip['users'], 2) : "無資料";
-            $NotVip = $NotVip['users'] != 0 ? number_format($NotVip['messages']/$NotVip['users'], 2) : "無資料";
+            $count['NormalMale'] = array('messages' => $normal, 'replied' => $repliedNormal);
+            $count['VipMale'] = array('messages' => $vip, 'replied' => $repliedVip);
+            $count['RecommendMale'] = array('messages' => $recommend, 'replied' => $repliedRecommend);
 
-            $percentage = [
-                'tipMessage' => $tipMessage,
-                'TaipeiAndVip' => $TaipeiAndVip,
-                'TaipeiAndNotVip' => $TaipeiAndNotVip,
-                'Vip' => $Vip,
-                'NotVip' => $NotVip,
-            ];
+            $normal = $repliedNormal != 0 ? $normal/$repliedNormal : 0;
+            $vip = $repliedVip != 0 ? $normal/$repliedVip : 0;
+            $recommend = $repliedRecommend != 0 ? $normal/$repliedRecommend : 0;
+            $percentage['NormalMale'] = round($normal, $place);
+            $percentage['VipMale'] = round($vip, $place);
+            $percentage['RecommendMale'] = round($recommend, $place);
+
+            // 平均收到訊息數
+            $TaipeiAndVip = $this->service->averageReceiveMessages(['新北市', '臺北市'], $isVip = true);
+            $TaipeiAndNotVip = $this->service->averageReceiveMessages(['新北市', '臺北市'], $isVip = false);
+            $Vip = $this->service->averageReceiveMessages([], $isVip = true);
+            $NotVip = $this->service->averageReceiveMessages([], $isVip = false);
+
+            $count['TaipeiAndVip'] = array('messages' => $TaipeiAndVip['messages'], 'users' => $TaipeiAndVip['users']);
+            $count['TaipeiAndNotVip'] = array('messages' => $TaipeiAndNotVip['messages'], 'users' => $TaipeiAndNotVip['users']);
+            $count['Vip'] = array('messages' => $Vip['messages'], 'users' => $Vip['users']);
+            $count['NotVip'] = array('messages' => $NotVip['messages'], 'users' => $NotVip['users']);
+
+            $TaipeiAndVip = $TaipeiAndVip['users'] != 0 ? $TaipeiAndVip['messages']/$TaipeiAndVip['users'] : 0;
+            $TaipeiAndNotVip = $TaipeiAndNotVip['users'] != 0 ? $TaipeiAndNotVip['messages']/$TaipeiAndNotVip['users'] : 0;
+            $Vip = $Vip['users'] != 0 ? $Vip['messages']/$Vip['users'] : 0;
+            $NotVip = $NotVip['users'] != 0 ? $NotVip['messages']/$NotVip['users'] : 0;
             
+            $percentage['TaipeiAndVip'] = round($TaipeiAndVip, $place);
+            $percentage['TaipeiAndNotVip'] = round($TaipeiAndNotVip, $place);
+            $percentage['Vip'] = round($Vip, $place);
+            $percentage['NotVip'] = round($NotVip, $place);
+
             return view('admin.users.statisticsReply')
-                ->with('data', $data)
+                ->with('count', $count)
                 ->with('percentage', $percentage);
         }
     }
