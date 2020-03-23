@@ -62,16 +62,23 @@
     }
     .shdel {
         background-color: #ffffff;
-        border-radius: 10px;
-        width: 16px !important;
-        height: 16px !important;
-        bottom: -1px !important;
-        border: #f5f5f5 1px solid;
+        border-radius: 11px;
+        width: auto !important;
+        height: auto !important;
+        bottom: -4px !important;
+        border: #fd5678 1px solid;
+
+    }
+    .shdel>span {
+        padding-right: 1px;
+        padding-left: 1px;
+        font-size: 11px;
+        color: #fd5678;
     }
     .shdel>i {
-        font-size: 3pt;
-        color: #e44e71 ;
-        padding-top: 2px;
+        font-size: 11pt;
+        color: #fd5678 ;
+        /*padding-top: 2px;*/
     }
     .message_fixed{
         position: fixed;
@@ -141,7 +148,7 @@
                                         <i class="msg_input"></i>{!! nl2br($message['content']) !!}
                                         @if($message['from_id'] != $user->id)
                                             <a href="javascript:void(0)" class="" onclick="banned('{{$msgUser->id}}','{{$msgUser->name}}');" title="檢舉">
-                                                <span class="shdel"><i class="fas fa-user-slash"></i></span>
+                                                <span class="shdel"><span><i class="fas fa-user-slash"></i>檢舉</span><span>
                                             </a>
                                         @endif
                                         <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
@@ -168,7 +175,7 @@
                     </div>
                 </div>
                 @if(isset($to))
-                    <div class="se_text_bot se_text_bot_add_bottom">
+                    <div class="se_text_bot" id="message_input">
                         <form style="margin: 0 auto;" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm">
                             <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                             <input type="hidden" name="userId" value="{{$user->id}}">
@@ -191,6 +198,7 @@
     </div>
     <div class="bl bl_tab" id="tab_payAlert">
         <div class="bltitle bltitle_fixed"><span>車馬費說明</span></div>
+        <a id="" onclick="$('.blbg').click();" class="bl_gb bl_gb_fixed"><img src="/new/images/gb_icon.png"></a>
         <div class="n_blnr01 matop20">
             <div class="n_fengs">
             @if(isset($tippopup))
@@ -202,7 +210,7 @@
                 <span><a onclick="$('.blbg').click();" class="n_right" href="javascript:">取消</a></span>
             </div>
         </div>
-        <a id="" onclick="$('.blbg').click();" class="bl_gb bl_gb_fixed"><img src="/new/images/gb_icon.png"></a>
+
     </div>
 
     <div class="bl bl_tab" id="show_banned">
@@ -350,35 +358,76 @@
     }
 
 
+    //alert($('#message_input').height());
+    var message_max_height,bl_gb_fixed_top,bl_gb_fixed_right;
+    var message_height = $(window).height() - $('#message_input').height() - $('.shouxq').height();
+    var footer_height = $('.bot').height();
+    if($(window).height()<=601){
+        message_max_height = message_height - $('.hetop').height() - 50;
+    }else{
+        message_max_height = message_height - footer_height - $('.hetop').height() - 110;
+        $('.se_text_bot').addClass('se_text_bot_add_bottom');
+    }
+    // if( /Android|iPhone/i.test(navigator.userAgent) ) {
+    if(window.matchMedia("(max-width: 767px)").matches && window.matchMedia("(max-height: 823px)").matches){
+        $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+        $('.bot').hide();
 
+        message_max_height = message_height - $('.heicon').height() - 50;
+        bl_gb_fixed_top = $(window).height() / 5 + 10;
+        //alert(bl_gb_fixed_top);
+        $('.bltitle_fixed').css('width',$('#tab_payAlert').width());
+        $('.bl_gb_fixed').css('top',bl_gb_fixed_top);
+        $('#tab_payAlert').css('height','70%');
+        $('.matop20').css('margin-top','40px');
+    }
+    if(window.matchMedia("(min-width: 1024px)").matches && window.matchMedia("(max-height: 690px)").matches){
+        bl_gb_fixed_top = $(window).height() / 10 - 5;
+        bl_gb_fixed_right = $(window).width() / 3 - 5;
+        //alert(bl_gb_fixed_right);
+        $('.bltitle_fixed').css('width',$('#tab_payAlert').width());
+        $('.bl_gb_fixed').css('top',bl_gb_fixed_top);
+        $('.bl_gb_fixed').css('right',bl_gb_fixed_right);
+        $('.matop20').css('margin-top','40px !important');
+    }
+    // if(window.matchMedia("(min-width: 1024px)").matches){
+    //     bl_gb_fixed_top = $(window).height() / 10;
+    //     $('.bl_gb_fixed').css('top',bl_gb_fixed_top);
+    // }
+    $('.message').css('max-height',message_max_height);
 
     $(document).ready(function() {
-        if (window.matchMedia('(min-width: 1263px)').matches && window.matchMedia('(min-height:578px)').matches && window.matchMedia('(max-width: 1263px)').matches && window.matchMedia('(max-height:578px)').matches) {
-            $('.se_text_bot').removeClass('se_text_bot_add_bottom');
-        }else if (window.matchMedia('(min-width: 1280px)').matches && window.matchMedia('(min-height:601px)').matches && window.matchMedia('(max-width: 1280px)').matches && window.matchMedia('(max-height:601px)').matches) {
-            $('.se_text_bot').removeClass('se_text_bot_add_bottom');
-        } else {
-            $('.se_text_bot').addClass('se_text_bot_add_bottom');
-            // alert(1);
-        }
+
+
+
+
+        // if (window.matchMedia('(min-width: 1263px)').matches && window.matchMedia('(min-height:578px)').matches && window.matchMedia('(max-width: 1263px)').matches && window.matchMedia('(max-height:578px)').matches) {
+        //     $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+        // }else if (window.matchMedia('(min-width: 1280px)').matches && window.matchMedia('(min-height:601px)').matches && window.matchMedia('(max-width: 1280px)').matches && window.matchMedia('(max-height:601px)').matches) {
+        //     $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+        // } else {
+        //     $('.se_text_bot').addClass('se_text_bot_add_bottom');
+        //     // alert(1);
+        // }
     });
 
     $(window).scroll(function() {
         if($(window).scrollTop() + $(window).height() > $(document).height()-50) {
              // alert($(document).height());
-            if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+            if(window.matchMedia("(max-width: 767px)").matches){
+                // $('.bot').hide();
                 $('.se_text_bot').removeClass('se_text_bot_add_bottom');
-                if (window.matchMedia('(min-width: 1263px)').matches && window.matchMedia('(min-height:578px)').matches && window.matchMedia('(max-width: 1263px)').matches && window.matchMedia('(max-height:578px)').matches)
-                    {
-                        $('.se_text_bot').addClass('se_text_bot_add_bottom');
-                        // alert(1);
-                    }else if (window.matchMedia('(min-width: 1280px)').matches && window.matchMedia('(min-height:601px)').matches) {
-                        $('.se_text_bot').addClass('se_text_bot_add_bottom');
-                    }else {
-                        $('.se_text_bot').removeClass('se_text_bot_add_bottom');
-                    }
+                // if (window.matchMedia('(min-width: 1263px)').matches && window.matchMedia('(min-height:578px)').matches && window.matchMedia('(max-width: 1263px)').matches && window.matchMedia('(max-height:578px)').matches)
+                //     {
+                //         $('.se_text_bot').addClass('se_text_bot_add_bottom');
+                //         // alert(1);
+                //     }else if (window.matchMedia('(min-width: 1280px)').matches && window.matchMedia('(min-height:601px)').matches) {
+                //         $('.se_text_bot').addClass('se_text_bot_add_bottom');
+                //     }else {
+                //         $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+                //     }
             }else {
-                $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+                $('.se_text_bot').addClass('se_text_bot_add_bottom');
                 // // $('.se_text_bot').removeClass('se_text_bot_add_bottom');
                 // if (window.matchMedia('(min-width: 1263px)').matches && window.matchMedia('(min-height:578px)').matches && window.matchMedia('(max-width: 1263px)').matches && window.matchMedia('(max-height:578px)').matches)
                 // {

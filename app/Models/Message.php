@@ -45,7 +45,7 @@ class Message extends Model
         if($message->is_row_delete_1 == 0) {
             Message::deleteRowMessage($uid, $sid, 0);
         }
-        else if($message->is_single_delete_1 <> 0 && $message->is_single_delete_2 == 0) {
+        else if($message->is_row_delete_1 <> 0 && $message->is_row_delete_2 == 0) {
             Message::deleteRowMessage($uid, $sid, 1);
         }
     }
@@ -82,9 +82,11 @@ class Message extends Model
         for($i = 0 ; $i < $message->count() ; $i++) {
             if($step == 0) {
                 $message[$i]->is_row_delete_1 = $uid;
+                $message[$i]->updated_at = Carbon::now();
             }
             else if($step == 1) {
                 $message[$i]->is_row_delete_2 = $uid;
+                $message[$i]->updated_at = Carbon::now();
                 Message::deleteRowMessagesFromDB($uid, $sid);
             }
             $message[$i]->save();
@@ -94,9 +96,11 @@ class Message extends Model
     public static function deleteSingleMessage($message, $uid, $sid, $ct_time, $content, $step) {
         if($step == 0) {
             $message->is_single_delete_1 = $uid;
+            $message->updated_at = Carbon::now();
         }
         else if($step == 1) {
             $message->is_single_delete_2 = $uid;
+            $message->updated_at = Carbon::now();
             Message::deleteSingleMessageFromDB($uid, $sid, $ct_time, $content);
         }
         $message->save();

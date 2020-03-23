@@ -391,6 +391,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('/dashboard/upgradesuccess', 'PagesController@upgradesuccess');
         //Route::get('/dashboard/search', 'PagesController@search');
         Route::get('/dashboard/search', 'PagesController@search2');//new route
+        Route::post('/dashboard/search', 'PagesController@search2');//new route
         Route::get('/dashboard/search2', 'PagesController@search');
         Route::get('/dashboard/chat/{randomNo?}', 'MessageController@chatview')->name('chatView');
         Route::post('/dashboard/chat/showMoreMessages/{randomNo?}', 'MessageController@chatviewMore')->name('showMoreMessages');

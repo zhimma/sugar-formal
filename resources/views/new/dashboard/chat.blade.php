@@ -190,16 +190,30 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     //         <a href="javascript:" class="page-link" data-p="next">&laquo;</a>
                     //     </li>
                     // `;
+
                     for(i=1;i<=total_page;i++) {
                         if(i==Page.page){
                             active = 'active sg-pages-active'
                         }else{
                             active = ''
                         }
-                        str += `<li class="` + active + `">
+                        var half_links,from,to;
+                        half_links=3;
+                        from = Page.page - half_links;
+                        to = Page.page + half_links;
+                        if(Page.page < half_links){
+                            to += half_links - Page.page;
+                        }
+                        if((total_page - Page.page) < half_links){
+                            from -= half_links - (total_page - Page.page) - 1;
+                        }
+                        //alert(from);
+                        if(from < i && i < to) {
+                            str += `<li class="` + active + `">
                             <a href="javascript:" class="page-link" data-p="` + i + `">` + i + `</a>
                             </li>
                             `;
+                        }
                     }
                 if(Page.page==total_page){
                     last_active = 'disabled sg-pages-disabled';
@@ -240,7 +254,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         default: Page.page = parseInt($(this).data('p'));
                     }
                     Page.DrawPage($('#rows').val());
-                    $('.sjlist').children().slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
+                    // LoadTable();
+                    $('.sjlist>.row_data').slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
                     //check li rows
                     //alert($('.sjlist_vip>li').length);
                     $('.sjlist_vip>.li_no_data').remove();
@@ -248,17 +263,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     $('.sjlist_alert>.li_no_data').remove();
                     if($('.sjlist_vip>li:visible').length==0){
                         $('#sjlist_vip_warning').hide();
-                        $('.sjlist_vip>.li_no_data').remove();
                         $('.sjlist_vip').append(no_row_li);
                     }
                     if($('.sjlist_novip>li:visible').length==0){
                         $('#sjlist_novip_warning').hide();
-                        $('.sjlist_novip>.li_no_data').remove();
                         $('.sjlist_novip').append(no_row_li);
                     }
                     if($('.sjlist_alert>li:visible').length==0){
                         $('#sjlist_alert_warning').hide();
-                        $('.sjlist_alert>.li_no_data').remove();
                         $('.sjlist_alert').append(no_row_li);
                     }
                 });
@@ -287,12 +299,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             //${content}
             if(user_id==1049) {
                 li += `
-                <li class="hy_bg02" style="${ss}">
+                <li class="row_data hy_bg02" style="${ss}">
                     <div class="si_bg">
                 `;
             }else{
                 li += `
-                <li style="${ss}">
+                <li class="row_data" style="${ss}">
                     <div class="si_bg">
                 `;
             }
@@ -359,6 +371,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     date : date,
                     uid : '{{ $user->id }}',
                     isVip : '{{ $isVip }}',
+                    page: Page.row,
                     userAgent: "Agent: " + String(navigator.userAgent) + " Platform: " + String(navigator.platform),
                 },
                 beforeSend:function(){//表單發送前做的事
@@ -384,6 +397,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     $('#warning').show();
                 },
                 complete: function () {
+                    //alert($('.sjlist_vip>li:visible').length);
+
                 },
                 success:function(res){
                     var li = '';//樣板容器
@@ -400,12 +415,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $('#rows').val(res.msg.length);
                     }
 
-
-
                     var hide_vip_counts = 0;
                     hide_vip_counts = $('#rows').val()-10;
                     $.each(res.msg,function(i,e){
-
+                        // $('#rows').val(e.total_counts);
                         rr +=parseInt(e.read_n);
                         if(userIsVip==0 && e.user_id != 1049 && i<hide_vip_counts && hide_vip_counts>0) {
                             if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0, i);
@@ -421,35 +434,30 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }
                     });
                     //$('.sjlist>ul').html(li);
+
                     setTimeout(function(){
                         Page.DrawPage($('#rows').val());
-                        $('.sjlist').children().slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
+                        $('.sjlist>.row_data').slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
                         $('.warning').hide();
+
+                        $('.sjlist_vip>.li_no_data').remove();
+                        $('.sjlist_novip>.li_no_data').remove();
+                        $('.sjlist_alert>.li_no_data').remove();
+                        //alert($('.sjlist_vip>li:visible').length);
+                        if($('.sjlist_vip>li:visible').length==0){
+                            $('#sjlist_vip_warning').hide();
+                            $('.sjlist_vip').append(no_row_li);
+                        }
+                        if($('.sjlist_novip>li:visible').length==0){
+                            $('#sjlist_novip_warning').hide();
+                            $('.sjlist_novip').append(no_row_li);
+                        }
+                        if($('.sjlist_alert>li:visible').length==0){
+                            $('#sjlist_alert_warning').hide();
+                            $('.sjlist_alert').append(no_row_li);
+                        }
                     }, 100);
 
-                    //check li rows
-                    //alert($('.sjlist_vip>li').length);
-                    if($('.sjlist_vip>li').length==0){
-                        $('#sjlist_vip_warning').hide();
-                        $('.sjlist_vip').append(no_row_li);
-                    }
-                    if($('.sjlist_novip>li').length==0){
-                        $('#sjlist_novip_warning').hide();
-                        $('.sjlist_novip').append(no_row_li);
-                    }
-                    if($('.sjlist_alert>li').length==0){
-                        $('#sjlist_alert_warning').hide();
-                        $('.sjlist_alert').append(no_row_li);
-                    }
-
-
-
-                    // if(isNaN(rr) || (isNaN(rr) && rr==0) || total==0){
-                    //     $('.nodata').show();
-                    // }else if(rr>0 || total>0){
-                    //     $('.nodata').hide();
-                    // }
-                    //$('.warning').hide();
                 }
             })
             .done(function() {
@@ -458,12 +466,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 // }else{
                 //     $('.listMoreBtn').removeAttr('disabled').addClass('cursor-pointer').html('MORE');
                 // }
+                // check li rows
+
             });
         }
 
         LoadTable();
 
+
         $('input[name=RadioGroup1]').on('click', function(event) {
+            $('.lebox1,.lebox2,.lebox3').toggleClass('on');
+            $(".leftsidebar_box dd").show();
             Page.page=1;
             date= $('input[name=RadioGroup1]:checked').val();
             $('.warning').show();

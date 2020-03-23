@@ -41,7 +41,7 @@ class FingerprintService{
                 array_push($final_result, $r);
             }
         }*/
-        if(count($result) > 0){
+        if($result){
             // $ids = array_map(function ($array) { return $array->user_id; }, $final_result);
             \DB::table('banned_users_implicitly')->insert(
                 ['user_id' => $result->user_id,
@@ -60,7 +60,7 @@ class FingerprintService{
                 array_push($final_result, $r);
             }
         }*/
-        if(count($result) > 0){
+        if($result){
             $exist = \DB::table('warning_users')->where('user_id', $userId)->first();
             if(!$exist){
                 // $ids = array_map(function ($array) { return $array->user_id; }, $final_result);
