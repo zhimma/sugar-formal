@@ -15,7 +15,7 @@
             <td>最新上站時間</td>
             <td>近三天發文數</td>
             <td>比對目標</td>
-            <td>封鎖日期</td>
+            <td>建檔日期</td>
         </tr>
         @forelse($users as $user)
             <tr>
