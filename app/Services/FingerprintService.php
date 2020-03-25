@@ -34,6 +34,7 @@ class FingerprintService{
         if(isset($fingerprint['email'])){ unset($fingerprint['email']); }
         if(isset($fingerprint['password'])){ unset($fingerprint['password']); }
         $result = Fingerprint2::join('banned_users', 'banned_users.member_id', '=', 'fingerprint2.user_id')
+            ->where('banned_users.expire_date', null)
             ->where($fingerprint)->get()->first();
         /*$final_result = array();
         foreach($result as $r){

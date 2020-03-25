@@ -1,14 +1,14 @@
 CREATE TABLE `banned_users_implicitly` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `user_id` INT NOT NULL,
-  `target` VARCHAR(2500) NOT NULL,
+  `target` INT NOT NULL,
   `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
 
 CREATE TABLE `warning_users` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `user_id` INT NOT NULL,
-  `target` VARCHAR(2500) NOT NULL,
+  `target` INT NOT NULL,
   `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
 

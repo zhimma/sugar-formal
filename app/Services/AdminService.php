@@ -500,6 +500,15 @@ class AdminService
                 'users' => $users];
     }
 
+    public function countReported($user_id){
+        $avatarsResult = ReportedAvatar::where('reported_user_id', $user_id)->get()->count();
+        $picsResult = ReportedPic::join('member_pic', 'member_pic.id', '=',
+            'reported_pic.reported_pic_id')->where('member_id', $user_id)->get()->count();
+        $messagesResult = Message::where('from_id', $user_id)->where('isReported', 1)->count();
+        $reportsResult = Reported::where('member_id', $user_id)->get()->count();
+        return $avatarsResult + $picsResult + $messagesResult + $reportsResult;
+    }
+
     /**
      * Deletes selected members' messages.
      *
