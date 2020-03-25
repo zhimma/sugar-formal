@@ -1366,7 +1366,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .msg>img{width:40px; height:40px;float: left; border-radius:100px;}
 
 
-.msg>p{float: left;margin:0 10px;padding:15px 8px;background: #f7f6fb;font-size:14px;position: relative;border-radius:10px;max-width:560px ;box-sizing: border-box;color:#333;font-size:14px;word-break: break-all;}
+.msg>p{float: left;margin:0 10px;padding:15px 8px;background: #f7f6fb;font-size:14px;position: relative;border-radius:10px;max-width:560px ;box-sizing: border-box;color:#333;font-size:14px;word-break: break-all;min-width: 60px;}
 .msg1>p {background:#ffcbcb;color:#fff;}
 
 .msg_input{position: absolute;background: url(../images/msg-input.png) no-repeat;background-size: 100% 100%;width:12px;height:24px;left: -7px;top:8px;}

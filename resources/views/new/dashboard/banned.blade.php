@@ -26,12 +26,15 @@
                             </tr>
                             @endforeach
                         </table>
-                        @if(count($banned_user)>15)
-                        <div class="fenye">
-                            <a id="prePage" href="{{ $banned_user->previousPageUrl() }}">上一頁</a>
-                            <a id="nextPage" href="{{ $banned_user->nextPageUrl() }}">下一頁</a>
+                        <div style="text-align: center;">
+                            {!! $banned_user->links('pagination::sg-pages') !!}
                         </div>
-                        @endif
+{{--                        @if(count($banned_user)>15)--}}
+{{--                        <div class="fenye">--}}
+{{--                            <a id="prePage" href="{{ $banned_user->previousPageUrl() }}">上一頁</a>--}}
+{{--                            <a id="nextPage" href="{{ $banned_user->nextPageUrl() }}">下一頁</a>--}}
+{{--                        </div>--}}
+{{--                        @endif--}}
                     </div>
                 </div>
             </div>
