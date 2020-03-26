@@ -47,7 +47,7 @@ class User extends Authenticatable
      */
     public function meta()
     {
-        return $this->hasOne(UserMeta::class, 'id', 'user_id');
+        return $this->hasOne(UserMeta::class, 'user_id', 'id');
     }
 
     public static function id_($uid)

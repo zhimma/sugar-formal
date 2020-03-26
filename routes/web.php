@@ -548,3 +548,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('roles/search', 'RoleController@index');
     });
 });
+Route::get('/test', function(){
+    $meta = App\Models\UserMeta::where('user_id', 41760)->first()->user;
+    dd($meta);
+});

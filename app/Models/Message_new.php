@@ -728,4 +728,12 @@ class Message_new extends Model
         // $curUser->notify(new MessageEmail($from_id, $to_id, $msg));
         }
     }
+
+    public static function betweenMessages($user_ids)
+    {
+        return Message_new::whereIn('from_id',$user_ids)
+            ->whereIn('to_id', $user_ids)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
 }

@@ -138,14 +138,14 @@ class UserMeta extends Model
      *
      * @return Relationship
      */
-     // public function user() {
-     //     return $this->belongsTo(User::class);
-     // }
+    public function user() {
+         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
 
-    public function user()
+    /*public function user()
     {
         return User::where('id', $this->user_id)->first();
-    }
+    }*/
 
     public static function search($city, $area, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid)
     {
