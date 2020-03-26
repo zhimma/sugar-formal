@@ -152,10 +152,14 @@ class User extends Authenticatable
         if(banned_users::where('member_id', $id)->get()->count() > 0){
             return true;
         }
+        else if(BannedUsersImplicitly::where('target', $id)->get()->count() > 0){
+            return true;
+        }
         else{
             return false;
         }
     }
+
     /**
      * Find by Name
      *

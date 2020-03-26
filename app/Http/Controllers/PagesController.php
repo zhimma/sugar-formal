@@ -910,6 +910,9 @@ class PagesController extends Controller
             if(!isset($targetUser)){
                 return view('errors.nodata');
             }
+            if(User::isBanned($uid)){
+                return view('errors.nodata');
+            }
             if ($user->id != $uid) {
                 Visited::visit($user->id, $uid);
             }
@@ -969,6 +972,9 @@ class PagesController extends Controller
         if (isset($user) && isset($uid)) {
             $targetUser = User::where('id', $uid)->get()->first();
             if (!isset($targetUser)) {
+                return view('errors.nodata');
+            }
+            if(User::isBanned($uid)){
                 return view('errors.nodata');
             }
             if ($user->id != $uid) {
