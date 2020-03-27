@@ -72,6 +72,7 @@
                 @include('new.dashboard.panel')
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
+                @if(isset($to))
                 <div class="rightbg">
                     <div class="metx">
                         <div class="swiper-container photo">
@@ -338,12 +339,12 @@
                     </div>
                 </div>
                 <!--基本资料-->
+                @endif
             </div>
-
         </div>
     </div>
 
-
+    @if(isset($to))
     <div class="bl bl_tab" id="show_chat">
         <div class="bltitle"><span>發送給{{$to->name}}</span></div>
         <div class="n_blnr01 ">
@@ -395,12 +396,13 @@
         </div>
         <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
+    @endif
 @stop
 
 @section('javascript')
 <script>
     $( document ).ready(function() {
-        @if($is_block_mid=='是')
+        @if(isset($is_block_mid) && $is_block_mid == '是')
         $('.container').hide();
         $('.gg_tab').hide();
         $('.n_right').hide();
@@ -567,77 +569,77 @@
         $('input[name="picType"]').val($('.swiper-slide-active').data('type'));
         $('input[name="pic_id"]').val($('.swiper-slide-active').data('pic_id'));
     }
-
-    $(".but_block").on('click', function() {
-        $.post('{{ route('postBlockAJAX') }}', {
-            uid: '{{ $user->id }}',
-            sid: '{{$to->id}}',
-            _token: '{{ csrf_token() }}'
-        }, function (data) {
-            // if(data.save=='ok') {
-                $("#tab_block").hide();
-                // $(".blbg").hide();
-                show_message('封鎖成功');
-            // }
-        });
-    });
-
-
-    $('.unblock').on('click', function() {
-        c4('確定要解除封鎖嗎?');
-        var uid='{{ $user->id }}';
-        var to='{{$to->id}}';
-        $(".n_left").on('click', function() {
-            $.post('{{ route('unblockAJAX') }}', {
-                uid: uid,
-                to: to,
+    @if(isset($to))
+        $(".but_block").on('click', function() {
+            $.post('{{ route('postBlockAJAX') }}', {
+                uid: '{{ $user->id }}',
+                sid: '{{$to->id}}',
                 _token: '{{ csrf_token() }}'
             }, function (data) {
-                $("#tab04").hide();
-                show_message('已解除封鎖');
+                // if(data.save=='ok') {
+                    $("#tab_block").hide();
+                    // $(".blbg").hide();
+                    show_message('封鎖成功');
+                // }
             });
         });
-    });
 
-    $(".addFav").on('click', function() {
-        $.post('{{ route('postfavAJAX') }}', {
-            uid: '{{ $user->id }}',
-            to: '{{$to->id}}',
-            _token: '{{ csrf_token() }}'
-        }, function (data) {
-            if(data.save=='ok') {
-                c2('收藏成功');
-            }else if(data.save=='error'){
-                c2('收藏失敗');
-            }else if(data.isBlocked){
-                c2('封鎖中無法收藏');
-            }else if(data.isFav){
-                c2('已在收藏名單中');
-            }
+
+        $('.unblock').on('click', function() {
+            c4('確定要解除封鎖嗎?');
+            var uid='{{ $user->id }}';
+            var to='{{$to->id}}';
+            $(".n_left").on('click', function() {
+                $.post('{{ route('unblockAJAX') }}', {
+                    uid: uid,
+                    to: to,
+                    _token: '{{ csrf_token() }}'
+                }, function (data) {
+                    $("#tab04").hide();
+                    show_message('已解除封鎖');
+                });
+            });
         });
-    });
 
-     @if (Session::has('message'))
-     c2('{{Session::get('message')}}');
-     @endif
-
-     $("#msgsnd").on('click', function(){
-         
-        $.ajax({
-            url: '/dashboard/chat2/{{ Carbon\Carbon::now()->timestamp }}',
-            type: 'POST',
-            data: {
-                _token   :"{{ csrf_token() }}",
-                userId   : $("#userId").val(),
-                to       : $("#to").val(),
-                msg      : $("#msg").val(),
-                {{ \Carbon\Carbon::now()->timestamp }} : "{{ \Carbon\Carbon::now()->timestamp }}"
-            },
-            success: function(response) {
-               window.location.reload();
-            },
+        $(".addFav").on('click', function() {
+            $.post('{{ route('postfavAJAX') }}', {
+                uid: '{{ $user->id }}',
+                to: '{{$to->id}}',
+                _token: '{{ csrf_token() }}'
+            }, function (data) {
+                if(data.save=='ok') {
+                    c2('收藏成功');
+                }else if(data.save=='error'){
+                    c2('收藏失敗');
+                }else if(data.isBlocked){
+                    c2('封鎖中無法收藏');
+                }else if(data.isFav){
+                    c2('已在收藏名單中');
+                }
+            });
         });
-     });
+         $("#msgsnd").on('click', function(){
+
+            $.ajax({
+                url: '/dashboard/chat2/{{ Carbon\Carbon::now()->timestamp }}',
+                type: 'POST',
+                data: {
+                    _token   :"{{ csrf_token() }}",
+                    userId   : $("#userId").val(),
+                    to       : $("#to").val(),
+                    msg      : $("#msg").val(),
+                    {{ \Carbon\Carbon::now()->timestamp }} : "{{ \Carbon\Carbon::now()->timestamp }}"
+                },
+                success: function(response) {
+                   window.location.reload();
+                },
+            });
+         });
+    @endif
+
+    @if (Session::has('message'))
+        c2('{{Session::get('message')}}');
+    @endif
 
 </script>
 @stop
