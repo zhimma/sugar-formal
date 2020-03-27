@@ -116,7 +116,8 @@ class Vip extends Model
         $user = Vip::select('id', 'expiry', 'created_at', 'updated_at')
                 ->where('member_id', $member_id)
                 ->orderBy('created_at', 'desc')->get();
-        if($curUser->engroup == 1){
+        // 取消時，判斷會員性別，並確認沒有設定到期日，才開始動作，否則遇上多次取消，可能會導致到期日被延後的結果
+        if($curUser->engroup == 1 && $user[0]->expiry == '0000-00-00 00:00:00'){
             $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->updated_at);
             $day = $date->day;
             $now = \Carbon\Carbon::now();
@@ -136,7 +137,7 @@ class Vip extends Model
             }
             return true;
         }
-        else if($curUser->engroup == 2 && $free == 0){
+        else if($curUser->engroup == 2 && $free == 0 && $user[0]->expiry == '0000-00-00 00:00:00'){
             //取消當日+3天的時間
             $date = date('Y-m-d 00:00:00' , mktime(0, 0, 0, date('m'), date('d')+4, date('Y')));
             foreach ($user as $u){
