@@ -975,7 +975,7 @@ class PagesController extends Controller
                 return view('errors.nodata');
             }
             if(User::isBanned($uid)){
-                Session::flash('message', '此用戶已關戶資料。');
+                Session::flash('message', '此用戶已關閉資料。');
                 return view('new.dashboard.viewuser')->with('user', $user)->with();
             }
             if ($user->id != $uid) {
