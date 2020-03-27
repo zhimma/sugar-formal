@@ -1787,12 +1787,31 @@ class PagesController extends Controller
 
         $count = banned_users::select('*')->whereBetween('banned_users.created_at',[($start),($end)])->count();
         $banned_users = banned_users::select('*')->whereBetween('banned_users.created_at',[($start),($end)])
-//            ->join('users','banned_users.member_id','=','users.id')
+            ->join('users','banned_users.member_id','=','users.id')
             ->orderBy('banned_users.created_at','asc')->paginate(15);
+        foreach ($banned_users as &$b){
+            $b->name = $this->substr_cut($b->name);
+        }
+
         return view('new.dashboard.banned')
             ->with('banned_user', $banned_users)
             ->with('user', $user)
             ->with('count',$count);
+    }
+
+    function substr_cut($user_name){
+        //取得字串長度
+        $strlen = mb_strlen($user_name, 'utf-8');
+        //如果字串長度小於 2 則不做任何處理
+        if ($strlen < 2) {
+            return $user_name;
+        } else {
+            //mb_substr — 取得字串的部分
+            $firstStr = mb_substr($user_name, 0, 1, 'utf-8');
+            $lastStr = mb_substr($user_name, -1, 1, 'utf-8');
+            //str_repeat — 重複一個字元
+            return $strlen == 2 ? $firstStr . str_repeat('*', mb_strlen($user_name, 'utf-8') - 1) : $firstStr . str_repeat("*", $strlen - 2) . $lastStr;
+        }
     }
 
     /**

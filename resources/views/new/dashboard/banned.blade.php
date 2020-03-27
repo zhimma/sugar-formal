@@ -19,14 +19,14 @@
                             </tr>
                             @foreach($banned_user as $row)
                             <tr>
-                                <td>{{$row->member_id}}</td>
+                                <td>{{$row->name}}</td>
                                 <td>{{$row->reason}}</td>
                                 <td>{{ date('Y/m/d', strtotime($row->created_at))}}</td>
                                 <td>@if($row->expire_date<>''){{ date('Y/m/d', strtotime($row->expire_date))}}@else - @endif</td>
                             </tr>
                             @endforeach
                         </table>
-                        @if(count($banned_user)>15)
+                        @if($count>15)
                         <div class="fenye">
                             <a id="prePage" href="{{ $banned_user->previousPageUrl() }}">上一頁</a>
                             <a id="nextPage" href="{{ $banned_user->nextPageUrl() }}">下一頁</a>
