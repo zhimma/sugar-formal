@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Fingerprint;
 use App\Models\SimpleTables\member_vip;
 use App\Models\Vip;
 use Carbon\Carbon;
@@ -13,6 +14,7 @@ use App\Models\UserMeta;
 use App\Models\Role;
 use App\Models\SimpleTables\banned_users;
 use Illuminate\Support\Facades\Config;
+use App\Services\FingerprintService;
 
 class LoginController extends Controller
 {
@@ -36,14 +38,16 @@ class LoginController extends Controller
      */
     protected $redirectTo = 'dashboard';
 
+    protected $fingerprint;
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(FingerprintService $fingerprint)
     {
         $this->middleware('guest', ['except' => 'logout']);
+        $this->fingerprint = $fingerprint;
     }
     //新樣板
     public function showLoginForm2()
@@ -209,6 +213,13 @@ class LoginController extends Controller
                     $payload['user_id'] = $uid;
                     $payload['ip'] = $ip;
                     $result = \DB::table('fingerprint2')->insert($payload);
+                }
+                try{
+                    $this->fingerprint->judgeUserFingerprintAll($uid, $payload);
+                    $this->fingerprint->judgeUserFingerprintCanvasOnly($uid, $payload);
+                }
+                catch (\Exception $e){
+                    \Illuminate\Support\Facades\Log::info($e);
                 }
             }
             return $this->sendLoginResponse($request);

@@ -44,7 +44,7 @@
 
             <div class="n_adbut">
                 <a href="/dashboard/viewuser/{{$user->id}}"><img src="/new/images/1_06.png">預覽</a></div>
-              <div class="n_adbut"><a href="/member_auth/" style="padding-left: 10px;">身份驗證</a></div>
+              {{-- <div class="n_adbut"><a href="/member_auth/" style="padding-left: 10px;">身份驗證</a></div> --}}
             <div class="xiliao_input">
                <form class="m-form m-form--fit m-form--label-align-right" method="POST" name="user_data" action="" id="information" data-parsley-validate novalidate>
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">

@@ -1040,7 +1040,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .n_ulhh img{width:100%}
 
 }
-.n_blnr01 {width:90%;margin: 0 auto;padding:20px 0 20px 0;color: #666666;}
+.n_blnr01 {width:90%;margin: 0 auto;/*padding:20px 0 20px 0;*/color: #666666;padding-bottom: 20px;padding-top: 20px;}
 .n_nutext{width:100%; min-height:100px; background:#ffffff; border:none; padding:5px; color:#666666; border-radius:5px;}
 .n_blbut{margin-top:15px;}
 
