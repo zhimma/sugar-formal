@@ -121,13 +121,14 @@ class Vip extends Model
             $day = $date->day;
             $now = \Carbon\Carbon::now();
             $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
-            if($user[0]->business_id == '3137610' && $now->diffInDays($date) <= 7) {
-                $date = $date->addMonthNoOverflow(1);
-            }
             if($now->day >= $day){
                 // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
                 $nextMonth = $now->addMonthsNoOverflow(1);
                 $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $nextMonth->year.'-'.$nextMonth->month.'-'.$day.' 00:00:00');
+            }
+            // 如果是使用綠界付費，且取消日距預計下次扣款日小於七天，則到期日再加一個月
+            if($user[0]->business_id == '3137610' && $now->diffInDays($date) <= 7) {
+                $date = $date->addMonthNoOverflow(1);
             }
 
             foreach ($user as $u){
@@ -144,6 +145,9 @@ class Vip extends Model
                 $u->save();
             }
             return true;
+        }
+        else if($user[0]->expiry != '0000-00-00 00:00:00'){
+            return false;
         }
 
         //return Vip::where('member_id', $member_id)->delete();
