@@ -690,7 +690,6 @@ class PagesController extends Controller
         //delete data
         MemberPic::where('member_id', $user_id)->where('id', $pic_id)->delete();
 
-
         /*設第一張照片為大頭貼*/
         $avatar = MemberPic::where('member_id', $user->id)->orderBy('id', 'asc')->first();
         if(!is_null($avatar)){
@@ -823,7 +822,7 @@ class PagesController extends Controller
         // }
         echo json_encode($data);
     }
-    
+
     public function dashboard_img_new(Request $request)
     {
         $user = $request->user();
@@ -976,7 +975,7 @@ class PagesController extends Controller
     public function viewuser2(Request $request, $uid = -1)
     {
         $user = $request->user();
-        
+
         if (isset($user) && isset($uid)) {
             $targetUser = User::where('id', $uid)->get()->first();
             if (!isset($targetUser)) {
@@ -1789,7 +1788,7 @@ class PagesController extends Controller
     {
         $user = $request->user();
 
-        //$time = \Carbon\Carbon::now();
+        // $time = \Carbon\Carbon::now();
         $count = banned_users::select('*')->where('banned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->count();
         $banned_users = banned_users::select('banned_users.*','users.name')->where('banned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
             ->join('users','banned_users.member_id','=','users.id')
