@@ -181,15 +181,15 @@ class UserMeta extends Model
         //     }
         // }
         
-        if ($engroup == 1)
-        {
-            //if (isset($blockdomain) && strlen($blockdomain) != 0) $query->where('blockdomain', '<>', $blockdomain);
-            //if (isset($blockdomainType) && strlen($blockdomainType) != 0) $query->where('blockdomainType', '<>', $blockdomainType);
-        }
+//        if ($engroup == 1)
+//        {
+//            //if (isset($blockdomain) && strlen($blockdomain) != 0) $query->where('blockdomain', '<>', $blockdomain);
+//            //if (isset($blockdomainType) && strlen($blockdomainType) != 0) $query->where('blockdomainType', '<>', $blockdomainType);
+//        }
         // dd($cup);
         if (isset($cup)&&$cup!=''){
             if(count($cup) > 0){
-                $query = $query->whereIn('cup', $cup)->where('isHideCup',0);
+                $query = $query->whereIn('cup', $cup);
             }
         }
         if (isset($marriage) && strlen($marriage) != 0) $query = $query->where('marriage', $marriage);

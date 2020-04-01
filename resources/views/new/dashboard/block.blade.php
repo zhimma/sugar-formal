@@ -21,7 +21,7 @@
                         <?php $blockedUser = \App\Models\User::findById($block->blocked_id) ?>
                     <li>
                         <div class="si_bg">
-                            <div class="sjpic"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><img src="{{ $blockedUser->meta_()->pic }}"></a></div>
+                            <div class="sjpic"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><img src="@if($blockedUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{$blockedUser->meta_()->pic}} @endif" @if ($blockedUser->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></a></div>
                             <div class="sjleft">
                                 <div class="sjtable"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><span>{{$blockedUser->name}}<!-- <i class="cicd">●</i>{{ $blockedUser->meta_()->age() }}--></span></a></div>
                                 <font>{{ $blockedUser->meta_()->city }} {{ $blockedUser->meta_()->area }}</font>

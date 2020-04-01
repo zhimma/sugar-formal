@@ -22,7 +22,7 @@
                                     <li @if($histUser->isVip()) class="hy_bg01" @endif>
                                         <div class="si_bg">
                                             <a href="/dashboard/viewuser/{{$histUser->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">
-                                            <div class="sjpic"><img src="@if($histUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{$histUser->meta_()->pic}} @endif" onerror="this.src='/img/male-avatar.png'"></div>
+                                            <div class="sjpic"><img src="@if($histUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{$histUser->meta_()->pic}} @endif" @if ($histUser->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></div>
                                             <div class="sjleft">
                                                 <div class="sjtable"><span>{{ $histUser->name }}<i class="cicd">●</i>{{ $histUser->meta_()->age() }}</span></div>
                                                 <font>{{ $histUser->meta_()->city }}  {{ $histUser->meta_()->area }}</font>

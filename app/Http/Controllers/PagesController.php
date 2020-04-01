@@ -684,12 +684,20 @@ class PagesController extends Controller
 
         $pic_id = $request->pic_id;
 
+        $pic = MemberPic::where('member_id', $user_id)->where('id', $pic_id)->first();
+        //delete file
+        \File::delete(public_path($pic->pic));
+        //delete data
         MemberPic::where('member_id', $user_id)->where('id', $pic_id)->delete();
+
 
         /*設第一張照片為大頭貼*/
         $avatar = MemberPic::where('member_id', $user->id)->orderBy('id', 'asc')->first();
         if(!is_null($avatar)){
             UserMeta::uploadUserHeader($user->id,$avatar->pic);
+        }else{
+            //刪除大頭照
+            UserMeta::uploadUserHeader($user->id,null);
         }
 
         $data = array(
@@ -975,7 +983,8 @@ class PagesController extends Controller
                 return view('errors.nodata');
             }
             if(User::isBanned($uid)){
-                return view('errors.nodata');
+                Session::flash('message', '此用戶已關閉資料。');
+                return view('new.dashboard.viewuser')->with('user', $user)->with();
             }
             if ($user->id != $uid) {
                 Visited::visit($user->id, $uid);
@@ -1782,13 +1791,33 @@ class PagesController extends Controller
 
         //$time = \Carbon\Carbon::now();
         $count = banned_users::select('*')->where('banned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->count();
-        $banned_users = banned_users::select('*')->where('banned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
-//            ->join('users','banned_users.member_id','=','users.id')
+        $banned_users = banned_users::select('banned_users.*','users.name')->where('banned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
+            ->join('users','banned_users.member_id','=','users.id')
             ->orderBy('banned_users.created_at','desc')->paginate(15);
+
+        foreach ($banned_users as &$b){
+            $b->name = $this->substr_cut($b->name);
+        }
+
         return view('new.dashboard.banned')
             ->with('banned_user', $banned_users)
             ->with('user', $user)
             ->with('count',$count);
+    }
+
+    function substr_cut($user_name){
+        //取得字串長度
+        $strlen = mb_strlen($user_name, 'utf-8');
+        //如果字串長度小於 2 則不做任何處理
+        if ($strlen < 2) {
+            return $user_name;
+        } else {
+            //mb_substr — 取得字串的部分
+            $firstStr = mb_substr($user_name, 0, 1, 'utf-8');
+            $lastStr = mb_substr($user_name, -1, 1, 'utf-8');
+            //str_repeat — 重複一個字元
+            return $strlen == 2 ? $firstStr . str_repeat('*', mb_strlen($user_name, 'utf-8') - 1) : $firstStr . str_repeat("*", $strlen - 2) . $lastStr;
+        }
     }
 
     /**

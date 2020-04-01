@@ -26,12 +26,20 @@
                         <li>
                             <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
                             <div class="n_iconb"><img src="/new/images/ic_07.png"><span>3</span></div>
-                            <div class="n_iconfont">站務人員帳號除了暱稱會有 站長/站務/管理者外，頭像也會有特別的底色與標籤說明。</div>
+                            <div class="n_iconfont">站務人員帳號除了暱稱會有 站長/站務/管理者外，頭像也會有特別的底色與標籤說明。
+                                <a data-toggle="picture" data-img="/new/images/announce_demo1.jpg" href="javascript:void(0);">
+                                    <font>「請按我<img src="/new/images/55_07.png">」</font>
+                                </a>
+                            </div>
                         </li>
                         <li>
                             <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
                             <div class="n_iconb"><img src="/new/images/ic_07.png"><span>4</span></div>
-                            <div class="n_iconfont">優質糖爹是願意長期付費的VIP，或者常用車馬費邀請的男會員，讓女會員作為約會對象的參考。<font>「請按我<img src="/new/images/55_07.png">」</font></div>
+                            <div class="n_iconfont" style="overflow:hidden;">優質糖爹是願意長期付費的VIP，或者常用車馬費邀請的男會員，讓女會員作為約會對象的參考。
+                                <a data-toggle="picture" data-img="/new/images/announce_demo2.jpg" href="javascript:void(0);">
+                                    <font>「請按我<img src="/new/images/55_07.png">」</font>
+                                </a>
+                            </div>
                         </li>
                         <li>
                             <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
@@ -54,4 +62,20 @@
 
         </div>
     </div>
+    <script>
+        $('a[data-toggle="picture"]').popover({
+            animated: 'fade',
+            placement: 'bottom',
+            trigger: 'hover',
+            html: true,
+            content: function () { return '<img width="250" src="' + $(this).data('img') + '" />'; }
+        });
+        // $('a[data-toggle="admin_head"]').popover({
+        //     animated: 'fade',
+        //     placement: 'bottom',
+        //     trigger: 'hover',
+        //     html: true,
+        //     content: function () { return '<img width="250" src="' + $(this).data('img') + '" />'; }
+        // });
+    </script>
 @stop

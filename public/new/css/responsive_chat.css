@@ -1,4 +1,4 @@
-.message{width:94%; margin:0 auto; display:flow-root; /*max-height:400px; margin-bottom:40px;*/ overflow-y: auto}
+.message{width:92%; margin:0 auto; display:flow-root; /*max-height:400px; margin-bottom:40px;*/ overflow-y: auto}
 .se_text_bot {
     margin:0 auto; display:table; position: fixed; bottom: 10px; padding-right: 3%;padding-left: 3%;
     width: 100%;
@@ -116,7 +116,7 @@
     /*    !*right: 25px;*!*/
     /*}*/
     .n_blnr01{
-        padding-top: 40px;
+        padding-top: 60px;
     }
     .n_fengs {
         /*margin: 0 auto auto -5px;*/
@@ -150,7 +150,7 @@
     /*    right: 25px;*/
     /*}*/
     .n_blnr01{
-        padding-top: 40px;
+        padding-top: 60px;
     }
     .n_fengs {
         /*margin: 0 auto auto -5px;*/
@@ -180,7 +180,7 @@
     /*    right: 25px;*/
     /*}*/
     .n_blnr01{
-        padding-top: 40px;
+        padding-top: 40px !important;
     }
     .n_fengs {
         /*margin: 0 auto auto -5px;*/
@@ -218,7 +218,7 @@
     /*    right: 25px;*/
     /*}*/
     .n_blnr01{
-        padding-top: 40px;
+        padding-top: 60px;
     }
     .n_fengs {
         /*margin: 0 auto auto -5px;*/
@@ -246,7 +246,7 @@
     /*    right: 25px;*/
     /*}*/
     .n_blnr01{
-        padding-top: 40px;
+        padding-top: 40px !important;
         position: relative;
         z-index: 0;
     }
@@ -294,7 +294,7 @@
     /*.message{*/
     /*    max-height: 590px;*/
     /*}*/
-    .matop20{margin-top:20px !important;}
+    /*.matop20{margin-top:20px !important;}*/
     #tab_payAlert{
         height: auto;
         width: 65%;
@@ -302,6 +302,7 @@
     }
     .n_blnr01{
         /*width: 65%;*/
+        padding-top: 20px;
     }
     /*.bl_tab {*/
     /*    left: 18%;*/
@@ -321,6 +322,10 @@
         height: auto;
         width: 50%;
         left: 25%;
+    }
+    .n_blnr01{
+        /*width: 65%;*/
+        padding-top: 20px;
     }
     /*.bl_tab {*/
     /*    left: 25%;*/
@@ -356,7 +361,7 @@
     /*    right: 25px;*/
     /*}*/
     .n_blnr01{
-        padding-top: 40px;
+        padding-top: 60px;
     }
     .n_fengs {
         margin: 0 auto auto -5px;
@@ -400,6 +405,12 @@
         right: 40px;
         /*right: 415px;*/
         z-index: 1;
+    }
+    .n_blnr01{
+        padding-top: 60px;
+    }
+    .n_fengs{
+        padding-right: 20px;
     }
 }
 @media (max-width: 520px) {
