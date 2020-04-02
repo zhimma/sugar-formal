@@ -499,7 +499,7 @@ class AdminService
                 'users' => $users];
     }
 
-    public function countReported($user_id){
+    public static function countReported($user_id){
         $avatarsResult = ReportedAvatar::where('reported_user_id', $user_id)->get()->count();
         $picsResult = ReportedPic::join('member_pic', 'member_pic.id', '=',
             'reported_pic.reported_pic_id')->where('member_id', $user_id)->get()->count();

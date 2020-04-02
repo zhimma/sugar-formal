@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests;
 use App\Models\Board;
+use App\Models\ExpectedBanningUsers;
 use App\Models\Fingerprint2;
 use App\Models\MemberPic;
 use App\Models\Message;
@@ -187,6 +188,8 @@ class UserController extends Controller
                 switch($request->page){
                     case 'advInfo':
                         return redirect('admin/users/advInfo/'.$request->user_id);
+                    default:
+                        return redirect($request->page);
                     break;
                 }
             }else{
@@ -208,6 +211,8 @@ class UserController extends Controller
                 switch($request->page){
                     case 'advInfo':
                         return redirect('admin/users/advInfo/'.$request->user_id);
+                    default:
+                        return redirect($request->page);
                     break;
                 }
             }else{
@@ -1736,50 +1741,77 @@ class UserController extends Controller
         set_time_limit(300);
         ini_set("memory_limit","2048M");
         $page = $request->input('page', 1);
-        $paginate = 20;
-
-        // 先抓出永久封鎖的人
-        $result = banned_users::select('member_id as user_id', 'created_at as banned_at')->where('expire_date', null)->get();
-        // 再找出隱性封鎖的人
-        $result2 = BannedUsersImplicitly::select('target as user_id', 'created_at as banned_at')->get();
-        // 最後找出和永久封鎖同樣 hash 值，但沒有出現在隱性封鎖名單裡的人
-        //     1. 找出永久封鎖的 hash 值
-        $fp = array();
-        foreach ($result as $r){
-            $data = Fingerprint2::select('fp')->where('user_id', $r->user_id)->first();
-            if(isset($data) && !in_array($data->fp, $fp)){ array_push($fp, $data->fp); }
-        }
-        //     2. 取出隱性封鎖會員 ID
-        $user_id = array();
-        foreach ($result2 as $r){
-            if(!in_array($r->user_id, $user_id)){ array_push($user_id, $r->user_id); }
-        }
-        // 合併三個結果
-        $result = banned_users::select(DB::raw('fingerprint2.fp, member_id as user_id, banned_users.created_at as banned_at, "永久" as type'))
+        $paginate = 100;
+        $result = banned_users::select(DB::raw('fingerprint2.fp, banned_users.member_id as user_id, banned_users.created_at as banned_at, "永久" as type'))
             ->join('fingerprint2', 'fingerprint2.user_id', '=', 'banned_users.member_id')
             ->where('expire_date', null);
-        $result2 = BannedUsersImplicitly::select(DB::raw('fingerprint2.fp, target as user_id, banned_users_implicitly.created_at as banned_at, "隱性" as type'))
-            ->join('fingerprint2', 'fingerprint2.user_id', '=', 'banned_users_implicitly.user_id');
-        $resultMerged = Fingerprint2::select(DB::raw('fp, user_id, null as banned_at, null as type'));
-        if(isset($fp)){ $resultMerged = $resultMerged->whereIn('fp', $fp); }
-        if(isset($user_id)){ $resultMerged = $resultMerged->whereNotIn('user_id', $user_id); }
-        $resultMerged = $resultMerged->union($result)
-            ->union($result2)
+        $result2 = BannedUsersImplicitly::select(DB::raw('fp, target as user_id, created_at as banned_at, "隱性" as type'));
+        $result3 = ExpectedBanningUsers::select(DB::raw('fp, target as user_id, created_at as banned_at, "" as type'));
+        $resultMerged = $result->union($result2)
+            ->union($result3)
             ->orderBy('fp', 'desc')
             ->get();
-
-        // 填入指紋 hash 值、會員資料及被檢舉次數
-        foreach ($resultMerged as &$r){
-            //$r->fp = Fingerprint2::select('fp')->where('user_id', $r->user_id)->first();
-            $r->data = User::findById($r->user_id);
-            $r->count = $this->admin->countReported($r->user_id);
-        }
-
         $offSet = ($page * $paginate) - $paginate;
         $itemsForCurrentPage = array_slice($resultMerged->toArray(), $offSet, $paginate, true);
-        $result = new \Illuminate\Pagination\LengthAwarePaginator($itemsForCurrentPage, count($resultMerged), $paginate, $page);
+        $result = new \Illuminate\Pagination\LengthAwarePaginator($itemsForCurrentPage, count($resultMerged), $paginate, $page, ['path' => route('implicitlyBanned')]);
 
         return view('admin.users.bannedListImplicitly')->with('users', $result);
+    }
+
+    public function banningUserImplicitly(Request $request){
+        BannedUsersImplicitly::insert(
+            ['fp' => $request->fp,
+            'user_id' => 0,
+            'target' => $request->user_id]
+        );
+        ExpectedBanningUsers::where('target', $request->user_id)->delete();
+
+        if(isset($request->page)) {
+            switch ($request->page) {
+                default:
+                    return redirect($request->page);
+                    break;
+            }
+        }
+        return '<script>window.close();</script>';
+    }
+
+    public function unbanAll(Request $request){
+        $implicitly = BannedUsersImplicitly::where('target', $request->user_id)->first();
+        $banned = banned_users::where('member_id', $request->user_id)->first();
+        if($implicitly){ $implicitly->delete(); }
+        if($banned){ $banned->delete(); }
+
+        if(isset($request->page)) {
+            switch ($request->page) {
+                default:
+                    return redirect($request->page);
+                    break;
+            }
+        }
+        return '<script>window.close();</script>';
+    }
+
+    public function showFingerprint($fingerprint){
+//        $result = Fingerprint2::select('fingerprint2.fp', 'fingerprint2.user_id', 'users.*')
+//            ->join('users', 'users.id', '=', 'fingerprint2.user_id')
+//            ->where('fp', $fingerprint)->get();
+
+        $result = banned_users::select(DB::raw('fingerprint2.fp, banned_users.member_id as user_id, banned_users.created_at as banned_at, "永久" as type'))
+            ->join('fingerprint2', 'fingerprint2.user_id', '=', 'banned_users.member_id')
+            ->where('expire_date', null)
+            ->where('fp', $fingerprint);
+        $result2 = BannedUsersImplicitly::select(DB::raw('fp, target as user_id, created_at as banned_at, "隱性" as type'))
+            ->where('fp', $fingerprint);
+        $result3 = ExpectedBanningUsers::select(DB::raw('fp, target as user_id, created_at as banned_at, "" as type'))
+            ->where('fp', $fingerprint);
+        $resultMerged = $result->union($result2)
+            ->union($result3)
+            ->get();
+
+        return view('admin.users.showFingerprint')
+            ->with('users', $resultMerged)
+            ->with('fingerprint', $fingerprint);
     }
 
     public function showWarningUsers(){

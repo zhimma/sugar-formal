@@ -6,13 +6,12 @@
     }
 </style>
 <body style="padding: 15px;">
-<h1>隱性封鎖清單</h1>
-共 {{ $users->total() }} 筆資料
+<h1>指紋 Hash 值：{{ $fingerprint }}</h1>
+共 {{ $users->count() }} 筆資料
 <table class='table table-bordered table-hover'>
-	<tr>
-        <td>Hash 值</td>
-		<td>Email</td>
-		<td>封鎖方式</td>
+    <tr>
+        <td>Email</td>
+        <td>封鎖方式</td>
         <td>封鎖日期</td>
         <td>帳號建立時間</td>
         <td>最近上站時間</td>
@@ -20,25 +19,15 @@
         <td>標題</td>
         <td>被檢舉次數</td>
         <td>操作</td>
-	</tr>
-	@forelse($users as $user)
+    </tr>
+    @forelse($users as $user)
         @php
             $user['data'] = \App\Models\User::findById($user['user_id']);
             $user['count'] = \App\Services\AdminService::countReported($user['user_id']);
         @endphp
         @if(isset($user['data']))
-            @php
-                $user['fp'] = isset($user['fp']) ? ($user['fp'] != '' ? $user['fp'] : '無資料') : '無資料';
-            @endphp
             <tr>
-                <td>
-                    @if($user['fp'] != '無資料')
-                        <a href="{{ route("showFingerprint", $user['fp']) }}" target="_blank">{{ $user['fp'] }}</a>
-                    @else
-                        {{ $user['fp'] }}
-                    @endif
-                </td>
-                <td><a href="advInfo/{{ $user['user_id'] }}" target="_blank">{{ $user['data']->email }}</a></td>
+                <td><a href="{{ route('users/advInfo', $user['user_id']) }}" target="_blank">{{ $user['data']->email }}</a></td>
                 <td>{{ $user['type'] }}</td>
                 <td>{{ $user['banned_at'] }}</td>
                 <td>{{ $user['data']->created_at }}</td>
@@ -78,11 +67,10 @@
             </tr>
         @endif
     @empty
-    <tr>
-        找不到資料
-    </tr>
+        <tr>
+            找不到資料
+        </tr>
     @endforelse
 </table>
-{!! $users->links() !!}
 </body>
 @stop

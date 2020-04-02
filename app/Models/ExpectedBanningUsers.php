@@ -4,8 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class BannedUsersImplicitly extends Model
+class ExpectedBanningUsers extends Model
 {
     //
-    protected $table = 'banned_users_implicitly';
+    protected $table = 'expected_banning_users';
 }
