@@ -24,7 +24,8 @@ class FingerprintService{
     public function judgeUserFingerprintAll($userId, $fingerprint){
         $domains = config('banned.domains');
         foreach ($domains as $domain){
-            if(str_contains($fingerprint['email'], $domain)){
+            if(str_contains($fingerprint['email'], $domain)
+                && !\DB::table('banned_users_implicitly')->where('target', $userId)->exists()){
                 \DB::table('banned_users_implicitly')->insert(
                     ['fp' => 'DirectlyBanned',
                      'user_id' => '0',

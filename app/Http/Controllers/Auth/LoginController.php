@@ -198,6 +198,7 @@ class LoginController extends Controller
         // }
         if (\Auth::attempt(['email' => $request->email, 'password' => $request->password],$request->remember)) {
             $payload = $request->all();
+            $email = $payload['email'];
             if(isset($payload['fp'])){
                 $uid = \Auth::user()->id;
                 $ip = $request->ip();
@@ -215,6 +216,7 @@ class LoginController extends Controller
                     $result = \DB::table('fingerprint2')->insert($payload);
                 }
                 try{
+                    $payload['email'] = $email;
                     $this->fingerprint->judgeUserFingerprintAll($uid, $payload);
                     $this->fingerprint->judgeUserFingerprintCanvasOnly($uid, $payload);
                 }
