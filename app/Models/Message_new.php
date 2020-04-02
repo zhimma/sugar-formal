@@ -154,7 +154,7 @@ class Message_new extends Model
         $isAllDelete = true;
         //$msgShow = User::findById($uid)->meta_()->notifhistory;
         $user = \Auth::user();
-        $banned_users = \App\Models\SimpleTables\banned_users::select('member_id')->get();
+        $banned_users = \App\Services\UserService::getBannedId();
         foreach($messages as $key => &$message) {
             if($banned_users->contains('member_id', $message->to_id)){
                 unset($messages[$key]);
@@ -471,7 +471,7 @@ class Message_new extends Model
         //  created_at >= '".self::$date."' or  (`from_id`= $admin->id and `to_id` = $uid and `read` = 'N')
         //$admin = User::select('id')->where('email', Config::get('social.admin.email'))->get()->first();
         $userBlockList = Blocked::select('blocked_id')->where('member_id', $uid)->get();
-        $banned_users = banned_users::select('member_id')->get();
+        $banned_users = \App\Services\UserService::getBannedId();
         $query = Message::where(function($query)use($uid)
         {
             $query->where('to_id','=' ,$uid)
@@ -567,7 +567,7 @@ class Message_new extends Model
         $user = Auth::user();
         $block_people =  Config::get('social.block.block-people');
         $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
-        $banned_users = banned_users::select('member_id')->get();
+        $banned_users = \App\Services\UserService::getBannedId();
         $isVip = $user->isVip();
         $aa=[];
         foreach ($messages as $key => &$message){
@@ -714,7 +714,7 @@ class Message_new extends Model
         //
         $user = User::findById($uid);
         $block = Blocked::getAllBlock($uid);
-        $banned_users = banned_users::select('member_id')->get();
+        $banned_users = \App\Services\UserService::getBannedId();
         $query = Message::where(function($query)use($uid)
         {
             $query->where('to_id','=' ,$uid)
@@ -722,14 +722,14 @@ class Message_new extends Model
         });
         $query->where('read', 'N');
 //        $query->where([['is_row_delete_1', '<>' ,$uid],['is_single_delete_1', '<>' ,$uid], ['all_delete_count', '<>' ,$uid],['is_row_delete_2', '<>' ,$uid],['is_single_delete_2', '<>' ,$uid]]);
-//        if(isset($banned_users)) {
-//            $query->whereNotIn('from_id', $banned_users);
-//            $query->whereNotIn('to_id', $banned_users);
-//        }
-//        if(isset($block)) {
-//            $query->whereNotIn('from_id', $block);
-//            $query->whereNotIn('to_id', $block);
-//        }
+        if(isset($banned_users)) {
+            $query->whereNotIn('from_id', $banned_users);
+            $query->whereNotIn('to_id', $banned_users);
+        }
+        if(isset($block)) {
+            $query->whereNotIn('from_id', $block);
+            $query->whereNotIn('to_id', $block);
+        }
         $query->where([['is_row_delete_1','<>',$uid],['is_single_delete_1', '<>' ,$uid], ['all_delete_count', '<>' ,$uid],['is_row_delete_2', '<>' ,$uid],['is_single_delete_2', '<>' ,$uid]]);
 
         $query->where('created_at','>=',Carbon::parse("180 days ago")->toDateTimeString());
