@@ -57,7 +57,7 @@ class FingerprintService{
         }*/
         if($result
             && !\DB::table('expected_banning_users')->where('target', $userId)->exists()
-            && !\DB::table('banned_users_implicitly')->where('target', $userId)->exists()){
+            && !User::isBanned($userId)){
             // $ids = array_map(function ($array) { return $array->user_id; }, $final_result);
             \DB::table('expected_banning_users')->insert(
                 ['fp' => $result->fp,
@@ -77,7 +77,7 @@ class FingerprintService{
                 array_push($final_result, $r);
             }
         }*/
-        if($result){
+        if($result && !User::isBanned($userId)){
             $exist = \DB::table('warning_users')->where('user_id', $userId)->first();
             if(!$exist){
                 // $ids = array_map(function ($array) { return $array->user_id; }, $final_result);
