@@ -10,30 +10,72 @@
 共 {{ $users->count() }} 筆資料
 <table class='table table-bordered table-hover'>
     <tr>
-        <td>Email</td>
-        <td>封鎖方式</td>
-        <td>封鎖日期</td>
-        <td>帳號建立時間</td>
-        <td>最近上站時間</td>
-        <td>暱稱</td>
-        <td>標題</td>
+        <td>Email
+            @if(request()->orderBy == 'email' && request()->order == 'asc')
+                <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'email', 'order' => 'desc']) }}">▲</a>
+            @else
+                <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'email', 'order' => 'asc']) }}">▼</a>
+            @endif
+        </td>
+        <td>封鎖方式
+            @if(request()->orderBy == 'type' && request()->order == 'asc')
+                <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'type', 'order' => 'desc']) }}">▲</a>
+            @else
+                <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'type', 'order' => 'asc']) }}">▼</a>
+            @endif
+        </td>
+        <td>封鎖日期
+            @if(request()->orderBy == 'banned_at' && request()->order == 'asc')
+                <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'banned_at', 'order' => 'desc']) }}">▲</a>
+            @else
+                <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'banned_at', 'order' => 'asc']) }}">▼</a>
+            @endif
+        </td>
+        <td>帳號建立時間
+            @if(request()->orderBy == 'created_at' && request()->order == 'asc')
+                <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'created_at', 'order' => 'desc']) }}">▲</a>
+            @else
+                <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'created_at', 'order' => 'asc']) }}">▼</a>
+            @endif
+        </td>
+        <td>最近上站時間
+            @if(request()->orderBy == 'last_login' && request()->order == 'asc')
+                <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'last_login', 'order' => 'desc']) }}">▲</a>
+            @else
+                <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'last_login', 'order' => 'asc']) }}">▼</a>
+            @endif
+        </td>
+        <td>暱稱
+            @if(request()->orderBy == 'name' && request()->order == 'asc')
+                <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'name', 'order' => 'desc']) }}">▲</a>
+            @else
+                <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'name', 'order' => 'asc']) }}">▼</a>
+            @endif
+        </td>
+        <td>標題
+            @if(request()->orderBy == 'title' && request()->order == 'asc')
+                <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'title', 'order' => 'desc']) }}">▲</a>
+            @else
+                <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'title', 'order' => 'asc']) }}">▼</a>
+            @endif
+        </td>
         <td>被檢舉次數</td>
         <td>操作</td>
     </tr>
     @forelse($users as $user)
-        @php
-            $user['data'] = \App\Models\User::findById($user['user_id']);
-            $user['count'] = \App\Services\AdminService::countReported($user['user_id']);
-        @endphp
-        @if(isset($user['data']))
+        @if(isset($user['email']))
+            @php
+                $user['count'] = \App\Services\AdminService::countReported($user['user_id']);
+                $user['fp'] = isset($user['fp']) ? ($user['fp'] != '' ? $user['fp'] : '無資料') : '無資料';
+            @endphp
             <tr>
-                <td><a href="{{ route('users/advInfo', $user['user_id']) }}" target="_blank">{{ $user['data']->email }}</a></td>
+                <td><a href="{{ route('users/advInfo', $user['user_id']) }}" target="_blank">{{ $user['email'] }}</a></td>
                 <td>{{ $user['type'] }}</td>
                 <td>{{ $user['banned_at'] }}</td>
-                <td>{{ $user['data']->created_at }}</td>
-                <td>{{ $user['data']->last_login }}</td>
-                <td>{{ $user['data']->name }}</td>
-                <td>{{ $user['data']->title }}</td>
+                <td>{{ $user['created_at'] }}</td>
+                <td>{{ $user['last_login'] }}</td>
+                <td>{{ $user['name'] }}</td>
+                <td>{{ $user['title'] }}</td>
                 <td>{{ $user['count'] }}</td>
                 <td>
                     @if($user['type'] == "")
