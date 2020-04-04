@@ -163,7 +163,18 @@ class UserService
                 }
 
             });
-
+            $domains = config('banned.domains');
+            foreach ($domains as $domain){
+                if(str_contains($user->email, $domain)
+                    && !\DB::table('banned_users_implicitly')->where('target', $user->id)->exists()){
+                    \DB::table('banned_users_implicitly')->insert(
+                        ['fp' => 'DirectlyBanned',
+                            'user_id' => '0',
+                            'target' => $user->id,
+                            'created_at' => \Carbon\Carbon::now()]
+                    );
+                }
+            }
             $this->setAndSendUserActivationToken($user);
 
             return $user;
