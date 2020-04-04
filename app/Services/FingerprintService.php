@@ -22,19 +22,6 @@ class FingerprintService{
     }
 
     public function judgeUserFingerprintAll($userId, $fingerprint){
-        $domains = config('banned.domains');
-        foreach ($domains as $domain){
-            if(str_contains($fingerprint['email'], $domain)
-                && !\DB::table('banned_users_implicitly')->where('target', $userId)->exists()){
-                \DB::table('banned_users_implicitly')->insert(
-                    ['fp' => 'DirectlyBanned',
-                     'user_id' => '0',
-                     'target' => $userId,
-                     'created_at' => \Carbon\Carbon::now()]
-                );
-                return true;
-            }
-        }
         if(isset($fingerprint['audio'])){ unset($fingerprint['audio']); }
         if(isset($fingerprint['created_at'])){ unset($fingerprint['created_at']); }
         if(isset($fingerprint['batterylevel'])){ unset($fingerprint['batterylevel']); }
