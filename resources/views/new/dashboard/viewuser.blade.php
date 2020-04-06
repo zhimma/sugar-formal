@@ -136,7 +136,7 @@
                                 <li><img src="/new/images/icon_21.png"><span>優選會員</span></li>
                                 @endif
 {{--                            <li><img src="/new/images/icon_23.png"><span>財力認證</span></li>--}}
-                                @if($to->isVip())
+                                @if($to->isVip() && $to->engroup == 1)
                                 <li><img src="/new/images/icon_25.png"><span>VIP</span></li>
                                 @endif
 {{--                            <li><img src="/new/images/icon_27.png"><span>警示帳戶</span></li>--}}
