@@ -15,7 +15,7 @@
 		<tr>
 			<td>
 				@if($message->from_id == $id1->id) 
-					<a href="{{ route('users/advInfo', [$message->from_id]) }} ">
+					<a href="{{ route('users/advInfo', [$id1->id]) }} ">
 						<p @if($id1->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
 							{{ $id1->name }}
 							@if($id1->vip)
@@ -44,7 +44,7 @@
 						</p>
 					</a> 
 				@else
-					<a href="{{ route('users/advInfo', [$message->to_id]) }} ">
+					<a href="{{ route('users/advInfo', [$id2->id]) }} ">
 						<p @if($id2->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
 							{{ $id2->name }}
 							@if($id2->vip)
@@ -105,7 +105,7 @@
 						</p>
 					</a> 
 				@else 
-					<a href="{{ route('users/advInfo', [$message->to_id]) }} ">
+					<a href="{{ route('users/advInfo', [$id2->id]) }} ">
 						<p @if($id2->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
 							{{ $id2->name }}
 							@if($id2->vip)
