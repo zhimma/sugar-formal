@@ -22,6 +22,8 @@
 	        @else
 	            此會員登入後將自動解除封鎖
 	        @endif
+		@elseif(isset($user['isBlocked']['implicitly']))
+			(隱性)
 	    @else
 	        (永久)
 	    @endif
@@ -32,6 +34,13 @@
 		<button type="button" id="unblock_user" class='text-white btn @if($user["isBlocked"]) btn-success @else btn-danger @endif' onclick="Release({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除封鎖 </button>
 	@else 
 		<a class="btn btn-danger ban-user" id="block_user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">封鎖會員</a>
+		<form action="{{ route('banningUserImplicitly') }}" method="POST" style="display: inline;">
+			{!! csrf_field() !!}
+			<input type="hidden" value="{{ $user['id'] }}" name="user_id">
+			<input type="hidden" value="BannedInUserInfo" name="fp">
+			<input type="hidden" value="{{ url()->full() }}" name="page">
+			<button type="submit" class='btn btn-info'>隱性封鎖</button>
+		</form>
 	@endif
 	
 	@if($user['isvip'])

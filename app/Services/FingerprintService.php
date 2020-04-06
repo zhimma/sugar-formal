@@ -22,6 +22,16 @@ class FingerprintService{
     }
 
     public function judgeUserFingerprintAll($userId, $fingerprint){
+        $isFingerprintBanned = \DB::table('banned_fingerprints')->where('fp', $fingerprint['fp'])->get()->count();
+        if($isFingerprintBanned > 0
+            && !\DB::table('banned_users_implicitly')->where('target', $userId)->exists()){
+            \DB::table('banned_users_implicitly')->insert(
+                ['fp' => 'DirectlyBanned',
+                    'user_id' => '0',
+                    'target' => $userId,
+                    'created_at' => \Carbon\Carbon::now()]
+            );
+        }
         if(isset($fingerprint['audio'])){ unset($fingerprint['audio']); }
         if(isset($fingerprint['created_at'])){ unset($fingerprint['created_at']); }
         if(isset($fingerprint['batterylevel'])){ unset($fingerprint['batterylevel']); }

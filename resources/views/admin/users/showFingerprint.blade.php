@@ -7,6 +7,19 @@
 </style>
 <body style="padding: 15px;">
 <h1>指紋 Hash 值：{{ $fingerprint }}</h1>
+@if($isFingerprintBanned)
+    <form action="{{ route('unbanFingerprint') }}" method="POST">
+        {!! csrf_field() !!}
+        <input type="hidden" value="{{ $fingerprint }}" name="fp">
+        <button type="submit" class='btn text-white btn-success'>解除封鎖此指紋</button>
+    </form>
+@else
+    <form action="{{ route('banFingerprint') }}" method="POST">
+        {!! csrf_field() !!}
+        <input type="hidden" value="{{ $fingerprint }}" name="fp">
+        <button type="submit" class='btn btn-info'>隱性封鎖此指紋</button>
+    </form>
+@endif
 共 {{ $users->count() }} 筆資料
 <table class='table table-bordered table-hover'>
     <tr>
@@ -69,7 +82,7 @@
                 $user['fp'] = isset($user['fp']) ? ($user['fp'] != '' ? $user['fp'] : '無資料') : '無資料';
             @endphp
             <tr>
-                <td><a href="{{ route('users/advInfo', $user['user_id']) }}" target="_blank">{{ $user['email'] }}</a></td>
+                <td><a @if($user['engroup'] == '2') style="color: #F00;" @else  style="color: #000fff;" @endif href="{{ route('users/advInfo', $user['user_id']) }}" target="_blank">{{ $user['email'] }}</a></td>
                 <td>{{ $user['type'] }}</td>
                 <td>{{ $user['banned_at'] }}</td>
                 <td>{{ $user['created_at'] }}</td>

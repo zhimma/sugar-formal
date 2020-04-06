@@ -84,7 +84,7 @@
                         {{ $user['fp'] }}
                     @endif
                 </td>
-                <td><a href="advInfo/{{ $user['user_id'] }}" target="_blank">{{ $user['email'] }}</a></td>
+                <td><a @if($user['engroup'] == '2') style="color: #F00;" @else  style="color: #000fff;" @endif href="advInfo/{{ $user['user_id'] }}" target="_blank">{{ $user['email'] }}</a></td>
                 <td>{{ $user['type'] }}</td>
                 <td>{{ $user['banned_at'] }}</td>
                 <td>{{ $user['created_at'] }}</td>
