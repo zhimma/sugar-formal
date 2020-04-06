@@ -1397,7 +1397,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .se_text{width:100%; height:100px;  border:#e5e5e5 1px solid; padding:10px; color:#999}
 
 
-.se_tbut{width:200px; height:40px; background:#fe92a8; border-radius:200px; color:#ffffff; text-align:center; line-height:40px; margin:0 auto;display:table; border-style: unset;}
+.se_tbut{width:200px; height:40px; background:#fe92a8; border-radius:200px; color:#ffffff; text-align:center; line-height:40px; margin:20px auto 0 auto;display:table; border-style: unset;}
 .se_tbut:hover{ color:#ffffff}
 
 @media (max-height:578px) {

@@ -77,7 +77,7 @@
                     <div class="metx">
                         <div class="swiper-container photo">
                             <div class="swiper-wrapper">
-                                <div class="swiper-slide" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="{{$to->meta_()->pic}}"></div>
+                                <div class="swiper-slide" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="@if(file_exists( public_path().$to->meta_()->pic ) && $to->meta_()->pic != ""){{$to->meta_()->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>
 
                                 @foreach($member_pic as $row)
                                     <div class="swiper-slide" data-type="pic" data-sid="{{$to->id}}" data-pic_id="{{$row->id}}"><img src="{{$row->pic}}"></div>
@@ -136,7 +136,7 @@
                                 <li><img src="/new/images/icon_21.png"><span>優選會員</span></li>
                                 @endif
 {{--                            <li><img src="/new/images/icon_23.png"><span>財力認證</span></li>--}}
-                                @if($to->isVip())
+                                @if($to->isVip() && $to->engroup == 1)
                                 <li><img src="/new/images/icon_25.png"><span>VIP</span></li>
                                 @endif
 {{--                            <li><img src="/new/images/icon_27.png"><span>警示帳戶</span></li>--}}
@@ -264,7 +264,7 @@
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->occupation) && $to->meta_()->isHideOccupation == '0' && $user->isVip())
+                                    @if(!empty($to->meta_()->occupation) && $to->meta_()->isHideOccupation == '0' && $user->isVip() && $to->meta_()->occupation != 'null')
                                     <dt>
                                         <span>職業</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->occupation}}" disabled="disabled"></span>
