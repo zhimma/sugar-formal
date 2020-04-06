@@ -35,6 +35,21 @@ class Message extends Model
 
     static $date = null;
 
+    /*
+    |--------------------------------------------------------------------------
+    | relationships
+    |--------------------------------------------------------------------------
+    */
+    public function sender()
+    {
+        return $this->belongsTo(User::class, 'from_id', 'id');
+    }
+
+    public function receiver()
+    {
+        return $this->belongsTo(User::class, 'to_id', 'id');
+    }
+
     // handle delete Message
     public static function deleteBetween($uid, $sid) {
         $message = Message::where([['to_id', $uid], ['from_id', $sid]])->orWhere([['to_id', $sid], ['from_id', $uid]])->orderBy('created_at', 'desc')->first();

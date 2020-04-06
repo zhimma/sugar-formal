@@ -24,6 +24,17 @@ class MemberPic extends Model
         'pic'
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | relationships
+    |--------------------------------------------------------------------------
+    */
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'member_id', 'id');
+    }
+
     public static function getSelf($uid)
     {
         return MemberPic::where('member_id', $uid)->get();

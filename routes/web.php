@@ -308,10 +308,15 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('/dashboard2', 'PagesController@profileUpdate_ajax')->name('dashboard2');
     Route::post('dashboard/settings', 'PagesController@settingsUpdate');
     Route::get('/dashboard', 'PagesController@dashboard')->name('dashboard');
+
+    // 大頭照和生活照
     Route::get('/dashboard_img', 'PagesController@dashboard_img')->name('dashboard_img');
-    Route::post('/dashboard/save_img','PagesController@save_img');
+    Route::get('/dashboard/pictures/{userId?}', 'ImageController@getPictures');
+    Route::post('/dashboard/pictures/upload','ImageController@uploadPictures');
+    Route::get('/dashboard/avatar/{userId?}', 'ImageController@getAvatar');
+    Route::post('/dashboard/avatar/upload', 'ImageController@uploadAvatar');
     Route::post('/dashboard/delPic', 'PagesController@delPic');
-    // Route::get('/dashboard_img_new', 'PagesController@dashboard_img')->name('dashboard_img');
+
     Route::get('/dashboard/password', 'PagesController@view_changepassword'); //new route
     Route::post('/dashboard/changepassword', 'PagesController@changePassword'); //new route
     Route::get('/dashboard/vip', 'PagesController@view_vip'); //new route
@@ -412,6 +417,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         //Route::get('/dashboard/block', 'PagesController@block');
         Route::get('/dashboard/upgrade', 'PagesController@upgrade');
    // Route::get('/dashboard/cancel', 'PagesController@cancel');
+
+
     });
 
     /*
@@ -547,8 +554,4 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('roles/search', 'RoleController@search');
         Route::get('roles/search', 'RoleController@index');
     });
-});
-Route::get('/test', function(){
-    $meta = App\Models\UserMeta::where('user_id', 41760)->first()->user;
-    dd($meta);
 });

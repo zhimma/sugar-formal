@@ -1,4 +1,4 @@
-
+<?php
 /*
 |--------------------------------------------------------------------------
 | Feature Factory
@@ -63,3 +63,4 @@ $factory->define(App\Models\Notification::class, function (Faker\Generator $fake
         'is_read' => 0,
     ];
 });
+?>

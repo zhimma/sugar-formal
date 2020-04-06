@@ -35,6 +35,21 @@ class Message_new extends Model
     ];
 
     static $date = null;
+    
+    /*
+    |--------------------------------------------------------------------------
+    | relationships
+    |--------------------------------------------------------------------------
+    */
+    public function sender()
+    {
+        return $this->belongsTo(User::class, 'from_id', 'id');
+    }
+
+    public function receiver()
+    {
+        return $this->belongsTo(User::class, 'to_id', 'id');
+    }
 
     // handle delete Message
     public static function deleteBetween($uid, $sid) {

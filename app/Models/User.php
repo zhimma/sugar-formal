@@ -40,20 +40,69 @@ class User extends Authenticatable
      */
     protected $hidden = ['password', 'remember_token'];
 
-    /**
-     * User UserMeta
-     *
-     * @return Relationship
-     */
+    protected $append = ['isVip'];
+
+    /*
+    |--------------------------------------------------------------------------
+    | relationships
+    |--------------------------------------------------------------------------
+    */
+
+    // UserMeta
     public function meta()
     {
         return $this->hasOne(UserMeta::class, 'user_id', 'id');
+    }
+
+    //Vip
+    public function vip()
+    {
+        return $this->hasMany(Vip::class, 'member_id', 'id');
+    }
+
+    //sent messages
+    public function sentMessages()
+    {
+        return $this->hasMany(Message_new::class, 'from_id', 'id');
+    }
+
+    //received messages
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message_new::class, 'to_id', 'id');
+    }
+
+    //生活照
+    public function pic()
+    {
+        return $this->hasMany(MemberPic::class, 'member_id', 'id');
+    }
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Mutators and Accessors
+    |--------------------------------------------------------------------------
+    | Set virtual attributes
+    |
+    */
+
+    /**
+    * Whether the user is VIP
+    *
+    * @param int id
+    *
+    * @return boolean
+    */
+    public function getIsVipAttribute()
+    {dd($this->vip());
+        return $this->vip != NULL and $this->vip->active == 1 ;
     }
 
     public static function id_($uid)
     {
         return User::where('id', $uid)->first();
     }
+    
 
     public function meta_($queries = null)
     {

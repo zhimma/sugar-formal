@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\Http\Requests\ImageRequest;
 use App\Http\Requests\MultipleImageRequest;
 use App\Http\Requests;
+use App\Services\ImageService;
 use App\Models\User;
 use App\Models\MemberPic;
 use App\Models\UserMeta;
@@ -13,9 +15,23 @@ use Image;
 use File;
 use Storage;
 use Carbon\Carbon;
+use \FileUploader;
 
 class ImageController extends Controller
 {
+    private $imageBasePath;
+    private $uploadDir;
+    //private $service;
+
+    public function __construct()
+    {
+        $this->imageBasePath = public_path('/img/Member/');
+        $this->uploadDir = $this->imageBasePath . Carbon::now()->format('Y/m/d/');
+        // if directory is not exist, then create
+        if(!File::isDirectory($this->uploadDir))
+            File::makeDirectory($this->uploadDir, 0777, true);
+    }
+
     public function deleteImage(Request $request, $admin = false)
     {
         $payload = $request->all();
@@ -196,36 +212,145 @@ class ImageController extends Controller
         }
     }
 
-    public function fileuploader_image_upload()
+    public function getAvatar(Request $request)
     {
-        // 確保上傳資料夾存在
-        @mkdir($this->img_dir, 0777, true);
-        include( public_path(). '/plugins/fileuploader2/src/class.fileuploader.php');
-        // 上傳圖片
-        $fileUploader = new MyFileUploader('files', array(
+        $id = $request->userId;
+        $avatarPath = UserMeta::where('user_id', $id)->first()->pic;
+
+        if(is_null($avatarPath))
+            return response()->json("");
+        else
+        {
+            $path_slice = explode('/', $avatarPath);
+            $avatar = array(
+                "name" => end($path_slice),
+                "type" => FileUploader::mime_content_type($avatarPath),
+                "size" => filesize(public_path($avatarPath)),
+                "file" => $avatarPath,
+                "local" => $avatarPath,
+                "data" => array(
+                    "readerForce" => true
+                )
+            );
+
+            return response()->json($avatar);
+        }
+    }
+
+    public function uploadAvatar(Request $request)
+    {
+        $userId = $request->userId;
+        $meta = UserMeta::where('user_id', $userId)->first();
+
+        $fileUploader = new FileUploader('avatar', array(
             'fileMaxSize' => 8,
             'extensions' => ['jpg', 'jpeg', 'png', 'gif'],
             'required' => true,
-            'uploadDir' => $this->img_dir,
-            'title' => time(),
+            'uploadDir' => $this->uploadDir,
+            'title' => function(){
+                $now = Carbon::now()->format('Ymd');
+                return $now . rand(100000000,999999999);
+            },
             'replace' => false,
         ));
-        $upload = $fileUploader->upload();
 
-        if ($upload['isSuccess']) {
-            // 製作縮圖
-            // 縮圖檔名: 原檔名後綴 "_thumbnail"
-            $img = $upload['files'][0];
-            $thumbnail = $this->img_dir.basename($img['name'], '.'.$img['extension']).'_thumbnail.'.$img['extension'];
-            if (MyFileUploader::resize($img['file'], 200, 200, $thumbnail, null, 100)) {
-                $return = $this->ReturnHandle(true, '/'.$img['file']);
-            } else {
-                $return = $this->ReturnHandle(false, $this->lang->line('Update_Info_fail'));
+        /*$file = public_path($meta->pic);
+        if(is_file($file) and file_exists($file))
+            unlink($file);*/
+
+        $upload = $fileUploader->upload();
+        if($upload['hasWarnings'])
+            return redirect()->back()->withErrors($upload['warnings']);
+        else
+        {
+            //remove origin avator
+            $removeFiles = $fileUploader->getRemovedFiles('avatar');
+            $file = $removeFiles[0]['file'];
+            if(is_file($file) and file_exists($file))
+                unlink($file);
+
+            //upload new avator
+            $avatar = $fileUploader->getUploadedFiles();
+            $filePath = $avatar[0]['file'];
+            if( is_file($filePath) and file_exists($filePath))
+                UserMeta::where('user_id', $userId)->update(['pic' => substr($filePath, strlen(public_path('\\')))]);
+            return redirect()->back();
+        }
+    }
+
+    public function getPictures(Request $request)
+    {
+        //$id = 41759;
+        $id = $request->userId;
+        
+        $picturePaths = MemberPic::getSelf($id)->pluck('pic');
+        $paths = array();
+        foreach($picturePaths as $path)
+        {
+            $path_slice = explode('/', $path);
+            $paths[] = array(
+                "name" => end($path_slice), //filename
+                "type" => FileUploader::mime_content_type($path),
+                "size" => filesize(public_path($path)), //filesize需完整路徑
+                "file" => $path,
+                "local" => $path,
+                "data" => array(
+                    "readerForce" => true
+                )
+            );
+        }
+        $responseJSON = response()->json($paths);
+        return $responseJSON;
+    }
+
+    /**
+    * 上傳生活照
+    *
+    * @param Request request 
+    */
+
+    public function uploadPictures(Request $request)
+    {
+        $userId = $request->userId;
+        $preloadedFiles = $this->getPictures($request)->content();
+        $preloadedFiles = json_decode($preloadedFiles, true);
+
+        $fileUploader = new FileUploader('pictures', array(
+            'fileMaxSize' => 8,
+            'extensions' => ['jpg', 'jpeg', 'png', 'gif'],
+            'required' => true,
+            'uploadDir' => $this->uploadDir,
+            'title' => function(){
+                $now = Carbon::now()->format('Ymd');
+                return $now . rand(100000000,999999999);
+            },
+            'replace' => false,
+            'files' => $preloadedFiles
+        ));
+    
+        //選擇移除的照片
+        foreach($fileUploader->getRemovedFiles('pictures') as $key => $value)
+        {
+            $file = public_path($value['file']); //full path of removed file 
+            if(is_file($file) and file_exists($file)){
+                unlink($file);
+                MemberPic::where('pic', $value['file'])->delete();
             }
-        } else {
-            $return = $this->ReturnHandle(false, $this->lang->line('Update_Info_fail'));
         }
 
-        $this->output->set_content_type('application/json')->set_output(json_encode($return));
+        $upload = $fileUploader->upload();
+
+        $publicPath = public_path('\\');
+        foreach($fileUploader->getUploadedFiles() as $uploadedFile)
+        {
+            $path = substr($uploadedFile['file'], strlen($publicPath));
+            $addPicture = new MemberPic;
+            $addPicture->member_id = $userId;
+            $addPicture->pic = $path;
+            $addPicture->save();
+        }
+
+        $previous = redirect()->back();
+        return $upload['isSuccess'] ? $previous : $previous->withErrors($upload['warnings']);
     }
 }

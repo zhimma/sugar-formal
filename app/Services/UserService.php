@@ -729,12 +729,16 @@ class UserService
      */
     public function beenRepliedMessage($msg_id)
     {
-        $msg = Message::where('id', $msg_id);
-        $replied = Message::where('id', '>', $msg->id)
-            ->where('from_id', $msg->to_id)
-            ->where('to_id', $msg->from_id)
-            ->where('content', 'NOT LIKE', '系統通知%');
-        return $replied->count() == 0 ? true : false;
+        $msg = Message::where('id', $msg_id)->first();
+        if($msg)
+        {
+            $replied = Message::where('id', '>', $msg->id)
+                ->where('from_id', $msg->to_id)
+                ->where('to_id', $msg->from_id)
+                ->where('content', 'NOT LIKE', '系統通知%');
+            return $replied->count() == 0 ? true : false;
+        }
+        return false;
     }
 
     /**
@@ -798,13 +802,13 @@ class UserService
     {
         $members = Vip::leftjoin('member_tip', 'member_tip.member_id', '=', 'member_vip.member_id')
             ->where('active', 1)
-            ->where('expire_date', '!=', '0000-00-00 00:00:00')
+            ->where('expiry', '!=', '0000-00-00 00:00:00')
             ->where(function($query){
                 ///成為VIP超過三個月
-                $query->where('created_at', '<', Carbon::now()->subMonths(3))
+                $query->where('member_vip.created_at', '<', \Carbon\Carbon::now()->subMonths(3))
                 ->orWhere(function($query){
                     //或成為VIP超過一個月且有使用車馬費邀請過
-                    $query->where('created_at', '<', Carbon::now()->subMonths(1));
+                    $query->where('member_vip.created_at', '<', \Carbon\Carbon::now()->subMonths(1));
                 });
             });
         return $members->get();
@@ -822,13 +826,13 @@ class UserService
         $member = Vip::leftjoin('member_tip', 'member_tip.member_id', '=', 'member_vip.member_id')
             ->where('member_vip.member_id', $id)
             ->where('active', 1)
-            ->where('expire_date', '!=', '0000-00-00 00:00:00')
+            ->where('expiry', '!=', '0000-00-00 00:00:00')
             ->where(function($query){
                 ///成為VIP超過三個月
-                $query->where('created_at', '<', Carbon::now()->subMonths(3))
+                $query->where('member_vip.created_at', '<', \Carbon\Carbon::now()->subMonths(3))
                 ->orWhere(function($query){
                     //或成為VIP超過一個月且有使用車馬費邀請過
-                    $query->where('created_at', '<', Carbon::now()->subMonths(1));
+                    $query->where('member_vip.created_at', '<', \Carbon\Carbon::now()->subMonths(1));
                 });
             });
 
@@ -837,26 +841,28 @@ class UserService
     /**
      * Grouping male member
      *
-     * @param array users Array of User model
+     * @param array users 
      *
      * @return array The keys are 'normal', 'vip', 'recommend'
      */
-    public function groupingMale($users)
+    public function groupingMale($userIds)
     {
         $results = array('Recommend'=>array(), 'Vip'=>array(), 'Normal'=>array());
-        foreach($users as $user)
+        foreach($userIds as $id)
         {
-            if($this->isRecommendMember($user->id))
+            $isVip = Vip::select('active')->where('member_id', $id)->where('active', 1)->orderBy('created_at', 'desc')->first();
+
+            if($this->isRecommendMember($id))
             {
-                array_push($results['Recommend'], $user);
+                array_push($results['Recommend'], $id);
             }
-            else if($user->isVip())
+            else if($isVip)
             {
-                array_push($results['Vip'], $user);
+                array_push($results['Vip'], $id);
             }
             else
             {
-                array_push($results['Normal'], $user);
+                array_push($results['Normal'], $id);
             }
         }
         return $results;

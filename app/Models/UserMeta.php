@@ -69,6 +69,17 @@ class UserMeta extends Model
         'notifhistory'
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | relationships
+    |--------------------------------------------------------------------------
+    */
+    
+    public function user() 
+    {
+         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
     public function age() {
         if (isset($this->birthdate) && $this->birthdate !== null && $this->birthdate != 'NULL')
         {
@@ -129,23 +140,10 @@ class UserMeta extends Model
         return substr($string, 0, -3).'未填寫！';
     }
 
+
      public static function uploadUserHeader($uid, $fieldContent) {
          return DB::table('user_meta')->where('user_id', $uid)->update(['pic' => $fieldContent]);
      }
-
-    /**
-     * User
-     *
-     * @return Relationship
-     */
-    public function user() {
-         return $this->belongsTo(User::class, 'user_id', 'id');
-    }
-
-    /*public function user()
-    {
-        return User::where('id', $this->user_id)->first();
-    }*/
 
     public static function search($city, $area, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid)
     {
