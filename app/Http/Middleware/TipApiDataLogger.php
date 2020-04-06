@@ -142,15 +142,16 @@ class TipApiDataLogger{
                 if (isset($payload['RtnCode'])) {
                     if($payload['RtnCode'] == 1){
                         Tip::upgrade($user->id, $payload['MerchantTradeNo'], '');
-                        Message::post($user->id, $payload['CustomField2'], "系統通知: 車馬費邀請");
+                        // Message::post($user->id, $payload['CustomField2'], "系統通知: 車馬費邀請");
                         if($user->engroup == 1) {
                             //取資料庫並替換名字
                             $tip_msg1 = AdminCommonText::getCommonText(1);//id2給男會員訊息
                             $tip_msg1 = str_replace('NAME', \App\Models\User::findById($payload['CustomField2'])->name, $tip_msg1);
                             $tip_msg2 = AdminCommonText::getCommonText(2);//id3給女會員訊息
                             $tip_msg2 = str_replace('NAME', $user->name, $tip_msg2);
-                            // 給男會員訊息
+                            // 給男會員訊息（需在發送方的訊息框看到，所以是由男會員發送）
                             Message::post($payload['CustomField1'], $payload['CustomField2'], $tip_msg1, false);
+                            // 給女會員訊息（需在接收方的訊息框看到，所以是由女會員發送）
                             Message::post($payload['CustomField2'], $payload['CustomField1'], $tip_msg2, false);
 
                             // 給男會員訊息
@@ -164,10 +165,12 @@ class TipApiDataLogger{
                         return response('1|OK', 200);
                     }
                     else{
+                        Log::info("Error: RtnCode didn't set.");
                         return response('0|Error', 200);
                     }
                 }
                 else{
+                    Log::info("Error: No data.");
                     return response('0|No data', 200);
                 }
             }

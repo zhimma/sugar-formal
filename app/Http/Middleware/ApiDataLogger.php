@@ -8,7 +8,7 @@ use App\Services\VipLogService;
 
 class ApiDataLogger{
     private $startTime;
-
+    
     public function __construct(VipLogService $logService){
         $this->logService = $logService;
     }
@@ -121,12 +121,12 @@ class ApiDataLogger{
 
                 if ($CheckMacValue != $payloadCheckMacValue) {
                     Log::info('CheckMacValue verify fail.');
-                    return ['0', 'Error'];
+                    return '0|Error';
                 }
 
                 if (sizeof($arErrors) > 0) {
                     Log::info($arErrors);
-                    return ['0', 'Error'];
+                    return '0|Error';
                 }
 
                 $pool = '';
@@ -157,14 +157,16 @@ class ApiDataLogger{
                         $this->logService->writeLogToDB();
                         $this->logService->writeLogToFile();
                         Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0);
-                        return ['1', 'OK'];
+                        return '1|OK';
                     }
                     else{
-                        return ['0', 'Error'];
+                        Log::info("Error: RtnCode didn't set.");
+                        return '0|Error';
                     }
                 }
                 else{
-                    return ['0', 'No data'];
+                    Log::info("Error: No data.");
+                    return '0|No data';
                 }
             }
         }

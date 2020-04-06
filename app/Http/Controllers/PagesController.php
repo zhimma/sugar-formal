@@ -41,7 +41,6 @@ use Illuminate\Support\Facades\Input;
 use Session;
 use App\Http\Controllers\Common;
 
-
 class PagesController extends Controller
 {
     public function __construct(UserService $userService, VipLogService $logService)
@@ -202,18 +201,20 @@ class PagesController extends Controller
             $targetUserID = substr($payload['P_OrderNumber'], 0, -10);
             if($payload['final_result'] == 1){
                 Tip::upgrade($user->id, $targetUserID, $payload['P_CheckSum']);
-                Message::post($user->id, $targetUserID, "系統通知: 車馬費邀請");
+                // Message::post($user->id, $targetUserID, "系統通知: 車馬費邀請");
                 if($user->engroup == 1) {
                     //取資料庫並替換名字
                     $tip_msg1 = AdminCommonText::getCommonText(1);//id2給男會員訊息
                     $tip_msg1 = str_replace('NAME', User::findById($targetUserID)->name, $tip_msg1);
                     $tip_msg2 = AdminCommonText::getCommonText(2);//id3給女會員訊息
                     $tip_msg2 = str_replace('NAME', $user->name, $tip_msg2);
+                    // 給男會員訊息（需在發送方的訊息框看到，所以是由男會員發送）
+                    Message::post($user->id, $targetUserID, $tip_msg1, false);
+                    // 給女會員訊息（需在接收方的訊息框看到，所以是由女會員發送）
+                    Message::post($targetUserID, $user->id, $tip_msg2, false);
                     // 給男會員訊息
                     // Message::post($user->id, $targetUserID, "系統通知: 車馬費邀請\n您已經向 ". User::findById($targetUserID)->name ." 發動車馬費邀請。\n流程如下\n1:網站上進行車馬費邀請\n2:網站上訊息約見(重要，站方判斷約見時間地點，以網站留存訊息為準)\n3:雙方見面\n\n如果雙方在第二步就約見失敗。\n將扣除手續費 288 元後，1500匯入您指定的帳戶。也可以用現金袋或者西聯匯款方式進行。\n(聯繫我們有站方聯絡方式)\n\n若雙方有見面意願，被女方放鴿子。\n站方會參照女方提出的證據，判斷是否將尾款交付女方。", false);
                     // Message::post($targetUserID, $user->id, "系統通知: 車馬費邀請\n". $user->name . " 已經向 您 發動車馬費邀請。\n流程如下\n1:網站上進行車馬費邀請\n2:網站上訊息約見(重要，站方判斷約見時間地點，以網站留存訊息為準)\n3:雙方見面(建議約在知名連鎖店丹堤星巴克或者麥當勞之類)\n\n若成功見面男方沒有提出異議，那站方會在發動後 7~14 個工作天\n將 1500 匯入您指定的帳戶。若您不想提供銀行帳戶。\n也可以用現金袋或者西聯匯款方式進行。\n(聯繫我們有站方聯絡方式)\n\n若男方提出當天女方未到場的爭議。請您提出當天消費的發票證明之。\n所以請約在知名連鎖店以利站方驗證。\n", false);
-                    Message::post($user->id, $targetUserID, $tip_msg1, false);
-                    Message::post($targetUserID, $user->id, $tip_msg2, false);
                 }
                 else if($user->engroup == 2) {
                     // 給女會員訊息
@@ -376,22 +377,51 @@ class PagesController extends Controller
 
     public function saveFingerprint(Request $request){
         $fingerprintValue = $request->fingerprintValue;
-        if(Fingerprint::isExist(['fingerprintValue'=>$fingerprintValue]))
+        $user = User::findByEmail($request->email);
+        if(Fingerprint::isExist(['fingerprintValue'=>$fingerprintValue])){
+            Log::info('User id: ' . isset($user) ? $user->id : null . ', fingerprint value: ' . $fingerprintValue);
             return '找到相符合資料';
+        }
         else{
-            $user = User::findByEmail($request->email);
-            $fingerprintValue = Hash::make($fingerprintValue.$request->ip());
+            $fingerprintValue = Hash::make($fingerprintValue . $request->ip());
             $data = [
                 'user_id' => isset($user) ? $user->id : null,
                 'ip' => request()->ip(),
-                'fingerprintValue'=>$fingerprintValue,
-                'browser_name'=>$request->browser_name,
-                'browser_version'=>$request->browser_version,
-                'os_name'=>$request->os_name,
-                'os_version'=>$request->os_version,
-                'timezone'=>$request->timezone,
-                'plugins'=>$request->plugins,
-                'language'=>$request->language
+                'fingerprintValue' => $fingerprintValue,
+                'browser_name' => $request->browser_name,
+                'browser_version' => $request->browser_version,
+                'os_name' => $request->os_name,
+                'os_version' => $request->os_version,
+                'timezone' => $request->timezone,
+                'plugins' => $request->plugins,
+                'language' => $request->language
+            ];
+
+            Fingerprint::insert($data);
+            return '已新增至資料庫';
+        }
+    }
+
+    public function saveFingerprintPOST($payload){
+        $fingerprintValue = $payload['fingerprintValue'];
+        $user = User::findByEmail($payload['email']);
+        if(Fingerprint::isExist(['fingerprintValue'=>$fingerprintValue])){
+            Log::info('User id: ' . isset($user) ? $user->id : null . ', fingerprint value: ' . $fingerprintValue);
+            return '找到相符合資料';
+        }
+        else{
+            $fingerprintValue = Hash::make($fingerprintValue . $payload['ip']);
+            $data = [
+                'user_id' => isset($user) ? $user->id : null,
+                'ip' => $payload['ip'],
+                'fingerprintValue' => $fingerprintValue,
+                'browser_name' => $payload['browser_name'],
+                'browser_version' => $payload['browser_version'],
+                'os_name' => $payload['os_name'],
+                'os_version' => $payload['os_version'],
+                'timezone' => $payload['timezone'],
+                'plugins' => $payload['plugins'],
+                'language' => $payload['language']
             ];
 
             Fingerprint::insert($data);
@@ -654,36 +684,24 @@ class PagesController extends Controller
 
         $pic_id = $request->pic_id;
 
+        $pic = MemberPic::where('member_id', $user_id)->where('id', $pic_id)->first();
+        //delete file
+        \File::delete(public_path($pic->pic));
+        //delete data
         MemberPic::where('member_id', $user_id)->where('id', $pic_id)->delete();
 
         /*設第一張照片為大頭貼*/
         $avatar = MemberPic::where('member_id', $user->id)->orderBy('id', 'asc')->first();
         if(!is_null($avatar)){
             UserMeta::uploadUserHeader($user->id,$avatar->pic);
+        }else{
+            //刪除大頭照
+            UserMeta::uploadUserHeader($user->id,null);
         }
 
-        /*移除Vip資格*/
-        $is_vip = $user->isVip();
-        $isFreeVip = $user->isFreeVip();
-        $pic_count = DB::table('member_pic')->where('member_id', $user->id)->count();
-        if(($pic_count)<4 && $is_vip==1 &&$user->engroup==2 && $isFreeVip){
-            // 不要輕易使用 DB 方式去修改資料庫，應盡可能使用現有的功能和 model 去處理資料，否則
-            // 如這一部分程式而言，VIP 這個 model 在取消時還會進行 log 記錄，如果直接用 DB，將
-            // 會造成取消 VIP 卻沒有任何記錄，updated_at 也不會有任何變動。
-            //DB::table('member_vip')->where('member_id',$user->id)->update(['active'=>0, 'free'=>1]);
-            Vip::cancel($user->id, 1);
-
-            $data = array(
-                'code'=>'800'
-            );
-        }else {
-
-
-            $data = array(
-                'code' => '200'
-            );
-        }
-
+        $data = array(
+            'code' => '200'
+        );
         return json_encode($data);
     }
 
@@ -804,7 +822,7 @@ class PagesController extends Controller
         // }
         echo json_encode($data);
     }
-    
+
     public function dashboard_img_new(Request $request)
     {
         $user = $request->user();
@@ -899,6 +917,9 @@ class PagesController extends Controller
             if(!isset($targetUser)){
                 return view('errors.nodata');
             }
+            if(User::isBanned($uid)){
+                return view('errors.nodata');
+            }
             if ($user->id != $uid) {
                 Visited::visit($user->id, $uid);
             }
@@ -954,11 +975,15 @@ class PagesController extends Controller
     public function viewuser2(Request $request, $uid = -1)
     {
         $user = $request->user();
-        
+
         if (isset($user) && isset($uid)) {
             $targetUser = User::where('id', $uid)->get()->first();
             if (!isset($targetUser)) {
                 return view('errors.nodata');
+            }
+            if(User::isBanned($uid)){
+                Session::flash('message', '此用戶已關閉資料。');
+                return view('new.dashboard.viewuser')->with('user', $user);
             }
             if ($user->id != $uid) {
                 Visited::visit($user->id, $uid);
@@ -1006,8 +1031,7 @@ class PagesController extends Controller
                     'message_count_7' => $message_count_7,
                 );
                 $member_pic = DB::table('member_pic')->where('member_id',$uid)->where('pic','<>',$targetUser->meta_()->pic)->get();
-                $isVip = DB::select('select * from member_vip where member_id=?', array($user->id));
-                if(count($isVip)>0){
+                if($user->isVip()){
                     $vipLevel = 1;
                 }else{
                     $vipLevel = 0;
@@ -1580,7 +1604,7 @@ class PagesController extends Controller
     }
 
     public function upgradepayEC(Request $request) {
-        return ['1', 'OK'];
+        return Session::get('status');
     }
 
     public function receive_esafe(Request $request)
@@ -1764,18 +1788,35 @@ class PagesController extends Controller
     {
         $user = $request->user();
 
-        $time = \Carbon\Carbon::now();
-        $start= date('Y-m-01',strtotime($time->subDay(30)));
-        $end= date('Y-m-t',strtotime($time));
-
-        $count = banned_users::select('*')->whereBetween('banned_users.created_at',[($start),($end)])->count();
-        $banned_users = banned_users::select('*')->whereBetween('banned_users.created_at',[($start),($end)])
+        // $time = \Carbon\Carbon::now();
+        $count = banned_users::select('*')->where('banned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->count();
+        $banned_users = banned_users::select('banned_users.*','users.name')->where('banned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
             ->join('users','banned_users.member_id','=','users.id')
-            ->orderBy('banned_users.created_at','asc')->paginate(15);
+            ->orderBy('banned_users.created_at','desc')->paginate(15);
+
+        foreach ($banned_users as &$b){
+            $b->name = $this->substr_cut($b->name);
+        }
+
         return view('new.dashboard.banned')
             ->with('banned_user', $banned_users)
             ->with('user', $user)
             ->with('count',$count);
+    }
+
+    function substr_cut($user_name){
+        //取得字串長度
+        $strlen = mb_strlen($user_name, 'utf-8');
+        //如果字串長度小於 2 則不做任何處理
+        if ($strlen < 2) {
+            return $user_name;
+        } else {
+            //mb_substr — 取得字串的部分
+            $firstStr = mb_substr($user_name, 0, 1, 'utf-8');
+            $lastStr = mb_substr($user_name, -1, 1, 'utf-8');
+            //str_repeat — 重複一個字元
+            return $strlen == 2 ? $firstStr . str_repeat('*', mb_strlen($user_name, 'utf-8') - 1) : $firstStr . str_repeat("*", $strlen - 2) . $lastStr;
+        }
     }
 
     /**
@@ -2115,8 +2156,8 @@ class PagesController extends Controller
         return json_encode($data);
     }
 
-    public function member_auth_phone(Request $rquest){
-        return view('/auth/member_auth_phone');
+    public function member_auth(Request $rquest){
+        return view('/auth/member_auth');
     }
 
     public function member_auth_photo(Request $rquest){
@@ -2133,7 +2174,7 @@ class PagesController extends Controller
 
     public function posts_list(Request $request)
     {
-        $posts = Posts::selectraw('users.name as uname, users.engroup as uengroup, posts.anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->orderBy('posts.id','desc')->paginate(10);
+        $posts = Posts::selectraw('users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->orderBy('posts.id','desc')->paginate(10);
         
         // foreach($posts['data'] as $key=>$post){
         //     array_push($posts['data'][$key], $post['pcontents']);
@@ -2174,7 +2215,7 @@ class PagesController extends Controller
 
         $pid = $request->pid;
         $this->post_views($pid);
-        $posts = Posts::selectraw('users.name as uname, users.engroup as uengroup, posts.anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->where('posts.id', $pid)->get();
+        $posts = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->where('posts.id', $pid)->get();
         $data = array(
             'posts' => $posts
         );
@@ -2253,19 +2294,21 @@ class PagesController extends Controller
     public function doPosts(Request $request)
     {
         $posts = new Posts;
-        $anonymous = $request->get('anonymous','no');
-        $combine   = $request->get('combine','no');
+        // $anonymous = $request->get('anonymous','no');
+        // $combine   = $request->get('combine','no');
+        $is_anonymous = $request->get('is_anonymous');
         $agreement = $request->get('agreement','no');
         $posts->title      = $request->get('title');
         $posts->contents   = $request->get('contents');
         $user=$request->user();
         $posts->user_id = $user->id;
 
-        $posts->anonymous = $anonymous=='on' ? '1':'0';
-        $posts->combine   = $combine=='on'   ? '1':'0';
+        // $posts->anonymous = $anonymous=='on' ? '1':'0';
+        // $posts->combine   = $combine=='on'   ? '1':'0';
+        $posts->is_anonymous = $is_anonymous;
         $posts->agreement = $agreement=='on' ? '1':'0';
-// dd($posts);
-        if($posts->anonymous=='1' && $posts->combine=='1' && $posts->agreement=='1'){
+
+        if(($posts->is_anonymous=='anonymous' || $posts->is_anonymous=='combine')){
             $result = $posts->save();
             // Session::flash('message', '資料更新成功');
             return redirect('/dashboard/posts_list');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Fingerprint;
 use App\Models\SimpleTables\member_vip;
 use App\Models\Vip;
 use Carbon\Carbon;
@@ -13,6 +14,7 @@ use App\Models\UserMeta;
 use App\Models\Role;
 use App\Models\SimpleTables\banned_users;
 use Illuminate\Support\Facades\Config;
+use App\Services\FingerprintService;
 
 class LoginController extends Controller
 {
@@ -36,14 +38,16 @@ class LoginController extends Controller
      */
     protected $redirectTo = 'dashboard';
 
+    protected $fingerprint;
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(FingerprintService $fingerprint)
     {
         $this->middleware('guest', ['except' => 'logout']);
+        $this->fingerprint = $fingerprint;
     }
     //新樣板
     public function showLoginForm2()
@@ -143,6 +147,7 @@ class LoginController extends Controller
                 $request->session()->reflash();
                 //return view('noAvatar');
             }
+
             return redirect('/dashboard');
         }
     }
@@ -192,6 +197,44 @@ class LoginController extends Controller
         //     return $this->sendLoginResponse($request);
         // }
         if (\Auth::attempt(['email' => $request->email, 'password' => $request->password],$request->remember)) {
+            $payload = $request->all();
+            $email = $payload['email'];
+            $uid = \Auth::user()->id;
+            $domains = config('banned.domains');
+            foreach ($domains as $domain){
+                if(str_contains($email, $domain)
+                    && !\DB::table('banned_users_implicitly')->where('target', $uid)->exists()){
+                    \DB::table('banned_users_implicitly')->insert(
+                        ['fp' => 'DirectlyBanned',
+                            'user_id' => '0',
+                            'target' => $uid,
+                            'created_at' => \Carbon\Carbon::now()]
+                    );
+                }
+            }
+            if(isset($payload['fp'])){
+                $ip = $request->ip();
+                $isFp = \DB::table('fingerprint2')
+                    ->where('fp', $payload['fp'])
+                    ->where('user_id', $uid)
+                    ->where('ip', $ip)
+                    ->get()->count();
+                if($isFp <= 0){
+                    unset($payload['_token']);
+                    unset($payload['email']);
+                    unset($payload['password']);
+                    $payload['user_id'] = $uid;
+                    $payload['ip'] = $ip;
+                    $result = \DB::table('fingerprint2')->insert($payload);
+                }
+                try{
+                    $this->fingerprint->judgeUserFingerprintAll($uid, $payload);
+                    $this->fingerprint->judgeUserFingerprintCanvasOnly($uid, $payload);
+                }
+                catch (\Exception $e){
+                    \Illuminate\Support\Facades\Log::info($e);
+                }
+            }
             return $this->sendLoginResponse($request);
         }
 

@@ -163,7 +163,18 @@ class UserService
                 }
 
             });
-
+            $domains = config('banned.domains');
+            foreach ($domains as $domain){
+                if(str_contains($user->email, $domain)
+                    && !\DB::table('banned_users_implicitly')->where('target', $user->id)->exists()){
+                    \DB::table('banned_users_implicitly')->insert(
+                        ['fp' => 'DirectlyBanned',
+                            'user_id' => '0',
+                            'target' => $user->id,
+                            'created_at' => \Carbon\Carbon::now()]
+                    );
+                }
+            }
             $this->setAndSendUserActivationToken($user);
 
             return $user;
@@ -708,5 +719,12 @@ class UserService
         //$user = $this->model->find($userId);
         $user = $this->find($userId);
         $user->roles()->detach();
+    }
+
+    public static function getBannedId(){
+        $banned = \App\Models\SimpleTables\banned_users::select('member_id AS user_id')->get();
+        $implicitlyBanned = \App\Models\BannedUsersImplicitly::select('target AS user_id')->get();
+
+        return $implicitlyBanned->toBase()->merge($banned);
     }
 }

@@ -1,3 +1,6 @@
+<style>
+	.toug_back:hover{ color:white !important; text-decoration:none !important}
+</style>
 @extends('new.layouts.website')
 <meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -12,9 +15,9 @@
 		<!--    css-->
 		<link rel="stylesheet" href="/posts/css/style.css">
 		<link rel="stylesheet" href="/posts/css/swiper.min.css">
-		<script src="/posts/js/bootstrap.min.js"></script>
 		<script src="/posts/js/jquery-2.1.1.min.js" type="text/javascript"></script>
-		<script src="/posts/js/main.js" type="text/javascript"></script>
+		<script src="/posts/js/bootstrap.min.js"></script>
+		<!-- <script src="/posts/js/main.js" type="text/javascript"></script> -->
 @section('app-content')
 
 		<!-- <div class="head hetop">
@@ -59,21 +62,24 @@
 				</div>
 				<div class="col-sm-12 col-xs-12 col-md-10">
 					<div class="shou"><span>心情故事</span>
-						<a href="{{url()->previous()}}" class="toug_back">返回</a>
+						<font>whisper tale</font>
+						<a href="/dashboard/posts_list" class="toug_back">返回</a>
 					</div>
 					@foreach($posts as $post)
                     <div class="t_xqheight">
                     <div class="toug_xq">
                           <div class="xq_text">{{$post->ptitle}}<span>{{date('Y-m-d',strtotime($post->pupdated_at))}}</span></div>
                           <div class="xq_text01">
-						  {{$post->pcontents}}
+							<div style="margin-left:30px">
+						  		@php echo $post->pcontents @endphp
+							</div>
                           </div>
                          <div class="xq_textbot"><img src="/posts/images/tg_10.png"></div>
                     </div>
                     
                     <div class="tou_xq">
                     <div class="touxqfont"><img src="/posts/images/ncion_13.png">瀏覽<span>{{$post->uviews}}</span></div>
-                    <div class="tou_img"><img src="{{$post->umpic ?? ($post->uengroup=='1' ? '/posts/images/touxiang_wm.png':'/posts/images/touxiang_w.png')}}"><span>{{$post->uname}}</span></div>
+                    <a href="/dashboard/viewuser/{{$post->uid}}"><div class="tou_img"><img src="{{$post->panonymous!='combine' ? ($post->uengroup=='1' ? '/posts/images/touxiang_wm.png':'/posts/images/touxiang_w.png') : $post->umpic }}"><span>{{$post->panonymous!='combine' ? '匿名' : $post->uname}}</span></div></a>
                     </div>
                     
 					</div>

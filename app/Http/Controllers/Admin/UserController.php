@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests;
 use App\Models\Board;
+use App\Models\ExpectedBanningUsers;
+use App\Models\Fingerprint2;
 use App\Models\MemberPic;
 use App\Models\Message;
 use App\Models\Reported;
@@ -27,6 +29,7 @@ use App\Models\Msglib;
 use App\Models\BasicSetting;
 use App\Models\SimpleTables\member_vip;
 use App\Models\SimpleTables\banned_users;
+use App\Models\BannedUsersImplicitly;
 use App\Notifications\BannedNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -136,16 +139,9 @@ class UserController extends Controller
             $setVip = 1;
             $tmpsql = Vip::select('expiry')->where('member_id', $request->user_id)->get()->first();
             if(isset($tmpsql)){
-                //提供權限如果有到期時間的 就提供一個月
-                if($tmpsql->expiry != '0000-00-00 00:00:00'){
-                    $user = Vip::select('member_id', 'active')
-                        ->where('member_id', $request->user_id)
-                        ->update(array('active' => $setVip,'expiry' => Carbon::now()->addDays(30)));
-                }else{
-                    $user = Vip::select('member_id', 'active')
-                        ->where('member_id', $request->user_id)
-                        ->update(array('active' => $setVip));
-                }
+                $user = Vip::select('member_id', 'active')
+                    ->where('member_id', $request->user_id)
+                    ->update(array('active' => $setVip));
             }else{
                 //從來都沒VIP資料的
                 $vip_user = new Vip;
@@ -202,6 +198,8 @@ class UserController extends Controller
                 switch($request->page){
                     case 'advInfo':
                         return redirect('admin/users/advInfo/'.$request->user_id);
+                    default:
+                        return redirect($request->page);
                     break;
                 }
             }else{
@@ -223,6 +221,8 @@ class UserController extends Controller
                 switch($request->page){
                     case 'advInfo':
                         return redirect('admin/users/advInfo/'.$request->user_id);
+                    default:
+                        return redirect($request->page);
                     break;
                 }
             }else{
@@ -1728,5 +1728,126 @@ class UserController extends Controller
         ->where('vipLevel', $vipLevel)->where('gender', $gender)
         ->update(array('timeSet' => $timeSet,'countSet' => $countSet));
         return redirect()->route('users/basic_setting');
+    }
+
+    public function showSuspectedMultiLogin(){
+        $result = \DB::table('suspected_multi_login')
+            ->select('users.email', 'users.last_login', 'users.name', 'suspected_multi_login.*')
+            ->join('users', 'users.id', '=', 'suspected_multi_login.user_id')
+            ->orderBy('created_at', 'desc')->paginate(20);
+        foreach ($result as &$r){
+            $r->count = Message::where('from_id', $r->user_id)->where('created_at', '>=', \Carbon\Carbon::now()->subDays(3))->count();
+        }
+
+        foreach ($result as &$r){
+            $users = explode(", ", $r->target);
+            foreach ($users as &$u){
+                $u = User::findById($u);
+            }
+            $r->target = $users;
+        }
+        return view('admin.users.suspectedMultiLoginList')->with('users', $result);
+    }
+
+    public function showImplicitlyBannedUsers(Request $request){
+        set_time_limit(300);
+        ini_set("memory_limit","2048M");
+        $page = $request->input('page', 1);
+        $orderBy = $request->input('orderBy', 'fp');
+        $order = $request->input('order', 'desc');
+
+        $paginate = 100;
+        $result = banned_users::select(DB::raw('fingerprint2.fp, banned_users.member_id as user_id, banned_users.created_at as banned_at, "永久" as type, users.email, users.name, users.title, users.created_at, users.last_login'))
+            ->join('fingerprint2', 'fingerprint2.user_id', '=', 'banned_users.member_id')
+            ->join('users', 'users.id', '=', 'banned_users.member_id')
+            ->where('expire_date', null);
+        $result2 = BannedUsersImplicitly::select(DB::raw('fp, target as user_id, banned_users_implicitly.created_at as banned_at, "隱性" as type, users.email, users.name, users.title, users.created_at, users.last_login'))
+            ->join('users', 'users.id', '=', 'banned_users_implicitly.target');
+        $result3 = ExpectedBanningUsers::select(DB::raw('fp, target as user_id, "" as banned_at, "" as type, users.email, users.name, users.title, users.created_at, users.last_login'))
+            ->join('users', 'users.id', '=', 'expected_banning_users.target');
+        $resultMerged = $result->union($result2)
+            ->union($result3)
+            ->orderBy($orderBy, $order)
+            ->get();
+
+        $offSet = ($page * $paginate) - $paginate;
+        $itemsForCurrentPage = array_slice($resultMerged->toArray(), $offSet, $paginate, true);
+        $result = new \Illuminate\Pagination\LengthAwarePaginator($itemsForCurrentPage, count($resultMerged), $paginate, $page, ['path' => route('implicitlyBanned', ['orderBy' => $orderBy, 'order' => $order])]);
+
+        return view('admin.users.bannedListImplicitly')->with('users', $result);
+    }
+
+    public function banningUserImplicitly(Request $request){
+        BannedUsersImplicitly::insert(
+            ['fp' => $request->fp,
+            'user_id' => 0,
+            'target' => $request->user_id]
+        );
+        ExpectedBanningUsers::where('target', $request->user_id)->delete();
+
+        if(isset($request->page)) {
+            switch ($request->page) {
+                default:
+                    return redirect($request->page);
+                    break;
+            }
+        }
+        return '<script>window.close();</script>';
+    }
+
+    public function unbanAll(Request $request){
+        $implicitly = BannedUsersImplicitly::where('target', $request->user_id)->first();
+        $banned = banned_users::where('member_id', $request->user_id)->first();
+        if($implicitly){ $implicitly->delete(); }
+        if($banned){ $banned->delete(); }
+
+        if(isset($request->page)) {
+            switch ($request->page) {
+                default:
+                    return redirect($request->page);
+                    break;
+            }
+        }
+        return '<script>window.close();</script>';
+    }
+
+    public function showFingerprint($fingerprint, Request $request){
+        $orderBy = $request->input('orderBy', 'fp');
+        $order = $request->input('order', 'desc');
+
+        $result = banned_users::select(DB::raw('fingerprint2.fp, banned_users.member_id as user_id, banned_users.created_at as banned_at, "永久" as type, users.email, users.name, users.title, users.created_at, users.last_login'))
+            ->join('fingerprint2', 'fingerprint2.user_id', '=', 'banned_users.member_id')
+            ->join('users', 'users.id', '=', 'banned_users.member_id')
+            ->where('expire_date', null)
+            ->where('fp', $fingerprint);
+        $result2 = BannedUsersImplicitly::select(DB::raw('fp, target as user_id, banned_users_implicitly.created_at as banned_at, "隱性" as type, users.email, users.name, users.title, users.created_at, users.last_login'))
+            ->join('users', 'users.id', '=', 'banned_users_implicitly.target')
+            ->where('fp', $fingerprint);
+        $result3 = ExpectedBanningUsers::select(DB::raw('fp, target as user_id, "" as banned_at, "" as type, users.email, users.name, users.title, users.created_at, users.last_login'))
+            ->join('users', 'users.id', '=', 'expected_banning_users.target')
+            ->where('fp', $fingerprint);
+        $resultMerged = $result->union($result2)
+            ->union($result3)
+            ->orderBy($orderBy, $order)
+            ->get();
+
+        return view('admin.users.showFingerprint')
+            ->with('users', $resultMerged)
+            ->with('fingerprint', $fingerprint);
+    }
+
+    public function showWarningUsers(){
+        $result = \DB::table('warning_users')
+            ->select('users.email', 'users.last_login', 'users.name', 'warning_users.*')
+            ->join('users', 'users.id', '=', 'warning_users.user_id')
+            ->orderBy('created_at', 'desc')->paginate(20);
+        foreach ($result as &$r){
+            $r->count = Message::where('from_id', $r->user_id)->where('created_at', '>=', \Carbon\Carbon::now()->subDays(3))->count();
+        }
+
+        foreach ($result as &$r){
+            $r->target = User::findById($r->target);
+        }
+        return view('admin.users.warningList')->with('users', $result);
     }
 }

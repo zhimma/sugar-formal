@@ -142,7 +142,14 @@ Route::post('/Common/get_message', 'Common@get_message');
 Route::post('/Common/checkcode_during', 'Common@checkcode_during');
 Route::get('/Common/get_exif', 'Common@get_exif');
 Route::post('/Common/upload_img', 'Common@upload_img');
-
+Route::post('/Common/save_img', 'Common@save_img');
+Route::group(['middleware' => ['api']], function() {
+    Route::post('/dashboard/upgradepayEC', 'PagesController@upgradepayEC');
+});
+Route::group(['middleware' => ['tipApi']], function () {
+    Route::post('/dashboard/chatpay_ec', 'ECPayment@performTipInvite')->name('chatpay_ec');
+    Route::post('/dashboard/postChatpayEC', 'PagesController@postChatpayEC');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -183,7 +190,8 @@ Route::get('/banned', 'PagesController@banned')->name('banned');
 |--------------------------------------------------------------------------
 */
 Route::get('/login', 'Auth\LoginController@showLoginForm2')->name('login');
-Route::get('/login2', 'Auth\LoginController@showLoginForm')->name('login2');
+Route::get('/loginIOS', function (){ return view('new.auth.loginIOS'); })->name('loginIOS');
+Route::get('/login3ik3pIKe', 'Auth\LoginController@showLoginForm')->name('login2');
 Route::post('/login', 'Auth\LoginController@login');
 Route::get('/logout', 'Auth\LoginController@logout')->name('logout');
 
@@ -275,7 +283,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('addBlock', 'PagesController@addBlock');
 
     /*會員驗證*/
-    Route::get('member_auth_phone', 'PagesController@member_auth_phone');
+    Route::get('member_auth', 'PagesController@member_auth');
     Route::post('member_auth_phone_process', 'PagesController@member_auth_phone_process');
     Route::get('member_auth_photo', 'PagesController@member_auth_photo');
 
@@ -298,7 +306,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('/dashboard/doPosts', 'PagesController@doPosts');/*投稿功能*/
     Route::post('/dashboard/post_views', 'PagesController@post_views');
     Route::post('/dashboard', 'PagesController@profileUpdate');
-    Route::post('/dashboard2', 'PagesController@profileUpdate_ajax');
+    Route::post('/dashboard2', 'PagesController@profileUpdate_ajax')->name('dashboard2');
     Route::post('dashboard/settings', 'PagesController@settingsUpdate');
     Route::get('/dashboard', 'PagesController@dashboard')->name('dashboard');
     Route::get('/dashboard_img', 'PagesController@dashboard_img')->name('dashboard_img');
@@ -308,7 +316,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::get('/dashboard/password', 'PagesController@view_changepassword'); //new route
     Route::post('/dashboard/changepassword', 'PagesController@changePassword'); //new route
     Route::get('/dashboard/vip', 'PagesController@view_vip'); //new route
-    Route::get('/dashboard2', 'PagesController@dashboard2')->name('dashboard2');
+    Route::get('/dashboard2', 'PagesController@dashboard2');
     Route::get('/dashboard/cancel', 'PagesController@showCheckAccount');
     Route::post('/dashboard/chat', 'MessageController@postChat');
     Route::post('/dashboard/chatpay', 'PagesController@postChatpay')->name('chatpay');
@@ -345,14 +353,9 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('/dashboard/esafePayCode', 'EsafePayment@esafePayCode')->name('esafePayCode');
         Route::post('/dashboard/esafeWebATM', 'EsafePayment@esafeWebATM')->name('esafeWebATM');
         Route::post('/dashboard/upgradepay', 'PagesController@upgradepay');
-        Route::post('/dashboard/upgradepayEC', 'PagesController@upgradepayEC');
         Route::post('/dashboard/receive_esafe', 'PagesController@receive_esafe');
         Route::post('/dashboard/repaid_esafe', 'PagesController@repaid_esafe');
         Route::post('/dashboard/cancelpay', 'PagesController@cancelpay');
-    });
-    Route::group(['middleware' => ['tipApi']], function () {
-        Route::post('/dashboard/chatpay_ec', 'ECPayment@performTipInvite')->name('chatpay_ec');
-        Route::post('/dashboard/postChatpayEC', 'PagesController@postChatpayEC');
     });
     Route::post('/upgradepayLog', 'PagesController@upgradepayLog')->name('upgradepayLog');
     Route::post('/dashboard/deleteboard', 'BoardController@deleteBoard')->name('deleteBoard');
@@ -389,6 +392,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('/dashboard/upgradesuccess', 'PagesController@upgradesuccess');
         //Route::get('/dashboard/search', 'PagesController@search');
         Route::get('/dashboard/search', 'PagesController@search2');//new route
+        Route::post('/dashboard/search', 'PagesController@search2');//new route
         Route::get('/dashboard/search2', 'PagesController@search');
         Route::get('/dashboard/chat/{randomNo?}', 'MessageController@chatview')->name('chatView');
         Route::post('/dashboard/chat/showMoreMessages/{randomNo?}', 'MessageController@chatviewMore')->name('showMoreMessages');
@@ -484,6 +488,12 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('users/genderToggler', 'UserController@toggleGender');
         Route::post('users/VIPToggler', 'UserController@toggleVIP');
         Route::post('users/RecommendedToggler', 'UserController@toggleRecommendedUser');
+        Route::get('users/banned_implicitly', 'UserController@showImplicitlyBannedUsers')->name('implicitlyBanned');
+        Route::post('users/bans_implicitly', 'UserController@banningUserImplicitly')->name('banningUserImplicitly');
+        Route::post('users/unbanAll', 'UserController@unbanAll')->name('unbanAll');
+        Route::get('users/showFingerprint/{showFingerprint}', 'UserController@showFingerprint')->name('showFingerprint');
+        Route::get('users/warning', 'UserController@showWarningUsers')->name('warningUsers');
+        Route::get('users/suspectedMultiLogin', 'UserController@showSuspectedMultiLogin')->name('suspectedMultiLogin');
         Route::get('users/customizeMigrationFiles', 'UserController@customizeMigrationFiles')->name('users/customize_migration_files');
         Route::post('users/customizeMigrationFiles', 'UserController@customizeMigrationFiles')->name('users/customize_migration_files');
         Route::match(['get', 'post'], 'users/VIP/ECCancellations', 'PagesController@showECCancellations')->name('users/VIP/ECCancellations');

@@ -13,6 +13,7 @@
 @if(isset($users))
 <table class='table table-bordered table-hover'>
 	<tr>
+		<th>ID</th>
 		<th>Email</th>
 		<th>名稱</th>
 		<th>男/女</th>
@@ -26,6 +27,7 @@
 	</tr>
 	@forelse ($users as $user)
 	<tr>
+		<td>{{ $user->id }}</td>
 		<td>{{ $user->email }}</td>
 		<td>
             <a href="advInfo/{{ $user->id }}" target="_blank">{{ $user->name }}</a>

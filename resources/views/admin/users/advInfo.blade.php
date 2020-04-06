@@ -184,6 +184,7 @@
         <td style="text-align: center; vertical-align: middle"><button type="submit" class="btn btn-danger delete-btn">刪除選取</button></td>
 	</tr>
 	@forelse ($userMessage as $key => $message)
+		@if(isset($to_ids[$message->to_id]['engroup'] ))
 		<tr>
 			<td>
 				<a href="{{ route('admin/showMessagesBetween', [$user->id, $message->to_id]) }}" target="_blank">
@@ -223,6 +224,13 @@
                 <input type="checkbox" name="msg_id[]" value="{{ $message->id }}" class="form-control">
             </td>
 		</tr>
+		@else
+			<tr>
+				<td colspan="6">
+					會員資料已刪除
+				</td>
+			</tr>
+		@endif
     @empty
         沒有訊息
     @endforelse
