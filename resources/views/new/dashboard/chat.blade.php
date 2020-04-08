@@ -284,9 +284,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         var date=7;
 
 
-        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isAdmin){
+        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show){
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
+            var username = '{{$user->name}}';
+            var engroup = '{{$user->engroup}}';
 
 
             var url = '{{ route("chat2WithUser", ":id") }}';
@@ -327,9 +329,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 li += `
                             <span class="box"><font class="ellipsis">${content}</font></span>
                    `;
-            }else if(show==0){
+            }else if(show==0 && engroup==1){
                 li += `
-                            <font><img src="/new/images/icon_35.png"></font>
+                     <a class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位女會員，請刪除舊的訊息後，即可發訊息給${user_name}" href="javascript:void(0);">
+                     <font><img src="/new/images/icon_35.png"></font>
+                     </a>
+                   `;
+            }else if(show==0 && engroup==2){
+                li += `
+                     <a class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位男會員，請上傳大頭貼＋三張生活照就可以取得　ＶＩＰ　權限或是刪除舊的訊息後，即可發訊息給${user_name}" href="javascript:void(0);">
+                     <font><img src="/new/images/icon_35.png"></font>
+                     </a>
                    `;
             }
             li += `
@@ -371,7 +381,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     date : date,
                     uid : '{{ $user->id }}',
                     isVip : '{{ $isVip }}',
-                    page: Page.row,
                     userAgent: "Agent: " + String(navigator.userAgent) + " Platform: " + String(navigator.platform),
                 },
                 beforeSend:function(){//表單發送前做的事
@@ -433,7 +442,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             $('.sjlist_novip').append(li)
                         }
                     });
-                    //$('.sjlist>ul').html(li);
 
                     setTimeout(function(){
                         Page.DrawPage($('#rows').val());
@@ -458,6 +466,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }
                     }, 100);
 
+                    $('a[data-toggle="popover"]').popover({
+                        animated: 'fade',
+                        placement: 'bottom',
+                        trigger: 'hover',
+                        html: true,
+                        content: function () { return '<h4' + $(this).data('content') + '</h4>'; }
+                    });
+
                 }
             })
             .done(function() {
@@ -469,10 +485,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 // check li rows
 
             });
+
         }
 
         LoadTable();
-
 
         $('input[name=RadioGroup1]').on('click', function(event) {
             $('.lebox1,.lebox2,.lebox3').toggleClass('on');
@@ -574,6 +590,16 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         top: 8px;
         position: relative;
     }
+    .popover  {
+        background: #e2e8ff!important;
+        color: #6783c7;
+    }
+    .popover.right .arrow:after {
+        border-right-color:#e2e8ff;
+    }
+    .popover.bottom .arrow:after {
+        border-bottom-color:#e2e8ff;
+    }
 </style>
     <script>
         $('.blbut').on('click', function() {
@@ -598,5 +624,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             $(this).toggleClass('on');
             $(this).next('dd').slideToggle();
         });
+
+        // $(document).ready(function(){
+        // $('a[data-toggle="popover"]').popover(); // not work
+        //
+        // $('.vipOnlyAlert').on('click', function() {
+        //     alert(111);
+        //     var content = $(this).data('data');
+        //     c4(content);
+        // });
+        // });
     </script>
 @stop

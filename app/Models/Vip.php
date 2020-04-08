@@ -116,19 +116,19 @@ class Vip extends Model
         $user = Vip::select('id', 'expiry', 'created_at', 'updated_at')
                 ->where('member_id', $member_id)
                 ->orderBy('created_at', 'desc')->get();
-        // 取消時，判斷會員性別，並確認沒有設定到期日，才開始動作，否則遇上多次取消，可能會導致到期日被延後的結果
-        if($curUser->engroup == 1 && $user[0]->expiry == '0000-00-00 00:00:00'){
+        if($curUser->engroup == 1){
             $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->updated_at);
             $day = $date->day;
             $now = \Carbon\Carbon::now();
             $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
-            if($user[0]->business_id == '3137610' && $now->diffInDays($date) <= 7) {
-                $date = $date->addMonthNoOverflow(1);
-            }
             if($now->day >= $day){
                 // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
                 $nextMonth = $now->addMonthsNoOverflow(1);
                 $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $nextMonth->year.'-'.$nextMonth->month.'-'.$day.' 00:00:00');
+            }
+            // 如果是使用綠界付費，且取消日距預計下次扣款日小於七天，則到期日再加一個月
+            if($user[0]->business_id == '3137610' && $now->diffInDays($date) <= 7) {
+                $date = $date->addMonthNoOverflow(1);
             }
 
             foreach ($user as $u){
@@ -137,7 +137,7 @@ class Vip extends Model
             }
             return true;
         }
-        else if($curUser->engroup == 2 && $free == 0 && $user[0]->expiry == '0000-00-00 00:00:00'){
+        else if($curUser->engroup == 2 && $free == 0){
             //取消當日+3天的時間
             $date = date('Y-m-d 00:00:00' , mktime(0, 0, 0, date('m'), date('d')+4, date('Y')));
             foreach ($user as $u){
@@ -145,6 +145,9 @@ class Vip extends Model
                 $u->save();
             }
             return true;
+        }
+        else if($user[0]->expiry != '0000-00-00 00:00:00'){
+            return false;
         }
 
         //return Vip::where('member_id', $member_id)->delete();

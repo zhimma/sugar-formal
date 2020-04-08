@@ -34,6 +34,12 @@ class Message_newController extends Controller {
         return redirect('dashboard/chat2/'.csrf_token().Carbon::now()->timestamp);
         //return redirect('dashboard/chat2/{randomNo?}');
     }
+    public function delete2Between(Request $request) {
+        Message::deleteBetween($request->uid, $request->sid);
+        return response()->json(['save' => 'ok']);
+        //return redirect('dashboard/chat2/'.csrf_token().Carbon::now()->timestamp);
+        //return redirect('dashboard/chat2/{randomNo?}');
+    }
 
     public function deleteAll(Request $request) {
         Message::deleteAll($request->uid);
@@ -146,10 +152,10 @@ class Message_newController extends Controller {
     public function chatviewMore(Request $request)
     {
         $user_id = $request->uid;
-        $data = Message_new::allSendersAJAX($user_id, $request->isVip,$request->date,$request->sid);
+        $data = Message_new::allSendersAJAX($user_id, $request->isVip,$request->date);
         if (isset($data)) {
             if(!empty($data['date'])){
-                $date = $data['date'];
+               //$date = $data['date'];
                 unset($data['date']);
                 //$data = array_values($data);
             }

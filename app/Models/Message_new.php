@@ -154,7 +154,7 @@ class Message_new extends Model
         $isAllDelete = true;
         //$msgShow = User::findById($uid)->meta_()->notifhistory;
         $user = \Auth::user();
-        $banned_users = \App\Models\SimpleTables\banned_users::select('member_id')->get();
+        $banned_users = \App\Services\UserService::getBannedId();
         foreach($messages as $key => &$message) {
             if($banned_users->contains('member_id', $message->to_id)){
                 unset($messages[$key]);
@@ -466,53 +466,81 @@ class Message_new extends Model
         //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
     }
 
-    public static function allSendersAJAX($uid, $isVip,$d=7,$page)
+    public static function allSendersAJAX($uid, $isVip,$d=7)
     {
         //  created_at >= '".self::$date."' or  (`from_id`= $admin->id and `to_id` = $uid and `read` = 'N')
-        $admin = User::select('id')->where('email', Config::get('social.admin.email'))->get()->first();
+        //$admin = User::select('id')->where('email', Config::get('social.admin.email'))->get()->first();
         $userBlockList = Blocked::select('blocked_id')->where('member_id', $uid)->get();
-        $banned_users = banned_users::select('member_id')->get();
+        $banned_users = \App\Services\UserService::getBannedId();
         $query = Message::where(function($query)use($uid)
         {
             $query->where('to_id','=' ,$uid)
                 ->orWhere('from_id','=',$uid);
+                //->where([['all_delete_count',0],['is_row_delete_1','<>',$uid],['is_single_delete_1', '<>' ,$uid], ['all_delete_count', '<>' ,$uid],['is_row_delete_2', '<>' ,$uid],['is_single_delete_2', '<>' ,$uid]]);
+
         });
-        //if($d!='all'){
-            if($d==7){
+
+        if($d==7){
                 self::$date =\Carbon\Carbon::now()->startOfWeek()->toDateTimeString();
-            }else if($d==30){
-                if($isVip) {
-                    self::$date = \Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString();
-                }else {
-                    self::$date = \Carbon\Carbon::parse(date("Y-m-01"))->parse("7 days ago")->toDateTimeString();
-                }
-            }else if($d=='all'){
-                self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
+        }else if($d==30){
+            if($isVip) {
+                self::$date = \Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString();
+            }else {
+                self::$date = \Carbon\Carbon::parse(date("Y-m-01"))->parse("7 days ago")->toDateTimeString();
             }
-            $query->where([['created_at','>=',self::$date]]);
-        //}
+        }else if($d=='all'){
+            self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
+        }
+        $query->where([['created_at','>=',self::$date]]);
         $query->whereNotIn('to_id', $userBlockList);
         $query->whereNotIn('from_id', $userBlockList);
         $query->whereNotIn('to_id', $banned_users);
         $query->whereNotIn('from_id', $banned_users);
-        $query->where([['is_row_delete_1','<>',$uid]]);
-        $query->orWhere([['from_id', $admin->id], ['to_id',$uid],['read','N']]);
-        $query->orderByRaw('CASE
-                        WHEN (from_id = '.$admin->id.')
-                        THEN
-                            1
-                        ELSE
-                            2
-                        END')->orderBy('created_at', 'desc');
+
+//        $query->orWhere('from_id', $admin->id);
+//        $query->orderByRaw('CASE
+//                        WHEN (from_id = '.$admin->id.')
+//                        THEN
+//                            1
+//                        ELSE
+//                            2
+//                        END');
+        $query->orderBy('created_at', 'desc');
         $messages = $query->get();
+
+//        if(!$isVip){
+//            $query2 = Message::where(function($query)use($uid)
+//            {
+//                $query2->where('to_id','=' ,$uid)
+//                    ->orWhere('from_id','=',$uid);
+//            });
+//                self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
+//            $query2->where([['created_at','>=',self::$date]]);
+//
+//            $query2->whereNotIn('to_id', $userBlockList);
+//            $query2->whereNotIn('from_id', $userBlockList);
+//            $query2->whereNotIn('to_id', $banned_users);
+//            $query2->whereNotIn('from_id', $banned_users);
+//            $query2->where([['is_row_delete_1','<>',$uid]]);
+//            $query2->orWhere([['from_id', $admin->id], ['to_id',$uid],['read','N']]);
+//            $query2->orderByRaw('CASE
+//                        WHEN (from_id = '.$admin->id.')
+//                        THEN
+//                            1
+//                        ELSE
+//                            2
+//                        END')->orderBy('created_at', 'desc');
+//            $messages_count = $query->count();
+//        }
         $mm = [];
         foreach ($messages as $key => $v) {
             if(!isset($mm[$v->from_id])){
                 $mm[$v->from_id] = 0;
             }
-            if($v->read=='N'){
+            if($v->read=='N' && $v->all_delete_count != $uid && $v->is_row_delete_1 != $uid && $v->is_row_delete_2 != $uid && $v->is_single_delete_1 != $uid && $v->is_single_delete_2 != $uid){
                 $mm[$v->from_id]++;
             }
+
         }
 
         $saveMessages = Message_new::newChatArrayAJAX($uid, $messages);
@@ -539,7 +567,7 @@ class Message_new extends Model
         $user = Auth::user();
         $block_people =  Config::get('social.block.block-people');
         $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
-        $banned_users = banned_users::select('member_id')->get();
+        $banned_users = \App\Services\UserService::getBannedId();
         $isVip = $user->isVip();
         $aa=[];
         foreach ($messages as $key => &$message){
@@ -557,6 +585,10 @@ class Message_new extends Model
                 unset($messages[$key]);
                 continue;
             }
+//            if($message["all_delete_count"]==$user->id || $message["is_row_delete_1"]==$user->id || $message["is_row_delete_2"]==$user->id || $message["is_single_delete_1"]==$user->id || $message["is_single_delete_2"]==$user->id){
+//                unset($messages[$key]);
+//                continue;
+//            }
             if($message['to_id'] == $user->id) {
                 $msgUser = \App\Models\User::findById($from_id);
             }
@@ -599,15 +631,20 @@ class Message_new extends Model
                 $messages[$key]['user_name'] = $msgUser->name;
                 $messages[$key]['isAvatarHidden'] = $msgUser->meta_()->isAvatarHidden;
                 $messages[$key]['pic'] = $msgUser->meta_()->pic;
-                if(!file_exists( public_path().$msgUser->meta_()->pic )){
-                    $messages[$key]['pic'] = '/img/male-avatar.png';
+                if(!file_exists( public_path().$msgUser->meta_()->pic ) || $msgUser->meta_()->pic==null){
+                    if($msgUser->engroup==1) {
+                        $messages[$key]['pic'] = '/new/images/male.png';
+                    }else{
+                        $messages[$key]['pic'] = '/new/images/female.png';
+                    }
                 }
                 $messages[$key]['content'] = $latestMessage == null ? '' : $latestMessage->content;
 
                 // todo: $messages[$key]['read_n']= isset($mm[$messages[$key]['from_id']]) ? $mm[$messages[$key]['from_id']]: 0; 較佳？
-                $messages[$key]['read_n']=(!empty($mm[$messages[$key]['from_id']] && $messages[$key]['from_id']==$msgUser->id))?$mm[$messages[$key]['from_id']]:0;
+                $messages[$key]['read_n']=(!empty($mm[$messages[$key]['from_id']] && $messages[$key]['from_id']==$msgUser->id) )?$mm[$messages[$key]['from_id']]:0;
 //                $messages[$key]['read_n']= isset($mm[$messages[$key]['from_id']]) ? $mm[$messages[$key]['from_id']]: 0;
                 $messages[$key]['isVip']=$msgUser->isVip();
+//                $messages[$key]['message_count']=$messages[$key]['isVip']=$msgUser->isVip();
 //                $messages[$key]['total_counts'] = $messages_count;
             }
             else{
@@ -677,24 +714,51 @@ class Message_new extends Model
         //
         $user = User::findById($uid);
         $block = Blocked::getAllBlock($uid);
-        $banned_users = banned_users::select('member_id')->get();
-        $all_msg = Message::where([['to_id', $uid],['from_id', '!=', $uid], ['is_row_delete_1', '=' ,0], ['temp_id', '=', 0]])->where('read', 'N')->whereNotIn('from_id', $banned_users);
-        if($user->meta_()->notifhistory == '顯示VIP會員信件') {
-            //$allVip = \App\Models\Vip::allVip();
-            //$all_msg = $all_msg->whereIn('from_id', $allVip);
-            $all_msg = $all_msg->join('member_vip', 'member_vip.member_id', '=', 'message.from_id');
+        $banned_users = \App\Services\UserService::getBannedId();
+        $query = Message::where(function($query)use($uid)
+        {
+            $query->where('to_id','=' ,$uid)
+                ->where('from_id','<>',$uid);
+        });
+        $query->where('read', 'N');
+//        $query->where([['is_row_delete_1', '<>' ,$uid],['is_single_delete_1', '<>' ,$uid], ['all_delete_count', '<>' ,$uid],['is_row_delete_2', '<>' ,$uid],['is_single_delete_2', '<>' ,$uid]]);
+        if(isset($banned_users)) {
+            $query->whereNotIn('from_id', $banned_users);
+            $query->whereNotIn('to_id', $banned_users);
         }
+        if(isset($block)) {
+            $query->whereNotIn('from_id', $block);
+            $query->whereNotIn('to_id', $block);
+        }
+        $query->where([['is_row_delete_1','<>',$uid],['is_single_delete_1', '<>' ,$uid], ['all_delete_count', '<>' ,$uid],['is_row_delete_2', '<>' ,$uid],['is_single_delete_2', '<>' ,$uid]]);
+
+        $query->where('created_at','>=',Carbon::parse("180 days ago")->toDateTimeString());
+//        $all_msg = Message::where('read', 'N')
+//            ->where([['to_id', $uid],['from_id', '!=', $uid], ['is_row_delete_1', '<>' ,$uid],['is_single_delete_1', '<>' ,$uid], ['all_delete_count', '<>' ,$uid],['is_row_delete_2', '<>' ,$uid],['is_single_delete_2', '<>' ,$uid],['temp_id', 0]])
+//            if($banned_users) {
+//                $all_msg->whereNotIn('from_id', $banned_users)
+//                    $all_msg->whereNotIn('to_id', $banned_users)
+//                    }
+//            $all_msg->whereNotIn('from_id', $block)
+//            $all_msg->whereNotIn('to_id', $block)
+//            $all_msg->where('created_at','>=',Carbon::parse("180 days ago")->toDateTimeString());
+//        if($user->meta_()->notifhistory == '顯示VIP會員信件') {
+//            //$allVip = \App\Models\Vip::allVip();
+//            //$all_msg = $all_msg->whereIn('from_id', $allVip);
+//            $all_msg = $all_msg->join('member_vip', 'member_vip.member_id', '=', 'message.from_id');
+//        }
         $unreadCount = 0;
-        if($block->count() == 0) return $all_msg->count();
-        //echo $block->count();
-        //echo 'count = '. $block->count();
-        $blocked_ids = array();
-        foreach($block as $b) {
-            if(!in_array($b->blocked_id, $blocked_ids)){
-                array_push($blocked_ids, $b->blocked_id);
-            }
-        }
-        $unreadCount += $all_msg->whereNotIn('from_id', $blocked_ids)->count();
+//        if($block->count() == 0) return $all_msg->count();
+//        //echo $block->count();
+//        //echo 'count = '. $block->count();
+//        $blocked_ids = array();
+//        foreach($block as $b) {
+//            if(!in_array($b->blocked_id, $blocked_ids)){
+//                array_push($blocked_ids, $b->blocked_id);
+//            }
+//        }
+//        $unreadCount += $all_msg->whereNotIn('from_id', $blocked_ids)->count();
+        $unreadCount = $query->get()->count();
 
         return $unreadCount;
         //return Message::where([['to_id', $uid],['from_id', '!=', $uid],['from_id', '!=', $block[$i]->blocked_id]])->where('read', 'N')->count();

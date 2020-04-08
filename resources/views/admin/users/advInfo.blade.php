@@ -22,6 +22,8 @@
 	        @else
 	            此會員登入後將自動解除封鎖
 	        @endif
+		@elseif(isset($user['isBlocked']['implicitly']))
+			(隱性)
 	    @else
 	        (永久)
 	    @endif
@@ -32,6 +34,13 @@
 		<button type="button" id="unblock_user" class='text-white btn @if($user["isBlocked"]) btn-success @else btn-danger @endif' onclick="Release({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除封鎖 </button>
 	@else 
 		<a class="btn btn-danger ban-user" id="block_user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">封鎖會員</a>
+		<form action="{{ route('banningUserImplicitly') }}" method="POST" style="display: inline;">
+			{!! csrf_field() !!}
+			<input type="hidden" value="{{ $user['id'] }}" name="user_id">
+			<input type="hidden" value="BannedInUserInfo" name="fp">
+			<input type="hidden" value="{{ url()->full() }}" name="page">
+			<button type="submit" class='btn btn-info'>隱性封鎖</button>
+		</form>
 	@endif
 	
 	@if($user['isvip'])
@@ -279,12 +288,15 @@
                         </select>
                         <hr>
                         封鎖原因
-                        <a class="text-white btn btn-success advertising">廣告</a>
-                        <a class="text-white btn btn-success improper-behavior">非徵求包養行為</a>
-                        <a class="text-white btn btn-success improper-words">用詞不當</a>
-                        <a class="text-white btn btn-success improper-photo">照片不當</a>
+                        @foreach($banReason as $a)
+                            <a class="text-white btn btn-success banReason">{{ $a->content }}</a>
+                        @endforeach
                         <br><br>
-                        <textarea class="form-control m-reason" name="msg" id="msg" rows="4" maxlength="200">廣告</textarea>
+                        <textarea class="form-control m-reason" name="reason" id="msg" rows="4" maxlength="200">廣告</textarea>
+                        <label style="margin:10px 0px;">
+                            <input type="checkbox" name="addreason" style="vertical-align:middle;width:20px;height:20px;"/>
+                            <sapn style="vertical-align:middle;">加入常用封鎖原因</sapn>
+                        </label>
                 </div>
                 <div class="modal-footer">
                 	<button type="submit" class='btn btn-outline-success ban-user'> 送出 </button>
@@ -334,6 +346,14 @@ jQuery(document).ready(function(){
 	// 	}
 	// 	$("#send_blockade").attr('href', data_id);
 	// });
+
+	$(".banReason").each( function(){
+	    $(this).bind("click" , function(){
+	        var id = $("a").index(this);
+	        var clickval = $("a").eq(id).text();
+	        $('.m-reason').val(clickval);
+	    });
+	});
 
 	$('.advertising').on('click', function(e) {
 		$('.m-reason').val('廣告');

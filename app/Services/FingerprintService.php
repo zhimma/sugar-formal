@@ -22,6 +22,16 @@ class FingerprintService{
     }
 
     public function judgeUserFingerprintAll($userId, $fingerprint){
+        $isFingerprintBanned = \DB::table('banned_fingerprints')->where('fp', $fingerprint['fp'])->get()->count();
+        if($isFingerprintBanned > 0
+            && !\DB::table('banned_users_implicitly')->where('target', $userId)->exists()){
+            \DB::table('banned_users_implicitly')->insert(
+                ['fp' => 'DirectlyBanned',
+                    'user_id' => '0',
+                    'target' => $userId,
+                    'created_at' => \Carbon\Carbon::now()]
+            );
+        }
         if(isset($fingerprint['audio'])){ unset($fingerprint['audio']); }
         if(isset($fingerprint['created_at'])){ unset($fingerprint['created_at']); }
         if(isset($fingerprint['batterylevel'])){ unset($fingerprint['batterylevel']); }
@@ -42,12 +52,15 @@ class FingerprintService{
                 array_push($final_result, $r);
             }
         }*/
-        if($result){
+        if($result
+            && !\DB::table('expected_banning_users')->where('target', $userId)->exists()
+            && !User::isBanned($userId)){
             // $ids = array_map(function ($array) { return $array->user_id; }, $final_result);
-            \DB::table('banned_users_implicitly')->insert(
-                ['user_id' => $result->user_id,
+            \DB::table('expected_banning_users')->insert(
+                ['fp' => $result->fp,
+                 'user_id' => $result->user_id,
                  'target' => $userId,
-                'created_at' => \Carbon\Carbon::now()]
+                 'created_at' => \Carbon\Carbon::now()]
             );
         }
     }
@@ -61,14 +74,14 @@ class FingerprintService{
                 array_push($final_result, $r);
             }
         }*/
-        if($result){
+        if($result && !User::isBanned($userId)){
             $exist = \DB::table('warning_users')->where('user_id', $userId)->first();
             if(!$exist){
                 // $ids = array_map(function ($array) { return $array->user_id; }, $final_result);
                 \DB::table('warning_users')->insert(
                     ['user_id' => $result->user_id,
-                        'target' => $userId,
-                        'created_at' => \Carbon\Carbon::now()]
+                     'target' => $userId,
+                     'created_at' => \Carbon\Carbon::now()]
                 );
             }
         }

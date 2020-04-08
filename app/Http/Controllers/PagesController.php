@@ -684,12 +684,19 @@ class PagesController extends Controller
 
         $pic_id = $request->pic_id;
 
+        $pic = MemberPic::where('member_id', $user_id)->where('id', $pic_id)->first();
+        //delete file
+        \File::delete(public_path($pic->pic));
+        //delete data
         MemberPic::where('member_id', $user_id)->where('id', $pic_id)->delete();
 
         /*設第一張照片為大頭貼*/
         $avatar = MemberPic::where('member_id', $user->id)->orderBy('id', 'asc')->first();
         if(!is_null($avatar)){
             UserMeta::uploadUserHeader($user->id,$avatar->pic);
+        }else{
+            //刪除大頭照
+            UserMeta::uploadUserHeader($user->id,null);
         }
 
         $data = array(
@@ -815,7 +822,7 @@ class PagesController extends Controller
         // }
         echo json_encode($data);
     }
-    
+
     public function dashboard_img_new(Request $request)
     {
         $user = $request->user();
@@ -968,7 +975,7 @@ class PagesController extends Controller
     public function viewuser2(Request $request, $uid = -1)
     {
         $user = $request->user();
-        
+
         if (isset($user) && isset($uid)) {
             $targetUser = User::where('id', $uid)->get()->first();
             if (!isset($targetUser)) {
@@ -976,7 +983,7 @@ class PagesController extends Controller
             }
             if(User::isBanned($uid)){
                 Session::flash('message', '此用戶已關閉資料。');
-                return view('new.dashboard.viewuser')->with('user', $user)->with();
+                return view('new.dashboard.viewuser')->with('user', $user);
             }
             if ($user->id != $uid) {
                 Visited::visit($user->id, $uid);
@@ -1781,14 +1788,12 @@ class PagesController extends Controller
     {
         $user = $request->user();
 
-        $time = \Carbon\Carbon::now();
-        $start= date('Y-m-01 hh:mm:ss',strtotime($time->subDay(30)));
-        $end= date('Y-m-t hh:mm:ss',strtotime($time));
-
-        $count = banned_users::select('*')->whereBetween('banned_users.created_at',[($start),($end)])->count();
-        $banned_users = banned_users::select('*')->whereBetween('banned_users.created_at',[($start),($end)])
+        // $time = \Carbon\Carbon::now();
+        $count = banned_users::select('*')->where('banned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->count();
+        $banned_users = banned_users::select('banned_users.*','users.name')->where('banned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
             ->join('users','banned_users.member_id','=','users.id')
-            ->orderBy('banned_users.created_at','asc')->paginate(15);
+            ->orderBy('banned_users.created_at','desc')->paginate(15);
+
         foreach ($banned_users as &$b){
             $b->name = $this->substr_cut($b->name);
         }

@@ -108,7 +108,6 @@
         })
     </script>
 
-    <script src="https://kit.fontawesome.com/e76a5f74cc.js" crossorigin="anonymous"></script>
     @endif
 
 

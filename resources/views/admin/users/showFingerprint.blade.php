@@ -6,26 +6,31 @@
     }
 </style>
 <body style="padding: 15px;">
-<h1>隱性封鎖清單</h1>
-共 {{ $users->total() }} 筆資料
+<h1>指紋 Hash 值：{{ $fingerprint }}</h1>
+@if($isFingerprintBanned)
+    <form action="{{ route('unbanFingerprint') }}" method="POST">
+        {!! csrf_field() !!}
+        <input type="hidden" value="{{ $fingerprint }}" name="fp">
+        <button type="submit" class='btn text-white btn-success'>解除封鎖此指紋</button>
+    </form>
+@else
+    <form action="{{ route('banFingerprint') }}" method="POST">
+        {!! csrf_field() !!}
+        <input type="hidden" value="{{ $fingerprint }}" name="fp">
+        <button type="submit" class='btn btn-info'>隱性封鎖此指紋</button>
+    </form>
+@endif
+共 {{ $users->count() }} 筆資料
 <table class='table table-bordered table-hover'>
-	<tr>
-        <td>
-            Hash 值
-            @if(request()->orderBy == 'fp' && request()->order == 'asc')
-                <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'fp', 'order' => 'desc']) }}">▲</a>
-            @else
-                <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'fp', 'order' => 'asc']) }}">▼</a>
-            @endif
-        </td>
-		<td>Email
+    <tr>
+        <td>Email
             @if(request()->orderBy == 'email' && request()->order == 'asc')
                 <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'email', 'order' => 'desc']) }}">▲</a>
             @else
                 <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'email', 'order' => 'asc']) }}">▼</a>
             @endif
         </td>
-		<td>封鎖方式
+        <td>封鎖方式
             @if(request()->orderBy == 'type' && request()->order == 'asc')
                 <a href="{{ request()->fullUrlWithQuery(['orderBy' => 'type', 'order' => 'desc']) }}">▲</a>
             @else
@@ -69,22 +74,15 @@
         </td>
         <td>被檢舉次數</td>
         <td>操作</td>
-	</tr>
-	@forelse($users as $user)
+    </tr>
+    @forelse($users as $user)
         @if(isset($user['email']))
             @php
                 $user['count'] = \App\Services\AdminService::countReported($user['user_id']);
                 $user['fp'] = isset($user['fp']) ? ($user['fp'] != '' ? $user['fp'] : '無資料') : '無資料';
             @endphp
             <tr>
-                <td>
-                    @if($user['fp'] != '無資料')
-                        <a href="{{ route("showFingerprint", $user['fp']) }}" target="_blank">{{ $user['fp'] }}</a>
-                    @else
-                        {{ $user['fp'] }}
-                    @endif
-                </td>
-                <td><a @if($user['engroup'] == '2') style="color: #F00;" @else  style="color: #000fff;" @endif href="advInfo/{{ $user['user_id'] }}" target="_blank">{{ $user['email'] }}</a></td>
+                <td><a @if($user['engroup'] == '2') style="color: #F00;" @else  style="color: #000fff;" @endif href="{{ route('users/advInfo', $user['user_id']) }}" target="_blank">{{ $user['email'] }}</a></td>
                 <td>{{ $user['type'] }}</td>
                 <td>{{ $user['banned_at'] }}</td>
                 <td>{{ $user['created_at'] }}</td>
@@ -120,15 +118,14 @@
             </tr>
         @else
             <tr>
-                <td colspan="10">無會員資料</td>
+                <td colspan="9">無會員資料</td>
             </tr>
         @endif
     @empty
-    <tr>
-        找不到資料
-    </tr>
+        <tr>
+            找不到資料
+        </tr>
     @endforelse
 </table>
-{!! $users->links() !!}
 </body>
 @stop

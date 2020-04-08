@@ -138,17 +138,17 @@
                             <div class="@if($message['from_id'] == $user->id) show @else send @endif">
                                 <div class="msg @if($message['from_id'] == $user->id) msg1 @endif">
                                     @if($message['from_id'] == $user->id)
-                                        <img src="@if(file_exists( public_path().$user->meta_()->pic ) && $user->meta_()->pic != ""){{$user->meta_()->pic}} @else/img/male-avatar.png @endif">
+                                        <img src="@if(file_exists( public_path().$user->meta_()->pic ) && $user->meta_()->pic != ""){{$user->meta_()->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
                                     @else
                                         <a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">
-                                        <img src="@if(file_exists( public_path().$msgUser->meta_()->pic ) && $msgUser->meta_()->pic != ""){{$msgUser->meta_()->pic}} @else/img/male-avatar.png @endif">
+                                        <img src="@if(file_exists( public_path().$msgUser->meta_()->pic ) && $msgUser->meta_()->pic != ""){{$msgUser->meta_()->pic}} @elseif($msgUser->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
                                         </a>
                                     @endif
                                     <p>
                                         <i class="msg_input"></i>{!! nl2br($message['content']) !!}
                                         @if($message['from_id'] != $user->id)
                                             <a href="javascript:void(0)" class="" onclick="banned('{{$msgUser->id}}','{{$msgUser->name}}');" title="檢舉">
-                                                <span class="shdel"><span><i class="fas fa-user-slash"></i>檢舉</span><span>
+                                                <span class="shdel"><span>檢舉</span><span>
                                             </a>
                                         @endif
                                         <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
@@ -252,7 +252,8 @@
             @else
     let m_time = '';
     @endif
-    if(m_time){
+        let isVip = '{{$user->isVip()}}';
+    if(isVip==0){
         $( ".message_fixed" ).append( "<div><a href='{!! url('dashboard/vip') !!}' style='color: red;' class='tips'>成為VIP即可知道對方是否讀取信件哦！</a></div>" );
     }
 
@@ -367,7 +368,10 @@
     }else{
         message_max_height = message_height - footer_height - $('.hetop').height() - 110;
         $('.se_text_bot').addClass('se_text_bot_add_bottom');
+
     }
+    $('.message').css('width',$('.shouxq').width()-20);
+    $('.se_text').css('width',$('.shouxq').width());
     // if( /Android|iPhone/i.test(navigator.userAgent) ) {
     if(window.matchMedia("(max-width: 767px)").matches && window.matchMedia("(max-height: 823px)").matches){
         $('.se_text_bot').removeClass('se_text_bot_add_bottom');
@@ -376,10 +380,10 @@
         message_max_height = message_height - $('.heicon').height() - 50;
         bl_gb_fixed_top = $(window).height() / 5 + 10;
         //alert(bl_gb_fixed_top);
-        $('.bltitle_fixed').css('width',$('#tab_payAlert').width());
+        $('.bltitle_fixed').css('width',$('#tab_payAlert').width()+1);
         $('.bl_gb_fixed').css('top',bl_gb_fixed_top);
         $('#tab_payAlert').css('height','70%');
-        $('.matop20').css('margin-top','40px');
+
     }
     if(window.matchMedia("(min-width: 1024px)").matches && window.matchMedia("(max-height: 690px)").matches){
         bl_gb_fixed_top = $(window).height() / 10 - 5;

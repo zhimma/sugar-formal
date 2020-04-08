@@ -18,6 +18,7 @@
                                 <th width="25%" style=" border-radius:0 5px 5px 0;">解除時間</th>
                             </tr>
                             @foreach($banned_user as $row)
+
                             <tr>
                                 <td>{{$row->name}}</td>
                                 <td>{{$row->reason}}</td>
@@ -26,12 +27,11 @@
                             </tr>
                             @endforeach
                         </table>
-                        @if($count>15)
-                        <div class="fenye">
-                            <a id="prePage" href="{{ $banned_user->previousPageUrl() }}">上一頁</a>
-                            <a id="nextPage" href="{{ $banned_user->nextPageUrl() }}">下一頁</a>
+
+                        <div style="text-align: center;">
+                            {!! $banned_user->links('pagination::sg-pages') !!}
                         </div>
-                        @endif
+
                     </div>
                 </div>
             </div>

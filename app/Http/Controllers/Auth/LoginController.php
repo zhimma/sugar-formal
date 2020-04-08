@@ -198,8 +198,21 @@ class LoginController extends Controller
         // }
         if (\Auth::attempt(['email' => $request->email, 'password' => $request->password],$request->remember)) {
             $payload = $request->all();
+            $email = $payload['email'];
+            $uid = \Auth::user()->id;
+            $domains = config('banned.domains');
+            foreach ($domains as $domain){
+                if(str_contains($email, $domain)
+                    && !\DB::table('banned_users_implicitly')->where('target', $uid)->exists()){
+                    \DB::table('banned_users_implicitly')->insert(
+                        ['fp' => 'DirectlyBanned',
+                            'user_id' => '0',
+                            'target' => $uid,
+                            'created_at' => \Carbon\Carbon::now()]
+                    );
+                }
+            }
             if(isset($payload['fp'])){
-                $uid = \Auth::user()->id;
                 $ip = $request->ip();
                 $isFp = \DB::table('fingerprint2')
                     ->where('fp', $payload['fp'])
