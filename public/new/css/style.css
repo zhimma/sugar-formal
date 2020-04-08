@@ -1368,12 +1368,12 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .send:after,.show:after,.msg:after{content: "";clear: both;display: table;}
 .msg>img{width:40px; height:40px;float: left; border-radius:100px;}
 
-.msg>p{float: left;margin:0 10px;padding:15px 8px;background: #f7f6fb;font-size:14px;position: relative;border-radius:10px;max-width:560px ;box-sizing: border-box;color:#333;word-break: break-all; min-width: 60px !important;}
+.msg>p{float: left;margin:0 10px;padding:15px 8px;background: #f7f6fb;font-size:14px;position: relative;border-radius:10px;max-width:560px ;box-sizing: border-box;color:#333;word-break: break-word; min-width: 60px !important;}
 
 .msg1>p {background:#ffcbcb;color:#fff;}
 
 .msg_input{position: absolute;background: url(../images/msg-input.png) no-repeat;background-size: 100% 100%;width:12px;height:24px;left: -7px;top:8px;}
-.show .msg img,.show .msg p,.show .msg{float: right; word-break: break-all;}
+.show .msg img,.show .msg p,.show .msg{float: right; word-break: break-word;}
 .show .msg_input{left: auto;right:-6px;background: url(../images/img_22.png) center no-repeat;}
 .send,.show{padding-bottom:15px; margin-top:15px;}
 
