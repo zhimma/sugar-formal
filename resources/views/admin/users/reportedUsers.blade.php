@@ -98,6 +98,8 @@
                                             @else
                                                 此會員登入後將自動解除封鎖
                                             @endif
+                                        @elseif(isset($result['isBlockedReceiver']['type']))
+                                            (隱性)
                                         @else
                                             (永久)
                                         @endif
@@ -150,7 +152,7 @@
                                     @endif
                                     @if(!is_null($result['isBlocked']))
                                         @if(!is_null($result['isBlocked']['expire_date']))
-                                            @if(isset($result['isBlockedReceiver']['expire_date']))
+                                            @if(isset($result['isBlocked']['expire_date']))
                                                 @if(round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24)>0)
                                                     {{ round((strtotime($result['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天
                                                 @else
@@ -159,6 +161,8 @@
                                             @else
                                                 此會員登入後將自動解除封鎖
                                             @endif
+                                        @elseif(isset($result['isBlocked']['type']))
+                                            (隱性)
                                         @else
                                             (永久)
                                         @endif

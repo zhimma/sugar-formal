@@ -37,6 +37,8 @@
 							        @else
 							            此會員登入後將自動解除封鎖
 							        @endif
+								@elseif(isset($id1->isBlocked->type))
+									(隱性)
 							    @else
 							        (永久)
 							    @endif
@@ -66,6 +68,8 @@
 							        @else
 							            此會員登入後將自動解除封鎖
 							        @endif
+								@elseif(isset($id2->isBlocked->type))
+									(隱性)
 							    @else
 							        (永久)
 							    @endif
@@ -98,6 +102,8 @@
 							        @else
 							            此會員登入後將自動解除封鎖
 							        @endif
+								@elseif(isset($id1->isBlockedReceiver->type))
+									(隱性)
 							    @else
 							        (永久)
 							    @endif
@@ -127,6 +133,8 @@
 							        @else
 							            此會員登入後將自動解除封鎖
 							        @endif
+								@elseif(isset($id2->isBlockedReceiver->type))
+									(隱性)
 							    @else
 							        (永久)
 							    @endif

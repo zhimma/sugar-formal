@@ -240,7 +240,13 @@ class AdminService
                 array_push($reported_id, $result->reported_id);
             }
             $result['isBlocked'] = banned_users::where('member_id', 'like', $result->member_id)->get()->first();
+            if(!isset($result['isBlocked'])){
+                $result['isBlocked'] = \App\Models\BannedUsersImplicitly::select(\DB::raw('id, "隱性" as type'))->where('target', 'like', $result->member_id)->get()->first();
+            }
             $result['isBlockedReceiver'] = banned_users::where('member_id', 'like', $result->reported_id)->get()->first();
+            if(!isset($result['isBlockedReceiver'])){
+                $result['isBlockedReceiver'] = \App\Models\BannedUsersImplicitly::select(\DB::raw('id, "隱性" as type'))->where('target', 'like', $result->reported_id)->get()->first();
+            }
             //被檢舉者近一月曾被不同人檢舉次數
             $tmp = $this->reports_month($result->reported_id);
             $result['picsResult'] = $tmp['picsResult'];
