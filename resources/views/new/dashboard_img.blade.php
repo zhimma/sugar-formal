@@ -47,11 +47,21 @@
                     <ul class="n_ulpic">
                     @if($user->engroup==1)
                         @if($avatar)
-                            <li class="write_img editBtn" id="{{$avatar->id}}"><div class="delpicBtn"><img src="/new/images/gb_icon01.png" width="30px" height="30px"></div><div class="n_ulhh"><img src="/new/images/ph_03.png"></div><b class="img" style="background:url(' {{ $member_pic->pic or '/new/images/ph_12.png' }} '); background-size:100% 100%"></b></li>
+                            <li class="write_img editBtn" id="{{$avatar->id}}">
+                                <div class="n_ulhh">
+                                    <img src="/new/images/ph_03.png">
+                                </div>
+                                <b class="img" style="background:url(' {{ $avatar->pic or '/new/images/ph_12.png' }} '); background-size:100% 100%"></b>
+                            </li>
                         @endif
                         @if ($member_pics)
                             @foreach ($member_pics as $member_pic)
-                                <li class="write_img editBtn" id="{{$member_pic->id}}"><div class="delpicBtn"><img src="/new/images/gb_icon01.png" width="30px" height="30px"></div><div class="n_ulhh"><img src="/new/images/ph_05.png"></div><b class="img" style="background:url(' {{ $member_pic->pic  or '/new/images/ph_12.png' }} '); background-size:100% 100%"></b></li>
+                                <li class="write_img editBtn" id="{{$member_pic->id}}">
+                                    <div class="n_ulhh">
+                                        <img src="/new/images/ph_05.png">
+                                    </div>
+                                    <b class="img" style="background:url(' {{ $member_pic->pic  or '/new/images/ph_12.png' }} '); background-size:100% 100%"></b>
+                                </li>
                             @endforeach
                         @endif
                     @else

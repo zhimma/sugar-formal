@@ -222,7 +222,8 @@ class ImageController extends Controller
         else
         {
             $path_slice = explode('/', $avatarPath);
-            $avatar = array(
+            //必須為list
+            $avatar[] = array(
                 "name" => end($path_slice),
                 "type" => FileUploader::mime_content_type($avatarPath),
                 "size" => filesize(public_path($avatarPath)),
@@ -240,7 +241,8 @@ class ImageController extends Controller
     public function uploadAvatar(Request $request)
     {
         $userId = $request->userId;
-        $meta = UserMeta::where('user_id', $userId)->first();
+        $preloadedFiles = $this->getAvatar($request)->content();
+        $preloadedFiles = json_decode($preloadedFiles, true);
 
         $fileUploader = new FileUploader('avatar', array(
             'fileMaxSize' => 8,
@@ -252,6 +254,7 @@ class ImageController extends Controller
                 return $now . rand(100000000,999999999);
             },
             'replace' => false,
+            'files' => $preloadedFiles
         ));
 
         /*$file = public_path($meta->pic);
@@ -273,7 +276,7 @@ class ImageController extends Controller
             $avatar = $fileUploader->getUploadedFiles();
             $filePath = $avatar[0]['file'];
             if( is_file($filePath) and file_exists($filePath))
-                UserMeta::where('user_id', $userId)->update(['pic' => substr($filePath, strlen(public_path('\\')))]);
+                UserMeta::where('user_id', $userId)->update(['pic' => substr($filePath, strlen(public_path(DIRECTORY_SEPARATOR)))]);
             return redirect()->back();
         }
     }
@@ -340,7 +343,7 @@ class ImageController extends Controller
 
         $upload = $fileUploader->upload();
 
-        $publicPath = public_path('\\');
+        $publicPath = public_path(DIRECTORY_SEPARATOR);
         foreach($fileUploader->getUploadedFiles() as $uploadedFile)
         {
             $path = substr($uploadedFile['file'], strlen($publicPath));
