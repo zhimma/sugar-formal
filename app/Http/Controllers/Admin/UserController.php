@@ -21,6 +21,7 @@ use App\Http\Requests\UserInviteRequest;
 use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\AdminAnnounce;
+use App\Models\MasterWords;
 use App\Models\AdminCommonText;
 use App\Models\VipLog;
 use App\Models\Vip;
@@ -52,6 +53,7 @@ class UserController extends Controller
     public function index()
     {
         //$users = $this->service->all();
+        
         return view('admin.users.index');
     }
 
@@ -1742,6 +1744,71 @@ class UserController extends Controller
         return redirect()->route('users/basic_setting');
     }
 
+
+    public function showMasterwords(Request $request){
+        $a = MasterWords::orderBy('sequence', 'asc')->orderBy('updated_at', 'desc')->get()->all();
+        return view('admin.adminmasterwords')->with('masterwords', $a);
+    }
+
+    public function showNewAdminMasterWords()
+    {
+        return view('admin.adminmasterwords_new');
+    }
+
+    public function newAdminMasterWords(Request $request)
+    {
+        if(MasterWords::newMasterWords($request)) {
+            return redirect('admin/masterwords')
+                ->with('message', '成功新增站長的話');
+        }
+        else{
+            return redirect('admin/masterwords')
+                ->withErrors(['出現不明錯誤，無法新增站長的話']);
+        }
+    }
+
+    public function deleteAdminMasterWords(Request $request)
+    {
+        if(MasterWords::deleteMasterWords($request)) {
+            return redirect('admin/masterwords')
+                ->with('message', '成功刪除站長的話');
+        }
+        else{
+            return redirect('admin/masterwords')
+                ->withErrors(['出現不明錯誤，無法刪除站長的話']);
+        }
+    }
+
+    public function showAdminMasterWordsEdit($id)
+    {
+        $a = MasterWords::where('id', $id)->get()->first();
+        return view('admin.adminmasterwords_edit')->with('masterwords', $a);
+    }
+
+    public function saveAdminMasterWords(Request $request)
+    {
+        if(MasterWords::saveMasterWords($request)){
+            return back()->with('message', '成功修改站長公告');
+        }else{
+            return back()->withErrors(['出現不明錯誤，無法新增站長公告']);
+        }
+    }
+
+    public function showReadMasterWords($id)
+    {
+        $a = MasterWords::where('id', $id)->get()->first();
+        // dd($a);
+        $results = \App\Models\MasterWordsRead::where('announcement_id', $id)->get();
+        // dd($results);
+        foreach ($results as &$result){
+            $user = users::where('id', $result->user_id)->get()->first();
+            $result->name = $user->name;
+        }
+        // dd('1');
+        return view('admin.adminmasterwords_read')
+            ->with('announce', $a)
+            ->with('results', $results);
+    }
     public function showSuspectedMultiLogin(){
         $result = \DB::table('suspected_multi_login')
             ->select('users.email', 'users.last_login', 'users.name', 'suspected_multi_login.*')
@@ -1909,5 +1976,6 @@ class UserController extends Controller
             $r->target = User::findById($r->target);
         }
         return view('admin.users.warningList')->with('users', $result);
+
     }
 }

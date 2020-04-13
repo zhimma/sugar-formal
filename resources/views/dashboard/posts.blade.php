@@ -12,6 +12,7 @@
 		<link href="/posts/css/bootstrap.min.css" rel="stylesheet">
 		<link href="/posts/css/bootstrap-theme.min.css" rel="stylesheet">
 		<!-- owl-carousel-->
+		<meta name="csrf-token" content="{{ csrf_token() }}" />
 		<!--    css-->
 		<link rel="stylesheet" href="/posts/css/style.css">
 		<link rel="stylesheet" href="/posts/css/swiper.min.css">
@@ -20,36 +21,224 @@
 		<script src="/posts/js/main.js" type="text/javascript"></script>
 		<script src='/plugins/tinymce/tinymce.js' referrerpolicy="origin"></script>
 		<script>
-			 if (navigator.userAgent.match(/Android/i)
-                || navigator.userAgent.match(/webOS/i)
-            || navigator.userAgent.match(/iPhone/i)
-            || navigator.userAgent.match(/iPad/i)
-            || navigator.userAgent.match(/iPod/i)
-            || navigator.userAgent.match(/BlackBerry/i)
-            || navigator.userAgent.match(/Windows Phone/i)
-            ) {
-                tinymce.init({
-				selector: '#contents',
-				language: 'zh_TW',
-				plugins: "autosave",
-				mobile: {
-					theme: 'mobile',
-				},
-				branding: false
-				});
-            }
-            else {
-                tinymce.init({
-				selector: '#contents',
-				language: 'zh_TW',
-				plugins: "autosave",
-				autosave_ask_before_unload: true,
-				autosave_interval: "5s",
-				branding: false
-				});
-            }
 			
+                // tinymce.init({
+				// invalid_elements : "script",
+				// selector: '#contents',
+				// language: 'zh_TW',
+				// plugins: [
+				// 	"autosave",
+				// 	"advlist autolink lists link image charmap print preview anchor",
+				// 	// "searchreplace visualblocks code fullscreen",
+				// 	"insertdatetime media table contextmenu paste jbimages"
+				// 	],
+					
+				// // images_upload_url: '/dashboard/postAcceptor',
+				//   automatic_uploads: false,
+				//   autosave_ask_before_unload: true,
+				//   autosave_prefix: "tinymce-autosave-{path}{query}-{id}-",
+				//   autosave_restore_when_empty: false,
+				//   file_picker_types: 'file image media',
+				//   automatic_uploads: true,
+				//   file_picker_types: 'image',
+				// //   images_upload_credentials: true,
+				// file_picker_callback: function(callback, value, meta) {
+				// 	// Provide file and text for the link dialog
+				// 	if (meta.filetype == 'file') {
+				// 	callback('mypage.html', {text: 'My text'});
+				// 	}
+
+				// 	// Provide image and alt text for the image dialog
+				// 	if (meta.filetype == 'image') {
+				// 	callback('myimage.jpg', {alt: 'My alt text'});
+				// 	}
+
+				// 	// Provide alternative source and posted for the media dialog
+				// 	if (meta.filetype == 'media') {
+				// 	callback('movie.mp4', {source2: 'alt.ogg', poster: 'image.jpg'});
+				// 	}
+				// },
+				//   images_upload_handler: function (blobInfo, success, failure) {
+				// 	var xhr, formData;
+
+				// 	xhr = new XMLHttpRequest();
+				// 	xhr.withCredentials = false;
+				// 	xhr.open('POST', '/dashboard/postAcceptor');
+
+				// 	xhr.onload = function() {
+				// 	var json;
+
+				// 	if (xhr.status != 200) {
+				// 		failure('HTTP Error: ' + xhr.status);
+				// 		return;
+				// 	}
+
+				// 	json = JSON.parse(xhr.responseText);
+
+				// 	if (!json || typeof json.location != 'string') {
+				// 		failure('Invalid JSON: ' + xhr.responseText);
+				// 		return;
+				// 	}
+
+				// 	success(json.location);
+				// 	};
+
+				// 	formData = new FormData();
+				// 	formData.append('file', blobInfo.blob(), blobInfo.filename());
+				// 	formData.append('_token', $('meta[name="csrf-token"]').attr('content') );
+				// 	xhr.send(formData);
+				// },
+				// setup: (editor) => {
+				// 	editor.ui.registry.addButton('myCustomToolbarButton', {
+				// 	text: '清空',
+				// 	onAction: () => tinyMCE.activeEditor.setContent(''),
+				// 	});
+				// },
+				// toolbar: ["save","restoredraft"],
+				// autosave_ask_before_unload: true,
+				// autosave_interval: "5s",
+				// branding: false,
+				// menubar: false,
+				// autosave_ask_before_unload: true,
+				// autosave_restore_when_empty: true,
+				// toolbar : "restoredraft | myCustomToolbarButton | bold underline | link image jbimages | alignleft aligncenter alignright | forecolor | removeformat | pagebreak | code | fontselect | fontsizeselect | undo redo",
+				// verify_html : false, 
+		        // verify_css_classes : true, 
+		        // cleanup : false, 
+		        // cleanup_on_startup : false, 
+				
+				// });
+
+			
+tinymce.init({
+	selector: '#contents',
+  
+  
+  image_title: true,
+
+  automatic_uploads: true,
+
+  images_upload_handler: function (blobInfo, success, failure) {
+    var xhr, formData;
+
+    xhr = new XMLHttpRequest();
+    xhr.withCredentials = false;
+    xhr.open('POST', '/dashboard/postAcceptor');
+
+    xhr.onload = function() {
+      var json;
+
+      if (xhr.status != 200) {
+        failure('HTTP Error: ' + xhr.status);
+        return;
+      }
+
+      json = JSON.parse(xhr.responseText);
+
+      if (!json || typeof json.location != 'string') {
+        failure('Invalid JSON: ' + xhr.responseText);
+        return;
+      }
+	  json.location = '/'+json.location;
+      success(json.location);
+    };
+
+    formData = new FormData();
+    formData.append('file', blobInfo.blob(), blobInfo.filename());
+	formData.append('_token', $('meta[name="csrf-token"]').attr('content') );
+
+    xhr.send(formData);
+  },
+
+
+  file_picker_types: 'image',
+  images_upload_url: '/dashboard/postAcceptor',
+//   file_picker_callback: function (cb, value, meta) {
+//     var input = document.createElement('input');
+//     input.setAttribute('type', 'file');
+//     input.setAttribute('accept', 'image/*');
+
+
+//     input.onchange = function () {
+//       var file = this.files[0];
+
+//       var reader = new FileReader();
+//       reader.onload = function () {
+//         var id = 'blobid' + (new Date()).getTime();
+//         var blobCache =  tinymce.activeEditor.editorUpload.blobCache;
+//         var base64 = reader.result.split(',')[1];
+//         var blobInfo = blobCache.create(id, file, base64);
+//         blobCache.add(blobInfo);
+
+//         cb(blobInfo.blobUri(), { title: file.name });
+//       };
+//       reader.readAsDataURL(file);
+//     };
+
+//     input.click();
+//   },
+  plugins: 'image code',
+  toolbar: "restoredraft | myCustomToolbarButton | bold underline | link image jbimages | alignleft aligncenter alignright | forecolor | removeformat | pagebreak | code | fontselect | fontsizeselect | undo redo",
+//   toolbar: ["save","restoredraft"],
+  invalid_elements : "script",
+language: 'zh_TW',
+images_dataimg_filter: function(img) {
+   return img.hasAttribute('internal-blob');
+  },
+plugins: [
+	"autosave",
+	"advlist autolink lists link image charmap print preview anchor",
+	"insertdatetime media table contextmenu paste jbimages"
+	],
+  autosave_ask_before_unload: true,
+  autosave_interval: "5s",
+  branding: false,
+  menubar: false,
+  autosave_ask_before_unload: true,
+  autosave_restore_when_empty: true,
+  verify_html : false, 
+  verify_css_classes : true, 
+  cleanup : false, 
+  cleanup_on_startup : false, 
+  automatic_uploads: false,
+	autosave_ask_before_unload: true,
+	autosave_prefix: "tinymce-autosave-{path}{query}-{id}-",
+	autosave_restore_when_empty: false,
+	file_picker_types: 'file image media',
+	automatic_uploads: true,
+	file_picker_types: 'image',
+  setup: (editor) => {
+		editor.ui.registry.addButton('myCustomToolbarButton', {
+		text: '清空',
+		onAction: () => tinyMCE.activeEditor.setContent(''),
+		});
+	},
+  
+});
+
 		</script>
+		<style>
+		@media (max-width:320px) {
+			.tox-tinymce{
+				width: 300px !important;
+			}
+		}
+		@media (min-width:321px) and (max-width:375px) {
+			.tox-tinymce{
+				width:350px !important;
+			}
+		}
+		@media (min-width:376px) and (max-width:414px) {
+			.tox-tinymce{
+				width:385px !important;
+			}
+		}
+		@media (min-width:415px) and (max-width:768px){
+			.tox-tinymce{
+				width:720px !important;
+			}
+		}
+</style>
 	<style>
 		.icon_pointer{
 			cursor:pointer;
@@ -68,7 +257,13 @@
 		.tou_tx, .tc_text{
 			font-style:normal !important;
 		}
+		
 
+
+		/*tinymce RWD*/
+		.tox .tox-tbtn {
+		
+		}
 	</style>
 	</head>
 
@@ -194,7 +389,7 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
 				<div class="col-sm-12 col-xs-12 col-md-10">
 					 <div class="two_tg">
                            <div class="two_gtitle"><img src="/posts/images/tg_15.png">投稿
-						   <a href="/dashboard/posts_list" class="toug_back">返回</a>
+						   <a href="{{url()->previous()}}" class="toug_back" style="margin-top:7px !important">返回</a>
 						   </div>
                            <div class="tow_input">
                                  
@@ -210,12 +405,12 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
 								<input type="checkbox" name="agreement">同意站方匿名行銷使用(男會員贈送一個月vip，女會員給一個 tag)</br>
 								<input type="submit"> -->
 
-								<input name="title" type="text" id="title" class="tw_input"  placeholder="#標題">
+								<input name="title" type="text" id="title" class="tw_input"  placeholder="#標題" style="font-size:16px">
                                  <textarea  name="contents" id="contents" cols="" rows="" class="tw_textinput" placeholder="#内容" style="border-radius:20px"></textarea>
                                  <div class="ti_kuang">
-                                       <div class="ti_title">點這裡變更身分</div>
-                                       <h2 class="matop15"><i class='input_style radio_bg'><input type="radio"  name="is_anonymous" id="is_anonymous" value="anonymous"></i>匿名於站內發布</h2>
-                                       <h2><i class='input_style radio_bg'><input type="radio" name="is_anonymous" id="is_anonymous" value="combine"></i>站內發布與本站帳號連結</h2>
+                                       <div class="ti_title">選擇投稿身分</div>
+                                       <h2 class="matop15"><i class='input_style radio_bg'><input type="radio"  name="is_anonymous" id="is_anonymous" value="anonymous"></i>匿名於站內投稿</h2>
+                                       <h2><i class='input_style radio_bg'><input type="radio" name="is_anonymous" id="is_anonymous" value="combine"></i>與本站帳號連結投稿</h2>
                                  </div>
                                  <div class="ticheckbox"><i class='input_style radio_bg'><input type="checkbox" name="agreement" id="agreement"></i>同意站方匿名行銷使用</div>
 								<a  class="dlbut icon_pointer"  onclick="cl()">確定</a>
@@ -227,13 +422,7 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
 			</div>
 		</div>
 
-		<div class="bot chbottom">
-			<a href="">站長開講</a> 丨
-			<a href=""> 網站使用</a> 丨
-			<a href=""> 使用條款</a> 丨
-			<a href=""> 聯絡我們</a>
-			<img src="/posts/images/bot_10.png">
-		</div>
+		@include('/new/partials/footer')
         
         
 
@@ -276,6 +465,18 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
     <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/posts/images/gb_icon.png"></a>
 </div>
 
+<div class="bl bl_tab bl_tab_error" id="tab_error">
+    <div class="bltitle_a"><span class="font14" style="text-align:center;float:none !important">錯誤</span></div>
+    <div class="n_blnr02 matop10">
+         <div class="n_fengs" style="text-align:center;width:100%;">
+		 @if($errors->any())
+			{!! implode('', $errors->all('<div class="error">:message</div>')) !!}
+		@endif
+		 </div>
+    </div>
+    <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/posts/images/gb_icon.png"></a>
+</div>
+
 <script>
 // $(".blbg").show();
 //          	$("#tab01").show();
@@ -306,8 +507,8 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
 		// console.log($("#is_anonymous").parent('.radio_bg_check').size())
 		// $("#agreement").parent('.checkbox_bg_check').size()>0
 		// console.log($("#is_anonymous").val()); return false;
-		
-		if($("#is_anonymous").parent('.radio_bg_check').size()){
+		console.log($(".ti_kuang").find('.radio_bg_check').size(), $(".ti_kuang").find('.radio_bg_check').size())
+		if($(".ti_kuang").find('.radio_bg_check').size()>0){
 			$(".blbg").show();
          	$("#tab01").show();
 			$("#posts").submit();
@@ -317,13 +518,18 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
 		}
 		
     }
-
+// $(document).ready(function(){
+// 	if($(document).hasClass('error')){
+// 		$(".blbg").show();
+// 		$("#tab_error").show();
+// 	}
+// });
 	
-	$(document).ready(function(){
-		if($("#is_anonymous").parent('.checkbox_bg_check').size()>0){
-			$(this).attr('')
-		}
-	});
+	// $(document).ready(function(){
+	// 	if($("#is_anonymous").parent('.checkbox_bg_check').size()>0){
+	// 		$(this).attr('')
+	// 	}
+	// });
 
     function gmBtn1(){
         $(".blbg").hide()
@@ -345,7 +551,7 @@ input[type='radio'],input[type='checkbox']{width:18px;height: 18px;vertical-alig
 	// 		return false;
 	// 	}
 	// }
-	
+	$(".bot").addClass('chbottom');
 </script>
 
 

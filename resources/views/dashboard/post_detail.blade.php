@@ -7,7 +7,7 @@
 		<meta name="format-detection" content="telephone=no" />
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-		<title>投稿详情</title>
+		<title>投稿詳情</title>
 		<!-- Bootstrap -->
 		<link href="/posts/css/bootstrap.min.css" rel="stylesheet">
 		<link href="/posts/css/bootstrap-theme.min.css" rel="stylesheet">
@@ -17,6 +17,14 @@
 		<link rel="stylesheet" href="/posts/css/swiper.min.css">
 		<script src="/posts/js/jquery-2.1.1.min.js" type="text/javascript"></script>
 		<script src="/posts/js/bootstrap.min.js"></script>
+		<style>
+			img{
+				width: auto;
+				height: auto;
+				max-width: 100%;
+				max-height: 100%;	
+			}
+		</style>
 		<!-- <script src="/posts/js/main.js" type="text/javascript"></script> -->
 @section('app-content')
 
@@ -62,15 +70,20 @@
 				</div>
 				<div class="col-sm-12 col-xs-12 col-md-10">
 					<div class="shou"><span>心情故事</span>
-						<font>whisper tale</font>
-						<a href="/dashboard/posts_list" class="toug_back">返回</a>
+						<font>Whisper tale</font>
+						<a href="{{url()->previous()}}" class="toug_back">返回</a>
 					</div>
 					@foreach($posts as $post)
                     <div class="t_xqheight">
                     <div class="toug_xq">
-                          <div class="xq_text">{{$post->ptitle}}<span>{{date('Y-m-d',strtotime($post->pupdated_at))}}</span></div>
-                          <div class="xq_text01">
-							<div style="margin-left:30px">
+                          <div class="xq_text" style="word-break: break-all;">
+                          	<div style="margin-left: 30px;margin-right:30px">
+                          		{{$post->ptitle}}
+                          		<span>{{date('Y-m-d',strtotime($post->pcreated_at))}}</span>
+                          	</div>
+                          </div>
+                          <div class="xq_text01" style="word-break: break-all;">
+							<div style="margin-left:30px;margin-right:30px">
 						  		@php echo $post->pcontents @endphp
 							</div>
                           </div>
@@ -79,7 +92,7 @@
                     
                     <div class="tou_xq">
                     <div class="touxqfont"><img src="/posts/images/ncion_13.png">瀏覽<span>{{$post->uviews}}</span></div>
-                    <a href="/dashboard/viewuser/{{$post->uid}}"><div class="tou_img"><img src="{{$post->panonymous!='combine' ? ($post->uengroup=='1' ? '/posts/images/touxiang_wm.png':'/posts/images/touxiang_w.png') : $post->umpic }}"><span>{{$post->panonymous!='combine' ? '匿名' : $post->uname}}</span></div></a>
+                    <a href="{{$post->panonymous!='combine' ? '#':'/dashboard/viewuser/'.$post->uid}}"><div class="tou_img"><img src="{{$post->panonymous!='combine' ? ($post->uengroup=='1' ? '/posts/images/touxiang_wm.png':'/posts/images/touxiang_w.png') : $post->umpic }}"><span>{{$post->panonymous!='combine' ? '匿名' : $post->uname}}</span></div></a>
                     </div>
                     
 					</div>

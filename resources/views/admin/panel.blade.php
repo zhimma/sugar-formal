@@ -23,6 +23,7 @@
 		<a href="{{ route('users/switch') }}">切換會員身份</a>
 		<a href="{{ route('inactive') }}">未啟動會員</a>
 		<a href="{{ route('admin/announcement') }}">站長公告</a>
+		<a href="{{ route('admin/masterwords') }}">站長的話</a>
 		<a href="{{ route('admin/web/announcement') }}">網站公告本月封鎖名單</a>
 		<a href="{{ route('admin/chat') }}">站長信箱</a>
 		<a href="{{ route('admin/commontext') }}">編輯文案</a>

@@ -15,8 +15,13 @@ class Common extends Controller {
         $username = '54666024';
         $password = 'zxcvbnm';
         $Mobile   = $request->get('mobile');
-
-
+        if(is_null($Mobile)){
+            $data = array(
+                'code'=>'410',
+                'msg_info'=>'請填寫手機號碼'
+            );
+            return json_encode($data);
+        }
         $check_repeat_during = $this->check_repeat_during($Mobile);
         // dd($check_repeat_during);
         if($check_repeat_during['code']!='600'){
@@ -120,11 +125,18 @@ class Common extends Controller {
         // $phone = $request->get('phone');
         $now_time    = strtotime('now');
         $data = DB::table('short_message')->where('mobile', $Mobile)->first();
-        if($now_time-300<=strtotime($data->createdate)){
-            $data = array(
-                'code'=>'600',
-                'msg' =>'五分鐘內不可重複傳送',
-            );
+        if(isset($data)){
+            if($now_time-300<=strtotime($data->createdate)){
+                $data = array(
+                    'code'=>'600',
+                    'msg' =>'五分鐘內不可重複傳送',
+                );
+            }else{
+                $data = array(
+                    'code'=>'200',
+                    'msg' =>'',
+                );
+            }
         }else{
             $data = array(
                 'code'=>'200',
@@ -141,7 +153,9 @@ class Common extends Controller {
         // $avatar_path = $request->get('avatar_path','');//需為絕對路徑
         // $avatar_path = url('/new/images/0123456/0123.jpg');
         $avatar_path = url($avatar_path);
-        $exif = exif_read_data($avatar_path, 'IFD0');
+        
+        $exif = @exif_read_data($avatar_path, 'IFD0');
+        // dd($exif);
         // dd($exif);
         // echo $exif===false ? "No header data found.<br />\n" : "Image contains headers<br />\n";
         // dd($exif);
@@ -151,11 +165,11 @@ class Common extends Controller {
                 'code'=>'600',
                 'msg' =>$msg
             );
-            echo  json_encode($data, JSON_UNESCAPED_UNICODE);
+            return  json_encode($data, JSON_UNESCAPED_UNICODE);
         }else{
             // "Image contains headers";
             $exif = exif_read_data($avatar_path);
-            // dd($exif);
+            dd($exif);
             // echo "test2.jpg:<br />\n";
             // $exif_data = array();
             // foreach ($exif as $key => $section) {
@@ -167,19 +181,28 @@ class Common extends Controller {
             // }
             // dd('1');
             // dd($exif_data);
+            // dd($exif);
             /*判斷照片是否在十分鐘內*/
-            if($now_time-600<strtotime($exif['DateTimeOriginal'])){
-                $data = array(
-                    'code'=>'200',
-                    'msg'=>'此照片可以使用'
-                );
+            if(isset($exif['DateTimeOriginal'])){
+                if($now_time-600<strtotime($exif['DateTimeOriginal'])){
+                    $data = array(
+                        'code'=>'200',
+                        'msg'=>'此照片可以使用'
+                    );
+                }else{
+                    $data = array(
+                        'code'=>'400',
+                        'msg'=>'此照片過期或非您的個人手機現在拍的照片，請再拍一張照片，並在十分鐘內上傳'
+                    );
+                }
             }else{
                 $data = array(
-                    'code'=>'400',
-                    'msg'=>'此照片過期或非您的個人手機現在拍的照片，請再拍一張照片，並在十分鐘內上傳'
+                    'code' => '600',
+                    'msg'  => '沒有日期資訊'
                 );
             }
             // return $data;
+           
             return json_encode($data, JSON_UNESCAPED_UNICODE);
         } 
         
@@ -202,8 +225,8 @@ class Common extends Controller {
         // dd($request);
         // dump('123');
         // $common = new Common();
-        
-        
+        // dd('1');
+    
         // dd($get_exif, $status);
         // $get_exif = json_decode($get_exif);
             
@@ -213,14 +236,10 @@ class Common extends Controller {
         
         $user_id = $user->id;
         // $data = json_decode($request->data);
-        // dd($data);
-        $member_pics = $request->name;
-        // dd($member_pics);
-        // dd($member_pics);
-        $pic_infos = $request->reader;
-        // dd($member_pics);
-        // dd($pic_infos);
 
+        $pic_infos = $request->reader;
+
+        // $member_pics = $request->name;
         //VER.1
         // $this->base64_image_content($pic_infos[0], '/public/new/img/Member');
         // define('UPLOAD_PATH', '/new/img/Member/');
@@ -261,10 +280,11 @@ class Common extends Controller {
             //VER.3
             // for($i=0;$i<count($member_pics);$i++){
                 // dump($i);
-                $pic_count = DB::table('member_pic')->where('member_id', $user->id)->count();
-                if($pic_count>=6){
+                $pic_count = DB::table('auth_img')->where('user_id', $user->id)->where('status', 1)->count();
+                if($pic_count>=1){
                     $data = array(
                         'code'=>'400',
+                        'msg' =>'您已經驗證過了'
                     );
                     // break;
                 }
@@ -273,49 +293,53 @@ class Common extends Controller {
                 // $image = str_replace('data:image/png;base64,', '', $image);
                 // $image = str_replace(' ', '+', $image);
                 // $imageName = str_random(10).'.'.'png';
+                // dd($image);
                 list($type, $image) = explode(';', $image);
                 list(, $image)      = explode(',', $image);
                 $image = base64_decode($image);
-                \File::put(public_path(). '/Member_pics' .'/'. $user->id.'_'.$now.$member_pics.'.jpg', $image);
+                // dd($user->id, $member_pics);
+                \File::put(public_path(). '/Member_pics' .'/'. $user->id.'_'.md5($now).'.png', $image);
 
-                $get_exif = $this->get_exif('/Member_pics' .'/'. $user->id.'_'.$now.$member_pics.'.jpg');
+                $get_exif = $this->get_exif('/Member_pics' .'/'. $user->id.'_'.md5($now).'.png');
+                // dd($get_exif);
                 $status = json_decode($get_exif)->code;
+                // dd($status);
                 if($status=='200'){
 
-                    DB::table('member_pic')->insert(
-                        array('member_id' => $user->id, 'pic' => '/Member_pics'.'/'.$user->id.'_'.$now.$member_pics, 'isHidden' => 0, 'created_at'=>now(), 'updated_at'=>now())
+                    DB::table('auth_img')->insert(
+                        array('user_id' => $user->id, 'path' => '/Member_pics'.'/'.$user->id.'_'.md5($now), 'status'=>1, 'created_at'=>now(), 'updated_at'=>now())
                     );
 
                     
                 
                     
                 // }
-                    $is_vip = $user->isVip();
+                    // $is_vip = $user->isVip();
 
 
 
-                    if(($pic_count+1)>=4 && $is_vip==0 &&$user->engroup==2){
+                    // if(($pic_count+1)>=4 && $is_vip==0 &&$user->engroup==2){
 
-                        $isVipCount = DB::table('member_vip')->where('member_id',$user->id)->count();
-                        if($isVipCount==0){
-                            DB::table('member_vip')->insert(array('member_id'=>$user->id,'active'=>1, 'free'=>1));
-                        }else{
-                            DB::table('member_vip')->where('member_id',$user->id)->update(['active'=>1, 'free'=>1]);
-                        }
+                    //     $isVipCount = DB::table('member_vip')->where('member_id',$user->id)->count();
+                    //     if($isVipCount==0){
+                    //         DB::table('member_vip')->insert(array('member_id'=>$user->id,'active'=>1, 'free'=>1));
+                    //     }else{
+                    //         DB::table('member_vip')->where('member_id',$user->id)->update(['active'=>1, 'free'=>1]);
+                    //     }
 
 
-                        $data = array(
-                            'code'=>'800'
-                        );
-                    }
-                    /*設第一張照片為大頭貼*/
-                    $avatar = DB::table('member_pic')->where('member_id', $user_id)->orderBy('id', 'asc')->get()->first();
-                    if(is_null($avatar)){
-                        $avatarPic = '';
-                    }else{
-                        $avatarPic = $avatar->pic;
-                    }
-                    DB::table('user_meta')->where('user_id', $user_id)->update(['pic'=>$avatarPic]);
+                    //     $data = array(
+                    //         'code'=>'800'
+                    //     );
+                    // }
+                    // /*設第一張照片為大頭貼*/
+                    // $avatar = DB::table('member_pic')->where('member_id', $user_id)->orderBy('id', 'asc')->get()->first();
+                    // if(is_null($avatar)){
+                    //     $avatarPic = '';
+                    // }else{
+                    //     $avatarPic = $avatar->pic;
+                    // }
+                    // DB::table('user_meta')->where('user_id', $user_id)->update(['pic'=>$avatarPic]);
 
 
 
@@ -328,8 +352,10 @@ class Common extends Controller {
                     // }
                     echo json_encode($data);
                 }else{
+                    $exif = json_decode($get_exif);
                     $data = array(
-                        'code'=>'404'
+                        'code'=>$exif->code,
+                        'msg'=>$exif->msg
                     );
                     echo json_encode($data);
                 }

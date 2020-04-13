@@ -225,6 +225,7 @@ class LoginController extends Controller
                     unset($payload['password']);
                     $payload['user_id'] = $uid;
                     $payload['ip'] = $ip;
+                    $payload['mac_address'] = $this->get_mac_address();
                     $result = \DB::table('fingerprint2')->insert($payload);
                 }
                 try{
@@ -244,5 +245,11 @@ class LoginController extends Controller
         $this->incrementLoginAttempts($request);
 
         return $this->sendFailedLoginResponse($request);
+    }
+
+    public function get_mac_address(){
+        $string=exec('getmac');
+        $mac=substr($string, 0, 17); 
+        return $mac;
     }
 }

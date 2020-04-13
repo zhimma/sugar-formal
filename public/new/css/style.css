@@ -247,7 +247,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .dinone{ display:none}
 .xiliao_input{margin:10px 0 30px 0}
 
-.bot{width:100%; display:table; background: url(../images/bot_06.png) no-repeat;background-size:100%; padding:70px 0 20px 0; text-align:center;color:#ee5472;}
+.bot{width:100%; display:table; background: url(../images/bot_06.png) no-repeat;background-size:100%; padding:70px 0 10px 0; text-align:center;color:#ee5472;}
 .bot a{ color:#ee5472}
 .bot img{width:50%; margin:0 auto; padding:0px; display:table; margin-top:15px;}
 

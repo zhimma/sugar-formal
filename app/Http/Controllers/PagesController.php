@@ -1604,7 +1604,7 @@ class PagesController extends Controller
     }
 
     public function upgradepayEC(Request $request) {
-        return Session::get('status');
+        return ['1', 'OK'];
     }
 
     public function receive_esafe(Request $request)
@@ -2174,7 +2174,7 @@ class PagesController extends Controller
 
     public function posts_list(Request $request)
     {
-        $posts = Posts::selectraw('users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->orderBy('posts.id','desc')->paginate(10);
+        $posts = Posts::selectraw('users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->orderBy('posts.created_at','desc')->paginate(10);
         
         // foreach($posts['data'] as $key=>$post){
         //     array_push($posts['data'][$key], $post['pcontents']);
@@ -2215,7 +2215,7 @@ class PagesController extends Controller
 
         $pid = $request->pid;
         $this->post_views($pid);
-        $posts = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->where('posts.id', $pid)->get();
+        $posts = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->where('posts.id', $pid)->get();
         $data = array(
             'posts' => $posts
         );
@@ -2293,13 +2293,14 @@ class PagesController extends Controller
 
     public function doPosts(Request $request)
     {
+        
         $posts = new Posts;
         // $anonymous = $request->get('anonymous','no');
         // $combine   = $request->get('combine','no');
         $is_anonymous = $request->get('is_anonymous');
         $agreement = $request->get('agreement','no');
         $posts->title      = $request->get('title');
-        $posts->contents   = $request->get('contents');
+        $posts->contents   = str_replace('..','',$request->get('contents'));
         $user=$request->user();
         $posts->user_id = $user->id;
 
@@ -2329,4 +2330,64 @@ class PagesController extends Controller
         Posts::where('id', $pid)->update($update);
     }
     
+    public function postAcceptor(Request $request)
+    {
+        
+        /***************************************************
+         * Only these origins are allowed to upload images *
+         ***************************************************/
+        // $accepted_origins = array("http://localhost", "http://localsugargarden.org", "http://192.168.1.1", "http://example.com");
+
+        /*********************************************
+         * Change this line to set the upload folder *
+         *********************************************/
+        $imageFolder = 'images/';
+// dump('1');
+        reset ($_FILES);
+        $temp = current($_FILES);
+        if (is_uploaded_file($temp['tmp_name'])){
+            // dump($_SERVER['HTTP_ORIGIN']);
+            // if (isset($_SERVER['HTTP_ORIGIN'])) {
+            // // same-origin requests won't set an origin. If the origin is set, it must be valid.
+            // if (in_array($_SERVER['HTTP_ORIGIN'], $accepted_origins)) {
+            //     header('Access-Control-Allow-Origin: ' . $_SERVER['HTTP_ORIGIN']);
+            // } else {
+            //     header("HTTP/1.1 403 Origin Denied");
+            //     return;
+            // }
+            // }
+            /*
+            If your script needs to receive cookies, set images_upload_credentials : true in
+            the configuration and enable the following two headers.
+            // */
+            // header('Access-Control-Allow-Credentials: true');
+            // header('P3P: CP="There is no P3P policy."');
+
+            // // // Sanitize input
+            // if (preg_match("/([^\w\s\d\-_~,;:\[\]\(\).])|([\.]{2,})/", $temp['name'])) {
+            //     header("HTTP/1.1 400 Invalid file name.");
+            //     return;
+            // }
+
+            // // // Verify extension
+            // if (!in_array(strtolower(pathinfo($temp['name'], PATHINFO_EXTENSION)), array("gif", "jpg", "png"))) {
+            //     header("HTTP/1.1 400 Invalid extension.");
+            //     return;
+            // }
+
+            // Accept upload if there was no origin, or if it is an accepted origin
+            $filetowrite = $imageFolder . $temp['name'];
+            move_uploaded_file($temp['tmp_name'], $filetowrite);
+
+            // Respond to the successful upload with JSON.
+            // Use a location key to specify the path to the saved image resource.
+            // { location : '/your/uploaded/image/file'}
+// dd($filetowrite);
+            echo json_encode(array('location' => $filetowrite));
+            
+        } else {
+            // Notify editor that the upload failed
+            @header("HTTP/1.1 500 Server Error");
+        }
+    }
 }

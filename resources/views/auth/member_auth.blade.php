@@ -19,8 +19,28 @@
 		<script src="/auth/js/bootstrap.min.js"></script>
 		<script src="/auth/js/main.js" type="text/javascript"></script>
 		<style>
-			#photo>input {
-				display:none;
+			
+			.upload_width{
+				width:80% !important;
+			}
+			#photo .delBtn{
+				position:relative;
+				text-align:right !important;
+				right:10%;
+
+			}
+
+		</style>
+		<style>
+			@media (min-width:993px){
+			.chbottom{ position:fixed; bottom:0}
+			}
+			@media (min-width:761px) and (max-width:992px) {
+			.chbottom{ position:fixed; bottom:0}
+			}
+			@media (max-width:760px) {
+
+			.chbottom{ position: static;}
 			}
 		</style>
 	</head>
@@ -64,7 +84,7 @@
                                          <div class="zybg_new_bg">
                                                <div class="zybg_new">
                                                    <select name="" class="zy_select"><option>台灣</option><option>大陸</option></select>
-                                                   <input name="" type="text" id="mobile" class="xy_input" placeholder="請輸入手機號碼">
+                                                   <input name="" type="text" id="mobile" class="xy_input" placeholder="手機號碼">
                                                </div>
                                                <a id="get_auth_code" class="zybg_right" style="cursor:pointer">獲取驗證碼</a>
                                          </div>
@@ -79,11 +99,17 @@
                                       <div class="de_input">
                                           <div class="yanzheng_1">驗證2</div>
                                           <div id="photo" class="zy_kuang">
-                                              <img id="prev_img" src="/auth/images/photo_01.png">
-                                              <span>上傳照片</span>
-											  <input type='file' id="imgInp" />
+										  	  
+                                              <img id="prev_img" src="/auth/images/photo_01.png" style="cursor:pointer;">
+											  <!-- <div class="delBtn" style="display:none;"><img id="del" src="/new/images/gb_icon01.png" style="cursor:pointer;width:30px;height:30px;right:0"></div> -->
+											  <span>請用手機拍攝照片，並於十分鐘內上傳</span>
+											  <!-- <div classs="mask"> -->
+											  	<input type='hidden' id="imgInp"/>
+											  <!-- </div> -->
                                           </div>
                                           <a id="auth_photo" class="dlbut yx_butco" style="cursor:pointer">驗證</a>
+                                          <br>
+										  <a onclick="history.go(-1)" id="auth_photo" class="dlbut yx_butco" style="cursor:pointer;background-color:#fe92a8">取消</a>
                                       </div>
 									  </form>
 										<!-- <form runat="server">
@@ -105,13 +131,7 @@
 			</div>
 		</div>
 
-		<div class="bot foot_pc">
-			<a href="">站長開講</a> 丨
-			<a href=""> 網站使用</a> 丨
-			<a href=""> 使用條款</a> 丨
-			<a href=""> 聯絡我們</a>
-			<img src="/auth/images/bot_10.png">
-		</div>
+		@include('/new/partials/footer')
 
 
 
@@ -163,7 +183,7 @@
     </div>
     <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
 </div>
-	
+
 
 
 <div class="blbg tab_auth_success" onclick="gmBtn1()" style="display: none;"></div>
@@ -176,8 +196,18 @@
     <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
 </div>
 
-<div class="blbg tab_auth_fail" onclick="gmBtn1()" style="display: none;"></div>
-<div class="bl bl_tab bl_tab_auth_fail" id="tab04" style="display: none;">
+<div class="blbg tab_auth_already" onclick="gmBtn1()" style="display: none;"></div>
+<div class="bl bl_tab bl_tab_auth_already" id="tab04" style="display: none;">
+    <div class="bltitle_a"><span>提示</span></div>
+    <div class="n_blnr02 matop10">
+         <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
+         <div class="n_fengs" style="text-align:center;width:100%;">驗證失敗，您已經驗證過了</div>
+    </div>
+    <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
+</div>
+
+<div class="blbg tab_auth_fail_10" onclick="gmBtn1()" style="display: none;"></div>
+<div class="bl bl_tab bl_tab_auth_fail_10" id="tab04" style="display: none;">
     <div class="bltitle_a"><span>提示</span></div>
     <div class="n_blnr02 matop10">
          <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
@@ -186,9 +216,45 @@
     <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
 </div>
 	
+<div class="blbg tab_auth_fail" onclick="gmBtn1()" style="display: none;"></div>
+<div class="bl bl_tab bl_tab_auth_fail" id="tab04" style="display: none;">
+    <div class="bltitle_a"><span>提示</span></div>
+    <div class="n_blnr02 matop10">
+         <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
+         <div class="n_fengs" style="text-align:center;width:100%;">驗證失敗</div>
+    </div>
+    <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
+</div>
 
+<div class="blbg tab_auth_fail_date" onclick="gmBtn1()" style="display: none;"></div>
+<div class="bl bl_tab bl_tab_auth_fail_date" id="tab04" style="display: none;">
+    <div class="bltitle_a"><span>提示</span></div>
+    <div class="n_blnr02 matop10">
+         <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
+         <div class="n_fengs" style="text-align:center;width:100%;">驗證失敗，沒有日期資訊</div>
+    </div>
+    <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
+</div>
 
+<div class="blbg tab_has_send" onclick="gmBtn1()" style="display: none;"></div>
+<div class="bl bl_tab bl_tab_has_send" id="tab04" style="display: none;">
+    <div class="bltitle_a"><span>提示</span></div>
+    <div class="n_blnr02 matop10">
+         <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
+         <div class="n_fengs" style="text-align:center;width:100%;">驗證碼已送出</div>
+    </div>
+    <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
+</div>
 
+<div class="blbg tab_has_send_error" onclick="gmBtn1()" style="display: none;"></div>
+<div class="bl bl_tab bl_tab_has_send_error" id="tab04" style="display: none;">
+    <div class="bltitle_a"><span>提示</span></div>
+    <div class="n_blnr02 matop10">
+         <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
+         <div class="n_fengs tab_has_send_error_msg" style="text-align:center;width:100%;"></div>
+    </div>
+    <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
+</div>
 
 
 	</body>
@@ -225,6 +291,15 @@ $("#get_auth_code").on('click', function(){
 		},
 		success: function(res) {
 			console.log(res);
+			res = JSON.parse(res);
+			if(res.code=='200'){
+				$(".tab_has_send").css('display','block');
+				$(".bl_tab_has_send").css('display','block');
+			}else{
+				$(".tab_has_send_error_msg").text(res.msg_info);
+				$(".tab_has_send_error").css('display','block');
+				$(".bl_tab_has_send_error").css('display','block');
+			}
 		}
 	});
 });
@@ -247,6 +322,8 @@ $("#auth_phone").on('click', function(){
 
 				$("#photo").addClass('yx_font');
 				$("#auth_photo").removeClass('yx_butco');
+				// $("#photo").append('<input type="file" id="imgInp">');
+				$("#photo").find('input').attr('type','file').css('display','none');
 			}else if(res.code=='600'){
 				$(".tab_error_checkcode").css('display', 'block');
 				$(".bl_tab_error_checkcode").css('display','block');
@@ -262,11 +339,11 @@ $("#auth_phone").on('click', function(){
 $("#auth_photo").on('click', function(){
 	// console.log($('#imgInp')['context']['images'][1]['src']);
 	var formData = new FormData();
-	formData = $('#imgInp')['context']['images'][1]['src'];
-// console.log(formData);
+	reader = $('#imgInp')['context']['images'][1]['src'];
+console.log($('#imgInp'));
 	var data = {
 			_token: '{{csrf_token()}}',
-			"reader": formData,
+			"reader": reader,
 			"name":'123',
 		}
 	$.ajax({
@@ -286,10 +363,20 @@ $("#auth_photo").on('click', function(){
 			// 	$("#auth_photo").removeClass('yx_butco');
 				$(".tab_auth_success").css('display', 'block');
 				$(".bl_tab_auth_success").css('display','block');
-				window.location.href="/dashboard";
+				setTimeout("window.location.href='/dashboard';",3000);
+				
+			}else if(res.code=='201'){
+				$(".tab_auth_already").css('display', 'block');
+				$(".bl_tab_auth_already").css('display','block');
+			}else if(res.code=='400'){
+				$(".tab_auth_fail_10").css('display', 'block');
+				$(".bl_tab_auth_fail_10").css('display','block');
 			}else if(res.code=='404'){
 				$(".tab_auth_fail").css('display', 'block');
 				$(".bl_tab_auth_fail").css('display','block');
+			}else if(res.code=='600'){
+				$(".tab_auth_fail_date").css('display', 'block');
+				$(".bl_tab_auth_fail_date").css('display','block');
 			}
 			
 		}
@@ -305,7 +392,8 @@ function readURL(input) {
     var reader = new FileReader();
     
     reader.onload = function(e) {
-      $('#prev_img').attr('src', e.target.result).css('width','300px');
+      $('#prev_img').attr('src', e.target.result).addClass('upload_width');
+	//   $(".delBtn").css('display','block');
     }
     
     reader.readAsDataURL(input.files[0]);
@@ -315,9 +403,17 @@ function readURL(input) {
 $("#imgInp").change(function() {
   readURL(this);
 });
-
+$(".delBtn").click(function(){
+	$("#prev_img").attr('src','/auth/images/photo_01.png').removeClass('upload_width');
+});
 
 $("#prev_img").click(function () {
     $("#imgInp").trigger('click');
 });
+
+$(document).ready(function(){
+	$(".bot").addClass('chbottom');
+});
+
 </script>
+
