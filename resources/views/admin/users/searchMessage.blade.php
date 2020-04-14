@@ -137,6 +137,8 @@
                                     @else
                                         此會員登入後將自動解除封鎖
                                     @endif
+                                @elseif(isset($result['isBlocked']['type']))
+                                    (隱性)
                                 @else
                                     (永久)
                                 @endif
@@ -193,6 +195,8 @@
                                     @else
                                         此會員登入後將自動解除封鎖
                                     @endif
+                                @elseif(isset($result['isBlockedReceiver']['type']))
+                                    (隱性)
                                 @else
                                     (永久)
                                 @endif
@@ -278,6 +282,8 @@
                                         @else
                                             此會員登入後將自動解除封鎖
                                         @endif
+                                    @elseif(isset($sender['isBlocked']['type']))
+                                        (隱性)
                                     @else
                                         (永久)
                                     @endif
@@ -332,6 +338,8 @@
                                         @else
                                             此會員登入後將自動解除封鎖
                                         @endif
+                                    @elseif(isset($receivers[$sender['messages'][0]['to_id']]['isBlockedReceiver']['type']))
+                                        (隱性)
                                     @else
                                         (永久)
                                     @endif
@@ -374,6 +382,8 @@
                                             @else
                                                 此會員登入後將自動解除封鎖
                                             @endif
+                                        @elseif(isset($receivers[$sender['messages'][$i]['to_id']]['isBlockedReceiver']))
+                                            (隱性)
                                         @else
                                             (永久)
                                         @endif
