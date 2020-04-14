@@ -571,6 +571,12 @@ class PagesController extends Controller
         $year = $birthday[0];
         $month = $birthday[1];
         $day = $birthday[2];
+
+        /*編輯文案-add avatar-START*/
+        $add_avatar = AdminCommonText::where('alias','add_avatar')->get()->first();
+        /*編輯文案-add avatar-END*/
+
+
         if($year=='1970'){
             $year=$month=$day='';
         }
@@ -586,7 +592,8 @@ class PagesController extends Controller
                     ->with('month', $month)
                     ->with('day', $day)
                     ->with('message', $message)
-                    ->with('cancel_notice', $cancel_notice);
+                    ->with('cancel_notice', $cancel_notice)
+                    ->with('add_avatar', $avatar);
             }
             return view('new.dashboard')
                 ->with('user', $user)
@@ -595,7 +602,8 @@ class PagesController extends Controller
                 ->with('year', $year)
                 ->with('month', $month)
                 ->with('day', $day)
-                ->with('cancel_notice', $cancel_notice);
+                ->with('cancel_notice', $cancel_notice)
+                ->with('add_avatar', $avatar);
         }
     }
 
@@ -639,6 +647,8 @@ class PagesController extends Controller
         $year = $birthday[0];
         $month = $birthday[1];
         $day = $birthday[2];
+
+        $girl_to_vip = AdminCommonText::where('alias', 'girl_to_vip')->get()->first();
         if($year=='1970'){
             $year=$month=$day='';
         }
@@ -654,7 +664,8 @@ class PagesController extends Controller
                     ->with('month', $month)
                     ->with('day', $day)
                     ->with('message', $message)
-                    ->with('cancel_notice', $cancel_notice);
+                    ->with('cancel_notice', $cancel_notice)
+                    ->with('girl_to_vip', $girl_to_vip->content);
             }
             if($user->engroup==1){
                 return view('new.dashboard_img')
@@ -664,7 +675,8 @@ class PagesController extends Controller
                     ->with('year', $year)
                     ->with('month', $month)
                     ->with('day', $day)
-                    ->with('member_pics', $member_pics);
+                    ->with('member_pics', $member_pics)
+                    ->with('girl_to_vip', $girl_to_vip->content);
             }else{
                 return view('new.dashboard_img')
                     ->with('user', $user)
@@ -673,7 +685,8 @@ class PagesController extends Controller
                     ->with('year', $year)
                     ->with('month', $month)
                     ->with('day', $day)
-                    ->with('member_pics', $member_pics);
+                    ->with('member_pics', $member_pics)
+                    ->with('girl_to_vip', $girl_to_vip->content);
             }
         }
     }
@@ -1048,6 +1061,41 @@ class PagesController extends Controller
                 }
                 $blockadepopup = AdminCommonText::getCommonText(5);//id5封鎖說明popup
                 $isVip = $user->isVip() ? '1':'0';
+                /*編輯文案-檢舉會員訊息-START*/
+                $report_reason = AdminCommonText::where('alias','report_reason')->get()->first();
+                /*編輯文案-檢舉會員訊息-END*/
+
+                /*編輯文案-檢舉會員-START*/
+                $report_member = AdminCommonText::where('alias','report_member')->get()->first();
+                /*編輯文案-檢舉會員-END*/
+
+                /*編輯文案-檢舉大頭照-START*/
+                $report_avatar = AdminCommonText::where('alias','report_avatar')->get()->first();
+                /*編輯文案-檢舉大頭照-END*/
+
+                /*編輯文案-new_sweet-START*/
+                $new_sweet = AdminCommonText::where('category_alias', 'label_text')->where('alias','new_sweet')->get()->first();
+                /*編輯文案-new_sweet-END*/
+
+                /*編輯文案-well_member-START*/
+                $well_member = AdminCommonText::where('category_alias', 'label_text')->where('alias','well_member')->get()->first();
+                /*編輯文案-well_member-END*/
+
+                /*編輯文案-money_cert-START*/
+                $money_cert = AdminCommonText::where('category_alias', 'label_text')->where('alias','money_cert')->get()->first();
+                /*編輯文案-money_cert-END*/
+
+                /*編輯文案-alert_account-START*/
+                $alert_account = AdminCommonText::where('category_alias', 'label_text')->where('alias','alert_account')->get()->first();
+                /*編輯文案-alert_account-END*/
+
+                /*編輯文案-label_vip-START*/
+                $label_vip = AdminCommonText::where('category_alias', 'label_text')->where('alias','label_vip')->get()->first();
+                /*編輯文案-label_vip-END*/
+
+                /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
+                $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
+                /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
                 return view('new.dashboard.viewuser', $data)
                     ->with('user', $user)
                     ->with('blockadepopup', $blockadepopup)
@@ -1055,7 +1103,17 @@ class PagesController extends Controller
                     ->with('cur', $user)
                     ->with('member_pic',$member_pic)
                     ->with('isVip', $isVip)
-                    ->with('engroup', $user->engroup);
+                    ->with('engroup', $user->engroup)
+                    ->with('report_reason',$report_reason->content)
+                    ->with('report_member',$report_member->content)
+                    ->with('report_avatar',$report_avatar->content)
+                    ->with('new_sweet',$new_sweet->content)
+                    ->with('well_member',$well_member->content)
+                    ->with('money_cert',$money_cert->content)
+                    ->with('alert_account',$alert_account->content)
+                    ->with('label_vip',$label_vip->content)
+                    ->with('user_closed',$user_closed->content);
+                    
             }
 
     }

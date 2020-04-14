@@ -28,15 +28,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
 {{--                    <h2><span>您目前為高級會員</span>訊息可保存天數：30，可通訊人數:無限</h2>--}}
                     @if($user->isVip())
-                        <h2><span>您目前為VIP會員</span>訊息可保存天數：180，可通訊人數:無限</h2>
+                        <h2><span>{{$letter_vip}}</span>訊息可保存天數：180，可通訊人數:無限</h2>
                         @else
-                        <h2><span>您目前為普通會員</span>訊息可保存天數：7，可通訊人數:10</h2>
+                        <h2><span>{{$letter_normal_member}}</span>訊息可保存天數：7，可通訊人數:10</h2>
                     @endif
                 </div>
                 <div class="sjlist_li">
                     <div class="leftsidebar_box">
                         <dl class="system_log">
-                            <dt class="lebox1">VIP會員</dt>
+                            <dt class="lebox1">{{$vip_member}}</dt>
                             <dd>
                                 <p style="width: 20%;margin: 0 auto;" class="warning" id="sjlist_vip_warning">
                                     <img src="/new/images/Spin-1s-75px.svg">
@@ -44,7 +44,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 <ul class="sjlist sjlist_vip">
                                 </ul>
                             </dd>
-                            <dt class="lebox2">普通會員</dt>
+                            <dt class="lebox2">{{$normal_member}}</dt>
                             <dd>
                                 <p style="width: 20%;margin: 0 auto;" class="warning" id="sjlist_novip_warning">
                                     <img src="/new/images/Spin-1s-75px.svg">
@@ -52,7 +52,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 <ul class="sjlist sjlist_novip">
                                 </ul>
                             </dd>
-                            <dt class="lebox3">警示會員</dt>
+                            <dt class="lebox3">{{$alert_member}}</dt>
                             <dd>
                                 <p style="width: 20%;margin: 0 auto;" class="warning" id="sjlist_alert_warning">
                                     <img src="/new/images/Spin-1s-75px.svg">
@@ -120,7 +120,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 {!! csrf_field() !!}
                 <input type="hidden" name="aid" value="{{$user->id}}">
                 <input type="hidden" name="uid" value="">
-                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請輸入檢舉理由"></textarea>
+                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_reason}}"></textarea>
                 <div class="n_bbutton">
                     <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>
                 </div>

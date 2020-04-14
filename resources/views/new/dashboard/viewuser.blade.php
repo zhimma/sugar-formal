@@ -130,16 +130,16 @@
                                 //echo $data['description'];
                                 ?>
                                 @if(isset($data['description']) && $to->engroup == 2)
-                                <li><img src="/new/images/icon_19.png"><span>新進甜心</span></li>
+                                <li><img src="/new/images/icon_19.png"><span>{{$new_sweet}}</span></li>
                                 @endif
                                 @if(isset($data['description']) && $to->engroup == 1)
-                                <li><img src="/new/images/icon_21.png"><span>優選會員</span></li>
+                                <li><img src="/new/images/icon_21.png"><span>{{$well_member}}</span></li>
                                 @endif
-{{--                            <li><img src="/new/images/icon_23.png"><span>財力認證</span></li>--}}
+{{--                            <li><img src="/new/images/icon_23.png"><span>{{$money_cert}}</span></li>--}}
                                 @if($to->isVip() && $to->engroup == 1)
-                                <li><img src="/new/images/icon_25.png"><span>VIP</span></li>
+                                <li><img src="/new/images/icon_25.png"><span>{{$label_vip}}</span></li>
                                 @endif
-{{--                            <li><img src="/new/images/icon_27.png"><span>警示帳戶</span></li>--}}
+{{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
                             </ul>
                         </div>
 
@@ -369,7 +369,7 @@
                 {!! csrf_field() !!}
                 <input type="hidden" name="aid" value="{{$user->id}}">
                 <input type="hidden" name="uid" value="{{$to->id}}">
-                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請輸入檢舉理由"></textarea>
+                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_member}}"></textarea>
                 <div class="n_bbutton">
                     <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>
                 </div>
@@ -388,7 +388,7 @@
                 <input type="hidden" name="picType" value="">
                 <input type="hidden" name="pic_id" value="">
 
-                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請輸入檢舉理由" required></textarea>
+                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_avatar}}" required></textarea>
                 <div class="n_bbutton">
                     <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>
                 </div>
@@ -406,7 +406,7 @@
         $('.container').hide();
         $('.gg_tab').hide();
         $('.n_right').hide();
-        c4('此用戶已關閉資料');
+        c4("{{$user_closed}}");
         $('.n_bbutton span').css('width','100%');
         $('.n_bbutton').css('width','10%');
         $('.n_left').css('margin-right','0px');

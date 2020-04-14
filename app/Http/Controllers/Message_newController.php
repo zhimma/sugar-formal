@@ -10,6 +10,7 @@ use App\Models\AdminAnnounce;
 use App\Models\SimpleTables\banned_users;
 use App\Models\User;
 use App\Models\UserMeta;
+use App\Models\AdminCommonText;
 use App\Services\UserService;
 use App\Services\VipLogService;
 use Carbon\Carbon;
@@ -142,10 +143,34 @@ class Message_newController extends Controller {
         $m_time = '';
         if (isset($user)) {
             $isVip = $user->isVip();
+            /*編輯文案-檢舉大頭照-START*/
+            $vip_member = AdminCommonText::where('alias','vip_member')->get()->first();
+            /*編輯文案-檢舉大頭照-END*/
+
+            /*編輯文案-檢舉大頭照-START*/
+            $normal_member = AdminCommonText::where('alias','normal_member')->get()->first();
+            /*編輯文案-檢舉大頭照-END*/
+
+            /*編輯文案-檢舉大頭照-START*/
+            $alert_member = AdminCommonText::where('alias','alert_member')->get()->first();
+            /*編輯文案-檢舉大頭照-END*/
+
+            /*編輯文案-檢舉大頭照-START*/
+            $letter_normal_member = AdminCommonText::where('category_alias','leter_text')->where('alias','normal_member')->get()->first();
+            /*編輯文案-檢舉大頭照-END*/
+
+            /*編輯文案-檢舉大頭照-START*/
+            $letter_vip = AdminCommonText::where('category_alias','leter_text')->where('alias','vip')->get()->first();
+            /*編輯文案-檢舉大頭照-END*/
             return view('new.dashboard.chat')
                 ->with('user', $user)
                 ->with('m_time', $m_time)
-                ->with('isVip', $isVip);
+                ->with('isVip', $isVip)
+                ->with('vip_member', $vip_member->content)
+                ->with('normal_member', $normal_member->content)
+                ->with('alert_member', $alert_member->content)
+                ->with('letter_normal_member', $letter_normal_member)
+                ->with('letter_vip', $letter_vip);
         }
     }
 

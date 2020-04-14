@@ -235,7 +235,7 @@
                 // });
                 // window.location.reload();
               }else if(res.code=='800'){
-                  c2('照片上傳成功，已升級為VIP會員');
+                  c2("{{$girl_to_vip}}");
                 // Swal.fire({
                 // position: 'center',
                 // icon: 'success',
