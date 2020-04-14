@@ -47,7 +47,7 @@
                     <ul class="n_ulpic">
                     @if($user->engroup==1)
                         @if($avatar)
-                            <li class="write_img editBtn" id="{{$avatar->id}}">
+                            <li class="write_img">
                                 <div class="n_ulhh">
                                     <img src="/new/images/ph_03.png">
                                 </div>
@@ -55,14 +55,14 @@
                             </li>
                         @endif
                         @if ($member_pics)
-                            @foreach ($member_pics as $member_pic)
-                                <li class="write_img editBtn" id="{{$member_pic->id}}">
+                            @for ($i = 0; $i < 6 ; $i++)
+                                <li class="write_img">
                                     <div class="n_ulhh">
                                         <img src="/new/images/ph_05.png">
                                     </div>
-                                    <b class="img" style="background:url(' {{ $member_pic->pic  or '/new/images/ph_12.png' }} '); background-size:100% 100%"></b>
+                                    <b class="img" style="background:url(' {{ $member_pics[$i]->pic  or '/new/images/ph_12.png' }} '); background-size:100% 100%"></b>
                                 </li>
-                            @endforeach
+                            @endfor
                         @endif
                     @else
                         {{-- 會員為男性 --}}
