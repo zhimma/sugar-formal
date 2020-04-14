@@ -597,7 +597,7 @@ class FileUploader {
 			"files" => array()
 		);
         $listInput = $this->field['listInput'];
-		$uploadDir = str_replace(getcwd() . '/', '', $this->options['uploadDir']);
+		$uploadDir = $this->options['uploadDir'];
 		$chunk = isset($_POST['_chunkedd']) && count($this->field['input']['name']) == 1 ? json_decode(stripslashes($_POST['_chunkedd']), true) : false;
 		
 		if ($this->field['input']) {

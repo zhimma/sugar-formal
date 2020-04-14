@@ -25,7 +25,7 @@ class ImageController extends Controller
 
     public function __construct()
     {
-        $this->imageBasePath = public_path('/img/Member/');
+        $this->imageBasePath = public_path('img/Member/');
         $this->uploadDir = $this->imageBasePath . Carbon::now()->format('Y/m/d/');
         // if directory is not exist, then create
         if(!File::isDirectory($this->uploadDir))
@@ -275,8 +275,11 @@ class ImageController extends Controller
             //upload new avator
             $avatar = $fileUploader->getUploadedFiles();
             $filePath = $avatar[0]['file'];
-            if( is_file($filePath) and file_exists($filePath))
-                UserMeta::where('user_id', $userId)->update(['pic' => substr($filePath, strlen(public_path(DIRECTORY_SEPARATOR)))]);
+            if( is_file($filePath) and file_exists($filePath)){
+                $path = substr($filePath, strlen(public_path(DIRECTORY_SEPARATOR))-1);
+                $path[0] = '/';
+                UserMeta::where('user_id', $userId)->update(['pic' => $path]);
+            }
             return redirect()->back();
         }
     }
@@ -334,6 +337,7 @@ class ImageController extends Controller
         //選擇移除的照片
         foreach($fileUploader->getRemovedFiles('pictures') as $key => $value)
         {
+            //TODO Linux和Windows路徑未修正
             $file = public_path($value['file']); //full path of removed file 
             if(is_file($file) and file_exists($file)){
                 unlink($file);
