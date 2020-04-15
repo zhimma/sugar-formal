@@ -25,10 +25,14 @@ class ImageController extends Controller
 
     public function __construct()
     {
-        $this->imageBasePath = public_path('img/Member/');
+        /*
+        * !important
+        * 為了維持資料庫格式一致, 請避免使用 public_path('/img/Member'), 
+        * 在 Linux 和 Windows 顯示上有所差異
+        */
+        $this->imageBasePath = public_path().'/img/Member/';
         $this->uploadDir = $this->imageBasePath . Carbon::now()->format('Y/m/d/');
-        // if directory is not exist, then create
-        if(!File::isDirectory($this->uploadDir))
+        if(!File::exists($this->uploadDir))
             File::makeDirectory($this->uploadDir, 0777, true);
     }
 
@@ -268,17 +272,29 @@ class ImageController extends Controller
         {
             //remove origin avator
             $removeFiles = $fileUploader->getRemovedFiles('avatar');
-            $file = $removeFiles[0]['file'];
-            if(is_file($file) and file_exists($file))
-                unlink($file);
+            if($removeFiles)
+            {
+                $file = public_path($removeFiles[0]['file']);
+                if(File::exists($file))
+                {
+                    $user = UserMeta::where('user_id', $userId)->first();
+                    $user->pic = NULL;
+                    $user->save();
+                    unlink($file);
+                }
+            }
+
 
             //upload new avator
             $avatar = $fileUploader->getUploadedFiles();
-            $filePath = $avatar[0]['file'];
-            if( is_file($filePath) and file_exists($filePath)){
-                $path = substr($filePath, strlen(public_path(DIRECTORY_SEPARATOR))-1);
-                $path[0] = '/';
-                UserMeta::where('user_id', $userId)->update(['pic' => $path]);
+            if($avatar)
+            {
+                $filePath = $avatar[0]['file'];
+                if( is_file($filePath) and file_exists($filePath)){
+                    $path = substr($filePath, strlen(public_path(DIRECTORY_SEPARATOR))-1);
+                    $path[0] = '/';
+                    UserMeta::where('user_id', $userId)->update(['pic' => $path]);
+                }
             }
             return redirect()->back();
         }
@@ -335,28 +351,29 @@ class ImageController extends Controller
         ));
     
         //選擇移除的照片
-        foreach($fileUploader->getRemovedFiles('pictures') as $key => $value)
+        foreach($fileUploader->getRemovedFiles() as $key => $value)
         {
-            //TODO Linux和Windows路徑未修正
             $file = public_path($value['file']); //full path of removed file 
-            if(is_file($file) and file_exists($file)){
+            if(File::exists($file)){
                 unlink($file);
                 MemberPic::where('pic', $value['file'])->delete();
             }
         }
 
         $upload = $fileUploader->upload();
-
-        $publicPath = public_path(DIRECTORY_SEPARATOR);
-        foreach($fileUploader->getUploadedFiles() as $uploadedFile)
+        if($upload)
         {
-            $path = substr($uploadedFile['file'], strlen($publicPath));
-            $addPicture = new MemberPic;
-            $addPicture->member_id = $userId;
-            $addPicture->pic = $path;
-            $addPicture->save();
+            $publicPath = public_path().DIRECTORY_SEPARATOR;
+            foreach($fileUploader->getUploadedFiles() as $uploadedFile)
+            {
+                $path = substr($uploadedFile['file'], strlen($publicPath));
+                $addPicture = new MemberPic;
+                $addPicture->member_id = $userId;
+                $addPicture->pic = $path;
+                $addPicture->save();
+            }
         }
-
+        
         $previous = redirect()->back();
         return $upload['isSuccess'] ? $previous : $previous->withErrors($upload['warnings']);
     }
