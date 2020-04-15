@@ -93,16 +93,7 @@
                         </div>
                         <div class="vipline"><img src="/new/images/VIP_05.png"></div>
                         <div class="vipbongn">
-                            <h2>VIP功能</h2>
-                            <h3><span>●</span>解鎖信箱限制</h3>
-                            <h3><span>●</span>解鎖發訊限制</h3>
-                            <h3><span>●</span>解鎖足跡功能</h3>
-                            <h3><span>●</span>解鎖進階搜尋功能</h3>
-                            <h3><span>●</span>解鎖車馬費評價功能</h3>
-                            <h3><span>●</span>可以看進階資料</h3>
-                            <h3><span>●</span>可以看已讀未讀</h3>
-                            <h3><span>●</span>擁有 VIP title 並取得優選會原累積資格</h3>
-                            <h3><span>●</span>加入 VIP 以後可以隨時手動取消沒有任何限制，但金流需要七個工作天操作，所以需在下個月扣款前七個工作天取消，次月才不會扣款</h3>
+                            {!!  $vip_text  !!}
                         </div>
                         <div class="n_vipbotf">本筆款項在信用卡帳單顯示為 信宏資產管理公司</div>
 
@@ -131,7 +122,7 @@
     <script>
         // 升級VIP內容
         $('.n_vip01').on('click', function(event) {
-            var r = confirm("加入 VIP 須知。\n●加入VIP後將於每月於第一次刷卡日期自動扣款，至取消為止。\n●升級VIP之後，升級VIP的選項會變成取消VIP，取消後次月即停止扣款\n●訊息不會被過濾掉(會員可以設定拒接非VIP會員來信)\n●不受限制的收發信件(下個月起普通會員收發信件總數將受限)\n●可以觀看進階統計資料\n●可以知道訊息是否已讀\n●可以知道對方是否封鎖自己\n●您申請每月自動扣款並完成繳費，經確認繳費程序完成且已成功開啟本站相關服務設定，即視同您已經開始使用所購買之每月自動扣款\n●最短租期為「30天」，若住戶申請到退租時間未滿「30天」，則將被收取「30天」的費用。\n★取消 VIP 時間需要七個工作天，如下個月不續約請提前取消，以免權益受損！★");
+            var r = confirm("{{ $upgrade_vip }}");
             if(!r) {
                 event.preventDefault();
             }

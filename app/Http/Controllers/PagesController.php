@@ -593,7 +593,7 @@ class PagesController extends Controller
                     ->with('day', $day)
                     ->with('message', $message)
                     ->with('cancel_notice', $cancel_notice)
-                    ->with('add_avatar', $avatar);
+                    ->with('add_avatar', $add_avatar);
             }
             return view('new.dashboard')
                 ->with('user', $user)
@@ -603,7 +603,7 @@ class PagesController extends Controller
                 ->with('month', $month)
                 ->with('day', $day)
                 ->with('cancel_notice', $cancel_notice)
-                ->with('add_avatar', $avatar);
+                ->with('add_avatar', $add_avatar);
         }
     }
 
@@ -916,8 +916,18 @@ class PagesController extends Controller
 
     public function view_vip(Request $request)
     {
+        /*編輯文案-檢舉會員訊息-START*/
+        $vip_text = AdminCommonText::where('alias','vip_text')->get()->first();
+        /*編輯文案-檢舉會員訊息-END*/
+
+        /*編輯文案-檢舉會員訊息-START*/
+        $upgrade_vip = AdminCommonText::where('alias','upgrade_vip')->get()->first();
+        /*編輯文案-檢舉會員訊息-END*/
         $user = $request->user();
-        return view('new.dashboard.vip')->with('user', $user)->with('cur', $user);
+        return view('new.dashboard.vip')
+            ->with('user', $user)->with('cur', $user)
+            ->with('vip_text', $vip_text->content)
+            ->with('upgrade_vip', $upgrade_vip->content);
     }
 
     public function viewuser(Request $request, $uid = -1)
