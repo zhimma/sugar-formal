@@ -313,8 +313,10 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::get('/dashboard_img', 'PagesController@dashboard_img')->name('dashboard_img');
     Route::get('/dashboard/pictures/{userId?}', 'ImageController@getPictures');
     Route::post('/dashboard/pictures/upload','ImageController@uploadPictures');
+    Route::post('/dashboard/pictures/delete', 'ImageController@deletePictures');
     Route::get('/dashboard/avatar/{userId?}', 'ImageController@getAvatar');
     Route::post('/dashboard/avatar/upload', 'ImageController@uploadAvatar');
+    Route::post('/dashboard/avatar/delete/{userId}', 'ImageController@deleteAvatar');
     Route::post('/dashboard/delPic', 'PagesController@delPic');
 
     Route::get('/dashboard/password', 'PagesController@view_changepassword'); //new route
@@ -555,3 +557,4 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('roles/search', 'RoleController@index');
     });
 });
+Route::get('/test', 'ImageController@deletePictures');

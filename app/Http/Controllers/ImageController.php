@@ -271,7 +271,7 @@ class ImageController extends Controller
         else
         {
             //remove origin avator
-            $removeFiles = $fileUploader->getRemovedFiles('avatar');
+            $removeFiles = $fileUploader->getRemovedFiles();
             if($removeFiles)
             {
                 $file = public_path($removeFiles[0]['file']);
@@ -297,6 +297,25 @@ class ImageController extends Controller
                 }
             }
             return redirect()->back();
+        }
+    }
+
+    public function deleteAvatar(Request $request)
+    {
+        $meta = UserMeta::findByMemberId($request->userId);
+        if(is_null($meta))
+            return response("此會員不存在", 200);
+        $fullPath = public_path($meta->pic);
+        if(File::exists($fullPath) and unlink($fullPath))
+        {
+            $meta->pic = NULL;
+            $meta->save();
+
+            return response("刪除成功");
+        }   
+        else
+        {
+            return response("大頭照不存在或刪除失敗", 500);
         }
     }
 
@@ -376,5 +395,34 @@ class ImageController extends Controller
         
         $previous = redirect()->back();
         return $upload['isSuccess'] ? $previous : $previous->withErrors($upload['warnings']);
+    }
+
+    /**
+    * 如果是 userId 則刪除此使用者的全部生活照, 否則只刪除指定的 picturesPath
+    * 
+    * @param Request request
+    *
+    * @return Response 
+    */
+    public function deletePictures(Request $request)
+    {
+        $pictures = collect();
+
+        if($request->userId)
+            $picutres = MemberPic::getSelf($request->userId)->get();
+        else{
+            $pictures = MemberPic::where('pic', $request->picture)->get();
+        }
+
+        foreach($pictures as $picture)
+        {
+            $fullPath = public_path($picture->pic);
+            
+            if(File::exists($fullPath))
+                unlink($fullPath);
+
+            $picture->delete();
+        }
+        return response("刪除成功");
     }
 }

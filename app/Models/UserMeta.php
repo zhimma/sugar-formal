@@ -248,4 +248,8 @@ class UserMeta extends Model
         else
             return $query->whereNotIn('user_id', $bannedUsers)->whereNotIn('user_id', $block_user)->whereNotIn('user_id', $blockedUsers)->whereNotIn('user_id', $beBlockedUsers)->orderBy('users.last_login', 'desc')->paginate(12);
     }
+    public static function findByMemberId($memberId)
+    {
+        return UserMeta::where('user_id', $memberId)->first();
+    }
 }

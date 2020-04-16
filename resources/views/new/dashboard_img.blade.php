@@ -96,7 +96,7 @@
                     @endif
                     </ul>
                     <h2 class="h5" id="fileuploader-ajax">上傳照片 (點擊圖片可以裁切)<a href="javascript:;"  onclick="tour(fileuploader_ajax_tour)"><i class="ion ion-md-help-circle"></i></a></h2>
-                    <h4>若要移除全部照片，請在刪除全部後點擊相對應的上傳即可<br>如照片無法順利上傳，請點擊頁面最下方聯絡我們加站長 line 洽詢。</h4>
+                    <h4>如想要移除全部照片，請在刪除全部後點擊相對應的上傳即可<br>如照片無法順利上傳，請點擊頁面最下方聯絡我們加站長 line 洽詢。</h4>
 
                     <div class="row mb-4 ">
                         <div class="col-sm-12 col-lg-12">
@@ -176,16 +176,26 @@
                         ratio: "1:1",
                         showGrid: true
                     },
-                    beforeSend: function(item, listEl, parentEl, newInputEl, inputEl) {
-                        console.log(item, listEl, parentEl, newInputEl, inputEl)
+                    onRemove: function(item) {
+                        $.ajax({
+                            url: "/dashboard/avatar/delete/" + $("input[name='userId']").val(),
+                            method: "POST",
+                            data: {
+                                _token: "{{ csrf_token() }}"
+                            },
+                            success: function(){
+                                alert("刪除成功")
+                            },
+                            error: function(xhr, status, msg){
+                                alert("刪除失敗, 請重新整理後再次嘗試操作")
+                            }
+                        })
                         return true
                     }
                 })
             },
             error: function(xhr, status, msg) {
-                console.log(xhr)
-                console.log(status)
-                console.log(msg)
+                console.log(xhr.reponseText)
             }
         })
 
@@ -203,6 +213,24 @@
                     limit: 7,
                     editor: {
                         showGrid: true
+                    },
+                    onRemove: function(item){
+                        // 修改刪除單一照片
+                        $.ajax({
+                            url: "/dashboard/pictures/delete",
+                            method: "POST",
+                            data: {
+                                _token: "{{ csrf_token() }}",
+                                picture: item.file
+                            },
+                            success: function(){
+                                alert("刪除成功")
+                            },
+                            error: function(xhr, status, msg){
+                                alert("刪除失敗, 請重新整理後再次嘗試操作")
+                            }
+                        })
+                        return true
                     }
                 })
             },
@@ -241,55 +269,6 @@
     }
 
   
-</script>
-<script>
-    $(document).ready(function(){
-        $(".delpicBtn").on('click', function(){
-            var id = $(this).parents('.write_img').attr('id');
-
-            c4('確認刪除此照片？');
-
-            $(".n_left").on('click', function() {
-                $.ajax({
-                    url: '/dashboard/delPic',
-                    type: 'POST',
-                    data: {
-                        'pic_id': id,
-                        "_token": "{{ csrf_token() }}"
-                    },
-                    success: function (res) {
-                        res = JSON.parse(res);
-
-                        //alert(res.code);
-                        if(res.code == '800'){
-                            $("#tab04").hide();
-                            c2('照片少於4張照片，未達VIP資格');
-                        }else if(res.code == '200'){
-                            $("#tab04").hide();
-                            c2('刪除成功');
-                        }
-                    },
-                });
-            });
-        });
-    });
-
-    $(document).ready(function(){
-        $(".editAllBtn").on('click',function(){
-            $(this).css('display', 'none');
-            $(".recoverAllBtn").css('display','block');
-            $(".delpicBtn").css('display','block');
-        });
-
-            $(".recoverAllBtn").on('click',function(){
-            $(this).css('display', 'none');
-            $(".editAllBtn").css('display','block');
-            $(".delpicBtn").css('display','none');
-        });
-    });
-            
-    
-
 </script>
 
 @stop

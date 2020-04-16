@@ -34,7 +34,8 @@ class MemberPic extends Model
     {
         return $this->belongsTo(User::class, 'member_id', 'id');
     }
-
+    
+    
     public static function getSelf($uid)
     {
         return MemberPic::where('member_id', $uid)->get();
