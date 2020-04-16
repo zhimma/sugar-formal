@@ -9,6 +9,9 @@
 		<a href="{{ route('users/manager') }}">會員搜尋(變更男女、VIP資料)</a>
 		<a href="{{ route('users/advSearch') }}">進階會員搜尋</a>
 		<a href="{{ route('users/bannedList') }}">會員封鎖清單</a>
+		<a href="{{ route('implicitlyBanned') }}">指紋比對清單</a>
+		<a href="{{ route('warningUsers') }}">警示名單</a>
+		<a href="{{ route('suspectedMultiLogin') }}">疑似多重登入名單</a>
 		<a href="{{ route('users/pictures') }}">會員照片管理</a>
 		<a href="{{ route('users/reported/count') }}">會員被檢舉次數</a>
 		<a href="{{ route('users/board') }}">留言板管理</a>

@@ -814,6 +814,15 @@
       ),
     ),
   ),
+  'banned' => 
+  array (
+    'domains' => 
+    array (
+      0 => 'bcaoo.com',
+      1 => 'eoopy.com',
+      2 => 'zzrgg.com',
+    ),
+  ),
   'broadcasting' => 
   array (
     'default' => 'log',
@@ -1026,7 +1035,7 @@ Route::group([\'namespace\' => \'_section_\', \'prefix\' => \'_sectionLowerCase_
       'ReturnURL' => 'https://www.sugar-garden.org/dashboard/upgradepayEC',
       'postChatpayReturnURL' => 'https://www.sugar-garden.org/dashboard/postChatpayEC',
       'PeriodReturnURL' => 'https://www.sugar-garden.org/dashboard/upgradepayEC',
-      'ClientBackURL' => 'https://www.sugar-garden.org/dashboard',
+      'ClientBackURL' => 'https://www.sugar-garden.org/dashboard/chat2',
     ),
     'payment_test' => 
     array (

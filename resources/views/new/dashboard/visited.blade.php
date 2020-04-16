@@ -13,6 +13,7 @@
 {{--                    <a onclick="cl()"><img src="/new/images/ncion_03.png"  class="whoicon"></a>--}}
                 </div>
                 <div class="sjlist">
+                    @if(count($visitors)>0)
                     <ul>
                         @foreach ($visitors as $visitor)
                             <?php $histUser = \App\Models\User::findById($visitor->member_id);
@@ -21,7 +22,7 @@
                                     <li @if($histUser->isVip()) class="hy_bg01" @endif>
                                         <div class="si_bg">
                                             <a href="/dashboard/viewuser/{{$histUser->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">
-                                            <div class="sjpic"><img src="@if($histUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{$histUser->meta_()->pic}} @endif" onerror="this.src='/img/male-avatar.png'"></div>
+                                            <div class="sjpic"><img src="@if($histUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{$histUser->meta_()->pic}} @endif" @if ($histUser->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></div>
                                             <div class="sjleft">
                                                 <div class="sjtable"><span>{{ $histUser->name }}<i class="cicd">●</i>{{ $histUser->meta_()->age() }}</span></div>
                                                 <font>{{ $histUser->meta_()->city }}  {{ $histUser->meta_()->area }}</font>
@@ -39,6 +40,11 @@
                                 @endif
                         @endforeach
                     </ul>
+                    @else
+                        <div class="sjlist">
+                            <div class="fengsicon"><img src="/new/images/fs_06.png" class="feng_img"><span>暫無資料</span></div>
+                        </div>
+                    @endif
 {{--                    <div class="fenye">--}}
 {{--                        <a id="prePage" href="{{ $visitors->previousPageUrl() }}">上一頁</a>--}}
 {{--                        <a id="nextPage" href="{{ $visitors->nextPageUrl() }}">下一頁</a>--}}

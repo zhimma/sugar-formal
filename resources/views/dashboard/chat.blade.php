@@ -331,12 +331,12 @@ $code = Config::get('social.payment.code');
                         <div class="m-widget3__item" @if(str_contains($msgUser->name, '站長')) id='admin' @else id='normal' @endif style="background-color: rgba(244, 164, 164, 0.7); box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7); padding: 14px 28px;position: relative;">
 
                         @endif
-                            {{-- @if(isset($latestMessage->isPreferred))
+                            @if(isset($latestMessage->isPreferred))
                                 <div class="MW4BW_">
                                     {{-- @if ($visitor->engroup == 1) <a class="_3BQlNg bgXBUk"  style="color: white; font-weight: bold; font-size: 16px;">&nbsp;VIP&nbsp;</a> @endif --}}
-                                    {{-- <img src="{{ $latestMessage->button }}" alt="" height="25px" class="preferred">
+                                    <img src="{{ $latestMessage->button }}" alt="" height="25px" class="preferred">
                                 </div>
-                            @endif --}}
+                            @endif
                             <div class="m-widget3__header" @if(isset($to))style="width:95%"@else style="width:95%" @endif>
                                 <div class="m-widget3__user-img">
                                     <a href="{{ route('chatWithUser', $msgUser->id) }}"><img class="m-widget3__img" style="max-width:none" src="@if($msgUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{$msgUser->meta_()->pic}} @endif" onerror="this.src='/img/male-avatar.png'" alt=""></a>
@@ -515,7 +515,7 @@ $(document).ready(function(){
     @else
         let m_time = '';
     @endif
-    if(m_time){
+    {{--if(m_time){
         let intervalID = setInterval(function() {
             let intervalSecs = 60;
             @if(isset($m_time))
@@ -529,29 +529,23 @@ $(document).ready(function(){
             m_time = new Date(Date.UTC(t[0], t[1] - 1, t[2], t[3], t[4], t[5]));
             m_time.setHours(m_time.getHours() - 8);
             let now = new Date();
-            let diff = m_time.getTime() - now.getTime();
+            let diff = now.getTime() - m_time.getTime();
             let diffInSec = Math.floor(diff / 1000);
             let still = intervalSecs - diffInSec;
             let text = document.getElementById('msgsnd').firstChild;
-            // if(diffInSec <= intervalSecs || still < 0){
-            //     $(".tips").remove();
-            //     text.data = '回覆';
-            //     $('#msgsnd').enable(true);
-            //     clearInterval(intervalID);
-            // }
-            // else{
-            //     $('#msgsnd').enable(false);
-            //     text.data = '還有' + still + '秒才能回覆';
-            // }
-
-            console.log("m_time: " + m_time);
-            console.log("diff: " + diff);
-            console.log("diffInSec: " + diffInSec);
-            console.log("still: " + still);
-
-        },1000);
+            if(diff < 0 && diffInSec >= intervalSecs){
+                $(".tips").remove();
+                text.data = '回覆';
+                $('#msgsnd').enable(true);
+                clearInterval(intervalID);
+            }
+            else{
+                $('#msgsnd').enable(false);
+                text.data = '還有' + still + '秒才能回覆';
+            }
+        },100);
         $("<a href='{!! url('dashboard/upgrade') !!}' style='color: red;' class='tips'>成為VIP即可解除此限制<br></a>").insertBefore('#msgsnd');
-    }
+    }  --}}
     $('.msg').keyup(function() {
         let content = $('.msg').val(), msgsnd = $('.msgsnd');
         if($.trim(content) == "" ){
@@ -607,6 +601,7 @@ $('#chatForm').submit(function () {
     }
     else {
         $('.alert').remove();
+        msgsnd.prop('disabled', false);
         return checkForm;
     }
 });
@@ -631,13 +626,15 @@ function checkForm(){
         let now = new Date();
         let diff = now.getTime() - m_time.getTime();
         let diffInSec = Math.floor(diff / 1000);
+        //return diffInSec >= intervalSecs;
         return true;
-        return diffInSec >= intervalSecs;
     }
     else{
         return true;
     }
 }
+
+
 </script>
 
 @stop

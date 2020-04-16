@@ -20,6 +20,15 @@ Route::post('/saveFingerprint', 'PagesController@saveFingerprint')->name('saveFi
 Route::get('Fingerprint2', 'Fingerprint@index');
 Route::post('Fingerprint2/addFingerprint', 'Fingerprint@addFingerprint');
 
+
+Route::group(['middleware' => ['api']], function() {
+    Route::post('/dashboard/upgradepayEC', 'PagesController@upgradepayEC');
+});
+Route::group(['middleware' => ['tipApi']], function () {
+    Route::post('/dashboard/chatpay_ec', 'ECPayment@performTipInvite')->name('chatpay_ec');
+    Route::post('/dashboard/postChatpayEC', 'PagesController@postChatpayEC');
+});
+
 /*
 |--------------------------------------------------------------------------
 | Error Handler Redirect Page
@@ -51,6 +60,7 @@ Route::get('/banned', 'PagesController@banned')->name('banned');
 |--------------------------------------------------------------------------
 */
 Route::get('/login', 'Auth\LoginController@showLoginForm2')->name('login');
+Route::get('/loginIOS', function (){ return view('new.auth.loginIOS'); })->name('loginIOS');
 Route::get('/login3ik3pIKe', 'Auth\LoginController@showLoginForm')->name('login2');
 Route::post('/login', 'Auth\LoginController@login');
 Route::get('/logout', 'Auth\LoginController@logout')->name('logout');
@@ -147,7 +157,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     |--------------------------------------------------------------------------
     */
     Route::post('/dashboard', 'PagesController@profileUpdate');
-    Route::post('/dashboard2', 'PagesController@profileUpdate_ajax');
+    Route::post('/dashboard2', 'PagesController@profileUpdate_ajax')->name('dashboard2');
     Route::post('dashboard/settings', 'PagesController@settingsUpdate');
     Route::get('/dashboard', 'PagesController@dashboard')->name('dashboard');
     Route::get('/dashboard_img', 'PagesController@dashboard_img')->name('dashboard_img');
@@ -157,7 +167,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::get('/dashboard/password', 'PagesController@view_changepassword'); //new route
     Route::post('/dashboard/changepassword', 'PagesController@changePassword'); //new route
     Route::get('/dashboard/vip', 'PagesController@view_vip'); //new route
-    Route::get('/dashboard2', 'PagesController@dashboard2')->name('dashboard2');
+    Route::get('/dashboard2', 'PagesController@dashboard2');
     Route::get('/dashboard/cancel', 'PagesController@showCheckAccount');
     Route::post('/dashboard/chat', 'MessageController@postChat');
     Route::post('/dashboard/chatpay', 'PagesController@postChatpay')->name('chatpay');
@@ -189,12 +199,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::group(['middleware' => ['api']], function() {
         Route::post('/dashboard/upgradepay_ec', 'ECPayment@performPayment')->name('upgradepay_ec');
         Route::post('/dashboard/upgradepay', 'PagesController@upgradepay');
-        Route::post('/dashboard/upgradepayEC', 'PagesController@upgradepayEC');
         Route::post('/dashboard/cancelpay', 'PagesController@cancelpay');
-    });
-    Route::group(['middleware' => ['tipApi']], function () {
-        Route::post('/dashboard/chatpay_ec', 'ECPayment@performTipInvite')->name('chatpay_ec');
-        Route::post('/dashboard/postChatpayEC', 'PagesController@postChatpayEC');
     });
     Route::post('/upgradepayLog', 'PagesController@upgradepayLog')->name('upgradepayLog');
     Route::post('/dashboard/deleteboard', 'BoardController@deleteBoard')->name('deleteBoard');
@@ -231,6 +236,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('/dashboard/upgradesuccess', 'PagesController@upgradesuccess');
         //Route::get('/dashboard/search', 'PagesController@search');
         Route::get('/dashboard/search', 'PagesController@search2');//new route
+        // Route::get('/dashboard/search', function(){ return '<h1>搜尋功能調整中，預計今天晚上 12 點開放。</h1>'; });
+        Route::post('/dashboard/search', 'PagesController@search2');//new route
         Route::get('/dashboard/search2', 'PagesController@search');
         Route::get('/dashboard/chat/{randomNo?}', 'MessageController@chatview')->name('chatView');
         Route::post('/dashboard/chat/showMoreMessages/{randomNo?}', 'MessageController@chatviewMore')->name('showMoreMessages');
@@ -373,6 +380,15 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('users/genderToggler', 'UserController@toggleGender');
         Route::post('users/VIPToggler', 'UserController@toggleVIP');
         Route::post('users/RecommendedToggler', 'UserController@toggleRecommendedUser');
+        Route::get('users/banned_implicitly', 'UserController@showImplicitlyBannedUsers')->name('implicitlyBanned');
+        Route::post('users/bans_implicitly', 'UserController@banningUserImplicitly')->name('banningUserImplicitly');
+        Route::post('users/bans_fingerprint', 'UserController@banningFingnerprint')->name('banFingerprint');
+        Route::post('users/unbans_fingerprint', 'UserController@unbanningFingnerprint')->name('unbanFingerprint');
+        Route::post('users/unbanAll', 'UserController@unbanAll')->name('unbanAll');
+        Route::get('users/showFingerprint/{showFingerprint}', 'UserController@showFingerprint')->name('showFingerprint');
+        Route::get('users/deleteFingerprintFromExpectedList/{fingerprint}', 'UserController@deleteFingerprintFromExpectedList')->name('deleteFingerprintFromExpectedList');
+        Route::get('users/warning', 'UserController@showWarningUsers')->name('warningUsers');
+        Route::get('users/suspectedMultiLogin', 'UserController@showSuspectedMultiLogin')->name('suspectedMultiLogin');
         Route::get('users/customizeMigrationFiles', 'UserController@customizeMigrationFiles')->name('users/customize_migration_files');
         Route::post('users/customizeMigrationFiles', 'UserController@customizeMigrationFiles')->name('users/customize_migration_files');
         Route::match(['get', 'post'], 'users/VIP/ECCancellations', 'PagesController@showECCancellations')->name('users/VIP/ECCancellations');

@@ -62,6 +62,8 @@
                                     @if(!is_null($users[$id]['isBlocked']))
                                         @if(!is_null($users[$id]['isBlocked']['expire_date']))
                                             ({{ round((strtotime($users[$id]['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                        @elseif(isset($users[$id]['isBlocked']['type']))
+                                            (隱性)
                                         @else
                                             (永久)
                                         @endif
@@ -95,6 +97,8 @@
                                             @if(!is_null($users[$msg->to_id]['isBlocked']))
                                                 @if(!is_null($users[$msg->to_id]['isBlocked']['expire_date']))
                                                     ({{ round((strtotime($users[$msg->to_id]['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                                @elseif(isset($users[$msg->to_id]['isBlocked']['type']))
+                                                    (隱性)
                                                 @else
                                                     (永久)
                                                 @endif
@@ -117,6 +121,8 @@
                                             @if(!is_null($users[$reports->member_id]['isBlocked']))
                                                 @if(!is_null($users[$reports->member_id]['isBlocked']['expire_date']))
                                                     ({{ round((strtotime($users[$reports->member_id]['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                                @elseif(isset($users[$reports->member_id]['isBlocked']['type']))
+                                                    (隱性)
                                                 @else
                                                     (永久)
                                                 @endif
@@ -139,6 +145,8 @@
                                             @if(!is_null($users[$avatar->reporter_id]['isBlocked']))
                                                 @if(!is_null($users[$avatar->reporter_id]['isBlocked']['expire_date']))
                                                     ({{ round((strtotime($users[$avatar->reporter_id]['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                                @elseif(isset($users[$avatar->reporter_id]['isBlocked']['type']))
+                                                    (隱性)
                                                 @else
                                                     (永久)
                                                 @endif
@@ -160,6 +168,8 @@
                                             @if(!is_null($users[$pic->reporter_id]['isBlocked']))
                                                 @if(!is_null($users[$pic->reporter_id]['isBlocked']['expire_date']))
                                                     ({{ round((strtotime($users[$pic->reporter_id]['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
+                                                @elseif(isset($users[$pic->reporter_id]['isBlocked']['type']))
+                                                    (隱性)
                                                 @else
                                                     (永久)
                                                 @endif

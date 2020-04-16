@@ -1,19 +1,23 @@
-@extends('layouts.website')
-
-@section('app-content')
-
-<div class="m-portlet__head">
-<div class="m-portlet__head-caption">
-    <div class="m-portlet__head-title">
-        <h3 class="m-portlet__head-text">
-        401 <small></small>
-        </h3>
-    </div>			
-</div>
-</div>
-<div class="m-portlet__body">
-<p>401 Unauthorized</p>
-</div>
-
-@stop
-
+@extends('new.layouts.website')
+
+@section('app-content')
+
+    <div class="container matop70">
+        <div class="row">
+            <div class="col-sm-12 col-xs-12 col-md-12">
+                <div class="wxsy" style="min-height: 0!important;">
+                    <div class="wxsy_title">
+                        401
+                    </div>
+                    <div class="wxsy_k">
+                        <div class="wknr">
+                            <h5>401 Unauthorized</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+@stop
+

@@ -24,7 +24,7 @@ class MessageController extends Controller {
 
     public function deleteBetweenGET($uid, $sid) {
         Message::deleteBetween($uid, $sid);
-        
+
         return redirect('dashboard/chat');
     }
 
@@ -54,7 +54,7 @@ class MessageController extends Controller {
 
     public function reportMessage(Request $request){
         Message::reportMessage($request->id, $request->content);
-        
+
         return redirect()->route('chatWithUser', $request->sid)->with('message', '成功檢舉該筆訊息');
         //return redirect('dashboard/chat/' . $request->sid)->with('message', '成功檢舉該筆訊息');
     }
@@ -63,7 +63,7 @@ class MessageController extends Controller {
         $user = Auth::user();
         return view('dashboard.reportMessage')->with('id', $id)->with('sid', $sid)->with('user', $user);
     }
-    
+
     public function postChat(Request $request)
     {
         $banned = banned_users::where('member_id', Auth::user()->id)
@@ -79,16 +79,30 @@ class MessageController extends Controller {
         if(!isset($payload['msg'])){
             return back()->withErrors(['請勿僅輸入空白！']);
         }
-        if(!Auth::user()->isVIP()){
+        $user = Auth::user();
+        // 非 VIP: 一律限 60 秒發一次。
+        // 女會員: 無論是否 VIP，一律限 60 秒發一次。
+        if(!$user->isVIP()){
             $m_time = Message::select('created_at')->
-                where('from_id', Auth::user()->id)->
+                where('from_id', $user->id)->
                 orderBy('created_at', 'desc')->first();
-	        if(isset($m_time)) {
+            if(isset($m_time)) {
                 $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
                 if ($diffInSecs < 60) {
                     return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每分鐘限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
                 }
-	        }
+            }
+        }
+        else if($user->engroup == 2) {
+            $m_time = Message::select('created_at')->
+                where('from_id', $user->id)->
+                orderBy('created_at', 'desc')->first();
+            if(isset($m_time)) {
+                $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
+                if ($diffInSecs < 60) {
+                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每分鐘限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
+                }
+            }
         }
         Message::post(auth()->id(), $payload['to'], $payload['msg']);
         return back();
@@ -101,12 +115,12 @@ class MessageController extends Controller {
         if (isset($user)) {
             $isVip = $user->isVip();
             return view('dashboard.chat')
-            ->with('user', $user)
-            ->with('m_time', $m_time)
-            ->with('isVip', $isVip);
+                ->with('user', $user)
+                ->with('m_time', $m_time)
+                ->with('isVip', $isVip);
         }
     }
-    
+
     public function chatviewMore(Request $request)
     {
         $user_id = $request->uid;
@@ -196,5 +210,5 @@ class MessageController extends Controller {
             'msg' => 'already exists.',
         ), 200);
     }
-    
+
 }

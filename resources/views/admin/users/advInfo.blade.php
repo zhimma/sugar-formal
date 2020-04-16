@@ -22,6 +22,8 @@
 	        @else
 	            此會員登入後將自動解除封鎖
 	        @endif
+		@elseif(isset($user['isBlocked']['implicitly']))
+			(隱性)
 	    @else
 	        (永久)
 	    @endif
@@ -32,6 +34,13 @@
 		<button type="button" id="unblock_user" class='text-white btn @if($user["isBlocked"]) btn-success @else btn-danger @endif' onclick="Release({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除封鎖 </button>
 	@else 
 		<a class="btn btn-danger ban-user" id="block_user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">封鎖會員</a>
+		<form action="{{ route('banningUserImplicitly') }}" method="POST" style="display: inline;">
+			{!! csrf_field() !!}
+			<input type="hidden" value="{{ $user['id'] }}" name="user_id">
+			<input type="hidden" value="BannedInUserInfo" name="fp">
+			<input type="hidden" value="{{ url()->full() }}" name="page">
+			<button type="submit" class='btn btn-info'>隱性封鎖</button>
+		</form>
 	@endif
 	
 	@if($user['isvip'])
@@ -170,6 +179,23 @@
 		<td></td>
 	</tr>
 </table>
+@if(isset($fingerprints))
+<h4>指紋記錄</h4>
+	<table class="table table-hover table-bordered">
+		<tr>
+			<td>Hash 值</td>
+			<td>IP</td>
+			<td>記錄時間</td>
+		</tr>
+		@foreach($fingerprints as $f)
+			<tr>
+				<td><a href="{{ route("showFingerprint", $f->fp) }}" target="_blank">{{ $f->fp }}</a></td>
+				<td>{{ $f->ip }}</td>
+				<td>{{ $f->created_at }}</td>
+			</tr>
+		@endforeach
+	</table>
+@endif
 <h4>所有訊息</h4>
 <table class="table table-hover table-bordered">
 <form action="{{ route('users/message/modify') }}" method="post">
@@ -184,6 +210,7 @@
         <td style="text-align: center; vertical-align: middle"><button type="submit" class="btn btn-danger delete-btn">刪除選取</button></td>
 	</tr>
 	@forelse ($userMessage as $key => $message)
+		@if(isset($to_ids[$message->to_id]['engroup'] ))
 		<tr>
 			<td>
 				<a href="{{ route('admin/showMessagesBetween', [$user->id, $message->to_id]) }}" target="_blank">
@@ -223,6 +250,13 @@
                 <input type="checkbox" name="msg_id[]" value="{{ $message->id }}" class="form-control">
             </td>
 		</tr>
+		@else
+			<tr>
+				<td colspan="6">
+					會員資料已刪除
+				</td>
+			</tr>
+		@endif
     @empty
         沒有訊息
     @endforelse
@@ -271,12 +305,15 @@
                         </select>
                         <hr>
                         封鎖原因
-                        <a class="text-white btn btn-success advertising">廣告</a>
-                        <a class="text-white btn btn-success improper-behavior">非徵求包養行為</a>
-                        <a class="text-white btn btn-success improper-words">用詞不當</a>
-                        <a class="text-white btn btn-success improper-photo">照片不當</a>
+                        @foreach($banReason as $a)
+                            <a class="text-white btn btn-success banReason">{{ $a->content }}</a>
+                        @endforeach
                         <br><br>
-                        <textarea class="form-control m-reason" name="msg" id="msg" rows="4" maxlength="200">廣告</textarea>
+                        <textarea class="form-control m-reason" name="reason" id="msg" rows="4" maxlength="200">廣告</textarea>
+                        <label style="margin:10px 0px;">
+                            <input type="checkbox" name="addreason" style="vertical-align:middle;width:20px;height:20px;"/>
+                            <sapn style="vertical-align:middle;">加入常用封鎖原因</sapn>
+                        </label>
                 </div>
                 <div class="modal-footer">
                 	<button type="submit" class='btn btn-outline-success ban-user'> 送出 </button>
@@ -326,6 +363,14 @@ jQuery(document).ready(function(){
 	// 	}
 	// 	$("#send_blockade").attr('href', data_id);
 	// });
+
+	$(".banReason").each( function(){
+	    $(this).bind("click" , function(){
+	        var id = $("a").index(this);
+	        var clickval = $("a").eq(id).text();
+	        $('.m-reason').val(clickval);
+	    });
+	});
 
 	$('.advertising').on('click', function(e) {
 		$('.m-reason').val('廣告');

@@ -7,6 +7,7 @@
     @include('new.partials.scripts')
 
     @if(str_contains(url()->current(), 'dashboard'))
+
     <?php
         $user = \Auth::user();
         if(isset($user)){
@@ -43,10 +44,7 @@
         </div>
     @endif
 
-    <?php
-            //check banned user
 
-    ?>
     @yield("javascript")
 
     <link rel="stylesheet" href="/new/owlcarousel/assets/owl.carousel.min.css">
@@ -56,7 +54,7 @@
 
         function gmBtn1(){
             $(".announce_bg").hide();
-            // $(".blbg").hide();
+            $("#tab02").hide();
             // $(".bl_gb").hide();
             $(".gg_tab").hide();
             if($('#tab05').is(":visible")){
@@ -109,7 +107,10 @@
 
         })
     </script>
+
     @endif
+
+
 
 </body>
 </html>

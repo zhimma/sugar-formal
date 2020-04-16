@@ -72,11 +72,12 @@
                 @include('new.dashboard.panel')
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
+                @if(isset($to))
                 <div class="rightbg">
                     <div class="metx">
                         <div class="swiper-container photo">
                             <div class="swiper-wrapper">
-                                <div class="swiper-slide" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="{{$to->meta_()->pic}}"></div>
+                                <div class="swiper-slide" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="@if(file_exists( public_path().$to->meta_()->pic ) && $to->meta_()->pic != ""){{$to->meta_()->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>
 
                                 @foreach($member_pic as $row)
                                     <div class="swiper-slide" data-type="pic" data-sid="{{$to->id}}" data-pic_id="{{$row->id}}"><img src="{{$row->pic}}"></div>
@@ -117,7 +118,7 @@
                                 @else
 
                                     <li>
-                                        <img src="/new/images/icon_08.png" class="tubiao_i"><span>封鎖</span>
+                                        <img src="/new/images/icon_12.png" class="tubiao_i"><span>封鎖</span>
                                         <span><img src="/new/images/icon_36.png" class="tap-vip"></span>
                                     </li>
                                 @endif
@@ -126,7 +127,8 @@
                         <div class="bottub">
                             <ul>
                                 <? $data = \App\Services\UserService::checkRecommendedUser($to);
-                                echo $data['description'];?>
+                                //echo $data['description'];
+                                ?>
                                 @if(isset($data['description']) && $to->engroup == 2)
                                 <li><img src="/new/images/icon_19.png"><span>新進甜心</span></li>
                                 @endif
@@ -134,7 +136,7 @@
                                 <li><img src="/new/images/icon_21.png"><span>優選會員</span></li>
                                 @endif
 {{--                            <li><img src="/new/images/icon_23.png"><span>財力認證</span></li>--}}
-                                @if($to->isVip())
+                                @if($to->isVip() && $to->engroup == 1)
                                 <li><img src="/new/images/icon_25.png"><span>VIP</span></li>
                                 @endif
 {{--                            <li><img src="/new/images/icon_27.png"><span>警示帳戶</span></li>--}}
@@ -249,18 +251,20 @@
                                     @if(!empty($to->meta_()->style))
                                     <dt>
                                         <span>期待的約會模式</span>
-                                        <span><div class="select_xx03" >{!! nl2br($to->meta_()->style) !!}</div></span>
+                                        <span>
+                                            <div class="select_xx03" >{!! nl2br($to->meta_()->style) !!}</div>
+                                        </span>
                                     </dt>
                                     @endif
 
                                     @if(!empty($to->meta_()->domainType) && $to->meta_()->domainType != null && $to->meta_()->domainType != 'null')
                                     <dt>
                                         <span>產業</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->domainType}}" disabled="disabled"></span>
+                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->domainType}}  @if(!empty($to->meta_()->domain) && $to->meta_()->domain != null && $to->meta_()->domain != 'null'){{$to->meta_()->domain}}@endif" disabled="disabled"></span>
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->occupation) && $to->meta_()->isHideOccupation == '0' && $user->isVip())
+                                    @if(!empty($to->meta_()->occupation) && $to->meta_()->isHideOccupation == '0' && $user->isVip() && $to->meta_()->occupation != 'null')
                                     <dt>
                                         <span>職業</span>
                                         <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->occupation}}" disabled="disabled"></span>
@@ -335,12 +339,12 @@
                     </div>
                 </div>
                 <!--基本资料-->
+                @endif
             </div>
-
         </div>
     </div>
 
-
+    @if(isset($to))
     <div class="bl bl_tab" id="show_chat">
         <div class="bltitle"><span>發送給{{$to->name}}</span></div>
         <div class="n_blnr01 ">
@@ -392,17 +396,20 @@
         </div>
         <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
-
+    @endif
 @stop
 
 @section('javascript')
 <script>
     $( document ).ready(function() {
-        @if($is_block_mid=='是')
+        @if(isset($is_block_mid) && $is_block_mid == '是')
         $('.container').hide();
         $('.gg_tab').hide();
         $('.n_right').hide();
         c4('此用戶已關閉資料');
+        $('.n_bbutton span').css('width','100%');
+        $('.n_bbutton').css('width','10%');
+        $('.n_left').css('margin-right','0px');
         $(".n_left").on('click', function() {
             $('#tab04').hide();
             if (document.referrer != "") {
@@ -413,29 +420,21 @@
         });
         @endif
     });
-    $('#chatForm').submit(function () {
-        let content = $('#msg').val(), msgsnd = $('.msgsnd');
-        if($.trim(content) == "" ){
-            $('.alert').remove();
-            $("<a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a>").insertAfter($('.msg'));
-            msgsnd.prop('disabled', true);
-            return checkForm;
-        }
-        else {
-            $('.alert').remove();
-            return checkForm;
-        }
-    });
+    @if (isset($errors) && $errors->count() > 0)
+        @foreach ($errors->all() as $error)
+            c5('{{ $error }}');
+        @endforeach
+    @endif
     @if(isset($timeSet) && isset($countSet))
         function doCookieSetup(name, value) {
-            console.log('count1');
+            //console.log('count1');
             var expires = new Date();
             //有效時間保存 2 天 2*24*60*60*1000
             expires.setTime(expires.getTime() + 172800000);
             document.cookie = name + "=" + escape(value) + ";expires=" + expires.toGMTString()
         }
         function getCookie(name) {
-            console.log('count2');
+            //console.log('count2');
             var arg = escape(name) + "=";
             var nameLen = arg.length;
             var cookieLen = document.cookie.length;
@@ -449,17 +448,17 @@
             return null;
         }
         function delete_cookie( name ) {
-            console.log('count3');
+            //console.log('count3');
             document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
         }
         function getCookieValueByIndex(startIndex) {
-            console.log('count4');
+            //console.log('count4');
             var endIndex = document.cookie.indexOf(";", startIndex);
             if (endIndex == -1) endIndex = document.cookie.length;
             return unescape(document.cookie.substring(startIndex, endIndex));
         }
         function GetDateDiff(startTime, endTime, diffType) {
-            console.log('count5');
+            //console.log('count5');
             //將xxxx-xx-xx的時間格式，轉換為 xxxx/xx/xx的格式
             startTime = startTime.replace(/\-/g, "/");
             endTime = endTime.replace(/\-/g, "/");
@@ -488,47 +487,46 @@
             return parseInt((eTime.getTime() - sTime.getTime()) / parseInt(divNum));
         }
         function htmlencode(s){
-            console.log('count6');
+            //console.log('count6');
             var div = document.createElement('div');
             div.appendChild(document.createTextNode(s));
             return div.innerHTML;
         }
         function htmldecode(s){
-            console.log('count7');
+            //console.log('count7');
             var div = document.createElement('div');
             div.innerHTML = s;
             return div.innerText || div.textContent;
         }
         /*取得次數*/
-        // console.log('count8');
-        // var count=getCookie('count');
-        // if(count==undefined){
-        //     count=0;
-        // }
+        //console.log('count8');
+        var count=getCookie('count');
+        if(count==undefined){
+            count=0;
+        }
         /*取得現在時間*/
-        // var today=new Date();
-        // var now = today.getFullYear()+'/'+(today.getMonth()+1)+'/'+today.getDate()+' '+today.getHours()+':'+today.getMinutes()+':'+today.getSeconds();
-        // // console.log(now);
-        // // var now       = 20191216215141;
-        // /*取得紀錄時間*/
-        // var countTime = getCookie('countTime');
-        // console.log(countTime);
-        // if(countTime==undefined){
-        //     countTime = now;
-        // }
+        var today=new Date();
+        var now = today.getFullYear()+'/'+(today.getMonth()+1)+'/'+today.getDate()+' '+today.getHours()+':'+today.getMinutes()+':'+today.getSeconds();
+        // console.log(now);
+        // var now       = 20191216215141;
+        /*取得紀錄時間*/
+        var countTime = getCookie('countTime');
+        console.log(countTime);
+        if(countTime==undefined){
+            countTime = now;
+        }
         $(document).ready(function(){
             var bodyMain = document.getElementById('msg');
-            // if(GetDateDiff(countTime, now, "minute")>"{{$timeSet}}"){
-            //     // console.log('count10');
-            //     delete_cookie('count');
-            //     delete_cookie('countTime');
-            // }
-            // if(GetDateDiff(countTime, now, "minute")<="{{$timeSet}}"){
-                // console.log('count11');
-                if("{{$isVip!=1}}" && "{{$engroup!=1}}"){
-                    
+            if(GetDateDiff(countTime, now, "minute")>"{{$timeSet}}"){
+                //console.log('count10');
+                delete_cookie('count');
+                delete_cookie('countTime');
+            }
+            if(GetDateDiff(countTime, now, "minute")<="{{$timeSet}}"){
+                //console.log('count11');
+                if(count >= {{$countSet}}){
                     // console.log('count12');
-                    // console.log(count, "{{$countSet}}");
+                    console.log("countM: {{$countSet}}");
                     //禁止複製
                     bodyMain.oncopy = function(){
                         return false;
@@ -538,16 +536,16 @@
                         return false;
                     }
                 }
-                // else{
-                //     // console.log('count13');
-                //     doCookieSetup('countTime',now);
-                //     bodyMain.onpaste = function(){
-                //         count++;
-                //         console.log(count);
-                //         doCookieSetup('count',count);
-                //     }
-                // }
-            // }
+                else{
+                    // console.log('count13');
+                    doCookieSetup('countTime',now);
+                    bodyMain.onpaste = function(){
+                        count++;
+                        console.log("countTime: " + count);
+                        doCookieSetup('count',count);
+                    }
+                }
+            }
         });
     @endif
 </script>
@@ -571,77 +569,77 @@
         $('input[name="picType"]').val($('.swiper-slide-active').data('type'));
         $('input[name="pic_id"]').val($('.swiper-slide-active').data('pic_id'));
     }
-
-    $(".but_block").on('click', function() {
-        $.post('{{ route('postBlockAJAX') }}', {
-            uid: '{{ $user->id }}',
-            sid: '{{$to->id}}',
-            _token: '{{ csrf_token() }}'
-        }, function (data) {
-            if(data.save=='ok') {
-                $("#tab_block").hide();
-                $(".blbg").hide();
-                c2('封鎖成功');
-            }
-        });
-    });
-
-
-    $('.unblock').on('click', function() {
-        c4('確定要解除封鎖嗎?');
-        var uid='{{ $user->id }}';
-        var to='{{$to->id}}';
-        $(".n_left").on('click', function() {
-            $.post('{{ route('unblockAJAX') }}', {
-                uid: uid,
-                to: to,
+    @if(isset($to))
+        $(".but_block").on('click', function() {
+            $.post('{{ route('postBlockAJAX') }}', {
+                uid: '{{ $user->id }}',
+                sid: '{{$to->id}}',
                 _token: '{{ csrf_token() }}'
             }, function (data) {
-                $("#tab04").hide();
-                show_message('已解除封鎖');
+                // if(data.save=='ok') {
+                    $("#tab_block").hide();
+                    // $(".blbg").hide();
+                    show_message('封鎖成功');
+                // }
             });
         });
-    });
 
-    $(".addFav").on('click', function() {
-        $.post('{{ route('postfavAJAX') }}', {
-            uid: '{{ $user->id }}',
-            to: '{{$to->id}}',
-            _token: '{{ csrf_token() }}'
-        }, function (data) {
-            if(data.save=='ok') {
-                c2('收藏成功');
-            }else if(data.save=='error'){
-                c2('收藏失敗');
-            }else if(data.isBlocked){
-                c2('封鎖中無法收藏');
-            }else if(data.isFav){
-                c2('已在收藏名單中');
-            }
+
+        $('.unblock').on('click', function() {
+            c4('確定要解除封鎖嗎?');
+            var uid='{{ $user->id }}';
+            var to='{{$to->id}}';
+            $(".n_left").on('click', function() {
+                $.post('{{ route('unblockAJAX') }}', {
+                    uid: uid,
+                    to: to,
+                    _token: '{{ csrf_token() }}'
+                }, function (data) {
+                    $("#tab04").hide();
+                    show_message('已解除封鎖');
+                });
+            });
         });
-    });
 
-     @if (Session::has('message'))
-     c2('{{Session::get('message')}}');
-     @endif
-
-     $("#msgsnd").on('click', function(){
-         
-        $.ajax({
-            url: '/dashboard/chat2/{{ Carbon\Carbon::now()->timestamp }}',
-            type: 'POST',
-            data: {
-                _token   :"{{ csrf_token() }}",
-                userId   : $("#userId").val(),
-                to       : $("#to").val(),
-                msg      : $("#msg").val(),
-                {{ \Carbon\Carbon::now()->timestamp }} : "{{ \Carbon\Carbon::now()->timestamp }}"
-            },
-            success: function(response) {
-               window.location.reload();
-            },
+        $(".addFav").on('click', function() {
+            $.post('{{ route('postfavAJAX') }}', {
+                uid: '{{ $user->id }}',
+                to: '{{$to->id}}',
+                _token: '{{ csrf_token() }}'
+            }, function (data) {
+                if(data.save=='ok') {
+                    c2('收藏成功');
+                }else if(data.save=='error'){
+                    c2('收藏失敗');
+                }else if(data.isBlocked){
+                    c2('封鎖中無法收藏');
+                }else if(data.isFav){
+                    c2('已在收藏名單中');
+                }
+            });
         });
-     });
+         $("#msgsnd").on('click', function(){
+
+            $.ajax({
+                url: '/dashboard/chat2/{{ Carbon\Carbon::now()->timestamp }}',
+                type: 'POST',
+                data: {
+                    _token   :"{{ csrf_token() }}",
+                    userId   : $("#userId").val(),
+                    to       : $("#to").val(),
+                    msg      : $("#msg").val(),
+                    {{ \Carbon\Carbon::now()->timestamp }} : "{{ \Carbon\Carbon::now()->timestamp }}"
+                },
+                success: function(response) {
+                   window.location.reload();
+                },
+            });
+         });
+    @endif
+
+    @if (Session::has('message'))
+        c2('{{Session::get('message')}}');
+    @endif
 
 </script>
 @stop

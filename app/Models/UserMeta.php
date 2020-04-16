@@ -21,7 +21,6 @@ class UserMeta extends Model
      */
     protected $table = 'user_meta';
 
-    public $timestamps = false;
     /**
      * The attributes that are mass assignable.
      *
@@ -182,11 +181,11 @@ class UserMeta extends Model
         //     }
         // }
         
-        if ($engroup == 1)
-        {
-            //if (isset($blockdomain) && strlen($blockdomain) != 0) $query->where('blockdomain', '<>', $blockdomain);
-            //if (isset($blockdomainType) && strlen($blockdomainType) != 0) $query->where('blockdomainType', '<>', $blockdomainType);
-        }
+//        if ($engroup == 1)
+//        {
+//            //if (isset($blockdomain) && strlen($blockdomain) != 0) $query->where('blockdomain', '<>', $blockdomain);
+//            //if (isset($blockdomainType) && strlen($blockdomainType) != 0) $query->where('blockdomainType', '<>', $blockdomainType);
+//        }
         // dd($cup);
         if (isset($cup)&&$cup!=''){
             if(count($cup) > 0){
@@ -223,7 +222,7 @@ class UserMeta extends Model
             Log::info('Useragent: ' . $_SERVER['HTTP_USER_AGENT']);
         }
 
-        $bannedUsers = banned_users::select('member_id')->get();
+        $bannedUsers = \App\Services\UserService::getBannedId();
         $blockedUsers = blocked::select('blocked_id')->where('member_id',$userid)->get();
         //if($blockedUsers)$query->whereNotIn('user_id', $blockedUsers);
         $beBlockedUsers = blocked::select('member_id')->where('blocked_id',$userid)->get();

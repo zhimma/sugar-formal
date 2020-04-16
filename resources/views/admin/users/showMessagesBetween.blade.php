@@ -15,7 +15,7 @@
 		<tr>
 			<td>
 				@if($message->from_id == $id1->id) 
-					<a href="{{ route('users/advInfo', [$message->from_id]) }} ">
+					<a href="{{ route('users/advInfo', [$id1->id]) }} ">
 						<p @if($id1->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
 							{{ $id1->name }}
 							@if($id1->vip)
@@ -37,6 +37,8 @@
 							        @else
 							            此會員登入後將自動解除封鎖
 							        @endif
+								@elseif(isset($id1->isBlocked->type))
+									(隱性)
 							    @else
 							        (永久)
 							    @endif
@@ -44,7 +46,7 @@
 						</p>
 					</a> 
 				@else
-					<a href="{{ route('users/advInfo', [$message->to_id]) }} ">
+					<a href="{{ route('users/advInfo', [$id2->id]) }} ">
 						<p @if($id2->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
 							{{ $id2->name }}
 							@if($id2->vip)
@@ -66,6 +68,8 @@
 							        @else
 							            此會員登入後將自動解除封鎖
 							        @endif
+								@elseif(isset($id2->isBlocked->type))
+									(隱性)
 							    @else
 							        (永久)
 							    @endif
@@ -98,6 +102,8 @@
 							        @else
 							            此會員登入後將自動解除封鎖
 							        @endif
+								@elseif(isset($id1->isBlockedReceiver->type))
+									(隱性)
 							    @else
 							        (永久)
 							    @endif
@@ -105,7 +111,7 @@
 						</p>
 					</a> 
 				@else 
-					<a href="{{ route('users/advInfo', [$message->to_id]) }} ">
+					<a href="{{ route('users/advInfo', [$id2->id]) }} ">
 						<p @if($id2->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
 							{{ $id2->name }}
 							@if($id2->vip)
@@ -127,6 +133,8 @@
 							        @else
 							            此會員登入後將自動解除封鎖
 							        @endif
+								@elseif(isset($id2->isBlockedReceiver->type))
+									(隱性)
 							    @else
 							        (永久)
 							    @endif

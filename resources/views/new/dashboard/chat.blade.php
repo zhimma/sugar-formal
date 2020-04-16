@@ -1,3 +1,14 @@
+<?
+header("Cache-Control: no-cache, no-store, must-revalidate, post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
+?>
+<style>
+    .page>li{
+        display: none !important;
+    }
+</style>
 @extends('new.layouts.website')
 
 @section('app-content')
@@ -11,7 +22,7 @@
                 <div class="shou"><span>收件夾</span>
                     <font>inbox</font>
                     <a href="" class="shou_but">全部刪除</a>
-                    <a href="javascript:void(0);" onclick="c3()"><img src="/new/images/ncion_03.png" class="whoicon02 marlr10"></a>
+                    <a href="javascript:void(0);" onclick="showChatSet()"><img src="/new/images/ncion_03.png" class="whoicon02 marlr10"></a>
                 </div>
                 <div class="n_shtab">
 
@@ -22,32 +33,62 @@
                         <h2><span>您目前為普通會員</span>訊息可保存天數：7，可通訊人數:10</h2>
                     @endif
                 </div>
-                <div class="sjlist">
-                    <ul>
+                <div class="sjlist_li">
+                    <div class="leftsidebar_box">
+                        <dl class="system_log">
+                            <dt class="lebox1">VIP會員</dt>
+                            <dd>
+                                <p style="width: 20%;margin: 0 auto;" class="warning" id="sjlist_vip_warning">
+                                    <img src="/new/images/Spin-1s-75px.svg">
+                                </p>
+                                <ul class="sjlist sjlist_vip">
+                                </ul>
+                            </dd>
+                            <dt class="lebox2">普通會員</dt>
+                            <dd>
+                                <p style="width: 20%;margin: 0 auto;" class="warning" id="sjlist_novip_warning">
+                                    <img src="/new/images/Spin-1s-75px.svg">
+                                </p>
+                                <ul class="sjlist sjlist_novip">
+                                </ul>
+                            </dd>
+                            <dt class="lebox3">警示會員</dt>
+                            <dd>
+                                <p style="width: 20%;margin: 0 auto;" class="warning" id="sjlist_alert_warning">
+                                    <img src="/new/images/Spin-1s-75px.svg">
+                                </p>
+                                <ul class="sjlist sjlist_alert">
+                                </ul>
+                            </dd>
+                        </dl>
+                    </div>
+{{--                <div class="sjlist">--}}
+{{--                    <ul>--}}
 
-                    </ul>
+{{--                    </ul>--}}
 {{--                    <p style="color:red; font-weight: bold; display: none;margin-left: 20px;" id="warning">載入中，請稍候</p>--}}
-                    <p style="width: 20%;margin: 0 auto;" id="warning">
-                        <img src="/new/images/Spin-1s-75px.svg">
-                    </p>
+{{--                    <p style="width: 20%;margin: 0 auto; display: none;" id="warning">--}}
+{{--                        <img src="/new/images/Spin-1s-75px.svg">--}}
+{{--                    </p>--}}
 
-                    <div class="nodata" style="display: none;">
-                        <div class="fengsicon"><img src="/new/images/chatnodata.png" class="feng_img"><span>您目前尚無訊息</span></div>
-                    </div>
+{{--                    <div class="nodata" style="display: none;">--}}
+{{--                        <div class="fengsicon"><img src="/new/images/chatnodata.png" class="feng_img"><span>您目前尚無訊息</span></div>--}}
+{{--                    </div>--}}
 
-                    <div class="fenye">
-                        <!-- <a href="javascript:" class="page-link" data-p="next">上一頁</a>
-                        <a href="javascript:" class="page-link" data-p="last">下一頁</a> -->
-                    </div>
-                    <div class="zixun">
-                        <span><input type="radio" name="RadioGroup1" value="7" id="RadioGroup1_0" checked>本周訊息</span>
-                        <span><input type="radio" name="RadioGroup1" value="30" id="RadioGroup1_1">本月訊息</span>
-                        <span><input type="radio" name="RadioGroup1" value="all" id="RadioGroup1_2">全部訊息</span>
-                    </div>
 
                 </div>
+                <div class="page" style="text-align: center;"></div>
+                <input name="rows" type="hidden" id="rows" value="">
+                {{--                    <div class="fenye">--}}
+                {{--                        <!-- <a href="javascript:" class="page-link" data-p="next">上一頁</a>--}}
+                {{--                        <a href="javascript:" class="page-link" data-p="last">下一頁</a> -->--}}
+                {{--                    </div>--}}
+                <div class="zixun">
+                    <span><input type="radio" name="RadioGroup1" value="7" id="RadioGroup1_0" checked>本周訊息</span>
+                    <span><input type="radio" name="RadioGroup1" value="30" id="RadioGroup1_1">本月訊息</span>
+                    <span><input type="radio" name="RadioGroup1" value="all" id="RadioGroup1_2">全部訊息</span>
+                </div>
             </div>
-
         </div>
     </div>
 
@@ -89,36 +130,149 @@
     </div>
 
     <script>
+        var total = 0;//總筆數
+        var no_row_li='';
+        no_row_li = '<li class="li_no_data"><div class="listicon02 nodata"><img src="/new/images/xj.png" class="list_img"><span>您目前尚無訊息</span></div></li>';
+        var userIsVip = '{{ $isVip }}';
             var Page = {
             page : 1,
-            row  : 15,
+            row  : 10,
             DrawPage:function(total){
                 var total_page  = Math.ceil(total/Page.row) == 0 ? 1 : Math.ceil(total/Page.row);
                 var span_u      = 0;
                 var str         = '';
-                if(total_page==1){
-                    str   = '';
-                }else if(Page.page==1){
-                    str ='<a href="javascript:" class="page-link" data-p="last">下一頁</a>';
-                }else if(Page.page==total_page){
-                    str ='<a href="javascript:" class="page-link" data-p="next">上一頁</a>';
-                }else{
+                var i,active,prev_active,last_active;
+                // if(total_page==1){
+                //     str   = '';
+                // }else if(Page.page==1){
+                //     str ='<a href="javascript:" class="page-link" data-p="last">下一頁</a>';
+                // }else if(Page.page==total_page){
+                //     str ='<a href="javascript:" class="page-link" data-p="next">上一頁</a>';
+                // }else{
+                //     str = `
+                //         <a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                //         <a href="javascript:" class="page-link" data-p="last">下一頁</a>
+                //     `;
+                // }
+                // $('.fenye').html(str);
+                // $('.fenye a.page-link').click(function(){
+                //     $('.sjlist>ul').children().css('display', 'none');
+                //     //if ($(this).data('p') == Page.page) return false;
+                //     switch($(this).data('p')) {
+                //         case 'next': Page.page = parseInt(Page.page) - 1; break;
+                //         case 'last': Page.page = parseInt(Page.page) + 1; break;
+                //         //default: Page.page = parseInt($(this).data('p'));
+                //     }
+                //     Page.DrawPage(total);
+                //     $('.sjlist>ul').children().slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
+                // });
+                //alert(total_page);
+                if(Page.page>1){
+                    prev_active = '';
                     str = `
-                        <a href="javascript:" class="page-link" data-p="next">上一頁</a>
-                        <a href="javascript:" class="page-link" data-p="last">下一頁</a>
+                        <ul class="pagination">
+                        <li class="` + prev_active + `">
+                            <a href="javascript:" class="page-link" data-p="next">&laquo;</a>
+                        </li>
+                    `;
+                }else{
+                    prev_active = 'disabled sg-pages-disabled';
+                    str = `
+                        <ul class="pagination">
+                        <li class="` + prev_active + `">
+                            <a href="javascript:">&laquo;</a>
+                        </li>
                     `;
                 }
-                $('.fenye').html(str);
-                $('.fenye a.page-link').click(function(){
-                    $('.sjlist>ul').children().css('display', 'none');
+                    // str = `
+                    //     <ul class="pagination">
+                    //     <li class="` + prev_active + `">
+                    //         <a href="javascript:" class="page-link" data-p="next">&laquo;</a>
+                    //     </li>
+                    // `;
+
+                    for(i=1;i<=total_page;i++) {
+                        if(i==Page.page){
+                            active = 'active sg-pages-active'
+                        }else{
+                            active = ''
+                        }
+                        var half_links,from,to;
+                        half_links=3;
+                        from = Page.page - half_links;
+                        to = Page.page + half_links;
+                        if(Page.page < half_links){
+                            to += half_links - Page.page;
+                        }
+                        if((total_page - Page.page) < half_links){
+                            from -= half_links - (total_page - Page.page) - 1;
+                        }
+                        //alert(from);
+                        if(from < i && i < to) {
+                            str += `<li class="` + active + `">
+                            <a href="javascript:" class="page-link" data-p="` + i + `">` + i + `</a>
+                            </li>
+                            `;
+                        }
+                    }
+                if(Page.page==total_page){
+                    last_active = 'disabled sg-pages-disabled';
+                    str += `
+                           <li class="` + last_active + `">
+                                <a href="javascript:">&raquo;</a>
+                            </li>
+                           </ul>
+                          `;
+                }else{
+                    last_active = '';
+                    str += `
+                           <li class="` + last_active + `">
+                                <a href="javascript:" class="page-link" data-p="last">&raquo;</a>
+                            </li>
+                           </ul>
+                          `;
+                }
+                         // str += `
+                         //   <li class="` + last_active + `">
+                         //        <a href="javascript:" class="page-link" data-p="last">&raquo;</a>
+                         //    </li>
+                         //   </ul>
+                         //  `;
+                $('.page').html(str);
+                $('.warning').hide();
+                // if(total_page<=1){
+                //     $('.page').hide();
+                // }
+                $('.page a.page-link').click(function(){
+                    $('.warning').show();
+
+                    $('.sjlist').children().css('display', 'none');
                     //if ($(this).data('p') == Page.page) return false;
                     switch($(this).data('p')) {
                         case 'next': Page.page = parseInt(Page.page) - 1; break;
                         case 'last': Page.page = parseInt(Page.page) + 1; break;
-                        //default: Page.page = parseInt($(this).data('p'));
+                        default: Page.page = parseInt($(this).data('p'));
                     }
-                    Page.DrawPage(total);
-                    $('.sjlist>ul').children().slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
+                    Page.DrawPage($('#rows').val());
+                    // LoadTable();
+                    $('.sjlist>.row_data').slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
+                    //check li rows
+                    //alert($('.sjlist_vip>li').length);
+                    $('.sjlist_vip>.li_no_data').remove();
+                    $('.sjlist_novip>.li_no_data').remove();
+                    $('.sjlist_alert>.li_no_data').remove();
+                    if($('.sjlist_vip>li:visible').length==0){
+                        $('#sjlist_vip_warning').hide();
+                        $('.sjlist_vip').append(no_row_li);
+                    }
+                    if($('.sjlist_novip>li:visible').length==0){
+                        $('#sjlist_novip_warning').hide();
+                        $('.sjlist_novip').append(no_row_li);
+                    }
+                    if($('.sjlist_alert>li:visible').length==0){
+                        $('#sjlist_alert_warning').hide();
+                        $('.sjlist_alert').append(no_row_li);
+                    }
                 });
             }
         };
@@ -126,37 +280,83 @@
 
         // var page = 1;//初始資料
         // var row = 10;//預設產出資料筆數
-        var total = 0;//總筆數
+        //var total = 0;//總筆數
         var date=7;
 
-        function liContent(pic,user_name,content,created_at,read_n,i,user_id){
+
+        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show){
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
+            var username = '{{$user->name}}';
+            var engroup = '{{$user->engroup}}';
 
 
             var url = '{{ route("chat2WithUser", ":id") }}';
             url = url.replace(':id', user_id);
             var del_url = '{!! url("/dashboard/chat2/deleterow/:uid/:sid") !!}';
 
-            var sid = <?=$user->id?>;
+            var sid = '{{$user->id}}';
             del_url = del_url.replace(':uid', sid);
             del_url = del_url.replace(':sid', user_id);
             //${content}
-            li +=`
-                <li style="${ss}">
+            if(user_id==1049) {
+                li += `
+                <li class="row_data hy_bg02" style="${ss}">
                     <div class="si_bg">
+                `;
+            }else{
+                li += `
+                <li class="row_data" style="${ss}">
+                    <div class="si_bg">
+                `;
+            }
+            if(show==1) {
+                li += `
                         <a href="${url}" target="_self">
-                        <div class="sjpic"><img src="${pic}" ></div>
+                  `;
+            }else if(show==0){
+                li += `
+                        <a href="javascript:void(0)" target="_self">
+                  `;
+            }
+            li +=`
+                        <div class="sjpic"><img src="${pic}"></div>
                         <div class="sjleft">
                             <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
+
+                  `;
+            if(show==1) {
+                li += `
                             <span class="box"><font class="ellipsis">${content}</font></span>
+                   `;
+            }else if(show==0 && engroup==1){
+                li += `
+                     <a class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位女會員，請刪除舊的訊息後，即可發訊息給${user_name}" href="javascript:void(0);">
+                     <font><img src="/new/images/icon_35.png"></font>
+                     </a>
+                   `;
+            }else if(show==0 && engroup==2){
+                li += `
+                     <a class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位男會員，請上傳大頭貼＋三張生活照就可以取得　ＶＩＰ　權限或是刪除舊的訊息後，即可發訊息給${user_name}" href="javascript:void(0);">
+                     <font><img src="/new/images/icon_35.png"></font>
+                     </a>
+                   `;
+            }
+            li += `
                         </div>
                         </a>
                         <div class="sjright">
                             <h3>${created_at}</h3>
-                            <h4><a href="javascript:void(0)" onclick="chk_delete('${del_url}');"><img src="/new/images/del_03.png">刪除</a>
-                                <a href="javascript:void(0)" onclick="block('${user_id}');"><img src="/new/images/del_05.png">封鎖</a>
-<!--                                <a href="javascript:void(0)" onclick="banned('${user_id}','${user_name}');"><img src="/new/images/icon_100.png">檢舉</a></h4>-->
+                            <h4>
+                  `;
+            if(userIsVip==1) {
+                li += `
+                        <a href="javascript:void(0)" onclick="block('${user_id}');"><img src="/new/images/del_05.png">封鎖</a>
+                      `;
+            }
+            li +=`
+                          <a href="javascript:void(0)" onclick="chk_delete('${del_url}');"><img src="/new/images/del_03.png">刪除</a>
+                         </h4>
                         </div>
                     </div>
                 </li>
@@ -164,9 +364,11 @@
             return li;
         }
 
+        var counter=1;
         //ajax資料
         function LoadTable(){
             div = '';
+
             $.ajax({
                 url: '{{ route('showMessages') }}',
                 type: 'POST',
@@ -182,25 +384,30 @@
                     userAgent: "Agent: " + String(navigator.userAgent) + " Platform: " + String(navigator.platform),
                 },
                 beforeSend:function(){//表單發送前做的事
-                    $('.sjlist>ul').html('');
-                    $('#warning').fadeIn(150);
-                    let wait = document.getElementById("warning");
-                    let text = '載入中，請稍候';
-                    let length = wait.innerHTML.length + 10;
-                    let dots = window.setInterval( function() {
-                        let wait = document.getElementById("warning");
-                        if (wait.innerHTML.length > length) {
-                            //wait.innerText = text;
-                            //$('#warning').fadeOut(150);
-                            $('#warning').hide();
-                        } else {
-                            //wait.innerText += ".";
-                            //$('#warning').fadeOut(150);
-                        }
-
-                    }, 0);
+                    $('.sjlist_vip').html('');
+                    $('.sjlist_novip').html('');
+                    $('.sjlist_alert').html('');
+                    //$('#warning').fadeIn(150);
+                    // let wait = document.getElementById("warning");
+                    // let text = '載入中，請稍候';
+                    // let length = wait.innerHTML.length + 10;
+                    // let dots = window.setInterval( function() {
+                    //     let wait = document.getElementById("warning");
+                    //     if (wait.innerHTML.length > length) {
+                    //         //wait.innerText = text;
+                    //         $('.warning').fadeOut(150);
+                    //         //$('#warning').hide();
+                    //     } else {
+                    //         //wait.innerText += ".";
+                    //         $('.warning').fadeOut(150);
+                    //     }
+                    //
+                    // }, 0);
+                    $('#warning').show();
                 },
                 complete: function () {
+                    //alert($('.sjlist_vip>li:visible').length);
+
                 },
                 success:function(res){
                     var li = '';//樣板容器
@@ -211,24 +418,61 @@
                     // //若有資料時
                     //console.log(res.msg);
                     var rr=0;
-                    $.each(res.msg,function(i,e){
-                        rr +=parseInt(e.read_n);
-                        if(e&&e.user_id)li = liContent(e.pic,e.user_name,e.content,e.created_at,e.read_n,i,e.user_id);
-                        $('.sjlist>ul').append(li)
-                    });
-                    //$('.sjlist>ul').html(li);
-                    setTimeout(function(){
-                        Page.DrawPage(res.msg.length);
-                        $('.sjlist>ul').children().slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
-                        $('#warning').fadeOut(150);
-                    }, 100);
                     total=res.msg.length;
-                    // alert(rr);
-                    if(isNaN(rr) || (isNaN(rr) && rr==0)){
-                        $('.nodata').show();
-                    }else if(rr>0){
-                        $('.nodata').hide();
+                    //alert(res.msg.length);
+                    if(res.msg.length>0){
+                        $('#rows').val(res.msg.length);
                     }
+
+                    var hide_vip_counts = 0;
+                    hide_vip_counts = $('#rows').val()-10;
+                    $.each(res.msg,function(i,e){
+                        // $('#rows').val(e.total_counts);
+                        rr +=parseInt(e.read_n);
+                        if(userIsVip==0 && e.user_id != 1049 && i<hide_vip_counts && hide_vip_counts>0) {
+                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0, i);
+                        }else if(userIsVip==0 && e.user_id != 1049){
+                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1, i);
+                        }else{
+                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1, i);
+                        }
+                        if(e.isVip==1) {
+                            $('.sjlist_vip').append(li)
+                        }else{
+                            $('.sjlist_novip').append(li)
+                        }
+                    });
+
+                    setTimeout(function(){
+                        Page.DrawPage($('#rows').val());
+                        $('.sjlist>.row_data').slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
+                        $('.warning').hide();
+
+                        $('.sjlist_vip>.li_no_data').remove();
+                        $('.sjlist_novip>.li_no_data').remove();
+                        $('.sjlist_alert>.li_no_data').remove();
+                        //alert($('.sjlist_vip>li:visible').length);
+                        if($('.sjlist_vip>li:visible').length==0){
+                            $('#sjlist_vip_warning').hide();
+                            $('.sjlist_vip').append(no_row_li);
+                        }
+                        if($('.sjlist_novip>li:visible').length==0){
+                            $('#sjlist_novip_warning').hide();
+                            $('.sjlist_novip').append(no_row_li);
+                        }
+                        if($('.sjlist_alert>li:visible').length==0){
+                            $('#sjlist_alert_warning').hide();
+                            $('.sjlist_alert').append(no_row_li);
+                        }
+                    }, 100);
+
+                    $('a[data-toggle="popover"]').popover({
+                        animated: 'fade',
+                        placement: 'bottom',
+                        trigger: 'hover',
+                        html: true,
+                        content: function () { return '<h4' + $(this).data('content') + '</h4>'; }
+                    });
 
                 }
             })
@@ -238,15 +482,21 @@
                 // }else{
                 //     $('.listMoreBtn').removeAttr('disabled').addClass('cursor-pointer').html('MORE');
                 // }
+                // check li rows
+
             });
+
         }
 
         LoadTable();
 
         $('input[name=RadioGroup1]').on('click', function(event) {
+            $('.lebox1,.lebox2,.lebox3').toggleClass('on');
+            $(".leftsidebar_box dd").show();
             Page.page=1;
             date= $('input[name=RadioGroup1]:checked').val();
-            LoadTable()
+            $('.warning').show();
+            LoadTable();
         });
 
         function chk_delete(url) {
@@ -313,10 +563,11 @@
             return false;
         });
 
-            function c3() {
+            function showChatSet() {
                 $(".blbg").show();
                 $("#tab03").show();
             }
+
 
 
     </script>
@@ -335,6 +586,20 @@
         white-space: nowrap;
         text-overflow: ellipsis;
     }
+    .comt{
+        top: 8px;
+        position: relative;
+    }
+    .popover  {
+        background: #e2e8ff!important;
+        color: #6783c7;
+    }
+    .popover.right .arrow:after {
+        border-right-color:#e2e8ff;
+    }
+    .popover.bottom .arrow:after {
+        border-bottom-color:#e2e8ff;
+    }
 </style>
     <script>
         $('.blbut').on('click', function() {
@@ -350,5 +615,24 @@
                 //window.location.reload();
             });
         });
+
+        $('.lebox1,.lebox2,.lebox3').toggleClass('on');
+        $(".leftsidebar_box dd").show();
+
+
+        $('.lebox1,.lebox2,.lebox3').click(function(e) {
+            $(this).toggleClass('on');
+            $(this).next('dd').slideToggle();
+        });
+
+        // $(document).ready(function(){
+        // $('a[data-toggle="popover"]').popover(); // not work
+        //
+        // $('.vipOnlyAlert').on('click', function() {
+        //     alert(111);
+        //     var content = $(this).data('data');
+        //     c4(content);
+        // });
+        // });
     </script>
 @stop

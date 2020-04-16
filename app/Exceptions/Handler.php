@@ -22,9 +22,13 @@ class Handler extends ExceptionHandler
      *
      * @var array
      */
+    // protected $dontFlash = [
+    //     'password',
+    //     'password_confirmation',
+    // ];
+
     protected $dontFlash = [
-        'password',
-        'password_confirmation',
+        // 
     ];
 
     /**
@@ -52,6 +56,9 @@ class Handler extends ExceptionHandler
         if(!$exception instanceof ValidationException && !$exception instanceof \Illuminate\Auth\AuthenticationException) {
             return response()->view('errors.exception', [ 'exception' => $exception->getMessage() == null ? null : $exception->getMessage()]);
         }
+    //    $requestStr =  $request->all();
+    //    \Illuminate\Support\Facades\Log::info('Exception: ' . $exception->getMessage() . ', URI: ' . $_SERVER["REQUEST_URI"] . ', request: ' . print_r($requestStr, true));
+
         return parent::render($request, $exception);
     }
 }
