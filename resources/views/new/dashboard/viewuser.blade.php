@@ -18,7 +18,7 @@
         .swiper-slide img {
             /*width: 100%;*/
             max-width: 100%;
-            height: 100%;
+            max-height: 280px;
             display: block;
             margin: 0 auto;
         }
@@ -38,7 +38,7 @@
             .swiper-slide img {
                 /*width: 100%;*/
                 max-width: 100%;
-                height: 100%;
+                max-height: 200px;
                 display: block;
                 margin: 0 auto;
             }
@@ -58,10 +58,16 @@
             .swiper-slide img {
                 /*width: 100%;*/
                 max-width: 100%;
-                height: 100%;
+                max-height: 200px;
                 display: block;
                 margin: 0 auto;
             }
+        }
+        .n_blnr01 {
+            padding-top: 20px !important;
+        }
+        .matop20{
+            /*padding-top: 0px !important;*/
         }
 
 
@@ -371,7 +377,8 @@
                 <input type="hidden" name="uid" value="{{$to->id}}">
                 <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請輸入檢舉理由"></textarea>
                 <div class="n_bbutton">
-                    <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>
+                    <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff;">送出</button>
+                    <button type="reset" class="n_left" style="border-style: none;background: #ffffff; color:#8a9ff0;" onclick="$('#show_banned').hide();$('.announce_bg').hide()">返回</button>
                 </div>
             </form>
         </div>
@@ -390,7 +397,8 @@
 
                 <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請輸入檢舉理由" required></textarea>
                 <div class="n_bbutton">
-                    <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>
+                    <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff;">送出</button>
+                    <button type="reset" class="n_left" style="border-style: none;background: #ffffff; color:#8a9ff0;" onclick="$('#show_reportPic').hide();$('.blbg').hide()">返回</button>
                 </div>
             </form>
         </div>
@@ -401,25 +409,25 @@
 
 @section('javascript')
 <script>
-    $( document ).ready(function() {
-        @if(isset($is_block_mid) && $is_block_mid == '是')
-        $('.container').hide();
-        $('.gg_tab').hide();
-        $('.n_right').hide();
-        c4('此用戶已關閉資料');
-        $('.n_bbutton span').css('width','100%');
-        $('.n_bbutton').css('width','10%');
-        $('.n_left').css('margin-right','0px');
-        $(".n_left").on('click', function() {
-            $('#tab04').hide();
-            if (document.referrer != "") {
-                window.history.back();
-            }else{
-                location.href = '/dashboard/search';
-            }
-        });
-        @endif
-    });
+    {{--$( document ).ready(function() {--}}
+    {{--    @if(isset($is_block_mid) && $is_block_mid == '是')--}}
+    {{--    $('.container').hide();--}}
+    {{--    $('.gg_tab').hide();--}}
+    {{--    $('.n_right').hide();--}}
+    {{--    c4('此用戶已關閉資料');--}}
+    {{--    $('.n_bbutton span').css('width','100%');--}}
+    {{--    $('.n_bbutton').css('width','10%');--}}
+    {{--    $('.n_left').css('margin-right','0px');--}}
+    {{--    $(".n_left").on('click', function() {--}}
+    {{--        $('#tab04').hide();--}}
+    {{--        if (document.referrer != "") {--}}
+    {{--            window.history.back();--}}
+    {{--        }else{--}}
+    {{--            location.href = '/dashboard/search';--}}
+    {{--        }--}}
+    {{--    });--}}
+    {{--    @endif--}}
+    {{--});--}}
     @if (isset($errors) && $errors->count() > 0)
         @foreach ($errors->all() as $error)
             c5('{{ $error }}');
@@ -548,8 +556,7 @@
             }
         });
     @endif
-</script>
-<script>
+
     function show_chat() {
         //$(".blbg").show();
         $(".announce_bg").show();
@@ -637,9 +644,19 @@
          });
     @endif
 
-    @if (Session::has('message'))
+    @if (Session::has('message') && Session::has('message')=="此用戶已關閉資料。")
+        ccc('{{Session::get('message')}}');
+    @elseif(Session::has('message'))
         c2('{{Session::get('message')}}');
     @endif
 
+    $(".n_bllbut").on('click', function() {
+        $('#tab_other').hide();
+        if (document.referrer != "") {
+            window.history.back();
+        }else{
+            location.href = '/dashboard/search';
+        }
+    });
 </script>
 @stop
