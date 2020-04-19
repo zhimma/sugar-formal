@@ -120,7 +120,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 {!! csrf_field() !!}
                 <input type="hidden" name="aid" value="{{$user->id}}">
                 <input type="hidden" name="uid" value="">
-                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_reason}}"></textarea>
+                <textarea name="content" cols="" rows="" class="n_nutext" placeholder=""></textarea>
                 <div class="n_bbutton">
                     <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>
                 </div>

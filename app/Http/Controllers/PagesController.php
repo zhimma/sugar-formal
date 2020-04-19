@@ -1106,6 +1106,7 @@ class PagesController extends Controller
                 /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
                 $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
                 /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
+
                 return view('new.dashboard.viewuser', $data)
                     ->with('user', $user)
                     ->with('blockadepopup', $blockadepopup)
@@ -1522,6 +1523,7 @@ class PagesController extends Controller
     }
     public function search2(Request $request)
     {
+        // dd('123')
         $user = $request->user();
 
         return view('new.dashboard.search')->with('user', $user);
