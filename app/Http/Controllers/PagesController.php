@@ -811,9 +811,9 @@ class PagesController extends Controller
                     'code'=>'800'
                 );
             }*/
-
+            $isVip = Vip::where('member_id', $user->id)->count();
             $pic_count_final = MemberPic::where('member_id', $user->id)->count();
-            if(($pic_count_final+1)>=4 && $user->engroup==2){
+            if(($pic_count_final)>=4 && $user->engroup==2 && $isVip<=0){
                 $data = array(
                     'code'=>'800'
                 );
