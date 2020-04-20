@@ -185,13 +185,24 @@
                                 _token: "{{ csrf_token() }}"
                             },
                             success: function(){
-                                alert("刪除成功")
+                                c2("刪除成功")
                             },
                             error: function(xhr, status, msg){
-                                alert("刪除失敗, 請重新整理後再次嘗試操作")
+                                c2("刪除失敗, 請重新整理後再次嘗試操作")
                             }
                         })
                         return true
+                    },
+                    dialogs: {
+                        // alert dialog
+                        alert: function(text) {
+                            return cl(text);
+                        },
+
+                        // confirm dialog
+                        confirm: function(text, callback) {
+                            c2(text) ? callback() : null;
+                        }
                     }
                 })
             },
@@ -211,7 +222,7 @@
                 $("input[name='pictures']").attr('data-fileuploader-files', data)
                 $("input[name='pictures']").fileuploader({
                     addMore: true,
-                    limit: 7,
+                    limit: 6,
                     editor: {
                         showGrid: true
                     },
@@ -225,13 +236,24 @@
                                 picture: item.file
                             },
                             success: function(){
-                                alert("刪除成功")
+                                c2("刪除成功")
                             },
                             error: function(xhr, status, msg){
-                                alert("刪除失敗, 請重新整理後再次嘗試操作")
+                                c2("刪除失敗, 請重新整理後再次嘗試操作")
                             }
                         })
                         return true
+                    },
+                    dialogs: {
+                        // alert dialog
+                        alert: function(text) {
+                            return cl(text);
+                        },
+
+                        // confirm dialog
+                        confirm: function(text, callback) {
+                            c2(text) ? callback() : null;
+                        }
                     }
                 })
             },
@@ -268,7 +290,6 @@
             },
         ],
     }
-
   
 </script>
 

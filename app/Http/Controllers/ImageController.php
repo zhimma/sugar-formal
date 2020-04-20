@@ -288,7 +288,7 @@ class ImageController extends Controller
             $avatar = $fileUploader->getUploadedFiles();
             if($avatar)
             {
-                $path = substr($avatar[0]['file'], strlen(public_path().DIRECTORY_SEPARATOR));
+                $path = substr($avatar[0]['file'], strlen(public_path()));
                 $path[0] = '/';
                 UserMeta::where('user_id', $userId)->update(['pic' => $path]);
             }
@@ -380,10 +380,10 @@ class ImageController extends Controller
         $upload = $fileUploader->upload();
         if($upload)
         {
-            $publicPath = public_path().DIRECTORY_SEPARATOR;
+            $publicPath = public_path();
             foreach($fileUploader->getUploadedFiles() as $uploadedFile)
             {
-                $path = substr($uploadedFile['file'], strlen($publicPath)-1);
+                $path = substr($uploadedFile['file'], strlen($publicPath));
                 $path[0] = "/";
                 $addPicture = new MemberPic;
                 $addPicture->member_id = $userId;
