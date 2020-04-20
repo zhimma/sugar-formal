@@ -711,10 +711,17 @@ class PagesController extends Controller
             //刪除大頭照
             UserMeta::uploadUserHeader($user->id,null);
         }
-
         $data = array(
             'code' => '200'
         );
+        $pic_count = MemberPic::where('member_id', $user_id)->count();
+        // dd($pic_count);
+        if($pic_count==3){
+            $data = array(
+                'code' => '400'
+            );
+        }
+        
         return json_encode($data);
     }
 

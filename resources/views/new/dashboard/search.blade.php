@@ -1,6 +1,32 @@
 @extends('new.layouts.website')
 
 @section('app-content')
+<style>
+.pagination > li > a:focus,
+.pagination > li > a:hover,
+.pagination > li > span:focus,
+.pagination > li > span:hover{
+    z-index: 3;
+    /* color: #23527c !important; */
+    background-color: #FF8888 !important;
+	/* border-color: #ddd !important; */
+	/* border-color:#ee5472 !important; */
+	/* color:white !important; */
+}
+/* 
+.pagination > .active > a,
+    .pagination > .active > span,
+    .pagination > .active > a:hover,
+    .pagination > .active > span:hover,
+    .pagination > .active > a:focus,
+    .pagination > .active > span:focus {
+        z-index: 3;
+    color: #23527c !important;
+    background-color: #f5c2c0 !important;
+	border-color:#ee5472 !important;
+	color:white !important;
+	} */
+	</style>
     <div class="container matop70">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -89,7 +115,11 @@
                                             <option value="已婚" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "已婚" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "已婚") selected @endif>已婚</option>
                                             <option value="分居" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "分居" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "分居") selected @endif>分居</option>
                                             <option value="單身" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "單身" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "單身") selected @endif>單身</option>
-                                            <option value="有男友" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "有男友" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "有男友") selected @endif>有男友</option>
+                                            @if( $user->engroup == 2)
+                                                <option value="有女友" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "有女友" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "有女友") selected @endif>有女友</option>
+                                            @else
+                                                <option value="有男友" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "有男友" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "有男友") selected @endif>有男友</option>
+                                            @endif
                                         </select>
                                     </div>
                                     <div class="n_se right">
@@ -311,5 +341,6 @@
 
 
         });
+        
     </script>
 @stop
