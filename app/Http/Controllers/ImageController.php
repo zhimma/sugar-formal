@@ -174,7 +174,6 @@ class ImageController extends Controller
 
         if($files = $request->file('images')) {
             foreach ($files as $file) {
-                //dd($files);
                 $now = Carbon::now()->format('Ymd');
                 $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
 
@@ -232,6 +231,7 @@ class ImageController extends Controller
                 "type" => FileUploader::mime_content_type($avatarPath),
                 "size" => filesize(public_path($avatarPath)),
                 "file" => $avatarPath,
+                "relative_file" => public_path($avatarPath),
                 "local" => $avatarPath,
                 "data" => array(
                     "readerForce" => true
@@ -258,6 +258,7 @@ class ImageController extends Controller
                 return $now . rand(100000000,999999999);
             },
             'replace' => false,
+            'editor' => true,
             'files' => $preloadedFiles
         ));
 
@@ -283,18 +284,13 @@ class ImageController extends Controller
                     unlink($file);
                 }
             }
-
-
             //upload new avator
             $avatar = $fileUploader->getUploadedFiles();
             if($avatar)
             {
-                $filePath = $avatar[0]['file'];
-                if( is_file($filePath) and file_exists($filePath)){
-                    $path = substr($filePath, strlen(public_path(DIRECTORY_SEPARATOR))-1);
-                    $path[0] = '/';
-                    UserMeta::where('user_id', $userId)->update(['pic' => $path]);
-                }
+                $path = substr($avatar[0]['file'], strlen(public_path().DIRECTORY_SEPARATOR));
+                $path[0] = '/';
+                UserMeta::where('user_id', $userId)->update(['pic' => $path]);
             }
             return redirect()->back();
         }
@@ -334,6 +330,7 @@ class ImageController extends Controller
                 "type" => FileUploader::mime_content_type($path),
                 "size" => filesize(public_path($path)), //filesize需完整路徑
                 "file" => $path,
+                "relative_file" => public_path($path), // full path for editing files
                 "local" => $path,
                 "data" => array(
                     "readerForce" => true
@@ -366,9 +363,10 @@ class ImageController extends Controller
                 return $now . rand(100000000,999999999);
             },
             'replace' => false,
+            'editor' => true,
             'files' => $preloadedFiles
         ));
-    
+
         //選擇移除的照片
         foreach($fileUploader->getRemovedFiles() as $key => $value)
         {
@@ -385,7 +383,8 @@ class ImageController extends Controller
             $publicPath = public_path().DIRECTORY_SEPARATOR;
             foreach($fileUploader->getUploadedFiles() as $uploadedFile)
             {
-                $path = substr($uploadedFile['file'], strlen($publicPath));
+                $path = substr($uploadedFile['file'], strlen($publicPath)-1);
+                $path[0] = "/";
                 $addPicture = new MemberPic;
                 $addPicture->member_id = $userId;
                 $addPicture->pic = $path;
