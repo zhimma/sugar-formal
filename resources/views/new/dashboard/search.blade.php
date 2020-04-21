@@ -3,7 +3,7 @@
 @section('app-content')
 <style>
 
-/* 
+
 .pagination > .active > a,
     .pagination > .active > span,
     .pagination > .active > a:hover,
@@ -15,7 +15,7 @@
     background-color: #f5c2c0 !important;
 	border-color:#ee5472 !important;
 	color:white !important;
-	} */
+	}
 	</style>
     <div class="container matop70">
         <div class="row">
@@ -35,11 +35,12 @@
                                 <span>地區</span>
                                 <span>
                                 <span class="twzipcode" id="twzipcode" style="display: inline-flex;">
-                                <span class="select_xx07 left" data-role="county" data-name="county" data-value="@if(!empty($_POST['county'])){{ $_POST['county'] }}@elseif(!empty($_GET['county'])){{ $_GET['county']  }}@endif" style=""></span>
-                                <span class="select_xx07 right" data-role="district" data-name="district" data-value="@if(!empty($_POST['district'])){{ $_POST['district'] }}@elseif(!empty($_GET['district'])){{ $_GET['district'] }}@endif" style=""></span>
-{{--                                    @if ($user->isVip())--}}
-                                    {{--                                        <span class="twzip"><input class="m-input" type="checkbox" id="pic" name="pic"> 照片</span>--}}
-                                    {{--                                    @endif--}}
+                                        <span class="select_xx07 left" data-role="county" data-name="county" data-value="@if(!empty($_POST['county'])){{ $_POST['county'] }}@elseif(!empty($_GET['county'])){{ $_GET['county']  }}@endif" style=""></span>
+                                        <span class="select_xx07 right" data-role="district" data-name="district" data-value="@if(!empty($_POST['district'])){{ $_POST['district'] }}@elseif(!empty($_GET['district'])){{ $_GET['district'] }}@endif" style=""></span>
+                                    
+                                        {{--@if ($user->isVip())--}}
+                                        {{--                                        <span class="twzip"><input class="m-input" type="checkbox" id="pic" name="pic"> 照片</span>--}}
+                                        {{--                                    @endif--}}
                                 </span>
 {{--                            <select name="" class="select_xx06"><option>連江縣</option><option>B</option></select>--}}
                                     {{--                            <select name="" class="select_xx06 right"><option>南竿鄉</option><option>B</option></select>--}}

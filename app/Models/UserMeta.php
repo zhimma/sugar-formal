@@ -207,8 +207,9 @@ class UserMeta extends Model
             $agefrom = $agefrom < 18 ? 18 : $agefrom;
             // dd(date('Y-01-01', strtotime("-30 year")));
             try{
-                $end = date('Y-01-01', strtotime("-$ageto year"));
+                $end = date('Y-12-31', strtotime("-$ageto year"));
                 $start = date('Y-01-01', strtotime("-$agefrom year"));
+                // dd($end, $start);
                 $query = $query->whereBetween('birthdate', [$end, $start]);
             }
             catch(\Exception $e){
