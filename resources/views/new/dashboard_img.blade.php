@@ -51,7 +51,10 @@
                                 <div class="n_ulhh">
                                     <img src="/new/images/ph_03.png">
                                 </div>
-                                <b class="img" style="background:url(' {{ $avatar->pic or '/new/images/ph_12.png' }} '); background-size:100% 100%"></b>
+                                @php
+                                    $avatar = isset($avatar->pic) ? $avatar->pic . '?' . \Carbon\Carbon::now() : NULL;
+                                @endphp
+                                <b class="img" style="background:url(' {{ $avatar or '/new/images/ph_12.png' }} '); background-size:100% 100%"></b>
                             </li>
                         @endif
                         @if ($member_pics)
@@ -60,7 +63,10 @@
                                     <div class="n_ulhh">
                                         <img src="/new/images/ph_05.png">
                                     </div>
-                                    <b class="img" style="background:url(' {{ $member_pics[$i]->pic  or '/new/images/ph_12.png' }} '); background-size:100% 100%"></b>
+                                    @php
+                                        $pic = isset($member_pics[$i]->pic) ? $member_pics[$i]->pic . '?' . \Carbon\Carbon::now() : NULL;
+                                    @endphp
+                                    <b class="img" style="background:url(' {{ $pic  or '/new/images/ph_12.png' }} '); background-size:100% 100%"></b>
                                 </li>
                             @endfor
                         @endif
@@ -73,7 +79,12 @@
                             <div class="n_ulhh">
                                 <img src="/new/images/ph_03.png">
                             </div>
-                            <b class="img" style="background:url('{{ $avatar->pic or '/new/images/'. ($user->isVip() ? 'ph_12.png' : 'ph_11.png')}}'); background-size:100% 100%">
+                            @php
+                                $defaultAvatar = $user->isVip() ? '/new/images/ph_12.png' : '/new/images/ph_11.png';
+                                // 添加日期參數, 讓圖片不使用快取機制
+                                $avatar = isset($avatar->pic) ? $avatar->pic . '?' . \Carbon\Carbon::now() : null;
+                            @endphp
+                            <b class="img" style="background:url('{{ $avatar or $defaultAvatar}}'); background-size:100% 100%">
                                 
                             </b>
                         </li>
@@ -85,12 +96,14 @@
                                     $default .= 'ph_10.png';
                                 else
                                     $default .= 'ph_12.png';
+
+                                $pic = isset($member_pics[$i]->pic) ? $member_pics[$i]->pic . '?' .\Carbon\Carbon::now() : NULL;
                             @endphp
                             <li class="write_img">
                                 <div class="n_ulhh">
                                     <img src="/new/images/ph_05.png">
                                 </div>
-                                <b class="img" style="background:url('{{ $member_pics[$i]->pic or $default }}'); background-size:100% 100%"></b>
+                                <b class="img" style="background:url('{{ $pic or $default }}'); background-size:100% 100%"></b>
                             </li>
                         @endfor
                     @endif
