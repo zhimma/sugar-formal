@@ -234,7 +234,8 @@ class ImageController extends Controller
                 "relative_file" => public_path($avatarPath),
                 "local" => $avatarPath,
                 "data" => array(
-                    "readerForce" => true
+                    "readerForce" => true,
+                    "isPreload" => true //為預先載入的圖片
                 )
             );
 
@@ -333,7 +334,8 @@ class ImageController extends Controller
                 "relative_file" => public_path($path), // full path for editing files
                 "local" => $path,
                 "data" => array(
-                    "readerForce" => true
+                    "readerForce" => true,
+                    "isPreload" => true //為預先載入的圖片
                 )
             );
         }

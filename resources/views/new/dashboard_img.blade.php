@@ -191,20 +191,33 @@
                         showGrid: true
                     },
                     onRemove: function(item) {
-                        $.ajax({
-                            url: "/dashboard/avatar/delete/" + $("input[name='userId']").val(),
-                            method: "POST",
-                            data: {
-                                _token: "{{ csrf_token() }}"
-                            },
-                            success: function(){
-                                c2("刪除成功")
-                            },
-                            error: function(xhr, status, msg){
-                                c2("刪除失敗, 請重新整理後再次嘗試操作")
+                        var isRemovable = true;
+                        if(item.data.isPreload === true){
+                            $.ajax({
+                                url: "/dashboard/avatar/delete/" + $("input[name='userId']").val(),
+                                method: "POST",
+                                data: {
+                                    _token: "{{ csrf_token() }}"
+                                },
+                                success: function(){
+                                    c2("刪除成功")
+                                    isRemovable = true
+                                },
+                                error: function(xhr, status, msg){
+                                    c2("刪除失敗")
+                                    isRemovable = false
+                                }
+                            }) 
+                        }
+
+                        return isRemovable
+                    },
+                    captions: {
+                        errors: {
+                            filesLimit: function(){
+                                return '大頭照上傳限制最多為一張！';
                             }
-                        })
-                        return true
+                        }
                     },
                     dialogs: {
                         // alert dialog
@@ -241,21 +254,34 @@
                     },
                     onRemove: function(item){
                         // 修改刪除單一照片
-                        $.ajax({
-                            url: "/dashboard/pictures/delete",
-                            method: "POST",
-                            data: {
-                                _token: "{{ csrf_token() }}",
-                                picture: item.file
-                            },
-                            success: function(){
-                                c2("刪除成功")
-                            },
-                            error: function(xhr, status, msg){
-                                c2("刪除失敗, 請重新整理後再次嘗試操作")
+                        var isRemovable = true;
+                        if(item.data.isPreload === true){
+                            $.ajax({
+                                url: "/dashboard/pictures/delete",
+                                method: "POST",
+                                data: {
+                                    _token: "{{ csrf_token() }}",
+                                    picture: item.file
+                                },
+                                success: function(){
+                                    c2("刪除成功")
+                                    isRemovable = true
+                                },
+                                error: function(xhr, status, msg){
+                                    c2("刪除失敗")
+                                    isRemovable = false
+                                }
+                            })
+                        }
+                        
+                        return isRemovable
+                    },
+                    captions: {
+                        errors: {
+                            filesLimit: function(){
+                                return '生活照上傳限制最多為六張！';
                             }
-                        })
-                        return true
+                        }
                     },
                     dialogs: {
                         // alert dialog
