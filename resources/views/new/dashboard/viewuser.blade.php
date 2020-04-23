@@ -1,5 +1,7 @@
 @extends('new.layouts.website')
-
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 @section('app-content')
     <style>
         .swiper-container {
