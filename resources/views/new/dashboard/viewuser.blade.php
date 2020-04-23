@@ -644,7 +644,7 @@
          });
     @endif
 
-    @if (Session::has('message') && Session::has('message')=="此用戶已關閉資料。")
+    @if (Session::has('message') && Session::get('message')=="此用戶已關閉資料。")
         ccc('{{Session::get('message')}}');
     @elseif(Session::has('message'))
         c2('{{Session::get('message')}}');
