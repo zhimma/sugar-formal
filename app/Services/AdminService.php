@@ -7,6 +7,7 @@ use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\LogChatPay;
 use App\Models\Vip;
 use App\Models\Tip;
 use App\Models\UserMeta;
@@ -819,4 +820,5 @@ class AdminService
             'template' => $template];
         return $datas;
     }
+
 }

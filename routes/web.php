@@ -311,10 +311,17 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('/dashboard2', 'PagesController@profileUpdate_ajax')->name('dashboard2');
     Route::post('dashboard/settings', 'PagesController@settingsUpdate');
     Route::get('/dashboard', 'PagesController@dashboard')->name('dashboard');
+
+    // 大頭照和生活照
     Route::get('/dashboard_img', 'PagesController@dashboard_img')->name('dashboard_img');
-    Route::post('/dashboard/save_img','PagesController@save_img');
+    Route::get('/dashboard/pictures/{userId?}', 'ImageController@getPictures');
+    Route::post('/dashboard/pictures/upload','ImageController@uploadPictures');
+    Route::post('/dashboard/pictures/delete', 'ImageController@deletePictures');
+    Route::get('/dashboard/avatar/{userId?}', 'ImageController@getAvatar');
+    Route::post('/dashboard/avatar/upload', 'ImageController@uploadAvatar');
+    Route::post('/dashboard/avatar/delete/{userId}', 'ImageController@deleteAvatar');
     Route::post('/dashboard/delPic', 'PagesController@delPic');
-    // Route::get('/dashboard_img_new', 'PagesController@dashboard_img')->name('dashboard_img');
+
     Route::get('/dashboard/password', 'PagesController@view_changepassword'); //new route
     Route::post('/dashboard/changepassword', 'PagesController@changePassword'); //new route
     Route::get('/dashboard/vip', 'PagesController@view_vip'); //new route
@@ -415,6 +422,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         //Route::get('/dashboard/block', 'PagesController@block');
         Route::get('/dashboard/upgrade', 'PagesController@upgrade');
    // Route::get('/dashboard/cancel', 'PagesController@cancel');
+
+
     });
 
     /*
@@ -456,17 +465,25 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('users/board', 'PagesController@board')->name('users/board');
         Route::post('users/board', 'PagesController@board')->name('users/board/search');
         Route::get('users/board/delete/{id}', 'UserController@deleteBoard')->name('users/board/delete');
-        Route::get('users/message/showBetween/{id1}/{id2}', 'UserController@showMessagesBetween')->name('admin/showMessagesBetween');
-        Route::get('users/message/to/{id}', 'UserController@showAdminMessenger');
-        Route::get('users/message/to/{id}/{mid}', 'UserController@showAdminMessengerWithMessageId')->name('AdminMessengerWithMessageId');
-        Route::get('users/message/unreported/to/{id}/{reported_id}/{pic_id?}/{isPic?}/{isReported?}', 'UserController@showAdminMessengerWithReportedId')->name('AdminMessengerWithReportedId');
-        Route::post('users/message/send/{id}', 'UserController@sendAdminMessage')->name('admin/send');
-        Route::post('users/message/multiple/send', 'UserController@sendAdminMessageMultiple')->name('admin/send/multiple');
-        Route::get('users/message/search', 'UserController@showMessageSearchPage')->name('users/message/search');
-        Route::post('users/message/search', 'UserController@searchMessage');
-        Route::post('users/message/modify', 'UserController@modifyMessage')->name('users/message/modify');
-        Route::post('users/message/delete', 'UserController@deleteMessage')->name('users/message/delete');
-        Route::post('users/message/edit', 'UserController@editMessage')->name('users/message/edit');
+        
+        Route::group(['prefix'=>'users/message'], function(){
+            Route::get('showBetween/{id1}/{id2}', 'UserController@showMessagesBetween')->name('admin/showMessagesBetween');
+            Route::get('to/{id}', 'UserController@showAdminMessenger');
+            Route::get('to/{id}/{mid}', 'UserController@showAdminMessengerWithMessageId')->name('AdminMessengerWithMessageId');
+            Route::get('unreported/to/{id}/{reported_id}/{pic_id?}/{isPic?}/{isReported?}', 'UserController@showAdminMessengerWithReportedId')->name('AdminMessengerWithReportedId');
+            Route::post('send/{id}', 'UserController@sendAdminMessage')->name('admin/send');
+            Route::post('multiple/send', 'UserController@sendAdminMessageMultiple')->name('admin/send/multiple');
+            Route::get('search', 'UserController@showMessageSearchPage')->name('users/message/search');
+            Route::get('search/reported/{date_start?}/{date_end?}', 'UserController@showReportedMessages')->name('search/reported');
+            Route::post('search', 'UserController@searchMessage');
+            Route::post('modify', 'UserController@modifyMessage')->name('users/message/modify');
+            Route::post('delete', 'UserController@deleteMessage')->name('users/message/delete');
+            Route::post('edit', 'UserController@editMessage')->name('users/message/edit');
+        });
+        
+        Route::get('statistics', 'UserController@statisticsReply')->name("statistics");
+        Route::post('statistics', 'UserController@statisticsReply');
+
         Route::get('users/pics/reported', 'UserController@showReportedPicsPage')->name('users/pics/reported');
         Route::get('users/reported', 'UserController@showReportedUsersPage')->name('users/reported');
         Route::post('users/reported', 'UserController@showReportedUsersList')->name('users/reported');
@@ -558,3 +575,4 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('roles/search', 'RoleController@index');
     });
 });
+Route::get('/test', 'ImageController@deletePictures');

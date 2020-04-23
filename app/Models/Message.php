@@ -35,6 +35,21 @@ class Message extends Model
 
     static $date = null;
 
+    /*
+    |--------------------------------------------------------------------------
+    | relationships
+    |--------------------------------------------------------------------------
+    */
+    public function sender()
+    {
+        return $this->belongsTo(User::class, 'from_id', 'id');
+    }
+
+    public function receiver()
+    {
+        return $this->belongsTo(User::class, 'to_id', 'id');
+    }
+
     // handle delete Message
     public static function deleteBetween($uid, $sid) {
         $message = Message::where([['to_id', $uid], ['from_id', $sid]])->orWhere([['to_id', $sid], ['from_id', $uid]])->orderBy('created_at', 'desc')->first();
@@ -670,4 +685,42 @@ class Message extends Model
         }
         return $string;
     }
+
+    /**
+     * 是否回應車馬費邀請的訊息
+     * 
+     * @param int from_id inviter
+     * @param int to_id invited
+     * @param date invied date
+     *
+     * @return bool
+     */
+
+    public static function isRepliedInvitation($from_id, $to_id, $invitedDate)
+    {
+        $message = Message::where('from_id', $to_id)
+                ->where('to_id', $from_id)
+                ->where('created_at', '>', $invitedDate)
+                ->where('content', 'NOT LIKE', '系統通知%');
+        return $message ? true : false;
+    }
+
+    /**
+     * does other side reply the message
+     * 
+     * @param int from_id The user'id who sends the message.
+     * @param int to_id The user'id who receive.
+     * @param int msg_id message id
+     * 
+     * @return bool
+     */
+
+    public static function isReplied($from_id, $to_id, $msg_id)
+    {
+        $message = Message::where('id', '>', $msg_id)
+                ->where('from_id', $to_id)
+                ->where('to_id', $from_id);
+        return $message ? true : false;
+    }
+    
 }

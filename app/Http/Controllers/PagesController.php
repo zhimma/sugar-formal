@@ -39,7 +39,6 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\SimpleTables\banned_users;
 use Illuminate\Support\Facades\Input;
 use Session;
-use App\Http\Controllers\Common;
 
 class PagesController extends Controller
 {
@@ -370,7 +369,6 @@ class PagesController extends Controller
             ->with('imgUserM', $imgUserM)
             ->with('imgUserF', $imgUserF);
     }
-
     public function fingerprint(){
         return view('fingerprint');
     }
@@ -633,6 +631,7 @@ class PagesController extends Controller
         }
 
         $member_pics = MemberPic::select('*')->where('member_id',$user->id)->get()->take(6);
+        $avatar = UserMeta::where('user_id', $user->id)->get()->first();
 
         $birthday = date('Y-m-d', strtotime($user->meta_()->birthdate));
         $birthday = explode('-', $birthday);
@@ -664,7 +663,8 @@ class PagesController extends Controller
                     ->with('year', $year)
                     ->with('month', $month)
                     ->with('day', $day)
-                    ->with('member_pics', $member_pics);
+                    ->with('member_pics', $member_pics)
+                    ->with('avatar', $avatar);
             }else{
                 return view('new.dashboard_img')
                     ->with('user', $user)
@@ -673,7 +673,8 @@ class PagesController extends Controller
                     ->with('year', $year)
                     ->with('month', $month)
                     ->with('day', $day)
-                    ->with('member_pics', $member_pics);
+                    ->with('member_pics', $member_pics)
+                    ->with('avatar', $avatar);
             }
         }
     }
@@ -707,8 +708,8 @@ class PagesController extends Controller
 
     public function save_img(Request $request)
     {
-        $common = new Common();
-        // dd($common->get_exif('/new/images/test05.jpg'));
+
+
         $user=$request->user();
         $user_id = $user->id;
         $data = json_decode($request->data);
