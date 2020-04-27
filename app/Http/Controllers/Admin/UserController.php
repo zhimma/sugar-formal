@@ -217,6 +217,9 @@ class UserController extends Controller
             if(!empty($request->msg)){
                 $userBanned->reason = $request->msg;
             }
+            else if(!empty($reason)){
+                $userBanned->reason = $reason;
+            }
             $userBanned->save();
 
             if(isset($request->page)){
