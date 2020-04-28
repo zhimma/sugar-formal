@@ -1505,7 +1505,7 @@ class PagesController extends Controller
         if ($user)
         {
             // blocked by user->id
-            $blocks = \App\Models\Blocked::where('member_id', $user->id)->paginate(15);
+            $blocks = \App\Models\Blocked::where('member_id', $user->id)->orderBy('created_at','desc')->paginate(15);
 
             $usersInfo = array();
             foreach($blocks as $blockUser){
