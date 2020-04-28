@@ -73,6 +73,9 @@
 </div>
 @if(str_contains(url()->current(), 'dashboard'))
     @php
+        if(!isset($user)){
+            exit();
+        }
         $time = \Carbon\Carbon::now();
         $banned_users = \App\Models\SimpleTables\banned_users::where('member_id',$user->meta_()->user_id)->whereNull('expire_date')->orWhere('expire_date','>=',$time)->count();
     @endphp
