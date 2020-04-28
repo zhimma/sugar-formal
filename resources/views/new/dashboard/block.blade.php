@@ -34,14 +34,18 @@
                     @endforeach
 
                 </ul>
-                @if(count($blocks)>15)
-                <div class="fenye">
-                    <a id="prePage" href="{{ $blocks->previousPageUrl() }}">上一頁</a>
-                    <a id="nextPage" href="{{ $blocks->nextPageUrl() }}">下一頁</a>
-                </div>
-                @endif
+
+
+
+{{--                <div class="fenye">--}}
+{{--                    <a id="prePage" href="{{ $blocks->previousPageUrl() }}">上一頁</a>--}}
+{{--                    <a id="nextPage" href="{{ $blocks->nextPageUrl() }}">下一頁</a>--}}
+{{--                </div>--}}
 
             </div>
+                <div style="text-align: center;">
+                    {!! $blocks->appends(request()->input())->links('pagination::sg-pages') !!}
+                </div>
             @else
             <div class="sjlist">
                 <div class="fengsicon"><img src="/new/images/fs_06.png" class="feng_img"><span>暫無資料</span></div>

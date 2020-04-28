@@ -188,7 +188,11 @@
 		$(".bl").hide();
 		$(".gg_tab").hide();
 	}
-
+	function ccc(str) {
+		$(".blbg").show();
+		$("#tab_other").show();
+		$("#tab_other .bltext").text(str);
+	}
 	// $(document).on('click','.announce_bg',function(event) {
 	// 	$(".announce_bg").hide();
 	// 	$(".blbg").hide();
