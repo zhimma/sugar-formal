@@ -68,8 +68,11 @@
         .n_blnr01 {
             padding-top: 20px !important;
         }
-        .matop20{
-            /*padding-top: 0px !important;*/
+        @media (min-width:812px) and (min-height: 375px) and (max-width:812px) and (max-height:375px) {
+            .bl_tab{
+                width: 40%;
+                left: 30%;
+            }
         }
 
 
@@ -378,9 +381,9 @@
                 <input type="hidden" name="aid" value="{{$user->id}}">
                 <input type="hidden" name="uid" value="{{$to->id}}">
                 <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請輸入檢舉理由"></textarea>
-                <div class="n_bbutton">
-                    <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff;">送出</button>
-                    <button type="reset" class="n_left" style="border-style: none;background: #ffffff; color:#8a9ff0;" onclick="$('#show_banned').hide();$('.announce_bg').hide()">返回</button>
+                <div class="n_bbutton" style="width: 100%; text-align: center;">
+                    <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">送出</button>
+                    <button type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="$('#show_banned').hide();$('.announce_bg').hide()">返回</button>
                 </div>
             </form>
         </div>
@@ -398,9 +401,9 @@
                 <input type="hidden" name="pic_id" value="">
 
                 <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請輸入檢舉理由" required></textarea>
-                <div class="n_bbutton">
-                    <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff;">送出</button>
-                    <button type="reset" class="n_left" style="border-style: none;background: #ffffff; color:#8a9ff0;" onclick="$('#show_reportPic').hide();$('.blbg').hide()">返回</button>
+                <div class="n_bbutton" style="width: 100%; text-align: center;">
+                    <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">送出</button>
+                    <button type="reset" class="n_left" style="border: 1px solid #8a9ff0;background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="$('#show_reportPic').hide();$('.blbg').hide()">返回</button>
                 </div>
             </form>
         </div>
@@ -411,25 +414,12 @@
 
 @section('javascript')
 <script>
-    {{--$( document ).ready(function() {--}}
-    {{--    @if(isset($is_block_mid) && $is_block_mid == '是')--}}
-    {{--    $('.container').hide();--}}
-    {{--    $('.gg_tab').hide();--}}
-    {{--    $('.n_right').hide();--}}
-    {{--    c4('此用戶已關閉資料');--}}
-    {{--    $('.n_bbutton span').css('width','100%');--}}
-    {{--    $('.n_bbutton').css('width','10%');--}}
-    {{--    $('.n_left').css('margin-right','0px');--}}
-    {{--    $(".n_left").on('click', function() {--}}
-    {{--        $('#tab04').hide();--}}
-    {{--        if (document.referrer != "") {--}}
-    {{--            window.history.back();--}}
-    {{--        }else{--}}
-    {{--            location.href = '/dashboard/search';--}}
-    {{--        }--}}
-    {{--    });--}}
-    {{--    @endif--}}
-    {{--});--}}
+    // $( document ).ready(function() {
+        @if(isset($is_block_mid) && $is_block_mid == '是')
+        ccc('此用戶已關閉資料。');
+        $('.row').css('display','none');
+        @endif
+    // });
     @if (isset($errors) && $errors->count() > 0)
         @foreach ($errors->all() as $error)
             c5('{{ $error }}');
@@ -652,7 +642,7 @@
         c2('{{Session::get('message')}}');
     @endif
 
-    $(".n_bllbut").on('click', function() {
+    $(".n_bllbut_tab_other").on('click', function() {
         $('#tab_other').hide();
         if (document.referrer != "") {
             window.history.back();
