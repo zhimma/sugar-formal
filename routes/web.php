@@ -468,7 +468,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         
         Route::group(['prefix'=>'users/message'], function(){
             Route::get('showBetween/{id1}/{id2}', 'UserController@showMessagesBetween')->name('admin/showMessagesBetween');
-            Route::get('to/{id}', 'UserController@showAdminMessenger');
+            Route::get('to/{id}', 'UserController@showAdminMessenger')->name('AdminMessage');
             Route::get('to/{id}/{mid}', 'UserController@showAdminMessengerWithMessageId')->name('AdminMessengerWithMessageId');
             Route::get('unreported/to/{id}/{reported_id}/{pic_id?}/{isPic?}/{isReported?}', 'UserController@showAdminMessengerWithReportedId')->name('AdminMessengerWithReportedId');
             Route::post('send/{id}', 'UserController@sendAdminMessage')->name('admin/send');
