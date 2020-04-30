@@ -1134,10 +1134,15 @@ class PagesController extends Controller
             if ( ! ReportedPic::findMember( $reporter_id , $pic_id ) )
             {
                 if( $reporter_id !== $uid ){
+                    $target = User::findById($uid);
+                    if(!$target){
+                        return "<h1>很抱歉，您欲檢舉的會員並不存在。</h1>";
+                    }
                     return view('dashboard.reportPic', [
                         'reporter_id' => $reporter_id,
                         'reported_pic_id' => $pic_id,
                         'user' => $user,
+                        'target' => $target,
                         'uid' => $uid]);
                 }
                 else{

@@ -913,9 +913,19 @@ class UserController extends Controller
         $admin = $this->admin->checkAdmin();
         if ($admin){
             $user = $this->service->find($id);
+            $msglib = Msglib::get();
             return view('admin.users.messenger')
                    ->with('admin', $admin)
-                   ->with('user', $user);
+                   ->with('user', $user)
+                   ->with('from_user', $user)
+                   ->with('to_user', $admin)
+                   ->with('msglib', $msglib)
+                   ->with('msglib2', collect())
+                   ->with('msglib_report', collect())
+                   ->with('msglib_reported', collect())
+                   ->with('msglib_msg', collect())
+                   ->with('message_msg', collect())
+                   ->with('msglib_msg2', collect());
         }
         else{
             return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
