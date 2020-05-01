@@ -20,7 +20,7 @@
         .swiper-slide img {
             /*width: 100%;*/
             max-width: 100%;
-            max-height: 280px;
+            /*max-height: 280px;*/
             display: block;
             margin: 0 auto;
         }
@@ -28,11 +28,11 @@
         @media (max-width:767px) {
             .swiper-container {
                 width: 100%;
-                height: auto;
+                height: 280px;
             }
             .swiper-slide {
                 /*width: 100%;*/
-                height: 200px !important;
+                /*height: 200px !important;*/
                 margin: 0 auto;
                 padding: 0px;
                 display: table
@@ -40,7 +40,7 @@
             .swiper-slide img {
                 /*width: 100%;*/
                 max-width: 100%;
-                max-height: 200px;
+                /*max-height: 200px;*/
                 display: block;
                 margin: 0 auto;
             }
@@ -48,11 +48,11 @@
         @media (max-width:992px) {
             .swiper-container {
                 width: 100%;
-                height: auto;
+                height: 280px;
             }
             .swiper-slide {
                 /*width: 100%;*/
-                height: 280px;
+                /*height: 280px;*/
                 margin: 0 auto;
                 padding: 0px;
                 display: table
@@ -60,13 +60,16 @@
             .swiper-slide img {
                 /*width: 100%;*/
                 max-width: 100%;
-                max-height: 200px;
+                /*max-height: 200px;*/
                 display: block;
                 margin: 0 auto;
             }
         }
         .n_blnr01 {
             padding-top: 20px !important;
+        }
+        .bottub ul li {
+            height: 50px;
         }
         @media (min-width:812px) and (min-height: 375px) and (max-width:812px) and (max-height:375px) {
             .bl_tab{
@@ -136,7 +139,7 @@
                             </ul>
                         </div>
                         <div class="bottub">
-                            <ul>
+                            <ul style="height: 50px;">
                                 <? $data = \App\Services\UserService::checkRecommendedUser($to);
                                 //echo $data['description'];
                                 ?>
@@ -414,6 +417,24 @@
 
 @section('javascript')
 <script>
+    $( document ).ready(function() {
+        //固定高取得
+        var bottom_height=$('.tubiao ul').height();
+        //浮動高度
+        var img_height = $(".swiper-container").height();
+        // alert(img_height);
+        $(".swiper-slide img").css('height',img_height - (bottom_height/2));
+        $('.tubiao').css('top',img_height - (bottom_height/2) - 40);
+        $(window).resize(function() {
+            // alert($('.tubiao ul').height());
+            // var wdth=$(window).width();
+            // $("span").text(wdth);
+            var img_height = $(".swiper-container").height();
+            $(".swiper-slide img").css('height',img_height - (bottom_height/2));
+            $('.tubiao').css('top',img_height - (bottom_height/2) - 40);
+            // alert(img_height - ($('.tubiao ul').height() / 2));
+        });
+    });
     // $( document ).ready(function() {
         @if(isset($is_block_mid) && $is_block_mid == '是')
         ccc('此用戶已關閉資料。');
