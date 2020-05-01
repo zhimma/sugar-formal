@@ -76,8 +76,11 @@
         if(!isset($user)){
             exit();
         }
-        $time = \Carbon\Carbon::now();
-        $banned_users = \App\Models\SimpleTables\banned_users::where('member_id',$user->meta_()->user_id)->whereNull('expire_date')->orWhere('expire_date','>=',$time)->count();
+        $banned_users = \App\Models\SimpleTables\banned_users::where('member_id',$user->meta_()->user_id)->where(
+            function ($query) {
+                $query->whereNull('expire_date')->orWhere('expire_date', '>=', \Carbon\Carbon::now());
+            })
+        ->count();
     @endphp
     @if($banned_users>0)
         <div class="blbg banned_bg" onclick="gmBtn1_banned()" style="display:block"></div>
