@@ -66,6 +66,9 @@
 									<li>
 					                   <a href="{!! url('dashboard/browse') !!}"><img src="/new/images/icon_46.png">瀏覽資料</a>
 					                </li>
+									<li>
+										<a href="{!! url('dashboard/vip') !!}"><img src="/new/images/us2.png">VIP</a>
+									</li>
 								</ul>
 							</div>
 							<a href="{!! url('logout') !!}" class="tcbut">LOGOUT</a>
