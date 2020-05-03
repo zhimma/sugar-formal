@@ -8,6 +8,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     .page>li{
         display: none !important;
     }
+    .pagination > li > a:focus,
+.pagination > li > a:hover,
+.pagination > li > span:focus,
+.pagination > li > span:hover{
+    z-index: 3;
+    /* color: #23527c !important; */
+    background-color: #FF8888 !important;
+    /* border-color: #ddd !important; */
+    /* border-color:#ee5472 !important; */
+    /* color:white !important; */
+}
 </style>
 @extends('new.layouts.website')
 
@@ -410,6 +421,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                 },
                 success:function(res){
+                    console.log(res.msg);
                     var li = '';//樣板容器
                     // var p = page;
                     // var data = res.list;        //回傳資料
@@ -426,10 +438,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                     var hide_vip_counts = 0;
                     hide_vip_counts = $('#rows').val()-10;
+                    
                     $.each(res.msg,function(i,e){
+                        console.log(i, hide_vip_counts);
                         // $('#rows').val(e.total_counts);
                         rr +=parseInt(e.read_n);
-                        if(userIsVip==0 && e.user_id != 1049 && i<hide_vip_counts && hide_vip_counts>0) {
+                        if(userIsVip==0 && e.user_id != 1049 && e.read_n>=10 && hide_vip_counts>0) {
+
                             if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0, i);
                         }else if(userIsVip==0 && e.user_id != 1049){
                             if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1, i);

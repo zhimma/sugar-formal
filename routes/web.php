@@ -184,6 +184,9 @@ Route::get('/contact', 'PagesController@contact');
 Route::get('/buyAvip', function (){return view('dashboard.buyAvip');});
 Route::get('/banned', 'PagesController@banned')->name('banned');
 
+Route::get('/sms_add_view', 'PagesController@sms_add_view');
+Route::get('/sms_add_list', 'PagesController@sms_add_list');
+Route::post('/sms_add', 'PagesController@sms_add');
 /*
 |--------------------------------------------------------------------------
 | Login/ Logout/ Password
@@ -219,6 +222,14 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/activate/send-token', 'Auth\ActivateController@sendToken');
 });
 
+
+/*
+|--------------------------------------------------------------------------
+| Sms
+|--------------------------------------------------------------------------
+*/
+
+// Route::post('/sms/postAcceptor', 'SmsController@postAcceptor');
 
 
 /*
@@ -293,6 +304,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
 
     /*會員驗證END*/
 
+
+    
     /*
     |--------------------------------------------------------------------------
     | Dashboard

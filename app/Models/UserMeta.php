@@ -207,10 +207,17 @@ class UserMeta extends Model
             $agefrom = $agefrom < 18 ? 18 : $agefrom;
             // dd(date('Y-01-01', strtotime("-30 year")));
             try{
-                $end = date('Y-12-31', strtotime("-$ageto year"));
-                $start = date('Y-01-01', strtotime("-$agefrom year"));
-                // dd($end, $start);
-                $query = $query->whereBetween('birthdate', [$end, $start]);
+                if(strtotime(Carbon::now()->subYears($ageto))===strtotime(Carbon::now()->subYears($agefrom))){
+                    $to = Carbon::now()->subYears($ageto+1)->addDay(1);
+                    $from = Carbon::now()->subYears($agefrom);
+                    $query = $query->whereBetween('birthdate', [$to, $from]);
+                }else{
+                    $to = Carbon::now()->subYears($ageto+1)->addDay(1);
+                    $from = Carbon::now()->subYears($agefrom);
+                    // dd($to, $from);
+                    $query = $query->whereBetween('birthdate', [$to, $from]);
+
+                }
             }
             catch(\Exception $e){
                 Log::info('Searching function exception occurred, user id: ' . $userid . ', $agefrom: ' . $agefrom . ', $ageto: ' . $ageto);

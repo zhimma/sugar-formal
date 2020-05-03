@@ -717,9 +717,12 @@ class PagesController extends Controller
         $pic_count = MemberPic::where('member_id', $user_id)->count();
         // dd($pic_count);
         if($pic_count==3){
-            $data = array(
-                'code' => '400'
-            );
+            $is_delete = Vip::where('member_id', $user_id)->delete();
+            if($is_delete){
+                $data = array(
+                    'code' => '400'
+                );
+            }
         }
         
         return json_encode($data);
@@ -1427,6 +1430,7 @@ class PagesController extends Controller
 
     public function chat2(Request $request, $cid)
     {
+        
         $user = $request->user();
         $m_time = '';
         if (isset($user)) {
@@ -1464,6 +1468,7 @@ class PagesController extends Controller
 
     public function chat(Request $request, $cid)
     {
+        
         $user = $request->user();
         $m_time = '';
         if (isset($user)) {
@@ -2467,4 +2472,34 @@ class PagesController extends Controller
             @header("HTTP/1.1 500 Server Error");
         }
     }
+    public function sms_add_view(Request $request){
+        return view('/sms/sms_add_view');
+    }
+
+    public function sms_add_list(Request $request){
+        $data['lists'] = DB::select("SELECT * FROM message_post ORDER BY createdAt DESC");
+
+        // dd($data);
+        return view('/sms/sms_list', $data);
+    }
+
+    public function sms_add(Request $request){
+        $message = $request->message;
+        $insert_result = DB::insert("INSERT INTO message_post (message) VALUES ('$message')");
+
+        if($insert_result){
+            $data = array(
+                'code'=>'200',
+                'msg'=>'success'
+            );
+        }else{
+            $data = array(
+                'code'=>'400',
+                'msg'=>'failed'
+            );
+        }
+
+        return json_encode($data);
+    }
+
 }

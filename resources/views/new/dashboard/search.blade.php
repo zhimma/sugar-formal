@@ -2,8 +2,18 @@
 
 @section('app-content')
 <style>
-
-
+.pagination > li > a:focus,
+.pagination > li > a:hover,
+.pagination > li > span:focus,
+.pagination > li > span:hover{
+    z-index: 3;
+    /* color: #23527c !important; */
+    background-color: #FF8888 !important;
+    /* border-color: #ddd !important; */
+    /* border-color:#ee5472 !important; */
+    /* color:white !important; */
+}
+/* 
 .pagination > .active > a,
     .pagination > .active > span,
     .pagination > .active > a:hover,
@@ -15,7 +25,7 @@
     background-color: #f5c2c0 !important;
 	border-color:#ee5472 !important;
 	color:white !important;
-	}
+	} */
 	</style>
     <div class="container matop70">
         <div class="row">
@@ -251,10 +261,14 @@
     </div>
 @stop
 
+
 @section('javascript')
+
+
     <style>
+
         .select_xx07{
-            width: 100%;
+            /* width: 425px; */
             border-radius: 4px;
             height: 40px;
             color: #555;
@@ -271,7 +285,16 @@
             appearance: none;
             padding-left: 10px;
         }
+        option{
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            padding-left: 10px;
+        }
+
+
     </style>
+
     <script>
         $('.n_zcbut').click(function(){
 
