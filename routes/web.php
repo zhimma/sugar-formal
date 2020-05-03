@@ -570,4 +570,20 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('roles/search', 'RoleController@search');
         Route::get('roles/search', 'RoleController@index');
     });
+
+
+    /*果真有酵*/
+    Route::get('/fruits', 'FruitController@index');
+    Route::get('/fruits/shop', 'FruitController@shop');
+    Route::get('/fruits/contactus', 'FruitController@contactus');
+    Route::get('/fruits/health_info', 'FruitController@health_info');
+    Route::get('/fruits/health_info_detail', 'FruitController@health_info_detail');
+    Route::get('/fruits/order_success', 'FruitController@order_success');
+    Route::get('/fruits/order_confirm', 'FruitController@order_confirm');
+
+    Route::get('/fruits/product_beauty', 'FruitController@product_beauty');
+    Route::get('/fruits/product_berry', 'FruitController@product_berry');
+    Route::get('/fruits/product_charantia', 'FruitController@product_charantia');
+    Route::get('/fruits/product_key', 'FruitController@product_key');
+    Route::get('/fruits/product_ferment', 'FruitController@product_ferment');
 });
