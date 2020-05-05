@@ -515,22 +515,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     $('.sjlist_vip').html('');
                     $('.sjlist_novip').html('');
                     $('.sjlist_alert').html('');
-                    //$('#warning').fadeIn(150);
-                    // let wait = document.getElementById("warning");
-                    // let text = '載入中，請稍候';
-                    // let length = wait.innerHTML.length + 10;
-                    // let dots = window.setInterval( function() {
-                    //     let wait = document.getElementById("warning");
-                    //     if (wait.innerHTML.length > length) {
-                    //         //wait.innerText = text;
-                    //         $('.warning').fadeOut(150);
-                    //         //$('#warning').hide();
-                    //     } else {
-                    //         //wait.innerText += ".";
-                    //         $('.warning').fadeOut(150);
-                    //     }
-                    //
-                    // }, 0);
+
                     $('.page_vip').hide();
                     $('.page_novip').hide();
                     $('.warning').show();
@@ -581,26 +566,20 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 if (e.created_at.substr(0, 10) >= this_week) {
                                     if (e.isVip == 1) {
                                         $('.sjlist_vip').append(li).find('.row_data').addClass('date7 vipMember common30');
-                                        //vip_counts++;
                                     } else {
                                         $('.sjlist_novip').append(li).find('.row_data').addClass('date7 novipMember common30');
-                                        //novip_counts++;
                                     }
                                 } else if (e.created_at != '' && e.created_at.substr(0, 10) >= this_month) {
                                     if (e.isVip == 1) {
                                         $('.sjlist_vip').append(li).find('.row_data').addClass('date30 vipMember common30');
-                                        // vip_counts++;
                                     } else {
                                         $('.sjlist_novip').append(li).find('.row_data').addClass('date30 novipMember common30');
-                                        //novip_counts++;
                                     }
                                 } else {
                                     if (e.isVip == 1) {
                                         $('.sjlist_vip').append(li).find('.row_data').addClass('dateAll vipMember');
-                                        // vip_counts++;
                                     } else {
                                         $('.sjlist_novip').append(li).find('.row_data').addClass('dateAll novipMember');
-                                        //novip_counts++;
                                     }
                                 }
                              }
@@ -618,21 +597,79 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $('.date30').hide();
                         $('.date7').hide();
 
-                        //count date7
-                        let vip_counts = $('.date7.vipMember').length;
-                        //alert(vip_counts);
-                        if(vip_counts>10){
-                            $('.page_vip').show();
-                        }
-                        Page.DrawPage(vip_counts);
-                        $('.sjlist_vip>.date7.vipMember').slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
+                        if(userIsVip == 0){
+                            let vip_counts = $('.date7.vipMember').length;
+                            //alert(vip_counts);
+                            if(vip_counts>10){
+                                $('.page_vip').show();
+                            }
+                            Page.DrawPage(vip_counts);
+                            $('.sjlist_vip>.date7.vipMember').slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
 
-                        let novip_counts = $('.date7.novipMember').length;
-                        if(novip_counts>10){
-                            $('.page_novip').show();
+                            let novip_counts = $('.date7.novipMember').length;
+                            if(novip_counts>10){
+                                $('.page_novip').show();
+                            }
+                            Page_noVip.DrawPage(novip_counts);
+                            $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page-1)*Page_noVip.row, Page_noVip.page*Page_noVip.row).css('display', '');
+
+                        }else {
+                            if (date == 7) {
+                                $('.row_data').hide();
+                                // $('.date7').hide();
+
+
+                                let vip_counts = $('.date7.vipMember').length;
+                                //alert(vip_counts);
+                                if (vip_counts > 10) {
+                                    $('.page_vip').show();
+                                }
+                                Page.DrawPage(vip_counts);
+                                $('.sjlist_vip>.date7.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+
+                                let novip_counts = $('.date7.novipMember').length;
+                                if (novip_counts > 10) {
+                                    $('.page_novip').show();
+                                }
+                                Page_noVip.DrawPage(novip_counts);
+                                $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+
+                            } else if (date == 30) {
+                                $('.row_data').hide();
+                                // $('.common30').hide();
+
+                                let vip_counts = $('.common30.vipMember').length;
+                                //alert(vip_counts);
+                                if (vip_counts > 10) {
+                                    $('.page_vip').show();
+                                }
+                                Page.DrawPage(vip_counts);
+                                $('.sjlist_vip>.common30.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+
+                                let novip_counts = $('.common30.novipMember').length;
+                                if (novip_counts > 10) {
+                                    $('.page_novip').show();
+                                }
+                                Page_noVip.DrawPage(novip_counts);
+                                $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+                            } else {
+                                // $('.dateAll').show();
+                                let vip_counts = $('.vipMember').length;
+                                //alert(vip_counts);
+                                if (vip_counts > 10) {
+                                    $('.page_vip').show();
+                                }
+                                Page.DrawPage(vip_counts);
+                                $('.sjlist_vip>.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+
+                                let novip_counts = $('.novipMember').length;
+                                if (novip_counts > 10) {
+                                    $('.page_novip').show();
+                                }
+                                Page_noVip.DrawPage(novip_counts);
+                                $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+                            }
                         }
-                        Page_noVip.DrawPage(novip_counts);
-                        $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page-1)*Page_noVip.row, Page_noVip.page*Page_noVip.row).css('display', '');
 
                         $('.warning').hide();
 
@@ -694,10 +731,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 LoadTable();
             }else{
 
-                // setTimeout(function( {
-
-
-                    if (date == 7) {
+                     if (date == 7) {
                         $('.row_data').hide();
                         // $('.date7').hide();
 
@@ -770,10 +804,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $('#sjlist_alert_warning').hide();
                         $('.sjlist_alert').append(no_row_li);
                     }
-                // },300);
             }
-
-            //LoadTable();
+            
         });
 
         function chk_delete(url) {
@@ -902,14 +934,5 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             $(this).next('dd').slideToggle();
         });
 
-        // $(document).ready(function(){
-        // $('a[data-toggle="popover"]').popover(); // not work
-        //
-        // $('.vipOnlyAlert').on('click', function() {
-        //     alert(111);
-        //     var content = $(this).data('data');
-        //     c4(content);
-        // });
-        // });
     </script>
 @stop
