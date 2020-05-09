@@ -8,6 +8,27 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     .page>li{
         display: none !important;
     }
+    .sjright{
+        right: 40px;
+        position: absolute;
+    }
+    .shou_but{
+         margin-top: 8px !important;
+         right: 80px;
+         position: absolute;
+         z-index: 1;
+     }
+    @media (max-width: 767px){
+        .sjright{
+            right: 20px;
+        }
+        .shou_but{
+            margin-top: 8px !important;
+            right: 40px !important;
+            position: absolute;
+        }
+    }
+
 </style>
 @extends('new.layouts.website')
 
@@ -445,23 +466,29 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             if(show==1) {
                 li += `
                             <span class="box"><font class="ellipsis">${content}</font></span>
+                        </div>
+                        </a>
                    `;
             }else if(show==0 && engroup==1){
                 li += `
-                     <a class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位女會員，請刪除舊的訊息後，即可發訊息給${user_name}" href="javascript:void(0);">
+                     </a>
+                     <div>
+                     <a class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位女會員，請至「全部訊息」確認通訊人數是否已超過10人，即可發訊息給${user_name}" href="javascript:void(0);">
                      <font><img src="/new/images/icon_35.png"></font>
                      </a>
+                     </div>
                    `;
             }else if(show==0 && engroup==2){
                 li += `
-                     <a class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位男會員，請上傳大頭貼＋三張生活照就可以取得　ＶＩＰ　權限或是刪除舊的訊息後，即可發訊息給${user_name}" href="javascript:void(0);">
+                     </a>
+                     <div>
+                     <a class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位男會員，請上傳大頭貼＋三張生活照就可以取得　ＶＩＰ　權限或是到「全部訊息」確認通訊人數是否已超過10人，即可發訊息給${user_name}" href="javascript:void(0);">
                      <font><img src="/new/images/icon_35.png"></font>
                      </a>
+                     </div>
                    `;
             }
             li += `
-                        </div>
-                        </a>
                         <div class="sjright">
                             <h3>${created_at}</h3>
                             <h4>
