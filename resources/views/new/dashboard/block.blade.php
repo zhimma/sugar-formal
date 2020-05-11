@@ -19,6 +19,9 @@
                 <ul>
                     @foreach ($blocks as $block)
                         <?php $blockedUser = \App\Models\User::findById($block->blocked_id);
+                        if(!isset($blockedUser)){
+                            continue;
+                        }
                         $umeta = $blockedUser->meta_();
                         if(isset($umeta->city)){
                             $umeta->city = explode(",",$umeta->city);

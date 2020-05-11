@@ -72,9 +72,17 @@
     var date=7;
 
     function liContent(e,i){
-        var li='';
+        var li='',k;
         var ss =((i+1)>Page.row)?'display:none;':'display:none;';
         var c = (e.vip)?'hy_bg01':'';
+        var area_string='';
+        if(e.city.length>1){
+            for(k=0 ; k < e.city.length;k++){
+                area_string += e.city[k]+' '+e.area[k]+' ';
+            }
+        }else{
+            area_string = e.city[0]+' '+e.area[0];
+        }
 
         var url = '{!! url("/dashboard/viewuser/:uid") !!}';
         url = url.replace(':uid', e.member_fav_id);
@@ -85,7 +93,7 @@
                     <div class="sjpic"><a href="${url}"><img src="${e.pic}"></a></div>
                     <div class="sjleft">
                         <div class="sjtable"><span><a href="${url}">${e.name}<i class="cicd">●</i>${e.age}</a></span></div>
-                        <font>${e.city}  ${e.area}</font>
+                        <font>${area_string}</font>
                     </div>
                     <div class="sjright">
                         <h4 class="fengs"><a href="javascript:" class="remove" data-id="${e.member_fav_id}"><img src="/new/images/ncion_07.png">移除</a></h4>
