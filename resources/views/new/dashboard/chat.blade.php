@@ -57,6 +57,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 <div class="sjlist_li">
                     <div class="leftsidebar_box">
                         <dl class="system_log">
+                            @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
+                            <span class="vip_delete shou_but">全部刪除</span>
+                            @endif
                             <dt class="lebox1">VIP會員</dt>
                             <dd>
                                 <div class="loading warning" id="sjlist_vip_warning"><span class="loading_text">loading</span></div>
@@ -69,6 +72,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 </ul>
                                 <div class="page page_vip" style="text-align: center;"></div>
                             </dd>
+                            @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
+                            <span class="novip_delete shou_but">全部刪除</span>
+                            @endif
                             <dt class="lebox2">普通會員</dt>
                             <dd>
 {{--                                <p style="width: 20%;margin: 0 auto;" class="warning" id="sjlist_novip_warning">--}}
@@ -79,6 +85,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 </ul>
                                 <div class="page page_novip" style="text-align: center;"></div>
                             </dd>
+                            @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
+                            <span class="alert_delete shou_but">全部刪除</span>
+                            @endif
                             <dt class="lebox3">警示會員</dt>
                             <dd>
 {{--                                <p style="width: 20%;margin: 0 auto;" class="warning" id="sjlist_alert_warning">--}}
@@ -439,12 +448,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             //${content}
             if(user_id==1049) {
                 li += `
-                <li class="row_data hy_bg02" style="${ss}">
+                <li class="row_data hy_bg02" style="${ss}" id="${user_id}">
                     <div class="si_bg">
                 `;
             }else{
                 li += `
-                <li class="row_data" style="${ss}">
+                <li class="row_data" style="${ss}" id="${user_id}">
                     <div class="si_bg">
                 `;
             }
@@ -703,7 +712,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $('.sjlist_vip>.li_no_data').remove();
                         $('.sjlist_novip>.li_no_data').remove();
                         $('.sjlist_alert>.li_no_data').remove();
-                        //alert($('.sjlist_vip>li:visible').length);
+                        // alert($('.sjlist_novip>li:visible').length);
                         if($('.sjlist_vip>li:visible').length==0){
                             $('#sjlist_vip_warning').hide();
                             $('.sjlist_vip').append(no_row_li);
@@ -743,9 +752,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         LoadTable();
 
         $('input[name=RadioGroup1]').on('click', function(event) {
-            $('.lebox1,.lebox2,.lebox3').toggleClass('on');
-            $('.lebox1,.lebox2,.lebox3').addClass('on');
-            $(".leftsidebar_box dd").show();
+            $('.lebox1').removeClass('off');
+            $('.lebox1').removeClass('on');
+            $('.lebox1').toggleClass('on');
+            $('.lebox2,.lebox3').removeClass('off');
+            $('.lebox2,.lebox3').removeClass('on');
+            $('.lebox2,.lebox3').toggleClass('off');
+            $('.lebox2,.lebox3').next('dd').show();
+            $('.lebox2,.lebox3').next('dd').slideToggle();
+
             Page.page=1;
             Page_noVip.page=1;
             date= $('input[name=RadioGroup1]:checked').val();
@@ -832,7 +847,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $('.sjlist_alert').append(no_row_li);
                     }
             }
-            
+
         });
 
         function chk_delete(url) {
@@ -840,7 +855,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             $(".n_left").on('click', function () {
                 $("#tab04").hide();
                 show_message('刪除成功');
-                window.location = url;
+                window.location=url;
             });
             return false;
         }
@@ -849,6 +864,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             c4('確定要封鎖嗎?');
             var sid = sid;
             $(".n_left").on('click', function() {
+                url=
                 $.post('{{ route('postBlockAJAX') }}', {
                     uid: '{{ $user->id }}',
                     sid: sid,
@@ -883,26 +899,65 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 {{--return false;--}}
             }
 
-        $('.shou_but').on('click', function() {
-            c4('確定要全部刪除嗎?');
+        $('.vip_delete').on('click', function() {
+
+            var IDs = [];
+            $(".sjlist_vip").find("li").each(function(){ IDs.push(this.id); });
+            // alert(IDs);
+            // alert($('.sjlist_vip.row_data>li:visible').length);
+            if($.trim(IDs) !== '') {
+                c4('確定要全部刪除嗎?');
+                deleteRowAll(IDs);
+            }else{
+                c2('沒有可刪除資料');
+            }
+        });
+        $('.novip_delete').on('click', function() {
+            // c4('確定要全部刪除嗎?');
+            var IDs = [];
+            $(".sjlist_novip").find("li").each(function(){ IDs.push(this.id); });
+
+            // alert(IDs);
+            if($.trim(IDs) !== '') {
+                c4('確定要全部刪除嗎?');
+                deleteRowAll(IDs);
+            }else{
+                c2('沒有可刪除資料');
+            }
+        });
+        $('.alert_delete').on('click', function() {
+            // c4('確定要全部刪除嗎?');
+            var IDs = [];
+            $(".sjlist_alert").find("li").each(function(){ IDs.push(this.id); });
+
+            if($.trim(IDs) !== '') {
+                c4('確定要全部刪除嗎?');
+                deleteRowAll(IDs);
+            }else{
+                c2('沒有可刪除資料');
+            }
+        });
+        function deleteRowAll(IDs) {
+            var del_url = '{!! url("/dashboard/chat2/deleterowall/:uid/:sid") !!}';
+
+            var sid = '{{$user->id}}';
+            del_url = del_url.replace(':uid', IDs);
+            del_url = del_url.replace(':sid', sid);
             $(".n_left").on('click', function() {
-                //window.location = {!! route('delete2All', ['uid' => $user->id]) !!};
-                $.post('{{ route('delete2All') }}', {
-                    uid: '{{ $user->id }}',
-                    _token: '{{ csrf_token() }}'
-                }, function (data) {
-                    $("#tab04").hide();
-                    show_message('刪除成功');
-                    window.location.reload();
-                });
+
+                $("#tab04").hide();
+                show_message('刪除成功');
+                window.location=del_url;
             });
             return false;
-        });
+
+        }
 
             function showChatSet() {
                 $(".blbg").show();
                 $("#tab03").show();
             }
+
 
 
 
@@ -953,13 +1008,46 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         });
 
         $('.lebox1,.lebox2,.lebox3').toggleClass('on');
-        $(".leftsidebar_box dd").show();
-
-
+        $('.lebox1').toggleClass('on');
+        $('.lebox2,.lebox3').toggleClass('off');
+        // $(".leftsidebar_box dd").show();
+        $('.lebox2,.lebox3').next('dd').slideToggle("slow");
+        //
+        //
         $('.lebox1,.lebox2,.lebox3').click(function(e) {
             $(this).toggleClass('on');
-            $(this).next('dd').slideToggle();
+            $(this).next('dd').slideToggle("slow");
+            $('.sjlist_vip>.li_no_data').remove();
+            $('.sjlist_novip>.li_no_data').remove();
+            $('.sjlist_alert>.li_no_data').remove();
+            //alert($('.sjlist_vip>li:visible').length);
+            if ($('.sjlist_vip>li:visible').length == 0) {
+                $('#sjlist_vip_warning').hide();
+                $('.sjlist_vip').append(no_row_li);
+            }
+            if ($('.sjlist_novip>li:visible').length == 0) {
+                $('#sjlist_novip_warning').hide();
+                $('.sjlist_novip').append(no_row_li);
+            }
+            if ($('.sjlist_alert>li:visible').length == 0) {
+                $('#sjlist_alert_warning').hide();
+                $('.sjlist_alert').append(no_row_li);
+            }
         });
 
+        // $('.sjright').css('right','40px');
+        // if(window.matchMedia("(max-width: 767px)").matches && window.matchMedia("(max-height: 823px)").matches){
+        //     $('.sjright').css('right','20px');
+        // }else{
+        //     $('.sjright').css('right','40px');
+        // }
+        // $(window).resize(function() {
+        //     $('.sjright').css('right','40px');
+        //     if(window.matchMedia("(max-width: 767px)").matches && window.matchMedia("(max-height: 823px)").matches){
+        //         $('.sjright').css('right','20px');
+        //     }else{
+        //         $('.sjright').css('right','40px');
+        //     }
+        // });
     </script>
 @stop

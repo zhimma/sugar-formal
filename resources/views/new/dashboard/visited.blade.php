@@ -17,6 +17,11 @@
                     <ul>
                         @foreach ($visitors as $visitor)
                             <?php $histUser = \App\Models\User::findById($visitor->member_id);
+                            $umeta = $histUser->meta_();
+                            if(isset($umeta->city)){
+                                $umeta->city = explode(",",$umeta->city);
+                                $umeta->area = explode(",",$umeta->area);
+                            }
                             ?>
                                 @if(isset($histUser))
                                     <li @if($histUser->isVip()) class="hy_bg01" @endif>
@@ -25,7 +30,16 @@
                                             <div class="sjpic"><img src="@if($histUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{$histUser->meta_()->pic}} @endif" @if ($histUser->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></div>
                                             <div class="sjleft">
                                                 <div class="sjtable"><span>{{ $histUser->name }}<i class="cicd">●</i>{{ $histUser->meta_()->age() }}</span></div>
-                                                <font>{{ $histUser->meta_()->city }}  {{ $histUser->meta_()->area }}</font>
+                                                <font>
+                                                    @foreach($umeta->city as $key => $cityval)
+                                                        @if ($loop->first)
+                                                            {{$umeta->city[$key]}} @if($histUser->meta_()->isHideArea == 0){{$umeta->area[$key]}}@endif
+                                                        @else
+                                                            {{$umeta->city[$key]}} @if($histUser->meta_()->isHideArea == 0){{$umeta->area[$key]}}@endif
+                                                        @endif
+                                                    @endforeach
+{{--                                                    {{ $histUser->meta_()->city }}  {{ $histUser->meta_()->area }}--}}
+                                                </font>
                                             </div>
                                             </a>
                                             <div class="sjright">

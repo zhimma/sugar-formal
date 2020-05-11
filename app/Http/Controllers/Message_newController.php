@@ -29,11 +29,20 @@ class Message_newController extends Controller {
     }
 
     public function deleteBetweenGET($uid, $sid) {
+
         Message::deleteBetween($uid, $sid);
 
         return redirect('dashboard/chat2/'.csrf_token().Carbon::now()->timestamp);
-        //return redirect('dashboard/chat2/{randomNo?}');
     }
+
+    public function deleteBetweenGetAll($uid, $sid) {
+        $ids = explode(',',$uid);
+        foreach($ids as $id){
+            Message::deleteBetween($sid,$id);
+        }
+        return redirect('dashboard/chat2/'.csrf_token().Carbon::now()->timestamp);
+    }
+
     public function delete2Between(Request $request) {
         Message::deleteBetween($request->uid, $request->sid);
         return response()->json(['save' => 'ok']);

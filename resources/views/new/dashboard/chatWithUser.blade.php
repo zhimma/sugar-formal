@@ -5,6 +5,7 @@
         height: 40px;
         float: left;
         border-radius: 100px;
+        object-fit: cover;
     }
 
     .dropbtn {

@@ -1346,6 +1346,7 @@ class PagesController extends Controller
         }
     }
 
+
     public function fav2(Request $request)
     {
         $user = $request->user();
@@ -1355,6 +1356,14 @@ class PagesController extends Controller
         }
     }
 
+    public function manual(Request $request)
+    {
+        $user = $request->user();
+        if ($user) {
+            return view('new.dashboard.manual')
+                ->with('user', $user);
+        }
+    }
     public function chat2(Request $request, $cid)
     {
         $user = $request->user();

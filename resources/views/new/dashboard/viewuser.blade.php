@@ -6,7 +6,7 @@
     <style>
         .swiper-container {
             width: 100%;
-            height: auto;
+            /*height: auto;*/
         }
 
         .swiper-slide {
@@ -418,6 +418,10 @@
 @section('javascript')
 <script>
     $( document ).ready(function() {
+
+        if(window.matchMedia("(min-width: 992px)").matches){
+            $(".swiper-container").css('height',$(".metx").height()- 70);
+        }
         //固定高取得
         var bottom_height=$('.tubiao ul').height();
         //浮動高度
