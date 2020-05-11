@@ -108,4 +108,16 @@ class Tip extends Model
         return $tipcount;
     }
 
+    /**
+     * 找尋日期間的車馬費邀請
+     * 
+     * @param date start
+     * @param date end
+     *
+     * @return collection 
+     */
+    public static function selectTipMessage($start, $end)
+    {
+        return Tip::whereBetween('created_at', [$start, $end])->get();
+    }
 }

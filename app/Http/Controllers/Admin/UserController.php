@@ -217,6 +217,9 @@ class UserController extends Controller
             if(!empty($request->msg)){
                 $userBanned->reason = $request->msg;
             }
+            else if(!empty($reason)){
+                $userBanned->reason = $reason;
+            }
             $userBanned->save();
 
             if(isset($request->page)){
@@ -910,9 +913,19 @@ class UserController extends Controller
         $admin = $this->admin->checkAdmin();
         if ($admin){
             $user = $this->service->find($id);
+            $msglib = Msglib::get();
             return view('admin.users.messenger')
                    ->with('admin', $admin)
-                   ->with('user', $user);
+                   ->with('user', $user)
+                   ->with('from_user', $user)
+                   ->with('to_user', $admin)
+                   ->with('msglib', $msglib)
+                   ->with('msglib2', collect())
+                   ->with('msglib_report', collect())
+                   ->with('msglib_reported', collect())
+                   ->with('msglib_msg', collect())
+                   ->with('message_msg', collect())
+                   ->with('msglib_msg2', collect());
         }
         else{
             return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
@@ -1724,9 +1737,7 @@ class UserController extends Controller
             'status'=>'success'
         );
         echo json_encode($data);
-    }
-
-    
+    }    
     public function basicSetting(Request $request){
         $data['basic_setting'] = BasicSetting::get()->first();
 
@@ -1978,4 +1989,80 @@ class UserController extends Controller
         return view('admin.users.warningList')->with('users', $result);
 
     }
+
+    public function statisticsReply(Request $request){
+        if($request->isMethod('GET')){
+            return view('admin.users.statisticsReply');
+        }
+        else{
+            $start = $request->date_start;
+            $end = $request->date_end;
+            $place = 4;
+
+            // 車馬費回覆
+            $repliedCount = count($this->service->selectTipMessagesReplied($start, $end));
+            $tipMessage = [
+                'replied' => $repliedCount,
+                'totalInvitation' => $repliedCount + count(\App\Models\Tip::selectTipMessage($start, $end))
+            ];
+            $count = ['tipMessage' => $tipMessage];
+
+            $tipMessage = $tipMessage['totalInvitation'] != 0 ? $tipMessage['replied']/$tipMessage['totalInvitation'] : 0;
+            $percentage = ['tipMessage' => round($tipMessage, $place)];
+
+            //男會員被回覆比例
+            $repliedMsg = $this->service->repliedMessagesProportion($start, $end);
+            
+            $normal = count($repliedMsg['messages']['Normal']);
+            $vip = count($repliedMsg['messages']['Vip']);
+            $recommend = count($repliedMsg['messages']['Recommend']);
+            $repliedNormal = count($repliedMsg['replied']['Normal']);
+            $repliedVip = count($repliedMsg['replied']['Vip']);
+            $repliedRecommend = count($repliedMsg['replied']['Recommend']);
+
+            $count['NormalMale'] = array('messages' => $normal, 'replied' => $repliedNormal);
+            $count['VipMale'] = array('messages' => $vip, 'replied' => $repliedVip);
+            $count['RecommendMale'] = array('messages' => $recommend, 'replied' => $repliedRecommend);
+
+            $normal = $repliedNormal != 0 ? $normal/$repliedNormal : 0;
+            $vip = $repliedVip != 0 ? $normal/$repliedVip : 0;
+            $recommend = $repliedRecommend != 0 ? $normal/$repliedRecommend : 0;
+            $percentage['NormalMale'] = round($normal, $place);
+            $percentage['VipMale'] = round($vip, $place);
+            $percentage['RecommendMale'] = round($recommend, $place);
+
+            // 平均收到訊息數
+            $TaipeiAndVip = $this->service->averageReceiveMessages(['新北市', '臺北市'], 1, 2);
+            $TaipeiAndNotVip = $this->service->averageReceiveMessages(['新北市', '臺北市'], 0, 2);
+            $Vip = $this->service->averageReceiveMessages([], 1, 2);
+            $NotVip = $this->service->averageReceiveMessages([], 0, 2);
+
+
+            $count['TaipeiAndVip'] = array('messages' => $TaipeiAndVip['messages'], 'users' => $TaipeiAndVip['users']);
+            $count['TaipeiAndNotVip'] = array('messages' => $TaipeiAndNotVip['messages'], 'users' => $TaipeiAndNotVip['users']);
+            $count['Vip'] = array('messages' => $Vip['messages'], 'users' => $Vip['users']);
+            $count['NotVip'] = array('messages' => $NotVip['messages'], 'users' => $NotVip['users']);
+
+            $TaipeiAndVip = $TaipeiAndVip['users'] != 0 ? $TaipeiAndVip['messages']/$TaipeiAndVip['users'] : 0;
+            $TaipeiAndNotVip = $TaipeiAndNotVip['users'] != 0 ? $TaipeiAndNotVip['messages']/$TaipeiAndNotVip['users'] : 0;
+            $Vip = $Vip['users'] != 0 ? $Vip['messages']/$Vip['users'] : 0;
+            $NotVip = $NotVip['users'] != 0 ? $NotVip['messages']/$NotVip['users'] : 0;
+            
+            $percentage['TaipeiAndVip'] = round($TaipeiAndVip, $place);
+            $percentage['TaipeiAndNotVip'] = round($TaipeiAndNotVip, $place);
+            $percentage['Vip'] = round($Vip, $place);
+            $percentage['NotVip'] = round($NotVip, $place);
+
+            return view('admin.users.statisticsReply')
+                ->with('count', $count)
+                ->with('percentage', $percentage);
+        }
+    }
+
+
+    public function statisticsReply2(Request $request){
+    
+    
+    }
+
 }

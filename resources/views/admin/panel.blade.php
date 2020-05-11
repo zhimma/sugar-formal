@@ -16,6 +16,7 @@
 		<a href="{{ route('users/reported/count') }}">會員被檢舉次數</a>
 		<a href="{{ route('users/board') }}">留言板管理</a>
 		<a href="{{ route('users/message/search') }}">會員訊息管理</a>
+		<a href="{{ route('statistics') }}">會員訊息統計</a>
 		<a href="{{ route('users/reported') }}">被檢舉會員清單</a>
 		<a href="{{ route('users/pics/reported') }}">被檢舉照片清單</a>
 		<a href="{{ route('users/basic_setting') }}">基本設定</a>

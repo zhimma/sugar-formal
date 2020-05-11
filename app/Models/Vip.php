@@ -31,6 +31,18 @@ class Vip extends Model
         'expiry'
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | relationships
+    |--------------------------------------------------------------------------
+    */
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'member_id', 'id');
+    }
+    
+
     public static  function allVip(){
         return Vip::select('member_id')->where('active', 1)->get();
     }

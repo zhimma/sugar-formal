@@ -19,9 +19,9 @@
             <div class="col-xs-6  col-sm-8  col-md-8 col-lg-8">
             <div class="nav">
                      <a href="/fruits/">首頁</a>
-                     <a href="/fruits#brand">品牌理念</a>
+                     <a href="/fruits/brand">品牌理念</a>
                      <a href="/fruits/health_info">健康資訊</a>
-                     <a href="/fruits/shop">立即購買</a>
+                     <a href="/fruits/shop" class="gr_hover">商品總覽</a>
                      <a href="/fruits/contactus">聯絡我們</a>
                  </div>
             </div>
@@ -39,9 +39,9 @@
                    <img src="/fruit/images/ticon.png" class="pho_jt">
                    <ul>
                    <li><a href="/fruits/">首頁</a></li>
-                   <li><a href="/fruits#brand">品牌理念</a></li>
+                   <li><a href="/fruits/brand">品牌理念</a></li>
                    <li><a href="/fruits/health_info">健康資訊</a></li>
-                   <li><a href="/fruits/shop">立即購買</a></li>
+                   <li><a href="/fruits/shop" class="gr_hover">商品總覽</a></li>
                    <li><a href="/fruits/contactus">聯絡我們</a></li>
                    </ul>
              </div>
@@ -107,7 +107,7 @@ else
                   <h2>『天然口服防曬劑   輕鬆擁有亮白光』</h2>
                   <h3>康光美皙</h3>
                   <div class="wpbut">
-                          <div class="wpbut_1"><span>售價 <font>$<i>1,980</i></font></span><a href="/fruits/order_confirm">立即購買></a></div><a href="/fruits/shop" class="wpmore">MORE</a>
+                          <div class="wpbut_1"><span>售價 <font>$<i>1,980</i></font></span><a href="/fruits/order_confirm">立即購買></a></div><a href="/fruits/product_beauty" class="wpmore">MORE</a>
                   </div>
             </div>
             <div class="col-xs-12  col-sm-6  col-md-6 col-lg-6 wupin">
@@ -115,7 +115,7 @@ else
                   <h2>『多種植物  健康年輕的啟動鑰匙』</h2>
                   <h3>康健之鑰</h3>
                   <div class="wpbut">
-                          <div class="wpbut_1"><span>售價 <font>$<i>1,980</i></font></span><a href="/fruits/order_confirm">立即購買></a></div><a href="/fruits/shop" class="wpmore">MORE</a>
+                          <div class="wpbut_1"><span>售價 <font>$<i>1,980</i></font></span><a href="/fruits/order_confirm">立即購買></a></div><a href="/fruits/product_key" class="wpmore">MORE</a>
                   </div>
             </div>
 
@@ -124,7 +124,7 @@ else
                   <h2>『專業調理×私密女性體質益生菌』</h2>
                   <h3>康美洛蔓</h3>
                   <div class="wpbut">
-                          <div class="wpbut_1"><span>售價 <font>$<i>1,980</i></font></span><a href="/fruits/order_confirm">立即購買></a></div><a href="/fruits/shop" class="wpmore">MORE</a>
+                          <div class="wpbut_1"><span>售價 <font>$<i>1,980</i></font></span><a href="/fruits/order_confirm">立即購買></a></div><a href="/fruits/product_berry" class="wpmore">MORE</a>
                   </div>
             </div>
             <div class="col-xs-12  col-sm-6  col-md-6 col-lg-6 wupin">
@@ -132,7 +132,7 @@ else
                   <h2>『 阻糖纖生×順暢超有感』</h2>
                   <h3>康順酵素錠</h3>
                   <div class="wpbut">
-                          <div class="wpbut_1"><span>售價 <font>$<i>1,980</i></font></span><a href="/fruits/order_confirm">立即購買></a></div><a href="/fruits/shop" class="wpmore">MORE</a>
+                          <div class="wpbut_1"><span>售價 <font>$<i>1,980</i></font></span><a href="/fruits/order_confirm">立即購買></a></div><a href="/fruits/product_ferment" class="wpmore">MORE</a>
                   </div>
             </div>
 
@@ -141,7 +141,7 @@ else
                   <h2>『康唐苦瓜複合式配方 穩固守護妳』</h2>
                   <h3>康唐苦瓜酵素膠囊</h3>
                   <div class="wpbut">
-                          <div class="wpbut_1"><span>售價 <font>$<i>1,980</i></font></span><a href="/fruits/order_confirm">立即購買></a></div><a href="/fruits/shop" class="wpmore">MORE</a>
+                          <div class="wpbut_1"><span>售價 <font>$<i>1,980</i></font></span><a href="/fruits/order_confirm">立即購買></a></div><a href="/fruits/product_charantia" class="wpmore">MORE</a>
                   </div>
             </div>
 

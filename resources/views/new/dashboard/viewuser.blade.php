@@ -1,5 +1,7 @@
 @extends('new.layouts.website')
-
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 @section('app-content')
     <style>
         .swiper-container {
@@ -18,7 +20,7 @@
         .swiper-slide img {
             /*width: 100%;*/
             max-width: 100%;
-            max-height: 280px;
+            /*max-height: 280px;*/
             display: block;
             margin: 0 auto;
         }
@@ -26,11 +28,11 @@
         @media (max-width:767px) {
             .swiper-container {
                 width: 100%;
-                height: auto;
+                height: 280px;
             }
             .swiper-slide {
                 /*width: 100%;*/
-                height: 200px !important;
+                /*height: 200px !important;*/
                 margin: 0 auto;
                 padding: 0px;
                 display: table
@@ -38,7 +40,7 @@
             .swiper-slide img {
                 /*width: 100%;*/
                 max-width: 100%;
-                max-height: 200px;
+                /*max-height: 200px;*/
                 display: block;
                 margin: 0 auto;
             }
@@ -46,11 +48,11 @@
         @media (max-width:992px) {
             .swiper-container {
                 width: 100%;
-                height: auto;
+                height: 280px;
             }
             .swiper-slide {
                 /*width: 100%;*/
-                height: 280px;
+                /*height: 280px;*/
                 margin: 0 auto;
                 padding: 0px;
                 display: table
@@ -58,7 +60,7 @@
             .swiper-slide img {
                 /*width: 100%;*/
                 max-width: 100%;
-                max-height: 200px;
+                /*max-height: 200px;*/
                 display: block;
                 margin: 0 auto;
             }
@@ -66,8 +68,14 @@
         .n_blnr01 {
             padding-top: 20px !important;
         }
-        .matop20{
-            /*padding-top: 0px !important;*/
+        .bottub ul li {
+            height: 50px;
+        }
+        @media (min-width:812px) and (min-height: 375px) and (max-width:812px) and (max-height:375px) {
+            .bl_tab{
+                width: 40%;
+                left: 30%;
+            }
         }
 
 
@@ -131,7 +139,7 @@
                             </ul>
                         </div>
                         <div class="bottub">
-                            <ul>
+                            <ul style="height: 50px;">
                                 <? $data = \App\Services\UserService::checkRecommendedUser($to);
                                 //echo $data['description'];
                                 ?>
@@ -375,10 +383,12 @@
                 {!! csrf_field() !!}
                 <input type="hidden" name="aid" value="{{$user->id}}">
                 <input type="hidden" name="uid" value="{{$to->id}}">
+
                 <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_member}}"></textarea>
                 <div class="n_bbutton">
                     <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff;">送出</button>
                     <button type="reset" class="n_left" style="border-style: none;background: #ffffff; color:#8a9ff0;" onclick="$('#show_banned').hide();$('.announce_bg').hide()">返回</button>
+
                 </div>
             </form>
         </div>
@@ -395,10 +405,12 @@
                 <input type="hidden" name="picType" value="">
                 <input type="hidden" name="pic_id" value="">
 
+
                 <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_avatar}}" required></textarea>
                 <div class="n_bbutton">
                     <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff;">送出</button>
                     <button type="reset" class="n_left" style="border-style: none;background: #ffffff; color:#8a9ff0;" onclick="$('#show_reportPic').hide();$('.blbg').hide()">返回</button>
+
                 </div>
             </form>
         </div>
@@ -410,25 +422,30 @@
 @section('javascript')
 <script>
 
-    {{--$( document ).ready(function() {--}}
-    {{--    @if(isset($is_block_mid) && $is_block_mid == '是')--}}
-    {{--    $('.container').hide();--}}
-    {{--    $('.gg_tab').hide();--}}
-    {{--    $('.n_right').hide();--}}
-    {{--    c4('此用戶已關閉資料');--}}
-    {{--    $('.n_bbutton span').css('width','100%');--}}
-    {{--    $('.n_bbutton').css('width','10%');--}}
-    {{--    $('.n_left').css('margin-right','0px');--}}
-    {{--    $(".n_left").on('click', function() {--}}
-    {{--        $('#tab04').hide();--}}
-    {{--        if (document.referrer != "") {--}}
-    {{--            window.history.back();--}}
-    {{--        }else{--}}
-    {{--            location.href = '/dashboard/search';--}}
-    {{--        }--}}
-    {{--    });--}}
-    {{--    @endif--}}
-    {{--});--}}
+    $( document ).ready(function() {
+        //固定高取得
+        var bottom_height=$('.tubiao ul').height();
+        //浮動高度
+        var img_height = $(".swiper-container").height();
+        // alert(img_height);
+        $(".swiper-slide img").css('height',img_height - (bottom_height/2));
+        $('.tubiao').css('top',img_height - (bottom_height/2) - 40);
+        $(window).resize(function() {
+            // alert($('.tubiao ul').height());
+            // var wdth=$(window).width();
+            // $("span").text(wdth);
+            var img_height = $(".swiper-container").height();
+            $(".swiper-slide img").css('height',img_height - (bottom_height/2));
+            $('.tubiao').css('top',img_height - (bottom_height/2) - 40);
+            // alert(img_height - ($('.tubiao ul').height() / 2));
+        });
+    });
+    // $( document ).ready(function() {
+        @if(isset($is_block_mid) && $is_block_mid == '是')
+        ccc('此用戶已關閉資料。');
+        $('.row').css('display','none');
+        @endif
+    // });
 
     @if (isset($errors) && $errors->count() > 0)
         @foreach ($errors->all() as $error)
@@ -646,13 +663,13 @@
          });
     @endif
 
-    @if (Session::has('message') && Session::has('message')=="此用戶已關閉資料。")
+    @if (Session::has('message') && Session::get('message')=="此用戶已關閉資料。")
         ccc('{{Session::get('message')}}');
     @elseif(Session::has('message'))
         c2('{{Session::get('message')}}');
     @endif
 
-    $(".n_bllbut").on('click', function() {
+    $(".n_bllbut_tab_other").on('click', function() {
         $('#tab_other').hide();
         if (document.referrer != "") {
             window.history.back();

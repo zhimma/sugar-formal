@@ -173,6 +173,27 @@
                 $("#blockUserID").val($(this).data('id'))
             }
         });
+
+        $(".banReason").each( function(){
+            $(this).bind("click" , function(){
+                var id = $("a").index(this);
+                var clickval = $("a").eq(id).text();
+                $('.m-reason').val(clickval);
+            });
+        });
+
+        $('.advertising').on('click', function(e) {
+            $('.m-reason').val('廣告');
+        });
+        $('.improper-behavior').on('click', function(e) {
+            $('.m-reason').val('非徵求包養行為');
+        });
+        $('.improper-words').on('click', function(e) {
+            $('.m-reason').val('用詞不當');
+        });
+        $('.improper-photo').on('click', function(e) {
+            $('.m-reason').val('照片不當');
+        });
     });
  </script>
 @stop

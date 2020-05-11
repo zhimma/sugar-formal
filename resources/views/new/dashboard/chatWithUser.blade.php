@@ -60,13 +60,34 @@
         position: inherit;
         float: left;
     }
-    .shdel {
+    .shdel_word {
         background-color: #ffffff;
         border-radius: 11px;
         width: auto !important;
         height: auto !important;
         bottom: -4px !important;
         border: #fd5678 1px solid;
+
+    }
+    .shdel_word>span {
+        padding-right: 1px;
+        padding-left: 1px;
+        font-size: 11px;
+        color: #fd5678;
+    }
+    .shdel_word>i {
+        font-size: 11pt;
+        color: #fd5678 ;
+        /*padding-top: 2px;*/
+    }
+
+    .shdel {
+        background-color: #ffffff;
+        border-radius: 11px;
+        /*width: auto !important;*/
+        height: auto !important;
+        bottom: -4px !important;
+        /*border: #fd5678 1px solid;*/
 
     }
     .shdel>span {
@@ -118,6 +139,9 @@
                                 <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">
                                 <button type="button" class="paypay" onclick="checkPay('ecpay')"><a class="nnn_adbut">車馬費1</a></button>
                             </form>
+                        @else
+                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c2('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -5px">車馬費2</a></button>
+                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c2('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -5px">車馬費1</a></button>
                         @endif
                     </div>
                 @else
@@ -135,6 +159,7 @@
                             @endphp
 
                             @if($date_temp != substr($message['created_at'],0,10)) <div class="sebg matopj10">{{substr($message['created_at'],0,10)}}</div>@endif
+                            @if($message['sys_notice']==0)
                             <div class="@if($message['from_id'] == $user->id) show @else send @endif">
                                 <div class="msg @if($message['from_id'] == $user->id) msg1 @endif">
                                     @if($message['from_id'] == $user->id)
@@ -148,14 +173,15 @@
                                         <i class="msg_input"></i>{!! nl2br($message['content']) !!}
                                         @if($message['from_id'] != $user->id)
                                             <a href="javascript:void(0)" class="" onclick="banned('{{$msgUser->id}}','{{$msgUser->name}}');" title="檢舉">
-                                                <span class="shdel"><span>檢舉</span><span>
+{{--                                                <span class="shdel_word"><span>檢舉</span><span>--}}
+                                                <img src="/new/images/ban.png" class="shdel" alt="檢舉">
                                             </a>
                                         @endif
                                         <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
                                             <span>{{ substr($message['created_at'],11,5) }}</span>
                                             @if(!$isVip && $message['from_id'] == $user->id)
-                                                <span>已讀/未讀</span>
-                                                <img src="/new/images/icon_35.png">
+                                                <span style="color:lightgrey;">已讀/未讀</span>
+                                                <img src="/new/images/icon_35.png" style="position: absolute;float: left;left: 10px; top:20px;-moz-transform:rotate(-25deg);-webkit-transform:rotate(-30deg);">
                                             @else
                                             <span>@if($message['read'] == "Y" && $message['from_id'] == $user->id) 已讀 @elseif($message['read'] == "N" && $message['from_id'] == $user->id) 未讀 @endif</span>
                                             @endif
@@ -165,6 +191,20 @@
                                     </p>
                                 </div>
                             </div>
+                            @elseif($message['from_id'] == $user->id)
+                                <div class="send">
+                                    <div class="msg">
+                                        <img src="/new/images/admin-avatar.jpg">
+                                        <p style="background: #DDF3FF;">
+                                            <i class="msg_input_blue"></i>
+                                            {!! nl2br($message['content']) !!}
+                                            <font class="sent_ri @if(!$isVip) novip @endif dr_r">
+                                                <span>{{ substr($message['created_at'],11,5) }}</span>
+                                            </font>
+                                        </p>
+                                    </div>
+                                </div>
+                            @endif
                             @php
                                 $date_temp = substr($message['created_at'],0,10);
                             @endphp
@@ -214,15 +254,19 @@
     </div>
 
     <div class="bl bl_tab" id="show_banned">
-        <div class="bltitle banned_name"><span></span></div>
-        <div class="n_blnr01 ">
+        <div class="bltitle banned_name"></div>
+        <div class="n_blnr01">
             <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ route('reportPost') }}">
                 {!! csrf_field() !!}
                 <input type="hidden" name="aid" value="{{$user->id}}">
                 <input type="hidden" name="uid" value="">
                 <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請輸入檢舉理由"></textarea>
-                <div class="n_bbutton">
-                    <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>
+{{--                <div class="n_bbutton">--}}
+{{--                    <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>--}}
+{{--                </div>--}}
+                <div class="n_bbutton" style="width: 100%; text-align: center;">
+                    <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">送出</button>
+                    <button type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="$('#show_banned').hide();$('.announce_bg').hide()">返回</button>
                 </div>
             </form>
         </div>
@@ -368,18 +412,16 @@
     }else{
         message_max_height = message_height - footer_height - $('.hetop').height() - 110;
         $('.se_text_bot').addClass('se_text_bot_add_bottom');
-
     }
+
     $('.message').css('width',$('.shouxq').width()-20);
     $('.se_text').css('width',$('.shouxq').width());
-    // if( /Android|iPhone/i.test(navigator.userAgent) ) {
     if(window.matchMedia("(max-width: 767px)").matches && window.matchMedia("(max-height: 823px)").matches){
         $('.se_text_bot').removeClass('se_text_bot_add_bottom');
         $('.bot').hide();
 
         message_max_height = message_height - $('.heicon').height() - 50;
         bl_gb_fixed_top = $(window).height() / 5 + 10;
-        //alert(bl_gb_fixed_top);
         $('.bltitle_fixed').css('width',$('#tab_payAlert').width()+1);
         $('.bl_gb_fixed').css('top',bl_gb_fixed_top);
         $('#tab_payAlert').css('height','70%');
@@ -394,54 +436,58 @@
         $('.bl_gb_fixed').css('right',bl_gb_fixed_right);
         $('.matop20').css('margin-top','40px !important');
     }
-    // if(window.matchMedia("(min-width: 1024px)").matches){
-    //     bl_gb_fixed_top = $(window).height() / 10;
-    //     $('.bl_gb_fixed').css('top',bl_gb_fixed_top);
-    // }
+
     $('.message').css('max-height',message_max_height);
 
-    $(document).ready(function() {
+    $(window).resize(function() {
+        var message_max_height,bl_gb_fixed_top,bl_gb_fixed_right;
+        var message_height = $(window).height() - $('#message_input').height() - $('.shouxq').height();
+        var footer_height = $('.bot').height();
+        if($(window).height()<=601){
+            message_max_height = message_height - $('.hetop').height() - 50;
+        }else{
+            message_max_height = message_height - footer_height - $('.hetop').height() - 110;
+            $('.se_text_bot').addClass('se_text_bot_add_bottom');
 
+        }
+        $('.message').css('width',$('.shouxq').width()-20);
+        $('.se_text').css('width',$('.shouxq').width());
+        // if( /Android|iPhone/i.test(navigator.userAgent) ) {
+        if(window.matchMedia("(max-width: 767px)").matches && window.matchMedia("(max-height: 823px)").matches){
+            $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+            $('.bot').hide();
 
+            message_max_height = message_height - $('.heicon').height() - 50;
+            bl_gb_fixed_top = $(window).height() / 5 + 10;
+            //alert(bl_gb_fixed_top);
+            $('.bltitle_fixed').css('width',$('#tab_payAlert').width()+1);
+            $('.bl_gb_fixed').css('top',bl_gb_fixed_top);
+            $('#tab_payAlert').css('height','70%');
 
-
-        // if (window.matchMedia('(min-width: 1263px)').matches && window.matchMedia('(min-height:578px)').matches && window.matchMedia('(max-width: 1263px)').matches && window.matchMedia('(max-height:578px)').matches) {
-        //     $('.se_text_bot').removeClass('se_text_bot_add_bottom');
-        // }else if (window.matchMedia('(min-width: 1280px)').matches && window.matchMedia('(min-height:601px)').matches && window.matchMedia('(max-width: 1280px)').matches && window.matchMedia('(max-height:601px)').matches) {
-        //     $('.se_text_bot').removeClass('se_text_bot_add_bottom');
-        // } else {
-        //     $('.se_text_bot').addClass('se_text_bot_add_bottom');
-        //     // alert(1);
+        }
+        if(window.matchMedia("(min-width: 1024px)").matches && window.matchMedia("(max-height: 690px)").matches){
+            bl_gb_fixed_top = $(window).height() / 10 - 5;
+            bl_gb_fixed_right = $(window).width() / 3 - 5;
+            //alert(bl_gb_fixed_right);
+            $('.bltitle_fixed').css('width',$('#tab_payAlert').width());
+            $('.bl_gb_fixed').css('top',bl_gb_fixed_top);
+            $('.bl_gb_fixed').css('right',bl_gb_fixed_right);
+            $('.matop20').css('margin-top','40px !important');
+        }
+        // if(window.matchMedia("(min-width: 1024px)").matches){
+        //     bl_gb_fixed_top = $(window).height() / 10;
+        //     $('.bl_gb_fixed').css('top',bl_gb_fixed_top);
         // }
+        $('.message').css('max-height',message_max_height);
     });
 
     $(window).scroll(function() {
         if($(window).scrollTop() + $(window).height() > $(document).height()-50) {
-             // alert($(document).height());
             if(window.matchMedia("(max-width: 767px)").matches){
-                // $('.bot').hide();
                 $('.se_text_bot').removeClass('se_text_bot_add_bottom');
-                // if (window.matchMedia('(min-width: 1263px)').matches && window.matchMedia('(min-height:578px)').matches && window.matchMedia('(max-width: 1263px)').matches && window.matchMedia('(max-height:578px)').matches)
-                //     {
-                //         $('.se_text_bot').addClass('se_text_bot_add_bottom');
-                //         // alert(1);
-                //     }else if (window.matchMedia('(min-width: 1280px)').matches && window.matchMedia('(min-height:601px)').matches) {
-                //         $('.se_text_bot').addClass('se_text_bot_add_bottom');
-                //     }else {
-                //         $('.se_text_bot').removeClass('se_text_bot_add_bottom');
-                //     }
+
             }else {
                 $('.se_text_bot').addClass('se_text_bot_add_bottom');
-                // // $('.se_text_bot').removeClass('se_text_bot_add_bottom');
-                // if (window.matchMedia('(min-width: 1263px)').matches && window.matchMedia('(min-height:578px)').matches && window.matchMedia('(max-width: 1263px)').matches && window.matchMedia('(max-height:578px)').matches)
-                // {
-                //     $('.se_text_bot').addClass('se_text_bot_add_bottom');
-                // }else if (window.matchMedia('(min-width: 1280px)').matches && window.matchMedia('(min-height:601px)').matches) {
-                //     $('.se_text_bot').addClass('se_text_bot_add_bottom');
-                //     alert(1);
-                // }else {
-                //     $('.se_text_bot').removeClass('se_text_bot_add_bottom');
-                // }
             }
         }
         else{
@@ -451,7 +497,7 @@
 
     function banned(sid,name){
         $("input[name='uid']").val(sid);
-        $(".banned_name").append("<span>" + name + "</span>")
+        $(".banned_name").append("<span>檢舉" + name + "</span>")
         $(".announce_bg").show();
         $("#show_banned").show();
     }

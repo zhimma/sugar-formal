@@ -55,6 +55,7 @@
 	@else 
 		<button class="btn btn-info" onclick="VipAction({{($user['isvip'])?'1':'0' }},{{ $user['id'] }})"> 升級VIP </button>
 	@endif
+	<a href="{{ route('AdminMessage', $user['id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
 	@if(is_null($userMeta->activation_token))
 		<b style="font-size:18px">已開通會員</b>
 	@else

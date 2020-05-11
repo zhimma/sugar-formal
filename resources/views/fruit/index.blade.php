@@ -14,15 +14,15 @@
     <div class="container">
         <div class="row">
             <div class="col-xs-12  col-sm-4  col-md-4 col-lg-4">
-                 <img src="/fruit/images/logo.png" class="logo"> 
+               <a href="/fruit"><img src="/fruit/images/logo.png" class="logo"></a>
             </div>
             <div class="col-xs-6  col-sm-8  col-md-8 col-lg-8">
             <div class="nav">
-                     <a href="/fruits/">首頁</a>
-                     <a href="/fruits#brand">品牌理念</a>
+                     <a href="/fruits/" class="gr_hover">首頁</a>
+                     <a href="/fruits/brand">品牌理念</a>
                      <a href="/fruits/health_info">健康資訊</a>
-                     <a href="/fruits/shop">立即購買</a>
-                     <a href="/fruits/contactus">聯絡我們</a>
+                     <a href="/fruits/shop">商品總覽</a>
+                     <a href="/fruits/contactus">關於我們</a>
                  </div>
             </div>
 
@@ -38,11 +38,11 @@
              <div class="pho_nav_ul" id="div1"> 
                    <img src="/fruit/images/ticon.png" class="pho_jt">
                    <ul>
-                   <li><a href="/fruits/">首頁</a></li>
-                   <li><a href="/fruits#brand">品牌理念</a></li>
+                   <li><a href="/fruits/" class="gr_hover">首頁</a></li>
+                   <li><a href="/fruits/brand">品牌理念</a></li>
                    <li><a href="/fruits/health_info">健康資訊</a></li>
-                   <li><a href="/fruits/shop">立即購買</a></li>
-                   <li><a href="/fruits/contactus">聯絡我們</a></li>
+                   <li><a href="/fruits/shop">商品總覽</a></li>
+                   <li><a href="/fruits/contactus">關於我們</a></li>
                    </ul>
              </div>
         </div>

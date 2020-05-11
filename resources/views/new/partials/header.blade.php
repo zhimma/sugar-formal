@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}" >
 	<head>
 		<meta charset="utf-8" />
@@ -36,4 +36,12 @@
         <link href="/plugins/hopscotch/css/hopscotch.min.css" rel="stylesheet" type="text/css" />
         <link href="https://unpkg.com/ionicons@4.5.10-0/dist/css/ionicons.min.css" rel="stylesheet">
 		<link rel="shortcut icon" href="/img/favicon.jpg" />
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-151409328-1"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+			gtag('config', 'UA-151409328-1');
+		</script>
 	</head>

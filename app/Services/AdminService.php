@@ -7,6 +7,7 @@ use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\LogChatPay;
 use App\Models\Vip;
 use App\Models\Tip;
 use App\Models\UserMeta;
@@ -90,6 +91,9 @@ class AdminService
         }
         foreach ($users as $user){
             $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first() == true  ? true : false;
+            if($user['isBlocked'] == false){
+                $user['isBlocked'] = \App\Models\BannedUsersImplicitly::select(\DB::raw('id, "隱性" as type'))->where('target', 'like', $user->id)->get()->first() == true ? true : false;
+            }
             $user['vip'] = $user->isVip() ? '是' : '否';
             if($user['vip'] == '是'){
                 $user['vip_data'] = Vip::select('id', 'expiry')
@@ -188,7 +192,13 @@ class AdminService
                 array_push($from_id, $result->from_id);
             }
             $result['isBlocked'] = banned_users::where('member_id', 'like', $result->from_id)->get()->first();
+            if(!isset($result['isBlocked'])){
+                $result['isBlocked'] = \App\Models\BannedUsersImplicitly::select(\DB::raw('id, "隱性" as type'))->where('target', 'like', $result->from_id)->get()->first();
+            }
             $result['isBlockedReceiver'] = banned_users::where('member_id', 'like', $result->to_id)->get()->first();
+            if(!isset($result['isBlockedReceiver'])){
+                $result['isBlockedReceiver'] = \App\Models\BannedUsersImplicitly::select(\DB::raw('id, "隱性" as type'))->where('target', 'like', $result->to_id)->get()->first();
+            }
             //被檢舉者近一月曾被不同人檢舉次數
             $tmp = $this->reports_month($result->from_id);
             $result['picsResult'] = $tmp['picsResult'];
@@ -296,7 +306,13 @@ class AdminService
                 array_push($reported_user_id, $result->reported_user_id);
             }
             $result['isBlocked'] = banned_users::where('member_id', 'like', $result->reporter_id)->get()->first();
+            if(!isset($result['isBlocked'])){
+                $result['isBlocked'] = \App\Models\BannedUsersImplicitly::select(\DB::raw('id, "隱性" as type'))->where('target', 'like', $result->reporter_id)->get()->first();
+            }
             $result['isBlockedReceiver'] = banned_users::where('member_id', 'like', $result->reported_user_id)->get()->first();
+            if(!isset($result['isBlockedReceiver'])){
+                $result['isBlockedReceiver'] = \App\Models\BannedUsersImplicitly::select(\DB::raw('id, "隱性" as type'))->where('target', 'like', $result->reported_user_id)->get()->first();
+            }
 
             //被檢舉者近一月曾被不同人檢舉次數
             $tmp = $this->reports_month($result->reported_user_id);
@@ -376,7 +392,13 @@ class AdminService
                     array_push($reported_user_id, $temp->member_id);
                 }
                 $result['isBlocked'] = banned_users::where('member_id', 'like', $result->reporter_id)->get()->first();
+                if(!isset($result['isBlocked'])){
+                    $result['isBlocked'] = \App\Models\BannedUsersImplicitly::select(\DB::raw('id, "隱性" as type'))->where('target', 'like', $result->reporter_id)->get()->first();
+                }
                 $result['isBlockedReceiver'] = banned_users::where('member_id', 'like', $result->reported_user_id)->get()->first();
+                if(!isset($result['isBlockedReceiver'])){
+                    $result['isBlockedReceiver'] = \App\Models\BannedUsersImplicitly::select(\DB::raw('id, "隱性" as type'))->where('target', 'like', $result->reported_user_id)->get()->first();
+                }
                 //被檢舉者近一月曾被不同人檢舉次數
                 $tmp = $this->reports_month($result->reported_user_id);
                 $result['picsResult'] = $tmp['picsResult'];
@@ -499,6 +521,9 @@ class AdminService
         });
         foreach($users as $id => &$user){
             $user['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first();
+            if(!isset($user['isBlocked'])){
+                $user['isBlocked'] = \App\Models\BannedUsersImplicitly::select(\DB::raw('id, "隱性" as type'))->where('target', 'like', $id)->get()->first();
+            }
         }
 
         return ['reportedUsers' => isset($search_id) ? $reportedUsers[$search_id] : $reportedUsers,
@@ -819,4 +844,5 @@ class AdminService
             'template' => $template];
         return $datas;
     }
+
 }
