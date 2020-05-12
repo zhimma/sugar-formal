@@ -645,7 +645,7 @@ class Message extends Model
         }
     }
 
-    public static function post($from_id, $to_id, $msg, $tip_action = true)
+    public static function post($from_id, $to_id, $msg, $tip_action = true, $sys_notice = 0)
     {
         $message = new Message;
         $message->from_id = $from_id;
@@ -662,6 +662,7 @@ class Message extends Model
         }
         $message->is_single_delete_2 = 0;
         $message->temp_id = 0;
+        $message->sys_notice = $sys_notice;
         $message->save();
         $curUser = User::findById($to_id);
         if ($curUser->meta_()->notifmessage !== '不通知')
