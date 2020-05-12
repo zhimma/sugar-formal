@@ -17,6 +17,9 @@
                     <ul>
                         @foreach ($visitors as $visitor)
                             <?php $histUser = \App\Models\User::findById($visitor->member_id);
+                            if(!isset($histUser)){
+                                continue;
+                            }
                             $umeta = $histUser->meta_();
                             if(isset($umeta->city)){
                                 $umeta->city = explode(",",$umeta->city);
