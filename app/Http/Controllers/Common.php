@@ -169,7 +169,7 @@ class Common extends Controller {
         }else{
             // "Image contains headers";
             $exif = exif_read_data($avatar_path);
-            dd($exif);
+            // dd($exif);
             // echo "test2.jpg:<br />\n";
             // $exif_data = array();
             // foreach ($exif as $key => $section) {
@@ -283,7 +283,7 @@ class Common extends Controller {
                 $pic_count = DB::table('auth_img')->where('user_id', $user->id)->where('status', 1)->count();
                 if($pic_count>=1){
                     $data = array(
-                        'code'=>'400',
+                        'code'=>'201',
                         'msg' =>'您已經驗證過了'
                     );
                     // break;

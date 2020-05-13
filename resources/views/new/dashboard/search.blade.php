@@ -1,6 +1,32 @@
 @extends('new.layouts.website')
 
 @section('app-content')
+<style>
+.pagination > li > a:focus,
+.pagination > li > a:hover,
+.pagination > li > span:focus,
+.pagination > li > span:hover{
+    z-index: 3;
+    /* color: #23527c !important; */
+    background-color: #FF8888 !important;
+    /* border-color: #ddd !important; */
+    /* border-color:#ee5472 !important; */
+    /* color:white !important; */
+}
+/* 
+.pagination > .active > a,
+    .pagination > .active > span,
+    .pagination > .active > a:hover,
+    .pagination > .active > span:hover,
+    .pagination > .active > a:focus,
+    .pagination > .active > span:focus {
+        z-index: 3;
+    color: #23527c !important;
+    background-color: #f5c2c0 !important;
+	border-color:#ee5472 !important;
+	color:white !important;
+	} */
+	</style>
     <div class="container matop70">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -19,11 +45,12 @@
                                 <span>地區</span>
                                 <span>
                                 <span class="twzipcode" id="twzipcode" style="display: inline-flex;">
-                                <span class="select_xx07 left" data-role="county" data-name="county" data-value="@if(!empty($_POST['county'])){{ $_POST['county'] }}@elseif(!empty($_GET['county'])){{ $_GET['county']  }}@endif" style=""></span>
-                                <span class="select_xx07 right" data-role="district" data-name="district" data-value="@if(!empty($_POST['district'])){{ $_POST['district'] }}@elseif(!empty($_GET['district'])){{ $_GET['district'] }}@endif" style=""></span>
-{{--                                    @if ($user->isVip())--}}
-                                    {{--                                        <span class="twzip"><input class="m-input" type="checkbox" id="pic" name="pic"> 照片</span>--}}
-                                    {{--                                    @endif--}}
+                                        <span class="select_xx07 left" data-role="county" data-name="county" data-value="@if(!empty($_POST['county'])){{ $_POST['county'] }}@elseif(!empty($_GET['county'])){{ $_GET['county']  }}@endif" style=""></span>
+                                        <span class="select_xx07 right" data-role="district" data-name="district" data-value="@if(!empty($_POST['district'])){{ $_POST['district'] }}@elseif(!empty($_GET['district'])){{ $_GET['district'] }}@endif" style=""></span>
+                                    
+                                        {{--@if ($user->isVip())--}}
+                                        {{--                                        <span class="twzip"><input class="m-input" type="checkbox" id="pic" name="pic"> 照片</span>--}}
+                                        {{--                                    @endif--}}
                                 </span>
 {{--                            <select name="" class="select_xx06"><option>連江縣</option><option>B</option></select>--}}
                                     {{--                            <select name="" class="select_xx06 right"><option>南竿鄉</option><option>B</option></select>--}}
@@ -89,7 +116,11 @@
                                             <option value="已婚" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "已婚" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "已婚") selected @endif>已婚</option>
                                             <option value="分居" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "分居" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "分居") selected @endif>分居</option>
                                             <option value="單身" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "單身" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "單身") selected @endif>單身</option>
-                                            <option value="有男友" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "有男友" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "有男友") selected @endif>有男友</option>
+                                            @if( $user->engroup == 2)
+                                                <option value="有女友" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "有女友" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "有女友") selected @endif>有女友</option>
+                                            @else
+                                                <option value="有男友" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "有男友" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "有男友") selected @endif>有男友</option>
+                                            @endif
                                         </select>
                                     </div>
                                     <div class="n_se right">
@@ -230,10 +261,14 @@
     </div>
 @stop
 
+
 @section('javascript')
+
+
     <style>
+
         .select_xx07{
-            width: 100%;
+            /* width: 425px; */
             border-radius: 4px;
             height: 40px;
             color: #555;
@@ -250,7 +285,16 @@
             appearance: none;
             padding-left: 10px;
         }
+        option{
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            padding-left: 10px;
+        }
+
+
     </style>
+
     <script>
         $('.n_zcbut').click(function(){
 
@@ -311,5 +355,6 @@
 
 
         });
+        
     </script>
 @stop

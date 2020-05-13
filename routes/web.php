@@ -184,6 +184,9 @@ Route::get('/contact', 'PagesController@contact');
 Route::get('/buyAvip', function (){return view('dashboard.buyAvip');});
 Route::get('/banned', 'PagesController@banned')->name('banned');
 
+Route::get('/sms_add_view', 'PagesController@sms_add_view');
+Route::get('/sms_add_list', 'PagesController@sms_add_list');
+Route::post('/sms_add', 'PagesController@sms_add');
 /*
 |--------------------------------------------------------------------------
 | Login/ Logout/ Password
@@ -219,6 +222,14 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/activate/send-token', 'Auth\ActivateController@sendToken');
 });
 
+
+/*
+|--------------------------------------------------------------------------
+| Sms
+|--------------------------------------------------------------------------
+*/
+
+// Route::post('/sms/postAcceptor', 'SmsController@postAcceptor');
 
 
 /*
@@ -293,6 +304,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
 
     /*會員驗證END*/
 
+
+    
     /*
     |--------------------------------------------------------------------------
     | Dashboard
@@ -576,5 +589,34 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('roles/search', 'RoleController@search');
         Route::get('roles/search', 'RoleController@index');
     });
+
+
+    /*果真有酵*/
+    Route::get('/fruits', 'FruitController@index');
+    Route::get('/fruits/shop', 'FruitController@shop');
+    Route::get('/fruits/brand', 'FruitController@brand');
+    Route::get('/fruits/contactus', 'FruitController@contactus');
+    Route::get('/fruits/health_info', 'FruitController@health_info');
+    Route::get('/fruits/health_info01', 'FruitController@health_info01');
+    Route::get('/fruits/health_info02', 'FruitController@health_info02');
+    Route::get('/fruits/health_info03', 'FruitController@health_info03');
+    Route::get('/fruits/health_info04', 'FruitController@health_info04');
+    Route::get('/fruits/health_info_detail', 'FruitController@health_info_detail');
+    Route::get('/fruits/news01', 'FruitController@news01');
+    Route::get('/fruits/news02', 'FruitController@news02');
+    Route::get('/fruits/order_success', 'FruitController@order_success');
+    Route::get('/fruits/order_confirm', 'FruitController@order_confirm');
+
+    Route::get('/fruits/product_beauty', 'FruitController@product_beauty');
+    Route::get('/fruits/product_berry', 'FruitController@product_berry');
+    Route::get('/fruits/product_charantia', 'FruitController@product_charantia');
+    Route::get('/fruits/product_key', 'FruitController@product_key');
+    Route::get('/fruits/product_ferment', 'FruitController@product_ferment');
+
+    Route::get('/fruits/product_beauty_more', 'FruitController@product_beauty_more');
+    Route::get('/fruits/product_berry_more', 'FruitController@product_berry_more');
+    Route::get('/fruits/product_charantia_more', 'FruitController@product_charantia_more');
+    Route::get('/fruits/product_key_more', 'FruitController@product_key_more');
+    Route::get('/fruits/product_ferment_more', 'FruitController@product_ferment_more');
 });
 Route::get('/test', 'ImageController@deletePictures');

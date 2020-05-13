@@ -203,8 +203,19 @@ class UserMeta extends Model
         if (isset($photo) && strlen($photo) != 0) $query = $query->whereNotNull('pic')->where('pic', '<>', 'NULL');
         if (isset($agefrom) && isset($ageto) && strlen($agefrom) != 0 && strlen($ageto) != 0) {
             $agefrom = $agefrom < 18 ? 18 : $agefrom;
+            // dd(date('Y-01-01', strtotime("-30 year")));
             try{
-                $query = $query->whereBetween('birthdate', [Carbon::now()->subYears($ageto), Carbon::now()->subYears($agefrom)]);
+                if(strtotime(Carbon::now()->subYears($ageto))===strtotime(Carbon::now()->subYears($agefrom))){
+                    $to = Carbon::now()->subYears($ageto+1)->addDay(1);
+                    $from = Carbon::now()->subYears($agefrom);
+                    $query = $query->whereBetween('birthdate', [$to, $from]);
+                }else{
+                    $to = Carbon::now()->subYears($ageto+1)->addDay(1);
+                    $from = Carbon::now()->subYears($agefrom);
+                    // dd($to, $from);
+                    $query = $query->whereBetween('birthdate', [$to, $from]);
+
+                }
             }
             catch(\Exception $e){
                 Log::info('Searching function exception occurred, user id: ' . $userid . ', $agefrom: ' . $agefrom . ', $ageto: ' . $ageto);

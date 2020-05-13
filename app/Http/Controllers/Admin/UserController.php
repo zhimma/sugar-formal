@@ -2012,6 +2012,7 @@ class UserController extends Controller
 
             //男會員被回覆比例
             $repliedMsg = $this->service->repliedMessagesProportion($start, $end);
+            
             $normal = count($repliedMsg['messages']['Normal']);
             $vip = count($repliedMsg['messages']['Vip']);
             $recommend = count($repliedMsg['messages']['Recommend']);
@@ -2031,10 +2032,11 @@ class UserController extends Controller
             $percentage['RecommendMale'] = round($recommend, $place);
 
             // 平均收到訊息數
-            $TaipeiAndVip = $this->service->averageReceiveMessages(['新北市', '臺北市'], $isVip = true);
-            $TaipeiAndNotVip = $this->service->averageReceiveMessages(['新北市', '臺北市'], $isVip = false);
-            $Vip = $this->service->averageReceiveMessages([], $isVip = true);
-            $NotVip = $this->service->averageReceiveMessages([], $isVip = false);
+            $TaipeiAndVip = $this->service->averageReceiveMessages(['新北市', '臺北市'], 1, 2);
+            $TaipeiAndNotVip = $this->service->averageReceiveMessages(['新北市', '臺北市'], 0, 2);
+            $Vip = $this->service->averageReceiveMessages([], 1, 2);
+            $NotVip = $this->service->averageReceiveMessages([], 0, 2);
+
 
             $count['TaipeiAndVip'] = array('messages' => $TaipeiAndVip['messages'], 'users' => $TaipeiAndVip['users']);
             $count['TaipeiAndNotVip'] = array('messages' => $TaipeiAndNotVip['messages'], 'users' => $TaipeiAndNotVip['users']);
@@ -2055,6 +2057,12 @@ class UserController extends Controller
                 ->with('count', $count)
                 ->with('percentage', $percentage);
         }
+    }
+
+
+    public function statisticsReply2(Request $request){
+    
+    
     }
 
 }

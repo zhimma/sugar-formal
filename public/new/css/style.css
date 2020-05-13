@@ -692,7 +692,8 @@ a:hover{ color:#e44e71; text-decoration:none}
 .decheck{ line-height:35px; display:table; color:#999999; margin-bottom:30px;}
 .decheck span{ margin-left:6px;}
 
-.zcbut{width: 250px;height: 40px;background: #ffffff; border:#e44e71 1px solid;border-radius: 200px;color: #e44e71;text-align: center;line-height: 40px;display: table;margin: 20px auto 0 auto;font-size:16px;}
+
+.zcbut{width: 250px; margin-top: 15px!important;height: 40px;background: #ffffff; border:#e44e71 1px solid;border-radius: 200px;color: #e44e71;text-align: center;line-height: 40px;display: table;margin: 0 auto;font-size:16px;}
 .zcbut:hover{ color:#e44e71}
 
 
@@ -1492,6 +1493,59 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
     .nnn_adbut{ background:url(../images/1_03nnn.png) no-repeat;width:55px; height:26px; line-height:24px; text-align:center; float:right; font-size:12px; display:table; margin-top:10px;color:#ffffff}
     .adbut_on{ background:url(../images/1_03nnn_h.png) no-repeat !important;color:#ffffff !important}
 }
+
+
+@media (min-width:1025px){
+    .select_xx07{
+        width: 425px;
+    }
+}
+
+@media (min-width:769px) and (max-width:1024px){
+    .select_xx07{
+        width: 350px;
+    }
+}
+
+@media (min-width:415px) and (max-width:768px){
+    .select_xx07{
+        width: 320px;
+    }
+}
+
+@media (min-width:412px) and (max-width:414px){
+    .select_xx07{
+        width: 180px;
+    }
+    
+}
+
+@media (min-width:376px) and (max-width:411px){
+    .select_xx07{
+        width: 175px;
+    }
+}
+
+@media (min-width:361px) and (max-width:375px){
+    .select_xx07{
+        width: 158px;
+    }
+}
+
+
+@media (min-width:321px) and (max-width:360px){
+    .select_xx07{
+        width: 150px;
+    }
+}
+
+@media (max-width:321px){
+    .select_xx07{
+        width: 135px;
+    }
+}
+
+
 
 
 .loading{

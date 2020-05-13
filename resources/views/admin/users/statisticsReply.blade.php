@@ -72,22 +72,22 @@
             <tr>
                 <td>有VIP且為雙北的女生平均收到的訊息數</td>
                 <td>{{ $count['TaipeiAndVip']['messages']."/".$count['TaipeiAndVip']['users'] }}</td>
-                <td>{{ ($percentage['TaipeiAndVip']*100)."%" }}</td>
+                <td>{{ ($percentage['TaipeiAndVip'])." 封" }}</td>
             </tr>
             <tr>
                 <td>無VIP且為雙北的女生平均收到的訊息數</td>
                 <td>{{ $count['TaipeiAndNotVip']['messages']."/".$count['TaipeiAndNotVip']['users'] }}</td>
-                <td>{{ ($percentage['TaipeiAndNotVip']*100)."%" }}</td>
+                <td>{{ ($percentage['TaipeiAndNotVip'])." 封" }}</td>
             </tr>
             <tr>
                 <td>VIP的女生平均收到的訊息數</td>
                 <td>{{ $count['Vip']['messages']."/".$count['Vip']['users'] }}</td>
-                <td>{{ ($percentage['Vip']*100)."%" }}</td>
+                <td>{{ ($percentage['Vip'])." 封" }}</td>
             </tr>
             <tr>
-                <td>VIP的女生平均收到的訊息數</td>
+                <td>非VIP的女生平均收到的訊息數</td>
                 <td>{{ $count['NotVip']['messages']."/".$count['NotVip']['users'] }}</td>
-                <td>{{ ($percentage['NotVip']*100)."%" }}</td>
+                <td>{{ ($percentage['NotVip'])." 封" }}</td>
             </tr>
         </table>
     @endif

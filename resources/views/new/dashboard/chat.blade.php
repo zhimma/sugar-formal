@@ -8,6 +8,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     .page>li{
         display: none !important;
     }
+    .pagination > li > a:focus,
+.pagination > li > a:hover,
+.pagination > li > span:focus,
+.pagination > li > span:hover{
+    z-index: 3;
+    /* color: #23527c !important; */
+    background-color: #FF8888 !important;
+    /* border-color: #ddd !important; */
+    /* border-color:#ee5472 !important; */
+    /* color:white !important; */
+}
     .sjright{
         right: 40px;
         position: absolute;
@@ -49,9 +60,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
 {{--                    <h2><span>您目前為高級會員</span>訊息可保存天數：30，可通訊人數:無限</h2>--}}
                     @if($user->isVip())
-                        <h2><span>您目前為VIP會員</span>訊息可保存天數：180，可通訊人數:無限</h2>
+                        <h2><span>{{$letter_vip}}</span>訊息可保存天數：180，可通訊人數:無限</h2>
                         @else
-                        <h2><span>您目前為普通會員</span>訊息可保存天數：7，可通訊人數:10</h2>
+                        <h2><span>{{$letter_normal_member}}</span>訊息可保存天數：7，可通訊人數:10</h2>
                     @endif
                 </div>
                 <div class="sjlist_li">
@@ -157,7 +168,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 {!! csrf_field() !!}
                 <input type="hidden" name="aid" value="{{$user->id}}">
                 <input type="hidden" name="uid" value="">
-                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請輸入檢舉理由"></textarea>
+                <textarea name="content" cols="" rows="" class="n_nutext" placeholder=""></textarea>
                 <div class="n_bbutton">
                     <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>
                 </div>
@@ -561,6 +572,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                 },
                 success:function(res){
+                    console.log(res.msg);
                     var li = '';//樣板容器
                     // var p = page;
                     // var data = res.list;        //回傳資料
@@ -578,20 +590,40 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     var hide_vip_counts = 0;
                     hide_vip_counts = $('#rows').val()-10;
 
+
                     var vip_counts = 0;
                     var novip_counts = 0;
-                    // alert(res.msg);
-                        $.each(res.msg, function (i, e) {
-                            // alert(e);
-                            // $('#rows').val(e.total_counts);
+                    $.each(res.msg,function(i,e){
+                        console.log(i, hide_vip_counts);
+                        // $('#rows').val(e.total_counts);
 
 
-                            rr += parseInt(e.read_n);
-
-                            if (userIsVip == 0 && e.user_id != 1049 && i < hide_vip_counts && hide_vip_counts > 0) {
-                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0, i);
-                            } else if (userIsVip == 0 && e.user_id != 1049) {
-                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1, i);
+                        rr +=parseInt(e.read_n);
+                        if(userIsVip==0 && e.user_id != 1049 && e.read_n>=10 && hide_vip_counts>0) {
+                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0, i);
+                        } else if (userIsVip == 0 && e.user_id != 1049) {
+                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1, i);
+                        } else {
+                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1, i);
+                        }
+                       // alert(e.created_at);
+                        if(e.created_at.length> 0) {
+                            if (e.created_at.substr(0, 10) >= this_week) {
+                                if (e.isVip == 1) {
+                                    $('.sjlist_vip').append(li).find('.row_data').addClass('date7 vipMember common30');
+                                    //vip_counts++;
+                                } else {
+                                    $('.sjlist_novip').append(li).find('.row_data').addClass('date7 novipMember common30');
+                                    //novip_counts++;
+                                }
+                            } else if (e.created_at != '' && e.created_at.substr(0, 10) >= this_month) {
+                                if (e.isVip == 1) {
+                                    $('.sjlist_vip').append(li).find('.row_data').addClass('date30 vipMember common30');
+                                    // vip_counts++;
+                                } else {
+                                    $('.sjlist_novip').append(li).find('.row_data').addClass('date30 novipMember common30');
+                                    //novip_counts++;
+                                }
                             } else {
                                 if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1, i);
                             }

@@ -144,16 +144,16 @@
                                 //echo $data['description'];
                                 ?>
                                 @if(isset($data['description']) && $to->engroup == 2)
-                                <li><img src="/new/images/icon_19.png"><span>新進甜心</span></li>
+                                <li><img src="/new/images/icon_19.png"><span>{{$new_sweet}}</span></li>
                                 @endif
                                 @if(isset($data['description']) && $to->engroup == 1)
-                                <li><img src="/new/images/icon_21.png"><span>優選會員</span></li>
+                                <li><img src="/new/images/icon_21.png"><span>{{$well_member}}</span></li>
                                 @endif
-{{--                            <li><img src="/new/images/icon_23.png"><span>財力認證</span></li>--}}
+{{--                            <li><img src="/new/images/icon_23.png"><span>{{$money_cert}}</span></li>--}}
                                 @if($to->isVip() && $to->engroup == 1)
-                                <li><img src="/new/images/icon_25.png"><span>VIP</span></li>
+                                <li><img src="/new/images/icon_25.png"><span>{{$label_vip}}</span></li>
                                 @endif
-{{--                            <li><img src="/new/images/icon_27.png"><span>警示帳戶</span></li>--}}
+{{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
                             </ul>
                         </div>
 
@@ -383,10 +383,12 @@
                 {!! csrf_field() !!}
                 <input type="hidden" name="aid" value="{{$user->id}}">
                 <input type="hidden" name="uid" value="{{$to->id}}">
-                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請輸入檢舉理由"></textarea>
-                <div class="n_bbutton" style="width: 100%; text-align: center;">
-                    <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">送出</button>
-                    <button type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="$('#show_banned').hide();$('.announce_bg').hide()">返回</button>
+
+                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_member}}"></textarea>
+                <div class="n_bbutton">
+                    <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff;">送出</button>
+                    <button type="reset" class="n_left" style="border-style: none;background: #ffffff; color:#8a9ff0;" onclick="$('#show_banned').hide();$('.announce_bg').hide()">返回</button>
+
                 </div>
             </form>
         </div>
@@ -403,10 +405,12 @@
                 <input type="hidden" name="picType" value="">
                 <input type="hidden" name="pic_id" value="">
 
-                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請輸入檢舉理由" required></textarea>
-                <div class="n_bbutton" style="width: 100%; text-align: center;">
-                    <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">送出</button>
-                    <button type="reset" class="n_left" style="border: 1px solid #8a9ff0;background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="$('#show_reportPic').hide();$('.blbg').hide()">返回</button>
+
+                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_avatar}}" required></textarea>
+                <div class="n_bbutton">
+                    <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff;">送出</button>
+                    <button type="reset" class="n_left" style="border-style: none;background: #ffffff; color:#8a9ff0;" onclick="$('#show_reportPic').hide();$('.blbg').hide()">返回</button>
+
                 </div>
             </form>
         </div>
@@ -417,6 +421,7 @@
 
 @section('javascript')
 <script>
+
     $( document ).ready(function() {
 
         if(window.matchMedia("(min-width: 992px)").matches){
@@ -445,6 +450,7 @@
         $('.row').css('display','none');
         @endif
     // });
+
     @if (isset($errors) && $errors->count() > 0)
         @foreach ($errors->all() as $error)
             c5('{{ $error }}');

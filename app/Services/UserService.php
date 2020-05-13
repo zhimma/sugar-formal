@@ -775,31 +775,29 @@ class UserService
         return $result;
     }
 
-    public function averageReceiveMessages($city = [], $isVip = NULL, $engroup = 2)
+    public function averageReceiveMessages($city, $isVip, $engroup)
     {
         $users = User::where('engroup', $engroup);
 
-        if($city != [])
+        $users = $users->join('user_meta', 'user_meta.user_id', '=', 'users.id');
+        if(count($city)>0)
         {
-            $users = $users->leftjoin('user_meta', 'user_meta.user_id', '=', 'users.id')
-                            ->whereIn('city', $city);
+            $users->whereIn('city', $city);
+        }
+        
+        if($isVip)
+        {
+            $users->join('member_vip', 'member_vip.member_id','=','user_meta.user_id');
         }
 
-        $users = $users->get();
-        if($isVip != NULL)
-        {
-            $users = $users->filter(function($item) use ($isVip){
-                    $isVip = $isVip ? 1 : 0;
-                    return $item->isVip() == $isVip;
-                });
-        }
-
-        $users = $users->pluck('id');
-
-        if($users->count() > 0)
+        $users = $users->get()->keyBy('user_id')->keys();
+// dd($users);
+        if($users->count() > 0){
             $messages = Message::whereIn('to_id', $users->all())->get()->count();
-        else
+        }else{
             $messages = 0;
+        }
+            
 
         return ['users' => $users->count(), 'messages' => $messages];
     }
@@ -906,18 +904,35 @@ class UserService
      */
     public function repliedMessagesProportion($start, $end)
     {
-        $messages = $this->selectMessagesByGender($start, $end, 1);
-        $replied = $messages->filter(function($msg){
-            if($this->beenRepliedMessage($msg->id))
-                return $msg;
-        });
+        
+        $query = Message::join('users', 'from_id', '=', 'users.id')
+            ->where('engroup', 1)
+            ->whereBetween('message.created_at', [$start, $end]);
+        $girl_receive = $query->get()->keyBy('to_id')->keys()->toArray();
+
+        $query = Message::join('users', 'to_id', '=', 'users.id')
+            ->where('engroup', 1);
+        $girl_reply = $query->get()->keyBy('from_id')->keys()->toArray();
+        
+
+        /*判斷是哪種會員*/
+
+        $girl_intersect = array_intersect($girl_receive, $girl_reply);
+        $data['girl_reply_ratio'] = count($girl_receive)!=0 ? count($girl_intersect)/count($girl_receive):0;
+           
+          
+        // $messages = $this->selectMessagesByGender($start, $end, 1);
+        // $replied = $messages->filter(function($msg){
+        //     if($this->beenRepliedMessage($msg->id))
+        //         return $msg;
+        // });
 
         $groupingMsg = $messages->pluck('from_id');
         $groupingMsg = $this->groupingMale($groupingMsg);
 
+        
         $groupingReplied = $replied->pluck('from_id');
         $groupingReplied = $this->groupingMale($groupingReplied);
-
         return ['messages' => $groupingMsg, 'replied' => $groupingReplied];
     }
 }
