@@ -69,15 +69,26 @@ class UserMeta extends Model
         'notifhistory'
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | relationships
-    |--------------------------------------------------------------------------
-    */
-    
-    public function user() 
+//    /*
+//    |--------------------------------------------------------------------------
+//    | relationships
+//    |--------------------------------------------------------------------------
+//    */
+//
+//    public function user()
+//    {
+//         return $this->belongsTo(User::class, 'user_id', 'id');
+//    }
+
+    /**
+     * User
+     * *****重要：此函式與搜尋功能有關，不可隨意改動。**********
+     * @return Relationship
+     */
+
+    public function user()
     {
-         return $this->belongsTo(User::class, 'user_id', 'id');
+        return User::where('id', $this->user_id)->first();
     }
 
     public function age() {

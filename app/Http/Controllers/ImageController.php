@@ -219,6 +219,12 @@ class ImageController extends Controller
     {
         $id = $request->userId;
         $avatarPath = UserMeta::where('user_id', $id)->first()->pic;
+        if(!file_exists(public_path($avatarPath))){
+            $uMeta = UserMeta::where('user_id', $id)->first();
+            $uMeta->pic = null;
+            $uMeta->save();
+            $avatarPath = null;
+        }
 
         if(is_null($avatarPath))
             return response()->json("");
@@ -326,18 +332,34 @@ class ImageController extends Controller
         foreach($picturePaths as $path)
         {
             $path_slice = explode('/', $path);
-            $paths[] = array(
-                "name" => end($path_slice), //filename
-                "type" => FileUploader::mime_content_type($path),
-                "size" => filesize(public_path($path)), //filesize需完整路徑
-                "file" => $path,
-                "relative_file" => public_path($path), // full path for editing files
-                "local" => $path,
-                "data" => array(
-                    "readerForce" => true,
-                    "isPreload" => true //為預先載入的圖片
-                )
-            );
+            if(!file_exists(public_path($path))){
+                $paths[] = array(
+                    "name" => end($path_slice), //filename
+                    "type" => FileUploader::mime_content_type($path),
+                    "size" => 0, //filesize需完整路徑
+                    "file" => $path,
+                    "relative_file" => public_path($path), // full path for editing files
+                    "local" => $path,
+                    "data" => array(
+                        "readerForce" => true,
+                        "isPreload" => true //為預先載入的圖片
+                    )
+                );
+            }
+            else{
+                $paths[] = array(
+                    "name" => end($path_slice), //filename
+                    "type" => FileUploader::mime_content_type($path),
+                    "size" => filesize(public_path($path)), //filesize需完整路徑
+                    "file" => $path,
+                    "relative_file" => public_path($path), // full path for editing files
+                    "local" => $path,
+                    "data" => array(
+                        "readerForce" => true,
+                        "isPreload" => true //為預先載入的圖片
+                    )
+                );
+            }
         }
         $responseJSON = response()->json($paths);
         return $responseJSON;
