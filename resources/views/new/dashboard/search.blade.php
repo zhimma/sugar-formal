@@ -153,25 +153,29 @@
                 </form>
 
                 <?php
-                $district = "";
-                $county = "";
-                $cup = "";
-                $marriage = "";
-                $budget = "";
-                $income = "";
-                $smoking = "";
-                $drinking = "";
-                $photo = "";
-                $ageto = "";
-                $agefrom = "";
-                $seqtime = "";
-                $body = "";
-                $umeta = $user->meta_();
-                if(isset($umeta->city)){
-                    $umeta->city = explode(",",$umeta->city);
-                    $umeta->area = explode(",",$umeta->area);
-                }
-
+                    try{
+                        $district = "";
+                        $county = "";
+                        $cup = "";
+                        $marriage = "";
+                        $budget = "";
+                        $income = "";
+                        $smoking = "";
+                        $drinking = "";
+                        $photo = "";
+                        $ageto = "";
+                        $agefrom = "";
+                        $seqtime = "";
+                        $body = "";
+                        $umeta = $user->meta_();
+                        if(isset($umeta->city)){
+                            $umeta->city = explode(",",$umeta->city);
+                            $umeta->area = explode(",",$umeta->area);
+                        }
+                    }
+                    catch (\Exception $e){
+                        \Illuminate\Support\Facades\Log::info('Search error, $user: ' . $user);
+                    }
                 ?>
                 @if (isset($_POST['_token']) || isset($_GET['_token']))
                     <?php
@@ -199,10 +203,15 @@
                     @if (!empty($vis) && isset($vis) && sizeof($vis) > 0)
                         @foreach ($vis as $vi)
                             <?php $visitor = $vi->user;
-                            $umeta = $visitor->meta_();
-                            if(isset($umeta->city)){
-                                $umeta->city = explode(",",$umeta->city);
-                                $umeta->area = explode(",",$umeta->area);
+                            try{
+                                $umeta = $visitor->meta_();
+                                if(isset($umeta->city)){
+                                    $umeta->city = explode(",",$umeta->city);
+                                    $umeta->area = explode(",",$umeta->area);
+                                }
+                            }
+                            catch (\Exception $e){
+                                \Illuminate\Support\Facades\Log::info('Search error, visitor: ' . $vi);
                             }
                             ?>
                             <li class="nt_fg">

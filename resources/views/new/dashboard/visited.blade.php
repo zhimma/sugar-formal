@@ -34,13 +34,17 @@
                                             <div class="sjleft">
                                                 <div class="sjtable"><span>{{ $histUser->name }}<i class="cicd">●</i>{{ $histUser->meta_()->age() }}</span></div>
                                                 <font>
-                                                    @foreach($umeta->city as $key => $cityval)
-                                                        @if ($loop->first)
-                                                            {{$umeta->city[$key]}} @if($histUser->meta_()->isHideArea == 0){{$umeta->area[$key]}}@endif
-                                                        @else
-                                                            {{$umeta->city[$key]}} @if($histUser->meta_()->isHideArea == 0){{$umeta->area[$key]}}@endif
-                                                        @endif
-                                                    @endforeach
+                                                    @if(!is_array($umeta->city))
+
+                                                    @else
+                                                        @foreach($umeta->city as $key => $cityval)
+                                                            @if ($loop->first)
+                                                                {{$umeta->city[$key]}} @if($histUser->meta_()->isHideArea == 0){{$umeta->area[$key]}}@endif
+                                                            @else
+                                                                {{$umeta->city[$key]}} @if($histUser->meta_()->isHideArea == 0){{$umeta->area[$key]}}@endif
+                                                            @endif
+                                                        @endforeach
+                                                    @endif
 {{--                                                    {{ $histUser->meta_()->city }}  {{ $histUser->meta_()->area }}--}}
                                                 </font>
                                             </div>
