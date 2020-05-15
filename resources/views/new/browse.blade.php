@@ -24,7 +24,7 @@
                 <li><a href="{!! url('dashboard/fav') !!}"><img src="/new/images/z_05.png"><span class="n_zylg">收藏名單</span></a></li>
                 <li><a href="{!! url('dashboard/block') !!}"><img src="/new/images/z_06.png"><span class="n_zylg">封鎖名單</span></a></li>
             @endif
-            <li><a href="{!! url('dashboard/posts_list') !!}"><img src="/new/images/letter.png"><span class="n_zylg">投稿文章</span></a></li>
+            {{-- <li><a href="{!! url('dashboard/posts_list') !!}"><img src="/new/images/letter.png"><span class="n_zylg">投稿文章</span></a></li> --}}
         </div>
       </div>
     </div>
