@@ -15,6 +15,7 @@ use Image;
 use File;
 use Storage;
 use Carbon\Carbon;
+use Session;
 use \FileUploader;
 
 class ImageController extends Controller
@@ -299,6 +300,7 @@ class ImageController extends Controller
                 $path[0] = '/';
                 UserMeta::where('user_id', $userId)->update(['pic' => $path]);
             }
+            Session::flash('success', '照片上傳成功');
             return redirect()->back();
         }
     }
@@ -377,6 +379,11 @@ class ImageController extends Controller
         $preloadedFiles = $this->getPictures($request)->content();
         $preloadedFiles = json_decode($preloadedFiles, true);
 
+        if(count($preloadedFiles) <= 0){
+            Session::flash('success', '沒有上傳任何照片/請勿在上傳後於本頁重新整理');
+            return redirect()->back();
+        }
+
         $fileUploader = new FileUploader('pictures', array(
             'fileMaxSize' => 8,
             'extensions' => ['jpg', 'jpeg', 'png', 'gif'],
@@ -417,6 +424,7 @@ class ImageController extends Controller
         }
         
         $previous = redirect()->back();
+        Session::flash('success', '照片上傳成功');
         return $upload['isSuccess'] ? $previous : $previous->withErrors($upload['warnings']);
     }
 
