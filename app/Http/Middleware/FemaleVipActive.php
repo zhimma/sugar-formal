@@ -45,7 +45,7 @@ class FemaleVipActive
         //因為只針對女會員判斷權限，所以先過濾掉男會員
         //若女會員照片條件不符合，則過濾掉，不判斷剩下的規則
         //********* 未做的部分: 三天內上線兩次，但間隔不得小於24小時 *********/
-        if($user->engroup == 1 || $user->engroup == 2 && !$user->existHeaderImage()){
+        if($user->engroup == 1){
             return $next($request);
         } 
         //剩下的是符合資格的女會員，如果她已經是免費VIP，則檢查現在是否依舊符合資格(照片、固定上線)
@@ -69,10 +69,13 @@ class FemaleVipActive
         if($vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.start') && !$user->isVip()) {
         }
         //提供免費VIP的主要程式段，若會員非VIP，則提供免費VIP，使用vip_record記錄提供的時間點
-        else if(!$user->isVip()) {
+        else if(!$user->isVip() && $user->existHeaderImage()) {
             $user->vip_record = Carbon::now();
             $user->save();
             Vip::upgrade($user->id, '1111000', '0', 0, 'OOOOOOOO', 1, 1);
+            if($request->session()->exists('success')) {
+                $request->session()->put('name', session('name') . "，已獲得免費 VIP");
+            }
         }
 
         return $next($request);

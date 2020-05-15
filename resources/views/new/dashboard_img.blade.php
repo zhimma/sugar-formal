@@ -171,138 +171,141 @@
         'name': 330
     }
     $(document).ready(function(){
+        @if(Session::has('success'))
+            c2("{{ Session::get('success') }}");
+        @endif
         let userId = $("input[name='userId']").val()
 
-        //preload avatar
-        $.ajax({
-            url: '/dashboard/avatar/' + userId,
-            method: 'GET',
-            dataType: 'json',
+    //preload avatar
+    $.ajax({
+        url: '/dashboard/avatar/' + userId,
+        method: 'GET',
+        dataType: 'json',
 
-            success: function(data) {
-                data = JSON.stringify(data,null,2)
-                $("input[name='avatar']").attr('data-fileuploader-files', data)
-                //uploader 一定要在 data-fileuploader-files 設定之後才能 preload
-                $("input[name='avatar']").fileuploader({
-                    addMore: true,
-                    limit: 1,
-                    editor: {
-                        ratio: "1:1",
-                        showGrid: true
-                    },
-                    onRemove: function(item) {
-                        var isRemovable = true;
-                        if(item.data.isPreload === true){
-                            $.ajax({
-                                url: "/dashboard/avatar/delete/" + $("input[name='userId']").val(),
-                                method: "POST",
-                                data: {
-                                    _token: "{{ csrf_token() }}"
-                                },
-                                success: function(){
-                                    c2("刪除成功")
-                                    isRemovable = true
-                                },
-                                error: function(xhr, status, msg){
-                                    c2("刪除失敗")
-                                    isRemovable = false
-                                }
-                            }) 
-                        }
-
-                        return isRemovable
-                    },
-                    captions: {
-                        errors: {
-                            filesLimit: function(){
-                                return '大頭照上傳限制最多為一張！';
+        success: function(data) {
+            data = JSON.stringify(data,null,2)
+            $("input[name='avatar']").attr('data-fileuploader-files', data)
+            //uploader 一定要在 data-fileuploader-files 設定之後才能 preload
+            $("input[name='avatar']").fileuploader({
+                addMore: true,
+                limit: 1,
+                editor: {
+                    ratio: "1:1",
+                    showGrid: true
+                },
+                onRemove: function(item) {
+                    var isRemovable = true;
+                    if(item.data.isPreload === true){
+                        $.ajax({
+                            url: "/dashboard/avatar/delete/" + $("input[name='userId']").val(),
+                            method: "POST",
+                            data: {
+                                _token: "{{ csrf_token() }}"
+                            },
+                            success: function(){
+                                c2("刪除成功")
+                                isRemovable = true
+                            },
+                            error: function(xhr, status, msg){
+                                c2("刪除失敗")
+                                isRemovable = false
                             }
-                        }
-                    },
-                    dialogs: {
-                        // alert dialog
-                        alert: function(text) {
-                            return cl(text);
-                        },
+                        })
+                    }
 
-                        // confirm dialog
-                        confirm: function(text, callback) {
-                            c2(text) ? callback() : null;
+                    return isRemovable
+                },
+                captions: {
+                    errors: {
+                        filesLimit: function(){
+                            return '大頭照上傳限制最多為一張！';
                         }
                     }
-                })
-            },
-            error: function(xhr, status, msg) {
-                console.log(xhr.reponseText)
-            }
-        })
-
-        //preload pictures
-        $.ajax({
-            url: '/dashboard/pictures/' + userId,
-            method: "GET",
-            dataType: 'json',
-
-            success: function(data){
-                data = data === null ? "" : JSON.stringify(data,null,2)
-                $("input[name='pictures']").attr('data-fileuploader-files', data)
-                $("input[name='pictures']").fileuploader({
-                    addMore: true,
-                    limit: 6,
-                    editor: {
-                        showGrid: true
+                },
+                dialogs: {
+                    // alert dialog
+                    alert: function(text) {
+                        return cl(text);
                     },
-                    onRemove: function(item){
-                        // 修改刪除單一照片
-                        var isRemovable = true;
-                        if(item.data.isPreload === true){
-                            $.ajax({
-                                url: "/dashboard/pictures/delete",
-                                method: "POST",
-                                data: {
-                                    _token: "{{ csrf_token() }}",
-                                    picture: item.file
-                                },
-                                success: function(){
-                                    c2("刪除成功")
-                                    isRemovable = true
-                                },
-                                error: function(xhr, status, msg){
-                                    c2("刪除失敗")
-                                    isRemovable = false
-                                }
-                            })
-                        }
-                        
-                        return isRemovable
-                    },
-                    captions: {
-                        errors: {
-                            filesLimit: function(){
-                                return '生活照上傳限制最多為六張！';
-                            }
-                        }
-                    },
-                    dialogs: {
-                        // alert dialog
-                        alert: function(text) {
-                            return cl(text);
-                        },
 
-                        // confirm dialog
-                        confirm: function(text, callback) {
-                            c2(text) ? callback() : null;
-                        }
+                    // confirm dialog
+                    confirm: function(text, callback) {
+                        c2(text) ? callback() : null;
                     }
-                })
-            },
-            error: function(xhr, status, msg) {
-                console.log(xhr)
-                console.log(status)
-                console.log(msg)
-            }
-        })
+                }
+            })
+        },
+        error: function(xhr, status, msg) {
+            console.log(xhr.reponseText)
+        }
     })
+
+    //preload pictures
+    $.ajax({
+        url: '/dashboard/pictures/' + userId,
+        method: "GET",
+        dataType: 'json',
+
+        success: function(data){
+            data = data === null ? "" : JSON.stringify(data,null,2)
+            $("input[name='pictures']").attr('data-fileuploader-files', data)
+            $("input[name='pictures']").fileuploader({
+                addMore: true,
+                limit: 6,
+                editor: {
+                    showGrid: true
+                },
+                onRemove: function(item){
+                    // 修改刪除單一照片
+                    var isRemovable = true;
+                    if(item.data.isPreload === true){
+                        $.ajax({
+                            url: "/dashboard/pictures/delete",
+                            method: "POST",
+                            data: {
+                                _token: "{{ csrf_token() }}",
+                                picture: item.file
+                            },
+                            success: function(){
+                                c2("刪除成功")
+                                isRemovable = true
+                            },
+                            error: function(xhr, status, msg){
+                                c2("刪除失敗")
+                                isRemovable = false
+                            }
+                        })
+                    }
+
+                    return isRemovable
+                },
+                captions: {
+                    errors: {
+                        filesLimit: function(){
+                            return '生活照上傳限制最多為六張！';
+                        }
+                    }
+                },
+                dialogs: {
+                    // alert dialog
+                    alert: function(text) {
+                        return cl(text);
+                    },
+
+                    // confirm dialog
+                    confirm: function(text, callback) {
+                        c2(text) ? callback() : null;
+                    }
+                }
+            })
+        },
+        error: function(xhr, status, msg) {
+            console.log(xhr)
+            console.log(status)
+            console.log(msg)
+        }
+    })
+})
 
     var fileuploader_ajax_tour = {
         id: "fileuploader-ajax",

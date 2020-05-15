@@ -1718,7 +1718,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 
 .zp_line{border-right:#fd6b87 1px solid;}
 .zp_line02{ border-bottom:none}
-.zp_line03{border-right:#fd6b87 1px solid;e}
+.zp_line03{border-right:#fd6b87 1px solid;}
 
 @media (max-width:720px) {
     .zp_tab li{width:50%; float:left; padding:15px 0}
