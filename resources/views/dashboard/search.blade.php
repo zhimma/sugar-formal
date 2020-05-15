@@ -286,6 +286,9 @@
                 <div class="col-md-3 m-widget3__item"  style="border-bottom: none; margin:50px 0;">
                     <?php $visitor = $vi->user ?>
                     <?php
+                        if(!isset($visitor)){
+                            continue;
+                        }
                         $umeta = $visitor->meta_();
                         if(isset($umeta->city)){
                             $umeta->city = explode(",",$umeta->city);
@@ -380,7 +383,7 @@
                         @endforeach
                         <div class="page m-form__actions row">
                             <div class="col-md-12 col-xs-12 col-sm-12">
-                                {!! $visitors->appends()->links() !!}
+                                {!! $visitors->appends(request()->input())->links() !!}
                             </div>
                         </div>
                         @endif
