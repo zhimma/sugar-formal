@@ -60,6 +60,7 @@ class FemaleVipActive
                 Vip::cancel($user->id, 1);
                 $user->vip_record = Carbon::now();
                 $user->save();
+                \Illuminate\Support\Facades\Log::info('Free VIP deactivated, user ID: ' . $user->id);
             }
             //執行完畢
             return $next($request);
@@ -76,6 +77,7 @@ class FemaleVipActive
             if($request->session()->exists('success')) {
                 $request->session()->put('name', session('name') . "，已獲得免費 VIP");
             }
+            \Illuminate\Support\Facades\Log::info('Free VIP new upgrade, user ID: ' . $user->id);
         }
 
         return $next($request);
