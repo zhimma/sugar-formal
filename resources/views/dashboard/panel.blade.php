@@ -15,7 +15,7 @@ if(Auth::user()) $login_user = Auth::user();
 				</div>
 				<div class="m-card-profile__pic">
 					<div class="m-card-profile__pic-wrapper">
-						@if (str_contains(url()->current(), 'dashboard'))
+                        @if (str_contains(url()->current(), 'dashboard'))
                             @if($user->meta_()->isAvatarHidden == 1) <p style="color: red; text-align: center; font-weight: bold;">大頭照已被隱藏</p> @endif
                             <img width="130" height="130" src="{{$user->meta_()->pic}}" alt=""/>
                         @elseif(isset($cur))
@@ -89,7 +89,7 @@ if(Auth::user()) $login_user = Auth::user();
 					</li>
 					@if (!$user->isVip())
 						<li class="m-nav__item">
-							<a href="{!! url('dashboard/upgrade') !!}" class="m-nav__link">
+							<a href="{!! url('dashboard/upgrade_esafe') !!}" class="m-nav__link">
 								<i class="m-nav__link-icon fa fa-diamond"></i>
 								<span class="m-nav__link-text">升級 VIP</span>
 							</a>
@@ -236,33 +236,33 @@ if(Auth::user()) $login_user = Auth::user();
         <button type="submit" class="btn btn-danger">送出</button>
 
 		<button type="button" class="btn btn-outline-danger" data-dismiss="modal">取消</button>
-		</form>
-      </div>
-    </div>
+	</form>
   </div>
+</div>
+</div>
 </div>
 
 <div class="modal fade" id="m_modal_2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">車馬費信息給 @if(isset($cur)) {{ $cur->name }} @elseif(isset($to)) {{ $to->name }} @endif</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-	  <form method="POST" action="/dashboard/chatpaycomment">
-	  <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-	    <input type="hidden" name="userId" value="{{$user->id}}">
-		<input type="hidden" name="to" value="@if(isset($cur)){{$cur->id}} @elseif(isset($to)){{$to->id}}@endif">
-       		<textarea class="form-control m-input" name="msg" id="msg" rows="4"></textarea>
-      </div>
-      <div class="modal-footer">
+<div class="modal-dialog" role="document">
+<div class="modal-content">
+  <div class="modal-header">
+	<h5 class="modal-title" id="exampleModalLabel">車馬費信息給 @if(isset($cur)) {{ $cur->name }} @elseif(isset($to)) {{ $to->name }} @endif</h5>
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	  <span aria-hidden="true">&times;</span>
+	</button>
+  </div>
+  <div class="modal-body">
+  <form method="POST" action="/dashboard/chatpaycomment">
+  <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+	<input type="hidden" name="userId" value="{{$user->id}}">
+	<input type="hidden" name="to" value="@if(isset($cur)){{$cur->id}} @elseif(isset($to)){{$to->id}}@endif">
+		   <textarea class="form-control m-input" name="msg" id="msg" rows="4"></textarea>
+  </div>
+  <div class="modal-footer">
 
-        <button type="submit" class="btn btn-danger">送出</button>
+	<button type="submit" class="btn btn-danger">送出</button>
 
-		<button type="button" class="btn btn-outline-danger" data-dismiss="modal">取消</button>
+	<button type="button" class="btn btn-outline-danger" data-dismiss="modal">取消</button>
 		</form>
       </div>
     </div>

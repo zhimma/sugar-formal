@@ -74,6 +74,7 @@
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                     <input type="hidden" name="userId" value="{{ $user->id }}">
                                     <input type=hidden name="ReturnURL" value="{{ Config::get('social.payment.returnURL') }}">
+                                    <input type=hidden name="OrderURL" value="{{ Config::get('social.payment.orderURL') }}">
                                     <input type=hidden name="MerchantNumber" value="761404">
                                     <input type=hidden name="OrderNumber"    value="{{ "30".$orderNumber }}">
                                     <input type=hidden name="OrgOrderNumber" value="SG-VIP({{$user->id}})">

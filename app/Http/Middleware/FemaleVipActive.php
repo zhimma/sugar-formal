@@ -42,16 +42,18 @@ class FemaleVipActive
         $user = auth()->user();
         $user_last_login = Carbon::parse($user->last_login);
         $vip_record = Carbon::parse($user->vip_record);
+        $isVIP = $user->isVip();
+        $existHeaderImage = $user->existHeaderImage();
         //因為只針對女會員判斷權限，所以先過濾掉男會員
         //若女會員照片條件不符合，則過濾掉，不判斷剩下的規則
         //********* 未做的部分: 三天內上線兩次，但間隔不得小於24小時 *********/
-        if($user->engroup == 1 || $user->engroup == 2 && !$user->existHeaderImage()){
+        if($user->engroup == 1){
             return $next($request);
         } 
         //剩下的是符合資格的女會員，如果她已經是免費VIP，則檢查現在是否依舊符合資格(照片、固定上線)
         if($user->isFreeVip()){
             //如果取得免費VIP權限的時間點與現在時間的差距，小於系統設定的時間長度(代表他固定上線)，同時也符合照片條件，則將現在時間記錄至vip_record(延長VIP時間)
-            if( ($vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.free-days'))  && $user->existHeaderImage() ) {
+            if( ($vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.free-days'))  && $existHeaderImage ) {
                 $user->vip_record = Carbon::now();
                 $user->save();
             }
@@ -64,16 +66,23 @@ class FemaleVipActive
             //執行完畢
             return $next($request);
         }
+        //如果被取消免費 VIP 後，在 30 分鐘內補回照片資格，則還是給予免費 VIP
         //如果一般會員(!$user->isVip())失去免費VIP的時間(vip_record)與現在時間的差距小於系統設定的時間長度，則不做任何動作
         //這句是為了避免會員失去免費VIP後，馬上就又可以拿到免費VIP而設的條件
-        //if($vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.start') && !$user->isVip()) {
-        //}
+        if($vip_record->diffInMinutes(Carbon::now()) > 30 && $vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.start') && !$isVIP) {
+        }
         //提供免費VIP的主要程式段，若會員非VIP，則提供免費VIP，使用vip_record記錄提供的時間點
-        //else 
-        if(!$user->isVip()) {
+        else if(!$isVIP && $existHeaderImage) {
             $user->vip_record = Carbon::now();
             $user->save();
             Vip::upgrade($user->id, '1111000', '0', 0, 'OOOOOOOO', 1, 1);
+            if($request->session()->exists('success')) {
+                $request->session()->put('name', session('name') . "，已獲得免費 VIP");
+            }
+            if($vip_record->diffInMinutes(Carbon::now()) <= 30){
+                \Illuminate\Support\Facades\Log::info('RENEWAL for next line.');
+            }
+            \Illuminate\Support\Facades\Log::info('Free VIP new upgrade, user ID: ' . $user->id);
         }
 
         return $next($request);

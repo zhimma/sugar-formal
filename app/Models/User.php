@@ -40,16 +40,43 @@ class User extends Authenticatable
      */
     protected $hidden = ['password', 'remember_token'];
 
-    /**
-     * User UserMeta
-     *
-     * @return Relationship
-     */
+    protected $append = ['isVip'];
+
+    /*
+    |--------------------------------------------------------------------------
+    | relationships
+    |--------------------------------------------------------------------------
+    */
+
+    // UserMeta
     public function meta()
     {
-        return $this->hasOne(UserMeta::class, 'id', 'user_id');
+        return $this->hasOne(UserMeta::class, 'user_id', 'id');
     }
 
+    //Vip
+    public function vip()
+    {
+        return $this->hasMany(Vip::class, 'member_id', 'id');
+    }
+
+    //sent messages
+    public function sentMessages()
+    {
+        return $this->hasMany(Message_new::class, 'from_id', 'id');
+    }
+
+    //received messages
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message_new::class, 'to_id', 'id');
+    }
+
+    //生活照
+    public function pic()
+    {
+        return $this->hasMany(MemberPic::class, 'member_id', 'id');
+    }
     public static function id_($uid)
     {
         return User::where('id', $uid)->first();
@@ -215,7 +242,7 @@ class User extends Authenticatable
     public function existHeaderImage() {
         $pics = MemberPic::where('member_id', $this->id)->count();
         //echo $pics;
-        return isset($this->meta_()->pic) && ($pics >= 4);
+        return isset($this->meta_()->pic) && ($pics >= 3);
     }
 
     public function isActive() {

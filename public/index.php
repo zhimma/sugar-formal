@@ -1,5 +1,5 @@
 <?php
-echo 1;die;
+
 /**
  * Laravel - A PHP Framework For Web Artisans
  *
@@ -8,7 +8,8 @@ echo 1;die;
  */
 
 define('LARAVEL_START', microtime(true));
-
+ini_set('memory_limit', '-1');
+set_time_limit(45);
 /*
 |--------------------------------------------------------------------------
 | Register The Auto Loader
@@ -21,7 +22,7 @@ define('LARAVEL_START', microtime(true));
 |
 */
 
-require __DIR__.'/../sugar-garden.org/vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -35,7 +36,7 @@ require __DIR__.'/../sugar-garden.org/vendor/autoload.php';
 |
 */
 
-$app = require_once __DIR__.'/../sugar-garden.org/bootstrap/app.php';
+$app = require_once __DIR__.'/../bootstrap/app.php';
 
 /*
 |--------------------------------------------------------------------------

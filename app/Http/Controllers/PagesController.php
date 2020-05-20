@@ -208,9 +208,9 @@ class PagesController extends Controller
                     $tip_msg2 = AdminCommonText::getCommonText(2);//id3給女會員訊息
                     $tip_msg2 = str_replace('NAME', $user->name, $tip_msg2);
                     // 給男會員訊息（需在發送方的訊息框看到，所以是由男會員發送）
-                    Message::post($user->id, $targetUserID, $tip_msg1, false);
+                    Message::post($user->id, $targetUserID, $tip_msg1, false, 1);
                     // 給女會員訊息（需在接收方的訊息框看到，所以是由女會員發送）
-                    Message::post($targetUserID, $user->id, $tip_msg2, false);
+                    Message::post($targetUserID, $user->id, $tip_msg2, false, 1);
                     // 給男會員訊息
                     // Message::post($user->id, $targetUserID, "系統通知: 車馬費邀請\n您已經向 ". User::findById($targetUserID)->name ." 發動車馬費邀請。\n流程如下\n1:網站上進行車馬費邀請\n2:網站上訊息約見(重要，站方判斷約見時間地點，以網站留存訊息為準)\n3:雙方見面\n\n如果雙方在第二步就約見失敗。\n將扣除手續費 288 元後，1500匯入您指定的帳戶。也可以用現金袋或者西聯匯款方式進行。\n(聯繫我們有站方聯絡方式)\n\n若雙方有見面意願，被女方放鴿子。\n站方會參照女方提出的證據，判斷是否將尾款交付女方。", false);
                     // Message::post($targetUserID, $user->id, "系統通知: 車馬費邀請\n". $user->name . " 已經向 您 發動車馬費邀請。\n流程如下\n1:網站上進行車馬費邀請\n2:網站上訊息約見(重要，站方判斷約見時間地點，以網站留存訊息為準)\n3:雙方見面(建議約在知名連鎖店丹堤星巴克或者麥當勞之類)\n\n若成功見面男方沒有提出異議，那站方會在發動後 7~14 個工作天\n將 1500 匯入您指定的帳戶。若您不想提供銀行帳戶。\n也可以用現金袋或者西聯匯款方式進行。\n(聯繫我們有站方聯絡方式)\n\n若男方提出當天女方未到場的爭議。請您提出當天消費的發票證明之。\n所以請約在知名連鎖店以利站方驗證。\n", false);
@@ -369,7 +369,6 @@ class PagesController extends Controller
             ->with('imgUserM', $imgUserM)
             ->with('imgUserF', $imgUserF);
     }
-
     public function fingerprint(){
         return view('fingerprint');
     }
@@ -605,6 +604,7 @@ class PagesController extends Controller
         }
 
         $member_pics = MemberPic::select('*')->where('member_id',$user->id)->get()->take(6);
+        $avatar = UserMeta::where('user_id', $user->id)->get()->first();
 
         $birthday = date('Y-m-d', strtotime($user->meta_()->birthdate));
         $birthday = explode('-', $birthday);
@@ -636,7 +636,8 @@ class PagesController extends Controller
                     ->with('year', $year)
                     ->with('month', $month)
                     ->with('day', $day)
-                    ->with('member_pics', $member_pics);
+                    ->with('member_pics', $member_pics)
+                    ->with('avatar', $avatar);
             }else{
                 return view('new.dashboard_img')
                     ->with('user', $user)
@@ -645,7 +646,8 @@ class PagesController extends Controller
                     ->with('year', $year)
                     ->with('month', $month)
                     ->with('day', $day)
-                    ->with('member_pics', $member_pics);
+                    ->with('member_pics', $member_pics)
+                    ->with('avatar', $avatar);
             }
         }
     }
@@ -679,6 +681,17 @@ class PagesController extends Controller
         $data = array(
             'code' => '200'
         );
+        $pic_count = MemberPic::where('member_id', $user_id)->count();
+        // dd($pic_count);
+        if($pic_count==3){
+            $is_delete = Vip::where('member_id', $user_id)->delete();
+            if($is_delete){
+                $data = array(
+                    'code' => '400'
+                );
+            }
+        }
+
         return json_encode($data);
     }
 
@@ -773,9 +786,9 @@ class PagesController extends Controller
                     'code'=>'800'
                 );
             }*/
-
+            $isVip = Vip::where('member_id', $user->id)->count();
             $pic_count_final = MemberPic::where('member_id', $user->id)->count();
-            if(($pic_count_final+1)>=4 && $user->engroup==2){
+            if(($pic_count_final)>=4 && $user->engroup==2 && $isVip<=0){
                 $data = array(
                     'code'=>'800'
                 );
@@ -1108,10 +1121,15 @@ class PagesController extends Controller
             if ( ! ReportedPic::findMember( $reporter_id , $pic_id ) )
             {
                 if( $reporter_id !== $uid ){
+                    $target = User::findById($uid);
+                    if(!$target){
+                        return "<h1>很抱歉，您欲檢舉的會員並不存在。</h1>";
+                    }
                     return view('dashboard.reportPic', [
                         'reporter_id' => $reporter_id,
                         'reported_pic_id' => $pic_id,
                         'user' => $user,
+                        'target' => $target,
                         'uid' => $uid]);
                 }
                 else{
@@ -1315,6 +1333,7 @@ class PagesController extends Controller
         }
     }
 
+
     public function fav2(Request $request)
     {
         $user = $request->user();
@@ -1324,6 +1343,14 @@ class PagesController extends Controller
         }
     }
 
+    public function manual(Request $request)
+    {
+        $user = $request->user();
+        if ($user) {
+            return view('new.dashboard.manual')
+                ->with('user', $user);
+        }
+    }
     public function chat2(Request $request, $cid)
     {
         $user = $request->user();
@@ -1479,7 +1506,7 @@ class PagesController extends Controller
         if ($user)
         {
             // blocked by user->id
-            $blocks = \App\Models\Blocked::where('member_id', $user->id)->paginate(15);
+            $blocks = \App\Models\Blocked::where('member_id', $user->id)->orderBy('created_at','desc')->paginate(15);
 
             $usersInfo = array();
             foreach($blocks as $blockUser){
@@ -1499,7 +1526,7 @@ class PagesController extends Controller
         if ($user)
         {
             // blocked by user->id
-            $blocks = \App\Models\Blocked::where('member_id', $user->id)->paginate(15);
+	    $blocks = \App\Models\Blocked::where('member_id', $user->id)->orderBy('created_at','desc')->paginate(15);	
 
             $usersInfo = array();
             foreach($blocks as $blockUser){
@@ -1579,7 +1606,7 @@ class PagesController extends Controller
     }
 
     public function upgradepayEC(Request $request) {
-        return '1|OK';
+        return ['1', 'OK'];
     }
 
     public function receive_esafe(Request $request)

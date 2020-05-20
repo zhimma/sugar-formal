@@ -1,0 +1,259 @@
+.header {
+  width: 100%;
+  height: 4.36rem;
+  background: linear-gradient(135deg, #a5ebff 0%, #9a73fe 100%);
+  border-radius: 0 0 2rem 2rem;
+  padding: 0 .35rem;
+  padding-top: .27rem;
+}
+.header .title {
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.header .title img {
+  width: 3rem;
+}
+.header .title .land {
+  overflow: hidden;
+  width: 1.77rem;
+  height: .45rem;
+  border-radius: .4rem;
+  border: 1px solid #fff;
+  display: flex;
+  align-items: center;
+}
+.header .title .land a {
+  display: block;
+  font-size: .25rem;
+  text-align: center;
+  line-height: .45rem;
+  color: #fff;
+  width: 50%;
+}
+.header .title .land a:first-child {
+  border-right: 1px solid #fff;
+}
+.header .banner {
+  overflow: hidden;
+  width: 100%;
+  height: 3.36rem;
+  margin: 0 auto;
+  margin-top: .41rem;
+  border-radius: .2rem;
+  position: relative;
+}
+.header .banner .swiper-slide {
+  background-image: url(../images/Bitmap1.png);
+  background-size: 100% 100%;
+}
+.header .banner .t {
+  display: flex;
+  overflow: hidden;
+  position: absolute;
+  z-index: 999999;
+  left: .31rem;
+  top: .29rem;
+  align-items: center;
+}
+.header .banner .t img {
+  width: .27rem;
+}
+.header .banner .t p {
+  font-size: .25rem;
+  color: #fff;
+  margin-left: .17rem;
+}
+.header .banner span {
+  display: block;
+  position: absolute;
+  left: .41rem;
+  text-align: left;
+  bottom: .26rem;
+  font-size: .25rem;
+  color: #fff;
+  line-height: .3rem;
+}
+
+.main {
+  overflow: hidden;
+  padding-top: .15rem;
+  background: #fff;
+}
+
+.btn {
+  overflow: hidden;
+  width: 6.79rem;
+  margin: 0 auto;
+  background: #fff;
+  height: 1.11rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #EBEBEB;
+}
+.btn p {
+  font-size: .25rem;
+  color: #333333;
+}
+.btn div {
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+.btn div a {
+  display: block;
+  width: 2.07rem;
+  height: .59rem;
+  font-size: .25rem;
+  color: #fff;
+  text-align: center;
+  line-height: .59rem;
+  margin-left: .38rem;
+  border-radius: .4rem;
+}
+.btn div a:first-child {
+  background: linear-gradient(to right, #FFC57D, #FC557F);
+}
+.btn div a:last-child {
+  background: linear-gradient(to right, #A5EBFF, #9A73FE);
+}
+
+.list {
+  overflow: hidden;
+  width: 6.79rem;
+  margin: 0 auto;
+}
+.list li {
+  overflow: hidden;
+  width: 100%;
+  height: 1.29rem;
+  border-bottom: 1px dashed #CACACA;
+  display: flex;
+  align-items: center;
+}
+.list li:last-child {
+  border: none;
+}
+.list li img {
+  width: .9rem;
+  margin-right: .35rem;
+}
+.list li p {
+  width: 5.44rem;
+  font-size: .21rem;
+  color: #333333;
+  line-height: .25rem;
+}
+
+.box_list {
+  overflow: hidden;
+  background: #fff;
+  margin-top: .13rem;
+}
+.box_list .box_tit_box {
+  padding-left: .36rem;
+  overflow: hidden;
+}
+.box_list .box_tit {
+  overflow: hidden;
+  width: 100%;
+  padding-right: .36rem;
+  height: .83rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #CACACA;
+}
+.box_list .box_tit p {
+  font-size: .28rem;
+  color: #9080FC;
+}
+.box_list .box_tit a {
+  font-size: .25rem;
+  color: #AFADBD;
+}
+.box_list .swipers {
+  overflow: hidden;
+  width: 100%;
+  height: 2.5rem;
+}
+.box_list .swipers img {
+  width: 3.61rem;
+}
+.box_list ul {
+  overflow: hidden;
+  padding-left: .38rem;
+}
+.box_list ul li {
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  padding: .3rem 0;
+  box-sizing: border-box;
+}
+.box_list ul li img {
+  width: .38rem;
+}
+.box_list ul li div {
+  overflow: hidden;
+  width: 6.13rem;
+  margin-left: .27rem;
+}
+.box_list ul li div p {
+  font-size: .25rem;
+  color: #AFADBD;
+  margin-bottom: .1rem;
+}
+.box_list ul li div span {
+  display: block;
+  font-size: .21rem;
+  line-height: .28rem;
+  color: #333333;
+}
+
+.swiper-container {
+  width: 100%;
+  height: 100%;
+}
+
+.swiper-slide {
+  text-align: center;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+
+.swipers {
+  margin-top: .41rem;
+}
+
+footer {
+  overflow: hidden;
+}
+footer ul {
+  overflow: hidden;
+}
+footer ul li {
+  overflow: hidden;
+  width: 25%;
+  line-height: 1.05rem;
+  font-size: .25rem;
+  text-align: center;
+  float: left;
+}
+footer ul li a {
+  color: #AFADBD;
+}
+
+/*# sourceMappingURL=css.css.map */

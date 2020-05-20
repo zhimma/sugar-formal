@@ -1,6 +1,32 @@
 @extends('new.layouts.website')
 
 @section('app-content')
+<style>
+.pagination > li > a:focus,
+.pagination > li > a:hover,
+.pagination > li > span:focus,
+.pagination > li > span:hover{
+    z-index: 3;
+    /* color: #23527c !important; */
+    background-color: #FF8888 !important;
+    /* border-color: #ddd !important; */
+    /* border-color:#ee5472 !important; */
+    /* color:white !important; */
+}
+/* 
+.pagination > .active > a,
+    .pagination > .active > span,
+    .pagination > .active > a:hover,
+    .pagination > .active > span:hover,
+    .pagination > .active > a:focus,
+    .pagination > .active > span:focus {
+        z-index: 3;
+    color: #23527c !important;
+    background-color: #f5c2c0 !important;
+    border-color:#ee5472 !important;
+    color:white !important;
+    } */
+    </style>
     <div class="container matop70">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -8,7 +34,7 @@
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
                 <div class="shou shou02 sh_line"><span>搜索</span>
-                    <font>search</font>
+                    <font>Search</font>
                 </div>
 
                 <form action="{!! url('dashboard/search') !!}" method="post">
@@ -17,17 +43,13 @@
                         <div class="n_input">
                             <dt>
                                 <span>地區</span>
-                                <span>
-                                <span class="twzipcode" id="twzipcode" style="display: inline-flex;">
-                                <span class="select_xx07 left" data-role="county" data-name="county" data-value="@if(!empty($_POST['county'])){{ $_POST['county'] }}@elseif(!empty($_GET['county'])){{ $_GET['county']  }}@endif" style=""></span>
-                                <span class="select_xx07 right" data-role="district" data-name="district" data-value="@if(!empty($_POST['district'])){{ $_POST['district'] }}@elseif(!empty($_GET['district'])){{ $_GET['district'] }}@endif" style=""></span>
-{{--                                    @if ($user->isVip())--}}
-                                    {{--                                        <span class="twzip"><input class="m-input" type="checkbox" id="pic" name="pic"> 照片</span>--}}
-                                    {{--                                    @endif--}}
-                                </span>
-{{--                            <select name="" class="select_xx06"><option>連江縣</option><option>B</option></select>--}}
-                                    {{--                            <select name="" class="select_xx06 right"><option>南竿鄉</option><option>B</option></select>--}}
-                                </span>
+                                
+                                <span class="twzipcode" id="twzipcode" style="display:inline-flex">
+                                <div class="select_xx08 left" data-role="county" data-name="county" data-value="@if(!empty($_POST['county'])){{ $_POST['county'] }}@elseif(!empty($_GET['county'])){{ $_GET['county']  }}@endif" style=""></div>
+                                <div class="sew6" style="width:13%"></div>
+                                <div class="select_xx08 right" data-role="district" data-name="district" data-value="@if(!empty($_POST['district'])){{ $_POST['district'] }}@elseif(!empty($_GET['district'])){{ $_GET['district'] }}@endif" style=""></div>
+                            </span>
+                                
                             </dt>
                             <dt>
                                 <span>年齡範圍</span>
@@ -89,7 +111,11 @@
                                             <option value="已婚" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "已婚" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "已婚") selected @endif>已婚</option>
                                             <option value="分居" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "分居" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "分居") selected @endif>分居</option>
                                             <option value="單身" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "單身" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "單身") selected @endif>單身</option>
-                                            <option value="有男友" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "有男友" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "有男友") selected @endif>有男友</option>
+                                            @if( $user->engroup == 2)
+                                                <option value="有女友" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "有女友" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "有女友") selected @endif>有女友</option>
+                                            @else
+                                                <option value="有男友" @if( !empty( $_POST["marriage"] ) && $_POST["marriage"] == "有男友" ) selected @elseif(!empty( $_GET["marriage"] ) && $_GET["marriage"] == "有男友") selected @endif>有男友</option>
+                                            @endif
                                         </select>
                                     </div>
                                     <div class="n_se right">
@@ -122,25 +148,29 @@
                 </form>
 
                 <?php
-                $district = "";
-                $county = "";
-                $cup = "";
-                $marriage = "";
-                $budget = "";
-                $income = "";
-                $smoking = "";
-                $drinking = "";
-                $photo = "";
-                $ageto = "";
-                $agefrom = "";
-                $seqtime = "";
-                $body = "";
-                $umeta = $user->meta_();
-                if(isset($umeta->city)){
-                    $umeta->city = explode(",",$umeta->city);
-                    $umeta->area = explode(",",$umeta->area);
-                }
-
+                    try{
+                        $district = "";
+                        $county = "";
+                        $cup = "";
+                        $marriage = "";
+                        $budget = "";
+                        $income = "";
+                        $smoking = "";
+                        $drinking = "";
+                        $photo = "";
+                        $ageto = "";
+                        $agefrom = "";
+                        $seqtime = "";
+                        $body = "";
+                        $umeta = $user->meta_();
+                        if(isset($umeta->city)){
+                            $umeta->city = explode(",",$umeta->city);
+                            $umeta->area = explode(",",$umeta->area);
+                        }
+                    }
+                    catch (\Exception $e){
+                        \Illuminate\Support\Facades\Log::info('Search error, $user: ' . $user);
+                    }
                 ?>
                 @if (isset($_POST['_token']) || isset($_GET['_token']))
                     <?php
@@ -167,11 +197,16 @@
                 <div class="n_sepeop">
                     @if (!empty($vis) && isset($vis) && sizeof($vis) > 0)
                         @foreach ($vis as $vi)
-                            <?php $visitor = $vi->user();
-                            $umeta = $visitor->meta_();
-                            if(isset($umeta->city)){
-                                $umeta->city = explode(",",$umeta->city);
-                                $umeta->area = explode(",",$umeta->area);
+                            <?php $visitor = $vi->user;
+                            try{
+                                $umeta = $visitor->meta_();
+                                if(isset($umeta->city)){
+                                    $umeta->city = explode(",",$umeta->city);
+                                    $umeta->area = explode(",",$umeta->area);
+                                }
+                            }
+                            catch (\Exception $e){
+                                \Illuminate\Support\Facades\Log::info('Search error, visitor: ' . $vi);
                             }
                             ?>
                             <li class="nt_fg">
@@ -232,24 +267,46 @@
 
 @section('javascript')
     <style>
+
         .select_xx07{
-            width: 100%;
+            /* width: 425px; */
             border-radius: 4px;
             height: 40px;
             color: #555;
             background: #ffffff;
             font-size: 15px;
+            width:90%;
         }
 
         .select_xx01 {
             margin-right: 0%;
+        }
+
+        .select_xx08{
+        	width: 100%;
+		    height: 40px;
+		    border-radius: 4px;
+		    /*padding: 0 6px;*/
+		    color: #555;
+		    background: #ffffff;
+		    font-size: 15px;
         }
         select{
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
             padding-left: 10px;
+
         }
+     /*
+        option{
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            padding-left: 10px;
+        }*/
+
+
     </style>
     <script>
         $('.n_zcbut').click(function(){
@@ -303,7 +360,7 @@
             //var BootstrapDatepicker=function(){var t=function(){$("#m_datepicker_1, #m_datepicker_1_validate").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_1_modal").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_2, #m_datepicker_2_validate").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_2_modal").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_3, #m_datepicker_3_validate").datepicker({todayBtn:"linked",clearBtn:!0,todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_3_modal").datepicker({todayBtn:"linked",clearBtn:!0,todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_1").datepicker({orientation:"top left",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_2").datepicker({orientation:"top right",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_3").datepicker({orientation:"bottom left",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_4").datepicker({orientation:"bottom right",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_5").datepicker({todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_6").datepicker({todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}})};return{init:function(){t()}}}();jQuery(document).ready(function(){BootstrapDatepicker.init()});
             // var BootstrapSelect=function(){var t=function(){$(".m_selectpicker").selectpicker()};return{init:function(){t()}}}();jQuery(document).ready(function(){BootstrapSelect.init()});
             $('.twzipcode').twzipcode({
-                'detect': true, 'css': ['select_xx07', 'select_xx07', 'zipcode'], onCountySelect: function() {
+                'detect': true, 'css': ['select_xx08','select_xx08'], onCountySelect: function() {
                     $("select[name='district']").prepend('<option selected value="">全市</option>');
                 }
             });

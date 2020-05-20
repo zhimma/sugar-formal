@@ -25,7 +25,8 @@
     "autoload": {
         "files" : [
             "app/Helpers/activity_helper.php",
-            "app/Services/ECPay.php"
+            "app/Services/ECPay.php",
+            "app/Library/class.fileuploader.php"
         ],
 
         "classmap": [

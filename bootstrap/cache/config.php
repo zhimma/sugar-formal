@@ -8,7 +8,7 @@
     'timezone' => 'Asia/Taipei',
     'locale' => 'zh',
     'fallback_locale' => 'en',
-    'key' => 'base64:bt22Wh2dsMIQNj3hPToVwQaMinCY+o2wpuw9Afkv9UU=',
+    'key' => 'base64:UbH86kG05OtiU5mQ+vQKmD19heTmUCY51/5EvneFDvs=',
     'cipher' => 'AES-256-CBC',
     'log' => 'daily',
     'log_max_files' => 365,
@@ -96,7 +96,7 @@
     'timezone' => 'Asia/Taipei',
     'locale' => 'zh',
     'fallback_locale' => 'en',
-    'key' => 'base64:bt22Wh2dsMIQNj3hPToVwQaMinCY+o2wpuw9Afkv9UU=',
+    'key' => 'base64:UbH86kG05OtiU5mQ+vQKmD19heTmUCY51/5EvneFDvs=',
     'cipher' => 'AES-256-CBC',
     'log' => 'daily',
     'log_level' => 'debug',
@@ -183,7 +183,7 @@
     'timezone' => 'Asia/Taipei',
     'locale' => 'zh',
     'fallback_locale' => 'en',
-    'key' => 'base64:bt22Wh2dsMIQNj3hPToVwQaMinCY+o2wpuw9Afkv9UU=',
+    'key' => 'base64:UbH86kG05OtiU5mQ+vQKmD19heTmUCY51/5EvneFDvs=',
     'cipher' => 'AES-256-CBC',
     'log' => 'daily',
     'log_level' => 'debug',
@@ -270,7 +270,7 @@
     'timezone' => 'Asia/Taipei',
     'locale' => 'zh',
     'fallback_locale' => 'en',
-    'key' => 'base64:bt22Wh2dsMIQNj3hPToVwQaMinCY+o2wpuw9Afkv9UU=',
+    'key' => 'base64:UbH86kG05OtiU5mQ+vQKmD19heTmUCY51/5EvneFDvs=',
     'cipher' => 'AES-256-CBC',
     'log' => 'daily',
     'log_max_files' => 365,
@@ -399,7 +399,7 @@
       'timezone' => 'Asia/Taipei',
       'locale' => 'zh',
       'fallback_locale' => 'en',
-      'key' => 'base64:bt22Wh2dsMIQNj3hPToVwQaMinCY+o2wpuw9Afkv9UU=',
+      'key' => 'base64:UbH86kG05OtiU5mQ+vQKmD19heTmUCY51/5EvneFDvs=',
       'cipher' => 'AES-256-CBC',
       'log' => 'daily',
       'log_level' => 'debug',
@@ -486,7 +486,7 @@
       'timezone' => 'Asia/Taipei',
       'locale' => 'zh',
       'fallback_locale' => 'en',
-      'key' => 'base64:bt22Wh2dsMIQNj3hPToVwQaMinCY+o2wpuw9Afkv9UU=',
+      'key' => 'base64:UbH86kG05OtiU5mQ+vQKmD19heTmUCY51/5EvneFDvs=',
       'cipher' => 'AES-256-CBC',
       'log' => 'daily',
       'log_level' => 'debug',
@@ -573,7 +573,7 @@
       'timezone' => 'Asia/Taipei',
       'locale' => 'zh',
       'fallback_locale' => 'en',
-      'key' => 'base64:bt22Wh2dsMIQNj3hPToVwQaMinCY+o2wpuw9Afkv9UU=',
+      'key' => 'base64:UbH86kG05OtiU5mQ+vQKmD19heTmUCY51/5EvneFDvs=',
       'cipher' => 'AES-256-CBC',
       'log' => 'daily',
       'log_max_files' => 365,
@@ -658,7 +658,7 @@
       'lifetime' => 30,
       'expire_on_close' => false,
       'encrypt' => false,
-      'files' => '/home/admin/web/sugar-garden.org/sugar-garden/storage/framework/sessions',
+      'files' => '/var/www/sugar-garden/storage/framework/sessions',
       'connection' => NULL,
       'table' => 'sessions',
       'store' => NULL,
@@ -680,7 +680,7 @@
       'lifetime' => 43200,
       'expire_on_close' => false,
       'encrypt' => false,
-      'files' => '/home/admin/web/sugar-garden.org/sugar-garden/storage/framework/sessions',
+      'files' => '/var/www/sugar-garden/storage/framework/sessions',
       'connection' => NULL,
       'table' => 'sessions',
       'store' => NULL,
@@ -875,7 +875,7 @@
       'file' => 
       array (
         'driver' => 'file',
-        'path' => '/home/admin/web/sugar-garden.org/sugar-garden/storage/framework/cache/data',
+        'path' => '/var/www/sugar-garden/storage/framework/cache/data',
       ),
       'memcached' => 
       array (
@@ -909,19 +909,19 @@
   ),
   'crudmaker' => 
   array (
-    'template_source' => '/home/admin/web/sugar-garden.org/sugar-garden/resources/crudmaker',
+    'template_source' => '/var/www/sugar-garden/resources/crudmaker',
     'single' => 
     array (
-      '_path_facade_' => '/home/admin/web/sugar-garden.org/sugar-garden/app/Facades',
-      '_path_service_' => '/home/admin/web/sugar-garden.org/sugar-garden/app/Services',
-      '_path_model_' => '/home/admin/web/sugar-garden.org/sugar-garden/app/Models',
-      '_path_controller_' => '/home/admin/web/sugar-garden.org/sugar-garden/app/Http/Controllers/',
-      '_path_api_controller_' => '/home/admin/web/sugar-garden.org/sugar-garden/app/Http/Controllers/Api',
-      '_path_views_' => '/home/admin/web/sugar-garden.org/sugar-garden/resources/views',
-      '_path_tests_' => '/home/admin/web/sugar-garden.org/sugar-garden/tests',
-      '_path_request_' => '/home/admin/web/sugar-garden.org/sugar-garden/app/Http/Requests/',
-      '_path_routes_' => '/home/admin/web/sugar-garden.org/sugar-garden/routes/web.php',
-      '_path_api_routes_' => '/home/admin/web/sugar-garden.org/sugar-garden/routes/api.php',
+      '_path_facade_' => '/var/www/sugar-garden/app/Facades',
+      '_path_service_' => '/var/www/sugar-garden/app/Services',
+      '_path_model_' => '/var/www/sugar-garden/app/Models',
+      '_path_controller_' => '/var/www/sugar-garden/app/Http/Controllers/',
+      '_path_api_controller_' => '/var/www/sugar-garden/app/Http/Controllers/Api',
+      '_path_views_' => '/var/www/sugar-garden/resources/views',
+      '_path_tests_' => '/var/www/sugar-garden/tests',
+      '_path_request_' => '/var/www/sugar-garden/app/Http/Requests/',
+      '_path_routes_' => '/var/www/sugar-garden/routes/web.php',
+      '_path_api_routes_' => '/var/www/sugar-garden/routes/api.php',
       'routes_prefix' => '',
       'routes_suffix' => '',
       '_app_namespace_' => 'App\\',
@@ -934,16 +934,16 @@
     ),
     'sectioned' => 
     array (
-      '_path_facade_' => '/home/admin/web/sugar-garden.org/sugar-garden/app/Facades',
-      '_path_service_' => '/home/admin/web/sugar-garden.org/sugar-garden/app/Services/_section_',
-      '_path_model_' => '/home/admin/web/sugar-garden.org/sugar-garden/app/Models/_section_',
-      '_path_controller_' => '/home/admin/web/sugar-garden.org/sugar-garden/app/Http/Controllers/_section_/',
-      '_path_api_controller_' => '/home/admin/web/sugar-garden.org/sugar-garden/app/Http/Controllers/Api/_section_/',
-      '_path_views_' => '/home/admin/web/sugar-garden.org/sugar-garden/resources/views/_sectionLowerCase_',
-      '_path_tests_' => '/home/admin/web/sugar-garden.org/sugar-garden/tests',
-      '_path_request_' => '/home/admin/web/sugar-garden.org/sugar-garden/app/Http/Requests/_section_',
-      '_path_routes_' => '/home/admin/web/sugar-garden.org/sugar-garden/routes/web.php',
-      '_path_api_routes_' => '/home/admin/web/sugar-garden.org/sugar-garden/routes/api.php',
+      '_path_facade_' => '/var/www/sugar-garden/app/Facades',
+      '_path_service_' => '/var/www/sugar-garden/app/Services/_section_',
+      '_path_model_' => '/var/www/sugar-garden/app/Models/_section_',
+      '_path_controller_' => '/var/www/sugar-garden/app/Http/Controllers/_section_/',
+      '_path_api_controller_' => '/var/www/sugar-garden/app/Http/Controllers/Api/_section_/',
+      '_path_views_' => '/var/www/sugar-garden/resources/views/_sectionLowerCase_',
+      '_path_tests_' => '/var/www/sugar-garden/tests',
+      '_path_request_' => '/var/www/sugar-garden/app/Http/Requests/_section_',
+      '_path_routes_' => '/var/www/sugar-garden/routes/web.php',
+      '_path_api_routes_' => '/var/www/sugar-garden/routes/api.php',
       'routes_prefix' => '
 
 Route::group([\'namespace\' => \'_section_\', \'prefix\' => \'_sectionLowerCase_\', \'as\' => \'_sectionLowerCase_\', \'middleware\' => [\'web\']], function () { 
@@ -967,17 +967,17 @@ Route::group([\'namespace\' => \'_section_\', \'prefix\' => \'_sectionLowerCase_
       'sqlite' => 
       array (
         'driver' => 'sqlite',
-        'database' => 'admin_sguser',
+        'database' => 'sugar_garden',
         'prefix' => '',
       ),
       'mysql' => 
       array (
         'driver' => 'mysql',
-        'host' => 'localhost',
+        'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'admin_sguser',
-        'username' => 'admin_sguser',
-        'password' => 'wIQrHqbQi2EE6OTk',
+        'database' => 'sugar_garden',
+        'username' => 'sguser',
+        'password' => 'hC`Yz~`?k2N]dIem65t',
         'unix_socket' => '',
         'charset' => 'utf8',
         'collation' => 'utf8_unicode_ci',
@@ -988,11 +988,11 @@ Route::group([\'namespace\' => \'_section_\', \'prefix\' => \'_sectionLowerCase_
       'pgsql' => 
       array (
         'driver' => 'pgsql',
-        'host' => 'localhost',
+        'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'admin_sguser',
-        'username' => 'admin_sguser',
-        'password' => 'wIQrHqbQi2EE6OTk',
+        'database' => 'sugar_garden',
+        'username' => 'sguser',
+        'password' => 'hC`Yz~`?k2N]dIem65t',
         'charset' => 'utf8',
         'prefix' => '',
         'schema' => 'public',
@@ -1001,11 +1001,11 @@ Route::group([\'namespace\' => \'_section_\', \'prefix\' => \'_sectionLowerCase_
       'sqlsrv' => 
       array (
         'driver' => 'sqlsrv',
-        'host' => 'localhost',
+        'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'admin_sguser',
-        'username' => 'admin_sguser',
-        'password' => 'wIQrHqbQi2EE6OTk',
+        'database' => 'sugar_garden',
+        'username' => 'sguser',
+        'password' => 'hC`Yz~`?k2N]dIem65t',
         'charset' => 'utf8',
         'prefix' => '',
       ),
@@ -1059,12 +1059,12 @@ Route::group([\'namespace\' => \'_section_\', \'prefix\' => \'_sectionLowerCase_
       'local' => 
       array (
         'driver' => 'local',
-        'root' => '/home/admin/web/sugar-garden.org/sugar-garden/storage/app',
+        'root' => '/var/www/sugar-garden/storage/app',
       ),
       'public' => 
       array (
         'driver' => 'local',
-        'root' => '/home/admin/web/sugar-garden.org/sugar-garden/storage/app/public',
+        'root' => '/var/www/sugar-garden/storage/app/public',
         'url' => 'https://www.sugar-garden.org/storage',
         'visibility' => 'public',
       ),
@@ -1156,7 +1156,7 @@ Route::group([\'namespace\' => \'_section_\', \'prefix\' => \'_sectionLowerCase_
   array (
     'api_key' => '3baceb79-7e39-44bb-a588-e9644ab8e7a5',
     'enabled' => true,
-    'tmp_storage_path' => '/home/admin/web/sugar-garden.org/sugar-garden/storage/logs/http_analyzer',
+    'tmp_storage_path' => '/var/www/sugar-garden/storage/logs/http_analyzer',
     'filtering' => 
     array (
       'ignore_environment' => 
@@ -1204,7 +1204,7 @@ Route::group([\'namespace\' => \'_section_\', \'prefix\' => \'_sectionLowerCase_
       'theme' => 'default',
       'paths' => 
       array (
-        0 => '/home/admin/web/sugar-garden.org/sugar-garden/resources/views/vendor/mail',
+        0 => '/var/www/sugar-garden/resources/views/vendor/mail',
       ),
     ),
   ),
@@ -1289,7 +1289,7 @@ Route::group([\'namespace\' => \'_section_\', \'prefix\' => \'_sectionLowerCase_
     'lifetime' => 30,
     'expire_on_close' => false,
     'encrypt' => false,
-    'files' => '/home/admin/web/sugar-garden.org/sugar-garden/storage/framework/sessions',
+    'files' => '/var/www/sugar-garden/storage/framework/sessions',
     'connection' => NULL,
     'table' => 'sessions',
     'store' => NULL,
@@ -1311,7 +1311,7 @@ Route::group([\'namespace\' => \'_section_\', \'prefix\' => \'_sectionLowerCase_
     'lifetime' => 30,
     'expire_on_close' => false,
     'encrypt' => false,
-    'files' => '/home/admin/web/sugar-garden.org/sugar-garden/storage/framework/sessions',
+    'files' => '/var/www/sugar-garden/storage/framework/sessions',
     'connection' => NULL,
     'table' => 'sessions',
     'store' => NULL,
@@ -1333,7 +1333,7 @@ Route::group([\'namespace\' => \'_section_\', \'prefix\' => \'_sectionLowerCase_
     'lifetime' => 43200,
     'expire_on_close' => false,
     'encrypt' => false,
-    'files' => '/home/admin/web/sugar-garden.org/sugar-garden/storage/framework/sessions',
+    'files' => '/var/www/sugar-garden/storage/framework/sessions',
     'connection' => NULL,
     'table' => 'sessions',
     'store' => NULL,
@@ -1525,9 +1525,9 @@ Route::group([\'namespace\' => \'_section_\', \'prefix\' => \'_sectionLowerCase_
   array (
     'paths' => 
     array (
-      0 => '/home/admin/web/sugar-garden.org/sugar-garden/resources/views',
+      0 => '/var/www/sugar-garden/resources/views',
     ),
-    'compiled' => '/home/admin/web/sugar-garden.org/sugar-garden/storage/framework/views',
+    'compiled' => '/var/www/sugar-garden/storage/framework/views',
   ),
   'image' => 
   array (

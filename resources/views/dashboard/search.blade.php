@@ -284,8 +284,11 @@
             @if (isset($vis) && sizeof($vis) > 0)
             @foreach ($vis as $vi)
                 <div class="col-md-3 m-widget3__item"  style="border-bottom: none; margin:50px 0;">
-                    <?php $visitor = $vi->user() ?>
+                    <?php $visitor = $vi->user ?>
                     <?php 
+                        if(!isset($visitor)){
+                            continue;
+                        }
                         $umeta = $visitor->meta_();
                         if(isset($umeta->city)){
                             $umeta->city = explode(",",$umeta->city);
@@ -345,7 +348,7 @@
                             <?php $icc = 1; ?>
                             @foreach ($visitors as $visitor)
                             @if (isset($_GET['_token']))
-                                <?php $visitor = $vi->user() ?>
+                                <?php $visitor = $vi->user ?>
                             @endif
             @if ($visitor !== null && $visitor->meta_() !== null)
                     <div class="col-md-3 m-widget3__item" style="border-bottom: none; margin:50px 0;">

@@ -13,6 +13,18 @@
     <a href="" class="gxbut"></a>
 </div>
 
+<div class="bl bl_tab" id="tab_other">
+    <div class="bltitle">提示</div>
+    <div class="n_blnr01">
+        <div class="blnr bltext"></div>
+        <div class="n_bbutton">
+            <a class="n_bllbut n_bllbut_tab_other" href="javascript:">確認</a>
+{{--            <span><a onclick="$('.blbg').click();" class="n_right" href="javascript:">返回</a></span>--}}
+        </div>
+    </div>
+    <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+</div>
+
 <div class="bl bl_tab" id="tab04">
     <div class="bltitle">提示</div>
     <div class="n_blnr01">
@@ -40,10 +52,10 @@
 
 <div class="bl bl_tab" id="tab_block">
     <div class="bltitle"><span>是否要封鎖他</span></div>
-    <div class="n_blnr01 matop20">
+    <div class="n_blnr01 matop20" style="padding-top: 20px !important; margin-top: 0px !important;">
         <!-- <div class="n_fengs"><img src="/new/images/iconff_03.png"><span>對方不會知道您封鎖他 </span></div>
         <div class="n_fengs"><img src="/new/images/iconff_06.png"><span>會將對方顯示為退會的用戶</span></div>        <div class="n_fengs"><img src="/new/images/iconff_08.png"><span>可從設定頁面的[已封鎖用戶名單]中解除</span></div> -->
-        <div class="n_fengs">
+        <div class="n_fengs" style="padding-right: 0px !important; display: inline-grid; margin: 0 auto; width: 100%;">
         @if(isset($blockadepopup))
             {!! $blockadepopup !!}
         @endif
@@ -60,9 +72,16 @@
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 @if(str_contains(url()->current(), 'dashboard'))
-    {{-- @php
-        $time = \Carbon\Carbon::now();
-        $banned_users = \App\Models\SimpleTables\banned_users::where('member_id',$user->meta_()->user_id)->whereNull('expire_date')->orWhere('expire_date','>=',$time)->count();
+    @php
+        if(!isset($user)){
+            exit();
+        }
+        $banned_users = \App\Models\SimpleTables\banned_users::where('member_id',$user->meta_()->user_id)->where(
+            function ($query) {
+                $time = \Carbon\Carbon::now();
+                $query->whereNull('expire_date')->orWhere('expire_date','>=',$time);
+            })
+        ->count();
     @endphp
     @if($banned_users>0)
         <div class="blbg banned_bg" onclick="gmBtn1_banned()" style="display:block"></div>
@@ -95,6 +114,6 @@
                 {{Auth::logout()}}
                 window.location = "/";
             });
-        </script> 
-    @endif--}}
+        </script>
+    @endif
 @endif

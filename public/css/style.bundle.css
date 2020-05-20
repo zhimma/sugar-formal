@@ -553,26 +553,58 @@ pre code {
     padding-left: 15px;
     width: 100%
 }
+.msgtext_width{
+    width: 80%;
+    float:right;
+}
+.msg_textarea{
+    padding: .65rem 1.25rem;
+    line-height: 1.25;
+    border-radius: .25rem;
+}
 @media (min-width: 576px) {
     .container {
         max-width: 540px
+    }
+    .msgtext_width{
+        width: 85%;
+        float:right;
     }
 }
 @media (min-width: 768px) {
     .container {
         max-width: 720px
     }
+    .msgtext_width{
+        width: 88%;
+        float:right;
+    }
 }
 @media (min-width: 992px) {
     .container {
         max-width: 960px
+    }
+    .msgtext_width{
+        width: 90%;
+        float:right;
     }
 }
 @media (min-width: 1200px) {
     .container {
         max-width: 1140px
     }
+    .msgtext_width{
+        width: 93%;
+        float:right;
+    }
 }
+@media (min-width: 1400px) {
+    .msgtext_width{
+        width: 95%;
+        float:right;
+    }
+}
+
 .container-fluid {
     width: 100%;
     margin-right: auto;
@@ -2174,6 +2206,27 @@ select.form-control-lg:not([size]):not([multiple]) {
     -webkit-transition: all .15s ease-in-out;
     -o-transition: all .15s ease-in-out;
     transition: all .15s ease-in-out
+}
+@media (max-width: 576px) {
+    .btn {
+        display: inline-block;
+        font-weight: 400;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        -webkit-user-select: none;
+           -moz-user-select: none;
+            -ms-user-select: none;
+                user-select: none;
+        border: 1px solid transparent;
+        padding: .3rem .7rem;
+        font-size: 1rem;
+        line-height: 1.25;
+        border-radius: .25rem;
+        -webkit-transition: all .15s ease-in-out;
+        -o-transition: all .15s ease-in-out;
+        transition: all .15s ease-in-out
+    }
 }
 .btn:focus,
 .btn:hover {

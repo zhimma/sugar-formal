@@ -1,10 +1,12 @@
 @extends('new.layouts.website')
-
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 @section('app-content')
     <style>
         .swiper-container {
             width: 100%;
-            height: auto;
+            /*height: auto;*/
         }
 
         .swiper-slide {
@@ -18,7 +20,7 @@
         .swiper-slide img {
             /*width: 100%;*/
             max-width: 100%;
-            height: 100%;
+            /*max-height: 280px;*/
             display: block;
             margin: 0 auto;
         }
@@ -26,11 +28,11 @@
         @media (max-width:767px) {
             .swiper-container {
                 width: 100%;
-                height: auto;
+                height: 280px;
             }
             .swiper-slide {
                 /*width: 100%;*/
-                height: 200px !important;
+                /*height: 200px !important;*/
                 margin: 0 auto;
                 padding: 0px;
                 display: table
@@ -38,7 +40,7 @@
             .swiper-slide img {
                 /*width: 100%;*/
                 max-width: 100%;
-                height: 100%;
+                /*max-height: 200px;*/
                 display: block;
                 margin: 0 auto;
             }
@@ -46,11 +48,11 @@
         @media (max-width:992px) {
             .swiper-container {
                 width: 100%;
-                height: auto;
+                height: 280px;
             }
             .swiper-slide {
                 /*width: 100%;*/
-                height: 280px;
+                /*height: 280px;*/
                 margin: 0 auto;
                 padding: 0px;
                 display: table
@@ -58,12 +60,23 @@
             .swiper-slide img {
                 /*width: 100%;*/
                 max-width: 100%;
-                height: 100%;
+                /*max-height: 200px;*/
                 display: block;
                 margin: 0 auto;
             }
         }
-
+        .n_blnr01 {
+            padding-top: 20px !important;
+        }
+        .bottub ul li {
+            height: 50px;
+        }
+        @media (min-width:812px) and (min-height: 375px) and (max-width:812px) and (max-height:375px) {
+            .bl_tab{
+                width: 40%;
+                left: 30%;
+            }
+        }
 
     </style>
     <div class="container matop80">
@@ -125,21 +138,21 @@
                             </ul>
                         </div>
                         <div class="bottub">
-                            <ul>
+                            <ul style="height: 50px;">
                                 <? $data = \App\Services\UserService::checkRecommendedUser($to);
                                 //echo $data['description'];
                                 ?>
                                 @if(isset($data['description']) && $to->engroup == 2)
-                                <li><img src="/new/images/icon_19.png"><span>新進甜心</span></li>
+                                <li><img src="/new/images/icon_19.png"><span>{{$new_sweet}}</span></li>
                                 @endif
                                 @if(isset($data['description']) && $to->engroup == 1)
-                                <li><img src="/new/images/icon_21.png"><span>優選會員</span></li>
+                                <li><img src="/new/images/icon_21.png"><span>{{$well_member}}</span></li>
                                 @endif
-{{--                            <li><img src="/new/images/icon_23.png"><span>財力認證</span></li>--}}
+{{--                            <li><img src="/new/images/icon_23.png"><span>{{$money_cert}}</span></li>--}}
                                 @if($to->isVip() && $to->engroup == 1)
-                                <li><img src="/new/images/icon_25.png"><span>VIP</span></li>
+                                <li><img src="/new/images/icon_25.png"><span> VIP </span></li>
                                 @endif
-{{--                            <li><img src="/new/images/icon_27.png"><span>警示帳戶</span></li>--}}
+{{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
                             </ul>
                         </div>
 
@@ -168,11 +181,17 @@
                                 <div class="xl_input">
                                     <dt>
                                         <span>暱稱</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->name}}" disabled="disabled"></span>
+                                        <span>
+                                            <div class="select_xx01 senhs hy_new">{{$to->name}}</div>
+                                        </span>
+{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->name}}" disabled="disabled" style="color: #aaa !important;"></span>--}}
                                     </dt>
                                     <dt>
                                         <span>一句話形容自己</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->title}}" disabled="disabled"></span>
+                                        <span>
+                                            <div class="select_xx01 senhs hy_new">{{$to->title}}</div>
+                                        </span>
+{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->title}}" disabled="disabled" style="color: #aaa !important;;"></span>--}}
                                     </dt>
                                     @if($to->meta_()->isHideArea == '0')
                                     <dt>
@@ -192,15 +211,19 @@
                                             @if(is_array($umeta->city))
                                                 @foreach($umeta->city as $key => $cityval)
                                                     <span style="margin-top: 2px;">
-                                                        <input name="" type="text" class="select_xx senhs"  placeholder="{{$umeta->city[$key]}}" disabled="disabled">
-                                                        <input name="" type="text" class="select_xx senhs right"  placeholder="{{$umeta->area[$key]}}" disabled="disabled">
+                                                        <font class="select_xx senhs left hy_new">{{$umeta->city[$key]}}</font>
+                                                        <font class="select_xx senhs right hy_new">{{$umeta->area[$key]}}</font>
+{{--                                                        <input name="" type="text" class="select_xx senhs"  placeholder="{{$umeta->city[$key]}}" disabled="disabled" style="color: #aaa;">--}}
+{{--                                                        <input name="" type="text" class="select_xx senhs right"  placeholder="{{$umeta->area[$key]}}" disabled="disabled" style="color: #aaa;">--}}
                                                     </span>
                                                 @endforeach
                                             @endif
                                         @else
                                             <span>
-                                                <input name="" type="text" class="select_xx senhs"  placeholder="{{$to->meta_()->city}}" disabled="disabled">
-                                                <input name="" type="text" class="select_xx senhs right"  placeholder="{{$to->meta_()->area}}" disabled="disabled">
+                                                <font class="select_xx senhs left hy_new">{{$to->meta_()->city}}</font>
+                                                <font class="select_xx senhs right hy_new">{{$to->meta_()->area}}</font>
+{{--                                                <input name="" type="text" class="select_xx senhs"  placeholder="{{$to->meta_()->city}}" disabled="disabled" style="color: #aaa;">--}}
+{{--                                                <input name="" type="text" class="select_xx senhs right"  placeholder="{{$to->meta_()->area}}" disabled="disabled" style="color: #aaa;">--}}
                                             </span>
                                         @endif
                                     </dt>
@@ -209,42 +232,59 @@
                                     @if(!empty($to->meta_()->budget))
                                     <dt>
                                         <span>預算</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->budget}}" disabled="disabled"></span>
+                                        <span>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->budget}}</div>
+                                        </span>
+{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->budget}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
                                     @if(!empty($to->meta_()->age()))
                                     <dt>
                                         <span>年齡</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->age()}}" disabled="disabled"></span>
+                                        <span>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->age()}}</div>
+                                        </span>
+{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->age()}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
                                     @if(!empty($to->meta_()->height))
                                     <dt>
                                         <span>身高（cm）</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->height}}" disabled="disabled"></span>
+                                        <span>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->height}}</div>
+                                        </span>
+{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->height}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
                                     @if(!empty($to->meta_()->body) && $to->meta_()->body != null && $to->meta_()->body != 'null')
                                     <dt>
                                         <span>體型</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->body}}" disabled="disabled"></span>
+                                        <span>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->body}}</div>
+                                        </span>
+{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->body}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
                                     @if(!empty($to->meta_()->cup) && $to->meta_()->isHideCup == '0')
                                     <dt>
                                         <span>CUP</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->cup}}" disabled="disabled"></span>
+                                        <span>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->cup}}</div>
+                                        </span>
+{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->cup}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
                                     @if(!empty($to->meta_()->about))
                                     <dt>
                                         <span>關於我</span>
-                                        <span><div class="select_xx03" >{!! nl2br($to->meta_()->about) !!}</div></span>
+                                        <span>
+                                            <div class="select_xx03" >{!! nl2br($to->meta_()->about) !!}</div>
+                                        </span>
                                     </dt>
                                     @endif
 
@@ -260,56 +300,80 @@
                                     @if(!empty($to->meta_()->domainType) && $to->meta_()->domainType != null && $to->meta_()->domainType != 'null')
                                     <dt>
                                         <span>產業</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->domainType}}  @if(!empty($to->meta_()->domain) && $to->meta_()->domain != null && $to->meta_()->domain != 'null'){{$to->meta_()->domain}}@endif" disabled="disabled"></span>
+                                        <span>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->domainType}}  @if(!empty($to->meta_()->domain) && $to->meta_()->domain != null && $to->meta_()->domain != 'null'){{$to->meta_()->domain}}@endif</div>
+                                        </span>
+{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->domainType}}  @if(!empty($to->meta_()->domain) && $to->meta_()->domain != null && $to->meta_()->domain != 'null'){{$to->meta_()->domain}}@endif" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
                                     @if(!empty($to->meta_()->occupation) && $to->meta_()->isHideOccupation == '0' && $user->isVip() && $to->meta_()->occupation != 'null')
                                     <dt>
                                         <span>職業</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->occupation}}" disabled="disabled"></span>
+                                        <span>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->occupation}}</div>
+                                        </span>
+{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->occupation}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
                                     @if(!empty($to->meta_()->education))
                                     <dt>
                                         <span>教育</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->education}}" disabled="disabled"></span>
+                                        <span>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->education}}</div>
+                                        </span>
+{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->education}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
                                     @if(!empty($to->meta_()->marriage))
                                     <dt>
                                         <span>婚姻</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->marriage}}" disabled="disabled"></span>
+                                        <span>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->marriage}}</div>
+                                        </span>
+{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->marriage}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
                                     @if(!empty($to->meta_()->drinking))
                                     <dt>
                                         <span>喝酒</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->drinking}}" disabled="disabled"></span>
+                                        <span>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->drinking}}</div>
+                                        </span>
+{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->drinking}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
                                     @if(!empty($to->meta_()->smoking))
                                     <dt>
                                         <span>抽煙</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->smoking}}" disabled="disabled"></span>
+                                        <span>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->smoking}}</div>
+                                        </span>
+{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->smoking}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
                                     @if(!empty($to->meta_()->income))
                                     <dt>
                                         <span>收入</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->income}}" disabled="disabled"></span>
+                                        <span>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->income}}</div>
+                                        </span>
+{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->income}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
                                     @if(!empty($to->meta_()->assets))
                                     <dt>
                                         <span>資產</span>
-                                        <span><input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->assets}}" disabled="disabled"></span>
+                                        <span>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->assets}}</div>
+                                        </span>
+{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->assets}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
@@ -369,9 +433,12 @@
                 {!! csrf_field() !!}
                 <input type="hidden" name="aid" value="{{$user->id}}">
                 <input type="hidden" name="uid" value="{{$to->id}}">
-                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請輸入檢舉理由"></textarea>
+
+                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請填寫理由"></textarea>
                 <div class="n_bbutton">
-                    <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>
+                    <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff;">送出</button>
+                    <button type="reset" class="n_left" style="border-style: none;background: #ffffff; color:#8a9ff0;" onclick="$('#show_banned').hide();$('.announce_bg').hide()">返回</button>
+
                 </div>
             </form>
         </div>
@@ -388,9 +455,12 @@
                 <input type="hidden" name="picType" value="">
                 <input type="hidden" name="pic_id" value="">
 
-                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請輸入檢舉理由" required></textarea>
+
+                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請填寫理由" required></textarea>
                 <div class="n_bbutton">
-                    <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>
+                    <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff;">送出</button>
+                    <button type="reset" class="n_left" style="border-style: none;background: #ffffff; color:#8a9ff0;" onclick="$('#show_reportPic').hide();$('.blbg').hide()">返回</button>
+
                 </div>
             </form>
         </div>
@@ -401,25 +471,36 @@
 
 @section('javascript')
 <script>
+
     $( document ).ready(function() {
-        @if(isset($is_block_mid) && $is_block_mid == '是')
-        $('.container').hide();
-        $('.gg_tab').hide();
-        $('.n_right').hide();
-        c4('此用戶已關閉資料');
-        $('.n_bbutton span').css('width','100%');
-        $('.n_bbutton').css('width','10%');
-        $('.n_left').css('margin-right','0px');
-        $(".n_left").on('click', function() {
-            $('#tab04').hide();
-            if (document.referrer != "") {
-                window.history.back();
-            }else{
-                location.href = '/dashboard/search';
-            }
+
+        if(window.matchMedia("(min-width: 992px)").matches){
+            $(".swiper-container").css('height',$(".metx").height()- 70);
+        }
+        //固定高取得
+        var bottom_height=$('.tubiao ul').height();
+        //浮動高度
+        var img_height = $(".swiper-container").height();
+        // alert(img_height);
+        $(".swiper-slide img").css('height',img_height - (bottom_height/2));
+        $('.tubiao').css('top',img_height - (bottom_height/2) - 40);
+        $(window).resize(function() {
+            // alert($('.tubiao ul').height());
+            // var wdth=$(window).width();
+            // $("span").text(wdth);
+            var img_height = $(".swiper-container").height();
+            $(".swiper-slide img").css('height',img_height - (bottom_height/2));
+            $('.tubiao').css('top',img_height - (bottom_height/2) - 40);
+            // alert(img_height - ($('.tubiao ul').height() / 2));
         });
-        @endif
     });
+    // $( document ).ready(function() {
+        @if(isset($is_block_mid) && $is_block_mid == '是')
+        ccc('此用戶已關閉資料。');
+        $('.row').css('display','none');
+        @endif
+    // });
+
     @if (isset($errors) && $errors->count() > 0)
         @foreach ($errors->all() as $error)
             c5('{{ $error }}');
@@ -548,8 +629,7 @@
             }
         });
     @endif
-</script>
-<script>
+
     function show_chat() {
         //$(".blbg").show();
         $(".announce_bg").show();
@@ -637,9 +717,19 @@
          });
     @endif
 
-    @if (Session::has('message'))
+    @if (Session::has('message') && Session::get('message')=="此用戶已關閉資料。")
+        ccc('{{Session::get('message')}}');
+    @elseif(Session::has('message'))
         c2('{{Session::get('message')}}');
     @endif
 
+    $(".n_bllbut_tab_other").on('click', function() {
+        $('#tab_other').hide();
+        if (document.referrer != "") {
+            window.history.back();
+        }else{
+            location.href = '/dashboard/search';
+        }
+    });
 </script>
 @stop

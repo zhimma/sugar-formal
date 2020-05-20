@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\Http\Requests\ImageRequest;
 use App\Http\Requests\MultipleImageRequest;
 use App\Http\Requests;
+use App\Services\ImageService;
 use App\Models\User;
 use App\Models\MemberPic;
 use App\Models\UserMeta;
@@ -13,9 +15,29 @@ use Image;
 use File;
 use Storage;
 use Carbon\Carbon;
+use Session;
+use \FileUploader;
+use App\Models\Vip;
 
 class ImageController extends Controller
 {
+    private $imageBasePath;
+    private $uploadDir;
+    //private $service;
+
+    public function __construct()
+    {
+        /*
+        * !important
+        * 為了維持資料庫格式一致, 請避免使用 public_path('/img/Member'), 
+        * 在 Linux 和 Windows 顯示上有所差異
+        */
+        $this->imageBasePath = public_path().'/img/Member/';
+        $this->uploadDir = $this->imageBasePath . Carbon::now()->format('Y/m/d/');
+        if(!File::exists($this->uploadDir))
+            File::makeDirectory($this->uploadDir, 0777, true);
+    }
+
     public function deleteImage(Request $request, $admin = false)
     {
         $payload = $request->all();
@@ -154,7 +176,6 @@ class ImageController extends Controller
 
         if($files = $request->file('images')) {
             foreach ($files as $file) {
-                //dd($files);
                 $now = Carbon::now()->format('Ymd');
                 $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
 
@@ -196,36 +217,276 @@ class ImageController extends Controller
         }
     }
 
-    public function fileuploader_image_upload()
+    public function getAvatar(Request $request)
     {
-        // 確保上傳資料夾存在
-        @mkdir($this->img_dir, 0777, true);
-        include( public_path(). '/plugins/fileuploader2/src/class.fileuploader.php');
-        // 上傳圖片
-        $fileUploader = new MyFileUploader('files', array(
+        $id = $request->userId;
+        $avatarPath = UserMeta::where('user_id', $id)->first()->pic;
+        if(!file_exists(public_path($avatarPath))){
+            $uMeta = UserMeta::where('user_id', $id)->first();
+            $uMeta->pic = null;
+            $uMeta->save();
+            $avatarPath = null;
+        }
+
+        if(is_null($avatarPath))
+            return response()->json("");
+        else
+        {
+            $path_slice = explode('/', $avatarPath);
+            //必須為list
+            $avatar[] = array(
+                "name" => end($path_slice),
+                "type" => FileUploader::mime_content_type($avatarPath),
+                "size" => filesize(public_path($avatarPath)),
+                "file" => $avatarPath,
+                "relative_file" => public_path($avatarPath),
+                "local" => $avatarPath,
+                "data" => array(
+                    "readerForce" => true,
+                    "isPreload" => true //為預先載入的圖片
+                )
+            );
+
+            return response()->json($avatar);
+        }
+    }
+
+    public function uploadAvatar(Request $request)
+    {
+        $userId = $request->userId;
+        $user=$request->user();
+        $preloadedFiles = $this->getAvatar($request)->content();
+        $preloadedFiles = json_decode($preloadedFiles, true);
+
+        $fileUploader = new FileUploader('avatar', array(
             'fileMaxSize' => 8,
             'extensions' => ['jpg', 'jpeg', 'png', 'gif'],
             'required' => true,
-            'uploadDir' => $this->img_dir,
-            'title' => time(),
+            'uploadDir' => $this->uploadDir,
+            'title' => function(){
+                $now = Carbon::now()->format('Ymd');
+                return $now . rand(100000000,999999999);
+            },
             'replace' => false,
+            'editor' => true,
+            'files' => $preloadedFiles
         ));
-        $upload = $fileUploader->upload();
 
-        if ($upload['isSuccess']) {
-            // 製作縮圖
-            // 縮圖檔名: 原檔名後綴 "_thumbnail"
-            $img = $upload['files'][0];
-            $thumbnail = $this->img_dir.basename($img['name'], '.'.$img['extension']).'_thumbnail.'.$img['extension'];
-            if (MyFileUploader::resize($img['file'], 200, 200, $thumbnail, null, 100)) {
-                $return = $this->ReturnHandle(true, '/'.$img['file']);
-            } else {
-                $return = $this->ReturnHandle(false, $this->lang->line('Update_Info_fail'));
+        /*$file = public_path($meta->pic);
+        if(is_file($file) and file_exists($file))
+            unlink($file);*/
+
+        $upload = $fileUploader->upload();
+        if($upload['hasWarnings'])
+            return redirect()->back()->withErrors($upload['warnings']);
+        else
+        {
+            //remove origin avator
+            $removeFiles = $fileUploader->getRemovedFiles();
+            if($removeFiles)
+            {
+                $file = public_path($removeFiles[0]['file']);
+                if(File::exists($file))
+                {
+                    $user = UserMeta::where('user_id', $userId)->first();
+                    $user->pic = NULL;
+                    $user->save();
+                    unlink($file);
+                }
             }
-        } else {
-            $return = $this->ReturnHandle(false, $this->lang->line('Update_Info_fail'));
+            //upload new avator
+            $avatar = $fileUploader->getUploadedFiles();
+            if($avatar)
+            {
+                $path = substr($avatar[0]['file'], strlen(public_path()));
+                $path[0] = '/';
+                UserMeta::where('user_id', $userId)->update(['pic' => $path]);
+            }
+            $msg="上傳成功";
+            //計算已上傳的照片照判斷VIP提示用
+            if($user->existHeaderImage() && $user->engroup==2 && $user->isVip() != 1){
+                $vip_record = Carbon::parse($user->vip_record);
+                if(isset($vip_record) && $vip_record->diffInSeconds(Carbon::now()) <= 86400 && $vip_record->diffInSeconds(Carbon::now())>1800){
+                    $msg="照片上傳成功，24H後升級為VIP會員";
+                }else{
+                    $msg="照片上傳成功，已升級為VIP會員";
+                }
+
+
+            }
+
+//            Session::flash('success', '照片上傳成功');
+            return redirect()->back()->with('message', $msg);
+        }
+    }
+
+    public function deleteAvatar(Request $request)
+    {
+        $user=$request->user();
+        $meta = UserMeta::findByMemberId($request->userId);
+        if(is_null($meta))
+            return response("此會員不存在", 200);
+        $fullPath = public_path($meta->pic);
+        if(File::exists($fullPath) and unlink($fullPath))
+        {
+            $meta->pic = NULL;
+            $meta->save();
+            $msg="刪除成功";
+            if(!$user->existHeaderImage() && $user->engroup==2 && $user->isFreeVip()){
+                $msg="您已刪除大頭照，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。";
+            }
+            return response($msg);
+        }   
+        else
+        {
+            return response("大頭照不存在或刪除失敗", 500);
+        }
+    }
+
+    public function getPictures(Request $request)
+    {
+        //$id = 41759;
+        $id = $request->userId;
+        
+        $picturePaths = MemberPic::getSelf($id)->pluck('pic');
+        $paths = array();
+        foreach($picturePaths as $path)
+        {
+            $path_slice = explode('/', $path);
+            if(!file_exists(public_path($path))){
+                $paths[] = array(
+                    "name" => end($path_slice), //filename
+                    "type" => FileUploader::mime_content_type($path),
+                    "size" => 0, //filesize需完整路徑
+                    "file" => $path,
+                    "relative_file" => public_path($path), // full path for editing files
+                    "local" => $path,
+                    "data" => array(
+                        "readerForce" => true,
+                        "isPreload" => true //為預先載入的圖片
+                    )
+                );
+            }
+            else{
+                $paths[] = array(
+                    "name" => end($path_slice), //filename
+                    "type" => FileUploader::mime_content_type($path),
+                    "size" => filesize(public_path($path)), //filesize需完整路徑
+                    "file" => $path,
+                    "relative_file" => public_path($path), // full path for editing files
+                    "local" => $path,
+                    "data" => array(
+                        "readerForce" => true,
+                        "isPreload" => true //為預先載入的圖片
+                    )
+                );
+            }
+        }
+        $responseJSON = response()->json($paths);
+        return $responseJSON;
+    }
+
+    /**
+    * 上傳生活照
+    *
+    * @param Request request 
+    */
+
+    public function uploadPictures(Request $request)
+    {
+        $userId = $request->userId;
+        $user=$request->user();
+        $preloadedFiles = $this->getPictures($request)->content();
+        $preloadedFiles = json_decode($preloadedFiles, true);
+
+//        if(count($preloadedFiles) <= 0){
+//            Session::flash('success', '沒有上傳任何照片/請勿在上傳後於本頁重新整理');
+//            return redirect()->back();
+//        }
+
+        $fileUploader = new FileUploader('pictures', array(
+            'fileMaxSize' => 8,
+            'extensions' => ['jpg', 'jpeg', 'png', 'gif'],
+            'required' => true,
+            'uploadDir' => $this->uploadDir,
+            'title' => function(){
+                $now = Carbon::now()->format('Ymd');
+                return $now . rand(100000000,999999999);
+            },
+            'replace' => false,
+            'editor' => true,
+            'files' => $preloadedFiles
+        ));
+
+        //選擇移除的照片
+        foreach($fileUploader->getRemovedFiles() as $key => $value)
+        {
+            $file = public_path($value['file']); //full path of removed file 
+            if(File::exists($file)){
+                unlink($file);
+                MemberPic::where('pic', $value['file'])->delete();
+            }
         }
 
-        $this->output->set_content_type('application/json')->set_output(json_encode($return));
+        $upload = $fileUploader->upload();
+        if($upload)
+        {
+            $publicPath = public_path();
+            foreach($fileUploader->getUploadedFiles() as $uploadedFile)
+            {
+                $path = substr($uploadedFile['file'], strlen($publicPath));
+                $path[0] = "/";
+                $addPicture = new MemberPic;
+                $addPicture->member_id = $userId;
+                $addPicture->pic = $path;
+                $addPicture->save();
+            }
+        }
+        $msg="上傳成功";
+        if($user->existHeaderImage() && $user->engroup==2 && $user->isVip() != 1){
+            $vip_record = Carbon::parse($user->vip_record);
+            if(isset($vip_record) && $vip_record->diffInSeconds(Carbon::now()) <= 86400 && $vip_record->diffInSeconds(Carbon::now())>1800){
+                $msg="照片上傳成功，24H後升級為VIP會員";
+            }else{
+                $msg="照片上傳成功，已升級為VIP會員";
+            }
+        }
+        $previous = redirect()->back()->with('message', $msg);
+        //Session::flash('success', '照片上傳成功');
+        return $upload['isSuccess'] ? $previous : $previous->withErrors($upload['warnings']);
+    }
+
+    /**
+    * 如果是 userId 則刪除此使用者的全部生活照, 否則只刪除指定的 picturesPath
+    * 
+    * @param Request request
+    *
+    * @return Response 
+    */
+    public function deletePictures(Request $request)
+    {
+        $pictures = collect();
+        $user=$request->user();
+        if($request->userId)
+            $picutres = MemberPic::getSelf($request->userId)->get();
+        else{
+            $pictures = MemberPic::where('pic', $request->picture)->get();
+        }
+
+        foreach($pictures as $picture)
+        {
+            $fullPath = public_path($picture->pic);
+            
+            if(File::exists($fullPath))
+                unlink($fullPath);
+
+            $picture->delete();
+        }
+        
+        $msg="刪除成功";
+        if(!$user->existHeaderImage() && $user->engroup==2 && $user->isFreeVip()){
+            $msg="您的生活照低於三張，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。";
+        }
+        return response($msg);
     }
 }

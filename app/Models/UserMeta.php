@@ -69,6 +69,17 @@ class UserMeta extends Model
         'notifhistory'
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | relationships
+    |--------------------------------------------------------------------------
+    */
+
+    public function user()
+    {
+         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
     public function age() {
         if (isset($this->birthdate) && $this->birthdate !== null && $this->birthdate != 'NULL')
         {
@@ -129,23 +140,10 @@ class UserMeta extends Model
         return substr($string, 0, -3).'未填寫！';
     }
 
+
      public static function uploadUserHeader($uid, $fieldContent) {
          return DB::table('user_meta')->where('user_id', $uid)->update(['pic' => $fieldContent]);
      }
-
-    /**
-     * User
-     *
-     * @return Relationship
-     */
-     // public function user() {
-     //     return $this->belongsTo(User::class);
-     // }
-
-    public function user()
-    {
-        return User::where('id', $this->user_id)->first();
-    }
 
     public static function search($city, $area, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid)
     {
@@ -205,8 +203,19 @@ class UserMeta extends Model
         if (isset($photo) && strlen($photo) != 0) $query = $query->whereNotNull('pic')->where('pic', '<>', 'NULL');
         if (isset($agefrom) && isset($ageto) && strlen($agefrom) != 0 && strlen($ageto) != 0) {
             $agefrom = $agefrom < 18 ? 18 : $agefrom;
+            // dd(date('Y-01-01', strtotime("-30 year")));
             try{
-                $query = $query->whereBetween('birthdate', [Carbon::now()->subYears($ageto), Carbon::now()->subYears($agefrom)]);
+                if(strtotime(Carbon::now()->subYears($ageto))===strtotime(Carbon::now()->subYears($agefrom))){
+                    $to = Carbon::now()->subYears($ageto+1)->addDay(1);
+                    $from = Carbon::now()->subYears($agefrom);
+                    $query = $query->whereBetween('birthdate', [$to, $from]);
+                }else{
+                    $to = Carbon::now()->subYears($ageto+1)->addDay(1);
+                    $from = Carbon::now()->subYears($agefrom);
+                    // dd($to, $from);
+                    $query = $query->whereBetween('birthdate', [$to, $from]);
+
+                }
             }
             catch(\Exception $e){
                 Log::info('Searching function exception occurred, user id: ' . $userid . ', $agefrom: ' . $agefrom . ', $ageto: ' . $ageto);
@@ -249,5 +258,9 @@ class UserMeta extends Model
             return $query->whereNotIn('user_id', $bannedUsers)->whereNotIn('user_id', $block_user)->whereNotIn('user_id', $blockedUsers)->whereNotIn('user_id', $beBlockedUsers)->orderBy('users.created_at', 'desc')->paginate(12);
         else
             return $query->whereNotIn('user_id', $bannedUsers)->whereNotIn('user_id', $block_user)->whereNotIn('user_id', $blockedUsers)->whereNotIn('user_id', $beBlockedUsers)->orderBy('users.last_login', 'desc')->paginate(12);
+    }
+    public static function findByMemberId($memberId)
+    {
+        return UserMeta::where('user_id', $memberId)->first();
     }
 }

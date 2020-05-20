@@ -18,13 +18,31 @@
             <div class="sjlist">
                 <ul>
                     @foreach ($blocks as $block)
-                        <?php $blockedUser = \App\Models\User::findById($block->blocked_id) ?>
+                        <?php $blockedUser = \App\Models\User::findById($block->blocked_id);
+                        if(!isset($blockedUser)){
+                            continue;
+                        }
+                        $umeta = $blockedUser->meta_();
+                        if(isset($umeta->city)){
+                            $umeta->city = explode(",",$umeta->city);
+                            $umeta->area = explode(",",$umeta->area);
+                        }
+                        ?>
                     <li>
                         <div class="si_bg">
                             <div class="sjpic"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><img src="@if($blockedUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{$blockedUser->meta_()->pic}} @endif" @if ($blockedUser->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></a></div>
                             <div class="sjleft">
                                 <div class="sjtable"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><span>{{$blockedUser->name}}<!-- <i class="cicd">●</i>{{ $blockedUser->meta_()->age() }}--></span></a></div>
-                                <font>{{ $blockedUser->meta_()->city }} {{ $blockedUser->meta_()->area }}</font>
+                                <font>
+                                    @foreach($umeta->city as $key => $cityval)
+                                        @if ($loop->first)
+                                            {{$umeta->city[$key]}} @if($blockedUser->meta_()->isHideArea == 0){{$umeta->area[$key]}}@endif
+                                        @else
+                                            {{$umeta->city[$key]}} @if($blockedUser->meta_()->isHideArea == 0){{$umeta->area[$key]}}@endif
+                                        @endif
+                                    @endforeach
+{{--                                    {{ $blockedUser->meta_()->city }} {{ $blockedUser->meta_()->area }}--}}
+                                </font>
                             </div>
                             <div class="sjright">
                                 <h4 class="fengs"><a href="javascript:void(0);" class="unblock" data-uid="{{$user->id}}" data-to="{{$block->blocked_id}}"><img src="/new/images/ncion_11.png">解除封鎖</a></h4>
@@ -34,14 +52,18 @@
                     @endforeach
 
                 </ul>
-                @if(count($blocks)>15)
-                <div class="fenye">
-                    <a id="prePage" href="{{ $blocks->previousPageUrl() }}">上一頁</a>
-                    <a id="nextPage" href="{{ $blocks->nextPageUrl() }}">下一頁</a>
-                </div>
-                @endif
+
+
+
+{{--                <div class="fenye">--}}
+{{--                    <a id="prePage" href="{{ $blocks->previousPageUrl() }}">上一頁</a>--}}
+{{--                    <a id="nextPage" href="{{ $blocks->nextPageUrl() }}">下一頁</a>--}}
+{{--                </div>--}}
 
             </div>
+                <div style="text-align: center;">
+                    {!! $blocks->appends(request()->input())->links('pagination::sg-pages') !!}
+                </div>
             @else
             <div class="sjlist">
                 <div class="fengsicon"><img src="/new/images/fs_06.png" class="feng_img"><span>暫無資料</span></div>

@@ -161,7 +161,12 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('dashboard/settings', 'PagesController@settingsUpdate');
     Route::get('/dashboard', 'PagesController@dashboard')->name('dashboard');
     Route::get('/dashboard_img', 'PagesController@dashboard_img')->name('dashboard_img');
-    Route::post('/dashboard/save_img','PagesController@save_img');
+    Route::get('/dashboard/pictures/{userId?}', 'ImageController@getPictures');
+    Route::post('/dashboard/pictures/upload','ImageController@uploadPictures');
+    Route::post('/dashboard/pictures/delete', 'ImageController@deletePictures');
+    Route::get('/dashboard/avatar/{userId?}', 'ImageController@getAvatar');
+    Route::post('/dashboard/avatar/upload', 'ImageController@uploadAvatar');
+    Route::post('/dashboard/avatar/delete/{userId}', 'ImageController@deleteAvatar');
     Route::post('/dashboard/delPic', 'PagesController@delPic');
     // Route::get('/dashboard_img_new', 'PagesController@dashboard_img')->name('dashboard_img');
     Route::get('/dashboard/password', 'PagesController@view_changepassword'); //new route
@@ -222,9 +227,11 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('/dashboard/chat2/deletesingle', 'Message_newController@deleteSingle')->name('delete2Single');
         Route::post('/dashboard/chat2/{randomNo?}', 'Message_newController@postChat');
         Route::get('/dashboard/chat2/deleterow/{uid}/{sid}', 'Message_newController@deleteBetweenGET')->name('delete2BetweenGET');
+        Route::get('/dashboard/chat2/deleterowall/{uid}/{sid}', 'Message_newController@deleteBetweenGetAll')->name('deleteBetweenGetAll');
         Route::post('/dashboard/chat2/deleteall', 'Message_newController@deleteAll')->name('delete2All');
         Route::post('/dashboard/chat2/chatSet', 'Message_newController@chatSet')->name('chatSet');
         Route::post('/dashboard/announcement_post', 'Message_newController@announcePost')->name('announcePost');
+        Route::get('/dashboard/manual', 'PagesController@manual');
 
         Route::get('/dashboard/banned', 'PagesController@dashboard_banned');
         Route::get('/dashboard/visited', 'PagesController@visited');
@@ -347,7 +354,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('users/board', 'PagesController@board')->name('users/board/search');
         Route::get('users/board/delete/{id}', 'UserController@deleteBoard')->name('users/board/delete');
         Route::get('users/message/showBetween/{id1}/{id2}', 'UserController@showMessagesBetween')->name('admin/showMessagesBetween');
-        Route::get('users/message/to/{id}', 'UserController@showAdminMessenger');
+        Route::get('users/message/to/{id}', 'UserController@showAdminMessenger')->name('AdminMessage');
         Route::get('users/message/to/{id}/{mid}', 'UserController@showAdminMessengerWithMessageId')->name('AdminMessengerWithMessageId');
         Route::get('users/message/unreported/to/{id}/{reported_id}/{pic_id?}/{isPic?}/{isReported?}', 'UserController@showAdminMessengerWithReportedId')->name('AdminMessengerWithReportedId');
         Route::post('users/message/send/{id}', 'UserController@sendAdminMessage')->name('admin/send');
@@ -437,5 +444,24 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::resource('roles', 'RoleController', ['except' => ['show']]);
         Route::post('roles/search', 'RoleController@search');
         Route::get('roles/search', 'RoleController@index');
+        Route::get('setFreeVIP', function(){
+            $users = \App\Models\User::where('engroup', 2)->get();
+            foreach($users as $u){
+                if(!$u->isVip()){
+                    $vip = new \App\Models\Vip;
+                    $vip->member_id = $u->id;
+                    $vip->txn_id = '000000';
+                    $vip->business_id = '00000';
+                    $vip->order_id = '00000';
+                    $vip->amount = 0;
+                    $vip->active = 1;
+                    $vip->free = 1;
+                    $vip->expiry = '2020-05-18 20:00:00';
+                    $vip->save();
+                }
+            }
+
+            return "<h1>DONE.</h1>";
+        });
     });
 });

@@ -366,14 +366,14 @@ $code = Config::get('social.payment.code');
                                 </div>
 
                                 <div class="m-widget3__delete">
-                                    <a class="btn btn-danger m-btn m-btn--air m-btn--custom delete-btn" href="{!! route('deleteBetweenGET', ['uid' => $user->id, 'sid' => $msgUser->id]) !!}">刪除</a>
+                                    <a class="btn btn-danger m-btn m-btn--air m-btn--custom delete-btn" href="{!! route('deleteBetween', ['uid' => $user->id, 'sid' => $msgUser->id]) !!}">刪除</a>
                                 </div>
                             </div>
                         </div>
                     @endif
                 @endforeach
             @endif
-            <div class="options">                
+            <div class="options">
                 <p style="color:red; font-weight: bold; display: none;" id="warning">載入中，請稍候</p>
                 <a class="btn btn-danger m-btn m-btn--air m-btn--custom text-white" id="showMore" onclick="showMore();" data-token="{{ csrf_token() }}">顯示往前一個月的訊息</a>
                 <a class="btn btn-danger m-btn m-btn--air m-btn--custom text-white" id="showAll" onclick="showAll();" data-token="{{ csrf_token() }}">顯示全部訊息</a>
@@ -505,9 +505,9 @@ $(document).ready(function(){
     $.ajaxSetup({ cache: false });
     $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
         // you can use originalOptions.type || options.type to restrict specific type of requests
-    	options.data = jQuery.param($.extend(originalOptions.data||{}, { 
-      	timeStamp: new Date().getTime()
-	}));
+        options.data = jQuery.param($.extend(originalOptions.data||{}, {
+            timeStamp: new Date().getTime()
+        }));
     });
     d = new Date('{{ \App\Models\Message::$date }}');
     @if(isset($m_time))
