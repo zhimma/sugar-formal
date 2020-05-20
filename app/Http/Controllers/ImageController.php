@@ -315,8 +315,13 @@ class ImageController extends Controller
         {
             $meta->pic = NULL;
             $meta->save();
-
-            return response("刪除成功");
+            $user = User::findById($request->userId);
+            if($user->engroup == 2){
+                return response("您已刪除大頭照。提醒您，若要維持 VIP 資格，則需於30分鐘內補上，若超過30分鐘才補上，須等 24hr 才會恢復 VIP 資格喔。");
+            }
+            else{
+                return response("刪除成功");
+            }
         }   
         else
         {
@@ -454,6 +459,17 @@ class ImageController extends Controller
 
             $picture->delete();
         }
-        return response("刪除成功");
+
+        $user = User::findById(\Auth::user()->id);
+        if($user->engroup == 2){
+            $pictures = MemberPic::where('member_id', $user->id)->count();
+            if($pictures < 3){
+                return response("刪除成功。提醒您，您的生活照低於三張，若要維持 VIP 資格，則需於30分鐘內補上生活照數量，若超過30分鐘才補上，須等 24hr 才會恢復 VIP 資格喔。");
+            }
+            return response("刪除成功");
+        }
+        else{
+            return response("刪除成功");
+        }
     }
 }
