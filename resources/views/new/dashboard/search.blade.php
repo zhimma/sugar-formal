@@ -23,10 +23,10 @@
         z-index: 3;
     color: #23527c !important;
     background-color: #f5c2c0 !important;
-	border-color:#ee5472 !important;
-	color:white !important;
-	} */
-	</style>
+    border-color:#ee5472 !important;
+    color:white !important;
+    } */
+    </style>
     <div class="container matop70">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -43,18 +43,13 @@
                         <div class="n_input">
                             <dt>
                                 <span>地區</span>
-                                <span>
-                                <span class="twzipcode" id="twzipcode" style="display: inline-flex;">
-                                        <span class="select_xx07 left" data-role="county" data-name="county" data-value="@if(!empty($_POST['county'])){{ $_POST['county'] }}@elseif(!empty($_GET['county'])){{ $_GET['county']  }}@endif" style=""></span>
-                                        <span class="select_xx07 right" data-role="district" data-name="district" data-value="@if(!empty($_POST['district'])){{ $_POST['district'] }}@elseif(!empty($_GET['district'])){{ $_GET['district'] }}@endif" style=""></span>
-                                    
-                                        {{--@if ($user->isVip())--}}
-                                        {{--                                        <span class="twzip"><input class="m-input" type="checkbox" id="pic" name="pic"> 照片</span>--}}
-                                        {{--                                    @endif--}}
-                                </span>
-{{--                            <select name="" class="select_xx06"><option>連江縣</option><option>B</option></select>--}}
-                                    {{--                            <select name="" class="select_xx06 right"><option>南竿鄉</option><option>B</option></select>--}}
-                                </span>
+                                
+                                <span class="twzipcode" id="twzipcode" style="display:inline-flex">
+                                <div class="select_xx08 left" data-role="county" data-name="county" data-value="@if(!empty($_POST['county'])){{ $_POST['county'] }}@elseif(!empty($_GET['county'])){{ $_GET['county']  }}@endif" style=""></div>
+                                <div class="sew6" style="width:13%"></div>
+                                <div class="select_xx08 right" data-role="district" data-name="district" data-value="@if(!empty($_POST['district'])){{ $_POST['district'] }}@elseif(!empty($_GET['district'])){{ $_GET['district'] }}@endif" style=""></div>
+                            </span>
+                                
                             </dt>
                             <dt>
                                 <span>年齡範圍</span>
@@ -270,10 +265,7 @@
     </div>
 @stop
 
-
 @section('javascript')
-
-
     <style>
 
         .select_xx07{
@@ -283,27 +275,39 @@
             color: #555;
             background: #ffffff;
             font-size: 15px;
+            width:90%;
         }
 
         .select_xx01 {
             margin-right: 0%;
+        }
+
+        .select_xx08{
+        	width: 100%;
+		    height: 40px;
+		    border-radius: 4px;
+		    /*padding: 0 6px;*/
+		    color: #555;
+		    background: #ffffff;
+		    font-size: 15px;
         }
         select{
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
             padding-left: 10px;
+
         }
+     /*
         option{
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
             padding-left: 10px;
-        }
+        }*/
 
 
     </style>
-
     <script>
         $('.n_zcbut').click(function(){
 
@@ -356,7 +360,7 @@
             //var BootstrapDatepicker=function(){var t=function(){$("#m_datepicker_1, #m_datepicker_1_validate").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_1_modal").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_2, #m_datepicker_2_validate").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_2_modal").datepicker({todayHighlight:!0,orientation:"bottom left",templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_3, #m_datepicker_3_validate").datepicker({todayBtn:"linked",clearBtn:!0,todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_3_modal").datepicker({todayBtn:"linked",clearBtn:!0,todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_1").datepicker({orientation:"top left",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_2").datepicker({orientation:"top right",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_3").datepicker({orientation:"bottom left",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_4_4").datepicker({orientation:"bottom right",todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_5").datepicker({todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}}),$("#m_datepicker_6").datepicker({todayHighlight:!0,templates:{leftArrow:'<i class="la la-angle-left"></i>',rightArrow:'<i class="la la-angle-right"></i>'}})};return{init:function(){t()}}}();jQuery(document).ready(function(){BootstrapDatepicker.init()});
             // var BootstrapSelect=function(){var t=function(){$(".m_selectpicker").selectpicker()};return{init:function(){t()}}}();jQuery(document).ready(function(){BootstrapSelect.init()});
             $('.twzipcode').twzipcode({
-                'detect': true, 'css': ['select_xx07', 'select_xx07', 'zipcode'], onCountySelect: function() {
+                'detect': true, 'css': ['select_xx08','select_xx08'], onCountySelect: function() {
                     $("select[name='district']").prepend('<option selected value="">全市</option>');
                 }
             });
@@ -364,6 +368,5 @@
 
 
         });
-        
     </script>
 @stop
