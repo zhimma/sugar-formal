@@ -52,7 +52,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
                 <div class="shou"><span>收件夾</span>
-                    <font>inbox</font>
+                    <font>Inbox</font>
 {{--                    <a href="" class="shou_but">全部刪除</a>--}}
                     <a href="javascript:void(0);" onclick="showChatSet()"><img src="/new/images/ncion_03.png" class="whoicon02 marlr10"></a>
                 </div>
@@ -593,21 +593,21 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                     var vip_counts = 0;
                     var novip_counts = 0;
-                    $.each(res.msg,function(i,e){
+                    $.each(res.msg,function(i,e) {
                         console.log(i, hide_vip_counts);
                         // $('#rows').val(e.total_counts);
 
 
-                        rr +=parseInt(e.read_n);
-                        if(userIsVip==0 && e.user_id != 1049 && e.read_n>=10 && hide_vip_counts>0) {
+                        rr += parseInt(e.read_n);
+                        if (userIsVip == 0 && e.user_id != 1049 && e.read_n >= 10 && hide_vip_counts > 0) {
                             if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0, i);
                         } else if (userIsVip == 0 && e.user_id != 1049) {
                             if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1, i);
                         } else {
                             if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1, i);
                         }
-                       // alert(e.created_at);
-                        if(e.created_at.length> 0) {
+                        // alert(e.created_at);
+                        if (typeof e.created_at !== 'undefined') {
                             if (e.created_at.substr(0, 10) >= this_week) {
                                 if (e.isVip == 1) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('date7 vipMember common30');
@@ -625,35 +625,39 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     //novip_counts++;
                                 }
                             } else {
-                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1, i);
+                                // if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1, i);
+                                if (e.isVip == 1) {
+                                    $('.sjlist_vip').append(li).find('.row_data').addClass('dateAll vipMember');
+                                } else {
+                                    $('.sjlist_novip').append(li).find('.row_data').addClass('dateAll novipMember');
+                                }
                             }
                             // alert(e.user_id);
 
 
-                            if (typeof e.created_at !== 'undefined') {
-                                if (e.created_at.substr(0, 10) >= this_week) {
-                                    if (e.isVip == 1) {
-                                        $('.sjlist_vip').append(li).find('.row_data').addClass('date7 vipMember common30');
-                                    } else {
-                                        $('.sjlist_novip').append(li).find('.row_data').addClass('date7 novipMember common30');
-                                    }
-                                } else if (e.created_at != '' && e.created_at.substr(0, 10) >= this_month) {
-                                    if (e.isVip == 1) {
-                                        $('.sjlist_vip').append(li).find('.row_data').addClass('date30 vipMember common30');
-                                    } else {
-                                        $('.sjlist_novip').append(li).find('.row_data').addClass('date30 novipMember common30');
-                                    }
-                                } else {
-                                    if (e.isVip == 1) {
-                                        $('.sjlist_vip').append(li).find('.row_data').addClass('dateAll vipMember');
-                                    } else {
-                                        $('.sjlist_novip').append(li).find('.row_data').addClass('dateAll novipMember');
-                                    }
-                                }
-                             }
-
-
-                        });
+                            // if (typeof e.created_at !== 'undefined') {
+                            //     if (e.created_at.substr(0, 10) >= this_week) {
+                            //         if (e.isVip == 1) {
+                            //             $('.sjlist_vip').append(li).find('.row_data').addClass('date7 vipMember common30');
+                            //         } else {
+                            //             $('.sjlist_novip').append(li).find('.row_data').addClass('date7 novipMember common30');
+                            //         }
+                            //     } else if (e.created_at != '' && e.created_at.substr(0, 10) >= this_month) {
+                            //         if (e.isVip == 1) {
+                            //             $('.sjlist_vip').append(li).find('.row_data').addClass('date30 vipMember common30');
+                            //         } else {
+                            //             $('.sjlist_novip').append(li).find('.row_data').addClass('date30 novipMember common30');
+                            //         }
+                            //     } else {
+                            //         if (e.isVip == 1) {
+                            //             $('.sjlist_vip').append(li).find('.row_data').addClass('dateAll vipMember');
+                            //         } else {
+                            //             $('.sjlist_novip').append(li).find('.row_data').addClass('dateAll novipMember');
+                            //         }
+                            //     }
+                            // }
+                        }
+                    });
 
 
 

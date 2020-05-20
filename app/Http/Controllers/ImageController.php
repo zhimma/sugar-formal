@@ -17,6 +17,7 @@ use Storage;
 use Carbon\Carbon;
 use Session;
 use \FileUploader;
+use App\Models\Vip;
 
 class ImageController extends Controller
 {
@@ -253,6 +254,7 @@ class ImageController extends Controller
     public function uploadAvatar(Request $request)
     {
         $userId = $request->userId;
+        $user=$request->user();
         $preloadedFiles = $this->getAvatar($request)->content();
         $preloadedFiles = json_decode($preloadedFiles, true);
 
@@ -300,13 +302,27 @@ class ImageController extends Controller
                 $path[0] = '/';
                 UserMeta::where('user_id', $userId)->update(['pic' => $path]);
             }
-            Session::flash('success', '照片上傳成功');
-            return redirect()->back();
+            $msg="上傳成功";
+            //計算已上傳的照片照判斷VIP提示用
+            if($user->existHeaderImage() && $user->engroup==2 && $user->isVip() != 1){
+                $vip_record = Carbon::parse($user->vip_record);
+                if(isset($vip_record) && $vip_record->diffInSeconds(Carbon::now()) <= 86400 && $vip_record->diffInSeconds(Carbon::now())>1800){
+                    $msg="照片上傳成功，24H後升級為VIP會員";
+                }else{
+                    $msg="照片上傳成功，已升級為VIP會員";
+                }
+
+
+            }
+
+//            Session::flash('success', '照片上傳成功');
+            return redirect()->back()->with('message', $msg);
         }
     }
 
     public function deleteAvatar(Request $request)
     {
+        $user=$request->user();
         $meta = UserMeta::findByMemberId($request->userId);
         if(is_null($meta))
             return response("此會員不存在", 200);
@@ -315,13 +331,11 @@ class ImageController extends Controller
         {
             $meta->pic = NULL;
             $meta->save();
-            $user = User::findById($request->userId);
-            if($user->engroup == 2){
-                return response("您已刪除大頭照。提醒您，若要維持 VIP 資格，則需於30分鐘內補上，若超過30分鐘才補上，須等 24hr 才會恢復 VIP 資格喔。");
+            $msg="刪除成功";
+            if(!$user->existHeaderImage() && $user->engroup==2 && $user->isFreeVip()){
+                $msg="您已刪除大頭照，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。";
             }
-            else{
-                return response("刪除成功");
-            }
+            return response($msg);
         }   
         else
         {
@@ -381,6 +395,7 @@ class ImageController extends Controller
     public function uploadPictures(Request $request)
     {
         $userId = $request->userId;
+        $user=$request->user();
         $preloadedFiles = $this->getPictures($request)->content();
         $preloadedFiles = json_decode($preloadedFiles, true);
 
@@ -427,9 +442,17 @@ class ImageController extends Controller
                 $addPicture->save();
             }
         }
-        
-        $previous = redirect()->back();
-        Session::flash('success', '照片上傳成功');
+        $msg="上傳成功";
+        if($user->existHeaderImage() && $user->engroup==2 && $user->isVip() != 1){
+            $vip_record = Carbon::parse($user->vip_record);
+            if(isset($vip_record) && $vip_record->diffInSeconds(Carbon::now()) <= 86400 && $vip_record->diffInSeconds(Carbon::now())>1800){
+                $msg="照片上傳成功，24H後升級為VIP會員";
+            }else{
+                $msg="照片上傳成功，已升級為VIP會員";
+            }
+        }
+        $previous = redirect()->back()->with('message', $msg);
+        //Session::flash('success', '照片上傳成功');
         return $upload['isSuccess'] ? $previous : $previous->withErrors($upload['warnings']);
     }
 
@@ -443,7 +466,7 @@ class ImageController extends Controller
     public function deletePictures(Request $request)
     {
         $pictures = collect();
-
+        $user=$request->user();
         if($request->userId)
             $picutres = MemberPic::getSelf($request->userId)->get();
         else{
@@ -459,17 +482,11 @@ class ImageController extends Controller
 
             $picture->delete();
         }
-
-        $user = User::findById(\Auth::user()->id);
-        if($user->engroup == 2){
-            $pictures = MemberPic::where('member_id', $user->id)->count();
-            if($pictures < 3){
-                return response("刪除成功。提醒您，您的生活照低於三張，若要維持 VIP 資格，則需於30分鐘內補上生活照數量，若超過30分鐘才補上，須等 24hr 才會恢復 VIP 資格喔。");
-            }
-            return response("刪除成功");
+        
+        $msg="刪除成功";
+        if(!$user->existHeaderImage() && $user->engroup==2 && $user->isFreeVip()){
+            $msg="您的生活照低於三張，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。";
         }
-        else{
-            return response("刪除成功");
-        }
+        return response($msg);
     }
 }

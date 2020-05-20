@@ -34,7 +34,7 @@
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
                 <div class="shou shou02 sh_line"><span>搜索</span>
-                    <font>search</font>
+                    <font>Search</font>
                 </div>
 
                 <form action="{!! url('dashboard/search') !!}" method="post">

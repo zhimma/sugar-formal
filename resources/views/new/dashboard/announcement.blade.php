@@ -9,7 +9,7 @@
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
                 <div class="shou"><span>站方公告</span>
-                    <font>announcement</font>
+                    <font>Announcement</font>
                 </div>
                 <div class="n_gongg">
                     <ul>
