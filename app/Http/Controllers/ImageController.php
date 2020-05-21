@@ -288,9 +288,9 @@ class ImageController extends Controller
                 $file = public_path($removeFiles[0]['file']);
                 if(File::exists($file))
                 {
-                    $user = UserMeta::where('user_id', $userId)->first();
-                    $user->pic = NULL;
-                    $user->save();
+                    $UserMeta = UserMeta::where('user_id', $userId)->first();
+                    $UserMeta->pic = NULL;
+                    $UserMeta->save();
                     unlink($file);
                 }
             }
