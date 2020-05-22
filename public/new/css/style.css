@@ -125,7 +125,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 }
 
 .rightbg{ width:100%;background:#ffffff; padding:30px 0}
-.metx{ width:60%;position:relative;box-shadow: 0 0 10px #cccccc; margin-left:20% }
+.metx{ width:60%;position:relative;box-shadow: 0 0 10px #cccccc; margin-left:20%;background:#fff6f7;}
 
 .photo{background:#fff6f7;position:relative}
 .phpic{width:100%; height:300px;display: block;}
@@ -133,17 +133,30 @@ a:hover{ color:#e44e71; text-decoration:none}
 .title{ position:absolute;width:150px; background:#e54f72}
 
 
-.tubiao{margin:10px auto; position:absolute; /*top:250px;*/ z-index:2;width:100%;}
-.tubiao ul{ margin:0 auto; padding:0px;display:table}
-.tubiao ul li{width:60px; height:60px;background-image: linear-gradient(to right, #ffc2c4 0%, #ff7e9a 100%); border-radius:200px; float:left; margin-left:5px; margin-right:5px;}
-.tubiao ul li span{width:60px;font-size:12px; text-align:center; display:table; line-height:25px; color:#ffffff}
-.tubiao_i{width:25px; margin:0 auto; padding:0px; display:table; margin-top:10px}
+.bottub{margin:10px 0 auto; top:27px; width:100%; z-index:5 ;margin-top: -33px; position: relative}
+.bottub ul{margin:0 auto; padding:0px;display:table}
+.bottub ul li{width:60px; height:60px;background:#ffffff; border:#666 1px solid;border-radius:10px; float:left; margin-left:5px; margin-right:5px;}
+.bottub ul li span{width:60px;font-size:12px; text-align:center; display:table; line-height:25px; color:#333}
+.tubiao_i{width:25px; margin:0 auto; padding:0px; display:table; margin-top:7px}
 
-.bottub{width:100%;margin: 0 auto; padding:10px 0 10px 0;display:table; background:#fff6f7}
-.bottub ul{ margin:0 auto; padding:0px; display:table}
-.bottub ul li{width:50px; float:left; margin:0px 5px;}
-.bottub ul li img{width:28px; margin:0 auto; display:block; margin-bottom:5px;}
-.bottub ul li span{width:100%; display:table; text-align:center; font-size:12px;}
+
+.tubiao{width:100%; height:40px;margin: 10px auto;position: inherit; z-index:2;margin-top: -20px;}
+.tubiao ul{height:60px;margin:0 auto; padding:0px; display:table}
+.tubiao ul li{ float:left; margin:0px 0px;}
+.tubiao ul li img{height:38px; margin:0 auto; display:block; margin-bottom:5px;}
+.tubiao ul li span{width:100%; display:table; text-align:center; font-size:12px;}
+
+/*.tubiao{margin:10px auto; position:absolute; !*top:250px;*! z-index:2;width:100%;}*/
+/*.tubiao ul{ margin:0 auto; padding:0px;display:table}*/
+/*.tubiao ul li{width:60px; height:60px;background-image: linear-gradient(to right, #ffc2c4 0%, #ff7e9a 100%); border-radius:200px; float:left; margin-left:5px; margin-right:5px;}*/
+/*.tubiao ul li span{width:60px;font-size:12px; text-align:center; display:table; line-height:25px; color:#ffffff}*/
+/*.tubiao_i{width:25px; margin:0 auto; padding:0px; display:table; margin-top:10px}*/
+
+/*.bottub{width:100%;margin: 0 auto; padding:10px 0 10px 0;display:table; background:#fff6f7}*/
+/*.bottub ul{ margin:0 auto; padding:0px; display:table}*/
+/*.bottub ul li{width:50px; float:left; margin:0px 5px;}*/
+/*.bottub ul li img{width:28px; margin:0 auto; display:block; margin-bottom:5px;}*/
+/*.bottub ul li span{width:100%; display:table; text-align:center; font-size:12px;}*/
 
 @media (max-width:767px) {
 .rightbg{ background: none !important;width:94%;background:#ffffff; padding:0px 0; margin-left:3%}
@@ -151,13 +164,20 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 .photo{background:#fff6f7;width:100% !important}
 .phpic{width:100%; height:200px;display: block;}
-.tubiao{margin:10px auto; position:absolute; /*top:60% !important;*/ z-index:2;width:100%;}
+/*.tubiao{margin:10px auto; position:absolute; !*top:60% !important;*! z-index:2;width:100%;}*/
 
-.bottub{padding:10px 0 10px 0; display:table; background:#fff6f7}
-.bottub ul{ margin:0 auto; padding:0px; display:table}
-.bottub ul li{width:50px; float:left; margin:0px 5px;}
-.bottub ul li img{width:25px; margin:0 auto; display:block; margin-bottom:5px;}
-.bottub ul li span{width:100%; display:table; text-align:center; font-size:12px;}
+/*.bottub{padding:10px 0 10px 0; display:table; background:#fff6f7}*/
+/*.bottub ul{ margin:0 auto; padding:0px; display:table}*/
+/*.bottub ul li{width:50px; float:left; margin:0px 5px;}*/
+/*.bottub ul li img{width:25px; margin:0 auto; display:block; margin-bottom:5px;}*/
+/*.bottub ul li span{width:100%; display:table; text-align:center; font-size:12px;}*/
+    .bottub{margin:10px auto; /*top:60% !important;*/ z-index:2;width:100%;margin-top: -33px;}
+
+    /*.tubiao{position: absolute;}*/
+    .tubiao ul{ margin:0 auto; padding:0px; display:table}
+    .tubiao ul li{ float:left; margin:0px 3px;}
+    .tubiao ul li img{height:28px; margin:0 auto; display:block; margin-bottom:5px;}
+    .tubiao ul li span{width:100%; display:table; text-align:center; font-size:12px;}
 
 }
 @media (max-width:992px) {
@@ -166,14 +186,26 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 .photo{background:#fff6f7;width:100% !important}
 .phpic{width:100%; height:200px;display: block;}
-.tubiao{margin:10px auto; position:absolute; /*top:50%;*/ z-index:2;width:100%;}
+/*.tubiao{margin:10px auto; position:absolute; !*top:50%;*! z-index:2;width:100%;}*/
 
-.bottub{padding:10px 0 10px 0;display:table; background:#fff6f7}
-.bottub ul{ margin:0 auto; padding:0px; display:table}
-.bottub ul li{width:50px; float:left; margin:0px 5px;}
-.bottub ul li img{width:25px; margin:0 auto; display:block; margin-bottom:5px;}
-.bottub ul li span{width:100%; display:table; text-align:center; font-size:12px;}
+/*.bottub{padding:10px 0 10px 0;display:table; background:#fff6f7}*/
+/*.bottub ul{ margin:0 auto; padding:0px; display:table}*/
+/*.bottub ul li{width:50px; float:left; margin:0px 5px;}*/
+/*.bottub ul li img{width:25px; margin:0 auto; display:block; margin-bottom:5px;}*/
+/*.bottub ul li span{width:100%; display:table; text-align:center; font-size:12px;}*/
+    .bottub{margin:10px auto;/*top:50%;*/ z-index:2;width:100%; margin-top:-33px}
+
+    /*.tubiao{position: absolute; margin-top:28px}*/
+    .tubiao ul{ margin:0 auto; padding:0px; display:table}
+    .tubiao ul li{float:left; margin:0px 0px;}
+    .tubiao ul li img{height:36px;margin:0 auto; display:block; margin-bottom:5px;}
+    .tubiao ul li span{width:100%; display:table; text-align:center; font-size:12px;}
 }
+@media (max-width:320px) {
+    .tubiao ul li {float: left;margin: 0px 0px;}
+    .tubiao ul li img{height:29px;margin:0 auto; display:block; margin-bottom:5px;}
+}
+
 .leftbg{ background:#ffffff; display:table;width:100%; border:#eeeeee 1px solid; margin-bottom:20px;}
 .leftimg{width:100px; height:100px; margin:0 auto; padding:0px; display:table; margin-top:20px;}
 .leftimg img{width:100px; height:100px; border-radius:100px; object-fit: contain;}

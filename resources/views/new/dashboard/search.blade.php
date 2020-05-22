@@ -213,13 +213,13 @@
                                 <div class="n_seicon">
                                     <? $data = \App\Services\UserService::checkRecommendedUser($visitor);?>
                                     @if(isset($data['description']) && $visitor->engroup == 2)
-                                        <img src="/new/images/b_01.png">
+                                        <img src="/new/images/01.png">
                                     @endif
                                     @if(isset($data['description']) && $visitor->engroup == 1)
-                                        <img src="/new/images/b_02.png">
+                                        <img src="/new/images/02.png">
                                     @endif
                                     {{---------財力認證尚未實作-------------- <img src="/new/images/b_03.png">--}}
-                                    @if($visitor->isVip() && $visitor->engroup == 1)<img src="/new/images/b_04.png">@endif
+                                    @if($visitor->isVip() && $visitor->engroup == 1)<img src="/new/images/04.png">@endif
                                     {{---------警示帳戶尚未實作-------------- <img src="/new/images/b_05.png">--}}
                                 </div>
                                 <a href="/dashboard/viewuser/{{$visitor->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">

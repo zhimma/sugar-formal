@@ -25,6 +25,9 @@
     .abtn{cursor: pointer;}
     .twzip {display: inline-block !important;width: auto !important;min-width: 49%;/*margin-right: 10PX;*/}
     .select_xx2{width: 100%;border: #d2d2d2 1px solid;border-radius: 4px;height: 40px;padding: 0 6px;color:#555;background:#ffffff;font-size: 15px;margin-bottom: 10px;}
+    .select_xx01 {
+        color:unset;
+    }
   </style>
 
 	<div class="container matop70 chat">
@@ -44,7 +47,7 @@
 
             <div class="n_adbut">
                 <a href="/dashboard/viewuser/{{$user->id}}"><img src="/new/images/1_06.png">預覽</a></div>
-              {{-- <div class="n_adbut"><a href="/member_auth/" style="padding-left: 10px;">身份驗證</a></div> --}}
+               <div class="n_adbut"><a href="/member_auth/" style="padding-left: 10px;">身份驗證</a></div>
             <div class="xiliao_input">
                <form class="m-form m-form--fit m-form--label-align-right" method="POST" name="user_data" action="" id="information" data-parsley-validate novalidate>
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">

@@ -148,10 +148,17 @@
         }
         // 升級VIP內容
         $('.n_vip01').on('click', function(event) {
+            @if($user->isVipNotCanceledORCanceledButNotExpire() == true)
+            c2('您目前已是VIP會員');
+            return false;
+            @else
+
             var r = confirm("{{ $upgrade_vip }}");
             if(!r) {
                 event.preventDefault();
             }
+            @endif
+
         });
 
         // 取消VIP內容
@@ -175,9 +182,12 @@
             document.getElementById("vip2_a").className="";
             document.getElementById(id).style.display="table";
             document.getElementById(id+"_a").className="n_viphover";
+            $('#vip_cancel').hide();
             if(id === 'vip2'){
-                @if (!$user->isVip())
+                @if (!$user->isVip() && !$user->isFreeVip())
                 c2('您目前尚未成為VIP會員');
+                @elseif($user->isFreeVip())
+                c2('您是免費VIP，刪除您的大頭照或生活照少於三張就會取消VIP');
                 @elseif($user->isVipNotCanceledORCanceledButNotExpire() == false)
                 $('#vip_cancel').show();
                 $('#vip2').hide();

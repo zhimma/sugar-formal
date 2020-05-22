@@ -69,7 +69,7 @@
             padding-top: 20px !important;
         }
         .bottub ul li {
-            height: 50px;
+            height: 60px;
         }
         @media (min-width:812px) and (min-height: 375px) and (max-width:812px) and (max-height:375px) {
             .bl_tab{
@@ -103,13 +103,38 @@
                         <div class="n_jianj"><a onclick="show_reportPic()">檢舉大頭照</a></div>
                         <div class="tubiao">
                             <ul>
+                                <? $data = \App\Services\UserService::checkRecommendedUser($to);
+                                //echo $data['description'];
+                                ?>
+                                @if(isset($data['description']) && $to->engroup == 2)
+                                    <li><img src="/new/images/a1.png">
+{{--                                        <span>{{$new_sweet}}</span>--}}
+                                    </li>
+                                @endif
+                                @if(isset($data['description']) && $to->engroup == 1)
+                                    <li><img src="/new/images/a2.png">
+{{--                                        <span>{{$well_member}}</span>--}}
+                                    </li>
+                                @endif
+                                {{--                            <li><img src="/new/images/icon_23.png"><span>{{$money_cert}}</span></li>--}}
+                                @if($to->isVip() && $to->engroup == 1)
+                                    <li><img src="/new/images/a4.png">
+{{--                                        <span>{{$label_vip}}</span>--}}
+                                    </li>
+                                @endif
+                                {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
+                            </ul>
+                        </div>
+                        <div class="bottub">
+
+                            <ul>
                                 <li>
                                     <a onclick="show_chat()"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
                                 </li>
                                 @if($user->isVip())
-                                <li>
-                                    <a class="addFav"><img src="/new/images/icon_08.png" class="tubiao_i"><span>收藏</span></a>
-                                </li>
+                                    <li>
+                                        <a class="addFav"><img src="/new/images/icon_08.png" class="tubiao_i"><span>收藏</span></a>
+                                    </li>
                                 @else
                                     <li>
                                         <img src="/new/images/icon_08.png" class="tubiao_i"><span>收藏</span>
@@ -121,13 +146,13 @@
                                 </li>
                                 @if($user->isVip())
                                     <?php $isBlocked = \App\Models\Blocked::isBlocked($user->id, $to->id);?>
-                                <li>
-                                    @if($isBlocked)
-                                    <a class="unblock"><img src="/new/images/icon_12_h.png" class="tubiao_i"><span>解除封鎖</span></a>
-                                    @else
-                                    <a onclick="show_block()"><img src="/new/images/icon_12.png" class="tubiao_i"><span>封鎖</span></a>
-                                    @endif
-                                </li>
+                                    <li>
+                                        @if($isBlocked)
+                                            <a class="unblock"><img src="/new/images/icon_12_h.png" class="tubiao_i"><span>解除封鎖</span></a>
+                                        @else
+                                            <a onclick="show_block()"><img src="/new/images/icon_12.png" class="tubiao_i"><span>封鎖</span></a>
+                                        @endif
+                                    </li>
                                 @else
 
                                     <li>
@@ -135,24 +160,6 @@
                                         <span><img src="/new/images/icon_36.png" class="tap-vip"></span>
                                     </li>
                                 @endif
-                            </ul>
-                        </div>
-                        <div class="bottub">
-                            <ul style="height: 50px;">
-                                <? $data = \App\Services\UserService::checkRecommendedUser($to);
-                                //echo $data['description'];
-                                ?>
-                                @if(isset($data['description']) && $to->engroup == 2)
-                                <li><img src="/new/images/icon_19.png"><span>{{$new_sweet}}</span></li>
-                                @endif
-                                @if(isset($data['description']) && $to->engroup == 1)
-                                <li><img src="/new/images/icon_21.png"><span>{{$well_member}}</span></li>
-                                @endif
-{{--                            <li><img src="/new/images/icon_23.png"><span>{{$money_cert}}</span></li>--}}
-                                @if($to->isVip() && $to->engroup == 1)
-                                <li><img src="/new/images/icon_25.png"><span>{{$label_vip}}</span></li>
-                                @endif
-{{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
                             </ul>
                         </div>
 
@@ -184,14 +191,12 @@
                                         <span>
                                             <div class="select_xx01 senhs hy_new">{{$to->name}}</div>
                                         </span>
-{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->name}}" disabled="disabled" style="color: #aaa !important;"></span>--}}
                                     </dt>
                                     <dt>
                                         <span>一句話形容自己</span>
                                         <span>
                                             <div class="select_xx01 senhs hy_new">{{$to->title}}</div>
                                         </span>
-{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->title}}" disabled="disabled" style="color: #aaa !important;;"></span>--}}
                                     </dt>
                                     @if($to->meta_()->isHideArea == '0')
                                     <dt>
@@ -213,8 +218,6 @@
                                                     <span style="margin-top: 2px;">
                                                         <font class="select_xx senhs left hy_new">{{$umeta->city[$key]}}</font>
                                                         <font class="select_xx senhs right hy_new">{{$umeta->area[$key]}}</font>
-{{--                                                        <input name="" type="text" class="select_xx senhs"  placeholder="{{$umeta->city[$key]}}" disabled="disabled" style="color: #aaa;">--}}
-{{--                                                        <input name="" type="text" class="select_xx senhs right"  placeholder="{{$umeta->area[$key]}}" disabled="disabled" style="color: #aaa;">--}}
                                                     </span>
                                                 @endforeach
                                             @endif
@@ -222,8 +225,6 @@
                                             <span>
                                                 <font class="select_xx senhs left hy_new">{{$to->meta_()->city}}</font>
                                                 <font class="select_xx senhs right hy_new">{{$to->meta_()->area}}</font>
-{{--                                                <input name="" type="text" class="select_xx senhs"  placeholder="{{$to->meta_()->city}}" disabled="disabled" style="color: #aaa;">--}}
-{{--                                                <input name="" type="text" class="select_xx senhs right"  placeholder="{{$to->meta_()->area}}" disabled="disabled" style="color: #aaa;">--}}
                                             </span>
                                         @endif
                                     </dt>
@@ -235,7 +236,6 @@
                                         <span>
                                             <div class="select_xx01 senhs hy_new">{{$to->meta_()->budget}}</div>
                                         </span>
-{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->budget}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
@@ -245,7 +245,6 @@
                                         <span>
                                             <div class="select_xx01 senhs hy_new">{{$to->meta_()->age()}}</div>
                                         </span>
-{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->age()}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
@@ -255,7 +254,6 @@
                                         <span>
                                             <div class="select_xx01 senhs hy_new">{{$to->meta_()->height}}</div>
                                         </span>
-{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->height}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
@@ -265,7 +263,6 @@
                                         <span>
                                             <div class="select_xx01 senhs hy_new">{{$to->meta_()->body}}</div>
                                         </span>
-{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->body}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
@@ -275,7 +272,6 @@
                                         <span>
                                             <div class="select_xx01 senhs hy_new">{{$to->meta_()->cup}}</div>
                                         </span>
-{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->cup}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
@@ -303,7 +299,6 @@
                                         <span>
                                             <div class="select_xx01 senhs hy_new">{{$to->meta_()->domainType}}  @if(!empty($to->meta_()->domain) && $to->meta_()->domain != null && $to->meta_()->domain != 'null'){{$to->meta_()->domain}}@endif</div>
                                         </span>
-{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->domainType}}  @if(!empty($to->meta_()->domain) && $to->meta_()->domain != null && $to->meta_()->domain != 'null'){{$to->meta_()->domain}}@endif" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
@@ -313,7 +308,6 @@
                                         <span>
                                             <div class="select_xx01 senhs hy_new">{{$to->meta_()->occupation}}</div>
                                         </span>
-{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->occupation}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
@@ -323,7 +317,6 @@
                                         <span>
                                             <div class="select_xx01 senhs hy_new">{{$to->meta_()->education}}</div>
                                         </span>
-{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->education}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
@@ -333,7 +326,6 @@
                                         <span>
                                             <div class="select_xx01 senhs hy_new">{{$to->meta_()->marriage}}</div>
                                         </span>
-{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->marriage}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
@@ -343,7 +335,6 @@
                                         <span>
                                             <div class="select_xx01 senhs hy_new">{{$to->meta_()->drinking}}</div>
                                         </span>
-{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->drinking}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
@@ -353,7 +344,6 @@
                                         <span>
                                             <div class="select_xx01 senhs hy_new">{{$to->meta_()->smoking}}</div>
                                         </span>
-{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->smoking}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
@@ -363,7 +353,6 @@
                                         <span>
                                             <div class="select_xx01 senhs hy_new">{{$to->meta_()->income}}</div>
                                         </span>
-{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->income}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
@@ -373,7 +362,6 @@
                                         <span>
                                             <div class="select_xx01 senhs hy_new">{{$to->meta_()->assets}}</div>
                                         </span>
-{{--                                            <input name="" type="text" class="select_xx01 senhs"  placeholder="{{$to->meta_()->assets}}" disabled="disabled" style="color: #aaa;"></span>--}}
                                     </dt>
                                     @endif
 
@@ -482,15 +470,17 @@
         //浮動高度
         var img_height = $(".swiper-container").height();
         // alert(img_height);
-        $(".swiper-slide img").css('height',img_height - (bottom_height/2));
-        $('.tubiao').css('top',img_height - (bottom_height/2) - 40);
+        // $(".swiper-slide img").css('height',img_height - (bottom_height/2));
+        $(".swiper-slide img").css('height',img_height);
+        // $('.tubiao').css('top',img_height - (bottom_height/2) - 40);
         $(window).resize(function() {
             // alert($('.tubiao ul').height());
             // var wdth=$(window).width();
             // $("span").text(wdth);
             var img_height = $(".swiper-container").height();
-            $(".swiper-slide img").css('height',img_height - (bottom_height/2));
-            $('.tubiao').css('top',img_height - (bottom_height/2) - 40);
+            // $(".swiper-slide img").css('height',img_height - (bottom_height/2));
+            $(".swiper-slide img").css('height',img_height);
+            // $('.tubiao').css('top',img_height - (bottom_height/2) - 40);
             // alert(img_height - ($('.tubiao ul').height() / 2));
         });
     });
