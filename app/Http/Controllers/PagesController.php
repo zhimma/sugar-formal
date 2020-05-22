@@ -700,9 +700,14 @@ class PagesController extends Controller
 
         $pic = MemberPic::where('member_id', $user_id)->where('id', $pic_id)->first();
         //delete file
-        \File::delete(public_path($pic->pic));
-        //delete data
-        MemberPic::where('member_id', $user_id)->where('id', $pic_id)->delete();
+        try{
+            \File::delete(public_path($pic->pic));
+            //delete data
+            MemberPic::where('member_id', $user_id)->where('id', $pic_id)->delete();
+        }
+        catch(\Exception $e){
+            Log::info("delPic failed, pic_id = $pic_id.");
+        }
 
         /*設第一張照片為大頭貼*/
         $avatar = MemberPic::where('member_id', $user->id)->orderBy('id', 'asc')->first();
@@ -731,8 +736,6 @@ class PagesController extends Controller
 
     public function save_img(Request $request)
     {
-
-
         $user=$request->user();
         $user_id = $user->id;
         $data = json_decode($request->data);
@@ -1446,8 +1449,7 @@ class PagesController extends Controller
         }
     }
 
-    public function newer_manual(Request $request)
-    {
+    public function newer_manual(Request $request) {
         $user = $request->user();
         if ($user) {
             return view('new.dashboard.newer_manual')
@@ -1455,8 +1457,7 @@ class PagesController extends Controller
         }
     }
 
-    public function anti_fraud_manual(Request $request)
-    {
+    public function anti_fraud_manual(Request $request) {
         $user = $request->user();
         if ($user) {
             return view('new.dashboard.anti_fraud_manual')
@@ -1464,8 +1465,7 @@ class PagesController extends Controller
         }
     }
 
-    public function web_manual(Request $request)
-    {
+    public function web_manual(Request $request) {
         $user = $request->user();
         if ($user) {
             return view('new.dashboard.web_manual')
@@ -1475,7 +1475,6 @@ class PagesController extends Controller
 
     public function chat2(Request $request, $cid)
     {
-        
         $user = $request->user();
         $m_time = '';
         if (isset($user)) {
@@ -1513,7 +1512,6 @@ class PagesController extends Controller
 
     public function chat(Request $request, $cid)
     {
-        
         $user = $request->user();
         $m_time = '';
         if (isset($user)) {
@@ -1580,7 +1578,6 @@ class PagesController extends Controller
     }
     public function search2(Request $request)
     {
-        // dd('123')
         $user = $request->user();
 
         return view('new.dashboard.search')->with('user', $user);
