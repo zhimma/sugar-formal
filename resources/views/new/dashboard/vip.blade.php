@@ -15,7 +15,7 @@
                         <li><a href="{!! url('/dashboard/vip') !!}"><img src="/new/images/mm_18.png"><span>VIP</span></a></li>
                     </div>
                     <div class="n_viptitle">
-                        <a href="#" onclick='return changediv("vip")' id="vip_a" class="n_viphover" target=_parent>升级VIP</a>
+                        <a href="#" onclick='return changediv("vip")' id="vip_a" class="n_viphover" target=_parent>升級VIP</a>
 
                         <a href="#" onclick='return changediv("vip2")' id="vip2_a" target=_parent>取消VIP</a>
                     </div>
@@ -34,7 +34,7 @@
                                         <h3>上傳大頭貼</h3>
                                         <h3>+</h3>
                                         <h3>三張生活照</h3>
-                                        <h5><b>即可免費成為VIP</b></h5>
+                                        <h5><b>即可試用幾天VIP</b></h5>
                                     </div>
                                     <div class="vipcion"><img src="/new/images/bicon.png"></div>
                                     </a>
@@ -94,20 +94,38 @@
                         </div>
                         <div class="vipline"><img src="/new/images/VIP_05.png"></div>
                         <div class="vipbongn">
-                            <h2>VIP功能</h2>
-                            <h3><span>●</span>解鎖信箱限制</h3>
-                            <h3><span>●</span>解鎖發訊限制</h3>
-                            <h3><span>●</span>解鎖足跡功能</h3>
-                            <h3><span>●</span>解鎖進階搜尋功能</h3>
-                            <h3><span>●</span>解鎖車馬費評價功能</h3>
-                            <h3><span>●</span>可以看進階資料</h3>
-                            <h3><span>●</span>可以看已讀未讀</h3>
-                            <h3><span>●</span>擁有 VIP title 並取得優選會原累積資格</h3>
-                            <h3><span>●</span>加入 VIP 以後可以隨時手動取消沒有任何限制，但金流需要七個工作天操作，所以需在下個月扣款前七個工作天取消，次月才不會扣款</h3>
+                            
+                                <h2>VIP功能</h2>
+                                <h3><span>●</span>解鎖信箱限制</h3>
+                                <h3><span>●</span>解鎖發訊限制</h3>
+                                <h3><span>●</span>解鎖足跡功能</h3>
+                                <h3><span>●</span>解鎖進階搜尋功能</h3>
+                                <h3><span>●</span>解鎖車馬費評價功能</h3>
+                                <h3><span>●</span>可以看進階資料</h3>
+                                <h3><span>●</span>可以看已讀未讀</h3>
+                                <h3><span>●</span>擁有 VIP title 並取得優選會原累積資格</h3>
+                                <h3><span>●</span>加入 VIP 以後可以隨時手動取消沒有任何限制，但金流需要七個工作天操作，所以需在下個月扣款前七個工作天取消，次月才不會扣款</h3>
+
+                            
                         </div>
                         <div class="n_vipbotf">本筆款項在信用卡帳單顯示為 信宏資產管理公司</div>
 
                     </div>
+                    <div class="hy_width n_viptop20"  id="vip_cancel" style="display:none">
+                        <div class="fi_xq">
+                            <img src="/new/images/vip_xq.png" class="fi_xqicon">
+                            <div class="fi_text">
+                                <h2>@if(!$user->isVip())您目前尚未成為VIP會員 @elseif($user->isVipNotCanceledORCanceledButNotExpire() == false)已經取消VIP @endif</h2>
+                                <h3>
+                                    @if($user->isVipNotCanceledORCanceledButNotExpire() == false && $days>0)
+                                        還剩{{$days}}天可使用
+                                    @endif
+                                </h3>
+                                <h4>@if(isset($expiry_time)){{substr($expiry_time,0,10)}}日到期@endif</h4>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="de_input n_viptop20 n_viphig"  id="vip2" style="display:none">
                         @if ($user->isVip())
                         <form class="m-login__form m-form" method="POST" action="/dashboard/cancelpay">
@@ -130,6 +148,16 @@
 
 @section('javascript')
     <script>
+        $(document).ready(function() {
+            @if(Session::has('message'))
+            c5('{{Session::get('message')}}');
+            <?php session()->forget('message');?>
+            @endif
+        });
+
+        if(window.location.hash.substr(1) != '' && window.location.hash.substr(1)=='vipcanceled'){
+            changediv('vip2');
+        }
         // 升級VIP內容
         $('.n_vip01').on('click', function(event) {
             var r = confirm("加入 VIP 須知。\n●加入VIP後將於每月於第一次刷卡日期自動扣款，至取消為止。\n●升級VIP之後，升級VIP的選項會變成取消VIP，取消後次月即停止扣款\n●訊息不會被過濾掉(會員可以設定拒接非VIP會員來信)\n●不受限制的收發信件(下個月起普通會員收發信件總數將受限)\n●可以觀看進階統計資料\n●可以知道訊息是否已讀\n●可以知道對方是否封鎖自己\n●您申請每月自動扣款並完成繳費，經確認繳費程序完成且已成功開啟本站相關服務設定，即視同您已經開始使用所購買之每月自動扣款\n●最短租期為「30天」，若住戶申請到退租時間未滿「30天」，則將被收取「30天」的費用。\n★取消 VIP 時間需要七個工作天，如下個月不續約請提前取消，以免權益受損！★");
@@ -140,20 +168,22 @@
 
         // 取消VIP內容
         $('#vip2_a').on('click', function(event) {
-            @if(isset($vipLessThan7days) && $vipLessThan7days)
+            @if(isset($vipLessThan7days) && $vipLessThan7days && $user->isVipNotCanceledORCanceledButNotExpire() == true)
                 var r = confirm("取消 VIP 須知。\n●最短租期為「30天」，若住戶申請到退租時間未滿「30天」，則將被收取「30天」的費用。\n★取消 VIP 時間需要七個工作天，如下個月不續約請提前取消，以免權益受損！★\n★★若取消時間低於七個工作天，則下個月將會繼續扣款，並且 VIP 時間延長至下下個月為止。★★\n★★由於您於本日" + "{{ \Carbon\Carbon::now()->toDateString() }}" + "申請取消 VIP 。您每月的 VIP 扣款日期為 " + "{{ $vipRenewDay }}" + " 日。取消扣款作業需七個工作天(申請VIP時有提示)，本月取消作業不及，下個月將會進行最後一次扣款，您的 VIP 時間將會到 " + "{{ $vipNextMonth->toDateString() }}" + "。不便之處敬請見諒。★★");
-            @else
+            @elseif($user->isVip() && $user->isVipNotCanceledORCanceledButNotExpire() == true)
                 var r = confirm("取消 VIP 須知。\n●最短租期為「30天」，若住戶申請到退租時間未滿「30天」，則將被收取「30天」的費用。\n★取消 VIP 時間需要七個工作天，如下個月不續約請提前取消，以免權益受損！★\n★★若取消時間低於七個工作天，則下個月將會繼續扣款，並且 VIP 時間延長至下下個月為止。★★");
             @endif
 
             if(!r) {
-                event.preventDefault();
+                changediv('vip');
+                // event.preventDefault();
             }
         });
 
         function changediv(id){
             document.getElementById("vip").style.display="none";
             document.getElementById("vip2").style.display="none";
+            document.getElementById("vip_cancel").style.display="none";
             document.getElementById("vip_a").className="";
             document.getElementById("vip2_a").className="";
             document.getElementById(id).style.display="table";
@@ -161,6 +191,9 @@
             if(id === 'vip2'){
                 @if (!$user->isVip())
                 c2('您目前尚未成為VIP會員');
+                @elseif($user->isVipNotCanceledORCanceledButNotExpire() == false)
+                $('#vip_cancel').show();
+                $('#vip2').hide();
                 @endif
             }
             return false;

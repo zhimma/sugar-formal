@@ -200,7 +200,7 @@ class PagesController extends Controller
             $targetUserID = substr($payload['P_OrderNumber'], 0, -10);
             if($payload['final_result'] == 1){
                 Tip::upgrade($user->id, $targetUserID, $payload['P_CheckSum']);
-                Message::post($user->id, $targetUserID, "系統通知: 車馬費邀請");
+                // Message::post($user->id, $targetUserID, "系統通知: 車馬費邀請");
                 if($user->engroup == 1) {
                     //取資料庫並替換名字
                     $tip_msg1 = AdminCommonText::getCommonText(1);//id2給男會員訊息
@@ -677,7 +677,6 @@ class PagesController extends Controller
             //刪除大頭照
             UserMeta::uploadUserHeader($user->id,null);
         }
-
         $data = array(
             'code' => '200'
         );
@@ -892,7 +891,18 @@ class PagesController extends Controller
     public function view_vip(Request $request)
     {
         $user = $request->user();
-        return view('new.dashboard.vip')->with('user', $user)->with('cur', $user);
+        //VIP到期日
+        $expiry_time = Vip::select('expiry')->where('member_id', $user->id)->where('expiry', '!=', '0000-00-00 00:00:00')->orderBy('created_at', 'desc')->first();
+        $days=0;
+        if(isset($expiry_time)) {
+            $expiry_time = $expiry_time->expiry;
+            $expiry = Carbon::parse($expiry_time);
+            $days = $expiry->diffInDays(Carbon::now());
+        }
+        return view('new.dashboard.vip')
+            ->with('user', $user)->with('cur', $user)
+            ->with('expiry_time', $expiry_time)
+            ->with('days',$days);
     }
 
     public function viewuser(Request $request, $uid = -1)
@@ -1343,14 +1353,30 @@ class PagesController extends Controller
         }
     }
 
-    public function manual(Request $request)
-    {
+    public function newer_manual(Request $request) {
         $user = $request->user();
         if ($user) {
-            return view('new.dashboard.manual')
+            return view('new.dashboard.newer_manual')
                 ->with('user', $user);
         }
     }
+
+    public function anti_fraud_manual(Request $request) {
+        $user = $request->user();
+        if ($user) {
+            return view('new.dashboard.anti_fraud_manual')
+                ->with('user', $user);
+        }
+    }
+
+    public function web_manual(Request $request) {
+        $user = $request->user();
+        if ($user) {
+            return view('new.dashboard.web_manual')
+                ->with('user', $user);
+        }
+    }
+
     public function chat2(Request $request, $cid)
     {
         $user = $request->user();
@@ -1745,7 +1771,7 @@ class PagesController extends Controller
 
                     $request->session()->flash('cancel_notice', $offVIP);
                     $request->session()->save();
-                    return redirect('/dashboard')->with('user', $user)->with('message', $offVIP);
+                    return redirect('/dashboard/vip#vipcanceled')->with('user', $user)->with('message', $offVIP);
                     //return back()->with('user', $user)->with('message', 'VIP 取消成功！')->with('cancel_notice', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
 
                 }
@@ -1754,7 +1780,7 @@ class PagesController extends Controller
                     $log->user_id = $user->id;
                     $log->reason = 'File saving failed.';
                     $log->save();
-                    return redirect('/dashboard')->with('user', $user)->withErrors(['VIP 取消失敗！'])->with('cancel_notice', '本次VIP取消資訊沒有成功寫入，請再試一次。');
+                    return redirect('/dashboard/vip')->with('user', $user)->withErrors(['VIP 取消失敗！'])->with('cancel_notice', '本次VIP取消資訊沒有成功寫入，請再試一次。');
                     //return back()->with('user', $user)->withErrors(['VIP 取消失敗！'])->with('cancel_notice', '本次VIP取消資訊沒有成功寫入，請再試一次。');
                 }
             }

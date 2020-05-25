@@ -220,6 +220,22 @@ class User extends Authenticatable
         //            )->orderBy('created_at', 'desc')->first() !== null;
     }
 
+    /**
+     * 取得 VIP 資料，預設回傳所有記錄，使用參數決定是否回傳單筆記錄
+     *
+     * @param  string $first
+     * @return User
+     */
+    public function getVipData($first = false)
+    {
+        if($first){
+            return Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first();
+        }
+        else{
+            return Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->get();
+        }
+    }
+    
     public function isFreeVip()
     {
         return Vip::where('member_id', $this->id)->where('active', 1)->where('free', 1)->orderBy('created_at', 'desc')->first() !== null;
