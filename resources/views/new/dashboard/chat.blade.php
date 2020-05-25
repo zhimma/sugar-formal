@@ -582,29 +582,25 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     //console.log(res.msg);
                     var rr=0;
                     //total=res.msg.length;
-                    // alert(res.msg.length);
+                    
                     if(res.msg.length>0){
                         $('#rows').val(res.msg.length);
                     }
 
                     var hide_vip_counts = 0;
-                    hide_vip_counts = $('#rows').val()-10;
-
+                    hide_vip_counts = $('#rows').val() - 10;
 
                     var vip_counts = 0;
                     var novip_counts = 0;
                     $.each(res.msg,function(i,e) {
-                        console.log(i, hide_vip_counts);
-                        // $('#rows').val(e.total_counts);
-
 
                         rr += parseInt(e.read_n);
-                        if (userIsVip == 0 && e.user_id != 1049 && e.read_n >= 10 && hide_vip_counts > 0) {
-                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0, i);
+                        if (userIsVip == 0 && e.user_id != 1049 && i < hide_vip_counts && hide_vip_counts > 0) {
+                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0);
                         } else if (userIsVip == 0 && e.user_id != 1049) {
-                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1, i);
+                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1);
                         } else {
-                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1, i);
+                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1);
                         }
                         // alert(e.created_at);
                         if (typeof e.created_at !== 'undefined') {
