@@ -133,7 +133,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .title{ position:absolute;width:150px; background:#e54f72}
 
 
-.bottub{margin:10px 0 auto; top:27px; width:100%; z-index:5 ;margin-top: -33px; position: relative}
+.bottub{margin:10px 0 auto; top:27px; width:100%; z-index:1 ;margin-top: -33px; position: relative}
 .bottub ul{margin:0 auto; padding:0px;display:table}
 .bottub ul li{width:60px; height:60px;background:#ffffff; border:#666 1px solid;border-radius:10px; float:left; margin-left:5px; margin-right:5px;}
 .bottub ul li span{width:60px;font-size:12px; text-align:center; display:table; line-height:25px; color:#333}
@@ -2137,4 +2137,4 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 
 }
 
-
+.new_page{ line-height:35px; float:left; color:#fd5678; font-size:16px;}

@@ -256,7 +256,7 @@
                 </div>
 
                 <div style="text-align: center;">
-                    {!! $vis->appends(request()->input())->links('pagination::sg-pages') !!}
+                    {!! $vis->appends(request()->input())->links('pagination::sg-pages2') !!}
                 </div>
 
             </div>
