@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `basic_setting` (
 -- 正在傾印表格  sguser_sugarg.basic_setting 的資料：~0 rows (大約)
 /*!40000 ALTER TABLE `basic_setting` DISABLE KEYS */;
 REPLACE INTO `basic_setting` (`id`, `vipLevel`, `gender`, `timeSet`, `countSet`) VALUES
-	(1, 1, 1, 8, 10);
+	(1, 1, 1, 60, -1), (2, 1, 2, 60, 3), (3, 0, 1, 60, 3), (4, 1, 2, 60, 3);
 /*!40000 ALTER TABLE `basic_setting` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
