@@ -94,8 +94,13 @@ class User extends Authenticatable
     * @return boolean
     */
     public function getIsVipAttribute()
-    {dd($this->vip());
-        return $this->vip != NULL and $this->vip->active == 1 ;
+    {
+        foreach($this->vip as $vip){
+            if($vip->active == 1){
+                return true;
+            }
+        }
+        return false;
     }
 
     public static function id_($uid)
