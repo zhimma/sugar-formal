@@ -613,7 +613,7 @@ class Message extends Model
         //
         $user = User::findById($uid);
         $block = Blocked::getAllBlockedId($uid);
-        $banned_users = \App\Services\UserService::getBannedId($user->id);
+        $banned_users = \App\Services\UserService::getBannedId();
 
         $query = Message::where(function($query)use($uid)
         {

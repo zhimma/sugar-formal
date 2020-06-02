@@ -713,7 +713,7 @@ class UserService
     public static function getBannedId($except = null){
         $banned = \App\Models\SimpleTables\banned_users::select('member_id AS user_id')->get();
         if($except){
-            $implicitlyBanned = \App\Models\BannedUsersImplicitly::select('target AS user_id')->whereNotIn('target', $except)->get();
+            $implicitlyBanned = \App\Models\BannedUsersImplicitly::select('target AS user_id')->where('target' , '<>', $except)->get();
         }
         else{
             $implicitlyBanned = \App\Models\BannedUsersImplicitly::select('target AS user_id')->get();
