@@ -914,6 +914,13 @@ class UserController extends Controller
         if ($admin){
             $user = $this->service->find($id);
             $msglib = Msglib::get();
+            $msglib_msg = collect();
+            foreach ($msglib as $m){
+                $m->msg = str_replace('|$report|', $user->name, $m->msg);
+                $m->msg = str_replace('NAME', $user->name, $m->msg);
+                $m->msg = str_replace('|$reported|', "|被檢舉者|", $m->msg);
+                $msglib_msg->push($m->msg);
+            }
             return view('admin.users.messenger')
                    ->with('admin', $admin)
                    ->with('user', $user)
@@ -921,9 +928,9 @@ class UserController extends Controller
                    ->with('to_user', $admin)
                    ->with('msglib', $msglib)
                    ->with('msglib2', collect())
-                   ->with('msglib_report', collect())
-                   ->with('msglib_reported', collect())
-                   ->with('msglib_msg', collect())
+                   ->with('msglib_report', null)
+                   ->with('msglib_reported', null)
+                   ->with('msglib_msg', $msglib_msg)
                    ->with('message_msg', collect())
                    ->with('msglib_msg2', collect());
         }
