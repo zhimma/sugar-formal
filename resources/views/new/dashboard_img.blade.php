@@ -118,7 +118,7 @@
                                 <input type="file" name="avatar" data-fileuploader-files=''>
                                 <input type="hidden" name="userId" value="{{ $user->id }}">
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                <input type="submit" class="vipbut upload_btn abtn" value="上傳大頭照"></input>
+                                <input type="submit" class="vipbut upload_btn abtn" value="上傳大頭照" style="border-style: none;">
                             </form>
                         </div>
                     </div>
@@ -130,7 +130,7 @@
                                 <input type="file" name="pictures" data-fileuploader-files=''>
                                 <input type="hidden" name="userId" value="{{ $user->id }}">
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                <input type="submit" class="vipbut upload_btn abtn" value="上傳生活照"></input>
+                                <input type="submit" class="vipbut upload_btn abtn" value="上傳生活照" style="border-style: none;">
                             </form>
                         </div>
                     </div>
@@ -171,8 +171,8 @@
         'name': 330
     }
     $(document).ready(function(){
-        @if(Session::has('success'))
-            c2("{{ Session::get('success') }}");
+        @if(Session::has('message'))
+            c2("{{ Session::get('message') }}");
         @endif
         let userId = $("input[name='userId']").val()
 
@@ -202,8 +202,16 @@
                             data: {
                                 _token: "{{ csrf_token() }}"
                             },
-                            success: function(){
-                                c2("刪除成功")
+                            success: function(data){
+                                //c2("刪除成功")
+                                $(".announce_bg").hide();
+                                $("#tab02").hide();
+                                c2(data);
+                                // if(data.length>4){
+                                //     c2(data);
+                                // }else {
+                                //     c2(data);
+                                // }
                                 isRemovable = true
                             },
                             error: function(xhr, status, msg){
@@ -225,7 +233,7 @@
                 dialogs: {
                     // alert dialog
                     alert: function(text) {
-                        return cl(text);
+                        return c5(text);
                     },
 
                     // confirm dialog
@@ -266,9 +274,17 @@
                                 _token: "{{ csrf_token() }}",
                                 picture: item.file
                             },
-                            success: function(){
-                                c2("刪除成功")
+                            success: function(data){
+                                $(".announce_bg").hide();
+                                $("#tab02").hide();
+                                c2(data);
+                                // if(data.length>4){
+                                //     c1(data);
+                                // }else {
+                                //     c2(data);
+                                // }
                                 isRemovable = true
+
                             },
                             error: function(xhr, status, msg){
                                 c2("刪除失敗")
@@ -289,7 +305,7 @@
                 dialogs: {
                     // alert dialog
                     alert: function(text) {
-                        return cl(text);
+                        return c5(text);
                     },
 
                     // confirm dialog

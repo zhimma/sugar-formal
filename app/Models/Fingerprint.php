@@ -12,5 +12,11 @@ class Fingerprint extends Model
      * @var string
      */
     protected $table = 'fingerprint';
-    
+    public static function isExist($data)
+    {
+        $result = Fingerprint::where($data)->count();
+        //var_dump(Fingerprint::where($data));
+        //var_dump($data);die;
+        return $result > 0 ? true : false;
+    }
 }

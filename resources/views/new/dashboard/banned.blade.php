@@ -42,7 +42,7 @@
                         </table>
 
                         <div style="text-align: center;">
-                            {!! $banned_user->links('pagination::sg-pages') !!}
+                            {!! $banned_user->links('pagination::sg-pages2') !!}
                         </div>
 
                     </div>

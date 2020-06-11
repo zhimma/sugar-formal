@@ -212,7 +212,7 @@
                         @endforeach
                     @endif
                     <div style="text-align: center;">
-                        {!! $messages->appends(request()->input())->links('pagination::sg-pages') !!}
+                        {!! $messages->appends(request()->input())->links('pagination::sg-pages2') !!}
                     </div>
                 </div>
                 @if(isset($to))
@@ -411,7 +411,7 @@
     if($(window).height()<=601){
         message_max_height = message_height - $('.hetop').height() - 50;
     }else{
-        message_max_height = message_height - footer_height - $('.hetop').height() - 110;
+        message_max_height = message_height - footer_height - $('.hetop').height() - 140;
         $('.se_text_bot').addClass('se_text_bot_add_bottom');
     }
 
@@ -447,7 +447,7 @@
         if($(window).height()<=601){
             message_max_height = message_height - $('.hetop').height() - 50;
         }else{
-            message_max_height = message_height - footer_height - $('.hetop').height() - 110;
+            message_max_height = message_height - footer_height - $('.hetop').height() - 140;
             $('.se_text_bot').addClass('se_text_bot_add_bottom');
 
         }

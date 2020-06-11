@@ -526,6 +526,7 @@
                                         } else {
                                             if (n.thumbnails.removeConfirmation) {
                                                 n.dialogs.confirm(f._assets.textParse(n.captions.removeConfirmation, item), c_delete);
+												c2('刪除成功');
                                             } else {
 												c6('確認要刪除照片嗎?');
                                             }
@@ -4394,6 +4395,8 @@
 					c_delete();
 					$('#tab06').hide();
 					$('.blbg').hide();
+					c3('刪除成功');
+					// $('.blbg').hide();
 				}
 			}
         },
@@ -4421,7 +4424,7 @@
                 filesType: 'Only ${extensions} files are allowed to be uploaded.',
                 fileSize: '${name} is too large! Please choose a file up to ${fileMaxSize}MB.',
                 filesSizeAll: 'Files that you chose are too large! Please upload files up to ${maxSize} MB.',
-                fileName: 'File with the name ${name} is already selected.',
+                fileName: '${name} 照片重複選取，請重新上傳',
                 remoteFile: 'Remote files are not allowed.',
                 folderUpload: 'You are not allowed to upload folders.',
             }

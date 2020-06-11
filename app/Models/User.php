@@ -94,8 +94,13 @@ class User extends Authenticatable
     * @return boolean
     */
     public function getIsVipAttribute()
-    {dd($this->vip());
-        return $this->vip != NULL and $this->vip->active == 1 ;
+    {
+        foreach($this->vip as $vip){
+            if($vip->active == 1){
+                return true;
+            }
+        }
+        return false;
     }
 
     public static function id_($uid)
@@ -240,6 +245,22 @@ class User extends Authenticatable
         // return Vip::select('active')->where('member_id', $this->id)->where('active', 1)->where(function($query)
         //             {$query->where('expiry', '0000-00-00 00:00:00')->orwhere('expiry', '>=', Carbon::now());}
         //            )->orderBy('created_at', 'desc')->first() !== null;
+    }
+
+    /**
+     * 取得 VIP 資料，預設回傳所有記錄，使用參數決定是否回傳單筆記錄
+     *
+     * @param  string $first
+     * @return User
+     */
+    public function getVipData($first = false)
+    {
+        if($first){
+            return Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first();
+        }
+        else{
+            return Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->get();
+        }
     }
 
     public function isFreeVip()

@@ -183,7 +183,7 @@ class Message extends Model
         $isAllDelete = true;
         //$msgShow = User::findById($uid)->meta_()->notifhistory;
         $user = \Auth::user();
-        $banned_users = \App\Services\UserService::getBannedId();
+        $banned_users = \App\Services\UserService::getBannedId($user->id);
         foreach($messages as $key => &$message) {
             if($banned_users->contains('member_id', $message->to_id)){
                 unset($messages[$key]);
@@ -462,7 +462,7 @@ class Message extends Model
     public static function allSendersAJAX($uid, $isVip)
     {
         $userBlockList = Blocked::select('blocked_id')->where('member_id', $uid)->get();
-        $banned_users = \App\Services\UserService::getBannedId();
+        $banned_users = \App\Services\UserService::getBannedId($uid);
         $messages = Message::where([['to_id', $uid], ['from_id', '!=', $uid]])->orWhere([['from_id', $uid], ['to_id', '!=',$uid]])->orderBy('created_at', 'desc');
         $messages->whereNotIn('to_id', $userBlockList);
         $messages->whereNotIn('from_id', $userBlockList);
@@ -493,7 +493,7 @@ class Message extends Model
         $user = Auth::user();
         $block_people =  Config::get('social.block.block-people');
         $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
-        $banned_users = \App\Services\UserService::getBannedId();
+        $banned_users = \App\Services\UserService::getBannedId($user->id);
         $isVip = $user->isVip();
         foreach ($messages as $key => &$message){
             $to_id = isset($message["to_id"]) ? $message["to_id"] : null;

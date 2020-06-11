@@ -169,7 +169,7 @@ class Message_new extends Model
         $isAllDelete = true;
         //$msgShow = User::findById($uid)->meta_()->notifhistory;
         $user = \Auth::user();
-        $banned_users = \App\Services\UserService::getBannedId();
+        $banned_users = \App\Services\UserService::getBannedId($user->id);
         foreach($messages as $key => &$message) {
             if($banned_users->contains('member_id', $message->to_id)){
                 unset($messages[$key]);
@@ -486,7 +486,7 @@ class Message_new extends Model
         //  created_at >= '".self::$date."' or  (`from_id`= $admin->id and `to_id` = $uid and `read` = 'N')
         //$admin = User::select('id')->where('email', Config::get('social.admin.email'))->get()->first();
         $userBlockList = Blocked::select('blocked_id')->where('member_id', $uid)->get();
-        $banned_users = \App\Services\UserService::getBannedId();
+        $banned_users = \App\Services\UserService::getBannedId($uid);
         $query = Message::where(function($query)use($uid)
         {
             $query->where('to_id','=' ,$uid)
@@ -582,7 +582,7 @@ class Message_new extends Model
         $user = Auth::user();
         $block_people =  Config::get('social.block.block-people');
         $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
-        $banned_users = \App\Services\UserService::getBannedId();
+        $banned_users = \App\Services\UserService::getBannedId($user->id);
         $isVip = $user->isVip();
         $aa=[];
         foreach ($messages as $key => &$message){

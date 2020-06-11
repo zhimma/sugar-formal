@@ -1,2 +1,2 @@
-ALTER TABLE `admin_sguser`.`fingerprint2` 
+ALTER TABLE `fingerprint2` 
 ADD INDEX `Index` (`fp`) VISIBLE
