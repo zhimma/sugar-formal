@@ -1196,6 +1196,7 @@ class PagesController extends Controller
     }
 
 
+
     public function reportPic($reporter_id, $pic_id, $uid = null)
     {
         $isAvatar = false;
