@@ -1195,6 +1195,15 @@ class PagesController extends Controller
         return back()->with('message', '檢舉成功');
     }
 
+    public function reportMsg(Request $request){
+        if(empty($this->customTrim($request->content))){
+            $user = $request->user();
+            return redirect('/dashboard/viewuser/'.$request->uid);
+        }
+        Message::reportMessage($request->id, $request->content);
+        //        return redirect('/dashboard/viewuser/'.$request->uid)->with('message', '檢舉成功');
+        return back()->with('message', '檢舉成功');
+    }
 
 
     public function reportPic($reporter_id, $pic_id, $uid = null)
