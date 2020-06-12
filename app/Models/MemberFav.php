@@ -38,7 +38,9 @@ class MemberFav extends Model
 
     public static function showFav($uid)
     {
-        $fav = Visited::unique(MemberFav::where([['member_id', $uid],['member_fav_id', '!=', $uid]])->distinct()->orderBy('created_at', 'desc')->get(), "member_fav_id");
+        $blocks = Blocked::select('blocked_id')->where('member_id', $uid)->get();
+        $bannedUsers = \App\Services\UserService::getBannedId();
+        $fav = Visited::unique(MemberFav::where([['member_id', $uid],['member_fav_id', '!=', $uid]])->whereNotIn('member_fav_id',$blocks)->whereNotIn('member_fav_id',$bannedUsers)->distinct()->orderBy('created_at', 'desc')->get(), "member_fav_id");
         foreach ($fav as $k => $f) {
             $favUser = \App\Models\User::findById($f->member_fav_id);
             if(isset($favUser)){
