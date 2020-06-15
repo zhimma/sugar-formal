@@ -413,19 +413,20 @@ class ImageController extends Controller
             'files' => $preloadedFiles
         ));
 
-        if(count($preloadedFiles) <= 0){
+        //選擇移除的照片
+        try{
+            foreach($fileUploader->getRemovedFiles() as $key => $value)
+            {
+                $file = public_path($value['file']); //full path of removed file
+                if(File::exists($file)){
+                    unlink($file);
+                    MemberPic::where('pic', $value['file'])->delete();
+                }
+            }
+        }
+        catch (\Exception $e){
             Session::flash('success', '照片上傳失敗，請檢查是否已選取照片。若您確定已選取照片，但仍見到此訊息，請和站長聯繫。');
             return redirect()->back();
-        }
-
-        //選擇移除的照片
-        foreach($fileUploader->getRemovedFiles() as $key => $value)
-        {
-            $file = public_path($value['file']); //full path of removed file 
-            if(File::exists($file)){
-                unlink($file);
-                MemberPic::where('pic', $value['file'])->delete();
-            }
         }
 
         $upload = $fileUploader->upload();
