@@ -399,11 +399,6 @@ class ImageController extends Controller
         $preloadedFiles = $this->getPictures($request)->content();
         $preloadedFiles = json_decode($preloadedFiles, true);
 
-//        if(count($preloadedFiles) <= 0){
-//            Session::flash('success', '沒有上傳任何照片/請勿在上傳後於本頁重新整理');
-//            return redirect()->back();
-//        }
-
         $fileUploader = new FileUploader('pictures', array(
             'fileMaxSize' => 8,
             'extensions' => ['jpg', 'jpeg', 'png', 'gif'],
@@ -417,6 +412,11 @@ class ImageController extends Controller
             'editor' => true,
             'files' => $preloadedFiles
         ));
+
+        if(count($preloadedFiles) <= 0){
+            Session::flash('success', '沒有上傳任何照片/請勿在上傳後於本頁重新整理');
+            return redirect()->back();
+        }
 
         //選擇移除的照片
         foreach($fileUploader->getRemovedFiles() as $key => $value)
