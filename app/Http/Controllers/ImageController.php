@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Session;
 use \FileUploader;
 use App\Models\Vip;
+use Illuminate\Support\Facades\Log;
 
 class ImageController extends Controller
 {
@@ -399,11 +400,6 @@ class ImageController extends Controller
         $preloadedFiles = $this->getPictures($request)->content();
         $preloadedFiles = json_decode($preloadedFiles, true);
 
-//        if(count($preloadedFiles) <= 0){
-//            Session::flash('success', '沒有上傳任何照片/請勿在上傳後於本頁重新整理');
-//            return redirect()->back();
-//        }
-
         $fileUploader = new FileUploader('pictures', array(
             'fileMaxSize' => 8,
             'extensions' => ['jpg', 'jpeg', 'png', 'gif'],
@@ -419,13 +415,20 @@ class ImageController extends Controller
         ));
 
         //選擇移除的照片
-        foreach($fileUploader->getRemovedFiles() as $key => $value)
-        {
-            $file = public_path($value['file']); //full path of removed file 
-            if(File::exists($file)){
-                unlink($file);
-                MemberPic::where('pic', $value['file'])->delete();
+        try{
+            foreach($fileUploader->getRemovedFiles() as $key => $value)
+            {
+                $file = public_path($value['file']); //full path of removed file
+                if(File::exists($file)){
+                    unlink($file);
+                    MemberPic::where('pic', $value['file'])->delete();
+                }
             }
+        }
+        catch (\Exception $e){
+            Session::flash('success', '照片上傳失敗，請檢查是否已選取照片。若您確定已選取照片，但仍見到此訊息，請和站長聯繫。');
+            Log::info('Image upload failed, user id: ' . $userId . ', useragent: ' . $_SERVER['HTTP_USER_AGENT']);
+            return redirect()->back();
         }
 
         $upload = $fileUploader->upload();
