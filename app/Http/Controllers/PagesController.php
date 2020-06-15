@@ -1205,7 +1205,6 @@ class PagesController extends Controller
         return back()->with('message', '檢舉成功');
     }
 
-
     public function reportPic($reporter_id, $pic_id, $uid = null)
     {
         $isAvatar = false;
