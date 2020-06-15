@@ -414,7 +414,7 @@ class ImageController extends Controller
         ));
 
         if(count($preloadedFiles) <= 0){
-            Session::flash('success', '沒有上傳任何照片/請勿在上傳後於本頁重新整理');
+            Session::flash('success', '若您確定有上傳照片，但仍見到此訊息，請和站長聯繫。');
             return redirect()->back();
         }
 
