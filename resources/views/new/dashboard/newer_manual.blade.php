@@ -159,10 +159,18 @@
                         </div>
                     </div>
                     <div class="@if($user->engroup==2)zp_tab @else m_zp_tab @endif step05">
-                        <li class="@if($user->engroup==2)zp_line zp_line02 @else m_zp_line m_zp_line02 @endif "><img src="@if($user->engroup==2)/new/images/5_1.png @else/new/images/micon1.png @endif"><span>新手教學結束<i>開始使用網站</i></span></li>
-                        <li class="@if($user->engroup==2)zp_line02 zp_line03 @else m_zp_line02 m_zp_line03 @endif"><img src="@if($user->engroup==2)/new/images/5_2.png @else/new/images/micon2.png @endif"><span>我想了解更多<i>詐騙避免手冊</i></span></li>
-                        <li class="@if($user->engroup==2)zp_line zp_line03 @else m_zp_line m_zp_line03 @endif"><img src="@if($user->engroup==2)/new/images/5_3.png @else/new/images/micon3.png @endif"><span>我想了解更多<i>@if($user->engroup==2)開始使用網站@else網站特色@endif</i></span></li>
-                        <li class=""><img src="@if($user->engroup==2)/new/images/5_4.png @else/new/images/micon4.png @endif"><span>我想了解更多<i>站長的經驗分享</i></span></li>
+                        <a href="/dashboard">
+                            <li class="@if($user->engroup==2)zp_line zp_line02 @else m_zp_line m_zp_line02 @endif "><img src="@if($user->engroup==2)/new/images/5_1.png @else/new/images/micon1.png @endif"><span>新手教學結束<i>開始使用網站</i></span></li>
+                        </a>
+                        <a href="/dashboard/anti_fraud_manual">
+                            <li class="@if($user->engroup==2)zp_line02 zp_line03 @else m_zp_line02 m_zp_line03 @endif"><img src="@if($user->engroup==2)/new/images/5_2.png @else/new/images/micon2.png @endif"><span>我想了解更多<i>詐騙避免手冊</i></span></li>
+                        </a>
+                        <a href="/dashboard/web_manual">
+                            <li class="@if($user->engroup==2)zp_line zp_line03 @else m_zp_line m_zp_line03 @endif"><img src="@if($user->engroup==2)/new/images/5_3.png @else/new/images/micon3.png @endif"><span>我想了解更多<i>@if($user->engroup==2)開始使用網站@else網站特色@endif</i></span></li>
+                        </a>
+                        <a href="http://blog-tw.net/Sugar/%E5%8C%85%E9%A4%8A%EF%BC%8D%E5%A4%A7%E5%8F%94%E7%AF%87/" target="_blank">
+                            <li><img src="@if($user->engroup==2)/new/images/5_4.png @else/new/images/micon4.png @endif"><span>我想了解更多<i>站長的經驗分享</i></span></li>
+                        </a>
                     </div>
                     <div class="fenye">
                         <a class="prev">上一頁</a>

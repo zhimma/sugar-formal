@@ -15,9 +15,9 @@
             <li><a href="{!! url('dashboard/announcement') !!}"><img src="/new/images/z_01.png"><span class="n_zylg">站方公告</span></a></li>
             <li><a href="{!! url('/dashboard/banned') !!}"><img src="/new/images/z_02.png"><span class="n_zylg">懲處名單</span></a></li>
 {{--            <li><a href="{!! url('dashboard/board') !!}"><img src="/new/images/z_03.png"><span>留言板</span></a></li>--}}
-{{--            <li><a href="{!! url('dashboard/newer_manual') !!}"><img src="/new/images/z_08.png"><span class="n_zylg">新手教學</span></a></li>--}}
-{{--            <li><a href="{!! url('dashboard/anti_fraud_manual') !!}"><img src="/new/images/z_07.png"><span class="n_zylg zpfont">拒絕詐騙手冊</span></a></li>--}}
-{{--            <li><a href="{!! url('dashboard/web_manual') !!}"><img src="/new/images/z_09.png"><span class="n_zylg01">網站進階<font class="n_flbr">使用主頁</font></span></a></li>--}}
+            <li><a href="{!! url('dashboard/newer_manual') !!}"><img src="/new/images/z_08.png"><span class="n_zylg">新手教學</span></a></li>
+            <li><a href="{!! url('dashboard/anti_fraud_manual') !!}"><img src="/new/images/z_07.png"><span class="n_zylg zpfont">拒絕詐騙手冊</span></a></li>
+            <li><a href="{!! url('dashboard/web_manual') !!}"><img src="/new/images/z_09.png"><span class="n_zylg01">網站進階<font class="n_flbr">使用主頁</font></span></a></li>
             <li><a href="{!! url('dashboard/visited') !!}"><img src="/new/images/z_04.png"><span class="n_zylg">誰來看我</span></a></li>
 
             @if (isset($user) && $user->isVip())
