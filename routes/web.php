@@ -369,6 +369,11 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::get('/dashboard/upgrade_ec', 'PagesController@upgrade_ec');
     Route::get('/dashboard/upgrade_esafe', 'PagesController@upgrade_esafe');
     Route::get('/dashboard/announcement', 'PagesController@showAnnouncement');
+    //新手教學
+    Route::get('/dashboard/newer_manual', 'PagesController@newer_manual');
+    Route::get('/dashboard/web_manual', 'PagesController@web_manual');
+    Route::get('/dashboard/anti_fraud_manual', 'PagesController@anti_fraud_manual');
+
     Route::group(['middleware' => ['api']], function() {
         Route::post('/dashboard/upgradepay_ec', 'ECPayment@performPayment')->name('upgradepay_ec');
         Route::post('/dashboard/esafeCreditCard', 'EsafePayment@esafeCreditCard')->name('esafeCreditCard');
@@ -405,9 +410,6 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('/dashboard/chat2/deleteall', 'Message_newController@deleteAll')->name('delete2All');
         Route::post('/dashboard/chat2/chatSet', 'Message_newController@chatSet')->name('chatSet');
         Route::post('/dashboard/announcement_post', 'Message_newController@announcePost')->name('announcePost');
-        Route::get('/dashboard/newer_manual', 'PagesController@newer_manual');
-        Route::get('/dashboard/web_manual', 'PagesController@web_manual');
-        Route::get('/dashboard/anti_fraud_manual', 'PagesController@anti_fraud_manual');
 
 
 //        Route::get('/dashboard/evaluation/{uid}', 'PagesController@evaluation');
