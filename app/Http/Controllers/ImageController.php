@@ -414,7 +414,7 @@ class ImageController extends Controller
         ));
 
         if(count($preloadedFiles) <= 0){
-            Session::flash('success', '若您確定有上傳照片，但仍見到此訊息，請和站長聯繫。');
+            Session::flash('success', '照片上傳失敗，請檢查是否已選取照片。若您確定已選取照片，但仍見到此訊息，請和站長聯繫。');
             return redirect()->back();
         }
 
