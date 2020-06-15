@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Session;
 use \FileUploader;
 use App\Models\Vip;
+use Illuminate\Support\Facades\Log;
 
 class ImageController extends Controller
 {
@@ -426,6 +427,7 @@ class ImageController extends Controller
         }
         catch (\Exception $e){
             Session::flash('success', '照片上傳失敗，請檢查是否已選取照片。若您確定已選取照片，但仍見到此訊息，請和站長聯繫。');
+            Log::info('Image upload failed, user id: ' . $userId . ', useragent: ' . $_SERVER['HTTP_USER_AGENT']);
             return redirect()->back();
         }
 
