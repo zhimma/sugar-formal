@@ -103,9 +103,9 @@
                         <div class="n_jianj"><a onclick="show_reportPic()">檢舉大頭照</a></div>
                         <div class="tubiao">
                             <ul>
-                                <? $data = \App\Services\UserService::checkRecommendedUser($to);
-                                //echo $data['description'];
-                                ?>
+                                @php
+                                    $data = \App\Services\UserService::checkRecommendedUser($to);
+                                @endphp
                                 @if(isset($data['description']) && $to->engroup == 2)
                                     <li><img src="/new/images/a1.png">
 {{--                                        <span>{{$new_sweet}}</span>--}}
