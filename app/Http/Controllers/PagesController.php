@@ -1483,6 +1483,12 @@ class PagesController extends Controller
         }
     }
 
+    public function is_read_manual() {
+
+        Session::put('isReadManual','Y');
+        return 'ok';
+    }
+
     public function chat2(Request $request, $cid)
     {
         $user = $request->user();

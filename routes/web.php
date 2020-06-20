@@ -244,8 +244,13 @@ Route::group(['middleware' => ['auth']], function () {
 | Authenticated Routes
 |--------------------------------------------------------------------------
 */
+//新手教學
+Route::get('/dashboard/newer_manual', 'PagesController@newer_manual');
+Route::get('/dashboard/web_manual', 'PagesController@web_manual');
+Route::get('/dashboard/anti_fraud_manual', 'PagesController@anti_fraud_manual');
+Route::post('/dashboard/newer_manual/isRead', 'PagesController@is_read_manual');
 
-Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], function () {
+Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'newerManual']], function () {
 
     /*
     |--------------------------------------------------------------------------
@@ -369,10 +374,6 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::get('/dashboard/upgrade_ec', 'PagesController@upgrade_ec');
     Route::get('/dashboard/upgrade_esafe', 'PagesController@upgrade_esafe');
     Route::get('/dashboard/announcement', 'PagesController@showAnnouncement');
-    //新手教學
-    Route::get('/dashboard/newer_manual', 'PagesController@newer_manual');
-    Route::get('/dashboard/web_manual', 'PagesController@web_manual');
-    Route::get('/dashboard/anti_fraud_manual', 'PagesController@anti_fraud_manual');
 
     Route::group(['middleware' => ['api']], function() {
         Route::post('/dashboard/upgradepay_ec', 'ECPayment@performPayment')->name('upgradepay_ec');

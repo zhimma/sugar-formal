@@ -158,7 +158,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="@if($user->engroup==2)zp_tab @else m_zp_tab @endif step05">
+                    <div class="@if($user->engroup==2)zp_tab @else m_zp_tab @endif step05 isReadContent">
                     	 <a href="/dashboard">
                             <li class="@if($user->engroup==2)zp_line zp_line02 @else m_zp_line m_zp_line02 @endif "><img src="@if($user->engroup==2)/new/images/5_1.png @else/new/images/micon1.png @endif"><span>新手教學結束<i>開始使用網站</i></span></li>
                         </a>
@@ -171,7 +171,7 @@
                         <a href="http://blog-tw.net/Sugar/%E5%8C%85%E9%A4%8A%EF%BC%8D%E5%A4%A7%E5%8F%94%E7%AF%87/" target="_blank">
                             <li><img src="@if($user->engroup==2)/new/images/5_4.png @else/new/images/micon4.png @endif"><span>我想了解更多<i>站長的經驗分享</i></span></li>
                         </a>
-		    </div>
+		            </div>
                     <div class="fenye">
                         <a class="prev">上一頁</a>
                         <a class="next">下一頁</a>
@@ -263,6 +263,19 @@
             $('.next').show();
         }
         $('html,body').animate({ scrollTop: 0 }, 'slow');
+    });
+
+    $('.isReadContent').click(function() {
+        $.ajax({
+            type: 'POST',
+            url: "/dashboard/newer_manual/isRead",
+            data:{
+                _token: '{{csrf_token()}}',
+            },
+            dataType:"json",
+            success: function(res){
+            }
+        });
     });
 </script>
 @stop
