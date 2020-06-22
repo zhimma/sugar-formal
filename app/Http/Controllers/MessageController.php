@@ -8,6 +8,7 @@ use App\Models\AnnouncementRead;
 use App\Http\Requests;
 use App\Models\SimpleTables\banned_users;
 use App\Models\User;
+use App\Models\SetAutoBan;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -105,6 +106,10 @@ class MessageController extends Controller {
             }
         }
         Message::post(auth()->id(), $payload['to'], $payload['msg']);
+
+        //發送訊息後後判斷是否需備自動封鎖
+        SetAutoBan::auto_ban(auth()->id());
+        
         return back();
     }
 

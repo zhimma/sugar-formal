@@ -22,6 +22,7 @@ use App\Models\SimpleTables\member_vip;
 use App\Models\SimpleTables\banned_users;
 use App\Notifications\BannedNotification;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class StatController extends Controller
 {
@@ -99,5 +100,24 @@ class StatController extends Controller
             $d->created_at = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at)->addHours(14);
         }
         return view('admin.stats.datFileLog')->with('data', $data);
+    }
+
+    public function set_autoBan(){
+        $data = DB::table('set_auto_ban')->get();
+        return view('admin.stats.set_autoBan')->with('data', $data);
+    }
+
+    public function set_autoBan_add(Request $request){
+        if(isset($request->content)){
+            DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban]);
+        }
+        $data = DB::table('set_auto_ban')->get();
+        return view('admin.stats.set_autoBan')->with('data', $data);
+    }
+
+    public function set_autoBan_del(Request $request){
+        DB::table('set_auto_ban')->where('id', '=', $request->id)->delete();
+        $data = DB::table('set_auto_ban')->get();
+        return view('admin.stats.set_autoBan')->with('data', $data);
     }
 }

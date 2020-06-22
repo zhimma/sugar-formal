@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Services\UserService;
 use App\Services\ActivateService;
 use App\Models\MasterWords;
+use App\Models\SetAutoBan;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
 
@@ -59,6 +60,10 @@ class ActivateController extends Controller
     {
         $user = $this->service->activateUser($token);
         if ($user) {
+
+            //註冊成功後判斷是否需備自動封鎖
+            SetAutoBan::auto_ban(auth()->user()->id);
+
             return view('new.auth.activate.activationSucceed')->with('user', $user)->with('message', '驗證成功');
             //return redirect('dashboard')->with('message', '驗證成功');
         }
