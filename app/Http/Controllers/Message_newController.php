@@ -10,6 +10,7 @@ use App\Models\AdminAnnounce;
 use App\Models\SimpleTables\banned_users;
 use App\Models\User;
 use App\Models\UserMeta;
+use App\Models\SetAutoBan;
 use App\Models\AdminCommonText;
 use App\Services\UserService;
 use App\Services\VipLogService;
@@ -143,6 +144,10 @@ class Message_newController extends Controller {
             }
         }
         Message::post(auth()->id(), $payload['to'], $payload['msg']);
+
+        //發送訊息後後判斷是否需備自動封鎖
+        SetAutoBan::auto_ban(auth()->id());
+        
         return back()->with('message','發送成功');
     }
 
