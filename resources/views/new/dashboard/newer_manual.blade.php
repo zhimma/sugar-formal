@@ -184,12 +184,6 @@
 @section('javascript')
 <script>
 
-    $('.zp_bg').hide();
-    $('.zp_tab').hide();
-    $('.m_zp_tab').hide();
-    $('.step01').show();
-    $('.prev').hide();
-
     var active,active_class;
 
     @if($user->engroup==1)
@@ -200,30 +194,70 @@
         active_class = '.pa_hover';
     @endif
 
-    $('.pa_cit').click(function() {
+    $('.zp_bg').hide();
+    $('.zp_tab').hide();
+    $('.m_zp_tab').hide();
 
-        $('.pa_cit').removeClass(active);
-        $(this).addClass(active);
-        var id = $(this).attr('id');
-        $('.zp_bg').hide();
-        $('.zp_tab').hide();
-        $('.m_zp_tab').hide();
-        $('.'+ id).show();
-        if(id=='step01'){
-            $('.prev').hide();
-            $('.next').show();
-        }else if(id=='step05'){
-            $('.prev').show();
-            $('.next').hide();
-        }else{
-            $('.prev').show();
-            $('.next').show();
-        }
-    });
+    $('.prev').hide();
+    $('.pa_cit').removeClass(active);
+
+
+    if( localStorage.getItem('step01')!=='Y'){
+        $('.step01').show();
+        $('#step01').addClass(active);
+    }
+    else if ( localStorage.getItem('step02')!=='Y'){
+        $('.step02').show();
+        $('#step02').addClass(active);
+    }
+    else if ( localStorage.getItem('step03')!=='Y'){
+        $('.step03').show();
+        $('#step03').addClass(active);
+    }
+    else if ( localStorage.getItem('step04')!=='Y'){
+        $('.step04').show();
+        $('#step04').addClass(active);
+    }
+    else if ( localStorage.getItem('step05')!=='Y'){
+        $('.step05').show();
+        $('.next').hide();
+        $('#step05').addClass(active);
+    }
+    else{
+        $('.step05').show();
+        $('.next').hide();
+        $('#step05').addClass(active);
+    }
+
+
+
+    if(localStorage.getItem('allRead')) {
+        $('.pa_cit').click(function () {
+            $('.pa_cit').removeClass(active);
+            $(this).addClass(active);
+            var id = $(this).attr('id');
+            localStorage.setItem(id, 'Y');
+            $('.zp_bg').hide();
+            $('.zp_tab').hide();
+            $('.m_zp_tab').hide();
+            $('.' + id).show();
+            if (id == 'step01') {
+                $('.prev').hide();
+                $('.next').show();
+            } else if (id == 'step05') {
+                $('.prev').show();
+                $('.next').hide();
+            } else {
+                $('.prev').show();
+                $('.next').show();
+            }
+        });
+    }
 
     $('.prev').click(function() {
         var now_id = $(active_class).attr('id');
         var prev_id =  'step0' + (now_id.slice(-1) - 1);
+        localStorage.setItem(now_id,'Y');
         $('.pa_cit').removeClass(active);
         $('#'+ prev_id).addClass(active);
         $('.zp_bg').hide();
@@ -246,6 +280,7 @@
         var now_id = $(active_class).attr('id');
         var id = parseInt(now_id.slice(-1))+1;
         var next_id =  'step0' + id;
+        localStorage.setItem(now_id,'Y');
         $('.pa_cit').removeClass(active);
         $('#'+ next_id).addClass(active);
         $('.zp_bg').hide();
@@ -266,14 +301,17 @@
     });
 
     $('.isReadContent').click(function() {
+        localStorage.setItem('stop05','Y');
+        localStorage.setItem('allRead','Y');
         $.ajax({
             type: 'POST',
             url: "/dashboard/newer_manual/isRead",
             data:{
-                _token: '{{csrf_token()}}',
+                _token: '{{csrf_token()}}'
             },
             dataType:"json",
-            success: function(res){
+            complete: function () {
+                window.location.reload();
             }
         });
     });

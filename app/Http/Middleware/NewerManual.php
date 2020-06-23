@@ -35,8 +35,10 @@ class NewerManual
      */
     public function handle($request, Closure $next)
     {
-        if (!$this->auth->user()->meta_()->isAllSet()  && Session::get('isReadManual', 'N') == 'N') {
-            return response()->view('new.dashboard.newer_manual',['user'=> auth()->user()]);
+        if (!is_null($this->auth->user())){
+            if (!$this->auth->user()->meta_()->isAllSet()  && $this->auth->user()->isReadManual == 0) {
+                return response()->view('new.dashboard.newer_manual',['user'=> auth()->user()]);
+            }
         }
         return $next($request);
     }

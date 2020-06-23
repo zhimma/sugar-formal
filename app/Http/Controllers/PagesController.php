@@ -1483,9 +1483,11 @@ class PagesController extends Controller
         }
     }
 
-    public function is_read_manual() {
-
-        Session::put('isReadManual','Y');
+    public function is_read_manual(Request $request)
+    {
+        $user = $request->user();
+        $user->isReadManual = 1 ;
+        $user->save();
         return 'ok';
     }
 
