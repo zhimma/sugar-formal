@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\User;
 use App\Models\UserMeta;
+use App\Models\BannedUsersImplicitly;
 use App\Models\SimpleTables\banned_users;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,7 @@ class SetAutoBan extends Model
         //測試自動封鎖
         $user = User::findById($aid);
         $userMeta = UserMeta::where('user_id', 'like', $user->id)->get()->first();
-        $auto_ban = DB::table('set_auto_ban')->select('type', 'set_ban', 'id', 'content')
+        $auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content')
             ->where(function($query)use($user, $userMeta){
                 $query->where(['type' => 'name','content' => $user->name])
                 ->orWhere(function($query)use($user, $userMeta){
@@ -43,16 +44,18 @@ class SetAutoBan extends Model
                 $userBanned->save();
             }elseif($auto_ban->set_ban==2){
                 //隱性封鎖 新增測試
-                $idch = DB::table('banned_users_implicitly')->where('target', $user->id)->first();
+                $idch = BannedUsersImplicitly::where('target', $user->id)->first();
                 if(empty($idch)){
-                    DB::table('banned_users_implicitly')->insert(
+                    BannedUsersImplicitly::insert(
                         ['fp' => 'BannedInUserInfo',
                         'user_id' => 0,
                         'target' => $user->id]
                     );
                 }
+            }elseif($auto_ban->set_ban==3){
+                //警示會員
+                UserMeta::where('user_id', $aid)->update(['isWarned' => 1]);
             }
         }
     }
-
 }
