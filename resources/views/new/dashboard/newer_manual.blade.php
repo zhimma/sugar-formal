@@ -300,20 +300,24 @@
         $('html,body').animate({ scrollTop: 0 }, 'slow');
     });
 
-    $('.isReadContent').click(function() {
-        localStorage.setItem('stop05','Y');
-        localStorage.setItem('allRead','Y');
-        $.ajax({
-            type: 'POST',
-            url: "/dashboard/newer_manual/isRead",
-            data:{
-                _token: '{{csrf_token()}}'
-            },
-            dataType:"json",
-            complete: function () {
-                window.location.reload();
-            }
+    var isRead = '{{ $user->isReadManual }}';
+    if(isRead == 0 ){
+        $('.isReadContent').click(function() {
+            localStorage.setItem('stop05','Y');
+            localStorage.setItem('allRead','Y');
+            $.ajax({
+                type: 'POST',
+                url: "/dashboard/newer_manual/isRead",
+                data:{
+                    _token: '{{csrf_token()}}'
+                },
+                dataType:"json",
+                complete: function () {
+                    window.location.reload();
+                }
+            });
         });
-    });
+    }
+
 </script>
 @stop
