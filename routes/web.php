@@ -246,11 +246,13 @@ Route::group(['middleware' => ['auth']], function () {
 */
 //新手教學
 Route::get('/dashboard/newer_manual', 'PagesController@newer_manual');
-Route::get('/dashboard/web_manual', 'PagesController@web_manual');
-Route::get('/dashboard/anti_fraud_manual', 'PagesController@anti_fraud_manual');
 Route::post('/dashboard/newer_manual/isRead', 'PagesController@is_read_manual');
 
 Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'newerManual']], function () {
+
+    //網站進階、拒絕詐騙手冊
+    Route::get('/dashboard/web_manual', 'PagesController@web_manual');
+    Route::get('/dashboard/anti_fraud_manual', 'PagesController@anti_fraud_manual');
 
     /*
     |--------------------------------------------------------------------------

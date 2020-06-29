@@ -201,58 +201,31 @@
     $('.prev').hide();
     $('.pa_cit').removeClass(active);
 
+    $('.step01').show();
+    $('#step01').addClass(active);
 
-    if( localStorage.getItem('step01')!=='Y'){
-        $('.step01').show();
-        $('#step01').addClass(active);
-    }
-    else if ( localStorage.getItem('step02')!=='Y'){
-        $('.step02').show();
-        $('#step02').addClass(active);
-    }
-    else if ( localStorage.getItem('step03')!=='Y'){
-        $('.step03').show();
-        $('#step03').addClass(active);
-    }
-    else if ( localStorage.getItem('step04')!=='Y'){
-        $('.step04').show();
-        $('#step04').addClass(active);
-    }
-    else if ( localStorage.getItem('step05')!=='Y'){
-        $('.step05').show();
-        $('.next').hide();
-        $('#step05').addClass(active);
-    }
-    else{
-        $('.step05').show();
-        $('.next').hide();
-        $('#step05').addClass(active);
-    }
-
-
-
-    if(localStorage.getItem('allRead')) {
-        $('.pa_cit').click(function () {
-            $('.pa_cit').removeClass(active);
-            $(this).addClass(active);
-            var id = $(this).attr('id');
-            localStorage.setItem(id, 'Y');
-            $('.zp_bg').hide();
-            $('.zp_tab').hide();
-            $('.m_zp_tab').hide();
-            $('.' + id).show();
-            if (id == 'step01') {
-                $('.prev').hide();
-                $('.next').show();
-            } else if (id == 'step05') {
-                $('.prev').show();
-                $('.next').hide();
-            } else {
-                $('.prev').show();
-                $('.next').show();
-            }
-        });
-    }
+    // if(localStorage.getItem('allRead')) {
+    //     $('.pa_cit').click(function () {
+    //         $('.pa_cit').removeClass(active);
+    //         $(this).addClass(active);
+    //         var id = $(this).attr('id');
+    //         localStorage.setItem(id, 'Y');
+    //         $('.zp_bg').hide();
+    //         $('.zp_tab').hide();
+    //         $('.m_zp_tab').hide();
+    //         $('.' + id).show();
+    //         if (id == 'step01') {
+    //             $('.prev').hide();
+    //             $('.next').show();
+    //         } else if (id == 'step05') {
+    //             $('.prev').show();
+    //             $('.next').hide();
+    //         } else {
+    //             $('.prev').show();
+    //             $('.next').show();
+    //         }
+    //     });
+    // }
 
     $('.prev').click(function() {
         var now_id = $(active_class).attr('id');
@@ -300,8 +273,8 @@
         $('html,body').animate({ scrollTop: 0 }, 'slow');
     });
 
-    var isRead = '{{ $user->isReadManual }}';
-    if(isRead == 0 ){
+    //var isRead = '{{ $user->isReadManual }}';
+    //if(isRead == 0 ){
         $('.isReadContent').click(function() {
             localStorage.setItem('stop05','Y');
             localStorage.setItem('allRead','Y');
@@ -316,8 +289,8 @@
                     window.location.reload();
                 }
             });
-        });
-    }
+       });
+    //}
 
 </script>
 @stop
