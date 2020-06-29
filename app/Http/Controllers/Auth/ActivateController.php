@@ -62,7 +62,7 @@ class ActivateController extends Controller
         if ($user) {
 
             //註冊成功後判斷是否需備自動封鎖
-            SetAutoBan::auto_ban(auth()->user()->id);
+            SetAutoBan::auto_ban($user->id);
 
             return view('new.auth.activate.activationSucceed')->with('user', $user)->with('message', '驗證成功');
             //return redirect('dashboard')->with('message', '驗證成功');
