@@ -463,10 +463,16 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         // var row = 10;//預設產出資料筆數
         //var total = 0;//總筆數
         var date=7;
+
+        if(window.location.hash) {
+            // Fragment exists
+            var hash = window.location.hash.substring(1);
+            date = hash;
+            // alert(hash);
+        }
         if(userIsVip==0){
             date='all';
         }
-
 
         function startOfWeek(dt)
         {
@@ -698,26 +704,67 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     setTimeout(function(){
                         if(date==7){
                             $("input[name*='RadioGroup1'][value='7']").prop("checked", true);
+                        }else if(date==30){
+                            $("input[name*='RadioGroup1'][value='30']").prop("checked", true);
+                        }else if(date=='all'){
+                            $("input[name*='RadioGroup1'][value='all']").prop("checked", true);
                         }
+
                         $('.dateAll').hide();
                         $('.date30').hide();
                         $('.date7').hide();
 
                         if(userIsVip == 0){
-                            let vip_counts = $('.date7.vipMember').length;
-                            //alert(vip_counts);
-                            if(vip_counts>10){
-                                $('.page_vip').show();
+                            // alert(hash);
+                            if(!hash){
+                                $("input[name*='RadioGroup1'][value='7']").prop("checked", true);
                             }
-                            Page.DrawPage(vip_counts);
-                            $('.sjlist_vip>.date7.vipMember').slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
+                            if(hash==7 || !hash) {
+                                let vip_counts = $('.date7.vipMember').length;
+                                //alert(vip_counts);
+                                if (vip_counts > 10) {
+                                    $('.page_vip').show();
+                                }
+                                Page.DrawPage(vip_counts);
+                                $('.sjlist_vip>.date7.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
 
-                            let novip_counts = $('.date7.novipMember').length;
-                            if(novip_counts>10){
-                                $('.page_novip').show();
+                                let novip_counts = $('.date7.novipMember').length;
+                                if (novip_counts > 10) {
+                                    $('.page_novip').show();
+                                }
+                                Page_noVip.DrawPage(novip_counts);
+                                $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+                            }else if(hash==30){
+                                let vip_counts = $('.common30.vipMember').length;
+                                //alert(vip_counts);
+                                if (vip_counts > 10) {
+                                    $('.page_vip').show();
+                                }
+                                Page.DrawPage(vip_counts);
+                                $('.sjlist_vip>.common30.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+
+                                let novip_counts = $('.common30.novipMember').length;
+                                if (novip_counts > 10) {
+                                    $('.page_novip').show();
+                                }
+                                Page_noVip.DrawPage(novip_counts);
+                                $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+                            }else if(hash=='all'){
+                                let vip_counts = $('.vipMember').length;
+                                //alert(vip_counts);
+                                if (vip_counts > 10) {
+                                    $('.page_vip').show();
+                                }
+                                Page.DrawPage(vip_counts);
+                                $('.sjlist_vip>.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+
+                                let novip_counts = $('.novipMember').length;
+                                if (novip_counts > 10) {
+                                    $('.page_novip').show();
+                                }
+                                Page_noVip.DrawPage(novip_counts);
+                                $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
                             }
-                            Page_noVip.DrawPage(novip_counts);
-                            $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page-1)*Page_noVip.row, Page_noVip.page*Page_noVip.row).css('display', '');
 
                         }else {
                             if (date == 7) {
@@ -834,6 +881,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             Page.page=1;
             Page_noVip.page=1;
             date= $('input[name=RadioGroup1]:checked').val();
+            window.location.hash = '#'+ date;
             $('.page_vip').hide();
             $('.page_novip').hide();
             // $('#warning').show();
@@ -1102,6 +1150,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             if ($('.sjlist_alert>li:visible').length == 0) {
                 $('#sjlist_alert_warning').hide();
                 $('.sjlist_alert').append(no_row_li);
+            }else{
+                c3('此為警示會員，要與此區會員交流請務必小心。');
             }
         });
 

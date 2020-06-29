@@ -388,7 +388,6 @@ jQuery(document).ready(function(){
 });
 function Release(id) {
 	$("#blockUserID").val(id);
-	$("#clickToggleUserBlock").submit();
 }
 function VipAction(isVip, user_id){
 	$("#isVip").val(isVip);

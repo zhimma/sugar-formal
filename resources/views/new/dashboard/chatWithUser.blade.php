@@ -173,7 +173,7 @@
                                     <p>
                                         <i class="msg_input"></i>{!! nl2br($message['content']) !!}
                                         @if($message['from_id'] != $user->id)
-                                            <a href="javascript:void(0)" class="" onclick="banned('{{$msgUser->id}}','{{$msgUser->name}}');" title="檢舉">
+                                            <a href="javascript:void(0)" class="" onclick="banned('{{$message['id']}}','{{$msgUser->id}}','{{$msgUser->name}}');" title="檢舉">
 {{--                                                <span class="shdel_word"><span>檢舉</span><span>--}}
                                                 <img src="/new/images/ban.png" class="shdel" alt="檢舉">
                                             </a>
@@ -257,10 +257,11 @@
     <div class="bl bl_tab" id="show_banned">
         <div class="bltitle banned_name"></div>
         <div class="n_blnr01">
-            <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ route('reportPost') }}">
+            <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ route('reportMsg') }}">
                 {!! csrf_field() !!}
                 <input type="hidden" name="aid" value="{{$user->id}}">
                 <input type="hidden" name="uid" value="">
+                <input type="hidden" name="id" value="">
                 <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請輸入檢舉理由"></textarea>
 {{--                <div class="n_bbutton">--}}
 {{--                    <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>--}}
@@ -496,8 +497,9 @@
         }
     });
 
-    function banned(sid,name){
+    function banned(id,sid,name){
         $("input[name='uid']").val(sid);
+        $("input[name='id']").val(id);
         $(".banned_name").append("<span>檢舉" + name + "</span>")
         $(".announce_bg").show();
         $("#show_banned").show();

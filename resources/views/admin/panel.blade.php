@@ -2,6 +2,7 @@
 	@if (Auth::user()->can('admin'))
 		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
 		<a href="{{ route('stats/date_file_log') }}">異動檔上傳/檢查記錄</a>
+		<a href="{{ route('stats/set_autoBan') }}">自動封鎖警示設定</a>
 		<a href="{{ route('stats/cron_log') }}">VIP排程檢查記錄</a>
 		<a href="{{ route('stats/vip') }}">VIP會員統計資料</a>
 		<a href="{{ route('users/VIP/ECCancellations') }}">綠界 VIP 付費取消資料</a>

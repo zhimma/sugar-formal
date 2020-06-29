@@ -362,12 +362,18 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
     Route::post('/dashboard/report', 'PagesController@report');
     Route::post('/dashboard/reportNext', 'PagesController@reportNext')->name('reportNext');
     Route::post('/dashboard/reportPost', 'PagesController@reportPost')->name('reportPost');
+    Route::post('/dashboard/reportMsg', 'PagesController@reportMsg')->name('reportMsg');
     Route::get('/dashboard/reportPic/{user}/{id}/{uid?}', 'PagesController@reportPic')->name('reportPic');
     Route::post('/dashboard/reportPicNext', 'PagesController@reportPicNext')->name('reportPicNext');
     Route::post('/dashboard/reportPicNextNew', 'PagesController@reportPicNextNew')->name('reportPicNextNew'); //new route
     Route::get('/dashboard/upgrade_ec', 'PagesController@upgrade_ec');
     Route::get('/dashboard/upgrade_esafe', 'PagesController@upgrade_esafe');
     Route::get('/dashboard/announcement', 'PagesController@showAnnouncement');
+    //新手教學
+    Route::get('/dashboard/newer_manual', 'PagesController@newer_manual');
+    Route::get('/dashboard/web_manual', 'PagesController@web_manual');
+    Route::get('/dashboard/anti_fraud_manual', 'PagesController@anti_fraud_manual');
+
     Route::group(['middleware' => ['api']], function() {
         Route::post('/dashboard/upgradepay_ec', 'ECPayment@performPayment')->name('upgradepay_ec');
         Route::post('/dashboard/esafeCreditCard', 'EsafePayment@esafeCreditCard')->name('esafeCreditCard');
@@ -404,7 +410,11 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::post('/dashboard/chat2/deleteall', 'Message_newController@deleteAll')->name('delete2All');
         Route::post('/dashboard/chat2/chatSet', 'Message_newController@chatSet')->name('chatSet');
         Route::post('/dashboard/announcement_post', 'Message_newController@announcePost')->name('announcePost');
-        Route::get('/dashboard/manual', 'PagesController@manual');
+
+
+//        Route::get('/dashboard/evaluation/{uid}', 'PagesController@evaluation');
+//        Route::post('/dashboard/evaluation', 'PagesController@evaluation_save')->name('evaluation');
+
 
         Route::get('/dashboard/banned', 'PagesController@dashboard_banned');
         Route::get('/dashboard/visited', 'PagesController@visited');
@@ -563,6 +573,9 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck']], f
         Route::get('stats/vip_log/{id}', 'StatController@vipLog')->name('stats/vip_log');
         Route::get('stats/cron_log', 'StatController@cronLog')->name('stats/cron_log');
         Route::get('stats/date_file_log', 'StatController@datFileLog')->name('stats/date_file_log');
+        Route::get('stats/set_autoBan', 'StatController@set_autoBan')->name('stats/set_autoBan');
+        Route::post('stats/set_autoBan_add', 'StatController@set_autoBan_add')->name('stats/set_autoBan_add');
+        Route::get('stats/set_autoBan_del/{id?}', 'StatController@set_autoBan_del')->name('stats/set_autoBan_del');
 
         /*新增、編輯訊息*/
         Route::post('users/getmsglib', 'UserController@getMessageLib');

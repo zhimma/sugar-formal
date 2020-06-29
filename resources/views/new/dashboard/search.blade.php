@@ -211,7 +211,9 @@
                             ?>
                             <li class="nt_fg">
                                 <div class="n_seicon">
-                                    <? $data = \App\Services\UserService::checkRecommendedUser($visitor);?>
+                                    @php
+                                        $data = \App\Services\UserService::checkRecommendedUser($visitor);
+                                    @endphp
                                     @if(isset($data['description']) && $visitor->engroup == 2)
                                         <img src="/new/images/01.png">
                                     @endif

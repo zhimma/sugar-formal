@@ -26,6 +26,7 @@ use App\Models\BasicSetting;
 use App\Models\Posts;
 use App\Models\UserMeta;
 use App\Models\MemberPic;
+use App\Models\SetAutoBan;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReportRequest;
 use App\Http\Requests\ProfileUpdateRequest;
@@ -102,6 +103,10 @@ class PagesController extends Controller
         }
         else{
             if ($this->service->update(auth()->id(), $request->all())) {
+
+                //更新完後判斷是否需備自動封鎖
+                SetAutoBan::auto_ban(auth()->id());
+                
                 return redirect('/dashboard')->with('message', '資料更新成功');
             }
             return redirect('/dashboard')->withErrors(['沒辦法更新']);
@@ -137,6 +142,10 @@ class PagesController extends Controller
             ];
         }else{
             if ($this->service->update(auth()->id(), $request->all())) {
+
+                //更新完後判斷是否需備自動封鎖
+                SetAutoBan::auto_ban(auth()->id());
+
                 $status_data =[
                     'status' => true,
                     'msg' => '資料更新成功',
@@ -1195,6 +1204,15 @@ class PagesController extends Controller
         return back()->with('message', '檢舉成功');
     }
 
+    public function reportMsg(Request $request){
+        if(empty($this->customTrim($request->content))){
+            $user = $request->user();
+            return redirect('/dashboard/viewuser/'.$request->uid);
+        }
+        Message::reportMessage($request->id, $request->content);
+        //        return redirect('/dashboard/viewuser/'.$request->uid)->with('message', '檢舉成功');
+        return back()->with('message', '檢舉成功');
+    }
 
     public function reportPic($reporter_id, $pic_id, $uid = null)
     {
