@@ -30,6 +30,6 @@
     </div>
   </div>
   <style>
-      .item, .item:visited, item:hover{font-size: 16px;color:white;background-color: white;text-decoration: none;}
+      .item, .item:visited, .item:hover{font-size: 16px;color:white;background-color: white;text-decoration: none;}
   </style>
 @stop
