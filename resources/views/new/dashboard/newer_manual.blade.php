@@ -204,28 +204,30 @@
     $('.step01').show();
     $('#step01').addClass(active);
 
-    // if(localStorage.getItem('allRead')) {
-    //     $('.pa_cit').click(function () {
-    //         $('.pa_cit').removeClass(active);
-    //         $(this).addClass(active);
-    //         var id = $(this).attr('id');
-    //         localStorage.setItem(id, 'Y');
-    //         $('.zp_bg').hide();
-    //         $('.zp_tab').hide();
-    //         $('.m_zp_tab').hide();
-    //         $('.' + id).show();
-    //         if (id == 'step01') {
-    //             $('.prev').hide();
-    //             $('.next').show();
-    //         } else if (id == 'step05') {
-    //             $('.prev').show();
-    //             $('.next').hide();
-    //         } else {
-    //             $('.prev').show();
-    //             $('.next').show();
-    //         }
-    //     });
-    // }
+    $('.pa_cit').click(function () {
+
+        var isRead = '{{ $user->isReadManual }}';
+        if(isRead == 1 ) {
+            $('.pa_cit').removeClass(active);
+            $(this).addClass(active);
+            var id = $(this).attr('id');
+            localStorage.setItem(id, 'Y');
+            $('.zp_bg').hide();
+            $('.zp_tab').hide();
+            $('.m_zp_tab').hide();
+            $('.' + id).show();
+            if (id == 'step01') {
+                $('.prev').hide();
+                $('.next').show();
+            } else if (id == 'step05') {
+                $('.prev').show();
+                $('.next').hide();
+            } else {
+                $('.prev').show();
+                $('.next').show();
+            }
+        }
+    });
 
     $('.prev').click(function() {
         var now_id = $(active_class).attr('id');
@@ -273,11 +275,10 @@
         $('html,body').animate({ scrollTop: 0 }, 'slow');
     });
 
-    //var isRead = '{{ $user->isReadManual }}';
-    //if(isRead == 0 ){
-        $('.isReadContent').click(function() {
-            localStorage.setItem('stop05','Y');
-            localStorage.setItem('allRead','Y');
+    $('.isReadContent').click(function() {
+        localStorage.setItem('stop05','Y');
+        var isRead = '{{ $user->isReadManual }}';
+        if(isRead == 0 ){
             $.ajax({
                 type: 'POST',
                 url: "/dashboard/newer_manual/isRead",
@@ -286,11 +287,11 @@
                 },
                 dataType:"json",
                 complete: function () {
-                    window.location.reload();
+                  //  sleep(10000);
                 }
             });
-       });
-    //}
+        }
+   });
 
 </script>
 @stop

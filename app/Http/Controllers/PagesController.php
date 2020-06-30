@@ -1470,16 +1470,20 @@ class PagesController extends Controller
     public function anti_fraud_manual(Request $request) {
         $user = $request->user();
         if ($user) {
-            return view('new.dashboard.anti_fraud_manual')
-                ->with('user', $user);
+            if($user->isReadManual == 0)
+                return view('new.dashboard.newer_manual')->with('user', $user);
+            else
+                return view('new.dashboard.anti_fraud_manual')->with('user', $user);
         }
     }
 
     public function web_manual(Request $request) {
         $user = $request->user();
         if ($user) {
-            return view('new.dashboard.web_manual')
-                ->with('user', $user);
+            if($user->isReadManual == 0)
+                return view('new.dashboard.newer_manual')->with('user', $user);
+            else
+                return view('new.dashboard.web_manual')->with('user', $user);
         }
     }
 
