@@ -158,7 +158,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="@if($user->engroup==2)zp_tab @else m_zp_tab @endif step05">
+                    <div class="@if($user->engroup==2)zp_tab @else m_zp_tab @endif step05 isReadContent">
                     	 <a href="/dashboard">
                             <li class="@if($user->engroup==2)zp_line zp_line02 @else m_zp_line m_zp_line02 @endif "><img src="@if($user->engroup==2)/new/images/5_1.png @else/new/images/micon1.png @endif"><span>新手教學結束<i>開始使用網站</i></span></li>
                         </a>
@@ -171,7 +171,7 @@
                         <a href="http://blog-tw.net/Sugar/%E5%8C%85%E9%A4%8A%EF%BC%8D%E5%A4%A7%E5%8F%94%E7%AF%87/" target="_blank">
                             <li><img src="@if($user->engroup==2)/new/images/5_4.png @else/new/images/micon4.png @endif"><span>我想了解更多<i>站長的經驗分享</i></span></li>
                         </a>
-		    </div>
+		            </div>
                     <div class="fenye">
                         <a class="prev">上一頁</a>
                         <a class="next">下一頁</a>
@@ -184,12 +184,6 @@
 @section('javascript')
 <script>
 
-    $('.zp_bg').hide();
-    $('.zp_tab').hide();
-    $('.m_zp_tab').hide();
-    $('.step01').show();
-    $('.prev').hide();
-
     var active,active_class;
 
     @if($user->engroup==1)
@@ -200,30 +194,45 @@
         active_class = '.pa_hover';
     @endif
 
-    $('.pa_cit').click(function() {
+    $('.zp_bg').hide();
+    $('.zp_tab').hide();
+    $('.m_zp_tab').hide();
 
-        $('.pa_cit').removeClass(active);
-        $(this).addClass(active);
-        var id = $(this).attr('id');
-        $('.zp_bg').hide();
-        $('.zp_tab').hide();
-        $('.m_zp_tab').hide();
-        $('.'+ id).show();
-        if(id=='step01'){
-            $('.prev').hide();
-            $('.next').show();
-        }else if(id=='step05'){
-            $('.prev').show();
-            $('.next').hide();
-        }else{
-            $('.prev').show();
-            $('.next').show();
+    $('.prev').hide();
+    $('.pa_cit').removeClass(active);
+
+    $('.step01').show();
+    $('#step01').addClass(active);
+
+    $('.pa_cit').click(function () {
+
+        var isRead = '{{ $user->isReadManual }}';
+        if(isRead == 1 ) {
+            $('.pa_cit').removeClass(active);
+            $(this).addClass(active);
+            var id = $(this).attr('id');
+            localStorage.setItem(id, 'Y');
+            $('.zp_bg').hide();
+            $('.zp_tab').hide();
+            $('.m_zp_tab').hide();
+            $('.' + id).show();
+            if (id == 'step01') {
+                $('.prev').hide();
+                $('.next').show();
+            } else if (id == 'step05') {
+                $('.prev').show();
+                $('.next').hide();
+            } else {
+                $('.prev').show();
+                $('.next').show();
+            }
         }
     });
 
     $('.prev').click(function() {
         var now_id = $(active_class).attr('id');
         var prev_id =  'step0' + (now_id.slice(-1) - 1);
+        localStorage.setItem(now_id,'Y');
         $('.pa_cit').removeClass(active);
         $('#'+ prev_id).addClass(active);
         $('.zp_bg').hide();
@@ -246,6 +255,7 @@
         var now_id = $(active_class).attr('id');
         var id = parseInt(now_id.slice(-1))+1;
         var next_id =  'step0' + id;
+        localStorage.setItem(now_id,'Y');
         $('.pa_cit').removeClass(active);
         $('#'+ next_id).addClass(active);
         $('.zp_bg').hide();
@@ -264,5 +274,24 @@
         }
         $('html,body').animate({ scrollTop: 0 }, 'slow');
     });
+
+    $('.isReadContent').click(function() {
+        localStorage.setItem('stop05','Y');
+        var isRead = '{{ $user->isReadManual }}';
+        if(isRead == 0 ){
+            $.ajax({
+                type: 'POST',
+                url: "/dashboard/newer_manual/isRead",
+                data:{
+                    _token: '{{csrf_token()}}'
+                },
+                dataType:"json",
+                complete: function () {
+                  //  sleep(10000);
+                }
+            });
+        }
+   });
+
 </script>
 @stop
