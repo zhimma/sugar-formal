@@ -55,7 +55,12 @@
 	@else 
 		<button class="btn btn-info" onclick="VipAction({{($user['isvip'])?'1':'0' }},{{ $user['id'] }})"> 升級VIP </button>
 	@endif
-	<a href="{{ route('AdminMessage', $user['id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
+	@if (Auth::user()->can('admin'))
+		<a href="{{ route('AdminMessage', $user['id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
+	@elseif (Auth::user()->can('readonly'))
+		<a href="{{ route('AdminMessage/readOnly', $user['id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
+	@endif
+
 	@if(is_null($userMeta->activation_token))
 		<b style="font-size:18px">已開通會員</b>
 	@else
@@ -325,12 +330,21 @@
     </div>
 </div>
 <div>
-	<form action="/admin/users/VIPToggler" method="POST" id="clickVipAction">
-		{{ csrf_field() }}
-		<input type="hidden" value="" name="user_id" id="vipID">
-		<input type="hidden" value="" name="isVip" id="isVip">
-		<input type="hidden" value="advInfo" name="page">
-	</form>
+	@if (Auth::user()->can('admin'))
+		<form action="/admin/users/VIPToggler/read" method="POST" id="clickVipAction">
+			{{ csrf_field() }}
+			<input type="hidden" value="" name="user_id" id="vipID">
+			<input type="hidden" value="" name="isVip" id="isVip">
+			<input type="hidden" value="advInfo" name="page">
+		</form>
+	@elseif (Auth::user()->can('readonly'))
+		<form action="/admin/users/VIPToggler/readOnly" method="POST" id="clickVipAction">
+			{{ csrf_field() }}
+			<input type="hidden" value="" name="user_id" id="vipID">
+			<input type="hidden" value="" name="isVip" id="isVip">
+			<input type="hidden" value="advInfo" name="page">
+		</form>
+	@endif
 </div>
 <div>
 	<form action="/admin/users/RecommendedToggler" method="POST" id="toggleRecommendedUser">

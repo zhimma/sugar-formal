@@ -156,7 +156,7 @@ class UserController extends Controller
         }
 
         VipLog::addToLog($request->user_id, $setVip == 0 ? 'manual_cancel' : 'manual_upgrade', 'Manual Setting', $setVip, 1);
-        $user = User::select('id', 'email')
+        $user = User::select('id', 'email', 'name')
                 ->where('id', $request->user_id)
                 ->get()->first();
         if(isset($request->page)){
@@ -164,6 +164,8 @@ class UserController extends Controller
                 case 'advInfo':
                     return redirect('admin/users/advInfo/'.$request->user_id);
                 break;
+                case 'back':
+                    return back()->with('message', '成功解除' . $user->name . '的權限');
                 default:
                     return view('admin.users.success')
                             ->with('email', $user->email);

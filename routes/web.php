@@ -461,6 +461,11 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
     */
     Route::group(['namespace' => 'Admin', 'middleware' => 'ReadOnly'], function () {
         Route::match(['get', 'post'], 'users/VIP/ECCancellations/readOnly', 'PagesController@showECCancellations')->name('users/VIP/ECCancellations/readOnly');
+        Route::get('stats/vip/paid/readOnly', 'StatController@vipPaid')->name('stats/vip/paid/readOnly');
+        Route::post('users/VIPToggler/readOnly', 'UserController@toggleVIP')->name('VIPToggler/readOnly');
+        Route::get('users/advInfo/{id}/readOnly', 'UserController@advInfo')->name('users/advInfo/readOnly');
+        Route::get('to/{id}/readOnly', 'UserController@showAdminMessenger')->name('AdminMessage/readOnly');
+        Route::post('send/{id}/readOnly', 'UserController@sendAdminMessage')->name('admin/send/readOnly');
     });
     Route::group(['prefix' => 'admin', 'namespace' => 'Admin', 'middleware' => 'Admin'], function () {
         Route::get('dashboard', 'DashboardController@index');
@@ -533,7 +538,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::get('users/switch/{id}', 'UserController@switchToUser')->name('users/switch/to');
         Route::post('users/invite', 'UserController@postInvite');
         Route::post('users/genderToggler', 'UserController@toggleGender');
-        Route::post('users/VIPToggler', 'UserController@toggleVIP');
+        Route::post('users/VIPToggler', 'UserController@toggleVIP')->name('VIPToggler');
         Route::post('users/RecommendedToggler', 'UserController@toggleRecommendedUser');
         Route::get('users/banned_implicitly', 'UserController@showImplicitlyBannedUsers')->name('implicitlyBanned');
         Route::post('users/bans_implicitly', 'UserController@banningUserImplicitly')->name('banningUserImplicitly');
@@ -573,6 +578,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::post('users/inactive', 'UserController@inactiveUsers')->name('inactive');
         Route::get('users/activate/token/{token}', 'UserController@activateUser')->name('activateUser');
         Route::get('stats/vip', 'StatController@vip')->name('stats/vip');
+        Route::get('stats/vip/paid', 'StatController@vipPaid')->name('stats/vip/paid');
         Route::get('stats/vip_log/{id}', 'StatController@vipLog')->name('stats/vip_log');
         Route::get('stats/cron_log', 'StatController@cronLog')->name('stats/cron_log');
         Route::get('stats/date_file_log', 'StatController@datFileLog')->name('stats/date_file_log');

@@ -80,7 +80,12 @@
                         </td>
                     </tr> --}}
                 </table>
-            <form action="{{ route('admin/send', (!isset($isReported))? $user->id : $isReportedId ) }}" id='message' method='POST'>
+            @if (Auth::user()->can('admin'))
+                <form action="{{ route('admin/send', (!isset($isReported))? $user->id : $isReportedId ) }}" id='message' method='POST'>
+            @elseif (Auth::user()->can('readonly'))
+                <form action="{{ route('admin/send/readOnly', (!isset($isReported))? $user->id : $isReportedId ) }}" id='message' method='POST'>
+            @endif
+
                 {!! csrf_field() !!}
                 <input type="hidden" value="{{ $admin->id }}" name="admin_id">
                 @if(isset($isPic) && ($isPic))
