@@ -175,6 +175,9 @@
                     <div class="fenye">
                         <a class="prev">上一頁</a>
                         <a class="next">下一頁</a>
+                        @if($user->isReadManual == 0)
+                            <a class="finish">結束新手教學</a>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -199,6 +202,7 @@
     $('.m_zp_tab').hide();
 
     $('.prev').hide();
+    $('.finish').hide();
     $('.pa_cit').removeClass(active);
 
     $('.step01').show();
@@ -219,12 +223,15 @@
             if (id == 'step01') {
                 $('.prev').hide();
                 $('.next').show();
+                $('.finish').hide();
             } else if (id == 'step05') {
                 $('.prev').show();
                 $('.next').hide();
+                $('.finish').show();
             } else {
                 $('.prev').show();
                 $('.next').show();
+                $('.finish').hide();
             }
         }
     });
@@ -242,12 +249,15 @@
         if(prev_id=='step01'){
             $('.prev').hide();
             $('.next').show();
+            $('.finish').hide();
         }else if(prev_id=='step05'){
             $('.prev').show();
             $('.next').hide();
+            $('.finish').show();
         }else{
             $('.prev').show();
             $('.next').show();
+            $('.finish').hide();
         }
         $('html,body').animate({ scrollTop: 0 }, 'slow');
     });
@@ -265,12 +275,15 @@
         if(next_id=='step01'){
             $('.prev').hide();
             $('.next').show();
+            $('.finish').hide();
         }else if(next_id=='step05'){
             $('.prev').show();
             $('.next').hide();
+            $('.finish').show();
         }else{
             $('.prev').show();
             $('.next').show();
+            $('.finish').hide();
         }
         $('html,body').animate({ scrollTop: 0 }, 'slow');
     });
@@ -309,6 +322,20 @@
                 window.location.href= pagePath;
         }
    });
+
+    $('.finish').click(function() {
+        $.ajax({
+            type: 'POST',
+            url: "/dashboard/newer_manual/isRead",
+            data:{
+                _token: '{{csrf_token()}}'
+            },
+            dataType:"json",
+            complete: function () {
+                window.location.href = '/dashboard';
+            }
+        });
+    });
 
 </script>
 @stop
