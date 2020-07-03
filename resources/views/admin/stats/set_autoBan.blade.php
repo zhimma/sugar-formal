@@ -13,7 +13,7 @@
 	    		<option value="title">一句話形容自己</option>
 	            <option value="about">關於我</option>
 	    		<option value="style">期待的約會模式</option>
-	    		{{-- <option value="today_msg">當天發送的訊息內容</option> --}}
+	    		<option value="msg">發送訊息內容</option>
 	    		{{-- <option value="allcheck">全檢查</option> --}}
 	        </select>
 	    </td>
@@ -39,6 +39,7 @@
 			@elseif($result->type=='title')一句話形容自己 
 			@elseif($result->type=='about')關於我 
 			@elseif($result->type=='style')期待的約會模式 
+			@elseif($result->type=='msg')發送訊息內容 
 			@endif
 		</td>
 		<td>{{ $result->content }}</td>

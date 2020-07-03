@@ -146,8 +146,8 @@ class Message_newController extends Controller {
         Message::post(auth()->id(), $payload['to'], $payload['msg']);
 
         //發送訊息後後判斷是否需備自動封鎖
-        SetAutoBan::auto_ban(auth()->id());
-        
+        // SetAutoBan::auto_ban(auth()->id());
+        SetAutoBan::msg_auto_ban(auth()->id(), $payload['to'], $payload['msg']);
         return back()->with('message','發送成功');
     }
 

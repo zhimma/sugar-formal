@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\User;
 use App\Models\UserMeta;
+use App\Models\Message;
 use App\Models\SimpleTables\banned_users;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
@@ -63,16 +64,24 @@ class SetAutoBan extends Model
         // Log::info('SetAutoBan::select data ' . $auto_ban);
         foreach ($auto_ban as $ban_set) {
             // Log::info('SetAutoBan::select foreach ' . $ban_set->type);
-            if($ban_set->type=='name'){
-                $udate = User::where('id', $uid)->where('name','like','%'.$ban_set->content.'%')->get()->first();
-            }elseif ($ban_set->type=='email') {
-                $udate = User::where('id', $uid)->where('email','like','%'.$ban_set->content.'%')->get()->first();
-            }elseif ($ban_set->type=='title') {
-                $udate = User::where('id', $uid)->where('title','like','%'.$ban_set->content.'%')->get()->first();
-            }elseif ($ban_set->type=='about') {
-                $udate = UserMeta::where('user_id',$uid)->where('about','like','%'.$ban_set->content.'%')->get()->first();
-            }elseif ($ban_set->type=='style') {
-                $udate = UserMeta::where('user_id',$uid)->where('style','like','%'.$ban_set->content.'%')->get()->first();
+            switch ($ban_set->type) {
+            	case 'name':
+            		$udate = User::where('id', $uid)->where('name','like','%'.$ban_set->content.'%')->get()->first();
+            		break;
+            	case 'email':
+            		$udate = User::where('id', $uid)->where('email','like','%'.$ban_set->content.'%')->get()->first();
+            		break;
+            	case 'title':
+            		$udate = User::where('id', $uid)->where('title','like','%'.$ban_set->content.'%')->get()->first();
+            		break;
+            	case 'about':
+            		$udate = UserMeta::where('user_id',$uid)->where('about','like','%'.$ban_set->content.'%')->get()->first();
+            		break;
+            	case 'style':
+            		$udate = UserMeta::where('user_id',$uid)->where('style','like','%'.$ban_set->content.'%')->get()->first();
+            		break;
+            	default:
+            		break;
             }
 
             if(!empty($udate)){
@@ -97,4 +106,44 @@ class SetAutoBan extends Model
             }
         }
     }
+
+    //發訊後的自動封鎖
+    // public static function msg_auto_ban($uid)
+    public static function msg_auto_ban($uid, $toid, $msg)
+    {
+        $auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content')->where('type', 'msg')->orderBy('id', 'desc')->get();
+        // Log::info('SetAutoBan::select data ' . $auto_ban);
+        foreach ($auto_ban as $ban_set) {
+            // Log::info('SetAutoBan::select foreach ' . $ban_set->type);
+            // $udate = Message::where('from_id', $uid)->where('content','like','%'.$ban_set->content.'%')
+            // 		->orderBy('id', 'desc')->get()->first();
+
+            // $udate = Message::where('id', $msgid)->where('content','like','%'.$ban_set->content.'%')->get()->first();
+            $udate = Message::where('from_id', $uid)
+            		->where('to_id', $toid)->where('content', $msg)
+            		->where('content','like','%'.$ban_set->content.'%')->get()->first();
+
+            if(!empty($udate)){
+                // Log::info('ban_set->set_ban ' . $ban_set->set_ban);
+                if($ban_set->set_ban==1){
+                    //直接封鎖
+                    $userBanned = new banned_users;
+                    $userBanned->member_id = $uid;
+                    $userBanned->reason = '自動封鎖';
+                    $userBanned->save();
+                }elseif($ban_set->set_ban==2){
+                    //隱性封鎖 新增測試
+                    $idch = BannedUsersImplicitly::where('target', $uid)->first();
+                    if(empty($idch)){
+                        BannedUsersImplicitly::insert(['fp' => 'BannedInUserInfo','user_id' => 0,'target' => $uid]);
+                    }
+                }elseif($ban_set->set_ban==3){
+                    //警示會員
+                    UserMeta::where('user_id', $uid)->update(['isWarned' => 1]);
+                }
+                return;
+            }
+        }
+    }
+
 }
