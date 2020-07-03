@@ -1032,13 +1032,17 @@ class UserController extends Controller
             $reported = User::where('id', $reported_id)->get()->first();
             foreach($msglib_report as $key => $msg){
                 $msglib_msg[$key] = str_replace('|$report|', $user->name, $msg['msg']);
-                $msglib_msg[$key] = str_replace('|$reported|', $reported->name, $msglib_msg[$key]);
+                if($reported){
+                    $msglib_msg[$key] = str_replace('|$reported|', $reported->name, $msglib_msg[$key]);
+                }
                 $msglib_msg[$key] = str_replace('|$reportTime|', isset($report->created_at) ? $report->created_at : null, $msglib_msg[$key]);
                 $msglib_msg[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg[$key]);
             }
             foreach($msglib_reported as $key => $msg){
                 $msglib_msg2[$key] = str_replace('|$report|', $user->name, $msg['msg']);
-                $msglib_msg2[$key] = str_replace('|$reported|', $reported->name, $msglib_msg2[$key]);
+                if($reported){
+                    $msglib_msg2[$key] = str_replace('|$reported|', $reported->name, $msglib_msg2[$key]);
+                }
                 $msglib_msg2[$key] = str_replace('|$reportTime|', isset($report->created_at) ? $report->created_at : null, $msglib_msg2[$key]);
                 $msglib_msg2[$key] = str_replace('|$responseTime|',date("Y-m-d H:i:s"), $msglib_msg2[$key]);
             }
@@ -1047,7 +1051,7 @@ class UserController extends Controller
                 ->with('message', 'REPORTEDUSERONLY')
                 ->with('report', $report)
                 ->with('user', $reported)
-                ->with('reportedName', $reported->name)
+                ->with('reportedName', isset($reported->name) ? $reported->name : '沒有資料')
                 ->with('from_user', $reported)
                 ->with('to_user', $user)
                 ->with('isPic', $isPic)
