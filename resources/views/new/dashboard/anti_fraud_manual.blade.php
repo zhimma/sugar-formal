@@ -126,7 +126,7 @@
                             <div class="zpfont_f zp_w95">
                                 <div class="zp_btab">
                                     <img src="/new/images/sc_dp.png" class="zp_libt">
-                                    <h2>男生在包養界通常被騙的都是錢，但是比較麻煩的是你想包養，金錢就不能太計較，要怎麼拿捏其中分寸，不是件容易的事情。</h2>
+                                    <h2>正常的找包養女孩，不會拒絕使用網站的車馬費。會拒絕的通常以下類型</h2>
                                     <div class="zp_bn">
                                         <h3>1：只想騙錢</h3>
                                         <h3>2：對社會信任感低</h3>

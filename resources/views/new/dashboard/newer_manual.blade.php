@@ -228,7 +228,7 @@
 @section('javascript')
 <script>
 
-    $('.showTips').popover();
+    //$('.showTips').popover();
     var active,active_class;
 
     @if($user->engroup==1)
