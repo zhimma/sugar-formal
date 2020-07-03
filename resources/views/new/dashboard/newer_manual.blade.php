@@ -34,19 +34,26 @@
                             @else
                                 <img src="/new/images/m_sj1_1.png" class="zp_sjimg zp_sj">
                                 <img src="/new/images/m_pc1.png" class="zp_sjimg zp_pc">
-                                <img src="/new/images/1_m.png" class="zp_sjimg zp_sj">
-                                <img src="/new/images/1_m.png" class="zp_pcimg zp_pc">
+                                <img src="/new/images/1_mm.png" class="zp_sjimg zp_sj">
+                                <img src="/new/images/1_mm.png" class="zp_pcimg zp_pc">
                             @endif
                             <div class="zpfont_f">
                                 @if($user->engroup==2)
                                 <img src="/new/images/dpicon.png">
                                 <h2><span>●</span><var>強烈建議上傳四張照片取得VIP權限</var></h2>
-                                <h2><span>●</span><var>建議挑選VIP會員，VIP會員的時間越久越好。(如何看VIP會員的時間)</var></h2>
-                                <h2><span>●</span><var>車馬費邀請次數越多越好(如何看男會員的車馬費邀請次數)</var></h2>
+                                <h2><span>●</span><var>建議挑選VIP會員，VIP會員的時間越久越好。</var></h2>
+                                <h2><span>●</span>
+                                    <var>車馬費邀請次數越多越好
+                                        <span class="showTipsContent tips1" style="color:red; font-size:18px;"><img src="/new/images/tips1.png" style="display: none">(如何看男會員的車馬費邀請次數)</span>
+                                    </var>
+                                </h2>
                                 @else
                                     <img src="/new/images/dpicon_m.png">
                                     <h2><span class="sop_f">●</span><var>新進甜心就是最近剛註冊的女會員</var></h2>
-                                    <h2><span class="sop_f">●</span><var>盡量避開八大行業(如何判斷八大行業"<a href="{{ url('/dashboard/anti_fraud_manual#m_page04') }}"><font color="red">請點我</font></a>")</var></h2>
+                                    <h2><span class="sop_f">●</span>
+
+                                        <var>盡量避開八大行業(如何判斷八大行業<font class="showTipsContent tips3" style="color: #f00;"><img src="/new/images/tips3.jpg" style="display: none">"請點我"</font>)</var>
+                                    </h2>
                                 @endif
                             </div>
                         </div>
@@ -67,12 +74,13 @@
                             <div class="zpfont_f">
                                 @if($user->engroup==2)
                                 <img src="/new/images/dpicon.png">
-                                <h2><span>●</span><var>數字有基本共識後，請對方刷站內車馬費。如果對方願刷又不是VIP，站長強烈建議你要提高警覺，千萬不要接受"任何"後付款的條件。</var></h2>
-                                <h2><span>●</span><var>此時不建議給Line</var></h2>
+                                <h2><span>●</span><var>數字有基本共識後，請對方刷站內車馬費。如果對方不願刷又不是VIP，站長強烈建議你要提高警覺，千萬不要接受”任何”後付款的條件。</var></h2>
+                                <h2><span>●</span><var>此時站長強烈不建議給 line。</var></h2>
+                                <h2><span>●</span><var>如果一定要互加通訊軟體，強烈建議請新辦一個之前沒使用過的通訊軟體，<font class="sop_bz">ID千萬不要取跟自己相關的例如自己的英文名字，生日等等。</font></var></h2>
                                 @else
                                 <img src="/new/images/dpicon_m.png">
                                 <h2><span class="sop_f">●</span><var>第一次約見給車馬費是禮貌，強烈建議使用站方的車馬費。或者也可以見面後給。</var></h2>
-                                <h2><span class="sop_f">●</span><var>如果女生堅持一定要先刷，請提高警覺。<font class="sop_bz">站方不對此做任何保證。</font></var></h2>
+                                <h2><span class="sop_f">●</span><var>如果女生堅持不使用站方的車馬費制度，要匯款進他的帳戶，請提高警覺。這是你們雙方的自由，<font class="sop_bz">站方對此極度不建議，但也不禁止。</font></var></h2>
                                 @endif
                             </div>
                         </div>
@@ -93,11 +101,12 @@
                             <div class="zpfont_f">
                                 @if($user->engroup==2)
                                 <img src="/new/images/dpicon.png">
-                                <h2><span>●</span><var>此步驟並非絕對必要，但根據統計，男會員有車馬費的邀約。詐騙機率低於 1%。</var></h2>
-                                <h2><span>●</span><var>切勿接受手機截圖的轉帳，聲稱已轉帳第二天才會入帳之類，很容易假造。</var></h2>
+                                <h2><span>●</span><var>站方強烈建議第一次約見用站內車馬費。根據統計，會刷車馬費的男會員，從未有過詐騙紀錄。</var></h2>
+                                <h2><span>●</span><var>切勿接受手機轉帳的截圖，聲稱已轉上或者第二天才入帳之類，已有多起假造案例。</var></h2>
                                 @else
                                     <img src="/new/images/dpicon_m.png">
-                                    <h2><span class="sop_f">●</span><var>本站統計：刷車馬費的邀約成功率 xx%，VIP邀約成功率 xx%。普通會員邀約成功率 xx%。</var></h2>
+                                    <h2><span class="sop_f">●</span><var>車馬費成功刷付之後，系統會同時寄信給雙方。</var></h2>
+                                    <h2><span class="sop_f">●</span><var><font class="sop_bz">系統以及站長信件都是藍底，其他人無法偽造。除了此類信件以外不要相信任何自稱站方或者站長的人。</font></var></h2>
                                 @endif
                             </div>
                         </div>
@@ -118,11 +127,19 @@
                                 <div class="zpfont_f">
                                 @if($user->engroup==2)
                                 <img src="/new/images/dpicon.png">
-                                <h2><span>●</span><var>假設見面感覺不錯願意嘗試長期關係可以進入第三步驟</var></h2>
-                                <h2><span>●</span><var>此時可以考慮給 Line，你加他或者用二維碼(重要)</var></h2>
+                                <h2><span>●</span><var>假設見面感覺不錯，可以嘗試進入長期關係。</var></h2>
+                                <h2><span>●</span><var>此時可以考慮給Line，你加他或者用二維碼(重要)。</var></h2>
+                                <h2><span>●</span><var>此時尚不要給其它聯絡方式。</var></h2>
                                 @else
                                 <img src="/new/images/dpicon_m.png">
-                                <h2><span class="sop_f">●</span><var>如果看了有喜歡，女方也不反對，避免夜長夢多，站長強烈建議當天立刻進入下一個步驟。</var></h2>
+                                <h2><span class="sop_f">●</span><var>第一次約見盡量約在公開場合。例如星巴克，丹堤等。進可攻退可守，雙方都有意可以續約下一攤吃飯，或者直接進入包養主題。不喜歡就走人。
+                                    </var></h2>
+                                <h2><span class="sop_f">●</span><var>女方第一次就跟你約旅館的，很大機會是八大行業
+                                        <a class="showTipsContent tips3" style="color:#f00"><img src="/new/images/tips3.jpg" style="display: none">(請點我)</a>
+                                    </var>
+                                </h2>
+                                <h2><span class="sop_f">●</span><var>刷卡買點數的，請直接拒絕。</var></h2>
+                                <h2><span class="sop_f">●</span><var>到了定點後，不斷變換見面地點的，請直接離開並封鎖。</var></h2>
                                 @endif
                             </div>
                         </div>
@@ -143,7 +160,11 @@
                             <div class="zpfont_f zp_top">
                                 @if($user->engroup==2)
                                 <img src="/new/images/dpicon.png">
-                                <h2><span>●</span><var>零用金先拿(黃金守則不接受任何條件)</var></h2>
+                                <h2><span>●</span>
+                                    <var>零用金先拿
+                                        <font class="showTipsContent tips4" style="color: #f00;"><img src="/new/images/tips4.jpg" style="display: none;">(黃金守則不接受任何條件)</font>
+                                    </var>
+                                </h2>
                                 <h2><span>●</span><var>零用金可以先拿一周(也就是一個月的1/4)</var></h2>
                                     <div class="zongjie">
                                         <div class="tf">總結</div>
@@ -151,8 +172,10 @@
                                     </div>
                                 @else
                                     <img src="/new/images/dpicon_m.png">
-                                    <h2><span class="sop_f">●</span><var>零用金務必先給，喜歡後給的要去怪詐騙網蟲。這些人把後給的名聲弄得太糟了(出門約會一定要準備足夠現金)。</var></h2>
-                                    <h2><span class="sop_f">●</span><var>一開始可以按次給(感覺比較差)或者按周給(每個月的1/4)。</var></h2>
+                                    <h2><span class="sop_f">●</span><var><font class="sop_bz">零用金務必先給！</font>太多網蟲詐騙都用後給這招，網站目前並不介入私下會員互動。但非常不鼓勵此類行為。</var></h2>
+                                    <h2><span class="sop_f">●</span><var>出門約會一定要準備足夠現金。</var></h2>
+                                    <h2><span class="sop_f">●</span><var>第一個月可以按次給(感覺比較差)或者按周給(每個月的1/4)。</var></h2>
+                                    <h2><span class="sop_f">●</span><var>如果女生堅持要一筆錢或者一次付清一個月。網站並不建議，但也不介入。請各位男會員自行評估。</var></h2>
                                 @endif
 
                             </div>
@@ -168,7 +191,7 @@
                         <a href="/dashboard/web_manual" class="link_page">
                             <li class="@if($user->engroup==2)zp_line zp_line03 @else m_zp_line m_zp_line03 @endif"><img src="@if($user->engroup==2)/new/images/5_3.png @else/new/images/micon3.png @endif"><span>我想了解更多<i>@if($user->engroup==2)開始使用網站 @else 網站特色@endif</i></span></li>
                         </a>
-                        <a href="http://blog-tw.net/Sugar/" target="_blank" class="link_page link_blank">
+                        <a href="http://blog-tw.net/Sugar/%e5%8c%85%e9%a4%8a%ef%bc%8d%e5%a4%a7%e5%8f%94%e7%af%87/" target="_blank" class="link_page link_blank">
                             <li><img src="@if($user->engroup==2)/new/images/5_4.png @else/new/images/micon4.png @endif"><span>我想了解更多<i>站長的經驗分享</i></span></li>
                         </a>
 		            </div>
@@ -183,10 +206,10 @@
             </div>
         </div>
     </div>
+    @include('partials.image-zoomin')
 @stop
 @section('javascript')
 <script>
-
     var active,active_class;
 
     @if($user->engroup==1)
