@@ -109,7 +109,7 @@
                             </div>
                         </div>
                     </div>
-
+                    <a href="/dashboard/browse" class="zpback zp_bbut">返回</a>
                 </div>
 
                 <div class="zhapian zp_n m_page02">
