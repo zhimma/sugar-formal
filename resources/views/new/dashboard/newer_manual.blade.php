@@ -44,25 +44,15 @@
                                 <h2><span>●</span><var>建議挑選VIP會員，VIP會員的時間越久越好。</var></h2>
                                 <h2><span>●</span>
                                     <var>車馬費邀請次數越多越好
-                                        <span class="showTips popover-show"
-                                              data-toggle="popover" data-placement="bottom"
-                                              data-html="true"
-                                              data-content="<img style='width=80%' src='/new/images/tips1.png'>"
-                                              data-trigger="hover"
-                                              style="color:red; font-size:18px;">(如何看男會員的車馬費邀請次數)</span>
+                                        <span class="showTipsContent tips1" style="color:red; font-size:18px;"><img src="/new/images/tips1.png" style="display: none">(如何看男會員的車馬費邀請次數)</span>
                                     </var>
                                 </h2>
                                 @else
                                     <img src="/new/images/dpicon_m.png">
                                     <h2><span class="sop_f">●</span><var>新進甜心就是最近剛註冊的女會員</var></h2>
                                     <h2><span class="sop_f">●</span>
-                                        <var>盡量避開八大行業(如何判斷八大行業"
-                                            <a class="showTips popover-show"
-                                            data-toggle="popover" data-placement="bottom"
-                                            data-html="true"
-                                            data-content="<img style='width=80%' src='/new/images/tips3.jpg'>"
-                                            data-trigger="hover"><font color="red">請點我</font></a>")
-                                        </var>
+
+                                        <var>盡量避開八大行業(如何判斷八大行業<font class="showTipsContent tips3" style="color: #f00;"><img src="/new/images/tips3.jpg" style="display: none">"請點我"</font>)</var>
                                     </h2>
                                 @endif
                             </div>
@@ -145,11 +135,7 @@
                                 <h2><span class="sop_f">●</span><var>第一次約見盡量約在公開場合。例如星巴克，丹堤等。進可攻退可守，雙方都有意可以續約下一攤吃飯，或者直接進入包養主題。不喜歡就走人。
                                     </var></h2>
                                 <h2><span class="sop_f">●</span><var>女方第一次就跟你約旅館的，很大機會是八大行業
-                                        <a class="showTips popover-show"
-                                           data-toggle="popover" data-placement="bottom"
-                                           data-html="true"
-                                           data-content="<img style='width=80%' src='/new/images/tips3.jpg'>"
-                                           data-trigger="hover" style="color:#f00">(請點我)</a>
+                                        <a class="showTipsContent tips3" style="color:#f00"><img src="/new/images/tips3.jpg" style="display: none">(請點我)</a>
                                     </var>
                                 </h2>
                                 <h2><span class="sop_f">●</span><var>刷卡買點數的，請直接拒絕。</var></h2>
@@ -176,11 +162,7 @@
                                 <img src="/new/images/dpicon.png">
                                 <h2><span>●</span>
                                     <var>零用金先拿
-                                        <font class="showTips popover-show"
-                                              data-toggle="popover" data-placement="bottom"
-                                              data-html="true"
-                                              data-content="<img style='width=80%' src='/new/images/tips4.jpg'>"
-                                              data-trigger="hover" style="color: #f00;">(黃金守則不接受任何條件)</font>
+                                        <font class="showTipsContent tips4" style="color: #f00;"><img src="/new/images/tips4.jpg" style="display: none;">(黃金守則不接受任何條件)</font>
                                     </var>
                                 </h2>
                                 <h2><span>●</span><var>零用金可以先拿一周(也就是一個月的1/4)</var></h2>
@@ -224,11 +206,10 @@
             </div>
         </div>
     </div>
+    @include('partials.image-zoomin')
 @stop
 @section('javascript')
 <script>
-
-    //$('.showTips').popover();
     var active,active_class;
 
     @if($user->engroup==1)

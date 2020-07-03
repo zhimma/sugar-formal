@@ -1838,6 +1838,9 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .f_twobt{width:95%; margin:0 auto; display:table}
 .f_twobt img{width:50%; float:left; padding-bottom:15px}
 
+.f_twobt_p{width:95%; margin:0 auto; display:table}
+.f_twobt_p img{width:60%; float:left; padding-bottom:15px}
+
 .f_tobt{width:92%; margin:0 auto; display:table;padding-bottom:15px}
 .f_tpc{width:100%}
 

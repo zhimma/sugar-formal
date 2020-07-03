@@ -11,10 +11,19 @@
                 <div class="zhapian f_page01">
                     <div class="sy_title sy_sj"><img src="/new/images/zpbt_1.png"></div>
                     <div class="sy_title sy_pc"><img src="/new/images/zpbt_2.png"></div>
-                    <div class="sy_img">
-                        <img src="/new/images/zhap_02.png">
+
+                    <div class="f_twobt_p sy_pc"><img src="/new/images/nsz_pc1.png"></div>
+                    <div class="f_zp_bg">
+                        <div class="f_nw">
+                            <div class="f_zpfont_f">
+                                <div class="sy_font">避免詐騙的黃金 第一守則就是“先拿錢”</div>
+                            </div>
+                            <img src="/new/images/zhap_02.png" class="zp_sjimg f_zp_sj">
+                            <img src="/new/images/zhap_02.png" class="zp_pcimg zp_pc">
+                        </div>
                     </div>
-                    <div class="f_twobt"><img src="/new/images/zp_b1.png"></div>
+
+                    <div class="f_twobt"><img src="/new/images/nsz_pc2.png"></div>
 
                     <div class="f_zp_bg">
                         <div class="f_nw">
@@ -34,7 +43,7 @@
                             <img src="/new/images/zhap_04.png" class="zp_pcimg zp_pc">
                         </div>
                     </div>
-                    <div class="f_twobt"><img src="/new/images/zp_b2.png"></div>
+                    <div class="f_twobt"><img src="/new/images/nsz_pc3.png"></div>
 
                     <div class="f_zp_bg">
                         <div class="f_nw">
@@ -162,7 +171,7 @@
                                         <h3>2：daddy 是否好相處</h3>
                                         <h3>3：其他</h3>
                                     </div>
-                                    <div class="zp_botfont">通常絕大多數的女孩都可以接受按周給，會跟你糾結一定要一次全額付一個月的，或者一定要一筆金額的，站長建議不是老手的直接跳過。因為沒什麼過不去的坎，再怎麼急錢，一周有幾萬入帳也絕對夠他去應付債主/需要用錢的狀況。</div>
+                                    <div class="zp_botfont">通常絕大多數的女孩都可以接受按周給，<span class="sop_bz">會跟你糾結一定要一次全額付一個月的，或者一定要一筆金額的，站長建議不是老手的直接跳過。</span>因為沒什麼過不去的坎，再怎麼急錢，一周有幾萬入帳也絕對夠他去應付債主/需要用錢的狀況。</div>
                                 </div>
                             </div>
                         </div>
@@ -195,7 +204,7 @@
                             </div>
                             <div class="zp_btab">
                                 <img src="/new/images/sc_dp.png" class="zp_libt">
-                                <h2>八大行業的入侵是網站比較無奈的部分。原因是我們事後審查而不是事前審查(為什麼)。這樣可以保證男會員的權益以及最多的女會員成功使用。但是付出的代價就是部分八大的訊息會比較煩人。</h2>
+                                <h2>八大行業的入侵是網站比較無奈的部分。原因是我們事後審查而不是事前審查<font class="showTipsContent tips2" style="color: #f00;"><img src="/new/images/tips2.jpg" style="display: none">(為什麼)</font>。這樣可以保證男會員的權益以及最多的女會員成功使用。但是付出的代價就是部分八大的訊息會比較煩人。</h2>
                             </div>
                         </div>
 
@@ -268,6 +277,7 @@
             </div>
         </div>
     </div>
+    @include('partials.image-zoomin')
 @stop
 
 @section('javascript')

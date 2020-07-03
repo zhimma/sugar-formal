@@ -26,7 +26,6 @@
 		<link rel="stylesheet" href="/plugins/parsleyjs/parsley.css">
 		<link rel="stylesheet" href="/new/css/responsive_chat.css">
 		<?php //新樣板js?>
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 		<script src="/new/js/bootstrap.min.js"></script>
 		<script src="/new/js/main.js" type="text/javascript"></script>
 		<script src="/new/js/loading.js" type="text/javascript"></script>
