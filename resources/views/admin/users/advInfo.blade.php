@@ -331,7 +331,7 @@
 </div>
 <div>
 	@if (Auth::user()->can('admin'))
-		<form action="/admin/users/VIPToggler/read" method="POST" id="clickVipAction">
+		<form action="/admin/users/VIPToggler" method="POST" id="clickVipAction">
 			{{ csrf_field() }}
 			<input type="hidden" value="" name="user_id" id="vipID">
 			<input type="hidden" value="" name="isVip" id="isVip">

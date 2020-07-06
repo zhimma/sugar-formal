@@ -18,7 +18,13 @@
 	<tr>
 		<td>{{ $e->member_id }}</td>
 		<td>
-            <a href="{{ route('users/advInfo/readOnly', $e->member_id) }}" target="_blank">{{ $e->name }}</a>
+            <a href="
+            	@if (Auth::user()->can('admin'))
+					{{ route('users/advInfo', $e->member_id) }}
+				@elseif (Auth::user()->can('readonly'))
+					{{ route('users/advInfo/readOnly', $e->member_id) }}
+				@endif
+			" target="_blank">{{ $e->name }}</a>
         </td>
         <td>{{ $e->engroup }}</td>
         <td>{{ $e->order_id }}</td>
@@ -53,7 +59,13 @@
 		<tr>
 			<td>{{ $e->member_id }}</td>
 			<td>
-				<a href="{{ route('users/advInfo/readOnly', $e->member_id) }}" target="_blank">{{ $e->name }}</a>
+				<a href="
+					@if (Auth::user()->can('admin'))
+						{{ route('users/advInfo', $e->member_id) }}
+					@elseif (Auth::user()->can('readonly'))
+						{{ route('users/advInfo/readOnly', $e->member_id) }}
+					@endif
+				" target="_blank">{{ $e->name }}</a>
 			</td>
 			<td>{{ $e->engroup }}</td>
 			<td>{{ $e->order_id }}</td>
