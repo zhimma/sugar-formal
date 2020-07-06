@@ -568,9 +568,14 @@ class PagesController extends Controller
         $user = $request->user();
         $url = $request->fullUrl();
 
-        if(!$user->isFreeVip()){
+        if($user->isVip() && !$user->isFreeVip()){
             $vipData = $user->getVipData(true);
-            $this->dispatch(new CheckECpay($vipData));
+            if(is_object($vipData)){
+                $this->dispatch(new CheckECpay($vipData));
+            }
+            else{
+                Log::info('VIP data null, user id: ' . $user->id);
+            }
         }
 
         if(str_contains($url, '?img')) {

@@ -70,7 +70,7 @@ class CheckECpay implements ShouldQueue
                 $str = '末四碼：' . $paymentData['card4no'] . "<br>" .
                     "會員 ID：" . $this->vipData->member_id . "<br>" .
                     "訂單編號：" . $this->vipData->order_id;
-                Mail::raw($str, function ($message) {
+                \Mail::raw($str, function ($message) {
                     $message->from('admin@sugar-garden.org', 'Sugar-garden');
                     $message->to('admin@sugar-garden.org');
                     $message->subject('綠界扣款失敗通知');
@@ -82,7 +82,7 @@ class CheckECpay implements ShouldQueue
                 $str = '末四碼：' . $paymentData['card4no'] . "<br>" .
                     "會員 ID：" . $this->vipData->member_id . "<br>" .
                     "訂單編號：" . $this->vipData->order_id;
-                Mail::raw($str, function ($message) {
+                \Mail::raw($str, function ($message) {
                     $message->from('admin@sugar-garden.org', 'Sugar-garden');
                     $message->to('admin@sugar-garden.org');
                     $message->subject('綠界扣款失敗通知');
