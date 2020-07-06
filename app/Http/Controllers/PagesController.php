@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\CheckECpay;
 use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
 use Auth;
@@ -561,12 +562,16 @@ class PagesController extends Controller
     public function dashboard(Request $request)
     {
         // todo: 驗證 VIP 是否成功付款
-        //      1. 綠界：連 API 檢查
-        //      2. 藍新：
+        //      1. 綠界：連 API 檢查，使用 Laravel Queue 執行檢查
+        //      2. 藍新：後台手動
         
         $user = $request->user();
         $url = $request->fullUrl();
-        //echo $url;
+
+        if($user->isVip()){
+            $vipData = $user->getVipData(true);
+            $this->dispatch(new CheckECpay($vipData));
+        }
 
         if(str_contains($url, '?img')) {
             $tabName = 'm_user_profile_tab_4';
