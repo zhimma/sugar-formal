@@ -568,7 +568,7 @@ class PagesController extends Controller
         $user = $request->user();
         $url = $request->fullUrl();
 
-        if($user->isVip()){
+        if(!$user->isFreeVip()){
             $vipData = $user->getVipData(true);
             $this->dispatch(new CheckECpay($vipData));
         }
