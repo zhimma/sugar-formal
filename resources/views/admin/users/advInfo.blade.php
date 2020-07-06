@@ -338,11 +338,11 @@
 			<input type="hidden" value="advInfo" name="page">
 		</form>
 	@elseif (Auth::user()->can('readonly'))
-		<form action="/admin/users/VIPToggler/readOnly" method="POST" id="clickVipAction">
+		<form action="/users/VIPToggler/readOnly" method="POST" id="clickVipAction">
 			{{ csrf_field() }}
 			<input type="hidden" value="" name="user_id" id="vipID">
 			<input type="hidden" value="" name="isVip" id="isVip">
-			<input type="hidden" value="advInfo" name="page">
+			<input type="hidden" value="back" name="page">
 		</form>
 	@endif
 </div>
