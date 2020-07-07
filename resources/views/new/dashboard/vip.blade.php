@@ -164,9 +164,9 @@
         // 取消VIP內容
         $('#vip2_a').on('click', function(event) {
             @if(isset($vipLessThan7days) && $vipLessThan7days && $user->isVipNotCanceledORCanceledButNotExpire() == true)
-                var r = confirm("取消 VIP 須知。\n●最短租期為「30天」，若住戶申請到退租時間未滿「30天」，則將被收取「30天」的費用。\n★取消 VIP 時間需要七個工作天，如下個月不續約請提前取消，以免權益受損！★\n★★若取消時間低於七個工作天，則下個月將會繼續扣款，並且 VIP 時間延長至下下個月為止。★★\n★★由於您於本日" + "{{ \Carbon\Carbon::now()->toDateString() }}" + "申請取消 VIP 。您每月的 VIP 扣款日期為 " + "{{ $vipRenewDay }}" + " 日。取消扣款作業需七個工作天(申請VIP時有提示)，本月取消作業不及，下個月將會進行最後一次扣款，您的 VIP 時間將會到 " + "{{ $vipNextMonth->toDateString() }}" + "。不便之處敬請見諒。★★");
+                var r = confirm("取消 VIP 須知。\n●最短 VIP 時間為一個月，若使用不足一個月，以一個月計算，不予退費。\n★取消 VIP 時間需要七個工作天，如下個月不續約請提前取消，以免權益受損！★\n★★若取消時間低於七個工作天，則下個月將會繼續扣款，並且 VIP 時間延長至下下個月為止。★★\n★★由於您於本日" + "{{ \Carbon\Carbon::now()->toDateString() }}" + "申請取消 VIP 。您每月的 VIP 扣款日期為 " + "{{ $vipRenewDay }}" + " 日。取消扣款作業需七個工作天(申請VIP時有提示)，本月取消作業不及，下個月將會進行最後一次扣款，您的 VIP 時間將會到 " + "{{ $vipNextMonth->toDateString() }}" + "。不便之處敬請見諒。★★");
             @elseif($user->isVip() && $user->isVipNotCanceledORCanceledButNotExpire() == true)
-                var r = confirm("取消 VIP 須知。\n●最短租期為「30天」，若住戶申請到退租時間未滿「30天」，則將被收取「30天」的費用。\n★取消 VIP 時間需要七個工作天，如下個月不續約請提前取消，以免權益受損！★\n★★若取消時間低於七個工作天，則下個月將會繼續扣款，並且 VIP 時間延長至下下個月為止。★★");
+                var r = confirm("取消 VIP 須知。\n●最短 VIP 時間為一個月，若使用不足一個月，以一個月計算，不予退費。\n★取消 VIP 時間需要七個工作天，如下個月不續約請提前取消，以免權益受損！★\n★★若取消時間低於七個工作天，則下個月將會繼續扣款，並且 VIP 時間延長至下下個月為止。★★");
             @endif
 
             if(!r) {
