@@ -320,6 +320,9 @@
                             <input type="checkbox" name="addreason" style="vertical-align:middle;width:20px;height:20px;"/>
                             <sapn style="vertical-align:middle;">加入常用封鎖原因</sapn>
                         </label>
+                        <hr>
+                        新增自動封鎖關鍵字
+                        <textarea class="form-control m-reason" name="addautoban" rows="4" maxlength="200"></textarea>
                 </div>
                 <div class="modal-footer">
                 	<button type="submit" class='btn btn-outline-success ban-user'> 送出 </button>
