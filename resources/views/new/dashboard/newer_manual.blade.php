@@ -103,6 +103,7 @@
                                 <img src="/new/images/dpicon.png">
                                 <h2><span>●</span><var>站方強烈建議第一次約見用站內車馬費。根據統計，會刷車馬費的男會員，從未有過詐騙紀錄。</var></h2>
                                 <h2><span>●</span><var>切勿接受手機轉帳的截圖，聲稱已轉上或者第二天才入帳之類，已有多起假造案例。</var></h2>
+                                <h2><span>●</span><var><font class="sop_bz">系統以及站長信件都是藍底，其他人無法偽造。除了此類信件以外不要相信任何自稱站方或者站長的人。</font></var></h2>
                                 @else
                                     <img src="/new/images/dpicon_m.png">
                                     <h2><span class="sop_f">●</span><var>車馬費成功刷付之後，系統會同時寄信給雙方。</var></h2>
@@ -161,9 +162,7 @@
                                 @if($user->engroup==2)
                                 <img src="/new/images/dpicon.png">
                                 <h2><span>●</span>
-                                    <var>零用金先拿
-                                        <font class="showTipsContent tips4" style="color: #f00;"><img src="/new/images/tips4.jpg" style="display: none;">(黃金守則不接受任何條件)</font>
-                                    </var>
+                                    <var>零用金先拿（黃金守則<font class="showTipsContent tips4" style="color: #f00;">“請點我”<img src="/new/images/tips4.png" style="display: none;"></font>，零用金拒絕後付或月結！務必先拿！）</var>
                                 </h2>
                                 <h2><span>●</span><var>零用金可以先拿一周(也就是一個月的1/4)</var></h2>
                                     <div class="zongjie">
@@ -189,7 +188,7 @@
                             <li class="@if($user->engroup==2)zp_line02 zp_line03 @else m_zp_line02 m_zp_line03 @endif"><img src="@if($user->engroup==2)/new/images/5_2.png @else/new/images/micon2.png @endif"><span>我想了解更多<i>詐騙避免手冊</i></span></li>
                         </a>
                         <a href="/dashboard/web_manual" class="link_page">
-                            <li class="@if($user->engroup==2)zp_line zp_line03 @else m_zp_line m_zp_line03 @endif"><img src="@if($user->engroup==2)/new/images/5_3.png @else/new/images/micon3.png @endif"><span>我想了解更多<i>@if($user->engroup==2)開始使用網站 @else 網站特色@endif</i></span></li>
+                            <li class="@if($user->engroup==2)zp_line zp_line03 @else m_zp_line m_zp_line03 @endif"><img src="@if($user->engroup==2)/new/images/5_3.png @else/new/images/micon3.png @endif"><span>我想了解更多<i>@if($user->engroup==2)網站進階使用 @else 網站特色@endif</i></span></li>
                         </a>
                         <a href="http://blog-tw.net/Sugar/%e5%8c%85%e9%a4%8a%ef%bc%8d%e5%a4%a7%e5%8f%94%e7%af%87/" target="_blank" class="link_page link_blank">
                             <li><img src="@if($user->engroup==2)/new/images/5_4.png @else/new/images/micon4.png @endif"><span>我想了解更多<i>站長的經驗分享</i></span></li>
