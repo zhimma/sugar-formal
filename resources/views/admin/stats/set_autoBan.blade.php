@@ -3,7 +3,7 @@
 <body style="padding: 15px;">
 <h1>自動封鎖警示設定</h1>
 <table class='table table-bordered table-hover'>
-    <th>新增關鍵字</th>
+    <th>設定封鎖項目</th>
     <form action="{{ route('stats/set_autoBan_add') }}" method="post">
     	{!! csrf_field() !!}
 	    <td>
@@ -14,15 +14,15 @@
 	            <option value="about">關於我</option>
 	    		<option value="style">期待的約會模式</option>
 	    		<option value="msg">發送訊息內容</option>
-	    		{{-- <option value="allcheck">全檢查</option> --}}
+	    		<option value="allcheck">全欄位封鎖</option>
 	        </select>
 	    </td>
 	    <td>
 	    	輸入關鍵字<input type ="text" name="content" value="">
 	    </td>
 	    <td>
-	    	<input type="radio" name="set_ban" value="1">封鎖
-	    	<input type="radio" name="set_ban" value="2" checked>隱形封鎖
+	    	<input type="radio" name="set_ban" value="1" checked>封鎖
+	    	<input type="radio" name="set_ban" value="2">隱形封鎖
 	    	<input type="radio" name="set_ban" value="3">警示
 	    </td>
 	    <td>
@@ -40,6 +40,7 @@
 			@elseif($result->type=='about')關於我 
 			@elseif($result->type=='style')期待的約會模式 
 			@elseif($result->type=='msg')發送訊息內容 
+			@elseif($result->type=='allcheck')全欄位封鎖 
 			@endif
 		</td>
 		<td>{{ $result->content }}</td>
