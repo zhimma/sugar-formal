@@ -592,9 +592,13 @@ class PagesController extends Controller
         $day = $birthday[2];
 
         /*編輯文案-add avatar-START*/
-        $add_avatar = AdminCommonText::where('alias','add_avatar')->get()->first();
+        $add_avatar = AdminCommonText::getCommonText(41);//id 41
         /*編輯文案-add avatar-END*/
 
+//        $isWarnedReason = AdminCommonText::getCommonText(56);//id 56 警示用戶原因
+
+
+        $is_banned = banned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date','>=',now())->count() >= 1 ? '是' : '否';
 
         if($year=='1970'){
             $year=$month=$day='';
@@ -622,7 +626,9 @@ class PagesController extends Controller
                 ->with('month', $month)
                 ->with('day', $day)
                 ->with('cancel_notice', $cancel_notice)
-                ->with('add_avatar', $add_avatar);
+                ->with('add_avatar', $add_avatar)
+//                ->with('isWarnedReason',$isWarnedReason)
+                ->with('is_banned',$is_banned);
         }
     }
 
@@ -1086,6 +1092,8 @@ class PagesController extends Controller
 
                 $message_count_7 = Message::where('from_id', $uid)->where('created_at', '>=', $date)->count();
 
+                $is_banned = banned_users::where('member_id', $uid)->where('expire_date', null)->orWhere('expire_date','>=',now())->count() >= 1 ? '是' : '否';
+
                 $data = array(
                     'tip_count' => $tip_count,
                     'fav_count' => $fav_count,
@@ -1098,6 +1106,7 @@ class PagesController extends Controller
                     'be_visit_other_count_7' => $be_visit_other_count_7,
                     'message_count' => $message_count,
                     'message_count_7' => $message_count_7,
+                    'is_banned' => $is_banned,
                 );
                 $member_pic = DB::table('member_pic')->where('member_id',$uid)->where('pic','<>',$targetUser->meta_()->pic)->get();
                 if($user->isVip()){
@@ -1670,7 +1679,8 @@ class PagesController extends Controller
         if ($user)
         {
             // blocked by user->id
-            $blocks = \App\Models\Blocked::where('member_id', $user->id)->orderBy('created_at','desc')->paginate(15);
+            $bannedUsers = \App\Services\UserService::getBannedId();
+            $blocks = \App\Models\Blocked::where('member_id', $user->id)->whereNotIn('blocked_id',$bannedUsers)->orderBy('created_at','desc')->paginate(15);
 
             $usersInfo = array();
             foreach($blocks as $blockUser){

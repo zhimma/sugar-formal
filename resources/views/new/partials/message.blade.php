@@ -93,7 +93,7 @@
                 $diff_in_days = ' ' . $to->diffInDays($now) . ' 天';
             }
         @endphp
-        <div class="blbg banned_bg" onclick="gmBtn1_banned()" style="display:block"></div>
+        <div class="blbg banned_bg" style="display:block"></div>
         <div class="gg_tab" id="tab_banned_alert" style="display: block;">
             <div class="ggtitle">封鎖提示</div>
             <div class="ggnr01 ">
@@ -113,15 +113,15 @@
             function gmBtn1_banned(){
                 $(".banned_bg").hide();
                 $(".gg_tab").hide();
-                {{Auth::logout()}}
-                window.location = "/";
+{{--                {{Auth::logout()}}--}}
+                window.location = "/logout";
             }
             $(document).on('click','.banned_bg',function(event) {
-                (".banned_bg").hide();
+                $(".banned_bg").hide();
                 $(".announce_bg").hide();
                 $(".gg_tab").hide();
-                {{Auth::logout()}}
-                window.location = "/";
+{{--                {{Auth::logout()}}--}}
+{{--                window.location = "/";--}}
             });
         </script>
     @endif
