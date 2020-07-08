@@ -92,12 +92,13 @@
 
                 $diff_in_days = ' ' . $to->diffInDays($now) . ' 天';
             }
+            $reason = $banned_user->reason == '自動封鎖' ? '系統原因' : $banned_user->reason;
         @endphp
         <div class="blbg banned_bg" onclick="gmBtn1_banned()" style="display:block"></div>
         <div class="gg_tab" id="tab_banned_alert" style="display: block;">
             <div class="ggtitle">封鎖提示</div>
             <div class="ggnr01 ">
-                <div class="gg_nr">您因為 {{ $banned_user->reason }} 被站長封鎖{{ $diff_in_days }}，如有問題請點右下聯絡我們加站長 line 反應。</div>
+                <div class="gg_nr">您因為 {{ $reason }} 被站長封鎖{{ $diff_in_days }}，如有問題請點右下聯絡我們加站長 line 反應。</div>
                 <div class="gg_bg"><a class="gg_page"></a><a class="ggbut" onclick="gmBtn1_banned()">確定</a><a class="gg_pager"></a></div>
             </div>
             <a id="" onclick="gmBtn1_banned()" class="bl_gb"><img src="/new/images/gb_icon01.png"></a>
