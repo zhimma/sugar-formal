@@ -11,7 +11,6 @@
 </style>
     <div class="container matop70">
         <div class="row">
-            <br>
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
                 @include('new.dashboard.panel')
             </div>

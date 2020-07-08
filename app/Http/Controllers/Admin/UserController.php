@@ -196,6 +196,13 @@ class UserController extends Controller
             }
         }
         
+        //勾選加入自動封鎖後新增
+        if(!empty($request->addautoban)){
+            if(DB::table('set_auto_ban')->where([['type', 'allcheck'],['content', $request->addautoban],['set_ban', '1']])->first() == null){
+                DB::table('set_auto_ban')->insert(['type' => 'allcheck', 'content' => $request->addautoban, 'set_ban' => '1']);
+            }
+        }
+        
         if($userBanned){
             $userBanned->delete();
             if(isset($request->page)){
