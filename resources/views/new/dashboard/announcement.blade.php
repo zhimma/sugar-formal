@@ -8,7 +8,7 @@
                 @include('new.dashboard.panel')
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
-                <div class="shou"><span>站方公告</span>
+                <div class="shou"><span>花園網站規</span>
                     <font>Announcement</font>
                 </div>
                 <div class="n_gongg">
@@ -16,35 +16,42 @@
                         <li>
                             <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
                             <div class="n_iconb"><img src="/new/images/ic_07.png"><span>1</span></div>
-                            <div class="n_iconfont">男女會員在約見前，禁止要求對方提供猥褻照片、文字。違者將直接永久封鎖帳號。</div>
+                            <div class="n_iconfont">男女會員在約見前，禁止要求對方提供猥褻照片、文字。</div>
                         </li>
                         <li>
                             <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
                             <div class="n_iconb"><img src="/new/images/ic_07.png"><span>2</span></div>
-                            <div class="n_iconfont">普通會員禁止註冊站務/站長/管理者等容易引起他人誤會之站務人員帳號。</div>
+                            <div class="n_iconfont">普通會員禁止註冊站務/站長/管理者等容易引起他人誤會之站務管理人員字眼做為帳號。</div>
                         </li>
                         <li>
                             <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
                             <div class="n_iconb"><img src="/new/images/ic_07.png"><span>3</span></div>
-                            <div class="n_iconfont">站務人員帳號除了暱稱會有 站長/站務/管理者外，頭像也會有特別的底色與標籤說明。
-                                <a data-toggle="picture" data-img="/new/images/announce_demo1.jpg" href="javascript:void(0);">
-                                    <br><font>「請按我<img src="/new/images/55_07.png">」</font>
-                                </a>
-                            </div>
+                            <div class="n_iconfont">會員彼此來往訊息請勿口出惡言。</div>
                         </li>
                         <li>
                             <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
                             <div class="n_iconb"><img src="/new/images/ic_07.png"><span>4</span></div>
-                            <div class="n_iconfont" style="overflow:hidden;">優質糖爹是願意長期付費的VIP，或者常用車馬費邀請的男會員，讓女會員作為約會對象的參考。
-                                <a data-toggle="picture" data-img="/new/images/announce_demo2.jpg" href="javascript:void(0);">
-                                    <br><font>「請按我<img src="/new/images/55_07.png">」</font>
-                                </a>
-                            </div>
+                            <div class="n_iconfont">禁止多重帳號/不同性別註冊。</div>
                         </li>
                         <li>
                             <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
                             <div class="n_iconb"><img src="/new/images/ic_07.png"><span>5</span></div>
-                            <div class="n_iconfont">會員訊息彼此來往請勿口出惡言，檢舉屬實將會有3~30天的封鎖時間。</div>
+                            <div class="n_iconfont">禁止個人資料出現不雅文字/照片(站方主觀認定)</div>
+                        </li>
+                        <li>
+                            <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
+                            <div class="n_iconb"><img src="/new/images/ic_07.png"><span>6</span></div>
+                            <div class="n_iconfont">禁止使用虛假資料註冊</div>
+                        </li>
+                        <li>
+                            <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
+                            <div class="n_iconb"><img src="/new/images/ic_07.png"><span>7</span></div>
+                            <div class="n_iconfont">禁止非包養的任何商業行為!</div>
+                        </li>
+                        <li>
+                            <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
+                            <div class="n_iconb"><img src="/new/images/ic_07.png"><span>8</span></div>
+                            <div class="n_iconfont"><span style="color: red;background: yellow;">違反以上規定將會有3~30天的封鎖時間。嚴重者直接永久封鎖帳號。</span></div>
                         </li>
 
                         <?php //$num=1;?>

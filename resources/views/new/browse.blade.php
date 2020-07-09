@@ -12,7 +12,7 @@
       <div class="col-sm-12 col-xs-12 col-md-10">
         <div class="n_zy"><span>瀏覽資料</span></div>
         <div class="n_zytab">
-            <a class="item" href="{!! url('dashboard/announcement') !!}"><li><img src="/new/images/z_01.png"><span class="n_zylg">站方公告</span></li></a>
+            <a class="item" href="{!! url('dashboard/announcement') !!}"><li><img src="/new/images/z_01.png"><span class="n_zylg">花園網站規</span></li></a>
             <a class="item"href="{!! url('/dashboard/banned') !!}"><li style="float: right;"><img src="/new/images/z_02.png"><span class="n_zylg">懲處名單</span></li></a>
 {{--            <a class="item" href="{!! url('dashboard/board') !!}"><li><img src="/new/images/z_03.png"><span>留言板</span></li></a>--}}
             <a class="item" href="{!! url('dashboard/newer_manual') !!}"><li><img src="/new/images/z_08.png"><span class="n_zylg">新手教學</span></li></a>
