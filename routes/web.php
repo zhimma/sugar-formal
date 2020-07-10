@@ -415,8 +415,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::post('/dashboard/announcement_post', 'Message_newController@announcePost')->name('announcePost');
 
 
-//        Route::get('/dashboard/evaluation/{uid}', 'PagesController@evaluation');
-//        Route::post('/dashboard/evaluation', 'PagesController@evaluation_save')->name('evaluation');
+        Route::get('/dashboard/evaluation/{uid}', 'PagesController@evaluation');
+        Route::post('/dashboard/evaluation', 'PagesController@evaluation_save')->name('evaluation');
 
 
         Route::get('/dashboard/banned', 'PagesController@dashboard_banned');

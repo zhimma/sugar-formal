@@ -123,6 +123,15 @@
                                     </li>
                                 @endif
                                 {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
+{{--                                @if($to->meta_()->isWarned == 1)--}}
+{{--                                    <li>--}}
+{{--                                        <img src="/new/images/a5.png">--}}
+{{--                                    </li>--}}
+{{--                                @endif--}}
+                                @if($to->engroup == 2 && $to->isPhoneAuth() && $to->isImgAuth())
+                                    <li><img src="/new/images/a6.png">
+                                    </li>
+                                @endif
                             </ul>
                         </div>
                         <div class="bottub">
@@ -390,7 +399,30 @@
                         </div>
                     </div>
                 </div>
-                <!--基本资料-->
+                <!--會員評價-->
+                    <div class="ziliao">
+                        <div class="ztitle"><span>會員評價</span>Evaluation</div>
+                        <div class="pw_body" style="margin-top:40px; margin-bottom:40px">
+                            <a class="pjnew_but01" href="{{ url('/dashboard/evaluation/'.$to->id) }}"><img src="/new/images/ly01.png">我要評價</a>
+                            <ul>
+                                <div class="huiy_a">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        @if(intval($rating_avg)>=$i)
+                                            <img src="/new/images/sxx_1.png">
+                                        @elseif(strstr($rating_avg,'.') && ctype_digit($rating_avg)==false)
+                                            <img src="/new/images/sxx_2.png">
+                                            @break
+                                        @endif
+                                    @endfor
+                                    @for ($i = 1; $i <= 5-round($rating_avg); $i++)
+                                        <img src="/new/images/sxx_4.png">
+                                    @endfor
+                                    {{round($rating_avg,1)}}
+                                </div>
+                            </ul>
+                        </div>
+                    </div>
+                <!--會員評價-->
                 @endif
             </div>
         </div>
@@ -489,6 +521,11 @@
         ccc('此用戶已關閉資料。');
         $('.row').css('display','none');
         @endif
+
+        @if(isset($is_banned) && $is_banned == '是')
+        ccc('此帳號關閉。');
+        $('.row').css('display','none');
+    @endif
     // });
 
     @if (isset($errors) && $errors->count() > 0)

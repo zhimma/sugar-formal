@@ -223,6 +223,9 @@
                                     {{---------財力認證尚未實作-------------- <img src="/new/images/b_03.png">--}}
                                     @if($visitor->isVip() && $visitor->engroup == 1)<img src="/new/images/04.png">@endif
                                     {{---------警示帳戶尚未實作-------------- <img src="/new/images/b_05.png">--}}
+                                    @if($visitor->meta_()->isWarned == 1)<img src="/new/images/05.png">@endif
+                                    {{--手機驗證--}}
+                                    @if($visitor->engroup == 2 && $visitor->isPhoneAuth() && $visitor->isImgAuth())<img src="/new/images/06.png">@endif
                                 </div>
                                 <a href="/dashboard/viewuser/{{$visitor->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">
                                     <div class="nt_photo"><img src="@if($visitor->meta_()->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->meta_()->pic}} @endif" @if ($visitor->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></div>

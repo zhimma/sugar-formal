@@ -1162,26 +1162,76 @@ class PagesController extends Controller
                 $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
                 /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
 
+                $rating_avg = DB::table('evaluation')->where('to_id',$uid)->avg('rating');
+                $rating_avg = floatval($rating_avg);
+
                 return view('new.dashboard.viewuser', $data)
-                    ->with('user', $user)
-                    ->with('blockadepopup', $blockadepopup)
-                    ->with('to', $this->service->find($uid))
-                    ->with('cur', $user)
-                    ->with('member_pic',$member_pic)
-                    ->with('isVip', $isVip)
-                    ->with('engroup', $user->engroup)
-                    ->with('report_reason',$report_reason->content)
-                    ->with('report_member',$report_member->content)
-                    ->with('report_avatar',$report_avatar->content)
-                    ->with('new_sweet',$new_sweet->content)
-                    ->with('well_member',$well_member->content)
-                    ->with('money_cert',$money_cert->content)
-                    ->with('alert_account',$alert_account->content)
-                    ->with('label_vip',$label_vip->content)
-                    ->with('user_closed',$user_closed->content);
+                        ->with('user', $user)
+                        ->with('blockadepopup', $blockadepopup)
+                        ->with('to', $this->service->find($uid))
+                        ->with('cur', $user)
+                        ->with('member_pic',$member_pic)
+                        ->with('isVip', $isVip)
+                        ->with('engroup', $user->engroup)
+                        ->with('report_reason',$report_reason->content)
+                        ->with('report_member',$report_member->content)
+                        ->with('report_avatar',$report_avatar->content)
+                        ->with('new_sweet',$new_sweet->content)
+                        ->with('well_member',$well_member->content)
+                        ->with('money_cert',$money_cert->content)
+                        ->with('alert_account',$alert_account->content)
+                        ->with('label_vip',$label_vip->content)
+                        ->with('user_closed',$user_closed->content)
+                        ->with('rating_avg',$rating_avg);
                     
             }
 
+    }
+
+    public function evaluation(Request $request, $uid)
+    {
+        $user = $request->user();
+        $vipDays=0;
+        if($user->isVip()) {
+            $vip_record = Carbon::parse($user->vip_record);
+            $vipDays = $vip_record->diffInDays(Carbon::now());
+        }
+
+        $auth_check=0;
+        if($user->isPhoneAuth()==1 && $user->isImgAuth()==1){
+            $auth_check=1;
+        }
+        if (isset($user) && isset($uid)) {
+
+            $evaluation_data = DB::table('evaluation')->where('to_id',$uid)->paginate(15);
+            $evaluation_self = DB::table('evaluation')->where('to_id',$uid)->where('from_id',$user->id)->first();
+            return view('new.dashboard.evaluation')
+                ->with('user', $user)
+                ->with('to', $this->service->find($uid))
+                ->with('cur', $user)
+                ->with('evaluation_self',$evaluation_self)
+                ->with('evaluation_data',$evaluation_data)
+                ->with('vipDays',$vipDays)
+                ->with('auth_check',$auth_check);
+        }
+    }
+
+    public function evaluation_save(Request $request)
+    {
+
+        $evaluation_self = DB::table('evaluation')->where('to_id',$request->input('eid'))->where('from_id',$request->input('uid'))->first();
+
+        if(isset($evaluation_self)){
+            DB::table('evaluation')->where('to_id',$request->input('eid'))->where('from_id',$request->input('uid'))->update(
+                ['content' => $request->input('content'), 'rating' => $request->input('rating'), 'updated_at' => now()]
+            );
+        }else {
+            DB::table('evaluation')->insert(
+                ['from_id' => $request->input('uid'), 'to_id' => $request->input('eid'), 'content' => $request->input('content'), 'rating' => $request->input('rating'), 'created_at' => now(), 'updated_at' => now()]
+            );
+        }
+
+        return redirect('/dashboard/evaluation/'.$request->input('eid'))->with('message', '評價已完成');
     }
 
     public function report(Request $request)
@@ -2332,19 +2382,20 @@ class PagesController extends Controller
         return json_encode($data);
     }
 
-    public function member_auth(Request $rquest){
-        return view('/auth/member_auth');
+    public function member_auth(Request $request){
+        $user = $request->user();
+        return view('/auth/member_auth')->with('user',$user);
     }
 
-    public function member_auth_photo(Request $rquest){
+    public function member_auth_photo(Request $request){
         return view('/auth/member_auth_photo');
     }
 
-    public function hint_auth1(Request $rquest){
+    public function hint_auth1(Request $request){
         return view('/auth/hint_auth1');
     }
 
-    public function hint_auth2(Request $rquest){
+    public function hint_auth2(Request $request){
         return view('/auth/hint_auth2');
     }
 

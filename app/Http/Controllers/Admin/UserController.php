@@ -481,6 +481,46 @@ class UserController extends Controller
         $banReason = DB::table('reason_list')->select('content')->where('type', 'ban')->get();
         $fingerprints = Fingerprint2::select('ip', 'fp', 'created_at')->where('user_id', $user->id)->get();
 
+        //檢舉紀錄
+        $pic_report1 = ReportedAvatar::select('reporter_id as uid')->where('reported_user_id',$user->id)->where('reporter_id','!=',$user->id)->distinct('reporter_id')->get();
+        $pic_report2 = ReportedPic::select('reported_pic.reporter_id as uid')->join('member_pic','reported_pic.reported_pic_id','=','member_pic.id')->where('member_pic.member_id',$user->id)
+            ->where('reported_pic.reporter_id','!=',$user->id)->distinct('reported_pic.reporter_id')->get();
+        //大頭照與照片合併計算
+        $collection = collect([$pic_report1, $pic_report2]);
+        $pic_all_report = $collection->collapse()->unique('uid');
+//        $pic_all_report->unique()->all();
+
+        $msg_report = Message::select('to_id')->where('from_id',$user->id)->where('isReported',1)->distinct('to_id')->get();
+        $report = Reported::select('member_id')->where('reported_id',$user->id)->distinct('member_id')->get();
+
+        $report_all = array();
+
+        foreach($pic_all_report as $row){
+            $uuu = User::findById($row->uid);
+            $auth_status=0;
+            if($uuu->isPhoneAuth()==1 && $uuu->isImgAuth()==1 ){
+                $auth_status=1;
+            }
+            array_push($report_all,array($uuu->name,$uuu->email,$uuu->isVip(),$auth_status,'照片檢舉',$uuu->engroup));
+        }
+        foreach($msg_report as $row){
+            $uuu = User::findById($row->to_id);
+            $auth_status=0;
+            if($uuu->isPhoneAuth()==1 && $uuu->isImgAuth()==1 ){
+                $auth_status=1;
+            }
+            array_push($report_all,array($uuu->name,$uuu->email,$uuu->isVip(),$auth_status,'訊息檢舉',$uuu->engroup));
+        }
+        foreach($report as $row){
+            $uuu = User::findById($row->member_id);
+            $auth_status=0;
+            if($uuu->isPhoneAuth()==1 && $uuu->isImgAuth()==1 ){
+                $auth_status=1;
+            }
+            array_push($report_all,array($uuu->name,$uuu->email,$uuu->isVip(),$auth_status,'會員檢舉',$uuu->engroup));
+        }
+
+
         if(str_contains(url()->current(), 'edit')){
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
             $birthday = explode('-', $birthday);
@@ -501,7 +541,8 @@ class UserController extends Controller
                    ->with('user', $user)
                    ->with('userMessage', $userMessage)
                    ->with('to_ids', $to_ids)
-                   ->with('fingerprints', $fingerprints);
+                   ->with('fingerprints', $fingerprints)
+                   ->with('report_all',$report_all);
         }
     }
 
@@ -1757,7 +1798,45 @@ class UserController extends Controller
             'status'=>'success'
         );
         echo json_encode($data);
-    }    
+    }
+
+    public function isWarnedUser(Request $request){
+
+        $id = $request->post('id');
+        $status = $request->post('status');
+
+        DB::table('user_meta')->where('user_id',$id)->update(['isWarned'=>$status]);
+
+        if($status==1){
+            //加入警示流程
+            //清除認證資料
+            DB::table('auth_img')->where('user_id',$id)->delete();
+            DB::table('short_message')->where('member_id',$id)->delete();
+        }else if($status==0) {
+            $user = User::findById($id);
+            //取消警示流程
+            //加入認證資料 假資料
+            if($user->WarnedScore()>=10) {
+
+                if ($user->isPhoneAuth() == 0) {
+                    DB::table('short_message')->insert(
+                        ['member_id' => $id, 'active' => 1]);
+                }
+
+                if ($user->isImgAuth() == 0) {
+                    DB::table('auth_img')->insert(
+                        ['user_id' => $id, 'status' => 1, 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+                }
+            }
+
+        }
+        $data = array(
+            'code'=>'200',
+            'status'=>'success'
+        );
+        echo json_encode($data);
+    }
+
     public function basicSetting(Request $request){
         $data['basic_setting'] = BasicSetting::get()->first();
 

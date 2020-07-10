@@ -42,9 +42,16 @@
 			<button type="submit" class='btn btn-info'>隱性封鎖</button>
 		</form>
 	@endif
-	
-	@if($user['isvip'])
-		<button class="btn btn-info" onclick="VipAction({{($user['isvip'])?'1':'0' }},{{ $user['id'] }})"> 取消VIP </button>
+
+	{{--	警示會員--}}
+	@if($userMeta->isWarned==0)
+		<button class="btn btn-info" onclick="WarnedToggler({{$user['id']}},1)">警示用戶({{$user->WarnedScore()}})</button>
+	@else
+		<button class="btn btn-danger" onclick="WarnedToggler({{$user['id']}},0)">取消警示用戶({{$user->WarnedScore()}})</button>
+	@endif
+
+	@if($user->isVip())
+		<button class="btn btn-info" onclick="VipAction({{($user->isVip())?'1':'0' }},{{ $user['id'] }})"> 取消VIP </button>
 		@if($user->engroup==1)
 			@if($user->Recommended==1)
 				<button class="btn btn-info" onclick="RecommendedToggler({{ $user['id'] }},'1')">給予優選</button>
@@ -185,6 +192,29 @@
 		<td></td>
 	</tr>
 </table>
+
+<h4>檢舉紀錄</h4>
+<table class="table table-hover table-bordered">
+	<tr>
+		<th>暱稱</th>
+		<th>帳號</th>
+		<th>VIP</th>
+		<th>會員認證</th>
+		<th>檢舉類型</th>
+		<th>計分</th>
+	</tr>
+	@foreach($report_all as $row)
+		<tr>
+			<td>{{$row[0]}}</td>
+			<td>{{$row[1]}}</td>
+			<td>@if($row[2]==1) VIP @endif</td>
+			<td>@if($row[3]==1) 已認證 @else N/A @endif</td>
+			<td>{{$row[4]}}</td>
+			<td>@if( ($row[5]==2 && $row[3]==1) || ($row[5]==1 && $row[2]==1) ) 5 @else 3.5 @endif</td>
+		</tr>
+	@endforeach
+</table>
+
 @if(isset($fingerprints))
 <h4>指紋記錄</h4>
 	<table class="table table-hover table-bordered">
@@ -416,6 +446,23 @@ function RecommendedToggler(user_id,Recommended){
 	$("#Recommended").val(Recommended);
 	$("#toggleRecommendedUser").submit();
 }
+
+function WarnedToggler(user_id,isWarned){
+	$.ajax({
+		type: 'POST',
+		url: "/admin/users/isWarned_user",
+		data:{
+			_token: '{{csrf_token()}}',
+			id: user_id,
+			status: isWarned,
+		},
+		dataType:"json",
+		success: function(res){
+			// alert('解除封鎖成功');
+			location.reload();
+		}});
+}
+
 function setDays(button){
     
     let reason = $(".m-reason").val();
