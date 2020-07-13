@@ -44,7 +44,8 @@ class ImageController extends Controller
         $payload = $request->all();
         MemberPic::destroy($payload['imgId']);
         if(!$admin){
-            return redirect("/dashboard?img");
+            // return redirect("/dashboard?img");
+            return back()->with('message','照片刪除成功');
         }
         else{
             return back()->with('message', '成功刪除照片');
@@ -96,8 +97,8 @@ class ImageController extends Controller
         $umeta->save();
 
         if(!$admin){
-            return redirect()->to('/dashboard?img')
-                   ->with('success','照片上傳成功')
+            // return redirect()->to('/dashboard?img')
+            return back()->with('success','照片上傳成功')
                    ->with('imageName',$input['imagename']);
         }
         else if($admin){
@@ -207,8 +208,8 @@ class ImageController extends Controller
         }
 
         if(!$admin){
-            return redirect()->to('/dashboard?img')
-                   ->with('success','照片上傳成功');
+            // return redirect()->to('/dashboard?img')
+                   return back()->with('success','照片上傳成功');
         }
         else if($admin){
             return back()->with('message', '照片上傳成功');

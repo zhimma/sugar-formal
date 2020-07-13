@@ -49,9 +49,11 @@
 	@else
 		<button class="btn btn-danger" onclick="WarnedToggler({{$user['id']}},0)">取消警示用戶({{$user->WarnedScore()}})</button>
 	@endif
-
-	@if($user->isVip())
-		<button class="btn btn-info" onclick="VipAction({{($user->isVip())?'1':'0' }},{{ $user['id'] }})"> 取消VIP </button>
+	
+	<a href="{{ route('users/switch/to', $user->id) }}" class="text-white btn btn-primary">切換成此會員前台</a>
+	
+	@if($user['isvip'])
+		<button class="btn btn-info" onclick="VipAction({{($user['isvip'])?'1':'0' }},{{ $user['id'] }})"> 取消VIP </button>
 		@if($user->engroup==1)
 			@if($user->Recommended==1)
 				<button class="btn btn-info" onclick="RecommendedToggler({{ $user['id'] }},'1')">給予優選</button>
@@ -106,7 +108,7 @@
 		<td>{{ $userMeta->phone }}</td>
 		<th>是否已啟動</th>
 		<td>@if($userMeta->is_active == 1) 是 @else 否 @endif</td>
-		<th rowspan='3'>照片</th>
+		<th rowspan='3'>照片 <br><a href="editPic_sendMsg/{{ $user->id }}" class='text-white btn btn-primary'>照片&發訊息</a></th>
 		<td rowspan='3'>@if($userMeta->pic) <img src="{{$userMeta->pic}}" width='150px'> @else 無 @endif</td>
 	</tr>
 	<tr>

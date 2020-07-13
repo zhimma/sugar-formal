@@ -485,6 +485,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::get('users/advInfo/{id}', 'UserController@advInfo')->name('users/advInfo');
         Route::get('users/advInfo/edit/{id}', 'UserController@advInfo');
         Route::post('users/advInfo/edit/{id}', 'UserController@saveAdvInfo')->name('users/save');
+        Route::get('users/advInfo/editPic_sendMsg/{id}', 'UserController@editPic_sendMsg');
         Route::post('users/toggleUserBlock', 'UserController@toggleUserBlock');
         Route::get('users/toggleUserBlock/{id}', 'UserController@toggleUserBlock_simple')->name('toggleUserBlock');
         Route::post('users/userUnblock', 'UserController@userUnblock');
@@ -592,10 +593,12 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         
         Route::post('users/delmsglib', 'UserController@delMessageLib');
         Route::get('users/message/msglib/create', 'UserController@addMessageLibPage');
+        Route::get('users/message/msglib/create/editPic_sendMsg', 'UserController@addMessageLibPageReporter');
         Route::get('users/message/msglib/create/reporter', 'UserController@addMessageLibPageReporter');
         Route::get('users/message/msglib/create/reported', 'UserController@addMessageLibPageReported');
         Route::get('users/message/msglib/create/delpic', 'UserController@addMessageLibPageReported');
         Route::get('users/message/msglib/create/{id}', 'UserController@addMessageLibPage');
+        Route::get('users/message/msglib/create/editPic_sendMsg/{id}', 'UserController@addMessageLibPageReporter');
         Route::get('users/message/msglib/create/reporter/{id}', 'UserController@addMessageLibPageReporter');
         Route::get('users/message/msglib/create/reported/{id}', 'UserController@addMessageLibPageReported');
         Route::get('users/message/msglib/create/delpic/{id}', 'UserController@addMessageLibPageReported');

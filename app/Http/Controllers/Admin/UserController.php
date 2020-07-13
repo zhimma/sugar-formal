@@ -196,10 +196,10 @@ class UserController extends Controller
             }
         }
         
-        //勾選加入自動封鎖後新增
+        //輸入新增自動封鎖關鍵字後新增
         if(!empty($request->addautoban)){
             if(DB::table('set_auto_ban')->where([['type', 'allcheck'],['content', $request->addautoban],['set_ban', '1']])->first() == null){
-                DB::table('set_auto_ban')->insert(['type' => 'allcheck', 'content' => $request->addautoban, 'set_ban' => '1']);
+                DB::table('set_auto_ban')->insert(['type' => 'allcheck', 'content' => $request->addautoban, 'set_ban' => '1', 'cuz_user_set' => $request->user_id]);
             }
         }
         
@@ -406,6 +406,9 @@ class UserController extends Controller
         return view('admin.users.advIndex')
                ->with('users', $users)
                ->with('name', isset($request->name) ? $request->name : null)
+               ->with('title', isset($request->title) ? $request->title : null)
+               ->with('style', isset($request->style) ? $request->style : null)
+               ->with('about', isset($request->about) ? $request->about : null)
                ->with('email', isset($request->email) ? $request->email : null)
                ->with('keyword', isset($request->keyword) ? $request->keyword : null)
                ->with('member_type', isset($request->member_type) ? $request->member_type : null)
@@ -546,6 +549,44 @@ class UserController extends Controller
         }
     }
 
+    //advInfo頁面的照片修改與站長訊息發送
+    public function editPic_sendMsg(Request $request, $id)
+    {
+        $admin = $this->admin->checkAdmin();
+        if ($admin){
+            $user = $this->service->find($id);
+            // $msglib = Msglib::get();
+            $userMeta = UserMeta::where('user_id', 'like', $id)->get()->first();
+            $msglib = Msglib::selectraw('id, title, msg')->where('kind','=','smsg')->get();
+            $msglib_report = Msglib::selectraw('id, title, msg')->where('kind','=','smsg')->get();
+            $msglib_msg = collect();
+            foreach ($msglib as $m){
+                // $m->msg = str_replace('|$report|', $user->name, $m->msg);
+                $m->msg = str_replace('NAME', $user->name, $m->msg);
+                $m->msg = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $m->msg);
+                // $m->msg = str_replace('|$reported|', "|被檢舉者|", $m->msg);
+                $msglib_msg->push($m->msg);
+            }
+            return view('admin.users.editPic_sendMsg')
+                   ->with('admin', $admin)
+                   ->with('user', $user)
+                   ->with('userMeta', $userMeta)
+                   ->with('from_user', $user)
+                   ->with('to_user', $admin)
+                   ->with('msglib', $msglib)
+                   ->with('msglib2', collect())
+                   ->with('msglib_report', $msglib_report)
+                   ->with('msglib_reported', null)
+                   ->with('msglib_msg', $msglib_msg)
+                   ->with('message_msg', collect())
+                   ->with('msglib_msg2', collect());
+        }
+        else{
+            return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
+
+    }
+
     public function showUserPictures()
     {
         return view('admin.users.userPictures');
@@ -569,8 +610,8 @@ class UserController extends Controller
             $avatars = $avatars->where('updated_at', '>=', $request->date_start);
         }
         if($request->date_end){
-            $pics = $pics->where('updated_at', '<=', $request->date_end);
-            $avatars = $avatars->where('updated_at', '<=', $request->date_end);
+            $pics = $pics->where('updated_at', '<=', $request->date_end.' 23:59:59');
+            $avatars = $avatars->where('updated_at', '<=', $request->date_end.' 23:59:59');
         }
         if($request->en_group){
             $users = User::select('id')->where('engroup', $request->en_group)->get();
