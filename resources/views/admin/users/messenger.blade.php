@@ -39,7 +39,12 @@
                     @endforeach
                 </table>
 	@endif            
-            
+            @if(!isset($from_user))
+                @php
+                    echo '$from_user 不是一個物件。';
+                    exit();
+                @endphp
+            @endif
             <h1>發送站長訊息給{{ $from_user->name}}(發訊者)</h1>
             <!-- <button class="savebtn btn btn-primary">儲存</button> -->
                 <table class="table table-bordered table-hover">
