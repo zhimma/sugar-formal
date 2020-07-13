@@ -22,6 +22,9 @@
         <p>變數設定說明： 被刪除會員的名字 NAME ，照片創建時間 TIME (刪大頭照無照片時間)</p>
         <p>範例:NAME您好，由於您在TIME上傳的照片不適合網站主旨，故已刪除。請重新上傳。如有疑慮請與站長聯絡。</p>
         <p>範例:NAME您好，由於您的大頭照不適合網站主旨，故已刪除。請重新上傳。如有疑慮請與站長聯絡。</p>
+    @elseif(str_contains(url()->current(), 'editPic_sendMsg'))
+        <p>變數設定說明： 被會員的名字 NAME ，現在時間 NOW_TIME</p>
+        <p>範例:NAME您好，由於您上傳的照片不適合網站主旨，故已在NOW_TIME刪除。請重新上傳。如有疑慮請與站長聯絡。</p>
     @else
         <p>檢舉者變數|$report|，被檢舉者變數|$reported|   ，範例:|$report|在|$reportTime|檢舉|$reported|，經站長在|$responseTime|判別沒有問題。</p>
     @endif
@@ -33,6 +36,8 @@
         <select name="kind" id="kind">
             @if(str_contains(url()->current(), 'delpic'))
                 <option value="delpic" selected>照片刪除</option>
+            @elseif(str_contains(url()->current(), 'editPic_sendMsg'))
+                <option value="smsg" selected>站長訊息</option>
             @else
                 <option value="report" @if(str_contains(url()->current(), 'reporter')) selected @endif>檢舉者</option>
                 <option value="reported" @if(str_contains(url()->current(), 'reported')) selected @endif>被檢舉者</option>
