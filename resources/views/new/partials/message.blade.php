@@ -115,7 +115,7 @@
                 $(".banned_bg").hide();
                 $(".gg_tab").hide();
 {{--                {{Auth::logout()}}--}}
-{{--                 window.location = "/logout";--}}
+                 window.location = "/logout";
             }
             $(document).on('click','.banned_bg',function(event) {
                 $(".banned_bg").hide();
