@@ -139,7 +139,12 @@ class StatController extends Controller
 
     public function set_autoBan_add(Request $request){
         if(isset($request->content)){
-            DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban]);
+            $user = User::findByEmail($request->cuz_email_set);
+            if($user){
+                DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban, 'cuz_user_set' => $user->id]);
+            }else{
+                DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban]);
+            }
         }
         $data = DB::table('set_auto_ban')->orderBy('id', 'desc')->get();
         return view('admin.stats.set_autoBan')->with('data', $data);
