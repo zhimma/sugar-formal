@@ -231,4 +231,54 @@ class SetAutoBan extends Model
         }
     }
 
+    //登出後的警示
+    public static function logout_warned($uid)
+    {
+        $auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content')->where('set_ban', '3')->orderBy('id', 'desc')->get();
+        foreach ($auto_ban as $ban_set) {
+            $content = $ban_set->content;
+            $violation = false;
+            switch ($ban_set->type) {
+                case 'name':
+                    if(User::where('id', $uid)->where('name','like','%'.$content.'%')->first() != null) $violation = true;
+                    break;
+                case 'email':
+                    if(User::where('id', $uid)->where('email','like','%'.$content.'%')->first() != null) $violation = true;
+                    break;
+                case 'title':
+                    if(User::where('id', $uid)->where('title','like','%'.$content.'%')->first() != null) $violation = true;
+                    break;
+                case 'about':
+                    if(UserMeta::where('user_id',$uid)->where('about','like','%'.$content.'%')->first() != null) $violation = true;
+                    break;
+                case 'style':
+                    if(UserMeta::where('user_id',$uid)->where('style','like','%'.$content.'%')->first() != null) $violation = true;
+                    break;
+                case 'allcheck':
+                    //全檢查判斷user與user_meta的內容 若有一個違規 就設定true
+                    if( (User::where('id', $uid)->where(function($query)use($content){
+                            $query->where('name', 'like', '%'.$content.'%')
+                            ->orwhere('email', 'like', '%'.$content.'%')
+                            ->orwhere('title', 'like', '%'.$content.'%');
+                        })->first() != null ) 
+                        OR (UserMeta::where('user_id', $uid)->where(function($query)use($content){
+                            $query->where('about', 'like', '%'.$content.'%')
+                            ->orwhere('style', 'like', '%'.$content.'%');
+                        })->first() != null ) ){
+                        $violation = true;
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            if($violation){
+                // Log::info('ban_set->set_ban ' . $ban_set->set_ban);
+                //警示會員
+                UserMeta::where('user_id', $uid)->update(['isWarned' => 1]);
+                return;
+            }
+        }
+    }
+
 }

@@ -8,17 +8,20 @@
     	{!! csrf_field() !!}
 	    <td>
 	        <select name="type" id="type">
+	    		<option value="allcheck">全欄位封鎖</option>
 	    		<option value="email">email</option>
 	    		<option value="name">暱稱</option>
 	    		<option value="title">一句話形容自己</option>
 	            <option value="about">關於我</option>
 	    		<option value="style">期待的約會模式</option>
 	    		<option value="msg">發送訊息內容</option>
-	    		<option value="allcheck">全欄位封鎖</option>
 	        </select>
 	    </td>
 	    <td>
-	    	輸入關鍵字<input type ="text" name="content" value="">
+	    	輸入關鍵字 <input type ="text" name="content" value="">
+	    </td>
+	    <td>
+	    	輸入來源email <input type ="text" name="cuz_email_set" value="">
 	    </td>
 	    <td>
 	    	<input type="radio" name="set_ban" value="1" checked>封鎖
@@ -44,6 +47,15 @@
 			@endif
 		</td>
 		<td>{{ $result->content }}</td>
+		<td>@if(isset($result->cuz_user_set))
+			<a href="{{ route('users/advInfo', $result->cuz_user_set) }}" target='_blank'>
+				@php
+					$user = \App\Models\User::findById($result->cuz_user_set);
+				@endphp
+				{{ $user->email }}
+			</a>
+			@endif
+		</td>
 		@if($result->set_ban==1)
 			<td style="color:red">永久封鎖</td>
 		@elseif($result->set_ban==2)

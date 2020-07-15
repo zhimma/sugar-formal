@@ -95,7 +95,7 @@
             $reason = $banned_user->reason == '自動封鎖' ? '系統原因' : $banned_user->reason;
         @endphp
         <div class="blbg banned_bg" style="display:block"></div>
-        <div class="gg_tab" id="tab_banned_alert" style="display: block;">
+        <div class="gg_tab" id="tab_banned_alert" style="display: block; z-index: 999;">
             <div class="ggtitle">封鎖提示</div>
             <div class="ggnr01 ">
                 <div class="gg_nr">您因為 {{ $reason }} 被站長封鎖{{ $diff_in_days }}，如有問題請點右下聯絡我們加站長 line 反應。</div>
@@ -122,7 +122,7 @@
                 $(".announce_bg").hide();
                 $(".gg_tab").hide();
 {{--                {{Auth::logout()}}--}}
-{{--                window.location = "/";--}}
+                window.location = "/logout";
             });
         </script>
     @endif
