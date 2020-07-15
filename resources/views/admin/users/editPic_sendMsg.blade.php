@@ -138,7 +138,7 @@
             <td>
                 <label class="col-form-label twzip" for="image">變更頭像照</label>
             </td>
-            <form method="POST" action="/dashboard/header" enctype="multipart/form-data">
+            <form method="POST" action="/dashboard/header/1" enctype="multipart/form-data">
 		        {!! csrf_field() !!}
 		        <input type="hidden" name="userId" value="{{$user->id}}">
                 <td>
