@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\Role;
+use App\Models\SetAutoBan;
+use Auth;
 use App\Models\SimpleTables\banned_users;
 use Illuminate\Support\Facades\Config;
 use App\Services\FingerprintService;
@@ -247,4 +249,12 @@ class LoginController extends Controller
         $mac=substr($string, 0, 17); 
         return $mac;
     }
+
+    public function logout(Request $request) {
+        //登出自動警示
+        SetAutoBan::logout_warned(Auth::id());
+        Auth::logout();
+        return redirect('/login');
+    }
+
 }
