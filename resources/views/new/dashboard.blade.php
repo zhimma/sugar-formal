@@ -47,7 +47,7 @@
 
             <div class="n_adbut">
                 <a href="/dashboard/viewuser/{{$user->id}}"><img src="/new/images/1_06.png">預覽</a></div>
-               <div class="n_adbut"><a href="/member_auth/" style="padding-left: 10px;">身份驗證</a></div>
+               <div class="n_adbut"><a href="/member_auth/" style="padding-left: 10px;">會員驗證</a></div>
             <div class="xiliao_input">
                <form class="m-form m-form--fit m-form--label-align-right" method="POST" name="user_data" action="" id="information" data-parsley-validate novalidate>
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -589,6 +589,16 @@
 
     </div>
   </div>
+
+  <div class="bl bl_tab" id="isWarned" style="display: none;">
+      <div class="bltitle">提示</div>
+      <div class="blnr bltext">
+{{--          由於{!! $isWarnedReason !!}原因，您目前是警示會員。--}}
+          {{$user->name}} 您好，您目前被系統判斷為警示會員
+          <br>建議您進行手機認證解除此狀態。<br>前往<a href='/member_auth'>會員驗證</a></div>
+      <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+  </div>
+
 <script>
     $(document).ready(function() {
         @if(Session::has('message'))
@@ -668,6 +678,9 @@
           // });
         @elseif(isset($is_banned) && $is_banned=='是')
         c5('怕自動封鎖錯封，可以跟站長連絡人工審查');
+        @elseif ($umeta->isWarned==1)
+        $('#isWarned').show();
+        $('#announce_bg').show();
         @endif
       @endif
       //ajax_表單送出

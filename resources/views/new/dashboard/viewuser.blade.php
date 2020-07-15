@@ -123,11 +123,11 @@
                                     </li>
                                 @endif
                                 {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
-{{--                                @if($to->meta_()->isWarned == 1)--}}
-{{--                                    <li>--}}
-{{--                                        <img src="/new/images/a5.png">--}}
-{{--                                    </li>--}}
-{{--                                @endif--}}
+                                @if($to->meta_()->isWarned == 1)
+                                    <li>
+                                        <img src="/new/images/a5.png">
+                                    </li>
+                                @endif
                                 @if($to->engroup == 2 && $to->isPhoneAuth() && $to->isImgAuth())
                                     <li><img src="/new/images/a6.png">
                                     </li>

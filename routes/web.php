@@ -252,7 +252,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/dashboard/newer_manual/isRead', 'PagesController@is_read_manual');
 });
 
-Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'newerManual']], function () {
+Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckIsWarned']], function () {
 
     /*
     |--------------------------------------------------------------------------
@@ -605,6 +605,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::post('users/addmsglib', 'UserController@addMessageLib');
         Route::post('users/block_user', 'UserController@blockUser');/*封鎖會員*/
         Route::post('users/unblock_user', 'UserController@unblockUser');/*封鎖會員*/
+        Route::post('users/isWarned_user', 'UserController@isWarnedUser');/*警示用戶*/
         /*
         |--------------------------------------------------------------------------
         | Roles
