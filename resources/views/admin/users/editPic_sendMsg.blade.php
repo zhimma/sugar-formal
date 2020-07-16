@@ -163,7 +163,7 @@
     </table>
 
 
-    <form method="POST" action="/dashboard/image" enctype="multipart/form-data">
+    <form method="POST" action="/dashboard/image/1" enctype="multipart/form-data">
         {!! csrf_field() !!}
         <input type="hidden" name="userId" value="{{$user->id}}">
         <table class="table table-hover table-bordered">
@@ -187,7 +187,7 @@
     <table class="table table-hover table-bordered" style="width: 50%;">
         @forelse ($pics as $pic)
             <tr>
-                <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/imagedel">
+                <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/imagedel/1">
                     <td>
                         {!! csrf_field() !!}
                         <input type="hidden" name="userId" value="{{$user->id}}">

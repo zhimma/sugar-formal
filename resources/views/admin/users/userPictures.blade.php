@@ -74,7 +74,10 @@
         @if(isset($pics))
             @foreach ($pics as $pic)
                 <tr>
-                    <td>{{ $userNames[$pic->member_id] }}</td>
+                    {{-- <td>{{ $userNames[$pic->member_id] }}</td> --}}
+                    <td>
+                        <a href="advInfo/editPic_sendMsg/{{ $pic->member_id }}">{{ $userNames[$pic->member_id] }}</a>
+                    </td>
                     <td><img src="{{ url($pic->pic) }}" width="150px"></td>
                     <td>{{ $pic->updated_at }}</td>
                     <td>
@@ -87,7 +90,10 @@
         @if(isset($avatars))
             @foreach ($avatars as $avatar)
                 <tr>
-                    <td>{{ $userNames[$avatar->user_id] }}</td>
+                    {{-- <td>{{ $userNames[$avatar->user_id] }}</td> --}}
+                    <td>
+                        <a href="advInfo/editPic_sendMsg/{{ $avatar->user_id }}">{{ $userNames[$avatar->user_id] }}</a>
+                    </td>
                     <td><img src="{{ url($avatar->pic) }}" width="150px"></td>
                     <td>{{ $avatar->updated_at }}</td>
                     <td>
