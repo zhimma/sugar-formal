@@ -128,7 +128,7 @@
                                         <img src="/new/images/a5.png">
                                     </li>
                                 @endif
-                                @if($to->engroup == 2 && $to->isPhoneAuth() && $to->isImgAuth())
+                                @if($to->engroup == 2 && $to->isPhoneAuth())
                                     <li><img src="/new/images/a6.png">
                                     </li>
                                 @endif

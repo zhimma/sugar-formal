@@ -659,8 +659,7 @@ class Message_new extends Model
                 $messages[$key]['read_n']=(!empty($mm[$messages[$key]['from_id']] && $messages[$key]['from_id']==$msgUser->id) )?$mm[$messages[$key]['from_id']]:0;
 //                $messages[$key]['read_n']= isset($mm[$messages[$key]['from_id']]) ? $mm[$messages[$key]['from_id']]: 0;
                 $messages[$key]['isVip']=$msgUser->isVip();
-//                $messages[$key]['message_count']=$messages[$key]['isVip']=$msgUser->isVip();
-//                $messages[$key]['total_counts'] = $messages_count;
+                $messages[$key]['isWarned']=$msgUser->meta_()->isWarned;
             }
             else{
                 Log::info('Null object found, $user: ' . $user->id);

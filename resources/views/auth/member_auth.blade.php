@@ -47,15 +47,19 @@
 
                 .chbottom{ position:static;bottom:0;}
 			}
+
             /*@media (min-width:1024px) and (min-height:768px){*/
             /*    .chbottom{ position:absolute;bottom:unset;}*/
             /*}*/
             /*@media (min-width:1024px) and (min-height:1366px) and (max-width:1024px) and (max-height:1366px){*/
             /*    .chbottom{ position:absolute;bottom:0;}*/
             /*}*/
-            /*@media (min-width:1366px) and (min-height:1024px) and (max-width:1366px) and (max-height:1024px){*/
-            /*    .chbottom{ position:absolute;bottom:0;}*/
-            /*}*/
+            @media (min-width:812px) and (min-height:375px) and (max-width:812px) and (max-height:375px){
+                .chbottom{ position:static;bottom:0;}
+            }
+            @media (min-width:823px) and (min-height:411px) and (max-width:823px) and (max-height:411px){
+                .chbottom{ position:static;bottom:0;}
+            }
 
 		</style>
 	</head>
@@ -117,29 +121,29 @@
                                            @endif
                                         </div>
                                       
-                                      <div class="zy_line"></div>
-									  <form id="auth_all" enctype="multipart/form-data">
-                                          {!! csrf_field() !!}
-                                      <div class="de_input">
-                                          <div class="yanzheng_1">驗證2</div>
-                                          @if($user->isImgAuth())
-                                              <div>已完成驗證</div>
-                                          @else
-                                          <div id="photo" class="zy_kuang">
-										  	  
-                                              <img id="prev_img" src="/auth/images/photo_01.png" style="cursor:pointer;">
-											  <!-- <div class="delBtn" style="display:none;"><img id="del" src="/new/images/gb_icon01.png" style="cursor:pointer;width:30px;height:30px;right:0"></div> -->
-											  <span>請用手機拍攝照片，並於十分鐘內上傳</span>
-											  <!-- <div classs="mask"> -->
-											  	<input type='hidden' id="imgInp" name="image"/>
-											  <!-- </div> -->
-                                          </div>
-                                          <a id="auth_photo2" class="dlbut yx_butco" style="cursor:pointer">驗證</a>
-                                          <br>
-										  <a onclick="history.go(-1)" id="auth_photo" class="dlbut yx_butco" style="cursor:pointer;background-color:#fe92a8">取消</a>
-                                              @endif
-                                      </div>
-									  </form>
+{{--                                      <div class="zy_line"></div>--}}
+{{--									  <form id="auth_all" enctype="multipart/form-data">--}}
+{{--                                          {!! csrf_field() !!}--}}
+{{--                                      <div class="de_input">--}}
+{{--                                          <div class="yanzheng_1">驗證2</div>--}}
+{{--                                          @if($user->isImgAuth())--}}
+{{--                                              <div>已完成驗證</div>--}}
+{{--                                          @else--}}
+{{--                                          <div id="photo" class="zy_kuang">--}}
+{{--										  	  --}}
+{{--                                              <img id="prev_img" src="/auth/images/photo_01.png" style="cursor:pointer;">--}}
+{{--											  <!-- <div class="delBtn" style="display:none;"><img id="del" src="/new/images/gb_icon01.png" style="cursor:pointer;width:30px;height:30px;right:0"></div> -->--}}
+{{--											  <span>請用手機拍攝照片，並於十分鐘內上傳</span>--}}
+{{--											  <!-- <div classs="mask"> -->--}}
+{{--											  	<input type='hidden' id="imgInp" name="image"/>--}}
+{{--											  <!-- </div> -->--}}
+{{--                                          </div>--}}
+{{--                                          <a id="auth_photo2" class="dlbut yx_butco" style="cursor:pointer">驗證</a>--}}
+{{--                                          <br>--}}
+{{--										  <a onclick="history.go(-1)" id="auth_photo" class="dlbut yx_butco" style="cursor:pointer;background-color:#fe92a8">取消</a>--}}
+{{--                                              @endif--}}
+{{--                                      </div>--}}
+{{--									  </form>--}}
 										<!-- <form runat="server">
 										<input type='file' id="imgInp" />
 										<img id="blah" src="#" alt="your image" />
@@ -168,8 +172,12 @@
 <div class="bl bl_tab " id="tab01" style="display: none;">
     <div class="bltitle"><span>提示</span></div>
     <div class="n_blnr01 matop10">
-         <div class="n_fengs" style="text-align:center">手機驗證成功<br>下一步：請用手機拍照，在10分鐘內上傳！<br>(備註：照片只給站方做認證用，認證完即可刪除，不用留存)</div>
-        <a class="n_bllbut matop30" id="" onclick="gmBtn1()" style="cursor:pointer">確定</a>
+        <div class="n_fengs" style="text-align:center;width:100%;">恭喜您</div>
+        <div class="n_fengs" style="text-align:center;width:100%;">完成身份驗證囉！</div>
+{{--         <div class="n_fengs" style="text-align:center">手機驗證成功--}}
+{{--             <br>下一步：請用手機拍照，在10分鐘內上傳！<br>(備註：照片只給站方做認證用，認證完即可刪除，不用留存)--}}
+{{--         </div>--}}
+        <a class="n_bllbut matop30" id="complete_auth" onclick="gmBtn1()" style="cursor:pointer">確定</a>
     </div>
     <a id="" onclick="gmBtn1()" class="bl_gb"><img src="/auth/images/gb_icon.png"></a>
 </div>
@@ -485,6 +493,9 @@
                 $("#imgInp").trigger('click');
             });
 
+            $('#complete_auth').click(function () {
+                location.reload();
+            });
             $(document).ready(function(){
                 $(".bot").addClass('chbottom');
             });

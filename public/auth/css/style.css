@@ -1384,10 +1384,16 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 }
 
 
-
-
-
 @media (min-width:769px){
+    .zybg_new{width:75%; height:40px; background:#f8f8f8; border-radius:50px; display:table; border:none;outline:none; margin-bottom:15px; float:left}
+    .zybg_right{width:25%;height:40px; line-height:40px; color:#ffffff; text-align:center; background:#fe92a8; border-radius:50px; float:right}
+}
+@media (min-width:823px) and (max-width:823px){
+    .zybg_new{width:83%;height:40px; background:#f8f8f8; border-radius:50px; display:table; border:none;outline:none; margin-bottom:15px; float:left;}
+    .zybg_right{width:17%;height:40px; line-height:40px; color:#ffffff; text-align:center; background:#fe92a8; border-radius:50px; float:right;}
+}
+
+@media (min-width:769px) and (max-width:811px){
 	.zybg_new{width:75%; height:40px; background:#f8f8f8; border-radius:50px; display:table; border:none;outline:none; margin-bottom:15px; float:left}
 	.zybg_right{width:25%;height:40px; line-height:40px; color:#ffffff; text-align:center; background:#fe92a8; border-radius:50px; float:right}
 }

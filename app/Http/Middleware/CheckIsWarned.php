@@ -38,7 +38,7 @@ class CheckIsWarned
 
 //        dd($user);
         $auth_status = 0;
-        if($user->isPhoneAuth()==1 && $user->isImgAuth()==1){
+        if($user->isPhoneAuth()==1){
             $auth_status = 1;
         }
 

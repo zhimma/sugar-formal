@@ -501,7 +501,7 @@ class UserController extends Controller
         foreach($pic_all_report as $row){
             $uuu = User::findById($row->uid);
             $auth_status=0;
-            if($uuu->isPhoneAuth()==1 && $uuu->isImgAuth()==1 ){
+            if($uuu->isPhoneAuth()==1){
                 $auth_status=1;
             }
             array_push($report_all,array($uuu->name,$uuu->email,$uuu->isVip(),$auth_status,'照片檢舉',$uuu->engroup));
@@ -509,7 +509,7 @@ class UserController extends Controller
         foreach($msg_report as $row){
             $uuu = User::findById($row->to_id);
             $auth_status=0;
-            if($uuu->isPhoneAuth()==1 && $uuu->isImgAuth()==1 ){
+            if($uuu->isPhoneAuth()==1){
                 $auth_status=1;
             }
             array_push($report_all,array($uuu->name,$uuu->email,$uuu->isVip(),$auth_status,'訊息檢舉',$uuu->engroup));
@@ -517,7 +517,7 @@ class UserController extends Controller
         foreach($report as $row){
             $uuu = User::findById($row->member_id);
             $auth_status=0;
-            if($uuu->isPhoneAuth()==1 && $uuu->isImgAuth()==1 ){
+            if($uuu->isPhoneAuth()==1){
                 $auth_status=1;
             }
             array_push($report_all,array($uuu->name,$uuu->email,$uuu->isVip(),$auth_status,'會員檢舉',$uuu->engroup));
@@ -1864,10 +1864,10 @@ class UserController extends Controller
                         ['member_id' => $id, 'active' => 1]);
                 }
 
-                if ($user->isImgAuth() == 0) {
-                    DB::table('auth_img')->insert(
-                        ['user_id' => $id, 'status' => 1, 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
-                }
+//                if ($user->isImgAuth() == 0) {
+//                    DB::table('auth_img')->insert(
+//                        ['user_id' => $id, 'status' => 1, 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+//                }
             }
 
         }
