@@ -598,7 +598,10 @@ class PagesController extends Controller
 //        $isWarnedReason = AdminCommonText::getCommonText(56);//id 56 警示用戶原因
 
 
-        $is_banned = banned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date','>=',now())->count() >= 1 ? '是' : '否';
+        $is_banned = banned_users::where('member_id', $user->id)->where(
+            function ($query) {
+                $query->whereNull('expire_date')->orWhere('expire_date', '>=', now());
+            })->count() >= 1 ? '是' : '否';
 
         if($year=='1970'){
             $year=$month=$day='';
@@ -1092,7 +1095,7 @@ class PagesController extends Controller
 
                 $message_count_7 = Message::where('from_id', $uid)->where('created_at', '>=', $date)->count();
 
-                $is_banned = banned_users::where('member_id', $uid)->where('expire_date', null)->orWhere('expire_date','>=',now())->count() >= 1 ? '是' : '否';
+                $is_banned = null;
 
                 $data = array(
                     'tip_count' => $tip_count,

@@ -521,11 +521,6 @@
         ccc('此用戶已關閉資料。');
         $('.row').css('display','none');
         @endif
-
-        @if(isset($is_banned) && $is_banned == '是')
-        ccc('此帳號關閉。');
-        $('.row').css('display','none');
-    @endif
     // });
 
     @if (isset($errors) && $errors->count() > 0)
