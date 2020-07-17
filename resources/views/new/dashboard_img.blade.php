@@ -19,6 +19,21 @@
     .abtn{cursor: pointer;}
     .twzip {display: inline-block !important;width: auto !important;min-width: 45%;margin-right: 10PX;}
     .select_xx2{width: 100%;border: #d2d2d2 1px solid;border-radius: 4px;height: 40px;padding: 0 6px;color:#555;background:#ffffff;font-size: 15px;margin-top: 10px;}
+    @media (max-width:414px) {
+        .column-title div{
+            width: 208px !important;
+        }
+    }
+    @media (max-width:375px) {
+        .column-title div{
+            width: 188px !important;
+        }
+    }
+    @media (max-width:320px) {
+        .column-title div{
+            width: 154px !important;
+        }
+    }
 </style>
 
 <div class="container matop70 chat">
@@ -348,6 +363,17 @@
             },
         ],
     }
+
+
+
+    $(document).ready(function() {
+        if(window.matchMedia("(max-width: 775px)").matches){
+            $('.column-title div').css('width', $( window ).width() - 90 - 36 - 56);
+            $(window).resize(function () {
+                $('.column-title div').css('width', $( window ).width() - 90 - 36 - 56);
+            });
+        }
+    });
   
 </script>
 

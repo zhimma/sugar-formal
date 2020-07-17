@@ -301,10 +301,10 @@
             // $("#photo").append('<input type="file" id="imgInp">');
             $("#photo").find('input').attr('type','file').css('display','none');
             @endif
-            $('.zybg_right').css('width',$('.zybg_new02').width() - $('.zybg_new').width() );
+            $('.zybg_right').css('width',$('.zybg_new02').width() - $('.zybg_new').width() -1 );
             $('.xy_yanx').css('width',$('.zybg_new02').width() - $('.zybg_new').width());
             $(window).resize(function() {
-                $('.zybg_right').css('width',$('.zybg_new02').width() - $('.zybg_new').width() );
+                $('.zybg_right').css('width',$('.zybg_new02').width() - $('.zybg_new').width() -1 );
                 $('.xy_yanx').css('width',$('.zybg_new02').width() - $('.zybg_new').width());
             });
             function cl() {

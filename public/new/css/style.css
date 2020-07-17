@@ -48,7 +48,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 @media (max-width:767px) {
 .matop70{ margin-top:70px;}
 
-.heicon{ display:table}
+.heicon{ display:block}
 .hetop{ display:none}
 .he_img{ height:20px; margin-top:14px; cursor:pointer}
 .heyingc{ position:absolute; background:#ffffff; right:10px;width:130px; top:70px; border-radius:20px; z-index:2;}
@@ -98,7 +98,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 
 @media (max-width:992px) {
-.heicon{ display:table}
+.heicon{ display:block}
 .hetop{ display:none}
 .he_img{ height:20px; margin-top:14px; cursor:pointer}
 .heyingc{ position:absolute; background:#ffffff; right:10px;width:130px; top:70px; border-radius:20px; z-index:2;}
@@ -279,7 +279,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 .bot{width:100%; display:table;background-image: linear-gradient(to right, #ebbcdc 0%, #fadfdf 100%); padding:30px 0 20px 0; text-align:center;color:#ee5472}
 .bot a{ color:#ee5472}
-.bot img{width:200px; margin:0 auto; padding:0px; display:table; margin-top:7px;}
+.bot img{width:200px; margin:0 auto; padding:0px; display:block; margin-top:7px;}
 @media (max-width:480px) {
 .bot{/*height:120px; */padding:0px 0; padding-top:50px !important}
 .bot img{margin-top:10px !important;}
@@ -290,7 +290,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .dinone{ display:none}
 .xiliao_input{margin:10px 0 30px 0}
 
-.bot{width:100%; display:table; background: url(../images/bot_06.png) no-repeat;background-size:100%; padding:70px 0 10px 0; text-align:center;color:#ee5472;}
+.bot{width:100%; display:block; background: url(../images/bot_06.png) no-repeat;background-size:100%; padding:70px 0 10px 0; text-align:center;color:#ee5472;}
 .bot a{ color:#ee5472}
 .bot img{width:50%; margin:0 auto; padding:0px; display:table; margin-top:15px;}
 
