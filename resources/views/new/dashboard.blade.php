@@ -597,7 +597,8 @@
           {{$user->name}} 您好，為防止八大入侵，系統有設置警示會員制度。<br>
           您目前被系統暫時列為警示會員，通過手機簡訊認證即可解除此狀態。<br>
           此機制主要針對色情行業，但偶爾會誤判，還請見諒。<br>
-          手機號碼不會公布敬請放心。前往<a href='/member_auth'>會員驗證</a></div>
+          手機號碼不會公布敬請放心，有問題可加站長line：@giv4956r 反應。<br>
+          前往<a href='/member_auth'>會員驗證</a></div>
       <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
   </div>
 
