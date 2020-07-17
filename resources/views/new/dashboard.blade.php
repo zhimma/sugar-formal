@@ -594,8 +594,8 @@
       <div class="bltitle">提示</div>
       <div class="blnr bltext">
 {{--          由於{!! $isWarnedReason !!}原因，您目前是警示會員。--}}
-          {{$user->name}} 您好，您目前被系統判斷為警示會員
-          <br>建議您進行手機認證解除此狀態。<br>前往<a href='/member_auth'>會員驗證</a></div>
+          {{$user->name}} 您好，您目前被多人檢舉，所以被暫時列為警示會員。
+          <br>通過手機簡訊認證即可解除此狀態。(手機號碼只有站方可以看到不會公布敬請放心)。<br>前往<a href='/member_auth'>會員驗證</a></div>
       <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
   </div>
 
