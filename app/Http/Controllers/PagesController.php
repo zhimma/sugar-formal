@@ -1201,7 +1201,7 @@ class PagesController extends Controller
         }
 
         $auth_check=0;
-        if($user->isPhoneAuth()==1 && $user->isImgAuth()==1){
+        if($user->isPhoneAuth()==1){
             $auth_check=1;
         }
         if (isset($user) && isset($uid)) {
