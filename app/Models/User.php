@@ -360,6 +360,9 @@ class User extends Authenticatable
         if(isset($pic_all_report) && count($pic_all_report)>0){
             foreach($pic_all_report as $row){
                 $user = User::findById($row->uid);
+                if(!isset($user)){
+                    continue;
+                }
                 if($user->engroup==2){
 
                     if($user->isPhoneAuth()==1 && $user->isImgAuth()==1){
