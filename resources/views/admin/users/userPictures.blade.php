@@ -66,10 +66,10 @@
             <td>會員名稱</td>
             <td>照片</td>
             <td>更新時間</td>
-            <td>
+            {{-- <td>
                 <button class="btn btn-warning" onclick="$('#modify').submit()" @if($hiddenSearch) name="dehide" @else name="hide" @endif  value="1">@if($hiddenSearch) 解除@endif隱藏</button>
                 <button class="btn btn-danger" onclick="$('#modify').submit()" name='delete' value="1">刪除</button>
-            </td>
+            </td> --}}
         </tr>
         @if(isset($pics))
             @foreach ($pics as $pic)
@@ -80,10 +80,10 @@
                     </td>
                     <td><img src="{{ url($pic->pic) }}" width="150px"></td>
                     <td>{{ $pic->updated_at }}</td>
-                    <td>
+                    {{-- <td>
                         <input type="hidden" name="type" value="pic">
                         <input type="checkbox" name="pic_id[]" value="{{ $pic->id }}">
-                    </td>
+                    </td> --}}
                 </tr>
             @endforeach
         @endif
@@ -96,10 +96,10 @@
                     </td>
                     <td><img src="{{ url($avatar->pic) }}" width="150px"></td>
                     <td>{{ $avatar->updated_at }}</td>
-                    <td>
+                    {{-- <td>
                         <input type="hidden" name="type" value="avatar">
                         <input type="checkbox" name="avatar_id[]" value="{{ $avatar->user_id }}">
-                    </td>
+                    </td> --}}
                 </tr>
             @endforeach
         @endif
