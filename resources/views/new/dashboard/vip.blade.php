@@ -9,11 +9,12 @@
             <div class="col-sm-12 col-xs-12 col-md-10">
                 <div class="g_password">
                     <div class="g_pwicon">
-                        <li><a href="{!! url('dashboard') !!}"><img src="/new/images/mm_03.png"><span>基本資料</span></a></li>
-                        <li><a href="{!! url('dashboard_img') !!}"><img src="/new/images/mm_05.png"><span>照片管理</span></a></li>
-                        <li><a href="{!! url('/dashboard/password') !!}"><img src="/new/images/mm_07.png"><span>更改密碼</span></a></li>
-                        <li><a href="{!! url('/dashboard/vip') !!}"><img src="/new/images/mm_18.png"><span>VIP</span></a></li>
+                        <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t "><span>基本資料</span></a></li>
+                        <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2"><span>照片管理</span></a></li>
+                        <li><a href="{!! url('/dashboard/password') !!}" class="g_pwicon_t3 "><span>更改密碼</span></a></li>
+                        <li><a href="{!! url('/dashboard/vip') !!}" class="g_pwicon_t4 g_hicon4"><span>VIP</span></a></li>
                     </div>
+                    <div class="new_viphig">
                     <div class="n_viptitle">
                         <a href="#" onclick='return changediv("vip")' id="vip_a" class="n_viphover" target=_parent>升級VIP</a>
 
@@ -21,6 +22,7 @@
                     </div>
                     <div class="n_sjvip"  id="vip">
                         <div class="vipline"><img src="/new/images/VIP_05.png"></div>
+                        <div class="part1">
                         <div class="viplist">
                             <ul>
                                 <li>
@@ -55,13 +57,13 @@
                                 </li>
                             </ul>
                         </div>
-                        <div class="n_vipbut">
+                        <div class="gvip_input">
                             <span>
 {{--                                <a href="" class="n_vip01 v_butleft">購買方式1</a>--}}
                                 <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                 <input type="hidden" name="userId" value="{{$user->id}}">
-                                        <button type="submit" class="n_vip01 v_butleft" style="border-style: none;">購買方式1</button>
+                                        <button type="submit" class="gvipbut n_vip01" style="border-style: none;">購買方式1</button>
                                 </form>
                             </span>
                             <span>
@@ -87,10 +89,11 @@
                                     <input type=hidden name="checksum" value="{{ md5("761404"."30".$orderNumber.$code.Config::get('social.payment.vip-amount')) }}">
                                     <input type=hidden name="Englishmode" value="0">
 
-                                    <button type="submit" class="n_vip01 v_butright" style="border-style: none;">購買方式2</button>
+                                    <button type="submit" class="gvipbut n_vip01" style="border-style: none;">購買方式2</button>
                                 </form>
 
                             </span>
+                            <a href="javascript:void(0);" class="gvipbut" id="pay_back">補刷卡</a>
                         </div>
                         <div class="vipline"><img src="/new/images/VIP_05.png"></div>
                         <div class="vipbongn">
@@ -107,7 +110,31 @@
 {{--                            <h3><span>●</span>加入 VIP 以後可以隨時手動取消沒有任何限制，但金流需要七個工作天操作，所以需在下個月扣款前七個工作天取消，次月才不會扣款</h3>--}}
                         </div>
                         <div class="n_vipbotf">本筆款項在信用卡帳單顯示為 信宏資產管理公司</div>
+                        </div>
+                        <div class="part2" style="display: none;">
+                        <div class="bka">您好，這是VIP款項補繳頁面<br>請選擇補繳月費後刷卡即可</div>
 
+                        <div class="bka_input01">
+                            <input name="qty" type="number" class="bk_input" id="qty" placeholder="輸入次數"><span>次×888/月=</span>
+                            <span class="bk_input bka_cor">888</span><span>元</span>
+                        </div>
+{{--                        <a href="" class="dlbut">確定</a>--}}
+                            <form id="payback_form" class="m-form m-form--fit" action="{{ route('payback_ec') }}" method=post>
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                <input type="hidden" name="userId" value="{{$user->id}}">
+                                <input type="hidden" name="amount" id="amount" value="">
+{{--                                <button type="submit" class="dlbut" style="border-style: none;">確定</button>--}}
+                                <a href="javascript:void(0);" class="dlbut" onclick="payback_submit()">確定</a>
+                            </form>
+
+                        <div class="vipline matop10"><img src="/new/images/VIP_05.png"></div>
+                        <div class="vipbongn">
+                            <h2>注意事項</h2>
+                            <h3><span>●</span><div class="bka_span">刷卡前請點網站右下連絡我們，與站長確認您的補繳金額，以及可獲得的權益。</div></h3>
+                            <h3><span>●</span><div class="bka_span">雙方line對話或者email往來做為交易依據，此處刷卡後不接受退款要求。</div></h3>
+                            <h3><span>●</span><div class="bka_span">如不同意切勿於此頁面刷卡。</div></h3>
+                        </div>
+                        </div>
                     </div>
                     <div class="hy_width n_viptop20"  id="vip_cancel" style="display:none">
                         <div class="fi_xq">
@@ -135,6 +162,7 @@
                         </form>
                         @endif
 
+                    </div>
                     </div>
 
                 </div>
@@ -186,6 +214,29 @@
             }
         });
 
+        $('#pay_back').on('click',function(){
+           $('.part1').hide();
+           $('.part2').show();
+           $('#qty').val('');
+        });
+
+        $('#qty').on('change',function(){
+            if($('#qty').val() < 1){
+                c3('至少1次');
+            }else {
+                $('.bka_cor').text($('#qty').val() * 888);
+                $('#amount').val($('#qty').val() * 888);
+            }
+            // alert($('#qty').val());
+        });
+        function payback_submit(){
+            if($('#qty').val() < 1){
+                c3('請輸入次數');
+            }else{
+                $('#payback_form').submit();
+            }
+
+        }
         function changediv(id){
             document.getElementById("vip").style.display="none";
             document.getElementById("vip2").style.display="none";

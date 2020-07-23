@@ -61,7 +61,7 @@
                         <li><a href="javascript:void(0);" class="tour" id="f_page03"><img src="/new/images/zhaicon02.png"><div class="font">詐騙實例<h2>手機轉帳</h2></div></a></li>
                         <li><a href="javascript:void(0);" class="tour" id="f_page04"><img src="/new/images/zhaicon03.png"><div class="font">詐騙實例<h2>騙裸照</h2></div></a></li>
                     </div>
-                    <a href="/dashboard/browse" style="background:#fe92a8;text-align:center; margin:0 auto;color: #ffffff;width:260px;height:45px;border-radius: 200px;line-height:45px;font-size:16px;text-align: center; display:table; margin-top:30px;">返回</a>
+                    <a href="/dashboard/browse" class="zpback" style="background:#fe92a8;text-align:center; margin:0 auto;color: #ffffff;width:260px;height:45px;border-radius: 200px;line-height:45px;font-size:16px;text-align: center; display:table; margin-top:30px;">返回</a>
 
                 </div>
 
