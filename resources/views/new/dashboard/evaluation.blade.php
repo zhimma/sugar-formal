@@ -124,7 +124,7 @@
                                 </table>
                             </div>
                         </div>
-                        <a class="dlbut pj_but">確定</a>
+                        <a class="pj_but">確定</a>
                         @elseif($user->engroup==1 && ($user->isSent3Msg($to->id)==0 || $vipDays<=30))
                         <div class="tw_textinput01">
                             <h2>您目前未達評價標準<br>不可對{{$to->name}}會員評價</h2>
@@ -142,7 +142,7 @@
                                 </table>
                             </div>
                         </div>
-                        <a class="dlbut pj_but">確定</a>
+                        <a class="pj_but">確定</a>
                         @elseif(!isset($evaluation_self))
                         <form id="form1" action="{{ route('evaluation') }}" method="post">
                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -175,7 +175,7 @@
                             </div>
                             <textarea name="" cols="" rows="" class="tw_textinput had_e" placeholder="請輸入您對{{$to->name}}的評價"></textarea>
 
-                        <a class="dlbut pj_but">確定</a>
+                        <a class="pj_but">確定</a>
                         @endif
 
                 </div>
