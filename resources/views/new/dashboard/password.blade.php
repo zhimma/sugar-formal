@@ -9,10 +9,10 @@
             <div class="col-sm-12 col-xs-12 col-md-10">
                 <div class="g_password">
                     <div class="g_pwicon">
-                        <li><a href="{!! url('dashboard') !!}"><img src="/new/images/mm_03.png"><span>基本資料</span></a></li>
-                        <li><a href="{!! url('dashboard_img') !!}"><img src="/new/images/mm_05.png"><span>照片管理</span></a></li>
-                        <li><a href="{!! url('/dashboard/password') !!}"><img src="/new/images/mm_17.png"><span>更改密碼</span></a></li>
-                        <li><a href="{!! url('/dashboard/vip') !!}"><img src="/new/images/mm_09.png"><span>VIP</span></a></li>
+                        <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t "><span>基本資料</span></a></li>
+                        <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2"><span>照片管理</span></a></li>
+                        <li><a href="{!! url('/dashboard/password') !!}" class="g_pwicon_t3 g_hicon3"><span>更改密碼</span></a></li>
+                        <li><a href="{!! url('/dashboard/vip') !!}" class="g_pwicon_t4"><span>VIP</span></a></li>
                     </div>
                     <div class="de_input g_inputt">
                         <form method="POST" id="registration" action="/dashboard/changepassword">
