@@ -597,12 +597,6 @@ class PagesController extends Controller
 
 //        $isWarnedReason = AdminCommonText::getCommonText(56);//id 56 警示用戶原因
 
-
-        $is_banned = banned_users::where('member_id', $user->id)->where(
-            function ($query) {
-                $query->whereNull('expire_date')->orWhere('expire_date', '>=', now());
-            })->count() >= 1 ? '是' : '否';
-
         if($year=='1970'){
             $year=$month=$day='';
         }
@@ -629,9 +623,8 @@ class PagesController extends Controller
                 ->with('month', $month)
                 ->with('day', $day)
                 ->with('cancel_notice', $cancel_notice)
-                ->with('add_avatar', $add_avatar)
+                ->with('add_avatar', $add_avatar);
 //                ->with('isWarnedReason',$isWarnedReason)
-                ->with('is_banned',$is_banned);
         }
     }
 
