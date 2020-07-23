@@ -206,9 +206,16 @@
 		<th>計分</th>
 	</tr>
 	@foreach($report_all as $row)
+		@php
+			$user = \App\Models\User::findByEmail($row[1]);
+		@endphp
 		<tr>
 			<td>{{$row[0]}}</td>
-			<td>{{$row[1]}}</td>
+			<td>
+				<a href="{{ route('users/advInfo', $user->id) }}" target='_blank'>
+					{{$row[1]}}
+				</a>
+			</td>
 			<td>@if($row[2]==1) VIP @endif</td>
 			<td>@if($row[3]==1) 已認證 @else N/A @endif</td>
 			<td>{{$row[4]}}</td>
@@ -354,7 +361,7 @@
                         </label>
                         <hr>
                         新增自動封鎖關鍵字
-                        <textarea class="form-control m-reason" name="addautoban" rows="4" maxlength="200"></textarea>
+                        <textarea class="form-control" name="addautoban" rows="4" maxlength="200"></textarea>
                 </div>
                 <div class="modal-footer">
                 	<button type="submit" class='btn btn-outline-success ban-user'> 送出 </button>
