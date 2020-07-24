@@ -207,12 +207,12 @@
 	</tr>
 	@foreach($report_all as $row)
 		@php
-			$user = \App\Models\User::findByEmail($row[1]);
+			$reporter = \App\Models\User::findByEmail($row[1]);
 		@endphp
 		<tr>
 			<td>{{$row[0]}}</td>
 			<td>
-				<a href="{{ route('users/advInfo', $user->id) }}" target='_blank'>
+				<a href="{{ route('users/advInfo', $reporter->id) }}" target='_blank'>
 					{{$row[1]}}
 				</a>
 			</td>
