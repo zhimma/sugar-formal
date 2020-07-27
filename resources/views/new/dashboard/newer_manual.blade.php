@@ -171,7 +171,7 @@
                                     </div>
                                 @else
                                     <img src="/new/images/dpicon_m.png">
-                                    <h2><span class="sop_f">●</span><var><font class="sop_bz">零用金務必先給！</font>太多網蟲詐騙都用後給這招，網站目前並不介入私下會員互動。但非常不鼓勵此類行為。</var></h2>
+                                    <h2><span class="sop_f">●</span><var><font class="sop_bz">零用金務必先給！</font>太多網蟲詐騙都用<font class="sop_bz">月結</font>這招詐騙女會員，故站方不建議這種方式。但提前給會有一定風險，所以請男會員自行拿捏。</var></h2>
                                     <h2><span class="sop_f">●</span><var>出門約會一定要準備足夠現金。</var></h2>
                                     <h2><span class="sop_f">●</span><var>第一個月可以按次給(感覺比較差)或者按周給(每個月的1/4)。</var></h2>
                                     <h2><span class="sop_f">●</span><var>如果女生堅持要一筆錢或者一次付清一個月。網站並不建議，但也不介入。請各位男會員自行評估。</var></h2>
