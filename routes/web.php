@@ -542,6 +542,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::post('users/genderToggler', 'UserController@toggleGender');
         Route::post('users/VIPToggler', 'UserController@toggleVIP')->name('VIPToggler');
         Route::post('users/RecommendedToggler', 'UserController@toggleRecommendedUser');
+        Route::post('users/reportedToggler', 'UserController@reportedToggler');
         Route::get('users/banned_implicitly', 'UserController@showImplicitlyBannedUsers')->name('implicitlyBanned');
         Route::post('users/bans_implicitly', 'UserController@banningUserImplicitly')->name('banningUserImplicitly');
         Route::post('users/bans_fingerprint', 'UserController@banningFingnerprint')->name('banFingerprint');

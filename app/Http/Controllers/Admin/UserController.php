@@ -471,6 +471,8 @@ class UserController extends Controller
             $user['Recommended'] = 1;
         }
         $isVip = $user->isVip();
+        $user['auth_status'] = 0;
+        if($user->isPhoneAuth() == 1) $user['auth_status'] = 1;
         $user['isvip'] = $isVip;
         $user['tipcount'] = Tip::TipCount_ChangeGood($user->id);
         $user['vip'] = Vip::vip_diamond($user->id);
@@ -485,44 +487,105 @@ class UserController extends Controller
         $fingerprints = Fingerprint2::select('ip', 'fp', 'created_at')->where('user_id', $user->id)->get();
 
         //檢舉紀錄
-        $pic_report1 = ReportedAvatar::select('reporter_id as uid')->where('reported_user_id',$user->id)->where('reporter_id','!=',$user->id)->distinct('reporter_id')->get();
-        $pic_report2 = ReportedPic::select('reported_pic.reporter_id as uid')->join('member_pic','reported_pic.reported_pic_id','=','member_pic.id')->where('member_pic.member_id',$user->id)
-            ->where('reported_pic.reporter_id','!=',$user->id)->distinct('reported_pic.reporter_id')->get();
+        $pic_report1 = ReportedAvatar::select('reporter_id as uid','id as avatarid','cancel' ,'reporter_id','reported_user_id as reported_userpic_id','created_at')->where('reported_user_id',$user->id)->where('reporter_id','!=',$user->id)->groupBy('reporter_id')->get();
+        $pic_report2 = ReportedPic::select('reported_pic.reporter_id as uid','reported_pic.id as picid','cancel','reporter_id','member_pic.member_id as reported_userpic_id','reported_pic.created_at')->join('member_pic','reported_pic.reported_pic_id','=','member_pic.id')->where('member_pic.member_id',$user->id)->where('reported_pic.reporter_id','!=',$user->id)->groupBy('reported_pic.reporter_id')->get();
+
         //大頭照與照片合併計算
         $collection = collect([$pic_report1, $pic_report2]);
         $pic_all_report = $collection->collapse()->unique('uid');
-//        $pic_all_report->unique()->all();
+        //$pic_all_report->unique()->all();
 
-        $msg_report = Message::select('to_id')->where('from_id',$user->id)->where('isReported',1)->distinct('to_id')->get();
-        $report = Reported::select('member_id')->where('reported_id',$user->id)->distinct('member_id')->get();
+        $msg_report = Message::select('to_id','id' ,'cancel','created_at')->where('from_id',$user->id)->where('isReported',1)->distinct('to_id')->get();
+        $report = Reported::select('member_id','reported_id','cancel','created_at')->where('reported_id',$user->id)->where('member_id','!=',$user->id)->groupBy('member_id')->get();
 
         $report_all = array();
 
         foreach($pic_all_report as $row){
-            $uuu = User::findById($row->uid);
+            $f_user = User::findById($row->uid);
             $auth_status=0;
-            if($uuu->isPhoneAuth()==1){
+            $report_table = '';
+            if($f_user->isPhoneAuth()==1){
                 $auth_status=1;
             }
-            array_push($report_all,array($uuu->name,$uuu->email,$uuu->isVip(),$auth_status,'照片檢舉',$uuu->engroup));
+            if(isset($row->avatarid)){
+                $report_table = 'reported_avatar';
+            }elseif(isset($row->picid)){
+                $report_table = 'reported_pic';
+            }
+            array_push($report_all,
+                array(
+                    'reporter_id' => $row->reporter_id,
+                    'reported_userpic_id' => $row->reported_userpic_id,
+                    'user_id' => $row->uid,
+                    'cancel' => $row->cancel,
+                    'created_at' => $row->created_at,
+                    'tipcount' => Tip::TipCount_ChangeGood($row->uid),
+                    'vip' => Vip::vip_diamond($row->uid),
+                    'isBlocked' => banned_users::where('member_id', 'like', $row->uid)->get()->first(),
+                    'name' => $f_user->name,
+                    'email' => $f_user->email,
+                    'isvip' => $f_user->isVip(),
+                    'auth_status' => $auth_status,
+                    'report_type' => '照片檢舉',
+                    'report_table' => $report_table,
+                    'engroup' => $f_user->engroup
+                )
+            );
         }
         foreach($msg_report as $row){
-            $uuu = User::findById($row->to_id);
+            $f_user = User::findById($row->to_id);
             $auth_status=0;
-            if($uuu->isPhoneAuth()==1){
+            if($f_user->isPhoneAuth()==1){
                 $auth_status=1;
             }
-            array_push($report_all,array($uuu->name,$uuu->email,$uuu->isVip(),$auth_status,'訊息檢舉',$uuu->engroup));
+            array_push($report_all,
+                array(
+                    'report_dbid' => $row->id,
+                    'user_id' => $row->to_id,
+                    'cancel' => $row->cancel,
+                    'created_at' => $row->created_at,
+                    'tipcount' => Tip::TipCount_ChangeGood($row->to_id),
+                    'vip' => Vip::vip_diamond($row->to_id),
+                    'isBlocked' => banned_users::where('member_id', 'like', $row->to_id)->get()->first(),
+                    'name' => $f_user->name,
+                    'email' => $f_user->email,
+                    'isvip' => $f_user->isVip(),
+                    'auth_status' => $auth_status,
+                    'report_type' => '訊息檢舉',
+                    'report_table' => 'message',
+                    'engroup' => $f_user->engroup
+                )
+            );
+
+            // array_push($report_all,array($f_user->name,$f_user->email,$f_user->isVip(),$auth_status,'訊息檢舉',$f_user->engroup));
         }
         foreach($report as $row){
-            $uuu = User::findById($row->member_id);
+            $f_user = User::findById($row->member_id);
             $auth_status=0;
-            if($uuu->isPhoneAuth()==1){
+            if($f_user->isPhoneAuth()==1){
                 $auth_status=1;
             }
-            array_push($report_all,array($uuu->name,$uuu->email,$uuu->isVip(),$auth_status,'會員檢舉',$uuu->engroup));
+            array_push($report_all,
+                array(
+                    'reported_id' => $row->reported_id,
+                    'member_id' => $row->member_id,
+                    'user_id' => $row->member_id,
+                    'cancel' => $row->cancel,
+                    'created_at' => $row->created_at,
+                    'tipcount' => Tip::TipCount_ChangeGood($row->member_id),
+                    'vip' => Vip::vip_diamond($row->member_id),
+                    'isBlocked' => banned_users::where('member_id', 'like', $row->member_id)->get()->first(),
+                    'name' => $f_user->name,
+                    'email' => $f_user->email,
+                    'isvip' => $f_user->isVip(),
+                    'auth_status' => $auth_status,
+                    'report_type' => '會員檢舉',
+                    'report_table' => 'reported',
+                    'engroup' => $f_user->engroup
+                )
+            );
+            // array_push($report_all,array($f_user->name,$f_user->email,$f_user->isVip(),$auth_status,'會員檢舉',$f_user->engroup));
         }
-
 
         if(str_contains(url()->current(), 'edit')){
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
@@ -549,6 +612,47 @@ class UserController extends Controller
         }
     }
 
+    //advInfo頁面的切換檢舉是否取消或不計分
+    public function reportedToggler(Request $request){
+        switch ($request->report_table) {
+            case 'reported_pic':
+                if($request->cancel==0){
+                    ReportedPic::where('reporter_id', $request->reporter_id)->where('reported_pic_id', $request->reported_userpic_id)->update(array('cancel' => 1));
+                    ReportedAvatar::where('reporter_id', $request->reporter_id)->where('reported_user_id', $request->reported_userpic_id)->update(array('cancel' => 1));
+                }elseif ($request->cancel==1) {
+                    ReportedPic::where('reporter_id', $request->reporter_id)->where('reported_pic_id', $request->reported_userpic_id)->update(array('cancel' => 0));
+                    ReportedAvatar::where('reporter_id', $request->reporter_id)->where('reported_user_id', $request->reported_userpic_id)->update(array('cancel' => 0));
+                }
+                break;
+            case 'reported_avatar':
+                if($request->cancel==0){
+                    ReportedPic::where('reporter_id', $request->reporter_id)->where('reported_pic_id', $request->reported_userpic_id)->update(array('cancel' => 1));
+                    ReportedAvatar::where('reporter_id', $request->reporter_id)->where('reported_user_id', $request->reported_userpic_id)->update(array('cancel' => 1));
+                }elseif ($request->cancel==1) {
+                    ReportedPic::where('reporter_id', $request->reporter_id)->where('reported_pic_id', $request->reported_userpic_id)->update(array('cancel' => 0));
+                    ReportedAvatar::where('reporter_id', $request->reporter_id)->where('reported_user_id', $request->reported_userpic_id)->update(array('cancel' => 0));
+                }
+                break;
+            case 'reported':
+                if($request->cancel==0){
+                    Reported::where('member_id', $request->member_id)->where('reported_id', $request->reported_id)->update(array('cancel' => 1));
+                }elseif ($request->cancel==1) {
+                    Reported::where('member_id', $request->member_id)->where('reported_id', $request->reported_id)->update(array('cancel' => 0));
+                }
+                break;
+            case 'message':
+                if($request->cancel==0){
+                    Message::where('id', $request->report_dbid)->update(array('cancel' => 1));
+                }elseif ($request->cancel==1) {
+                    Message::where('id', $request->report_dbid)->update(array('cancel' => 0));
+                }
+                break;
+            default:
+                break;
+        }
+        return back();
+    }
+    
     //advInfo頁面的照片修改與站長訊息發送
     public function editPic_sendMsg(Request $request, $id)
     {

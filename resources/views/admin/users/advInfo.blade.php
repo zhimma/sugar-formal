@@ -45,9 +45,9 @@
 
 	{{--	警示會員--}}
 	@if($userMeta->isWarned==0)
-		<button class="btn btn-info" onclick="WarnedToggler({{$user['id']}},1)">警示用戶({{$user->WarnedScore()}})</button>
+		<button class="btn btn-info" title="被檢舉總分" onclick="WarnedToggler({{$user['id']}},1)">警示用戶({{$user->WarnedScore()}})</button>
 	@else
-		<button class="btn btn-danger" onclick="WarnedToggler({{$user['id']}},0)">取消警示用戶({{$user->WarnedScore()}})</button>
+		<button class="btn btn-danger" title="被檢舉總分" onclick="WarnedToggler({{$user['id']}},0)">取消警示用戶({{$user->WarnedScore()}})</button>
 	@endif
 	
 	<a href="{{ route('users/switch/to', $user->id) }}" class="text-white btn btn-primary">切換成此會員前台</a>
@@ -195,17 +195,19 @@
 	</tr>
 </table>
 
-<h4>檢舉紀錄</h4>
+<h4>被檢舉紀錄</h4>
 <table class="table table-hover table-bordered">
 	<tr>
 		<th>暱稱</th>
 		<th>帳號</th>
+		{{-- <th>是否計分</th> --}}
+		<th>檢舉時間</th>
 		<th>VIP</th>
 		<th>會員認證</th>
 		<th>檢舉類型</th>
 		<th>計分</th>
 	</tr>
-	@foreach($report_all as $row)
+	{{-- @foreach($report_all as $row)
 		@php
 			$reporter = \App\Models\User::findByEmail($row[1]);
 		@endphp
@@ -220,6 +222,65 @@
 			<td>@if($row[3]==1) 已認證 @else N/A @endif</td>
 			<td>{{$row[4]}}</td>
 			<td>@if( ($row[5]==2 && $row[3]==1) || ($row[5]==1 && $row[2]==1) ) 5 @else 3.5 @endif</td>
+		</tr>
+	@endforeach --}}
+	@foreach($report_all as $row)
+		<tr>
+			<td @if(!is_null($row['isBlocked'])) style="color: #F00;" @endif>
+				{{ $row['name'] }}
+				@if($row['vip'])
+				    @if($row['vip']=='diamond_black')
+				        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+				    @else
+				        @for($z = 0; $z < $row['vip']; $z++)
+				            <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+				        @endfor
+				    @endif
+				@endif
+				@for($i = 0; $i < $row['tipcount']; $i++)
+				    👍
+				@endfor
+				@if( ($row['engroup']==2 && $row['auth_status']==1) || ($row['engroup']==1 && $row['isvip']==1) ) 5 @else 3.5 @endif
+			</td>
+			<td>
+				<a href="{{ route('users/advInfo', $row['user_id']) }}" target='_blank'>
+					{{ $row['email'] }}
+				</a>
+			</td>
+			{{-- <td>
+				<form action="/admin/users/reportedToggler" method="POST">
+					{{ csrf_field() }}
+					@if(isset($row['report_dbid']))
+						<input type="hidden" value="{{ $row['report_dbid'] }}" name="report_dbid">
+					@endif
+					@if(isset($row['reported_id']))
+						<input type="hidden" value="{{ $row['reported_id'] }}" name="reported_id">
+					@endif
+					@if(isset($row['member_id']))
+						<input type="hidden" value="{{ $row['member_id'] }}" name="member_id">
+					@endif
+					@if(isset($row['reporter_id']))
+						<input type="hidden" value="{{ $row['reporter_id'] }}" name="reporter_id">
+					@endif
+					@if(isset($row['reported_userpic_id']))
+						<input type="hidden" value="{{ $row['reported_userpic_id'] }}" name="reported_userpic_id">
+					@endif
+					<input type="hidden" value="{{ $row['report_table'] }}" name="report_table">
+					<input type="hidden" value="{{ $row['cancel'] }}" name="cancel">
+					<button type="submit" class='btn btn-outline-success ban-user'>
+						@if($row['cancel']==0)
+							不計算
+						@elseif($row['cancel']==1)
+							計算
+						@endif
+					</button>
+				</form>
+			</td> --}}
+			<td>{{ $row['created_at'] }}</td>
+			<td>@if($row['isvip']==1) VIP @endif</td>
+			<td>@if($row['auth_status']==1) 已認證 @else N/A @endif</td>
+			<td>{{ $row['report_type'] }}</td>
+			<td>@if( ($row['engroup']==2 && $row['auth_status']==1) || ($row['engroup']==1 && $row['isvip']==1) ) 5 @else 3.5 @endif</td>
 		</tr>
 	@endforeach
 </table>
