@@ -486,10 +486,9 @@ class UserController extends Controller
         $banReason = DB::table('reason_list')->select('content')->where('type', 'ban')->get();
         $fingerprints = Fingerprint2::select('ip', 'fp', 'created_at')->where('user_id', $user->id)->get();
 
-        //檢舉紀錄
-        $pic_report1 = ReportedAvatar::select('reporter_id as uid','id as avatarid','cancel' ,'reporter_id','reported_user_id as reported_userpic_id','created_at')->where('reported_user_id',$user->id)->where('reporter_id','!=',$user->id)->groupBy('reporter_id')->get();
-        $pic_report2 = ReportedPic::select('reported_pic.reporter_id as uid','reported_pic.id as picid','cancel','reporter_id','member_pic.member_id as reported_userpic_id','reported_pic.created_at')->join('member_pic','reported_pic.reported_pic_id','=','member_pic.id')->where('member_pic.member_id',$user->id)->where('reported_pic.reporter_id','!=',$user->id)->groupBy('reported_pic.reporter_id')->get();
-
+        //檢舉紀錄 reporter_id檢舉者uid  被檢舉者reported_user_id為此頁面主要會員
+        $pic_report1 = ReportedAvatar::select('reporter_id as uid','reported_user_id as edid','cancel' ,'created_at')->where('reported_user_id',$user->id)->where('reporter_id','!=',$user->id)->groupBy('reporter_id')->get();
+        $pic_report2 = ReportedPic::select('reported_pic.reporter_id as uid','member_pic.member_id as edid','cancel','reported_pic.created_at')->join('member_pic','reported_pic.reported_pic_id','=','member_pic.id')->where('member_pic.member_id',$user->id)->where('reported_pic.reporter_id','!=',$user->id)->groupBy('reported_pic.reporter_id')->get();
         //大頭照與照片合併計算
         $collection = collect([$pic_report1, $pic_report2]);
         $pic_all_report = $collection->collapse()->unique('uid');
@@ -507,16 +506,10 @@ class UserController extends Controller
             if($f_user->isPhoneAuth()==1){
                 $auth_status=1;
             }
-            if(isset($row->avatarid)){
-                $report_table = 'reported_avatar';
-            }elseif(isset($row->picid)){
-                $report_table = 'reported_pic';
-            }
             array_push($report_all,
                 array(
-                    'reporter_id' => $row->reporter_id,
-                    'reported_userpic_id' => $row->reported_userpic_id,
-                    'user_id' => $row->uid,
+                    'reporter_id' => $row->uid,
+                    'reported_id' => $row->edid,
                     'cancel' => $row->cancel,
                     'created_at' => $row->created_at,
                     'tipcount' => Tip::TipCount_ChangeGood($row->uid),
@@ -527,11 +520,12 @@ class UserController extends Controller
                     'isvip' => $f_user->isVip(),
                     'auth_status' => $auth_status,
                     'report_type' => '照片檢舉',
-                    'report_table' => $report_table,
+                    'report_table' => 'reported_avatarpic',
                     'engroup' => $f_user->engroup
                 )
             );
         }
+        // dd($report_all);
         foreach($msg_report as $row){
             $f_user = User::findById($row->to_id);
             $auth_status=0;
@@ -541,7 +535,7 @@ class UserController extends Controller
             array_push($report_all,
                 array(
                     'report_dbid' => $row->id,
-                    'user_id' => $row->to_id,
+                    'reporter_id' => $row->to_id,
                     'cancel' => $row->cancel,
                     'created_at' => $row->created_at,
                     'tipcount' => Tip::TipCount_ChangeGood($row->to_id),
@@ -568,8 +562,7 @@ class UserController extends Controller
             array_push($report_all,
                 array(
                     'reported_id' => $row->reported_id,
-                    'member_id' => $row->member_id,
-                    'user_id' => $row->member_id,
+                    'reporter_id' => $row->member_id,
                     'cancel' => $row->cancel,
                     'created_at' => $row->created_at,
                     'tipcount' => Tip::TipCount_ChangeGood($row->member_id),
@@ -614,30 +607,30 @@ class UserController extends Controller
 
     //advInfo頁面的切換檢舉是否取消或不計分
     public function reportedToggler(Request $request){
+        //reporter_id為本頁此會員被檢舉者 reported_id為檢舉者
         switch ($request->report_table) {
-            case 'reported_pic':
+            case 'reported_avatarpic':
                 if($request->cancel==0){
-                    ReportedPic::where('reporter_id', $request->reporter_id)->where('reported_pic_id', $request->reported_userpic_id)->update(array('cancel' => 1));
-                    ReportedAvatar::where('reporter_id', $request->reporter_id)->where('reported_user_id', $request->reported_userpic_id)->update(array('cancel' => 1));
+                    ReportedPic::join('member_pic','reported_pic.reported_pic_id','=','member_pic.id')
+                    ->where('member_pic.member_id',$request->reported_id)
+                    ->where('reported_pic.reporter_id',$request->reporter_id)
+                    ->getQuery()->update(array('reported_pic.cancel' => 1,'reported_pic.updated_at' => \Carbon\Carbon::now()));
+
+                    ReportedAvatar::where('reporter_id', $request->reporter_id)->where('reported_user_id', $request->reported_id)->update(array('cancel' => 1));
                 }elseif ($request->cancel==1) {
-                    ReportedPic::where('reporter_id', $request->reporter_id)->where('reported_pic_id', $request->reported_userpic_id)->update(array('cancel' => 0));
-                    ReportedAvatar::where('reporter_id', $request->reporter_id)->where('reported_user_id', $request->reported_userpic_id)->update(array('cancel' => 0));
-                }
-                break;
-            case 'reported_avatar':
-                if($request->cancel==0){
-                    ReportedPic::where('reporter_id', $request->reporter_id)->where('reported_pic_id', $request->reported_userpic_id)->update(array('cancel' => 1));
-                    ReportedAvatar::where('reporter_id', $request->reporter_id)->where('reported_user_id', $request->reported_userpic_id)->update(array('cancel' => 1));
-                }elseif ($request->cancel==1) {
-                    ReportedPic::where('reporter_id', $request->reporter_id)->where('reported_pic_id', $request->reported_userpic_id)->update(array('cancel' => 0));
-                    ReportedAvatar::where('reporter_id', $request->reporter_id)->where('reported_user_id', $request->reported_userpic_id)->update(array('cancel' => 0));
+                    ReportedPic::join('member_pic','reported_pic.reported_pic_id','=','member_pic.id')
+                    ->where('member_pic.member_id',$request->reported_id)
+                    ->where('reported_pic.reporter_id',$request->reporter_id)
+                    ->getQuery()->update(array('reported_pic.cancel' => 0,'reported_pic.updated_at' => \Carbon\Carbon::now()));
+
+                    ReportedAvatar::where('reporter_id', $request->reporter_id)->where('reported_user_id', $request->reported_id)->update(array('cancel' => 0));
                 }
                 break;
             case 'reported':
                 if($request->cancel==0){
-                    Reported::where('member_id', $request->member_id)->where('reported_id', $request->reported_id)->update(array('cancel' => 1));
+                    Reported::where('member_id', $request->reporter_id)->where('reported_id', $request->reported_id)->update(array('cancel' => 1));
                 }elseif ($request->cancel==1) {
-                    Reported::where('member_id', $request->member_id)->where('reported_id', $request->reported_id)->update(array('cancel' => 0));
+                    Reported::where('member_id', $request->reporter_id)->where('reported_id', $request->reported_id)->update(array('cancel' => 0));
                 }
                 break;
             case 'message':

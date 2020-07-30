@@ -200,7 +200,7 @@
 	<tr>
 		<th>暱稱</th>
 		<th>帳號</th>
-		{{-- <th>是否計分</th> --}}
+		<th>是否計分</th>
 		<th>檢舉時間</th>
 		<th>VIP</th>
 		<th>會員認證</th>
@@ -243,11 +243,11 @@
 				@if( ($row['engroup']==2 && $row['auth_status']==1) || ($row['engroup']==1 && $row['isvip']==1) ) 5 @else 3.5 @endif
 			</td>
 			<td>
-				<a href="{{ route('users/advInfo', $row['user_id']) }}" target='_blank'>
+				<a href="{{ route('users/advInfo', $row['reporter_id']) }}" target='_blank'>
 					{{ $row['email'] }}
 				</a>
 			</td>
-			{{-- <td>
+			<td>
 				<form action="/admin/users/reportedToggler" method="POST">
 					{{ csrf_field() }}
 					@if(isset($row['report_dbid']))
@@ -256,14 +256,8 @@
 					@if(isset($row['reported_id']))
 						<input type="hidden" value="{{ $row['reported_id'] }}" name="reported_id">
 					@endif
-					@if(isset($row['member_id']))
-						<input type="hidden" value="{{ $row['member_id'] }}" name="member_id">
-					@endif
 					@if(isset($row['reporter_id']))
 						<input type="hidden" value="{{ $row['reporter_id'] }}" name="reporter_id">
-					@endif
-					@if(isset($row['reported_userpic_id']))
-						<input type="hidden" value="{{ $row['reported_userpic_id'] }}" name="reported_userpic_id">
 					@endif
 					<input type="hidden" value="{{ $row['report_table'] }}" name="report_table">
 					<input type="hidden" value="{{ $row['cancel'] }}" name="cancel">
@@ -275,7 +269,7 @@
 						@endif
 					</button>
 				</form>
-			</td> --}}
+			</td>
 			<td>{{ $row['created_at'] }}</td>
 			<td>@if($row['isvip']==1) VIP @endif</td>
 			<td>@if($row['auth_status']==1) 已認證 @else N/A @endif</td>
