@@ -608,6 +608,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::post('users/block_user', 'UserController@blockUser');/*封鎖會員*/
         Route::post('users/unblock_user', 'UserController@unblockUser');/*封鎖會員*/
         Route::post('users/isWarned_user', 'UserController@isWarnedUser');/*警示用戶*/
+        Route::get('users/getBirthday', 'UserController@getBirthday');
         /*
         |--------------------------------------------------------------------------
         | Roles

@@ -35,8 +35,6 @@ use App\Notifications\BannedNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-
-
 class UserController extends Controller
 {
     public function __construct(UserService $userService, AdminService $adminService)
@@ -2302,4 +2300,25 @@ class UserController extends Controller
     
     }
 
+    public function getBirthday(){
+        $users = UserMeta::select('id', 'user_id', 'birthdate_new')->get();
+        $count = 0;
+        foreach ($users as $user){
+            if($user->birthdate_new == null){
+                continue;
+            }
+            if (\DateTime::createFromFormat('Y-m-d H:i:s', $user->birthdate_new) !== false) {
+                continue;
+            }
+            else if (\DateTime::createFromFormat('Y-m-d', $user->birthdate_new) !== false) {
+                continue;
+            }
+            else{
+                $user->birthdate_new = null;
+                $user->save();
+                $count++;
+            }
+        }
+        echo $count;
+    }
 }
