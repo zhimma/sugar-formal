@@ -196,8 +196,12 @@ class UserController extends Controller
         
         //輸入新增自動封鎖關鍵字後新增
         if(!empty($request->addautoban)){
-            if(DB::table('set_auto_ban')->where([['type', 'allcheck'],['content', $request->addautoban],['set_ban', '1']])->first() == null){
-                DB::table('set_auto_ban')->insert(['type' => 'allcheck', 'content' => $request->addautoban, 'set_ban' => '1', 'cuz_user_set' => $request->user_id]);
+            foreach ($request->addautoban as $value) {
+                if(!empty($value)){
+                    if(DB::table('set_auto_ban')->where([['type', 'allcheck'],['content', $value],['set_ban', '1']])->first() == null){
+                        DB::table('set_auto_ban')->insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id]);
+                    }
+                }
             }
         }
         

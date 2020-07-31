@@ -416,7 +416,12 @@
                         </label>
                         <hr>
                         新增自動封鎖關鍵字
-                        <textarea class="form-control" name="addautoban" rows="4" maxlength="200"></textarea>
+                        <input placeholder="1.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='1.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+                        <input placeholder="2.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='2.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+                        <input placeholder="3.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='3.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+                        {{-- <textarea class="form-control" name="addautoban[]" rows="1" maxlength="200"></textarea>
+                        <textarea class="form-control" name="addautoban[]" rows="1" maxlength="200"></textarea>
+                        <textarea class="form-control" name="addautoban[]" rows="1" maxlength="200"></textarea> --}}
                 </div>
                 <div class="modal-footer">
                 	<button type="submit" class='btn btn-outline-success ban-user'> 送出 </button>
