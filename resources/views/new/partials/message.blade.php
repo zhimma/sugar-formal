@@ -92,7 +92,10 @@
 
                 $diff_in_days = ' ' . $to->diffInDays($now) . ' 天';
             }
-            $reason = $banned_user->reason == '自動封鎖' ? '系統原因' : $banned_user->reason;
+            $reason = $banned_user->reason;
+            if($reason == '自動封鎖' || $reason == '' || $reason == null){
+                $reason = '系統原因';
+            }
         @endphp
         <div class="blbg banned_bg" style="display:block"></div>
         <div class="gg_tab" id="tab_banned_alert" style="display: block; z-index: 999;">
