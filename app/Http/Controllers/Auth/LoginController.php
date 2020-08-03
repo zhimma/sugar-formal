@@ -145,6 +145,27 @@ class LoginController extends Controller
             $request->session()->reflash();
             //return view('noAvatar');
         }
+        $banned_users = \App\Models\SimpleTables\banned_users::where('member_id',$user->meta_()->user_id)->where(
+            function ($query) {
+                $query->whereNull('expire_date')->orWhere('expire_date', '>=', \Carbon\Carbon::now());
+            })
+            ->get();
+        if(count($banned_users) > 0){
+            $diff_in_days = '';
+            $banned_user = $banned_users->first();
+            if(isset($banned_user->expire_date)){
+                $to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $banned_user->expire_date);
+                $now = \Carbon\Carbon::now();
+
+                $diff_in_days = ' ' . $to->diffInDays($now) . ' 天';
+            }
+            $reason = $banned_user->reason;
+            if($reason == '自動封鎖' || $reason == '' || $reason == null){
+                $reason = '系統原因';
+            }
+            $request->session()->flash('expire_diff_in_days', $diff_in_days);
+            $request->session()->flash('banned_reason', $reason);
+        }
 
         return redirect('/dashboard');
     }
