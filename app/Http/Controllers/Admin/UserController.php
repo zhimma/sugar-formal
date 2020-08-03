@@ -30,6 +30,7 @@ use App\Models\Msglib;
 use App\Models\BasicSetting;
 use App\Models\SimpleTables\member_vip;
 use App\Models\SimpleTables\banned_users;
+use App\Models\SimpleTables\warned_users;
 use App\Models\BannedUsersImplicitly;
 use App\Notifications\BannedNotification;
 use Carbon\Carbon;
@@ -262,6 +263,78 @@ class UserController extends Controller
 
     }
 
+    public function toggleUserWarned(Request $request){
+        $userWarned = warned_users::where('member_id', $request->user_id)
+            ->get()->first();
+
+        $addreason = $request->addreason;
+        //勾選加入常用列表後新增
+        if($addreason){
+            if(DB::table('reason_list')->where([['type', 'ban'],['content', $request->reason]])->first() == null){
+                DB::table('reason_list')->insert(['type' => 'ban', 'content' => $request->reason]);
+            }
+        }
+
+        if($userWarned){
+            $userWarned->delete();
+        }
+//            if(isset($request->page)){
+//                switch($request->page){
+//                    case 'advInfo':
+//                        return redirect('admin/users/advInfo/'.$request->user_id);
+//                    default:
+//                        return redirect($request->page);
+//                        break;
+//                }
+//            }else{
+//                return back()->with('message', '已解除站方警示');
+//            }
+//        }
+//        else{
+            $userWarned = new warned_users;
+            $userWarned->member_id = $request->user_id;
+            if($request->days != 'X'){
+                $userWarned->expire_date = Carbon::now()->addDays($request->days);
+            }
+            $userWarned->reason = $request->reason;
+
+            if(!empty($request->reason)){
+                $userWarned->reason = $request->reason;
+            }
+            $userWarned->save();
+
+            if(isset($request->page)){
+                switch($request->page){
+                    case 'advInfo':
+                        return redirect('admin/users/advInfo/'.$request->user_id);
+                    default:
+                        return redirect($request->page);
+                        break;
+                }
+            }else{
+                return back()->with('message', '成功加入站方警示');
+            }
+//        }
+
+
+    }
+
+    public function unwarnedUser(Request $request){
+        $data = $request->post('data');
+
+        $warned = warned_users::where('member_id', $data['id'])->get()->toArray();
+
+        if(count($warned)>0){
+            warned_users::where('member_id','=',$data['id'])->delete();
+        }
+
+        $data = array(
+            'code'=>'200',
+            'status'=>'success'
+        );
+        echo json_encode($data);
+    }
+
     public function toggleRecommendedUser(Request $request){
         //給優選三個月
         if($request->Recommended == 1){
@@ -280,6 +353,24 @@ class UserController extends Controller
                     return redirect('admin/users/advInfo/'.$request->user_id);
                 break;
             }
+        }
+    }
+
+    public function showWarnedUserDialog(Request $request){
+        $admin = $this->admin->checkAdmin();
+        if($admin){
+            $warnedUser = users::where('id', $request->user_id)->get()->first();
+            $banReason = DB::table('reason_list')->select('content')->where('type', 'ban')->get();
+            if(!$warnedUser)
+                return back()->withErrors('查無使用者');
+            else{
+                return view('admin.users.warnedUserDialog')
+                    ->with('banReason', $banReason)
+                    ->with('warnedUser', $warnedUser);
+            }
+        }
+        else{
+            return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
         }
     }
 
@@ -481,6 +572,18 @@ class UserController extends Controller
                 $user['isBlocked']['implicitly'] = 1;
             }
         }
+
+//        $user['isAdminWarned'] = warned_users::where('member_id',$user->id)
+//            ->where('expire_date','>=',now())
+//            ->orWhere('expire_date',NULL)
+//            ->get()->first();
+        $data = warned_users::where('member_id', $user->id)->first();
+        if(isset($data) && ($data->expire_date==null || $data->expire_date >=  Carbon::now() )){
+            $user['isAdminWarned']=1;
+        }else{
+            $user['isAdminWarned']=0;
+        }
+
         $banReason = DB::table('reason_list')->select('content')->where('type', 'ban')->get();
         $fingerprints = Fingerprint2::select('ip', 'fp', 'created_at')->where('user_id', $user->id)->get();
 

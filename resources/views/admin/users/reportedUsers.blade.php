@@ -124,6 +124,9 @@
                         </td>
                         <td>
                             <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$result['reported_id'], $result['id'], 'reported'])}}" target="_blank">封鎖</a>
+                            <br><br>
+                            <a class="btn btn-danger ban-user" href="{{ route('warnedUserWithDayAndMessage', [$result['reported_id'], $result['id']])}}" target="_blank">站方警示</a>
+{{--                            <a class="btn btn-danger warned-user" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-id="{{ $result['reported_id'] }}" data-name="{{ $users[$result['reported_id']]['name']}}">站方警示</a>--}}
                         </td>
 
                         <td @if($result['isBlocked']) style="background-color:#FFFF00" @endif>
@@ -175,6 +178,9 @@
                         </td>
                         <td>
                             <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [ $result['member_id'], $result['id'] , 'reported' ] ) }}" target="_blank">封鎖</a>
+                            <br><br>
+                            <a class="btn btn-danger ban-user" href="{{ route('warnedUserWithDayAndMessage', [ $result['member_id'], $result['id'] ] ) }}" target="_blank">站方警示</a>
+{{--                            <a class="btn btn-danger warned-user" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-id="{{ $result['member_id'] }}" data-name="{{ $users[$result['member_id']]['name']}}">站方警示</a>--}}
                         </td>
 
                         <td width="45%" style="word-wrap: break-word;">{{ $result['content'] }}</td>
@@ -188,6 +194,7 @@
         @endif
     @endif
 @endif
+
 </body>
 {{-- <div class="modal fade" id="blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -350,5 +357,7 @@
     //     }
     //     count++;
     // }
+
+
 </script>
 @stop

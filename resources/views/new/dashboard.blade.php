@@ -593,12 +593,34 @@
   <div class="bl bl_tab" id="isWarned" style="display: none;">
       <div class="bltitle">提示</div>
       <div class="blnr bltext">
+          @if($user->isAdminWarned())
+              @php
+                  $warned_users = \App\Models\SimpleTables\warned_users::where('member_id', $user->id)->where(
+                      function ($query) {
+                          $query->whereNull('expire_date')->orWhere('expire_date', '>=', \Carbon\Carbon::now());
+                      })
+                  ->first();
+            $diff_in_days  = '';
+            if(isset($warned_users->expire_date)){
+                $to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $warned_users->expire_date);
+                $now = \Carbon\Carbon::now();
+
+                $diff_in_days = ' ' . $to->diffInDays($now) . ' 天';
+            }
+
+              $reason = $warned_users->reason == '' ? '系統原因' : $warned_users->reason;
+              @endphp
+              您因為 {{$reason}} 被站長警示{{$diff_in_days}}，如有問題請點右下聯絡我們加站長 line 反應。
+          @else
 {{--          由於{!! $isWarnedReason !!}原因，您目前是警示會員。--}}
           {{$user->name}} 您好，為防止八大入侵，系統有設置警示會員制度。<br>
           您目前被系統暫時列為警示會員，通過手機簡訊認證即可解除此狀態。<br>
           此機制主要針對色情行業，但偶爾會誤判，還請見諒。<br>
           手機號碼不會公布敬請放心，有問題可加站長line：@giv4956r 反應。<br>
-          前往<a href='/member_auth'>會員驗證</a></div>
+          前往<a href='/member_auth'>會員驗證</a>
+          @endif
+      </div>
+
       <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
   </div>
 
@@ -679,7 +701,7 @@
           //   title:'您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。',
           //   type:'warning'
           // });
-        @elseif ($umeta->isWarned==1)
+        @elseif ($umeta->isWarned==1 || $user->isAdminWarned())
         $('#isWarned').show();
         $('#announce_bg').show();
         @endif
