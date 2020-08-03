@@ -43,6 +43,13 @@
 		</form>
 	@endif
 
+	{{-- 站方警示 --}}
+	@if($user['isAdminWarned']==1)
+		<button type="button" id="unwarned_user" class='text-white btn @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除站方警示 </button>
+	@else
+		<a class="btn btn-danger warned-user" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">站方警示</a>
+	@endif
+
 	{{--	警示會員--}}
 	@if($userMeta->isWarned==0)
 		<button class="btn btn-info" title="被檢舉總分" onclick="WarnedToggler({{$user['id']}},1)">警示用戶({{$user->WarnedScore()}})</button>
@@ -382,16 +389,16 @@
 </table>
 </body>
 <div class="modal fade" id="blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">封鎖</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form action="/admin/users/toggleUserBlock" method="POST" id="clickToggleUserBlock">
-            	{!! csrf_field() !!}
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">封鎖</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<form action="/admin/users/toggleUserBlock" method="POST" id="clickToggleUserBlock">
+				{!! csrf_field() !!}
 				<input type="hidden" value="" name="user_id" id="blockUserID">
 				<input type="hidden" value="advInfo" name="page">
                 <div class="modal-body">
@@ -431,6 +438,49 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="warned_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="warnedModalLabel">站方警示</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<form action="/admin/users/toggleUserWarned" method="POST" id="clickToggleUserWarned">
+				{!! csrf_field() !!}
+				<input type="hidden" value="" name="user_id" id="warnedUserID">
+				<input type="hidden" value="advInfo" name="page">
+				<div class="modal-body">
+					警示時間
+					<select name="days" class="days">
+						<option value="3">三天</option>
+						<option value="7">七天</option>
+						<option value="15">十五天</option>
+						<option value="30">三十天</option>
+						<option value="X" selected>永久</option>
+					</select>
+					<hr>
+					警示原因
+					@foreach($banReason as $a)
+						<a class="text-white btn btn-success banReason">{{ $a->content }}</a>
+					@endforeach
+					<textarea class="form-control m-reason" name="reason" id="msg" rows="4" maxlength="200">廣告</textarea>
+					<label style="margin:10px 0px;">
+						<input type="checkbox" name="addreason" style="vertical-align:middle;width:20px;height:20px;"/>
+						<sapn style="vertical-align:middle;">加入常用原因</sapn>
+					</label>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class='btn btn-outline-success ban-user'> 送出 </button>
+					<button type="button" class="btn btn-outline-danger" data-dismiss="modal">取消</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
 <div>
 	@if (Auth::user()->can('admin'))
 		<form action="/admin/users/VIPToggler" method="POST" id="clickVipAction">
@@ -471,6 +521,12 @@ jQuery(document).ready(function(){
 			$("#blockUserID").val($(this).data('id'))
 		}
 	});
+	$('#warned_user').click(function(){
+		if (typeof $(this).data('id') !== 'undefined') {
+			$("#warnedModalLabel").html('站方警示 '+ $(this).data('name'))
+			$("#warnedUserID").val($(this).data('id'))
+		}
+	});
 
 	// $('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
 	// 	var data_id = '';
@@ -505,6 +561,11 @@ jQuery(document).ready(function(){
 function Release(id) {
 	$("#blockUserID").val(id);
 }
+
+function ReleaseWarnedUser(id) {
+	$("#warnedUserID").val(id);
+}
+
 function VipAction(isVip, user_id){
 	$("#isVip").val(isVip);
 	$("#vipID").val(user_id);
@@ -570,5 +631,27 @@ $("#unblock_user").click(function(){
 		return false;
 	}
 });
+
+$("#unwarned_user").click(function(){
+	var data = $(this).data();
+	if(confirm('確定解除此會員站方警示?')){
+		$.ajax({
+			type: 'POST',
+			url: "/admin/users/unwarned_user",
+			data:{
+				_token: '{{csrf_token()}}',
+				data: data,
+			},
+			dataType:"json",
+			success: function(res){
+				alert('已解除站方警示');
+				location.reload();
+			}});
+	}
+	else{
+		return false;
+	}
+});
+
 </script>
 </html>

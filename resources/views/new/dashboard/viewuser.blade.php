@@ -123,7 +123,7 @@
                                     </li>
                                 @endif
                                 {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
-                                @if($to->meta_()->isWarned == 1)
+                                @if($to->meta_()->isWarned == 1 || $to->isAdminWarned())
                                     <li>
                                         <img src="/new/images/a5.png">
                                     </li>

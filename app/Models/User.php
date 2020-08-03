@@ -8,6 +8,7 @@ use App\Models\Vip;
 use App\Models\UserMeta;
 use App\Models\MemberPic;
 use App\Models\SimpleTables\banned_users;
+use App\Models\SimpleTables\warned_users;
 use App\Notifications\ResetPassword;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -432,6 +433,15 @@ class User extends Authenticatable
     {
         $auth_img = DB::table('auth_img')->where('user_id',$this->id)->where('status',1)->count();
         return isset($auth_img) && $auth_img>0;
+    }
+
+    public function isAdminWarned(){
+        $data = warned_users::where('member_id', $this->id)->first();
+        if(isset($data) && ($data->expire_date==null || $data->expire_date >=  Carbon::now() )){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     public function msgCount()
