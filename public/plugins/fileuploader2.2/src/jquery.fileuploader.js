@@ -4208,7 +4208,7 @@
 			item: '<li class="fileuploader-item file-has-popup">' +
                        '<div class="columns">' +
                            '<div class="column-thumbnail">${image}<span class="fileuploader-action-popup"></span></div>' +
-                           '<div class="column-title">' +
+                           '<div class="column-title fileuploader-action-popup">' +
                                '<div title="${name}">${name}</div>' +
                                '<span>${size2}</span>' +
                            '</div>' +
@@ -4221,7 +4221,7 @@
             item2: '<li class="fileuploader-item file-has-popup">' +
                         '<div class="columns">' +
                             '<div class="column-thumbnail">${image}<span class="fileuploader-action-popup"></span></div>' +
-                            '<div class="column-title">' +
+                            '<div class="column-title fileuploader-action-popup">' +
                                 '<a href="${file}" target="_blank">' +
                                     '<div title="${name}">${name}</div>' +
                                     '<span>${size2}</span>' +

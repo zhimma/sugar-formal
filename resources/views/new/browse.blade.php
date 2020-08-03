@@ -18,9 +18,8 @@
             <a class="item" href="{!! url('dashboard/newer_manual') !!}"><li><img src="/new/images/z_08.png"><span class="n_zylg">新手教學</span></li></a>
             <a class="item" href="{!! url('dashboard/anti_fraud_manual') !!}"><li style="float: right;"><img src="/new/images/z_07.png"><span class="n_zylg zpfont">拒絕詐騙手冊</span></li></a>
             <a class="item" href="{!! url('dashboard/web_manual') !!}"><li><img src="/new/images/z_09.png"><span class="n_zylg01">網站進階<font class="n_flbr">使用主頁</font></span></li></a>
-            <a class="item" href="{!! url('dashboard/visited') !!}"><li style="float: right;"><img src="/new/images/z_04.png"><span class="n_zylg">誰來看我</span></li></a>
-
             @if (isset($user) && $user->isVip())
+                <a class="item" href="{!! url('dashboard/visited') !!}"><li style="float: right;"><img src="/new/images/z_04.png"><span class="n_zylg">誰來看我</span></li></a>
                 <a class="item" href="{!! url('dashboard/fav') !!}"><li><img src="/new/images/z_05.png"><span class="n_zylg">收藏名單</span></li></a>
                 <a class="item" href="{!! url('dashboard/block') !!}"><li style="float: right;"><img src="/new/images/z_06.png"><span class="n_zylg">封鎖名單</span></li></a>
             @endif
