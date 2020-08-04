@@ -20,6 +20,10 @@
             <a class="item" href="{!! url('dashboard/web_manual') !!}"><li><img src="/new/images/z_09.png"><span class="n_zylg01">網站進階<font class="n_flbr">使用主頁</font></span></li></a>
             @if (isset($user) && $user->isVip())
                 <a class="item" href="{!! url('dashboard/visited') !!}"><li style="float: right;"><img src="/new/images/z_04.png"><span class="n_zylg">誰來看我</span></li></a>
+            @else
+                <a class="item" href="javascript:void(0);"><li style="float: right;"><img src="/new/images/z_04.png"><span class="n_zylg">誰來看我</span><span class="vipOnly"><img src="/new/images/icon_36.png" style="height: auto;width:120px;"></span></li></a>
+            @endif
+            @if (isset($user) && $user->isVip())
                 <a class="item" href="{!! url('dashboard/fav') !!}"><li><img src="/new/images/z_05.png"><span class="n_zylg">收藏名單</span></li></a>
                 <a class="item" href="{!! url('dashboard/block') !!}"><li style="float: right;"><img src="/new/images/z_06.png"><span class="n_zylg">封鎖名單</span></li></a>
             @endif
@@ -30,5 +34,11 @@
   </div>
   <style>
       .item, .item:visited, .item:hover{font-size: 16px;color:white;background-color: white;text-decoration: none;}
+      .vipOnly{
+          display: flex;
+          position: absolute;
+          margin-top: -60px;
+          margin-left: 10px;
+      }
   </style>
 @stop
