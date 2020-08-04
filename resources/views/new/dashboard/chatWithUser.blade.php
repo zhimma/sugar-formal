@@ -71,6 +71,8 @@
         position: relative;
         top: 20px;
         right: -10px;
+        display: flex;
+        float: right;
 
     }
     .shdel_word>span {
