@@ -126,8 +126,8 @@ class Message_newController extends Controller {
             orderBy('created_at', 'desc')->first();
             if(isset($m_time)) {
                 $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
-                if ($diffInSecs < 60) {
-                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每分鐘限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
+                if ($diffInSecs < 30) {
+                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每30秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
                 }
             }
         }
@@ -137,8 +137,8 @@ class Message_newController extends Controller {
             orderBy('created_at', 'desc')->first();
             if(isset($m_time)) {
                 $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
-                if ($diffInSecs < 60) {
-                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每分鐘限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
+                if ($diffInSecs < 30) {
+                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每30秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
                 }
             }
         }

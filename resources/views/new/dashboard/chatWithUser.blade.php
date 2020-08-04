@@ -66,8 +66,11 @@
         border-radius: 11px;
         width: auto !important;
         height: auto !important;
-        bottom: -4px !important;
+        /*bottom: -4px !important;*/
         border: #fd5678 1px solid;
+        position: relative;
+        top: 20px;
+        right: -10px;
 
     }
     .shdel_word>span {
@@ -115,7 +118,7 @@
             <div class="col-sm-12 col-xs-12 col-md-10">
                 @if(isset($to))
                     <div class="shouxq">
-                        <a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}"><img src="/new/images/xq_06.png" class="xlimg"></a><span><a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a></span>
+                        <a href="javascript:history.back()"><img src="/new/images/xq_06.png" class="xlimg"></a><span><a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a></span>
                         @if($user->engroup==1)
                             <?php $orderNumber = \App\Models\Vip::lastid() . $user->id; $code = Config::get('social.payment.code');?>
                             <form action="{{ Config::get('social.payment.actionURL') }}" style="float: right; position: relative;" method="POST" id="form1">
@@ -174,8 +177,8 @@
                                         <i class="msg_input"></i>{!! nl2br($message['content']) !!}
                                         @if($message['from_id'] != $user->id)
                                             <a href="javascript:void(0)" class="" onclick="banned('{{$message['id']}}','{{$msgUser->id}}','{{$msgUser->name}}');" title="檢舉">
-{{--                                                <span class="shdel_word"><span>檢舉</span><span>--}}
-                                                <img src="/new/images/ban.png" class="shdel" alt="檢舉">
+                                                <span class="shdel_word"><span>檢舉</span><span>
+{{--                                                <img src="/new/images/ban.png" class="shdel" alt="檢舉">--}}
                                             </a>
                                         @endif
                                         <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
@@ -500,6 +503,7 @@
     function banned(id,sid,name){
         $("input[name='uid']").val(sid);
         $("input[name='id']").val(id);
+        $(".banned_name").html('');
         $(".banned_name").append("<span>檢舉" + name + "</span>")
         $(".announce_bg").show();
         $("#show_banned").show();
