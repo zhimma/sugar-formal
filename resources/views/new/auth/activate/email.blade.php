@@ -5,7 +5,7 @@
 	<div class="container matop70">
         <div class="row">
             <div class="col-sm-12 col-xs-12 col-md-12">
-                <div class="shou shou02 sh_line"><span>Email 驗證</span>
+                <div class="shou shou02 sh_line"><span>Email 認證尚未通過</span>
                     <font>Email confirmation</font>
                 </div>
                 <div class="email">
