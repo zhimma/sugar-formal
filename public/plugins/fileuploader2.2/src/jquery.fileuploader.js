@@ -4401,9 +4401,9 @@
 			}
         },
         captions: {
-            button: function(options) { return 'Browse ' + (options.limit == 1 ? 'file' : 'files'); },
-            feedback: function(options) { return 'Choose ' + (options.limit == 1 ? 'file' : 'files') + ' to upload'; },
-            feedback2: function(options) { return options.length + ' ' + (options.length > 1 ? ' files were' : ' file was') + ' chosen'; },
+            button: function(options) { return '請選取照片上傳'; },
+            feedback: function(options) { return '請選取照片上傳'; },
+            feedback2: function(options) { return '已選取 ' + options.length + ' 張照片'; },
 			confirm: 'Confirm',
             cancel: 'Cancel',
 			name: 'Name',

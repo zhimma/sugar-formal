@@ -104,6 +104,7 @@
                         <div class="tubiao">
                             <ul>
                                 @php
+                                    $isBlocked = \App\Models\Blocked::isBlocked($user->id, $to->id);
                                     $data = \App\Services\UserService::checkRecommendedUser($to);
                                 @endphp
                                 @if(isset($data['description']) && $to->engroup == 2)
@@ -137,9 +138,11 @@
                         <div class="bottub">
 
                             <ul>
+                                @if(!$isBlocked)
                                 <li>
                                     <a onclick="show_chat()"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
                                 </li>
+                                @endif
                                 @if($user->isVip())
                                     <li>
                                         <a class="addFav"><img src="/new/images/icon_08.png" class="tubiao_i"><span>收藏</span></a>
@@ -154,7 +157,6 @@
                                     <a onclick="show_banned()"><img src="/new/images/icon_10.png" class="tubiao_i"><span>檢舉</span></a>
                                 </li>
                                 @if($user->isVip())
-                                    <?php $isBlocked = \App\Models\Blocked::isBlocked($user->id, $to->id);?>
                                     <li>
                                         @if($isBlocked)
                                             <a class="unblock"><img src="/new/images/icon_12_h.png" class="tubiao_i"><span>解除封鎖</span></a>

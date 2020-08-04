@@ -582,6 +582,7 @@ class Message_new extends Model
         $user = Auth::user();
         $block_people =  Config::get('social.block.block-people');
         $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
+        $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $user->id)->get();
         $banned_users = \App\Services\UserService::getBannedId($user->id);
         $isVip = $user->isVip();
         $aa=[];
@@ -596,7 +597,7 @@ class Message_new extends Model
                 unset($messages[$key]);
                 continue;
             }
-            if($userBlockList->contains('blocked_id', $from_id) || $userBlockList->contains('blocked_id', $to_id)){
+            if($userBlockList->contains('blocked_id', $from_id) || $userBlockList->contains('blocked_id', $to_id) || $isBlockList->contains('member_id', $from_id) || $isBlockList->contains('member_id', $to_id)){
                 unset($messages[$key]);
                 continue;
             }

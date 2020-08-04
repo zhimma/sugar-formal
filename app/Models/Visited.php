@@ -61,8 +61,9 @@ class Visited extends Model
     {
         //加入排除封鎖名單
         $blocks = Blocked::select('blocked_id')->where('member_id', $uid)->get();
+        $isBlocks = Blocked::select('member_id')->where('blocked_id', $uid)->get();
         $bannedUsers = \App\Services\UserService::getBannedId();
-        return Visited::unique(Visited::where('visited_id', $uid)->whereNotIn('member_id',$blocks)->whereNotIn('member_id',$bannedUsers)->distinct()->orderBy('created_at', 'desc')->get(), "member_id", "created_at");
+        return Visited::unique(Visited::where('visited_id', $uid)->whereNotIn('member_id',$blocks)->whereNotIn('member_id',$isBlocks)->whereNotIn('member_id',$bannedUsers)->distinct()->orderBy('created_at', 'desc')->get(), "member_id", "created_at");
 
     }
 
