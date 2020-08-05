@@ -1,0 +1,1 @@
+ALTER TABLE banned_users_implicitly ADD `reason` varchar(500) NOT NULL AFTER `fp`;

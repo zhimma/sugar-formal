@@ -83,6 +83,7 @@
         });
         $('.alert-danger').css('display','none');
         $(".btn-register").click(function(e){
+            $(this).attr('disabled', true);
             var t = $(this).closest("form");
             t.submit();
         });
