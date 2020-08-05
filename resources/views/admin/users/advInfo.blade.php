@@ -34,27 +34,21 @@
 		<button type="button" id="unblock_user" class='text-white btn @if($user["isBlocked"]) btn-success @else btn-danger @endif' onclick="Release({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除封鎖 </button>
 	@else 
 		<a class="btn btn-danger ban-user" id="block_user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">封鎖會員</a>
-		<form action="{{ route('banningUserImplicitly') }}" method="POST" style="display: inline;">
-			{!! csrf_field() !!}
-			<input type="hidden" value="{{ $user['id'] }}" name="user_id">
-			<input type="hidden" value="BannedInUserInfo" name="fp">
-			<input type="hidden" value="{{ url()->full() }}" name="page">
-			<button type="submit" class='btn btn-info'>隱性封鎖</button>
-		</form>
+		<a class="btn btn-danger ban-user" id="implicitly_block_user" href="#" data-toggle="modal" data-target="#implicitly_blockade" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">隱性封鎖</a>
 	@endif
 
 	{{-- 站方警示 --}}
 	@if($user['isAdminWarned']==1)
-		<button type="button" id="unwarned_user" class='text-white btn @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除站方警示 </button>
+		<button type="button" title="站方警示與自動封鎖的警示，只能經後台解除" id="unwarned_user" class='text-white btn @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除站方警示 </button>
 	@else
-		<a class="btn btn-danger warned-user" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">站方警示</a>
+		<a class="btn btn-danger warned-user" title="站方警示與自動封鎖的警示，只能經後台解除" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">站方警示</a>
 	@endif
 
 	{{--	警示會員--}}
 	@if($userMeta->isWarned==0)
-		<button class="btn btn-info" title="被檢舉總分" onclick="WarnedToggler({{$user['id']}},1)">警示用戶({{$user->WarnedScore()}})</button>
+		<button class="btn btn-info" title="自動計算檢舉分數超過10分者警示，但可經手機驗證解除警示(被檢舉總分)" onclick="WarnedToggler({{$user['id']}},1)">警示用戶({{$user->WarnedScore()}})</button>
 	@else
-		<button class="btn btn-danger" title="被檢舉總分" onclick="WarnedToggler({{$user['id']}},0)">取消警示用戶({{$user->WarnedScore()}})</button>
+		<button class="btn btn-danger" title="自動計算檢舉分數超過10分者警示，但可經手機驗證解除警示(被檢舉總分)" onclick="WarnedToggler({{$user['id']}},0)">取消警示用戶({{$user->WarnedScore()}})</button>
 	@endif
 	
 	<a href="{{ route('users/switch/to', $user->id) }}" class="text-white btn btn-primary">切換成此會員前台</a>
@@ -76,6 +70,15 @@
 	@elseif (Auth::user()->can('readonly'))
 		<a href="{{ route('AdminMessage/readOnly', $user['id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
 	@endif
+
+	<form method="POST" action="{{ route('genderToggler') }}" style="margin:0px;display:inline;">
+		{!! csrf_field() !!}
+		<input type="hidden" name='user_id' value="{{ $user->id }}">
+		<input type="hidden" name='gender_now' value="{{ $user->engroup }}">
+		<input type="hidden" name="page" value="advInfo" >
+		<button type="submit" class="btn btn-warning">變更性別</button>
+	</form>
+	
 
 	@if(is_null($userMeta->activation_token))
 		<b style="font-size:18px">已開通會員</b>
@@ -211,26 +214,10 @@
 		<th>檢舉時間</th>
 		<th>VIP</th>
 		<th>會員認證</th>
+		<th>檢舉理由</th>
 		<th>檢舉類型</th>
 		<th>計分</th>
 	</tr>
-	{{-- @foreach($report_all as $row)
-		@php
-			$reporter = \App\Models\User::findByEmail($row[1]);
-		@endphp
-		<tr>
-			<td>{{$row[0]}}</td>
-			<td>
-				<a href="{{ route('users/advInfo', $reporter->id) }}" target='_blank'>
-					{{$row[1]}}
-				</a>
-			</td>
-			<td>@if($row[2]==1) VIP @endif</td>
-			<td>@if($row[3]==1) 已認證 @else N/A @endif</td>
-			<td>{{$row[4]}}</td>
-			<td>@if( ($row[5]==2 && $row[3]==1) || ($row[5]==1 && $row[2]==1) ) 5 @else 3.5 @endif</td>
-		</tr>
-	@endforeach --}}
 	@foreach($report_all as $row)
 		<tr>
 			<td @if(!is_null($row['isBlocked'])) style="color: #F00;" @endif>
@@ -247,7 +234,10 @@
 				@for($i = 0; $i < $row['tipcount']; $i++)
 				    👍
 				@endfor
-				@if( ($row['engroup']==2 && $row['auth_status']==1) || ($row['engroup']==1 && $row['isvip']==1) ) 5 @else 3.5 @endif
+				@php
+					$rowuser = \App\Models\User::findById($row['reporter_id']);
+				@endphp
+				{{ $rowuser->WarnedScore() }}
 			</td>
 			<td>
 				<a href="{{ route('users/advInfo', $row['reporter_id']) }}" target='_blank'>
@@ -280,6 +270,7 @@
 			<td>{{ $row['created_at'] }}</td>
 			<td>@if($row['isvip']==1) VIP @endif</td>
 			<td>@if($row['auth_status']==1) 已認證 @else N/A @endif</td>
+			<td>{{ $row['content'] }}</td>
 			<td>{{ $row['report_type'] }}</td>
 			<td>@if( ($row['engroup']==2 && $row['auth_status']==1) || ($row['engroup']==1 && $row['isvip']==1) ) 5 @else 3.5 @endif</td>
 		</tr>
@@ -422,13 +413,10 @@
                             <sapn style="vertical-align:middle;">加入常用封鎖原因</sapn>
                         </label>
                         <hr>
-                        新增自動封鎖關鍵字
+                        新增自動封鎖關鍵字(永久封鎖)
                         <input placeholder="1.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='1.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
                         <input placeholder="2.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='2.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
                         <input placeholder="3.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='3.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
-                        {{-- <textarea class="form-control" name="addautoban[]" rows="1" maxlength="200"></textarea>
-                        <textarea class="form-control" name="addautoban[]" rows="1" maxlength="200"></textarea>
-                        <textarea class="form-control" name="addautoban[]" rows="1" maxlength="200"></textarea> --}}
                 </div>
                 <div class="modal-footer">
                 	<button type="submit" class='btn btn-outline-success ban-user'> 送出 </button>
@@ -438,7 +426,6 @@
         </div>
     </div>
 </div>
-
 <div class="modal fade" id="warned_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
@@ -453,7 +440,7 @@
 				<input type="hidden" value="" name="user_id" id="warnedUserID">
 				<input type="hidden" value="advInfo" name="page">
 				<div class="modal-body">
-					警示時間
+					 警示時間
 					<select name="days" class="days">
 						<option value="3">三天</option>
 						<option value="7">七天</option>
@@ -461,9 +448,9 @@
 						<option value="30">三十天</option>
 						<option value="X" selected>永久</option>
 					</select>
-					<hr>
+                   <hr>
 					警示原因
-					@foreach($banReason as $a)
+					@foreach($warned_banReason as $a)
 						<a class="text-white btn btn-success banReason">{{ $a->content }}</a>
 					@endforeach
 					<textarea class="form-control m-reason" name="reason" id="msg" rows="4" maxlength="200">廣告</textarea>
@@ -471,6 +458,11 @@
 						<input type="checkbox" name="addreason" style="vertical-align:middle;width:20px;height:20px;"/>
 						<sapn style="vertical-align:middle;">加入常用原因</sapn>
 					</label>
+					<hr>
+					新增自動封鎖關鍵字(警示)
+					<input placeholder="1.請輸入警示關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='1.請輸入警示關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+					<input placeholder="2.請輸入警示關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='2.請輸入警示關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+					<input placeholder="3.請輸入警示關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='3.請輸入警示關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
 				</div>
 				<div class="modal-footer">
 					<button type="submit" class='btn btn-outline-success ban-user'> 送出 </button>
@@ -479,6 +471,45 @@
 			</form>
 		</div>
 	</div>
+</div>
+<div class="modal fade" id="implicitly_blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="implicitly_blockade">隱性封鎖</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="{{ route('banningUserImplicitly') }}" method="POST">
+            	{!! csrf_field() !!}
+				<input type="hidden" value="{{ $user['id'] }}" name="user_id">
+            	<input type="hidden" value="BannedInUserInfo" name="fp">
+            	<input type="hidden" value="{{ url()->full() }}" name="page">
+                <div class="modal-body">
+                        隱性封鎖原因
+                        @foreach($implicitly_banReason as $a)
+                            <a class="text-white btn btn-success banReason">{{ $a->content }}</a>
+                        @endforeach
+                        <br><br>
+                        <textarea class="form-control m-reason" name="reason" id="msg" rows="4" maxlength="200">廣告</textarea>
+                        <label style="margin:10px 0px;">
+                            <input type="checkbox" name="addreason" style="vertical-align:middle;width:20px;height:20px;"/>
+                            <sapn style="vertical-align:middle;">加入常用隱性封鎖原因</sapn>
+                        </label>
+                        <hr>
+                        新增自動封鎖關鍵字(隱性封鎖)
+                        <input placeholder="1.請輸入隱性封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='1.請輸入隱性封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+                        <input placeholder="2.請輸入隱性封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='2.請輸入隱性封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+                        <input placeholder="3.請輸入隱性封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='3.請輸入隱性封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+                </div>
+                <div class="modal-footer">
+                	<button type="submit" class='btn btn-outline-success ban-user'> 送出 </button>
+                    <button type="button" class="btn btn-outline-danger" data-dismiss="modal">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <div>
