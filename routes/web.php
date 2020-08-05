@@ -543,7 +543,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::get('users/invite', 'UserController@getInvite');
         Route::get('users/switch/{id}', 'UserController@switchToUser')->name('users/switch/to');
         Route::post('users/invite', 'UserController@postInvite');
-        Route::post('users/genderToggler', 'UserController@toggleGender');
+        Route::post('users/genderToggler', 'UserController@toggleGender')->name('genderToggler');
         Route::post('users/VIPToggler', 'UserController@toggleVIP')->name('VIPToggler');
         Route::post('users/RecommendedToggler', 'UserController@toggleRecommendedUser');
         Route::post('users/reportedToggler', 'UserController@reportedToggler');

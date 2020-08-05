@@ -119,8 +119,19 @@ class UserController extends Controller
             $user->engroup = '1';
         }
         $user->save();
-        return view('admin.users.success')
+        if(isset($request->page)){
+            switch($request->page){
+                case 'advInfo':
+                    return redirect('admin/users/advInfo/'.$request->user_id);
+                default:
+                    return view('admin.users.success')
+                            ->with('email', $user->email);
+                break;
+            }
+        }else{
+            return view('admin.users.success')
                ->with('email', $user->email);
+        }
     }
 
     /**
@@ -186,12 +197,10 @@ class UserController extends Controller
         $userBanned = banned_users::where('member_id', $request->user_id)
             ->get()->first();
 
-        $reason = $request->reason;
-        $addreason = $request->addreason;
         //勾選加入常用列表後新增
-        if($addreason){
-            if(DB::table('reason_list')->where([['type', 'ban'],['content', $reason]])->first() == null){
-                DB::table('reason_list')->insert(['type' => 'ban', 'content' => $reason]);
+        if($request->addreason){
+            if(DB::table('reason_list')->where([['type', 'ban'],['content', $request->reason]])->first() == null){
+                DB::table('reason_list')->insert(['type' => 'ban', 'content' => $request->reason]);
             }
         }
         
@@ -229,8 +238,8 @@ class UserController extends Controller
             if(!empty($request->msg)){
                 $userBanned->reason = $request->msg;
             }
-            else if(!empty($reason)){
-                $userBanned->reason = $reason;
+            else if(!empty($request->reason)){
+                $userBanned->reason = $request->reason;
             }
             $userBanned->save();
 
@@ -269,11 +278,21 @@ class UserController extends Controller
         $userWarned = warned_users::where('member_id', $request->user_id)
             ->get()->first();
 
-        $addreason = $request->addreason;
         //勾選加入常用列表後新增
-        if($addreason){
-            if(DB::table('reason_list')->where([['type', 'ban'],['content', $request->reason]])->first() == null){
-                DB::table('reason_list')->insert(['type' => 'ban', 'content' => $request->reason]);
+        if($request->addreason){
+            if(DB::table('reason_list')->where([['type', 'warned'],['content', $request->reason]])->first() == null){
+                DB::table('reason_list')->insert(['type' => 'warned', 'content' => $request->reason]);
+            }
+        }
+
+        //輸入新增自動封鎖關鍵字後新增 警示
+        if(!empty($request->addautoban)){
+            foreach ($request->addautoban as $value) {
+                if(!empty($value)){
+                    if(DB::table('set_auto_ban')->where([['type', 'allcheck'],['content', $value],['set_ban', '3']])->first() == null){
+                        DB::table('set_auto_ban')->insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '3', 'cuz_user_set' => $request->user_id]);
+                    }
+                }
             }
         }
 
@@ -589,18 +608,20 @@ class UserController extends Controller
         }
 
         $banReason = DB::table('reason_list')->select('content')->where('type', 'ban')->get();
+        $implicitly_banReason = DB::table('reason_list')->select('content')->where('type', 'implicitly')->get();
+        $warned_banReason = DB::table('reason_list')->select('content')->where('type', 'warned')->get();
         $fingerprints = Fingerprint2::select('ip', 'fp', 'created_at')->where('user_id', $user->id)->get();
 
         //檢舉紀錄 reporter_id檢舉者uid  被檢舉者reported_user_id為此頁面主要會員
-        $pic_report1 = ReportedAvatar::select('reporter_id as uid','reported_user_id as edid','cancel' ,'created_at')->where('reported_user_id',$user->id)->where('reporter_id','!=',$user->id)->groupBy('reporter_id')->get();
-        $pic_report2 = ReportedPic::select('reported_pic.reporter_id as uid','member_pic.member_id as edid','cancel','reported_pic.created_at')->join('member_pic','reported_pic.reported_pic_id','=','member_pic.id')->where('member_pic.member_id',$user->id)->where('reported_pic.reporter_id','!=',$user->id)->groupBy('reported_pic.reporter_id')->get();
+        $pic_report1 = ReportedAvatar::select('reporter_id as uid','reported_user_id as edid','cancel' ,'created_at', 'content')->where('reported_user_id',$user->id)->where('reporter_id','!=',$user->id)->groupBy('reporter_id')->get();
+        $pic_report2 = ReportedPic::select('reported_pic.reporter_id as uid','member_pic.member_id as edid','cancel','reported_pic.created_at', 'content')->join('member_pic','reported_pic.reported_pic_id','=','member_pic.id')->where('member_pic.member_id',$user->id)->where('reported_pic.reporter_id','!=',$user->id)->groupBy('reported_pic.reporter_id')->get();
         //大頭照與照片合併計算
         $collection = collect([$pic_report1, $pic_report2]);
         $pic_all_report = $collection->collapse()->unique('uid');
         //$pic_all_report->unique()->all();
 
-        $msg_report = Message::select('to_id','id' ,'cancel','created_at')->where('from_id',$user->id)->where('isReported',1)->distinct('to_id')->get();
-        $report = Reported::select('member_id','reported_id','cancel','created_at')->where('reported_id',$user->id)->where('member_id','!=',$user->id)->groupBy('member_id')->get();
+        $msg_report = Message::select('to_id','id' ,'cancel','created_at', 'content')->where('from_id',$user->id)->where('isReported',1)->distinct('to_id')->get();
+        $report = Reported::select('member_id','reported_id','cancel','created_at', 'content')->where('reported_id',$user->id)->where('member_id','!=',$user->id)->groupBy('member_id')->get();
 
         $report_all = array();
 
@@ -616,6 +637,7 @@ class UserController extends Controller
                     'reporter_id' => $row->uid,
                     'reported_id' => $row->edid,
                     'cancel' => $row->cancel,
+                    'content' => $row->content,
                     'created_at' => $row->created_at,
                     'tipcount' => Tip::TipCount_ChangeGood($row->uid),
                     'vip' => Vip::vip_diamond($row->uid),
@@ -630,7 +652,6 @@ class UserController extends Controller
                 )
             );
         }
-        // dd($report_all);
         foreach($msg_report as $row){
             $f_user = User::findById($row->to_id);
             $auth_status=0;
@@ -642,6 +663,7 @@ class UserController extends Controller
                     'report_dbid' => $row->id,
                     'reporter_id' => $row->to_id,
                     'cancel' => $row->cancel,
+                    'content' => $row->content,
                     'created_at' => $row->created_at,
                     'tipcount' => Tip::TipCount_ChangeGood($row->to_id),
                     'vip' => Vip::vip_diamond($row->to_id),
@@ -656,7 +678,6 @@ class UserController extends Controller
                 )
             );
 
-            // array_push($report_all,array($f_user->name,$f_user->email,$f_user->isVip(),$auth_status,'訊息檢舉',$f_user->engroup));
         }
         foreach($report as $row){
             $f_user = User::findById($row->member_id);
@@ -669,6 +690,7 @@ class UserController extends Controller
                     'reported_id' => $row->reported_id,
                     'reporter_id' => $row->member_id,
                     'cancel' => $row->cancel,
+                    'content' => $row->content,
                     'created_at' => $row->created_at,
                     'tipcount' => Tip::TipCount_ChangeGood($row->member_id),
                     'vip' => Vip::vip_diamond($row->member_id),
@@ -682,7 +704,6 @@ class UserController extends Controller
                     'engroup' => $f_user->engroup
                 )
             );
-            // array_push($report_all,array($f_user->name,$f_user->email,$f_user->isVip(),$auth_status,'會員檢舉',$f_user->engroup));
         }
 
         if(str_contains(url()->current(), 'edit')){
@@ -702,6 +723,8 @@ class UserController extends Controller
             return view('admin.users.advInfo')
                    ->with('userMeta', $userMeta)
                    ->with('banReason', $banReason)
+                   ->with('warned_banReason', $warned_banReason)
+                   ->with('implicitly_banReason', $implicitly_banReason)
                    ->with('user', $user)
                    ->with('userMessage', $userMessage)
                    ->with('to_ids', $to_ids)
@@ -1182,7 +1205,7 @@ class UserController extends Controller
     public function showBannedList()
     {
         $list = banned_users::join('users', 'users.id', '=', 'banned_users.member_id')
-                ->select('banned_users.*', 'users.name', 'users.email')->orderBy('created_at', 'desc')->get();
+                ->select('banned_users.*', 'users.name', 'users.email','banned_users.reason')->orderBy('created_at', 'desc')->get();
         return view('admin.users.bannedList')->with('list', $list);
     }
 
@@ -2221,9 +2244,29 @@ class UserController extends Controller
     }
 
     public function banningUserImplicitly(Request $request){
+
+        //勾選加入常用列表後新增
+        if($request->addreason){
+            if(DB::table('reason_list')->where([['type', 'implicitly'],['content', $request->reason]])->first() == null){
+                DB::table('reason_list')->insert(['type' => 'implicitly', 'content' => $request->reason]);
+            }
+        }
+
+        //輸入新增自動封鎖關鍵字後新增 隱性封鎖
+        if(!empty($request->addautoban)){
+            foreach ($request->addautoban as $value) {
+                if(!empty($value)){
+                    if(DB::table('set_auto_ban')->where([['type', 'allcheck'],['content', $value],['set_ban', '2']])->first() == null){
+                        DB::table('set_auto_ban')->insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '2', 'cuz_user_set' => $request->user_id]);
+                    }
+                }
+            }
+        }
+
         BannedUsersImplicitly::insert(
             ['fp' => $request->fp,
             'user_id' => 0,
+            'reason' => $request->reason,
             'target' => $request->user_id]
         );
         ExpectedBanningUsers::where('target', $request->user_id)->delete();
