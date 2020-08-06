@@ -548,8 +548,7 @@ class UserController extends Controller
         if(!isset($user)){
             return '<h1>會員資料已刪除。</h1>';
         }
-        $userMeta = UserMeta::where('user_id', 'like', $id)
-                ->get()->first();
+        $userMeta = UserMeta::where('user_id', 'like', $id)->get()->first();
         $userMessage = Message::where('from_id', $id)->orderBy('created_at', 'desc')->paginate(config('social.admin.showMessageCount'));
         $to_ids = array();
         foreach($userMessage as $u){
@@ -1730,6 +1729,23 @@ class UserController extends Controller
             }
             $users = $users->orderBy('created_at', 'desc');
             $datas = $this->admin->fillReportedDatas($users);
+
+            //被檢舉者的警示符號參數
+            foreach ($datas['results'] as $key => $value) {
+                $userMeta = UserMeta::where('user_id', 'like', $value['reported_id'])->get()->first();
+                $warned_users = warned_users::where('member_id', $value['reported_id'])->first();
+                $f_user = User::findById($value['reported_id']);
+                if(isset($warned_users) && ($warned_users->expire_date==null || $warned_users->expire_date >=  Carbon::now() )){
+                    $datas['results'][$key]['isAdminWarned'] = 1;
+                }else{
+                    $datas['results'][$key]['isAdminWarned'] = 0;
+                }
+                $datas['results'][$key]['auth_status'] = 0;
+                $datas['results'][$key]['isWarned'] = $userMeta->isWarned;
+                $datas['results'][$key]['WarnedScore'] = $f_user->WarnedScore();
+                $datas['results'][$key]['auth_status'] = $f_user->isPhoneAuth();
+            }
+
             return view('admin.users.reportedUsers')
                 ->with('results', $datas['results'])
                 ->with('users', isset($datas['users']) ? $datas['users'] : null)
@@ -1768,6 +1784,41 @@ class UserController extends Controller
             $picDatas = $this->admin->fillReportedPicDatas($pics);
 
             $picReason = DB::table('reason_list')->select('content')->where('type', 'pic')->get();
+
+            //大頭照被檢舉者的警示符號參數
+            if(isset($avatarDatas['results'])){
+                foreach ($avatarDatas['results'] as $key => $value) {
+                    $userMeta = UserMeta::where('user_id', 'like', $value['reported_user_id'])->get()->first();
+                    $warned_users = warned_users::where('member_id', $value['reported_user_id'])->first();
+                    $f_user = User::findById($value['reported_user_id']);
+                    if(isset($warned_users) && ($warned_users->expire_date==null || $warned_users->expire_date >=  Carbon::now() )){
+                        $avatarDatas['results'][$key]['isAdminWarned'] = 1;
+                    }else{
+                        $avatarDatas['results'][$key]['isAdminWarned'] = 0;
+                    }
+                    $avatarDatas['results'][$key]['auth_status'] = 0;
+                    $avatarDatas['results'][$key]['isWarned'] = $userMeta->isWarned;
+                    $avatarDatas['results'][$key]['WarnedScore'] = $f_user->WarnedScore();
+                    $avatarDatas['results'][$key]['auth_status'] = $f_user->isPhoneAuth();
+                }
+            }
+            //個人照被檢舉者的警示符號參數
+            if(isset($picDatas['results'])){
+                foreach ($picDatas['results'] as $key => $value) {
+                    $userMeta = UserMeta::where('user_id', 'like', $value['reported_user_id'])->get()->first();
+                    $warned_users = warned_users::where('member_id', $value['reported_user_id'])->first();
+                    $f_user = User::findById($value['reported_user_id']);
+                    if(isset($warned_users) && ($warned_users->expire_date==null || $warned_users->expire_date >=  Carbon::now() )){
+                        $picDatas['results'][$key]['isAdminWarned'] = 1;
+                    }else{
+                        $picDatas['results'][$key]['isAdminWarned'] = 0;
+                    }
+                    $picDatas['results'][$key]['auth_status'] = 0;
+                    $picDatas['results'][$key]['isWarned'] = $userMeta->isWarned;
+                    $picDatas['results'][$key]['WarnedScore'] = $f_user->WarnedScore();
+                    $picDatas['results'][$key]['auth_status'] = $f_user->isPhoneAuth();
+                }
+            }
 
             return view('admin.users.reportedPics')
                 ->with('picReason', $picReason)
