@@ -28,6 +28,12 @@
 	        (永久)
 	    @endif
 	@endif
+	@if($user['isAdminWarned']==1 OR $userMeta->isWarned==1)
+		<img src="/img/warned_red.png" style="height: 2.5rem;width: 2.5rem;">
+	@endif
+	@if($userMeta->isWarned==0 AND $user->WarnedScore()>10 AND $user['auth_status']==1)
+		<img src="/img/warned_black.png" style="height: 2.5rem;width: 2.5rem;">
+	@endif
 	的所有資料
 	<a href="edit/{{ $user->id }}" class='text-white btn btn-primary'>修改</a>
 	@if($user['isBlocked'])
@@ -36,23 +42,22 @@
 		<a class="btn btn-danger ban-user" id="block_user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">封鎖會員</a>
 		<a class="btn btn-danger ban-user" id="implicitly_block_user" href="#" data-toggle="modal" data-target="#implicitly_blockade" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">隱性封鎖</a>
 	@endif
-
-	{{-- 站方警示 --}}
 	@if($user['isAdminWarned']==1)
 		<button type="button" title="站方警示與自動封鎖的警示，只能經後台解除" id="unwarned_user" class='text-white btn @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除站方警示 </button>
 	@else
 		<a class="btn btn-danger warned-user" title="站方警示與自動封鎖的警示，只能經後台解除" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">站方警示</a>
 	@endif
-
-	{{--	警示會員--}}
 	@if($userMeta->isWarned==0)
-		<button class="btn btn-info" title="自動計算檢舉分數超過10分者警示，但可經手機驗證解除警示(被檢舉總分)" onclick="WarnedToggler({{$user['id']}},1)">警示用戶({{$user->WarnedScore()}})</button>
+		<button class="btn btn-info" title="自動計算檢舉分數超過10分者警示，可經手機驗證解除警示(被檢舉總分)" onclick="WarnedToggler({{$user['id']}},1)"
+		@if($user->WarnedScore()>10 AND $user['auth_status']==1) disabled="disabled" style="background-color: #C0C0C0;border-color: #C0C0C0;" @endif>
+			警示用戶({{$user->WarnedScore()}})
+		</button>
 	@else
-		<button class="btn btn-danger" title="自動計算檢舉分數超過10分者警示，但可經手機驗證解除警示(被檢舉總分)" onclick="WarnedToggler({{$user['id']}},0)">取消警示用戶({{$user->WarnedScore()}})</button>
+		<button class="btn btn-danger" title="自動計算檢舉分數超過10分者警示，可經手機驗證解除警示(被檢舉總分)" onclick="WarnedToggler({{$user['id']}},0)">
+			取消警示用戶({{$user->WarnedScore()}})
+		</button>
 	@endif
-	
 	<a href="{{ route('users/switch/to', $user->id) }}" class="text-white btn btn-primary">切換成此會員前台</a>
-	
 	@if($user['isvip'])
 		<button class="btn btn-info" onclick="VipAction({{($user['isvip'])?'1':'0' }},{{ $user['id'] }})"> 取消VIP </button>
 		@if($user->engroup==1)

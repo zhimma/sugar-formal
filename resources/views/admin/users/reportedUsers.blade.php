@@ -104,6 +104,13 @@
                                             (永久)
                                         @endif
                                     @endif
+                                    @if($result['isAdminWarned']==1 OR $result['isWarned']==1)
+                                        <img src="/img/warned_red.png" style="height: 16px;width: 16px;">
+                                    @endif
+                                    @if($result['isWarned']==0 AND $result['WarnedScore']>10 AND $result['auth_status']==1)
+                                        <img src="/img/warned_black.png" style="height: 16px;width: 16px;">
+                                    @endif
+
                                 </p>
                             </a> 
                         </td>
