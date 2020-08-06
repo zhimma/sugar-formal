@@ -423,7 +423,7 @@
 
     $('.message').css('width',$('.shouxq').width()-20);
     $('.se_text').css('width',$('.shouxq').width());
-    if(window.matchMedia("(max-width: 767px)").matches && window.matchMedia("(max-height: 823px)").matches){
+    if(window.matchMedia("(max-width: 823px)").matches && window.matchMedia("(max-height: 823px)").matches){
         $('.se_text_bot').removeClass('se_text_bot_add_bottom');
         $('.bot').hide();
 

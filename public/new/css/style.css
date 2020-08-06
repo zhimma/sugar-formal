@@ -61,14 +61,14 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 /* 菜单 */
 .commonMenu {width:100%;position: fixed;top: 0;z-index: 9;}
-.comt{height: 15px;margin-left: 95px;}
+.comt{/*height: 15px;*/margin-left: 93px;}
 .commonMenu .menuTop {width: 100%;position:relative; height:70px;}
 .back{height:20px;position:absolute; top:16px; left:10px;}
 .back img{ height:20px !important;}
 
 .commonMenu .menuTop span { position:absolute; right:37px !important; top:15px;}
 .commonMenu .menuTop span img {float: right;width: auto;}
-.commonMenu ul {width:130px;float: right;height: 0;overflow: hidden;z-index:5; margin-top:-5px;}
+.commonMenu ul {width:130px;float: right;height: 0;overflow: hidden;z-index:10; margin-top:-5px;}
 .coheight{background:#ffffff;border-radius:10px;width:100%;box-shadow: 0 0 10px #cccccc; padding-bottom:10px;}
 .commonMenu .ulHeight {height:auto; padding-bottom:10px}
 
@@ -111,14 +111,14 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 /* 菜单 */
 .commonMenu {width:100%;position: fixed;top: 0;z-index: 9;}
-.comt{height: 15px;margin-left: 95px;}
+.comt{/*height: 15px;*/margin-left: 93px;}
 .commonMenu .menuTop {width: 100%;position:relative; height:70px;}
 .back{height:20px;position:absolute; top:16px; left:10px;}
 .back img{ height:20px !important;}
 
 .commonMenu .menuTop span { position:absolute; right:53px; top:15px;}
 .commonMenu .menuTop span img {float: right;width: auto;}
-.commonMenu ul {width:130px;float: right;height: 0; overflow: hidden;z-index:5;margin-right:34px;margin-top:-24px;}
+.commonMenu ul {width:130px;float: right;height: 0; overflow: hidden;z-index:10;margin-right:34px;margin-top:-24px;}
 .coheight{background:#ffffff;border-radius:10px;width:100%;box-shadow: 0 0 10px #cccccc; padding-bottom:10px;}
 .commonMenu .ulHeight {height:auto; padding-bottom:10px}
 
@@ -133,6 +133,14 @@ a:hover{ color:#e44e71; text-decoration:none}
 .helist ul li img{ margin-right:10px;}
 .helist ul li span{ position:absolute; right:10px; top:8px; background:#F00; border-radius:100px; color:#ffffff; height:20px; width:20px; line-height:20px; font-size:12px;text-align:center}
 
+}
+
+@media (max-width:823px) and (max-height: 411px) {
+    .commonMenu .menuTop span { right:73px}
+    .commonMenu ul {
+        margin-right: 54px;
+        float: unset;
+    }
 }
 
 .rightbg{ width:100%;background:#ffffff; padding:30px 0}
