@@ -355,10 +355,21 @@ class User extends Authenticatable
         // Log::info('ReportedAvatar'.$pic_report1);
         $pic_report2 = ReportedPic::select('reported_pic.reporter_id as uid')->join('member_pic','reported_pic.reported_pic_id','=','member_pic.id')->where('member_pic.member_id',$this->id)->where('reported_pic.reporter_id','!=',$this->id)->where('reported_pic.cancel','0')->distinct('reported_pic.reporter_id')->get();
         // Log::info('ReportedPic'.$pic_report2);
+
         //大頭照與照片合併計算
-        $collection = collect([$pic_report1, $pic_report2]);
-        $pic_all_report = $collection->collapse()->unique('uid');
+//        $collection = collect([$pic_report1, $pic_report2]);
+//        $pic_all_report = $collection->collapse()->unique('uid');
         // $pic_all_report->unique()->all();
+
+        //訊息檢舉
+        $msg_report = Message::select('to_id as uid')->where('from_id',$this->id)->where('isReported',1)->where('cancel','0')->where('to_id','!=',$this->id)->distinct('to_id')->get();
+        //會員檢舉
+        $report = Reported::select('member_id as uid')->where('reported_id',$this->id)->where('cancel','0')->where('member_id','!=',$this->id)->distinct('member_id')->get();
+
+        //所有檢舉合併計算
+        $collection = collect([$pic_report1, $pic_report2,$msg_report,$report]);
+        $pic_all_report = $collection->collapse()->unique('uid');
+
         if(isset($pic_all_report) && count($pic_all_report)>0){
             foreach($pic_all_report as $row){
                 $user = User::findById($row->uid);
@@ -380,46 +391,46 @@ class User extends Authenticatable
                 }
             }
         }
-        //訊息檢舉
-        $msg_report = Message::select('to_id')->where('from_id',$this->id)->where('isReported',1)->where('cancel','0')->where('to_id','!=',$this->id)->distinct('to_id')->get();
-        if(isset($msg_report) && count($msg_report)>0){
-            foreach($msg_report as $row){
-                $user = User::findById($row->to_id);
-                if($user->engroup==2){
-                    if($user->isPhoneAuth()==1){
-                        $score = $score + 5;
-                    }else{
-                        $score = $score + 3.5;
-                    }
-                }else if($user->engroup==1){
-                    if($user->isVip()){
-                        $score = $score + 5;
-                    }else{
-                        $score = $score + 3.5;
-                    }
-                }
-            }
-        }
-        //會員檢舉
-        $report = Reported::select('member_id')->where('reported_id',$this->id)->where('cancel','0')->where('member_id','!=',$this->id)->distinct('member_id')->get();
-        if(isset($report) && count($report)>0){
-            foreach($report as $row){
-                $user = User::findById($row->member_id);
-                if(isset($user->engroup) && $user->engroup==2){
-                    if($user->isPhoneAuth()==1){
-                        $score = $score + 5;
-                    }else{
-                        $score = $score + 3.5;
-                    }
-                }else if(isset($user->engroup) && $user->engroup==1){
-                    if($user->isVip()){
-                        $score = $score + 5;
-                    }else{
-                        $score = $score + 3.5;
-                    }
-                }
-            }
-        }
+//        //訊息檢舉
+//        $msg_report = Message::select('to_id')->where('from_id',$this->id)->where('isReported',1)->where('cancel','0')->where('to_id','!=',$this->id)->distinct('to_id')->get();
+//        if(isset($msg_report) && count($msg_report)>0){
+//            foreach($msg_report as $row){
+//                $user = User::findById($row->to_id);
+//                if($user->engroup==2){
+//                    if($user->isPhoneAuth()==1){
+//                        $score = $score + 5;
+//                    }else{
+//                        $score = $score + 3.5;
+//                    }
+//                }else if($user->engroup==1){
+//                    if($user->isVip()){
+//                        $score = $score + 5;
+//                    }else{
+//                        $score = $score + 3.5;
+//                    }
+//                }
+//            }
+//        }
+//        //會員檢舉
+//        $report = Reported::select('member_id')->where('reported_id',$this->id)->where('cancel','0')->where('member_id','!=',$this->id)->distinct('member_id')->get();
+//        if(isset($report) && count($report)>0){
+//            foreach($report as $row){
+//                $user = User::findById($row->member_id);
+//                if(isset($user->engroup) && $user->engroup==2){
+//                    if($user->isPhoneAuth()==1){
+//                        $score = $score + 5;
+//                    }else{
+//                        $score = $score + 3.5;
+//                    }
+//                }else if(isset($user->engroup) && $user->engroup==1){
+//                    if($user->isVip()){
+//                        $score = $score + 5;
+//                    }else{
+//                        $score = $score + 3.5;
+//                    }
+//                }
+//            }
+//        }
 
         return $score;
     }
