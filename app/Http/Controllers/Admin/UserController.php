@@ -1765,7 +1765,7 @@ class UserController extends Controller
     }
 
     public function warned_icondata($id){
-        $userMeta = UserMeta::where('user_id', 'like', $id)->get()->first();
+        $userMeta = UserMeta::where('user_id', $id)->get()->first();
         $warned_users = warned_users::where('member_id', $id)->first();
         $f_user = User::findById($id);
         if(isset($warned_users) && ($warned_users->expire_date==null || $warned_users->expire_date >=  Carbon::now() )){
@@ -1774,9 +1774,16 @@ class UserController extends Controller
             $data['isAdminWarned'] = 0;
         }
         $data['auth_status'] = 0;
-        $data['isWarned'] = $userMeta->isWarned;
-        $data['WarnedScore'] = $f_user->WarnedScore();
-        $data['auth_status'] = $f_user->isPhoneAuth();
+        if(isset($warned_users)){
+            $data['isWarned'] = $userMeta->isWarned;
+            $data['WarnedScore'] = $f_user->WarnedScore();
+            $data['auth_status'] = $f_user->isPhoneAuth();
+        }
+        else{
+            $data['isWarned'] = null;
+            $data['WarnedScore'] = null;
+            $data['auth_status'] = null;
+        }
         return $data;
     }
 
