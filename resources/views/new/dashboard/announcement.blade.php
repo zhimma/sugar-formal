@@ -51,12 +51,12 @@
                         <li>
                             <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
                             <div class="n_iconb"><img src="/new/images/ic_07.png"><span>8</span></div>
-                            <div class="n_iconfont"><span style="color: red;background: yellow;">違反以上規定將會有3~30天的封鎖時間。嚴重者直接永久封鎖帳號。</span></div>
+                            <div class="n_iconfont">禁止大量發送內含通訊軟體資訊的罐頭訊息！</div>
                         </li>
                         <li>
                             <div class="n_icongg"><img src="/new/images/ic_03.png" class="n_icongg_img"></div>
                             <div class="n_iconb"><img src="/new/images/ic_07.png"><span>9</span></div>
-                            <div class="n_iconfont"><span style="color: red;background: yellow;">禁止大量發送內含通訊軟體資訊的罐頭訊息！</span></div>
+                            <div class="n_iconfont"><span style="color: red;background: yellow;">違反以上規定將會有3~30天的封鎖時間。嚴重者直接永久封鎖帳號。</span></div>
                         </li>
 
                         <?php //$num=1;?>
