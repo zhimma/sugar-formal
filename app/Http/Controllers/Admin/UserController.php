@@ -1732,18 +1732,13 @@ class UserController extends Controller
 
             //被檢舉者的警示符號參數
             foreach ($datas['results'] as $key => $value) {
-                $userMeta = UserMeta::where('user_id', 'like', $value['reported_id'])->get()->first();
-                $warned_users = warned_users::where('member_id', $value['reported_id'])->first();
-                $f_user = User::findById($value['reported_id']);
-                if(isset($warned_users) && ($warned_users->expire_date==null || $warned_users->expire_date >=  Carbon::now() )){
-                    $datas['results'][$key]['isAdminWarned'] = 1;
-                }else{
-                    $datas['results'][$key]['isAdminWarned'] = 0;
+                $datas['results'][$key]['warnedicon'] = $this->warned_icondata($value['reported_id']);
+            }
+            //檢舉者的警示符號參數
+            if(isset($datas['users'])){
+                foreach ($datas['users'] as $key => $value) {
+                    $datas['users'][$key]['warnedicon'] = $this->warned_icondata($key);
                 }
-                $datas['results'][$key]['auth_status'] = 0;
-                $datas['results'][$key]['isWarned'] = $userMeta->isWarned;
-                $datas['results'][$key]['WarnedScore'] = $f_user->WarnedScore();
-                $datas['results'][$key]['auth_status'] = $f_user->isPhoneAuth();
             }
 
             return view('admin.users.reportedUsers')
@@ -1768,6 +1763,23 @@ class UserController extends Controller
             return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
         }
     }
+
+    public function warned_icondata($id){
+        $userMeta = UserMeta::where('user_id', 'like', $id)->get()->first();
+        $warned_users = warned_users::where('member_id', $id)->first();
+        $f_user = User::findById($id);
+        if(isset($warned_users) && ($warned_users->expire_date==null || $warned_users->expire_date >=  Carbon::now() )){
+            $data['isAdminWarned'] = 1;
+        }else{
+            $data['isAdminWarned'] = 0;
+        }
+        $data['auth_status'] = 0;
+        $data['isWarned'] = $userMeta->isWarned;
+        $data['WarnedScore'] = $f_user->WarnedScore();
+        $data['auth_status'] = $f_user->isPhoneAuth();
+        return $data;
+    }
+
     public function searchReportedPics(Request $request){
         $admin = $this->admin->checkAdmin();
         if ($admin){
@@ -1788,35 +1800,26 @@ class UserController extends Controller
             //大頭照被檢舉者的警示符號參數
             if(isset($avatarDatas['results'])){
                 foreach ($avatarDatas['results'] as $key => $value) {
-                    $userMeta = UserMeta::where('user_id', 'like', $value['reported_user_id'])->get()->first();
-                    $warned_users = warned_users::where('member_id', $value['reported_user_id'])->first();
-                    $f_user = User::findById($value['reported_user_id']);
-                    if(isset($warned_users) && ($warned_users->expire_date==null || $warned_users->expire_date >=  Carbon::now() )){
-                        $avatarDatas['results'][$key]['isAdminWarned'] = 1;
-                    }else{
-                        $avatarDatas['results'][$key]['isAdminWarned'] = 0;
-                    }
-                    $avatarDatas['results'][$key]['auth_status'] = 0;
-                    $avatarDatas['results'][$key]['isWarned'] = $userMeta->isWarned;
-                    $avatarDatas['results'][$key]['WarnedScore'] = $f_user->WarnedScore();
-                    $avatarDatas['results'][$key]['auth_status'] = $f_user->isPhoneAuth();
+                    $avatarDatas['results'][$key]['warnedicon'] = $this->warned_icondata($value['reported_user_id']);
+                }
+            }
+
+            //大頭照檢舉者的警示符號參數
+            if(isset($avatarDatas['users'])){
+                foreach ($avatarDatas['users'] as $key => $value) {
+                    $avatarDatas['users'][$key]['warnedicon'] = $this->warned_icondata($key);
                 }
             }
             //個人照被檢舉者的警示符號參數
             if(isset($picDatas['results'])){
                 foreach ($picDatas['results'] as $key => $value) {
-                    $userMeta = UserMeta::where('user_id', 'like', $value['reported_user_id'])->get()->first();
-                    $warned_users = warned_users::where('member_id', $value['reported_user_id'])->first();
-                    $f_user = User::findById($value['reported_user_id']);
-                    if(isset($warned_users) && ($warned_users->expire_date==null || $warned_users->expire_date >=  Carbon::now() )){
-                        $picDatas['results'][$key]['isAdminWarned'] = 1;
-                    }else{
-                        $picDatas['results'][$key]['isAdminWarned'] = 0;
-                    }
-                    $picDatas['results'][$key]['auth_status'] = 0;
-                    $picDatas['results'][$key]['isWarned'] = $userMeta->isWarned;
-                    $picDatas['results'][$key]['WarnedScore'] = $f_user->WarnedScore();
-                    $picDatas['results'][$key]['auth_status'] = $f_user->isPhoneAuth();
+                    $picDatas['results'][$key]['warnedicon'] = $this->warned_icondata($value['reported_user_id']);
+                }
+            }
+            //個人照檢舉者的警示符號參數
+            if(isset($picDatas['users'])){
+                foreach ($picDatas['users'] as $key => $value) {
+                    $picDatas['users'][$key]['warnedicon'] = $this->warned_icondata($key);
                 }
             }
 
