@@ -91,20 +91,20 @@ class User extends Authenticatable
 
     /**
     * Whether the user is VIP
-    *
+    * 此函式用途未明，故先註解。
     * @param int id
     *
     * @return boolean
     */
-    public function getIsVipAttribute()
-    {
-        foreach($this->vip as $vip){
-            if($vip->active == 1){
-                return true;
-            }
-        }
-        return false;
-    }
+    // public function getIsVipAttribute()
+    // {
+    //     foreach($this->vip as $vip){
+    //         if($vip->active == 1){
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // }
 
     public static function id_($uid)
     {
