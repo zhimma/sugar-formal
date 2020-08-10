@@ -165,7 +165,21 @@
                             @endphp
 
                             @if($date_temp != substr($message['created_at'],0,10)) <div class="sebg matopj10">{{substr($message['created_at'],0,10)}}</div>@endif
-                            @if($message['sys_notice']==0)
+
+                            @if($message['sys_notice']==1 || $msgUser->id == '1049')
+                            <div class="send">
+                                <div class="msg">
+                                    <img src="/new/images/admin-avatar.jpg">
+                                    <p style="background: #DDF3FF;">
+                                        <i class="msg_input_blue"></i>
+                                        {!! nl2br($message['content']) !!}
+                                        <font class="sent_ri @if(!$isVip) novip @endif dr_r">
+                                            <span>{{ substr($message['created_at'],11,5) }}</span>
+                                        </font>
+                                    </p>
+                                </div>
+                            </div>
+                            @elseif($message['sys_notice']==0)
                             <div class="@if($message['from_id'] == $user->id) show @else send @endif">
                                 <div class="msg @if($message['from_id'] == $user->id) msg1 @endif">
                                     @if($message['from_id'] == $user->id)
@@ -179,8 +193,8 @@
                                         <i class="msg_input"></i>{!! nl2br($message['content']) !!}
                                         @if($message['from_id'] != $user->id)
                                             <a href="javascript:void(0)" class="" onclick="banned('{{$message['id']}}','{{$msgUser->id}}','{{$msgUser->name}}');" title="檢舉">
-                                                <span class="shdel_word"><span>檢舉</span><span>
-{{--                                                <img src="/new/images/ban.png" class="shdel" alt="檢舉">--}}
+                                                <span class="shdel_word"><span>檢舉</span></span>
+{{--                                                 <img src="/new/images/ban.png" class="shdel" alt="檢舉">--}}
                                             </a>
                                         @endif
                                         <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
@@ -191,25 +205,10 @@
                                             @else
                                             <span>@if($message['read'] == "Y" && $message['from_id'] == $user->id) 已讀 @elseif($message['read'] == "N" && $message['from_id'] == $user->id) 未讀 @endif</span>
                                             @endif
-
-
                                         </font>
                                     </p>
                                 </div>
                             </div>
-                            @elseif($message['from_id'] == $user->id)
-                                <div class="send">
-                                    <div class="msg">
-                                        <img src="/new/images/admin-avatar.jpg">
-                                        <p style="background: #DDF3FF;">
-                                            <i class="msg_input_blue"></i>
-                                            {!! nl2br($message['content']) !!}
-                                            <font class="sent_ri @if(!$isVip) novip @endif dr_r">
-                                                <span>{{ substr($message['created_at'],11,5) }}</span>
-                                            </font>
-                                        </p>
-                                    </div>
-                                </div>
                             @endif
                             @php
                                 $date_temp = substr($message['created_at'],0,10);
