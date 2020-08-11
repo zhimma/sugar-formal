@@ -51,7 +51,11 @@
             </td>
         </tr>
     </table>
-    <form action="{{ route('admin/send', (!isset($isReported))? $user->id : $isReportedId ) }}" id='message' method='POST'>
+    @if (Auth::user()->can('readonly'))
+        <form action="{{ route('admin/send/readOnly', (!isset($isReported))? $user->id : $isReportedId ) }}" id='message' method='POST'>
+    @else
+        <form action="{{ route('admin/send', (!isset($isReported))? $user->id : $isReportedId ) }}" id='message' method='POST'>
+    @endif
         {!! csrf_field() !!}
         <input type="hidden" value="{{ $admin->id }}" name="admin_id">
         @if(isset($isPic) && ($isPic))
@@ -152,7 +156,11 @@
                 </td>
     		</form>
     		<td>
-    			<form action="/admin/users/pictures/modify" method="POST" target="_blank">
+                @if (Auth::user()->can('readonly'))
+                    <form action="{{ route('users/pictures/modify/readOnly') }}" method="POST" target="_blank">
+                @else
+                    <form action="/admin/users/pictures/modify" method="POST" target="_blank">
+                @endif
     			    {!! csrf_field() !!}
     			    <input class="btn btn-danger btn-delete" type="submit" value="刪除大頭照"><br>
     			    <input type="hidden" name="delete" value="true">

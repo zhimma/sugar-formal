@@ -11,7 +11,11 @@
 </style>
 <body style="padding: 15px;">
 <h1>會員照片管理</h1>
-<form action="{{ route('users/pictures') }}" method="POST">
+@if (Auth::user()->can('readonly'))
+    <form action="{{ route('users/pictures/readOnly') }}" method="POST">
+@else
+    <form action="{{ route('users/pictures') }}" method="POST">
+@endif
     {!! csrf_field() !!}
     <table class="table-hover table table-bordered" style="width: 50%;">
         <tr>
@@ -92,7 +96,11 @@
                 <tr>
                     {{-- <td>{{ $userNames[$avatar->user_id] }}</td> --}}
                     <td>
-                        <a href="advInfo/editPic_sendMsg/{{ $avatar->user_id }}">{{ $userNames[$avatar->user_id] }}</a>
+                        @if (Auth::user()->can('readonly'))
+                            <a href="{{ route('users/pictures/editPic_sendMsg/readOnly', $avatar->user_id) }}">{{ $userNames[$avatar->user_id] }}</a>
+                        @else
+                            <a href="advInfo/editPic_sendMsg/{{ $avatar->user_id }}">{{ $userNames[$avatar->user_id] }}</a>
+                        @endif
                     </td>
                     <td><img src="{{ url($avatar->pic) }}" width="150px"></td>
                     <td>{{ $avatar->updated_at }}</td>
