@@ -1774,13 +1774,17 @@ class UserController extends Controller
             $data['isAdminWarned'] = 0;
         }
         $data['auth_status'] = 0;
-        if(isset($warned_users)){
+        if(isset($userMeta)){
             $data['isWarned'] = $userMeta->isWarned;
+        }
+        else {
+            $data['isWarned'] = null;
+        }
+        if(isset($f_user)){
             $data['WarnedScore'] = $f_user->WarnedScore();
             $data['auth_status'] = $f_user->isPhoneAuth();
         }
         else{
-            $data['isWarned'] = null;
             $data['WarnedScore'] = null;
             $data['auth_status'] = null;
         }

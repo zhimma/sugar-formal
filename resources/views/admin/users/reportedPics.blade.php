@@ -108,7 +108,7 @@
                                         @if($result['warnedicon']['isAdminWarned']==1 OR $result['warnedicon']['isWarned']==1)
                                             <img src="/img/warned_red.png" style="height: 16px;width: 16px;">
                                         @endif
-                                        @if($result['warnedicon']['isWarned']==0 AND $result['warnedicon']['WarnedScore']>10 AND $result['warnedicon']['auth_status']==1)
+                                        @if($result['warnedicon']['isWarned']==0 AND $result['warnedicon']['WarnedScore']>=10 AND $result['warnedicon']['auth_status']==1)
                                             <img src="/img/warned_black.png" style="height: 16px;width: 16px;">
                                         @endif
                                     </p>
