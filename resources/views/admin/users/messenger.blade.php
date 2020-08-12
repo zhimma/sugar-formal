@@ -265,7 +265,12 @@
                 </tr>
             </table>
             @if(isset($msgs2) || $msgs2 == 0)
-                <form action="{{ route('admin/send/multiple') }}" id='message' method='POST'>
+                @if (Auth::user()->can('readonly'))
+                    <form action="{{ route('admin/send/multiple/readOnly') }}" id='message' method='POST'>
+                    <input type="hidden" value="back" name="back">
+                @else
+                    <form action="{{ route('admin/send/multiple') }}" id='message' method='POST'>
+                @endif
                     {!! csrf_field() !!}
                     <input type="hidden" value="{{ $admin->id }}" name="admin_id">
                     @if($msgs != 0)
@@ -288,7 +293,12 @@
                     <button type='submit' class='text-white btn btn-primary'>送出</button>
                 </form>
             @else
-                <form action="{{ route('admin/send/multiple') }}" id='message' method='POST'>
+                    @if (Auth::user()->can('readonly'))
+                        <form action="{{ route('admin/send/multiple/readOnly') }}" id='message' method='POST'>
+                            <input type="hidden" value="back" name="back">
+                    @else
+                        <form action="{{ route('admin/send/multiple') }}" id='message' method='POST'>
+                    @endif
                     {!! csrf_field() !!}
                     <input type="hidden" value="{{ $admin->id }}" name="admin_id">
                     @foreach( $msgs as $msg )

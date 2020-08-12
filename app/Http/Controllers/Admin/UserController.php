@@ -1440,7 +1440,9 @@ class UserController extends Controller
                 Message::post($admin_id, $to_ids[$key], $msg);
             }
         //}
-
+        if(isset($request->back)){
+            return '<h1>傳送成功</h1>';
+        }
 
         return redirect()->route('users/message/search')->with('message', '傳送成功');
     }
