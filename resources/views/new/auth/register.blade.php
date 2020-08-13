@@ -39,7 +39,8 @@
                         </div>
                         <div class="decheck"><input required name="agree" type="checkbox" ><span>我同意甜心花園的使用條款和隱私政策</span></div>
 
-                        <a href="javascript:void(0);" class="dlbut btn-register">註冊</a>
+                        {{-- <a href="javascript:void(0);" onclick="this.disabled = true" class="dlbut btn-register">註冊</a> --}}
+                        <button onclick="this.disabled = true" class="dlbut btn-register" style="border-style: none;">註冊</button>
                         <a href="" class="zcbut matop20">取消</a>
 
                     </form>
@@ -83,7 +84,6 @@
         });
         $('.alert-danger').css('display','none');
         $(".btn-register").click(function(e){
-            $(this).attr('disabled', true);
             var t = $(this).closest("form");
             t.submit();
         });
