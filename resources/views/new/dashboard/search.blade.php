@@ -26,6 +26,14 @@
     border-color:#ee5472 !important;
     color:white !important;
     } */
+    .hoverTip{
+        display: inline-flex;
+        width: auto;
+        /*position: absolute;*/
+    }
+    .popover{
+        position: fixed;
+    }
     </style>
     <div class="container matop70">
         <div class="row">
@@ -215,17 +223,63 @@
                                         $data = \App\Services\UserService::checkRecommendedUser($visitor);
                                     @endphp
                                     @if(isset($data['description']) && $visitor->engroup == 2)
-                                        <img src="/new/images/01.png">
+                                        <div class="hoverTip">
+                                        <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員。建議男會員可以多多接觸。不過要注意是否為八大行業人員(<a href='/new/images/tips3.jpg' target=_blank>如何判斷八大行業</a>)">
+                                        @if($user->isVip())
+                                        <img src="/new/images/a1.png">
+                                        @else
+                                        <img src="/new/images/b_1.png">
+                                        @endif
+                                        </div>
+                                        </div>
                                     @endif
                                     @if(isset($data['description']) && $visitor->engroup == 1)
-                                        <img src="/new/images/02.png">
+                                        <div class="hoverTip">
+                                        <div class="tagText" data-toggle="popover" data-content="優質會員是願意長期付費的VIP，或者常用車馬費邀請的男會員，建議女會員優先考慮。">
+                                        @if($user->isVip())
+                                        <img src="/new/images/a2.png">
+                                        @else
+                                        <img src="/new/images/b_2.png">
+                                        @endif
+                                        </div>
+                                        </div>
                                     @endif
                                     {{---------財力認證尚未實作-------------- <img src="/new/images/b_03.png">--}}
-                                    @if($visitor->isVip() && $visitor->engroup == 1)<img src="/new/images/04.png">@endif
+                                    @if($visitor->isVip() && $visitor->engroup == 1)
+                                        <div class="hoverTip">
+                                        <div class="tagText" data-toggle="popover" data-content="本站的付費會員。">
+                                        @if($user->isVip())
+                                        <img src="/new/images/a4.png">
+                                        @else
+                                        <img src="/new/images/b_4.png">
+                                        @endif
+                                        </div>
+                                        </div>
+                                    @endif
                                     {{---------警示帳戶尚未實作-------------- <img src="/new/images/b_05.png">--}}
-                                    @if($visitor->meta_()->isWarned == 1 || $visitor->isAdminWarned())<img src="/new/images/05.png">@endif
+                                    @if($visitor->meta_()->isWarned == 1 || $visitor->isAdminWarned())
+                                        <div class="hoverTip">
+                                            <div class="tagText" data-toggle="popover" data-content="此人被多人檢舉！與此會員交流務必提高警覺！">
+                                            @if($user->isVip())
+                                            <img src="/new/images/a5.png">
+                                            @else
+                                            <img src="/new/images/b_6.png">
+                                            @endif
+                                            </div>
+                                        </div>
+                                    @endif
                                     {{--手機驗證--}}
-                                    @if($visitor->engroup == 2 && $visitor->isPhoneAuth())<img src="/new/images/06.png">@endif
+                                    @if($visitor->engroup == 2 && $visitor->isPhoneAuth())
+                                        <div class="hoverTip">
+                                        <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。">
+                                        @if($user->isVip())
+                                        <img src="/new/images/a6.png">
+                                        @else
+                                        <img src="/new/images/b_5.png">
+                                        @endif
+                                        </div>
+                                        </div>
+                                    @endif
                                 </div>
                                 <a href="/dashboard/viewuser/{{$visitor->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">
                                     <div class="nt_photo"><img src="@if($visitor->meta_()->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->meta_()->pic}} @endif" @if ($visitor->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></div>
@@ -372,6 +426,13 @@
             $('input[name="zipcode"]').remove();
 
 
+            $('[data-toggle="popover"]').popover({
+                animated: 'fade',
+                placement: 'right',
+                trigger: 'hover',
+                html: true,
+                content: function () { return '<h4' + $(this).data('content') + '</h4>'; }
+            });
         });
     </script>
 @stop

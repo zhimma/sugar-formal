@@ -7,6 +7,7 @@
         .swiper-container {
             width: 100%;
             /*height: auto;*/
+            /*z-index: unset;*/
         }
 
         .swiper-slide {
@@ -44,8 +45,11 @@
                 display: block;
                 margin: 0 auto;
             }
+            .metx{
+                position: unset;
+            }
         }
-        @media (max-width:992px) {
+        @media (max-width:1366px) {
             .swiper-container {
                 width: 100%;
                 height: 280px;
@@ -86,6 +90,9 @@
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
                 @if(isset($to))
+                @if($to->id==$user->id)
+                <a href="javascript:history.back()" class="n_adbut01"><img src="/new/images/1_7.PNG">返回</a>
+                @endif
                 <div class="rightbg">
                     <div class="metx">
                         <div class="swiper-container photo">
@@ -108,77 +115,141 @@
                                     $data = \App\Services\UserService::checkRecommendedUser($to);
                                 @endphp
                                 @if(isset($data['description']) && $to->engroup == 2)
-                                    <li><img src="/new/images/a1.png">
+                                    <li>
+                                        <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員。建議男會員可以多多接觸。不過要注意是否為八大行業人員(<a href='/new/images/tips3.jpg' target=_blank>如何判斷八大行業</a>)" style="width: 100%">
+                                        @if($user->isVip())
+                                        <img src="/new/images/a1.png">
+                                        @else
+                                        <img src="/new/images/b_1.png" style="height: 50px;">
+                                        @endif
+                                        </div>
 {{--                                        <span>{{$new_sweet}}</span>--}}
                                     </li>
                                 @endif
                                 @if(isset($data['description']) && $to->engroup == 1)
-                                    <li><img src="/new/images/a2.png">
+                                    <li>
+                                        <div class="tagText" data-toggle="popover" data-content="優質會員是願意長期付費的VIP，或者常用車馬費邀請的男會員，建議女會員優先考慮。" style="width: 100%">
+                                        @if($user->isVip())
+                                        <img src="/new/images/a2.png">
+                                        @else
+                                        <img src="/new/images/b_2.png" style="height: 50px;">
+                                        @endif
+                                        </div>
 {{--                                        <span>{{$well_member}}</span>--}}
                                     </li>
                                 @endif
                                 {{--                            <li><img src="/new/images/icon_23.png"><span>{{$money_cert}}</span></li>--}}
                                 @if($to->isVip() && $to->engroup == 1)
-                                    <li><img src="/new/images/a4.png">
+                                    <li>
+                                        <div class="tagText" data-toggle="popover" data-content="本站的付費會員。" style="width: 100%">
+                                        @if($user->isVip())
+                                        <img src="/new/images/a4.png">
+                                        @else
+                                        <img src="images/b_4.png" style="height: 50px;">
+                                        @endif
+                                        </div>
 {{--                                        <span>{{$label_vip}}</span>--}}
                                     </li>
                                 @endif
                                 {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
                                 @if($to->meta_()->isWarned == 1 || $to->isAdminWarned())
                                     <li>
+
+                                        <div class="tagText" data-toggle="popover" data-content="此人被多人檢舉！與此會員交流務必提高警覺！">
+                                        @if($user->isVip())
                                         <img src="/new/images/a5.png">
+                                        @else
+                                        <img src="/new/images/b_6.png" style="height: 50px;">
+                                        @endif
+                                        </div>
                                     </li>
                                 @endif
                                 @if($to->engroup == 2 && $to->isPhoneAuth())
-                                    <li><img src="/new/images/a6.png">
+                                    <li>
+                                        <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。" style="width: 100%">
+                                        @if($user->isVip())
+                                        <img src="/new/images/a6.png" class="">
+                                        @else
+                                        <img src="/new/images/b_6.png" style="height: 50px;">
+                                        @endif
+                                        </div>
                                     </li>
                                 @endif
                             </ul>
                         </div>
-                        <div class="bottub">
 
-                            <ul>
-                                @if(!$isBlocked)
-                                <li>
-                                    <a onclick="show_chat()"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
-                                </li>
-                                @endif
-                                @if($user->isVip())
-                                    <li>
-                                        <a class="addFav"><img src="/new/images/icon_08.png" class="tubiao_i"><span>收藏</span></a>
-                                    </li>
-                                @else
-                                    <li>
-                                        <img src="/new/images/icon_08.png" class="tubiao_i"><span>收藏</span>
-                                        <span><img src="/new/images/icon_36.png" class="tap-vip"></span>
-                                    </li>
-                                @endif
-                                <li>
-                                    <a onclick="show_banned()"><img src="/new/images/icon_10.png" class="tubiao_i"><span>檢舉</span></a>
-                                </li>
-                                @if($user->isVip())
-                                    <li>
-                                        @if($isBlocked)
-                                            <a class="unblock"><img src="/new/images/icon_12_h.png" class="tubiao_i"><span>解除封鎖</span></a>
-                                        @else
-                                            <a onclick="show_block()"><img src="/new/images/icon_12.png" class="tubiao_i"><span>封鎖</span></a>
-                                        @endif
-                                    </li>
-                                @else
-
-                                    <li>
-                                        <img src="/new/images/icon_12.png" class="tubiao_i"><span>封鎖</span>
-                                        <span><img src="/new/images/icon_36.png" class="tap-vip"></span>
-                                    </li>
-                                @endif
-                            </ul>
+                        <div class="eg_o">
+                            <!-- <div class="eg_oleft">
+                                <div class="eg_jdt"><img src="images/t⁮o02.png">
+                                    <font class="ef_pr">PR:20</font>
+                                </div>
+                            </div> -->
+                            <div class="eg_oright">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    @if(intval($rating_avg)>=$i)
+                                        <img src="/new/images/sxx_1.png">
+                                    @elseif(strstr($rating_avg,'.') && ctype_digit($rating_avg)==false)
+                                        <img src="/new/images/sxx_2.png">
+                                        @break
+                                    @endif
+                                @endfor
+                                @for ($i = 1; $i <= 5-round($rating_avg); $i++)
+                                    <img src="/new/images/sxx_4.png">
+                                @endfor
+{{--                                <img src="/new/images/st_o.png"><img src="/new/images/sxx_1.png">--}}
+{{--                                <img src="/new/images/sxx_2.png"><img--}}
+{{--                                        src="/new/images/sxx_4.png"><img src="/new/images/sxx_4.png">--}}
+                            </div>
                         </div>
 
                     </div>
+                    <div class="bottub">
+
+                        <ul>
+                            @if(!$isBlocked)
+                                <li>
+                                    <a onclick="show_chat()"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
+                                </li>
+                            @endif
+                            @if($user->isVip())
+                                <li>
+                                    <a class="addFav"><img src="/new/images/icon_08.png" class="tubiao_i"><span>收藏</span></a>
+                                </li>
+                            @else
+                                <li>
+                                    <img src="/new/images/icon_08.png" class="tubiao_i"><span>收藏</span>
+                                    <span><img src="/new/images/icon_36.png" class="tap-vip"></span>
+                                </li>
+                            @endif
+                            <li>
+                                <a onclick="show_banned()"><img src="/new/images/icon_10.png" class="tubiao_i"><span>檢舉</span></a>
+                            </li>
+                            @if($user->isVip())
+                                <li>
+                                    @if($isBlocked)
+                                        <a class="unblock"><img src="/new/images/icon_12_h.png" class="tubiao_i"><span>解除封鎖</span></a>
+                                    @else
+                                        <a onclick="show_block()"><img src="/new/images/icon_12.png" class="tubiao_i"><span>封鎖</span></a>
+                                    @endif
+                                </li>
+                            @else
+
+                                <li>
+                                    <img src="/new/images/icon_12.png" class="tubiao_i"><span>封鎖</span>
+                                    <span><img src="/new/images/icon_36.png" class="tap-vip"></span>
+                                </li>
+                            @endif
+                            <li>
+                                <a href="{{ url('/dashboard/evaluation/'.$to->id) }}"><img src="/new/images/icon_14.png" class="tubiao_i"><span>評價</span></a>
+                            </li>
+                        </ul>
+                    </div>
+
                     <!-- Swiper JS -->
                     <script src="/new/js/swiper.min.js"></script>
                     <!-- Initialize Swiper -->
                     <script>
+
                         var swiper = new Swiper('.swiper-container', {
                             pagination: '.swiper-pagination',
                             nextButton: '.swiper-button-next',
@@ -188,7 +259,9 @@
                             spaceBetween: 30,
                             loop: true
                         });
+
                     </script>
+
                 </div>
                 <!--基本资料-->
                 <div class="mintop">
@@ -401,34 +474,37 @@
                         </div>
                     </div>
                 </div>
-                <!--會員評價-->
-                    <div class="ziliao">
-                        <div class="ztitle"><span>會員評價</span>Evaluation</div>
-                        <div class="pw_body" style="margin-top:40px; margin-bottom:40px">
-                            <a class="pjnew_but01" href="{{ url('/dashboard/evaluation/'.$to->id) }}"><img src="/new/images/ly01.png">我要評價</a>
-                            <ul>
-                                <div class="huiy_a">
-                                    @for ($i = 1; $i <= 5; $i++)
-                                        @if(intval($rating_avg)>=$i)
-                                            <img src="/new/images/sxx_1.png">
-                                        @elseif(strstr($rating_avg,'.') && ctype_digit($rating_avg)==false)
-                                            <img src="/new/images/sxx_2.png">
-                                            @break
-                                        @endif
-                                    @endfor
-                                    @for ($i = 1; $i <= 5-round($rating_avg); $i++)
-                                        <img src="/new/images/sxx_4.png">
-                                    @endfor
-                                    {{round($rating_avg,1)}}
-                                </div>
-                            </ul>
-                        </div>
-                    </div>
-                <!--會員評價-->
+
+{{--                    <!--會員評價-->--}}
+{{--                        <div class="ziliao">--}}
+{{--                            <div class="ztitle"><span>會員評價</span>Evaluation</div>--}}
+{{--                            <div class="pw_body" style="margin-top:40px; margin-bottom:40px">--}}
+{{--                                <a class="pjnew_but01" href="{{ url('/dashboard/evaluation/'.$to->id) }}"><img src="/new/images/ly01.png">我要評價</a>--}}
+{{--                                <ul>--}}
+{{--                                    <div class="huiy_a">--}}
+{{--                                        @for ($i = 1; $i <= 5; $i++)--}}
+{{--                                            @if(intval($rating_avg)>=$i)--}}
+{{--                                                <img src="/new/images/sxx_1.png">--}}
+{{--                                            @elseif(strstr($rating_avg,'.') && ctype_digit($rating_avg)==false)--}}
+{{--                                                <img src="/new/images/sxx_2.png">--}}
+{{--                                                @break--}}
+{{--                                            @endif--}}
+{{--                                        @endfor--}}
+{{--                                        @for ($i = 1; $i <= 5-round($rating_avg); $i++)--}}
+{{--                                            <img src="/new/images/sxx_4.png">--}}
+{{--                                        @endfor--}}
+{{--                                        {{round($rating_avg,1)}}--}}
+{{--                                    </div>--}}
+{{--                                </ul>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                    <!--會員評價-->--}}
                 @endif
             </div>
         </div>
     </div>
+
+
 
     @if(isset($to))
     <div class="bl bl_tab" id="show_chat">
@@ -492,9 +568,27 @@
 @stop
 
 @section('javascript')
+
 <script>
 
     $( document ).ready(function() {
+
+        // $('.tagText').on('click', function() {
+        //    alert($(this).data('content'));
+        //    c3($(this).data('content'));
+        // });
+        $('[data-toggle="popover"]').popover({
+            animated: 'fade',
+            placement: 'bottom',
+            trigger: 'hover',
+            html: true,
+            content: function () { return '<div' + $(this).data('content') + '</div>'; }
+        // })
+        //     .click(function(e) {
+        //     e.preventDefault();
+        //     $(this).popover('toggle');
+        });
+
 
         if(window.matchMedia("(min-width: 992px)").matches){
             $(".swiper-container").css('height',$(".metx").height()- 70);
@@ -504,17 +598,17 @@
         //浮動高度
         var img_height = $(".swiper-container").height();
         // alert(img_height);
-        // $(".swiper-slide img").css('height',img_height - (bottom_height/2));
-        $(".swiper-slide img").css('height',img_height);
-        // $('.tubiao').css('top',img_height - (bottom_height/2) - 40);
+        $(".swiper-slide img").css('height',img_height - (bottom_height/2));
+        // $(".swiper-slide img").css('height',img_height);
+        $('.tubiao').css('top',img_height - (bottom_height/2) - 40);
         $(window).resize(function() {
             // alert($('.tubiao ul').height());
             // var wdth=$(window).width();
             // $("span").text(wdth);
             var img_height = $(".swiper-container").height();
-            // $(".swiper-slide img").css('height',img_height - (bottom_height/2));
-            $(".swiper-slide img").css('height',img_height);
-            // $('.tubiao').css('top',img_height - (bottom_height/2) - 40);
+            $(".swiper-slide img").css('height',img_height - (bottom_height/2));
+            // $(".swiper-slide img").css('height',img_height);
+            $('.tubiao').css('top',img_height - (bottom_height/2) - 40);
             // alert(img_height - ($('.tubiao ul').height() / 2));
         });
     });
@@ -736,7 +830,7 @@
                 },
                 success: function(response) {
                    window.location.reload();
-                },
+                }
             });
          });
     @endif
@@ -755,5 +849,9 @@
             location.href = '/dashboard/search';
         }
     });
+
+
+    // $.noConflict();
 </script>
+
 @stop

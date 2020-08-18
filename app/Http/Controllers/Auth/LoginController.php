@@ -17,6 +17,7 @@ use Auth;
 use App\Models\SimpleTables\banned_users;
 use Illuminate\Support\Facades\Config;
 use App\Services\FingerprintService;
+use Session;
 
 class LoginController extends Controller
 {
@@ -274,6 +275,7 @@ class LoginController extends Controller
     public function logout(Request $request) {
         //登出自動警示
         SetAutoBan::logout_warned(Auth::id());
+        Session::flush();
         Auth::logout();
         return redirect('/login');
     }

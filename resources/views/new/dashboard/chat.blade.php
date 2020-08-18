@@ -132,8 +132,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 {{--                        <a href="javascript:" class="page-link" data-p="last">下一頁</a> -->--}}
                 {{--                    </div>--}}
                 <div class="zixun">
-                    <span><input type="radio" name="RadioGroup1" value="7" id="RadioGroup1_0" checked>本周訊息</span>
-                    <span><input type="radio" name="RadioGroup1" value="30" id="RadioGroup1_1">本月訊息</span>
+                    <span><input type="radio" name="RadioGroup1" value="7" id="RadioGroup1_0" checked>7天內訊息</span>
+                    <span><input type="radio" name="RadioGroup1" value="30" id="RadioGroup1_1">30天內訊息</span>
                     <span><input type="radio" name="RadioGroup1" value="all" id="RadioGroup1_2">全部訊息</span>
                 </div>
             </div>
