@@ -93,9 +93,6 @@
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
                 @if(isset($to))
-                @if($to->id==$user->id)
-                <a href="javascript:history.back()" class="n_adbut01"><img src="/new/images/1_7.PNG">返回</a>
-                @endif
                 <div class="rightbg">
                     <div class="metx">
                         <div class="swiper-container photo">
@@ -119,7 +116,7 @@
                                 @endphp
                                 @if(isset($data['description']) && $to->engroup == 2)
                                     <li>
-                                        <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員。建議男會員可以多多接觸。不過要注意是否為八大行業人員(<a href='/new/images/tips3.jpg' target=_blank>如何判斷八大行業</a>)" style="width: 100%">
+                                        <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。" style="width: 100%">
                                         @if($user->isVip())
                                         <img src="/new/images/a1.png">
                                         @else

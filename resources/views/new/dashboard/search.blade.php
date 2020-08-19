@@ -224,7 +224,7 @@
                                     @endphp
                                     @if(isset($data['description']) && $visitor->engroup == 2)
                                         <div class="hoverTip">
-                                        <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員。建議男會員可以多多接觸。不過要注意是否為八大行業人員(<a href='/new/images/tips3.jpg' target=_blank>如何判斷八大行業</a>)">
+                                        <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。">
                                         @if($user->isVip())
                                         <img src="/new/images/a1.png">
                                         @else
