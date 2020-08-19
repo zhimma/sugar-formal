@@ -45,9 +45,9 @@
                 display: block;
                 margin: 0 auto;
             }
-            .metx{
-                position: unset;
-            }
+            /*.metx{*/
+            /*    position: unset;*/
+            /*}*/
         }
         @media (max-width:1366px) {
             .swiper-container {
@@ -611,6 +611,10 @@
             $('.tubiao').css('top',img_height - (bottom_height/2) - 40);
             // alert(img_height - ($('.tubiao ul').height() / 2));
         });
+
+        if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+            $('.metx').css('position','unset');
+        }
     });
     // $( document ).ready(function() {
         @if(isset($is_block_mid) && $is_block_mid == '是')
