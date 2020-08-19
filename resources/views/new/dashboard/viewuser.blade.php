@@ -159,7 +159,7 @@
                                         @if($user->isVip())
                                         <img src="/new/images/a5.png">
                                         @else
-                                        <img src="/new/images/b_6.png" style="height: 50px;">
+                                        <img src="/new/images/b_5.png" style="height: 50px;">
                                         @endif
                                         </div>
                                     </li>
