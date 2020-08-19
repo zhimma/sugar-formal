@@ -45,9 +45,12 @@
                 display: block;
                 margin: 0 auto;
             }
-            /*.metx{*/
-            /*    position: unset;*/
-            /*}*/
+
+        }
+        @media (max-width:768px) {
+            .metx{
+                position: unset;
+            }
         }
         @media (max-width:1366px) {
             .swiper-container {
@@ -612,7 +615,7 @@
             // alert(img_height - ($('.tubiao ul').height() / 2));
         });
 
-        if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+        if( /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
             $('.metx').css('position','unset');
         }
     });
