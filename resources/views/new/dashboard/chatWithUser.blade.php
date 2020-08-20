@@ -122,32 +122,32 @@
                     <div class="shouxq">
                         <a href="javascript:history.back()"><img src="/new/images/gg2.png" class="xlimg"></a><span><a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a></span>
                         @if($user->engroup==1)
-                            <?php $orderNumber = \App\Models\Vip::lastid() . $user->id; $code = Config::get('social.payment.code');?>
-                            <form action="{{ Config::get('social.payment.actionURL') }}" style="float: right; position: relative;" method="POST" id="form1">
-                                <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-                                <input type="hidden" name="userId" value="{{ $user->id }}">
-                                <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">
-                                <input type=hidden name="MerchantNumber" value="761404">
-                                <input type=hidden name="OrderNumber" value="{{ $orderNumber }}">
-                                <input type=hidden name="OrgOrderNumber" value="SG-車馬費({{ $user->id }})">
-                                <input type=hidden name="ApproveFlag" value="1">
-                                <input type=hidden name="DepositFlag" value="1">
-                                <input type=hidden name="iphonepage" value="0">
-                                <input type=hidden name="Amount" value={{ Config::get('social.payment.tip-amount') }}>
-                                <input type=hidden name="op" value="AcceptPayment">
-                                <input type=hidden name="checksum" value="{{ md5("761404".$orderNumber.$code.Config::get('social.payment.tip-amount')) }}">
-                                <input type=hidden name="ReturnURL" value="{{ route('chatpay') }}">
-                                <button type="button" class="paypay" onclick="checkPay('form1')"><a class="nnn_adbut">車馬費2</a></button>
-                            </form>
+                            <?php //$orderNumber = \App\Models\Vip::lastid() . $user->id; $code = Config::get('social.payment.code');?>
+{{--                            <form action="{{ Config::get('social.payment.actionURL') }}" style="float: right; position: relative;" method="POST" id="form1">--}}
+{{--                                <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
+{{--                                <input type="hidden" name="userId" value="{{ $user->id }}">--}}
+{{--                                <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">--}}
+{{--                                <input type=hidden name="MerchantNumber" value="761404">--}}
+{{--                                <input type=hidden name="OrderNumber" value="{{ $orderNumber }}">--}}
+{{--                                <input type=hidden name="OrgOrderNumber" value="SG-車馬費({{ $user->id }})">--}}
+{{--                                <input type=hidden name="ApproveFlag" value="1">--}}
+{{--                                <input type=hidden name="DepositFlag" value="1">--}}
+{{--                                <input type=hidden name="iphonepage" value="0">--}}
+{{--                                <input type=hidden name="Amount" value={{ Config::get('social.payment.tip-amount') }}>--}}
+{{--                                <input type=hidden name="op" value="AcceptPayment">--}}
+{{--                                <input type=hidden name="checksum" value="{{ md5("761404".$orderNumber.$code.Config::get('social.payment.tip-amount')) }}">--}}
+{{--                                <input type=hidden name="ReturnURL" value="{{ route('chatpay') }}">--}}
+{{--                                <button type="button" class="paypay" onclick="checkPay('form1')"><a class="nnn_adbut">車馬費2</a></button>--}}
+{{--                            </form>--}}
                             <form class="" style="float: right; position: relative;" action="{{ route('chatpay_ec') }}" method=post id="ecpay">
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                 <input type="hidden" name="userId" value="{{ $user->id }}">
                                 <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">
-                                <button type="button" class="paypay" onclick="checkPay('ecpay')"><a class="nnn_adbut">車馬費1</a></button>
+                                <button type="button" class="paypay" onclick="checkPay('ecpay')"><a class="nnn_adbut">車馬費</a></button>
                             </form>
                         @else
-                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c2('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -5px">車馬費2</a></button>
-                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c2('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -5px">車馬費1</a></button>
+{{--                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c2('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -5px">車馬費2</a></button>--}}
+                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c2('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -5px">車馬費</a></button>
                         @endif
                     </div>
                 @else
