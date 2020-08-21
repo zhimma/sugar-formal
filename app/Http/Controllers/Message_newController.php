@@ -10,10 +10,11 @@ use App\Models\AdminAnnounce;
 use App\Models\SimpleTables\banned_users;
 use App\Models\User;
 use App\Models\UserMeta;
+use App\Models\SetAutoBan;
+use App\Models\AdminCommonText;
 use App\Services\UserService;
 use App\Services\VipLogService;
 use Carbon\Carbon;
-use Gloudemans\Shoppingcart\Facades\Cart as Cart;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
@@ -125,8 +126,8 @@ class Message_newController extends Controller {
             orderBy('created_at', 'desc')->first();
             if(isset($m_time)) {
                 $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
-                if ($diffInSecs < 60) {
-                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每分鐘限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
+                if ($diffInSecs < 30) {
+                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每30秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
                 }
             }
         }
@@ -136,12 +137,16 @@ class Message_newController extends Controller {
             orderBy('created_at', 'desc')->first();
             if(isset($m_time)) {
                 $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
-                if ($diffInSecs < 60) {
-                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每分鐘限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
+                if ($diffInSecs < 30) {
+                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每30秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
                 }
             }
         }
         Message::post(auth()->id(), $payload['to'], $payload['msg']);
+
+        //發送訊息後後判斷是否需備自動封鎖
+        // SetAutoBan::auto_ban(auth()->id());
+        SetAutoBan::msg_auto_ban(auth()->id(), $payload['to'], $payload['msg']);
         return back()->with('message','發送成功');
     }
 
@@ -151,10 +156,34 @@ class Message_newController extends Controller {
         $m_time = '';
         if (isset($user)) {
             $isVip = $user->isVip();
+            /*編輯文案-檢舉大頭照-START*/
+            $vip_member = AdminCommonText::where('alias','vip_member')->get()->first();
+            /*編輯文案-檢舉大頭照-END*/
+
+            /*編輯文案-檢舉大頭照-START*/
+            $normal_member = AdminCommonText::where('alias','normal_member')->get()->first();
+            /*編輯文案-檢舉大頭照-END*/
+
+            /*編輯文案-檢舉大頭照-START*/
+            $alert_member = AdminCommonText::where('alias','alert_member')->get()->first();
+            /*編輯文案-檢舉大頭照-END*/
+
+            /*編輯文案-檢舉大頭照-START*/
+            $letter_normal_member = AdminCommonText::where('category_alias','leter_text')->where('alias','normal_member')->get()->first();
+            /*編輯文案-檢舉大頭照-END*/
+
+            /*編輯文案-檢舉大頭照-START*/
+            $letter_vip = AdminCommonText::where('category_alias','leter_text')->where('alias','vip')->get()->first();
+            /*編輯文案-檢舉大頭照-END*/
             return view('new.dashboard.chat')
                 ->with('user', $user)
                 ->with('m_time', $m_time)
-                ->with('isVip', $isVip);
+                ->with('isVip', $isVip)
+                ->with('vip_member', $vip_member->content)
+                ->with('normal_member', $normal_member->content)
+                ->with('alert_member', $alert_member->content)
+                ->with('letter_normal_member', $letter_normal_member)
+                ->with('letter_vip', $letter_vip);
         }
     }
 

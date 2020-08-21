@@ -18,7 +18,9 @@
             <div class="sjlist">
                 <ul>
                     @foreach ($blocks as $block)
-                        <?php $blockedUser = \App\Models\User::findById($block->blocked_id);
+                        
+                    <?php
+                    $blockedUser = \App\Models\User::findById($block->blocked_id);
                         if(!isset($blockedUser)){
                             continue;
                         }
@@ -62,7 +64,7 @@
 
             </div>
                 <div style="text-align: center;">
-                    {!! $blocks->appends(request()->input())->links('pagination::sg-pages') !!}
+                    {!! $blocks->appends(request()->input())->links('pagination::sg-pages2') !!}
                 </div>
             @else
             <div class="sjlist">

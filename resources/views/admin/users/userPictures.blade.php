@@ -11,7 +11,11 @@
 </style>
 <body style="padding: 15px;">
 <h1>會員照片管理</h1>
-<form action="{{ route('users/pictures') }}" method="POST">
+@if (Auth::user()->can('readonly'))
+    <form action="{{ route('users/pictures/readOnly') }}" method="POST">
+@else
+    <form action="{{ route('users/pictures') }}" method="POST">
+@endif
     {!! csrf_field() !!}
     <table class="table-hover table table-bordered" style="width: 50%;">
         <tr>
@@ -66,34 +70,44 @@
             <td>會員名稱</td>
             <td>照片</td>
             <td>更新時間</td>
-            <td>
+            {{-- <td>
                 <button class="btn btn-warning" onclick="$('#modify').submit()" @if($hiddenSearch) name="dehide" @else name="hide" @endif  value="1">@if($hiddenSearch) 解除@endif隱藏</button>
                 <button class="btn btn-danger" onclick="$('#modify').submit()" name='delete' value="1">刪除</button>
-            </td>
+            </td> --}}
         </tr>
         @if(isset($pics))
             @foreach ($pics as $pic)
                 <tr>
-                    <td>{{ $userNames[$pic->member_id] }}</td>
+                    {{-- <td>{{ $userNames[$pic->member_id] }}</td> --}}
+                    <td>
+                        <a href="advInfo/editPic_sendMsg/{{ $pic->member_id }}">{{ $userNames[$pic->member_id] }}</a>
+                    </td>
                     <td><img src="{{ url($pic->pic) }}" width="150px"></td>
                     <td>{{ $pic->updated_at }}</td>
-                    <td>
+                    {{-- <td>
                         <input type="hidden" name="type" value="pic">
                         <input type="checkbox" name="pic_id[]" value="{{ $pic->id }}">
-                    </td>
+                    </td> --}}
                 </tr>
             @endforeach
         @endif
         @if(isset($avatars))
             @foreach ($avatars as $avatar)
                 <tr>
-                    <td>{{ $userNames[$avatar->user_id] }}</td>
+                    {{-- <td>{{ $userNames[$avatar->user_id] }}</td> --}}
+                    <td>
+                        @if (Auth::user()->can('readonly'))
+                            <a href="{{ route('users/pictures/editPic_sendMsg/readOnly', $avatar->user_id) }}">{{ $userNames[$avatar->user_id] }}</a>
+                        @else
+                            <a href="advInfo/editPic_sendMsg/{{ $avatar->user_id }}">{{ $userNames[$avatar->user_id] }}</a>
+                        @endif
+                    </td>
                     <td><img src="{{ url($avatar->pic) }}" width="150px"></td>
                     <td>{{ $avatar->updated_at }}</td>
-                    <td>
+                    {{-- <td>
                         <input type="hidden" name="type" value="avatar">
                         <input type="checkbox" name="avatar_id[]" value="{{ $avatar->user_id }}">
-                    </td>
+                    </td> --}}
                 </tr>
             @endforeach
         @endif

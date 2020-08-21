@@ -35,6 +35,21 @@ class Message_new extends Model
     ];
 
     static $date = null;
+    
+    /*
+    |--------------------------------------------------------------------------
+    | relationships
+    |--------------------------------------------------------------------------
+    */
+    public function sender()
+    {
+        return $this->belongsTo(User::class, 'from_id', 'id');
+    }
+
+    public function receiver()
+    {
+        return $this->belongsTo(User::class, 'to_id', 'id');
+    }
 
     // handle delete Message
     public static function deleteBetween($uid, $sid) {
@@ -154,7 +169,7 @@ class Message_new extends Model
         $isAllDelete = true;
         //$msgShow = User::findById($uid)->meta_()->notifhistory;
         $user = \Auth::user();
-        $banned_users = \App\Services\UserService::getBannedId();
+        $banned_users = \App\Services\UserService::getBannedId($user->id);
         foreach($messages as $key => &$message) {
             if($banned_users->contains('member_id', $message->to_id)){
                 unset($messages[$key]);
@@ -471,7 +486,7 @@ class Message_new extends Model
         //  created_at >= '".self::$date."' or  (`from_id`= $admin->id and `to_id` = $uid and `read` = 'N')
         //$admin = User::select('id')->where('email', Config::get('social.admin.email'))->get()->first();
         $userBlockList = Blocked::select('blocked_id')->where('member_id', $uid)->get();
-        $banned_users = \App\Services\UserService::getBannedId();
+        $banned_users = \App\Services\UserService::getBannedId($uid);
         $query = Message::where(function($query)use($uid)
         {
             $query->where('to_id','=' ,$uid)
@@ -481,12 +496,15 @@ class Message_new extends Model
         });
 
         if($d==7){
-                self::$date =\Carbon\Carbon::now()->startOfWeek()->toDateTimeString();
+//                self::$date =\Carbon\Carbon::now()->startOfWeek()->toDateTimeString();
+            self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
         }else if($d==30){
             if($isVip) {
-                self::$date = \Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString();
+//                self::$date = \Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString();
+                self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
             }else {
-                self::$date = \Carbon\Carbon::parse(date("Y-m-01"))->parse("7 days ago")->toDateTimeString();
+//                self::$date = \Carbon\Carbon::parse(date("Y-m-01"))->parse("7 days ago")->toDateTimeString();
+                self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
             }
         }else if($d=='all'){
             self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
@@ -567,7 +585,8 @@ class Message_new extends Model
         $user = Auth::user();
         $block_people =  Config::get('social.block.block-people');
         $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
-        $banned_users = \App\Services\UserService::getBannedId();
+        $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $user->id)->get();
+        $banned_users = \App\Services\UserService::getBannedId($user->id);
         $isVip = $user->isVip();
         $aa=[];
         foreach ($messages as $key => &$message){
@@ -581,7 +600,7 @@ class Message_new extends Model
                 unset($messages[$key]);
                 continue;
             }
-            if($userBlockList->contains('blocked_id', $from_id) || $userBlockList->contains('blocked_id', $to_id)){
+            if($userBlockList->contains('blocked_id', $from_id) || $userBlockList->contains('blocked_id', $to_id) || $isBlockList->contains('member_id', $from_id) || $isBlockList->contains('member_id', $to_id)){
                 unset($messages[$key]);
                 continue;
             }
@@ -644,8 +663,10 @@ class Message_new extends Model
                 $messages[$key]['read_n']=(!empty($mm[$messages[$key]['from_id']] && $messages[$key]['from_id']==$msgUser->id) )?$mm[$messages[$key]['from_id']]:0;
 //                $messages[$key]['read_n']= isset($mm[$messages[$key]['from_id']]) ? $mm[$messages[$key]['from_id']]: 0;
                 $messages[$key]['isVip']=$msgUser->isVip();
-//                $messages[$key]['message_count']=$messages[$key]['isVip']=$msgUser->isVip();
-//                $messages[$key]['total_counts'] = $messages_count;
+//                $messages[$key]['isWarned']=$msgUser->meta_()->isWarned;
+                if(($msgUser->meta_()->isWarned==1 || $msgUser->isAdminWarned() ) && $msgUser->id != 1049){
+                    $messages[$key]['isWarned']=1;
+                }
             }
             else{
                 Log::info('Null object found, $user: ' . $user->id);
@@ -791,5 +812,13 @@ class Message_new extends Model
         {
         // $curUser->notify(new MessageEmail($from_id, $to_id, $msg));
         }
+    }
+
+    public static function betweenMessages($user_ids)
+    {
+        return Message_new::whereIn('from_id',$user_ids)
+            ->whereIn('to_id', $user_ids)
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 }

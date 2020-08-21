@@ -72,13 +72,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             "                        </div>\n" +
             "                        <div class=\"de_input01 dlmarbot m-loader m-loader--right m-loader--light\">\n" +
             "                            <div class=\"de_img\"><img src=\"/new/images/lo_11.png\"></div>\n" +
-            "                            <input name=\"password\" type=\"password\"  class=\"d_input\" placeholder=\"密碼\" required >\n" +
+            "                            <input name=\"password\" type=\"password\"  class=\"d_input\" id=\"password\" placeholder=\"密碼\" required >\n" +
             "                        </div>\n" +
             "                        <div class='wknr'>" +
             "                            <h4>若有開啟 AdBlock，請使用無痕模式登入。</h4>" +
             "                            <a href=\"{!! url('password/reset') !!}\" class=\"dlpassword\">忘記密碼 ?</a>\n" +
             "                        </div>" +
-            "                        <a href=\"javascript:void(0);\" onclick=\"backendProcess()\" class=\"dlbut btn-login\">登入</a>\n" +
+            "                        <a href=\"javascript:void(0);\" onclick=\"backendProcess()\" class=\"dlbut btn-login\" id=\"btn-login\">登入</a>\n" +
             "                        <a href=\"{!! url('/checkAdult') !!}\" class=\"dlbut02\">還沒有帳號 ?  免費註冊</a>\n" +
             "                   </div>";
         $("#notice").remove();
@@ -173,6 +173,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 t.submit();
             }
         });
+
+        var input = document.getElementById("password");
+        input.addEventListener("keyup", function(event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                document.getElementById("btn-login").click();
+            }
+        });
     </script>
+    
     <!-- <script src="/js/login.js" type="text/javascript"></script> -->
 @stop

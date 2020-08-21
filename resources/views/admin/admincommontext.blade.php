@@ -5,6 +5,7 @@
     <table class="table-bordered table-hover center-block" style="width: 100%;" id="table">
         <tr>
             <th class="text-center">說明</th>
+            <th class="text-center">目錄</th>
             <th class="text-center">預覽內容</th>
             <th class="text-center">編輯框 NAME取代對方名稱 DATE取代VIP到期日</th>
             <th class="text-center" style="white-space:nowrap;">操作</th>
@@ -15,6 +16,9 @@
             <tr class="template">
                 <td class="text-center show" style="white-space:nowrap;">
                     {{ $a->title }}
+                </td>
+                <td class="text-center show" style="white-space:nowrap;">
+                    {{ $a->category }}
                 </td>
                 <td style="width: 35%;">{!! nl2br($a->content) !!}</td>
                 <td id="show"><div contenteditable="true" class="div2input" style="border:1px #C0C0C0 solid;padding:2px;">{!! nl2br($a->content) !!}</div></td>

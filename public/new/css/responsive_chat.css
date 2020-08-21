@@ -3,7 +3,7 @@
     margin:0 auto; display:table; position: fixed; bottom: 10px; padding-right: 3%;padding-left: 3%;
     width: 100%;
     max-width: 1000px;
-    z-index: 9;
+    z-index: 8;
 }
 
 .se_text_bot_add_bottom{

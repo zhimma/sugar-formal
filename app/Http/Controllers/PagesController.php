@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\CheckECpay;
 use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
 use Auth;
@@ -26,6 +27,7 @@ use App\Models\BasicSetting;
 
 use App\Models\UserMeta;
 use App\Models\MemberPic;
+use App\Models\SetAutoBan;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReportRequest;
 use App\Http\Requests\ProfileUpdateRequest;
@@ -102,6 +104,10 @@ class PagesController extends Controller
         }
         else{
             if ($this->service->update(auth()->id(), $request->all())) {
+
+                //更新完後判斷是否需備自動封鎖
+                SetAutoBan::auto_ban(auth()->id());
+                
                 return redirect('/dashboard')->with('message', '資料更新成功');
             }
             return redirect('/dashboard')->withErrors(['沒辦法更新']);
@@ -137,6 +143,10 @@ class PagesController extends Controller
             ];
         }else{
             if ($this->service->update(auth()->id(), $request->all())) {
+
+                //更新完後判斷是否需備自動封鎖
+                SetAutoBan::auto_ban(auth()->id());
+
                 $status_data =[
                     'status' => true,
                     'msg' => '資料更新成功',
@@ -400,6 +410,33 @@ class PagesController extends Controller
         }
     }
 
+    public function saveFingerprintPOST($payload){
+        $fingerprintValue = $payload['fingerprintValue'];
+        $user = User::findByEmail($payload['email']);
+        if(Fingerprint::isExist(['fingerprintValue'=>$fingerprintValue])){
+            Log::info('User id: ' . isset($user) ? $user->id : null . ', fingerprint value: ' . $fingerprintValue);
+            return '找到相符合資料';
+        }
+        else{
+            $fingerprintValue = Hash::make($fingerprintValue . $payload['ip']);
+            $data = [
+                'user_id' => isset($user) ? $user->id : null,
+                'ip' => $payload['ip'],
+                'fingerprintValue' => $fingerprintValue,
+                'browser_name' => $payload['browser_name'],
+                'browser_version' => $payload['browser_version'],
+                'os_name' => $payload['os_name'],
+                'os_version' => $payload['os_version'],
+                'timezone' => $payload['timezone'],
+                'plugins' => $payload['plugins'],
+                'language' => $payload['language']
+            ];
+
+            Fingerprint::insert($data);
+            return '已新增至資料庫';
+        }
+    }
+
     /**
      * Homepage
      *
@@ -524,11 +561,22 @@ class PagesController extends Controller
 
     public function dashboard(Request $request)
     {
+        // todo: 驗證 VIP 是否成功付款
+        //      1. 綠界：連 API 檢查，使用 Laravel Queue 執行檢查
+        //      2. 藍新：後台手動
 
-        
         $user = $request->user();
         $url = $request->fullUrl();
-        //echo $url;
+        
+        if($user->isVip() && !$user->isFreeVip()){
+            $vipData = $user->getVipData(true);
+            if(is_object($vipData)){
+                $this->dispatch(new CheckECpay($vipData));
+            }
+            else{
+                Log::info('VIP data null, user id: ' . $user->id);
+            }
+        }
 
         if(str_contains($url, '?img')) {
             $tabName = 'm_user_profile_tab_4';
@@ -542,6 +590,14 @@ class PagesController extends Controller
         $year = $birthday[0];
         $month = $birthday[1];
         $day = $birthday[2];
+        
+         /*編輯文案-add avatar-START*/
+         $add_avatar = AdminCommonText::getCommonText(41);//id 41
+         /*編輯文案-add avatar-END*/
+ 
+ //        $isWarnedReason = AdminCommonText::getCommonText(56);//id 56 警示用戶原因
+
+ 
         if($year=='1970'){
             $year=$month=$day='';
         }
@@ -557,7 +613,8 @@ class PagesController extends Controller
                     ->with('month', $month)
                     ->with('day', $day)
                     ->with('message', $message)
-                    ->with('cancel_notice', $cancel_notice);
+                    ->with('cancel_notice', $cancel_notice)
+                    ->with('add_avatar', $add_avatar);
             }
             return view('new.dashboard')
                 ->with('user', $user)
@@ -566,7 +623,9 @@ class PagesController extends Controller
                 ->with('year', $year)
                 ->with('month', $month)
                 ->with('day', $day)
-                ->with('cancel_notice', $cancel_notice);
+                ->with('cancel_notice', $cancel_notice)
+                ->with('add_avatar', $add_avatar);
+//                ->with('isWarnedReason',$isWarnedReason);
         }
     }
 
@@ -611,6 +670,8 @@ class PagesController extends Controller
         $year = $birthday[0];
         $month = $birthday[1];
         $day = $birthday[2];
+
+        $girl_to_vip = AdminCommonText::where('alias', 'girl_to_vip')->get()->first();
         if($year=='1970'){
             $year=$month=$day='';
         }
@@ -626,7 +687,8 @@ class PagesController extends Controller
                     ->with('month', $month)
                     ->with('day', $day)
                     ->with('message', $message)
-                    ->with('cancel_notice', $cancel_notice);
+                    ->with('cancel_notice', $cancel_notice)
+                    ->with('girl_to_vip', $girl_to_vip->content);
             }
             if($user->engroup==1){
                 return view('new.dashboard_img')
@@ -637,6 +699,7 @@ class PagesController extends Controller
                     ->with('month', $month)
                     ->with('day', $day)
                     ->with('member_pics', $member_pics)
+                    ->with('girl_to_vip', $girl_to_vip->content)
                     ->with('avatar', $avatar);
             }else{
                 return view('new.dashboard_img')
@@ -647,6 +710,7 @@ class PagesController extends Controller
                     ->with('month', $month)
                     ->with('day', $day)
                     ->with('member_pics', $member_pics)
+                    ->with('girl_to_vip', $girl_to_vip->content)
                     ->with('avatar', $avatar);
             }
         }
@@ -890,6 +954,13 @@ class PagesController extends Controller
 
     public function view_vip(Request $request)
     {
+        /*編輯文案-檢舉會員訊息-START*/
+        $vip_text = AdminCommonText::where('alias','vip_text')->get()->first();
+        /*編輯文案-檢舉會員訊息-END*/
+
+        /*編輯文案-檢舉會員訊息-START*/
+        $upgrade_vip = AdminCommonText::where('alias','upgrade_vip')->get()->first();
+        /*編輯文案-檢舉會員訊息-END*/
         $user = $request->user();
         //VIP到期日
         $expiry_time = Vip::select('expiry')->where('member_id', $user->id)->where('expiry', '!=', '0000-00-00 00:00:00')->orderBy('created_at', 'desc')->first();
@@ -899,8 +970,11 @@ class PagesController extends Controller
             $expiry = Carbon::parse($expiry_time);
             $days = $expiry->diffInDays(Carbon::now());
         }
+
         return view('new.dashboard.vip')
             ->with('user', $user)->with('cur', $user)
+            ->with('vip_text', $vip_text->content)
+            ->with('upgrade_vip', $upgrade_vip->content)
             ->with('expiry_time', $expiry_time)
             ->with('days',$days);
     }
@@ -1015,6 +1089,8 @@ class PagesController extends Controller
 
                 $message_count_7 = Message::where('from_id', $uid)->where('created_at', '>=', $date)->count();
 
+                $is_banned = null;
+
                 $data = array(
                     'tip_count' => $tip_count,
                     'fav_count' => $fav_count,
@@ -1027,6 +1103,7 @@ class PagesController extends Controller
                     'be_visit_other_count_7' => $be_visit_other_count_7,
                     'message_count' => $message_count,
                     'message_count_7' => $message_count_7,
+                    'is_banned' => $is_banned,
                 );
                 $member_pic = DB::table('member_pic')->where('member_id',$uid)->where('pic','<>',$targetUser->meta_()->pic)->get();
                 if($user->isVip()){
@@ -1045,7 +1122,46 @@ class PagesController extends Controller
                     $data['countSet'] = (int)$basic_setting['countSet'];
                 }
                 $blockadepopup = AdminCommonText::getCommonText(5);//id5封鎖說明popup
-                $isVip = $user->isVip() ? '1':'0';
+                $isVip = $user->isVip() ? '1':'0'; 
+                /*編輯文案-檢舉會員訊息-START*/
+                $report_reason = AdminCommonText::where('alias','report_reason')->get()->first();
+                /*編輯文案-檢舉會員訊息-END*/
+
+                /*編輯文案-檢舉會員-START*/
+                $report_member = AdminCommonText::where('alias','report_member')->get()->first();
+                /*編輯文案-檢舉會員-END*/
+
+                /*編輯文案-檢舉大頭照-START*/
+                $report_avatar = AdminCommonText::where('alias','report_avatar')->get()->first();
+                /*編輯文案-檢舉大頭照-END*/
+
+                /*編輯文案-new_sweet-START*/
+                $new_sweet = AdminCommonText::where('category_alias', 'label_text')->where('alias','new_sweet')->get()->first();
+                /*編輯文案-new_sweet-END*/
+
+                /*編輯文案-well_member-START*/
+                $well_member = AdminCommonText::where('category_alias', 'label_text')->where('alias','well_member')->get()->first();
+                /*編輯文案-well_member-END*/
+
+                /*編輯文案-money_cert-START*/
+                $money_cert = AdminCommonText::where('category_alias', 'label_text')->where('alias','money_cert')->get()->first();
+                /*編輯文案-money_cert-END*/
+
+                /*編輯文案-alert_account-START*/
+                $alert_account = AdminCommonText::where('category_alias', 'label_text')->where('alias','alert_account')->get()->first();
+                /*編輯文案-alert_account-END*/
+
+                /*編輯文案-label_vip-START*/
+                $label_vip = AdminCommonText::where('category_alias', 'label_text')->where('alias','label_vip')->get()->first();
+                /*編輯文案-label_vip-END*/
+
+                /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
+                $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
+                /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
+
+                $rating_avg = DB::table('evaluation')->where('to_id',$uid)->avg('rating');
+                $rating_avg = floatval($rating_avg);
+
                 return view('new.dashboard.viewuser', $data)
                     ->with('user', $user)
                     ->with('blockadepopup', $blockadepopup)
@@ -1053,9 +1169,66 @@ class PagesController extends Controller
                     ->with('cur', $user)
                     ->with('member_pic',$member_pic)
                     ->with('isVip', $isVip)
-                    ->with('engroup', $user->engroup);
+                    ->with('engroup', $user->engroup)
+                    ->with('report_reason',$report_reason->content)
+                    ->with('report_member',$report_member->content)
+                    ->with('report_avatar',$report_avatar->content)
+                    ->with('new_sweet',$new_sweet->content)
+                    ->with('well_member',$well_member->content)
+                    ->with('money_cert',$money_cert->content)
+                    ->with('alert_account',$alert_account->content)
+                    ->with('label_vip',$label_vip->content)
+                    ->with('user_closed',$user_closed->content)
+                    ->with('rating_avg',$rating_avg);
+
             }
 
+    }
+
+    public function evaluation(Request $request, $uid)
+    {
+        $user = $request->user();
+        $vipDays=0;
+        if($user->isVip()) {
+            $vip_record = Carbon::parse($user->vip_record);
+            $vipDays = $vip_record->diffInDays(Carbon::now());
+        }
+
+        $auth_check=0;
+        if($user->isPhoneAuth()==1){
+            $auth_check=1;
+        }
+        if (isset($user) && isset($uid)) {
+
+            $evaluation_data = DB::table('evaluation')->where('to_id',$uid)->paginate(15);
+            $evaluation_self = DB::table('evaluation')->where('to_id',$uid)->where('from_id',$user->id)->first();
+            return view('new.dashboard.evaluation')
+                ->with('user', $user)
+                ->with('to', $this->service->find($uid))
+                ->with('cur', $user)
+                ->with('evaluation_self',$evaluation_self)
+                ->with('evaluation_data',$evaluation_data)
+                ->with('vipDays',$vipDays)
+                ->with('auth_check',$auth_check);
+        }
+    }
+
+    public function evaluation_save(Request $request)
+    {
+
+        $evaluation_self = DB::table('evaluation')->where('to_id',$request->input('eid'))->where('from_id',$request->input('uid'))->first();
+
+        if(isset($evaluation_self)){
+            DB::table('evaluation')->where('to_id',$request->input('eid'))->where('from_id',$request->input('uid'))->update(
+                ['content' => $request->input('content'), 'rating' => $request->input('rating'), 'updated_at' => now()]
+            );
+        }else {
+            DB::table('evaluation')->insert(
+                ['from_id' => $request->input('uid'), 'to_id' => $request->input('eid'), 'content' => $request->input('content'), 'rating' => $request->input('rating'), 'created_at' => now(), 'updated_at' => now()]
+            );
+        }
+
+        return redirect('/dashboard/evaluation/'.$request->input('eid'))->with('message', '評價已完成');
     }
 
     public function report(Request $request)
@@ -1099,6 +1272,15 @@ class PagesController extends Controller
         return back()->with('message', '檢舉成功');
     }
 
+    public function reportMsg(Request $request){
+        if(empty($this->customTrim($request->content))){
+            $user = $request->user();
+            return redirect('/dashboard/viewuser/'.$request->uid);
+        }
+        Message::reportMessage($request->id, $request->content);
+        //        return redirect('/dashboard/viewuser/'.$request->uid)->with('message', '檢舉成功');
+        return back()->with('message', '檢舉成功');
+    }
 
     public function reportPic($reporter_id, $pic_id, $uid = null)
     {
@@ -1364,17 +1546,29 @@ class PagesController extends Controller
     public function anti_fraud_manual(Request $request) {
         $user = $request->user();
         if ($user) {
-            return view('new.dashboard.anti_fraud_manual')
-                ->with('user', $user);
+            if($user->isReadManual == 0)
+                return view('new.dashboard.newer_manual')->with('user', $user);
+            else
+                return view('new.dashboard.anti_fraud_manual')->with('user', $user);
         }
     }
 
     public function web_manual(Request $request) {
         $user = $request->user();
         if ($user) {
-            return view('new.dashboard.web_manual')
-                ->with('user', $user);
+            if($user->isReadManual == 0)
+                return view('new.dashboard.newer_manual')->with('user', $user);
+            else
+                return view('new.dashboard.web_manual')->with('user', $user);
         }
+    }
+
+    public function is_read_manual(Request $request)
+    {
+        $user = $request->user();
+        $user->isReadManual = 1 ;
+        $user->save();
+        return 'ok';
     }
 
     public function chat2(Request $request, $cid)
@@ -1532,7 +1726,8 @@ class PagesController extends Controller
         if ($user)
         {
             // blocked by user->id
-            $blocks = \App\Models\Blocked::where('member_id', $user->id)->orderBy('created_at','desc')->paginate(15);
+            $bannedUsers = \App\Services\UserService::getBannedId();
+            $blocks = \App\Models\Blocked::where('member_id', $user->id)->whereNotIn('blocked_id',$bannedUsers)->orderBy('created_at','desc')->paginate(15);
 
             $usersInfo = array();
             foreach($blocks as $blockUser){
@@ -2183,4 +2378,270 @@ class PagesController extends Controller
         );
         return json_encode($data);
     }
+
+    public function member_auth(Request $request){
+        $user = $request->user();
+        return view('/auth/member_auth')->with('user',$user);
+    }
+
+    public function member_auth_photo(Request $request){
+        return view('/auth/member_auth_photo');
+    }
+
+    public function hint_auth1(Request $request){
+        return view('/auth/hint_auth1');
+    }
+
+    public function hint_auth2(Request $request){
+        return view('/auth/hint_auth2');
+    }
+
+    public function posts_list(Request $request)
+    {
+        $posts = Posts::selectraw('users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->orderBy('posts.created_at','desc')->paginate(10);
+        
+        // foreach($posts['data'] as $key=>$post){
+        //     array_push($posts['data'][$key], $post['pcontents']);
+        // }
+        // dd($posts);
+        $data = array(
+            'posts' => $posts
+        );
+
+        $user = $request->user();
+        if ($user)
+        {
+            // blocked by user->id
+            $blocks = \App\Models\Blocked::where('member_id', $user->id)->paginate(15);
+
+            $usersInfo = array();
+            foreach($blocks as $blockUser){
+                $id = $blockUser->blocked_id;
+                $usersInfo[$id] = User::findById($id);
+            }
+            
+        }
+        
+
+        return view('/dashboard/posts_list', $data)
+        ->with('blocks', $blocks)
+        ->with('users', $usersInfo)
+        ->with('user', $user);
+
+
+            
+    }
+
+    public function post_detail(Request $request)
+    {
+        $user = $request->user();
+        
+
+        $pid = $request->pid;
+        $this->post_views($pid);
+        $posts = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->where('posts.id', $pid)->get();
+        $data = array(
+            'posts' => $posts
+        );
+
+        return view('/dashboard/post_detail', $data)->with('user', $user);;
+    }
+
+    public function getPosts(Request $request)
+    {
+        $page = $request->page;
+        $perPage = 10;
+        $startPost = $page*$perPage;
+        
+        /*撈取資料*/
+    }
+
+    public function posts(Request $request)
+    {
+        $user = $request->user();
+        $url = $request->fullUrl();
+        //echo $url;
+
+        if(str_contains($url, '?img')) {
+            $tabName = 'm_user_profile_tab_4';
+        }
+        else {
+            $tabName = 'm_user_profile_tab_1';
+        }
+
+        $member_pics = DB::table('member_pic')->select('*')->where('member_id',$user->id)->get()->take(6);
+
+        $birthday = date('Y-m-d', strtotime($user->meta_()->birthdate));
+        $birthday = explode('-', $birthday);
+        $year = $birthday[0];
+        $month = $birthday[1];
+        $day = $birthday[2];
+        if($year=='1970'){
+            $year=$month=$day='';
+        }
+        if ($user) {
+            $cancel_notice = $request->session()->get('cancel_notice');
+            $message = $request->session()->get('message');
+            if(isset($cancel_notice)){
+                return view('/dashboard/posts')
+                    ->with('user', $user)
+                    ->with('tabName', $tabName)
+                    ->with('cur', $user)
+                    ->with('year', $year)
+                    ->with('month', $month)
+                    ->with('day', $day)
+                    ->with('message', $message)
+                    ->with('cancel_notice', $cancel_notice);
+            }
+            if($user->engroup==1){
+                return view('/dashboard/posts')
+                    ->with('user', $user)
+                    ->with('tabName', $tabName)
+                    ->with('cur', $user)
+                    ->with('year', $year)
+                    ->with('month', $month)
+                    ->with('day', $day)
+                    ->with('member_pics', $member_pics);
+            }else{
+                return view('/dashboard/posts')
+                    ->with('user', $user)
+                    ->with('tabName', $tabName)
+                    ->with('cur', $user)
+                    ->with('year', $year)
+                    ->with('month', $month)
+                    ->with('day', $day)
+                    ->with('member_pics', $member_pics);
+            }
+        }
+    }
+
+    public function doPosts(Request $request)
+    {
+        
+        $posts = new Posts;
+        // $anonymous = $request->get('anonymous','no');
+        // $combine   = $request->get('combine','no');
+        $is_anonymous = $request->get('is_anonymous');
+        $agreement = $request->get('agreement','no');
+        $posts->title      = $request->get('title');
+        $posts->contents   = str_replace('..','',$request->get('contents'));
+        $user=$request->user();
+        $posts->user_id = $user->id;
+
+        // $posts->anonymous = $anonymous=='on' ? '1':'0';
+        // $posts->combine   = $combine=='on'   ? '1':'0';
+        $posts->is_anonymous = $is_anonymous;
+        $posts->agreement = $agreement=='on' ? '1':'0';
+
+        if(($posts->is_anonymous=='anonymous' || $posts->is_anonymous=='combine')){
+            $result = $posts->save();
+            // Session::flash('message', '資料更新成功');
+            return redirect('/dashboard/posts_list');
+        }else{
+            return redirect('/dashboard/posts');
+        }
+
+
+
+    }
+
+    public function post_views($pid)
+    {
+        $views = Posts::where('id', $pid)->first()->views;
+        $update = array(
+            'views'=>$views+1,
+        );
+        Posts::where('id', $pid)->update($update);
+    }
+    
+    public function postAcceptor(Request $request)
+    {
+        
+        /***************************************************
+         * Only these origins are allowed to upload images *
+         ***************************************************/
+        // $accepted_origins = array("http://localhost", "http://localsugargarden.org", "http://192.168.1.1", "http://example.com");
+
+        /*********************************************
+         * Change this line to set the upload folder *
+         *********************************************/
+        $imageFolder = 'images/';
+// dump('1');
+        reset ($_FILES);
+        $temp = current($_FILES);
+        if (is_uploaded_file($temp['tmp_name'])){
+            // dump($_SERVER['HTTP_ORIGIN']);
+            // if (isset($_SERVER['HTTP_ORIGIN'])) {
+            // // same-origin requests won't set an origin. If the origin is set, it must be valid.
+            // if (in_array($_SERVER['HTTP_ORIGIN'], $accepted_origins)) {
+            //     header('Access-Control-Allow-Origin: ' . $_SERVER['HTTP_ORIGIN']);
+            // } else {
+            //     header("HTTP/1.1 403 Origin Denied");
+            //     return;
+            // }
+            // }
+            /*
+            If your script needs to receive cookies, set images_upload_credentials : true in
+            the configuration and enable the following two headers.
+            // */
+            // header('Access-Control-Allow-Credentials: true');
+            // header('P3P: CP="There is no P3P policy."');
+
+            // // // Sanitize input
+            // if (preg_match("/([^\w\s\d\-_~,;:\[\]\(\).])|([\.]{2,})/", $temp['name'])) {
+            //     header("HTTP/1.1 400 Invalid file name.");
+            //     return;
+            // }
+
+            // // // Verify extension
+            // if (!in_array(strtolower(pathinfo($temp['name'], PATHINFO_EXTENSION)), array("gif", "jpg", "png"))) {
+            //     header("HTTP/1.1 400 Invalid extension.");
+            //     return;
+            // }
+
+            // Accept upload if there was no origin, or if it is an accepted origin
+            $filetowrite = $imageFolder . $temp['name'];
+            move_uploaded_file($temp['tmp_name'], $filetowrite);
+
+            // Respond to the successful upload with JSON.
+            // Use a location key to specify the path to the saved image resource.
+            // { location : '/your/uploaded/image/file'}
+// dd($filetowrite);
+            echo json_encode(array('location' => $filetowrite));
+            
+        } else {
+            // Notify editor that the upload failed
+            @header("HTTP/1.1 500 Server Error");
+        }
+    }
+    public function sms_add_view(Request $request){
+        return view('/sms/sms_add_view');
+    }
+
+    public function sms_add_list(Request $request){
+        $data['lists'] = DB::select("SELECT * FROM message_post ORDER BY createdAt DESC");
+
+        // dd($data);
+        return view('/sms/sms_list', $data);
+    }
+
+    public function sms_add(Request $request){
+        $message = $request->message;
+        $insert_result = DB::insert("INSERT INTO message_post (message) VALUES ('$message')");
+
+        if($insert_result){
+            $data = array(
+                'code'=>'200',
+                'msg'=>'success'
+            );
+        }else{
+            $data = array(
+                'code'=>'400',
+                'msg'=>'failed'
+            );
+        }
+
+        return json_encode($data);
+    }
+
 }

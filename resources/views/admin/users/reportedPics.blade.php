@@ -105,6 +105,12 @@
                                                 (永久)
                                             @endif
                                         @endif
+                                        @if($result['warnedicon']['isAdminWarned']==1 OR $result['warnedicon']['isWarned']==1)
+                                            <img src="/img/warned_red.png" style="height: 16px;width: 16px;">
+                                        @endif
+                                        @if($result['warnedicon']['isWarned']==0 AND $result['warnedicon']['WarnedScore']>=10 AND $result['warnedicon']['auth_status']==1)
+                                            <img src="/img/warned_black.png" style="height: 16px;width: 16px;">
+                                        @endif
                                     </p>
                                 </a>
                             </td>
@@ -173,6 +179,12 @@
 					                        @else
                                                 無資料
                                             @endif
+                                        @endif
+                                        @if($users[$result['reporter_id']]['warnedicon']['isAdminWarned']==1 OR $users[$result['reporter_id']]['warnedicon']['isWarned']==1)
+                                            <img src="/img/warned_red.png" style="height: 16px;width: 16px;">
+                                        @endif
+                                        @if($users[$result['reporter_id']]['warnedicon']['isWarned']==0 AND $users[$result['reporter_id']]['warnedicon']['WarnedScore']>10 AND $users[$result['reporter_id']]['warnedicon']['auth_status']==1)
+                                            <img src="/img/warned_black.png" style="height: 16px;width: 16px;">
                                         @endif
                                     </p>
                                 </a>
@@ -262,6 +274,12 @@
                                                 (永久)
                                             @endif
                                         @endif
+                                        @if($Pusers[$result['reported_user_id']]['warnedicon']['isAdminWarned']==1 OR $Pusers[$result['reported_user_id']]['warnedicon']['isWarned']==1)
+                                            <img src="/img/warned_red.png" style="height: 16px;width: 16px;">
+                                        @endif
+                                        @if($Pusers[$result['reported_user_id']]['warnedicon']['isWarned']==0 AND $Pusers[$result['reported_user_id']]['warnedicon']['WarnedScore']>10 AND $Pusers[$result['reported_user_id']]['warnedicon']['auth_status']==1)
+                                            <img src="/img/warned_black.png" style="height: 16px;width: 16px;">
+                                        @endif
                                     </a>
 
                                 @else
@@ -328,6 +346,12 @@
                                             (永久)
                                         @endif
                                     @endif
+                                    @if($Pusers[$result['reporter_id']]['warnedicon']['isAdminWarned']==1 OR $Pusers[$result['reporter_id']]['warnedicon']['isWarned']==1)
+                                        <img src="/img/warned_red.png" style="height: 16px;width: 16px;">
+                                    @endif
+                                    @if($Pusers[$result['reporter_id']]['warnedicon']['isWarned']==0 AND $Pusers[$result['reporter_id']]['warnedicon']['WarnedScore']>10 AND $Pusers[$result['reporter_id']]['warnedicon']['auth_status']==1)
+                                        <img src="/img/warned_black.png" style="height: 16px;width: 16px;">
+                                    @endif
                                 </a>
                             </td>
                             <td>
@@ -345,17 +369,19 @@
                                 <img src="{{ $result['pic'] }}" alt="此照片已刪除或不存在" height="200px">
                             </td>
                             <td>
+                                @if(isset($result['reported_user_id']))
                                 <form id="Form" action="/admin/users/pictures/modify" method="POST" target="_blank">
                                     {!! csrf_field() !!}
                                     <input class="btn btn-danger" type="submit" value="刪除"><br>
                                     <input type="hidden" name="delete" value="true">
-                                    <input type="hidden" name="pic_id" value="{{$result['reported_user_id']}}">
+                                    <input type="hidden" name="pic_id" value="{{$result['reported_pic_id']}}">
                                     @foreach($picReason as $a)
                                         <input type="radio" name="reason[{{$rowIndex}}]" value="{{ $a->content }}">{{ $a->content }}<br>
                                     @endforeach
                                     其他: <input type="text" name="otherReason"><br>
                                     <input type="checkbox" name="addreason">加入常用原因
                                 </form>
+                                @endif
                             </td>
                             @else
                                 <td>

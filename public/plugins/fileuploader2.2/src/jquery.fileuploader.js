@@ -4208,7 +4208,7 @@
 			item: '<li class="fileuploader-item file-has-popup">' +
                        '<div class="columns">' +
                            '<div class="column-thumbnail">${image}<span class="fileuploader-action-popup"></span></div>' +
-                           '<div class="column-title">' +
+                           '<div class="column-title fileuploader-action-popup">' +
                                '<div title="${name}">${name}</div>' +
                                '<span>${size2}</span>' +
                            '</div>' +
@@ -4221,7 +4221,7 @@
             item2: '<li class="fileuploader-item file-has-popup">' +
                         '<div class="columns">' +
                             '<div class="column-thumbnail">${image}<span class="fileuploader-action-popup"></span></div>' +
-                            '<div class="column-title">' +
+                            '<div class="column-title fileuploader-action-popup">' +
                                 '<a href="${file}" target="_blank">' +
                                     '<div title="${name}">${name}</div>' +
                                     '<span>${size2}</span>' +
@@ -4401,22 +4401,22 @@
 			}
         },
         captions: {
-            button: function(options) { return 'Browse ' + (options.limit == 1 ? 'file' : 'files'); },
-            feedback: function(options) { return 'Choose ' + (options.limit == 1 ? 'file' : 'files') + ' to upload'; },
-            feedback2: function(options) { return options.length + ' ' + (options.length > 1 ? ' files were' : ' file was') + ' chosen'; },
-			confirm: 'Confirm',
-            cancel: 'Cancel',
-			name: 'Name',
-			type: 'Type',
-			size: 'Size',
-			dimensions: 'Dimensions',
+            button: function(options) { return '請選取照片上傳'; },
+            feedback: function(options) { return '請選取照片上傳'; },
+            feedback2: function(options) { return '已選取 ' + options.length + ' 張照片'; },
+			confirm: '確認',
+            cancel: '取消',
+			name: '檔案名稱',
+			type: '檔案類型',
+			size: '檔案大小',
+			dimensions: '尺寸',
 			duration: 'Duration',
-            crop: 'Crop',
-            rotate: 'Rotate',
+            crop: '裁切',
+            rotate: '旋轉',
 			sort: 'Sort',
-            download: 'Download',
-            remove: 'Remove',
-            drop: 'Drop the files here to upload',
+            download: '下載',
+            remove: '刪除',
+            drop: '將檔案放在此處進行上傳',
             paste: '<div class="fileuploader-pending-loader"></div> Pasting a file, click here to cancel.',
             removeConfirmation: 'Are you sure you want to remove this file?',
             errors: {
