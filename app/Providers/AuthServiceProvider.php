@@ -24,11 +24,11 @@ class AuthServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->registerPolicies();
-		Gate::define('admin', 
-            function ($user) { 
+        Gate::define('admin', 
+            function ($user) {
                 if($user->roles->first()){
                     return ($user->roles->first()->name == 'admin');
-                } 
+                }
                 else{
                     return false;
                 }
@@ -45,7 +45,6 @@ class AuthServiceProvider extends ServiceProvider
                 }
             }
         );
-        
         //
     }
 }

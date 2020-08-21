@@ -150,7 +150,7 @@
                                 @endif
 {{--                            <li><img src="/new/images/icon_23.png"><span>{{$money_cert}}</span></li>--}}
                                 @if($to->isVip() && $to->engroup == 1)
-                                <li><img src="/new/images/icon_25.png"><span> VIP </span></li>
+                                <li><img src="/new/images/icon_25.png"><span>{{$label_vip}}</span></li>
                                 @endif
 {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
                             </ul>
@@ -434,7 +434,7 @@
                 <input type="hidden" name="aid" value="{{$user->id}}">
                 <input type="hidden" name="uid" value="{{$to->id}}">
 
-                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請填寫理由"></textarea>
+                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_member}}"></textarea>
                 <div class="n_bbutton">
                     <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff;">送出</button>
                     <button type="reset" class="n_left" style="border-style: none;background: #ffffff; color:#8a9ff0;" onclick="$('#show_banned').hide();$('.announce_bg').hide()">返回</button>
@@ -456,7 +456,7 @@
                 <input type="hidden" name="pic_id" value="">
 
 
-                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請填寫理由" required></textarea>
+                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_avatar}}" required></textarea>
                 <div class="n_bbutton">
                     <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff;">送出</button>
                     <button type="reset" class="n_left" style="border-style: none;background: #ffffff; color:#8a9ff0;" onclick="$('#show_reportPic').hide();$('.blbg').hide()">返回</button>

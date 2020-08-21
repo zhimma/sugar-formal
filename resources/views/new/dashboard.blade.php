@@ -652,7 +652,7 @@
           //   type:'warning'
           // });
         @elseif (empty($umeta->pic))
-        c5('請加上頭像照。');
+        c5("{{$add_avatar}}");
           // swal({
           //   title:'請加上頭像照。',
           //   type:'warning'

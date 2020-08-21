@@ -14,9 +14,11 @@
         "laravel/framework": "5.5.*",
         "laravel/tinker": "~1.0",
         "league/flysystem-sftp": "^1.0",
+        "neoxia/laravel-sftp": "^1.0",
         "yab/laracogs": "^2.3"
     },
     "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.2",
         "filp/whoops": "~2.0",
         "fzaninotto/faker": "~1.4",
         "mockery/mockery": "0.9.*",
@@ -26,6 +28,7 @@
         "files" : [
             "app/Helpers/activity_helper.php",
             "app/Services/ECPay.php",
+            "app/Services/EsafePay.php",
             "app/Library/class.fileuploader.php"
         ],
 

@@ -60,9 +60,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
 {{--                    <h2><span>您目前為高級會員</span>訊息可保存天數：30，可通訊人數:無限</h2>--}}
                     @if($user->isVip())
-                        <h2>{{--<span>{{$letter_vip}}</span>--}}訊息可保存天數：180，可通訊人數:無限</h2>
+                        <h2><span>{{$letter_vip}}</span>訊息可保存天數：180，可通訊人數:無限</h2>
                         @else
-                        <h2>{{--<span>{{$letter_normal_member}}</span>--}}訊息可保存天數：7，可通訊人數:10</h2>
+                        <h2><span>{{$letter_normal_member}}</span>訊息可保存天數：7，可通訊人數:10</h2>
                     @endif
                 </div>
                 <div class="sjlist_li">

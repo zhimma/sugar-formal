@@ -57,7 +57,7 @@
                         </td>
                     </tr>
                 
-                    <!-- <tr>
+                    {{-- <tr>
                         <td>檢舉者/被檢舉者</td>
                         <td>
                             檢舉者<button class="btn btn-primary report_user">{{$to_user->name}}</button>
@@ -78,7 +78,7 @@
                         <td>
                             <button class="btn btn-danger now_time">現在時間</button>
                         </td>
-                    </tr> -->
+                    </tr> --}}
                 </table>
             <form action="{{ route('admin/send', (!isset($isReported))? $user->id : $isReportedId ) }}" id='message' method='POST'>
                 {!! csrf_field() !!}
@@ -166,7 +166,7 @@
                             <button class="btn btn-success tpl2">年收</button> -->
                         </td>
                     </tr>
-                    <!-- <tr>
+                    {{-- <tr>
                         <td>檢舉者/被檢舉者</td>
                         <td>
                             檢舉者<button class="btn btn-primary report_user2">{{$to_user->name}}</button>
@@ -187,7 +187,7 @@
                         <td>
                             <button class="btn btn-danger now_time2">現在時間</button>
                         </td>
-                    </tr> -->
+                    </tr> --}}
                 </table>
             
             <form action="{{ route('admin/send', (!isset($isReported))? $to_user->id : $isReportedId ) }}" id='message' method='POST'>

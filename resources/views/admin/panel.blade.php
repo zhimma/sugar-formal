@@ -16,6 +16,7 @@
 		<a href="{{ route('users/reported/count') }}">會員被檢舉次數</a>
 		<a href="{{ route('users/board') }}">留言板管理</a>
 		<a href="{{ route('users/message/search') }}">會員訊息管理</a>
+		<a href="{{ route('statistics') }}">會員訊息統計</a>
 		<a href="{{ route('users/reported') }}">被檢舉會員清單</a>
 		<a href="{{ route('users/pics/reported') }}">被檢舉照片清單</a>
 		<a href="{{ route('users/basic_setting') }}">基本設定</a>
@@ -23,6 +24,7 @@
 		<a href="{{ route('users/switch') }}">切換會員身份</a>
 		<a href="{{ route('inactive') }}">未啟動會員</a>
 		<a href="{{ route('admin/announcement') }}">站長公告</a>
+		<a href="{{ route('admin/masterwords') }}">站長的話</a>
 		<a href="{{ route('admin/web/announcement') }}">網站公告本月封鎖名單</a>
 		<a href="{{ route('admin/chat') }}">站長信箱</a>
 		<a href="{{ route('admin/commontext') }}">編輯文案</a>

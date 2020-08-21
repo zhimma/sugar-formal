@@ -1,0 +1,38 @@
+{
+    // 使用 IntelliSense 以得知可用的屬性。
+    // 暫留以檢視現有屬性的描述。
+    // 如需詳細資訊，請瀏覽: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+<<<<<<< HEAD
+            "name": "Listen for XDebug",
+            "type": "php",
+            "request": "launch",
+            "port": 9000
+        },
+        {
+            "name": "Listen for XDebug on Laravel",
+            "type": "php",
+            "request": "launch",
+            "pathMappings": {"/Users/lzong/wwwroot/sugar-formal": "${workspaceFolder}"},
+=======
+            "name": "Listen for XDebug on Laravel",
+            "type": "php",
+            "request": "launch",
+            "pathMappings": {
+                "C:/xampp/htdocs/sugar-formal/": "${workspaceFolder}"
+            },
+>>>>>>> 3462f34c5816cfeae4a4dfcdc7da12e02ae4acb9
+            "port": 9000
+        },
+        {
+            "name": "Launch currently open script",
+            "type": "php",
+            "request": "launch",
+            "program": "${file}",
+            "cwd": "${fileDirname}",
+            "port": 9000
+        }
+    ]
+}

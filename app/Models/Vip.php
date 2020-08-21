@@ -31,6 +31,18 @@ class Vip extends Model
         'expiry'
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | relationships
+    |--------------------------------------------------------------------------
+    */
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'member_id', 'id');
+    }
+    
+
     public static  function allVip(){
         return Vip::select('member_id')->where('active', 1)->get();
     }
@@ -110,9 +122,9 @@ class Vip extends Model
         $admin = User::findByEmail(Config::get('social.admin.email'));
 
         VipLog::addToLog($member_id, 'cancel', 'XXXXXXXXX', 0, $free);
-        // if ($curUser != null) {
-        //     $admin->notify(new CancelVipEmail($member_id, '761404', $member_id));
-        // }
+        if ($curUser != null) {
+            $admin->notify(new CancelVipEmail($member_id, '761404', $member_id));
+        }
         $user = Vip::select('id', 'expiry', 'created_at', 'updated_at')
                 ->where('member_id', $member_id)
                 ->orderBy('created_at', 'desc')->get();

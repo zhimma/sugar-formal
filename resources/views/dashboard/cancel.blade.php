@@ -1,6 +1,6 @@
-@extends('layouts.master')
-
-@section('app-content')
-
-
+@extends('layouts.master')
+
+@section('app-content')
+
+
 @stop

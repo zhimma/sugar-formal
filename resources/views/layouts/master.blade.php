@@ -125,7 +125,7 @@
         var _url = '{!! url("/") !!}';
     </script>
     @yield("pre-javascript")
-        @include('partials.scripts')
+    @include('partials.scripts')
     @yield("javascript")
 </body>
 <script>

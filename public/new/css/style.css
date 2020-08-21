@@ -1682,7 +1682,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .pa_hover{ background:#fe92a8 !important}
 
 @media (max-width:760px) {
-    .ppp{ position:static;width:350px !important;height:55px; margin:0 auto !important;background:url(../images/line.jpg) repeat-x center; display:table}
+    .ppp{ position:static;width:350px !important;height:55px; margin:0 auto !important;background:url(../images/line.jpg) repeat-x center; display:flex;}
     .ppp a{ float:left; margin-right:5.36%; line-height:55px; color:#ffffff; text-align:center; font-weight:bold; font-size:14px}
     .ppp a:last-child{ margin-right:0; float:right}
     .page_p{ margin-top:25px}
@@ -1699,7 +1699,11 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
     .zhapian{width:95%; margin:0 auto; min-height:565px; margin-top:20px; margin-bottom:40px;}
 
 }
-
+@media (max-width:414px) {
+    .ppp {
+        width: 340px !important;
+    }
+}
 @media (max-width:370px) {
     .ppp{ position:static;width:300px !important;height:45px; margin:0 auto !important;background:url(../images/line.jpg) repeat-x center; display:table}
     .ppp a{margin-right:6.25%;}
@@ -1751,6 +1755,22 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .fypage a:hover{ background:#fd5678 ; color:#ffffff}
 
 .hy_new{ line-height:40px;}
+
+.hy_width{width:100%}
+
+
+.fi_xq{width:70%; margin:0 auto; background:#fff3f7; border:#fe92a8 1px solid; padding:8px 5px; border-radius:5px; display:table}
+.fi_xqicon{ height:90px; float:left}
+
+.fi_text{ float:left; margin-left:6px}
+.fi_text h2{ font-size:18px; color:#fe92a8; line-height:35px; margin-top:5px}
+.fi_text h3{ color:#666666; line-height:23px}
+.fi_text h4{ color:#999}
+
+
+@media (max-width:720px) {
+    .fi_xq{width:90%;}
+}
 
 .b_sop{ background:#77dbd8}
 .sop_f{ color:#77dbd8 !important}

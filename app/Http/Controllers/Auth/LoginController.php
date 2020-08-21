@@ -245,4 +245,10 @@ class LoginController extends Controller
 
         return $this->sendFailedLoginResponse($request);
     }
+
+    public function get_mac_address(){
+        $string=exec('getmac');
+        $mac=substr($string, 0, 17); 
+        return $mac;
+    }
 }

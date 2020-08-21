@@ -116,4 +116,8 @@
             });
         </script>
     @endif
+<<<<<<< HEAD
 @endif
+=======
+@endif
+>>>>>>> sugar-dev/master

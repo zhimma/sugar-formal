@@ -4,18 +4,16 @@
 <?
     $orderNumber = $orderNumber.time();
 ?>
-@if (Auth::user()->can('admin'))
 <form class="m-nav__link" action="{{ route('chatpay_ec') }}" method=post id="ecpay">
     <input type="hidden" name="_token" value="{{ csrf_token() }}" >
     <input type="hidden" name="userId" value="{{ $user->id }}">
     <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">
     <button type="submit" style="background: none; border: none; padding: 0">
         <i class="m-nav__link-icon flaticon-profile"></i>
-        <span class="m-nav__link-text">車馬費邀請(綠界)</span>
+        <span class="m-nav__link-text">車馬費邀請(管道一)</span>
     </button>
 </form>
-@endif
-<form action=<?php echo Config::get('social.payment.actionURL'); ?> class="m-nav__link nav-link m-tabs__link" method="POST" id="form1">
+<form action="<?php echo Config::get('social.payment.actionURL'); ?>" class="m-nav__link" method="POST" id="form1">
     <input type="hidden" name="_token" value="{{ csrf_token() }}" >
     <input type="hidden" name="userId" value="{{$user->id}}">
     <input type="hidden" name="to" value="@if(isset($to)){{$to->id}}@endif">
@@ -32,7 +30,7 @@
     <input type=hidden name="OrderURL" value=<?php echo Config::get('social.payment.orderURL'); ?>>
     <button class="invite" type="submit" style="background: none; border: none; padding: 0">
         <i class="m-nav__link-icon flaticon-profile"></i>
-        <span class="m-nav__link-text">車馬費邀請</span>
+        <span class="m-nav__link-text">車馬費邀請(管道二)</span>
     </button>
 </form>
 <script>

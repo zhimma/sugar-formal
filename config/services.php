@@ -15,8 +15,8 @@ return [
     */
 
     'mailgun' => [
-        'domain' => env('MAILGUN_DOMAIN', 'mg.sugar-garden.org'),
-        'secret' => env('MAILGUN_SECRET', '23a190d5950dfe8a53a9ff0fc11c8027-baa55c84-d1d75a75'),
+        'domain' => env('MAILGUN_DOMAIN'),
+        'secret' => env('MAILGUN_SECRET'),
     ],
 
     'ses' => [
@@ -36,4 +36,3 @@ return [
     ],
 
 ];
-

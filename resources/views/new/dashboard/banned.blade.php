@@ -1,5 +1,18 @@
 @extends('new.layouts.website')
 
+<style>
+    .pagination > li > a:focus,
+.pagination > li > a:hover,
+.pagination > li > span:focus,
+.pagination > li > span:hover{
+    z-index: 3;
+    /* color: #23527c !important; */
+    background-color: #FF8888 !important;
+    /* border-color: #ddd !important; */
+    /* border-color:#ee5472 !important; */
+    /* color:white !important; */
+}
+</style>
 @section('app-content')
     <div class="container matop70">
         <div class="row">

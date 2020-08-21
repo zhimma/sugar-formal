@@ -252,34 +252,34 @@ $code = Config::get('social.payment.code');
             return unescape(document.cookie.substring(startIndex, endIndex));
         }
 
-        function GetDateDiff(startTime, endTime, diffType) { 
-            //將xxxx-xx-xx的時間格式，轉換為 xxxx/xx/xx的格式 
-            startTime = startTime.replace(/\-/g, "/"); 
-            endTime = endTime.replace(/\-/g, "/"); 
-            //將計算間隔類性字元轉換為小寫 
-            diffType = diffType.toLowerCase(); 
-            var sTime = new Date(startTime); //開始時間 
-            var eTime = new Date(endTime); //結束時間 
-            //作為除數的數字 
-            var divNum = 1; 
-            switch (diffType) { 
-                case "second": 
-                    divNum = 1000; 
-                    break; 
-                case "minute": 
-                    divNum = 1000 * 60; 
-                    break; 
-                case "hour": 
-                    divNum = 1000 * 3600; 
-                    break; 
-                case "day": 
-                    divNum = 1000 * 3600 * 24; 
-                    break; 
-                default: 
-                    break; 
-            } 
-            return parseInt((eTime.getTime() - sTime.getTime()) / parseInt(divNum)); 
-        } 
+        function GetDateDiff(startTime, endTime, diffType) {
+            //將xxxx-xx-xx的時間格式，轉換為 xxxx/xx/xx的格式
+            startTime = startTime.replace(/\-/g, "/");
+            endTime = endTime.replace(/\-/g, "/");
+            //將計算間隔類性字元轉換為小寫
+            diffType = diffType.toLowerCase();
+            var sTime = new Date(startTime); //開始時間
+            var eTime = new Date(endTime); //結束時間
+            //作為除數的數字
+            var divNum = 1;
+            switch (diffType) {
+                case "second":
+                    divNum = 1000;
+                    break;
+                case "minute":
+                    divNum = 1000 * 60;
+                    break;
+                case "hour":
+                    divNum = 1000 * 3600;
+                    break;
+                case "day":
+                    divNum = 1000 * 3600 * 24;
+                    break;
+                default:
+                    break;
+            }
+            return parseInt((eTime.getTime() - sTime.getTime()) / parseInt(divNum));
+        }
 
         function htmlencode(s){
             var div = document.createElement('div');
@@ -319,7 +319,7 @@ $code = Config::get('social.payment.code');
             }
             if(GetDateDiff(countTime, now, "minute")<="{{$timeSet}}"){
                 if(count>"{{(int)$countSet}}"){
-                    console.log(count, "{{$countSet}}"); 
+                    console.log(count, "{{$countSet}}");
                     //禁止複製
                     bodyMain.oncopy = function(){
                         return false;
@@ -357,7 +357,7 @@ $code = Config::get('social.payment.code');
                 <li class="nav-item m-tabs__item">
                     <a class="nav-link m-tabs__link" href="/user/view/{{ $user->id }}">
                         <i class="flaticon-share m--hide"></i>
-                        @if(isset($cur) && $user->id == $cur->id)    
+                        @if(isset($cur) && $user->id == $cur->id)
                             檢視自己的首頁
                         @else
                             首頁
@@ -366,27 +366,27 @@ $code = Config::get('social.payment.code');
                 </li>
                 <li class="nav-item m-tabs__item">
                     <a class="nav-link m-tabs__link {{ empty($tabName) || $tabName == 'm_user_profile_tab_1' ? 'active' : '' }}"
-                        data-toggle="tab" href="#m_user_profile_tab_1" role="tab">
+                       data-toggle="tab" href="#m_user_profile_tab_1" role="tab">
                         <i class="flaticon-share m--hide"></i>
                         基本資料
                     </a>
                 </li>
                 <li class="nav-item m-tabs__item">
                     <a class="nav-link m-tabs__link {{ empty($tabName) || $tabName == 'm_user_profile_tab_4' ? 'active' : '' }}"
-                        data-toggle="tab" href="#m_user_profile_tab_4" role="tab">
+                       data-toggle="tab" href="#m_user_profile_tab_4" role="tab">
                         <i class="flaticon-share m--hide"></i>
                         照片管理
                     </a>
                 </li>
                 <li class="nav-item m-tabs__item">
                     <a class="nav-link m-tabs__link {{ empty($tabName) || $tabName == 'm_user_profile_tab_2' ? 'active' : '' }}"
-                        data-toggle="tab" href="#m_user_profile_tab_2" role="tab">
+                       data-toggle="tab" href="#m_user_profile_tab_2" role="tab">
                         更改密碼
                     </a>
                 </li>
                 <li class="nav-item m-tabs__item">
                     <a class="nav-link m-tabs__link {{ empty($tabName) || $tabName == 'm_user_profile_tab_3' ? 'active' : '' }}"
-                        data-toggle="tab" href="#m_user_profile_tab_3" role="tab">
+                       data-toggle="tab" href="#m_user_profile_tab_3" role="tab">
                         設定
                     </a>
                 </li>
@@ -428,7 +428,7 @@ $code = Config::get('social.payment.code');
                         </button>
                     </form>
                 </li>
-
+            
                 @if (isset($cur) && $user->isVip() && $user->id != $cur->id)
                     <li class="nav-item m-tabs__item d-md-none">
                         <form action="{!! url('dashboard/fav') !!}" class="m-nav__link nav-link m-tabs__link"
@@ -467,21 +467,21 @@ $code = Config::get('social.payment.code');
                                 </button>
                             </form>
                         </li>
+                        @endif
                     @endif
-                @endif
 
-                @if ($user->engroup == 1 && isset($cur) && $user->id != $cur->id)
-                    @if(!\App\Models\Tip::isComment($user->id, $cur->id) && $user->isVip() && \App\Models\Tip::isCommentNoEnd($user->id, $cur->id))
-                        <li class="nav-item m-tabs__item d-md-none">
-                            @include('partials.tip-comment')
-                        </li>
-                    @else
-                        <li class="nav-item m-tabs__item d-md-none">
-                            @include('partials.tip-invite')
-                        </li>
+                    @if ($user->engroup == 1 && isset($cur) && $user->id != $cur->id)
+                        @if(!\App\Models\Tip::isComment($user->id, $cur->id) && $user->isVip() && \App\Models\Tip::isCommentNoEnd($user->id, $cur->id))
+                            <li class="nav-item m-tabs__item d-md-none">
+                                @include('partials.tip-comment')
+                            </li>
+                        @else
+                            <li class="nav-item m-tabs__item d-md-none">
+                                @include('partials.tip-invite')
+                            </li>
+                        @endif
                     @endif
                 @endif
-            @endif
         </ul>
         @if(isset($cur) && $user->id !== $cur->id && isset($description))
             <img src="{{ $button }}" alt="" height="30px" style="margin: 20px 0 20px 0; float: right; right: 0;" onclick="showDescription()">
@@ -507,7 +507,7 @@ $code = Config::get('social.payment.code');
 </div>
 <div class="tab-content">
     <div class="tab-pane {{ empty($tabName) || $tabName == 'm_user_profile_tab_1' ? 'active' : '' }}"
-            id="m_user_profile_tab_1">
+         id="m_user_profile_tab_1">
         <?php if (!isset($user)) {
             $umeta = null;
         } else {
@@ -530,13 +530,13 @@ $code = Config::get('social.payment.code');
                     $cmeta->area = explode(",",$cmeta->area);
                 }
             }
-        } 
+        }
         ?>
         @if(str_contains(url()->current(), 'dashboard'))
             <form class="m-form m-form--fit m-form--label-align-right" method="POST" name="user_data" action="/dashboard" id="information">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="userId" value="{{$user->id}}">
-                @endif
+        @endif
                 <?php
                 $female = (str_contains(url()->current(), 'dashboard') && $user->engroup == 2) || (isset($cmeta) && $cur->engroup == 2);
                 //$female = $user->engroup == 2 && (isset($cmeta) && $cur->engroup == 2);
@@ -553,7 +553,7 @@ $code = Config::get('social.payment.code');
                             <label for="example-text-input" class="col-lg-2 col-md-3 col-form-label">暱稱<span style="color:red">(必填)</span></label>
                             <div class="col-lg-7">
                                 <input class="form-control m-input" name="name" type="text" maxlength="10"
-                                        value="{{$user->name}}">
+                                       value="{{$user->name}}">
                             </div>
                         </div>
                     @endif
@@ -562,7 +562,7 @@ $code = Config::get('social.payment.code');
                             <label for="title" class="col-lg-2 col-md-3 col-form-label">標題<span style="color:red">(必填)</span></label>
                             <div class="col-lg-7">
                                 <input class="form-control m-input" name="title" type="text" maxlength="20"
-                                        value="{{$user->title}}">
+                                       value="{{$user->title}}">
                             </div>
                         </div>
                         <div class="form-group m-form__group row">
@@ -570,9 +570,9 @@ $code = Config::get('social.payment.code');
                             <div class="col-lg-7 form-inline">
                                 @if($user->engroup_change == 0)
                                     <input class="form-control m-input" name="engroup" value="1"
-                                            @if($user->engroup == 1) checked @endif type="radio"> 甜心大哥/大姐
+                                           @if($user->engroup == 1) checked @endif type="radio"> 甜心大哥/大姐
                                     <input class="form-control m-input" name="engroup" value="2"
-                                            @if($user->engroup == 2) checked @endif type="radio"> 甜心寶貝&nbsp;
+                                           @if($user->engroup == 2) checked @endif type="radio"> 甜心寶貝&nbsp;
                                     <a style="font-weight: bold; color: red">(注意：每個帳號僅能變更一次)</a>
                                 @elseif($user->engroup_change > 0 && $user->engroup == 2) 甜心寶貝&nbsp;
                                 @elseif($user->engroup_change > 0 && $user->engroup == 1) 甜心大哥/大姐
@@ -601,7 +601,7 @@ $code = Config::get('social.payment.code');
                                             </div>
                                         @endforeach
                                     @endif
-                                    @endif
+                                @endif
                                 </div>
                                 @if (!str_contains(url()->current(), 'dashboard'))
                                     <div class="form-group m-form__group row d-md-none">
@@ -676,10 +676,10 @@ $code = Config::get('social.payment.code');
                                         @if (isset($cmeta) && !$cmeta->isHideArea)
                                             @if(is_array($cmeta->city))
                                                 <input class="form-control m-input" disabled
-                                                    value="@foreach($cmeta->city as $key => $cityval){{$cmeta->city[$key]}} - {{$cmeta->area[$key]}}  @endforeach">
+                                                       value="@foreach($cmeta->city as $key => $cityval){{$cmeta->city[$key]}} - {{$cmeta->area[$key]}}  @endforeach">
                                             @else
                                                 <input class="form-control m-input" disabled
-                                                    value="{{$cmeta->city}} - {{$cmeta->area}}">
+                                                       value="{{$cmeta->city}} - {{$cmeta->area}}">
                                             @endif
                                         @else
                                             @if(is_array($cmeta->city))
@@ -700,16 +700,16 @@ $code = Config::get('social.payment.code');
                                                     <div class="col-lg-5 col-md-10 col-sm-12">
                                                         @if (str_contains(url()->current(), 'dashboard'))
                                                             <div class="twzip" data-role="county"
-                                                                    data-name="blockcity"
-                                                                    data-value="{{$umeta->blockcity}}">
+                                                                 data-name="blockcity"
+                                                                 data-value="{{$umeta->blockcity}}">
                                                             </div>
                                                             <div class="twzip" data-role="district"
-                                                                    data-name="blockarea"
-                                                                    data-value="{{$umeta->blockarea}}">
+                                                                 data-name="blockarea"
+                                                                 data-value="{{$umeta->blockarea}}">
                                                             </div>
                                                         @else
                                                             <input class="form-control m-input" disabled
-                                                                    value="@if(isset($cmeta)){{$cmeta->blockcity}} {{$cmeta->blockarea}}@endif">
+                                                                   value="@if(isset($cmeta)){{$cmeta->blockcity}} {{$cmeta->blockarea}}@endif">
                                                         @endif
                                                     </div>
 
@@ -747,14 +747,14 @@ $code = Config::get('social.payment.code');
                                                         </select>
                                                     @else
                                                         <input class="form-control m-input" disabled
-                                                                value="@if(isset($cmeta)){{$cmeta->budget}}@endif">
+                                                               value="@if(isset($cmeta)){{$cmeta->budget}}@endif">
                                                     @endif
                                                 </div>
                                             </div>
 
                                             <div class="form-group m-form__group row">
                                                 <label class="col-form-label col-lg-2 col-sm-12"> @if(str_contains(url()->current(), 'dashboard'))
-                                                        出生日期&nbsp;<span style="color:red">(必填)</span>@else 年齡 @endif
+                                                    出生日期&nbsp;<span style="color:red">(必填)</span>@else 年齡 @endif
                                                 </label>
                                                 <div class="col-lg-4 col-md-9 col-sm-12 form-inline">
                                                     @if (str_contains(url()->current(), 'dashboard'))
@@ -811,7 +811,7 @@ $code = Config::get('social.payment.code');
                                                         }
                                                         ?>
                                                         <input class="form-control m-input" disabled
-                                                                value="{{$age}}">
+                                                               value="{{$age}}">
                                                     @endif
                                                 </div>
                                             </div>
@@ -826,11 +826,11 @@ $code = Config::get('social.payment.code');
                                                 <div class="col-lg-7">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <input class="form-control m-input" name="height"
-                                                                type="number" id="input-height"
-                                                                value="{{$umeta->height}}">
+                                                               type="number" id="input-height"
+                                                               value="{{$umeta->height}}">
                                                     @else
                                                         <input class="form-control m-input" disabled
-                                                                value="@if(isset($cmeta)){{ $cmeta->height }}@endif">
+                                                               value="@if(isset($cmeta)){{ $cmeta->height }}@endif">
                                                     @endif
                                                 </div>
                                             </div>
@@ -842,19 +842,19 @@ $code = Config::get('social.payment.code');
                                                     <div class="col-lg-7">
                                                         @if (str_contains(url()->current(), 'dashboard'))
                                                             <input class="form-control m-input twzip" type="number"
-                                                                    name="weight" id="input-weight"
-                                                                    value="{{$umeta->weight}}">
+                                                                   name="weight" id="input-weight"
+                                                                   value="{{$umeta->weight}}">
                                                             <div class="twzip">
                                                                 <input type="hidden" name="isHideWeight" value="0">
                                                                 <input type="checkbox" name="isHideWeight"
-                                                                        @if($umeta->isHideWeight == true) checked
-                                                                        @endif value="1">
+                                                                       @if($umeta->isHideWeight == true) checked
+                                                                       @endif value="1">
                                                             <!-- <input class="m-input" type="checkbox" id="isHideWeight" name="isHideWeight" value="{{ $umeta->isHideWeight }}"> -->
                                                                 隱藏體重
                                                             </div>
                                                         @elseif (isset($cmeta) && !$cmeta->isHideWeight)
                                                             <input class="form-control m-input" disabled
-                                                                    value="{{$cmeta->weight}}">
+                                                                   value="{{$cmeta->weight}}">
                                                         @else
                                                             <input class="form-control m-input" disabled value="">
                                                         @endif
@@ -892,14 +892,14 @@ $code = Config::get('social.payment.code');
                                                             <div class="twzip">
                                                                 <input type="hidden" name="isHideCup" value="0">
                                                                 <input type="checkbox" name="isHideCup"
-                                                                        @if($umeta->isHideCup == true) checked
-                                                                        @endif value="1">
+                                                                       @if($umeta->isHideCup == true) checked
+                                                                       @endif value="1">
                                                             <!-- <input class="m-input" type="checkbox" id="isHideCup" name="isHideCup" value="{{$umeta->isHideCup}}">  -->
                                                                 隱藏
                                                             </div>
                                                         @elseif (isset($cmeta) && !$cmeta->isHideCup)
                                                             <input class="form-control m-input" disabled
-                                                                    value="{{$cmeta->cup}}">
+                                                                   value="{{$cmeta->cup}}">
                                                         @else
                                                             <input class="form-control m-input" disabled value="">
                                                         @endif
@@ -929,7 +929,7 @@ $code = Config::get('social.payment.code');
                                                         </select>
                                                     @else
                                                         <input class="form-control m-input" disabled
-                                                                value="@if(isset($cmeta)){{$cmeta->body}}@endif">
+                                                               value="@if(isset($cmeta)){{$cmeta->body}}@endif">
                                                     @endif
                                                 </div>
 
@@ -946,11 +946,11 @@ $code = Config::get('social.payment.code');
                                                 <div class="col-lg-8">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <textarea class="form-control m-input" type="textarea"
-                                                                    id="about" name="about" rows="3"
-                                                                    maxlength="300">{{$umeta->about}}</textarea>
+                                                                  id="about" name="about" rows="3"
+                                                                  maxlength="300">{{$umeta->about}}</textarea>
                                                     @else
                                                         <textarea class="form-control m-input"
-                                                                    disabled>@if(isset($cmeta)){{$cmeta->about}}@endif</textarea>
+                                                                  disabled>@if(isset($cmeta)){{$cmeta->about}}@endif</textarea>
                                                     @endif
                                                 </div>
                                             </div>
@@ -965,11 +965,11 @@ $code = Config::get('social.payment.code');
                                                 <div class="col-lg-8">
                                                     @if (str_contains(url()->current(), 'dashboard'))
                                                         <textarea class="form-control m-input" type="textarea"
-                                                                    name="style" rows="3"
-                                                                    maxlength="300">{{$umeta->style}}</textarea>
+                                                                  name="style" rows="3"
+                                                                  maxlength="300">{{$umeta->style}}</textarea>
                                                     @else
                                                         <textarea class="form-control m-input" disabled
-                                                                    value="">@if(isset($cmeta)){{$cmeta->style}}@endif</textarea>
+                                                                  value="">@if(isset($cmeta)){{$cmeta->style}}@endif</textarea>
                                                     @endif
                                                 </div>
                                             </div>
@@ -1007,7 +1007,7 @@ $code = Config::get('social.payment.code');
                                                             </select>
                                                         @else
                                                             <input class="form-control m-input" disabled
-                                                                    value="@if(isset($cmeta)){{$cmeta->situation}}@endif">
+                                                                   value="@if(isset($cmeta)){{$cmeta->situation}}@endif">
                                                         @endif
                                                     </div>
                                                 </div>
@@ -1054,9 +1054,9 @@ $code = Config::get('social.payment.code');
                                                             </select>
                                                         @else
                                                             <input class="form-control m-input" disabled
-                                                                    value="@if(isset($cmeta)){{$cmeta->domainType}}@endif">
+                                                                   value="@if(isset($cmeta)){{$cmeta->domainType}}@endif">
                                                             <input class="form-control m-input" disabled
-                                                                    value="@if(isset($cmeta)){{$cmeta->domain}}@endif">
+                                                                   value="@if(isset($cmeta)){{$cmeta->domain}}@endif">
                                                         @endif
                                                     </div>
                                                 </div>
@@ -1178,15 +1178,15 @@ $code = Config::get('social.payment.code');
                                                             </select>
                                                             <div class="twzip">
                                                                 <input type="hidden" name="isHideOccupation"
-                                                                        value="0">
+                                                                       value="0">
                                                                 <input type="checkbox" name="isHideOccupation"
-                                                                        @if($umeta->isHideOccupation == true) checked
-                                                                        @endif value="1">
+                                                                       @if($umeta->isHideOccupation == true) checked
+                                                                       @endif value="1">
                                                                 隱藏職業
                                                             </div>
                                                         @elseif (isset($cmeta) && (!$cmeta->isHideOccupation))
                                                             <input class="form-control m-input" disabled
-                                                                    value="{{$cmeta->occupation}}">
+                                                                   value="{{$cmeta->occupation}}">
                                                         @else
                                                             <input class="form-control m-input" disabled value="">
                                                         @endif
@@ -1198,10 +1198,10 @@ $code = Config::get('social.payment.code');
                                                     <div class="col-lg-7 col-md-9 col-sm-12">
                                                         @if (str_contains(url()->current(), 'dashboard'))
                                                             <input class="form-control m-input" name="occupation"
-                                                                    value="{{$umeta->occupation}}" maxlength="15">
+                                                                   value="{{$umeta->occupation}}" maxlength="15">
                                                         @else
                                                             <input class="form-control m-input" name="occupation"
-                                                                    disabled value="{{$umeta->occupation}}">
+                                                                   disabled value="{{$umeta->occupation}}">
                                                         @endif
                                                     </div>
                                                 </div>
@@ -1239,7 +1239,7 @@ $code = Config::get('social.payment.code');
                                                         </select>
                                                     @else
                                                         <input class="form-control m-input" disabled
-                                                                value="@if(isset($cmeta)){{$cmeta->education}}@endif">
+                                                               value="@if(isset($cmeta)){{$cmeta->education}}@endif">
                                                     @endif
                                                 </div>
                                             </div>
@@ -1279,7 +1279,7 @@ $code = Config::get('social.payment.code');
                                                         </select>
                                                     @else
                                                         <input class="form-control m-input" disabled
-                                                                value="@if(isset($cmeta)){{$cmeta->marriage}}@endif">
+                                                               value="@if(isset($cmeta)){{$cmeta->marriage}}@endif">
                                                     @endif
                                                 </div>
                                             </div>
@@ -1310,7 +1310,7 @@ $code = Config::get('social.payment.code');
                                                         </select>
                                                     @else
                                                         <input class="form-control m-input" disabled
-                                                                value="@if(isset($cmeta)){{ $cmeta->drinking }}@endif">
+                                                               value="@if(isset($cmeta)){{ $cmeta->drinking }}@endif">
                                                     @endif
                                                 </div>
                                             </div>
@@ -1340,7 +1340,7 @@ $code = Config::get('social.payment.code');
                                                         </select>
                                                     @else
                                                         <input class="form-control m-input" disabled
-                                                                value="@if(isset($cmeta)){{$cmeta->smoking}}@endif">
+                                                               value="@if(isset($cmeta)){{$cmeta->smoking}}@endif">
                                                     @endif
                                                 </div>
                                             </div>
@@ -1377,8 +1377,8 @@ $code = Config::get('social.payment.code');
                                                             </select>
                                                         @else
                                                             <input class="form-control m-input" disabled
-                                                                    name="income"
-                                                                    value="@if(isset($cmeta)){{$cmeta->income}}@endif">
+                                                                   name="income"
+                                                                   value="@if(isset($cmeta)){{$cmeta->income}}@endif">
                                                         @endif
                                                     </div>
                                                 </div>
@@ -1395,7 +1395,7 @@ $code = Config::get('social.payment.code');
                                                                     name="assets" value="{{$umeta->assets}}">
                                                         @else
                                                             <input class="form-control m-input" disabled
-                                                                    value="@if(isset($cmeta)){{$cmeta->assets}}@endif">
+                                                                   value="@if(isset($cmeta)){{$cmeta->assets}}@endif">
                                                         @endif
                                                     </div>
                                                 </div>
@@ -1419,111 +1419,111 @@ $code = Config::get('social.payment.code');
                                                 </div>
 
                                                 <div class="form-group m-form__group row vipadd"
-                                                        style="display:none">
+                                                     style="display:none">
                                                     <label class="col-form-label col-lg-2 col-sm-12">帳號建立時間</label>
                                                     <div class="col-lg-5 col-md-10 col-sm-12">
                                                         <input class="form-control m-input" disabled
-                                                                value="{{$cur->created_at}}">
+                                                               value="{{$cur->created_at}}">
                                                     </div>
                                                 </div>
                                                 <div class="form-group m-form__group row vipadd"
-                                                        style="display:none">
+                                                     style="display:none">
                                                     <label class="col-form-label col-lg-2 col-sm-12">登入時間</label>
                                                     <div class="col-lg-5 col-md-10 col-sm-12">
                                                         <input class="form-control m-input" disabled
-                                                                value="{{$cur->last_login}}">
+                                                               value="{{$cur->last_login}}">
                                                     </div>
                                                 </div>
                                                 <div class="form-group m-form__group row vipadd"
-                                                        style="display:none">
+                                                     style="display:none">
                                                     <label class="col-form-label col-lg-2 col-sm-12">被收藏次數</label>
                                                     <div class="col-lg-5 col-md-10 col-sm-12">
                                                         <input class="form-control m-input" disabled
-                                                                value="{{$cur->favedCount()}}">
+                                                               value="{{$cur->favedCount()}}">
                                                     </div>
                                                 </div>
                                                 <div class="form-group m-form__group row vipadd"
-                                                        style="display:none">
+                                                     style="display:none">
                                                     <label class="col-form-label col-lg-2 col-sm-12">收藏會員次數</label>
                                                     <div class="col-lg-5 col-md-10 col-sm-12">
                                                         <input class="form-control m-input" disabled
-                                                                value="{{$cur->favCount()}}">
+                                                               value="{{$cur->favCount()}}">
                                                     </div>
                                                 </div>
                                                 <div class="form-group m-form__group row vipadd"
-                                                        style="display:none">
+                                                     style="display:none">
                                                     <label class="col-form-label col-lg-2 col-sm-12">車馬費邀請次數</label>
                                                     <div class="col-lg-5 col-md-10 col-sm-12">
                                                         <input class="form-control m-input" disabled
-                                                                value="{{$cur->tipCount()}}">
+                                                               value="{{$cur->tipCount()}}">
                                                     </div>
                                                 </div>
                                                 <div class="form-group m-form__group row vipadd"
-                                                        style="display:none">
+                                                     style="display:none">
                                                     <label class="col-form-label col-lg-2 col-sm-12">發信次數</label>
                                                     <div class="col-lg-5 col-md-10 col-sm-12">
                                                         <input class="form-control m-input" disabled
-                                                                value="{{$cur->msgCount()}}">
+                                                               value="{{$cur->msgCount()}}">
                                                     </div>
                                                 </div>
                                                 <div class="form-group m-form__group row vipadd"
-                                                        style="display:none">
+                                                     style="display:none">
                                                     <label class="col-form-label col-lg-2 col-sm-12">過去7天發信次數</label>
                                                     <div class="col-lg-5 col-md-10 col-sm-12">
                                                         <input class="form-control m-input" disabled
-                                                                value="{{$cur->msgsevenCount()}}">
+                                                               value="{{$cur->msgsevenCount()}}">
                                                     </div>
                                                 </div>
                                                 <div class="form-group m-form__group row vipadd"
-                                                        style="display:none">
+                                                     style="display:none">
                                                     <label class="col-form-label col-lg-2 col-sm-12">是否封鎖我</label>
                                                     <div class="col-lg-5 col-md-10 col-sm-12">
                                                         <input class="form-control m-input" disabled
-                                                                value="{{$cur->isBlocked($user->id)}}">
+                                                               value="{{$cur->isBlocked($user->id)}}">
                                                     </div>
                                                 </div>
                                                 <div class="form-group m-form__group row vipadd"
-                                                        style="display:none">
+                                                     style="display:none">
                                                     <label class="col-form-label col-lg-2 col-sm-12">是否看過我</label>
                                                     <div class="col-lg-5 col-md-10 col-sm-12">
                                                         <input class="form-control m-input" disabled
-                                                                value="{{$cur->isSeen($user->id)}}">
+                                                               value="{{$cur->isSeen($user->id)}}">
                                                     </div>
                                                 </div>
                                                 <div class="form-group m-form__group row vipadd"
-                                                        style="display:none">
+                                                     style="display:none">
                                                     <label class="col-form-label col-lg-2 col-sm-12">瀏覽其他會員次數</label>
                                                     <div class="col-lg-5 col-md-10 col-sm-12">
                                                         <input class="form-control m-input" disabled
-                                                                value="{{$cur->visitCount()}}">
+                                                               value="{{$cur->visitCount()}}">
                                                     </div>
                                                 </div>
                                                 <div class="form-group m-form__group row vipadd"
-                                                        style="display:none">
+                                                     style="display:none">
                                                     <label class="col-form-label col-lg-2 col-sm-12">被瀏覽次數</label>
                                                     <div class="col-lg-5 col-md-10 col-sm-12">
                                                         <input class="form-control m-input" disabled
-                                                                value="{{$cur->visitedCount()}}">
+                                                               value="{{$cur->visitedCount()}}">
                                                     </div>
                                                 </div>
                                                 <div class="form-group m-form__group row vipadd"
-                                                        style="display:none">
+                                                     style="display:none">
                                                     <label class="col-form-label col-lg-2 col-sm-12">過去7天被瀏覽次數</label>
                                                     <div class="col-lg-5 col-md-10 col-sm-12">
                                                         <input class="form-control m-input" disabled
-                                                                value="{{$cur->visitedsevenCount()}}">
+                                                               value="{{$cur->visitedsevenCount()}}">
                                                     </div>
                                                 </div>
 
                                                 @if ($female && $user->isVip() && isset($cur) && ($user->id != $cur->id))
                                                     <div class="form-group m-form__group row vipadd"
-                                                            style="display:none">
+                                                         style="display:none">
                                                         <label class="col-form-label col-lg-2 col-sm-12">評價</label>
                                                         <div class="col-lg-5 col-md-10 col-sm-12">
                                                             <?php $comments = \App\Models\Tip::getAllComment($cur->id); ?>
                                                             @foreach($comments as $comment)
                                                                 <input class="form-control m-input" disabled
-                                                                        value="{{ $comment->message }}">
+                                                                       value="{{ $comment->message }}">
                                                                 <br>
                                                             @endforeach
                                                         </div>
@@ -1584,7 +1584,7 @@ $code = Config::get('social.payment.code');
                             <div></div>
                             <label class="custom-file">
                                 <input required type="file" id="image" class="custom-file-input" name="image"
-                                        onchange="$(this).parent().children().last().text($(this).val().split('\\').pop());">
+                                       onchange="$(this).parent().children().last().text($(this).val().split('\\').pop());">
                                 <span class="custom-file-control"></span>
                             </label>
                             <div class="col-lg-6" style="padding-top: 6px">
@@ -1602,7 +1602,7 @@ $code = Config::get('social.payment.code');
                     <div class="m-form__seperator m-form__seperator--dashed m-form__seperator--space-2x"></div>
 
                     <form class="m-form m-form--fit m-form--label-align-right" method="POST"
-                            action="/dashboard/image" enctype="multipart/form-data">
+                          action="/dashboard/image" enctype="multipart/form-data">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="userId" value="{{$user->id}}">
                         <div class="form-group m-form__group row">
@@ -1610,7 +1610,7 @@ $code = Config::get('social.payment.code');
                             <div class="input_field_weap">
                                 <label class="custom-file">
                                     <input type="file" id="images" class="custom-file-input" name="images[]"
-                                            onchange="$(this).parent().children().last().text($(this).val().split('\\').pop());">
+                                           onchange="$(this).parent().children().last().text($(this).val().split('\\').pop());">
                                     <span class="custom-file-control"></span>
                                 </label>
                                 <button type="button" id="add_image" class="" name="button">+</button>
@@ -1642,7 +1642,7 @@ $code = Config::get('social.payment.code');
                     <?php $pics = \App\Models\MemberPic::getSelf($user->id); ?>
                     @foreach ($pics as $pic)
                         <form class="m-form m-form--fit m-form--label-align-right" method="POST"
-                                action="/dashboard/imagedel">
+                              action="/dashboard/imagedel">
                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                             <input type="hidden" name="userId" value="{{$user->id}}">
                             <input type="hidden" name="imgId" value="{{$pic->id}}">
@@ -1665,7 +1665,7 @@ $code = Config::get('social.payment.code');
             @if (str_contains(url()->current(), 'dashboard')  || (!str_contains(url()->current(), 'dashboard') && isset($cur) && $user->id == $cur->id))
                 <div class="tab-pane" id="m_user_profile_tab_2">
                     <form class="m-form m-form--fit m-form--label-align-right" method="POST"
-                            action="/user/password">
+                          action="/user/password">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="userId" value="{{$user->id}}">
                         <div class="m-portlet__body">
@@ -1688,7 +1688,7 @@ $code = Config::get('social.payment.code');
                                 <label for="example-text-input" class="col-lg-3 col-form-label">確認密碼*</label>
                                 <div class="col-lg-7">
                                     <input class="form-control m-input" name="new_password_confirmation"
-                                            type="password">
+                                           type="password">
                                 </div>
                             </div>
                             <div class="m-portlet__foot m-portlet__foot--fit">
@@ -1713,7 +1713,7 @@ $code = Config::get('social.payment.code');
             @if (str_contains(url()->current(), 'dashboard')  || (!str_contains(url()->current(), 'dashboard') && isset($cur) && $user->id == $cur->id))
                 <div class="tab-pane" id="m_user_profile_tab_3">
                     <form class="m-form m-form--fit m-form--label-align-right" method="POST"
-                            action="/dashboard/settings">
+                          action="/dashboard/settings">
                         <input type="hidden" name="_token" value="{{csrf_token()}}">
                         <input type="hidden" name="userId" value="{{$user->id}}">
                         <div class="m-portlet__body">
@@ -1723,7 +1723,7 @@ $code = Config::get('social.payment.code');
                             </div>
                             <div class="form-group m-form__group row">
                                 <label for="example-text-input"
-                                        class="col-lg-2 col-md-3 col-form-label">信息通知</label>
+                                       class="col-lg-2 col-md-3 col-form-label">信息通知</label>
                                 <div class="col-lg-7">
                                     <select class="form-control m-bootstrap-select m_selectpicker"
                                             name="notifmessage">
@@ -1741,7 +1741,7 @@ $code = Config::get('social.payment.code');
                             @if ($user->isVip())
                                 <div class="form-group m-form__group row">
                                     <label for="example-text-input"
-                                            class="col-lg-2 col-md-3 col-form-label">足跡通知</label>
+                                           class="col-lg-2 col-md-3 col-form-label">足跡通知</label>
                                     <div class="col-lg-7">
                                         <select class="form-control m-bootstrap-select m_selectpicker"
                                                 name="notifhistory">
@@ -1760,7 +1760,7 @@ $code = Config::get('social.payment.code');
 
                                 <div class="form-group m-form__group row">
                                     <label for="example-text-input"
-                                            class="col-lg-2 col-md-3 col-form-label">收信設定</label>
+                                           class="col-lg-2 col-md-3 col-form-label">收信設定</label>
                                     <div class="col-lg-7">
                                         <select class="form-control m-bootstrap-select m_selectpicker"
                                                 name="notifhistory">
@@ -1982,8 +1982,8 @@ $code = Config::get('social.payment.code');
 
         $('.twzipcode').twzipcode({
             'detect': true, 'css': ['form-control twzip', 'form-control twzip', 'zipcode'], onCountySelect: function() {
-                $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
-            }
+                    $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
+                }
         });
     });
 </script>

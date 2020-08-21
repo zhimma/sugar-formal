@@ -3,8 +3,9 @@
 namespace App\Exceptions;
 
 use Exception;
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
 {
@@ -53,7 +54,7 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {   
-        if(!$exception instanceof ValidationException && !$exception instanceof \Illuminate\Auth\AuthenticationException) {
+        if(!$exception instanceof ValidationException && !$exception instanceof AuthenticationException) {
             return response()->view('errors.exception', [ 'exception' => $exception->getMessage() == null ? null : $exception->getMessage()]);
         }
     //    $requestStr =  $request->all();

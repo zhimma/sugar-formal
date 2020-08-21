@@ -13,7 +13,7 @@ class ECPayment extends Controller
         /**
         *    Credit信用卡付款產生訂單範例
         */    
-        try {      
+        try {
             $obj = new ECPay_AllInOne();
 
             if(env('APP_ENV') == 'local'){
@@ -85,7 +85,7 @@ class ECPayment extends Controller
             $obj->CheckOut();        
         } catch (\Exception $e) {
             //echo $e->getMessage();
-        } 
+        }
     }
 
     public function performTipInvite(Request $request)

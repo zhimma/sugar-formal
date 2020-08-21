@@ -8,7 +8,7 @@
                     檢舉照片 - 請填寫理由
                 </h3>
                 <span style="text-align:right;" class="m-portlet__head-text">
-                <a class="btn btn-danger m-btn m-btn--air m-btn--custom" href="/user/view/{{ $uid }}"> 回去{{ \App\Models\User::findById($uid)->name }}的會員資料</a>
+                <a class="btn btn-danger m-btn m-btn--air m-btn--custom" href="/user/view/{{ $uid }}"> 回去{{ $target->name }}的會員資料</a>
             </span>
             </div>
         </div>
