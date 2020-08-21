@@ -161,7 +161,7 @@
                     
                     <div class="tc_page mabot20">
                                 <nav aria-label="Page navigation">
-								  {{ $posts->links('pagination::sg-pages') }}
+								  {{ $posts->links('pagination::sg-pages2') }}
                                 </nav>
 
                                 </div>

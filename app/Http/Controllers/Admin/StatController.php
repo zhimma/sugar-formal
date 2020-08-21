@@ -22,6 +22,8 @@ use App\Models\SimpleTables\member_vip;
 use App\Models\SimpleTables\banned_users;
 use App\Notifications\BannedNotification;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class StatController extends Controller
 {
@@ -65,6 +67,35 @@ class StatController extends Controller
         }
         return view('admin.stats.vip', ['results' => $results]);
     }
+
+    public function vipPaid()
+    {
+        $results = Vip::join('users', 'users.id', '=','member_vip.member_id')->where('free', 0)->where('active', 1)->orderBy('last_login', 'DESC')->get();
+        $ecpay = collect();
+        $ezpay = collect();
+        foreach ($results as $key => $result){
+            if($result->engroup == 1){
+                $result->engroup = '男';
+            }
+            else{
+                $result->engroup = '女';
+            }
+
+            if($result->business_id == '761404'){
+                $ezpay->push($result);
+            }
+            if($result->business_id == '3137610'){
+                $ecpay->push($result);
+            }
+        }
+
+        return view('admin.stats.vipPaid',
+            [
+                'ecpay' => $ecpay,
+                'ezpay' => $ezpay,
+            ]);
+    }
+
     public function vipLog($id)
     {
         $results = VipLog::where('member_id', $id)->get();
@@ -99,5 +130,29 @@ class StatController extends Controller
             $d->created_at = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $d->created_at)->addHours(14);
         }
         return view('admin.stats.datFileLog')->with('data', $data);
+    }
+
+    public function set_autoBan(){
+        $data = DB::table('set_auto_ban')->orderBy('id', 'desc')->get();
+        return view('admin.stats.set_autoBan')->with('data', $data);
+    }
+
+    public function set_autoBan_add(Request $request){
+        if(isset($request->content)){
+            $user = User::findByEmail($request->cuz_email_set);
+            if($user){
+                DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban, 'cuz_user_set' => $user->id]);
+            }else{
+                DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban]);
+            }
+        }
+        $data = DB::table('set_auto_ban')->orderBy('id', 'desc')->get();
+        return view('admin.stats.set_autoBan')->with('data', $data);
+    }
+
+    public function set_autoBan_del(Request $request){
+        DB::table('set_auto_ban')->where('id', '=', $request->id)->delete();
+        $data = DB::table('set_auto_ban')->orderBy('id', 'desc')->get();
+        return view('admin.stats.set_autoBan')->with('data', $data);
     }
 }

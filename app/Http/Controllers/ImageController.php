@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Session;
 use \FileUploader;
 use App\Models\Vip;
+use Illuminate\Support\Facades\Log;
 
 class ImageController extends Controller
 {
@@ -43,7 +44,8 @@ class ImageController extends Controller
         $payload = $request->all();
         MemberPic::destroy($payload['imgId']);
         if(!$admin){
-            return redirect("/dashboard?img");
+            // return redirect("/dashboard?img");
+            return back()->with('message','照片刪除成功');
         }
         else{
             return back()->with('message', '成功刪除照片');
@@ -95,8 +97,8 @@ class ImageController extends Controller
         $umeta->save();
 
         if(!$admin){
-            return redirect()->to('/dashboard?img')
-                   ->with('success','照片上傳成功')
+            // return redirect()->to('/dashboard?img')
+            return back()->with('success','照片上傳成功')
                    ->with('imageName',$input['imagename']);
         }
         else if($admin){
@@ -206,8 +208,8 @@ class ImageController extends Controller
         }
 
         if(!$admin){
-            return redirect()->to('/dashboard?img')
-                   ->with('success','照片上傳成功');
+            // return redirect()->to('/dashboard?img')
+                   return back()->with('success','照片上傳成功');
         }
         else if($admin){
             return back()->with('message', '照片上傳成功');
@@ -315,7 +317,6 @@ class ImageController extends Controller
 
             }
 
-//            Session::flash('success', '照片上傳成功');
             return redirect()->back()->with('message', $msg);
         }
     }
@@ -399,11 +400,6 @@ class ImageController extends Controller
         $preloadedFiles = $this->getPictures($request)->content();
         $preloadedFiles = json_decode($preloadedFiles, true);
 
-//        if(count($preloadedFiles) <= 0){
-//            Session::flash('success', '沒有上傳任何照片/請勿在上傳後於本頁重新整理');
-//            return redirect()->back();
-//        }
-
         $fileUploader = new FileUploader('pictures', array(
             'fileMaxSize' => 8,
             'extensions' => ['jpg', 'jpeg', 'png', 'gif'],
@@ -419,13 +415,20 @@ class ImageController extends Controller
         ));
 
         //選擇移除的照片
-        foreach($fileUploader->getRemovedFiles() as $key => $value)
-        {
-            $file = public_path($value['file']); //full path of removed file 
-            if(File::exists($file)){
-                unlink($file);
-                MemberPic::where('pic', $value['file'])->delete();
+        try{
+            foreach($fileUploader->getRemovedFiles() as $key => $value)
+            {
+                $file = public_path($value['file']); //full path of removed file
+                if(File::exists($file)){
+                    unlink($file);
+                    MemberPic::where('pic', $value['file'])->delete();
+                }
             }
+        }
+        catch (\Exception $e){
+            Session::flash('message', '照片上傳失敗，某些 iPhone 機型會鎖住上傳照片權限，請改用安卓系統或電腦上傳即可。若不方便或者還是上傳失敗，請點右下【聯絡我們】和站長聯繫處理。');
+            Log::info('Image upload failed, user id: ' . $userId . ', useragent: ' . $_SERVER['HTTP_USER_AGENT']);
+            return redirect()->back();
         }
 
         $upload = $fileUploader->upload();
@@ -452,7 +455,6 @@ class ImageController extends Controller
             }
         }
         $previous = redirect()->back()->with('message', $msg);
-        //Session::flash('success', '照片上傳成功');
         return $upload['isSuccess'] ? $previous : $previous->withErrors($upload['warnings']);
     }
 

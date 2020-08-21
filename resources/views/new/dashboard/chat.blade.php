@@ -81,7 +81,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 {{--                                </div>--}}
                                 <ul class="sjlist sjlist_vip">
                                 </ul>
-                                <div class="page page_vip" style="text-align: center;"></div>
+                                <div class="page page_vip fenye" style="text-align: center;"></div>
                             </dd>
                             @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
                             <span class="novip_delete shou_but">全部刪除</span>
@@ -94,7 +94,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 <div class="loading warning" id="sjlist_novip_warning"><span class="loading_text">loading</span></div>
                                 <ul class="sjlist sjlist_novip">
                                 </ul>
-                                <div class="page page_novip" style="text-align: center;"></div>
+                                <div class="page page_novip fenye" style="text-align: center;"></div>
                             </dd>
                             @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
                             <span class="alert_delete shou_but">全部刪除</span>
@@ -132,8 +132,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 {{--                        <a href="javascript:" class="page-link" data-p="last">下一頁</a> -->--}}
                 {{--                    </div>--}}
                 <div class="zixun">
-                    <span><input type="radio" name="RadioGroup1" value="7" id="RadioGroup1_0" checked>本周訊息</span>
-                    <span><input type="radio" name="RadioGroup1" value="30" id="RadioGroup1_1">本月訊息</span>
+                    <span><input type="radio" name="RadioGroup1" value="7" id="RadioGroup1_0" checked>7天內訊息</span>
+                    <span><input type="radio" name="RadioGroup1" value="30" id="RadioGroup1_1">30天內訊息</span>
                     <span><input type="radio" name="RadioGroup1" value="all" id="RadioGroup1_2">全部訊息</span>
                 </div>
             </div>
@@ -192,64 +192,81 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 var str         = '';
                 var i,active,prev_active,last_active;
 
-                if(Page.page>1){
-                    prev_active = '';
-                    str = `
-                        <ul class="pagination">
-                        <li class="` + prev_active + `">
-                            <a href="javascript:" class="page-link" data-p="next">&laquo;</a>
-                        </li>
-                    `;
+                if(total_page==1){
+                    str   = '';
+                }else if(Page.page==1){
+                    str =`<a href="javascript:" class="" data-p="next">上一頁</a>
+                    <span class="new_page">${Page.page}/${total_page}</span>
+                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>`;
+                }else if(Page.page==total_page){
+                    str =`<a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                    <span class="new_page">${Page.page}/${total_page}</span>
+                    <a href="javascript:" class="" data-p="last">下一頁</a>`;
                 }else{
-                    prev_active = 'disabled sg-pages-disabled';
                     str = `
-                        <ul class="pagination">
-                        <li class="` + prev_active + `">
-                            <a href="javascript:">&laquo;</a>
-                        </li>
-                    `;
+                    <a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                    <span class="new_page">${Page.page}/${total_page}</span>
+                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>
+                `;
                 }
-                for(i=1;i<=total_page;i++) {
-                    if(i==Page.page){
-                        active = 'active sg-pages-active'
-                    }else{
-                        active = ''
-                    }
-                    var half_links,from,to;
-                    half_links=3;
-                    from = Page.page - half_links;
-                    to = Page.page + half_links;
-                    if(Page.page < half_links){
-                        to += half_links - Page.page;
-                    }
-                    if((total_page - Page.page) < half_links){
-                        from -= half_links - (total_page - Page.page) - 1;
-                    }
-                    //alert(from);
-                    if(from < i && i < to) {
-                        str += `<li class="` + active + `">
-                            <a href="javascript:" class="page-link" data-p="` + i + `">` + i + `</a>
-                            </li>
-                            `;
-                    }
-                }
-                if(Page.page==total_page){
-                    last_active = 'disabled sg-pages-disabled';
-                    str += `
-                           <li class="` + last_active + `">
-                                <a href="javascript:">&raquo;</a>
-                            </li>
-                           </ul>
-                          `;
-                }else{
-                    last_active = '';
-                    str += `
-                           <li class="` + last_active + `">
-                                <a href="javascript:" class="page-link" data-p="last">&raquo;</a>
-                            </li>
-                           </ul>
-                          `;
-                }
+                // if(Page.page>1){
+                //     prev_active = '';
+                //     str = `
+                //         <ul class="pagination">
+                //         <li class="` + prev_active + `">
+                //             <a href="javascript:" class="page-link" data-p="next">&laquo;</a>
+                //         </li>
+                //     `;
+                // }else{
+                //     prev_active = 'disabled sg-pages-disabled';
+                //     str = `
+                //         <ul class="pagination">
+                //         <li class="` + prev_active + `">
+                //             <a href="javascript:">&laquo;</a>
+                //         </li>
+                //     `;
+                // }
+                // for(i=1;i<=total_page;i++) {
+                //     if(i==Page.page){
+                //         active = 'active sg-pages-active'
+                //     }else{
+                //         active = ''
+                //     }
+                //     var half_links,from,to;
+                //     half_links=3;
+                //     from = Page.page - half_links;
+                //     to = Page.page + half_links;
+                //     if(Page.page < half_links){
+                //         to += half_links - Page.page;
+                //     }
+                //     if((total_page - Page.page) < half_links){
+                //         from -= half_links - (total_page - Page.page) - 1;
+                //     }
+                //     //alert(from);
+                //     if(from < i && i < to) {
+                //         str += `<li class="` + active + `">
+                //             <a href="javascript:" class="page-link" data-p="` + i + `">` + i + `</a>
+                //             </li>
+                //             `;
+                //     }
+                // }
+                // if(Page.page==total_page){
+                //     last_active = 'disabled sg-pages-disabled';
+                //     str += `
+                //            <li class="` + last_active + `">
+                //                 <a href="javascript:">&raquo;</a>
+                //             </li>
+                //            </ul>
+                //           `;
+                // }else{
+                //     last_active = '';
+                //     str += `
+                //            <li class="` + last_active + `">
+                //                 <a href="javascript:" class="page-link" data-p="last">&raquo;</a>
+                //             </li>
+                //            </ul>
+                //           `;
+                // }
                 // str += `
                 //   <li class="` + last_active + `">
                 //        <a href="javascript:" class="page-link" data-p="last">&raquo;</a>
@@ -313,64 +330,82 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 var str         = '';
                 var i,active,prev_active,last_active;
 
-                if(Page_noVip.page>1){
-                    prev_active = '';
-                    str = `
-                        <ul class="pagination">
-                        <li class="` + prev_active + `">
-                            <a href="javascript:" class="page-link" data-p="next">&laquo;</a>
-                        </li>
-                    `;
+                if(total_page==1){
+                    str   = '';
+                }else if(Page_noVip.page==1){
+                    str =`<a href="javascript:" class="" data-p="next">上一頁</a>
+                    <span class="new_page">${Page_noVip.page}/${total_page}</span>
+                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>`;
+                }else if(Page_noVip.page==total_page){
+                    str =`<a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                    <span class="new_page">${Page_noVip.page}/${total_page}</span>
+                    <a href="javascript:" class="" data-p="last">下一頁</a>`;
                 }else{
-                    prev_active = 'disabled sg-pages-disabled';
                     str = `
-                        <ul class="pagination">
-                        <li class="` + prev_active + `">
-                            <a href="javascript:">&laquo;</a>
-                        </li>
-                    `;
+                    <a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                    <span class="new_page">${Page_noVip.page}/${total_page}</span>
+                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>
+                `;
                 }
-                for(i=1;i<=total_page;i++) {
-                    if(i==Page_noVip.page){
-                        active = 'active sg-pages-active'
-                    }else{
-                        active = ''
-                    }
-                    var half_links,from,to;
-                    half_links=3;
-                    from = Page_noVip.page - half_links;
-                    to = Page_noVip.page + half_links;
-                    if(Page_noVip.page < half_links){
-                        to += half_links - Page_noVip.page;
-                    }
-                    if((total_page - Page_noVip.page) < half_links){
-                        from -= half_links - (total_page - Page_noVip.page) - 1;
-                    }
-                    //alert(from);
-                    if(from < i && i < to) {
-                        str += `<li class="` + active + `">
-                            <a href="javascript:" class="page-link" data-p="` + i + `">` + i + `</a>
-                            </li>
-                            `;
-                    }
-                }
-                if(Page_noVip.page==total_page){
-                    last_active = 'disabled sg-pages-disabled';
-                    str += `
-                           <li class="` + last_active + `">
-                                <a href="javascript:">&raquo;</a>
-                            </li>
-                           </ul>
-                          `;
-                }else{
-                    last_active = '';
-                    str += `
-                           <li class="` + last_active + `">
-                                <a href="javascript:" class="page-link" data-p="last">&raquo;</a>
-                            </li>
-                           </ul>
-                          `;
-                }
+
+                // if(Page_noVip.page>1){
+                //     prev_active = '';
+                //     str = `
+                //         <ul class="pagination">
+                //         <li class="` + prev_active + `">
+                //             <a href="javascript:" class="page-link" data-p="next">&laquo;</a>
+                //         </li>
+                //     `;
+                // }else{
+                //     prev_active = 'disabled sg-pages-disabled';
+                //     str = `
+                //         <ul class="pagination">
+                //         <li class="` + prev_active + `">
+                //             <a href="javascript:">&laquo;</a>
+                //         </li>
+                //     `;
+                // }
+                // for(i=1;i<=total_page;i++) {
+                //     if(i==Page_noVip.page){
+                //         active = 'active sg-pages-active'
+                //     }else{
+                //         active = ''
+                //     }
+                //     var half_links,from,to;
+                //     half_links=3;
+                //     from = Page_noVip.page - half_links;
+                //     to = Page_noVip.page + half_links;
+                //     if(Page_noVip.page < half_links){
+                //         to += half_links - Page_noVip.page;
+                //     }
+                //     if((total_page - Page_noVip.page) < half_links){
+                //         from -= half_links - (total_page - Page_noVip.page) - 1;
+                //     }
+                //     //alert(from);
+                //     if(from < i && i < to) {
+                //         str += `<li class="` + active + `">
+                //             <a href="javascript:" class="page-link" data-p="` + i + `">` + i + `</a>
+                //             </li>
+                //             `;
+                //     }
+                // }
+                // if(Page_noVip.page==total_page){
+                //     last_active = 'disabled sg-pages-disabled';
+                //     str += `
+                //            <li class="` + last_active + `">
+                //                 <a href="javascript:">&raquo;</a>
+                //             </li>
+                //            </ul>
+                //           `;
+                // }else{
+                //     last_active = '';
+                //     str += `
+                //            <li class="` + last_active + `">
+                //                 <a href="javascript:" class="page-link" data-p="last">&raquo;</a>
+                //             </li>
+                //            </ul>
+                //           `;
+                // }
                 // str += `
                 //   <li class="` + last_active + `">
                 //        <a href="javascript:" class="page-link" data-p="last">&raquo;</a>
@@ -423,15 +458,158 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             }
         };
 
+        var Page_warned = {
+            page : 1,
+            row  : 10,
+            DrawPage:function(total){
+                var total_page  = Math.ceil(total/Page_warned.row) == 0 ? 1 : Math.ceil(total/Page_warned.row);
+                var span_u      = 0;
+                var str         = '';
+                var i,active,prev_active,last_active;
+
+                if(total_page==1){
+                    str   = '';
+                }else if(Page_warned.page==1){
+                    str =`<a href="javascript:" class="" data-p="next">上一頁</a>
+                    <span class="new_page">${Page_warned.page}/${total_page}</span>
+                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>`;
+                }else if(Page_warned.page==total_page){
+                    str =`<a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                    <span class="new_page">${Page_warned.page}/${total_page}</span>
+                    <a href="javascript:" class="" data-p="last">下一頁</a>`;
+                }else{
+                    str = `
+                    <a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                    <span class="new_page">${Page_warned.page}/${total_page}</span>
+                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>
+                `;
+                }
+
+                // if(Page_noVip.page>1){
+                //     prev_active = '';
+                //     str = `
+                //         <ul class="pagination">
+                //         <li class="` + prev_active + `">
+                //             <a href="javascript:" class="page-link" data-p="next">&laquo;</a>
+                //         </li>
+                //     `;
+                // }else{
+                //     prev_active = 'disabled sg-pages-disabled';
+                //     str = `
+                //         <ul class="pagination">
+                //         <li class="` + prev_active + `">
+                //             <a href="javascript:">&laquo;</a>
+                //         </li>
+                //     `;
+                // }
+                // for(i=1;i<=total_page;i++) {
+                //     if(i==Page_noVip.page){
+                //         active = 'active sg-pages-active'
+                //     }else{
+                //         active = ''
+                //     }
+                //     var half_links,from,to;
+                //     half_links=3;
+                //     from = Page_noVip.page - half_links;
+                //     to = Page_noVip.page + half_links;
+                //     if(Page_noVip.page < half_links){
+                //         to += half_links - Page_noVip.page;
+                //     }
+                //     if((total_page - Page_noVip.page) < half_links){
+                //         from -= half_links - (total_page - Page_noVip.page) - 1;
+                //     }
+                //     //alert(from);
+                //     if(from < i && i < to) {
+                //         str += `<li class="` + active + `">
+                //             <a href="javascript:" class="page-link" data-p="` + i + `">` + i + `</a>
+                //             </li>
+                //             `;
+                //     }
+                // }
+                // if(Page_noVip.page==total_page){
+                //     last_active = 'disabled sg-pages-disabled';
+                //     str += `
+                //            <li class="` + last_active + `">
+                //                 <a href="javascript:">&raquo;</a>
+                //             </li>
+                //            </ul>
+                //           `;
+                // }else{
+                //     last_active = '';
+                //     str += `
+                //            <li class="` + last_active + `">
+                //                 <a href="javascript:" class="page-link" data-p="last">&raquo;</a>
+                //             </li>
+                //            </ul>
+                //           `;
+                // }
+                // str += `
+                //   <li class="` + last_active + `">
+                //        <a href="javascript:" class="page-link" data-p="last">&raquo;</a>
+                //    </li>
+                //   </ul>
+                //  `;
+                $('.page_warned').html(str);
+                $('.warning').hide();
+                // if(total_page<=1){
+                //     $('.page').hide();
+                // }
+                $('.page_warned a.page-link').click(function(){
+                    $('.warning').show();
+
+                    $('.sjlist_alert').children().css('display', 'none');
+                    //if ($(this).data('p') == Page.page) return false;
+                    switch($(this).data('p')) {
+                        case 'next': Page_warned.page = parseInt(Page_warned.page) - 1; break;
+                        case 'last': Page_warned.page = parseInt(Page_warned.page) + 1; break;
+                        default: Page_warned.page = parseInt($(this).data('p'));
+                    }
+                    Page_warned.DrawPage(total);
+                    date= $('input[name=RadioGroup1]:checked').val();
+                    // LoadTable();
+                    if(date==7) {
+                        $('.sjlist_alert>.date7.novipMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+                    }else if(date==30){
+                        $('.sjlist_alert>.common30.novipMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+                    }else{
+                        $('.sjlist_alert>.novipMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+                    }
+                    //check li rows
+                    //alert($('.sjlist_vip>li').length);
+                    // $('.sjlist_vip>.li_no_data').remove();
+                    $('.sjlist_alert>.li_no_data').remove();
+                    // $('.sjlist_alert>.li_no_data').remove();
+                    // if($('.sjlist_vip>li:visible').length==0){
+                    //     $('#sjlist_vip_warning').hide();
+                    //     $('.sjlist_vip').append(no_row_li);
+                    // }
+                    if($('.sjlist_alert>li:visible').length==0){
+                        $('#sjlist_alert_warning').hide();
+                        $('.sjlist_alert').append(no_row_li);
+                    }
+                    // if($('.sjlist_alert>li:visible').length==0){
+                    //     $('#sjlist_alert_warning').hide();
+                    //     $('.sjlist_alert').append(no_row_li);
+                    // }
+                });
+            }
+        };
+
 
         // var page = 1;//初始資料
         // var row = 10;//預設產出資料筆數
         //var total = 0;//總筆數
         var date=7;
+
+        if(window.location.hash) {
+            // Fragment exists
+            var hash = window.location.hash.substring(1);
+            date = hash;
+            // alert(hash);
+        }
         if(userIsVip==0){
             date='all';
         }
-
 
         function startOfWeek(dt)
         {
@@ -442,7 +620,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         {
             return new Date(dt.getFullYear(), dt.getMonth(), 1);
         }
-        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show){
+        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned){
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
             var username = '{{$user->name}}';
@@ -460,21 +638,30 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             if(user_id==1049) {
                 li += `
                 <li class="row_data hy_bg02" style="${ss}" id="${user_id}">
-                    <div class="si_bg">
                 `;
             }else{
                 li += `
                 <li class="row_data" style="${ss}" id="${user_id}">
-                    <div class="si_bg">
                 `;
             }
-            if(show==1) {
+
+            if(show==0 && engroup==1){
                 li += `
-                        <a href="${url}" target="_self">
+                     <div class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位女會員，請至「全部訊息」確認通訊人數是否已超過10人，即可發訊息給${user_name}" style="width: 100%">
+                   `;
+            }else if(show==0 && engroup==2){
+                li += `
+                     <div class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位男會員，請上傳大頭貼＋三張生活照就可以取得　ＶＩＰ　權限或是到「全部訊息」確認通訊人數是否已超過10人，即可發訊息給${user_name}" style="width: 100%">
+                  `;
+            }
+
+            li += `<div class="si_bg">`;
+
+            if(show==1) {
+                li += `<a href="${url}" target="_self">
                   `;
             }else if(show==0){
-                li += `
-                        <a href="javascript:void(0)" target="_self">
+                li += `<a href="javascript:void(0)" target="_self">
                   `;
             }
             li +=`
@@ -491,21 +678,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                    `;
             }else if(show==0 && engroup==1){
                 li += `
-                     </a>
-                     <div>
-                     <a class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位女會員，請至「全部訊息」確認通訊人數是否已超過10人，即可發訊息給${user_name}" href="javascript:void(0);">
+
+
                      <font><img src="/new/images/icon_35.png"></font>
-                     </a>
-                     </div>
+                     </div></a>
                    `;
             }else if(show==0 && engroup==2){
                 li += `
-                     </a>
-                     <div>
-                     <a class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位男會員，請上傳大頭貼＋三張生活照就可以取得　ＶＩＰ　權限或是到「全部訊息」確認通訊人數是否已超過10人，即可發訊息給${user_name}" href="javascript:void(0);">
+
+
                      <font><img src="/new/images/icon_35.png"></font>
-                     </a>
-                     </div>
+                     </div></a>
                    `;
             }
             li += `
@@ -523,8 +706,16 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                          </h4>
                         </div>
                     </div>
-                </li>
             `;
+            if(show==0){
+                li += `
+                     </div>
+                   `;
+            }
+
+            li +=`</li>`;
+
+
             return li;
         }
 
@@ -582,34 +773,38 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     //console.log(res.msg);
                     var rr=0;
                     //total=res.msg.length;
-                    // alert(res.msg.length);
+
                     if(res.msg.length>0){
                         $('#rows').val(res.msg.length);
                     }
 
                     var hide_vip_counts = 0;
-                    hide_vip_counts = $('#rows').val()-10;
-
+                    hide_vip_counts = $('#rows').val() - 10;
 
                     var vip_counts = 0;
                     var novip_counts = 0;
                     $.each(res.msg,function(i,e) {
-                        console.log(i, hide_vip_counts);
-                        // $('#rows').val(e.total_counts);
-
 
                         rr += parseInt(e.read_n);
-                        if (userIsVip == 0 && e.user_id != 1049 && e.read_n >= 10 && hide_vip_counts > 0) {
-                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0, i);
+                        if (userIsVip == 0 && i < hide_vip_counts && hide_vip_counts > 0) {
+                            if(e.user_id == 1049){
+                                hide_vip_counts = hide_vip_counts+1;
+                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned);
+                            }else {
+                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned);
+                            }
                         } else if (userIsVip == 0 && e.user_id != 1049) {
-                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1, i);
+                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned);
                         } else {
-                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1, i);
+                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned);
                         }
+
                         // alert(e.created_at);
                         if (typeof e.created_at !== 'undefined') {
                             if (e.created_at.substr(0, 10) >= this_week) {
-                                if (e.isVip == 1) {
+                                if(e.isWarned==1) {
+                                    $('.sjlist_alert').append(li).find('.row_data').addClass('date7 alertMember common30');
+                                }else if (e.isVip == 1) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('date7 vipMember common30');
                                     //vip_counts++;
                                 } else {
@@ -617,7 +812,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     //novip_counts++;
                                 }
                             } else if (e.created_at != '' && e.created_at.substr(0, 10) >= this_month) {
-                                if (e.isVip == 1) {
+                                if(e.isWarned==1){
+                                    $('.sjlist_alert').append(li).find('.row_data').addClass('date30 alertMember common30');
+                                }else if (e.isVip == 1) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('date30 vipMember common30');
                                     // vip_counts++;
                                 } else {
@@ -626,7 +823,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 }
                             } else {
                                 // if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1, i);
-                                if (e.isVip == 1) {
+                                if(e.isWarned==1) {
+                                    $('.sjlist_alert').append(li).find('.row_data').addClass('dateAll alertMember');
+                                }else if (e.isVip == 1) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('dateAll vipMember');
                                 } else {
                                     $('.sjlist_novip').append(li).find('.row_data').addClass('dateAll novipMember');
@@ -659,31 +858,92 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }
                     });
 
-
-
                     setTimeout(function(){
                         if(date==7){
                             $("input[name*='RadioGroup1'][value='7']").prop("checked", true);
+                        }else if(date==30){
+                            $("input[name*='RadioGroup1'][value='30']").prop("checked", true);
+                        }else if(date=='all'){
+                            $("input[name*='RadioGroup1'][value='all']").prop("checked", true);
                         }
+
                         $('.dateAll').hide();
                         $('.date30').hide();
                         $('.date7').hide();
 
                         if(userIsVip == 0){
-                            let vip_counts = $('.date7.vipMember').length;
-                            //alert(vip_counts);
-                            if(vip_counts>10){
-                                $('.page_vip').show();
+                            // alert(hash);
+                            if(!hash){
+                                $("input[name*='RadioGroup1'][value='7']").prop("checked", true);
                             }
-                            Page.DrawPage(vip_counts);
-                            $('.sjlist_vip>.date7.vipMember').slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
+                            if(hash==7 || !hash) {
+                                let vip_counts = $('.date7.vipMember').length;
+                                //alert(vip_counts);
+                                if (vip_counts > 10) {
+                                    $('.page_vip').show();
+                                }
+                                Page.DrawPage(vip_counts);
+                                $('.sjlist_vip>.date7.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
 
-                            let novip_counts = $('.date7.novipMember').length;
-                            if(novip_counts>10){
-                                $('.page_novip').show();
+                                let novip_counts = $('.date7.novipMember').length;
+                                if (novip_counts > 10) {
+                                    $('.page_novip').show();
+                                }
+                                Page_noVip.DrawPage(novip_counts);
+                                $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+
+                                let alert_counts = $('.date7.alertMember').length;
+                                if (alert_counts > 10) {
+                                    $('.page_warned').show();
+                                }
+                                Page_warned.DrawPage(alert_counts);
+                                $('.sjlist_alert>.date7.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+
+                            }else if(hash==30){
+                                let vip_counts = $('.common30.vipMember').length;
+                                //alert(vip_counts);
+                                if (vip_counts > 10) {
+                                    $('.page_vip').show();
+                                }
+                                Page.DrawPage(vip_counts);
+                                $('.sjlist_vip>.common30.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+
+                                let novip_counts = $('.common30.novipMember').length;
+                                if (novip_counts > 10) {
+                                    $('.page_novip').show();
+                                }
+                                Page_noVip.DrawPage(novip_counts);
+                                $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+
+                                let alert_counts = $('.common30.alertMember').length;
+                                if (alert_counts > 10) {
+                                    $('.page_alert').show();
+                                }
+                                Page_warned.DrawPage(alert_counts);
+                                $('.sjlist_alert>.common30.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+                            }else if(hash=='all'){
+                                let vip_counts = $('.vipMember').length;
+                                //alert(vip_counts);
+                                if (vip_counts > 10) {
+                                    $('.page_vip').show();
+                                }
+                                Page.DrawPage(vip_counts);
+                                $('.sjlist_vip>.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+
+                                let novip_counts = $('.novipMember').length;
+                                if (novip_counts > 10) {
+                                    $('.page_novip').show();
+                                }
+                                Page_noVip.DrawPage(novip_counts);
+                                $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+
+                                let alert_counts = $('.alertMember').length;
+                                if (alert_counts > 10) {
+                                    $('.page_warned').show();
+                                }
+                                Page_warned.DrawPage(alert_counts);
+                                $('.sjlist_alert>.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
                             }
-                            Page_noVip.DrawPage(novip_counts);
-                            $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page-1)*Page_noVip.row, Page_noVip.page*Page_noVip.row).css('display', '');
 
                         }else {
                             if (date == 7) {
@@ -706,6 +966,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 Page_noVip.DrawPage(novip_counts);
                                 $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
+                                let alert_counts = $('.date7.alertMember').length;
+                                if (alert_counts > 10) {
+                                    $('.page_warned').show();
+                                }
+                                Page_warned.DrawPage(alert_counts);
+                                $('.sjlist_alert>.date7.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+
                             } else if (date == 30) {
                                 $('.row_data').hide();
                                 // $('.common30').hide();
@@ -724,6 +991,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 }
                                 Page_noVip.DrawPage(novip_counts);
                                 $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+
+                                let alert_counts = $('.common30.alertMember').length;
+                                if (alert_counts > 10) {
+                                    $('.page_warned').show();
+                                }
+                                Page_warned.DrawPage(alert_counts);
+                                $('.sjlist_alert>.common30.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
                             } else {
                                 // $('.dateAll').show();
                                 let vip_counts = $('.vipMember').length;
@@ -740,6 +1014,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 }
                                 Page_noVip.DrawPage(novip_counts);
                                 $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+
+                                let alert_counts = $('.alertMember').length;
+                                if (alert_counts > 10) {
+                                    $('.page_warned').show();
+                                }
+                                Page_warned.DrawPage(alert_counts);
+                                $('.sjlist_alert>.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
                             }
                         }
 
@@ -763,7 +1044,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }
                     }, 300);
 
-                    $('a[data-toggle="popover"]').popover({
+                    $('div[data-toggle="popover"]').popover({
                         animated: 'fade',
                         placement: 'bottom',
                         trigger: 'hover',
@@ -773,15 +1054,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                 }
             })
-            .done(function() {
-                // if(page-1>=total){
-                //     $('.listMoreBtn').attr('disabled', 'true').removeClass('cursor-pointer').html('NO MORE');
-                // }else{
-                //     $('.listMoreBtn').removeAttr('disabled').addClass('cursor-pointer').html('MORE');
-                // }
-                // check li rows
+                .done(function() {
+                    // if(page-1>=total){
+                    //     $('.listMoreBtn').attr('disabled', 'true').removeClass('cursor-pointer').html('NO MORE');
+                    // }else{
+                    //     $('.listMoreBtn').removeAttr('disabled').addClass('cursor-pointer').html('MORE');
+                    // }
+                    // check li rows
 
-            });
+                });
 
         }
 
@@ -800,6 +1081,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             Page.page=1;
             Page_noVip.page=1;
             date= $('input[name=RadioGroup1]:checked').val();
+            window.location.hash = '#'+ date;
             $('.page_vip').hide();
             $('.page_novip').hide();
             // $('#warning').show();
@@ -829,7 +1111,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         Page_noVip.DrawPage(novip_counts);
                         $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
-                    } else if (date == 30) {
+                        let alert_counts = $('.date7.alertMember').length;
+                        if (alert_counts > 10) {
+                            $('.page_warned').show();
+                        }
+                        Page_warned.DrawPage(alert_counts);
+                        $('.sjlist_alert>.date7.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+
+                     } else if (date == 30) {
                         $('.row_data').hide();
                         // $('.common30').hide();
 
@@ -847,7 +1136,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }
                         Page_noVip.DrawPage(novip_counts);
                         $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
-                    } else {
+
+                         let alert_counts = $('.common30.alertMember').length;
+                         if (alert_counts > 10) {
+                             $('.page_warned').show();
+                         }
+                         Page_warned.DrawPage(alert_counts);
+                         $('.sjlist_alert>.common30.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+
+                     } else {
                         // $('.dateAll').show();
                         let vip_counts = $('.vipMember').length;
                         //alert(vip_counts);
@@ -863,7 +1160,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }
                         Page_noVip.DrawPage(novip_counts);
                         $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
-                    }
+
+                         let alert_counts = $('.alertMember').length;
+                         if (alert_counts > 10) {
+                             $('.page_warned').show();
+                         }
+                         Page_warned.DrawPage(alert_counts);
+                         $('.sjlist_alert>.novipMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+
+                     }
                     $('.warning').hide();
 
                     $('.sjlist_vip>.li_no_data').remove();
@@ -1043,7 +1348,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             });
         });
 
-        $('.lebox1,.lebox2,.lebox3').toggleClass('on');
+        // $('.lebox1,.lebox2,.lebox3').toggleClass('on');
         $('.lebox1').toggleClass('on');
         $('.lebox2,.lebox3').toggleClass('off');
         // $(".leftsidebar_box dd").show();
@@ -1051,7 +1356,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         //
         //
         $('.lebox1,.lebox2,.lebox3').click(function(e) {
-            $(this).toggleClass('on');
+            if ($(this).hasClass('off')) {
+                $(this).removeClass('off');
+                $(this).toggleClass('on');
+            }else if($(this).hasClass('on')){
+                $(this).removeClass('on');
+                $(this).toggleClass('off');
+            }
+
             $(this).next('dd').slideToggle("slow");
             $('.sjlist_vip>.li_no_data').remove();
             $('.sjlist_novip>.li_no_data').remove();
@@ -1068,6 +1380,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             if ($('.sjlist_alert>li:visible').length == 0) {
                 $('#sjlist_alert_warning').hide();
                 $('.sjlist_alert').append(no_row_li);
+            }else{
+                if($(this).hasClass('on') && $(this).hasClass('lebox3')){
+                    c3('此為警示會員，要與此區會員交流請務必小心。');
+                }
             }
         });
 
