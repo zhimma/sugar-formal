@@ -431,7 +431,7 @@
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->income))
+                                    @if(!empty($to->meta_()->income) && $to->engroup==1)
                                     <dt>
                                         <span>收入</span>
                                         <span>
