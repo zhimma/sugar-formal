@@ -9,8 +9,6 @@
 
 return [
     'domains' => [
-        'bcaoo.com',
-        'eoopy.com',
-        'zzrgg.com'
+	'   ',
     ]
 ];

@@ -66,34 +66,34 @@
                                         <button type="submit" class="gvipbut n_vip01" style="border-style: none;">購買</button>
                                 </form>
                             </span>
-{{--                            <span>--}}
+                            {{-- <span>--}}
 {{--                                <a href="" class="n_vip01 v_butright">購買方式2</a>--}}
                                 <?php
-//                                    $orderNumber = \App\Models\Vip::lastid() . $user->id;
-//                                    $code = Config::get('social.payment.code');
+                                    // $orderNumber = \App\Models\Vip::lastid() . $user->id;
+                                    // $code = Config::get('social.payment.code');
                                 ?>
-{{--                                <form class="m-form m-form--fit" action="{{ Config::get('social.payment.actionURL') }}" method=post onsubmit="return logFormData(this);">--}}
-{{--                                    <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
-{{--                                    <input type="hidden" name="userId" value="{{ $user->id }}">--}}
-{{--                                    <input type=hidden name="ReturnURL" value="{{ Config::get('social.payment.returnURL') }}">--}}
-{{--                                    <input type=hidden name="OrderURL" value="{{ Config::get('social.payment.orderURL') }}">--}}
-{{--                                    <input type=hidden name="MerchantNumber" value="761404">--}}
-{{--                                    <input type=hidden name="OrderNumber"    value="{{ "30".$orderNumber }}">--}}
-{{--                                    <input type=hidden name="OrgOrderNumber" value="SG-VIP({{$user->id}})">--}}
-{{--                                    <input type=hidden name="ApproveFlag" value="1">--}}
-{{--                                    <input type=hidden name="DepositFlag" value="1">--}}
-{{--                                    <input type=hidden name="iphonepage" value="0">--}}
-{{--                                    <input type=hidden name="Period" value="30">--}}
-{{--                                    <input type=hidden name="Amount" value="{{ Config::get('social.payment.vip-amount') }}">--}}
-{{--                                    <input type=hidden name="op" value="AcceptPayment">--}}
-{{--                                    <input type=hidden name="checksum" value="{{ md5("761404"."30".$orderNumber.$code.Config::get('social.payment.vip-amount')) }}">--}}
-{{--                                    <input type=hidden name="Englishmode" value="0">--}}
+                                {{--<form class="m-form m-form--fit" action="{{ Config::get('social.payment.actionURL') }}" method=post onsubmit="return logFormData(this);">
+                                    <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                    <input type="hidden" name="userId" value="{{ $user->id }}">
+                                    <input type=hidden name="ReturnURL" value="{{ Config::get('social.payment.returnURL') }}">
+                                    <input type=hidden name="OrderURL" value="{{ Config::get('social.payment.orderURL') }}">
+                                    <input type=hidden name="MerchantNumber" value="761404">
+                                    <input type=hidden name="OrderNumber"    value="{{ "30".$orderNumber }}">
+                                    <input type=hidden name="OrgOrderNumber" value="SG-VIP({{$user->id}})">
+                                    <input type=hidden name="ApproveFlag" value="1">
+                                    <input type=hidden name="DepositFlag" value="1">
+                                    <input type=hidden name="iphonepage" value="0">
+                                    <input type=hidden name="Period" value="30">
+                                    <input type=hidden name="Amount" value="{{ Config::get('social.payment.vip-amount') }}">
+                                    <input type=hidden name="op" value="AcceptPayment">
+                                    <input type=hidden name="checksum" value="{{ md5("761404"."30".$orderNumber.$code.Config::get('social.payment.vip-amount')) }}">
+                                    <input type=hidden name="Englishmode" value="0">
 
-{{--                                    <button type="submit" class="gvipbut n_vip01" style="border-style: none;">購買方式2</button>--}}
-{{--                                </form>--}}
+                                    <button type="submit" class="gvipbut n_vip01" style="border-style: none;">購買方式2</button>
+                                </form>
 
-{{--                            </span>--}}
-                            <a href="javascript:void(0);" class="gvipbut" id="pay_back">補刷卡</a>
+                            </span> --}}
+                            {{-- <a href="javascript:void(0);" class="gvipbut" id="pay_back">補刷卡</a> --}}
                         </div>
                         <div class="vipline"><img src="/new/images/VIP_05.png"></div>
                         <div class="vipbongn">

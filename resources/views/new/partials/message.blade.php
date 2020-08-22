@@ -98,37 +98,9 @@
         $(document).on('click','.banned_bg',function(event) {
             $(".banned_bg").hide();
             $(".announce_bg").hide();
-<<<<<<< HEAD
-            function banned_alert() {
-                $(".announce_bg").hide();
-                $(".banned_bg").show();
-                $("#tab_banned_alert").show();
-            }
-            function gmBtn1_banned(){
-                $(".banned_bg").hide();
-                $(".gg_tab").hide();
-                {{Auth::logout()}}
-                window.location = "/";
-            }
-            $(document).on('click','.banned_bg',function(event) {
-                (".banned_bg").hide();
-                $(".announce_bg").hide();
-                $(".gg_tab").hide();
-                {{Auth::logout()}}
-                window.location = "/";
-            });
-        </script>
-    @endif
-<<<<<<< HEAD
-@endif
-=======
-@endif
->>>>>>> sugar-dev/master
-=======
             $(".gg_tab").hide();
 {{--                {{Auth::logout()}}--}}
             window.location = "/logout";
         });
     </script>
 @endif
->>>>>>> 413ba8762b87da96bad770fcd94e83bfd1269a09

@@ -720,7 +720,7 @@ class UserService
 
         return $implicitlyBanned->toBase()->merge($banned);
     }
-
+    
     /**
      * Unassign all roles from the user
      *

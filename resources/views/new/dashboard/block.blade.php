@@ -18,7 +18,6 @@
             <div class="sjlist">
                 <ul>
                     @foreach ($blocks as $block)
-
                         <?php
                         $blockedUser = \App\Models\User::findById($block->blocked_id);
                         if(!isset($blockedUser)){
