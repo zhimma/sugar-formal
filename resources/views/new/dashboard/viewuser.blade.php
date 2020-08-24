@@ -440,7 +440,7 @@
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->assets))
+                                    @if(!empty($to->meta_()->assets) && $to->engroup==1)
                                     <dt>
                                         <span>資產</span>
                                         <span>

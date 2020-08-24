@@ -13,6 +13,8 @@ use Exception;
 use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\Role;
+use App\Models\Message;
+use App\Repositories\UserRepository;
 use App\Events\UserRegisteredEmail;
 use App\Notifications\ActivateUserEmail;
 use Illuminate\Support\Facades\Schema;
@@ -133,7 +135,7 @@ class UserService
         $userMeta = UserMeta::where('activation_token', $token)->first();
 
         if ($userMeta) {
-            return $userMeta->user();
+            return $userMeta->user;
         }
 
         return false;
@@ -449,6 +451,7 @@ class UserService
         }
     }
 
+
     public static function checkRecommendedUser($targetUser){
         $description = null;
         $stars = null;
@@ -469,8 +472,6 @@ class UserService
             }
             $vip_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $vip_date->updated_at);
             $diff_in_months = $vip_date->diffInMonths($now);
-            $title = "優選糖爹";
-            $button = "../../img/member_tags/rcmd_daddy.png";
             switch ($diff_in_months){
                 case 0:  //未滿一個月
                     break;
@@ -478,7 +479,6 @@ class UserService
                 case 2:
                     $tip_count = Tip::select('id')->where('member_id', $targetUser->id)->count();
                     if($tip_count >= 1){
-                        $background = '../../img/member_tags/bg_1.png';
                         $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的新進的VIP會員，願意使用站方的車馬費制度。建議甜心可請求".$targetUser->name."向站方支付車馬費與您進行第一次約會。<a href='".url('feature')."' target='_blank'>(甚麼是車馬費?)</a>";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
@@ -491,7 +491,6 @@ class UserService
                 case 3:
                     $tip_count = Tip::select('id')->where('member_id', $targetUser->id)->count();
                     if($tip_count >= 1){
-                        $background = '../../img/member_tags/bg_1.png';
                         $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員，願意使用站方的車馬費制度。建議甜心可請求".$targetUser->name."向站方支付車馬費與您進行第一次約會。<a href='".url('feature')."' target='_blank'>(甚麼是車馬費?)</a>";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
@@ -501,7 +500,6 @@ class UserService
                         $height = '480px';
                     }
                     else{
-                        $background = '../../img/member_tags/bg_1.png';
                         $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
@@ -514,7 +512,6 @@ class UserService
                 case 4:
                     $tip_count = Tip::select('id')->where('member_id', $targetUser->id)->count();
                     if($tip_count >= 1){
-                        $background = '../../img/member_tags/bg_1.png';
                         $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員，願意使用站方的車馬費制度。建議甜心可請求".$targetUser->name."向站方支付車馬費與您進行第一次約會。<a href='".url('feature')."' target='_blank'>(甚麼是車馬費?)</a>";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
@@ -524,7 +521,6 @@ class UserService
                         $height = '480px';
                     }
                     else{
-                        $background = '../../img/member_tags/bg_1.png';
                         $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
@@ -535,7 +531,6 @@ class UserService
                     }
                     break;
                 default:  //五個月以上
-                    $background = '../../img/member_tags/bg_1.png';
                     $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
                     $stars = "<img src='../../img/member_tags/star_19.png'>
                               <img src='../../img/member_tags/star_19.png'>
@@ -544,6 +539,11 @@ class UserService
                               <img src='../../img/member_tags/star_19.png'>";
                     $height = '380px';
                     break;
+            }
+            if(isset($description)){
+                $background = '../../img/member_tags/bg_1.png';
+                $title = "優選糖爹";
+                $button = "../../img/member_tags/rcmd_daddy.png";
             }
         }
         elseif ($targetUser->engroup == 2 && $targetUser->isVip() && isset($targetUser->created_at)){
@@ -718,7 +718,7 @@ class UserService
 
         return $implicitlyBanned->toBase()->merge($banned);
     }
-    
+
     /**
      * Unassign all roles from the user
      *
@@ -732,5 +732,209 @@ class UserService
         $user = $this->find($userId);
         $user->roles()->detach();
     }
+    
+    /**
+     * Message is replied from reciever
+     *
+     * @param int msg_id
+     *
+     * @return bool
+     */
+    public function beenRepliedMessage($msg_id)
+    {
+        $msg = Message::where('id', $msg_id)->first();
+        if($msg)
+        {
+            $replied = Message::where('id', '>', $msg->id)
+                ->where('from_id', $msg->to_id)
+                ->where('to_id', $msg->from_id)
+                ->where('content', 'NOT LIKE', '系統通知%');
+            return $replied->count() == 0 ? true : false;
+        }
+        return false;
+    }
 
+    /**
+     * 有回覆車馬費邀請的訊息
+     *
+     * @param date start
+     * @param date end
+     * @return array result
+     */
+
+    public function selectTipMessagesReplied($start, $end)
+    {
+        $tipMessages = Tip::selectTipMessage($start, $end);
+        $result = array();
+        foreach($tipMessages as $message)
+        {
+            // from_id 邀請 to_id
+            if($message->to_id != NULL)
+                $isReply = Message::isReplied($message->from_id, $message->to_id, $message->created_at);
+            if($isReply)
+                array_push($result, $message);
+        }
+        return $result;
+    }
+
+    public function averageReceiveMessages($city, $isVip, $engroup)
+    {
+        $users = User::where('engroup', $engroup);
+
+        $users = $users->join('user_meta', 'user_meta.user_id', '=', 'users.id');
+        if(count($city)>0)
+        {
+            $users->whereIn('city', $city);
+        }
+        
+        if($isVip)
+        {
+            $users->join('member_vip', 'member_vip.member_id','=','user_meta.user_id');
+        }
+
+        $users = $users->get()->keyBy('user_id')->keys();
+// dd($users);
+        if($users->count() > 0){
+            $messages = Message::whereIn('to_id', $users->all())->get()->count();
+        }else{
+            $messages = 0;
+        }
+            
+
+        return ['users' => $users->count(), 'messages' => $messages];
+    }
+
+    /**
+     * Get all recommended member
+     *
+     * @return collection
+     */
+    public function getRecommendMembers()
+    {
+        $members = Vip::leftjoin('member_tip', 'member_tip.member_id', '=', 'member_vip.member_id')
+            ->where('active', 1)
+            ->where('expiry', '!=', '0000-00-00 00:00:00')
+            ->where(function($query){
+                ///成為VIP超過三個月
+                $query->where('member_vip.created_at', '<', \Carbon\Carbon::now()->subMonths(3))
+                ->orWhere(function($query){
+                    //或成為VIP超過一個月且有使用車馬費邀請過
+                    $query->where('member_vip.created_at', '<', \Carbon\Carbon::now()->subMonths(1));
+                });
+            });
+        return $members->get();
+    }
+
+    /**
+     * Is recommend member
+     *
+     * @param int id
+     *
+     * @return bool
+     */
+    public function isRecommendMember($id)
+    {
+        $member = Vip::leftjoin('member_tip', 'member_tip.member_id', '=', 'member_vip.member_id')
+            ->where('member_vip.member_id', $id)
+            ->where('active', 1)
+            ->where('expiry', '!=', '0000-00-00 00:00:00')
+            ->where(function($query){
+                ///成為VIP超過三個月
+                $query->where('member_vip.created_at', '<', \Carbon\Carbon::now()->subMonths(3))
+                ->orWhere(function($query){
+                    //或成為VIP超過一個月且有使用車馬費邀請過
+                    $query->where('member_vip.created_at', '<', \Carbon\Carbon::now()->subMonths(1));
+                });
+            });
+
+        return $member->first() ? true : false;
+    }
+    /**
+     * Grouping male member
+     *
+     * @param array users 
+     *
+     * @return array The keys are 'normal', 'vip', 'recommend'
+     */
+    public function groupingMale($userIds)
+    {
+        $results = array('Recommend'=>array(), 'Vip'=>array(), 'Normal'=>array());
+        foreach($userIds as $id)
+        {
+            $isVip = Vip::select('active')->where('member_id', $id)->where('active', 1)->orderBy('created_at', 'desc')->first();
+
+            if($this->isRecommendMember($id))
+            {
+                array_push($results['Recommend'], $id);
+            }
+            else if($isVip)
+            {
+                array_push($results['Vip'], $id);
+            }
+            else
+            {
+                array_push($results['Normal'], $id);
+            }
+        }
+        return $results;
+    }
+
+    /**
+     * 日期區間內, 所有男 or 女會員發送的訊息
+     *
+     * @param int gender
+     * @param date start
+     * @param date end
+     *
+     * @return collection
+     */
+    public function selectMessagesByGender($start, $end, $gender)
+    {
+        $query = Message::leftjoin('users', 'from_id', '=', 'users.id')
+            ->where('engroup', $gender)
+            ->whereBetween('message.created_at', [$start, $end]);
+
+        return $query->get();
+    }
+    /**
+     * 日期區間內, 男會員被回覆的訊息比
+     *
+     * @param date start
+     * @param date end
+     *
+     * @return array 
+     */
+    public function repliedMessagesProportion($start, $end)
+    {
+        
+        $query = Message::join('users', 'from_id', '=', 'users.id')
+            ->where('engroup', 1)
+            ->whereBetween('message.created_at', [$start, $end]);
+        $girl_receive = $query->get()->keyBy('to_id')->keys()->toArray();
+
+        $query = Message::join('users', 'to_id', '=', 'users.id')
+            ->where('engroup', 1);
+        $girl_reply = $query->get()->keyBy('from_id')->keys()->toArray();
+        
+
+        /*判斷是哪種會員*/
+
+        $girl_intersect = array_intersect($girl_receive, $girl_reply);
+        $data['girl_reply_ratio'] = count($girl_receive)!=0 ? count($girl_intersect)/count($girl_receive):0;
+           
+          
+        // $messages = $this->selectMessagesByGender($start, $end, 1);
+        // $replied = $messages->filter(function($msg){
+        //     if($this->beenRepliedMessage($msg->id))
+        //         return $msg;
+        // });
+
+        $groupingMsg = $messages->pluck('from_id');
+        $groupingMsg = $this->groupingMale($groupingMsg);
+
+        
+        $groupingReplied = $replied->pluck('from_id');
+        $groupingReplied = $this->groupingMale($groupingReplied);
+        return ['messages' => $groupingMsg, 'replied' => $groupingReplied];
+    }
 }
