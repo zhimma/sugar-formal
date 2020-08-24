@@ -2138,7 +2138,7 @@ class UserController extends Controller
         $id = $request->post('id');
         $status = $request->post('status');
 
-        DB::table('user_meta')->where('user_id',$id)->update(['isWarned'=>$status]);
+        DB::table('user_meta')->where('user_id',$id)->update(['isWarned'=>$status,'isWarnedRead'=>0]);
 
         if($status==1){
             //加入警示流程

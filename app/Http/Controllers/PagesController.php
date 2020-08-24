@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\CheckECpay;
 use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
+use App\Models\SimpleTables\warned_users;
 use Auth;
 use App\Http\Requests;
 use Carbon\Carbon;
@@ -597,6 +598,9 @@ class PagesController extends Controller
 
 //        $isWarnedReason = AdminCommonText::getCommonText(56);//id 56 警示用戶原因
 
+        $isAdminWarnedRead = warned_users::select('isAdminWarnedRead')->where('member_id',$user->id)->first();
+
+
         if($year=='1970'){
             $year=$month=$day='';
         }
@@ -623,7 +627,8 @@ class PagesController extends Controller
                 ->with('month', $month)
                 ->with('day', $day)
                 ->with('cancel_notice', $cancel_notice)
-                ->with('add_avatar', $add_avatar);
+                ->with('add_avatar', $add_avatar)
+                ->with('isAdminWarnedRead',$isAdminWarnedRead);
 //                ->with('isWarnedReason',$isWarnedReason)
         }
     }

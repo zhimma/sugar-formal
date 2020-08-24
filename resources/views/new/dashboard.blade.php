@@ -701,9 +701,16 @@
           //   title:'您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。',
           //   type:'warning'
           // });
-        @elseif (($umeta->isWarned==1 || $user->isAdminWarned() ) && !Session::has('isWarnedTipShow'))
+        @elseif (($umeta->isWarned==1 && $umeta->isWarnedRead==0 ) || ( $user->isAdminWarned() && $isAdminWarnedRead->isAdminWarnedRead==0 ) )
                 @php
-                    Session::put('isWarnedTipShow', true );
+                 if($user->isAdminWarned()){
+                    //標記已讀
+                    \App\Models\User::isAdminWarnedRead($user->id);
+                  }
+                  if($umeta->isWarned==1){
+                    //標記已讀
+                    \App\Models\User::isWarnedRead($user->id);
+                  }
                 @endphp
         $('#isWarned').show();
         $('#announce_bg').show();
