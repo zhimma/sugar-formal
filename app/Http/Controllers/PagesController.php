@@ -1163,7 +1163,20 @@ class PagesController extends Controller
                 $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
                 /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
 
-                $rating_avg = DB::table('evaluation')->where('to_id',$uid)->avg('rating');
+                $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $uid)->get();
+                $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
+                $bannedUsers = \App\Services\UserService::getBannedId();
+                $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
+                $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
+
+                $rating_avg = DB::table('evaluation')->where('to_id',$uid)
+                    ->whereNotIn('from_id',$userBlockList)
+                    ->whereNotIn('from_id',$isBlockList)
+                    ->whereNotIn('from_id',$bannedUsers)
+                    ->whereNotIn('from_id',$isAdminWarnedList)
+                    ->whereNotIn('from_id',$isWarnedList)
+                    ->avg('rating');
+
                 $rating_avg = floatval($rating_avg);
 
                 return view('new.dashboard.viewuser', $data)
@@ -1204,7 +1217,20 @@ class PagesController extends Controller
         }
         if (isset($user) && isset($uid)) {
 
-            $evaluation_data = DB::table('evaluation')->where('to_id',$uid)->paginate(15);
+            $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $uid)->get();
+            $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
+            $bannedUsers = \App\Services\UserService::getBannedId();
+            $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
+            $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
+
+            $evaluation_data = DB::table('evaluation')->where('to_id',$uid)
+                ->whereNotIn('from_id',$userBlockList)
+                ->whereNotIn('from_id',$isBlockList)
+                ->whereNotIn('from_id',$bannedUsers)
+                ->whereNotIn('from_id',$isAdminWarnedList)
+                ->whereNotIn('from_id',$isWarnedList)
+                ->paginate(15);
+
             $evaluation_self = DB::table('evaluation')->where('to_id',$uid)->where('from_id',$user->id)->first();
             return view('new.dashboard.evaluation')
                 ->with('user', $user)
@@ -1233,6 +1259,34 @@ class PagesController extends Controller
         }
 
         return redirect('/dashboard/evaluation/'.$request->input('eid'))->with('message', '評價已完成');
+    }
+
+    public function evaluation_delete(Request $request)
+    {
+
+        DB::table('evaluation')->where('id',$request->id)->delete();
+
+        return response()->json(['save' => 'ok']);
+    }
+
+    public function evaluation_re_content_save(Request $request)
+    {
+
+        DB::table('evaluation')->where('id',$request->input('id'))->update(
+            ['re_content' => $request->input('re_content'), 're_created_at' => now()]
+        );
+
+        return redirect('/dashboard/evaluation/'.$request->input('eid'))->with('message', '評價回覆已完成');
+    }
+
+    public function evaluation_re_content_delete(Request $request)
+    {
+
+        DB::table('evaluation')->where('id',$request->id)->update(
+            ['re_content' => null]
+        );
+
+        return response()->json(['save' => 'ok']);
     }
 
     public function report(Request $request)
