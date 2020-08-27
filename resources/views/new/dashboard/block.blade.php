@@ -36,7 +36,7 @@
                             <div class="sjleft">
                                 <div class="sjtable"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><span>{{$blockedUser->name}}<!-- <i class="cicd">●</i>{{ $blockedUser->meta_()->age() }}--></span></a></div>
                                 <font>
-                                    @if (is_array($values) || is_object($values))
+                                    @if (is_array($umeta->city) || is_object($umeta->city))
                                         @foreach($umeta->city as $key => $cityval)
                                             @if ($loop->first)
                                                 {{$umeta->city[$key]}} @if($blockedUser->meta_()->isHideArea == 0){{$umeta->area[$key]}}@endif
