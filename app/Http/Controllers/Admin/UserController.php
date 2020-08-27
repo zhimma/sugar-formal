@@ -626,6 +626,28 @@ class UserController extends Controller
 
         foreach($pic_all_report as $row){
             $f_user = User::findById($row->uid);
+            if(!isset($f_user)){
+                array_push($report_all,
+                    array(
+                        'reporter_id' => $row->uid,
+                        'reported_id' => $row->edid,
+                        'cancel' => $row->cancel,
+                        'content' => $row->content,
+                        'created_at' => $row->created_at,
+                        'tipcount' => Tip::TipCount_ChangeGood($row->uid),
+                        'vip' => Vip::vip_diamond($row->uid),
+                        'isBlocked' => banned_users::where('member_id', 'like', $row->uid)->get()->first(),
+                        'name' => "無會員資料，ID: " . $row->uid,
+                        'email' => null,
+                        'isvip' => null,
+                        'auth_status' => null,
+                        'report_type' => '照片檢舉',
+                        'report_table' => 'reported_avatarpic',
+                        'engroup' => null
+                    )
+                );
+                continue;
+            }
             $auth_status=0;
             $report_table = '';
             if($f_user->isPhoneAuth()==1){
@@ -653,6 +675,28 @@ class UserController extends Controller
         }
         foreach($msg_report as $row){
             $f_user = User::findById($row->to_id);
+            if(!isset($f_user)){
+                array_push($report_all,
+                    array(
+                        'report_dbid' => $row->id,
+                        'reporter_id' => $row->to_id,
+                        'cancel' => $row->cancel,
+                        'content' => $row->content,
+                        'created_at' => $row->created_at,
+                        'tipcount' => Tip::TipCount_ChangeGood($row->to_id),
+                        'vip' => Vip::vip_diamond($row->to_id),
+                        'isBlocked' => banned_users::where('member_id', 'like', $row->to_id)->get()->first(),
+                        'name' => "無會員資料，ID: " . $row->to_id,
+                        'email' => null,
+                        'isvip' => null,
+                        'auth_status' => null,
+                        'report_type' => '訊息檢舉',
+                        'report_table' => 'message',
+                        'engroup' => null
+                    )
+                );
+                continue;
+            }
             $auth_status=0;
             if($f_user->isPhoneAuth()==1){
                 $auth_status=1;
@@ -680,6 +724,28 @@ class UserController extends Controller
         }
         foreach($report as $row){
             $f_user = User::findById($row->member_id);
+            if(!isset($f_user)){
+                array_push($report_all,
+                    array(
+                        'reported_id' => $row->reported_id,
+                        'reporter_id' => $row->member_id,
+                        'cancel' => $row->cancel,
+                        'content' => $row->content,
+                        'created_at' => $row->created_at,
+                        'tipcount' => Tip::TipCount_ChangeGood($row->member_id),
+                        'vip' => Vip::vip_diamond($row->member_id),
+                        'isBlocked' => banned_users::where('member_id', 'like', $row->member_id)->get()->first(),
+                        'name' => "無會員資料，ID: " . $row->member_id,
+                        'email' => null,
+                        'isvip' => null,
+                        'auth_status' => null,
+                        'report_type' => '會員檢舉',
+                        'report_table' => 'reported',
+                        'engroup' => null
+                    )
+                );
+                continue;
+            }
             $auth_status=0;
             if($f_user->isPhoneAuth()==1){
                 $auth_status=1;

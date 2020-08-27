@@ -242,7 +242,11 @@
 				@php
 					$rowuser = \App\Models\User::findById($row['reporter_id']);
 				@endphp
-				{{ $rowuser->WarnedScore() }}
+				@if(isset($rowuser))
+					{{ $rowuser->WarnedScore() }}
+				@else
+					無會員資料
+				@endif
 			</td>
 			<td>
 				<a href="{{ route('users/advInfo', $row['reporter_id']) }}" target='_blank'>

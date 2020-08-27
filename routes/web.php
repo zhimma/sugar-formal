@@ -417,7 +417,10 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
 
 
         Route::get('/dashboard/evaluation/{uid}', 'PagesController@evaluation');
-        Route::post('/dashboard/evaluation', 'PagesController@evaluation_save')->name('evaluation');
+        Route::post('/dashboard/evaluation/save', 'PagesController@evaluation_save')->name('evaluation');
+        Route::post('/dashboard/evaluation/re_content_save', 'PagesController@evaluation_re_content_save')->name('evaluation_re_content');
+        Route::post('/dashboard/evaluation/re_content_delete', 'PagesController@evaluation_re_content_delete')->name('evaluation_re_content_delete');
+        Route::post('/dashboard/evaluation/delete', 'PagesController@evaluation_delete')->name('evaluation_delete');
 
 
         Route::get('/dashboard/banned', 'PagesController@dashboard_banned');
