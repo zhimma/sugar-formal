@@ -11,6 +11,7 @@ class Fingerprint extends Model
      *
      * @var string
      */
+    protected $connection = 'sg_database';
     protected $table = 'fingerprint';
     public static function isExist($data)
     {
