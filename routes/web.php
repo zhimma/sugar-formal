@@ -414,6 +414,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::post('/dashboard/chat2/deleteall', 'Message_newController@deleteAll')->name('delete2All');
         Route::post('/dashboard/chat2/chatSet', 'Message_newController@chatSet')->name('chatSet');
         Route::post('/dashboard/announcement_post', 'Message_newController@announcePost')->name('announcePost');
+        Route::get('/dashboard/manual', 'PagesController@manual');
 
 
         Route::get('/dashboard/evaluation/{uid}', 'PagesController@evaluation');
