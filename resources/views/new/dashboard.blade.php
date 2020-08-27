@@ -38,16 +38,16 @@
       <div class="col-sm-12 col-xs-12 col-md-10">
         <div class="g_password">
           <div class="g_pwicon">
-            <li><a href="{!! url('dashboard') !!}"><img src="/new/images/mm_15.png"><span>基本資料</span></a></li>
-            <li><a href="{!! url('dashboard_img') !!}"><img src="/new/images/mm_05.png"><span>照片管理</span></a></li>
-            <li><a href="{!! url('/dashboard/password') !!}"><img src="/new/images/mm_07.png"><span>更改密碼</span></a></li>
-            <li><a href="{!! url('/dashboard/vip') !!}"><img src="/new/images/mm_09.png"><span>VIP</span></a></li>
+              <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t g_hicon1"><span>基本資料</span></a></li>
+              <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2"><span>照片管理</span></a></li>
+              <li><a href="{!! url('/dashboard/password') !!}" class="g_pwicon_t3"><span>更改密碼</span></a></li>
+              <li><a href="{!! url('/dashboard/vip') !!}" class="g_pwicon_t4"><span>VIP</span></a></li>
           </div>
           <div class="addpic g_inputt">
 
             <div class="n_adbut">
                 <a href="/dashboard/viewuser/{{$user->id}}"><img src="/new/images/1_06.png">預覽</a></div>
-               <div class="n_adbut"><a href="/member_auth/" style="padding-left: 10px;">身份驗證</a></div>
+               <div class="n_adbut"><a href="/member_auth/" style="padding-left: 10px;">手機驗證</a></div>
             <div class="xiliao_input">
                <form class="m-form m-form--fit m-form--label-align-right" method="POST" name="user_data" action="" id="information" data-parsley-validate novalidate>
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -589,6 +589,41 @@
 
     </div>
   </div>
+
+  <div class="bl bl_tab" id="isWarned" style="display: none;">
+      <div class="bltitle">提示</div>
+      <div class="blnr bltext">
+          @if($user->isAdminWarned())
+              @php
+                  $warned_users = \App\Models\SimpleTables\warned_users::where('member_id', $user->id)->where(
+                      function ($query) {
+                          $query->whereNull('expire_date')->orWhere('expire_date', '>=', \Carbon\Carbon::now());
+                      })
+                  ->first();
+            $diff_in_days  = '';
+            if(isset($warned_users->expire_date)){
+                $to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $warned_users->expire_date);
+                $now = \Carbon\Carbon::now();
+
+                $diff_in_days = ' ' . $to->diffInDays($now) . ' 天';
+            }
+
+              $reason = $warned_users->reason == '' ? '系統原因' : $warned_users->reason;
+              @endphp
+              您因為 {{$reason}} 被站長警示{{$diff_in_days}}，如有問題請點右下聯絡我們加站長 line 反應。
+          @else
+{{--          由於{!! $isWarnedReason !!}原因，您目前是警示會員。--}}
+          {{$user->name}} 您好，為防止八大入侵，系統有設置警示會員制度。<br>
+          您目前被系統暫時列為警示會員，通過手機簡訊認證即可解除此狀態。<br>
+          此機制主要針對色情行業，但偶爾會誤判，還請見諒。<br>
+          手機號碼不會公布敬請放心，有問題可加站長line：@giv4956r 反應。<br>
+          前往<a href='/member_auth'>會員驗證</a>
+          @endif
+      </div>
+
+      <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+  </div>
+
 <script>
     $(document).ready(function() {
         @if(Session::has('message'))
@@ -666,6 +701,19 @@
           //   title:'您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。',
           //   type:'warning'
           // });
+        @elseif (($umeta->isWarned==1 && $umeta->isWarnedRead==0 ) || ( $user->isAdminWarned() && $isAdminWarnedRead->isAdminWarnedRead==0 ) )
+                @php
+                 if($user->isAdminWarned()){
+                    //標記已讀
+                    \App\Models\User::isAdminWarnedRead($user->id);
+                  }
+                  if($umeta->isWarned==1){
+                    //標記已讀
+                    \App\Models\User::isWarnedRead($user->id);
+                  }
+                @endphp
+        $('#isWarned').show();
+        $('#announce_bg').show();
         @endif
       @endif
       //ajax_表單送出

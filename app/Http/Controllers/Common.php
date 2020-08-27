@@ -10,11 +10,20 @@ use DB;
 class Common extends Controller {
     public function get_message(Request $request){
 
+        $user=$request->user();
         $Table = 'short_message';
         $checkCode = str_pad(rand(0, pow(10, 5) - 1), 5, '0', STR_PAD_LEFT);
         $username = '54666024';
         $password = 'zxcvbnm';
         $Mobile   = $request->get('mobile');
+        $data_exist = DB::table('short_message')->where('mobile', $Mobile)->where('active',1)->first();
+        if(isset($data_exist)){
+            $data = array(
+                'code'=>'420',
+                'msg_info'=>'手機號碼已被使用'
+            );
+            return json_encode($data);
+        }
         if(is_null($Mobile)){
             $data = array(
                 'code'=>'410',
@@ -31,6 +40,8 @@ class Common extends Controller {
             $msg_info = [
                             'mobile' => $Mobile,
                             'checkcode' => $checkCode,
+                            'active' => 0,
+                            'member_id' =>  $user->id,
                             'createdate' =>date("Y-m-d H:i:s")
                         ];
             $result = DB::table($Table)->insert(
@@ -77,6 +88,7 @@ class Common extends Controller {
 
     public function checkcode_during(Request $request)
     {
+        $user=$request->user();
         $now_time    = strtotime('now');
         $checkcode = $request->get('checkcode','');
         $info = DB::table('short_message')->where('checkcode', $checkcode)->first();
@@ -98,6 +110,7 @@ class Common extends Controller {
             // dd($request);
             if($now_time-300<strtotime($info->createdate)){
                 /*驗鄭成功更新資料庫*/
+                DB::table('short_message')->where('checkcode', $checkcode)->where('member_id',$user->id)->update(['active'=>1]);
                 $data = array(
                     'code'=>'200',
                     'msg' =>'此驗證碼可用',
@@ -153,8 +166,16 @@ class Common extends Controller {
         // $avatar_path = $request->get('avatar_path','');//需為絕對路徑
         // $avatar_path = url('/new/images/0123456/0123.jpg');
         $avatar_path = url($avatar_path);
-        
-        $exif = @exif_read_data($avatar_path, 'IFD0');
+        if(function_exists('exif_read_data')) {
+            $exif = exif_read_data($avatar_path, 'IFD0');
+        }else{
+            $msg = '沒有EXIF資訊';
+            $data = array(
+                'code'=>'600',
+                'msg' =>$msg
+            );
+            return  json_encode($data, JSON_UNESCAPED_UNICODE);
+        }
         // dd($exif);
         // dd($exif);
         // echo $exif===false ? "No header data found.<br />\n" : "Image contains headers<br />\n";
@@ -169,7 +190,7 @@ class Common extends Controller {
         }else{
             // "Image contains headers";
             $exif = exif_read_data($avatar_path);
-            // dd($exif);
+            //dd($exif);
             // echo "test2.jpg:<br />\n";
             // $exif_data = array();
             // foreach ($exif as $key => $section) {
@@ -181,7 +202,7 @@ class Common extends Controller {
             // }
             // dd('1');
             // dd($exif_data);
-            // dd($exif);
+//            dd($exif['EXIF']['DateTimeOriginal']);
             /*判斷照片是否在十分鐘內*/
             if(isset($exif['DateTimeOriginal'])){
                 if($now_time-600<strtotime($exif['DateTimeOriginal'])){
@@ -198,7 +219,7 @@ class Common extends Controller {
             }else{
                 $data = array(
                     'code' => '600',
-                    'msg'  => '沒有日期資訊'
+                    'msg'  => $exif['DateTimeOriginal']
                 );
             }
             // return $data;
@@ -235,8 +256,9 @@ class Common extends Controller {
         $user=$request->user();
         
         $user_id = $user->id;
-        // $data = json_decode($request->data);
+//        $data = $request->data;
 
+//        dd($request->file('image'));
         $pic_infos = $request->reader;
 
         // $member_pics = $request->name;
@@ -289,6 +311,7 @@ class Common extends Controller {
                     // break;
                 }
                 $now = date("Ymdhis", strtotime(now()));
+//                dd($pic_infos->file('image'));
                 $image = $pic_infos;  // your base64 encoded
                 // $image = str_replace('data:image/png;base64,', '', $image);
                 // $image = str_replace(' ', '+', $image);
@@ -300,9 +323,13 @@ class Common extends Controller {
                 // dd($user->id, $member_pics);
                 \File::put(public_path(). '/Member_pics' .'/'. $user->id.'_'.md5($now).'.png', $image);
 
+//                $exif = exif_read_data($image);
                 $get_exif = $this->get_exif('/Member_pics' .'/'. $user->id.'_'.md5($now).'.png');
-                // dd($get_exif);
+//                // dd($get_exif);
                 $status = json_decode($get_exif)->code;
+//                if(isset($exif['DateTimeOriginal'])){
+//                    $status='200';
+//                }
                 // dd($status);
                 if($status=='200'){
 

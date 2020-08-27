@@ -66,8 +66,13 @@
         border-radius: 11px;
         width: auto !important;
         height: auto !important;
-        bottom: -4px !important;
+        /*bottom: -4px !important;*/
         border: #fd5678 1px solid;
+        position: relative;
+        top: 20px;
+        right: -10px;
+        display: flex;
+        float: right;
 
     }
     .shdel_word>span {
@@ -115,34 +120,34 @@
             <div class="col-sm-12 col-xs-12 col-md-10">
                 @if(isset($to))
                     <div class="shouxq">
-                        <a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}"><img src="/new/images/xq_06.png" class="xlimg"></a><span><a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a></span>
+                        <a href="javascript:history.back()"><img src="/new/images/gg2.png" class="xlimg"></a><span><a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a></span>
                         @if($user->engroup==1)
-                            <?php $orderNumber = \App\Models\Vip::lastid() . $user->id; $code = Config::get('social.payment.code');?>
-                            <form action="{{ Config::get('social.payment.actionURL') }}" style="float: right; position: relative;" method="POST" id="form1">
-                                <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-                                <input type="hidden" name="userId" value="{{ $user->id }}">
-                                <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">
-                                <input type=hidden name="MerchantNumber" value="761404">
-                                <input type=hidden name="OrderNumber" value="{{ $orderNumber }}">
-                                <input type=hidden name="OrgOrderNumber" value="SG-車馬費({{ $user->id }})">
-                                <input type=hidden name="ApproveFlag" value="1">
-                                <input type=hidden name="DepositFlag" value="1">
-                                <input type=hidden name="iphonepage" value="0">
-                                <input type=hidden name="Amount" value={{ Config::get('social.payment.tip-amount') }}>
-                                <input type=hidden name="op" value="AcceptPayment">
-                                <input type=hidden name="checksum" value="{{ md5("761404".$orderNumber.$code.Config::get('social.payment.tip-amount')) }}">
-                                <input type=hidden name="ReturnURL" value="{{ route('chatpay') }}">
-                                <button type="button" class="paypay" onclick="checkPay('form1')"><a class="nnn_adbut">車馬費2</a></button>
-                            </form>
+                            <?php //$orderNumber = \App\Models\Vip::lastid() . $user->id; $code = Config::get('social.payment.code');?>
+{{--                            <form action="{{ Config::get('social.payment.actionURL') }}" style="float: right; position: relative;" method="POST" id="form1">--}}
+{{--                                <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
+{{--                                <input type="hidden" name="userId" value="{{ $user->id }}">--}}
+{{--                                <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">--}}
+{{--                                <input type=hidden name="MerchantNumber" value="761404">--}}
+{{--                                <input type=hidden name="OrderNumber" value="{{ $orderNumber }}">--}}
+{{--                                <input type=hidden name="OrgOrderNumber" value="SG-車馬費({{ $user->id }})">--}}
+{{--                                <input type=hidden name="ApproveFlag" value="1">--}}
+{{--                                <input type=hidden name="DepositFlag" value="1">--}}
+{{--                                <input type=hidden name="iphonepage" value="0">--}}
+{{--                                <input type=hidden name="Amount" value={{ Config::get('social.payment.tip-amount') }}>--}}
+{{--                                <input type=hidden name="op" value="AcceptPayment">--}}
+{{--                                <input type=hidden name="checksum" value="{{ md5("761404".$orderNumber.$code.Config::get('social.payment.tip-amount')) }}">--}}
+{{--                                <input type=hidden name="ReturnURL" value="{{ route('chatpay') }}">--}}
+{{--                                <button type="button" class="paypay" onclick="checkPay('form1')"><a class="nnn_adbut">車馬費2</a></button>--}}
+{{--                            </form>--}}
                             <form class="" style="float: right; position: relative;" action="{{ route('chatpay_ec') }}" method=post id="ecpay">
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                 <input type="hidden" name="userId" value="{{ $user->id }}">
                                 <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">
-                                <button type="button" class="paypay" onclick="checkPay('ecpay')"><a class="nnn_adbut">車馬費1</a></button>
+                                <button type="button" class="paypay" onclick="checkPay('ecpay')"><a class="nnn_adbut">車馬費</a></button>
                             </form>
                         @else
-                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c2('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -5px">車馬費2</a></button>
-                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c2('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -5px">車馬費1</a></button>
+{{--                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c2('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -5px">車馬費2</a></button>--}}
+                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c2('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -5px">車馬費</a></button>
                         @endif
                     </div>
                 @else
@@ -160,7 +165,21 @@
                             @endphp
 
                             @if($date_temp != substr($message['created_at'],0,10)) <div class="sebg matopj10">{{substr($message['created_at'],0,10)}}</div>@endif
-                            @if($message['sys_notice']==0)
+
+                            @if($message['sys_notice']==1 || $msgUser->id == '1049')
+                            <div class="send">
+                                <div class="msg">
+                                    <img src="/new/images/admin-avatar.jpg">
+                                    <p style="background: #DDF3FF;">
+                                        <i class="msg_input_blue"></i>
+                                        {!! nl2br($message['content']) !!}
+                                        <font class="sent_ri @if(!$isVip) novip @endif dr_r">
+                                            <span>{{ substr($message['created_at'],11,5) }}</span>
+                                        </font>
+                                    </p>
+                                </div>
+                            </div>
+                            @elseif($message['sys_notice']==0)
                             <div class="@if($message['from_id'] == $user->id) show @else send @endif">
                                 <div class="msg @if($message['from_id'] == $user->id) msg1 @endif">
                                     @if($message['from_id'] == $user->id)
@@ -174,8 +193,8 @@
                                         <i class="msg_input"></i>{!! nl2br($message['content']) !!}
                                         @if($message['from_id'] != $user->id)
                                             <a href="javascript:void(0)" class="" onclick="banned('{{$message['id']}}','{{$msgUser->id}}','{{$msgUser->name}}');" title="檢舉">
-{{--                                                <span class="shdel_word"><span>檢舉</span><span>--}}
-                                                <img src="/new/images/ban.png" class="shdel" alt="檢舉">
+                                                <span class="shdel_word"><span>檢舉</span></span>
+{{--                                                 <img src="/new/images/ban.png" class="shdel" alt="檢舉">--}}
                                             </a>
                                         @endif
                                         <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
@@ -186,25 +205,10 @@
                                             @else
                                             <span>@if($message['read'] == "Y" && $message['from_id'] == $user->id) 已讀 @elseif($message['read'] == "N" && $message['from_id'] == $user->id) 未讀 @endif</span>
                                             @endif
-
-
                                         </font>
                                     </p>
                                 </div>
                             </div>
-                            @elseif($message['from_id'] == $user->id)
-                                <div class="send">
-                                    <div class="msg">
-                                        <img src="/new/images/admin-avatar.jpg">
-                                        <p style="background: #DDF3FF;">
-                                            <i class="msg_input_blue"></i>
-                                            {!! nl2br($message['content']) !!}
-                                            <font class="sent_ri @if(!$isVip) novip @endif dr_r">
-                                                <span>{{ substr($message['created_at'],11,5) }}</span>
-                                            </font>
-                                        </p>
-                                    </div>
-                                </div>
                             @endif
                             @php
                                 $date_temp = substr($message['created_at'],0,10);
@@ -418,7 +422,7 @@
 
     $('.message').css('width',$('.shouxq').width()-20);
     $('.se_text').css('width',$('.shouxq').width());
-    if(window.matchMedia("(max-width: 767px)").matches && window.matchMedia("(max-height: 823px)").matches){
+    if(window.matchMedia("(max-width: 823px)").matches && window.matchMedia("(max-height: 823px)").matches){
         $('.se_text_bot').removeClass('se_text_bot_add_bottom');
         $('.bot').hide();
 
@@ -500,6 +504,7 @@
     function banned(id,sid,name){
         $("input[name='uid']").val(sid);
         $("input[name='id']").val(id);
+        $(".banned_name").html('');
         $(".banned_name").append("<span>檢舉" + name + "</span>")
         $(".announce_bg").show();
         $("#show_banned").show();

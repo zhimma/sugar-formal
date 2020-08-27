@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\CheckECpay;
 use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
+use App\Models\SimpleTables\warned_users;
 use Auth;
 use App\Http\Requests;
 use Carbon\Carbon;
@@ -560,11 +562,22 @@ class PagesController extends Controller
 
     public function dashboard(Request $request)
     {
-
+        // todo: 驗證 VIP 是否成功付款
+        //      1. 綠界：連 API 檢查，使用 Laravel Queue 執行檢查
+        //      2. 藍新：後台手動
         
         $user = $request->user();
         $url = $request->fullUrl();
-        //echo $url;
+
+        if($user->isVip() && !$user->isFreeVip()){
+            $vipData = $user->getVipData(true);
+            if(is_object($vipData)){
+                $this->dispatch(new CheckECpay($vipData));
+            }
+            else{
+                Log::info('VIP data null, user id: ' . $user->id);
+            }
+        }
 
         if(str_contains($url, '?img')) {
             $tabName = 'm_user_profile_tab_4';
@@ -580,8 +593,12 @@ class PagesController extends Controller
         $day = $birthday[2];
 
         /*編輯文案-add avatar-START*/
-        $add_avatar = AdminCommonText::where('alias','add_avatar')->get()->first();
+        $add_avatar = AdminCommonText::getCommonText(41);//id 41
         /*編輯文案-add avatar-END*/
+
+//        $isWarnedReason = AdminCommonText::getCommonText(56);//id 56 警示用戶原因
+
+        $isAdminWarnedRead = warned_users::select('isAdminWarnedRead')->where('member_id',$user->id)->first();
 
 
         if($year=='1970'){
@@ -610,7 +627,9 @@ class PagesController extends Controller
                 ->with('month', $month)
                 ->with('day', $day)
                 ->with('cancel_notice', $cancel_notice)
-                ->with('add_avatar', $add_avatar);
+                ->with('add_avatar', $add_avatar)
+                ->with('isAdminWarnedRead',$isAdminWarnedRead);
+//                ->with('isWarnedReason',$isWarnedReason)
         }
     }
 
@@ -1074,6 +1093,8 @@ class PagesController extends Controller
 
                 $message_count_7 = Message::where('from_id', $uid)->where('created_at', '>=', $date)->count();
 
+                $is_banned = null;
+
                 $data = array(
                     'tip_count' => $tip_count,
                     'fav_count' => $fav_count,
@@ -1086,6 +1107,7 @@ class PagesController extends Controller
                     'be_visit_other_count_7' => $be_visit_other_count_7,
                     'message_count' => $message_count,
                     'message_count_7' => $message_count_7,
+                    'is_banned' => $is_banned,
                 );
                 $member_pic = DB::table('member_pic')->where('member_id',$uid)->where('pic','<>',$targetUser->meta_()->pic)->get();
                 if($user->isVip()){
@@ -1141,26 +1163,130 @@ class PagesController extends Controller
                 $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
                 /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
 
+                $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $uid)->get();
+                $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
+                $bannedUsers = \App\Services\UserService::getBannedId();
+                $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
+                $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
+
+                $rating_avg = DB::table('evaluation')->where('to_id',$uid)
+                    ->whereNotIn('from_id',$userBlockList)
+                    ->whereNotIn('from_id',$isBlockList)
+                    ->whereNotIn('from_id',$bannedUsers)
+                    ->whereNotIn('from_id',$isAdminWarnedList)
+                    ->whereNotIn('from_id',$isWarnedList)
+                    ->avg('rating');
+
+                $rating_avg = floatval($rating_avg);
+
                 return view('new.dashboard.viewuser', $data)
-                    ->with('user', $user)
-                    ->with('blockadepopup', $blockadepopup)
-                    ->with('to', $this->service->find($uid))
-                    ->with('cur', $user)
-                    ->with('member_pic',$member_pic)
-                    ->with('isVip', $isVip)
-                    ->with('engroup', $user->engroup)
-                    ->with('report_reason',$report_reason->content)
-                    ->with('report_member',$report_member->content)
-                    ->with('report_avatar',$report_avatar->content)
-                    ->with('new_sweet',$new_sweet->content)
-                    ->with('well_member',$well_member->content)
-                    ->with('money_cert',$money_cert->content)
-                    ->with('alert_account',$alert_account->content)
-                    ->with('label_vip',$label_vip->content)
-                    ->with('user_closed',$user_closed->content);
+                        ->with('user', $user)
+                        ->with('blockadepopup', $blockadepopup)
+                        ->with('to', $this->service->find($uid))
+                        ->with('cur', $user)
+                        ->with('member_pic',$member_pic)
+                        ->with('isVip', $isVip)
+                        ->with('engroup', $user->engroup)
+                        ->with('report_reason',$report_reason->content)
+                        ->with('report_member',$report_member->content)
+                        ->with('report_avatar',$report_avatar->content)
+                        ->with('new_sweet',$new_sweet->content)
+                        ->with('well_member',$well_member->content)
+                        ->with('money_cert',$money_cert->content)
+                        ->with('alert_account',$alert_account->content)
+                        ->with('label_vip',$label_vip->content)
+                        ->with('user_closed',$user_closed->content)
+                        ->with('rating_avg',$rating_avg);
                     
             }
 
+    }
+
+    public function evaluation(Request $request, $uid)
+    {
+        $user = $request->user();
+        $vipDays=0;
+        if($user->isVip()) {
+            $vip_record = Carbon::parse($user->vip_record);
+            $vipDays = $vip_record->diffInDays(Carbon::now());
+        }
+
+        $auth_check=0;
+        if($user->isPhoneAuth()==1){
+            $auth_check=1;
+        }
+        if (isset($user) && isset($uid)) {
+
+            $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $uid)->get();
+            $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
+            $bannedUsers = \App\Services\UserService::getBannedId();
+            $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
+            $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
+
+            $evaluation_data = DB::table('evaluation')->where('to_id',$uid)
+                ->whereNotIn('from_id',$userBlockList)
+                ->whereNotIn('from_id',$isBlockList)
+                ->whereNotIn('from_id',$bannedUsers)
+                ->whereNotIn('from_id',$isAdminWarnedList)
+                ->whereNotIn('from_id',$isWarnedList)
+                ->paginate(15);
+
+            $evaluation_self = DB::table('evaluation')->where('to_id',$uid)->where('from_id',$user->id)->first();
+            return view('new.dashboard.evaluation')
+                ->with('user', $user)
+                ->with('to', $this->service->find($uid))
+                ->with('cur', $user)
+                ->with('evaluation_self',$evaluation_self)
+                ->with('evaluation_data',$evaluation_data)
+                ->with('vipDays',$vipDays)
+                ->with('auth_check',$auth_check);
+        }
+    }
+
+    public function evaluation_save(Request $request)
+    {
+
+        $evaluation_self = DB::table('evaluation')->where('to_id',$request->input('eid'))->where('from_id',$request->input('uid'))->first();
+
+        if(isset($evaluation_self)){
+            DB::table('evaluation')->where('to_id',$request->input('eid'))->where('from_id',$request->input('uid'))->update(
+                ['content' => $request->input('content'), 'rating' => $request->input('rating'), 'updated_at' => now()]
+            );
+        }else {
+            DB::table('evaluation')->insert(
+                ['from_id' => $request->input('uid'), 'to_id' => $request->input('eid'), 'content' => $request->input('content'), 'rating' => $request->input('rating'), 'created_at' => now(), 'updated_at' => now()]
+            );
+        }
+
+        return redirect('/dashboard/evaluation/'.$request->input('eid'))->with('message', '評價已完成');
+    }
+
+    public function evaluation_delete(Request $request)
+    {
+
+        DB::table('evaluation')->where('id',$request->id)->delete();
+
+        return response()->json(['save' => 'ok']);
+    }
+
+    public function evaluation_re_content_save(Request $request)
+    {
+
+        DB::table('evaluation')->where('id',$request->input('id'))->update(
+            ['re_content' => $request->input('re_content'), 're_created_at' => now()]
+        );
+
+        return redirect('/dashboard/evaluation/'.$request->input('eid'))->with('message', '評價回覆已完成');
+    }
+
+    public function evaluation_re_content_delete(Request $request)
+    {
+
+        DB::table('evaluation')->where('id',$request->id)->update(
+            ['re_content' => null]
+        );
+
+        return response()->json(['save' => 'ok']);
     }
 
     public function report(Request $request)
@@ -1478,17 +1604,29 @@ class PagesController extends Controller
     public function anti_fraud_manual(Request $request) {
         $user = $request->user();
         if ($user) {
-            return view('new.dashboard.anti_fraud_manual')
-                ->with('user', $user);
+            if($user->isReadManual == 0)
+                return view('new.dashboard.newer_manual')->with('user', $user);
+            else
+                return view('new.dashboard.anti_fraud_manual')->with('user', $user);
         }
     }
 
     public function web_manual(Request $request) {
         $user = $request->user();
         if ($user) {
-            return view('new.dashboard.web_manual')
-                ->with('user', $user);
+            if($user->isReadManual == 0)
+                return view('new.dashboard.newer_manual')->with('user', $user);
+            else
+                return view('new.dashboard.web_manual')->with('user', $user);
         }
+    }
+
+    public function is_read_manual(Request $request)
+    {
+        $user = $request->user();
+        $user->isReadManual = 1 ;
+        $user->save();
+        return 'ok';
     }
 
     public function chat2(Request $request, $cid)
@@ -1646,7 +1784,8 @@ class PagesController extends Controller
         if ($user)
         {
             // blocked by user->id
-            $blocks = \App\Models\Blocked::where('member_id', $user->id)->orderBy('created_at','desc')->paginate(15);
+            $bannedUsers = \App\Services\UserService::getBannedId();
+            $blocks = \App\Models\Blocked::where('member_id', $user->id)->whereNotIn('blocked_id',$bannedUsers)->orderBy('created_at','desc')->paginate(15);
 
             $usersInfo = array();
             foreach($blocks as $blockUser){
@@ -2298,19 +2437,20 @@ class PagesController extends Controller
         return json_encode($data);
     }
 
-    public function member_auth(Request $rquest){
-        return view('/auth/member_auth');
+    public function member_auth(Request $request){
+        $user = $request->user();
+        return view('/auth/member_auth')->with('user',$user);
     }
 
-    public function member_auth_photo(Request $rquest){
+    public function member_auth_photo(Request $request){
         return view('/auth/member_auth_photo');
     }
 
-    public function hint_auth1(Request $rquest){
+    public function hint_auth1(Request $request){
         return view('/auth/hint_auth1');
     }
 
-    public function hint_auth2(Request $rquest){
+    public function hint_auth2(Request $request){
         return view('/auth/hint_auth2');
     }
 

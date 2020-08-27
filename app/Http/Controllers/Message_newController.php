@@ -15,7 +15,6 @@ use App\Models\AdminCommonText;
 use App\Services\UserService;
 use App\Services\VipLogService;
 use Carbon\Carbon;
-use Gloudemans\Shoppingcart\Facades\Cart as Cart;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
@@ -127,8 +126,8 @@ class Message_newController extends Controller {
             orderBy('created_at', 'desc')->first();
             if(isset($m_time)) {
                 $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
-                if ($diffInSecs < 60) {
-                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每分鐘限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
+                if ($diffInSecs < 30) {
+                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每30秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
                 }
             }
         }
@@ -138,16 +137,16 @@ class Message_newController extends Controller {
             orderBy('created_at', 'desc')->first();
             if(isset($m_time)) {
                 $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
-                if ($diffInSecs < 60) {
-                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每分鐘限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
+                if ($diffInSecs < 30) {
+                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每30秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
                 }
             }
         }
         Message::post(auth()->id(), $payload['to'], $payload['msg']);
 
         //發送訊息後後判斷是否需備自動封鎖
-        SetAutoBan::auto_ban(auth()->id());
-        
+        // SetAutoBan::auto_ban(auth()->id());
+        SetAutoBan::msg_auto_ban(auth()->id(), $payload['to'], $payload['msg']);
         return back()->with('message','發送成功');
     }
 

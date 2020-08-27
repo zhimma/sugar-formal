@@ -14,6 +14,7 @@
 		<td>名稱</td>
         <td>封鎖時間</td>
         <td>傳訊給誰</td>
+        <td>封鎖原因</td>
         <td>訊息內容</td>
         <td>到期日(自動解除)</td>
 		<td>解除封鎖</td>
@@ -25,6 +26,7 @@
         <td>{{ $user->name }}</td>
         <td>{{ $user->created_at }}</td>
         <td>{{ $user->recipient_name }}</td>
+        <td>{{ $user->reason }}</td>
         <td>{{ $user->message_content }}</td>
         <td>{{ $user->expire_date }}</td>
         <td>

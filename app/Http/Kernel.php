@@ -73,7 +73,9 @@ class Kernel extends HttpKernel
 		'roles' => \App\Http\Middleware\Roles::class,
 		'vipc' => \App\Http\Middleware\Vipc::class,
 		'filled' => \App\Http\Middleware\Filled::class,
+        'newerManual' => \App\Http\Middleware\NewerManual::class,
         'femaleActive' => \App\Http\Middleware\FemaleVipActive::class,
-        'vipCheck' => \App\Http\Middleware\VipCheck::class
+        'vipCheck' => \App\Http\Middleware\VipCheck::class,
+        'CheckIsWarned' => \App\Http\Middleware\CheckIsWarned::class
     ];
 }

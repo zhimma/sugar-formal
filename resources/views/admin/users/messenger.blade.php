@@ -39,7 +39,12 @@
                     @endforeach
                 </table>
 	@endif            
-            
+            @if(!isset($from_user))
+                @php
+                    echo '$from_user 不是一個物件。';
+                    exit();
+                @endphp
+            @endif
             <h1>發送站長訊息給{{ $from_user->name}}(發訊者)</h1>
             <!-- <button class="savebtn btn btn-primary">儲存</button> -->
                 <table class="table table-bordered table-hover">
@@ -80,7 +85,12 @@
                         </td>
                     </tr> --}}
                 </table>
-            <form action="{{ route('admin/send', (!isset($isReported))? $user->id : $isReportedId ) }}" id='message' method='POST'>
+            @if (Auth::user()->can('admin'))
+                <form action="{{ route('admin/send', (!isset($isReported))? $user->id : $isReportedId ) }}" id='message' method='POST'>
+            @elseif (Auth::user()->can('readonly'))
+                <form action="{{ route('admin/send/readOnly', (!isset($isReported))? $user->id : $isReportedId ) }}" id='message' method='POST'>
+            @endif
+
                 {!! csrf_field() !!}
                 <input type="hidden" value="{{ $admin->id }}" name="admin_id">
                 @if(isset($isPic) && ($isPic))
@@ -255,7 +265,12 @@
                 </tr>
             </table>
             @if(isset($msgs2) || $msgs2 == 0)
-                <form action="{{ route('admin/send/multiple') }}" id='message' method='POST'>
+                @if (Auth::user()->can('readonly'))
+                    <form action="{{ route('admin/send/multiple/readOnly') }}" id='message' method='POST'>
+                    <input type="hidden" value="back" name="back">
+                @else
+                    <form action="{{ route('admin/send/multiple') }}" id='message' method='POST'>
+                @endif
                     {!! csrf_field() !!}
                     <input type="hidden" value="{{ $admin->id }}" name="admin_id">
                     @if($msgs != 0)
@@ -278,7 +293,12 @@
                     <button type='submit' class='text-white btn btn-primary'>送出</button>
                 </form>
             @else
-                <form action="{{ route('admin/send/multiple') }}" id='message' method='POST'>
+                    @if (Auth::user()->can('readonly'))
+                        <form action="{{ route('admin/send/multiple/readOnly') }}" id='message' method='POST'>
+                            <input type="hidden" value="back" name="back">
+                    @else
+                        <form action="{{ route('admin/send/multiple') }}" id='message' method='POST'>
+                    @endif
                     {!! csrf_field() !!}
                     <input type="hidden" value="{{ $admin->id }}" name="admin_id">
                     @foreach( $msgs as $msg )

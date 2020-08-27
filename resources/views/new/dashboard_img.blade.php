@@ -19,6 +19,21 @@
     .abtn{cursor: pointer;}
     .twzip {display: inline-block !important;width: auto !important;min-width: 45%;margin-right: 10PX;}
     .select_xx2{width: 100%;border: #d2d2d2 1px solid;border-radius: 4px;height: 40px;padding: 0 6px;color:#555;background:#ffffff;font-size: 15px;margin-top: 10px;}
+    @media (max-width:414px) {
+        .column-title div{
+            width: 208px !important;
+        }
+    }
+    @media (max-width:375px) {
+        .column-title div{
+            width: 188px !important;
+        }
+    }
+    @media (max-width:320px) {
+        .column-title div{
+            width: 154px !important;
+        }
+    }
 </style>
 
 <div class="container matop70 chat">
@@ -29,10 +44,10 @@
         <div class="col-sm-12 col-xs-12 col-md-10">
             <div class="g_password">
                 <div class="g_pwicon">
-                    <li><a href="{!! url('dashboard') !!}"><img src="/new/images/mm_03.png"><span>基本資料</span></a></li>
-                    <li><a href="{!! url('dashboard_img') !!}"><img src="/new/images/mm_16.png"><span>照片管理</span></a></li>
-                    <li><a href="{!! url('/dashboard/password') !!}"><img src="/new/images/mm_07.png"><span>更改密碼</span></a></li>
-                    <li><a href="{!! url('/dashboard/vip') !!}"><img src="/new/images/mm_09.png"><span>VIP</span></a></li>
+                    <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t "><span>基本資料</span></a></li>
+                    <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2 g_hicon2"><span>照片管理</span></a></li>
+                    <li><a href="{!! url('/dashboard/password') !!}" class="g_pwicon_t3"><span>更改密碼</span></a></li>
+                    <li><a href="{!! url('/dashboard/vip') !!}" class="g_pwicon_t4"><span>VIP</span></a></li>
                 </div>
                 <div class="addpic g_inputt">
                     <!--div class="n_adbut">
@@ -348,6 +363,17 @@
             },
         ],
     }
+
+
+
+    $(document).ready(function() {
+        if(window.matchMedia("(max-width: 775px)").matches){
+            $('.column-title div').css('width', $( window ).width() - 90 - 36 - 56);
+            $(window).resize(function () {
+                $('.column-title div').css('width', $( window ).width() - 90 - 36 - 56);
+            });
+        }
+    });
   
 </script>
 

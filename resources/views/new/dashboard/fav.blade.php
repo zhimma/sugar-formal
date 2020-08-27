@@ -82,12 +82,12 @@
         var ss =((i+1)>Page.row)?'display:none;':'display:none;';
         var c = (e.vip)?'hy_bg01':'';
         var area_string='';
-        if(e.city.length>1){
+        if( typeof e.city !== 'undefined' && e.city.length>1){
             for(k=0 ; k < e.city.length;k++){
                 area_string += e.city[k]+' '+e.area[k]+' ';
             }
         }else{
-            area_string = e.city[0]+' '+e.area[0];
+            area_string = e.city+' '+e.area;
         }
 
         var url = '{!! url("/dashboard/viewuser/:uid") !!}';
@@ -135,6 +135,7 @@
                 $.each(res.msg,function(i,e){
                     nn++;
                     li = liContent(e,i);
+                    if(typeof e.name !== 'undefined')
                     $('.sjlist>ul').append(li)
                 });
                 Page.DrawPage(res.msg.length);
