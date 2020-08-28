@@ -145,7 +145,7 @@
                                         @if($user->isVip())
                                         <img src="/new/images/a4.png">
                                         @else
-                                        <img src="images/b_4.png" style="height: 50px;">
+                                        <img src="/new/images/b_4.png" style="height: 50px;">
                                         @endif
                                         </div>
 {{--                                        <span>{{$label_vip}}</span>--}}
