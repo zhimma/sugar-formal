@@ -52,7 +52,6 @@ class SetAutoBan extends Model
                     //全檢查判斷user與user_meta的內容 若有一個違規 就設定true
                     if( (User::where('id', $uid)->where(function($query)use($content){
                                 $query->where('name', 'like', '%'.$content.'%')
-                                    ->orwhere('email', 'like', '%'.$content.'%')
                                     ->orwhere('title', 'like', '%'.$content.'%');
                             })->first() != null )
                         OR (UserMeta::where('user_id', $uid)->where(function($query)use($content){
@@ -172,7 +171,6 @@ class SetAutoBan extends Model
                     //全檢查判斷user與user_meta的內容 若有一個違規 就設定true
                     if ((User::where('id', $uid)->where(function ($query) use ($content) {
                                 $query->where('name', 'like', '%' . $content . '%')
-                                    ->orwhere('email', 'like', '%' . $content . '%')
                                     ->orwhere('title', 'like', '%' . $content . '%');
                             })->first() != null)
                         or (UserMeta::where('user_id', $uid)->where(function ($query) use ($content) {
