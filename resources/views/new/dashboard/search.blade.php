@@ -263,7 +263,7 @@
                                             @if($user->isVip())
                                             <img src="/new/images/a5.png">
                                             @else
-                                            <img src="/new/images/b_6.png">
+                                            <img src="/new/images/b_5.png">
                                             @endif
                                             </div>
                                         </div>
@@ -275,7 +275,7 @@
                                         @if($user->isVip())
                                         <img src="/new/images/a6.png">
                                         @else
-                                        <img src="/new/images/b_5.png">
+                                        <img src="/new/images/b_6.png">
                                         @endif
                                         </div>
                                         </div>
