@@ -56,6 +56,7 @@
                   <dt>
                     <span>暱稱<i>(必填)</i></span>
                     <span><input name="name" id="name" type="text" class="select_xx01"  placeholder="至多八個字" value="{{$user->name}}" data-parsley-errors-messages-disabled maxlength="8" disabled style="background-color: #d2d2d2;"></span>
+                      <input name="name" id="name" type="hidden" class="select_xx01"  placeholder="至多八個字" value="{{$user->name}}">
                   </dt>
                   <dt>
                     <span>一句話形容自己<i>(必填)</i></span>
@@ -65,6 +66,7 @@
                   <dt>
                       <span>帳號類型</span>
                       <span><input name="" id="" type="text" class="select_xx01" value="@if($user->engroup==1)甜心大哥@else甜心寶貝@endif" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;"></span>
+                      <input name="engroup" id="" type="hidden" class="select_xx01" value="{{$user->engroup}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">
                   </dt>
 {{--                  <dt>--}}
 {{--                      <span>帳號類型</span>--}}
