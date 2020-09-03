@@ -61,6 +61,11 @@
                     <span>一句話形容自己<i>(必填)</i></span>
                     <span><input name="title" type="text" class="select_xx01"  placeholder="請輸入" value="{{$user->title}}" required data-parsley-errors-messages-disabled></span>
                   </dt>
+
+                  <dt>
+                      <span>帳號類型</span>
+                      <span><input name="" id="" type="text" class="select_xx01" value="@if($user->engroup==1)甜心大哥@else甜心寶貝@endif" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;"></span>
+                  </dt>
 {{--                  <dt>--}}
 {{--                      <span>帳號類型</span>--}}
 {{--                      <div class="n_heg" style="margin-top:-2px">--}}
