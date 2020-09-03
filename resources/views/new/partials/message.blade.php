@@ -68,7 +68,10 @@
 <div class="announce_bg" id="announce_bg" onclick="gmBtnNoReload()" style="display:none;"></div>
 <div class="bl bl_tab" id="tab05">
     <div class="bltitle">提示</div>
+    <div class="n_blnr01 matop10">
     <div class="blnr bltext"></div>
+    <a class="n_bllbut matop30" onclick="gmBtnNoReload()">確定</a>
+    </div>
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 @if(str_contains(url()->current(), 'dashboard') && Session::has('banned_reason'))

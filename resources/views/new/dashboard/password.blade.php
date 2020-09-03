@@ -7,14 +7,17 @@
                 @include('new.dashboard.panel')
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
-                <div class="g_password">
+                <div class="g_password g_pnr">
                     <div class="g_pwicon">
                         <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t "><span>基本資料</span></a></li>
                         <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2"><span>照片管理</span></a></li>
-                        <li><a href="{!! url('/dashboard/password') !!}" class="g_pwicon_t3 g_hicon3"><span>更改密碼</span></a></li>
+                        <li><a href="{!! url('/dashboard/account_manage') !!}" class="g_pwicon_t3 g_hicon3"><span>更改帳號</span></a></li>
                         <li><a href="{!! url('/dashboard/vip') !!}" class="g_pwicon_t4"><span>VIP</span></a></li>
                     </div>
-                    <div class="de_input g_inputt">
+                    <div class="gg_zh">
+                    <div class="gg_mm"><span><i></i>更改密碼</span><img src="/new/images/rzh03.png"></div>
+{{--                    <div class="de_input g_inputt">--}}
+                    <div class="gg_input matop-50">
                         <form method="POST" id="registration" action="/dashboard/changepassword">
                             {!! csrf_field() !!}
                         <div class="de_input01 dlmarbot"><input name="old_password" id="old_password" type="password" class="zcinput" placeholder="現在的密碼" required></div>
@@ -24,6 +27,7 @@
                         <button type="reset" class="zcbut matop20">取消</button>
                         </form>
                     </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -32,16 +36,10 @@
 @section('javascript')
 
     <script>
-        @if(Session::has('message') && Session::get('message') == '確認新密碼不符合，請重新操作')
-            c2('確認新密碼不符合，請重新操作');
+
+        @if(Session::has('message'))
+        c2('{{Session::get('message')}}');
         @endif
 
-        @if(Session::has('message') && Session::get('message') == '更新成功')
-            c2('更新成功');
-        @endif
-
-        @if(Session::has('message') && Session::get('message') == '原密碼有誤，請重新操作')
-            c2('原密碼有誤，請重新操作');
-        @endif
     </script>
 @stop

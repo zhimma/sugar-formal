@@ -344,6 +344,17 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
 
     Route::get('/dashboard/password', 'PagesController@view_changepassword'); //new route
     Route::post('/dashboard/changepassword', 'PagesController@changePassword'); //new route
+
+    Route::get('/dashboard/account_manage', 'PagesController@view_account_manage'); //new route
+    Route::get('/dashboard/account_name_modify', 'PagesController@view_name_modify'); //new route
+    Route::post('/dashboard/changeName', 'PagesController@changeName'); //new route
+    Route::get('/dashboard/account_gender_change', 'PagesController@view_gender_change'); //new route
+    Route::post('/dashboard/changeGender', 'PagesController@changeGender'); //new route
+    Route::get('/dashboard/account_consign_add', 'PagesController@view_consign_add'); //new route
+    Route::post('/dashboard/consignAdd', 'PagesController@consignAdd'); //new route
+    Route::get('/dashboard/account_consign_cancel', 'PagesController@view_consign_cancel'); //new route
+    Route::post('/dashboard/consignCancel', 'PagesController@consignCancel'); //new route
+
     Route::get('/dashboard/vip', 'PagesController@view_vip'); //new route
     Route::get('/dashboard2', 'PagesController@dashboard2');
     Route::get('/dashboard/cancel', 'PagesController@showCheckAccount');
@@ -604,6 +615,11 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::get('stats/set_autoBan', 'StatController@set_autoBan')->name('stats/set_autoBan');
         Route::post('stats/set_autoBan_add', 'StatController@set_autoBan_add')->name('stats/set_autoBan_add');
         Route::get('stats/set_autoBan_del/{id?}', 'StatController@set_autoBan_del')->name('stats/set_autoBan_del');
+        Route::get('check', 'UserController@showAdminCheck')->name('admin/check');
+        Route::get('checkNameChange', 'UserController@showAdminCheckNameChange')->name('admin/checkNameChange');
+        Route::get('checkGenderChange', 'UserController@showAdminCheckGenderChange')->name('admin/checkGenderChange');
+        Route::post('checkNameChange', 'UserController@AdminCheckNameChangeSave');
+        Route::post('checkGenderChange', 'UserController@AdminCheckGenderChangeSave');
 
         /*新增、編輯訊息*/
         Route::post('users/getmsglib', 'UserController@getMessageLib');

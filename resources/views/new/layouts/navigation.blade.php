@@ -14,12 +14,14 @@
 					    @if(!str_contains(url()->current(), 'dashboard') && !str_contains(url()->current(), 'contact') && !str_contains(url()->current(), 'notification') && !str_contains(url()->current(), 'feature') && !str_contains(url()->current(), 'terms') && !str_contains(url()->current(), 'activate') && Auth::user() && $user->meta_()->is_active ==1)
 						<div class="ndlrfont">
 							<a href="{!! url('dashboard/search') !!}"><img src="/new/images/icon_38.png"></a>
+{{--							@if($user->meta_()->isConsign == 0 && ($user->meta_()->consign_expiry_date == null||$user->meta_()->consign_expiry_date <= \Carbon\Carbon::now()))--}}
 							<span class="getNum">
 								<a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}">
 									<img src="/new/images/icon_45.png">
 								</a>
 								<span>{{ \App\Models\Message::unread($user->id) }}</span>
 							</span>
+{{--							@endif--}}
 							<a href="{!! url('dashboard') !!}"><img src="/new/images/icon_48.png"></a>
 						</div>
 						@endif
@@ -57,12 +59,14 @@
 									<li>
 										<a href="{!! url('dashboard') !!}"><img src="/new/images/icon_48.png">個人資料</a>
 									</li>
+{{--									@if($user->meta_()->isConsign == 0 && ($user->meta_()->consign_expiry_date == null||$user->meta_()->consign_expiry_date <= \Carbon\Carbon::now()))--}}
 									<li>
 										<a href="{!! url('dashboard/search') !!}"><img src="/new/images/icon_38.png">搜索</a>
 									</li>
 									<li>
 										<a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}"><img src="/new/images/icon_45.png">收件夾</a><span>{{ \App\Models\Message::unread($user->id) }}</span>
 									</li>
+{{--									@endif--}}
 									<li>
 					                   <a href="{!! url('dashboard/browse') !!}"><img src="/new/images/icon_46.png">瀏覽資料</a>
 					                </li>

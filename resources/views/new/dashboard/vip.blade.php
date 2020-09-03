@@ -11,7 +11,7 @@
                     <div class="g_pwicon">
                         <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t "><span>基本資料</span></a></li>
                         <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2"><span>照片管理</span></a></li>
-                        <li><a href="{!! url('/dashboard/password') !!}" class="g_pwicon_t3 "><span>更改密碼</span></a></li>
+                        <li><a href="{!! url('/dashboard/account_manage') !!}" class="g_pwicon_t3 "><span>更改帳號</span></a></li>
                         <li><a href="{!! url('/dashboard/vip') !!}" class="g_pwicon_t4 g_hicon4"><span>VIP</span></a></li>
                     </div>
                     <div class="new_viphig">

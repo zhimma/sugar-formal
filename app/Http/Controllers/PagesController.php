@@ -42,6 +42,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\SimpleTables\banned_users;
 use Illuminate\Support\Facades\Input;
 use Session;
+use App\Notifications\AccountConsign;
 
 class PagesController extends Controller
 {
@@ -954,6 +955,175 @@ class PagesController extends Controller
             }else{
                 return back()->with('message', '原密碼有誤，請重新操作');
             }
+    }
+
+    public function view_account_manage(Request $request)
+    {
+        $user = $request->user();
+        return view('new.dashboard.account_manage')->with('user', $user)->with('cur', $user);
+    }
+
+    public function view_name_modify(Request $request)
+    {
+        $user = $request->user();
+        return view('new.dashboard.account_name_modify')->with('user', $user)->with('cur', $user);
+    }
+
+    public function changeName(Request $request){
+        $user = $request->user();
+
+        //檢查是否申請過
+        $check_user = DB::table('account_name_change')->where('user_id',$user->id)->whereIn('status',array(0,1))->first();
+        if(isset($check_user->user_id)){
+            return back()->with('message', '您已申請過，無法再修改喔！');
+        }else{
+            //送出申請
+            DB::table('account_name_change')->insert(
+                ['user_id' => $user->id, 'change_name' => $request->input('name'), 'status' => 0, 'created_at' => Carbon::now()]
+            );
+            return back()->with('message', '已送出申請，等待24hr站長審核');
+        }
+    }
+
+    public function view_gender_change(Request $request)
+    {
+        $user = $request->user();
+        return view('new.dashboard.account_gender_change')->with('user', $user)->with('cur', $user);
+    }
+
+    public function changeGender(Request $request){
+        $user = $request->user();
+
+        //檢查是否申請過
+        $check_user = DB::table('account_gender_change')->where('user_id',$user->id)->whereIn('status',array(0,1))->first();
+        if(isset($check_user->user_id)){
+            return back()->with('message', '您已申請過，無法再修改喔！');
+        }else{
+            //送出申請
+            DB::table('account_gender_change')->insert(
+                ['user_id' => $user->id, 'change_gender' => $request->input('gender'), 'status' => 0, 'created_at' => Carbon::now()]
+            );
+            return back()->with('message', '已送出申請，等待24hr站長審核');
+        }
+    }
+
+    public function view_consign_add(Request $request)
+    {
+        $user = $request->user();
+        return view('new.dashboard.account_consign_add')->with('user', $user)->with('cur', $user);
+    }
+
+    public function consignAdd(Request $request){
+        $user = $request->user();
+
+        //檢查是否有申請交付
+        $check_user = DB::table('account_consign')->where('a_user_id',$user->id)->orWhere('b_user_id',$user->id)->where('cancel_id',null)->first();
+        if(isset($check_user->id)){
+            return back()->with('message', '您的帳號尚在交付中');
+        }else if( Hash::check($request->input('password'),$user->password) ) {
+            //取得對方帳號ID
+            $consign_user = User::where('email',$request->input('account'))->first();
+            if(!isset($consign_user->id)){
+                return back()->with('message', '對方帳號有誤，請重新操作');
+            }
+
+            $check_user_a = DB::table('account_consign')->where('a_to_id',$user->id)->where('cancel_id',null)->first();
+            if(isset($check_user_a->id)){
+                //已配對A 更新交付資料表
+                DB::table('account_consign')->where('id',$check_user_a->id)
+                    ->update(['b_user_id' => $user->id, 'b_to_id' => $consign_user->id, 'b_created_at' => Carbon::now()]);
+                //雙方已申請 更新交付狀態
+                UserMeta::where('user_id',$user->id)->update(['isConsign'=>1]);
+                UserMeta::where('user_id',$consign_user->id)->update(['isConsign'=>1]);
+
+                //notify
+                $current_data = DB::table('account_consign')->where('id',$check_user_a->id)->first();
+                $user_a = User::findById($current_data->a_user_id);
+                $user_b = User::findById($current_data->b_user_id);
+                $content_a = $user_a->name.' 您好：<br>您在 '.$current_data->a_created_at.' 交付帳號，經站長審視已通過您的申請。';
+                $content_b = $user_b->name.' 您好：<br>您在 '.$current_data->b_created_at.' 交付帳號，經站長審視已通過您的申請。';
+//                $user_a->notify(new AccountConsign('交付帳號關閉通知',$user_a->name, $content_a));
+//                $user_b->notify(new AccountConsign('交付帳號關閉通知',$user_b->name, $content_b));
+
+                //站長系統訊息
+                Message::post(1049, $current_data->a_user_id, $content_a, true, 1);
+                Message::post(1049, $current_data->b_user_id, $content_b, true, 1);
+
+                return back()->with('message', '帳號關閉成功');
+            }else{
+                //存入交付資料表
+                DB::table('account_consign')->insert(
+                    ['a_user_id' => $user->id, 'a_to_id' => $consign_user->id, 'a_created_at' => Carbon::now()]
+                );
+
+                //notify
+
+                return back()->with('message', '交付申請已送出，等待對方提出申請');
+            }
+
+        }else{
+            return back()->with('message', '密碼有誤，請重新操作');
+        }
+    }
+
+    public function view_consign_cancel(Request $request)
+    {
+        $user = $request->user();
+        return view('new.dashboard.account_consign_cancel')->with('user', $user)->with('cur', $user);
+    }
+
+    public function consignCancel(Request $request){
+        $user = $request->user();
+
+        if( Hash::check($request->input('password'),$user->password) ) {
+            //取得對方帳號ID
+            $consign_user = User::where('email',$request->input('account'))->first();
+            if(!isset($consign_user->id)){
+                return back()->with('message', '對方帳號有誤，請重新操作');
+            }
+            //檢查是否有申請交付
+            $check_user = DB::table('account_consign')->where('a_user_id',$user->id)->orWhere('b_user_id',$user->id)->where('cancel_id',null)->first();
+
+            if(isset($check_user->id) && ($check_user->a_to_id==$consign_user->id || $check_user->b_to_id==$consign_user->id)){
+
+                if($check_user->a_user_id==null){
+                    //交付中的取消流程
+                    //更新cancel資料
+                    DB::table('account_consign')->where('id',$check_user->id)
+                        ->update(['cancel_id' => $user->id, 'canceled_at' => Carbon::now()]);
+                    return back()->with('message', '已取消交付帳號申請');
+                }else {
+                    //尚未交付的取消流程
+                    //更新cancel資料
+                    DB::table('account_consign')->where('id',$check_user->id)
+                        ->update(['cancel_id' => $user->id, 'canceled_at' => Carbon::now()]);
+                    UserMeta::where('user_id',$user->id)->update(['isConsign' => 0, 'consign_expiry_date' => Carbon::now()->addHours(24)]);
+                    UserMeta::where('user_id',$consign_user->id)->update(['isConsign' => 0, 'consign_expiry_date' => Carbon::now()->addHours(24)]);
+
+                    //notify
+                    $current_data = DB::table('account_consign')->where('id',$check_user->id)->first();
+                    $user_a = User::findById($current_data->a_user_id);
+                    $user_b = User::findById($current_data->b_user_id);
+                    $content_a = $user_a->name.' 您好：<br>您申請的交付帳號已結束，系統將於 '.$user_a->meta_()->consign_expiry_date.' 後開啟您的帳號';
+                    $content_b = $user_b->name.' 您好：<br>您申請的交付帳號已結束，系統將於 '.$user_b->meta_()->consign_expiry_date.' 後開啟您的帳號';
+//                    $user_a->notify(new AccountConsign('交付帳號開啟通知',$user_a->name, $content_a));
+//                    $user_b->notify(new AccountConsign('交付帳號開啟通知',$user_b->name, $content_b));
+
+                    //站長系統訊息
+                    Message::post(1049, $current_data->a_user_id, $content_a, true, 1);
+                    Message::post(1049, $current_data->b_user_id, $content_b, true, 1);
+
+                    return back()->with('message', '帳號開啟成功，將於24小時候啟用');
+                }
+
+            }else{
+                return back()->with('message', '對方帳號不在交付申請中');
+            }
+
+        }else{
+            return back()->with('message', '密碼有誤，請重新操作');
+        }
+
     }
 
     public function view_vip(Request $request)

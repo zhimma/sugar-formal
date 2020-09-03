@@ -40,7 +40,7 @@
           <div class="g_pwicon">
               <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t g_hicon1"><span>基本資料</span></a></li>
               <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2"><span>照片管理</span></a></li>
-              <li><a href="{!! url('/dashboard/password') !!}" class="g_pwicon_t3"><span>更改密碼</span></a></li>
+              <li><a href="{!! url('/dashboard/account_manage') !!}" class="g_pwicon_t3"><span>更改帳號</span></a></li>
               <li><a href="{!! url('/dashboard/vip') !!}" class="g_pwicon_t4"><span>VIP</span></a></li>
           </div>
           <div class="addpic g_inputt">
@@ -55,22 +55,22 @@
                 <div class="n_input">
                   <dt>
                     <span>暱稱<i>(必填)</i></span>
-                    <span><input name="name" id="name" type="text" class="select_xx01"  placeholder="至多八個字" value="{{$user->name}}" required data-parsley-errors-messages-disabled maxlength="8"></span>
+                    <span><input name="name" id="name" type="text" class="select_xx01"  placeholder="至多八個字" value="{{$user->name}}" data-parsley-errors-messages-disabled maxlength="8" disabled style="background-color: #d2d2d2;"></span>
                   </dt>
                   <dt>
                     <span>一句話形容自己<i>(必填)</i></span>
                     <span><input name="title" type="text" class="select_xx01"  placeholder="請輸入" value="{{$user->title}}" required data-parsley-errors-messages-disabled></span>
                   </dt>
-                  <dt>
-                      <span>帳號類型</span>
-                      <div class="n_heg" style="margin-top:-2px">
-                        <form name="form1" method="post" action="">
-                            <label class="n_lod"><input required data-parsley-errors-messages-disabled type="radio" name="engroup" value="1" id="RadioGroup1_0" {{ ($user->engroup == 1)?"checked":"" }} ><font class="n_loleft">甜心大哥</font></label>
-                            <label class="n_lod"><input required data-parsley-errors-messages-disabled type="radio" name="engroup" value="2" id="RadioGroup1_1" {{ ($user->engroup == 2)?"checked":"" }}><font class="n_loleft">甜心寶貝</font></label>
-                        </form>
-                        <div class="n_red">註：每個帳號只能變更一次</div>
-                      </div>
-                  </dt>
+{{--                  <dt>--}}
+{{--                      <span>帳號類型</span>--}}
+{{--                      <div class="n_heg" style="margin-top:-2px">--}}
+{{--                        <form name="form1" method="post" action="">--}}
+{{--                            <label class="n_lod"><input required data-parsley-errors-messages-disabled type="radio" name="engroup" value="1" id="RadioGroup1_0" {{ ($user->engroup == 1)?"checked":"" }} ><font class="n_loleft">甜心大哥</font></label>--}}
+{{--                            <label class="n_lod"><input required data-parsley-errors-messages-disabled type="radio" name="engroup" value="2" id="RadioGroup1_1" {{ ($user->engroup == 2)?"checked":"" }}><font class="n_loleft">甜心寶貝</font></label>--}}
+{{--                        </form>--}}
+{{--                        <div class="n_red">註：每個帳號只能變更一次</div>--}}
+{{--                      </div>--}}
+{{--                  </dt>--}}
                   <dt>
                     <span>地區<i>(必填)</i></span>
                     <div id="county">

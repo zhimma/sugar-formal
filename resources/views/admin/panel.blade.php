@@ -30,6 +30,7 @@
 		<a href="{{ route('admin/web/announcement') }}">網站公告本月封鎖名單</a>
 		<a href="{{ route('admin/chat') }}">站長信箱</a>
 		<a href="{{ route('admin/commontext') }}">編輯文案</a>
+		<a href="{{ route('admin/check') }}">站長審核</a>
 	@elseif (Auth::user()->can('readonly'))
 		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
 		<a href="{{ route('users/VIP/ECCancellations/readOnly') }}">綠界 VIP 付費取消資料</a>

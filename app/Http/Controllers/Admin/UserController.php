@@ -12,6 +12,7 @@ use App\Models\Reported;
 use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
 use App\Models\SimpleTables\users;
+use App\Notifications\AccountConsign;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use App\Services\UserService;
@@ -2603,5 +2604,93 @@ class UserController extends Controller
             }
         }
         echo $count;
+    }
+
+    public function showAdminCheck()
+    {
+        $item_a = DB::table('account_name_change')->where('status',0)->count();
+        $item_b = DB::table('account_gender_change')->where('status',0)->count();
+        return view('admin.adminCheck')
+            ->with('item_a',$item_a)
+            ->with('item_b',$item_b);
+    }
+
+    public function showAdminCheckNameChange()
+    {
+        $data = DB::table('account_name_change')->orderBy('status','desc')->get();
+        return view('admin.adminCheckNameChange')
+            ->with('data',$data);
+    }
+
+    public function AdminCheckNameChangeSave(Request $request)
+    {
+        $id = $request->id;
+        $status = $request->status;
+        $reject_content = $request->reject_content;
+        DB::table('account_name_change')->where('id',$id)
+            ->update(['status'=>$status, 'passed_at' => now(),'reject_content' => $reject_content]);
+
+        $current_data = DB::table('account_name_change')->where('id',$id)->first();
+        //暱稱修改
+        User::where('id',$current_data->user_id)->update(['name' => $current_data->change_name]);
+        UserMeta::where('user_id',$current_data->user_id)->update(['name_change' => 1]);
+
+        //notify
+        if($current_data->reject_content==''){
+            $text = '無法通過您的申請。';
+        }else{
+            $text = '因 '.$current_data->reject_content.' 原因無法通過您的申請。';
+        }
+        $user = User::findById($current_data->user_id);
+        if($status==1) {
+            $content = $user->name.' 您好：<br>您在 '.$current_data->created_at.' 申請變更暱稱修改，經站長審視已通過您的申請';
+        }else{
+            $content = $user->name.' 您好：<br>您在 '.$current_data->created_at.' 申請變更暱稱修改，經站長審視，'.$text;
+        }
+//        $user->notify(new AccountConsign('修改暱稱申請結果通知',$user->name, $content));
+
+        //站長系統訊息
+        Message::post(1049, $user->id, $content, true, 1);
+
+        echo json_encode('ok');
+    }
+
+    public function showAdminCheckGenderChange()
+    {
+        $data = DB::table('account_gender_change')->orderBy('status','desc')->get();
+        return view('admin.adminCheckGenderChange')
+            ->with('data',$data);
+    }
+
+    public function AdminCheckGenderChangeSave(Request $request)
+    {
+        $id = $request->id;
+        $status = $request->status;
+        $reject_content = $request->reject_content;
+        DB::table('account_gender_change')->where('id',$id)
+            ->update(['status'=>$status, 'passed_at' => now(),'reject_content' => $reject_content]);
+
+        $current_data = DB::table('account_gender_change')->where('id',$id)->first();
+        //性別修改
+        User::where('id',$current_data->user_id)->update(['engroup_change' => 1, 'engroup' => $current_data->change_gender]);
+
+        //notify
+        if($current_data->reject_content==''){
+            $text = '無法通過您的申請。';
+        }else{
+            $text = '因 '.$current_data->reject_content.' 原因無法通過您的申請。';
+        }
+        $user = User::findById($current_data->user_id);
+        if($status==1) {
+            $content = $user->name.' 您好：<br>您在 '.$current_data->created_at.' 申請變更帳號類型，經站長審視已通過您的申請';
+        }else{
+            $content = $user->name.' 您好：<br>您在 '.$current_data->created_at.' 申請變更帳號類型，經站長審視，'.$text;
+        }
+//        $user->notify(new AccountConsign('變更帳號類型結果通知',$user->name, $content));
+
+        //站長系統訊息
+        Message::post(1049, $user->id, $content, true, 1);
+
+        echo json_encode('ok');
     }
 }

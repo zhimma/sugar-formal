@@ -166,7 +166,7 @@
 
                             @if($date_temp != substr($message['created_at'],0,10)) <div class="sebg matopj10">{{substr($message['created_at'],0,10)}}</div>@endif
 
-                            @if($message['sys_notice']==1 || $msgUser->id == '1049')
+                            @if($message['sys_notice']==1 || $msgUser->id == 1049)
                             <div class="send">
                                 <div class="msg">
                                     <img src="/new/images/admin-avatar.jpg">
