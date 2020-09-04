@@ -2631,9 +2631,6 @@ class UserController extends Controller
             ->update(['status'=>$status, 'passed_at' => now(),'reject_content' => $reject_content]);
 
         $current_data = DB::table('account_name_change')->where('id',$id)->first();
-        //暱稱修改
-        User::where('id',$current_data->user_id)->update(['name' => $current_data->change_name]);
-        UserMeta::where('user_id',$current_data->user_id)->update(['name_change' => 1]);
 
         //notify
         if($current_data->reject_content==''){
@@ -2644,6 +2641,9 @@ class UserController extends Controller
         $user = User::findById($current_data->user_id);
         if($status==1) {
             $content = $user->name.' 您好：<br>您在 '.$current_data->created_at.' 申請變更暱稱修改，經站長審視已通過您的申請';
+            //暱稱修改
+            User::where('id',$current_data->user_id)->update(['name' => $current_data->change_name]);
+            UserMeta::where('user_id',$current_data->user_id)->update(['name_change' => 1]);
         }else{
             $content = $user->name.' 您好：<br>您在 '.$current_data->created_at.' 申請變更暱稱修改，經站長審視，'.$text;
         }
@@ -2671,8 +2671,6 @@ class UserController extends Controller
             ->update(['status'=>$status, 'passed_at' => now(),'reject_content' => $reject_content]);
 
         $current_data = DB::table('account_gender_change')->where('id',$id)->first();
-        //性別修改
-        User::where('id',$current_data->user_id)->update(['engroup_change' => 1, 'engroup' => $current_data->change_gender]);
 
         //notify
         if($current_data->reject_content==''){
@@ -2683,6 +2681,8 @@ class UserController extends Controller
         $user = User::findById($current_data->user_id);
         if($status==1) {
             $content = $user->name.' 您好：<br>您在 '.$current_data->created_at.' 申請變更帳號類型，經站長審視已通過您的申請';
+            //性別修改
+            User::where('id',$current_data->user_id)->update(['engroup_change' => 1, 'engroup' => $current_data->change_gender]);
         }else{
             $content = $user->name.' 您好：<br>您在 '.$current_data->created_at.' 申請變更帳號類型，經站長審視，'.$text;
         }

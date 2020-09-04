@@ -4,7 +4,7 @@
 {{--  <style type="text/css">--}}
 {{--    li a{display: block;}--}}
 {{--  </style>--}}
-  <div class="container matop70 chat">
+<div class="container matop70 chat">
     <div class="row">
       <div class="col-sm-2 col-xs-2 col-md-2 dinone">
           @include('new.dashboard.panel')
@@ -18,7 +18,11 @@
             <a class="item" href="{!! url('dashboard/newer_manual') !!}"><li><img src="/new/images/z_08.png"><span class="n_zylg">新手教學</span></li></a>
             <a class="item" href="{!! url('dashboard/anti_fraud_manual') !!}"><li style="float: right;"><img src="/new/images/z_07.png"><span class="n_zylg zpfont">拒絕詐騙手冊</span></li></a>
             <a class="item" href="{!! url('dashboard/web_manual') !!}"><li><img src="/new/images/z_09.png"><span class="n_zylg01">網站進階<font class="n_flbr">使用主頁</font></span></li></a>
-            @if($user->meta_()->isConsign == 0 && ($user->meta_()->consign_expiry_date == null||$user->meta_()->consign_expiry_date <= \Carbon\Carbon::now()))
+            @if(isset($user) &&
+                $user->meta_()->isConsign == 0 && (
+                    $user->meta_()->consign_expiry_date == null ||
+                    $user->meta_()->consign_expiry_date <= \Carbon\Carbon::now()
+                ))
                 @if (isset($user) && $user->isVip())
                     <a class="item" href="{!! url('dashboard/visited') !!}"><li style="float: right;"><img src="/new/images/z_04.png"><span class="n_zylg">誰來看我</span></li></a>
                 @else

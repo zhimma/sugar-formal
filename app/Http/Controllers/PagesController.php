@@ -971,15 +971,18 @@ class PagesController extends Controller
 
     public function changeName(Request $request){
         $user = $request->user();
-
+        $name = $request->input('name');
+        if(!isset($name)){
+            return back()->with('message', '沒有填寫新暱稱！');
+        }
         //檢查是否申請過
-        $check_user = DB::table('account_name_change')->where('user_id',$user->id)->whereIn('status',array(0,1))->first();
+        $check_user = DB::table('account_name_change')->where('user_id',$user->id)->first();
         if(isset($check_user->user_id)){
             return back()->with('message', '您已申請過，無法再修改喔！');
         }else{
             //送出申請
             DB::table('account_name_change')->insert(
-                ['user_id' => $user->id, 'change_name' => $request->input('name'), 'status' => 0, 'created_at' => Carbon::now()]
+                ['user_id' => $user->id, 'change_name' => $name, 'status' => 0, 'created_at' => Carbon::now()]
             );
             return back()->with('message', '已送出申請，等待24hr站長審核');
         }
@@ -995,7 +998,7 @@ class PagesController extends Controller
         $user = $request->user();
 
         //檢查是否申請過
-        $check_user = DB::table('account_gender_change')->where('user_id',$user->id)->whereIn('status',array(0,1))->first();
+        $check_user = DB::table('account_gender_change')->where('user_id',$user->id)->first();
         if(isset($check_user->user_id)){
             return back()->with('message', '您已申請過，無法再修改喔！');
         }else{

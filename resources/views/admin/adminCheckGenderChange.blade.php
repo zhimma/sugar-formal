@@ -28,11 +28,11 @@
                 </td>
                 <td>{{$row->created_at}}</td>
                 <td>{{$row->passed_at}}</td>
-                <td>@if($row->status==0) <a href="javascript:void(0)" id="input_reject" data-id="{{$row->id}}" data-toggle="modal" data-target="#exampleModal"><span class="reject_content_{{$row->id}}">請輸入原因</span></a> @else{{$row->reject_content}}@endif</td>
+                <td>@if($row->status==0) <a href="javascript:void(0)" id="input_reject" class="input_reject" data-id="{{$row->id}}" data-toggle="modal" data-target="#exampleModal"><span class="reject_content_{{$row->id}}">請輸入原因</span></a> @else{{$row->reject_content}}@endif</td>
                 <td>@switch($row->status)
                         @case(0)
                         <button type="button" class="btn btn-primary" onclick="checkAction({{$row->id}},1)" >通過</button>
-                        <button type="button" class="btn btn-danger" id="reject_button" data-id="{{$row->id}}" >不通過</button>
+                        <button type="button" class="btn btn-danger reject_button" id="reject_button" data-id="{{$row->id}}" >不通過</button>
                         @break
                         @case(1)
                         通過
@@ -91,10 +91,9 @@
             }});
         }
 
-        $('#input_reject').on('click', function(){
-
+        $('.input_reject').on('click', function(){
             var id = $(this).data('id');
-            $('#reject_submit').data('id',id); //setter
+            $('.reject_submit').data('id',id); //setter
         });
 
         $('#reject_submit').on('click', function(){
@@ -102,7 +101,7 @@
             $('#exampleModal').modal('hide');
         });
 
-        $('#reject_button').on('click', function(){
+        $('.reject_button').on('click', function(){
 
             var reject_content;
             if( $('.reject_content_'+ $(this).data('id')).text() != '請輸入原因'){
