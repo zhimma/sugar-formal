@@ -11,8 +11,15 @@ class Fingerprint extends Model
      *
      * @var string
      */
-    protected $connection = 'sg_database';
     protected $table = 'fingerprint';
+    public function __construct(array $attributes = []){
+        $this->bootIfNotBooted();
+        $this->syncOriginal();
+        $this->fill($attributes);
+        if(env("APP_ENV", "local") != "local"){
+            $this->connection = 'sg_database';
+        }
+    }
     public static function isExist($data)
     {
         $result = Fingerprint::where($data)->count();
