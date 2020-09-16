@@ -60,7 +60,7 @@
                     <span>暱稱<i>(必填)</i></span>
                     <span>
 {{--                        <input name="name" id="name" type="text" class="select_xx01"  placeholder="至多八個字" value="{{$user->name}}" data-parsley-errors-messages-disabled maxlength="8" disabled style="background-color: #d2d2d2;">--}}
-                        <div class="select_xx01 senhs hy_new">{{$user->name}}</div>
+                        <div class="select_xx01 senhs hy_new" style="background: #d2d2d2;">{{$user->name}}</div>
                     </span>
                       <input name="name" id="name" type="hidden" class="select_xx01"  placeholder="至多八個字" value="{{$user->name}}">
                   </dt>
@@ -73,7 +73,7 @@
                       <span>帳號類型</span>
                       <span>
 {{--                          <input name="" id="" type="text" class="select_xx01" value="@if($user->engroup==1)甜心大哥@else甜心寶貝@endif" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">--}}
-                          <div class="select_xx01 senhs hy_new">@if($user->engroup==1)甜心大哥@else甜心寶貝@endif</div>
+                          <div class="select_xx01 senhs hy_new" style="background: #d2d2d2;">@if($user->engroup==1)甜心大哥@else甜心寶貝@endif</div>
                       </span>
 
                       <input name="engroup" id="" type="hidden" class="select_xx01" value="{{$user->engroup}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">
@@ -96,7 +96,7 @@
                         @endphp
                         <span>
 {{--                            <input name="" id="" type="text" class="select_xx01" value="{{$exchange_period_name->name}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">--}}
-                            <div class="select_xx01 senhs hy_new">{{$exchange_period_name->name}}</div>
+                            <div class="select_xx01 senhs hy_new" style="background: #d2d2d2;">{{$exchange_period_name->name}}</div>
                         </span>
                         <input name="exchange_period" id="" type="hidden" class="select_xx01" value="{{$user->exchange_period}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">
                     </dt>
