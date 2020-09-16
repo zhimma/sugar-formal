@@ -1149,7 +1149,6 @@ class PagesController extends Controller
             return back()->with('message', '已完成首次設定，無須審核');
         }
         else{
-            }
             //送出申請
             DB::table('account_exchange_period')->insert(
                 ['user_id' => $user->id, 'exchange_period' => $request->input('exchange_period'), 'status' => 0, 'created_at' => Carbon::now()]
