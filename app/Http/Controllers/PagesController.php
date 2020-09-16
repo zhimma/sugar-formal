@@ -1142,7 +1142,14 @@ class PagesController extends Controller
         $check_user = DB::table('account_exchange_period')->where('user_id',$user->id)->first();
         if(isset($check_user->user_id)){
             return back()->with('message', '您已申請過，無法再修改喔！');
-        }else{
+        }
+        elseif($request->input('exchange_period') == "2"){
+            //未申請過者且可長可短直接通過(預設)
+            User::where('id', $user->id)->update(['exchange_period' => $request->input('exchange_period')]);
+            return back()->with('message', '已完成首次設定，無須審核');
+        }
+        else{
+            }
             //送出申請
             DB::table('account_exchange_period')->insert(
                 ['user_id' => $user->id, 'exchange_period' => $request->input('exchange_period'), 'status' => 0, 'created_at' => Carbon::now()]

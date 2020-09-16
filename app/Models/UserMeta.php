@@ -142,11 +142,12 @@ class UserMeta extends Model
     }
 
 
-     public static function uploadUserHeader($uid, $fieldContent) {
-         return DB::table('user_meta')->where('user_id', $uid)->update(['pic' => $fieldContent]);
-     }
+    public static function uploadUserHeader($uid, $fieldContent) {
+        return DB::table('user_meta')->where('user_id', $uid)->update(['pic' => $fieldContent]);
+    }
 
-    public static function search($city, $area, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid,$exchange_period)
+    // 包養關係預設值為空是為了避免有的使用者在舊的 view 下出現錯誤
+    public static function search($city, $area, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid,$exchange_period = '')
     {
         if ($engroup == 1)
         {
