@@ -279,7 +279,7 @@
                                     <dt>
                                         <span>一句話形容自己</span>
                                         <span>
-                                            <div class="select_xx01 senhs hy_new">{{$to->title}}</div>
+                                            <div class="select_xx03">{!! nl2br($to->title)!!}</div>
                                         </span>
                                     </dt>
 
