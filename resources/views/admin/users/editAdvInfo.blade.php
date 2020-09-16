@@ -323,6 +323,19 @@
             </td>
         </tr>
         <tr>
+            @if($user->engroup==2)
+            <th>包養關係</th>
+            <td>
+                @php
+                    $exchange_period_name = DB::table('exchange_period_name')->get();
+                @endphp
+                <select class="form-control" name="exchange_period">
+                    @foreach($exchange_period_name as $row)
+                    <option value="{{$row->id}}" @if($user->exchange_period==$row->id) selected @endif>{{$row->name}}</option>
+                    @endforeach
+                </select>
+            </td>
+            @endif
             <th>收件夾顯示方式</th>
             <td>
                 <select class="form-control" name="notifhistory">
@@ -338,8 +351,8 @@
             <td>{{ $userMeta->created_at }}</td>
             <th>更新時間</th>
             <td>{{ $userMeta->updated_at }}</td>
-            <td></td>
-            <td></td>
+{{--            <td></td>--}}
+{{--            <td></td>--}}
         </tr>
     </table>
     <button type='submit' class='text-white btn btn-primary'>儲存</button>

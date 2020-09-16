@@ -102,6 +102,7 @@
 		<th>建立時間</th>
 		<th>更新時間</th>
 		<th>上次登入</th>
+		<th>上站次數</th>
 	</tr>
 	<tr>
 		<td>{{ $user->id }}</td>
@@ -112,6 +113,7 @@
 		<td>{{ $user->created_at }}</td>
 		<td>{{ $user->updated_at }}</td>
 		<td>{{ $user->last_login }}</td>
+		<td>{{ $user->login_times }}</td>
 	</tr>
 </table>
 <h4>詳細資料</h4>
@@ -199,14 +201,25 @@
 		<td>@if($userMeta->isHideOccupation==1) 是 @else 否 @endif</td>	
 	</tr>
 	<tr>
+		@if($user->engroup==2)
+		<th>包養關係</th>
+		<td>
+			@php
+				$exchange_period_name = DB::table('exchange_period_name')->where('id',$user->exchange_period)->first();
+			@endphp
+			{{$exchange_period_name->name}}
+		</td>
+
+
+		@endif
 		<th>收件夾顯示方式</th>
 		<td>{{ $userMeta->notifhistory }}</td>
 		<th>建立時間</th>
 		<td>{{ $userMeta->created_at }}</td>
 		<th>更新時間</th>
 		<td>{{ $userMeta->updated_at }}</td>
-		<td></td>
-		<td></td>
+{{--		<td></td>--}}
+{{--		<td></td>--}}
 	</tr>
 </table>
 

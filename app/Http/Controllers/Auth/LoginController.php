@@ -255,6 +255,10 @@ class LoginController extends Controller
                     \Illuminate\Support\Facades\Log::info($e);
                 }
             }
+
+            //更新login_times
+            User::where('id',$user->id)->update(['login_times'=>$user->login_times +1]);
+
             return $this->sendLoginResponse($request);
         }
 

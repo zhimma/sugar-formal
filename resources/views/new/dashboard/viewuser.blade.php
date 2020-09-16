@@ -282,6 +282,21 @@
                                             <div class="select_xx01 senhs hy_new">{{$to->title}}</div>
                                         </span>
                                     </dt>
+
+                                    @if(!empty($to->exchange_period) && $to->engroup==2 && $user->isVip())
+                                        <dt>
+                                            <span>包養關係</span>
+                                            <span>
+                                            <div class="select_xx01 senhs hy_new">
+                                                @php
+                                                    $exchange_period_name = DB::table('exchange_period_name')->where('id',$to->exchange_period)->first();
+                                                @endphp
+                                                {{$exchange_period_name->name}}
+                                            </div>
+                                        </span>
+                                        </dt>
+                                    @endif
+
                                     @if($to->meta_()->isHideArea == '0')
                                     <dt>
                                         <span>地區</span>
@@ -377,7 +392,16 @@
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->domainType) && $to->meta_()->domainType != null && $to->meta_()->domainType != 'null')
+                                    @if(!empty($to->meta_()->situation) && $to->meta_()->situation != null && $to->meta_()->situation != 'null' && $to->engroup==2)
+                                        <dt>
+                                            <span>現況</span>
+                                            <span>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->situation}}</div>
+                                        </span>
+                                        </dt>
+                                    @endif
+
+                                    @if(!empty($to->meta_()->domainType) && $to->meta_()->domainType != null && $to->meta_()->domainType != 'null' )
                                     <dt>
                                         <span>產業</span>
                                         <span>
@@ -448,6 +472,8 @@
                                         </span>
                                     </dt>
                                     @endif
+
+
 
                                 </div>
                             </div>

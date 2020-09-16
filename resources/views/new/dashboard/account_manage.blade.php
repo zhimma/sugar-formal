@@ -38,6 +38,13 @@
 {{--                            </a>--}}
 {{--                        @endif--}}
 
+                        @if($user->engroup==2)
+                        <a href="{!! url('/dashboard/account_exchange_period') !!}" class="gg_zh_li">
+                            <span><img src="/new/images/zh06.png"></span>
+                            <font>包養關係</font>
+                        </a>
+                        @endif
+
 
 
                     </div>

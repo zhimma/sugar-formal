@@ -1129,6 +1129,28 @@ class PagesController extends Controller
 
     }
 
+    public function view_exchange_period(Request $request)
+    {
+        $user = $request->user();
+        return view('new.dashboard.account_exchange_period')->with('user', $user)->with('cur', $user);
+    }
+
+    public function exchangePeriodModify(Request $request){
+        $user = $request->user();
+
+        //檢查是否申請過
+        $check_user = DB::table('account_exchange_period')->where('user_id',$user->id)->first();
+        if(isset($check_user->user_id)){
+            return back()->with('message', '您已申請過，無法再修改喔！');
+        }else{
+            //送出申請
+            DB::table('account_exchange_period')->insert(
+                ['user_id' => $user->id, 'exchange_period' => $request->input('exchange_period'), 'status' => 0, 'created_at' => Carbon::now()]
+            );
+            return back()->with('message', '已送出申請，等待48hr站長審核');
+        }
+
+    }
     public function view_vip(Request $request)
     {
         /*編輯文案-檢舉會員訊息-START*/

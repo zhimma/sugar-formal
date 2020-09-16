@@ -67,6 +67,7 @@ class UserMeta extends Model
         'income',
         'notifmessage',
         'notifhistory'
+
     ];
 
     /*
@@ -145,7 +146,7 @@ class UserMeta extends Model
          return DB::table('user_meta')->where('user_id', $uid)->update(['pic' => $fieldContent]);
      }
 
-    public static function search($city, $area, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid)
+    public static function search($city, $area, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid,$exchange_period)
     {
         if ($engroup == 1)
         {
@@ -155,6 +156,13 @@ class UserMeta extends Model
         else if ($engroup == 2) { $engroup = 1; }
 
         $query = UserMeta::where('users.engroup', $engroup)->join('users', 'user_id', '=', 'users.id');
+
+        if (isset($exchange_period)&&$exchange_period!=''){
+            if(count($exchange_period) > 0){
+//                $query = $query->whereIn('exchange_period', $exchange_period);
+                $query = UserMeta::whereIn('users.exchange_period', $exchange_period)->where('users.engroup', $engroup)->join('users', 'user_id', '=', 'users.id');
+            }
+        }
 
          if (isset($city) && strlen($city) != 0) $query = $query->where('city','like', '%'.$city.'%');
          if (isset($area) && strlen($area) != 0) $query = $query->where('area','like', '%'.$area.'%');
@@ -200,6 +208,9 @@ class UserMeta extends Model
                 $query = $query->whereIn('body', $body);
             }
         }
+
+
+
         if (isset($photo) && strlen($photo) != 0) $query = $query->whereNotNull('pic')->where('pic', '<>', 'NULL');
         if (isset($agefrom) && isset($ageto) && strlen($agefrom) != 0 && strlen($ageto) != 0) {
             $agefrom = $agefrom < 18 ? 18 : $agefrom;

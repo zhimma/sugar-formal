@@ -354,6 +354,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
     Route::post('/dashboard/consignAdd', 'PagesController@consignAdd'); //new route
     Route::get('/dashboard/account_consign_cancel', 'PagesController@view_consign_cancel'); //new route
     Route::post('/dashboard/consignCancel', 'PagesController@consignCancel'); //new route
+    Route::get('/dashboard/account_exchange_period', 'PagesController@view_exchange_period'); //new route exchange_period_modify
+    Route::post('/dashboard/exchangePeriodModify', 'PagesController@exchangePeriodModify'); //new route
 
     Route::get('/dashboard/vip', 'PagesController@view_vip'); //new route
     Route::get('/dashboard2', 'PagesController@dashboard2');
@@ -620,6 +622,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::get('checkGenderChange', 'UserController@showAdminCheckGenderChange')->name('admin/checkGenderChange');
         Route::post('checkNameChange', 'UserController@AdminCheckNameChangeSave');
         Route::post('checkGenderChange', 'UserController@AdminCheckGenderChangeSave');
+        Route::get('checkExchangePeriod', 'UserController@showAdminCheckExchangePeriod')->name('admin/checkExchangePeriod');
+        Route::post('checkExchangePeriod', 'UserController@AdminCheckExchangePeriodSave');
 
         /*新增、編輯訊息*/
         Route::post('users/getmsglib', 'UserController@getMessageLib');
