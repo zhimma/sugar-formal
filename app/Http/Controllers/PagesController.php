@@ -1140,18 +1140,25 @@ class PagesController extends Controller
 
         //檢查是否申請過
         $check_user = DB::table('account_exchange_period')->where('user_id',$user->id)->first();
+        $period = $request->input('exchange_period');
+        $exchange_period_read = DB::table('exchange_period_temp')->where('user_id',$user->id)->count();
         if(isset($check_user->user_id)){
             return back()->with('message', '您已申請過，無法再修改喔！');
         }
-        elseif($request->input('exchange_period') == "2"){
-            //未申請過者且可長可短直接通過(預設)
-            User::where('id', $user->id)->update(['exchange_period' => $request->input('exchange_period')]);
-            return back()->with('message', '已完成首次設定，無須審核');
+        elseif ($exchange_period_read == 1){
+            //未動過者首次直接通過
+            User::where('id', $user->id)->update(['exchange_period' => $period]);
+            DB::table('exchange_period_temp')->insert(['user_id'=>$user->id, 'created_at'=>\Carbon\Carbon::now()]);
+            return back()->with('message', '已完成首次設定，無需審核');
+        }
+        elseif ($period == $user->exchange_period){
+            //與原本設定的一樣則不做動作
+            return back()->with('message', '您當前所選項目無需變更');
         }
         else{
             //送出申請
             DB::table('account_exchange_period')->insert(
-                ['user_id' => $user->id, 'exchange_period' => $request->input('exchange_period'), 'status' => 0, 'created_at' => Carbon::now()]
+                ['user_id' => $user->id, 'exchange_period' => $period, 'status' => 0, 'created_at' => Carbon::now()]
             );
             return back()->with('message', '已送出申請，等待48hr站長審核');
         }
