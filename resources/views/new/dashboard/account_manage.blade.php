@@ -15,10 +15,10 @@
                         <li><a href="{!! url('/dashboard/vip') !!}" class="g_pwicon_t4"><span>VIP</span></a></li>
                     </div>
                     <div class="gg_zh01 matop-50">
-                        <a href="{!! url('/dashboard/account_name_modify') !!}" class="gg_zh_li"><span><img src="/new/images/zh01.png"></span>
+                        <a class="gg_zh_li" onclick="checkChangeName();"><span><img src="/new/images/zh01.png"></span>
                             <font>修改暱稱申請</font>
                         </a>
-                        <a href="{!! url('/dashboard/account_gender_change') !!}" class="gg_zh_li"><span><img src="/new/images/zh02.png"></span>
+                        <a class="gg_zh_li" onclick="checkChangeGender();"><span><img src="/new/images/zh02.png"></span>
                             <font>變更帳號類型</font>
                         </a>
                         <a href="{!! url('/dashboard/password') !!}" class="gg_zh_li"><span><img src="/new/images/zh03.png"></span>
@@ -56,4 +56,27 @@
 @stop
 
 @section('javascript')
+    <script>
+        function checkChangeName() {
+
+            @if($user->meta_()->name_change==1)
+                c2('您已申請過，無法再修改喔！');
+                return false;
+            @endif
+
+            window.location.replace("/dashboard/account_name_modify");
+            return true;
+        }
+
+        function checkChangeGender() {
+
+            @if($user->engroup_change >= 1)
+            c2('您已申請過，無法再修改喔！');
+            return false;
+            @endif
+
+            window.location.replace("/dashboard/account_gender_change");
+            return true;
+        }
+    </script>
 @stop

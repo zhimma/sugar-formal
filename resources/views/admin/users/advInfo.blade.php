@@ -1,5 +1,5 @@
 @include('partials.header')
-
+@include('partials.message')
 <body style="padding: 15px;">
 <h1>
 	{{ $user->name }}
@@ -83,6 +83,21 @@
 		<input type="hidden" name="page" value="advInfo" >
 		<button type="submit" class="btn btn-warning">變更性別</button>
 	</form>
+
+	@if($user->engroup==2)
+	<form method="POST" id="form_exchange_period" action="{{ route('changeExchangePeriod') }}" style="margin:0px;display:inline;">
+		{!! csrf_field() !!}
+		<select class="form-control" style="width:auto; display: inline;" name="exchange_period" id="exchange_period">
+			@php
+				$exchange_period_name = DB::table('exchange_period_name')->get();
+			@endphp
+			@foreach($exchange_period_name as $row)
+			<option value="{{$row->id}}" @if($user->exchange_period==$row->id) selected @endif>{{$row->name}}</option>
+			@endforeach
+		</select>
+		<input type="hidden" name="id" value="{{$user->id}}">
+	</form>
+	@endif
 	
 
 	@if(is_null($userMeta->activation_token))
@@ -705,6 +720,25 @@ $("#unwarned_user").click(function(){
 		return false;
 	}
 });
+
+$( "#exchange_period" ).change(function() {
+
+	$('#form_exchange_period').submit();
+	{{--$.ajax({--}}
+	{{--	type: 'POST',--}}
+	{{--	url: "/admin/users/changeExchangePeriod",--}}
+	{{--	data:{--}}
+	{{--		_token: '{{csrf_token()}}',--}}
+	{{--		user_id: '{{$user->id}}',--}}
+	{{--		exchange_period: $("#exchange_period").val(),--}}
+	{{--	},--}}
+	{{--	dataType:"json",--}}
+	{{--	success: function(res){--}}
+	{{--		location.reload();--}}
+	{{--}});--}}
+
+});
+
 
 </script>
 </html>

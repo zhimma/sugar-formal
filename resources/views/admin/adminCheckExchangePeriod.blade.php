@@ -84,7 +84,6 @@
                 },
                 dataType:"json",
                 success: function(res){
-                    alert('審核已完成，系統將自動發信通知該會員');
                     location.reload();
             }});
         }
@@ -116,7 +115,6 @@
                 },
                 dataType:"json",
                 success: function(res){
-                    alert('審核已完成，系統將自動發信通知該會員');
                     location.reload();
                 }
             });

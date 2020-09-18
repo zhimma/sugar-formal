@@ -972,6 +972,7 @@ class PagesController extends Controller
     public function changeName(Request $request){
         $user = $request->user();
         $name = $request->input('name');
+        $reason = $request->input('reason');
         if(!isset($name)){
             return back()->with('message', '沒有填寫新暱稱！');
         }
@@ -982,7 +983,7 @@ class PagesController extends Controller
         }else{
             //送出申請
             DB::table('account_name_change')->insert(
-                ['user_id' => $user->id, 'change_name' => $name, 'status' => 0, 'created_at' => Carbon::now()]
+                ['user_id' => $user->id, 'change_name' => $name, 'before_change_name' => $user->name, 'reason'=>$reason, 'status' => 0, 'created_at' => Carbon::now()]
             );
             return back()->with('message', '已送出申請，等待24hr站長審核');
         }
@@ -1004,7 +1005,7 @@ class PagesController extends Controller
         }else{
             //送出申請
             DB::table('account_gender_change')->insert(
-                ['user_id' => $user->id, 'change_gender' => $request->input('gender'), 'status' => 0, 'created_at' => Carbon::now()]
+                ['user_id' => $user->id, 'change_gender' => $request->input('gender'), 'before_change_gender'=>$user->engroup, 'reason'=>$request->input('reason'), 'status' => 0, 'created_at' => Carbon::now()]
             );
             return back()->with('message', '已送出申請，等待24hr站長審核');
         }

@@ -6,7 +6,9 @@
         <thead>
             <tr>
                 <th scope="col">會員ID</th>
+                <th scope="col">原性別</th>
                 <th scope="col">修改性別</th>
+                <th scope="col">修改原因</th>
                 <th scope="col">建立時間</th>
                 <th scope="col">審核時間</th>
                 <th scope="col">不通過原因</th>
@@ -17,6 +19,15 @@
         @foreach($data as $row)
             <tr>
                 <td scope="row"><a href="users/advInfo/{{$row->user_id}}" target="_blank">{{$row->user_id}}</a></td>
+                <td>@switch($row->before_change_gender)
+                        @case(1)
+                        男生
+                        @break
+                        @case(2)
+                        女生
+                        @break
+                    @endswitch
+                </td>
                 <td>@switch($row->change_gender)
                         @case(1)
                         男生
@@ -26,12 +37,16 @@
                         @break
                     @endswitch
                 </td>
+                <td>{{$row->reason}}</td>
                 <td>{{$row->created_at}}</td>
                 <td>{{$row->passed_at}}</td>
                 <td>@if($row->status==0) <a href="javascript:void(0)" id="input_reject" class="input_reject" data-id="{{$row->id}}" data-toggle="modal" data-target="#exampleModal"><span class="reject_content_{{$row->id}}">請輸入原因</span></a> @else{{$row->reject_content}}@endif</td>
                 <td>@switch($row->status)
                         @case(0)
+                        <form action="" method="post">
                         <button type="button" class="btn btn-primary" onclick="checkAction({{$row->id}},1)" >通過</button>
+{{--                            <button type="submit" class="btn btn-primary">通過</button>--}}
+                        </form>
                         <button type="button" class="btn btn-danger reject_button" id="reject_button" data-id="{{$row->id}}" >不通過</button>
                         @break
                         @case(1)
@@ -86,7 +101,6 @@
                 },
                 dataType:"json",
                 success: function(res){
-                    alert('審核已完成，系統將自動發信通知該會員');
                     location.reload();
             }});
         }
@@ -118,7 +132,6 @@
                 },
                 dataType:"json",
                 success: function(res){
-                    alert('審核已完成，系統將自動發信通知該會員');
                     location.reload();
                 }
             });

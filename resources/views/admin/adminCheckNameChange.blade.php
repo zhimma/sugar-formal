@@ -6,7 +6,9 @@
         <thead>
             <tr>
                 <th scope="col">會員ID</th>
+                <th scope="col">原暱稱</th>
                 <th scope="col">修改暱稱</th>
+                <th scope="col">修改原因</th>
                 <th scope="col">建立時間</th>
                 <th scope="col">審核時間</th>
                 <th scope="col">不通過原因</th>
@@ -17,7 +19,9 @@
         @foreach($data as $row)
             <tr>
                 <td scope="row"><a href="users/advInfo/{{$row->user_id}}" target="_blank">{{$row->user_id}}</a></td>
+                <td>{{$row->before_change_name}}</td>
                 <td>{{$row->change_name}}</td>
+                <td>{{$row->reason}}</td>
                 <td>{{$row->created_at}}</td>
                 <td>{{$row->passed_at}}</td>
                 <td>
@@ -86,7 +90,6 @@
                 },
                 dataType:"json",
                 success: function(res){
-                    alert('審核已完成，系統將自動發信通知該會員');
                     location.reload();
             }});
         }
@@ -118,7 +121,6 @@
                 },
                 dataType:"json",
                 success: function(res){
-                    alert('審核已完成，系統將自動發信通知該會員');
                     location.reload();
                 }
             });

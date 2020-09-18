@@ -509,7 +509,7 @@ a:hover{ color:#e44e71; text-decoration:none}
     white-space: nowrap;
     display: inline-grid;}
 .sjtable{width:100%; display: table;}
-.sjleft span{ font-size:14px;text-align:left !important; height:25px; float:left;  -webkit-line-clamp:3;white-space:nowrap;display: -webkit-box;-webkit-box-orient: vertical;overflow: hidden; }
+.sjleft span{ font-size:14px;text-align:left !important; height:25px; float:left;  -webkit-line-clamp:3;white-space:nowrap;display: -webkit-box;-webkit-box-orient: vertical;overflow: hidden !important; }
 .sjleft font{ font-size:14px;height:25px; overflow:hidden; text-align:left; color:#999999; /*display:block;*/text-overflow:ellipsis;/*white-space: nowrap*/}
 .sjleft font img{ height:20px}
 
@@ -575,7 +575,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 }
 @media (max-width:320px) {
     .sjleft{width:34%;}
-    .leftsidebar_box dt{padding:0px 15px;color:#333; background-position:99%; }
+    .leftsidebar_box dt{padding:0px 15px;/*color:#333;*/ background-position:99%; }
     .leftsidebar_box dt.on{background-position:99%;}
 }
 

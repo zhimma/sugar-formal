@@ -21,7 +21,9 @@
                         <div class="gg_input01">
                             <form method="POST" id="change_name" action="/dashboard/changeName">
                                 {!! csrf_field() !!}
-                            <div class="de_input01"><input name="name" id="name" type="text" class="zcinput" placeholder="請輸入欲修改的暱稱" maxlength="8"></div>
+                            <div class="de_input01"><input name="name" id="name" type="text" class="zcinput" placeholder="請輸入欲修改的暱稱" maxlength="8" required></div>
+                            <br>
+                            <div class="de_input01"><input name="reason" id="reason" type="text" class="zcinput" placeholder="請輸入修改的原因" maxlength="100" required></div>
                             <div class="blxg">只能申請改一次，並且要通過站長同意</div>
                             <a class="dlbut g_inputt40 change_name_submit" onclick="submit()">送出修改</a>
                             </form>
@@ -45,6 +47,8 @@
 
             if($('#name').val()==''){
                 c2('請輸入欲修改的暱稱');
+            }else if($('#reason').val()==''){
+                c2('請輸入欲修改的原因');
             }else {
                 c4('暱稱只能申請修改一次，並且要通過站長同意，確定要修改暱稱嗎？');
             }
