@@ -68,17 +68,34 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 <div class="sjlist_li">
                     <div class="leftsidebar_box">
                         <dl class="system_log">
+                            @if($user->engroup==1)
+                            @php
+                                $exchange_period_name = DB::table('exchange_period_name')->get();
+                            @endphp
+                            <!--男性介面-->
+                            @foreach($exchange_period_name as $row)
+                            @if($user->isVip())
+                                <span class="exchange_period_delete_{{$row->id}} shou_but">全部刪除</span>
+                            @endif
+                            <dt class="lebox{{$row->id}} lebox_exchange_period_{{$row->id}}">{{$row->name}}</dt>
+                            <dd>
+                                <div class="loading warning" id="sjlist_exchange_period_warning_{{$row->id}}"><span class="loading_text">loading</span></div>
+                                <ul class="sjlist sjlist_exchange_period_{{$row->id}}">
+                                </ul>
+                                <div class="page page_exchange_period_{{$row->id}} fenye" style="text-align: center;"></div>
+                            </dd>
+                            @endforeach
+                            <!--男性介面-->
+                            @endif
+
+                            @if($user->engroup==2)
+                            <!--女性介面-->
                             @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
                             <span class="vip_delete shou_but">全部刪除</span>
                             @endif
                             <dt class="lebox1">VIP會員</dt>
                             <dd>
                                 <div class="loading warning" id="sjlist_vip_warning"><span class="loading_text">loading</span></div>
-{{--                                <div style="width: 20%;margin: 0 auto;" class="warning" id="sjlist_vip_warning">--}}
-{{--                                    <img src="/new/images/Spin-1s-75px.svg">--}}
-{{--                                        <img src="/new/images/loading.svg">--}}
-{{--                                        <span>loading</span>--}}
-{{--                                </div>--}}
                                 <ul class="sjlist sjlist_vip">
                                 </ul>
                                 <div class="page page_vip fenye" style="text-align: center;"></div>
@@ -88,49 +105,31 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             @endif
                             <dt class="lebox2">普通會員</dt>
                             <dd>
-{{--                                <p style="width: 20%;margin: 0 auto;" class="warning" id="sjlist_novip_warning">--}}
-{{--                                    <img src="/new/images/Spin-1s-75px.svg">--}}
-{{--                                </p>--}}
                                 <div class="loading warning" id="sjlist_novip_warning"><span class="loading_text">loading</span></div>
                                 <ul class="sjlist sjlist_novip">
                                 </ul>
                                 <div class="page page_novip fenye" style="text-align: center;"></div>
                             </dd>
+                            <!--女性介面 END -->
+                            @endif
+
+
                             @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
                             <span class="alert_delete shou_but">全部刪除</span>
                             @endif
-                            <dt class="lebox3">警示會員</dt>
+                            <dt class="lebox_alert">警示會員</dt>
                             <dd>
-{{--                                <p style="width: 20%;margin: 0 auto;" class="warning" id="sjlist_alert_warning">--}}
-{{--                                    <img src="/new/images/Spin-1s-75px.svg">--}}
-{{--                                </p>--}}
                                 <div class="loading warning" id="sjlist_alert_warning"><span class="loading_text">loading</span></div>
                                 <ul class="sjlist sjlist_alert">
                                 </ul>
                             </dd>
+
                         </dl>
                     </div>
-{{--                <div class="sjlist">--}}
-{{--                    <ul>--}}
-
-{{--                    </ul>--}}
-{{--                    <p style="color:red; font-weight: bold; display: none;margin-left: 20px;" id="warning">載入中，請稍候</p>--}}
-{{--                    <p style="width: 20%;margin: 0 auto; display: none;" id="warning">--}}
-{{--                        <img src="/new/images/Spin-1s-75px.svg">--}}
-{{--                    </p>--}}
-
-{{--                    <div class="nodata" style="display: none;">--}}
-{{--                        <div class="fengsicon"><img src="/new/images/chatnodata.png" class="feng_img"><span>您目前尚無訊息</span></div>--}}
-{{--                    </div>--}}
-
-
                 </div>
-{{--                <div class="page" style="text-align: center;"></div>--}}
+
                 <input name="rows" type="hidden" id="rows" value="">
-                {{--                    <div class="fenye">--}}
-                {{--                        <!-- <a href="javascript:" class="page-link" data-p="next">上一頁</a>--}}
-                {{--                        <a href="javascript:" class="page-link" data-p="last">下一頁</a> -->--}}
-                {{--                    </div>--}}
+
                 <div class="zixun">
                     <span><input type="radio" name="RadioGroup1" value="7" id="RadioGroup1_0" checked>7天內訊息</span>
                     <span><input type="radio" name="RadioGroup1" value="30" id="RadioGroup1_1">30天內訊息</span>
@@ -182,7 +181,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         var no_row_li='';
         no_row_li = '<li class="li_no_data"><div class="listicon02 nodata"><img src="/new/images/xj.png" class="list_img"><span>您目前尚無訊息</span></div></li>';
         var userIsVip = '{{ $isVip }}';
+        var userGender = '{{ $user->engroup }}';
 
+            //vip
             var Page = {
             page : 1,
             row  : 10,
@@ -209,89 +210,23 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     <a href="javascript:" class="page-link" data-p="last">下一頁</a>
                 `;
                 }
-                // if(Page.page>1){
-                //     prev_active = '';
-                //     str = `
-                //         <ul class="pagination">
-                //         <li class="` + prev_active + `">
-                //             <a href="javascript:" class="page-link" data-p="next">&laquo;</a>
-                //         </li>
-                //     `;
-                // }else{
-                //     prev_active = 'disabled sg-pages-disabled';
-                //     str = `
-                //         <ul class="pagination">
-                //         <li class="` + prev_active + `">
-                //             <a href="javascript:">&laquo;</a>
-                //         </li>
-                //     `;
-                // }
-                // for(i=1;i<=total_page;i++) {
-                //     if(i==Page.page){
-                //         active = 'active sg-pages-active'
-                //     }else{
-                //         active = ''
-                //     }
-                //     var half_links,from,to;
-                //     half_links=3;
-                //     from = Page.page - half_links;
-                //     to = Page.page + half_links;
-                //     if(Page.page < half_links){
-                //         to += half_links - Page.page;
-                //     }
-                //     if((total_page - Page.page) < half_links){
-                //         from -= half_links - (total_page - Page.page) - 1;
-                //     }
-                //     //alert(from);
-                //     if(from < i && i < to) {
-                //         str += `<li class="` + active + `">
-                //             <a href="javascript:" class="page-link" data-p="` + i + `">` + i + `</a>
-                //             </li>
-                //             `;
-                //     }
-                // }
-                // if(Page.page==total_page){
-                //     last_active = 'disabled sg-pages-disabled';
-                //     str += `
-                //            <li class="` + last_active + `">
-                //                 <a href="javascript:">&raquo;</a>
-                //             </li>
-                //            </ul>
-                //           `;
-                // }else{
-                //     last_active = '';
-                //     str += `
-                //            <li class="` + last_active + `">
-                //                 <a href="javascript:" class="page-link" data-p="last">&raquo;</a>
-                //             </li>
-                //            </ul>
-                //           `;
-                // }
-                // str += `
-                //   <li class="` + last_active + `">
-                //        <a href="javascript:" class="page-link" data-p="last">&raquo;</a>
-                //    </li>
-                //   </ul>
-                //  `;
+
                 $('.page_vip').html(str);
                 $('.warning').hide();
-                // if(total_page<=1){
-                //     $('.page').hide();
-                // }
+
                 $('.page_vip a.page-link').click(function(){
                     $('.warning').show();
-
                     $('.sjlist_vip').children().css('display', 'none');
-                    //if ($(this).data('p') == Page.page) return false;
+
                     switch($(this).data('p')) {
                         case 'next': Page.page = parseInt(Page.page) - 1; break;
                         case 'last': Page.page = parseInt(Page.page) + 1; break;
                         default: Page.page = parseInt($(this).data('p'));
                     }
                     Page.DrawPage(total);
-                    // LoadTable();
+
                     date= $('input[name=RadioGroup1]:checked').val();
-                    //alert(date);
+
                     if(date==7){
                         $('.sjlist_vip>.date7.vipMember').slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
                     }else if(date==30){
@@ -300,23 +235,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $('.sjlist_vip>.vipMember').slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
                     }
 
-                    //check li rows
-                    //alert($('.sjlist_vip>li').length);
                     $('.sjlist_vip>.li_no_data').remove();
-                    // $('.sjlist_novip>.li_no_data').remove();
-                    // $('.sjlist_alert>.li_no_data').remove();
+
                     if($('.sjlist_vip>li:visible').length==0){
                         $('#sjlist_vip_warning').hide();
                         $('.sjlist_vip').append(no_row_li);
                     }
-                    // if($('.sjlist_novip>li:visible').length==0){
-                    //     $('#sjlist_novip_warning').hide();
-                    //     $('.sjlist_novip').append(no_row_li);
-                    // }
-                    // if($('.sjlist_alert>li:visible').length==0){
-                    //     $('#sjlist_alert_warning').hide();
-                    //     $('.sjlist_alert').append(no_row_li);
-                    // }
                 });
             }
         };
@@ -348,80 +272,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 `;
                 }
 
-                // if(Page_noVip.page>1){
-                //     prev_active = '';
-                //     str = `
-                //         <ul class="pagination">
-                //         <li class="` + prev_active + `">
-                //             <a href="javascript:" class="page-link" data-p="next">&laquo;</a>
-                //         </li>
-                //     `;
-                // }else{
-                //     prev_active = 'disabled sg-pages-disabled';
-                //     str = `
-                //         <ul class="pagination">
-                //         <li class="` + prev_active + `">
-                //             <a href="javascript:">&laquo;</a>
-                //         </li>
-                //     `;
-                // }
-                // for(i=1;i<=total_page;i++) {
-                //     if(i==Page_noVip.page){
-                //         active = 'active sg-pages-active'
-                //     }else{
-                //         active = ''
-                //     }
-                //     var half_links,from,to;
-                //     half_links=3;
-                //     from = Page_noVip.page - half_links;
-                //     to = Page_noVip.page + half_links;
-                //     if(Page_noVip.page < half_links){
-                //         to += half_links - Page_noVip.page;
-                //     }
-                //     if((total_page - Page_noVip.page) < half_links){
-                //         from -= half_links - (total_page - Page_noVip.page) - 1;
-                //     }
-                //     //alert(from);
-                //     if(from < i && i < to) {
-                //         str += `<li class="` + active + `">
-                //             <a href="javascript:" class="page-link" data-p="` + i + `">` + i + `</a>
-                //             </li>
-                //             `;
-                //     }
-                // }
-                // if(Page_noVip.page==total_page){
-                //     last_active = 'disabled sg-pages-disabled';
-                //     str += `
-                //            <li class="` + last_active + `">
-                //                 <a href="javascript:">&raquo;</a>
-                //             </li>
-                //            </ul>
-                //           `;
-                // }else{
-                //     last_active = '';
-                //     str += `
-                //            <li class="` + last_active + `">
-                //                 <a href="javascript:" class="page-link" data-p="last">&raquo;</a>
-                //             </li>
-                //            </ul>
-                //           `;
-                // }
-                // str += `
-                //   <li class="` + last_active + `">
-                //        <a href="javascript:" class="page-link" data-p="last">&raquo;</a>
-                //    </li>
-                //   </ul>
-                //  `;
                 $('.page_novip').html(str);
                 $('.warning').hide();
-                // if(total_page<=1){
-                //     $('.page').hide();
-                // }
+
                 $('.page_novip a.page-link').click(function(){
                     $('.warning').show();
-
                     $('.sjlist_novip').children().css('display', 'none');
-                    //if ($(this).data('p') == Page.page) return false;
+
                     switch($(this).data('p')) {
                         case 'next': Page_noVip.page = parseInt(Page_noVip.page) - 1; break;
                         case 'last': Page_noVip.page = parseInt(Page_noVip.page) + 1; break;
@@ -429,7 +286,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     }
                     Page_noVip.DrawPage(total);
                     date= $('input[name=RadioGroup1]:checked').val();
-                    // LoadTable();
+
                     if(date==7) {
                         $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
                     }else if(date==30){
@@ -437,26 +294,83 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     }else{
                         $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
                     }
-                    //check li rows
-                    //alert($('.sjlist_vip>li').length);
-                    // $('.sjlist_vip>.li_no_data').remove();
+
                     $('.sjlist_novip>.li_no_data').remove();
-                    // $('.sjlist_alert>.li_no_data').remove();
-                    // if($('.sjlist_vip>li:visible').length==0){
-                    //     $('#sjlist_vip_warning').hide();
-                    //     $('.sjlist_vip').append(no_row_li);
-                    // }
+
                     if($('.sjlist_novip>li:visible').length==0){
                         $('#sjlist_novip_warning').hide();
                         $('.sjlist_novip').append(no_row_li);
                     }
-                    // if($('.sjlist_alert>li:visible').length==0){
-                    //     $('#sjlist_alert_warning').hide();
-                    //     $('.sjlist_alert').append(no_row_li);
-                    // }
                 });
             }
         };
+
+        @php
+            $exchange_period_name = DB::table('exchange_period_name')->get();
+        @endphp
+        @foreach($exchange_period_name as $row)
+            var  Page_exchange_period_{{$row->id}}= {
+            page : 1,
+            row  : 10,
+            DrawPage:function(total){
+                var total_page  = Math.ceil(total/Page_exchange_period_{{$row->id}}.row) == 0 ? 1 : Math.ceil(total/Page_exchange_period_{{$row->id}}.row);
+                var span_u      = 0;
+                var str         = '';
+                var i,active,prev_active,last_active;
+
+                {{--var new_page = Page_exchange_period_{{$row->id}}.page / total_page;--}}
+                var current_page = Page_exchange_period_{{$row->id}}.page;
+                if(total_page==1){
+                    str   = '';
+                }else if(Page_exchange_period_{{$row->id}}.page==1){
+                    str =`<a href="javascript:" class="" data-p="next">上一頁</a>
+                    <span class="new_page">${current_page}/${total_page}</span>
+                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>`;
+                }else if(Page_exchange_period_{{$row->id}}.page==total_page){
+                    str =`<a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                    <span class="new_page">${current_page}/${total_page}</span>
+                    <a href="javascript:" class="" data-p="last">下一頁</a>`;
+                }else{
+                    str = `
+                    <a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                    <span class="new_page">${current_page}/${total_page}</span>
+                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>
+                `;
+                }
+
+                $('.page_exchange_period_{{$row->id}}').html(str);
+                $('.warning').hide();
+
+                $('.page_exchange_period_{{$row->id}} a.page-link').click(function(){
+                    $('.warning').show();
+                    $('.sjlist_exchange_period_{{$row->id}}').children().css('display', 'none');
+
+                    switch($(this).data('p')) {
+                        case 'next': Page_exchange_period_{{$row->id}}.page = parseInt(Page_exchange_period_{{$row->id}}.page) - 1; break;
+                        case 'last': Page_exchange_period_{{$row->id}}.page = parseInt(Page_exchange_period_{{$row->id}}.page) + 1; break;
+                        default: Page_exchange_period_{{$row->id}}.page = parseInt($(this).data('p'));
+                    }
+                    Page_exchange_period_{{$row->id}}.DrawPage(total);
+                    date= $('input[name=RadioGroup1]:checked').val();
+
+                    if(date==7) {
+                        $('.sjlist_exchange_period_{{$row->id}}>.date7.exchange_period_member_{{$row->id}}').slice((Page_exchange_period_{{$row->id}}.page - 1) * Page_exchange_period_{{$row->id}}.row, Page_exchange_period_{{$row->id}}.page * Page_exchange_period_{{$row->id}}.row).css('display', '');
+                    }else if(date==30){
+                        $('.sjlist_exchange_period_{{$row->id}}>.common30.exchange_period_member_{{$row->id}}').slice((Page_exchange_period_{{$row->id}}.page - 1) * Page_exchange_period_{{$row->id}}.row, Page_exchange_period_{{$row->id}}.page * Page_exchange_period_{{$row->id}}.row).css('display', '');
+                    }else{
+                        $('.sjlist_exchange_period_{{$row->id}}>.exchange_period_member_{{$row->id}}').slice((Page_exchange_period_{{$row->id}}.page - 1) * Page_exchange_period_{{$row->id}}.row, Page_exchange_period_{{$row->id}}.page * Page_exchange_period_{{$row->id}}.row).css('display', '');
+                    }
+
+                    $('.sjlist_exchange_period_{{$row->id}}>.li_no_data').remove();
+
+                    if($('.sjlist_exchange_period_{{$row->id}}>li:visible').length==0){
+                        $('#sjlist_exchange_period_warning_{{$row->id}}').hide();
+                        $('.sjlist_exchange_period_{{$row->id}}').append(no_row_li);
+                    }
+                });
+            }
+        };
+        @endforeach
 
         var Page_warned = {
             page : 1,
@@ -485,80 +399,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 `;
                 }
 
-                // if(Page_noVip.page>1){
-                //     prev_active = '';
-                //     str = `
-                //         <ul class="pagination">
-                //         <li class="` + prev_active + `">
-                //             <a href="javascript:" class="page-link" data-p="next">&laquo;</a>
-                //         </li>
-                //     `;
-                // }else{
-                //     prev_active = 'disabled sg-pages-disabled';
-                //     str = `
-                //         <ul class="pagination">
-                //         <li class="` + prev_active + `">
-                //             <a href="javascript:">&laquo;</a>
-                //         </li>
-                //     `;
-                // }
-                // for(i=1;i<=total_page;i++) {
-                //     if(i==Page_noVip.page){
-                //         active = 'active sg-pages-active'
-                //     }else{
-                //         active = ''
-                //     }
-                //     var half_links,from,to;
-                //     half_links=3;
-                //     from = Page_noVip.page - half_links;
-                //     to = Page_noVip.page + half_links;
-                //     if(Page_noVip.page < half_links){
-                //         to += half_links - Page_noVip.page;
-                //     }
-                //     if((total_page - Page_noVip.page) < half_links){
-                //         from -= half_links - (total_page - Page_noVip.page) - 1;
-                //     }
-                //     //alert(from);
-                //     if(from < i && i < to) {
-                //         str += `<li class="` + active + `">
-                //             <a href="javascript:" class="page-link" data-p="` + i + `">` + i + `</a>
-                //             </li>
-                //             `;
-                //     }
-                // }
-                // if(Page_noVip.page==total_page){
-                //     last_active = 'disabled sg-pages-disabled';
-                //     str += `
-                //            <li class="` + last_active + `">
-                //                 <a href="javascript:">&raquo;</a>
-                //             </li>
-                //            </ul>
-                //           `;
-                // }else{
-                //     last_active = '';
-                //     str += `
-                //            <li class="` + last_active + `">
-                //                 <a href="javascript:" class="page-link" data-p="last">&raquo;</a>
-                //             </li>
-                //            </ul>
-                //           `;
-                // }
-                // str += `
-                //   <li class="` + last_active + `">
-                //        <a href="javascript:" class="page-link" data-p="last">&raquo;</a>
-                //    </li>
-                //   </ul>
-                //  `;
+
                 $('.page_warned').html(str);
                 $('.warning').hide();
-                // if(total_page<=1){
-                //     $('.page').hide();
-                // }
                 $('.page_warned a.page-link').click(function(){
                     $('.warning').show();
 
                     $('.sjlist_alert').children().css('display', 'none');
-                    //if ($(this).data('p') == Page.page) return false;
+
                     switch($(this).data('p')) {
                         case 'next': Page_warned.page = parseInt(Page_warned.page) - 1; break;
                         case 'last': Page_warned.page = parseInt(Page_warned.page) + 1; break;
@@ -566,7 +414,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     }
                     Page_warned.DrawPage(total);
                     date= $('input[name=RadioGroup1]:checked').val();
-                    // LoadTable();
+
                     if(date==7) {
                         $('.sjlist_alert>.date7.novipMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
                     }else if(date==30){
@@ -574,23 +422,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     }else{
                         $('.sjlist_alert>.novipMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
                     }
-                    //check li rows
-                    //alert($('.sjlist_vip>li').length);
-                    // $('.sjlist_vip>.li_no_data').remove();
+
                     $('.sjlist_alert>.li_no_data').remove();
-                    // $('.sjlist_alert>.li_no_data').remove();
-                    // if($('.sjlist_vip>li:visible').length==0){
-                    //     $('#sjlist_vip_warning').hide();
-                    //     $('.sjlist_vip').append(no_row_li);
-                    // }
+
                     if($('.sjlist_alert>li:visible').length==0){
                         $('#sjlist_alert_warning').hide();
                         $('.sjlist_alert').append(no_row_li);
                     }
-                    // if($('.sjlist_alert>li:visible').length==0){
-                    //     $('#sjlist_alert_warning').hide();
-                    //     $('.sjlist_alert').append(no_row_li);
-                    // }
                 });
             }
         };
@@ -620,7 +458,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         {
             return new Date(dt.getFullYear(), dt.getMonth(), 1);
         }
-        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned){
+        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned,exchange_period){
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
             var username = '{{$user->name}}';
@@ -750,12 +588,23 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     userAgent: "Agent: " + String(navigator.userAgent) + " Platform: " + String(navigator.platform),
                 },
                 beforeSend:function(){//表單發送前做的事
-                    $('.sjlist_vip').html('');
-                    $('.sjlist_novip').html('');
-                    $('.sjlist_alert').html('');
+                    @if($user->engroup==2)
+                        $('.sjlist_vip').html('');
+                        $('.sjlist_novip').html('');
+                        $('.page_vip').hide();
+                        $('.page_novip').hide();
+                    @elseif($user->engroup==1)
+                        @php
+                            $exchange_period_name = DB::table('exchange_period_name')->get();
+                        @endphp
+                        @foreach($exchange_period_name as $row)
+                        $('.sjlist_exchange_period_{{$row->id}}').html('');
+                        $('.page_exchange_period_{{$row->id}}').hide();
+                        @endforeach
+                    @endif
 
-                    $('.page_vip').hide();
-                    $('.page_novip').hide();
+                    $('.sjlist_alert').html('');
+                    $('.page_warning').hide();
                     $('.warning').show();
                 },
                 complete: function () {
@@ -763,7 +612,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                 },
                 success:function(res){
-                    console.log(res.msg);
+                    // console.log(res.msg);
                     var li = '';//樣板容器
                     // var p = page;
                     // var data = res.list;        //回傳資料
@@ -781,80 +630,99 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     var hide_vip_counts = 0;
                     hide_vip_counts = $('#rows').val() - 10;
 
-                    var vip_counts = 0;
-                    var novip_counts = 0;
+                    $.each(res.msg,function(i,e) {
+                       if(e.user_id==1049) {
+                           hide_vip_counts = $('#rows').val() - 10 - 1;
+                       }
+                    });
+
                     $.each(res.msg,function(i,e) {
 
                         rr += parseInt(e.read_n);
-                        if (userIsVip == 0 && i < hide_vip_counts && hide_vip_counts > 0) {
+                        if (userIsVip == 0 && i < hide_vip_counts && hide_vip_counts > 0 ) {
+
                             if(e.user_id == 1049){
                                 hide_vip_counts = hide_vip_counts+1;
-                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned);
+                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.exchange_period);
                             }else {
-                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned);
+                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.exchange_period);
                             }
-                        } else if (userIsVip == 0 && e.user_id != 1049) {
-                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned);
-                        } else {
-                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned);
+                        }else {
+                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.exchange_period);
                         }
 
-                        // alert(e.created_at);
                         if (typeof e.created_at !== 'undefined') {
                             if (e.created_at.substr(0, 10) >= this_week) {
                                 if(e.isWarned==1) {
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('date7 alertMember common30');
-                                }else if (e.isVip == 1) {
+                                }else if (e.isVip == 1 && userGender==2) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('date7 vipMember common30');
-                                    //vip_counts++;
-                                } else {
+                                }else if (e.isVip == 0 && userGender==2) {
                                     $('.sjlist_novip').append(li).find('.row_data').addClass('date7 novipMember common30');
-                                    //novip_counts++;
                                 }
+
+                                @if($user->engroup==1)
+                                    if (userGender==1 && e.user_id == 1049){
+                                        $('.sjlist_exchange_period_1').append(li).find('.row_data').addClass('date7 exchange_period_member_1 common30');
+                                    }
+                                    @php
+                                        $exchange_period_name = DB::table('exchange_period_name')->get();
+                                    @endphp
+                                    @foreach($exchange_period_name as $row)
+                                        if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0){
+                                            $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('date7 exchange_period_member_{{$row->id}} common30');
+                                        }
+                                    @endforeach
+                                @endif
+
                             } else if (e.created_at != '' && e.created_at.substr(0, 10) >= this_month) {
                                 if(e.isWarned==1){
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('date30 alertMember common30');
-                                }else if (e.isVip == 1) {
+                                }else if (e.isVip == 1 && userGender==2) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('date30 vipMember common30');
-                                    // vip_counts++;
-                                } else {
+                                }else if (e.isVip == 0 && userGender==2)  {
                                     $('.sjlist_novip').append(li).find('.row_data').addClass('date30 novipMember common30');
-                                    //novip_counts++;
                                 }
+
+                                @if($user->engroup==1)
+                                    if (userGender==1 && e.user_id == 1049){
+                                        $('.sjlist_exchange_period_1').append(li).find('.row_data').addClass('date30 exchange_period_member_1 common30');
+                                    }
+                                    @php
+                                        $exchange_period_name = DB::table('exchange_period_name')->get();
+                                    @endphp
+                                    @foreach($exchange_period_name as $row)
+                                        if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0){
+                                            $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('date30 exchange_period_member_{{$row->id}} common30');
+                                        }
+                                    @endforeach
+                                @endif
+
                             } else {
-                                // if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1, i);
                                 if(e.isWarned==1) {
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('dateAll alertMember');
-                                }else if (e.isVip == 1) {
+                                }else if (e.isVip == 1 && userGender==2) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('dateAll vipMember');
-                                } else {
+                                }else if (e.isVip == 0 && userGender==2)  {
                                     $('.sjlist_novip').append(li).find('.row_data').addClass('dateAll novipMember');
                                 }
+
+                                @if($user->engroup==1)
+                                    if (userGender==1 && e.user_id == 1049){
+                                        $('.sjlist_exchange_period_1').append(li).find('.row_data').addClass('dateAll exchange_period_member_1');
+                                    }
+                                    @php
+                                        $exchange_period_name = DB::table('exchange_period_name')->get();
+                                    @endphp
+                                    @foreach($exchange_period_name as $row)
+                                        if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0){
+                                            $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('dateAll exchange_period_member_{{$row->id}}');
+                                        }
+                                    @endforeach
+                                @endif
+
                             }
-                            // alert(e.user_id);
 
-
-                            // if (typeof e.created_at !== 'undefined') {
-                            //     if (e.created_at.substr(0, 10) >= this_week) {
-                            //         if (e.isVip == 1) {
-                            //             $('.sjlist_vip').append(li).find('.row_data').addClass('date7 vipMember common30');
-                            //         } else {
-                            //             $('.sjlist_novip').append(li).find('.row_data').addClass('date7 novipMember common30');
-                            //         }
-                            //     } else if (e.created_at != '' && e.created_at.substr(0, 10) >= this_month) {
-                            //         if (e.isVip == 1) {
-                            //             $('.sjlist_vip').append(li).find('.row_data').addClass('date30 vipMember common30');
-                            //         } else {
-                            //             $('.sjlist_novip').append(li).find('.row_data').addClass('date30 novipMember common30');
-                            //         }
-                            //     } else {
-                            //         if (e.isVip == 1) {
-                            //             $('.sjlist_vip').append(li).find('.row_data').addClass('dateAll vipMember');
-                            //         } else {
-                            //             $('.sjlist_novip').append(li).find('.row_data').addClass('dateAll novipMember');
-                            //         }
-                            //     }
-                            // }
                         }
                     });
 
@@ -877,20 +745,38 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 $("input[name*='RadioGroup1'][value='7']").prop("checked", true);
                             }
                             if(hash==7 || !hash) {
-                                let vip_counts = $('.date7.vipMember').length;
-                                //alert(vip_counts);
-                                if (vip_counts > 10) {
-                                    $('.page_vip').show();
-                                }
-                                Page.DrawPage(vip_counts);
-                                $('.sjlist_vip>.date7.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
 
-                                let novip_counts = $('.date7.novipMember').length;
-                                if (novip_counts > 10) {
-                                    $('.page_novip').show();
-                                }
-                                Page_noVip.DrawPage(novip_counts);
-                                $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+                                @if($user->engroup==2)
+
+                                    let vip_counts = $('.date7.vipMember').length;
+                                    if (vip_counts > 10) {
+                                        $('.page_vip').show();
+                                    }
+                                    Page.DrawPage(vip_counts);
+                                    $('.sjlist_vip>.date7.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+
+                                    let novip_counts = $('.date7.novipMember').length;
+                                    if (novip_counts > 10) {
+                                        $('.page_novip').show();
+                                    }
+                                    Page_noVip.DrawPage(novip_counts);
+                                    $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+
+                                @elseif($user->engroup==1)
+                                    @php
+                                        $exchange_period_name = DB::table('exchange_period_name')->get();
+                                    @endphp
+                                    @foreach($exchange_period_name as $row)
+
+                                    let exchange_period_counts_{{$row->id}} = $('.date7.exchange_period_member_{{$row->id}}').length;
+                                    if (exchange_period_counts_{{$row->id}} > 10) {
+                                        $('.page_exchange_period_{{$row->id}}').show();
+                                    }
+                                    Page_exchange_period_{{$row->id}}.DrawPage(exchange_period_counts_{{$row->id}});
+                                    $('.sjlist_exchange_period_{{$row->id}}>.date7.exchange_period_member_{{$row->id}}').slice((Page_exchange_period_{{$row->id}}.page - 1) * Page_exchange_period_{{$row->id}}.row, Page_exchange_period_{{$row->id}}.page * Page_exchange_period_{{$row->id}}.row).css('display', '');
+
+                                    @endforeach
+                                @endif
 
                                 let alert_counts = $('.date7.alertMember').length;
                                 if (alert_counts > 10) {
@@ -900,20 +786,39 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 $('.sjlist_alert>.date7.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
 
                             }else if(hash==30){
-                                let vip_counts = $('.common30.vipMember').length;
-                                //alert(vip_counts);
-                                if (vip_counts > 10) {
-                                    $('.page_vip').show();
-                                }
-                                Page.DrawPage(vip_counts);
-                                $('.sjlist_vip>.common30.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+                                @if($user->engroup==2)
 
-                                let novip_counts = $('.common30.novipMember').length;
-                                if (novip_counts > 10) {
-                                    $('.page_novip').show();
-                                }
-                                Page_noVip.DrawPage(novip_counts);
-                                $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+                                    let vip_counts = $('.common30.vipMember').length;
+                                    if (vip_counts > 10) {
+                                        $('.page_vip').show();
+                                    }
+                                    Page.DrawPage(vip_counts);
+                                    $('.sjlist_vip>.common30.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+
+                                    let novip_counts = $('.common30.novipMember').length;
+                                    if (novip_counts > 10) {
+                                        $('.page_novip').show();
+                                    }
+                                    Page_noVip.DrawPage(novip_counts);
+                                    $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+
+                                @elseif($user->engroup==1)
+                                        @php
+                                            $exchange_period_name = DB::table('exchange_period_name')->get();
+                                        @endphp
+                                        @foreach($exchange_period_name as $row)
+
+                                        let exchange_period_counts_{{$row->id}} = $('.common30.exchange_period_member_{{$row->id}}').length;
+                                        if (exchange_period_counts_{{$row->id}} > 10) {
+                                            $('.page_exchange_period_{{$row->id}}').show();
+                                        }
+                                        Page_exchange_period_{{$row->id}}.DrawPage(exchange_period_counts_{{$row->id}});
+                                        $('.sjlist_exchange_period_{{$row->id}}>.common30.exchange_period_member_{{$row->id}}').slice((Page_exchange_period_{{$row->id}}.page - 1) * Page_exchange_period_{{$row->id}}.row, Page_exchange_period_{{$row->id}}.page * Page_exchange_period_{{$row->id}}.row).css('display', '');
+
+                                        @endforeach
+
+                                @endif
+
 
                                 let alert_counts = $('.common30.alertMember').length;
                                 if (alert_counts > 10) {
@@ -921,9 +826,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 }
                                 Page_warned.DrawPage(alert_counts);
                                 $('.sjlist_alert>.common30.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+
                             }else if(hash=='all'){
+                                @if($user->engroup==2)
                                 let vip_counts = $('.vipMember').length;
-                                //alert(vip_counts);
                                 if (vip_counts > 10) {
                                     $('.page_vip').show();
                                 }
@@ -936,6 +842,22 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 }
                                 Page_noVip.DrawPage(novip_counts);
                                 $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+
+                                @elseif($user->engroup==1)
+                                        @php
+                                            $exchange_period_name = DB::table('exchange_period_name')->get();
+                                        @endphp
+                                        @foreach($exchange_period_name as $row)
+
+                                        let exchange_period_counts_{{$row->id}} = $('.exchange_period_member_{{$row->id}}').length;
+                                        if (exchange_period_counts_{{$row->id}} > 10) {
+                                            $('.page_exchange_period_{{$row->id}}').show();
+                                        }
+                                        Page_exchange_period_{{$row->id}}.DrawPage(exchange_period_counts_{{$row->id}});
+                                        $('.sjlist_exchange_period_{{$row->id}}>.exchange_period_member_{{$row->id}}').slice((Page_exchange_period_{{$row->id}}.page - 1) * Page_exchange_period_{{$row->id}}.row, Page_exchange_period_{{$row->id}}.page * Page_exchange_period_{{$row->id}}.row).css('display', '');
+
+                                        @endforeach
+                                @endif
 
                                 let alert_counts = $('.alertMember').length;
                                 if (alert_counts > 10) {
@@ -948,23 +870,37 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }else {
                             if (date == 7) {
                                 $('.row_data').hide();
-                                // $('.date7').hide();
 
+                                @if($user->engroup==2)
+                                    let vip_counts = $('.date7.vipMember').length;
+                                    if (vip_counts > 10) {
+                                        $('.page_vip').show();
+                                    }
+                                    Page.DrawPage(vip_counts);
+                                    $('.sjlist_vip>.date7.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
 
-                                let vip_counts = $('.date7.vipMember').length;
-                                //alert(vip_counts);
-                                if (vip_counts > 10) {
-                                    $('.page_vip').show();
-                                }
-                                Page.DrawPage(vip_counts);
-                                $('.sjlist_vip>.date7.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+                                    let novip_counts = $('.date7.novipMember').length;
+                                    if (novip_counts > 10) {
+                                        $('.page_novip').show();
+                                    }
+                                    Page_noVip.DrawPage(novip_counts);
+                                    $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
-                                let novip_counts = $('.date7.novipMember').length;
-                                if (novip_counts > 10) {
-                                    $('.page_novip').show();
-                                }
-                                Page_noVip.DrawPage(novip_counts);
-                                $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+                                @elseif($user->engroup==1)
+                                    @php
+                                        $exchange_period_name = DB::table('exchange_period_name')->get();
+                                    @endphp
+                                    @foreach($exchange_period_name as $row)
+
+                                    let exchange_period_counts_{{$row->id}} = $('.date7.exchange_period_member_{{$row->id}}').length;
+                                    if (exchange_period_counts_{{$row->id}} > 10) {
+                                        $('.page_exchange_period_{{$row->id}}').show();
+                                    }
+                                    Page_exchange_period_{{$row->id}}.DrawPage(exchange_period_counts_{{$row->id}});
+                                    $('.sjlist_exchange_period_{{$row->id}}>.date7.exchange_period_member_{{$row->id}}').slice((Page_exchange_period_{{$row->id}}.page - 1) * Page_exchange_period_{{$row->id}}.row, Page_exchange_period_{{$row->id}}.page * Page_exchange_period_{{$row->id}}.row).css('display', '');
+
+                                    @endforeach
+                                @endif
 
                                 let alert_counts = $('.date7.alertMember').length;
                                 if (alert_counts > 10) {
@@ -975,22 +911,37 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                             } else if (date == 30) {
                                 $('.row_data').hide();
-                                // $('.common30').hide();
 
-                                let vip_counts = $('.common30.vipMember').length;
-                                //alert(vip_counts);
-                                if (vip_counts > 10) {
-                                    $('.page_vip').show();
-                                }
-                                Page.DrawPage(vip_counts);
-                                $('.sjlist_vip>.common30.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+                                @if($user->engroup==2)
+                                    let vip_counts = $('.common30.vipMember').length;
+                                    if (vip_counts > 10) {
+                                        $('.page_vip').show();
+                                    }
+                                    Page.DrawPage(vip_counts);
+                                    $('.sjlist_vip>.common30.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
 
-                                let novip_counts = $('.common30.novipMember').length;
-                                if (novip_counts > 10) {
-                                    $('.page_novip').show();
-                                }
-                                Page_noVip.DrawPage(novip_counts);
-                                $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+                                    let novip_counts = $('.common30.novipMember').length;
+                                    if (novip_counts > 10) {
+                                        $('.page_novip').show();
+                                    }
+                                    Page_noVip.DrawPage(novip_counts);
+                                    $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+
+                                @elseif($user->engroup==1)
+                                    @php
+                                        $exchange_period_name = DB::table('exchange_period_name')->get();
+                                    @endphp
+                                    @foreach($exchange_period_name as $row)
+
+                                        let exchange_period_counts_{{$row->id}} = $('.common30.exchange_period_member_{{$row->id}}').length;
+                                        if (exchange_period_counts_{{$row->id}} > 10) {
+                                            $('.page_exchange_period_{{$row->id}}').show();
+                                        }
+                                        Page_exchange_period_{{$row->id}}.DrawPage(exchange_period_counts_{{$row->id}});
+                                        $('.sjlist_exchange_period_{{$row->id}}>.common30.exchange_period_member_{{$row->id}}').slice((Page_exchange_period_{{$row->id}}.page - 1) * Page_exchange_period_{{$row->id}}.row, Page_exchange_period_{{$row->id}}.page * Page_exchange_period_{{$row->id}}.row).css('display', '');
+
+                                    @endforeach
+                                @endif
 
                                 let alert_counts = $('.common30.alertMember').length;
                                 if (alert_counts > 10) {
@@ -999,9 +950,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 Page_warned.DrawPage(alert_counts);
                                 $('.sjlist_alert>.common30.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
                             } else {
-                                // $('.dateAll').show();
+
+                                @if($user->engroup==2)
                                 let vip_counts = $('.vipMember').length;
-                                //alert(vip_counts);
                                 if (vip_counts > 10) {
                                     $('.page_vip').show();
                                 }
@@ -1015,6 +966,22 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 Page_noVip.DrawPage(novip_counts);
                                 $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
+                                @elseif($user->engroup==1)
+                                    @php
+                                        $exchange_period_name = DB::table('exchange_period_name')->get();
+                                    @endphp
+                                    @foreach($exchange_period_name as $row)
+
+                                        let exchange_period_counts_{{$row->id}} = $('.exchange_period_member_{{$row->id}}').length;
+                                        if (exchange_period_counts_{{$row->id}} > 10) {
+                                            $('.page_exchange_period_{{$row->id}}').show();
+                                        }
+                                        Page_exchange_period_{{$row->id}}.DrawPage(exchange_period_counts_{{$row->id}});
+                                        $('.sjlist_exchange_period_{{$row->id}}>.exchange_period_member_{{$row->id}}').slice((Page_exchange_period_{{$row->id}}.page - 1) * Page_exchange_period_{{$row->id}}.row, Page_exchange_period_{{$row->id}}.page * Page_exchange_period_{{$row->id}}.row).css('display', '');
+
+                                    @endforeach
+                                @endif
+
                                 let alert_counts = $('.alertMember').length;
                                 if (alert_counts > 10) {
                                     $('.page_warned').show();
@@ -1026,22 +993,34 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                         $('.warning').hide();
 
-                        $('.sjlist_vip>.li_no_data').remove();
-                        $('.sjlist_novip>.li_no_data').remove();
-                        $('.sjlist_alert>.li_no_data').remove();
-                        // alert($('.sjlist_novip>li:visible').length);
-                        if($('.sjlist_vip>li:visible').length==0){
-                            $('#sjlist_vip_warning').hide();
-                            $('.sjlist_vip').append(no_row_li);
-                        }
-                        if($('.sjlist_novip>li:visible').length==0){
-                            $('#sjlist_novip_warning').hide();
-                            $('.sjlist_novip').append(no_row_li);
-                        }
-                        if($('.sjlist_alert>li:visible').length==0){
-                            $('#sjlist_alert_warning').hide();
-                            $('.sjlist_alert').append(no_row_li);
-                        }
+                        @if($user->engroup==2)
+                            $('.sjlist_vip>.li_no_data').remove();
+                            $('.sjlist_novip>.li_no_data').remove();
+                            $('.sjlist_alert>.li_no_data').remove();
+                            if ($('.sjlist_vip>li:visible').length == 0) {
+                                $('#sjlist_vip_warning').hide();
+                                $('.sjlist_vip').append(no_row_li);
+                            }
+                            if ($('.sjlist_novip>li:visible').length == 0) {
+                                $('#sjlist_novip_warning').hide();
+                                $('.sjlist_novip').append(no_row_li);
+                            }
+                            if ($('.sjlist_alert>li:visible').length == 0) {
+                                $('#sjlist_alert_warning').hide();
+                                $('.sjlist_alert').append(no_row_li);
+                            }
+                        @elseif($user->engroup==1)
+                            @php
+                                $exchange_period_name = DB::table('exchange_period_name')->get();
+                            @endphp
+                            @foreach($exchange_period_name as $row)
+                            $('.sjlist_exchange_period_{{$row->id}}>.li_no_data').remove();
+                            if ($('.sjlist_exchange_period_{{$row->id}}>li:visible').length == 0) {
+                                $('#sjlist_exchange_period_warning_{{$row->id}}').hide();
+                                $('.sjlist_exchange_period_{{$row->id}}').append(no_row_li);
+                            }
+                            @endforeach
+                        @endif
                     }, 300);
 
                     $('div[data-toggle="popover"]').popover({
@@ -1069,35 +1048,63 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         LoadTable();
 
         $('input[name=RadioGroup1]').on('click', function(event) {
-            $('.lebox1').removeClass('off');
-            $('.lebox1').removeClass('on');
-            $('.lebox1').toggleClass('on');
-            $('.lebox2,.lebox3').removeClass('off');
-            $('.lebox2,.lebox3').removeClass('on');
-            $('.lebox2,.lebox3').toggleClass('off');
-            $('.lebox2,.lebox3').next('dd').show();
-            $('.lebox2,.lebox3').next('dd').slideToggle();
 
-            Page.page=1;
-            Page_noVip.page=1;
+            // $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('off');
+            // $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on');
+            {{--$('.lebox1').removeClass('off');--}}
+            {{--$('.lebox1').removeClass('on');--}}
+            {{--// $('.lebox1').toggleClass('on');--}}
+
+            {{--@if($user->engroup==2)--}}
+            {{--$('.lebox1').toggleClass('on');--}}
+            {{--@elseif($user->engroup==1)--}}
+            {{--$('.lebox1').toggleClass('off');--}}
+            {{--@endif--}}
+            {{--$('.lebox2,.lebox3,.lebox_alert').removeClass('off');--}}
+            {{--$('.lebox2,.lebox3,.lebox_alert').removeClass('on');--}}
+            {{--$('.lebox2,.lebox3,.lebox_alert').toggleClass('off');--}}
+            {{--$('.lebox2,.lebox3,.lebox_alert').next('dd').show();--}}
+            {{--$('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle();--}}
+
+            @if($user->engroup==2)
+            $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on off');
+            $('.lebox1').toggleClass('on');
+            $('.lebox2,.lebox3,.lebox_alert').toggleClass('off');
+            // $('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");
+            @elseif($user->engroup==1)
+            $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on off');
+            $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');
+            // $('.lebox1,.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");
+            @endif
+
+
             date= $('input[name=RadioGroup1]:checked').val();
             window.location.hash = '#'+ date;
-            $('.page_vip').hide();
-            $('.page_novip').hide();
-            // $('#warning').show();
+            @if($user->engroup==1)
+                    @php
+                        $exchange_period_name = DB::table('exchange_period_name')->get();
+                    @endphp
+                    @foreach($exchange_period_name as $row)
+                        Page_exchange_period_{{$row->id}}.page=1;
+                        $('.page_exchange_period_{{$row->id}}').hide();
+                    @endforeach
+            @elseif($user->engroup==2)
+                Page.page=1;
+                Page_noVip.page=1;
+                $('.page_vip').hide();
+                $('.page_novip').hide();
+            @endif
+
             $('.warning').show();
-            // alert(userIsVip);
             if(userIsVip==1){
                 LoadTable();
             }else{
 
-                     if (date == 7) {
-                        $('.row_data').hide();
-                        // $('.date7').hide();
-
+                 if (date == 7) {
+                    $('.row_data').hide();
+                 @if($user->engroup==2)
 
                         let vip_counts = $('.date7.vipMember').length;
-                        //alert(vip_counts);
                         if (vip_counts > 10) {
                             $('.page_vip').show();
                         }
@@ -1111,19 +1118,33 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         Page_noVip.DrawPage(novip_counts);
                         $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
-                        let alert_counts = $('.date7.alertMember').length;
-                        if (alert_counts > 10) {
-                            $('.page_warned').show();
-                        }
-                        Page_warned.DrawPage(alert_counts);
-                        $('.sjlist_alert>.date7.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+                 @elseif($user->engroup==1)
+                         @php
+                             $exchange_period_name = DB::table('exchange_period_name')->get();
+                         @endphp
+                         @foreach($exchange_period_name as $row)
+                            let exchange_period_counts_{{$row->id}} = $('.date7.exchange_period_member_{{$row->id}}').length;
+                            if (exchange_period_counts_{{$row->id}} > 10) {
+                                $('.page_exchange_period_{{$row->id}}').show();
+                            }
+                            Page_exchange_period_{{$row->id}}.DrawPage(exchange_period_counts_{{$row->id}});
+                            $('.sjlist_exchange_period_{{$row->id}}>.date7.exchange_period_member_{{$row->id}}').slice((Page_exchange_period_{{$row->id}}.page - 1) * Page_exchange_period_{{$row->id}}.row, Page_exchange_period_{{$row->id}}.page * Page_exchange_period_{{$row->id}}.row).css('display', '');
+                         @endforeach
 
-                     } else if (date == 30) {
-                        $('.row_data').hide();
-                        // $('.common30').hide();
+                 @endif
 
+                    let alert_counts = $('.date7.alertMember').length;
+                    if (alert_counts > 10) {
+                        $('.page_warned').show();
+                    }
+                    Page_warned.DrawPage(alert_counts);
+                    $('.sjlist_alert>.date7.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+
+                 } else if (date == 30) {
+                    $('.row_data').hide();
+
+                     @if($user->engroup==2)
                         let vip_counts = $('.common30.vipMember').length;
-                        //alert(vip_counts);
                         if (vip_counts > 10) {
                             $('.page_vip').show();
                         }
@@ -1136,57 +1157,94 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }
                         Page_noVip.DrawPage(novip_counts);
                         $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+                     @elseif($user->engroup==1)
+                         @php
+                             $exchange_period_name = DB::table('exchange_period_name')->get();
+                         @endphp
+                         @foreach($exchange_period_name as $row)
+                             let exchange_period_counts_{{$row->id}} = $('.common30.exchange_period_member_{{$row->id}}').length;
+                             if (exchange_period_counts_{{$row->id}} > 10) {
+                                 $('.page_exchange_period_{{$row->id}}').show();
+                             }
+                             Page_exchange_period_{{$row->id}}.DrawPage(exchange_period_counts_{{$row->id}});
+                             $('.sjlist_exchange_period_{{$row->id}}>.common30.exchange_period_member_{{$row->id}}').slice((Page_exchange_period_{{$row->id}}.page - 1) * Page_exchange_period_{{$row->id}}.row, Page_exchange_period_{{$row->id}}.page * Page_exchange_period_{{$row->id}}.row).css('display', '');
+                         @endforeach
+                     @endif
 
-                         let alert_counts = $('.common30.alertMember').length;
-                         if (alert_counts > 10) {
-                             $('.page_warned').show();
+                    let alert_counts = $('.common30.alertMember').length;
+                    if (alert_counts > 10) {
+                        $('.page_warned').show();
+                    }
+                    Page_warned.DrawPage(alert_counts);
+                    $('.sjlist_alert>.common30.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+
+                 }else{
+                     @if($user->engroup==2)
+                         let vip_counts = $('.vipMember').length;
+                         if (vip_counts > 10) {
+                             $('.page_vip').show();
                          }
-                         Page_warned.DrawPage(alert_counts);
-                         $('.sjlist_alert>.common30.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+                         Page.DrawPage(vip_counts);
+                         $('.sjlist_vip>.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
 
-                     } else {
-                        // $('.dateAll').show();
-                        let vip_counts = $('.vipMember').length;
-                        //alert(vip_counts);
-                        if (vip_counts > 10) {
-                            $('.page_vip').show();
-                        }
-                        Page.DrawPage(vip_counts);
-                        $('.sjlist_vip>.vipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
-
-                        let novip_counts = $('.novipMember').length;
-                        if (novip_counts > 10) {
-                            $('.page_novip').show();
-                        }
-                        Page_noVip.DrawPage(novip_counts);
-                        $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
-
-                         let alert_counts = $('.alertMember').length;
-                         if (alert_counts > 10) {
-                             $('.page_warned').show();
+                         let novip_counts = $('.novipMember').length;
+                         if (novip_counts > 10) {
+                             $('.page_novip').show();
                          }
-                         Page_warned.DrawPage(alert_counts);
-                         $('.sjlist_alert>.novipMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+                         Page_noVip.DrawPage(novip_counts);
+                         $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
+                     @elseif($user->engroup==1)
+                         @php
+                             $exchange_period_name = DB::table('exchange_period_name')->get();
+                         @endphp
+                         @foreach($exchange_period_name as $row)
+                             let exchange_period_counts_{{$row->id}} = $('.exchange_period_member_{{$row->id}}').length;
+                             if (exchange_period_counts_{{$row->id}} > 10) {
+                                 $('.page_exchange_period_{{$row->id}}').show();
+                             }
+                             Page_exchange_period_{{$row->id}}.DrawPage(exchange_period_counts_{{$row->id}});
+                             $('.sjlist_exchange_period_{{$row->id}}>.exchange_period_member_{{$row->id}}').slice((Page_exchange_period_{{$row->id}}.page - 1) * Page_exchange_period_{{$row->id}}.row, Page_exchange_period_{{$row->id}}.page * Page_exchange_period_{{$row->id}}.row).css('display', '');
+                         @endforeach
+                     @endif
+                     let alert_counts = $('.alertMember').length;
+                     if (alert_counts > 10) {
+                         $('.page_warned').show();
                      }
+                     Page_warned.DrawPage(alert_counts);
+                     $('.sjlist_alert>.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+
+                 }
                     $('.warning').hide();
 
-                    $('.sjlist_vip>.li_no_data').remove();
-                    $('.sjlist_novip>.li_no_data').remove();
-                    $('.sjlist_alert>.li_no_data').remove();
-                    //alert($('.sjlist_vip>li:visible').length);
-                    if ($('.sjlist_vip>li:visible').length == 0) {
-                        $('#sjlist_vip_warning').hide();
-                        $('.sjlist_vip').append(no_row_li);
-                    }
-                    if ($('.sjlist_novip>li:visible').length == 0) {
-                        $('#sjlist_novip_warning').hide();
-                        $('.sjlist_novip').append(no_row_li);
-                    }
-                    if ($('.sjlist_alert>li:visible').length == 0) {
-                        $('#sjlist_alert_warning').hide();
-                        $('.sjlist_alert').append(no_row_li);
-                    }
+                    @if($user->engroup==2)
+                        $('.sjlist_vip>.li_no_data').remove();
+                        $('.sjlist_novip>.li_no_data').remove();
+                        $('.sjlist_alert>.li_no_data').remove();
+                        if ($('.sjlist_vip>li:visible').length == 0) {
+                            $('#sjlist_vip_warning').hide();
+                            $('.sjlist_vip').append(no_row_li);
+                        }
+                        if ($('.sjlist_novip>li:visible').length == 0) {
+                            $('#sjlist_novip_warning').hide();
+                            $('.sjlist_novip').append(no_row_li);
+                        }
+                        if ($('.sjlist_alert>li:visible').length == 0) {
+                            $('#sjlist_alert_warning').hide();
+                            $('.sjlist_alert').append(no_row_li);
+                        }
+                    @elseif($user->engroup==1)
+                        @php
+                            $exchange_period_name = DB::table('exchange_period_name')->get();
+                        @endphp
+                        @foreach($exchange_period_name as $row)
+                            $('.sjlist_exchange_period_{{$row->id}}>.li_no_data').remove();
+                            if ($('.sjlist_exchange_period_{{$row->id}}>li:visible').length == 0) {
+                                $('#sjlist_exchange_period_warning_{{$row->id}}').hide();
+                                $('.sjlist_exchange_period_{{$row->id}}').append(no_row_li);
+                            }
+                        @endforeach
+                    @endif
             }
 
         });
@@ -1224,20 +1282,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 $(".banned_name").append("<span>" + name + "</span>")
                 $(".announce_bg").show();
                 $("#show_banned").show();
-                {{--c4('確定要封鎖嗎?');--}}
-                {{--var sid = sid;--}}
-                {{--$(".n_left").on('click', function() {--}}
-                {{--    $.post('{{ route('postBlockAJAX') }}', {--}}
-                {{--        uid: '{{ $user->id }}',--}}
-                {{--        sid: sid,--}}
-                {{--        _token: '{{ csrf_token() }}'--}}
-                {{--    }, function (data) {--}}
-                {{--        $("#tab04").hide();--}}
-                {{--        show_message('封鎖成功');--}}
-                {{--        window.location.reload();--}}
-                {{--    });--}}
-                {{--});--}}
-                {{--return false;--}}
             }
 
         $('.vip_delete').on('click', function() {
@@ -1278,6 +1322,26 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 c2('沒有可刪除資料');
             }
         });
+
+        @php
+        $exchange_period_name = DB::table('exchange_period_name')->get();
+        @endphp
+        @foreach($exchange_period_name as $row)
+            $('.exchange_period_delete_{{$row->id}}').on('click', function() {
+                // c4('確定要全部刪除嗎?');
+                var IDs = [];
+                $(".sjlist_exchange_period_{{$row->id}}").find("li").each(function(){ IDs.push(this.id); });
+
+                // alert(IDs);
+                if($.trim(IDs) !== '') {
+                    c4('確定要全部刪除嗎?');
+                    deleteRowAll(IDs);
+                }else{
+                    c2('沒有可刪除資料');
+                }
+            });
+        @endforeach
+
         function deleteRowAll(IDs) {
             var del_url = '{!! url("/dashboard/chat2/deleterowall/:uid/:sid") !!}';
 
@@ -1298,9 +1362,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 $(".blbg").show();
                 $("#tab03").show();
             }
-
-
-
 
     </script>
 
@@ -1333,6 +1394,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         border-bottom-color:#e2e8ff;
     }
 </style>
+
     <script>
         $('.blbut').on('click', function() {
             $("#tab03").hide();
@@ -1349,13 +1411,27 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         });
 
         // $('.lebox1,.lebox2,.lebox3').toggleClass('on');
+
+        // $('.lebox1').removeClass('off');
+        // $('.lebox1').removeClass('on');
+
+        $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('off');
+        $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on');
+
+        @if($user->engroup==2)
         $('.lebox1').toggleClass('on');
-        $('.lebox2,.lebox3').toggleClass('off');
+        $('.lebox2,.lebox3,.lebox_alert').toggleClass('off');
+        $('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");
+        @elseif($user->engroup==1)
+        $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');
+        $('.lebox1,.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");
+        @endif
+        // $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');
         // $(".leftsidebar_box dd").show();
-        $('.lebox2,.lebox3').next('dd').slideToggle("slow");
+        // $('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");
         //
         //
-        $('.lebox1,.lebox2,.lebox3').click(function(e) {
+        $('.lebox1,.lebox2,.lebox3,.lebox_alert').click(function(e) {
             if ($(this).hasClass('off')) {
                 $(this).removeClass('off');
                 $(this).toggleClass('on');
@@ -1365,10 +1441,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             }
 
             $(this).next('dd').slideToggle("slow");
+            @if($user->engroup==2)
             $('.sjlist_vip>.li_no_data').remove();
             $('.sjlist_novip>.li_no_data').remove();
-            $('.sjlist_alert>.li_no_data').remove();
-            //alert($('.sjlist_vip>li:visible').length);
+
             if ($('.sjlist_vip>li:visible').length == 0) {
                 $('#sjlist_vip_warning').hide();
                 $('.sjlist_vip').append(no_row_li);
@@ -1377,29 +1453,29 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 $('#sjlist_novip_warning').hide();
                 $('.sjlist_novip').append(no_row_li);
             }
+            @elseif($user->engroup==1)
+                @php
+                    $exchange_period_name = DB::table('exchange_period_name')->get();
+                @endphp
+                @foreach($exchange_period_name as $row)
+                $('.sjlist_exchange_period_{{$row->id}}>.li_no_data').remove();
+                if ($('.sjlist_exchange_period_{{$row->id}}>li:visible').length == 0) {
+                    $('#sjlist_exchange_period_warning_{{$row->id}}').hide();
+                    $('.sjlist_exchange_period_{{$row->id}}').append(no_row_li);
+                }
+                @endforeach
+            @endif
+
+            $('.sjlist_alert>.li_no_data').remove();
             if ($('.sjlist_alert>li:visible').length == 0) {
                 $('#sjlist_alert_warning').hide();
                 $('.sjlist_alert').append(no_row_li);
             }else{
-                if($(this).hasClass('on') && $(this).hasClass('lebox3')){
+                if($(this).hasClass('on') && $(this).hasClass('lebox_alert')){
                     c3('此為警示會員，要與此區會員交流請務必小心。');
                 }
             }
         });
 
-        // $('.sjright').css('right','40px');
-        // if(window.matchMedia("(max-width: 767px)").matches && window.matchMedia("(max-height: 823px)").matches){
-        //     $('.sjright').css('right','20px');
-        // }else{
-        //     $('.sjright').css('right','40px');
-        // }
-        // $(window).resize(function() {
-        //     $('.sjright').css('right','40px');
-        //     if(window.matchMedia("(max-width: 767px)").matches && window.matchMedia("(max-height: 823px)").matches){
-        //         $('.sjright').css('right','20px');
-        //     }else{
-        //         $('.sjright').css('right','40px');
-        //     }
-        // });
     </script>
 @stop

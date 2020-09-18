@@ -666,7 +666,10 @@ class Message_new extends Model
 //                $messages[$key]['isWarned']=$msgUser->meta_()->isWarned;
                 if(($msgUser->meta_()->isWarned==1 || $msgUser->isAdminWarned() ) && $msgUser->id != 1049){
                     $messages[$key]['isWarned']=1;
+                }else{
+                    $messages[$key]['isWarned']=0;
                 }
+                $messages[$key]['exchange_period']=$msgUser->exchange_period;
             }
             else{
                 Log::info('Null object found, $user: ' . $user->id);
