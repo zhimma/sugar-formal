@@ -507,7 +507,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .sjpic img{width:50px; height:50px; border-radius:500px; object-fit: contain;}
 .sjleft{width:40%; height:50px; float:left; line-height:25px; margin-left:10px;text-overflow: ellipsis;
     white-space: nowrap;
-    display: inline-grid;}
+    display: block;}
 .sjtable{width:100%; display: table;}
 .sjleft span{ font-size:14px;text-align:left !important; height:25px; float:left;  -webkit-line-clamp:3;white-space:nowrap;display: -webkit-box;-webkit-box-orient: vertical;overflow: hidden !important; }
 .sjleft font{ font-size:14px;height:25px; overflow:hidden; text-align:left; color:#999999; /*display:block;*/text-overflow:ellipsis;/*white-space: nowrap*/}
