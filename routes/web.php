@@ -389,7 +389,6 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
     Route::get('/dashboard/upgrade_ec', 'PagesController@upgrade_ec');
     Route::get('/dashboard/upgrade_esafe', 'PagesController@upgrade_esafe');
     Route::get('/dashboard/announcement', 'PagesController@showAnnouncement');
-
     Route::group(['middleware' => ['api']], function() {
         Route::post('/dashboard/payback_ec', 'ECPayment@performPayBack')->name('payback_ec');
         Route::post('/dashboard/upgradepay_ec', 'ECPayment@performPayment')->name('upgradepay_ec');

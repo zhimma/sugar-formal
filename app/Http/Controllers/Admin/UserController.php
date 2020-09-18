@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-//use App\Http\Requests;
 use App\Models\Board;
 use App\Models\ExpectedBanningUsers;
 use App\Models\Fingerprint2;
