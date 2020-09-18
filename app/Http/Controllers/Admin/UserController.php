@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests;
+//use App\Http\Requests;
 use App\Models\Board;
 use App\Models\ExpectedBanningUsers;
 use App\Models\Fingerprint2;
@@ -36,6 +36,7 @@ use App\Models\BannedUsersImplicitly;
 use App\Notifications\BannedNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Session;
 
 class UserController extends Controller
 {
@@ -355,6 +356,20 @@ class UserController extends Controller
             'status' => 'success'
         );
         echo json_encode($data);
+    }
+
+    public function changeExchangePeriod(Request $request)
+    {
+
+        users::where( 'id' , $request->input('id') )->update([ 'exchange_period'=>$request->input('exchange_period') ]);
+
+//        $data = array(
+//            'code' => '200',
+//            'status' => 'success'
+//        );
+
+//        echo json_encode($data);
+        return back()->with('message', '成功更新包養關係');
     }
 
     public function toggleRecommendedUser(Request $request)
@@ -2642,6 +2657,8 @@ class UserController extends Controller
         //站長系統訊息
         Message::post(1049, $user->id, $content, true, 1);
 
+        Session::flash('message', '審核已完成，系統將自動發信通知該會員');
+
         echo json_encode('ok');
     }
 
@@ -2681,6 +2698,8 @@ class UserController extends Controller
 
         //站長系統訊息
         Message::post(1049, $user->id, $content, true, 1);
+
+        Session::flash('message', '審核已完成，系統將自動發信通知該會員');
 
         echo json_encode('ok');
     }
@@ -2723,6 +2742,8 @@ class UserController extends Controller
 
         //站長系統訊息
         Message::post(1049, $user->id, $content, true, 1);
+
+        Session::flash('message', '審核已完成，系統將自動發信通知該會員');
 
         echo json_encode('ok');
     }
