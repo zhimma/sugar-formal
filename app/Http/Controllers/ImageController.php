@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Session;
 use \FileUploader;
 use App\Models\Vip;
+use App\Models\AdminCommonText;
 use Illuminate\Support\Facades\Log;
 
 class ImageController extends Controller
@@ -305,13 +306,15 @@ class ImageController extends Controller
                 UserMeta::where('user_id', $userId)->update(['pic' => $path]);
             }
             $msg="上傳成功";
+
+            $image_upload_success = AdminCommonText::where('alias','girl_to_vip')->get()->first();
             //計算已上傳的照片照判斷VIP提示用
             if($user->existHeaderImage() && $user->engroup==2 && $user->isVip() != 1){
                 $vip_record = Carbon::parse($user->vip_record);
                 if(isset($vip_record) && $vip_record->diffInSeconds(Carbon::now()) <= 86400 && $vip_record->diffInSeconds(Carbon::now())>1800){
                     $msg="照片上傳成功，24H後升級為VIP會員";
                 }else{
-                    $msg="照片上傳成功，已升級為VIP會員";
+                    $msg=$image_upload_success->content;
                 }
 
 
@@ -446,12 +449,13 @@ class ImageController extends Controller
             }
         }
         $msg="上傳成功";
+        $image_upload_success = AdminCommonText::where('alias','girl_to_vip')->get()->first();
         if($user->existHeaderImage() && $user->engroup==2 && $user->isVip() != 1){
             $vip_record = Carbon::parse($user->vip_record);
             if(isset($vip_record) && $vip_record->diffInSeconds(Carbon::now()) <= 86400 && $vip_record->diffInSeconds(Carbon::now())>1800){
                 $msg="照片上傳成功，24H後升級為VIP會員";
             }else{
-                $msg="照片上傳成功，已升級為VIP會員";
+                $msg=$image_upload_success->content;
             }
         }
         $previous = redirect()->back()->with('message', $msg);
