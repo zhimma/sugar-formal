@@ -354,6 +354,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
     Route::post('/dashboard/consignAdd', 'PagesController@consignAdd'); //new route
     Route::get('/dashboard/account_consign_cancel', 'PagesController@view_consign_cancel'); //new route
     Route::post('/dashboard/consignCancel', 'PagesController@consignCancel'); //new route
+    Route::get('/dashboard/account_exchange_period', 'PagesController@view_exchange_period'); //new route exchange_period_modify
+    Route::post('/dashboard/exchangePeriodModify', 'PagesController@exchangePeriodModify'); //new route
 
     Route::get('/dashboard/vip', 'PagesController@view_vip'); //new route
     Route::get('/dashboard2', 'PagesController@dashboard2');
@@ -387,7 +389,6 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
     Route::get('/dashboard/upgrade_ec', 'PagesController@upgrade_ec');
     Route::get('/dashboard/upgrade_esafe', 'PagesController@upgrade_esafe');
     Route::get('/dashboard/announcement', 'PagesController@showAnnouncement');
-
     Route::group(['middleware' => ['api']], function() {
         Route::post('/dashboard/payback_ec', 'ECPayment@performPayBack')->name('payback_ec');
         Route::post('/dashboard/upgradepay_ec', 'ECPayment@performPayment')->name('upgradepay_ec');
@@ -620,6 +621,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::get('checkGenderChange', 'UserController@showAdminCheckGenderChange')->name('admin/checkGenderChange');
         Route::post('checkNameChange', 'UserController@AdminCheckNameChangeSave');
         Route::post('checkGenderChange', 'UserController@AdminCheckGenderChangeSave');
+        Route::get('checkExchangePeriod', 'UserController@showAdminCheckExchangePeriod')->name('admin/checkExchangePeriod');
+        Route::post('checkExchangePeriod', 'UserController@AdminCheckExchangePeriodSave');
 
         /*新增、編輯訊息*/
         Route::post('users/getmsglib', 'UserController@getMessageLib');
@@ -642,6 +645,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::post('users/isWarned_user', 'UserController@isWarnedUser');/*警示用戶*/
         Route::get('users/getBirthday', 'UserController@getBirthday');
         Route::post('users/unwarned_user', 'UserController@unwarnedUser');/*站方警示*/
+        Route::post('users/changeExchangePeriod', 'UserController@changeExchangePeriod')->name('changeExchangePeriod');/*包養關係*/
 
         /*
         |--------------------------------------------------------------------------

@@ -977,6 +977,7 @@ class PagesController extends Controller
     public function changeName(Request $request){
         $user = $request->user();
         $name = $request->input('name');
+        $reason = $request->input('reason');
         if(!isset($name)){
             return back()->with('message', '沒有填寫新暱稱！');
         }
@@ -987,7 +988,7 @@ class PagesController extends Controller
         }else{
             //送出申請
             DB::table('account_name_change')->insert(
-                ['user_id' => $user->id, 'change_name' => $name, 'status' => 0, 'created_at' => Carbon::now()]
+                ['user_id' => $user->id, 'change_name' => $name, 'before_change_name' => $user->name, 'reason'=>$reason, 'status' => 0, 'created_at' => Carbon::now()]
             );
             return back()->with('message', '已送出申請，等待24hr站長審核');
         }
@@ -1009,7 +1010,7 @@ class PagesController extends Controller
         }else{
             //送出申請
             DB::table('account_gender_change')->insert(
-                ['user_id' => $user->id, 'change_gender' => $request->input('gender'), 'status' => 0, 'created_at' => Carbon::now()]
+                ['user_id' => $user->id, 'change_gender' => $request->input('gender'), 'before_change_gender'=>$user->engroup, 'reason'=>$request->input('reason'), 'status' => 0, 'created_at' => Carbon::now()]
             );
             return back()->with('message', '已送出申請，等待24hr站長審核');
         }
@@ -1134,6 +1135,41 @@ class PagesController extends Controller
 
     }
 
+    public function view_exchange_period(Request $request)
+    {
+        $user = $request->user();
+        return view('new.dashboard.account_exchange_period')->with('user', $user)->with('cur', $user);
+    }
+
+    public function exchangePeriodModify(Request $request){
+        $user = $request->user();
+
+        //檢查是否申請過
+        $check_user = DB::table('account_exchange_period')->where('user_id',$user->id)->first();
+        $period = $request->input('exchange_period');
+        $exchange_period_read = DB::table('exchange_period_temp')->where('user_id',$user->id)->count();
+        if(isset($check_user->user_id)){
+            return back()->with('message', '您已申請過，無法再修改喔！');
+        }
+        elseif ($exchange_period_read == 1){
+            //未動過者首次直接通過
+            User::where('id', $user->id)->update(['exchange_period' => $period]);
+            DB::table('exchange_period_temp')->insert(['user_id'=>$user->id, 'created_at'=>\Carbon\Carbon::now()]);
+            return back()->with('message', '已完成首次設定，無需審核');
+        }
+        elseif ($period == $user->exchange_period){
+            //與原本設定的一樣則不做動作
+            return back()->with('message', '您當前所選項目無需變更');
+        }
+        else{
+            //送出申請
+            DB::table('account_exchange_period')->insert(
+                ['user_id' => $user->id, 'exchange_period' => $period, 'status' => 0, 'created_at' => Carbon::now()]
+            );
+            return back()->with('message', '已送出申請，等待48hr站長審核');
+        }
+
+    }
     public function view_vip(Request $request)
     {
         /*編輯文案-檢舉會員訊息-START*/

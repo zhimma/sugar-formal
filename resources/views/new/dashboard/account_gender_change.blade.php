@@ -22,9 +22,10 @@
                             <div class="leix">
                                 <span><div class="le_ce"><input name="gender" class="gender" type="radio" value="1" @if($user->engroup==1)checked="checked"@endif/><i>甜心大哥</i></div></span>
                                 <span><div class="le_ce"><input name="gender" class="gender" type="radio" value="2" @if($user->engroup==2)checked="checked"@endif/><i>甜心寶貝</i></div></span>
+                                <div class="de_input01"><input name="reason" id="reason" type="text" class="zcinput" placeholder="請輸入修改的原因" required></div>
                             </div>
                             <div class="gg_font">註：每個帳號只能變更一次</div>
-                            <a class="dlbut g_inputt40" onclick="submit()">提交申請</a>
+                            <a class="dlbut g_inputt40" onclick="formSubmit()">提交申請</a>
                             </form>
                         </div>
                     </div>
@@ -36,7 +37,7 @@
 @section('javascript')
 
     <script>
-        function submit(){
+        function formSubmit(){
 
             @if($user->engroup_change==1)
                     c2('您已申請過，無法再修改喔！');
@@ -45,8 +46,13 @@
 
             if(!$('.gender').is(':checked')){
                 c2('您尚未選擇類型');
+                return false;
+            }else if($('#reason').val()==''){
+                c2('請輸入欲修改的原因');
+                return false;
             }else if($('input[name=gender]:checked', '#change_gender').val() == '{{$user->engroup}}') {
                 c2('您當前所選類型無需變更');
+                return false;
             }else{
                 c4('一人只能申請一次變更，並且要通過站長同意，確定變更嗎？');
             }
@@ -57,7 +63,7 @@
         }
 
         @if(Session::has('message'))
-        c2('{{Session::get('message')}}');
+            c2('{{Session::get('message')}}');
         @endif
     </script>
 @stop

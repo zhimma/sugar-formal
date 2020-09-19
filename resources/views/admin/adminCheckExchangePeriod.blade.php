@@ -1,14 +1,12 @@
 @extends('admin.main')
 @section('app-content')
 <body style="padding: 15px;">
-    <h1>站長審核 - 修改暱稱申請</h1>
+    <h1>站長審核 - 包養關係變更</h1>
     <table class="table-bordered table-hover center-block table" id="table">
         <thead>
             <tr>
                 <th scope="col">會員ID</th>
-                <th scope="col">原暱稱</th>
-                <th scope="col">修改暱稱</th>
-                <th scope="col">修改原因</th>
+                <th scope="col">包養關係</th>
                 <th scope="col">建立時間</th>
                 <th scope="col">審核時間</th>
                 <th scope="col">不通過原因</th>
@@ -19,20 +17,16 @@
         @foreach($data as $row)
             <tr>
                 <td scope="row"><a href="users/advInfo/{{$row->user_id}}" target="_blank">{{$row->user_id}}</a></td>
-                <td>{{$row->before_change_name}}</td>
-                <td>{{$row->change_name}}</td>
-                <td>{{$row->reason}}</td>
+                <td>
+                    @php
+                    $exchange_period_name = DB::table('exchange_period_name')->where('id',$row->exchange_period)->first();
+                    @endphp
+
+                    {{$exchange_period_name->name}}
+                </td>
                 <td>{{$row->created_at}}</td>
                 <td>{{$row->passed_at}}</td>
-                <td>
-                    @if($row->status == 0)
-                        <a href="javascript:void(0)" id="input_reject" data-id="{{$row->id}}" data-toggle="modal" data-target="#exampleModal" class="input_reject">
-                            <span class="reject_content_{{$row->id}}">請輸入原因</span>
-                        </a>
-                    @else
-                        {{ $row->reject_content }}
-                    @endif
-                </td>
+                <td>@if($row->status==0) <a href="javascript:void(0)" id="input_reject" class="input_reject" data-id="{{$row->id}}" data-toggle="modal" data-target="#exampleModal"><span class="reject_content_{{$row->id}}">請輸入原因</span></a> @else{{$row->reject_content}}@endif</td>
                 <td>@switch($row->status)
                         @case(0)
                         <button type="button" class="btn btn-primary" onclick="checkAction({{$row->id}},1)" >通過</button>
@@ -70,7 +64,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-{{--                    <button type="button" class="btn btn-secondary" data-dismiss="modal">X</button>--}}
+                    {{--                    <button type="button" class="btn btn-secondary" data-dismiss="modal">X</button>--}}
                     <button type="button" class="btn btn-danger reject_submit" data-id="" id="reject_submit">送出</button>
                 </div>
             </div>
@@ -82,7 +76,7 @@
         function checkAction(id, status){
             $.ajax({
                 type: 'POST',
-                url: "/admin/checkNameChange",
+                url: "/admin/checkExchangePeriod",
                 data:{
                     _token: '{{csrf_token()}}',
                     id: id,
@@ -112,7 +106,7 @@
             }
             $.ajax({
                 type: 'POST',
-                url: "/admin/checkNameChange",
+                url: "/admin/checkExchangePeriod",
                 data:{
                     _token: '{{csrf_token()}}',
                     id: $(this).data('id'),
@@ -125,6 +119,5 @@
                 }
             });
         });
-
     </script>
 @stop

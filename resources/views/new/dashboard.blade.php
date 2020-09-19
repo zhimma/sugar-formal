@@ -28,6 +28,9 @@
     .select_xx01 {
         color:unset;
     }
+    .blnr{
+        padding: 20 20 20 20;
+    }
   </style>
 
 	<div class="container matop70 chat">
@@ -55,7 +58,10 @@
                 <div class="n_input">
                   <dt>
                     <span>暱稱<i>(必填)</i></span>
-                    <span><input name="name" id="name" type="text" class="select_xx01"  placeholder="至多八個字" value="{{$user->name}}" data-parsley-errors-messages-disabled maxlength="8" disabled style="background-color: #d2d2d2;"></span>
+                    <span>
+{{--                        <input name="name" id="name" type="text" class="select_xx01"  placeholder="至多八個字" value="{{$user->name}}" data-parsley-errors-messages-disabled maxlength="8" disabled style="background-color: #d2d2d2;">--}}
+                        <div class="select_xx01 senhs hy_new" style="background: #d2d2d2;">{{$user->name}}</div>
+                    </span>
                       <input name="name" id="name" type="hidden" class="select_xx01"  placeholder="至多八個字" value="{{$user->name}}">
                   </dt>
                   <dt>
@@ -65,7 +71,11 @@
 
                   <dt>
                       <span>帳號類型</span>
-                      <span><input name="" id="" type="text" class="select_xx01" value="@if($user->engroup==1)甜心大哥@else甜心寶貝@endif" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;"></span>
+                      <span>
+{{--                          <input name="" id="" type="text" class="select_xx01" value="@if($user->engroup==1)甜心大哥@else甜心寶貝@endif" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">--}}
+                          <div class="select_xx01 senhs hy_new" style="background: #d2d2d2;">@if($user->engroup==1)甜心大哥@else甜心寶貝@endif</div>
+                      </span>
+
                       <input name="engroup" id="" type="hidden" class="select_xx01" value="{{$user->engroup}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">
                   </dt>
 {{--                  <dt>--}}
@@ -78,6 +88,19 @@
 {{--                        <div class="n_red">註：每個帳號只能變更一次</div>--}}
 {{--                      </div>--}}
 {{--                  </dt>--}}
+                    @if($user->engroup==2)
+                    <dt>
+                        <span>包養關係</span>
+                        @php
+                            $exchange_period_name = DB::table('exchange_period_name')->where('id',$user->exchange_period)->first();
+                        @endphp
+                        <span>
+{{--                            <input name="" id="" type="text" class="select_xx01" value="{{$exchange_period_name->name}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">--}}
+                            <div class="select_xx01 senhs hy_new" style="background: #d2d2d2;">{{$exchange_period_name->name}}</div>
+                        </span>
+                        <input name="exchange_period" id="" type="hidden" class="select_xx01" value="{{$user->exchange_period}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">
+                    </dt>
+                    @endif
                   <dt>
                     <span>地區<i>(必填)</i></span>
                     <div id="county">
@@ -631,6 +654,17 @@
       <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
   </div>
 
+  <div class="bl bl_tab" id="isExchangePeriod" style="display: none;">
+      <div class="bltitle">提示</div>
+      <div class="blnr bltext">
+
+              {{$user->name}} 您好，您尚未修改過基本資料-包養關係
+              提醒您前往<a href='/dashboard/account_exchange_period'>變更包養關係</a>
+      </div>
+
+      <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+  </div>
+
 <script>
     $(document).ready(function() {
         @if(Session::has('message'))
@@ -723,6 +757,15 @@
         $('#announce_bg').show();
         @endif
       @endif
+
+        @php
+            $exchange_period_read = DB::table('exchange_period_temp')->where('user_id',$user->id)->count();
+        @endphp
+        @if($exchange_period_read==0 && $user->engroup==2)
+        $('#isExchangePeriod').show();
+        $('#announce_bg').show();
+        @endif
+
       //ajax_表單送出
       $('form[name=user_data]').submit(function(e){
         e.preventDefault();
