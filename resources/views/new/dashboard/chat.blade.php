@@ -437,7 +437,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         // var page = 1;//初始資料
         // var row = 10;//預設產出資料筆數
         //var total = 0;//總筆數
-        var date=7;
+        var date = 7;
 
         if(window.location.hash) {
             // Fragment exists
@@ -445,7 +445,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             date = hash;
             // alert(hash);
         }
-        if(userIsVip==0){
+        if(userIsVip == 1){
             date='all';
         }
 
@@ -642,10 +642,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     });
 
                     $.each(res.msg,function(i,e) {
-
                         rr += parseInt(e.read_n);
-                        if (userIsVip == 0 && i < hide_vip_counts && hide_vip_counts > 0 ) {
-
+                        if (userIsVip != 1 && i < hide_vip_counts && hide_vip_counts > 0 ) {
                             if(e.user_id == 1049){
                                 hide_vip_counts = hide_vip_counts+1;
                                 if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.exchange_period);
@@ -744,7 +742,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $('.date30').hide();
                         $('.date7').hide();
 
-                        if(userIsVip == 0){
+                        if(userIsVip != 1){
                             // alert(hash);
                             if(!hash){
                                 $("input[name*='RadioGroup1'][value='7']").prop("checked", true);
