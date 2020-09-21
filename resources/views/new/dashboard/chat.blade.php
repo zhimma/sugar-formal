@@ -565,7 +565,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
         let this_week = temp_week.getFullYear() + '-' + ("0" + (temp_week.getMonth() + 1)).slice(-2) + '-' + ("0" + (temp_week.getDate())).slice(-2);
         let this_month = temp_month.getFullYear() + '-' + ("0" + (temp_month.getMonth() + 1)).slice(-2) + '-' + ("0" + (temp_month.getDate())).slice(-2);
-        // alert(this_month);
+
+        let before7days = new Date(dt.getTime() - (7 * 24 * 60 * 60 * 1000));
+        let before30days = new Date(dt.getTime() - (30 * 24 * 60 * 60 * 1000));
+
+        var this_7daysBefore = before7days.getFullYear() + '-' + ("0" + (before7days.getMonth()+1)).slice(-2) + '-' + ("0" + (before7days.getDate())).slice(-2);
+        var this_30daysBefore = before30days.getFullYear() + '-' + ("0" + (before30days.getMonth()+1)).slice(-2) + '-' + ("0" + (before30days.getDate())).slice(-2);
 
         var counter=1;
         //ajax資料
@@ -652,7 +657,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         }
 
                         if (typeof e.created_at !== 'undefined') {
-                            if (e.created_at.substr(0, 10) >= this_week) {
+                            if (e.created_at.substr(0, 10) >= this_7daysBefore) {
                                 if(e.isWarned==1) {
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('date7 alertMember common30');
                                 }else if (e.isVip == 1 && userGender==2) {
@@ -675,7 +680,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     @endforeach
                                 @endif
 
-                            } else if (e.created_at != '' && e.created_at.substr(0, 10) >= this_month) {
+                            }else if (e.created_at != '' && e.created_at.substr(0, 10) >= this_30daysBefore) {
                                 if(e.isWarned==1){
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('date30 alertMember common30');
                                 }else if (e.isVip == 1 && userGender==2) {
@@ -867,7 +872,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 $('.sjlist_alert>.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
                             }
 
-                        }else {
+                        }else{
                             if (date == 7) {
                                 $('.row_data').hide();
 
