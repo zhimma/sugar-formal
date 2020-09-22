@@ -39,7 +39,7 @@
 {{--                        @endif--}}
 
                         @if($user->engroup==2)
-                        <a href="{!! url('/dashboard/account_exchange_period') !!}" class="gg_zh_li">
+                        <a class="gg_zh_li" onclick="checkExchangePeriod();">
                             <span><img src="/new/images/zh06.png"></span>
                             <font>包養關係</font>
                         </a>
@@ -76,6 +76,17 @@
             @endif
 
             window.location.replace("/dashboard/account_gender_change");
+            return true;
+        }
+
+        function checkExchangePeriod() {
+
+            @if($user->exchange_period >= 1)
+            c2('您已申請過，無法再修改喔！');
+            return false;
+            @endif
+
+            window.location.replace("/dashboard/account_exchange_period");
             return true;
         }
     </script>
