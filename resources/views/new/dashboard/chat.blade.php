@@ -183,8 +183,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         var userIsVip = '{{ $isVip }}';
         var userGender = '{{ $user->engroup }}';
 
-            //vip
-            var Page = {
+        //vip
+        var Page = {
             page : 1,
             row  : 10,
             DrawPage:function(total){
@@ -1282,12 +1282,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             return false;
         }
 
-            function banned(sid,name){
-                $("input[name='uid']").val(sid);
-                $(".banned_name").append("<span>" + name + "</span>")
-                $(".announce_bg").show();
-                $("#show_banned").show();
-            }
+        function banned(sid,name){
+            $("input[name='uid']").val(sid);
+            $(".banned_name").append("<span>" + name + "</span>")
+            $(".announce_bg").show();
+            $("#show_banned").show();
+        }
 
         $('.vip_delete').on('click', function() {
 
@@ -1363,10 +1363,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
         }
 
-            function showChatSet() {
-                $(".blbg").show();
-                $("#tab03").show();
-            }
+        function showChatSet() {
+            $(".blbg").show();
+            $("#tab03").show();
+        }
 
     </script>
 
