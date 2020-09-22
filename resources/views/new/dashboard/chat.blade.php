@@ -629,9 +629,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     //console.log(res.msg);
                     var rr=0;
                     //total=res.msg.length;
-
-                    if(res.msg.length>0){
-                        $('#rows').val(res.msg.length);
+                    let msgLength = Object.keys(res.msg).length;
+                    if(msgLength > 0){
+                        $('#rows').val(msgLength);
                     }
 
                     var hide_vip_counts = 0;
