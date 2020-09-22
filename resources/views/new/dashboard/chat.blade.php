@@ -437,7 +437,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         // var page = 1;//初始資料
         // var row = 10;//預設產出資料筆數
         //var total = 0;//總筆數
-        var date = 7;
+        //非VIP預設撈取全部資料，在model則會再判斷為七天內資料
+        var date = 'all'
 
         if(window.location.hash) {
             // Fragment exists
@@ -445,8 +446,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             date = hash;
             // alert(hash);
         }
+        // VIP資訊量較大顧預設為撈取七天
         if(userIsVip == 1){
-            date='all';
+            date=7;
         }
 
         function startOfWeek(dt)

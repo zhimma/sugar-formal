@@ -496,19 +496,21 @@ class Message_new extends Model
         });
 
         if($d==7){
-//                self::$date =\Carbon\Carbon::now()->startOfWeek()->toDateTimeString();
             self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
         }else if($d==30){
             if($isVip) {
-//                self::$date = \Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString();
                 self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
             }else {
-//                self::$date = \Carbon\Carbon::parse(date("Y-m-01"))->parse("7 days ago")->toDateTimeString();
                 self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
             }
         }else if($d=='all'){
-            self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
+            if($isVip) {
+                self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
+            }else {
+                self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
+            }
         }
+
         $query->where([['created_at','>=',self::$date]]);
         $query->whereNotIn('to_id', $userBlockList);
         $query->whereNotIn('from_id', $userBlockList);
