@@ -177,6 +177,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     </div>
 
     <script>
+        let isLoading = 1;
         var total = 0;//總筆數
         var no_row_li='';
         no_row_li = '<li class="li_no_data"><div class="listicon02 nodata"><img src="/new/images/xj.png" class="list_img"><span>您目前尚無訊息</span></div></li>';
@@ -237,7 +238,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                     $('.sjlist_vip>.li_no_data').remove();
 
-                    if($('.sjlist_vip>li:visible').length==0){
+                    if($('.sjlist_vip>li:visible').length == 0 && isLoading == 0){
                         $('#sjlist_vip_warning').hide();
                         $('.sjlist_vip').append(no_row_li);
                     }
@@ -297,7 +298,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                     $('.sjlist_novip>.li_no_data').remove();
 
-                    if($('.sjlist_novip>li:visible').length==0){
+                    if($('.sjlist_novip>li:visible').length == 0 && isLoading == 0){
                         $('#sjlist_novip_warning').hide();
                         $('.sjlist_novip').append(no_row_li);
                     }
@@ -363,7 +364,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                     $('.sjlist_exchange_period_{{$row->id}}>.li_no_data').remove();
 
-                    if($('.sjlist_exchange_period_{{$row->id}}>li:visible').length==0){
+                    if($('.sjlist_exchange_period_{{$row->id}}>li:visible').length == 0 && isLoading == 0){
                         $('#sjlist_exchange_period_warning_{{$row->id}}').hide();
                         $('.sjlist_exchange_period_{{$row->id}}').append(no_row_li);
                     }
@@ -425,9 +426,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                     $('.sjlist_alert>.li_no_data').remove();
 
-                    if($('.sjlist_alert>li:visible').length==0){
-                        $('#sjlist_alert_warning').hide();
-                        $('.sjlist_alert').append(no_row_li);
+                    if($('.sjlist_alert>li:visible').length == 0){
+                        if(!isLoading) {
+                            $('#sjlist_alert_warning').hide();
+                            $('.sjlist_alert').append(no_row_li);
+                        }
                     }
                 });
             }
@@ -595,6 +598,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     userAgent: "Agent: " + String(navigator.userAgent) + " Platform: " + String(navigator.platform),
                 },
                 beforeSend:function(){//表單發送前做的事
+                    isLoading = 1;
                     @if($user->engroup==2)
                         $('.sjlist_vip').html('');
                         $('.sjlist_novip').html('');
@@ -615,10 +619,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     $('.warning').show();
                 },
                 complete: function () {
+                    isLoading = 0;
                     //alert($('.sjlist_vip>li:visible').length);
 
                 },
                 success:function(res){
+                    isLoading = 0;
                     // console.log(res.msg);
                     var li = '';//樣板容器
                     // var p = page;
@@ -1025,6 +1031,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 $('.sjlist_exchange_period_{{$row->id}}').append(no_row_li);
                             }
                             @endforeach
+                            if ($('.sjlist_alert>li:visible').length == 0) {
+                                $('#sjlist_alert_warning').hide();
+                                $('.sjlist_alert').append(no_row_li);
+                            }
                         @endif
                     }, 300);
 
@@ -1226,17 +1236,19 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $('.sjlist_vip>.li_no_data').remove();
                         $('.sjlist_novip>.li_no_data').remove();
                         $('.sjlist_alert>.li_no_data').remove();
-                        if ($('.sjlist_vip>li:visible').length == 0) {
+                        if ($('.sjlist_vip>li:visible').length == 0 && isLoading == 0) {
                             $('#sjlist_vip_warning').hide();
                             $('.sjlist_vip').append(no_row_li);
                         }
-                        if ($('.sjlist_novip>li:visible').length == 0) {
+                        if ($('.sjlist_novip>li:visible').length == 0 && isLoading == 0) {
                             $('#sjlist_novip_warning').hide();
                             $('.sjlist_novip').append(no_row_li);
                         }
                         if ($('.sjlist_alert>li:visible').length == 0) {
-                            $('#sjlist_alert_warning').hide();
-                            $('.sjlist_alert').append(no_row_li);
+                            if(!isLoading) {
+                                $('#sjlist_alert_warning').hide();
+                                $('.sjlist_alert').append(no_row_li);
+                            }
                         }
                     @elseif($user->engroup==1)
                         @php
@@ -1244,7 +1256,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         @endphp
                         @foreach($exchange_period_name as $row)
                             $('.sjlist_exchange_period_{{$row->id}}>.li_no_data').remove();
-                            if ($('.sjlist_exchange_period_{{$row->id}}>li:visible').length == 0) {
+                            if ($('.sjlist_exchange_period_{{$row->id}}>li:visible').length == 0 && isLoading == 0) {
                                 $('#sjlist_exchange_period_warning_{{$row->id}}').hide();
                                 $('.sjlist_exchange_period_{{$row->id}}').append(no_row_li);
                             }
@@ -1450,11 +1462,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             $('.sjlist_vip>.li_no_data').remove();
             $('.sjlist_novip>.li_no_data').remove();
 
-            if ($('.sjlist_vip>li:visible').length == 0) {
+            if ($('.sjlist_vip>li:visible').length == 0 && isLoading == 0) {
                 $('#sjlist_vip_warning').hide();
                 $('.sjlist_vip').append(no_row_li);
             }
-            if ($('.sjlist_novip>li:visible').length == 0) {
+            if ($('.sjlist_novip>li:visible').length == 0 && isLoading == 0) {
                 $('#sjlist_novip_warning').hide();
                 $('.sjlist_novip').append(no_row_li);
             }
@@ -1465,17 +1477,22 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 @foreach($exchange_period_name as $row)
                 $('.sjlist_exchange_period_{{$row->id}}>.li_no_data').remove();
                 if ($('.sjlist_exchange_period_{{$row->id}}>li:visible').length == 0) {
-                    $('#sjlist_exchange_period_warning_{{$row->id}}').hide();
-                    $('.sjlist_exchange_period_{{$row->id}}').append(no_row_li);
+                    if(!isLoading) {
+                        $('#sjlist_exchange_period_warning_{{$row->id}}').hide();
+                        $('.sjlist_exchange_period_{{$row->id}}').append(no_row_li);
+                    }
                 }
                 @endforeach
             @endif
 
             $('.sjlist_alert>.li_no_data').remove();
             if ($('.sjlist_alert>li:visible').length == 0) {
-                $('#sjlist_alert_warning').hide();
-                $('.sjlist_alert').append(no_row_li);
-            }else{
+                if(!isLoading) {
+                    $('#sjlist_alert_warning').hide();
+                    $('.sjlist_alert').append(no_row_li);
+                }
+            }
+            else{
                 if($(this).hasClass('on') && $(this).hasClass('lebox_alert')){
                     c3('此為警示會員，要與此區會員交流請務必小心。');
                 }
