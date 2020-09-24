@@ -631,7 +631,7 @@ class Message extends Model
             ->whereNotIn('to_id', $block)
             ->where([['is_row_delete_1', '=' ,0], ['temp_id', '=', 0]])
             ->where('read', 'N')
-            ->where([['created_at','>=',self::$date]]);
+            ->where([['message.created_at','>=',self::$date]]);
         if($user->meta_()->notifhistory == '顯示VIP會員信件') {
             //$allVip = \App\Models\Vip::allVip();
             //$all_msg = $all_msg->whereIn('from_id', $allVip);
