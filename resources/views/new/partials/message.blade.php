@@ -9,6 +9,12 @@
 <a href="" class="gxbut"></a>
 </div>
 
+<div class="bl gtab" id="tab_loading">
+{{--    <a href="" class="gxbut"></a>--}}
+{{--    <div class="loading"></div>--}}
+    <div class="loading"><span class="loading_text">loading</span></div>
+</div>
+
 <div class="bl bla gtab" id="tab_message">
     <a href="" class="gxbut"></a>
 </div>

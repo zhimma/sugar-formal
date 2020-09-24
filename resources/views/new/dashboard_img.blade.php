@@ -34,6 +34,7 @@
             width: 154px !important;
         }
     }
+
 </style>
 
 <div class="container matop70 chat">
@@ -187,8 +188,14 @@
     }
     $(document).ready(function(){
         @if(Session::has('message'))
-            c2("{{ Session::get('message') }}");
+            c3("{{ Session::get('message') }}");
         @endif
+
+        //errors
+        @foreach ($errors->all() as $error)
+            c3('{{$error}}');
+        @endforeach
+
         let userId = $("input[name='userId']").val()
 
     //preload avatar
@@ -374,7 +381,13 @@
             });
         }
     });
-  
+
+    $('.upload_btn').click(function() {
+        loading();
+        return true;
+
+    });
+    
 </script>
 
 @stop

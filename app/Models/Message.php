@@ -615,6 +615,11 @@ class Message extends Model
         $block = Blocked::getAllBlockedId($uid);
         $banned_users = \App\Services\UserService::getBannedId();
 
+        if($user->isVip()) {
+            self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
+        }else {
+            self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
+        }
         $query = Message::where(function($query)use($uid)
         {
             $query->where('to_id','=' ,$uid)
@@ -625,7 +630,8 @@ class Message extends Model
             ->whereNotIn('from_id', $block)
             ->whereNotIn('to_id', $block)
             ->where([['is_row_delete_1', '=' ,0], ['temp_id', '=', 0]])
-            ->where('read', 'N');
+            ->where('read', 'N')
+            ->where([['created_at','>=',self::$date]]);
         if($user->meta_()->notifhistory == '顯示VIP會員信件') {
             //$allVip = \App\Models\Vip::allVip();
             //$all_msg = $all_msg->whereIn('from_id', $allVip);

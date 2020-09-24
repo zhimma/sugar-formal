@@ -279,10 +279,9 @@ class ImageController extends Controller
             unlink($file);*/
 
         $upload = $fileUploader->upload();
-        if($upload['hasWarnings'])
+        if($upload['hasWarnings']) {
             return redirect()->back()->withErrors($upload['warnings']);
-        else
-        {
+        }else{
             //remove origin avator
             $removeFiles = $fileUploader->getRemovedFiles();
             if($removeFiles)
@@ -313,8 +312,6 @@ class ImageController extends Controller
                 }else{
                     $msg="照片上傳成功，已升級為VIP會員";
                 }
-
-
             }
 
             return redirect()->back()->with('message', $msg);

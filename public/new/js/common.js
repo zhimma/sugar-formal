@@ -193,6 +193,12 @@
 		$("#tab_other").show();
 		$("#tab_other .bltext").text(str);
 	}
+
+	function loading() {
+		$(".blbg").show();
+		$("#tab_loading").show();
+		// $("#tab02 .gxbut").text(str);
+	}
 	// $(document).on('click','.announce_bg',function(event) {
 	// 	$(".announce_bg").hide();
 	// 	$(".blbg").hide();
