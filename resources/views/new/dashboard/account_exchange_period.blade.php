@@ -19,22 +19,28 @@
                         <div class="gg_nr01">
 
                             <form method="POST" id="exchange_period_modify" action="/dashboard/exchangePeriodModify">
-                                {!! csrf_field() !!}
-                            <div class="baoy">
-                                <ul>
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
-                                    @foreach($exchange_period_name as $row)
-                                        <li>
-                                            <input name="exchange_period" type="radio" value="{{$row->id}}" @if($user->exchange_period == $row->id) checked @endif><span>{{$row->name}}</span>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
+                                    {!! csrf_field() !!}
+                                <div class="baoy">
+                                    <ul>
+                                        @php
+                                            $exchange_period_name = DB::table('exchange_period_name')->get();
+                                        @endphp
+                                        @foreach($exchange_period_name as $row)
+                                            <li>
+                                                <input name="exchange_period" type="radio" value="{{$row->id}}" @if($user->exchange_period == $row->id) checked @endif><span>{{$row->name}}</span>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                                <br>
+                                <div class="gg_input01">
+                                <div class="de_input01"><input name="reason" id="reason" type="text" class="zcinput" placeholder="請輸入修改的原因" maxlength="100"></div>
+                                <br>
+                                <div class="de_input01"><input name="password" id="password" type="password" class="zcinput" placeholder="請輸入您的密碼"></div>
+                                </div>
                                 <br>
                                 <div class="blxg">只能申請改一次，並且要通過站長同意</div>
-                            <a class="dlbut g_inputt40" onclick="submit()">確定</a>
+                                <a class="dlbut g_inputt40" onclick="submit()">確定</a>
                             </form>
 
                         </div>

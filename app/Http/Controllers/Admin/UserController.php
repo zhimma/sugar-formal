@@ -2620,7 +2620,9 @@ class UserController extends Controller
 
     public function showAdminCheckNameChange()
     {
-        $data = DB::table('account_name_change')->orderBy('status', 'desc')->get();
+        $data = User::select('account_name_change.*','users.id','users.email','users.name','users.engroup')
+            ->join('account_name_change', 'account_name_change.user_id', '=', 'users.id')
+            ->orderBy('account_name_change.created_at', 'desc')->get();
         return view('admin.adminCheckNameChange')
             ->with('data', $data);
     }
@@ -2630,10 +2632,10 @@ class UserController extends Controller
         $id = $request->id;
         $status = $request->status;
         $reject_content = $request->reject_content;
-        DB::table('account_name_change')->where('id', $id)
+        DB::table('account_name_change')->where('user_id', $id)
             ->update(['status' => $status, 'passed_at' => now(), 'reject_content' => $reject_content]);
 
-        $current_data = DB::table('account_name_change')->where('id', $id)->first();
+        $current_data = DB::table('account_name_change')->where('user_id', $id)->first();
 
         //notify
         if ($current_data->reject_content == '') {
@@ -2663,7 +2665,9 @@ class UserController extends Controller
 
     public function showAdminCheckGenderChange()
     {
-        $data = DB::table('account_gender_change')->orderBy('status', 'desc')->get();
+        $data = User::select('account_gender_change.*','users.id','users.email','users.name','users.engroup')
+            ->join('account_gender_change', 'account_gender_change.user_id', '=', 'users.id')
+            ->orderBy('account_gender_change.created_at', 'desc')->get();
         return view('admin.adminCheckGenderChange')
             ->with('data', $data);
     }
@@ -2673,10 +2677,10 @@ class UserController extends Controller
         $id = $request->id;
         $status = $request->status;
         $reject_content = $request->reject_content;
-        DB::table('account_gender_change')->where('id', $id)
+        DB::table('account_gender_change')->where('user_id', $id)
             ->update(['status' => $status, 'passed_at' => now(), 'reject_content' => $reject_content]);
 
-        $current_data = DB::table('account_gender_change')->where('id', $id)->first();
+        $current_data = DB::table('account_gender_change')->where('user_id', $id)->first();
 
         //notify
         if ($current_data->reject_content == '') {
@@ -2706,7 +2710,9 @@ class UserController extends Controller
 
     public function showAdminCheckExchangePeriod()
     {
-        $data = DB::table('account_exchange_period')->orderBy('status', 'desc')->get();
+        $data = User::select('account_exchange_period.*','users.id','users.email','users.name','users.engroup')
+            ->join('account_exchange_period', 'account_exchange_period.user_id', '=', 'users.id')
+            ->orderBy('account_exchange_period.created_at', 'desc')->get();
         return view('admin.adminCheckExchangePeriod')
             ->with('data', $data);
     }
@@ -2716,10 +2722,10 @@ class UserController extends Controller
         $id = $request->id;
         $status = $request->status;
         $reject_content = $request->reject_content;
-        DB::table('account_exchange_period')->where('id', $id)
+        DB::table('account_exchange_period')->where('user_id', $id)
             ->update(['status' => $status, 'passed_at' => now(), 'reject_content' => $reject_content]);
 
-        $current_data = DB::table('account_exchange_period')->where('id', $id)->first();
+        $current_data = DB::table('account_exchange_period')->where('user_id', $id)->first();
 
         //notify
         if ($current_data->reject_content == '') {

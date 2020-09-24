@@ -23,6 +23,8 @@
                                 <span><div class="le_ce"><input name="gender" class="gender" type="radio" value="1" @if($user->engroup==1)checked="checked"@endif/><i>甜心大哥</i></div></span>
                                 <span><div class="le_ce"><input name="gender" class="gender" type="radio" value="2" @if($user->engroup==2)checked="checked"@endif/><i>甜心寶貝</i></div></span>
                                 <div class="de_input01"><input name="reason" id="reason" type="text" class="zcinput" placeholder="請輸入修改的原因" required></div>
+                                <br>
+                                <div class="de_input01"><input name="password" id="password" type="password" class="zcinput" placeholder="請輸入您的密碼"></div>
                             </div>
                             <div class="gg_font">註：每個帳號只能變更一次</div>
                             <a class="dlbut g_inputt40" onclick="formSubmit()">提交申請</a>
