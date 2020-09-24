@@ -161,7 +161,7 @@ class Vip extends Model
             return true;
         }
         else if($user[0]->expiry != '0000-00-00 00:00:00'){
-            VipLog::addToLog($member_id, 'Cancellation failed, expiry: ' . $user[0]->expiry, 'XXXXXXXXX', 0, $free);
+            VipLog::addToLog($member_id, 'Cancellation bypass, expiry: ' . $user[0]->expiry, 'XXXXXXXXX', 0, $free);
             return false;
         }
 
