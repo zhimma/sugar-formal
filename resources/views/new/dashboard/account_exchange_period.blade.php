@@ -68,6 +68,12 @@
 
             if($('input[name=exchange_period]:checked', '#exchange_period_modify').val() == '{{$user->exchange_period}}') {
                 c2('您當前所選項目無需變更');
+            }else if($('#reason').val()==''){
+                c2('請輸入欲修改的原因');
+                return false;
+            }else if($('#password').val()==''){
+                c2('請輸入您的密碼');
+                return false;
             }else{
                 c4('確定要變更包養關係嗎？');
                 $('.n_left').on('click', function(event) {

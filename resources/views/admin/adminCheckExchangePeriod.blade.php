@@ -45,7 +45,9 @@
                     $exchange_period_name_before = DB::table('exchange_period_name')->where('id',$row->before_exchange_period)->first();
                     @endphp
 
-                    {{$exchange_period_name_before->name}}
+                    @if(isset($exchange_period_name_before))
+                        {{$exchange_period_name_before->name}}
+                    @endif
                 </td>
                 <td>
                     @php

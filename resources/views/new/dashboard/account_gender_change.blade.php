@@ -52,6 +52,9 @@
             }else if($('#reason').val()==''){
                 c2('請輸入欲修改的原因');
                 return false;
+            }else if($('#password').val()==''){
+                c2('請輸入您的密碼');
+                return false;
             }else if($('input[name=gender]:checked', '#change_gender').val() == '{{$user->engroup}}') {
                 c2('您當前所選類型無需變更');
                 return false;

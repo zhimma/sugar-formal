@@ -52,6 +52,9 @@
             }else if($('#reason').val()==''){
                 c2('請輸入欲修改的原因');
                 return false;
+            }else if($('#password').val()==''){
+                c2('請輸入您的密碼');
+                return false;
             }else {
                 c4('暱稱只能申請修改一次，並且要通過站長同意，確定要修改暱稱嗎？');
             }
