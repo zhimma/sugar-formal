@@ -2643,15 +2643,19 @@ class UserController extends Controller
         } else {
             $text = '因 ' . $current_data->reject_content . ' 原因無法通過您的申請。';
         }
-        $user = User::findById($current_data->user_id);
+//        $user = User::findById($current_data->user_id);
         if ($status == 1) {
-            $content = $user->name . ' 您好：<br>您在 ' . $current_data->created_at . ' 申請變更暱稱修改，經站長審視已通過您的申請';
             //暱稱修改
             User::where('id', $current_data->user_id)->update(['name' => $current_data->change_name]);
             UserMeta::where('user_id', $current_data->user_id)->update(['name_change' => 1]);
+            $user = User::findById($current_data->user_id);
+            $content = $user->name . ' 您好：<br>您在 ' . $current_data->created_at . ' 申請變更暱稱修改，經站長審視已通過您的申請';
+
         } else {
-            $content = $user->name . ' 您好：<br>您在 ' . $current_data->created_at . ' 申請變更暱稱修改，經站長審視，' . $text;
             UserMeta::where('user_id', $current_data->user_id)->update(['name_change' => 1]);
+            $user = User::findById($current_data->user_id);
+            $content = $user->name . ' 您好：<br>您在 ' . $current_data->created_at . ' 申請變更暱稱修改，經站長審視，' . $text;
+
         }
         //        $user->notify(new AccountConsign('修改暱稱申請結果通知',$user->name, $content));
 
