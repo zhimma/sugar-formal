@@ -24,7 +24,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         <div class="gg_nr01">
 
                             <form method="POST" id="exchange_period_modify" action="/dashboard/exchangePeriodModify">
-                                    {!! csrf_field() !!}
+                                {!! csrf_field() !!}
+                                <input type="hidden" name="{{ time() }}" value="{{ time() }}">
                                 <div class="baoy">
                                     <ul>
                                         @php
