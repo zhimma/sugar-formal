@@ -412,21 +412,21 @@ class ImageController extends Controller
         ));
 
         //選擇移除的照片
-        try{
-            foreach($fileUploader->getRemovedFiles() as $key => $value)
-            {
-                $file = public_path($value['file']); //full path of removed file
-                if(File::exists($file)){
-                    unlink($file);
-                    MemberPic::where('pic', $value['file'])->delete();
-                }
-            }
-        }
-        catch (\Exception $e){
-            Session::flash('message', '照片上傳失敗，某些 iPhone 機型會鎖住上傳照片權限，請改用安卓系統或電腦上傳即可。若不方便或者還是上傳失敗，請點右下【聯絡我們】和站長聯繫處理。');
-            Log::info('Image upload failed, user id: ' . $userId . ', useragent: ' . $_SERVER['HTTP_USER_AGENT']);
-            return redirect()->back();
-        }
+//        try{
+//            foreach($fileUploader->getRemovedFiles() as $key => $value)
+//            {
+//                $file = public_path($value['file']); //full path of removed file
+//                if(File::exists($file)){
+//                    unlink($file);
+//                    MemberPic::where('pic', $value['file'])->delete();
+//                }
+//            }
+//        }
+//        catch (\Exception $e){
+//            Session::flash('message', '照片上傳失敗，某些 iPhone 機型會鎖住上傳照片權限，請改用安卓系統或電腦上傳即可。若不方便或者還是上傳失敗，請點右下【聯絡我們】和站長聯繫處理。');
+//            Log::info('Image upload failed, user id: ' . $userId . ', useragent: ' . $_SERVER['HTTP_USER_AGENT']);
+//            return redirect()->back();
+//        }
 
         $upload = $fileUploader->upload();
         if($upload)

@@ -228,7 +228,7 @@
                                 //c2("刪除成功")
                                 $(".announce_bg").hide();
                                 $("#tab02").hide();
-                                c2(data);
+                                c3(data);
                                 // if(data.length>4){
                                 //     c2(data);
                                 // }else {
@@ -299,7 +299,7 @@
                             success: function(data){
                                 $(".announce_bg").hide();
                                 $("#tab02").hide();
-                                c2(data);
+                                c3(data);
                                 // if(data.length>4){
                                 //     c1(data);
                                 // }else {
