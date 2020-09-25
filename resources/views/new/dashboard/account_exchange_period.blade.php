@@ -1,5 +1,10 @@
+<?
+header("Cache-Control: no-cache, no-store, must-revalidate, post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
+?>
 @extends('new.layouts.website')
-
 @section('app-content')
     <div class="container matop70">
         <div class="row">
@@ -64,15 +69,14 @@
         @endphp
 
         function submit(){
-
-
-            if($('input[name=exchange_period]:checked', '#exchange_period_modify').val() == '{{$user->exchange_period}}') {
-                c2('您當前所選項目無需變更');
-            }else if($('#reason').val()==''){
+            if($('#reason').val()==''){
                 c2('請輸入欲修改的原因');
                 return false;
             }else if($('#password').val()==''){
                 c2('請輸入您的密碼');
+                return false;
+            }else if($('input[name=exchange_period]:checked', '#exchange_period_modify').val() == '{{$user->exchange_period}}') {
+                c2('您當前所選項目無需變更');
                 return false;
             }else{
                 c4('確定要變更包養關係嗎？');
