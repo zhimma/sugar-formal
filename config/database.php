@@ -71,7 +71,7 @@ return [
 
         'mysql_fp' => [
             'driver' => 'mysql',
-            'host' => env('DB_HOST_SECOND', '192.168.128.141'),
+            'host' => env('DB_HOST_SECOND', 'li1677-201.members.linode.com'),
             'port' => env('DB_PORT_SECOND', '3306'),
             'database' => env('DB_DATABASE_FP', 'sg_database'),
             'username' => env('DB_USERNAME_FP', 'sg_database'),
