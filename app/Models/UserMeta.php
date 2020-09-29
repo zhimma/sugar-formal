@@ -66,8 +66,8 @@ class UserMeta extends Model
         'assets',
         'income',
         'notifmessage',
-        'notifhistory'
-
+        'notifhistory',
+        'adminNote'
     ];
 
     /*

@@ -38,7 +38,7 @@ class MemberPic extends Model
     
     public static function getSelf($uid)
     {
-        return MemberPic::where('member_id', $uid)->get();
+        return MemberPic::where('member_id', $uid)->whereRaw("pic not LIKE '%IDPhoto%'")->get();
     }
 
     public static function getRand()
@@ -57,5 +57,10 @@ class MemberPic extends Model
 
     public static function getPicNums($uid) {
         return MemberPic::where('member_id', $uid)->count();
+    }
+
+    public static function getSelfIDPhoto($uid)
+    {
+        return MemberPic::where('member_id', $uid)->whereRaw("pic LIKE '%IDPhoto%'")->get();
     }
 }

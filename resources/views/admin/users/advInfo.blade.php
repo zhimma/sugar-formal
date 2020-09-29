@@ -233,8 +233,10 @@
 		<td>{{ $userMeta->created_at }}</td>
 		<th>更新時間</th>
 		<td>{{ $userMeta->updated_at }}</td>
-{{--		<td></td>--}}
-{{--		<td></td>--}}
+	</tr>
+	<tr>
+		<th>站長註解</th>
+		<td colspan='3'><textarea class="form-control m-input" type="textarea" rows="3" maxlength="300" readonly>{{ $userMeta->adminNote }}</textarea></td>
 	</tr>
 </table>
 
@@ -413,6 +415,23 @@
 		</tr>
 	@empty
 		此會員目前沒有生活照
+	@endforelse
+</table>
+<h4>現有證件照</h4>
+<?php $pics = \App\Models\MemberPic::getSelfIDPhoto($user->id); ?>
+<table class="table table-hover table-bordered" style="width: 50%;">
+	@forelse ($pics as $pic)
+		<tr>
+			<td>
+				<input type="hidden" name="userId" value="{{$user->id}}">
+				<input type="hidden" name="imgId" value="{{$pic->id}}">
+				<div style="width:400px">
+					<img src="{{$pic->pic}}" />
+				</div>
+			</td>
+		</tr>
+	@empty
+		此會員目前沒有證件照
 	@endforelse
 </table>
 </body>

@@ -425,6 +425,11 @@ class UserService
                                   $payload['meta']['notifhistory'] = $payload['notifhistory'];
                   unset($payload['notifhistory']);
                   }
+                if (isset($payload['adminNote']))
+                {
+                    $payload['meta']['adminNote'] = $payload['adminNote'];
+                    unset($payload['adminNote']);
+                }
 
 //                if (isset($payload['exchange_period']))
 //                {
