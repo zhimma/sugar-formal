@@ -235,8 +235,11 @@
 		<td>{{ $userMeta->updated_at }}</td>
 	</tr>
 	<tr>
-		<th>站長註解</th>
-		<td colspan='3'><textarea class="form-control m-input" type="textarea" rows="3" maxlength="300" readonly>{{ $userMeta->adminNote }}</textarea></td>
+		<form action="{{ route('users/save', $user->id) }}" method='POST'>
+			{!! csrf_field() !!}
+			<th>站長註解<div><button type="submit" class="text-white btn btn-primary">修改</button></div></th>
+			<td colspan='3'><textarea class="form-control m-input" type="textarea" name="adminNote" rows="3" maxlength="300">{{ $userMeta->adminNote }}</textarea></td>
+		</form>
 	</tr>
 </table>
 
