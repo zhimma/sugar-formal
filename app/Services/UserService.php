@@ -430,6 +430,9 @@ class UserService
                     $payload['meta']['adminNote'] = $payload['adminNote'];
                     unset($payload['adminNote']);
                 }
+                else{
+                    $payload['meta']['adminNote'] = '';
+                }
 
 //                if (isset($payload['exchange_period']))
 //                {
