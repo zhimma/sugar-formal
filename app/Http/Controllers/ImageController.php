@@ -176,19 +176,24 @@ class ImageController extends Controller
         $payload = $request->all();
         $userId = $payload['userId'];
 
+        $rootPath = public_path('/img/Member'); //生活照
+        $picPath = '/img/Member/';
+        //證件照
+        if($request->get('picType') == 'IDPhoto'){
+            $rootPath = public_path('/img/Member/IDPhoto');
+            $picPath = '/img/Member/IDPhoto/';
+        }
         if($files = $request->file('images')) {
             foreach ($files as $file) {
                 $now = Carbon::now()->format('Ymd');
                 $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
-
-                $rootPath = public_path('/img/Member');
                 $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
 
                 if(!is_dir($tempPath)) {
                     File::makeDirectory($tempPath, 0777, true);
                 }
 
-                $destinationPath = '/img/Member/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
+                $destinationPath = $picPath. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
 
                 $img = Image::make($file->getRealPath());
                 $img->resize(400, 600, function ($constraint) {

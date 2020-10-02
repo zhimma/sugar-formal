@@ -351,8 +351,10 @@
             <td>{{ $userMeta->created_at }}</td>
             <th>更新時間</th>
             <td>{{ $userMeta->updated_at }}</td>
-{{--            <td></td>--}}
-{{--            <td></td>--}}
+        </tr>
+        <tr>
+            <th>站長註解</th>
+            <td colspan='3'><textarea class="form-control m-input" type="textarea" id="adminNote" name="adminNote" rows="3" maxlength="300">{{ $userMeta->adminNote }}</textarea></td>
         </tr>
     </table>
     <button type='submit' class='text-white btn btn-primary'>儲存</button>
@@ -398,6 +400,28 @@
         </tr>
     </table>
 </form>
+
+<form method="POST" action="/dashboard/image/true" enctype="multipart/form-data">
+    {!! csrf_field() !!}
+    <input type="hidden" name="userId" value="{{$user->id}}">
+    <table class="table table-hover table-bordered">
+        <tr>
+            <td><label class="col-form-label twzip" for="images">新增證件照</label></td>
+            <td class="input_field_weap">
+                <label class="custom-file">
+                    <input type="hidden" name="picType" value="IDPhoto">
+                    <input type="file" id="images" class="custom-file-input" name="images[]" onchange="$(this).parent().children().last().text($(this).val().split('\\').pop());">
+                    <span class="custom-file-control"></span>
+                </label>
+                <button type="button" id="add_image" class="" name="button">+</button>
+            </td>
+            <td>
+                <button id="image-submit" type="submit" class="btn btn-success upload-submit">上傳</button>&nbsp;&nbsp;
+            </td>
+        </tr>
+    </table>
+</form>
+
 <h4>現有生活照</h4>
 <?php $pics = \App\Models\MemberPic::getSelf($user->id); ?>
 <table class="table table-hover table-bordered" style="width: 50%;">
@@ -421,7 +445,29 @@
         此會員目前沒有生活照
     @endforelse
 </table>
-
+<h4>現有證件照</h4>
+<?php $pics = \App\Models\MemberPic::getSelfIDPhoto($user->id); ?>
+<table class="table table-hover table-bordered" style="width: 50%;">
+    @forelse ($pics as $pic)
+        <tr>
+            <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="/dashboard/imagedel/true">
+                <td>
+                    {!! csrf_field() !!}
+                    <input type="hidden" name="userId" value="{{$user->id}}">
+                    <input type="hidden" name="imgId" value="{{$pic->id}}">
+                    <div style="width:400px">
+                        <img src="{{$pic->pic}}" />
+                    </div>
+                </td>
+                <td>
+                    <button type="submit" class="btn btn-metal">刪除</button>
+                </td>
+            </form>
+        </tr>
+    @empty
+        此會員目前沒有證件照
+    @endforelse
+</table>
 </body>
 <script>
 var domainJson = ({

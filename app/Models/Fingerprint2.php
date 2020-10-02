@@ -20,6 +20,15 @@ class Fingerprint2 extends Model
      */
     //protected $fillable = ['browser_name', 'browser_version', 'os_name', 'os_version', 'timezone', 'plugins', 'language'];
 
+    public function __construct(array $attributes = []){
+        $this->bootIfNotBooted();
+        $this->syncOriginal();
+        $this->fill($attributes);
+        if(env("APP_ENV", "local") != "local"){
+            $this->connection = 'mysql_fp';
+        }
+    }
+
     public static function isExist($data)
     {
         $result = Fingerprint::where($data)->count();

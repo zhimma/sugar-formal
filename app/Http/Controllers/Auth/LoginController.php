@@ -232,9 +232,16 @@ class LoginController extends Controller
                 }
             }
             if(isset($payload['fp'])){
+                $db = null;
+                if(env("APP_ENV", "local") != "local"){
+                    $db = \DB::connection('mysql_fp')->table('fingerprint2');
+                }
+                else{
+                    $db = \DB::table('fingerprint2');
+                }
                 $ip = $request->ip();
-                $isFp = \DB::table('fingerprint2')
-                    ->where('fp', $payload['fp'])
+                $isFp = $db;
+                $isFp = $isFp->where('fp', $payload['fp'])
                     ->where('user_id', $uid)
                     ->where('ip', $ip)
                     ->get()->count();
@@ -245,7 +252,8 @@ class LoginController extends Controller
                     $payload['user_id'] = $uid;
                     $payload['ip'] = $ip;
                     $payload['mac_address'] = $this->get_mac_address();
-                    $result = \DB::table('fingerprint2')->insert($payload);
+                    $result = $db;
+                    $result = $result->insert($payload);
                 }
                 try{
                     $this->fingerprint->judgeUserFingerprintAll($uid, $payload);
