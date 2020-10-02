@@ -1177,6 +1177,10 @@ class PagesController extends Controller
     }
     public function view_vip(Request $request)
     {
+
+        $cancel_vip = AdminCommonText::where('alias','cancel_vip')->get()->first();
+
+
         /*編輯文案-檢舉會員訊息-START*/
         $vip_text = AdminCommonText::where('alias','vip_text')->get()->first();
         /*編輯文案-檢舉會員訊息-END*/
@@ -1198,6 +1202,7 @@ class PagesController extends Controller
             ->with('user', $user)->with('cur', $user)
             ->with('vip_text', $vip_text->content)
             ->with('upgrade_vip', $upgrade_vip->content)
+            ->with('cancel_vip', $cancel_vip->content)
             ->with('expiry_time', $expiry_time)
             ->with('days',$days);
     }
@@ -1276,8 +1281,11 @@ class PagesController extends Controller
             if (!isset($targetUser)) {
                 return view('errors.nodata');
             }
+            /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
+            $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
+            /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
             if(User::isBanned($uid)){
-                Session::flash('message', '此用戶已關閉資料。');
+                Session::flash('message', $user_closed->content);
                 return view('new.dashboard.viewuser')->with('user', $user);
             }
             if ($user->id != $uid) {
@@ -1378,9 +1386,7 @@ class PagesController extends Controller
                 $label_vip = AdminCommonText::where('category_alias', 'label_text')->where('alias','label_vip')->get()->first();
                 /*編輯文案-label_vip-END*/
 
-                /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
-                $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
-                /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
+                
 
                 $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $uid)->get();
                 $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
@@ -1568,6 +1574,7 @@ class PagesController extends Controller
             $pic_id = substr($pic_id, 3, strlen($pic_id));
         }
         if($isAvatar){
+            $report_avatar = AdminCommonText::where('alias', 'report_avatar')->get()->first();
             if ( ! ReportedAvatar::findMember( $reporter_id , $pic_id ) )
             {
                 if ($reporter_id !== $pic_id)
@@ -1575,7 +1582,8 @@ class PagesController extends Controller
                     return view('dashboard.reportAvatar', [
                         'reporter_id' => $reporter_id,
                         'reported_user_id' => $pic_id,
-                        'user' => $user ]);
+                        'user' => $user,
+                        'report_avatar'=> $report_avatar->content ]);
                 }
                 else{
                     return back()->withErrors(['錯誤，不能檢舉自己的大頭照。']);
@@ -1587,6 +1595,7 @@ class PagesController extends Controller
             }
         }
         else{
+            $report_reason = AdminCommonText::where('alias', 'report_reason')->get()->first();
             if ( ! ReportedPic::findMember( $reporter_id , $pic_id ) )
             {
                 if( $reporter_id !== $uid ){
@@ -1599,7 +1608,8 @@ class PagesController extends Controller
                         'reported_pic_id' => $pic_id,
                         'user' => $user,
                         'target' => $target,
-                        'uid' => $uid]);
+                        'uid' => $uid,
+                        'report_reason'=>$report_reason->content]);
                 }
                 else{
                     return back()->withErrors(['錯誤，不能檢舉自己的照片。']);
@@ -1852,6 +1862,7 @@ class PagesController extends Controller
     {
         $user = $request->user();
         $m_time = '';
+        $report_reason = AdminCommonText::where('alias', 'report_reason')->get()->first();
         if (isset($user)) {
             $isVip = $user->isVip();
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
@@ -1872,7 +1883,8 @@ class PagesController extends Controller
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
                     ->with('tippopup', $tippopup)
-                    ->with('messages', $messages);
+                    ->with('messages', $messages)
+                    ->with('report_reason', $report_reason->content);
             }
             else {
                 return view('new.dashboard.chatWithUser')
@@ -1880,7 +1892,8 @@ class PagesController extends Controller
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
                     ->with('tippopup', $tippopup)
-                    ->with('messages', $messages);
+                    ->with('messages', $messages)
+                    ->with('report_reason', $report_reason->content);
             }
         }
     }
@@ -2372,8 +2385,9 @@ class PagesController extends Controller
 //                ->with('user', $request->user());
     }
     
-	public function mem_member()
+	public function mem_member(Request $request)
     {
+
         $uri = $request->segments();
         $user_id = $uri[2];
         $mid = $request->user()->id ?? 689;

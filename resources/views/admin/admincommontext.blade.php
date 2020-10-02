@@ -21,7 +21,7 @@
                     {{ $a->category }}
                 </td>
                 <td style="width: 35%;">{!! nl2br($a->content) !!}</td>
-                <td id="show"><div contenteditable="true" class="div2input" style="border:1px #C0C0C0 solid;padding:2px;">{!! nl2br($a->content) !!}</div></td>
+                <td id="show"><div contenteditable="false" class="div2input" style="border:1px #C0C0C0 solid;padding:2px;">{!! nl2br($a->content) !!}</div></td>
                 <td id="hide"><textarea style="background:transparent;"  name="content2" cols="80">{{ $a->content }}</textarea></td>
                 <td>
     				<input type="hidden" class="input2post" name="content" vlaue=""> 

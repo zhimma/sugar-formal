@@ -1651,15 +1651,13 @@ class UserController extends Controller
 
     public function saveAdminCommonText(Request $request)
     {
+
         if (AdminCommonText::checkContent2($request->id, $request->content2) AND AdminCommonText::checkContent2($request->id, $request->content)) {
             return back()->withErrors(['請修改後再送出']);
-        } elseif (AdminCommonText::checkContent2($request->id, $request->content2)) {
+        } elseif ($request->content!=$request->content2) {
+            
             $a = AdminCommonText::select('*')->where('id', '=', $request->id)->first();
-            $a->content = $request->content;
-            $a->save();
-            return back()->with('message', '成功修改');
-        } elseif (AdminCommonText::checkContent2($request->id, $request->content)) {
-            $a = AdminCommonText::select('*')->where('id', '=', $request->id)->first();
+            
             $a->content = $request->content2;
             $a->save();
             return back()->with('message', '成功修改');

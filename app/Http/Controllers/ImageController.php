@@ -305,12 +305,14 @@ class ImageController extends Controller
             }
             $msg="上傳成功";
             //計算已上傳的照片照判斷VIP提示用
+            $girl_to_vip = AdminCommonText::where('alias', 'girl_to_vip')->get()->first();
+
             if($user->existHeaderImage() && $user->engroup==2 && $user->isVip() != 1){
                 $vip_record = Carbon::parse($user->vip_record);
                 if(isset($vip_record) && $vip_record->diffInSeconds(Carbon::now()) <= 86400 && $vip_record->diffInSeconds(Carbon::now())>1800){
-                    $msg="照片上傳成功，24H後升級為VIP會員";
+                    $msg = "照片上傳成功，24H後升級為VIP會員";
                 }else{
-                    $msg="照片上傳成功，已升級為VIP會員";
+                    $msg = $girl_to_vip->content;
                 }
             }
 
@@ -443,12 +445,15 @@ class ImageController extends Controller
             }
         }
         $msg="上傳成功";
+
+        $girl_to_vip = AdminCommonText::where('alias', 'girl_to_vip')->get()->first();
+
         if($user->existHeaderImage() && $user->engroup==2 && $user->isVip() != 1){
             $vip_record = Carbon::parse($user->vip_record);
             if(isset($vip_record) && $vip_record->diffInSeconds(Carbon::now()) <= 86400 && $vip_record->diffInSeconds(Carbon::now())>1800){
-                $msg="照片上傳成功，24H後升級為VIP會員";
+                $msg = "照片上傳成功，24H後升級為VIP會員";
             }else{
-                $msg="照片上傳成功，已升級為VIP會員";
+                $msg = $girl_to_vip->content;
             }
         }
         $previous = redirect()->back()->with('message', $msg);

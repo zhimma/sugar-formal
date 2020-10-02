@@ -266,7 +266,7 @@
                 <input type="hidden" name="aid" value="{{$user->id}}">
                 <input type="hidden" name="uid" value="">
                 <input type="hidden" name="id" value="">
-                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請輸入檢舉理由"></textarea>
+                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_reason}}"></textarea>
 {{--                <div class="n_bbutton">--}}
 {{--                    <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>--}}
 {{--                </div>--}}
