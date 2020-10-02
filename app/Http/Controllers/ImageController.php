@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Session;
 use \FileUploader;
 use App\Models\Vip;
+use App\Models\AdminCommonText;
 use Illuminate\Support\Facades\Log;
 
 class ImageController extends Controller
@@ -309,6 +310,8 @@ class ImageController extends Controller
                 UserMeta::where('user_id', $userId)->update(['pic' => $path]);
             }
             $msg="上傳成功";
+
+            $image_upload_success = AdminCommonText::where('alias','girl_to_vip')->get()->first();
             //計算已上傳的照片照判斷VIP提示用
             $girl_to_vip = AdminCommonText::where('alias', 'girl_to_vip')->get()->first();
 

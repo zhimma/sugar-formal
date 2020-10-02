@@ -536,7 +536,8 @@ class PagesController extends Controller
         $year = $birthday[0];
         $month = $birthday[1];
         $day = $birthday[2];
-
+        $no_avatar = AdminCommonText::where('alias','no_avatar')->get()->first();
+        
         if ($user) {
             $cancel_notice = $request->session()->get('cancel_notice');
             $message = $request->session()->get('message');
@@ -549,7 +550,8 @@ class PagesController extends Controller
                     ->with('month', $month)
                     ->with('day', $day)
                     ->with('message', $message)
-                    ->with('cancel_notice', $cancel_notice);
+                    ->with('cancel_notice', $cancel_notice)
+                    ->with('no_avatar', $no_avatar->content);
             }
             return view('dashboard')
             ->with('user', $user)
@@ -557,7 +559,8 @@ class PagesController extends Controller
             ->with('cur', $user)
             ->with('year', $year)
             ->with('month', $month)
-            ->with('day', $day);
+            ->with('day', $day)
+            ->with('no_avatar', $no_avatar->content);
         }
     }
 
@@ -601,7 +604,7 @@ class PagesController extends Controller
 
         $isAdminWarnedRead = warned_users::select('isAdminWarnedRead')->where('member_id',$user->id)->first();
 
-
+        $no_avatar = AdminCommonText::where('alias','no_avatar')->get()->first();
         if($year=='1970'){
             $year=$month=$day='';
         }
@@ -618,7 +621,8 @@ class PagesController extends Controller
                     ->with('day', $day)
                     ->with('message', $message)
                     ->with('cancel_notice', $cancel_notice)
-                    ->with('add_avatar', $add_avatar);
+                    ->with('add_avatar', $add_avatar)
+                    ->with('no_avatar', $no_avatar->content);
             }
             return view('new.dashboard')
                 ->with('user', $user)
@@ -629,7 +633,8 @@ class PagesController extends Controller
                 ->with('day', $day)
                 ->with('cancel_notice', $cancel_notice)
                 ->with('add_avatar', $add_avatar)
-                ->with('isAdminWarnedRead',$isAdminWarnedRead);
+                ->with('isAdminWarnedRead',$isAdminWarnedRead)
+                ->with('no_avatar', $no_avatar->content);
 //                ->with('isWarnedReason',$isWarnedReason)
         }
     }
@@ -1334,7 +1339,7 @@ class PagesController extends Controller
                     'be_visit_other_count_7' => $be_visit_other_count_7,
                     'message_count' => $message_count,
                     'message_count_7' => $message_count_7,
-                    'is_banned' => $is_banned,
+                    'is_banned' => $is_banned
                 );
                 $member_pic = DB::table('member_pic')->where('member_id',$uid)->where('pic','<>',$targetUser->meta_()->pic)->get();
                 if($user->isVip()){
@@ -1421,8 +1426,8 @@ class PagesController extends Controller
                         ->with('alert_account',$alert_account->content)
                         ->with('label_vip',$label_vip->content)
                         ->with('user_closed',$user_closed->content)
-                        ->with('rating_avg',$rating_avg);
-                    
+                        ->with('rating_avg',$rating_avg)
+                        ->with('user_closed',$user_closed->content);
             }
 
     }
@@ -2423,7 +2428,16 @@ class PagesController extends Controller
         $message_count = Message::where('from_id', $user_id)->count();
 
         $message_count_7 = Message::where('from_id', $user_id)->where('created_at', '>=', $date)->count();
-
+        $report_reason = AdminCommonText::where('alias','report_reason')->get()->first();
+        $report_member = AdminCommonText::where('alias','report_member')->get()->first();
+        $report_avatar = AdminCommonText::where('alias','report_avatar')->get()->first();
+        
+        /*label*/
+        $new_sweet = AdminCommonText::where('category_alias','label_text')->where('alias','new_sweet')->get()->first();
+        $well_member = AdminCommonText::where('category_alias','label_text')->where('alias','well_member')->get()->first();
+        $money_cert = AdminCommonText::where('category_alias','label_text')->where('alias','money_cert')->get()->first();
+        $alert_account = AdminCommonText::where('category_alias','label_text')->where('alias','alert_account')->get()->first();
+        $label_vip = AdminCommonText::where('category_alias','label_text')->where('alias','label_vip')->get()->first();
         $data = array(
             'tip_count'=> $tip_count,
             'fav_count'=> $fav_count,
@@ -2436,6 +2450,14 @@ class PagesController extends Controller
             'be_visit_other_count_7'=>$be_visit_other_count_7,
             'message_count' => $message_count,
             'message_count_7' => $message_count_7,
+            'report_reason' => $report_reason->content,
+            'report_member' => $report_member->content,
+            'report_avatar' => $report_avatar->content,
+            'new_sweet'     => $new_sweet->content,
+            'well_member'     => $well_member->content,
+            'money_cert'     => $money_cert->content,
+            'label_vip'     => $label_vip->content,
+            'alert_account'     => $alert_account->content,
         );
         return view('/new/mem_member', $data)
                 ->with('user', $user);

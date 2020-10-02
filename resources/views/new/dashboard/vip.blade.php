@@ -176,7 +176,7 @@
     <script>
         $(document).ready(function() {
             @if(Session::has('message'))
-            c5('{{Session::get('message')}}');
+            c5("{{Session::get('message')}}");
             <?php session()->forget('message');?>
             @endif
         });
