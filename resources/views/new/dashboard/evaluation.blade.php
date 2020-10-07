@@ -259,7 +259,7 @@
                                 </div>
                                 <div class="he_two">
                                     <div class="context">
-                                        <div id="test" class="context-wrap">{!! nl2br($row->re_content) !!}</div>
+                                        <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
                                     </div>
                                 </div>
                                 <div class="he_twotime">{{ substr($row->re_created_at,0,10)}}<span class="z_more">展開</span></div>

@@ -1263,8 +1263,14 @@ class UserController extends Controller
 
     public function showBannedList()
     {
-        $list = banned_users::join('users', 'users.id', '=', 'banned_users.member_id')
-            ->select('banned_users.*', 'users.name', 'users.email', 'banned_users.reason')->orderBy('created_at', 'desc')->get();
+        if(env("APP_ENV", "local") == "local") {
+            $list = banned_users::join('users', 'users.id', '=', 'banned_users.member_id')
+                ->select('banned_users.*', 'users.name', 'users.email', 'banned_users.reason')->orderBy('created_at', 'desc')->paginate(100);
+        }
+        else{
+            $list = banned_users::join('sugar_garden.users', 'sugar_garden.users.id', '=', 'banned_users.member_id')
+                ->select('banned_users.*', 'sugar_garden.users.name', 'sugar_garden.users.email')->orderBy('created_at', 'desc')->paginate(100);
+        }
         return view('admin.users.bannedList')->with('list', $list);
     }
 
