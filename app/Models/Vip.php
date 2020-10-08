@@ -97,7 +97,7 @@ class Vip extends Model
         $curUser = User::findById($member_id);
         if ($curUser != null)
         {
-            $admin->notify(new NewVipEmail($member_id, $business_id, $member_id));
+            //$admin->notify(new NewVipEmail($member_id, $business_id, $member_id));
         }
     }
 
@@ -122,7 +122,7 @@ class Vip extends Model
         $admin = User::findByEmail(Config::get('social.admin.email'));
 
         if ($curUser != null) {
-            $admin->notify(new CancelVipEmail($member_id, '761404', $member_id));
+            //$admin->notify(new CancelVipEmail($member_id, '761404', $member_id));
         }
         $user = Vip::select('id', 'expiry', 'created_at', 'updated_at')
                 ->where('member_id', $member_id)
