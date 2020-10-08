@@ -543,6 +543,12 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
             Route::post('delete', 'UserController@deleteMessage')->name('users/message/delete');
             Route::post('edit', 'UserController@editMessage')->name('users/message/edit');
         });
+
+        Route::group(['prefix'=>'users/spam_text_message'], function(){
+            Route::get('search', 'UserController@showSpamTextMessage')->name('showSpamTextMessage');
+            Route::post('search', 'UserController@searchSpamTextMessage')->name('searchSpamTextMessage');
+        });
+
         
         Route::get('statistics', 'UserController@statisticsReply')->name("statistics");
         Route::post('statistics', 'UserController@statisticsReply');

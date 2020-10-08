@@ -2761,4 +2761,110 @@ class UserController extends Controller
         echo json_encode('ok');
     }
 
+    public function showSpamTextMessage()
+    {
+        return view('admin.users.searchSpamTextMessage');
+    }
+
+    public function searchSpamTextMessage(Request $request)
+    {
+        $date_start = $request->date_start ? $request->date_start : '0000-00-00';
+        $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
+
+        $query = Message::select('users.email','users.name','users.title','users.engroup','users.created_at','users.last_login','message.id','message.from_id','message.content','user_meta.about')
+            ->join('users', 'message.from_id', '=', 'users.id')
+            ->join('user_meta', 'message.from_id', '=', 'user_meta.user_id')
+            ->where(function($query)use($date_start,$date_end)
+            {
+                $query->where('message.from_id','<>',1049)
+                    ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
+            });
+        if(isset($request->search_email)){
+            $search_email = explode(',',$request->search_email);
+            if($search_email) {
+                $in_email = array();
+                foreach ($search_email as $email) {
+                    array_push($in_email, $email);
+                }
+            }else{
+                $in_email=$request->search_email;
+            }
+            $query->whereIn('users.email',[$in_email]);
+        }
+        if(isset($request->time) && $request->time=='created_at'){
+            $query->orderBy('users.created_at','desc');
+        }
+        if(isset($request->time) && $request->time=='last_login'){
+            $query->orderBy('users.last_login','desc');
+        }
+        $results_a = $query->distinct('message.from_id')->take($request->users_counts)->get();
+
+        if ($results_a != null) {
+
+            $results = collect([$results_a])->collapse()->unique('from_id');
+
+            //all_user
+            $data_all = array();
+            foreach ($results as $result) {
+
+                //single user
+                $msg = array();
+                $from_content = array();
+                $user_similar_msg = array();
+
+                $messages = Message::select('id','content','created_at')
+                    ->where('from_id',$result->from_id)
+                    ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
+                    ->orderBy('created_at','desc')
+                    ->get();
+
+                foreach($messages as $row){
+                    array_push($msg,array('id'=>$row->id,'content'=>$row->content,'created_at'=>$row->created_at));
+                }
+
+                array_push($from_content,  array('msg'=>$msg));
+
+                $unique_id = array(); //過濾重複ID用
+                //比對訊息
+                foreach($from_content as $data) {
+                    foreach ($data['msg'] as $word1) {
+                        foreach ($data['msg'] as $word2) {
+                            if ($word1['created_at'] != $word2['created_at']) {
+                                similar_text($word1['content'], $word2['content'], $percent);
+                                if ($percent >= $request->percent) {
+                                    if(!in_array($word1['id'],$unique_id)) {
+                                        array_push($unique_id,$word1['id']);
+                                        array_push($user_similar_msg, array($word1['id'], $word1['content'], $word1['created_at'], $percent));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //single user end
+
+                //all_users
+                //push_data
+                if(count($user_similar_msg)>0) {
+                    array_push($data_all, array(
+                        'user_id' => $result->from_id,
+                        'email' => $result->email,
+                        'name' => $result->name,
+                        'engroup' => $result->engroup,
+                        'title' => $result->title,
+                        'about' => $result->about,
+                        'created_at' => $result->created_at,
+                        'last_login' => $result->last_login,
+                        'all_msg_counts' => count($messages),
+                        'similar_msg' => $user_similar_msg
+                    ));
+                }
+            }
+        }
+
+        return view('admin.users.searchSpamTextMessage')
+            ->with('data_all',$data_all);
+    }
+
 }
