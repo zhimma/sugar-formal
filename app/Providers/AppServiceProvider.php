@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Observers\BannedObserver;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Factory;
 use Illuminate\Support\Facades\View;

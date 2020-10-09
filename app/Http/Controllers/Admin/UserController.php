@@ -1263,14 +1263,8 @@ class UserController extends Controller
 
     public function showBannedList()
     {
-        if(env("APP_ENV", "local") == "local") {
-            $list = banned_users::join('users', 'users.id', '=', 'banned_users.member_id')
+        $list = banned_users::join('users', 'users.id', '=', 'banned_users.member_id')
                 ->select('banned_users.*', 'users.name', 'users.email', 'banned_users.reason')->orderBy('created_at', 'desc')->paginate(100);
-        }
-        else{
-            $list = banned_users::join('sugar_garden.users', 'sugar_garden.users.id', '=', 'banned_users.member_id')
-                ->select('banned_users.*', 'sugar_garden.users.name', 'sugar_garden.users.email')->orderBy('created_at', 'desc')->paginate(100);
-        }
         return view('admin.users.bannedList')->with('list', $list);
     }
 
@@ -2161,6 +2155,7 @@ class UserController extends Controller
         // dd($ban);
         if (empty($ban)) {
             DB::table('banned_users')->insert(['member_id' => $data['id'], 'reason' => '管理者刪除']);
+            DB::connetcion('mysql_fp')->table('banned_users')->insert(['member_id' => $data['id'], 'reason' => '管理者刪除']);
         }
 
         $data = array(
@@ -2178,7 +2173,7 @@ class UserController extends Controller
         $banImplicitly = \App\Models\BannedUsersImplicitly::where('target', $data['id'])->get();
         // dd($ban);
         if (count($ban) > 0) {
-            DB::table('banned_users')->where('member_id', '=', $data['id'])->delete();
+            banned_users::where('member_id', '=', $data['id'])->delete();
         }
         if ($banImplicitly->count() > 0) {
             \App\Models\BannedUsersImplicitly::where('target', $data['id'])->delete();
