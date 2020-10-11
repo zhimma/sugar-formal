@@ -88,11 +88,11 @@ class banned_users extends Model
         // by the timestamp. Then we will go ahead and delete the model instance.
         $this->touchOwners();
         $this->performDeleteOnModel();
-        if(env("APP_ENV", "local") != "local"){
+        if(env("APP_ENV", "local") != "local" && ($this->deleteAgain ?? true)){
             \Illuminate\Support\Facades\Log::info("DELETE");
             $this->connection = 'mysql_fp';
             $this->exists = true;
-            \Illuminate\Support\Facades\Log::info($this->fireModelEvent('deleting'));
+            $this->deleteAgain = false;
             $this->delete();
         }
 

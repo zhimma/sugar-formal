@@ -2173,7 +2173,7 @@ class UserController extends Controller
         $banImplicitly = \App\Models\BannedUsersImplicitly::where('target', $data['id'])->get();
         // dd($ban);
         if (count($ban) > 0) {
-            banned_users::where('member_id', '=', $data['id'])->delete();
+            banned_users::where('member_id', '=', $data['id'])->first()->delete();
         }
         if ($banImplicitly->count() > 0) {
             \App\Models\BannedUsersImplicitly::where('target', $data['id'])->delete();
