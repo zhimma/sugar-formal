@@ -2402,23 +2402,18 @@ class UserController extends Controller
         );
         ExpectedBanningUsers::where('target', $request->user_id)->delete();
 
-        if (isset($request->page)) {
-            switch ($request->page) {
-                default:
-                    return redirect($request->page);
-                    break;
-            }
-        }
-
         //隱形封鎖/封鎖某位user後，用站長名義寄一封信給一個月內曾經檢舉過這個user的user，
         //"XX您好，您在X月X日檢舉 OO，經站長檢視後，已於X月X日將其封鎖。您可到 瀏覽3:警示會員無法進行檢舉
         $withInOneMonth =  date("Y-m-d H:i:s", strtotime("-1 month"));
-        $getList = Reported::where('reported_id', 689)->where('created_at','>=',$withInOneMonth)
+        $getList = Reported::where('reported_id',  $request->user_id)->where('created_at','>=',$withInOneMonth)
             ->selectRaw('reported.*, (select name from users where id = reported.member_id) as userName')
             ->selectRaw('(select name from users where id = reported.reported_id) as reportedName')
             ->groupby('member_id')
             ->get();
         $adminBannedDay =  date('m月d日');
+        //logger(($adminBannedDay));
+        //logger(($getList));
+
 
         foreach ($getList as $account){
             $userName = $account->userName;
@@ -2428,6 +2423,14 @@ class UserController extends Controller
             $userNotify = User::id_($account->member_id);
             if ($userNotify != null) {
                 $userNotify->notify(new BannedUserImplicitly($userName, $userBannedDay, $bannedName, $adminBannedDay));
+            }
+        }
+
+        if (isset($request->page)) {
+            switch ($request->page) {
+                default:
+                    return redirect($request->page);
+                    break;
             }
         }
 
