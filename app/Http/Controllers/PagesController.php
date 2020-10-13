@@ -2271,7 +2271,7 @@ class PagesController extends Controller
                     $now = \Carbon\Carbon::now();
                     $vipDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $data->updated_at);
                     if($now->diffInDays($vipDate) <= 7 ){
-                        $offVIP = $user->name.'您好，您已取消本站 VIP 續費。但由於您的扣款時間是每月'. $vipDate->format('d') .'號，取消時間低於七個工作天，作業不及。所以本月還是會正常扣款，下個月就會停止扣款。造成不變敬請見諒。';
+                        $offVIP = $user->name.' 您好，您已取消本站 VIP 續費。但由於您的扣款時間是每月'. $vipDate->format('d') .'號，取消時間低於七個工作天，作業不及。所以本月還是會正常扣款，下個月就會停止扣款。造成不變敬請見諒。';
                     }
 
                     $request->session()->flash('cancel_notice', $offVIP);
