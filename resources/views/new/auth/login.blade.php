@@ -200,7 +200,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     errormsg.i=$('ul.quarx-errors li').eq(i).html();
                 }
                 ResultData({
-                    msg: errormsg
+                    msg: errormsg,
+                    showLink: '<div><a href="/password/reset">忘記密碼 (請點我)</a></div>'
                 });
                 //c2(errormsg);
             @endif
