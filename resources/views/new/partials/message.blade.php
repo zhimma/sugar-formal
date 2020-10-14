@@ -120,3 +120,7 @@
         });
     </script>
 @endif
+<style>
+    .linkcolor{color: pink;}
+    .linkcolor:hover{color: white;}
+</style>

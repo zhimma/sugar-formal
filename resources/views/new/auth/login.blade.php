@@ -201,7 +201,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 }
                 ResultData({
                     msg: errormsg,
-                    showLink: '<div><a href="/password/reset">忘記密碼 (請點我)</a></div>'
+                    showLink: '<div><a href="/password/reset" class="linkcolor">忘記密碼 (請點我)</a></div>'
                 });
                 //c2(errormsg);
             @endif
