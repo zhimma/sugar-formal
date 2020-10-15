@@ -1215,6 +1215,47 @@ class PagesController extends Controller
             ->with('days',$days);
     }
 
+    public function view_new_vip(Request $request)
+    {
+
+        $cc_monthly_payment = AdminCommonText::where('alias','cc_monthly_payment')->get()->first();
+        $cc_quarterly_payment = AdminCommonText::where('alias','cc_quarterly_payment')->get()->first();
+        $one_month_payment = AdminCommonText::where('alias','one_month_payment')->get()->first();
+        $one_quarter_payment = AdminCommonText::where('alias','one_quarter_payment')->get()->first();
+
+        $cancel_vip = AdminCommonText::where('alias','cancel_vip')->get()->first();
+
+
+        /*編輯文案-檢舉會員訊息-START*/
+        $vip_text = AdminCommonText::where('alias','vip_text')->get()->first();
+        /*編輯文案-檢舉會員訊息-END*/
+
+        /*編輯文案-檢舉會員訊息-START*/
+        $upgrade_vip = AdminCommonText::where('alias','upgrade_vip')->get()->first();
+        /*編輯文案-檢舉會員訊息-END*/
+        $user = $request->user();
+        //VIP到期日
+        $expiry_time = Vip::select('expiry')->where('member_id', $user->id)->where('expiry', '!=', '0000-00-00 00:00:00')->orderBy('created_at', 'desc')->first();
+        $days=0;
+        if(isset($expiry_time)) {
+            $expiry_time = $expiry_time->expiry;
+            $expiry = Carbon::parse($expiry_time);
+            $days = $expiry->diffInDays(Carbon::now());
+        }
+
+        return view('new.dashboard.new_vip')
+            ->with('user', $user)->with('cur', $user)
+            ->with('vip_text', $vip_text->content)
+            ->with('upgrade_vip', $upgrade_vip->content)
+            ->with('cancel_vip', $cancel_vip->content)
+            ->with('cc_monthly_payment',$cc_monthly_payment->content)
+            ->with('cc_quarterly_payment',$cc_quarterly_payment->content)
+            ->with('one_month_payment',$one_month_payment->content)
+            ->with('one_quarter_payment',$one_quarter_payment->content)
+            ->with('expiry_time', $expiry_time)
+            ->with('days',$days);
+    }
+
     public function viewuser(Request $request, $uid = -1)
     {
         $user = $request->user();
@@ -2130,6 +2171,10 @@ class PagesController extends Controller
     }
 
     public function upgradepayEC(Request $request) {
+        return ['1', 'OK'];
+    }
+
+    public function paymentInfoEC(Request $request) {
         return ['1', 'OK'];
     }
 

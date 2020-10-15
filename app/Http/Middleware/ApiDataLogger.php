@@ -156,7 +156,7 @@ class ApiDataLogger{
                         $this->logService->upgradeLogEC($payload, $user->id);
                         $this->logService->writeLogToDB();
                         $this->logService->writeLogToFile();
-                        Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0);
+                        Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0,$payload['CustomField3']);
                         return '1|OK';
                     }
                     else{
