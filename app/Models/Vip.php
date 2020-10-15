@@ -62,7 +62,7 @@ class Vip extends Model
         return !$status->free;
     }
 
-    public static function upgrade($member_id, $business_id, $order_id, $amount, $txn_id, $active, $free, $payment,$transactionType = null)
+    public static function upgrade($member_id, $business_id, $order_id, $amount, $txn_id, $active, $free, $payment = null, $transactionType = null)
     {
         $vipData = Vip::findByIdWithDateDesc($member_id);
 
