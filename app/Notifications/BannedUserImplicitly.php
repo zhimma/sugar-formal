@@ -44,7 +44,7 @@ class BannedUserImplicitly extends Notification {
     {
         return (new MailMessage)
             ->subject('檢舉通知')
-            ->line($this->userName .'您好，您在'. $this->userBannedDay.'檢舉 '.$this->bannedName.'，經站長檢視後，已於'. $this->adminBannedDay.'將其封鎖。')
-            ->line('您可到 瀏覽3:警示會員無法進行檢舉');
+            ->line($this->userName .' 您好，您在'. $this->userBannedDay.'檢舉 '.$this->bannedName.'，經站長檢視後，已於'. $this->adminBannedDay.'將其封鎖。')
+            ->line('您可到瀏覽資料/懲處名單中瀏覽。');
     }
 }
