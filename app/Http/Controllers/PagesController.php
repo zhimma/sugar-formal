@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\CheckECpay;
 use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
+use App\Models\SimpleTables\warned_users;
 use Auth;
 use App\Http\Requests;
 use Carbon\Carbon;
@@ -24,7 +25,7 @@ use App\Models\Tip;
 use App\Models\MemberFav;
 use App\Models\Blocked;
 use App\Models\BasicSetting;
-
+use App\Models\Posts;
 use App\Models\UserMeta;
 use App\Models\MemberPic;
 use App\Models\SetAutoBan;
@@ -41,6 +42,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\SimpleTables\banned_users;
 use Illuminate\Support\Facades\Input;
 use Session;
+use App\Notifications\AccountConsign;
 
 class PagesController extends Controller
 {
@@ -179,7 +181,7 @@ class PagesController extends Controller
     }
 
     public  function postChatpayEC(Request $request){
-        
+
         return '1|OK';
     }
 
@@ -534,7 +536,8 @@ class PagesController extends Controller
         $year = $birthday[0];
         $month = $birthday[1];
         $day = $birthday[2];
-
+        $no_avatar = AdminCommonText::where('alias','no_avatar')->get()->first();
+        
         if ($user) {
             $cancel_notice = $request->session()->get('cancel_notice');
             $message = $request->session()->get('message');
@@ -547,7 +550,8 @@ class PagesController extends Controller
                     ->with('month', $month)
                     ->with('day', $day)
                     ->with('message', $message)
-                    ->with('cancel_notice', $cancel_notice);
+                    ->with('cancel_notice', $cancel_notice)
+                    ->with('no_avatar', $no_avatar->content);
             }
             return view('dashboard')
             ->with('user', $user)
@@ -555,7 +559,8 @@ class PagesController extends Controller
             ->with('cur', $user)
             ->with('year', $year)
             ->with('month', $month)
-            ->with('day', $day);
+            ->with('day', $day)
+            ->with('no_avatar', $no_avatar->content);
         }
     }
 
@@ -564,10 +569,10 @@ class PagesController extends Controller
         // todo: 驗證 VIP 是否成功付款
         //      1. 綠界：連 API 檢查，使用 Laravel Queue 執行檢查
         //      2. 藍新：後台手動
-
+        
         $user = $request->user();
         $url = $request->fullUrl();
-        
+
         if($user->isVip() && !$user->isFreeVip()){
             $vipData = $user->getVipData(true);
             if(is_object($vipData)){
@@ -590,14 +595,16 @@ class PagesController extends Controller
         $year = $birthday[0];
         $month = $birthday[1];
         $day = $birthday[2];
-        
-         /*編輯文案-add avatar-START*/
-         $add_avatar = AdminCommonText::getCommonText(41);//id 41
-         /*編輯文案-add avatar-END*/
- 
- //        $isWarnedReason = AdminCommonText::getCommonText(56);//id 56 警示用戶原因
 
- 
+        /*編輯文案-add avatar-START*/
+        $add_avatar = AdminCommonText::getCommonText(41);//id 41
+        /*編輯文案-add avatar-END*/
+
+//        $isWarnedReason = AdminCommonText::getCommonText(56);//id 56 警示用戶原因
+
+        $isAdminWarnedRead = warned_users::select('isAdminWarnedRead')->where('member_id',$user->id)->first();
+
+        $no_avatar = AdminCommonText::where('alias','no_avatar')->get()->first();
         if($year=='1970'){
             $year=$month=$day='';
         }
@@ -614,7 +621,8 @@ class PagesController extends Controller
                     ->with('day', $day)
                     ->with('message', $message)
                     ->with('cancel_notice', $cancel_notice)
-                    ->with('add_avatar', $add_avatar);
+                    ->with('add_avatar', $add_avatar)
+                    ->with('no_avatar', $no_avatar->content);
             }
             return view('new.dashboard')
                 ->with('user', $user)
@@ -624,8 +632,10 @@ class PagesController extends Controller
                 ->with('month', $month)
                 ->with('day', $day)
                 ->with('cancel_notice', $cancel_notice)
-                ->with('add_avatar', $add_avatar);
-//                ->with('isWarnedReason',$isWarnedReason);
+                ->with('add_avatar', $add_avatar)
+                ->with('isAdminWarnedRead',$isAdminWarnedRead)
+                ->with('no_avatar', $no_avatar->content);
+//                ->with('isWarnedReason',$isWarnedReason)
         }
     }
 
@@ -754,7 +764,7 @@ class PagesController extends Controller
                 );
             }
         }
-
+        
         return json_encode($data);
     }
 
@@ -952,8 +962,230 @@ class PagesController extends Controller
             }
     }
 
+    public function view_account_manage(Request $request)
+    {
+        $user = $request->user();
+        return view('new.dashboard.account_manage')->with('user', $user)->with('cur', $user);
+    }
+
+    public function view_name_modify(Request $request)
+    {
+        $user = $request->user();
+        return view('new.dashboard.account_name_modify')->with('user', $user)->with('cur', $user);
+    }
+
+    public function changeName(Request $request){
+        $user = $request->user();
+        if( Hash::check($request->input('password'),$user->password) ) {
+            $name = $request->input('name');
+            $reason = $request->input('reason');
+            if (!isset($name)) {
+                return back()->with('message', '沒有填寫新暱稱！');
+            }
+            //檢查是否申請過
+            $check_user = DB::table('account_name_change')->where('user_id', $user->id)->first();
+            if (isset($check_user->user_id)) {
+                return back()->with('message', '您已申請過，無法再修改喔！');
+            } else {
+                //送出申請
+                DB::table('account_name_change')->insert(
+                    ['user_id' => $user->id, 'change_name' => $name, 'before_change_name' => $user->name, 'reason' => $reason, 'status' => 0, 'created_at' => Carbon::now()]
+                );
+                return back()->with('message', '已送出申請，等待24hr站長審核');
+            }
+        }else{
+            return back()->with('message', '密碼有誤，請重新操作');
+        }
+    }
+
+    public function view_gender_change(Request $request)
+    {
+        $user = $request->user();
+        return view('new.dashboard.account_gender_change')->with('user', $user)->with('cur', $user);
+    }
+
+    public function changeGender(Request $request){
+        $user = $request->user();
+
+        if( Hash::check($request->input('password'),$user->password) ) {
+            //檢查是否申請過
+            $check_user = DB::table('account_gender_change')->where('user_id', $user->id)->first();
+            if (isset($check_user->user_id)) {
+                return back()->with('message', '您已申請過，無法再修改喔！');
+            } else {
+                //送出申請
+                DB::table('account_gender_change')->insert(
+                    ['user_id' => $user->id, 'change_gender' => $request->input('gender'), 'before_change_gender' => $user->engroup, 'reason' => $request->input('reason'), 'status' => 0, 'created_at' => Carbon::now()]
+                );
+                return back()->with('message', '已送出申請，等待24hr站長審核');
+            }
+        }else{
+            return back()->with('message', '密碼有誤，請重新操作');
+        }
+    }
+
+    public function view_consign_add(Request $request)
+    {
+        $user = $request->user();
+        return view('new.dashboard.account_consign_add')->with('user', $user)->with('cur', $user);
+    }
+
+    public function consignAdd(Request $request){
+        $user = $request->user();
+
+        //檢查是否有申請交付
+        $check_user = DB::table('account_consign')->where('a_user_id',$user->id)->orWhere('b_user_id',$user->id)->where('cancel_id',null)->first();
+        if(isset($check_user->id)){
+            return back()->with('message', '您的帳號尚在交付中');
+        }else if( Hash::check($request->input('password'),$user->password) ) {
+            //取得對方帳號ID
+            $consign_user = User::where('email',$request->input('account'))->first();
+            if(!isset($consign_user->id)){
+                return back()->with('message', '對方帳號有誤，請重新操作');
+            }
+
+            $check_user_a = DB::table('account_consign')->where('a_to_id',$user->id)->where('cancel_id',null)->first();
+            if(isset($check_user_a->id)){
+                //已配對A 更新交付資料表
+                DB::table('account_consign')->where('id',$check_user_a->id)
+                    ->update(['b_user_id' => $user->id, 'b_to_id' => $consign_user->id, 'b_created_at' => Carbon::now()]);
+                //雙方已申請 更新交付狀態
+                UserMeta::where('user_id',$user->id)->update(['isConsign'=>1]);
+                UserMeta::where('user_id',$consign_user->id)->update(['isConsign'=>1]);
+
+                //notify
+                $current_data = DB::table('account_consign')->where('id',$check_user_a->id)->first();
+                $user_a = User::findById($current_data->a_user_id);
+                $user_b = User::findById($current_data->b_user_id);
+                $content_a = $user_a->name.' 您好：<br>您在 '.$current_data->a_created_at.' 交付帳號，經站長審視已通過您的申請。';
+                $content_b = $user_b->name.' 您好：<br>您在 '.$current_data->b_created_at.' 交付帳號，經站長審視已通過您的申請。';
+//                $user_a->notify(new AccountConsign('交付帳號關閉通知',$user_a->name, $content_a));
+//                $user_b->notify(new AccountConsign('交付帳號關閉通知',$user_b->name, $content_b));
+
+                //站長系統訊息
+                Message::post(1049, $current_data->a_user_id, $content_a, true, 1);
+                Message::post(1049, $current_data->b_user_id, $content_b, true, 1);
+
+                return back()->with('message', '帳號關閉成功');
+            }else{
+                //存入交付資料表
+                DB::table('account_consign')->insert(
+                    ['a_user_id' => $user->id, 'a_to_id' => $consign_user->id, 'a_created_at' => Carbon::now()]
+                );
+
+                //notify
+
+                return back()->with('message', '交付申請已送出，等待對方提出申請');
+            }
+
+        }else{
+            return back()->with('message', '密碼有誤，請重新操作');
+        }
+    }
+
+    public function view_consign_cancel(Request $request)
+    {
+        $user = $request->user();
+        return view('new.dashboard.account_consign_cancel')->with('user', $user)->with('cur', $user);
+    }
+
+    public function consignCancel(Request $request){
+        $user = $request->user();
+
+        if( Hash::check($request->input('password'),$user->password) ) {
+            //取得對方帳號ID
+            $consign_user = User::where('email',$request->input('account'))->first();
+            if(!isset($consign_user->id)){
+                return back()->with('message', '對方帳號有誤，請重新操作');
+            }
+            //檢查是否有申請交付
+            $check_user = DB::table('account_consign')->where('a_user_id',$user->id)->orWhere('b_user_id',$user->id)->where('cancel_id',null)->first();
+
+            if(isset($check_user->id) && ($check_user->a_to_id==$consign_user->id || $check_user->b_to_id==$consign_user->id)){
+
+                if($check_user->a_user_id==null){
+                    //交付中的取消流程
+                    //更新cancel資料
+                    DB::table('account_consign')->where('id',$check_user->id)
+                        ->update(['cancel_id' => $user->id, 'canceled_at' => Carbon::now()]);
+                    return back()->with('message', '已取消交付帳號申請');
+                }else {
+                    //尚未交付的取消流程
+                    //更新cancel資料
+                    DB::table('account_consign')->where('id',$check_user->id)
+                        ->update(['cancel_id' => $user->id, 'canceled_at' => Carbon::now()]);
+                    UserMeta::where('user_id',$user->id)->update(['isConsign' => 0, 'consign_expiry_date' => Carbon::now()->addHours(24)]);
+                    UserMeta::where('user_id',$consign_user->id)->update(['isConsign' => 0, 'consign_expiry_date' => Carbon::now()->addHours(24)]);
+
+                    //notify
+                    $current_data = DB::table('account_consign')->where('id',$check_user->id)->first();
+                    $user_a = User::findById($current_data->a_user_id);
+                    $user_b = User::findById($current_data->b_user_id);
+                    $content_a = $user_a->name.' 您好：<br>您申請的交付帳號已結束，系統將於 '.$user_a->meta_()->consign_expiry_date.' 後開啟您的帳號';
+                    $content_b = $user_b->name.' 您好：<br>您申請的交付帳號已結束，系統將於 '.$user_b->meta_()->consign_expiry_date.' 後開啟您的帳號';
+//                    $user_a->notify(new AccountConsign('交付帳號開啟通知',$user_a->name, $content_a));
+//                    $user_b->notify(new AccountConsign('交付帳號開啟通知',$user_b->name, $content_b));
+
+                    //站長系統訊息
+                    Message::post(1049, $current_data->a_user_id, $content_a, true, 1);
+                    Message::post(1049, $current_data->b_user_id, $content_b, true, 1);
+
+                    return back()->with('message', '帳號開啟成功，將於24小時候啟用');
+                }
+
+            }else{
+                return back()->with('message', '對方帳號不在交付申請中');
+            }
+
+        }else{
+            return back()->with('message', '密碼有誤，請重新操作');
+        }
+
+    }
+
+    public function view_exchange_period(Request $request)
+    {
+        $user = $request->user();
+        return view('new.dashboard.account_exchange_period')->with('user', $user)->with('cur', $user);
+    }
+
+    public function exchangePeriodModify(Request $request){
+        $user = $request->user();
+
+        if( Hash::check($request->input('password'),$user->password) ) {
+            //檢查是否申請過
+            $check_user = DB::table('account_exchange_period')->where('user_id', $user->id)->first();
+            $period = $request->input('exchange_period');
+            $reason = $request->input('reason');
+            $exchange_period_read = DB::table('exchange_period_temp')->where('user_id', $user->id)->count();
+            if (isset($check_user->user_id)) {
+                return back()->with('message', '您已申請過，無法再修改喔！');
+            } elseif ($exchange_period_read == 1) {
+                //未動過者首次直接通過
+                User::where('id', $user->id)->update(['exchange_period' => $period]);
+                DB::table('exchange_period_temp')->insert(['user_id' => $user->id, 'created_at' => \Carbon\Carbon::now()]);
+                return back()->with('message', '已完成首次設定，無需審核');
+            } elseif ($period == $user->exchange_period) {
+                //與原本設定的一樣則不做動作
+                return back()->with('message', '您當前所選項目無需變更');
+            } else {
+                //送出申請
+                DB::table('account_exchange_period')->insert(
+                    ['user_id' => $user->id, 'exchange_period' => $period, 'before_exchange_period' => $user->exchange_period, 'reason' => $reason, 'status' => 0, 'created_at' => Carbon::now()]
+                );
+                return back()->with('message', '已送出申請，等待48hr站長審核');
+            }
+        }else{
+            return back()->with('message', '密碼有誤，請重新操作');
+        }
+
+    }
     public function view_vip(Request $request)
     {
+
+        $cancel_vip = AdminCommonText::where('alias','cancel_vip')->get()->first();
+
+
         /*編輯文案-檢舉會員訊息-START*/
         $vip_text = AdminCommonText::where('alias','vip_text')->get()->first();
         /*編輯文案-檢舉會員訊息-END*/
@@ -975,6 +1207,7 @@ class PagesController extends Controller
             ->with('user', $user)->with('cur', $user)
             ->with('vip_text', $vip_text->content)
             ->with('upgrade_vip', $upgrade_vip->content)
+            ->with('cancel_vip', $cancel_vip->content)
             ->with('expiry_time', $expiry_time)
             ->with('days',$days);
     }
@@ -1053,8 +1286,11 @@ class PagesController extends Controller
             if (!isset($targetUser)) {
                 return view('errors.nodata');
             }
+            /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
+            $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
+            /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
             if(User::isBanned($uid)){
-                Session::flash('message', '此用戶已關閉資料。');
+                Session::flash('message', $user_closed->content);
                 return view('new.dashboard.viewuser')->with('user', $user);
             }
             if ($user->id != $uid) {
@@ -1103,7 +1339,7 @@ class PagesController extends Controller
                     'be_visit_other_count_7' => $be_visit_other_count_7,
                     'message_count' => $message_count,
                     'message_count_7' => $message_count_7,
-                    'is_banned' => $is_banned,
+                    'is_banned' => $is_banned
                 );
                 $member_pic = DB::table('member_pic')->where('member_id',$uid)->where('pic','<>',$targetUser->meta_()->pic)->get();
                 if($user->isVip()){
@@ -1122,7 +1358,7 @@ class PagesController extends Controller
                     $data['countSet'] = (int)$basic_setting['countSet'];
                 }
                 $blockadepopup = AdminCommonText::getCommonText(5);//id5封鎖說明popup
-                $isVip = $user->isVip() ? '1':'0'; 
+                $isVip = $user->isVip() ? '1':'0';
                 /*編輯文案-檢舉會員訊息-START*/
                 $report_reason = AdminCommonText::where('alias','report_reason')->get()->first();
                 /*編輯文案-檢舉會員訊息-END*/
@@ -1155,32 +1391,43 @@ class PagesController extends Controller
                 $label_vip = AdminCommonText::where('category_alias', 'label_text')->where('alias','label_vip')->get()->first();
                 /*編輯文案-label_vip-END*/
 
-                /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
-                $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
-                /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
+                
 
-                $rating_avg = DB::table('evaluation')->where('to_id',$uid)->avg('rating');
+                $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $uid)->get();
+                $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
+                $bannedUsers = \App\Services\UserService::getBannedId();
+                $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
+                $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
+
+                $rating_avg = DB::table('evaluation')->where('to_id',$uid)
+                    ->whereNotIn('from_id',$userBlockList)
+                    ->whereNotIn('from_id',$isBlockList)
+                    ->whereNotIn('from_id',$bannedUsers)
+                    ->whereNotIn('from_id',$isAdminWarnedList)
+                    ->whereNotIn('from_id',$isWarnedList)
+                    ->avg('rating');
+
                 $rating_avg = floatval($rating_avg);
 
                 return view('new.dashboard.viewuser', $data)
-                    ->with('user', $user)
-                    ->with('blockadepopup', $blockadepopup)
-                    ->with('to', $this->service->find($uid))
-                    ->with('cur', $user)
-                    ->with('member_pic',$member_pic)
-                    ->with('isVip', $isVip)
-                    ->with('engroup', $user->engroup)
-                    ->with('report_reason',$report_reason->content)
-                    ->with('report_member',$report_member->content)
-                    ->with('report_avatar',$report_avatar->content)
-                    ->with('new_sweet',$new_sweet->content)
-                    ->with('well_member',$well_member->content)
-                    ->with('money_cert',$money_cert->content)
-                    ->with('alert_account',$alert_account->content)
-                    ->with('label_vip',$label_vip->content)
-                    ->with('user_closed',$user_closed->content)
-                    ->with('rating_avg',$rating_avg);
-
+                        ->with('user', $user)
+                        ->with('blockadepopup', $blockadepopup)
+                        ->with('to', $this->service->find($uid))
+                        ->with('cur', $user)
+                        ->with('member_pic',$member_pic)
+                        ->with('isVip', $isVip)
+                        ->with('engroup', $user->engroup)
+                        ->with('report_reason',$report_reason->content)
+                        ->with('report_member',$report_member->content)
+                        ->with('report_avatar',$report_avatar->content)
+                        ->with('new_sweet',$new_sweet->content)
+                        ->with('well_member',$well_member->content)
+                        ->with('money_cert',$money_cert->content)
+                        ->with('alert_account',$alert_account->content)
+                        ->with('label_vip',$label_vip->content)
+                        ->with('user_closed',$user_closed->content)
+                        ->with('rating_avg',$rating_avg)
+                        ->with('user_closed',$user_closed->content);
             }
 
     }
@@ -1200,7 +1447,20 @@ class PagesController extends Controller
         }
         if (isset($user) && isset($uid)) {
 
-            $evaluation_data = DB::table('evaluation')->where('to_id',$uid)->paginate(15);
+            $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $uid)->get();
+            $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
+            $bannedUsers = \App\Services\UserService::getBannedId();
+            $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
+            $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
+
+            $evaluation_data = DB::table('evaluation')->where('to_id',$uid)
+                ->whereNotIn('from_id',$userBlockList)
+                ->whereNotIn('from_id',$isBlockList)
+                ->whereNotIn('from_id',$bannedUsers)
+                ->whereNotIn('from_id',$isAdminWarnedList)
+                ->whereNotIn('from_id',$isWarnedList)
+                ->paginate(15);
+
             $evaluation_self = DB::table('evaluation')->where('to_id',$uid)->where('from_id',$user->id)->first();
             return view('new.dashboard.evaluation')
                 ->with('user', $user)
@@ -1229,6 +1489,34 @@ class PagesController extends Controller
         }
 
         return redirect('/dashboard/evaluation/'.$request->input('eid'))->with('message', '評價已完成');
+    }
+
+    public function evaluation_delete(Request $request)
+    {
+
+        DB::table('evaluation')->where('id',$request->id)->delete();
+
+        return response()->json(['save' => 'ok']);
+    }
+
+    public function evaluation_re_content_save(Request $request)
+    {
+
+        DB::table('evaluation')->where('id',$request->input('id'))->update(
+            ['re_content' => $request->input('re_content'), 're_created_at' => now()]
+        );
+
+        return redirect('/dashboard/evaluation/'.$request->input('eid'))->with('message', '評價回覆已完成');
+    }
+
+    public function evaluation_re_content_delete(Request $request)
+    {
+
+        DB::table('evaluation')->where('id',$request->id)->update(
+            ['re_content' => null]
+        );
+
+        return response()->json(['save' => 'ok']);
     }
 
     public function report(Request $request)
@@ -1291,6 +1579,7 @@ class PagesController extends Controller
             $pic_id = substr($pic_id, 3, strlen($pic_id));
         }
         if($isAvatar){
+            $report_avatar = AdminCommonText::where('alias', 'report_avatar')->get()->first();
             if ( ! ReportedAvatar::findMember( $reporter_id , $pic_id ) )
             {
                 if ($reporter_id !== $pic_id)
@@ -1298,7 +1587,8 @@ class PagesController extends Controller
                     return view('dashboard.reportAvatar', [
                         'reporter_id' => $reporter_id,
                         'reported_user_id' => $pic_id,
-                        'user' => $user ]);
+                        'user' => $user,
+                        'report_avatar'=> $report_avatar->content ]);
                 }
                 else{
                     return back()->withErrors(['錯誤，不能檢舉自己的大頭照。']);
@@ -1310,6 +1600,7 @@ class PagesController extends Controller
             }
         }
         else{
+            $report_reason = AdminCommonText::where('alias', 'report_reason')->get()->first();
             if ( ! ReportedPic::findMember( $reporter_id , $pic_id ) )
             {
                 if( $reporter_id !== $uid ){
@@ -1322,7 +1613,8 @@ class PagesController extends Controller
                         'reported_pic_id' => $pic_id,
                         'user' => $user,
                         'target' => $target,
-                        'uid' => $uid]);
+                        'uid' => $uid,
+                        'report_reason'=>$report_reason->content]);
                 }
                 else{
                     return back()->withErrors(['錯誤，不能檢舉自己的照片。']);
@@ -1575,6 +1867,7 @@ class PagesController extends Controller
     {
         $user = $request->user();
         $m_time = '';
+        $report_reason = AdminCommonText::where('alias', 'report_reason')->get()->first();
         if (isset($user)) {
             $isVip = $user->isVip();
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
@@ -1595,7 +1888,8 @@ class PagesController extends Controller
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
                     ->with('tippopup', $tippopup)
-                    ->with('messages', $messages);
+                    ->with('messages', $messages)
+                    ->with('report_reason', $report_reason->content);
             }
             else {
                 return view('new.dashboard.chatWithUser')
@@ -1603,7 +1897,8 @@ class PagesController extends Controller
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
                     ->with('tippopup', $tippopup)
-                    ->with('messages', $messages);
+                    ->with('messages', $messages)
+                    ->with('report_reason', $report_reason->content);
             }
         }
     }
@@ -1747,7 +2042,7 @@ class PagesController extends Controller
         if ($user)
         {
             // blocked by user->id
-	    $blocks = \App\Models\Blocked::where('member_id', $user->id)->orderBy('created_at','desc')->paginate(15);	
+            $blocks = \App\Models\Blocked::where('member_id', $user->id)->orderBy('created_at','desc')->paginate(15);
 
             $usersInfo = array();
             foreach($blocks as $blockUser){
@@ -2095,8 +2390,9 @@ class PagesController extends Controller
 //                ->with('user', $request->user());
     }
     
-	public function mem_member()
+	public function mem_member(Request $request)
     {
+
         $uri = $request->segments();
         $user_id = $uri[2];
         $mid = $request->user()->id ?? 689;
@@ -2132,7 +2428,16 @@ class PagesController extends Controller
         $message_count = Message::where('from_id', $user_id)->count();
 
         $message_count_7 = Message::where('from_id', $user_id)->where('created_at', '>=', $date)->count();
-
+        $report_reason = AdminCommonText::where('alias','report_reason')->get()->first();
+        $report_member = AdminCommonText::where('alias','report_member')->get()->first();
+        $report_avatar = AdminCommonText::where('alias','report_avatar')->get()->first();
+        
+        /*label*/
+        $new_sweet = AdminCommonText::where('category_alias','label_text')->where('alias','new_sweet')->get()->first();
+        $well_member = AdminCommonText::where('category_alias','label_text')->where('alias','well_member')->get()->first();
+        $money_cert = AdminCommonText::where('category_alias','label_text')->where('alias','money_cert')->get()->first();
+        $alert_account = AdminCommonText::where('category_alias','label_text')->where('alias','alert_account')->get()->first();
+        $label_vip = AdminCommonText::where('category_alias','label_text')->where('alias','label_vip')->get()->first();
         $data = array(
             'tip_count'=> $tip_count,
             'fav_count'=> $fav_count,
@@ -2145,6 +2450,14 @@ class PagesController extends Controller
             'be_visit_other_count_7'=>$be_visit_other_count_7,
             'message_count' => $message_count,
             'message_count_7' => $message_count_7,
+            'report_reason' => $report_reason->content,
+            'report_member' => $report_member->content,
+            'report_avatar' => $report_avatar->content,
+            'new_sweet'     => $new_sweet->content,
+            'well_member'     => $well_member->content,
+            'money_cert'     => $money_cert->content,
+            'label_vip'     => $label_vip->content,
+            'alert_account'     => $alert_account->content,
         );
         return view('/new/mem_member', $data)
                 ->with('user', $user);

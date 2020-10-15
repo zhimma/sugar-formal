@@ -155,4 +155,79 @@ class StatController extends Controller
         $data = DB::table('set_auto_ban')->orderBy('id', 'desc')->get();
         return view('admin.stats.set_autoBan')->with('data', $data);
     }
+
+    /**
+     * 1:男vip人數
+     * 2:30天內有上線的女  vip 人數
+     * 3:30天內男 vip 發訊總數/獲得回應比例
+     * 4:30天內普通會員發訊總數/獲得回應比例
+     * 5:車馬費邀請總數/有回應的比例
+     */
+    public function other(){
+        // 1
+        $maleVip = User::select('id')->where('engroup', 1)->whereIn('id', function($query){
+            $query->select('member_id')
+                ->from(with(new Vip)->getTable())
+                ->where('active', 1);
+        })->get();
+//        $maleVip = array();
+//        foreach ($maleVips as $m){
+//            array_push($maleVip, $m->id);;
+//        }
+        $femaleVip = User::select('id')->where('engroup', 2)->whereIn('id', function($query){
+            $query->select('member_id')
+                ->from(with(new Vip)->getTable())
+                ->where('active', 1);
+        })->get();
+//        $femaleVip = array();
+//        foreach ($femaleVips as $f){
+//            array_push($femaleVip, $f->id);;
+//        }
+        $last30days = Carbon::now()->subDays(30);
+        // 2
+        $femaleVipLastLoginIn30DaysCount = User::where('engroup', 2)
+            ->where('last_login', '>', $last30days)
+            ->whereIn('id', function($query){
+            $query->select('member_id')
+                ->from(with(new Vip)->getTable())
+                ->where('active', 1);
+        })->get()->count();
+        // 3
+        $maleVipMessages = Message::select('to_id')->where('created_at', '>', $last30days)->whereIn('from_id', $maleVip)->get()->toArray();
+        $maleVipMessagesReplied = Message::select('to_id')->where('created_at', '>', $last30days)->whereIn('from_id', $maleVipMessages)->get();
+        // 4: 算出全部再減 3 和女 VIP
+        $allMessages = Message::select('to_id')->where('created_at', '>', $last30days)->get()->toArray();
+        $allMessagesReplied = Message::select('to_id')->where('created_at', '>', $last30days)->whereIn('from_id', $allMessages)->get();
+        $femaleVipMessages = Message::select('to_id')->where('created_at', '>', $last30days)->whereIn('from_id', $femaleVip)->get()->toArray();
+        $femaleVipMessagesReplied = Message::select('to_id')->where('created_at', '>', $last30days)->whereIn('from_id', $femaleVipMessages)->get();
+        dd($femaleVipMessagesReplied);
+        // 5
+        $tipsAll = Message::where('content', 'like', '%已經向 您 發動車馬費邀請%')->get();
+        $tipsReplied = 0;
+//        foreach ($tipsAll as $tip){
+//            $isReplied = Message::where('from_id', $tip->to_id)->where('created_at', '>', $tip->created_at)->get()->count();
+//            if($isReplied > 0){
+//                $tipsReplied++;
+//            }
+//        }
+        $tipsAllCount = $tipsAll->count();
+        $maleVipMessagesCount = $maleVipMessages->count();
+        $maleVipMessagesRepliedCount = $maleVipMessagesReplied->count();
+        $allMessagesCount = $allMessages->count();
+        $allMessagesRepliedCount = $allMessagesReplied->count();
+        $femaleVipMessagesCount = $femaleVipMessages->count();
+        $femaleVipMessagesRepliedCount = $femaleVipMessagesReplied->count();
+        return view('admin.stats.other',
+            compact('maleVip',
+                     'femaleVipLastLoginIn30DaysCount',
+                        'maleVipMessagesCount',
+                        'maleVipMessagesRepliedCount',
+                        'femaleVipMessagesCount',
+                        'femaleVipMessagesRepliedCount',
+                        'allMessagesCount',
+                        'allMessagesRepliedCount',
+                        'tipsAllCount',
+                        'tipsReplied'
+            ));
+    }
 }

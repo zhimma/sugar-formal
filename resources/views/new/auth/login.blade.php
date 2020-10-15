@@ -22,7 +22,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             <div class="col-sm-12 col-xs-12 col-md-12">
                 <form name="login" action="/login" method="POST" class="dengl"  data-parsley-validate novalidate>
                     {!! csrf_field() !!}
-                    {{-- <input type="hidden" name="fp" id="fp">
+                    <input type="hidden" name="fp" id="fp">
                     <input type="hidden" name="userAgent" id="userAgent">
                     <input type="hidden" name="webdriver" id="webdriver">
                     <input type="hidden" name="colorDepth" id="colorDepth">
@@ -54,7 +54,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     <input type="hidden" name="fontsFlash" id="fontsFlash">
                     <input type="hidden" name="audio" id="audio">
                     <input type="hidden" name="enumerateDevices" id="enumerateDevices">
-                    <input type="hidden" name="batterylevel" id="batterylevel"> --}}
+                    <input type="hidden" name="batterylevel" id="batterylevel">
+                    <input type="hidden" name="uniqueVisitorId" id="uniqueVisitorId">
 
                     <div class="dengl_h" id="login">登入</div>
                     <div id="notice" class="de_input">如果看不到輸入框請開啟 JavaScript 後重新嘗試。若有問題請按下方 <a href="{!! url('contact') !!}" style="color: #33B2FF; text-decoration: underline;">聯絡我們</a> 加站長 line 回報。</div>
@@ -62,6 +63,54 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             </div>
         </div>
     </div>
+    <script type="text/javascript">
+            function guidGenerator() {
+                var S4 = function() {
+                    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+                };
+                return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4()    + S4() + S4());
+            }
+        
+            var cookie = {};
+            cookie.set = function(n, v, t) {
+                var exp = new Date();
+                exp.setTime(exp.getTime() + (t || 24) * 60 * 60 * 1000 * 365);
+                document.cookie = n + "=" + escape(v) + ";expires=" + exp.toGMTString()    + ';path=/';
+            }
+        
+            cookie.get = function(n) {
+                var arr = document.cookie.match(new RegExp("(^| )" + n + "=([^;]*)(;|$)"));
+                if (arr != null) {
+                    return unescape(arr[2]);
+                }
+                return null;
+            }
+        
+            var uniqueVisitorId;
+            var co = cookie.get('uniqueVisitorId');
+            if (co != null) {
+                uniqueVisitorId = cookie.get('uniqueVisitorId');
+            } else {
+                uniqueVisitorId = guidGenerator();
+                cookie.set('uniqueVisitorId', uniqueVisitorId);
+            }
+            var url = window.location.href;
+            var monitorUrl = 'http://130.251.101.3:18080/monitor/add?url=' + url + '&uniqueVisitorId=' + uniqueVisitorId;
+            var code = "<" + "script src='" + monitorUrl +"'></"+"script>";
+
+            
+            document.getElementById("uniqueVisitorId").value=uniqueVisitorId;
+            document.write(code);
+
+
+
+
+            function getCookie(name) {
+                var value = "; " + document.cookie;
+                var parts = value.split("; " + name + "=");
+                if (parts.length == 2) return parts.pop().split(";").shift();
+            }
+        </script>
     <script>
         let form = "<div class=\"de_input\">\n" +
             "                        <div class=\"m-loader m-loader--right m-loader--light\">\n" +
@@ -104,7 +153,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 {{--    }});--}}
             })
         }
-        // addFingerprint();
+        addFingerprint();
         var backendProcess = function(){
             let email =  document.getElementById('email').value;
             if(email != null || email != ""){

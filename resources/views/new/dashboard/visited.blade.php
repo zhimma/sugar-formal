@@ -35,7 +35,7 @@
                                                 <div class="sjtable"><span>{{ $histUser->name }}<i class="cicd">●</i>{{ $histUser->meta_()->age() }}</span></div>
                                                 <font>
                                                     @if(!is_array($umeta->city))
-                                                        
+
                                                     @else
                                                         @foreach($umeta->city as $key => $cityval)
                                                             @if ($loop->first)

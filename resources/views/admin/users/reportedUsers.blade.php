@@ -56,6 +56,7 @@
                 <tr>
                     <th>被檢舉者</th>
                     <th title="近一月(訊息/會員/照片)">曾被檢舉</th>
+                    <th>包養關係</th>
                     <th>回覆被檢舉者(回覆後將會自動移除檢舉記錄)</th>
                     <th>封鎖被檢舉者</th>
                     <th>檢舉者</th>
@@ -125,6 +126,12 @@
                             </td>
                             {{ logger('reportedUsers, line 110 messagesResult does not exists, user id: ' . $result['reported_id']) }}
                         @endif
+                        <td>
+                            @php
+                                $exchange_period_name = DB::table('exchange_period_name')->where('id',$users[$result['member_id']]['exchange_period'])->first();
+                            @endphp
+                            {!! $exchange_period_name->name!!}
+                        </td>
                         <td>
                             <a href="{{ route('AdminMessengerWithReportedId', [$result->member_id, $result->reported_id, $result->id, 0, 'reported']) }}" target="_blank" class='btn btn-dark'>撰寫</a>
                         </td>

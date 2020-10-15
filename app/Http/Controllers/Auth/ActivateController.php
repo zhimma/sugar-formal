@@ -52,10 +52,13 @@ class ActivateController extends Controller
      */
     public function activate($token)
     {
+        // activateUser() returns boolean.
         $user = $this->service->activateUser($token);
         if ($user) {
-
-            //註冊成功後判斷是否需備自動封鎖
+            // 目前程式碼並不會在驗證完成後正確判斷，
+            // 若要正確判斷，需啟用以下程式碼，啟用前需報備並測試。
+            // $user = auth()->user();
+            // 註冊成功後判斷是否需備自動封鎖
             SetAutoBan::auto_ban($user->id);
 
             return view('new.auth.activate.activationSucceed')->with('user', $user)->with('message', '驗證成功');

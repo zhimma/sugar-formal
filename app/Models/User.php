@@ -34,7 +34,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $fillable = ['name', 'email', 'password', 'title', 'enstatus', 'engroup', 'last_login', 'isReadManual'];
+    protected $fillable = ['name', 'email', 'password', 'title', 'enstatus', 'engroup', 'last_login', 'isReadManual','exchange_period'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -453,6 +453,16 @@ class User extends Authenticatable
         }else{
             return false;
         }
+    }
+
+    public static function isWarnedRead($uid)
+    {
+        DB::table('user_meta')->where('user_id',$uid)->update(['isWarnedRead'=>1]);
+    }
+
+    public static function isAdminWarnedRead($uid)
+    {
+        DB::table('warned_users')->where('member_id',$uid)->update(['isAdminWarnedRead'=>1]);
     }
 
     public function msgCount()

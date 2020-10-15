@@ -30,6 +30,7 @@
                         <div class="de_input01 dlmarbot">
                             <input required name="title" type="text" class="zcinput" placeholder="一句話形容自已"  value="{{old('title')}}">
                         </div>
+
                         <div class="de_input02">
                             <h2>帳號類型（Daddy / Baby）</h2>
                             <h3><input required type="radio"  name="engroup" value="1" id="RadioGroup1_0"><span>甜心大哥</span></h3>
@@ -37,6 +38,17 @@
                             <h3><input required type="radio" name="engroup" value="2" id="RadioGroup1_1"><span>甜心寶貝</span></h3>
                             <h4>妳想得到寵愛，陪伴甜心大哥</h4>
                         </div>
+                        <br>
+                        @php
+                            $exchange_period_name = DB::table('exchange_period_name')->get();
+                        @endphp
+                        <div class="de_input02 exchange_period" style="display: none;">
+                            <h2>包養關係</h2>
+                            @foreach($exchange_period_name as $row)
+                            <h3><input type="radio" name="exchange_period" value="{{$row->id}}"><span>{{$row->name}}</span></h3>
+                            @endforeach
+                        </div>
+
                         <div class="decheck"><input required name="agree" type="checkbox" ><span>我同意甜心花園的使用條款和隱私政策</span></div>
 
                         {{-- <a href="javascript:void(0);" onclick="this.disabled = true" class="dlbut btn-register">註冊</a> --}}
@@ -50,26 +62,35 @@
     </div>
     <script>
         $(document).ready(function() {
+
+            $("input[name='engroup']").change(function(){
+                if ($(this).val() === '1') {
+                    $('.exchange_period').hide();
+                }else{
+                    $('.exchange_period').show();
+                }
+            });
+
             window.ParsleyValidator.addMessage('en', 'minlength', '密碼欄位請輸入大於6個位元(含以上)');
 
-            $("form[name=register]").parsley().on('form:validate', function (formInstance) {
-
-            })
-            .on('form:error', function () {
-                var error = $('ul.parsley-errors-list li');
-                var msg=[];
-                for (var i = 0; i <error.length; i++) {
-                    msg[i]=error.eq(i).html();
-                }
-                msg = Array.from(new Set(msg));
-                // ResultData({
-                //   msg: msg
-                // });
-                c2(msg);
-            })
-            .on('form:success', function () {
-                return true;
-            });
+            // $("form[name=register]").parsley().on('form:validate', function (formInstance) {
+            //
+            // })
+            // .on('form:error', function () {
+            //     var error = $('ul.parsley-errors-list li');
+            //     var msg=[];
+            //     for (var i = 0; i <error.length; i++) {
+            //         msg[i]=error.eq(i).html();
+            //     }
+            //     msg = Array.from(new Set(msg));
+            //     // ResultData({
+            //     //   msg: msg
+            //     // });
+            //     c2(msg);
+            // })
+            // .on('form:success', function () {
+            //     return true;
+            // });
             @if (isset($errors)&&($errors->count() > 0))
                 var errormsg=[];
                 for (var i = 0; i <$('ul.quarx-errors li').length; i++) {
@@ -85,7 +106,19 @@
         $('.alert-danger').css('display','none');
         $(".btn-register").click(function(e){
             var t = $(this).closest("form");
-            t.submit();
+
+            if($('.exchange_period').is(":visible")){
+
+                if($("input[name='exchange_period']").is(':checked')) {
+                    t.submit();
+                }else{
+                    c2('包養關係尚未填寫');
+                    return false;
+                }
+            }else{
+                t.submit();
+            }
+            // t.submit();
         });
     </script>
     <!-- <script src="/js/login.js" type="text/javascript"></script> -->

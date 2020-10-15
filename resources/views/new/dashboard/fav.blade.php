@@ -16,10 +16,10 @@
 
                 </ul>
                 <!-- <p style="color:red; font-weight: bold; display: none;margin-left: 20px;" id="warning">載入中，請稍候</p> -->
-                {{--                <p style="width: 20%;margin: 0 auto;" id="warning">--}}
+{{--                <p style="width: 20%;margin: 0 auto;" id="warning">--}}
 {{--                  <img src="/new/images/Spin-1s-75px.svg">--}}
 {{--                </p>--}}
-<div class="loading warning" id="sjlist_alert_warning"><span class="loading_text">loading</span></div>
+                <div class="loading warning" id="sjlist_alert_warning"><span class="loading_text">loading</span></div>
                 <div class="fengsicon d-none"><img src="/new/images/fs_03.png" class="feng_img"><span>暫無收藏</span></div>
                 <div class="fenye">
                 </div>
@@ -82,12 +82,12 @@
         var ss =((i+1)>Page.row)?'display:none;':'display:none;';
         var c = (e.vip)?'hy_bg01':'';
         var area_string='';
-        if(e.city.length>1){
+        if( typeof e.city !== 'undefined' && e.city.length>1){
             for(k=0 ; k < e.city.length;k++){
                 area_string += e.city[k]+' '+e.area[k]+' ';
             }
         }else{
-            area_string = e.city[0]+' '+e.area[0];
+            area_string = e.city+' '+e.area;
         }
 
         var url = '{!! url("/dashboard/viewuser/:uid") !!}';
@@ -135,6 +135,7 @@
                 $.each(res.msg,function(i,e){
                     nn++;
                     li = liContent(e,i);
+                    if(typeof e.name !== 'undefined')
                     $('.sjlist>ul').append(li)
                 });
                 Page.DrawPage(res.msg.length);

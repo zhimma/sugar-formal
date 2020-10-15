@@ -7,6 +7,7 @@
 </style>
 <body style="padding: 15px;">
 <h1>會員封鎖清單</h1>
+共 {{ $list->total() }} 筆記錄
 <table class='table table-bordered table-hover'>
 	<tr>
         <td>會員ID</td>
@@ -42,6 +43,7 @@
     </tr>
     @endforelse
 </table>
+{{ $list->links() }}
 </body>
 </html>
 @stop

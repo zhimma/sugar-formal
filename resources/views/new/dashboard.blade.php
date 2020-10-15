@@ -28,6 +28,9 @@
     .select_xx01 {
         color:unset;
     }
+    .blnr{
+        padding: 20 20 20 20;
+    }
   </style>
 
 	<div class="container matop70 chat">
@@ -40,7 +43,7 @@
           <div class="g_pwicon">
               <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t g_hicon1"><span>基本資料</span></a></li>
               <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2"><span>照片管理</span></a></li>
-              <li><a href="{!! url('/dashboard/password') !!}" class="g_pwicon_t3"><span>更改密碼</span></a></li>
+              <li><a href="{!! url('/dashboard/account_manage') !!}" class="g_pwicon_t3"><span>更改帳號</span></a></li>
               <li><a href="{!! url('/dashboard/vip') !!}" class="g_pwicon_t4"><span>VIP</span></a></li>
           </div>
           <div class="addpic g_inputt">
@@ -55,22 +58,49 @@
                 <div class="n_input">
                   <dt>
                     <span>暱稱<i>(必填)</i></span>
-                    <span><input name="name" id="name" type="text" class="select_xx01"  placeholder="至多八個字" value="{{$user->name}}" required data-parsley-errors-messages-disabled maxlength="8"></span>
+                    <span>
+{{--                        <input name="name" id="name" type="text" class="select_xx01"  placeholder="至多八個字" value="{{$user->name}}" data-parsley-errors-messages-disabled maxlength="8" disabled style="background-color: #d2d2d2;">--}}
+                        <div class="select_xx01 senhs hy_new" style="background: #d2d2d2;">{{$user->name}}</div>
+                    </span>
+                      <input name="name" id="name" type="hidden" class="select_xx01"  placeholder="至多八個字" value="{{$user->name}}">
                   </dt>
                   <dt>
                     <span>一句話形容自己<i>(必填)</i></span>
                     <span><input name="title" type="text" class="select_xx01"  placeholder="請輸入" value="{{$user->title}}" required data-parsley-errors-messages-disabled></span>
                   </dt>
+
                   <dt>
                       <span>帳號類型</span>
-                      <div class="n_heg" style="margin-top:-2px">
-                        <form name="form1" method="post" action="">
-                            <label class="n_lod"><input required data-parsley-errors-messages-disabled type="radio" name="engroup" value="1" id="RadioGroup1_0" {{ ($user->engroup == 1)?"checked":"" }} ><font class="n_loleft">甜心大哥</font></label>
-                            <label class="n_lod"><input required data-parsley-errors-messages-disabled type="radio" name="engroup" value="2" id="RadioGroup1_1" {{ ($user->engroup == 2)?"checked":"" }}><font class="n_loleft">甜心寶貝</font></label>
-                        </form>
-                        <div class="n_red">註：每個帳號只能變更一次</div>
-                      </div>
+                      <span>
+{{--                          <input name="" id="" type="text" class="select_xx01" value="@if($user->engroup==1)甜心大哥@else甜心寶貝@endif" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">--}}
+                          <div class="select_xx01 senhs hy_new" style="background: #d2d2d2;">@if($user->engroup==1)甜心大哥@else甜心寶貝@endif</div>
+                      </span>
+
+                      <input name="engroup" id="" type="hidden" class="select_xx01" value="{{$user->engroup}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">
                   </dt>
+{{--                  <dt>--}}
+{{--                      <span>帳號類型</span>--}}
+{{--                      <div class="n_heg" style="margin-top:-2px">--}}
+{{--                        <form name="form1" method="post" action="">--}}
+{{--                            <label class="n_lod"><input required data-parsley-errors-messages-disabled type="radio" name="engroup" value="1" id="RadioGroup1_0" {{ ($user->engroup == 1)?"checked":"" }} ><font class="n_loleft">甜心大哥</font></label>--}}
+{{--                            <label class="n_lod"><input required data-parsley-errors-messages-disabled type="radio" name="engroup" value="2" id="RadioGroup1_1" {{ ($user->engroup == 2)?"checked":"" }}><font class="n_loleft">甜心寶貝</font></label>--}}
+{{--                        </form>--}}
+{{--                        <div class="n_red">註：每個帳號只能變更一次</div>--}}
+{{--                      </div>--}}
+{{--                  </dt>--}}
+                    @if($user->engroup==2)
+                    <dt>
+                        <span>包養關係</span>
+                        @php
+                            $exchange_period_name = DB::table('exchange_period_name')->where('id',$user->exchange_period)->first();
+                        @endphp
+                        <span>
+{{--                            <input name="" id="" type="text" class="select_xx01" value="{{$exchange_period_name->name}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">--}}
+                            <div class="select_xx01 senhs hy_new" style="background: #d2d2d2;">{{$exchange_period_name->name}}</div>
+                        </span>
+                        <input name="exchange_period" id="" type="hidden" class="select_xx01" value="{{$user->exchange_period}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">
+                    </dt>
+                    @endif
                   <dt>
                     <span>地區<i>(必填)</i></span>
                     <div id="county">
@@ -624,6 +654,17 @@
       <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
   </div>
 
+  <div class="bl bl_tab" id="isExchangePeriod" style="display: none;">
+      <div class="bltitle">提示</div>
+      <div class="blnr bltext">
+
+              {{$user->name}} 您好，您尚未修改過基本資料-包養關係
+              提醒您前往<a href='/dashboard/account_exchange_period'>變更包養關係</a>
+      </div>
+
+      <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+  </div>
+
 <script>
     $(document).ready(function() {
         @if(Session::has('message'))
@@ -701,14 +742,30 @@
           //   title:'您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。',
           //   type:'warning'
           // });
-        @elseif (($umeta->isWarned==1 || $user->isAdminWarned() ) && !Session::has('isWarnedTipShow'))
+        @elseif (($umeta->isWarned==1 && $umeta->isWarnedRead==0 ) || ( $user->isAdminWarned() && $isAdminWarnedRead->isAdminWarnedRead==0 ) )
                 @php
-                    Session::put('isWarnedTipShow', true );
+                 if($user->isAdminWarned()){
+                    //標記已讀
+                    \App\Models\User::isAdminWarnedRead($user->id);
+                  }
+                  if($umeta->isWarned==1){
+                    //標記已讀
+                    \App\Models\User::isWarnedRead($user->id);
+                  }
                 @endphp
         $('#isWarned').show();
         $('#announce_bg').show();
         @endif
       @endif
+
+        @php
+            $exchange_period_read = DB::table('exchange_period_temp')->where('user_id',$user->id)->count();
+        @endphp
+        @if($exchange_period_read==0 && $user->engroup==2)
+        $('#isExchangePeriod').show();
+        $('#announce_bg').show();
+        @endif
+
       //ajax_表單送出
       $('form[name=user_data]').submit(function(e){
         e.preventDefault();

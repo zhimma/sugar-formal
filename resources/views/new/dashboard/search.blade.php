@@ -146,6 +146,29 @@
                                 </select>
                             </span>
                             </dt>
+
+                            @if($user->engroup==1)
+                            <div class="jin_search"><span>進階搜尋</span></div>
+                            <dt>
+                                <span>包養關係</span>
+                                <span class="line20">
+                                    @php
+                                        $exchange_period_name = DB::table('exchange_period_name')->get();
+                                        $temp_id=0;
+                                    @endphp
+                                    @foreach($exchange_period_name as $row)
+                                        <label class="n_tx j_lr"><input type="checkbox" name="exchange_period[{{$temp_id}}]" value={{$row->id}} id="" @if( !empty( $_POST["exchange_period"][$temp_id] ) && $_POST["exchange_period"][$temp_id] == $row->id ) checked @elseif(!empty( $_GET["exchange_period"][$temp_id] ) && $_GET["exchange_period"][$temp_id] == $row->id) checked @endif><i>{{$row->name}}</i></label>
+                                        @php
+                                            $temp_id=$temp_id+1;
+                                        @endphp
+                                    @endforeach
+{{--                                      <label class="n_tx"><input type="checkbox" name="exchange_period" value="長期為主" id="Checkbox"><i>長期為主</i></label>--}}
+{{--                                      <label class="n_tx"><input type="checkbox" name="exchange_period" value="長短皆可" id="Checkbox1"><i>長短皆可</i></label>--}}
+{{--                                      <label class="n_tx"><input type="checkbox" name="exchange_period" value="單次為主" id="Checkbox2"><i>單次為主</i></label>--}}
+                                </span>
+                            </dt>
+                            @endif
+
                         </div>
                         <div class="n_txbut">
                             <button type="submit" class="n_dlbut" style="border-style: none;">搜索</button>
@@ -170,6 +193,7 @@
                         $agefrom = "";
                         $seqtime = "";
                         $body = "";
+                        $exchange_period = "";
                         $umeta = $user->meta_();
                         if(isset($umeta->city)){
                             $umeta->city = explode(",",$umeta->city);
@@ -195,10 +219,11 @@
                     if (isset($_POST['agefrom'])){$agefrom = $_POST['agefrom'];}elseif(isset($_GET['agefrom'])){ $agefrom = $_GET['agefrom'];}
                     if (isset($_POST['seqtime'])){$seqtime = $_POST['seqtime'];}elseif(isset($_GET['seqtime'])){ $seqtime = $_GET['seqtime'];}
                     if (isset($_POST['body'])){$body = $_POST['body'];}elseif(isset($_GET['body'])){$body = $_GET['body'];}
+                    if (isset($_POST['exchange_period'])){$exchange_period = $_POST['exchange_period'];}elseif(isset($_GET['exchange_period'])){$exchange_period = $_GET['exchange_period'];}
                     ?>
                 @endif
                 <?php $icc = 1;
-                $vis = \App\Models\UserMeta::search($county, $district, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $user->engroup, $umeta->city, $umeta->area, $umeta->blockdomain, $umeta->blockdomainType, $seqtime, $body, $user->id);
+                $vis = \App\Models\UserMeta::search($county, $district, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $user->engroup, $umeta->city, $umeta->area, $umeta->blockdomain, $umeta->blockdomainType, $seqtime, $body, $user->id,$exchange_period);
                 ?>
 
                 <div class="n_searchtit"><div class="n_seline"><span>搜索结果</span></div></div>
@@ -263,7 +288,7 @@
                                             @if($user->isVip())
                                             <img src="/new/images/a5.png">
                                             @else
-                                            <img src="/new/images/b_6.png">
+                                            <img src="/new/images/b_5.png">
                                             @endif
                                             </div>
                                         </div>
@@ -275,7 +300,7 @@
                                         @if($user->isVip())
                                         <img src="/new/images/a6.png">
                                         @else
-                                        <img src="/new/images/b_5.png">
+                                        <img src="/new/images/b_6.png">
                                         @endif
                                         </div>
                                         </div>
@@ -301,6 +326,17 @@
                                                 @endif
                                             @else
                                                 <span style="margin-left: 10px;"><span style="padding-left: 5px;">職業</span><img src="/new/images/icon_35.png" class="nt_img"></span>
+                                            @endif
+
+                                            @if($user->engroup==1)
+                                                @if($user->isVip())
+                                                @php
+                                                    $exchange_period_name = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
+                                                @endphp
+                                                    <i class="j_lxx">丨</i><span>{{$exchange_period_name->name}}</span>
+                                                @else
+                                                    <i class="j_lxx">丨</i><span>包養關係<img src="/new/images/icon_35.png" class="nt_img"></span>
+                                                @endif
                                             @endif
                                         </h3>
                                         <h3>最後上線時間：{{substr($visitor->last_login,0,11)}}</h3>

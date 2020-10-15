@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Session;
 use \FileUploader;
 use App\Models\Vip;
+use App\Models\AdminCommonText;
 use Illuminate\Support\Facades\Log;
 
 class ImageController extends Controller
@@ -44,7 +45,8 @@ class ImageController extends Controller
         $payload = $request->all();
         MemberPic::destroy($payload['imgId']);
         if(!$admin){
-            return redirect("/dashboard?img");
+            // return redirect("/dashboard?img");
+            return back()->with('message','照片刪除成功');
         }
         else{
             return back()->with('message', '成功刪除照片');
@@ -96,8 +98,8 @@ class ImageController extends Controller
         $umeta->save();
 
         if(!$admin){
-            return redirect()->to('/dashboard?img')
-                   ->with('success','照片上傳成功')
+            // return redirect()->to('/dashboard?img')
+            return back()->with('success','照片上傳成功')
                    ->with('imageName',$input['imagename']);
         }
         else if($admin){
@@ -175,19 +177,24 @@ class ImageController extends Controller
         $payload = $request->all();
         $userId = $payload['userId'];
 
+        $rootPath = public_path('/img/Member'); //生活照
+        $picPath = '/img/Member/';
+        //證件照
+        if($request->get('picType') == 'IDPhoto'){
+            $rootPath = public_path('/img/Member/IDPhoto');
+            $picPath = '/img/Member/IDPhoto/';
+        }
         if($files = $request->file('images')) {
             foreach ($files as $file) {
                 $now = Carbon::now()->format('Ymd');
                 $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
-
-                $rootPath = public_path('/img/Member');
                 $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
 
                 if(!is_dir($tempPath)) {
                     File::makeDirectory($tempPath, 0777, true);
                 }
 
-                $destinationPath = '/img/Member/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
+                $destinationPath = $picPath. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
 
                 $img = Image::make($file->getRealPath());
                 $img->resize(400, 600, function ($constraint) {
@@ -207,8 +214,8 @@ class ImageController extends Controller
         }
 
         if(!$admin){
-            return redirect()->to('/dashboard?img')
-                   ->with('success','照片上傳成功');
+            // return redirect()->to('/dashboard?img')
+                   return back()->with('success','照片上傳成功');
         }
         else if($admin){
             return back()->with('message', '照片上傳成功');
@@ -278,10 +285,9 @@ class ImageController extends Controller
             unlink($file);*/
 
         $upload = $fileUploader->upload();
-        if($upload['hasWarnings'])
+        if($upload['hasWarnings']) {
             return redirect()->back()->withErrors($upload['warnings']);
-        else
-        {
+        }else{
             //remove origin avator
             $removeFiles = $fileUploader->getRemovedFiles();
             if($removeFiles)
@@ -304,16 +310,18 @@ class ImageController extends Controller
                 UserMeta::where('user_id', $userId)->update(['pic' => $path]);
             }
             $msg="上傳成功";
+
+            $image_upload_success = AdminCommonText::where('alias','girl_to_vip')->get()->first();
             //計算已上傳的照片照判斷VIP提示用
+            $girl_to_vip = AdminCommonText::where('alias', 'girl_to_vip')->get()->first();
+
             if($user->existHeaderImage() && $user->engroup==2 && $user->isVip() != 1){
                 $vip_record = Carbon::parse($user->vip_record);
                 if(isset($vip_record) && $vip_record->diffInSeconds(Carbon::now()) <= 86400 && $vip_record->diffInSeconds(Carbon::now())>1800){
-                    $msg="照片上傳成功，24H後升級為VIP會員";
+                    $msg = "照片上傳成功，24H後升級為VIP會員";
                 }else{
-                    $msg="照片上傳成功，已升級為VIP會員";
+                    $msg = $girl_to_vip->content;
                 }
-
-
             }
 
             return redirect()->back()->with('message', $msg);
@@ -414,21 +422,21 @@ class ImageController extends Controller
         ));
 
         //選擇移除的照片
-        try{
-            foreach($fileUploader->getRemovedFiles() as $key => $value)
-            {
-                $file = public_path($value['file']); //full path of removed file
-                if(File::exists($file)){
-                    unlink($file);
-                    MemberPic::where('pic', $value['file'])->delete();
-                }
-            }
-        }
-        catch (\Exception $e){
-            Session::flash('message', '照片上傳失敗，某些 iPhone 機型會鎖住上傳照片權限，請改用安卓系統或電腦上傳即可。若不方便或者還是上傳失敗，請點右下【聯絡我們】和站長聯繫處理。');
-            Log::info('Image upload failed, user id: ' . $userId . ', useragent: ' . $_SERVER['HTTP_USER_AGENT']);
-            return redirect()->back();
-        }
+//        try{
+//            foreach($fileUploader->getRemovedFiles() as $key => $value)
+//            {
+//                $file = public_path($value['file']); //full path of removed file
+//                if(File::exists($file)){
+//                    unlink($file);
+//                    MemberPic::where('pic', $value['file'])->delete();
+//                }
+//            }
+//        }
+//        catch (\Exception $e){
+//            Session::flash('message', '照片上傳失敗，某些 iPhone 機型會鎖住上傳照片權限，請改用安卓系統或電腦上傳即可。若不方便或者還是上傳失敗，請點右下【聯絡我們】和站長聯繫處理。');
+//            Log::info('Image upload failed, user id: ' . $userId . ', useragent: ' . $_SERVER['HTTP_USER_AGENT']);
+//            return redirect()->back();
+//        }
 
         $upload = $fileUploader->upload();
         if($upload)
@@ -445,12 +453,15 @@ class ImageController extends Controller
             }
         }
         $msg="上傳成功";
+
+        $girl_to_vip = AdminCommonText::where('alias', 'girl_to_vip')->get()->first();
+
         if($user->existHeaderImage() && $user->engroup==2 && $user->isVip() != 1){
             $vip_record = Carbon::parse($user->vip_record);
             if(isset($vip_record) && $vip_record->diffInSeconds(Carbon::now()) <= 86400 && $vip_record->diffInSeconds(Carbon::now())>1800){
-                $msg="照片上傳成功，24H後升級為VIP會員";
+                $msg = "照片上傳成功，24H後升級為VIP會員";
             }else{
-                $msg="照片上傳成功，已升級為VIP會員";
+                $msg = $girl_to_vip->content;
             }
         }
         $previous = redirect()->back()->with('message', $msg);

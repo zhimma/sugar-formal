@@ -144,11 +144,11 @@ class UserService
     /**
      * Create a user's profile
      *
-     * @param  User $user User
-     * @param  string $password the user password
-     * @param  string $role the role of this user
-     * @param  boolean $sendEmail Whether to send the email or not
+     * @param User $user User
+     * @param string $password the user password
+     * @param boolean $sendEmail Whether to send the email or not
      * @return User
+     * @throws Exception
      */
     public function create($user, $password, $sendEmail = true)
     {
@@ -425,6 +425,21 @@ class UserService
                                   $payload['meta']['notifhistory'] = $payload['notifhistory'];
                   unset($payload['notifhistory']);
                   }
+                if (isset($payload['adminNote']))
+                {
+                    $payload['meta']['adminNote'] = $payload['adminNote'];
+                    unset($payload['adminNote']);
+                }
+                else{
+                    $payload['meta']['adminNote'] = '';
+                }
+
+//                if (isset($payload['exchange_period']))
+//                {
+//                    $payload['meta']['exchange_period'] = $payload['exchange_period'];
+//                    unset($payload['exchange_period']);
+//                }
+
                 $meta = $user->meta_();
                 if (isset($payload['meta']))
                 {

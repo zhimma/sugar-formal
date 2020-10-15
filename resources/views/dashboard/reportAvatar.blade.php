@@ -5,7 +5,7 @@
     <div class="m-portlet__head-caption">
         <div class="m-portlet__head-title">
             <h3 style="text-align:left;" class="m-portlet__head-text">
-                檢舉大頭照 - 請填寫理由
+                {{$report_avatar}}
             </h3>
             <span style="text-align:right;" class="m-portlet__head-text">
                 <a class="btn btn-danger m-btn m-btn--air m-btn--custom" href="/user/view/{{ $reported_user_id }}"> 回去{{ \App\Models\User::findById($reported_user_id)->name }}的會員資料</a>

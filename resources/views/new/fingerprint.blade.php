@@ -10,7 +10,8 @@
 
 
 <script>
-var batterylevel;
+var orientation = getOrientationStatu();
+var network = getNetwork();
 
 /*取得電池等級*/
 navigator.getBattery().then(function(battery) {
@@ -24,7 +25,7 @@ function addFingerprint(){
     }
     Fingerprint2.getV18(options, function (result, components) {
         $.ajax({
-            url: "/Fingerprint2/addFingerprint", data:{"_token": "{{ csrf_token() }}", "result":result, "components":components, "batterylevel":batterylevel}, type:"POST", success: function(result){
+            url: "/Fingerprint2/addFingerprint", data:{"_token": "{{ csrf_token() }}", "result":result, "components":components, "batterylevel":batterylevel, "orientation":orientation, "network":network}, type:"POST", success: function(result){
 
             console.log('code:'+result.code+';msg:'+result.msg);
         }});
@@ -33,7 +34,21 @@ function addFingerprint(){
 
 
 
+function getOrientationStatu() {
+    var orientationStatus = ''
+    var orientation = window.matchMedia("(orientation: portrait)")
+    if (orientation.matches) {
+        orientationStatus = "竖屏"
+    } else {
+        orientationStatus = "横屏"
+    }
+    return orientationStatus
+}
 
+function getNetwork() {
+    var netWork = navigator && navigator.connection && navigator.connection.effectiveType
+    return netWork
+}
 </script>
 </body>
 </html>

@@ -31,6 +31,18 @@ class Vip extends Model
         'expiry'
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | relationships
+    |--------------------------------------------------------------------------
+    */
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'member_id', 'id');
+    }
+    
+
     public static  function allVip(){
         return Vip::select('member_id')->where('active', 1)->get();
     }
@@ -85,7 +97,7 @@ class Vip extends Model
         $curUser = User::findById($member_id);
         if ($curUser != null)
         {
-            $admin->notify(new NewVipEmail($member_id, $business_id, $member_id));
+            //$admin->notify(new NewVipEmail($member_id, $business_id, $member_id));
         }
     }
 
@@ -109,10 +121,9 @@ class Vip extends Model
         //$curUserName = User::id_($member_id)->meta_();
         $admin = User::findByEmail(Config::get('social.admin.email'));
 
-        VipLog::addToLog($member_id, 'cancel', 'XXXXXXXXX', 0, $free);
-        // if ($curUser != null) {
-        //     $admin->notify(new CancelVipEmail($member_id, '761404', $member_id));
-        // }
+        if ($curUser != null) {
+            //$admin->notify(new CancelVipEmail($member_id, '761404', $member_id));
+        }
         $user = Vip::select('id', 'expiry', 'created_at', 'updated_at')
                 ->where('member_id', $member_id)
                 ->orderBy('created_at', 'desc')->get();
@@ -136,6 +147,7 @@ class Vip extends Model
                 $u->expiry = $date->toDateTimeString();
                 $u->save();
             }
+            VipLog::addToLog($member_id, 'Cancel, expiry: ' . $date, 'XXXXXXXXX', 0, $free);
             return true;
         }
         else if($curUser->engroup == 2 && $free == 0 && $user[0]->expiry == '0000-00-00 00:00:00'){
@@ -145,9 +157,11 @@ class Vip extends Model
                 $u->expiry = $date;
                 $u->save();
             }
+            VipLog::addToLog($member_id, 'Cancel, expiry: ' . $date, 'XXXXXXXXX', 0, $free);
             return true;
         }
         else if($user[0]->expiry != '0000-00-00 00:00:00'){
+            VipLog::addToLog($member_id, 'Cancellation bypass, expiry: ' . $user[0]->expiry, 'XXXXXXXXX', 0, $free);
             return false;
         }
 
