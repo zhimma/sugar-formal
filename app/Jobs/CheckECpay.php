@@ -62,6 +62,8 @@ class CheckECpay implements ShouldQueue
             }
             catch (\Exception $exception){
                 Log::error($exception);
+                Log::info("ServiceURL: " . Config::get('ecpay.payment'.$envStr.'.ServiceURL'));
+                Log::info("VIP id: " . $this->vipData->id);
             }
 
             if(substr($this->vipData->payment,0,4) == 'one_'){
