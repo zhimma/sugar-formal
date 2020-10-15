@@ -665,6 +665,13 @@
       <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
   </div>
 
+  <div class="bl bl_tab" id="isGetBarCodeNotVIP" style="display: none;">
+      <div class="bltitle">提示</div>
+      <div class="blnr bltext">超商條碼付款，會在七天內 綠界回傳就直接給 VIP</div>
+
+      <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+  </div>
+
 <script>
     $(document).ready(function() {
         @if(Session::has('message'))
@@ -723,8 +730,15 @@
         return age;
       }
 
+        @php
+            $ckBarCodeLog = DB::table('payment_get_barcode_log')->where('user_id',$user->id)->where('ExpireDate','>=',now())->count();
+        @endphp
+
       @if(!$user->isAdmin())
-        @if (!$umeta->isAllSet())
+        @if($ckBarCodeLog>0 && !$user->isVip())
+        $('#isGetBarCodeNotVIP').show();
+        $('#announce_bg').show();
+        @elseif (!$umeta->isAllSet())
         c5('請寫上基本資料。');
           // swal({
           //   title:'請寫上基本資料。',
@@ -765,6 +779,8 @@
         $('#isExchangePeriod').show();
         $('#announce_bg').show();
         @endif
+
+
 
       //ajax_表單送出
       $('form[name=user_data]').submit(function(e){
