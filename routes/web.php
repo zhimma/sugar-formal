@@ -358,7 +358,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
     Route::get('/dashboard/account_exchange_period', 'PagesController@view_exchange_period'); //new route exchange_period_modify
     Route::post('/dashboard/exchangePeriodModify', 'PagesController@exchangePeriodModify'); //new route
 
-    Route::get('/dashboard/vip', 'PagesController@view_vip'); //new route
+    Route::get('/dashboard/vip', 'PagesController@view_new_vip'); //new route
     Route::get('/dashboard/new_vip', 'PagesController@view_new_vip'); //new route
     Route::get('/dashboard2', 'PagesController@dashboard2');
     Route::get('/dashboard/cancel', 'PagesController@showCheckAccount');
