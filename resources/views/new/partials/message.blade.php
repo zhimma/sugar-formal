@@ -59,7 +59,7 @@
 <div class="bl gtab" id="tab07">
     <div class="gxbut" style="min-width: 250px; height: 80px; border-radius: 10px;">
         <div class="msgtext"></div>
-        <div class="linktext"><div>
+        <div class="linktext"></div>
     </div>
 </div>
 
