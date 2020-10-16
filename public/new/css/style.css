@@ -2607,9 +2607,20 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .new_syfont{ text-align: center;background: #fff3f7;width:96%; margin: 0 auto;padding: 8px 5px; border-radius: 5px; color: #fe92a8; font-size: 16px; margin-bottom: 10px;}
 
 .new_abg{width:90%; margin-left: 5%; display: table; margin-top: 15px;}
-.new_abg span{width:50%; float: left; margin-bottom: 10px;}
+.new_abg span{width:25%; float: left; margin-bottom: 10px;}
+.new_abg font{width:50%; float: left; margin-bottom: 10px;}
 .new_vpadd{width:94%; height:40px; background:#fe92a8; border-radius:200px; color:#ffffff; text-align:center; line-height:40px; cursor: pointer; margin-left:3%; display: table;}
 .new_vpadd:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;}
+
+
+
+@media (max-width:450px){
+    .new_w100{width: 100% !important;}
+    .new_abg span{width:50%; float: left; margin-bottom: 10px;}
+    .new_abg font{width:50%; float: left; margin-bottom: 10px;}
+}
+
+
 
 
 @media (max-width:360px){
@@ -2620,7 +2631,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .new_tablema{width:100%; margin: 0 auto; display: table; margin-top: 10px;}
 .new_tablema table{width:100%; border:none;background: #f9faff; border-radius:5px;overflow: hidden;}
 .new_tablema table tr td{padding: 5px 5px;font-size: 14px}
-.new_tablema table tr td img{ height: 25px;}
+.new_tablema table tr td img{ height: 25px;margin: 0 auto;display: table;}
 .new_tablema table tr th{ background: #cbd6ff; height: 35px;padding: 5px 5px; font-weight: bold; color: #566cda;}
 .new_baa{border-right: #c0cdff 1px solid;}
 .new_baa1{border-bottom: #c0cdff 1px solid; }
