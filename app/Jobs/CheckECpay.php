@@ -55,15 +55,17 @@ class CheckECpay implements ShouldQueue
                 'TimeStamp' => 	time()
             ];
             try{
-                $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //定期定額
-                if(substr($this->vipData->payment,0,4) == 'one_'){
-                    $paymentData = $ecpay->QueryTradeInfo();
+                if(substr($this->vipData->payment,0,4) == 'one_'){ //保留用
+                    // $paymentData = $ecpay->QueryTradeInfo();
+                    // 此函式會產生錯誤，經檢查應為無用函式
+                }else {
+                    $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
                 }
             }
             catch (\Exception $exception){
-                Log::error($exception);
-                Log::info("ServiceURL: " . Config::get('ecpay.payment'.$envStr.'.ServiceURL'));
                 Log::info("VIP id: " . $this->vipData->id);
+                Log::info("VIP payment: " . $this->vipData->payment);
+                Log::error($exception);
             }
 
             if(substr($this->vipData->payment,0,4) == 'one_'){
