@@ -77,9 +77,11 @@ class ECPayment extends Controller
             $obj->Send['PaymentType']       = "aio";
 
             if($request->type=='one_quarter_payment' || $request->type=='one_month_payment') {
-                $obj->Send['ChoosePayment'] = ECPay_PaymentMethod::ALL;
+                $obj->Send['ChoosePayment'] = $request->choosePayment;
                 $obj->Send['PaymentInfoURL'] = Config::get('ecpay.payment'.$envStr.'.PaymentInfoURL') ;
-                $obj->Send['IgnorePayment']     = ECPay_PaymentMethod::WebATM ;
+
+//                $obj->Send['ChoosePayment'] = ECPay_PaymentMethod::ALL;
+                //$obj->Send['IgnorePayment']     = ECPay_PaymentMethod::WebATM ;
             }else {
                 $obj->Send['ChoosePayment'] = ECPay_PaymentMethod::Credit;             //付款方式:Credit
                 $obj->SendExtend['Redeem'] = false ;           //是否使用紅利折抵，預設false
