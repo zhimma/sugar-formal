@@ -23,7 +23,7 @@
                    <a href="{!! url('dashboard/browse') !!}"><img src="/new/images/icon_46.png">瀏覽資料</a>
                 </li>
                 <li>
-                    <a href="{!! url('dashboard/vip') !!}"><img src="/new/images/us2.png">VIP</a>
+                    <a href="{!! url('dashboard/new_vip') !!}"><img src="/new/images/us2.png">VIP</a>
                 </li>
                 <li>
                     <a href="{!! url('logout') !!}"><img src="/new/images/iconout.png">退出</a>

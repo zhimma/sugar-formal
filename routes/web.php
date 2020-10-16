@@ -32,6 +32,7 @@ Route::post('/Common/upload_img', 'Common@upload_img');
 Route::post('/Common/save_img', 'Common@save_img');
 Route::group(['middleware' => ['api']], function() {
     Route::post('/dashboard/upgradepayEC', 'PagesController@upgradepayEC');
+    Route::post('/dashboard/paymentInfoEC', 'PagesController@paymentInfoEC');
 });
 Route::group(['middleware' => ['tipApi']], function () {
     Route::post('/dashboard/chatpay_ec', 'ECPayment@performTipInvite')->name('chatpay_ec');
@@ -228,7 +229,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
     Route::get('/dashboard/account_exchange_period', 'PagesController@view_exchange_period'); //new route exchange_period_modify
     Route::post('/dashboard/exchangePeriodModify', 'PagesController@exchangePeriodModify'); //new route
 
-    Route::get('/dashboard/vip', 'PagesController@view_vip'); //new route
+    Route::get('/dashboard/vip', 'PagesController@view_new_vip'); //new route
+    Route::get('/dashboard/new_vip', 'PagesController@view_new_vip'); //new route
     Route::get('/dashboard2', 'PagesController@dashboard2');
     Route::get('/dashboard/cancel', 'PagesController@showCheckAccount');
     Route::post('/dashboard/chat', 'MessageController@postChat');
@@ -262,6 +264,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
     Route::group(['middleware' => ['api']], function() {
         Route::post('/dashboard/payback_ec', 'ECPayment@performPayBack')->name('payback_ec');
         Route::post('/dashboard/upgradepay_ec', 'ECPayment@performPayment')->name('upgradepay_ec');
+        Route::post('/dashboard/new_upgradepay_ec', 'ECPayment@commonPayment')->name('new_upgradepay_ec');
         Route::post('/dashboard/upgradepay', 'PagesController@upgradepay');
         Route::post('/dashboard/cancelpay', 'PagesController@cancelpay');
     });

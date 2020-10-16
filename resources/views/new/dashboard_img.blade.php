@@ -48,7 +48,7 @@
                     <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t "><span>基本資料</span></a></li>
                     <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2 g_hicon2"><span>照片管理</span></a></li>
                     <li><a href="{!! url('/dashboard/account_manage') !!}" class="g_pwicon_t3"><span>更改帳號</span></a></li>
-                    <li><a href="{!! url('/dashboard/vip') !!}" class="g_pwicon_t4"><span>VIP</span></a></li>
+                    <li><a href="{!! url('/dashboard/new_vip') !!}" class="g_pwicon_t4"><span>VIP</span></a></li>
                 </div>
                 <div class="addpic g_inputt">
                     <!--div class="n_adbut">
@@ -228,7 +228,7 @@
                                 //c2("刪除成功")
                                 $(".announce_bg").hide();
                                 $("#tab02").hide();
-                                c2(data);
+                                c3(data);
                                 // if(data.length>4){
                                 //     c2(data);
                                 // }else {
@@ -299,7 +299,7 @@
                             success: function(data){
                                 $(".announce_bg").hide();
                                 $("#tab02").hide();
-                                c2(data);
+                                c3(data);
                                 // if(data.length>4){
                                 //     c1(data);
                                 // }else {

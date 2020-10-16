@@ -10,11 +10,11 @@
 		30 天內有上線的女 VIP 人數: {{ $femaleVipLastLoginIn30DaysCount }}
 	</li>
 	<li>
-		30 天內男 VIP 發訊總數/獲得回應比例: {{ $maleVipMessagesCount }} / {{ $maleVipMessagesRepliedCount }}
+		30 天內男 VIP 發訊總數/獲得回應比例: {{ $maleVipMessages[0]->count }} / {{ $maleVipMessagesReplied[0]->count }}
 {{--		({{ $maleVipMessagesCount / $maleVipMessagesRepliedCount * 100 }}%)--}}
 	</li>
 	<li>
-		30 天內普通會員發訊總數/獲得回應比例: {{ $allMessagesCount - $maleVipMessagesCount - $femaleVipMessagesCount }} / {{ $allMessagesRepliedCount - $maleVipMessagesRepliedCount - $femaleVipMessagesRepliedCount }}
+		30 天內普通會員發訊總數/獲得回應比例: {{ $allMessages[0]->count - $vipMessages[0]->count }} / {{ $allMessagesReplied[0]->count - $vipMessagesReplied[0]->count }}
 {{--		({{ ($allMessagesCount - $maleVipMessagesCount - $femaleVipMessagesCount) / ($allMessagesRepliedCount - $maleVipMessagesRepliedCount - $femaleVipMessagesRepliedCount) * 100 }}%)--}}
 	</li>
 	<li>

@@ -387,7 +387,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 
 .vipline{width:96%; height:2px; margin-left:2%;display:table}	
-.vipline img{width:100%; height:2px;}
+.vipline img{width:100%; height:auto;}
 
 
 
@@ -1081,7 +1081,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .n_viptitle{width:260px; height:40px; line-height:40px; margin:0 auto; padding:0px; display:table; margin-top:30px; border-radius:5px; border:#fe92a8 1px solid;}
 .n_viptitle a{width:50%; float:left; text-align:center; font-size:16px; color:#fe92a8}
 /*.n_viptitle:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #ffb9c7,inset 0px -10px 10px -20px #ffb9c7;}*/
-#vip_a:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #ffb9c7,inset 0px -10px 10px -20px #ffb9c7;}
+#vip_a:hover{/*color:#ffffff*/;box-shadow:inset 0px 15px 10px -10px #ffb9c7,inset 0px -10px 10px -20px #ffb9c7;}
 #vip2_a:hover{color:#fe92a8;box-shadow:inset 0px 15px 10px -10px #ffb9c7,inset 0px -10px 10px -20px #ffb9c7;}
 .n_viphover{ background:#fe92a8; color:#ffffff !important}
 .n_viptop20{ margin-top:40px;}
@@ -2541,3 +2541,67 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 @media (max-width:320px){
     .j_lr{margin-right: 19px;}
 }
+
+/* 10-8 */
+
+.dq_fangan{width: 96%;margin: 0 auto; display: table; font-size: 20px;font-weight: bold; text-align: center;color: #fe92a8; padding: 5px 0;}
+.dq_fangan h2{width:50px; height: 2px; margin: 0 auto; display: table; background: #fe92a8; margin-top: 5px;}
+
+
+.new_viplist{width:96%;margin: 0 auto;  display:table; margin-top:20px !important; margin-bottom:10px !important;}
+.new_viplist ul{width:100%;}
+.new_viplist ul li{width:48% !important; height:250px !important;float:left;background-image:url(../images/fy_03.png); background-color:#f9f9f9; float: left;
+    background-SIZE:50%; background-repeat:no-repeat; background-position:94px 42px !important; padding:20px 0 !important; border-radius:10px; color:#fd8cb4; position:relative;}
+.new_viplist ul li:last-child{ float: right;}
+
+.new_fa{ font-size: 18px; font-weight: bold;width:60%; margin: 0 auto; text-align: center; line-height: 50px; border-bottom: #fe92a8 1px solid; margin-bottom: 10px;}
+.new_fanext{width:100%; margin: 0 auto; display: table; text-align: center; height: 90px;}
+.new_fanext h2{ line-height:30px;font-size: 18px;}
+
+
+@media (max-width:797px){
+    .new_viplist{width:95%; margin: 0 auto; display: table;}
+    .new_viplist ul li{background-SIZE:66%;background-position:53px 15px !important;}
+}
+
+@media (max-width:450px){
+    .new_viplist{width:95%; margin: 0 auto; display: table;}
+    .new_viplist ul li{background-SIZE:90%;background-position:7px 36px !important;}
+}
+
+
+.new_gvip_input{margin: 0 auto; display:table;margin-top:15px;margin-bottom: 15px;}
+.new_gvip_input{width:110px; height:40px; background:#fe92a8; border-radius:200px; color:#ffffff; text-align:center; line-height:40px; cursor: pointer;}
+.new_gvip_input:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;}
+
+@media (max-width:360px){
+    .new_gvip_input{width:95px;}
+}
+
+
+.new_yk {width:90%;height:400px;margin: 0 auto;color: #666666;padding-bottom: 20px; padding-top:15px;overflow-y: scroll;}
+.new_yk h2{ font-size: 16px; font-weight: bold; color: #8a9fef; padding-bottom: 5px;}
+.new_yk h3{ width:100%;line-height:25px; margin-bottom: 5px; display: table;}
+.new_yk h3 span{width:10px; float: left;}
+.new_yk h3 font{width: calc(100% - 12px); float:right}
+.new_yk h4{line-height:25px;display: table;color:#f00;width: 100%;}
+.new_yk h4 span{width:10px; float: left;}
+.new_yk h4 font{width: calc(100% - 12px); float:right}
+
+@media (max-width:1024px){
+    .new_yk{height:300px; }
+}
+@media (max-width:812px){
+    .new_yk{height:240px; }
+}
+
+@media (max-width:640px){
+    .new_yk{height:200px; }
+}
+
+@media (max-width:450px){
+    .new_yk{height:300px; }
+}
+
+.new_xline{width: 96%; margin: 0 auto; height: 1px; background: #eeeeee; /*display: table;*/ margin-top: 18px; margin-bottom:5px;}
+.new_syfont{ text-align: center;background: #fff3f7;width:96%; margin: 0 auto;padding: 8px 5px; border-radius: 5px; color: #fe92a8; font-size: 16px; margin-bottom: 10px;}

@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Jobs\CheckECpay;
 use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
+use App\Models\BannedUsersImplicitly;
 use App\Models\SimpleTables\warned_users;
+use App\Notifications\BannedUserImplicitly;
 use Auth;
 use App\Http\Requests;
 use Carbon\Carbon;
@@ -33,6 +35,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ReportRequest;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Http\Requests\FormFilterRequest;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
@@ -1212,6 +1215,47 @@ class PagesController extends Controller
             ->with('days',$days);
     }
 
+    public function view_new_vip(Request $request)
+    {
+
+        $cc_monthly_payment = AdminCommonText::where('alias','cc_monthly_payment')->get()->first();
+        $cc_quarterly_payment = AdminCommonText::where('alias','cc_quarterly_payment')->get()->first();
+        $one_month_payment = AdminCommonText::where('alias','one_month_payment')->get()->first();
+        $one_quarter_payment = AdminCommonText::where('alias','one_quarter_payment')->get()->first();
+
+        $cancel_vip = AdminCommonText::where('alias','cancel_vip')->get()->first();
+
+
+        /*編輯文案-檢舉會員訊息-START*/
+        $vip_text = AdminCommonText::where('alias','vip_text')->get()->first();
+        /*編輯文案-檢舉會員訊息-END*/
+
+        /*編輯文案-檢舉會員訊息-START*/
+        $upgrade_vip = AdminCommonText::where('alias','upgrade_vip')->get()->first();
+        /*編輯文案-檢舉會員訊息-END*/
+        $user = $request->user();
+        //VIP到期日
+        $expiry_time = Vip::select('expiry')->where('member_id', $user->id)->where('expiry', '!=', '0000-00-00 00:00:00')->orderBy('created_at', 'desc')->first();
+        $days=0;
+        if(isset($expiry_time)) {
+            $expiry_time = $expiry_time->expiry;
+            $expiry = Carbon::parse($expiry_time);
+            $days = $expiry->diffInDays(Carbon::now());
+        }
+
+        return view('new.dashboard.new_vip')
+            ->with('user', $user)->with('cur', $user)
+            ->with('vip_text', $vip_text->content)
+            ->with('upgrade_vip', $upgrade_vip->content)
+            ->with('cancel_vip', $cancel_vip->content)
+            ->with('cc_monthly_payment',$cc_monthly_payment->content)
+            ->with('cc_quarterly_payment',$cc_quarterly_payment->content)
+            ->with('one_month_payment',$one_month_payment->content)
+            ->with('one_quarter_payment',$one_quarter_payment->content)
+            ->with('expiry_time', $expiry_time)
+            ->with('days',$days);
+    }
+
     public function viewuser(Request $request, $uid = -1)
     {
         $user = $request->user();
@@ -1552,12 +1596,17 @@ class PagesController extends Controller
 
     public function reportPost(Request $request){
         if(empty($this->customTrim($request->content))){
-            $user = $request->user();
             return redirect('/dashboard/viewuser/'.$request->uid);
         }
         Reported::report($request->aid, $request->uid, $request->content);
-//        return redirect('/dashboard/viewuser/'.$request->uid)->with('message', '檢舉成功');
-        return back()->with('message', '檢舉成功');
+        $user = $request->user();
+        if($user->isVip()){
+            $showMsg = '站務人員會檢視檢舉，可在瀏覽資料/封鎖名單查看被封鎖會員，若有其他狀況將以站內訊息通知檢舉人。';
+        }else{
+            $showMsg = '站務人員會檢視檢舉，可在瀏覽資料/封鎖名單查看被封鎖會員。';
+        }
+
+        return back()->with('message', $showMsg); //'檢舉成功'
     }
 
     public function reportMsg(Request $request){
@@ -2125,6 +2174,10 @@ class PagesController extends Controller
         return ['1', 'OK'];
     }
 
+    public function paymentInfoEC(Request $request) {
+        return ['1', 'OK'];
+    }
+
     public function receive_esafe(Request $request)
     {
         $user = $request->user();
@@ -2259,6 +2312,13 @@ class PagesController extends Controller
                     $offVIP = AdminCommonText::getCommonText(4);
                     $offVIP = str_replace('DATE', $date, $offVIP);
 
+                    //如果VIP取消時間少於七個工作天，訊息提示。
+                    $now = \Carbon\Carbon::now();
+                    $vipDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $data->updated_at);
+                    if($now->diffInDays($vipDate) <= 7 ){
+                        $offVIP = $user->name.' 您好，您已取消本站 VIP 續費。但由於您的扣款時間是每月'. $vipDate->format('d') .'號，取消時間低於七個工作天，作業不及。所以本月還是會正常扣款，下個月就會停止扣款。造成不變敬請見諒。';
+                    }
+
                     $request->session()->flash('cancel_notice', $offVIP);
                     $request->session()->save();
                     return redirect('/dashboard/vip#vipcanceled')->with('user', $user)->with('message', $offVIP);
@@ -2307,10 +2367,25 @@ class PagesController extends Controller
         $user = $request->user();
 
         // $time = \Carbon\Carbon::now();
-        $count = banned_users::select('*')->where('banned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->count();
-        $banned_users = banned_users::select('banned_users.*','users.name')->where('banned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
+        //$count = banned_users::select('*')->where('banned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->count();
+        $banned_users = banned_users::select('banned_users.reason','banned_users.created_at','banned_users.expire_date','users.name')
+            ->where('banned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
             ->join('users','banned_users.member_id','=','users.id')
-            ->orderBy('banned_users.created_at','desc')->paginate(15);
+            ->orderBy('banned_users.created_at','desc');
+
+        //隱形封鎖要出現在瀏覽資料/懲處名單中，封鎖原因為"廣告"
+        $banned_users_implicitly = BannedUsersImplicitly::selectRaw('banned_users_implicitly.reason AS reason, banned_users_implicitly.created_at AS created_at, ""  AS expire_date ,users.name AS name')
+            ->where('banned_users_implicitly.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
+            ->join('users','banned_users_implicitly.target','=','users.id')
+            ->orderBy('banned_users_implicitly.created_at','desc');
+
+        //取得資料總筆數
+        $count = $banned_users->get()->count() + $banned_users_implicitly->get()->count();
+        $getUnionList = $banned_users->union($banned_users_implicitly)->get();
+
+        $page = $request->get('page');
+        $perPage = 15;
+        $banned_users = new LengthAwarePaginator($getUnionList->forPage($page, $perPage), $count, $perPage, $page,  ['path' => '/dashboard/banned/']);
 
         foreach ($banned_users as &$b){
             $b->name = $this->substr_cut($b->name);
