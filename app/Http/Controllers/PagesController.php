@@ -2304,6 +2304,7 @@ class PagesController extends Controller
                 $this->logService->cancelLog($vip);
                 $this->logService->writeLogToDB();
                 $file = $this->logService->writeLogToFile();
+                $before_cancelVip = $vip->updated_at;
                 logger('$before_cancelVip:'.$vip->updated_at);
                 if( strpos(\Storage::disk('local')->get($file[0]), $file[1]) !== false) {
                     Vip::cancel($user->id, 0);
@@ -2314,18 +2315,33 @@ class PagesController extends Controller
                     $offVIP = str_replace('DATE', $date, $offVIP);
 
                     //如果VIP取消時間少於七個工作天，訊息提示。
-                    logger('$after_cancelVip:'.$data->updated_at);
+                    //$date取得原本VIP剩餘天數基準日
+                    $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $before_cancelVip);
+                    $day = $date->day;
                     $now = \Carbon\Carbon::now();
-                    $vipDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $data->expiry);
-                    logger('$expiry:'.$vipDate);
-                    logger('diffIndays:'.$now->diffInDays($vipDate));
-                    if($now->diffInDays($vipDate) <= 7 ){
-                        $offVIP = $user->name.' 您好，您已取消本站 VIP 續費。但由於您的扣款時間是每月'. $vipDate->format('d') .'號，取消時間低於七個工作天，作業不及。所以本月還是會正常扣款，下個月就會停止扣款。造成不變敬請見諒。';
+                    $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
+                    if($now->day >= $day){
+                        // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
+                        if($user[0]->payment=='cc_quarterly_payment'){
+                            $nextMonth = $now->addMonthsNoOverflow(3);
+                        }else {
+                            $nextMonth = $now->addMonthsNoOverflow(1);
+                        }
+
+                        $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $nextMonth->year.'-'.$nextMonth->month.'-'.$day.' 00:00:00');
+                    }
+
+                    logger('$expiry:'.$data->expiry);
+                    logger('base day:' . $date);
+                    logger('diffIndays:'.$now->diffInDays($date));
+
+                    if($vip->business_id == '3137610' && $now->diffInDays($date) <= 7 ){
+                        $offVIP = $user->name.' 您好，您已取消本站 VIP 續費。但由於您的扣款時間是每月'. $date->format('d') .'號，取消時間低於七個工作天，作業不及。所以本月還是會正常扣款，下個月就會停止扣款。造成不變敬請見諒。';
                     }
 
                     $request->session()->flash('cancel_notice', $offVIP);
                     $request->session()->save();
-                    return redirect('/dashboard/new_vip')->with('user', $user)->with('message', $offVIP);
+                    return redirect('/dashboard/new_vip#vipcanceled')->with('user', $user)->with('message', $offVIP);
                     //return back()->with('user', $user)->with('message', 'VIP 取消成功！')->with('cancel_notice', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
 
                 }
