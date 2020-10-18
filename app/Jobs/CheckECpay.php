@@ -94,7 +94,7 @@ class CheckECpay implements ShouldQueue
                         $message->to('admin@sugar-garden.org');
                         $message->subject('綠界扣款失敗通知');
                     });
-                } else if ($last['RtnCode'] == 0) {
+                } else if ($last['RtnCode'] != 1) {
                     Log::info('付費失敗');
                     Log::info($paymentData);
 
