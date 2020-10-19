@@ -71,7 +71,12 @@ class CheckECpay implements ShouldQueue
             if(substr($this->vipData->payment,0,4) == 'one_'){
                 //保留用
             }else { //定期定額流程
-                $last = last($paymentData['ExecLog']);
+                try{
+                    $last = last($paymentData['ExecLog']);
+                }
+                catch (\Exception $e){
+                    Log::error("ExecLog is null, VIP id: " . $this->vipData->id);
+                }
                 $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
                 $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
                 $now = \Carbon\Carbon::now();

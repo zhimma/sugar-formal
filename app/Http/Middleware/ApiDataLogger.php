@@ -175,6 +175,9 @@ class ApiDataLogger{
                     elseif ($payload['RtnCode'] == '10100073' && $payload['PaymentType'] == 'BARCODE_BARCODE'){
                         Log::info("Barcode info.");
                     }
+                    elseif ($payload['RtnCode'] == '2' && str_contains($payload['PaymentType'], 'ATM')){
+                        Log::info("ATM info.");
+                    }
                     else{
                         Log::info("Error: RtnCode didn't set.");
                         return '0|Error';
