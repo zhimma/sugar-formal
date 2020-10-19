@@ -351,7 +351,14 @@
                 </div>
 
                 <div style="text-align: center;">
-                    {!! $vis->appends(request()->input())->links('pagination::sg-pages2') !!}
+                    @if ($vis->lastPage() >1)
+                        <div class="fenye">
+                            <a href="{{ $vis->previousPageUrl() }}">上一頁</a>
+                            <span class="new_page">{{$vis->currentPage()}}</span>
+                            <a href="{{ $vis->nextPageUrl() }}">下一頁</a>
+                        </div>
+                    @endif
+{{--                    {!! $vis->appends(request()->input())->links('pagination::sg-pages2') !!}--}}
                 </div>
 
             </div>
