@@ -2322,7 +2322,7 @@ class PagesController extends Controller
                     $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
                     if($now->day >= $day){
                         // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
-                        if($user[0]->payment=='cc_quarterly_payment'){
+                        if($vip->payment=='cc_quarterly_payment'){
                             $nextMonth = $now->addMonthsNoOverflow(3);
                         }else {
                             $nextMonth = $now->addMonthsNoOverflow(1);
