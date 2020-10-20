@@ -26,79 +26,156 @@
                             @endif
                             <div class="vipline"><img src="/new/images/VIP_05.png"></div>
 
-                            <div class="dq_fangan">定期方案</div>
+                            <div class="dq_fangan">信用卡VIP自動續約扣款</div>
                             <div class="new_viplist" style="margin-bottom: 10px;">
                                 <ul>
                                     <li><div class="vipcion"><img src="/new/images/bicontop.png"></div>
-                                        <div class="new_fa">3個月方案</div>
+                                        <div class="new_fa">每季支付 NT</div>
                                         <div class="new_fanext">
                                             <h2>NT$988/月</h2>
-                                            <h2>一次付清</h2>
-                                            <h2>NT$2964</h2>
+                                            <h2>每季自動扣款</h2>
                                         </div>
 {{--                                        <a class="new_gvip_input" onclick="cl()">購買</a>--}}
                                         <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
                                             <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                             <input type="hidden" name="userId" value="{{$user->id}}">
                                             <input type="hidden" name="type" value="cc_quarterly_payment">
-                                            <button type="submit" class="new_gvip_input cc_quarterly_payment" style="border-style: none; outline: none;">購買</button>
+                                            <button type="submit" class="new_gvip_input cc_quarterly_payment paySubmit" style="border-style: none; outline: none;">信用卡</button>
                                         </form>
                                     </li>
                                     <li>
-                                        <div class="new_fa">1個月方案</div>
+                                        <div class="new_fa">每月支付 NT</div>
                                         <div class="new_fanext">
                                             <h2>NT$1388/月</h2>
-                                            <h2>一次付清</h2>
-                                            <h2></h2>
+                                            <h2>每月自動扣款</h2>
                                         </div>
 {{--                                        <a class="new_gvip_input"  onclick="c2()">購買</a>--}}
                                         <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
                                             <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                             <input type="hidden" name="userId" value="{{$user->id}}">
                                             <input type="hidden" name="type" value="cc_monthly_payment">
-                                            <button type="submit" class="new_gvip_input cc_monthly_payment" style="border-style: none; outline: none;">購買</button>
+                                            <button type="submit" class="new_gvip_input cc_monthly_payment paySubmit" style="border-style: none; outline: none;">信用卡</button>
                                         </form>
                                     </li>
                                 </ul>
                             </div>
 
                             <div class="new_xline"></div>
-                            <div class="dq_fangan">單次方案</div>
+                            <div class="dq_fangan">單筆付款，短期VIP體驗</div>
                             <div class="new_viplist">
                                 <ul>
                                     <li>
-                                        <div class="new_fa">3個月方案</div>
+                                        <div class="new_fa">單季支付 NT</div>
                                         <div class="new_fanext">
                                             <h2>NT$988/月</h2>
-                                            <h2>一次付清</h2>
-                                            <h2>NT$2964</h2>
+                                            <h2>單季體驗</h2>
+                                            <div class="new_abg">
+                                                <span>
+                                                    <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
+                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                                        <input type="hidden" name="userId" value="{{$user->id}}">
+                                                        <input type="hidden" name="type" value="one_quarter_payment">
+                                                        <input type="hidden" name="choosePayment" value="ATM">
+                                                        <button type="submit" class="new_vpadd one_quarter_payment paySubmit" style="border-style: none; outline: none;">ATM繳費</button>
+                                                    </form>
+                                                </span>
+                                                <span>
+                                                    <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
+                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                                        <input type="hidden" name="userId" value="{{$user->id}}">
+                                                        <input type="hidden" name="type" value="one_quarter_payment">
+                                                        <input type="hidden" name="choosePayment" value="Credit">
+                                                        <button type="submit" class="new_vpadd one_quarter_payment paySubmit" style="border-style: none; outline: none;">信用卡</button>
+                                                    </form>
+                                                </span>
+{{--                                                <span>--}}
+{{--                                                    <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>--}}
+{{--                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
+{{--                                                        <input type="hidden" name="userId" value="{{$user->id}}">--}}
+{{--                                                        <input type="hidden" name="type" value="one_quarter_payment">--}}
+{{--                                                        <input type="hidden" name="choosePayment" value="BARCODE">--}}
+{{--                                                        <button type="submit" class="new_vpadd one_quarter_payment paySubmit" style="border-style: none; outline: none;">超商條碼</button>--}}
+{{--                                                    </form>--}}
+{{--                                                </span>--}}
+                                                <font class="new_w100">
+                                                    <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
+                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                                        <input type="hidden" name="userId" value="{{$user->id}}">
+                                                        <input type="hidden" name="type" value="one_quarter_payment">
+                                                        <input type="hidden" name="choosePayment" value="CVS">
+                                                        <button type="submit" class="new_vpadd one_quarter_payment paySubmit" style="border-style: none; outline: none;">超商代碼或條碼</button>
+                                                    </form>
+                                                </font>
+
+                                            </div>
                                         </div>
-                                        <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
-                                            <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-                                            <input type="hidden" name="userId" value="{{$user->id}}">
-                                            <input type="hidden" name="type" value="one_quarter_payment">
-                                            <button type="submit" class="new_gvip_input one_quarter_payment" style="border-style: none; outline: none;">購買</button>
-                                        </form>
+{{--                                        <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>--}}
+{{--                                            <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
+{{--                                            <input type="hidden" name="userId" value="{{$user->id}}">--}}
+{{--                                            <input type="hidden" name="type" value="one_quarter_payment">--}}
+{{--                                            <button type="submit" class="new_gvip_input one_quarter_payment" style="border-style: none; outline: none;">購買</button>--}}
+{{--                                        </form>--}}
                                     </li>
                                     <li>
-                                        <div class="new_fa">1個月方案</div>
+                                        <div class="new_fa">單月支付 NT</div>
                                         <div class="new_fanext">
                                             <h2>NT$1388/月</h2>
-                                            <h2>一次付清</h2>
-                                            <h2></h2>
+                                            <h2>單月體驗</h2>
+                                            <div class="new_abg">
+                                                <span>
+                                                    <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
+                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                                        <input type="hidden" name="userId" value="{{$user->id}}">
+                                                        <input type="hidden" name="type" value="one_month_payment">
+                                                        <input type="hidden" name="choosePayment" value="ATM">
+                                                        <button class="new_vpadd one_month_payment paySubmit" style="border-style: none; outline: none;">ATM繳費</button>
+                                                    </form>
+                                                </span>
+                                                <span>
+                                                    <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
+                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                                        <input type="hidden" name="userId" value="{{$user->id}}">
+                                                        <input type="hidden" name="type" value="one_month_payment">
+                                                        <input type="hidden" name="choosePayment" value="Credit">
+                                                        <button class="new_vpadd one_month_payment paySubmit" style="border-style: none; outline: none;">信用卡</button>
+                                                    </form>
+                                                </span>
+{{--                                                <span>--}}
+{{--                                                    <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>--}}
+{{--                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
+{{--                                                        <input type="hidden" name="userId" value="{{$user->id}}">--}}
+{{--                                                        <input type="hidden" name="type" value="one_month_payment">--}}
+{{--                                                        <input type="hidden" name="choosePayment" value="BARCODE">--}}
+{{--                                                        <button class="new_vpadd one_month_payment paySubmit" style="border-style: none; outline: none;">超商條碼</button>--}}
+{{--                                                    </form>--}}
+{{--                                                </span>--}}
+                                                <font class="new_w100">
+                                                    <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
+                                                        <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                                        <input type="hidden" name="userId" value="{{$user->id}}">
+                                                        <input type="hidden" name="type" value="one_month_payment">
+                                                        <input type="hidden" name="choosePayment" value="CVS">
+                                                        <button class="new_vpadd one_month_payment paySubmit" style="border-style: none; outline: none;">超商代碼或條碼</button>
+                                                    </form>
+                                                </font>
+
+                                            </div>
                                         </div>
-                                        <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
-                                            <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-                                            <input type="hidden" name="userId" value="{{$user->id}}">
-                                            <input type="hidden" name="type" value="one_month_payment">
-                                            <button class="new_gvip_input one_month_payment" style="border-style: none; outline: none;">購買</button>
-                                        </form>
+{{--                                        <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>--}}
+{{--                                            <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
+{{--                                            <input type="hidden" name="userId" value="{{$user->id}}">--}}
+{{--                                            <input type="hidden" name="type" value="one_month_payment">--}}
+{{--                                            <button class="new_gvip_input one_month_payment" style="border-style: none; outline: none;">購買</button>--}}
+{{--                                        </form>--}}
                                     </li>
                                 </ul>
                             </div>
                             <div class="vipline matop20"><img src="/new/images/VIP_05.png"></div>
                         </div>
-
+                        <div class="vipbongn">
+                            {!!  $vip_text  !!}
+                        </div>
+                        <div class="n_vipbotf">本筆款項在信用卡帳單顯示為 信宏資產管理公司</div>
                         {{-- cancel vip --}}
                         <div class="hy_width n_viptop20"  id="vip_cancel" style="display:none">
                             <div class="fi_xq">
@@ -188,7 +265,7 @@
 
         });
 
-        $('.new_gvip_input').on('click', function(event) {
+        $('.paySubmit').on('click', function(event) {
 {{--            @if($user->isVipNotCanceledORCanceledButNotExpire())--}}
 {{--                c2('您目前已是VIP會員');--}}
 {{--                return false;--}}
@@ -231,6 +308,7 @@
                 }
 {{--            @endif--}}
         });
+
 
         // 取消VIP內容
         $('#vip2_a').on('click', function(event) {

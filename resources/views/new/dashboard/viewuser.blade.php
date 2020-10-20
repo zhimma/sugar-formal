@@ -222,7 +222,11 @@
                                 </li>
                             @endif
                             <li>
-                                <a onclick="show_banned()"><img src="/new/images/icon_10.png" class="tubiao_i"><span>檢舉</span></a>
+                                @if($user->isAdminWarned())
+                                    <a onclick="show_Warned()"><img src="/new/images/icon_10.png" class="tubiao_i"><span>檢舉</span></a>
+                                @else
+                                    <a onclick="show_banned()"><img src="/new/images/icon_10.png" class="tubiao_i"><span>檢舉</span></a>
+                                @endif
                             </li>
                             @if($user->isVip())
                                 <li>
@@ -880,8 +884,11 @@
         }
     });
 
-
     // $.noConflict();
+    
+    function show_Warned() {
+        c2('無法檢舉');
+    }
 </script>
 
 @stop

@@ -15,6 +15,7 @@ class VerifyCsrfToken extends Middleware
         '/dashboard/upgradepay',
         '/dashboard/chatpay',
         'dashboard/upgradepayEC',
+        'dashboard/paymentInfoEC',
         '/dashboard/chatpay_ec',
         '/dashboard/postChatpayEC'
     ];

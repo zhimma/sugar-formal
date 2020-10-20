@@ -731,13 +731,16 @@
       }
 
         @php
-            $ckBarCodeLog = DB::table('payment_get_barcode_log')->where('user_id',$user->id)->where('ExpireDate','>=',now())->count();
+            $ckBarCodeLog = DB::table('payment_get_barcode_log')->where('user_id',$user->id)->where('ExpireDate','>=',now())->where('isRead',0)->count();
         @endphp
 
       @if(!$user->isAdmin())
         @if($ckBarCodeLog>0 && !$user->isVip())
         $('#isGetBarCodeNotVIP').show();
         $('#announce_bg').show();
+        @php
+            DB::table('payment_get_barcode_log')->where('user_id',$user->id)->where('ExpireDate','>=',now())->where('isRead',0)->update(['isRead' => 1]);
+        @endphp
         @elseif (!$umeta->isAllSet())
         c5('請寫上基本資料。');
           // swal({
