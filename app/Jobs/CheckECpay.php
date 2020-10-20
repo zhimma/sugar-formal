@@ -71,7 +71,12 @@ class CheckECpay implements ShouldQueue
             if(substr($this->vipData->payment,0,4) == 'one_'){
                 //保留用
             }else { //定期定額流程
-                $last = last($paymentData['ExecLog']);
+                try{
+                    $last = last($paymentData['ExecLog']);
+                }
+                catch (\Exception $e){
+                    Log::error("ExecLog is null, VIP id: " . $this->vipData->id);
+                }
                 $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
                 $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
                 $now = \Carbon\Carbon::now();
@@ -94,7 +99,7 @@ class CheckECpay implements ShouldQueue
                         $message->to('admin@sugar-garden.org');
                         $message->subject('綠界扣款失敗通知');
                     });
-                } else if ($last['RtnCode'] == 0) {
+                } else if ($last['RtnCode'] != 1) {
                     Log::info('付費失敗');
                     Log::info($paymentData);
 

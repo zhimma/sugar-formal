@@ -14,7 +14,7 @@
 {{--		({{ $maleVipMessagesCount / $maleVipMessagesRepliedCount * 100 }}%)--}}
 	</li>
 	<li>
-		30 天內普通會員發訊總數/獲得回應比例: {{ $allMessages[0]->count - $vipMessages[0]->count }} / {{ $allMessagesReplied[0]->count - $vipMessagesReplied[0]->count }}
+		30 天內普通會員發訊總數/獲得回應比例: {{ $maleNonVipMessages[0]->count - $maleVipMessages[0]->count }} / {{ $maleNonVipMessagesReplied[0]->count - $maleVipMessagesReplied[0]->count }}
 {{--		({{ ($allMessagesCount - $maleVipMessagesCount - $femaleVipMessagesCount) / ($allMessagesRepliedCount - $maleVipMessagesRepliedCount - $femaleVipMessagesRepliedCount) * 100 }}%)--}}
 	</li>
 	<li>

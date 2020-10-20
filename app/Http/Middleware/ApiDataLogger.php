@@ -172,6 +172,12 @@ class ApiDataLogger{
                         Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0,$payload['CustomField3']);
                         return '1|OK';
                     }
+                    elseif ($payload['RtnCode'] == '10100073' && $payload['PaymentType'] == 'BARCODE_BARCODE'){
+                        Log::info("Barcode info.");
+                    }
+                    elseif ($payload['RtnCode'] == '2' && str_contains($payload['PaymentType'], 'ATM')){
+                        Log::info("ATM info.");
+                    }
                     else{
                         Log::info("Error: RtnCode didn't set.");
                         return '0|Error';

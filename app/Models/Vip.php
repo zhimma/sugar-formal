@@ -159,7 +159,7 @@ class Vip extends Model
         if ($curUser != null) {
             //$admin->notify(new CancelVipEmail($member_id, '761404', $member_id));
         }
-        $user = Vip::select('id', 'expiry', 'created_at', 'updated_at','payment')
+        $user = Vip::select('id', 'expiry', 'created_at', 'updated_at','payment','business_id')
                 ->where('member_id', $member_id)
                 ->orderBy('created_at', 'desc')->get();
         // 取消時，判斷會員性別，並確認沒有設定到期日，才開始動作，否則遇上多次取消，可能會導致到期日被延後的結果

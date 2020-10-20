@@ -120,7 +120,11 @@
 			}else{
 				error	=	result.msg;
 			}
-			c2(error);
+			if (typeof(result.showLink) != "undefined"){
+				c7(error,result.showLink);
+			}else{
+				c2(error);
+			}
 			// swal({
 			// 	title:error,
 			// 	text:(result.text)?result.text:'',
@@ -170,6 +174,13 @@
 		$("#tab06").show();	
 		$("#tab06 .bltext").text(str);	
    }
+
+	function c7(str, link) {
+		$(".blbg").show();
+		$("#tab07").show();
+		$("#tab07 .msgtext").text(str);
+		$("#tab07 .linktext").html(link);
+	}
 
 	function show_message(str) {
 		$(".blbg").show();
