@@ -160,7 +160,7 @@ class StatController extends Controller
      * 1: 男 VIP 人數
      * 2: 30 天內有上線的女  VIP 人數
      * 3: 30 天內男 VIP 發訊總數 / 獲得回應比例
-     * 4: 30 天內普通會員發訊總數 / 獲得回應比例
+     * 4: 30 天內普通男會員發訊總數 / 獲得回應比例
      * 5: 車馬費邀請總數 / 有回應的比例
      */
     public function other(){
@@ -184,7 +184,7 @@ class StatController extends Controller
             INNER JOIN users u ON m.from_id = u.id
             INNER JOIN member_vip v ON u.id = v.member_id
             WHERE v.active = 1 AND u.engroup = 1
-            AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) ');
+            AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)');
         // 3: 獲得回應數
         $maleVipMessagesReplied =
             \DB::select('SELECT count(*) as count FROM 
@@ -193,7 +193,7 @@ class StatController extends Controller
                             INNER JOIN member_vip v ON users.id = v.member_id
                             WHERE v.active = 1 AND users.engroup = 1
                             AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) ) m
-                        WHERE from_id IN (
+                        WHERE m.from_id IN (
                                 SELECT m.to_id FROM message m
                                 INNER JOIN users u ON m.from_id = u.id
                                 INNER JOIN member_vip v ON u.id = v.member_id
@@ -201,40 +201,22 @@ class StatController extends Controller
                                 AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) 
                             ) 
                         AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)');
-        // 4: 算出全部再減 VIP
-        $allMessages = \DB::select('SELECT count(*) as count FROM message m
+        // 4: 所有男會員訊息數
+        $maleNonVipMessages = \DB::select('SELECT count(*) as count FROM message m
             INNER JOIN users u ON m.from_id = u.id
-            AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) ');
-        $allMessagesReplied =
+            WHERE u.engroup = 1
+            AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)');
+        // 4: 所有男會員訊息數獲得回應數
+        $maleNonVipMessagesReplied =
             \DB::select('SELECT count(*) as count FROM 
                             (SELECT m.* FROM message m
                             INNER JOIN users ON m.from_id = users.id
-                            INNER JOIN member_vip v ON users.id = v.member_id
+                            WHERE users.engroup = 1
                             AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) ) m
                         WHERE from_id IN (
                                 SELECT m.to_id FROM message m
                                 INNER JOIN users u ON m.from_id = u.id
-                                INNER JOIN member_vip v ON u.id = v.member_id
-                                AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) 
-                            ) 
-                        AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)');
-        $vipMessages = \DB::select('SELECT count(*) as count FROM message m
-                                INNER JOIN users u ON m.from_id = u.id
-                                INNER JOIN member_vip v ON u.id = v.member_id
-                                WHERE v.active = 1
-                                AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) ');
-        $vipMessagesReplied =
-              \DB::select('SELECT count(*) as count FROM 
-                            (SELECT m.* FROM message m
-                            INNER JOIN users ON m.from_id = users.id
-                            INNER JOIN member_vip v ON users.id = v.member_id
-                            WHERE v.active = 1 
-                            AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) ) m
-                        WHERE from_id IN (
-                                SELECT m.to_id FROM message m
-                                INNER JOIN users u ON m.from_id = u.id
-                                INNER JOIN member_vip v ON u.id = v.member_id
-                                WHERE v.active = 1 
+                                WHERE u.engroup = 1
                                 AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) 
                             ) 
                         AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)');
@@ -253,10 +235,8 @@ class StatController extends Controller
                      'femaleVipLastLoginIn30DaysCount',
                         'maleVipMessages',
                         'maleVipMessagesReplied',
-                        'vipMessages',
-                        'vipMessagesReplied',
-                        'allMessages',
-                        'allMessagesReplied',
+                        'maleNonVipMessages',
+                        'maleNonVipMessagesReplied',
                         'tipsAllCount',
                         'tipsReplied'
             ));
