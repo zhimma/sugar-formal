@@ -34,7 +34,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $fillable = ['name', 'email', 'password', 'title', 'enstatus', 'engroup', 'last_login', 'isReadManual'];
+    protected $fillable = ['name', 'email', 'password', 'title', 'enstatus', 'engroup', 'last_login', 'isReadManual','exchange_period'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -271,11 +271,28 @@ class User extends Authenticatable
         return Vip::where('member_id', $this->id)->where('active', 1)->where('free', 1)->orderBy('created_at', 'desc')->first() !== null;
     }
 
-    public function isVipNotCanceledORCanceledButNotExpire()
+    public function isVipNotCanceledNotOnePayment()
     {
         //return true: VIP未取消
         //return false: VIP已取消，但權限還沒過期
-        return Vip::where('member_id', $this->id)->where('active', 1)->where('expiry', '=', '0000-00-00 00:00:00')->orderBy('created_at', 'desc')->first() !== null;
+        $vip = Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first();
+        return isset($vip) && $vip->expiry=='0000-00-00 00:00:00';
+    }
+
+    public function isVipOnePaymentNotExpire()
+    {
+        //return true: VIP未取消
+        //return false: VIP已取消，但權限還沒過期
+        $vip = Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first();
+        return isset($vip) && $vip->expiry >= now() && substr($vip->payment,0,4)=='one_';
+    }
+
+    public function isVipNotOnePaymentNotExpiry()
+    {
+        //return true: VIP未取消
+        //return false: VIP已取消，但權限還沒過期
+        $vip = Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first();
+        return isset($vip) && $vip->expiry >= now() && ($vip->payment==null || substr($vip->payment,0,3)=='cc_');
     }
 
     public function isVipBoolean()
@@ -453,6 +470,16 @@ class User extends Authenticatable
         }else{
             return false;
         }
+    }
+
+    public static function isWarnedRead($uid)
+    {
+        DB::table('user_meta')->where('user_id',$uid)->update(['isWarnedRead'=>1]);
+    }
+
+    public static function isAdminWarnedRead($uid)
+    {
+        DB::table('warned_users')->where('member_id',$uid)->update(['isAdminWarnedRead'=>1]);
     }
 
     public function msgCount()

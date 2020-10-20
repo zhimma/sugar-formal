@@ -62,10 +62,19 @@ class Vip extends Model
         return !$status->free;
     }
 
-    public static function upgrade($member_id, $business_id, $order_id, $amount, $txn_id, $active, $free, $transactionType = null)
+    public static function upgrade($member_id, $business_id, $order_id, $amount, $txn_id, $active, $free, $payment = null, $transactionType = null)
     {
         $vipData = Vip::findByIdWithDateDesc($member_id);
+
         if(!isset($vipData)){
+
+            //新建資料從當前計算
+            if($payment=='one_quarter_payment'){
+                $expiry = Carbon::now()->addMonthsNoOverflow(3);
+            }else if($payment=='one_month_payment'){
+                $expiry = Carbon::now()->addMonthsNoOverflow(1);
+            }
+
             $vip = new Vip();
             $vip->member_id = $member_id;
             $vip->txn_id = $txn_id;
@@ -74,19 +83,45 @@ class Vip extends Model
             $vip->amount = $amount;
             $vip->active = $active;
             $vip->free = $free;
-            //$vip->transactionType = $transactionType;
-            //$startDate = time();
-            //$expiry = date('Y-m-d H:i:s', strtotime('+'.substr($order_id, 0, 2).' day', $startDate));
-            //$vip->expiry = $expiry;
+            $vip->payment = $payment;
+
+            //單次付款到期日
+            if(isset($expiry)){
+                $vip->expiry = $expiry;
+            }
+
             $vip->save();
         }
         else{
+
+            //舊資料更新 從原expiry計算
+            if($payment=='one_quarter_payment'){
+                if($vipData->expiry < Carbon::now()) {
+                    $expiry = Carbon::now()->addMonthsNoOverflow(3);
+                }else{
+                    $expiry = Carbon::createFromFormat('Y-m-d H:i:s', $vipData->expiry)->addMonthsNoOverflow(3);
+                }
+            }else if($payment=='one_month_payment'){
+                if($vipData->expiry < Carbon::now()) {
+                    $expiry = Carbon::now()->addMonths(1);
+                }else{
+                    $expiry = Carbon::createFromFormat('Y-m-d H:i:s', $vipData->expiry)->addMonthsNoOverflow(1);
+                }
+            }
+
             $vipData->order_id = $order_id;
             $vipData->txn_id = $txn_id;
             $vipData->business_id = $business_id;
             $vipData->amount = $amount;
             $vipData->active = $active;
             $vipData->free = $free;
+            $vipData->payment = $payment;
+
+            //單次付款到期日
+            if(isset($expiry)){
+                $vipData->expiry = $expiry;
+            }
+
             $vipData->save();
         }
 
@@ -97,7 +132,7 @@ class Vip extends Model
         $curUser = User::findById($member_id);
         if ($curUser != null)
         {
-            $admin->notify(new NewVipEmail($member_id, $business_id, $member_id));
+            //$admin->notify(new NewVipEmail($member_id, $business_id, $member_id));
         }
     }
 
@@ -121,45 +156,59 @@ class Vip extends Model
         //$curUserName = User::id_($member_id)->meta_();
         $admin = User::findByEmail(Config::get('social.admin.email'));
 
-        VipLog::addToLog($member_id, 'cancel', 'XXXXXXXXX', 0, $free);
         if ($curUser != null) {
-            $admin->notify(new CancelVipEmail($member_id, '761404', $member_id));
+            //$admin->notify(new CancelVipEmail($member_id, '761404', $member_id));
         }
-        $user = Vip::select('id', 'expiry', 'created_at', 'updated_at')
+        $user = Vip::select('id', 'expiry', 'created_at', 'updated_at','payment')
                 ->where('member_id', $member_id)
                 ->orderBy('created_at', 'desc')->get();
         // 取消時，判斷會員性別，並確認沒有設定到期日，才開始動作，否則遇上多次取消，可能會導致到期日被延後的結果
-        if($curUser->engroup == 1 && $user[0]->expiry == '0000-00-00 00:00:00'){
+        //20201015 變更不分性別
+        if($user[0]->expiry == '0000-00-00 00:00:00'){
             $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->updated_at);
             $day = $date->day;
             $now = \Carbon\Carbon::now();
             $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
             if($now->day >= $day){
                 // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
-                $nextMonth = $now->addMonthsNoOverflow(1);
+                if($user[0]->payment=='cc_quarterly_payment'){
+                    $nextMonth = $now->addMonthsNoOverflow(3);
+                }else {
+                    $nextMonth = $now->addMonthsNoOverflow(1);
+                }
+
                 $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $nextMonth->year.'-'.$nextMonth->month.'-'.$day.' 00:00:00');
             }
             // 如果是使用綠界付費，且取消日距預計下次扣款日小於七天，則到期日再加一個月
             if($user[0]->business_id == '3137610' && $now->diffInDays($date) <= 7) {
-                $date = $date->addMonthNoOverflow(1);
+
+                if($user[0]->payment=='cc_quarterly_payment'){
+                    $date = $date->addMonthNoOverflow(3);
+                }else {
+                    $date = $date->addMonthNoOverflow(1);
+                }
+
             }
 
             foreach ($user as $u){
                 $u->expiry = $date->toDateTimeString();
                 $u->save();
             }
+            VipLog::addToLog($member_id, 'Cancel, expiry: ' . $date, 'XXXXXXXXX', 0, $free);
             return true;
         }
-        else if($curUser->engroup == 2 && $free == 0 && $user[0]->expiry == '0000-00-00 00:00:00'){
-            //取消當日+3天的時間
-            $date = date('Y-m-d 00:00:00' , mktime(0, 0, 0, date('m'), date('d')+4, date('Y')));
-            foreach ($user as $u){
-                $u->expiry = $date;
-                $u->save();
-            }
-            return true;
-        }
+//        else if($curUser->engroup == 2 && $free == 0 && $user[0]->expiry == '0000-00-00 00:00:00'){
+//            //取消當日+3天的時間
+//            $date = date('Y-m-d 00:00:00' , mktime(0, 0, 0, date('m'), date('d')+4, date('Y')));
+//            foreach ($user as $u){
+//                $u->expiry = $date;
+//                $u->save();
+//            }
+//            VipLog::addToLog($member_id, 'Cancel, expiry: ' . $date, 'XXXXXXXXX', 0, $free);
+//            return true;
+//        }
         else if($user[0]->expiry != '0000-00-00 00:00:00'){
+            VipLog::addToLog($member_id, 'Cancellation bypass, expiry: ' . $user[0]->expiry, 'XXXXXXXXX', 0, $free);
             return false;
         }
 

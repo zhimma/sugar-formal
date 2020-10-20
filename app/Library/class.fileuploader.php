@@ -1036,22 +1036,22 @@ class FileUploader {
 	            $message = "File upload stopped by extension";
 	            break;
             case 'accepted_file_types':
-                $message = "File type is not allowed for " . $file['old_name'];
+                $message = $file['old_name']. " 的檔案類型不被允許";
                 break;
             case 'file_uploads':
                 $message = "File uploading option in disabled in php.ini";
                 break;
             case 'max_file_size':
-                $message = $file['old_name'] . " is too large";
+                $message = $file['old_name'] . " 檔案過大，請重新操作！";
                 break;
             case 'max_files_size':
-                $message = "Files are too big";
+                $message = "檔案過大，請重新操作！";
                 break;
             case 'max_number_of_files':
                 $message = "Maximum number of files is exceeded";
                 break;
             case 'required_and_no_file':
-                $message = "No file was choosed. Please select one";
+                $message = "您沒有選擇檔案。請重新選擇一個。";
                 break;
 			case 'invalid_folder_path':
 				$message = "Upload folder doesn't exist or is not writable";

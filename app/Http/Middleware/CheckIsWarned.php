@@ -45,7 +45,7 @@ class CheckIsWarned
         if($user->meta_()->isWarned == 1){
             if($auth_status==1 && !$user->isAdminWarned()){
                 //取消警示
-                UserMeta::where('user_id',$user->id)->update(['isWarned'=>0]);
+                UserMeta::where('user_id',$user->id)->update(['isWarned'=>0,'isWarnedRead'=>0]);
             }
 //            dd($user->meta_()->isWarned);
             return $next($request);
@@ -53,7 +53,7 @@ class CheckIsWarned
 
         if($user->meta_()->isWarned == 0 && $user->WarnedScore() >=10 && $auth_status==0 && $user->id != 1049){
             //加入警示
-            UserMeta::where('user_id',$user->id)->update(['isWarned'=>1]);
+            UserMeta::where('user_id',$user->id)->update(['isWarned'=>1,'isWarnedRead'=>0]);
 
 //            return $next($request);
         }

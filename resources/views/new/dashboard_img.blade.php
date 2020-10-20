@@ -34,6 +34,7 @@
             width: 154px !important;
         }
     }
+
 </style>
 
 <div class="container matop70 chat">
@@ -46,8 +47,8 @@
                 <div class="g_pwicon">
                     <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t "><span>基本資料</span></a></li>
                     <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2 g_hicon2"><span>照片管理</span></a></li>
-                    <li><a href="{!! url('/dashboard/password') !!}" class="g_pwicon_t3"><span>更改密碼</span></a></li>
-                    <li><a href="{!! url('/dashboard/vip') !!}" class="g_pwicon_t4"><span>VIP</span></a></li>
+                    <li><a href="{!! url('/dashboard/account_manage') !!}" class="g_pwicon_t3"><span>更改帳號</span></a></li>
+                    <li><a href="{!! url('/dashboard/new_vip') !!}" class="g_pwicon_t4"><span>VIP</span></a></li>
                 </div>
                 <div class="addpic g_inputt">
                     <!--div class="n_adbut">
@@ -187,8 +188,14 @@
     }
     $(document).ready(function(){
         @if(Session::has('message'))
-            c2("{{ Session::get('message') }}");
+            c3("{{ Session::get('message') }}");
         @endif
+
+        //errors
+        @foreach ($errors->all() as $error)
+            c3('{{$error}}');
+        @endforeach
+
         let userId = $("input[name='userId']").val()
 
     //preload avatar
@@ -221,7 +228,7 @@
                                 //c2("刪除成功")
                                 $(".announce_bg").hide();
                                 $("#tab02").hide();
-                                c2(data);
+                                c3(data);
                                 // if(data.length>4){
                                 //     c2(data);
                                 // }else {
@@ -292,7 +299,7 @@
                             success: function(data){
                                 $(".announce_bg").hide();
                                 $("#tab02").hide();
-                                c2(data);
+                                c3(data);
                                 // if(data.length>4){
                                 //     c1(data);
                                 // }else {
@@ -374,7 +381,13 @@
             });
         }
     });
-  
+
+    $('.upload_btn').click(function() {
+        loading();
+        return true;
+
+    });
+    
 </script>
 
 @stop

@@ -32,6 +32,7 @@ Route::post('/Common/upload_img', 'Common@upload_img');
 Route::post('/Common/save_img', 'Common@save_img');
 Route::group(['middleware' => ['api']], function() {
     Route::post('/dashboard/upgradepayEC', 'PagesController@upgradepayEC');
+    Route::post('/dashboard/paymentInfoEC', 'PagesController@paymentInfoEC');
 });
 Route::group(['middleware' => ['tipApi']], function () {
     Route::post('/dashboard/chatpay_ec', 'ECPayment@performTipInvite')->name('chatpay_ec');
@@ -229,7 +230,21 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
     Route::post('/dashboard/delPic', 'PagesController@delPic');
     Route::get('/dashboard/password', 'PagesController@view_changepassword'); //new route
     Route::post('/dashboard/changepassword', 'PagesController@changePassword'); //new route
-    Route::get('/dashboard/vip', 'PagesController@view_vip'); //new route
+
+    Route::get('/dashboard/account_manage', 'PagesController@view_account_manage'); //new route
+    Route::get('/dashboard/account_name_modify', 'PagesController@view_name_modify'); //new route
+    Route::post('/dashboard/changeName', 'PagesController@changeName'); //new route
+    Route::get('/dashboard/account_gender_change', 'PagesController@view_gender_change'); //new route
+    Route::post('/dashboard/changeGender', 'PagesController@changeGender'); //new route
+    Route::get('/dashboard/account_consign_add', 'PagesController@view_consign_add'); //new route
+    Route::post('/dashboard/consignAdd', 'PagesController@consignAdd'); //new route
+    Route::get('/dashboard/account_consign_cancel', 'PagesController@view_consign_cancel'); //new route
+    Route::post('/dashboard/consignCancel', 'PagesController@consignCancel'); //new route
+    Route::get('/dashboard/account_exchange_period', 'PagesController@view_exchange_period'); //new route exchange_period_modify
+    Route::post('/dashboard/exchangePeriodModify', 'PagesController@exchangePeriodModify'); //new route
+
+    Route::get('/dashboard/vip', 'PagesController@view_new_vip'); //new route
+    Route::get('/dashboard/new_vip', 'PagesController@view_new_vip'); //new route
     Route::get('/dashboard2', 'PagesController@dashboard2');
     Route::get('/dashboard/cancel', 'PagesController@showCheckAccount');
     Route::post('/dashboard/chat', 'MessageController@postChat');
@@ -264,10 +279,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
     Route::group(['middleware' => ['api']], function() {
         Route::post('/dashboard/payback_ec', 'ECPayment@performPayBack')->name('payback_ec');
         Route::post('/dashboard/upgradepay_ec', 'ECPayment@performPayment')->name('upgradepay_ec');
-        Route::post('/dashboard/esafeCreditCard', 'EsafePayment@esafeCreditCard')->name('esafeCreditCard');
-        Route::post('/dashboard/esafePayment', 'EsafePayment@esafePayment')->name('esafePayment');
-        Route::post('/dashboard/esafePayCode', 'EsafePayment@esafePayCode')->name('esafePayCode');
-        Route::post('/dashboard/esafeWebATM', 'EsafePayment@esafeWebATM')->name('esafeWebATM');
+        Route::post('/dashboard/new_upgradepay_ec', 'ECPayment@commonPayment')->name('new_upgradepay_ec');
         Route::post('/dashboard/upgradepay', 'PagesController@upgradepay');
         Route::post('/dashboard/receive_esafe', 'PagesController@receive_esafe');
         Route::post('/dashboard/repaid_esafe', 'PagesController@repaid_esafe');
@@ -306,7 +318,10 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
 
 
         Route::get('/dashboard/evaluation/{uid}', 'PagesController@evaluation');
-        Route::post('/dashboard/evaluation', 'PagesController@evaluation_save')->name('evaluation');
+        Route::post('/dashboard/evaluation/save', 'PagesController@evaluation_save')->name('evaluation');
+        Route::post('/dashboard/evaluation/re_content_save', 'PagesController@evaluation_re_content_save')->name('evaluation_re_content');
+        Route::post('/dashboard/evaluation/re_content_delete', 'PagesController@evaluation_re_content_delete')->name('evaluation_re_content_delete');
+        Route::post('/dashboard/evaluation/delete', 'PagesController@evaluation_delete')->name('evaluation_delete');
 
 
         Route::get('/dashboard/banned', 'PagesController@dashboard_banned');
@@ -365,7 +380,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
             Route::post('multiple/send', 'UserController@sendAdminMessageMultiple')->name('admin/send/multiple/readOnly');
         });
     });
-    Route::group(['prefix' => 'admin', 'namespace' => 'Admin', 'middleware' => 'Admin'], function () {        
+    Route::group(['prefix' => 'admin', 'namespace' => 'Admin', 'middleware' => 'Admin'], function () {
         /*
         |--------------------------------------------------------------------------
         | All caches
@@ -463,6 +478,12 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
             Route::post('delete', 'UserController@deleteMessage')->name('users/message/delete');
             Route::post('edit', 'UserController@editMessage')->name('users/message/edit');
         });
+
+        Route::group(['prefix'=>'users/spam_text_message'], function(){
+            Route::get('search', 'UserController@showSpamTextMessage')->name('showSpamTextMessage');
+            Route::post('search', 'UserController@searchSpamTextMessage')->name('searchSpamTextMessage');
+        });
+
         
         Route::get('statistics', 'UserController@statisticsReply')->name("statistics");
         Route::post('statistics', 'UserController@statisticsReply');
@@ -529,6 +550,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::post('users/inactive', 'UserController@inactiveUsers')->name('inactive');
         Route::get('users/activate/token/{token}', 'UserController@activateUser')->name('activateUser');
         Route::get('stats/vip', 'StatController@vip')->name('stats/vip');
+        Route::get('stats/other', 'StatController@other')->name('stats/vip/other');
         Route::get('stats/vip/paid', 'StatController@vipPaid')->name('stats/vip/paid');
         Route::get('stats/vip_log/{id}', 'StatController@vipLog')->name('stats/vip_log');
         Route::get('stats/cron_log', 'StatController@cronLog')->name('stats/cron_log');
@@ -536,6 +558,13 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::get('stats/set_autoBan', 'StatController@set_autoBan')->name('stats/set_autoBan');
         Route::post('stats/set_autoBan_add', 'StatController@set_autoBan_add')->name('stats/set_autoBan_add');
         Route::get('stats/set_autoBan_del/{id?}', 'StatController@set_autoBan_del')->name('stats/set_autoBan_del');
+        Route::get('check', 'UserController@showAdminCheck')->name('admin/check');
+        Route::get('checkNameChange', 'UserController@showAdminCheckNameChange')->name('admin/checkNameChange');
+        Route::get('checkGenderChange', 'UserController@showAdminCheckGenderChange')->name('admin/checkGenderChange');
+        Route::post('checkNameChange', 'UserController@AdminCheckNameChangeSave');
+        Route::post('checkGenderChange', 'UserController@AdminCheckGenderChangeSave');
+        Route::get('checkExchangePeriod', 'UserController@showAdminCheckExchangePeriod')->name('admin/checkExchangePeriod');
+        Route::post('checkExchangePeriod', 'UserController@AdminCheckExchangePeriodSave');
 
         /*新增、編輯訊息*/
         Route::post('users/getmsglib', 'UserController@getMessageLib');
@@ -558,6 +587,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::post('users/isWarned_user', 'UserController@isWarnedUser');/*警示用戶*/
         Route::get('users/getBirthday', 'UserController@getBirthday');
         Route::post('users/unwarned_user', 'UserController@unwarnedUser');/*站方警示*/
+        Route::post('users/changeExchangePeriod', 'UserController@changeExchangePeriod')->name('changeExchangePeriod');/*包養關係*/
 
         /*
         |--------------------------------------------------------------------------

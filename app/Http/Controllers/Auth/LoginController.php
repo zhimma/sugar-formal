@@ -231,29 +231,42 @@ class LoginController extends Controller
                     );
                 }
             }
-            // if(isset($payload['fp'])){
-            //     $ip = $request->ip();
-            //     $isFp = \DB::table('fingerprint2')
-            //         ->where('fp', $payload['fp'])
-            //         ->where('user_id', $uid)
-            //         ->where('ip', $ip)
-            //         ->get()->count();
-            //     if($isFp <= 0){
-            //         unset($payload['_token']);
-            //         unset($payload['email']);
-            //         unset($payload['password']);
-            //         $payload['user_id'] = $uid;
-            //         $payload['ip'] = $ip;
-            //         $result = \DB::table('fingerprint2')->insert($payload);
-            //     }
-            //     try{
-            //         $this->fingerprint->judgeUserFingerprintAll($uid, $payload);
-            //         $this->fingerprint->judgeUserFingerprintCanvasOnly($uid, $payload);
-            //     }
-            //     catch (\Exception $e){
-            //         \Illuminate\Support\Facades\Log::info($e);
-            //     }
-            // }
+            if(isset($payload['fp'])){
+                $db = null;
+                if(env("APP_ENV", "local") != "local"){
+                    $db = \DB::connection('mysql_fp')->table('fingerprint2');
+                }
+                else{
+                    $db = \DB::table('fingerprint2');
+                }
+                $ip = $request->ip();
+                $isFp = $db;
+                $isFp = $isFp->where('fp', $payload['fp'])
+                    ->where('user_id', $uid)
+                    ->where('ip', $ip)
+                    ->get()->count();
+                if($isFp <= 0){
+                    unset($payload['_token']);
+                    unset($payload['email']);
+                    unset($payload['password']);
+                    $payload['user_id'] = $uid;
+                    $payload['ip'] = $ip;
+                    $payload['mac_address'] = $this->get_mac_address();
+                    $result = $db;
+                    $result = $result->insert($payload);
+                }
+                try{
+                    $this->fingerprint->judgeUserFingerprintAll($uid, $payload);
+                    $this->fingerprint->judgeUserFingerprintCanvasOnly($uid, $payload);
+                }
+                catch (\Exception $e){
+                    \Illuminate\Support\Facades\Log::info($e);
+                }
+            }
+
+            //更新login_times
+            User::where('id',$user->id)->update(['login_times'=>$user->login_times +1]);
+
             return $this->sendLoginResponse($request);
         }
 
@@ -274,7 +287,7 @@ class LoginController extends Controller
     public function logout(Request $request) {
         //登出自動警示
         SetAutoBan::logout_warned(Auth::id());
-        Session::flush();
+//        Session::flush();
         Auth::logout();
         return redirect('/login');
     }

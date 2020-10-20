@@ -144,11 +144,11 @@ class UserService
     /**
      * Create a user's profile
      *
-     * @param  User $user User
-     * @param  string $password the user password
-     * @param  string $role the role of this user
-     * @param  boolean $sendEmail Whether to send the email or not
+     * @param User $user User
+     * @param string $password the user password
+     * @param boolean $sendEmail Whether to send the email or not
      * @return User
+     * @throws Exception
      */
     public function create($user, $password, $sendEmail = true)
     {
@@ -425,6 +425,21 @@ class UserService
                                   $payload['meta']['notifhistory'] = $payload['notifhistory'];
                   unset($payload['notifhistory']);
                   }
+                if (isset($payload['adminNote']))
+                {
+                    $payload['meta']['adminNote'] = $payload['adminNote'];
+                    unset($payload['adminNote']);
+                }
+                else{
+                    $payload['meta']['adminNote'] = '';
+                }
+
+//                if (isset($payload['exchange_period']))
+//                {
+//                    $payload['meta']['exchange_period'] = $payload['exchange_period'];
+//                    unset($payload['exchange_period']);
+//                }
+
                 $meta = $user->meta_();
                 if (isset($payload['meta']))
                 {
@@ -451,6 +466,7 @@ class UserService
         }
     }
 
+
     public static function checkRecommendedUser($targetUser){
         $description = null;
         $stars = null;
@@ -471,8 +487,6 @@ class UserService
             }
             $vip_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $vip_date->updated_at);
             $diff_in_months = $vip_date->diffInMonths($now);
-            $title = "優選糖爹";
-            $button = "../../img/member_tags/rcmd_daddy.png";
             switch ($diff_in_months){
                 case 0:  //未滿一個月
                     break;
@@ -480,7 +494,6 @@ class UserService
                 case 2:
                     $tip_count = Tip::select('id')->where('member_id', $targetUser->id)->count();
                     if($tip_count >= 1){
-                        $background = '../../img/member_tags/bg_1.png';
                         $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的新進的VIP會員，願意使用站方的車馬費制度。建議甜心可請求".$targetUser->name."向站方支付車馬費與您進行第一次約會。<a href='".url('feature')."' target='_blank'>(甚麼是車馬費?)</a>";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
@@ -493,7 +506,6 @@ class UserService
                 case 3:
                     $tip_count = Tip::select('id')->where('member_id', $targetUser->id)->count();
                     if($tip_count >= 1){
-                        $background = '../../img/member_tags/bg_1.png';
                         $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員，願意使用站方的車馬費制度。建議甜心可請求".$targetUser->name."向站方支付車馬費與您進行第一次約會。<a href='".url('feature')."' target='_blank'>(甚麼是車馬費?)</a>";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
@@ -503,7 +515,6 @@ class UserService
                         $height = '480px';
                     }
                     else{
-                        $background = '../../img/member_tags/bg_1.png';
                         $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
@@ -516,7 +527,6 @@ class UserService
                 case 4:
                     $tip_count = Tip::select('id')->where('member_id', $targetUser->id)->count();
                     if($tip_count >= 1){
-                        $background = '../../img/member_tags/bg_1.png';
                         $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員，願意使用站方的車馬費制度。建議甜心可請求".$targetUser->name."向站方支付車馬費與您進行第一次約會。<a href='".url('feature')."' target='_blank'>(甚麼是車馬費?)</a>";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
@@ -526,7 +536,6 @@ class UserService
                         $height = '480px';
                     }
                     else{
-                        $background = '../../img/member_tags/bg_1.png';
                         $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
                         $stars = "<img src='../../img/member_tags/star_19.png'>
                                   <img src='../../img/member_tags/star_19.png'>
@@ -537,7 +546,6 @@ class UserService
                     }
                     break;
                 default:  //五個月以上
-                    $background = '../../img/member_tags/bg_1.png';
                     $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
                     $stars = "<img src='../../img/member_tags/star_19.png'>
                               <img src='../../img/member_tags/star_19.png'>
@@ -546,6 +554,11 @@ class UserService
                               <img src='../../img/member_tags/star_19.png'>";
                     $height = '380px';
                     break;
+            }
+            if(isset($description)){
+                $background = '../../img/member_tags/bg_1.png';
+                $title = "優選糖爹";
+                $button = "../../img/member_tags/rcmd_daddy.png";
             }
         }
         elseif ($targetUser->engroup == 2 && $targetUser->isVip() && isset($targetUser->created_at)){
@@ -720,7 +733,7 @@ class UserService
 
         return $implicitlyBanned->toBase()->merge($banned);
     }
-    
+
     /**
      * Unassign all roles from the user
      *

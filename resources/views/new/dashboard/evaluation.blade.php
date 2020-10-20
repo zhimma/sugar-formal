@@ -91,6 +91,24 @@
         /*[type=radio]:checked + img {*/
         /*    outline: 1px solid #fe92a8;*/
         /*}*/
+
+        .hf_i {
+            min-height: 35px;
+            line-height:26px;
+            transition: width 0.25s;
+            resize:none;
+            overflow:hidden;
+        }
+        .re_area{
+            position: relative;
+            float: right;
+        }
+        .show_more{
+            display: block;
+        }
+        .hide_more{
+            display: none;
+        }
     </style>
     <div class="container matop70">
         <div class="row">
@@ -124,7 +142,7 @@
                                 </table>
                             </div>
                         </div>
-                        <a class="pj_but">確定</a>
+{{--                        <a class="pj_but">確定</a>--}}
                         @elseif($user->engroup==1 && ($user->isSent3Msg($to->id)==0 || $vipDays<=30))
                         <div class="tw_textinput01">
                             <h2>您目前未達評價標準<br>不可對{{$to->name}}會員評價</h2>
@@ -142,7 +160,7 @@
                                 </table>
                             </div>
                         </div>
-                        <a class="pj_but">確定</a>
+{{--                        <a class="pj_but">確定</a>--}}
                         @elseif(!isset($evaluation_self))
                         <form id="form1" action="{{ route('evaluation') }}" method="post">
                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -159,7 +177,7 @@
                                 <label for="star1" data-title="1"><img src="/new/images/sxx_4.png" style="transform: scale(.8);" data-toggle="tooltip" data-placement="top" title="1"></label>
                                 <div class="clear"></div>
                             </div>
-                            <textarea id="content" name="content" cols="" rows="" class="tw_textinput" placeholder="請輸入您對{{$to->name}}的評價">@if(isset($evaluation_self)){{$evaluation_self->content}}@endif</textarea>
+                            <textarea id="content" name="content" cols="" rows="" class="tw_textinput" placeholder="請輸入您對{{$to->name}}的評價" maxlength="300">@if(isset($evaluation_self)){{$evaluation_self->content}}@endif</textarea>
                             <input type="hidden" name="uid" value={{$user->id}}>
                             <input type="hidden" name="eid" value={{$to->id}}>
                             <a class="dlbut" onclick="form_submit()">確定</a>
@@ -190,6 +208,7 @@
                         @foreach( $evaluation_data as $row)
                             @php
                                 $row_user = \App\Models\User::findById($row->from_id);
+                                $to_user = \App\Models\User::findById($row->to_id);
                             @endphp
                         <li>
                             <div class="piname">
@@ -202,12 +221,51 @@
                                         @endif
                                     @endfor
                                 </span>
-                                <a href="/dashboard/viewuser/{{$row_user->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">{{$row_user->name}}</a><font>{{ substr($row->created_at,0,10)}}</font>
+                                <a href="/dashboard/viewuser/{{$row_user->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">{{$row_user->name}}</a>
+{{--                                <font>{{ substr($row->created_at,0,10)}}</font>--}}
+                                @if($row_user->id==$user->id)
+                                <font class="sc content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
+                                @endif
                             </div>
                             <div class="con">
-                                <p class="many-txt">{!! $row->content !!}</p>
-                                <h4><button type="button" class="al_but">完整評價</button></h4>
+                                <p class="many-txt">{!! nl2br($row->content) !!}</p>
+                                <h4>
+                                    <span class="btime">{{ substr($row->created_at,0,10)}}</span>
+                                    <button type="button" class="al_but">完整評價</button>
+                                </h4>
                             </div>
+
+                            @if(empty($row->re_content) && $to->id == $user->id)
+                            <div class="huf">
+                                <form id="form_re_content" action="{{ route('evaluation_re_content') }}" method="post">
+                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                    <span class="huinput">
+                                        <textarea name="re_content" type="text" class="hf_i" placeholder="請輸入回覆（最多120個字符）" maxlength="120"></textarea>
+                                    </span>
+                                    <div class="re_area">
+                                    <a class="hf_but" onclick="form_re_content_submit()">回覆</a>
+                                    </div>
+                                    <input type="hidden" name="id" value={{$row->id}}>
+                                    <input type="hidden" name="eid" value={{$to->id}}>
+                                </form>
+                            </div>
+                            @elseif(!empty($row->re_content))
+                            <div class="hu_p">
+                                <div class="he_b">
+                                    <span class="left"><img src="@if(file_exists( public_path().$to_user->meta_()->pic ) && $to_user->meta_()->pic != ""){{$to_user->meta_()->pic}} @elseif($to_user->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to_user->name}}</span>
+                                    @if($to_user->id==$user->id)
+                                    <font class="sc re_content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
+                                    @endif
+                                </div>
+                                <div class="he_two">
+                                    <div class="context">
+                                        <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
+                                    </div>
+                                </div>
+                                <div class="he_twotime">{{ substr($row->re_created_at,0,10)}}<span class="z_more">展開</span></div>
+                            </div>
+                            @endif
+
                         </li>
                         @endforeach
 
@@ -230,7 +288,7 @@
         $('.radio-btn').tooltip();
 
         @if (Session::has('message'))
-        c2('{{Session::get('message')}}');
+        c3('{{Session::get('message')}}');
         @endif
 
         let button = document.getElementsByTagName('button');
@@ -251,6 +309,11 @@
             }
         }
 
+        $(".z_more").on( "click", function() {
+            $(this).parent().prev().find('.context').find("div").first().toggleClass('on context-wrap')
+            $(this).html($(this).text() === '展開' ? '收起' : '展開');
+        });
+
         function form_submit(){
             if( $("input[name='rating']:checked").val() == undefined) {
                 c5('請先點擊星等再評價');
@@ -261,10 +324,119 @@
             }
         }
 
-        $('.pj_but,.had_e').click(function() {
+        $('.pj_but,.had_e').on( "click", function() {
             var e_user = '{{$to->name}}';
             c5('您已評價過' + e_user);
 
+        });
+
+        $('textarea.hf_i').on({input: function(){
+                var totalHeight = $(this).prop('scrollHeight') - parseInt($(this).css('padding-top')) - parseInt($(this).css('padding-bottom'));
+                $(this).css({'height':totalHeight});
+                if(totalHeight>40) {
+                    $('.re_area').css({'top': totalHeight - 40});
+                }
+            }
+        });
+
+        $('div.context-wrap').each(function(i) {
+            if (isEllipsisActive(this)) {
+                $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
+                $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
+                $(this).parents('.hu_p').find('span.z_more').addClass('show_more');
+            }
+            else {
+                $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
+                $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
+                $(this).parents('.hu_p').find('span.z_more').addClass('hide_more');
+            }
+        });
+
+        $(window).resize(function() {
+            $('div.context-wrap').each(function(i) {
+                if (isEllipsisActive(this)) {
+                    $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
+                    $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
+
+                    $(this).parents('.hu_p').find('span.z_more').addClass('show_more');
+                }
+                else {
+                    $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
+                    $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
+
+                    $(this).parents('.hu_p').find('span.z_more').addClass('hide_more');
+                }
+            });
+        });
+
+        $('.many-txt').each(function(i) {
+            if (isEllipsisActive(this)) {
+                $(this).parents('.con').find('.al_but').removeClass('hide_more');
+                $(this).parents('.con').find('.al_but').removeClass('show_more');
+
+                $(this).parents('.con').find('.al_but').addClass('show_more');
+            }
+            else {
+                $(this).parents('.con').find('.al_but').removeClass('hide_more');
+                $(this).parents('.con').find('.al_but').removeClass('show_more');
+
+                $(this).parents('.con').find('.al_but').addClass('hide_more');
+            }
+        });
+
+        $(window).resize(function() {
+            $('.many-txt').each(function(i) {
+                if (isEllipsisActive(this)) {
+                    $(this).parents('.con').find('.al_but').removeClass('hide_more');
+                    $(this).parents('.con').find('.al_but').removeClass('show_more');
+
+                    $(this).parents('.con').find('.al_but').addClass('show_more');
+                }
+                else {
+                    $(this).parents('.con').find('.al_but').removeClass('hide_more');
+                    $(this).parents('.con').find('.al_but').removeClass('show_more');
+
+                    $(this).parents('.con').find('.al_but').addClass('hide_more');
+                }
+            });
+        });
+
+        function isEllipsisActive(e) {
+            return ($(e).innerHeight() < $(e)[0].scrollHeight);
+        }
+
+        $('.content_delete').on( "click", function() {
+            c4('確定要刪除嗎?');
+            $(".n_left").on('click', function() {
+                $.post('{{ route('evaluation_delete') }}', {
+                    id: $('.content_delete').data('id'),
+                    _token: '{{ csrf_token() }}'
+                }, function (data) {
+                    $("#tab04").hide();
+                    show_message('評價已刪除');
+                });
+            });
+        });
+
+        function form_re_content_submit(){
+            if($.trim($(".hf_i").val())=='') {
+                c5('請輸入內容');
+            }else{
+                $('#form_re_content').submit();
+            }
+        }
+
+        $('.re_content_delete').on( "click", function() {
+            c4('確定要刪除嗎?');
+            $(".n_left").on('click', function() {
+                $.post('{{ route('evaluation_re_content_delete') }}', {
+                    id: $('.re_content_delete').data('id'),
+                    _token: '{{ csrf_token() }}'
+                }, function (data) {
+                    $("#tab04").hide();
+                    show_message('回覆已刪除');
+                });
+            });
         });
     </script>
 @stop

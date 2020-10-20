@@ -18,6 +18,7 @@
             <div class="sjlist">
                 <ul>
                     @foreach ($blocks as $block)
+
                         <?php
                         $blockedUser = \App\Models\User::findById($block->blocked_id);
                         if(!isset($blockedUser)){
@@ -35,13 +36,15 @@
                             <div class="sjleft">
                                 <div class="sjtable"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><span>{{$blockedUser->name}}<!-- <i class="cicd">●</i>{{ $blockedUser->meta_()->age() }}--></span></a></div>
                                 <font>
-                                    @foreach($umeta->city as $key => $cityval)
-                                        @if ($loop->first)
-                                            {{$umeta->city[$key]}} @if($blockedUser->meta_()->isHideArea == 0){{$umeta->area[$key]}}@endif
-                                        @else
-                                            {{$umeta->city[$key]}} @if($blockedUser->meta_()->isHideArea == 0){{$umeta->area[$key]}}@endif
-                                        @endif
-                                    @endforeach
+                                    @if (is_array($umeta->city) || is_object($umeta->city))
+                                        @foreach($umeta->city as $key => $cityval)
+                                            @if ($loop->first)
+                                                {{$umeta->city[$key]}} @if($blockedUser->meta_()->isHideArea == 0){{$umeta->area[$key]}}@endif
+                                            @else
+                                                {{$umeta->city[$key]}} @if($blockedUser->meta_()->isHideArea == 0){{$umeta->area[$key]}}@endif
+                                            @endif
+                                        @endforeach
+                                    @endif
 {{--                                    {{ $blockedUser->meta_()->city }} {{ $blockedUser->meta_()->area }}--}}
                                 </font>
                             </div>

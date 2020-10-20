@@ -166,7 +166,7 @@
 
                             @if($date_temp != substr($message['created_at'],0,10)) <div class="sebg matopj10">{{substr($message['created_at'],0,10)}}</div>@endif
 
-                            @if($message['sys_notice']==1 || $msgUser->id == '1049')
+                            @if($message['sys_notice']==1 || $msgUser->id == 1049)
                             <div class="send">
                                 <div class="msg">
                                     <img src="/new/images/admin-avatar.jpg">
@@ -266,7 +266,7 @@
                 <input type="hidden" name="aid" value="{{$user->id}}">
                 <input type="hidden" name="uid" value="">
                 <input type="hidden" name="id" value="">
-                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="請輸入檢舉理由"></textarea>
+                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_reason}}"></textarea>
 {{--                <div class="n_bbutton">--}}
 {{--                    <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>--}}
 {{--                </div>--}}
@@ -304,7 +304,7 @@
     @endif
         let isVip = '{{$user->isVip()}}';
     if(isVip==0){
-        $( ".message_fixed" ).append( "<div><a href='{!! url('dashboard/vip') !!}' style='color: red;' class='tips'>成為VIP即可知道對方是否讀取信件哦！</a></div>" );
+        $( ".message_fixed" ).append( "<div><a href='{!! url('dashboard/new_vip') !!}' style='color: red;' class='tips'>成為VIP即可知道對方是否讀取信件哦！</a></div>" );
     }
 
     $('#msg').keyup(function(e) {

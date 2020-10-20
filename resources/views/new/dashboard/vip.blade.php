@@ -11,7 +11,7 @@
                     <div class="g_pwicon">
                         <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t "><span>基本資料</span></a></li>
                         <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2"><span>照片管理</span></a></li>
-                        <li><a href="{!! url('/dashboard/password') !!}" class="g_pwicon_t3 "><span>更改密碼</span></a></li>
+                        <li><a href="{!! url('/dashboard/account_manage') !!}" class="g_pwicon_t3 "><span>更改帳號</span></a></li>
                         <li><a href="{!! url('/dashboard/vip') !!}" class="g_pwicon_t4 g_hicon4"><span>VIP</span></a></li>
                     </div>
                     <div class="new_viphig">
@@ -66,33 +66,33 @@
                                         <button type="submit" class="gvipbut n_vip01" style="border-style: none;">購買</button>
                                 </form>
                             </span>
-                            {{-- <span>--}}
+{{--                            <span>--}}
 {{--                                <a href="" class="n_vip01 v_butright">購買方式2</a>--}}
                                 <?php
-                                    // $orderNumber = \App\Models\Vip::lastid() . $user->id;
-                                    // $code = Config::get('social.payment.code');
+//                                    $orderNumber = \App\Models\Vip::lastid() . $user->id;
+//                                    $code = Config::get('social.payment.code');
                                 ?>
-                                {{--<form class="m-form m-form--fit" action="{{ Config::get('social.payment.actionURL') }}" method=post onsubmit="return logFormData(this);">
-                                    <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-                                    <input type="hidden" name="userId" value="{{ $user->id }}">
-                                    <input type=hidden name="ReturnURL" value="{{ Config::get('social.payment.returnURL') }}">
-                                    <input type=hidden name="OrderURL" value="{{ Config::get('social.payment.orderURL') }}">
-                                    <input type=hidden name="MerchantNumber" value="761404">
-                                    <input type=hidden name="OrderNumber"    value="{{ "30".$orderNumber }}">
-                                    <input type=hidden name="OrgOrderNumber" value="SG-VIP({{$user->id}})">
-                                    <input type=hidden name="ApproveFlag" value="1">
-                                    <input type=hidden name="DepositFlag" value="1">
-                                    <input type=hidden name="iphonepage" value="0">
-                                    <input type=hidden name="Period" value="30">
-                                    <input type=hidden name="Amount" value="{{ Config::get('social.payment.vip-amount') }}">
-                                    <input type=hidden name="op" value="AcceptPayment">
-                                    <input type=hidden name="checksum" value="{{ md5("761404"."30".$orderNumber.$code.Config::get('social.payment.vip-amount')) }}">
-                                    <input type=hidden name="Englishmode" value="0">
+{{--                                <form class="m-form m-form--fit" action="{{ Config::get('social.payment.actionURL') }}" method=post onsubmit="return logFormData(this);">--}}
+{{--                                    <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
+{{--                                    <input type="hidden" name="userId" value="{{ $user->id }}">--}}
+{{--                                    <input type=hidden name="ReturnURL" value="{{ Config::get('social.payment.returnURL') }}">--}}
+{{--                                    <input type=hidden name="OrderURL" value="{{ Config::get('social.payment.orderURL') }}">--}}
+{{--                                    <input type=hidden name="MerchantNumber" value="761404">--}}
+{{--                                    <input type=hidden name="OrderNumber"    value="{{ "30".$orderNumber }}">--}}
+{{--                                    <input type=hidden name="OrgOrderNumber" value="SG-VIP({{$user->id}})">--}}
+{{--                                    <input type=hidden name="ApproveFlag" value="1">--}}
+{{--                                    <input type=hidden name="DepositFlag" value="1">--}}
+{{--                                    <input type=hidden name="iphonepage" value="0">--}}
+{{--                                    <input type=hidden name="Period" value="30">--}}
+{{--                                    <input type=hidden name="Amount" value="{{ Config::get('social.payment.vip-amount') }}">--}}
+{{--                                    <input type=hidden name="op" value="AcceptPayment">--}}
+{{--                                    <input type=hidden name="checksum" value="{{ md5("761404"."30".$orderNumber.$code.Config::get('social.payment.vip-amount')) }}">--}}
+{{--                                    <input type=hidden name="Englishmode" value="0">--}}
 
-                                    <button type="submit" class="gvipbut n_vip01" style="border-style: none;">購買方式2</button>
-                                </form>
+{{--                                    <button type="submit" class="gvipbut n_vip01" style="border-style: none;">購買方式2</button>--}}
+{{--                                </form>--}}
 
-                            </span> --}}
+{{--                            </span>--}}
                             {{-- <a href="javascript:void(0);" class="gvipbut" id="pay_back">補刷卡</a> --}}
                         </div>
                         <div class="vipline"><img src="/new/images/VIP_05.png"></div>
@@ -176,7 +176,7 @@
     <script>
         $(document).ready(function() {
             @if(Session::has('message'))
-            c5('{{Session::get('message')}}');
+            c5("{{Session::get('message')}}");
             <?php session()->forget('message');?>
             @endif
         });
@@ -192,7 +192,7 @@
             @else
 
             var r = confirm("{{ $upgrade_vip }}");
-            {{-- var r = confirm("加入 VIP 須知。\n●加入VIP後將於每月於第一次刷卡日期自動扣款，至取消為止。\n●升級VIP之後，升級VIP的選項會變成取消VIP，取消後次月即停止扣款\n●訊息不會被過濾掉(會員可以設定拒接非VIP會員來信)\n●不受限制的收發信件(下個月起普通會員收發信件總數將受限)\n●可以觀看進階統計資料\n●可以知道訊息是否已讀\n●可以知道對方是否封鎖自己\n●您申請每月自動扣款並完成繳費，經確認繳費程序完成且已成功開啟本站相關服務設定，即視同您已經開始使用所購買之每月自動扣款\n●最短 VIP 時間為一個月，若使用不足一個月，以一個月計算，不予退費。\n★取消 VIP 時間需要七個工作天，如下個月不續約請提前取消，以免權益受損！★");  --}}
+            
             if(!r) {
                 event.preventDefault();
             }
@@ -204,9 +204,9 @@
         $('#vip2_a').on('click', function(event) {
             @if(!$user->isFreeVip())
                 @if(isset($vipLessThan7days) && $vipLessThan7days && $user->isVipNotCanceledORCanceledButNotExpire() == true)
-                    var r = confirm("取消 VIP 須知。\n●最短 VIP 時間為一個月，若使用不足一個月，以一個月計算，不予退費。\n★取消 VIP 時間需要七個工作天，如下個月不續約請提前取消，以免權益受損！★\n★★若取消時間低於七個工作天，則下個月將會繼續扣款，並且 VIP 時間延長至下下個月為止。★★\n★★由於您於本日" + "{{ \Carbon\Carbon::now()->toDateString() }}" + "申請取消 VIP 。您每月的 VIP 扣款日期為 " + "{{ $vipRenewDay }}" + " 日。取消扣款作業需七個工作天(申請VIP時有提示)，本月取消作業不及，下個月將會進行最後一次扣款，您的 VIP 時間將會到 " + "{{ $vipNextMonth->toDateString() }}" + "。不便之處敬請見諒。★★");
+                    var r = confirm("{!! $cancel_vip !!}");
                 @elseif($user->isVip() && $user->isVipNotCanceledORCanceledButNotExpire() == true)
-                    var r = confirm("取消 VIP 須知。\n●最短 VIP 時間為一個月，若使用不足一個月，以一個月計算，不予退費。\n★取消 VIP 時間需要七個工作天，如下個月不續約請提前取消，以免權益受損！★\n★★若取消時間低於七個工作天，則下個月將會繼續扣款，並且 VIP 時間延長至下下個月為止。★★");
+                    var r = confirm("{!! $cancel_vip !!}");
                 @endif
                 if(!r) {
                     changediv('vip');

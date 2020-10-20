@@ -5,6 +5,7 @@ use Carbon\Carbon;
 use Closure;
 use Illuminate\Support\Facades\Log;
 use App\Services\VipLogService;
+use Illuminate\Support\Facades\DB;
 
 class ApiDataLogger{
     private $startTime;
@@ -129,6 +130,18 @@ class ApiDataLogger{
                     return '0|Error';
                 }
 
+                //存入超商條碼取號紀錄
+                if(isset($payload['RtnCode']) && $payload['RtnCode']=='10100073' && $payload['PaymentType']=='BARCODE_BARCODE') {
+
+                    DB::table('payment_get_barcode_log')->insert([
+                        'user_id' => $payload['CustomField1'],
+                        'ExpireDate' => $payload['ExpireDate'],
+                        'order_id' => $payload['MerchantTradeNo'],
+                        'TradeDate' => $payload['TradeDate'],
+                        ]);
+
+                }
+
                 $pool = '';
                 $count = 0;
                 foreach ($payload as $key => $value){
@@ -156,7 +169,7 @@ class ApiDataLogger{
                         $this->logService->upgradeLogEC($payload, $user->id);
                         $this->logService->writeLogToDB();
                         $this->logService->writeLogToFile();
-                        Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0);
+                        Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0,$payload['CustomField3']);
                         return '1|OK';
                     }
                     else{

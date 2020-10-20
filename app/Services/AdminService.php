@@ -273,7 +273,7 @@ class AdminService
             }
         }
         foreach ($users as $id => &$user){
-            $info = User::select('name', 'engroup', 'last_login')
+            $info = User::select('name', 'engroup', 'last_login','exchange_period')
                 ->where('id', '=', $id)
                 ->get()->first();
             if($info != null){
@@ -282,6 +282,7 @@ class AdminService
                 $user['last_login'] = $info->last_login;
                 $user['vip'] = Vip::vip_diamond($id);
                 $user['tipcount'] = Tip::TipCount_ChangeGood($id);
+                $user['exchange_period'] = $info->exchange_period;
             }
             else{
                 $user = array();

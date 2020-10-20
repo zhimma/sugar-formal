@@ -108,6 +108,7 @@ class RegisterController extends Controller
             'engroup'   => '帳號類型',
             'email'     => 'E-mail信箱',
             'password'  => '密碼',
+            'exchange_period'   => '包養關係',
         ];
         $validator = \Validator::make($data, $rules, $messages, $attributes);
         return $validator;
@@ -134,13 +135,22 @@ class RegisterController extends Controller
     protected function create(array $data)
     {
         return DB::transaction(function() use ($data) {
+
+            //若為男性註冊，不須存入該欄位，故將預設值設定為2,預防修改性別後仍可正常顯示
+            if(empty($data['exchange_period'])){
+                $data['exchange_period']=2;
+            }
             $user = User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'password' => bcrypt($data['password']),
                 'title' => $data['title'],
-                'engroup' => $data['engroup']
+                'engroup' => $data['engroup'],
+                'exchange_period' => $data['exchange_period']
             ]);
+
+            //新註冊不須顯示修改提示，故須先將註記資料存入
+            DB::table('exchange_period_temp')->insert(['user_id'=>$user->id,'created_at'=> now()]);
 
             return $this->service->create($user, $data['password']);
         });

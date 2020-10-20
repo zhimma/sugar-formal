@@ -757,6 +757,7 @@ class ECPay_QueryTradeInfo extends ECPay_Aio
             parse_str($szResult, $arResult);
             // 重新整理回傳參數。
             foreach ($arResult as $keys => $value) {
+                logger($keys, [$value]);
                 if ($keys == 'CheckMacValue') {
                     $szCheckMacValue = $value;
                 } else {

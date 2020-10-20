@@ -141,7 +141,7 @@ class TipApiDataLogger{
                 $infos->save();
                 if (isset($payload['RtnCode'])) {
                     if($payload['RtnCode'] == 1){
-                        Tip::upgrade($user->id, $payload['MerchantTradeNo'], '');
+                        Tip::upgrade($user->id, $payload['CustomField2'], '');
                         // Message::post($user->id, $payload['CustomField2'], "系統通知: 車馬費邀請");
                         if($user->engroup == 1) {
                             //取資料庫並替換名字

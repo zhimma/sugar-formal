@@ -1,5 +1,5 @@
 @include('partials.header')
-
+@include('partials.message')
 <body style="padding: 15px;">
 <h1>
 	{{ $user->name }}
@@ -83,6 +83,21 @@
 		<input type="hidden" name="page" value="advInfo" >
 		<button type="submit" class="btn btn-warning">變更性別</button>
 	</form>
+
+	@if($user->engroup==2)
+	<form method="POST" id="form_exchange_period" action="{{ route('changeExchangePeriod') }}" style="margin:0px;display:inline;">
+		{!! csrf_field() !!}
+		<select class="form-control" style="width:auto; display: inline;" name="exchange_period" id="exchange_period">
+			@php
+				$exchange_period_name = DB::table('exchange_period_name')->get();
+			@endphp
+			@foreach($exchange_period_name as $row)
+			<option value="{{$row->id}}" @if($user->exchange_period==$row->id) selected @endif>{{$row->name}}</option>
+			@endforeach
+		</select>
+		<input type="hidden" name="id" value="{{$user->id}}">
+	</form>
+	@endif
 	
 
 	@if(is_null($userMeta->activation_token))
@@ -102,6 +117,7 @@
 		<th>建立時間</th>
 		<th>更新時間</th>
 		<th>上次登入</th>
+		<th>上站次數</th>
 	</tr>
 	<tr>
 		<td>{{ $user->id }}</td>
@@ -112,6 +128,7 @@
 		<td>{{ $user->created_at }}</td>
 		<td>{{ $user->updated_at }}</td>
 		<td>{{ $user->last_login }}</td>
+		<td>{{ $user->login_times }}</td>
 	</tr>
 </table>
 <h4>詳細資料</h4>
@@ -199,14 +216,30 @@
 		<td>@if($userMeta->isHideOccupation==1) 是 @else 否 @endif</td>	
 	</tr>
 	<tr>
+		@if($user->engroup==2)
+		<th>包養關係</th>
+		<td>
+			@php
+				$exchange_period_name = DB::table('exchange_period_name')->where('id',$user->exchange_period)->first();
+			@endphp
+			{{$exchange_period_name->name}}
+		</td>
+
+
+		@endif
 		<th>收件夾顯示方式</th>
 		<td>{{ $userMeta->notifhistory }}</td>
 		<th>建立時間</th>
 		<td>{{ $userMeta->created_at }}</td>
 		<th>更新時間</th>
 		<td>{{ $userMeta->updated_at }}</td>
-		<td></td>
-		<td></td>
+	</tr>
+	<tr>
+		<form action="{{ route('users/save', $user->id) }}" method='POST'>
+			{!! csrf_field() !!}
+			<th>站長註解<div><button type="submit" class="text-white btn btn-primary">修改</button></div></th>
+			<td colspan='3'><textarea class="form-control m-input" type="textarea" name="adminNote" rows="3" maxlength="300">{{ $userMeta->adminNote }}</textarea></td>
+		</form>
 	</tr>
 </table>
 
@@ -242,7 +275,11 @@
 				@php
 					$rowuser = \App\Models\User::findById($row['reporter_id']);
 				@endphp
-				{{ $rowuser->WarnedScore() }}
+				@if(isset($rowuser))
+					{{ $rowuser->WarnedScore() }}
+				@else
+					無會員資料
+				@endif
 			</td>
 			<td>
 				<a href="{{ route('users/advInfo', $row['reporter_id']) }}" target='_blank'>
@@ -381,6 +418,23 @@
 		</tr>
 	@empty
 		此會員目前沒有生活照
+	@endforelse
+</table>
+<h4>現有證件照</h4>
+<?php $pics = \App\Models\MemberPic::getSelfIDPhoto($user->id); ?>
+<table class="table table-hover table-bordered" style="width: 50%;">
+	@forelse ($pics as $pic)
+		<tr>
+			<td>
+				<input type="hidden" name="userId" value="{{$user->id}}">
+				<input type="hidden" name="imgId" value="{{$pic->id}}">
+				<div style="width:400px">
+					<img src="{{$pic->pic}}" />
+				</div>
+			</td>
+		</tr>
+	@empty
+		此會員目前沒有證件照
 	@endforelse
 </table>
 </body>
@@ -688,6 +742,25 @@ $("#unwarned_user").click(function(){
 		return false;
 	}
 });
+
+$( "#exchange_period" ).change(function() {
+
+	$('#form_exchange_period').submit();
+	{{--$.ajax({--}}
+	{{--	type: 'POST',--}}
+	{{--	url: "/admin/users/changeExchangePeriod",--}}
+	{{--	data:{--}}
+	{{--		_token: '{{csrf_token()}}',--}}
+	{{--		user_id: '{{$user->id}}',--}}
+	{{--		exchange_period: $("#exchange_period").val(),--}}
+	{{--	},--}}
+	{{--	dataType:"json",--}}
+	{{--	success: function(res){--}}
+	{{--		location.reload();--}}
+	{{--}});--}}
+
+});
+
 
 </script>
 </html>
