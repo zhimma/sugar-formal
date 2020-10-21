@@ -210,10 +210,15 @@
 		$("#tab_loading").show();
 		// $("#tab02 .gxbut").text(str);
 	}
-	// $(document).on('click','.announce_bg',function(event) {
-	// 	$(".announce_bg").hide();
-	// 	$(".blbg").hide();
-	// 	$(".bl").hide();
-	// 	$(".gg_tab").hide();
-	// });
+
+	function common_confirm(str,str2=null) {
+
+		$(".blbg").show();
+		$("#common_confirm").show();
+		$("#common_confirm p").text(str);
+		if(str2 != null) {
+			var redStr = str2.fontcolor('red');
+			$("#common_confirm p").append('\n'+redStr);
+		}
+	}
 
