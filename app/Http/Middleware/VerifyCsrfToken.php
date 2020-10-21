@@ -12,6 +12,8 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
+        '/dashboard/receive_esafe',
+        '/dashboard/repaid_esafe',
         '/dashboard/upgradepay',
         '/dashboard/chatpay',
         'dashboard/upgradepayEC',

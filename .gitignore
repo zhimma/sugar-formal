@@ -20,6 +20,7 @@ config/social.php
 config/session.php
 config/session.php
 config/app.php
+bootstrap/cache/config.php
 /.vscode
 *.DS_Store
 /public/Member_pics

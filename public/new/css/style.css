@@ -2579,6 +2579,17 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 }
 
 
+.new_poptk{width:90%;height:240px;margin: 0 auto;color: #666666;padding-bottom: 20px; padding-top:15px;overflow-y: scroll; display: block;}
+@media (max-width:640px){
+    .new_poptk{height:220px;}
+}
+@media (max-width:568px){
+    .new_poptk{height:190px;}
+}
+@media (max-width:450px){
+    .new_poptk{height:300px;}
+}
+
 .new_yk {width:90%;height:400px;margin: 0 auto;color: #666666;padding-bottom: 20px; padding-top:15px;overflow-y: scroll;}
 .new_yk h2{ font-size: 16px; font-weight: bold; color: #8a9fef; padding-bottom: 5px;}
 .new_yk h3{ width:100%;line-height:25px; margin-bottom: 5px; display: table;}

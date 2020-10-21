@@ -39,7 +39,17 @@ class VipLogService {
         $this->status = '01';
         $this->mode = 0;
     }
-    
+
+    public function upgradeLog_esafe($payload, $user_id) {
+        $this->user_id = $user_id;
+        $this->business_id = $payload['web'];
+        $this->order_id = $payload['buysafeno'];
+        $this->amount = $payload['MN'];
+        $this->action = 'New';
+        $this->status = '01';
+        $this->mode = 0;
+    }
+
     public function cancelLog($user) {
         $this->user_id = $user->member_id;
         $this->business_id = $user->business_id;
@@ -59,7 +69,7 @@ class VipLogService {
             $today = '28';
             // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
             $fileName = 'RP_'. $this->business_id . '_' . Carbon::now()->addMonthsNoOverflow(1)->startOfMonth()->format('Ymd') .'.dat';
-        }        
+        }
         $fileContent = $this->business_id . ',' . $this->user_id . ',' . $this->order_id . ',,,' . intval($this->amount) . ',' . $today . ',' . $this->action . ',' . $this->status . ',' . $this->mode;
 
         Storage::append($fileName, $fileContent);
@@ -73,7 +83,7 @@ class VipLogService {
         else{
             $fileDate = \Carbon\Carbon::now()->format('Ym').'28';
         }
-        $fileName = 'RP_761404_'. $fileDate->format('Ymd') .'.dat';        
+        $fileName = 'RP_761404_'. $fileDate->format('Ymd') .'.dat';
         $fileContent = '761404,' . $user_id . ',' . $order_id . ',,,888,' . $day . ',' . $action . ',01,0';
 
         return Storage::append($fileName, $fileContent);

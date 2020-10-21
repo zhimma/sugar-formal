@@ -1,0 +1,1 @@
+ALTER TABLE evaluation ADD column `re_content` varchar(255) DEFAULT NULL after content, ADD column `re_created_at` timestamp NULL DEFAULT NULL;

@@ -48,11 +48,18 @@ Route::group(['middleware' => ['tipApi']], function () {
 Route::get('/error', 'PagesController@error');
 
 /*
+ * cd1 cd2 ts1 ts2
+ */
+Route::get('/cd_1', 'PagesController@cd_1');
+Route::get('/cd_2', 'PagesController@cd_2');
+Route::get('/ts_1', 'PagesController@ts_1');
+Route::get('/ts_2', 'PagesController@ts_2');
+
+/*
 |--------------------------------------------------------------------------
 | Welcome Page
 |--------------------------------------------------------------------------
 */
-
 Route::get('/', 'PagesController@home');
 Route::get('/privacy', 'PagesController@privacy');
 Route::get('/notification', 'PagesController@notification');
@@ -102,6 +109,14 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/activate/send-token', 'Auth\ActivateController@sendToken');
 });
 
+
+/*
+|--------------------------------------------------------------------------
+| Sms
+|--------------------------------------------------------------------------
+*/
+
+// Route::post('/sms/postAcceptor', 'SmsController@postAcceptor');
 
 
 /*
@@ -213,7 +228,6 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
     Route::post('/dashboard/avatar/upload', 'ImageController@uploadAvatar');
     Route::post('/dashboard/avatar/delete/{userId}', 'ImageController@deleteAvatar');
     Route::post('/dashboard/delPic', 'PagesController@delPic');
-
     Route::get('/dashboard/password', 'PagesController@view_changepassword'); //new route
     Route::post('/dashboard/changepassword', 'PagesController@changePassword'); //new route
 
@@ -260,12 +274,15 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
     Route::post('/dashboard/reportPicNext', 'PagesController@reportPicNext')->name('reportPicNext');
     Route::post('/dashboard/reportPicNextNew', 'PagesController@reportPicNextNew')->name('reportPicNextNew'); //new route
     Route::get('/dashboard/upgrade_ec', 'PagesController@upgrade_ec');
+    Route::get('/dashboard/upgrade_esafe', 'PagesController@upgrade_esafe');
     Route::get('/dashboard/announcement', 'PagesController@showAnnouncement');
     Route::group(['middleware' => ['api']], function() {
         Route::post('/dashboard/payback_ec', 'ECPayment@performPayBack')->name('payback_ec');
         Route::post('/dashboard/upgradepay_ec', 'ECPayment@performPayment')->name('upgradepay_ec');
         Route::post('/dashboard/new_upgradepay_ec', 'ECPayment@commonPayment')->name('new_upgradepay_ec');
         Route::post('/dashboard/upgradepay', 'PagesController@upgradepay');
+        Route::post('/dashboard/receive_esafe', 'PagesController@receive_esafe');
+        Route::post('/dashboard/repaid_esafe', 'PagesController@repaid_esafe');
         Route::post('/dashboard/cancelpay', 'PagesController@cancelpay');
     });
     Route::post('/upgradepayLog', 'PagesController@upgradepayLog')->name('upgradepayLog');
@@ -294,6 +311,14 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::post('/dashboard/chat2/chatSet', 'Message_newController@chatSet')->name('chatSet');
         Route::post('/dashboard/announcement_post', 'Message_newController@announcePost')->name('announcePost');
         Route::get('/dashboard/manual', 'PagesController@manual');
+
+
+        Route::get('/dashboard/evaluation/{uid}', 'PagesController@evaluation');
+        Route::post('/dashboard/evaluation/save', 'PagesController@evaluation_save')->name('evaluation');
+        Route::post('/dashboard/evaluation/re_content_save', 'PagesController@evaluation_re_content_save')->name('evaluation_re_content');
+        Route::post('/dashboard/evaluation/re_content_delete', 'PagesController@evaluation_re_content_delete')->name('evaluation_re_content_delete');
+        Route::post('/dashboard/evaluation/delete', 'PagesController@evaluation_delete')->name('evaluation_delete');
+
 
 
         Route::get('/dashboard/evaluation/{uid}', 'PagesController@evaluation');
@@ -577,4 +602,34 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::post('roles/search', 'RoleController@search');
         Route::get('roles/search', 'RoleController@index');
     });
+
+
+    /*果真有酵*/
+    Route::get('/fruits', 'FruitController@index');
+    Route::get('/fruits/shop', 'FruitController@shop');
+    Route::get('/fruits/brand', 'FruitController@brand');
+    Route::get('/fruits/contactus', 'FruitController@contactus');
+    Route::get('/fruits/health_info', 'FruitController@health_info');
+    Route::get('/fruits/health_info01', 'FruitController@health_info01');
+    Route::get('/fruits/health_info02', 'FruitController@health_info02');
+    Route::get('/fruits/health_info03', 'FruitController@health_info03');
+    Route::get('/fruits/health_info04', 'FruitController@health_info04');
+    Route::get('/fruits/health_info_detail', 'FruitController@health_info_detail');
+    Route::get('/fruits/news01', 'FruitController@news01');
+    Route::get('/fruits/news02', 'FruitController@news02');
+    Route::get('/fruits/order_success', 'FruitController@order_success');
+    Route::get('/fruits/order_confirm', 'FruitController@order_confirm');
+
+    Route::get('/fruits/product_beauty', 'FruitController@product_beauty');
+    Route::get('/fruits/product_berry', 'FruitController@product_berry');
+    Route::get('/fruits/product_charantia', 'FruitController@product_charantia');
+    Route::get('/fruits/product_key', 'FruitController@product_key');
+    Route::get('/fruits/product_ferment', 'FruitController@product_ferment');
+
+    Route::get('/fruits/product_beauty_more', 'FruitController@product_beauty_more');
+    Route::get('/fruits/product_berry_more', 'FruitController@product_berry_more');
+    Route::get('/fruits/product_charantia_more', 'FruitController@product_charantia_more');
+    Route::get('/fruits/product_key_more', 'FruitController@product_key_more');
+    Route::get('/fruits/product_ferment_more', 'FruitController@product_ferment_more');
 });
+Route::get('/test', 'ImageController@deletePictures');

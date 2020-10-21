@@ -277,7 +277,7 @@
                             if (isset($_GET['body'])) $body = $_GET['body'];
                             ?>
                             @endif
-                            <?php $icc = 1; 
+                            <?php $icc = 1;
                                 $vis = \App\Models\UserMeta::search($county, $district, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $user->engroup, $umeta->city, $umeta->area, $umeta->blockdomain, $umeta->blockdomainType, $seqtime, $body, $user->id);
                             ?>
             @if (!empty($vis))
@@ -285,7 +285,7 @@
             @foreach ($vis as $vi)
                 <div class="col-md-3 m-widget3__item"  style="border-bottom: none; margin:50px 0;">
                     <?php $visitor = $vi->user ?>
-                    <?php 
+                    <?php
                         if(!isset($visitor)){
                             continue;
                         }
@@ -318,11 +318,11 @@
                                     @endif
                                     <br />
                                     @if(!empty($umeta->city))
-                                        @foreach($umeta->city as $key => $cityval)
-                                        <p class="user-card" id="card-area">
-                                            {{$umeta->city[$key]}} {{$umeta->area[$key]}}
-                                        </p>
-                                        @endforeach
+                                    @foreach($umeta->city as $key => $cityval)
+                                    <p class="user-card" id="card-area">
+                                        {{$umeta->city[$key]}} {{$umeta->area[$key]}}
+                                    </p>
+                                    @endforeach
                                     @endif
                                                             <!-- {{$visitor->title}} -->
                                 </p>
@@ -332,11 +332,11 @@
                 				    <p>{{$visitor->meta_()->city}} {{$visitor->meta_()->area}}<br>年齡: {{$visitor->meta_()->age()}}<br>身高: {{$visitor->meta_()->height}}cm<br>體型: {{$visitor->meta_()->body}}</p>
                                 </a>
                 			</div> -->
-		              </div>
+		               </div>
                 </div>
                             @if ($icc == 1) <?php $icc = 0; ?> @else <?php $icc = 1; ?>@endif
                             @endif
-                            @endforeach
+            @endforeach
                             <div class="page m-form__actions">
                                 {!! $vis->appends(request()->input())->links() !!}
                             </div>
@@ -351,44 +351,44 @@
                                 <?php $visitor = $vi->user ?>
                             @endif
             @if ($visitor !== null && $visitor->meta_() !== null)
-                    <div class="col-md-3 m-widget3__item" style="border-bottom: none; margin:50px 0;">
-                            <? $data = \App\Services\UserService::checkRecommendedUser($visitor); ?>
-                            @if($visitor->isVip())
-                                <div class="MW4BW_">
-                                    @if ($visitor->engroup == 1) <a class="_3BQlNg bgXBUk"  style="color: white; font-weight: bold; font-size: 16px;">&nbsp;VIP&nbsp;</a> @endif @if(isset($data['description'])) <img src="{{ $data['button'] }}" alt="" height="30px" class="{{ (($visitor->engroup == 1)?'preferred':'') }}"> @endif
-                                </div>
-                            @endif
-                            <div class="card m-portlet m-portlet--mobile" style="display: inline-block; width: 100%; margin-bottom: 0; box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7);">
-                                <a href="/user/view/{{$visitor->id}}"><img src="@if($visitor->meta_()->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->meta_()->pic}} @endif" @if ($visitor->engroup == 1) onerror="this.src='/img/male-avatar.png'" @else onerror="this.src='/img/female-avatar.png'" @endif alt="" width="100%" height="100%"></a>
-                        			<div class="card-inner" style="display:inline-block;">
-                        			    <!-- <a href="/user/view/{{$visitor->id}}" @if ($icc == 1) style="color: white" @endif> -->
-                            				<p class="user-card" id="card-basic">{{ $visitor->name }}, {{ $visitor->meta_()->age() }}歲
-                                                @if(\App\Models\Reported::cntr($visitor->id) >=  $block_people )
-                                                    <span class="m-widget3__username" style="color:red">(此人遭多人檢舉)</span>
-                                                @endif
-                                                <br />
-                                            <p class="user-card" id="card-area">{{$visitor->meta_()->city}} {{$visitor->meta_()->area}}</p>
-                                                                        <!-- {{$visitor->title}} -->
-                                            </p>
-                                        <!-- </a> -->
-                        		     </div>
-            			<!-- <div class="m-portlet__body col-lg-4 col-md-4" style="display:inline-block; max-width: 41%">
-            			    <a href="/user/view/{{$visitor->id}}" @if ($icc == 1) style="color: white" @endif>
-            				<p>{{$visitor->meta_()->city}} {{$visitor->meta_()->area}}<br>年齡: {{$visitor->meta_()->age()}}<br>身高: {{$visitor->meta_()->height}}cm<br>體型: {{$visitor->meta_()->body}}</p></a>
-            			</div> -->
-            		      </div>
-                    </div>
-                            @if ($icc == 1) <?php $icc = 0; ?> @else <?php $icc = 1; ?>@endif
-                            @endif
-                            @endforeach
-                            <div class="page m-form__actions row">
-                                <div class="col-md-12 col-xs-12 col-sm-12">
-                                    {!! $visitors->appends(request()->input())->links() !!}
-                                </div>
+                <div class="col-md-3 m-widget3__item" style="border-bottom: none; margin:50px 0;">
+                    <? $data = \App\Services\UserService::checkRecommendedUser($visitor); ?>
+                        @if($visitor->isVip())
+                            <div class="MW4BW_">
+                                @if ($visitor->engroup == 1) <a class="_3BQlNg bgXBUk"  style="color: white; font-weight: bold; font-size: 16px;">&nbsp;VIP&nbsp;</a> @endif @if(isset($data['description'])) <img src="{{ $data['button'] }}" alt="" height="30px" class="{{ (($visitor->engroup == 1)?'preferred':'') }}"> @endif
                             </div>
-                            @endif
+                        @endif
+                        <div class="card m-portlet m-portlet--mobile" style="display: inline-block; width: 100%; margin-bottom: 0; box-shadow: 0 1px 15px 1px rgba(244, 164, 164, 0.7);">
+                            <a href="/user/view/{{$visitor->id}}"><img src="@if($visitor->meta_()->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->meta_()->pic}} @endif" @if ($visitor->engroup == 1) onerror="this.src='/img/male-avatar.png'" @else onerror="this.src='/img/female-avatar.png'" @endif alt="" width="100%" height="100%"></a>
+                                <div class="card-inner" style="display:inline-block;">
+                                    <!-- <a href="/user/view/{{$visitor->id}}" @if ($icc == 1) style="color: white" @endif> -->
+                                        <p class="user-card" id="card-basic">{{ $visitor->name }}, {{ $visitor->meta_()->age() }}歲
+                                            @if(\App\Models\Reported::cntr($visitor->id) >=  $block_people )
+                                                <span class="m-widget3__username" style="color:red">(此人遭多人檢舉)</span>
+                                            @endif
+                                            <br />
+                                        <p class="user-card" id="card-area">{{$visitor->meta_()->city}} {{$visitor->meta_()->area}}</p>
+                                                                    <!-- {{$visitor->title}} -->
+                                        </p>
+                                    <!-- </a> -->
+                                 </div>
+                    <!-- <div class="m-portlet__body col-lg-4 col-md-4" style="display:inline-block; max-width: 41%">
+                        <a href="/user/view/{{$visitor->id}}" @if ($icc == 1) style="color: white" @endif>
+                        <p>{{$visitor->meta_()->city}} {{$visitor->meta_()->area}}<br>年齡: {{$visitor->meta_()->age()}}<br>身高: {{$visitor->meta_()->height}}cm<br>體型: {{$visitor->meta_()->body}}</p></a>
+                    </div> -->
+                      </div>
+                </div>
+                        @if ($icc == 1) <?php $icc = 0; ?> @else <?php $icc = 1; ?>@endif
+                        @endif
+                        @endforeach
+                        <div class="page m-form__actions row">
+                            <div class="col-md-12 col-xs-12 col-sm-12">
+                                {!! $visitors->appends(request()->input())->links() !!}
+                            </div>
                         </div>
+                        @endif
                     </div>
+                </div>
 @stop
 @section ('javascript')
 <script src="//cdnjs.cloudflare.com/ajax/libs/cropperjs/1.0.0/cropper.min.js"></script>

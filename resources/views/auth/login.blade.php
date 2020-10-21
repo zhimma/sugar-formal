@@ -54,7 +54,7 @@
                     </div>
                 </form>
             </div>
-          <div class="m-login__account">
+            <div class="m-login__account">
                 <span class="m-login__account-msg">
                 還沒有帳號 ?
                 </span>
@@ -65,34 +65,34 @@
             </div>
             <div class="">
                 <p style="color:red; font-size:14px; font-weight:bold;">本站系統改版，如有舊帳號無法登入，帳號資料不正常，請點右下聯絡我們。跟站方聯繫</p>
-            </div>
         </div>
-            </div>
-        </div>
-        <script>
-            var backendProcess = function(){
-                let email =  document.getElementById('email').value;
-                if(email != null || email != ""){
-                    if (window.requestIdleCallback) {
-                        requestIdleCallback(function () {
-                            identifyResult('{{ csrf_token() }}', $('#email').val(), function(result){
-                                console.log(result)
-                            })
-                        })
-                    }
-                    else {
-                        setTimeout(function () {
-                            identifyResult('{{ csrf_token() }}', $('#email').val(), function(result){
-                                console.log(result)
-                            })
-                        }, 500)
-                    }
-                }
-            }
-        </script>
-        @include('partials.footer')
     </div>
-        @include('partials.scripts')
-        <script src="/js/login.js" type="text/javascript"></script>
+</div>
+</div>
+<script>
+    var backendProcess = function(){
+        let email =  document.getElementById('email').value;
+        if(email != null || email != ""){
+            if (window.requestIdleCallback) {
+                requestIdleCallback(function () {
+                    identifyResult('{{ csrf_token() }}', $('#email').val(), function(result){
+                        console.log(result)
+                    })
+                })
+            }
+            else {
+                setTimeout(function () {
+                    identifyResult('{{ csrf_token() }}', $('#email').val(), function(result){
+                        console.log(result)
+                    })
+                }, 500)
+            }
+        }
+    }
+</script>
+@include('partials.footer')
+</div>
+@include('partials.scripts')
+<script src="/js/login.js" type="text/javascript"></script>
 </body>
 </html>

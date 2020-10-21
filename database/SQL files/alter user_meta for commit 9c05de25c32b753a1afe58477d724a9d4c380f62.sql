@@ -1,0 +1,1 @@
+ALTER TABLE user_meta ADD adminNote TEXT NULL AFTER `exchange_period_change`;

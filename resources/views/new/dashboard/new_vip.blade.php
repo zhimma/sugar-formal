@@ -35,8 +35,7 @@
                                             <h2>NT$988/月</h2>
                                             <h2>每季自動扣款</h2>
                                         </div>
-{{--                                        <a class="new_gvip_input" onclick="cl()">購買</a>--}}
-                                        <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
+                                        <form id="cc_quarterly_paymentForm" class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
                                             <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                             <input type="hidden" name="userId" value="{{$user->id}}">
                                             <input type="hidden" name="type" value="cc_quarterly_payment">
@@ -49,8 +48,7 @@
                                             <h2>NT$1388/月</h2>
                                             <h2>每月自動扣款</h2>
                                         </div>
-{{--                                        <a class="new_gvip_input"  onclick="c2()">購買</a>--}}
-                                        <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
+                                        <form id="cc_monthly_paymentForm" class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
                                             <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                             <input type="hidden" name="userId" value="{{$user->id}}">
                                             <input type="hidden" name="type" value="cc_monthly_payment">
@@ -71,7 +69,7 @@
                                             <h2>單季體驗</h2>
                                             <div class="new_abg">
                                                 <span>
-                                                    <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
+                                                    <form id="one_quarter_paymentATMForm" class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
                                                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                                         <input type="hidden" name="userId" value="{{$user->id}}">
                                                         <input type="hidden" name="type" value="one_quarter_payment">
@@ -80,7 +78,7 @@
                                                     </form>
                                                 </span>
                                                 <span>
-                                                    <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
+                                                    <form id="one_quarter_paymentCreditForm" class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
                                                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                                         <input type="hidden" name="userId" value="{{$user->id}}">
                                                         <input type="hidden" name="type" value="one_quarter_payment">
@@ -98,7 +96,7 @@
 {{--                                                    </form>--}}
 {{--                                                </span>--}}
                                                 <font class="new_w100">
-                                                    <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
+                                                    <form id="one_quarter_paymentCVSForm" class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
                                                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                                         <input type="hidden" name="userId" value="{{$user->id}}">
                                                         <input type="hidden" name="type" value="one_quarter_payment">
@@ -123,7 +121,7 @@
                                             <h2>單月體驗</h2>
                                             <div class="new_abg">
                                                 <span>
-                                                    <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
+                                                    <form id="one_month_paymentATMForm" class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
                                                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                                         <input type="hidden" name="userId" value="{{$user->id}}">
                                                         <input type="hidden" name="type" value="one_month_payment">
@@ -132,7 +130,7 @@
                                                     </form>
                                                 </span>
                                                 <span>
-                                                    <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
+                                                    <form id="one_month_paymentCreditForm" class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
                                                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                                         <input type="hidden" name="userId" value="{{$user->id}}">
                                                         <input type="hidden" name="type" value="one_month_payment">
@@ -150,7 +148,7 @@
 {{--                                                    </form>--}}
 {{--                                                </span>--}}
                                                 <font class="new_w100">
-                                                    <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
+                                                    <form id="one_month_paymentCVSForm" class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
                                                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                                         <input type="hidden" name="userId" value="{{$user->id}}">
                                                         <input type="hidden" name="type" value="one_month_payment">
@@ -224,7 +222,10 @@
             document.getElementById(id).style.display="table";
             document.getElementById(id+"_a").className="n_viphover";
             $('#vip_cancel').hide();
+
             if(id === 'vip2'){
+                $('.vipbongn').hide();
+                $('.n_vipbotf').hide();
                 @if (!$user->isVip() && !$user->isFreeVip())
                 c2('您目前尚未成為VIP會員');
                 @elseif($user->isFreeVip())
@@ -233,6 +234,9 @@
                 $('#vip_cancel').show();
                 $('#vip2').hide();
                 @endif
+            }else{
+                $('.vipbongn').show();
+                $('.n_vipbotf').show();
             }
             return false;
         }
@@ -270,20 +274,25 @@
 {{--                c2('您目前已是VIP會員');--}}
 {{--                return false;--}}
 {{--            @else--}}
-
+                var id,choosePayment;
                 if($(this).hasClass("cc_monthly_payment")) {
                     @if(($user->isVipNotCanceledNotOnePayment() || $user->isVipNotOnePaymentNotExpiry() || $user->isVipOnePaymentNotExpire())  && !$user->isFreeVip())
                         c2('您目前已是VIP會員');
                         return false;
                     @else
-                        var r = confirm("{{ $cc_monthly_payment }}");
+                        common_confirm("{{$cc_monthly_payment}}","★取消 VIP 時間需要七個工作天，如下個月不續約請提前取消，以免權益受損");
+                        id = 'cc_monthly_payment';
+                        choosePayment='';
+    // return false;
                     @endif
                 }else if($(this).hasClass("cc_quarterly_payment")){
                     @if(($user->isVipNotCanceledNotOnePayment() || $user->isVipNotOnePaymentNotExpiry() || $user->isVipOnePaymentNotExpire())  && !$user->isFreeVip())
                         c2('您目前已是VIP會員');
                         return false;
                     @else
-                        var r = confirm("{{ $cc_quarterly_payment }}");
+                        common_confirm("{{ $cc_quarterly_payment}}","★取消 VIP 時間需要七個工作天，如下個月不續約請提前取消，以免權益受損");
+                        id = 'cc_quarterly_payment';
+                        choosePayment='';
                     @endif
                 }else if($(this).hasClass("one_month_payment")){
                     //定期定額會員無法購買單次方案
@@ -291,7 +300,11 @@
                         c2('您目前已是VIP會員');
                         return false;
                     @else
-                        var r = confirm("{{ $one_month_payment }}");
+                        common_confirm("{{$one_month_payment}}");
+                        id = 'one_month_payment';
+                        choosePayment=$(this).parent().find("input[name='choosePayment']").val();
+                    // alert(choosePayment);
+
                     @endif
                 }else if($(this).hasClass("one_quarter_payment")){
                     //定期定額會員無法購買單次方案
@@ -299,13 +312,21 @@
                         c2('您目前已是VIP會員');
                         return false;
                     @else
-                        var r = confirm("{{ $one_quarter_payment }}");
+                        common_confirm("{{$one_quarter_payment}}");
+                        id = 'one_quarter_payment';
+                        choosePayment=$(this).parent().find("input[name='choosePayment']").val();
+                        // alert(choosePayment);
                     @endif
                 }
 
-                if(!r) {
-                    event.preventDefault();
-                }
+            $(".n_left").on('click', function() {
+                // alert(choosePayment);
+                $('#'+id+choosePayment+'Form').submit();
+            });
+            return false;
+                // if(!r) {
+                //     event.preventDefault();
+                // }
 {{--            @endif--}}
         });
 
@@ -314,16 +335,22 @@
         $('#vip2_a').on('click', function(event) {
             @if(!$user->isFreeVip())
                 @if(isset($vipLessThan7days) && $vipLessThan7days && $user->isVipNotCanceledNotOnePayment())
-                    var r = confirm("{{$cancel_vip}}");
+            common_confirm("{{$cancel_vip}}");
                     // var r= confirm('123');
                 @elseif($user->isVip() && $user->isVipNotCanceledNotOnePayment() && !$user->isVipOnePaymentNotExpire())
-                    var r = confirm("{{$cancel_vip}}");
+            common_confirm("{{$cancel_vip}}");
             // var r= confirm('123');
                 @endif
-                if(!r) {
-                   changediv('vip');
-                    // event.preventDefault();
-                }
+                changediv('vip');
+                $(".n_left").on('click', function() {
+                    $(".blbg").hide();
+                    $('#common_confirm').hide();
+                    changediv('vip2');
+                });
+                // if(!r) {
+                //    changediv('vip');
+                //     // event.preventDefault();
+                // }
             @endif
         });
 

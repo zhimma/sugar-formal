@@ -96,8 +96,8 @@ class Tip extends Model
 
         if(empty($toUser)) return NULL;
         return $toUser;
-    }
-    
+    }    
+
     public static function TipCount_ChangeGood($id) {
         $tipcount = Tip::where('member_id', $id)->orWhere('to_id','=',$id)->count();
         if(in_array($tipcount,array(2,3,4))){
@@ -108,4 +108,16 @@ class Tip extends Model
         return $tipcount;
     }
 
+    /**
+     * 找尋日期間的車馬費邀請
+     * 
+     * @param date start
+     * @param date end
+     *
+     * @return collection 
+     */
+    public static function selectTipMessage($start, $end)
+    {
+        return Tip::whereBetween('created_at', [$start, $end])->get();
+    }
 }

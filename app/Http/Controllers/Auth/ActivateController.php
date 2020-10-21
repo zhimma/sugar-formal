@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Services\UserService;
 use App\Services\ActivateService;
+use App\Models\MasterWords;
 use App\Models\SetAutoBan;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
@@ -28,8 +29,13 @@ class ActivateController extends Controller
     public function showActivate()
     {
         $user = auth()->user();
-
-        return view('new.auth.activate.email')->with('user', $user)->with('register', true);
+        $masterwords = MasterWords::where('en_group', $user->engroup)->orderBy('sequence','asc')->orderBy('updated_at', 'desc')->get()->first();
+        // dd($masterwords->content);
+        
+        return view('new.auth.activate.email')
+                ->with('user', $user)
+                ->with('register', true)
+                ->with('masterwords', $masterwords->content);
     }
 
     /**
