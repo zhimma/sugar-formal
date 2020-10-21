@@ -324,10 +324,7 @@ class LoginController extends Controller
 
             //重新驗證帳號密碼
             if (\Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-                $this->login($request);
-            }else{
-                $this->incrementLoginAttempts($request);
-                return $this->sendFailedLoginResponse($request);
+                return redirect('/dashboard');
             }
         }
     }
