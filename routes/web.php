@@ -310,10 +310,14 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::post('/dashboard/chat2/deleteall', 'Message_newController@deleteAll')->name('delete2All');
         Route::post('/dashboard/chat2/chatSet', 'Message_newController@chatSet')->name('chatSet');
         Route::post('/dashboard/announcement_post', 'Message_newController@announcePost')->name('announcePost');
+        Route::get('/dashboard/manual', 'PagesController@manual');
 
 
         Route::get('/dashboard/evaluation/{uid}', 'PagesController@evaluation');
-        Route::post('/dashboard/evaluation', 'PagesController@evaluation_save')->name('evaluation');
+        Route::post('/dashboard/evaluation/save', 'PagesController@evaluation_save')->name('evaluation');
+        Route::post('/dashboard/evaluation/re_content_save', 'PagesController@evaluation_re_content_save')->name('evaluation_re_content');
+        Route::post('/dashboard/evaluation/re_content_delete', 'PagesController@evaluation_re_content_delete')->name('evaluation_re_content_delete');
+        Route::post('/dashboard/evaluation/delete', 'PagesController@evaluation_delete')->name('evaluation_delete');
 
 
 

@@ -1487,7 +1487,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
             $('.sjlist_alert>.li_no_data').remove();
             if ($('.sjlist_alert>li:visible').length == 0) {
-                console.log(isLoading);  {{-- 此行勿刪，若刪除將導致頁面產生錯襄 --}}
+                console.log(isLoading);  {{-- 此行勿刪，若刪除將導致頁面產生錯誤 --}}
                 if(!isLoading) {
                     $('#sjlist_alert_warning').hide();
                     $('.sjlist_alert').append(no_row_li);

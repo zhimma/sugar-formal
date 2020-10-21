@@ -1851,7 +1851,8 @@ $code = Config::get('social.payment.code');
             @if (!$umeta->isAllSet())
             alert('請寫上基本資料');
             @elseif (empty($umeta->pic))
-            alert('請加上頭像照');
+            var no_avatar = '{{ $no_avatar }}';
+            alert(no_avatar);
             @elseif ($umeta->age()<18)
             alert('您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。');
             @endif

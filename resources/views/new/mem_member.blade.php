@@ -51,11 +51,11 @@
 							</div>
 							<div class="bottub">
 								<ul>
-									<li><a href="#"><img src="/new/images/icon_19.png"><span>新進甜心</span></a></li>
-									<li><a href="#"><img src="/new/images/icon_21.png"><span>優選會員</span></a></li>
-									<li><a href="#"><img src="/new/images/icon_23.png"><span>財力認證</span></a></li>
-									<li><a href="#"><img src="/new/images/icon_25.png"><span>VIP</span></a></li>
-									<li><a href="#"><img src="/new/images/icon_27.png"><span>警示帳戶</span></a></li>
+									<li><a href="#"><img src="/new/images/icon_19.png"><span>{{$new_sweet}}</span></a></li>
+									<li><a href="#"><img src="/new/images/icon_21.png"><span>{{$well_member}}</span></a></li>
+									<li><a href="#"><img src="/new/images/icon_23.png"><span>{{$money_cert}}</span></a></li>
+									<li><a href="#"><img src="/new/images/icon_25.png"><span>{{$label_vip}}</span></a></li>
+									<li><a href="#"><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></a></li>
 								</ul>
 							</div>
 
@@ -214,7 +214,7 @@
 <div class="bl bl_tab" id="tab03">
     <div class="bltitle"><span>檢舉HAY</span></div>
     <div class="n_blnr01 ">
-    <textarea name="" cols="" rows="" class="n_nutext">請輸入檢舉理由</textarea>
+    <textarea name="" cols="" rows="" class="n_nutext">{{$report_member}}</textarea>
     <div class="n_bbutton">
         <span><a class="n_left" href="">送出</a></span>
         <span><a class="n_right" href="">返回</a></span>
