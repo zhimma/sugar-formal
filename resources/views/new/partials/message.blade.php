@@ -47,7 +47,7 @@
 <div class="bl bl_tab " id="common_confirm">
     <div class="bltitle"><font>提示</font></div>
     <div class="new_poptk">
-        <p style="-webkit-user-modify: read-write-plaintext-only;outline: none;"></p>
+        <p style="-webkit-user-modify: read-write-plaintext-only;outline: none;white-space: pre-line;"></p>
         <div class="n_bbutton">
             <span><a class="n_left">確定</a></span>
             <span><a class="n_right" onclick="$('.blbg').click();">取消</a></span>
