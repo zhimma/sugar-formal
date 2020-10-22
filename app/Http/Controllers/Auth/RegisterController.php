@@ -89,7 +89,7 @@ class RegisterController extends Controller
             'name'     => ['required', 'max:255', 'not_contains'],
             'title'    => ['required', 'max:255', 'not_contains'],
             'engroup'  => ['required'],
-            'email'    => 'required|email|max:255|unique:users',
+            'email'    => 'required|email|max:255|unique:users|unique:users_bak',
             'password' => 'required|min:6|confirmed',
             'agree'    => 'required',
         ];
