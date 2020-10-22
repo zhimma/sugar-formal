@@ -17,6 +17,7 @@ use Auth;
 use App\Models\SimpleTables\banned_users;
 use Illuminate\Support\Facades\Config;
 use App\Services\FingerprintService;
+use Illuminate\Support\Facades\DB;
 use Session;
 
 class LoginController extends Controller
@@ -270,6 +271,9 @@ class LoginController extends Controller
             return $this->sendLoginResponse($request);
         }
 
+        //一年以上未登入帳號,需從users_bak 找是否有符合帳號
+        $this->findAccountAndRollbackToUsers($request);
+
         // If the login attempt was unsuccessful we will increment the number of attempts
         // to login and redirect the user back to the login form. Of course, when this
         // user surpasses their maximum number of attempts they will get locked out.
@@ -292,4 +296,36 @@ class LoginController extends Controller
         return redirect('/login');
     }
 
+    public function findAccountAndRollbackToUsers($request){
+
+        $findUser = DB::table('users_bak')->where('email', $request->email);
+
+        if(!is_null($findUser->first())) {
+            DB::beginTransaction();
+            try {
+                //rollback users
+                $data = (array)$findUser->first();
+                DB::table('users')->updateOrInsert(['id'=> array_get($data,'id')], $data);
+                $findUser->delete();
+
+                //rollback user_meta
+                $findUserMeta = DB::table('user_meta_bak')->where('user_id', array_get($data,'id'));
+                $data = (array)$findUserMeta->first();
+                DB::table('user_meta')->updateOrInsert([
+                    'id'=>array_get($data, 'id'),
+                    'user_id' => array_get($data, 'user_id')], $data);
+                $findUserMeta->delete();
+
+                DB::commit();
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::info($e);
+                DB::rollBack();
+            }
+
+            //重新驗證帳號密碼
+            if (\Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+                return redirect('/dashboard');
+            }
+        }
+    }
 }
