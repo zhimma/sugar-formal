@@ -30,10 +30,10 @@
                 @endif
                 @if (isset($user) && $user->isVip())
                     <a class="item" href="{!! url('dashboard/fav') !!}"><li><img src="/new/images/z_05.png"><span class="n_zylg">收藏名單</span></li></a>
-                    <a class="item" href="{!! url('dashboard/block') !!}"><li style="float: right;"><img src="/new/images/z_06.png"><span class="n_zylg">封鎖名單</span></li></a>
+                    <a class="item" href="{!! url('dashboard/block') !!}"><li style="float: left;"><img src="/new/images/z_06.png"><span class="n_zylg">封鎖名單</span></li></a>
                 @else
                     <a class="item" href="javascript:void(0);"><li style="float: left;"><img src="/new/images/z_05.png"><span class="n_zylg">收藏名單</span><span class="vipOnly"><img src="/new/images/icon_36.png" style="height: auto;width:120px;"></span></li></a>
-                    <a class="item" href="javascript:void(0);"><li style="float: right;"><img src="/new/images/z_06.png"><span class="n_zylg">封鎖名單</span><span class="vipOnly"><img src="/new/images/icon_36.png" style="height: auto;width:120px;"></span></li></a>
+                    <a class="item" href="javascript:void(0);"><li style="float: left;"><img src="/new/images/z_06.png"><span class="n_zylg">封鎖名單</span><span class="vipOnly"><img src="/new/images/icon_36.png" style="height: auto;width:120px;"></span></li></a>
                 @endif
             @endif
             {{-- <a class="item" href="{!! url('dashboard/posts_list') !!}"><li><img src="/new/images/letter.png"><span class="n_zylg">投稿文章</span></li></a> --}}
