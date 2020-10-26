@@ -276,7 +276,7 @@
 {{--            @else--}}
                 var id,choosePayment;
                 if($(this).hasClass("cc_monthly_payment")) {
-                    @if(($user->isVipNotCanceledNotOnePayment() || $user->isVipNotOnePaymentNotExpiry() || $user->isVipOnePaymentNotExpire())  && !$user->isFreeVip())
+                    @if(($user->isVipNotCanceledNotOnePayment() || $user->isVipNotOnePaymentNotExpiry() || $user->isVipOnePaymentNotExpire()))
                         c2('您目前已是VIP會員');
                         return false;
                     @else
@@ -286,7 +286,7 @@
     // return false;
                     @endif
                 }else if($(this).hasClass("cc_quarterly_payment")){
-                    @if(($user->isVipNotCanceledNotOnePayment() || $user->isVipNotOnePaymentNotExpiry() || $user->isVipOnePaymentNotExpire())  && !$user->isFreeVip())
+                    @if(($user->isVipNotCanceledNotOnePayment() || $user->isVipNotOnePaymentNotExpiry() || $user->isVipOnePaymentNotExpire()))
                         c2('您目前已是VIP會員');
                         return false;
                     @else
@@ -296,7 +296,7 @@
                     @endif
                 }else if($(this).hasClass("one_month_payment")){
                     //定期定額會員無法購買單次方案
-                    @if($user->isVipNotCanceledNotOnePayment() && !$user->isVipOnePaymentNotExpire() && !$user->isFreeVip())
+                    @if($user->isVipNotCanceledNotOnePayment() && !$user->isVipOnePaymentNotExpire())
                         c2('您目前已是VIP會員');
                         return false;
                     @else
@@ -308,7 +308,7 @@
                     @endif
                 }else if($(this).hasClass("one_quarter_payment")){
                     //定期定額會員無法購買單次方案
-                    @if($user->isVipNotCanceledNotOnePayment() && !$user->isVipOnePaymentNotExpire() && !$user->isFreeVip())
+                    @if($user->isVipNotCanceledNotOnePayment() && !$user->isVipOnePaymentNotExpire())
                         c2('您目前已是VIP會員');
                         return false;
                     @else
