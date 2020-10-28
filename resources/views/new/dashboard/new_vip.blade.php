@@ -59,38 +59,6 @@
                             </div>
 
                             <div class="new_xline"></div>
-<<<<<<< HEAD
-                            <div class="dq_fangan">單次方案</div>
-                            <div class="new_viplist">
-                                <ul>
-                                    <li>
-                                        <div class="new_fa">3個月方案</div>
-                                        <div class="new_fanext">
-                                            <h2>NT$988/月</h2>
-                                            <h2>一次付清</h2>
-                                            <h2>NT$2964</h2>
-                                        </div>
-                                        <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
-                                            <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-                                            <input type="hidden" name="userId" value="{{$user->id}}">
-                                            <input type="hidden" name="type" value="one_quarter_payment">
-                                            <button type="submit" class="new_gvip_input one_quarter_payment" style="border-style: none; outline: none;">購買</button>
-                                        </form>
-                                    </li>
-                                    <li>
-                                        <div class="new_fa">1個月方案</div>
-                                        <div class="new_fanext">
-                                            <h2>NT$1388/月</h2>
-                                            <h2>一次付清</h2>
-                                            <h2></h2>
-                                        </div>
-                                        <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
-                                            <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-                                            <input type="hidden" name="userId" value="{{$user->id}}">
-                                            <input type="hidden" name="type" value="one_month_payment">
-                                            <button class="new_gvip_input one_month_payment" style="border-style: none; outline: none;">購買</button>
-                                        </form>
-=======
                             <div class="dq_fangan">單筆付款，短期VIP體驗</div>
                             <div class="new_viplist">
                                 <ul>
@@ -197,20 +165,15 @@
 {{--                                            <input type="hidden" name="type" value="one_month_payment">--}}
 {{--                                            <button class="new_gvip_input one_month_payment" style="border-style: none; outline: none;">購買</button>--}}
 {{--                                        </form>--}}
->>>>>>> master
                                     </li>
                                 </ul>
                             </div>
                             <div class="vipline matop20"><img src="/new/images/VIP_05.png"></div>
                         </div>
-<<<<<<< HEAD
-
-=======
                         <div class="vipbongn">
                             {!!  $vip_text  !!}
                         </div>
                         <div class="n_vipbotf">本筆款項在信用卡帳單顯示為 信宏資產管理公司</div>
->>>>>>> master
                         {{-- cancel vip --}}
                         <div class="hy_width n_viptop20"  id="vip_cancel" style="display:none">
                             <div class="fi_xq">
@@ -259,17 +222,6 @@
             document.getElementById(id).style.display="table";
             document.getElementById(id+"_a").className="n_viphover";
             $('#vip_cancel').hide();
-<<<<<<< HEAD
-            if(id === 'vip2'){
-                @if (!$user->isVip() && !$user->isFreeVip())
-                    c2('您目前尚未成為VIP會員');
-                @elseif($user->isFreeVip())
-                    c2('您是免費VIP，刪除您的大頭照或生活照少於三張就會取消VIP');
-                @elseif(!$user->isVipNotCanceledNotOnePayment() || $user->isVipOnePaymentNotExpire())
-                    $('#vip_cancel').show();
-                    $('#vip2').hide();
-                @endif
-=======
 
             if(id === 'vip2'){
                 $('.vipbongn').hide();
@@ -285,7 +237,6 @@
             }else{
                 $('.vipbongn').show();
                 $('.n_vipbotf').show();
->>>>>>> master
             }
             return false;
         }
@@ -318,56 +269,11 @@
 
         });
 
-<<<<<<< HEAD
-        $('.new_gvip_input').on('click', function(event) {
-=======
         $('.paySubmit').on('click', function(event) {
->>>>>>> master
 {{--            @if($user->isVipNotCanceledORCanceledButNotExpire())--}}
 {{--                c2('您目前已是VIP會員');--}}
 {{--                return false;--}}
 {{--            @else--}}
-<<<<<<< HEAD
-
-                if($(this).hasClass("cc_monthly_payment")) {
-                    @if(($user->isVipNotCanceledNotOnePayment() || $user->isVipNotOnePaymentNotExpiry() || $user->isVipOnePaymentNotExpire())  && !$user->isFreeVip())
-                        c2('您目前已是VIP會員');
-                        return false;
-                    @else
-                        var r = confirm("{{ $cc_monthly_payment }}");
-                    @endif
-                }else if($(this).hasClass("cc_quarterly_payment")){
-                    @if(($user->isVipNotCanceledNotOnePayment() || $user->isVipNotOnePaymentNotExpiry() || $user->isVipOnePaymentNotExpire())  && !$user->isFreeVip())
-                        c2('您目前已是VIP會員');
-                        return false;
-                    @else
-                        var r = confirm("{{ $cc_quarterly_payment }}");
-                    @endif
-                }else if($(this).hasClass("one_month_payment")){
-                    //定期定額會員無法購買單次方案
-                    @if($user->isVipNotCanceledNotOnePayment() && !$user->isVipOnePaymentNotExpire() && !$user->isFreeVip())
-                        c2('您目前已是VIP會員');
-                        return false;
-                    @else
-                        var r = confirm("{{ $one_month_payment }}");
-                    @endif
-                }else if($(this).hasClass("one_quarter_payment")){
-                    //定期定額會員無法購買單次方案
-                    @if($user->isVipNotCanceledNotOnePayment() && !$user->isVipOnePaymentNotExpire() && !$user->isFreeVip())
-                        c2('您目前已是VIP會員');
-                        return false;
-                    @else
-                        var r = confirm("{{ $one_quarter_payment }}");
-                    @endif
-                }
-
-                if(!r) {
-                    event.preventDefault();
-                }
-{{--            @endif--}}
-        });
-
-=======
                 var id,choosePayment;
                 if($(this).hasClass("cc_monthly_payment")) {
                     @if(($user->isVipNotCanceledNotOnePayment() || $user->isVipNotOnePaymentNotExpiry() || $user->isVipOnePaymentNotExpire()))
@@ -425,23 +331,10 @@
         });
 
 
->>>>>>> master
         // 取消VIP內容
         $('#vip2_a').on('click', function(event) {
             @if(!$user->isFreeVip())
                 @if(isset($vipLessThan7days) && $vipLessThan7days && $user->isVipNotCanceledNotOnePayment())
-<<<<<<< HEAD
-                    var r = confirm("{{$cancel_vip}}");
-                    // var r= confirm('123');
-                @elseif($user->isVip() && $user->isVipNotCanceledNotOnePayment() && !$user->isVipOnePaymentNotExpire())
-                    var r = confirm("{{$cancel_vip}}");
-            // var r= confirm('123');
-                @endif
-                if(!r) {
-                   changediv('vip');
-                    // event.preventDefault();
-                }
-=======
             common_confirm("{{$cancel_vip}}");
                     // var r= confirm('123');
                 @elseif($user->isVip() && $user->isVipNotCanceledNotOnePayment() && !$user->isVipOnePaymentNotExpire())
@@ -458,7 +351,6 @@
                 //    changediv('vip');
                 //     // event.preventDefault();
                 // }
->>>>>>> master
             @endif
         });
 
