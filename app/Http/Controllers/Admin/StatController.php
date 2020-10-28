@@ -155,4 +155,90 @@ class StatController extends Controller
         $data = DB::table('set_auto_ban')->orderBy('id', 'desc')->get();
         return view('admin.stats.set_autoBan')->with('data', $data);
     }
+
+    /**
+     * 1: 男 VIP 人數
+     * 2: 30 天內有上線的女  VIP 人數
+     * 3: 30 天內男 VIP 發訊總數 / 獲得回應比例
+     * 4: 30 天內普通男會員發訊總數 / 獲得回應比例
+     * 5: 車馬費邀請總數 / 有回應的比例
+     */
+    public function other(){
+        // 1
+        $maleVip = User::select('id')->where('engroup', 1)->whereIn('id', function($query){
+            $query->select('member_id')
+                ->from(with(new Vip)->getTable())
+                ->where('active', 1);
+        })->get();
+        $last30days = Carbon::now()->subDays(30);
+        // 2
+        $femaleVipLastLoginIn30DaysCount = User::where('engroup', 2)
+            ->where('last_login', '>', $last30days)
+            ->whereIn('id', function($query){
+            $query->select('member_id')
+                ->from(with(new Vip)->getTable())
+                ->where('active', 1);
+        })->get()->count();
+        // 3: 30 天內男 VIP 發訊總數
+        $maleVipMessages = \DB::select('SELECT count(*) as count FROM message m
+            INNER JOIN users u ON m.from_id = u.id
+            INNER JOIN member_vip v ON u.id = v.member_id
+            WHERE v.active = 1 AND u.engroup = 1
+            AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)');
+        // 3: 獲得回應數
+        $maleVipMessagesReplied =
+            \DB::select('SELECT count(*) as count FROM 
+                            (SELECT m.* FROM message m
+                            INNER JOIN users ON m.from_id = users.id
+                            INNER JOIN member_vip v ON users.id = v.member_id
+                            WHERE v.active = 1 AND users.engroup = 1
+                            AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) ) m
+                        WHERE m.from_id IN (
+                                SELECT m.to_id FROM message m
+                                INNER JOIN users u ON m.from_id = u.id
+                                INNER JOIN member_vip v ON u.id = v.member_id
+                                WHERE v.active = 1 AND u.engroup = 1
+                                AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) 
+                            ) 
+                        AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)');
+        // 4: 所有男會員訊息數
+        $maleNonVipMessages = \DB::select('SELECT count(*) as count FROM message m
+            INNER JOIN users u ON m.from_id = u.id
+            WHERE u.engroup = 1
+            AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)');
+        // 4: 所有男會員訊息數獲得回應數
+        $maleNonVipMessagesReplied =
+            \DB::select('SELECT count(*) as count FROM 
+                            (SELECT m.* FROM message m
+                            INNER JOIN users ON m.from_id = users.id
+                            WHERE users.engroup = 1
+                            AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) ) m
+                        WHERE from_id IN (
+                                SELECT m.to_id FROM message m
+                                INNER JOIN users u ON m.from_id = u.id
+                                WHERE u.engroup = 1
+                                AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) 
+                            ) 
+                        AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)');
+        // 5
+        $tipsAll = Message::where('content', 'like', '%已經向 您 發動車馬費邀請%')->get();
+        $tipsReplied = 0;
+        foreach ($tipsAll as $tip){
+            $isReplied = \DB::select('SELECT count(*) as count FROM message m WHERE from_id = '. $tip->to_id .' AND m.created_at > "'. $tip->created_at .'"');
+            if($isReplied[0]->count > 0){
+                $tipsReplied++;
+            }
+        }
+        $tipsAllCount = $tipsAll->count();
+        return view('admin.stats.other',
+            compact('maleVip',
+                     'femaleVipLastLoginIn30DaysCount',
+                        'maleVipMessages',
+                        'maleVipMessagesReplied',
+                        'maleNonVipMessages',
+                        'maleNonVipMessagesReplied',
+                        'tipsAllCount',
+                        'tipsReplied'
+            ));
+    }
 }

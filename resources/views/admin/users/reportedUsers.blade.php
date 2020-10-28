@@ -128,7 +128,7 @@
                         @endif
                         <td>
                             @php
-                                $exchange_period_name = DB::table('exchange_period_name')->where('id',$users[$result['member_id']]['exchange_period'])->first();
+                                $exchange_period_name = DB::table('exchange_period_name')->where('id',$users[$result['reported_id']]['exchange_period'])->first();
                             @endphp
                             {!! $exchange_period_name->name!!}
                         </td>

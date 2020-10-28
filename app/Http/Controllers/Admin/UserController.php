@@ -12,6 +12,7 @@ use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
 use App\Models\SimpleTables\users;
 use App\Notifications\AccountConsign;
+use App\Notifications\BannedUserImplicitly;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use App\Services\UserService;
@@ -690,7 +691,36 @@ class UserController extends Controller
         }
         foreach ($msg_report as $row) {
             $f_user = User::findById($row->to_id);
-            if (!isset($f_user)) {
+
+            if(array_search($row->to_id, array_column($report_all, 'reporter_id')) === false) {
+                if (!isset($f_user)) {
+                    array_push($report_all,
+                        array(
+                            'report_dbid' => $row->id,
+                            'reporter_id' => $row->to_id,
+                            'cancel' => $row->cancel,
+                            'content' => $row->content,
+                            'created_at' => $row->created_at,
+                            'tipcount' => Tip::TipCount_ChangeGood($row->to_id),
+                            'vip' => Vip::vip_diamond($row->to_id),
+                            'isBlocked' => banned_users::where('member_id', 'like', $row->to_id)->get()->first(),
+                            'name' => "無會員資料，ID: " . $row->to_id,
+                            'email' => null,
+                            'isvip' => null,
+                            'auth_status' => null,
+                            'report_type' => '訊息檢舉',
+                            'report_table' => 'message',
+                            'engroup' => null
+                        )
+                    );
+                    continue;
+                }
+                $auth_status = 0;
+                if ($f_user->isPhoneAuth() == 1) {
+                    $auth_status = 1;
+                }
+
+
                 array_push($report_all,
                     array(
                         'report_dbid' => $row->id,
@@ -701,45 +731,49 @@ class UserController extends Controller
                         'tipcount' => Tip::TipCount_ChangeGood($row->to_id),
                         'vip' => Vip::vip_diamond($row->to_id),
                         'isBlocked' => banned_users::where('member_id', 'like', $row->to_id)->get()->first(),
-                        'name' => "無會員資料，ID: " . $row->to_id,
-                        'email' => null,
-                        'isvip' => null,
-                        'auth_status' => null,
+                        'name' => $f_user->name,
+                        'email' => $f_user->email,
+                        'isvip' => $f_user->isVip(),
+                        'auth_status' => $auth_status,
                         'report_type' => '訊息檢舉',
                         'report_table' => 'message',
-                        'engroup' => null
+                        'engroup' => $f_user->engroup
                     )
                 );
-                continue;
             }
-            $auth_status = 0;
-            if ($f_user->isPhoneAuth() == 1) {
-                $auth_status = 1;
-            }
-            array_push($report_all,
-                array(
-                    'report_dbid' => $row->id,
-                    'reporter_id' => $row->to_id,
-                    'cancel' => $row->cancel,
-                    'content' => $row->content,
-                    'created_at' => $row->created_at,
-                    'tipcount' => Tip::TipCount_ChangeGood($row->to_id),
-                    'vip' => Vip::vip_diamond($row->to_id),
-                    'isBlocked' => banned_users::where('member_id', 'like', $row->to_id)->get()->first(),
-                    'name' => $f_user->name,
-                    'email' => $f_user->email,
-                    'isvip' => $f_user->isVip(),
-                    'auth_status' => $auth_status,
-                    'report_type' => '訊息檢舉',
-                    'report_table' => 'message',
-                    'engroup' => $f_user->engroup
-                )
-            );
 
         }
         foreach ($report as $row) {
             $f_user = User::findById($row->member_id);
-            if (!isset($f_user)) {
+            if(array_search($row->member_id, array_column($report_all, 'reporter_id')) === false) {
+                if (!isset($f_user)) {
+                    array_push($report_all,
+                        array(
+                            'reported_id' => $row->reported_id,
+                            'reporter_id' => $row->member_id,
+                            'cancel' => $row->cancel,
+                            'content' => $row->content,
+                            'created_at' => $row->created_at,
+                            'tipcount' => Tip::TipCount_ChangeGood($row->member_id),
+                            'vip' => Vip::vip_diamond($row->member_id),
+                            'isBlocked' => banned_users::where('member_id', 'like', $row->member_id)->get()->first(),
+                            'name' => "無會員資料，ID: " . $row->member_id,
+                            'email' => null,
+                            'isvip' => null,
+                            'auth_status' => null,
+                            'report_type' => '會員檢舉',
+                            'report_table' => 'reported',
+                            'engroup' => null
+                        )
+                    );
+                    continue;
+                }
+                $auth_status = 0;
+                if ($f_user->isPhoneAuth() == 1) {
+                    $auth_status = 1;
+                }
+
+
                 array_push($report_all,
                     array(
                         'reported_id' => $row->reported_id,
@@ -750,40 +784,16 @@ class UserController extends Controller
                         'tipcount' => Tip::TipCount_ChangeGood($row->member_id),
                         'vip' => Vip::vip_diamond($row->member_id),
                         'isBlocked' => banned_users::where('member_id', 'like', $row->member_id)->get()->first(),
-                        'name' => "無會員資料，ID: " . $row->member_id,
-                        'email' => null,
-                        'isvip' => null,
-                        'auth_status' => null,
+                        'name' => $f_user->name,
+                        'email' => $f_user->email,
+                        'isvip' => $f_user->isVip(),
+                        'auth_status' => $auth_status,
                         'report_type' => '會員檢舉',
                         'report_table' => 'reported',
-                        'engroup' => null
+                        'engroup' => $f_user->engroup
                     )
                 );
-                continue;
             }
-            $auth_status = 0;
-            if ($f_user->isPhoneAuth() == 1) {
-                $auth_status = 1;
-            }
-            array_push($report_all,
-                array(
-                    'reported_id' => $row->reported_id,
-                    'reporter_id' => $row->member_id,
-                    'cancel' => $row->cancel,
-                    'content' => $row->content,
-                    'created_at' => $row->created_at,
-                    'tipcount' => Tip::TipCount_ChangeGood($row->member_id),
-                    'vip' => Vip::vip_diamond($row->member_id),
-                    'isBlocked' => banned_users::where('member_id', 'like', $row->member_id)->get()->first(),
-                    'name' => $f_user->name,
-                    'email' => $f_user->email,
-                    'isvip' => $f_user->isVip(),
-                    'auth_status' => $auth_status,
-                    'report_type' => '會員檢舉',
-                    'report_table' => 'reported',
-                    'engroup' => $f_user->engroup
-                )
-            );
         }
 
         if (str_contains(url()->current(), 'edit')) {
@@ -816,41 +826,66 @@ class UserController extends Controller
     public function reportedToggler(Request $request)
     {
         //reporter_id為本頁此會員被檢舉者 reported_id為檢舉者
-        switch ($request->report_table) {
-            case 'reported_avatarpic':
-                if ($request->cancel == 0) {
-                    ReportedPic::join('member_pic', 'reported_pic.reported_pic_id', '=', 'member_pic.id')
-                        ->where('member_pic.member_id', $request->reported_id)
-                        ->where('reported_pic.reporter_id', $request->reporter_id)
-                        ->getQuery()->update(array('reported_pic.cancel' => 1, 'reported_pic.updated_at' => \Carbon\Carbon::now()));
+//        switch ($request->report_table) {
+//            case 'reported_avatarpic':
+//                if ($request->cancel == 0) {
+//                    ReportedPic::join('member_pic', 'reported_pic.reported_pic_id', '=', 'member_pic.id')
+//                        ->where('member_pic.member_id', $request->reported_id)
+//                        ->where('reported_pic.reporter_id', $request->reporter_id)
+//                        ->getQuery()->update(array('reported_pic.cancel' => 1, 'reported_pic.updated_at' => \Carbon\Carbon::now()));
+//
+//                    ReportedAvatar::where('reporter_id', $request->reporter_id)->where('reported_user_id', $request->reported_id)->update(array('cancel' => 1));
+//                } elseif ($request->cancel == 1) {
+//                    ReportedPic::join('member_pic', 'reported_pic.reported_pic_id', '=', 'member_pic.id')
+//                        ->where('member_pic.member_id', $request->reported_id)
+//                        ->where('reported_pic.reporter_id', $request->reporter_id)
+//                        ->getQuery()->update(array('reported_pic.cancel' => 0, 'reported_pic.updated_at' => \Carbon\Carbon::now()));
+//
+//                    ReportedAvatar::where('reporter_id', $request->reporter_id)->where('reported_user_id', $request->reported_id)->update(array('cancel' => 0));
+//                }
+//                break;
+//            case 'reported':
+//                if ($request->cancel == 0) {
+//                    Reported::where('member_id', $request->reporter_id)->where('reported_id', $request->reported_id)->update(array('cancel' => 1));
+//                } elseif ($request->cancel == 1) {
+//                    Reported::where('member_id', $request->reporter_id)->where('reported_id', $request->reported_id)->update(array('cancel' => 0));
+//                }
+//                break;
+//            case 'message':
+//                if ($request->cancel == 0) {
+//                    Message::where('id', $request->report_dbid)->update(array('cancel' => 1));
+//                } elseif ($request->cancel == 1) {
+//                    Message::where('id', $request->report_dbid)->update(array('cancel' => 0));
+//                }
+//                break;
+//            default:
+//                break;
+//        }
 
-                    ReportedAvatar::where('reporter_id', $request->reporter_id)->where('reported_user_id', $request->reported_id)->update(array('cancel' => 1));
-                } elseif ($request->cancel == 1) {
-                    ReportedPic::join('member_pic', 'reported_pic.reported_pic_id', '=', 'member_pic.id')
-                        ->where('member_pic.member_id', $request->reported_id)
-                        ->where('reported_pic.reporter_id', $request->reporter_id)
-                        ->getQuery()->update(array('reported_pic.cancel' => 0, 'reported_pic.updated_at' => \Carbon\Carbon::now()));
+        if ($request->cancel == 0) {
+            ReportedPic::join('member_pic', 'reported_pic.reported_pic_id', '=', 'member_pic.id')
+                ->where('member_pic.member_id', $request->reported_id)
+                ->where('reported_pic.reporter_id', $request->reporter_id)
+                ->getQuery()->update(array('reported_pic.cancel' => 1, 'reported_pic.updated_at' => \Carbon\Carbon::now()));
 
-                    ReportedAvatar::where('reporter_id', $request->reporter_id)->where('reported_user_id', $request->reported_id)->update(array('cancel' => 0));
-                }
-                break;
-            case 'reported':
-                if ($request->cancel == 0) {
-                    Reported::where('member_id', $request->reporter_id)->where('reported_id', $request->reported_id)->update(array('cancel' => 1));
-                } elseif ($request->cancel == 1) {
-                    Reported::where('member_id', $request->reporter_id)->where('reported_id', $request->reported_id)->update(array('cancel' => 0));
-                }
-                break;
-            case 'message':
-                if ($request->cancel == 0) {
-                    Message::where('id', $request->report_dbid)->update(array('cancel' => 1));
-                } elseif ($request->cancel == 1) {
-                    Message::where('id', $request->report_dbid)->update(array('cancel' => 0));
-                }
-                break;
-            default:
-                break;
+            ReportedAvatar::where('reporter_id', $request->reporter_id)->where('reported_user_id', $request->reported_id)->update(array('cancel' => 1));
+
+            Reported::where('member_id', $request->reporter_id)->where('reported_id', $request->reported_id)->update(array('cancel' => 1));
+
+            Message::where('id', $request->report_dbid)->update(array('cancel' => 1));
+        } elseif ($request->cancel == 1) {
+            ReportedPic::join('member_pic', 'reported_pic.reported_pic_id', '=', 'member_pic.id')
+                ->where('member_pic.member_id', $request->reported_id)
+                ->where('reported_pic.reporter_id', $request->reporter_id)
+                ->getQuery()->update(array('reported_pic.cancel' => 0, 'reported_pic.updated_at' => \Carbon\Carbon::now()));
+
+            ReportedAvatar::where('reporter_id', $request->reporter_id)->where('reported_user_id', $request->reported_id)->update(array('cancel' => 0));
+
+            Reported::where('member_id', $request->reporter_id)->where('reported_id', $request->reported_id)->update(array('cancel' => 0));
+
+            Message::where('id', $request->report_dbid)->update(array('cancel' => 0));
         }
+
         return back();
     }
 
@@ -2396,6 +2431,30 @@ class UserController extends Controller
         );
         ExpectedBanningUsers::where('target', $request->user_id)->delete();
 
+        //隱形封鎖/封鎖某位user後，用站長名義寄一封信給一個月內曾經檢舉過這個user的user，
+        //"XX您好，您在X月X日檢舉 OO，經站長檢視後，已於X月X日將其封鎖。您可到 瀏覽3:警示會員無法進行檢舉
+        $withInOneMonth =  date("Y-m-d H:i:s", strtotime("-1 month"));
+        $getList = Reported::where('reported_id',  $request->user_id)->where('created_at','>=',$withInOneMonth)
+            ->selectRaw('reported.*, (select name from users where id = reported.member_id) as userName')
+            ->selectRaw('(select name from users where id = reported.reported_id) as reportedName')
+            ->groupby('member_id')
+            ->get();
+        $adminBannedDay =  date('m月d日');
+        //logger(($adminBannedDay));
+        //logger(($getList));
+
+
+        foreach ($getList as $account){
+            $userName = $account->userName;
+            $userBannedDay = date('m月d日',strtotime($account->created_at));
+            $bannedName =  $account->reportedName;
+            //dd($userName, $userBannedDay, $bannedName, $adminBannedDay);
+            $userNotify = User::id_($account->member_id);
+            if ($userNotify != null) {
+                $userNotify->notify(new BannedUserImplicitly($userName, $userBannedDay, $bannedName, $adminBannedDay));
+            }
+        }
+
         if (isset($request->page)) {
             switch ($request->page) {
                 default:
@@ -2403,6 +2462,7 @@ class UserController extends Controller
                     break;
             }
         }
+
         return '<script>window.close();</script>';
     }
 

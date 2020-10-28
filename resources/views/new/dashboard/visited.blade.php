@@ -51,10 +51,6 @@
                                             </a>
                                             <div class="sjright">
                                                 <h3>{{ $visitor->created_at }}</h3>
-                                                <?php
-                                                $counter = \App\Models\Visited::where('visited_id',$user->id)->where('member_id',$histUser->id)->count();
-                                                ?>
-                                                <h5>{{$counter}}<img src="/new/images/ncion_13.png"></h5>
                                             </div>
                                         </div>
                                     </li>

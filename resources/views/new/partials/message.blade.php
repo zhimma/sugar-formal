@@ -43,6 +43,19 @@
     <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
+{{-- 20201019 新增公版 confirm 提示框--}}
+<div class="bl bl_tab " id="common_confirm">
+    <div class="bltitle"><font>提示</font></div>
+    <div class="new_poptk">
+        <p style="-webkit-user-modify: read-write-plaintext-only;outline: none;white-space: pre-line;"></p>
+        <div class="n_bbutton">
+            <span><a class="n_left">確定</a></span>
+            <span><a class="n_right" onclick="$('.blbg').click();">取消</a></span>
+        </div>
+    </div>
+    <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+</div>
+
 <div class="bl bl_tab" id="tab06">	
     <div class="bltitle">提示</div>	
     <div class="n_blnr01">	
@@ -54,7 +67,14 @@
 	    </div>	
     </div>	
     <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>	
-</div>	
+</div>
+
+<div class="bl gtab" id="tab07">
+    <div class="gxbut" style="min-width: 250px; height: 80px; border-radius: 10px;">
+        <div class="msgtext"></div>
+        <div class="linktext"></div>
+    </div>
+</div>
 
 <div class="bl bl_tab" id="tab_block">
     <div class="bltitle"><span>是否要封鎖他</span></div>
@@ -113,3 +133,7 @@
         });
     </script>
 @endif
+<style>
+    .linkcolor{color: pink;}
+    .linkcolor:hover{color: white;}
+</style>

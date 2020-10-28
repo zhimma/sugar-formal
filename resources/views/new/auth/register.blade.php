@@ -73,24 +73,24 @@
 
             window.ParsleyValidator.addMessage('en', 'minlength', '密碼欄位請輸入大於6個位元(含以上)');
 
-            // $("form[name=register]").parsley().on('form:validate', function (formInstance) {
-            //
-            // })
-            // .on('form:error', function () {
-            //     var error = $('ul.parsley-errors-list li');
-            //     var msg=[];
-            //     for (var i = 0; i <error.length; i++) {
-            //         msg[i]=error.eq(i).html();
-            //     }
-            //     msg = Array.from(new Set(msg));
-            //     // ResultData({
-            //     //   msg: msg
-            //     // });
-            //     c2(msg);
-            // })
-            // .on('form:success', function () {
-            //     return true;
-            // });
+            $("form[name=register]").parsley().on('form:validate', function (formInstance) {
+
+            })
+            .on('form:error', function () {
+                var error = $('ul.parsley-errors-list li');
+                var msg=[];
+                for (var i = 0; i <error.length; i++) {
+                    msg[i]=error.eq(i).html();
+                }
+                msg = Array.from(new Set(msg));
+                // ResultData({
+                //   msg: msg
+                // });
+                c2(msg);
+            })
+            .on('form:success', function () {
+                return true;
+            });
             @if (isset($errors)&&($errors->count() > 0))
                 var errormsg=[];
                 for (var i = 0; i <$('ul.quarx-errors li').length; i++) {

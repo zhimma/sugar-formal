@@ -120,7 +120,11 @@
 			}else{
 				error	=	result.msg;
 			}
-			c2(error);
+			if (typeof(result.showLink) != "undefined"){
+				c7(error,result.showLink);
+			}else{
+				c2(error);
+			}
 			// swal({
 			// 	title:error,
 			// 	text:(result.text)?result.text:'',
@@ -171,6 +175,13 @@
 		$("#tab06 .bltext").text(str);	
    }
 
+	function c7(str, link) {
+		$(".blbg").show();
+		$("#tab07").show();
+		$("#tab07 .msgtext").text(str);
+		$("#tab07 .linktext").html(link);
+	}
+
 	function show_message(str) {
 		$(".blbg").show();
 		$("#tab_message").show();
@@ -199,10 +210,15 @@
 		$("#tab_loading").show();
 		// $("#tab02 .gxbut").text(str);
 	}
-	// $(document).on('click','.announce_bg',function(event) {
-	// 	$(".announce_bg").hide();
-	// 	$(".blbg").hide();
-	// 	$(".bl").hide();
-	// 	$(".gg_tab").hide();
-	// });
+
+	function common_confirm(str,str2=null) {
+
+		$(".blbg").show();
+		$("#common_confirm").show();
+		$("#common_confirm p").text(str);
+		if(str2 != null) {
+			var redStr = str2.fontcolor('red');
+			$("#common_confirm p").append('\n'+redStr);
+		}
+	}
 
