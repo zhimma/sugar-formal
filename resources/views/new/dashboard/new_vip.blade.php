@@ -155,8 +155,6 @@
                 @elseif(!$user->isVipNotCanceledNotOnePayment() || $user->isVipOnePaymentNotExpire())
                     $('#vip_cancel').show();
                     $('#vip2').hide();
-                @elseif($user->isVipNotCanceledNotOnePayment() || !$user->isVipOnePaymentNotExpire())
-                    c2('您已在 {{ $vipData->updated_at }} 取消 VIP 定期扣款，本次 VIP 權限至 {{ $vipData->expiry }} 為止。');
                 @endif
             }
             return false;
