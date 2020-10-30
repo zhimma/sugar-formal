@@ -130,7 +130,9 @@
                             @php
                                 $exchange_period_name = DB::table('exchange_period_name')->where('id',$users[$result['reported_id']]['exchange_period'])->first();
                             @endphp
-                            {!! $exchange_period_name->name!!}
+                            @if($users[$result['reported_id']]['engroup']=='2')
+                                {!! $exchange_period_name->name!!}
+                            @endif
                         </td>
                         <td>
                             <a href="{{ route('AdminMessengerWithReportedId', [$result->member_id, $result->reported_id, $result->id, 0, 'reported']) }}" target="_blank" class='btn btn-dark'>撰寫</a>

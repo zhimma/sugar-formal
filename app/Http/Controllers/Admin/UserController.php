@@ -2832,8 +2832,14 @@ class UserController extends Controller
             ->where(function($query)use($date_start,$date_end)
             {
                 $query->where('message.from_id','<>',1049)
+                    ->where('message.sys_notice',0)
                     ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
             });
+        if(isset($request->gender)){
+            if($request->gender!=0){
+                $query->where('users.engroup',$request->gender);
+            }
+        }
         if(isset($request->search_email)){
             $search_email = explode(',',$request->search_email);
             if($search_email) {
@@ -2869,8 +2875,10 @@ class UserController extends Controller
 
                 $messages = Message::select('id','content','created_at')
                     ->where('from_id',$result->from_id)
+                    ->where('sys_notice',0)
                     ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
                     ->orderBy('created_at','desc')
+                    ->take(100)
                     ->get();
 
                 foreach($messages as $row){
@@ -2901,7 +2909,7 @@ class UserController extends Controller
 
                 //all_users
                 //push_data
-                if(count($user_similar_msg)>0) {
+                if(count($user_similar_msg)>0 && round( (count($user_similar_msg) / count($messages))*100 ) >= $request->display_percent) {
                     array_push($data_all, array(
                         'user_id' => $result->from_id,
                         'email' => $result->email,
