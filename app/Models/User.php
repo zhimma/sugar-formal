@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Role;
 use App\Models\Blocked;
 use App\Models\Vip;
+use App\Models\Tip;
 use App\Models\UserMeta;
 use App\Models\MemberPic;
 use App\Models\SimpleTables\banned_users;
@@ -18,6 +19,7 @@ use Ixudra\Curl\Facades\Curl;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use \App\Services\UserService;
 
 class User extends Authenticatable
 {
@@ -481,6 +483,193 @@ class User extends Authenticatable
     {
         DB::table('warned_users')->where('member_id',$uid)->update(['isAdminWarnedRead'=>1]);
     }
+
+//    public function isReportedByUser($uid)
+//    {
+//        $AvatarCount = ReportedAvatar::select('reported_user_id')->where('reported_user_id',$this->id)->where('cancel','0')->where('reporter_id',$uid)->count();
+//        $PicCount = ReportedPic::select('reported_pic.reporter_id')
+//            ->join('member_pic','reported_pic.reported_pic_id','=','member_pic.id')
+//            ->where('member_pic.member_id',$this->id)
+//            ->where('reported_pic.reporter_id',$uid)
+//            ->where('reported_pic.cancel','0')->count();
+//        $msgCount = Message::select('from_id')->where('from_id',$this->id)->where('isReported',1)->where('cancel','0')->where('to_id',$uid)->count();
+//        $memberCount = Reported::select('reported_id')->where('reported_id',$this->id)->where('cancel','0')->where('member_id',$uid)->count();
+//
+//        return $AvatarCount>0 || $PicCount>0 || $msgCount>0 || $memberCount>0;
+//    }
+
+    public static function PR($uid)
+    {
+        $user = User::findById($uid);
+        //車馬費次數
+        $tip_count = Tip::where('member_id',$uid)->count();
+        //註冊天數
+        $days = Carbon::parse($user->created_at)->diffInDays(Carbon::now());
+        if((!$user->isVip() && $tip_count==0) || (!$user->isVip() && $days<=30) || $user->engroup==2){
+            return false;//普通會員返回不列計
+        }
+
+        //default
+        $pr = 40;
+        $pr_log = '';
+
+        //車馬費計分
+        if($tip_count>0){
+            $pr = $pr + ($tip_count*5);
+            $pr_log = $pr_log.'車馬費計分+'.$tip_count*5 .'分=>'.$pr.'; ';
+        }
+
+
+        $userBlockList = Blocked::select('blocked_id')->where('member_id', $uid)->get();
+        $isBlockList = Blocked::select('member_id')->where('blocked_id', $uid)->get();
+        $bannedUsers = UserService::getBannedId();
+        $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
+        $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
+
+        //評價計分
+        $evaluation = DB::table('evaluation')->select('rating')->where('to_id',$uid)
+            ->whereNotIn('from_id',$userBlockList)
+            ->whereNotIn('from_id',$isBlockList)
+            ->whereNotIn('from_id',$bannedUsers)
+            ->whereNotIn('from_id',$isAdminWarnedList)
+            ->whereNotIn('from_id',$isWarnedList)
+            ->get();
+
+        $r5=0;
+        $r4=0;
+        $r3=0;
+        $r2=0;
+        $r1=0;
+        if(isset($evaluation)){
+            foreach ($evaluation as $row){
+                if($row->rating==5 && $r5 <= 5){
+                    $pr = $pr + 2;
+                    $pr_log = $pr_log.'評價計分5星+2分=>'.$pr.'; ';
+                    $r5 = $r5 + 1;
+                }elseif($row->rating==4 && $r4 <= 5){
+                    $pr = $pr + 1;
+                    $pr_log = $pr_log.'評價計分4星+1分=>'.$pr.'; ';
+                    $r4 = $r4 + 1;
+                }elseif($row->rating==3 && $r3 <= 5){
+                    $pr = $pr + 0.3;
+                    $pr_log = $pr_log.'評價計分3星+0.3分=>'.$pr.'; ';
+                    $r3 = $r3 + 1;
+                }elseif($row->rating==2 && $r2 <= 5){
+                    $pr = $pr - 2;
+                    $pr_log = $pr_log.'評價計分2星-2分=>'.$pr.'; ';
+                    $r2 = $r2 + 1;
+                }elseif($row->rating==1 && $r1 <= 5){
+                    $pr = $pr - 5;
+                    $pr_log = $pr_log.'評價計分1星-5分=>'.$pr.'; ';
+                    $r1 = $r1 + 1;
+                }
+            }
+        }
+
+        //連續VIP
+        $vip = Vip::where('member_id',$uid)->where('expiry','0000-00-00 00:00:00')->where('active',1)->where('free',0)->first();
+        if(isset($vip)){
+            $months = Carbon::parse($vip->created_at)->diffInMonths(Carbon::now());
+            //$pr_log = $pr_log.'VIPMonths=>'.$months.'; ';
+            if($months>=6){
+                $pr = $pr + 50;
+                $pr_log = $pr_log.'連續VIP六個月+50分=>'.$pr.'; ';
+            }elseif($months>=5){
+                $pr = $pr + 40;
+                $pr_log = $pr_log.'連續VIP五個月+40分=>'.$pr.'; ';
+            }elseif($months>=4){
+                $pr = $pr + 30;
+                $pr_log = $pr_log.'連續VIP四個月+30分=>'.$pr.'; ';
+            }elseif($months>=3){
+                $pr = $pr + 20;
+                $pr_log = $pr_log.'連續VIP三個月+20分=>'.$pr.'; ';
+            }elseif($months>=2){
+                $pr = $pr + 10;
+                $pr_log = $pr_log.'連續VIP二個月+10分=>'.$pr.'; ';
+            }elseif($months>=1){
+                $pr = $pr + 10;
+                $pr_log = $pr_log.'連續VIP一個月+10分=>'.$pr.'; ';
+            }
+        }
+
+        //vip 一個月內
+        $vip_under_month = Vip::where('member_id',$uid)->where('active',1)->where('free',0)->first();
+        if(isset($vip_under_month)){
+            $days = Carbon::parse($vip_under_month->created_at)->diffInDays(Carbon::now());
+            //$pr_log = $pr_log.'VIPdays=>'.$days.'; ';
+            if($days<30){
+                $pr = $pr + 5;
+                $pr_log = $pr_log.'VIP一個月內+5分=>'.$pr.'; ';
+            }
+
+            //不連續VIP
+            if($vip_under_month->payment=='one_month_payment'){
+                $pr = $pr + 5;
+                $pr_log = $pr_log.'不連續VIP一個月+5分=>'.$pr.'; ';
+            }elseif($vip_under_month->payment=='one_quarter_payment'){
+                $pr = $pr + 15;
+                $pr_log = $pr_log.'不連續VIP三個月+15分=>'.$pr.'; ';
+            }
+        }
+
+        //罐頭訊息計分
+        $msg = array();
+        $from_content = array();
+        $user_similar_msg = array();
+        $message = Message::where('from_id',$uid)->orderBy('created_at','desc')->where('sys_notice',0)->take(100)->get();
+        foreach($message as $row){
+            array_push($msg,array('id'=>$row->id,'content'=>$row->content,'created_at'=>$row->created_at));
+        }
+        array_push($from_content,  array('msg'=>$msg));
+        //比對訊息
+        foreach($from_content as $data) {
+            foreach ($data['msg'] as $word1) {
+                foreach ($data['msg'] as $word2) {
+                    if ($word1['created_at'] != $word2['created_at']) {
+                        similar_text($word1['content'], $word2['content'], $percent);
+                        if ($percent >= 70) {
+                                array_push($user_similar_msg, array($word1['id'], $word1['content'], $word1['created_at'], $percent));
+                        }
+                    }
+                }
+            }
+        }
+        $spam_percent = round(count($user_similar_msg) / count($message))*100;
+        if($spam_percent>70){
+            $pr = $pr - 30;
+            $pr_log = $pr_log.'罐頭訊息比例70%-30分=>'.$pr.'; ';
+        }elseif($spam_percent>60){
+            $pr = $pr - 20;
+            $pr_log = $pr_log.'罐頭訊息比例60%-20分=>'.$pr.'; ';
+        }elseif($spam_percent>50){
+            $pr = $pr - 10;
+            $pr_log = $pr_log.'罐頭訊息比例50%-10分=>'.$pr.'; ';
+        }
+
+        //沒有VIP計分
+        if(!$user->isVip() && $pr>=40){
+            $o_pr = $pr;
+            $pr = ($pr-40)/2 + 40;
+            $pr_log = $pr_log.'沒有VIP('.$o_pr.'-40)/2+40=>'.$pr.'; ';
+        }
+
+        if($pr>100){
+            $pr=100;
+            $pr_log = $pr_log.'PR超過100以100計算=>'.$pr.'; ';
+        }
+
+        //存LOG
+        $query_pr = DB::table('pr_log')->where('user_id',$uid)->orderBy('created_at','desc')->first();
+        if( (isset($query_pr) && $query_pr->pr_log != $pr_log) || !isset($query_pr)) {
+            DB::table('pr_log')->insert([
+                'user_id' => $uid,
+                'pr_log' => $pr_log
+            ]);
+        }
+
+        return $pr;
+    }
+
 
     public function msgCount()
     {

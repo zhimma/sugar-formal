@@ -62,6 +62,23 @@
                 </td>
             </tr>
             <tr>
+                <th>會員性別</th>
+                <td>
+                    <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" name="gender" id="inlineRadio1" value="1" @if(isset($_POST['gender']) && $_POST['gender']=='1' ) checked="checked" @endif style="margin-left: unset;">
+                        <label class="form-check-label" for="inlineRadio1">男</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" name="gender" id="inlineRadio2" value="2"  @if(isset($_POST['gender']) && $_POST['gender']=='2' ) checked="checked" @elseif(!isset($_POST['gender'])) checked="checked" @endif style="margin-left: unset;">
+                        <label class="form-check-label" for="inlineRadio2">女</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" name="gender" id="inlineRadio3" value="0"  @if(isset($_POST['gender']) && $_POST['gender']=='0' ) checked="checked" @endif style="margin-left: unset;">
+                        <label class="form-check-label" for="inlineRadio3">Both</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
                 <th>開始時間</th>
                 <td>
                     <input type='text' id="datepicker_1" name="date_start" data-date-format='yyyy-mm-dd' value="@if(isset($_POST['date_start'])){{ $_POST['date_start'] }}@endif" class="form-control" required>
@@ -84,8 +101,14 @@
             <tr>
                 <th>排序方式</th>
                 <td>
-                    <input type="radio" name="time" value="created_at" @if(isset($_POST['time']) && $_POST['time']=='created_at' ) checked="true" @endif />註冊時間
-                    <input type="radio" name="time" value="last_login" @if(isset($_POST['time']) && $_POST['time']=='last_login' ) checked="true" @endif />上線時間
+                    <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" name="time" id="inlineRadio4" value="created_at" @if(isset($_POST['time']) && $_POST['time']=='created_at' ) checked="checked" @endif style="margin-left: unset;" />
+                        <label class="form-check-label" for="inlineRadio4">註冊時間</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input type="radio" class="form-check-input" name="time" id="inlineRadio5" value="last_login" @if(isset($_POST['time']) && $_POST['time']=='last_login' ) checked="checked" @endif style="margin-left: unset;" />
+                        <label class="form-check-label" for="inlineRadio5">上線時間</label>
+                    </div>
                 </td>
             </tr>
             <tr>
@@ -94,6 +117,15 @@
                     <div class="range-wrap">
                         <output class="bubble"></output>
                         <input type="range" name="users_counts" min="30" max="200" value=@if(isset($_POST['users_counts']))"{{$_POST['users_counts']}}"@else"30"@endif class="form-control-range range" id="myRange">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th>查詢比例</th>
+                <td>
+                    <div class="range-wrap">
+                        <output class="bubble"></output>
+                        <input type="range" name="display_percent" min="50" max="100" value=@if(isset($_POST['display_percent']))"{{$_POST['display_percent']}}"@else"50"@endif class="form-control-range range" id="myRange">
                     </div>
                 </td>
             </tr>
@@ -121,8 +153,6 @@
                 <th width="50%">罐頭訊息比例</th>
             </tr>
             @foreach($data_all as $row)
-                @php
-                @endphp
                 <tr>
                     <td><a href="{{ route('users/advInfo', $row['user_id']) }}" target='_blank' >{{$row['email']}}</a></td>
                     <td>{{$row['name']}}</td>
