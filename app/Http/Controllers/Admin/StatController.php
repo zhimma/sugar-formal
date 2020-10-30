@@ -162,8 +162,17 @@ class StatController extends Controller
      * 3: 30 天內男 VIP 發訊總數 / 獲得回應比例
      * 4: 30 天內普通男會員發訊總數 / 獲得回應比例
      * 5: 車馬費邀請總數 / 有回應的比例
+     * 6: 一個月內上站男會員總數
+     * 7: 優選會員人數
+     * 8: 30 天內優選會員 發訊總數/獲得回應比例:
+     * 9: 三天內男 VIP 發訊總數/獲得回應比例:
+     * 10: 三天內普通(男)會員發訊總數/獲得回應比例:
+     * 11: 三天內優選會員 發訊總數/獲得回應比例:
      */
-    public function other(){
+    public function other(Request $request){
+        if($request->isMethod("GET")){
+            return view('admin.stats.other');
+        }
         // 1
         $maleVip = User::select('id')->where('engroup', 1)->whereIn('id', function($query){
             $query->select('member_id')
