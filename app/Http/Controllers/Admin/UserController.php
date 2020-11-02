@@ -796,6 +796,13 @@ class UserController extends Controller
             }
         }
 
+        //PR
+        $pr = User::PR($user->id);
+        $query_pr = DB::table('pr_log')->where('user_id',$user->id)->orderBy('created_at','desc')->first();
+        if(!isset($query_pr)){
+            $query_pr='';
+        }
+
         if (str_contains(url()->current(), 'edit')) {
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
             $birthday = explode('-', $birthday);
@@ -818,7 +825,9 @@ class UserController extends Controller
                 ->with('userMessage', $userMessage)
                 ->with('to_ids', $to_ids)
                 ->with('fingerprints', $fingerprints)
-                ->with('report_all', $report_all);
+                ->with('report_all', $report_all)
+                ->with('pr',$pr)
+                ->with('pr_log',$query_pr);
         }
     }
 
