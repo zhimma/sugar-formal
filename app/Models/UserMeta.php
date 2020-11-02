@@ -267,9 +267,9 @@ class UserMeta extends Model
 
 
         if(isset($seqtime) && $seqtime == 2)
-            return $query->whereNotIn('user_id', $bannedUsers)->whereNotIn('user_id', $block_user)->whereNotIn('user_id', $blockedUsers)->whereNotIn('user_id', $beBlockedUsers)->orderBy('users.created_at', 'desc')->paginate(12);
+            return $query->whereNotIn('user_id', $bannedUsers)->whereNotIn('user_id', $block_user)->whereNotIn('user_id', $blockedUsers)->whereNotIn('user_id', $beBlockedUsers)->where('is_active', 1)->orderBy('users.created_at', 'desc')->paginate(12);
         else
-            return $query->whereNotIn('user_id', $bannedUsers)->whereNotIn('user_id', $block_user)->whereNotIn('user_id', $blockedUsers)->whereNotIn('user_id', $beBlockedUsers)->orderBy('users.last_login', 'desc')->paginate(12);
+            return $query->whereNotIn('user_id', $bannedUsers)->whereNotIn('user_id', $block_user)->whereNotIn('user_id', $blockedUsers)->whereNotIn('user_id', $beBlockedUsers)->where('is_active', 1)->orderBy('users.last_login', 'desc')->paginate(12);
     }
     public static function findByMemberId($memberId)
     {
