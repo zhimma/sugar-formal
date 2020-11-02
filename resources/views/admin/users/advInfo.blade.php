@@ -242,6 +242,19 @@
 		</form>
 	</tr>
 </table>
+@if($user->engroup==1)
+<h4>PR值</h4>
+<table class="table table-hover table-bordered">
+	<tr>
+		<th width="30%">PR值</th>
+		<th>PR值歷程</th>
+	</tr>
+	<tr>
+		<td>@if(isset($pr) && $pr != false){{$pr}}@else不列計@endif</td>
+		<td>@if(isset($pr_log) && $pr != false){{$pr_log->pr_log}}@endif</td>
+	</tr>
+</table>
+@endif
 
 <h4>被檢舉紀錄</h4>
 <table class="table table-hover table-bordered">
