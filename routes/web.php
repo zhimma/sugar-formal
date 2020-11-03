@@ -618,17 +618,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::get('users/activate/token/{token}', 'UserController@activateUser')->name('activateUser');
         Route::get('stats/vip', 'StatController@vip')->name('stats/vip');
         Route::get('stats/other', 'StatController@other')->name('stats/vip/other');
-        Route::post('stats/other/1', 'StatController@other')->name('stats/vip/other/1');
-        Route::post('stats/other/2', 'StatController@other')->name('stats/vip/other/2');
-        Route::post('stats/other/3', 'StatController@other')->name('stats/vip/other/3');
-        Route::post('stats/other/4', 'StatController@other')->name('stats/vip/other/4');
-        Route::post('stats/other/5', 'StatController@other')->name('stats/vip/other/5');
-        Route::post('stats/other/6', 'StatController@other')->name('stats/vip/other/6');
-        Route::post('stats/other/7', 'StatController@other')->name('stats/vip/other/7');
-        Route::post('stats/other/8', 'StatController@other')->name('stats/vip/other/8');
-        Route::post('stats/other/9', 'StatController@other')->name('stats/vip/other/9');
-        Route::post('stats/other/10', 'StatController@other')->name('stats/vip/other/10');
-        Route::post('stats/other/11', 'StatController@other')->name('stats/vip/other/11');
+        Route::post('stats/other', 'StatController@other')->name('stats/vip/other');
         Route::get('stats/vip/paid', 'StatController@vipPaid')->name('stats/vip/paid');
         Route::get('stats/vip_log/{id}', 'StatController@vipLog')->name('stats/vip_log');
         Route::get('stats/cron_log', 'StatController@cronLog')->name('stats/cron_log');
