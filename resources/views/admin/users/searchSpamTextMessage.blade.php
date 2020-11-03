@@ -116,7 +116,7 @@
                 <td>
                     <div class="range-wrap">
                         <output class="bubble"></output>
-                        <input type="range" name="users_counts" min="30" max="200" value=@if(isset($_POST['users_counts']))"{{$_POST['users_counts']}}"@else"30"@endif class="form-control-range range" id="myRange">
+                        <input type="range" name="users_counts" min="30" max="1000" value=@if(isset($_POST['users_counts']))"{{$_POST['users_counts']}}"@else"30"@endif class="form-control-range range" id="myRange">
                     </div>
                 </td>
             </tr>
@@ -125,7 +125,7 @@
                 <td>
                     <div class="range-wrap">
                         <output class="bubble"></output>
-                        <input type="range" name="display_percent" min="50" max="100" value=@if(isset($_POST['display_percent']))"{{$_POST['display_percent']}}"@else"50"@endif class="form-control-range range" id="myRange">
+                        <input type="range" name="display_percent" min="0" max="100" value=@if(isset($_POST['display_percent']))"{{$_POST['display_percent']}}"@else"50"@endif class="form-control-range range" id="myRange">
                     </div>
                 </td>
             </tr>
