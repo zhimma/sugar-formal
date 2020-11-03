@@ -23,7 +23,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         <div class="gg_mm"><span><i></i>包養關係</span><img src="/new/images/rzh06.png"></div>
                         <div class="gg_nr01">
 
-                            <form method="POST" id="exchange_period_modify" action="/dashboard/exchangePeriodModify">
+                            <form method="POST" id="exchange_period_modify" action="/dashboard/exchangePeriodModify?n={{ time() }}">
                                 {!! csrf_field() !!}
                                 <input type="hidden" name="{{ time() }}" value="{{ time() }}">
                                 <div class="baoy">
