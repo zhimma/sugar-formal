@@ -47,6 +47,7 @@
 	$(".getData").each(function() {
 		let $this = $(this); //store $(this) reference in a variable
 		$(this).on("click", function (){
+			$this.text('載入中');
 			$.ajax({
 				type: 'POST',
 				url: "{{ route('stats/vip/other') }}",
