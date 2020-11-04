@@ -174,6 +174,7 @@ class StatController extends Controller
             return view('admin.stats.other');
         }
         else{
+            $last30days = Carbon::now()->subDays(30);
             switch ($request->number){
                 case 1:
                     $maleVip = User::select('id')->where('engroup', 1)->whereIn('id', function($query){
@@ -183,7 +184,6 @@ class StatController extends Controller
                     })->get()->count();
                 return $maleVip;
                 case 2:
-                    $last30days = Carbon::now()->subDays(30);
                     $femaleVipLastLoginIn30DaysCount = User::where('engroup', 2)
                         ->where('last_login', '>', $last30days)
                         ->whereIn('id', function($query){
@@ -248,6 +248,72 @@ class StatController extends Controller
                     }
                     $tipsAllCount = $tipsAll->count();
                     return $tipsAllCount . " / " . $tipsReplied;
+                case 6:
+                    $maleUserLastLoginIn30Days = User::select('id')->where('engroup', 1)->where('last_login', '>', $last30days)->get()->count();
+                    return $maleUserLastLoginIn30Days;
+                case 7:
+                    $allVips = User::whereIn('id', function($query){
+                        $query->select('member_id')
+                            ->from(with(new Vip)->getTable())
+                            ->where('active', 1);
+                    })->get();
+                    $recommendedUsers = 0;
+                    foreach ($allVips as $vip){
+                        $recommendedData = \App\Services\UserService::checkRecommendedUser($vip);
+                        if(isset($recommendedData['description'])){
+                            $recommendedUsers++;
+                        }
+                    }
+                    return $recommendedUsers;
+                /* 8: 30 天內優選會員 發訊總數/獲得回應比例:
+                 * 11: 三天內優選會員 發訊總數/獲得回應比例: */
+                case 8:
+                case 9:
+                    // 3 天內男 VIP 發訊總數
+                    $maleVipMessages = \DB::select('SELECT count(*) as count FROM message m
+                            INNER JOIN users u ON m.from_id = u.id
+                            INNER JOIN member_vip v ON u.id = v.member_id
+                            WHERE v.active = 1 AND u.engroup = 1
+                            AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY)');
+                    // 獲得回應數
+                    $maleVipMessagesReplied =
+                        \DB::select('SELECT count(*) as count FROM 
+                                (SELECT m.* FROM message m
+                                INNER JOIN users ON m.from_id = users.id
+                                INNER JOIN member_vip v ON users.id = v.member_id
+                                WHERE v.active = 1 AND users.engroup = 1
+                                AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY) ) m
+                            WHERE m.from_id IN (
+                                    SELECT m.to_id FROM message m
+                                    INNER JOIN users u ON m.from_id = u.id
+                                    INNER JOIN member_vip v ON u.id = v.member_id
+                                    WHERE v.active = 1 AND u.engroup = 1
+                                    AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY) 
+                                ) 
+                            AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY)');
+                    return $maleVipMessages[0]->count . " / " . $maleVipMessagesReplied[0]->count;
+                case 10:
+                    // 所有男會員訊息數
+                    $maleNonVipMessages = \DB::select('SELECT count(*) as count FROM message m
+                        INNER JOIN users u ON m.from_id = u.id
+                        WHERE u.engroup = 1
+                        AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY)');
+                    // 所有男會員訊息數獲得回應數
+                    $maleNonVipMessagesReplied =
+                        \DB::select('SELECT count(*) as count FROM 
+                            (SELECT m.* FROM message m
+                            INNER JOIN users ON m.from_id = users.id
+                            WHERE users.engroup = 1
+                            AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY) ) m
+                        WHERE from_id IN (
+                                SELECT m.to_id FROM message m
+                                INNER JOIN users u ON m.from_id = u.id
+                                WHERE u.engroup = 1
+                                AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY) 
+                            ) 
+                        AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY)');
+                    return $maleNonVipMessages[0]->count . " / " . $maleNonVipMessagesReplied[0]->count;
+                case 11:
             }
         }
     }
