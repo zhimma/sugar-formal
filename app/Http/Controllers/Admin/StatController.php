@@ -211,6 +211,13 @@ class StatController extends Controller
                                 WHERE v.active = 1 AND u.engroup = 1
                                 AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) 
                             ) 
+                        AND m.to_id IN (
+                                SELECT m.from_id FROM message m
+                                INNER JOIN users u ON m.from_id = u.id
+                                INNER JOIN member_vip v ON u.id = v.member_id
+                                WHERE v.active = 1 AND u.engroup = 1
+                                AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) 
+                            ) 
                         AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)');
                     return $maleVipMessages[0]->count . " / " . $maleVipMessagesReplied[0]->count;
                 case 4:
@@ -226,6 +233,12 @@ class StatController extends Controller
                             WHERE  m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) ) m
                         WHERE from_id IN (
                                 SELECT m.to_id FROM message m
+                                INNER JOIN users u ON m.from_id = u.id
+                                WHERE u.engroup = 1
+                                AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) 
+                            ) 
+                        AND to_id IN (
+                                SELECT m.from_id FROM message m
                                 INNER JOIN users u ON m.from_id = u.id
                                 WHERE u.engroup = 1
                                 AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) 
@@ -291,6 +304,11 @@ class StatController extends Controller
                                 WHERE m.from_id IN (' . $idString . ')
                                 AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) 
                             ) 
+                        AND to_id IN (
+                                SELECT m.from_id FROM message m
+                                WHERE m.from_id IN (' . $idString . ')
+                                AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) 
+                            ) 
                         AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)');
                     return $recommendedUsersMessages[0]->count . " / " . $recommendedUsersMessagesReplied[0]->count;
                 case 9:
@@ -312,6 +330,13 @@ class StatController extends Controller
                                     WHERE v.active = 1 AND u.engroup = 1
                                     AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY) 
                                 ) 
+                            AND to_id IN (
+                                    SELECT m.from_id FROM message m
+                                    INNER JOIN users u ON m.from_id = u.id
+                                    INNER JOIN member_vip v ON u.id = v.member_id
+                                    WHERE v.active = 1 AND u.engroup = 1
+                                    AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY) 
+                                ) 
                             AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY)');
                     return $maleVipMessages[0]->count . " / " . $maleVipMessagesReplied[0]->count;
                 case 10:
@@ -327,6 +352,12 @@ class StatController extends Controller
                             WHERE m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY) ) m
                         WHERE from_id IN (
                                 SELECT m.to_id FROM message m
+                                INNER JOIN users u ON m.from_id = u.id
+                                WHERE u.engroup = 1
+                                AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY) 
+                            ) 
+                        AND to_id IN (
+                                SELECT m.from_id FROM message m
                                 INNER JOIN users u ON m.from_id = u.id
                                 WHERE u.engroup = 1
                                 AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY) 
