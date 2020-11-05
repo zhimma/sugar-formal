@@ -9,28 +9,28 @@
 <h1>其他 VIP 相關統計資料</h1>
 <ol>
 	<li>
-		男 VIP 人數: <button class="btn btn-primary getData" id="1">取得資料</button>{{--{{ $maleVip->count() }}--}}
+		男 VIP 人數: <button class="btn btn-primary getData" id="1">取得資料</button>
 	</li>
 	<li>
-		30 天內有上線的女 VIP 人數: <button class="btn btn-primary getData" id="2">取得資料</button>{{--{{ $femaleVipLastLoginIn30DaysCount }}--}}
+		30 天內有上線的女 VIP 人數: <button class="btn btn-primary getData" id="2">取得資料</button>
 	</li>
 	<li>
-		30 天內男 VIP 發訊總數/獲得回應比例: <button class="btn btn-primary getData" id="3">取得資料</button>{{--{{ $maleVipMessages[0]->count }} / {{ $maleVipMessagesReplied[0]->count }}--}}
+		30 天內男 VIP 發訊總數/獲得回應比例: <button class="btn btn-primary getData" id="3">取得資料</button>
 	</li>
 	<li>
-		30 天內普通男會員發訊總數/獲得回應比例: <button class="btn btn-primary getData" id="4">取得資料</button>{{--{{ $maleNonVipMessages[0]->count - $maleVipMessages[0]->count }} / {{ $maleNonVipMessagesReplied[0]->count - $maleVipMessagesReplied[0]->count }}--}}
+		30 天內普通男會員發訊總數/獲得回應比例: <button class="btn btn-primary getData" id="4">取得資料</button>
 	</li>
 	<li>
-		車馬費邀請總數/有回應的比例: <button class="btn btn-primary getData" id="5">取得資料</button>{{--{{ $tipsAllCount }} / {{ $tipsReplied }}--}}
+		車馬費邀請總數/有回應的比例: <button class="btn btn-primary getData" id="5">取得資料</button>
 	</li>
 	<li>
 		一個月內上站男會員總數: <button class="btn btn-primary getData" id="6">取得資料</button>
 	</li>
 	<li>
-		優選會員人數: <button class="btn btn-primary getData" id="7">取得資料</button>
+		優選會員(男)人數: <button class="btn btn-primary getData" id="7">取得資料</button>
 	</li>
 	<li>
-		30 天內優選會員發訊總數/獲得回應比例: <button class="btn btn-primary getData" id="8">取得資料</button>
+		30 天內優選會員(男)發訊總數/獲得回應比例: <button class="btn btn-primary getData" id="8">取得資料</button>
 	</li>
 	<li>
 		三天內男 VIP 發訊總數/獲得回應比例: <button class="btn btn-primary getData" id="9">取得資料</button>
@@ -39,7 +39,7 @@
 		三天內普通男會員發訊總數/獲得回應比例: <button class="btn btn-primary getData" id="10">取得資料</button>
 	</li>
 	<li>
-		三天內優選會員發訊總數/獲得回應比例: <button class="btn btn-primary getData" id="11">取得資料</button>
+		三天內優選會員(男)發訊總數/獲得回應比例: <button class="btn btn-primary getData" id="11">取得資料</button>
 	</li>
 </ol>
 </body>

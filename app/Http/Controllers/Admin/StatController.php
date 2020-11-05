@@ -163,11 +163,11 @@ class StatController extends Controller
      * 4: 30 天內普通男會員發訊總數 / 獲得回應比例
      * 5: 車馬費邀請總數 / 有回應的比例
      * 6: 一個月內上站男會員總數
-     * 7: 優選會員人數
-     * 8: 30 天內優選會員 發訊總數/獲得回應比例:
+     * 7: 優選會員(男)人數
+     * 8: 30 天內優選會員(男) 發訊總數/獲得回應比例:
      * 9: 三天內男 VIP 發訊總數/獲得回應比例:
      * 10: 三天內普通(男)會員發訊總數/獲得回應比例:
-     * 11: 三天內優選會員 發訊總數/獲得回應比例:
+     * 11: 三天內優選會員(男) 發訊總數/獲得回應比例:
      */
     public function other(Request $request){
         if($request->isMethod("GET")){
@@ -252,7 +252,7 @@ class StatController extends Controller
                     $maleUserLastLoginIn30Days = User::select('id')->where('engroup', 1)->where('last_login', '>', $last30days)->get()->count();
                     return $maleUserLastLoginIn30Days;
                 case 7:
-                    $allVips = User::whereIn('id', function($query){
+                    $allVips = User::where('engroup', 1)->whereIn('id', function($query){
                         $query->select('member_id')
                             ->from(with(new Vip)->getTable())
                             ->where('active', 1);
@@ -267,7 +267,7 @@ class StatController extends Controller
                     return $recommendedUsers;
                 case 8:
                     // 先取得優選會員
-                    $allVips = User::whereIn('id', function($query){
+                    $allVips = User::where('engroup', 1)->whereIn('id', function($query){
                         $query->select('member_id')
                             ->from(with(new Vip)->getTable())
                             ->where('active', 1);
@@ -345,7 +345,7 @@ class StatController extends Controller
                     return $maleNonVipMessages[0]->count . " / " . $maleNonVipMessagesReplied[0]->count;
                 case 11:
                     // 先取得優選會員
-                    $allVips = User::whereIn('id', function($query){
+                    $allVips = User::where('engroup', 1)->whereIn('id', function($query){
                         $query->select('member_id')
                             ->from(with(new Vip)->getTable())
                             ->where('active', 1);
