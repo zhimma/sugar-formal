@@ -618,6 +618,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::get('users/activate/token/{token}', 'UserController@activateUser')->name('activateUser');
         Route::get('stats/vip', 'StatController@vip')->name('stats/vip');
         Route::get('stats/other', 'StatController@other')->name('stats/vip/other');
+        Route::post('stats/other', 'StatController@other')->name('stats/vip/other');
         Route::get('stats/vip/paid', 'StatController@vipPaid')->name('stats/vip/paid');
         Route::get('stats/vip_log/{id}', 'StatController@vipLog')->name('stats/vip_log');
         Route::get('stats/cron_log', 'StatController@cronLog')->name('stats/cron_log');
