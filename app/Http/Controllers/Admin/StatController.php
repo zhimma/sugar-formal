@@ -289,7 +289,7 @@ class StatController extends Controller
                     $recommendedUsersMessagesReplied =
                         \DB::select('SELECT count(*) as count FROM 
                                 (SELECT m.* FROM message m
-                                WHERE m.from_id IN (' . $idString . ')
+                                WHERE m.to_id IN (' . $idString . ')
                                 AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)) m
                         WHERE from_id IN (
                                 SELECT m.to_id FROM message m
@@ -367,7 +367,7 @@ class StatController extends Controller
                     $recommendedUsersMessagesReplied =
                         \DB::select('SELECT count(*) as count FROM 
                                 (SELECT m.* FROM message m
-                                WHERE m.from_id IN (' . $idString . ')
+                                WHERE m.to_id IN (' . $idString . ')
                                 AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY)) m
                         WHERE from_id IN (
                                 SELECT m.to_id FROM message m
