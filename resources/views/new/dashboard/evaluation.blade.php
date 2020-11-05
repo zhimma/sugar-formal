@@ -1,3 +1,9 @@
+<?
+header("Cache-Control: no-cache, no-store, must-revalidate, post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
+?>
 @extends('new.layouts.website')
 
 @section('app-content')
@@ -162,7 +168,7 @@
                         </div>
 {{--                        <a class="pj_but">確定</a>--}}
                         @elseif(!isset($evaluation_self))
-                        <form id="form1" action="{{ route('evaluation') }}" method="post">
+                        <form id="form1" action="{{ route('evaluation')."?n=".time() }}" method="post">
                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                             <div class="rating">
                                 <input id="star5" name="rating" type="radio" value="5" class="radio-btn hide" data-title="5"/>
@@ -237,7 +243,7 @@
 
                             @if(empty($row->re_content) && $to->id == $user->id)
                             <div class="huf">
-                                <form id="form_re_content" action="{{ route('evaluation_re_content') }}" method="post">
+                                <form id="form_re_content" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post">
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                     <span class="huinput">
                                         <textarea name="re_content" type="text" class="hf_i" placeholder="請輸入回覆（最多120個字符）" maxlength="120"></textarea>
