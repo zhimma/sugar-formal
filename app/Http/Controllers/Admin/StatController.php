@@ -203,10 +203,7 @@ class StatController extends Controller
                     $maleVipMessagesReplied =
                         \DB::select('SELECT count(*) as count FROM 
                             (SELECT m.* FROM message m
-                            INNER JOIN users ON m.from_id = users.id
-                            INNER JOIN member_vip v ON users.id = v.member_id
-                            WHERE v.active = 1 AND users.engroup = 1
-                            AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) ) m
+                            WHERE m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) ) m
                         WHERE m.from_id IN (
                                 SELECT m.to_id FROM message m
                                 INNER JOIN users u ON m.from_id = u.id
@@ -226,9 +223,7 @@ class StatController extends Controller
                     $maleNonVipMessagesReplied =
                         \DB::select('SELECT count(*) as count FROM 
                             (SELECT m.* FROM message m
-                            INNER JOIN users ON m.from_id = users.id
-                            WHERE users.engroup = 1
-                            AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) ) m
+                            WHERE  m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) ) m
                         WHERE from_id IN (
                                 SELECT m.to_id FROM message m
                                 INNER JOIN users u ON m.from_id = u.id
@@ -309,10 +304,7 @@ class StatController extends Controller
                     $maleVipMessagesReplied =
                         \DB::select('SELECT count(*) as count FROM 
                                 (SELECT m.* FROM message m
-                                INNER JOIN users ON m.from_id = users.id
-                                INNER JOIN member_vip v ON users.id = v.member_id
-                                WHERE v.active = 1 AND users.engroup = 1
-                                AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY) ) m
+                                WHERE m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY) ) m
                             WHERE m.from_id IN (
                                     SELECT m.to_id FROM message m
                                     INNER JOIN users u ON m.from_id = u.id
@@ -332,9 +324,7 @@ class StatController extends Controller
                     $maleNonVipMessagesReplied =
                         \DB::select('SELECT count(*) as count FROM 
                             (SELECT m.* FROM message m
-                            INNER JOIN users ON m.from_id = users.id
-                            WHERE users.engroup = 1
-                            AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY) ) m
+                            WHERE m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY) ) m
                         WHERE from_id IN (
                                 SELECT m.to_id FROM message m
                                 INNER JOIN users u ON m.from_id = u.id
