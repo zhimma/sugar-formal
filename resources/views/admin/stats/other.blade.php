@@ -18,7 +18,7 @@
 		30 天內男 VIP 發訊總數/獲得回應比例: <button class="btn btn-primary getData" id="3">取得資料</button>{{--{{ $maleVipMessages[0]->count }} / {{ $maleVipMessagesReplied[0]->count }}--}}
 	</li>
 	<li>
-		30 天內普通會員發訊總數/獲得回應比例: <button class="btn btn-primary getData" id="4">取得資料</button>{{--{{ $maleNonVipMessages[0]->count - $maleVipMessages[0]->count }} / {{ $maleNonVipMessagesReplied[0]->count - $maleVipMessagesReplied[0]->count }}--}}
+		30 天內普通男會員發訊總數/獲得回應比例: <button class="btn btn-primary getData" id="4">取得資料</button>{{--{{ $maleNonVipMessages[0]->count - $maleVipMessages[0]->count }} / {{ $maleNonVipMessagesReplied[0]->count - $maleVipMessagesReplied[0]->count }}--}}
 	</li>
 	<li>
 		車馬費邀請總數/有回應的比例: <button class="btn btn-primary getData" id="5">取得資料</button>{{--{{ $tipsAllCount }} / {{ $tipsReplied }}--}}
@@ -36,7 +36,7 @@
 		三天內男 VIP 發訊總數/獲得回應比例: <button class="btn btn-primary getData" id="9">取得資料</button>
 	</li>
 	<li>
-		三天內普通(男)會員發訊總數/獲得回應比例: <button class="btn btn-primary getData" id="10">取得資料</button>
+		三天內普通男會員發訊總數/獲得回應比例: <button class="btn btn-primary getData" id="10">取得資料</button>
 	</li>
 	<li>
 		三天內優選會員發訊總數/獲得回應比例: <button class="btn btn-primary getData" id="11">取得資料</button>

@@ -265,9 +265,39 @@ class StatController extends Controller
                         }
                     }
                     return $recommendedUsers;
-                /* 8: 30 天內優選會員 發訊總數/獲得回應比例:
-                 * 11: 三天內優選會員 發訊總數/獲得回應比例: */
                 case 8:
+                    // 先取得優選會員
+                    $allVips = User::whereIn('id', function($query){
+                        $query->select('member_id')
+                            ->from(with(new Vip)->getTable())
+                            ->where('active', 1);
+                    })->get();
+                    $recommendedUsersIDs = array();
+                    foreach ($allVips as $vip){
+                        $recommendedData = \App\Services\UserService::checkRecommendedUser($vip);
+                        if(isset($recommendedData['description'])){
+                            array_push($recommendedUsersIDs, $vip->id);
+                        }
+                    }
+                    // 再算訊息數及回覆數
+                    // 所有男會員訊息數
+                    $idString = implode (", ", $recommendedUsersIDs);
+                    $recommendedUsersMessages = \DB::select('SELECT count(*) as count FROM message m
+                        WHERE m.from_id IN (' . $idString . ')
+                        AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)');
+                    // 所有男會員訊息數獲得回應數
+                    $recommendedUsersMessagesReplied =
+                        \DB::select('SELECT count(*) as count FROM 
+                                (SELECT m.* FROM message m
+                                WHERE m.from_id IN (' . $idString . ')
+                                AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)) m
+                        WHERE from_id IN (
+                                SELECT m.to_id FROM message m
+                                WHERE m.from_id IN (' . $idString . ')
+                                AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) 
+                            ) 
+                        AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)');
+                    return $recommendedUsersMessages[0]->count . " / " . $recommendedUsersMessagesReplied[0]->count;
                 case 9:
                     // 3 天內男 VIP 發訊總數
                     $maleVipMessages = \DB::select('SELECT count(*) as count FROM message m
@@ -314,6 +344,38 @@ class StatController extends Controller
                         AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY)');
                     return $maleNonVipMessages[0]->count . " / " . $maleNonVipMessagesReplied[0]->count;
                 case 11:
+                    // 先取得優選會員
+                    $allVips = User::whereIn('id', function($query){
+                        $query->select('member_id')
+                            ->from(with(new Vip)->getTable())
+                            ->where('active', 1);
+                    })->get();
+                    $recommendedUsersIDs = array();
+                    foreach ($allVips as $vip){
+                        $recommendedData = \App\Services\UserService::checkRecommendedUser($vip);
+                        if(isset($recommendedData['description'])){
+                            array_push($recommendedUsersIDs, $vip->id);
+                        }
+                    }
+                    // 再算訊息數及回覆數
+                    // 所有男會員訊息數
+                    $idString = implode (", ", $recommendedUsersIDs);
+                    $recommendedUsersMessages = \DB::select('SELECT count(*) as count FROM message m
+                        WHERE m.from_id IN (' . $idString . ')
+                        AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY)');
+                    // 所有男會員訊息數獲得回應數
+                    $recommendedUsersMessagesReplied =
+                        \DB::select('SELECT count(*) as count FROM 
+                                (SELECT m.* FROM message m
+                                WHERE m.from_id IN (' . $idString . ')
+                                AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY)) m
+                        WHERE from_id IN (
+                                SELECT m.to_id FROM message m
+                                WHERE m.from_id IN (' . $idString . ')
+                                AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY) 
+                            ) 
+                        AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY)');
+                    return $recommendedUsersMessages[0]->count . " / " . $recommendedUsersMessagesReplied[0]->count;
             }
         }
     }
