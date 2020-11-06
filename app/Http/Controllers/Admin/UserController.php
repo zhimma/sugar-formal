@@ -2835,13 +2835,18 @@ class UserController extends Controller
         $date_start = $request->date_start ? $request->date_start : '0000-00-00';
         $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
 
+        $bannedUsers = UserService::getBannedId();
+        $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
+
         $query = Message::select('users.email','users.name','users.title','users.engroup','users.created_at','users.last_login','message.id','message.from_id','message.content','user_meta.about')
             ->join('users', 'message.from_id', '=', 'users.id')
             ->join('user_meta', 'message.from_id', '=', 'user_meta.user_id')
-            ->where(function($query)use($date_start,$date_end)
+            ->where(function($query)use($date_start,$date_end,$bannedUsers,$isAdminWarnedList)
             {
                 $query->where('message.from_id','<>',1049)
                     ->where('message.sys_notice',0)
+                    ->whereNotIn('message.from_id',$bannedUsers)
+                    ->whereNotIn('message.from_id',$isAdminWarnedList)
                     ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
             });
         if(isset($request->gender)){
