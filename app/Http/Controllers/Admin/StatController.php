@@ -221,12 +221,23 @@ class StatController extends Controller
                         AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)');
                     return $maleVipMessages[0]->count . " / " . $maleVipMessagesReplied[0]->count;
                 case 4:
-                    // 所有男會員訊息數
+                    $maleVips = User::select('id')->where('engroup', 1)->whereIn('id', function($query){
+                        $query->select('member_id')
+                            ->from(with(new Vip)->getTable())
+                            ->where('active', 1);
+                    })->get();
+                    $maleVip = array();
+                    foreach ($maleVips as $vip){
+                        array_push($maleVip, $vip->id);
+                    }
+                    $maleVip = implode (", ", $maleVip);
+                    // 所有普通男會員訊息數
                     $maleNonVipMessages = \DB::select('SELECT count(*) as count FROM message m
                         INNER JOIN users u ON m.from_id = u.id
                         WHERE u.engroup = 1
+                        AND u.id NOT IN (' . $maleVip . ')
                         AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)');
-                    // 所有男會員訊息數獲得回應數
+                    // 所有普通男會員訊息數獲得回應數
                     $maleNonVipMessagesReplied =
                         \DB::select('SELECT count(*) as count FROM 
                             (SELECT m.* FROM message m
@@ -235,12 +246,14 @@ class StatController extends Controller
                                 SELECT m.to_id FROM message m
                                 INNER JOIN users u ON m.from_id = u.id
                                 WHERE u.engroup = 1
+                                AND u.id NOT IN (' . $maleVip . ')
                                 AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) 
                             ) 
                         AND to_id IN (
                                 SELECT m.from_id FROM message m
                                 INNER JOIN users u ON m.from_id = u.id
                                 WHERE u.engroup = 1
+                                AND u.id NOT IN (' . $maleVip . ')
                                 AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY) 
                             ) 
                         AND m.created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)');
@@ -340,12 +353,23 @@ class StatController extends Controller
                             AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY)');
                     return $maleVipMessages[0]->count . " / " . $maleVipMessagesReplied[0]->count;
                 case 10:
-                    // 所有男會員訊息數
+                    $maleVips = User::select('id')->where('engroup', 1)->whereIn('id', function($query){
+                        $query->select('member_id')
+                            ->from(with(new Vip)->getTable())
+                            ->where('active', 1);
+                    })->get();
+                    $maleVip = array();
+                    foreach ($maleVips as $vip){
+                        array_push($maleVip, $vip->id);
+                    }
+                    $maleVip = implode (", ", $maleVip);
+                    // 所有普通男會員訊息數
                     $maleNonVipMessages = \DB::select('SELECT count(*) as count FROM message m
                         INNER JOIN users u ON m.from_id = u.id
                         WHERE u.engroup = 1
+                        AND u.id NOT IN (' . $maleVip . ')
                         AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY)');
-                    // 所有男會員訊息數獲得回應數
+                    // 所有普通男會員訊息數獲得回應數
                     $maleNonVipMessagesReplied =
                         \DB::select('SELECT count(*) as count FROM 
                             (SELECT m.* FROM message m
@@ -354,12 +378,14 @@ class StatController extends Controller
                                 SELECT m.to_id FROM message m
                                 INNER JOIN users u ON m.from_id = u.id
                                 WHERE u.engroup = 1
+                                AND u.id NOT IN (' . $maleVip . ')
                                 AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY) 
                             ) 
                         AND to_id IN (
                                 SELECT m.from_id FROM message m
                                 INNER JOIN users u ON m.from_id = u.id
                                 WHERE u.engroup = 1
+                                AND u.id NOT IN (' . $maleVip . ')
                                 AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY) 
                             ) 
                         AND m.created_at > DATE_SUB(NOW(), INTERVAL 3 DAY)');
