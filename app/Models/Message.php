@@ -604,7 +604,9 @@ class Message extends Model
             return Message::where([['to_id', $uid],['from_id', $sid],['created_at', '<=', $blockTime->created_at]])->orWhere([['from_id', $uid],['to_id', $sid]])->distinct()->orderBy('created_at', 'desc')->paginate(10);
         }
 
-        return Message::where([['to_id', $uid],['from_id', $sid],['is_single_delete_1','<>',$uid]])->orWhere([['from_id', $uid],['to_id', $sid],['is_single_delete_1','<>',$uid]])->distinct()->orderBy('created_at', 'desc')->paginate(10);
+        return Message::where([['to_id', $uid],['from_id', $sid],['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]])
+            ->orWhere([['from_id', $uid],['to_id', $sid],['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]])
+            ->distinct()->orderBy('created_at', 'desc')->paginate(10);
     }
 
     public static function unread($uid)
