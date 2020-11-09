@@ -84,7 +84,7 @@ class StatController extends Controller
             if($result->business_id == '761404'){
                 $ezpay->push($result);
             }
-            if($result->business_id == '3137610' && !str_contains($result->paymen, "one_")){
+            if($result->business_id == '3137610' && !str_contains($result->payment, "one_")){
                 $ecpay->push($result);
             }
         }
