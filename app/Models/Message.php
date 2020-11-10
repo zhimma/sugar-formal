@@ -615,6 +615,7 @@ class Message extends Model
         //
         $user = User::findById($uid);
         $block = Blocked::getAllBlockedId($uid);
+        $blockedList = Blocked::select('member_id')->where('blocked_id', $user->id)->get();
         $banned_users = \App\Services\UserService::getBannedId();
 
         if($user->isVip()) {
@@ -631,6 +632,8 @@ class Message extends Model
             ->whereNotIn('to_id', $banned_users)
             ->whereNotIn('from_id', $block)
             ->whereNotIn('to_id', $block)
+            ->whereNotIn('from_id', $blockedList)
+            ->whereNotIn('to_id', $blockedList)
             ->where([['is_row_delete_1', '=' ,0], ['temp_id', '=', 0]])
             ->where('read', 'N')
             ->where([['message.created_at','>=',self::$date]]);
