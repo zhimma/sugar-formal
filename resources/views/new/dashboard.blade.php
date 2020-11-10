@@ -609,7 +609,7 @@
                   </dt>
                   @endif
                 </div>
-                <a class="dlbut g_inputt20 abtn" onclick="$('form[name=user_data]').submit();">更新資料</a>
+                <a class="dlbut g_inputt20 abtn" onclick="$('form[name=user_data]').submit();">確定更新</a>
                 <a href="" class="zcbut matop20">取消</a>
               </form>
             </div>
