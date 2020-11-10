@@ -531,6 +531,9 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::post('users/board', 'PagesController@board')->name('users/board/search');
         Route::get('users/board/delete/{id}', 'UserController@deleteBoard')->name('users/board/delete');
 
+        Route::get('users/memberList', 'UserController@memberList')->name('users/memberList');
+        Route::post('users/memberList', 'UserController@searchMemberList')->name('searchMemberList');
+
         Route::post('users/toggleUserWarned', 'UserController@toggleUserWarned');
         
         Route::group(['prefix'=>'users/message'], function(){

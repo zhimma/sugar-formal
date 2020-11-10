@@ -258,4 +258,13 @@ class Vip extends Model
         return null;
     }
 
+    public static function vipMonths($id){
+        $vip = Vip::where('member_id',$id)->where('active',1)->where('free',0)->first();
+        if(isset($vip)) {
+            $months = Carbon::parse($vip->created_at)->diffInMonths(Carbon::now());
+            return $months;
+        }
+        return null;
+    }
+
 }

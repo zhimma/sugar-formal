@@ -32,7 +32,14 @@ class Reported extends Model
      */
     public static function cntr($uid)
     {
-        return Reported::select('id')->where('reported_id', $uid)->count();
+        $reported = Reported::select('id')->where('reported_id', $uid)->count();
+        $reported_pic = ReportedPic::select('reported_pic.id')
+            ->join('member_pic','member_pic.id','=','reported_pic.reported_pic_id')
+            ->where('member_pic.member_id',$uid)
+            ->count();
+        $reported_avatar = ReportedAvatar::select('id')->where('reported_user_id',$uid)->count();
+        $reported_message = Message::select('id')->where('from_id',$uid)->where('isReported',1)->count();
+        return $reported + $reported_pic + $reported_avatar + $reported_message;
     }
 
     public static function report($member_id, $reported_id, $content = null)
