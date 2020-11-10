@@ -638,6 +638,7 @@ class Message extends Model
             //$allVip = \App\Models\Vip::allVip();
             //$all_msg = $all_msg->whereIn('from_id', $allVip);
             $all_msg = $all_msg->join('member_vip', 'member_vip.member_id', '=', 'message.from_id');
+            $all_msg = $all_msg->where('member_vip.active', 1);
         }
         $unreadCount = $all_msg->count();
 
