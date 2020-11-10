@@ -1325,6 +1325,16 @@ class PagesController extends Controller
     {
         $user = $request->user();
 
+        $vipDays=0;
+        if($user->isVip()) {
+            $vip_record = Carbon::parse($user->vip_record);
+            $vipDays = $vip_record->diffInDays(Carbon::now());
+        }
+
+        $auth_check=0;
+        if($user->isPhoneAuth()==1){
+            $auth_check=1;
+        }
         if (isset($user) && isset($uid)) {
             $targetUser = User::where('id', $uid)->get()->first();
             if (!isset($targetUser)) {
@@ -1453,6 +1463,23 @@ class PagesController extends Controller
 
                 $rating_avg = floatval($rating_avg);
 
+            $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $uid)->get();
+            $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
+            $bannedUsers = \App\Services\UserService::getBannedId();
+            $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
+            $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
+
+            $evaluation_data = DB::table('evaluation')->where('to_id',$uid)
+                ->whereNotIn('from_id',$userBlockList)
+                ->whereNotIn('from_id',$isBlockList)
+                ->whereNotIn('from_id',$bannedUsers)
+                ->whereNotIn('from_id',$isAdminWarnedList)
+                ->whereNotIn('from_id',$isWarnedList)
+                ->paginate(10);
+
+            $evaluation_self = DB::table('evaluation')->where('to_id',$uid)->where('from_id',$user->id)->first();
+
+
                 return view('new.dashboard.viewuser', $data)
                         ->with('user', $user)
                         ->with('blockadepopup', $blockadepopup)
@@ -1471,9 +1498,43 @@ class PagesController extends Controller
                         ->with('label_vip',$label_vip->content)
                         ->with('user_closed',$user_closed->content)
                         ->with('rating_avg',$rating_avg)
-                        ->with('user_closed',$user_closed->content);
+                        ->with('user_closed',$user_closed->content)
+                        ->with('evaluation_self',$evaluation_self)
+                        ->with('evaluation_data',$evaluation_data)
+                        ->with('vipDays',$vipDays)
+                        ->with('auth_check',$auth_check);
             }
 
+    }
+
+    public function evaluation_self(Request $request)
+    {
+        $user = $request->user();
+
+//        $bannedUsers = \App\Services\UserService::getBannedId();
+//        $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
+//        $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
+
+        $evaluation_data = DB::table('evaluation')->where('from_id',$user->id)
+//            ->whereNotIn('to_id',$bannedUsers)
+//            ->whereNotIn('from_id',$isAdminWarnedList)
+//            ->whereNotIn('from_id',$isWarnedList)
+            ->paginate(15);
+
+        return view('new.dashboard.evaluation_self')
+            ->with('user', $user)
+            ->with('cur', $user)
+            ->with('evaluation_data',$evaluation_data);
+    }
+
+    public function evaluation_self_deleteAll(Request $request)
+    {
+
+        $self = $request->from_id;
+
+        DB::table('evaluation')->where('from_id',$self)->delete();
+
+        return response()->json(['save' => 'ok']);
     }
 
     public function evaluation(Request $request, $uid)
@@ -1532,7 +1593,8 @@ class PagesController extends Controller
             );
         }
 
-        return redirect('/dashboard/evaluation/'.$request->input('eid'))->with('message', '評價已完成');
+        //return redirect('/dashboard/evaluation/'.$request->input('eid'))->with('message', '評價已完成');
+        return back()->with('message', '評價已完成');
     }
 
     public function evaluation_delete(Request $request)
@@ -1550,7 +1612,8 @@ class PagesController extends Controller
             ['re_content' => $request->input('re_content'), 're_created_at' => now()]
         );
 
-        return redirect('/dashboard/evaluation/'.$request->input('eid'))->with('message', '評價回覆已完成');
+//        return redirect('/dashboard/evaluation/'.$request->input('eid'))->with('message', '評價回覆已完成');
+        return back()->with('message', '評價回覆已完成');
     }
 
     public function evaluation_re_content_delete(Request $request)

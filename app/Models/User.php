@@ -358,10 +358,10 @@ class User extends Authenticatable
     public function isSent3Msg($tid)
     {
         $msg_count = Message::where('from_id', $tid)->where('to_id', $this->id)
-            ->where('is_row_delete_1','!=',$tid)
-            ->where('is_row_delete_2','!=',$tid)
-            ->where('is_single_delete_1','!=',$tid)
-            ->where('is_single_delete_2','!=',$tid)
+//            ->where('is_row_delete_1','<>',$this->id)
+//            ->where('is_row_delete_2','<>',$this->id)
+//            ->where('is_single_delete_1','<>',$this->id)
+//            ->where('is_single_delete_2','<>',$this->id)
             ->count();
         return $msg_count>=3;
     }
@@ -613,38 +613,38 @@ class User extends Authenticatable
         }
 
         //罐頭訊息計分
-        $msg = array();
-        $from_content = array();
-        $user_similar_msg = array();
-        $message = Message::where('from_id',$uid)->orderBy('created_at','desc')->where('sys_notice',0)->take(100)->get();
-        foreach($message as $row){
-            array_push($msg,array('id'=>$row->id,'content'=>$row->content,'created_at'=>$row->created_at));
-        }
-        array_push($from_content,  array('msg'=>$msg));
-        //比對訊息
-        foreach($from_content as $data) {
-            foreach ($data['msg'] as $word1) {
-                foreach ($data['msg'] as $word2) {
-                    if ($word1['created_at'] != $word2['created_at']) {
-                        similar_text($word1['content'], $word2['content'], $percent);
-                        if ($percent >= 70) {
-                                array_push($user_similar_msg, array($word1['id'], $word1['content'], $word1['created_at'], $percent));
-                        }
-                    }
-                }
-            }
-        }
-        $spam_percent = round(count($user_similar_msg) / count($message))*100;
-        if($spam_percent>70){
-            $pr = $pr - 30;
-            $pr_log = $pr_log.'罐頭訊息比例70%-30分=>'.$pr.'; ';
-        }elseif($spam_percent>60){
-            $pr = $pr - 20;
-            $pr_log = $pr_log.'罐頭訊息比例60%-20分=>'.$pr.'; ';
-        }elseif($spam_percent>50){
-            $pr = $pr - 10;
-            $pr_log = $pr_log.'罐頭訊息比例50%-10分=>'.$pr.'; ';
-        }
+//        $msg = array();
+//        $from_content = array();
+//        $user_similar_msg = array();
+//        $message = Message::where('from_id',$uid)->orderBy('created_at','desc')->where('sys_notice',0)->take(100)->get();
+//        foreach($message as $row){
+//            array_push($msg,array('id'=>$row->id,'content'=>$row->content,'created_at'=>$row->created_at));
+//        }
+//        array_push($from_content,  array('msg'=>$msg));
+//        //比對訊息
+//        foreach($from_content as $data) {
+//            foreach ($data['msg'] as $word1) {
+//                foreach ($data['msg'] as $word2) {
+//                    if ($word1['created_at'] != $word2['created_at']) {
+//                        similar_text($word1['content'], $word2['content'], $percent);
+//                        if ($percent >= 70) {
+//                                array_push($user_similar_msg, array($word1['id'], $word1['content'], $word1['created_at'], $percent));
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        $spam_percent = round(count($user_similar_msg) / count($message))*100;
+//        if($spam_percent>70){
+//            $pr = $pr - 30;
+//            $pr_log = $pr_log.'罐頭訊息比例70%-30分=>'.$pr.'; ';
+//        }elseif($spam_percent>60){
+//            $pr = $pr - 20;
+//            $pr_log = $pr_log.'罐頭訊息比例60%-20分=>'.$pr.'; ';
+//        }elseif($spam_percent>50){
+//            $pr = $pr - 10;
+//            $pr_log = $pr_log.'罐頭訊息比例50%-10分=>'.$pr.'; ';
+//        }
 
         //沒有VIP計分
         if(!$user->isVip() && $pr>=40){

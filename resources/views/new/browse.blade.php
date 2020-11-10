@@ -37,6 +37,8 @@
                 @endif
             @endif
             {{-- <a class="item" href="{!! url('dashboard/posts_list') !!}"><li><img src="/new/images/letter.png"><span class="n_zylg">投稿文章</span></li></a> --}}
+
+            <li><a href="{!! url('dashboard/evaluation_self') !!}"><img src="/new/images/z_10.png"><span class="n_zylg">評價名單</span></a></li>
         </div>
       </div>
     </div>

@@ -2339,7 +2339,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .huiy_a img{ height: 20px; float: left; margin-right:5px;}
 
 .nhuiy_a{ height: 35px;}
-.nhuiy_a img{ height: 20px; float: left; margin-right:5px;}
+.nhuiy_a img{ /*height: 20px; float: left; margin-right:5px;*/}
 
 
 .gvip_input{margin: 0 auto; display:flex;margin-top: 25px;margin-bottom: 15px; width: fit-content;}
