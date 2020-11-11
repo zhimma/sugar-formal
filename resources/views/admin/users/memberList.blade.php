@@ -139,15 +139,18 @@
                     <td>{{substr($row['last_login'],0,10)}}</td>
                     <td>{{\App\Models\Reported::cntr($row['user_id'])}}</td>
                     <td>
+                        @php
+                            $userRating = \App\Models\User::rating($row['user_id']);
+                        @endphp
                         @for ($i = 1; $i <= 5; $i++)
-                            @if(intval(\App\Models\User::rating($row['user_id']))>=$i)
+                            @if(intval($userRating) >= $i)
                                 <img src="/new/images/sxx_1.png" style="height: 20px;">
-                            @elseif(strstr(\App\Models\User::rating($row['user_id']),'.') && ctype_digit(\App\Models\User::rating($row['user_id']))==false)
+                            @elseif(strstr($userRating, '.') && ctype_digit($userRating) == false)
                                 <img src="/new/images/sxx_2.png" style="height: 20px;">
                                 @break
                             @endif
                         @endfor
-                        @for ($i = 1; $i <= 5-round(\App\Models\User::rating($row['user_id'])); $i++)
+                        @for ($i = 1; $i <= 5 - round($userRating); $i++)
                             <img src="/new/images/sxx_4.png" style="height: 20px;">
                         @endfor
                     </td>
