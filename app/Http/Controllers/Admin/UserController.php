@@ -2944,4 +2944,41 @@ class UserController extends Controller
             ->with('data_all',$data_all);
     }
 
+    public function memberList()
+    {
+        return view('admin.users.memberList');
+    }
+
+    public function searchMemberList(Request $request)
+    {
+        $date_start = $request->date_start ? $request->date_start : '0000-00-00';
+        $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
+
+        $query = users::select('users.*','user_meta.*')
+            ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->where(function($query)use($date_start,$date_end)
+            {
+                $query->where('users.id','<>',1049)
+                      ->whereBetween('users.last_login', array($date_start . ' 00:00', $date_end . ' 23:59'));
+            });
+
+        if(isset($request->gender)){
+            if($request->gender!=0){
+                $query->where('users.engroup',$request->gender);
+            }
+        }
+
+        if(isset($request->time) && $request->time=='created_at'){
+            $query->orderBy('users.created_at','desc');
+        }
+
+        if(isset($request->time) && $request->time=='last_login'){
+            $query->orderBy('users.last_login','desc');
+        }
+
+        $results = $query->take($request->users_counts)->get();
+
+        return view('admin.users.memberList')->with('results',$results);
+    }
+
 }

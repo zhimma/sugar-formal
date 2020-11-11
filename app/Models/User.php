@@ -670,6 +670,25 @@ class User extends Authenticatable
         return $pr;
     }
 
+    public static function rating($uid)
+    {
+        $userBlockList = Blocked::select('blocked_id')->where('member_id', $uid)->get();
+        $isBlockList = Blocked::select('member_id')->where('blocked_id', $uid)->get();
+        $bannedUsers = UserService::getBannedId();
+        $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
+        $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
+
+        $rating_avg = DB::table('evaluation')->where('to_id',$uid)
+            ->whereNotIn('from_id',$userBlockList)
+            ->whereNotIn('from_id',$isBlockList)
+            ->whereNotIn('from_id',$bannedUsers)
+            ->whereNotIn('from_id',$isAdminWarnedList)
+            ->whereNotIn('from_id',$isWarnedList)
+            ->avg('rating');
+
+        $rating_avg = floatval($rating_avg);
+        return $rating_avg;
+    }
 
     public function msgCount()
     {

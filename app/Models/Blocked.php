@@ -70,4 +70,9 @@ class Blocked extends Model
         $blocked->blocked_id = $blocked_id;
         $blocked->save();
     }
+
+    public static function countBlocked($uid) {
+        $countBlocked = Blocked::where('blocked_id', $uid)->count();
+        return $countBlocked;
+    }
 }
