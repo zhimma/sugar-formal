@@ -1256,8 +1256,7 @@ class PagesController extends Controller
             ->with('days',$days);
     }
 
-    public function viewuser(Request $request, $uid = -1)
-    {
+    public function viewuser(Request $request, $uid = -1) {
         $user = $request->user();
         // dd($user);
 
@@ -1321,8 +1320,8 @@ class PagesController extends Controller
             }
         }
     }
-    public function viewuser2(Request $request, $uid = -1)
-    {
+
+    public function viewuser2(Request $request, $uid = -1) {
         $user = $request->user();
 
         $vipDays=0;
@@ -1338,6 +1337,9 @@ class PagesController extends Controller
         if (isset($user) && isset($uid)) {
             $targetUser = User::where('id', $uid)->get()->first();
             if (!isset($targetUser)) {
+                return view('errors.nodata');
+            }
+            if(User::isBanned($uid)){
                 return view('errors.nodata');
             }
             if ($user->id != $uid) {
@@ -1409,37 +1411,27 @@ class PagesController extends Controller
             /*編輯文案-檢舉會員訊息-START*/
             $report_reason = AdminCommonText::where('alias','report_reason')->get()->first();
             /*編輯文案-檢舉會員訊息-END*/
-
             /*編輯文案-檢舉會員-START*/
             $report_member = AdminCommonText::where('alias','report_member')->get()->first();
             /*編輯文案-檢舉會員-END*/
-
             /*編輯文案-檢舉大頭照-START*/
             $report_avatar = AdminCommonText::where('alias','report_avatar')->get()->first();
             /*編輯文案-檢舉大頭照-END*/
-
             /*編輯文案-new_sweet-START*/
             $new_sweet = AdminCommonText::where('category_alias', 'label_text')->where('alias','new_sweet')->get()->first();
             /*編輯文案-new_sweet-END*/
-
             /*編輯文案-well_member-START*/
             $well_member = AdminCommonText::where('category_alias', 'label_text')->where('alias','well_member')->get()->first();
             /*編輯文案-well_member-END*/
-
             /*編輯文案-money_cert-START*/
             $money_cert = AdminCommonText::where('category_alias', 'label_text')->where('alias','money_cert')->get()->first();
             /*編輯文案-money_cert-END*/
-
             /*編輯文案-alert_account-START*/
             $alert_account = AdminCommonText::where('category_alias', 'label_text')->where('alias','alert_account')->get()->first();
             /*編輯文案-alert_account-END*/
-
             /*編輯文案-label_vip-START*/
             $label_vip = AdminCommonText::where('category_alias', 'label_text')->where('alias','label_vip')->get()->first();
             /*編輯文案-label_vip-END*/
-
-
-
             $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $uid)->get();
             $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
             $bannedUsers = \App\Services\UserService::getBannedId();
@@ -1469,14 +1461,16 @@ class PagesController extends Controller
                 ->whereNotIn('from_id',$isAdminWarnedList)
                 ->whereNotIn('from_id',$isWarnedList)
                 ->paginate(10);
-            
+
             $evaluation_self = DB::table('evaluation')->where('to_id',$uid)->where('from_id',$user->id)->first();
             /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
             $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
             /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
-            if(User::isBanned($uid)){
-                Session::flash('message', $user_closed->content);
-            }
+
+            // todo: 此處程式碼有誤，應檢查檢視者是否被被檢視者封鎖，若是，才存入變數
+//            if(User::isBanned($uid)){
+//                Session::flash('message', $user_closed->content);
+//            }
 
             return view('new.dashboard.viewuser', $data)
                     ->with('user', $user)
@@ -1494,7 +1488,6 @@ class PagesController extends Controller
                     ->with('money_cert',$money_cert->content)
                     ->with('alert_account',$alert_account->content)
                     ->with('label_vip',$label_vip->content)
-                    ->with('user_closed',$user_closed->content)
                     ->with('rating_avg',$rating_avg)
                     ->with('user_closed',$user_closed->content)
                     ->with('evaluation_self',$evaluation_self)
