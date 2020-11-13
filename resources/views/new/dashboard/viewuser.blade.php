@@ -830,7 +830,10 @@
 
     @endif
 @stop
-
+@if (Session::has('closed') && Session::get('closed'))
+    ccc('{{Session::get('message')}}');
+    <? exit; ?>
+@endif
 @section('javascript')
 
 <script>
