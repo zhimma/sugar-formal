@@ -1340,128 +1340,121 @@ class PagesController extends Controller
             if (!isset($targetUser)) {
                 return view('errors.nodata');
             }
-            /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
-            $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
-            /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
-            if(User::isBanned($uid)){
-                Session::flash('message', $user_closed->content);
-                return view('new.dashboard.viewuser')->with('user', $user);
-            }
             if ($user->id != $uid) {
                 Visited::visit($user->id, $uid);
             }
 
-                /*七天前*/
-                $date = date('Y-m-d H:m:s', strtotime('-7 days'));
+            /*七天前*/
+            $date = date('Y-m-d H:m:s', strtotime('-7 days'));
 
-                /*車馬費邀請次數*/
-                $tip_count = Tip::where('to_id', $uid)->get()->count();
+            /*車馬費邀請次數*/
+            $tip_count = Tip::where('to_id', $uid)->get()->count();
 
-                /*收藏會員次數*/
-                $fav_count = MemberFav::where('member_id', $uid)->get()->count();
-                /*被收藏次數*/
-                $be_fav_count = MemberFav::where('member_fav_id', $uid)->get()->count();
+            /*收藏會員次數*/
+            $fav_count = MemberFav::where('member_id', $uid)->get()->count();
+            /*被收藏次數*/
+            $be_fav_count = MemberFav::where('member_fav_id', $uid)->get()->count();
 
-                /*是否封鎖我*/
-                $is_block_mid = Blocked::where('blocked_id', $user->id)->where('member_id', $uid)->count() >= 1 ? '是' : '否';
-                /*是否看過我*/
-                $is_visit_mid = Visited::where('visited_id', $user->id)->where('member_id', $uid)->count() >= 1 ? '是' : '否';
+            /*是否封鎖我*/
+            $is_block_mid = Blocked::where('blocked_id', $user->id)->where('member_id', $uid)->count() >= 1 ? '是' : '否';
+            /*是否看過我*/
+            $is_visit_mid = Visited::where('visited_id', $user->id)->where('member_id', $uid)->count() >= 1 ? '是' : '否';
 
-                /*瀏覽其他會員次數*/
-                $visit_other_count = Visited::where('member_id', $uid)->count();
-                /*被瀏覽次數*/
-                $be_visit_other_count = Visited::where('visited_id', $uid)->count();
-                /*過去7天被瀏覽次數*/
-                $be_visit_other_count_7 = Visited::where('visited_id', $uid)->where('created_at', '>=', $date)->count();
+            /*瀏覽其他會員次數*/
+            $visit_other_count = Visited::where('member_id', $uid)->count();
+            /*被瀏覽次數*/
+            $be_visit_other_count = Visited::where('visited_id', $uid)->count();
+            /*過去7天被瀏覽次數*/
+            $be_visit_other_count_7 = Visited::where('visited_id', $uid)->where('created_at', '>=', $date)->count();
 
-                /*發信次數*/
-                $message_count = Message::where('from_id', $uid)->count();
+            /*發信次數*/
+            $message_count = Message::where('from_id', $uid)->count();
 
-                $message_count_7 = Message::where('from_id', $uid)->where('created_at', '>=', $date)->count();
+            $message_count_7 = Message::where('from_id', $uid)->where('created_at', '>=', $date)->count();
 
-                $is_banned = null;
+            $is_banned = null;
 
-                $data = array(
-                    'tip_count' => $tip_count,
-                    'fav_count' => $fav_count,
-                    'be_fav_count' => $be_fav_count,
-                    'is_vip' => 0,
-                    'is_block_mid' => $is_block_mid,
-                    'is_visit_mid' => $is_visit_mid,
-                    'visit_other_count' => $visit_other_count,
-                    'be_visit_other_count' => $be_visit_other_count,
-                    'be_visit_other_count_7' => $be_visit_other_count_7,
-                    'message_count' => $message_count,
-                    'message_count_7' => $message_count_7,
-                    'is_banned' => $is_banned
-                );
-                $member_pic = DB::table('member_pic')->where('member_id',$uid)->where('pic','<>',$targetUser->meta_()->pic)->get();
-                if($user->isVip()){
-                    $vipLevel = 1;
-                }else{
-                    $vipLevel = 0;
+            $data = array(
+                'tip_count' => $tip_count,
+                'fav_count' => $fav_count,
+                'be_fav_count' => $be_fav_count,
+                'is_vip' => 0,
+                'is_block_mid' => $is_block_mid,
+                'is_visit_mid' => $is_visit_mid,
+                'visit_other_count' => $visit_other_count,
+                'be_visit_other_count' => $be_visit_other_count,
+                'be_visit_other_count_7' => $be_visit_other_count_7,
+                'message_count' => $message_count,
+                'message_count_7' => $message_count_7,
+                'is_banned' => $is_banned
+            );
+            $member_pic = DB::table('member_pic')->where('member_id',$uid)->where('pic','<>',$targetUser->meta_()->pic)->get();
+            if($user->isVip()){
+                $vipLevel = 1;
+            }else{
+                $vipLevel = 0;
+            }
+            // dd($vipLevel, $user->engroup);
+            $basic_setting = BasicSetting::where('vipLevel',$vipLevel)->where('gender',$user->engroup)->get()->first();
+            // dd($user);
+            if(isset($basic_setting['countSet'])){
+                if($basic_setting['countSet']==-1){
+                    $basic_setting['countSet'] = 10000;
                 }
-                // dd($vipLevel, $user->engroup);
-                $basic_setting = BasicSetting::where('vipLevel',$vipLevel)->where('gender',$user->engroup)->get()->first();
-                // dd($user);
-                if(isset($basic_setting['countSet'])){
-                    if($basic_setting['countSet']==-1){
-                        $basic_setting['countSet'] = 10000;
-                    }
-                    $data['timeSet']  = (int)$basic_setting['timeSet'];
-                    $data['countSet'] = (int)$basic_setting['countSet'];
-                }
-                $blockadepopup = AdminCommonText::getCommonText(5);//id5封鎖說明popup
-                $isVip = $user->isVip() ? '1':'0';
-                /*編輯文案-檢舉會員訊息-START*/
-                $report_reason = AdminCommonText::where('alias','report_reason')->get()->first();
-                /*編輯文案-檢舉會員訊息-END*/
+                $data['timeSet']  = (int)$basic_setting['timeSet'];
+                $data['countSet'] = (int)$basic_setting['countSet'];
+            }
+            $blockadepopup = AdminCommonText::getCommonText(5);//id5封鎖說明popup
+            $isVip = $user->isVip() ? '1':'0';
+            /*編輯文案-檢舉會員訊息-START*/
+            $report_reason = AdminCommonText::where('alias','report_reason')->get()->first();
+            /*編輯文案-檢舉會員訊息-END*/
 
-                /*編輯文案-檢舉會員-START*/
-                $report_member = AdminCommonText::where('alias','report_member')->get()->first();
-                /*編輯文案-檢舉會員-END*/
+            /*編輯文案-檢舉會員-START*/
+            $report_member = AdminCommonText::where('alias','report_member')->get()->first();
+            /*編輯文案-檢舉會員-END*/
 
-                /*編輯文案-檢舉大頭照-START*/
-                $report_avatar = AdminCommonText::where('alias','report_avatar')->get()->first();
-                /*編輯文案-檢舉大頭照-END*/
+            /*編輯文案-檢舉大頭照-START*/
+            $report_avatar = AdminCommonText::where('alias','report_avatar')->get()->first();
+            /*編輯文案-檢舉大頭照-END*/
 
-                /*編輯文案-new_sweet-START*/
-                $new_sweet = AdminCommonText::where('category_alias', 'label_text')->where('alias','new_sweet')->get()->first();
-                /*編輯文案-new_sweet-END*/
+            /*編輯文案-new_sweet-START*/
+            $new_sweet = AdminCommonText::where('category_alias', 'label_text')->where('alias','new_sweet')->get()->first();
+            /*編輯文案-new_sweet-END*/
 
-                /*編輯文案-well_member-START*/
-                $well_member = AdminCommonText::where('category_alias', 'label_text')->where('alias','well_member')->get()->first();
-                /*編輯文案-well_member-END*/
+            /*編輯文案-well_member-START*/
+            $well_member = AdminCommonText::where('category_alias', 'label_text')->where('alias','well_member')->get()->first();
+            /*編輯文案-well_member-END*/
 
-                /*編輯文案-money_cert-START*/
-                $money_cert = AdminCommonText::where('category_alias', 'label_text')->where('alias','money_cert')->get()->first();
-                /*編輯文案-money_cert-END*/
+            /*編輯文案-money_cert-START*/
+            $money_cert = AdminCommonText::where('category_alias', 'label_text')->where('alias','money_cert')->get()->first();
+            /*編輯文案-money_cert-END*/
 
-                /*編輯文案-alert_account-START*/
-                $alert_account = AdminCommonText::where('category_alias', 'label_text')->where('alias','alert_account')->get()->first();
-                /*編輯文案-alert_account-END*/
+            /*編輯文案-alert_account-START*/
+            $alert_account = AdminCommonText::where('category_alias', 'label_text')->where('alias','alert_account')->get()->first();
+            /*編輯文案-alert_account-END*/
 
-                /*編輯文案-label_vip-START*/
-                $label_vip = AdminCommonText::where('category_alias', 'label_text')->where('alias','label_vip')->get()->first();
-                /*編輯文案-label_vip-END*/
+            /*編輯文案-label_vip-START*/
+            $label_vip = AdminCommonText::where('category_alias', 'label_text')->where('alias','label_vip')->get()->first();
+            /*編輯文案-label_vip-END*/
 
-                
 
-                $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $uid)->get();
-                $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
-                $bannedUsers = \App\Services\UserService::getBannedId();
-                $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
-                $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
 
-                $rating_avg = DB::table('evaluation')->where('to_id',$uid)
-                    ->whereNotIn('from_id',$userBlockList)
-                    ->whereNotIn('from_id',$isBlockList)
-                    ->whereNotIn('from_id',$bannedUsers)
-                    ->whereNotIn('from_id',$isAdminWarnedList)
-                    ->whereNotIn('from_id',$isWarnedList)
-                    ->avg('rating');
+            $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $uid)->get();
+            $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
+            $bannedUsers = \App\Services\UserService::getBannedId();
+            $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
+            $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
 
-                $rating_avg = floatval($rating_avg);
+            $rating_avg = DB::table('evaluation')->where('to_id',$uid)
+                ->whereNotIn('from_id',$userBlockList)
+                ->whereNotIn('from_id',$isBlockList)
+                ->whereNotIn('from_id',$bannedUsers)
+                ->whereNotIn('from_id',$isAdminWarnedList)
+                ->whereNotIn('from_id',$isWarnedList)
+                ->avg('rating');
+
+            $rating_avg = floatval($rating_avg);
 
             $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $uid)->get();
             $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
@@ -1476,33 +1469,38 @@ class PagesController extends Controller
                 ->whereNotIn('from_id',$isAdminWarnedList)
                 ->whereNotIn('from_id',$isWarnedList)
                 ->paginate(10);
-
+            
             $evaluation_self = DB::table('evaluation')->where('to_id',$uid)->where('from_id',$user->id)->first();
+            /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
+            $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
+            /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
+            if(User::isBanned($uid)){
+                Session::flash('message', $user_closed->content);
+            }
 
-
-                return view('new.dashboard.viewuser', $data)
-                        ->with('user', $user)
-                        ->with('blockadepopup', $blockadepopup)
-                        ->with('to', $this->service->find($uid))
-                        ->with('cur', $user)
-                        ->with('member_pic',$member_pic)
-                        ->with('isVip', $isVip)
-                        ->with('engroup', $user->engroup)
-                        ->with('report_reason',$report_reason->content)
-                        ->with('report_member',$report_member->content)
-                        ->with('report_avatar',$report_avatar->content)
-                        ->with('new_sweet',$new_sweet->content)
-                        ->with('well_member',$well_member->content)
-                        ->with('money_cert',$money_cert->content)
-                        ->with('alert_account',$alert_account->content)
-                        ->with('label_vip',$label_vip->content)
-                        ->with('user_closed',$user_closed->content)
-                        ->with('rating_avg',$rating_avg)
-                        ->with('user_closed',$user_closed->content)
-                        ->with('evaluation_self',$evaluation_self)
-                        ->with('evaluation_data',$evaluation_data)
-                        ->with('vipDays',$vipDays)
-                        ->with('auth_check',$auth_check);
+            return view('new.dashboard.viewuser', $data)
+                    ->with('user', $user)
+                    ->with('blockadepopup', $blockadepopup)
+                    ->with('to', $this->service->find($uid))
+                    ->with('cur', $user)
+                    ->with('member_pic',$member_pic)
+                    ->with('isVip', $isVip)
+                    ->with('engroup', $user->engroup)
+                    ->with('report_reason',$report_reason->content)
+                    ->with('report_member',$report_member->content)
+                    ->with('report_avatar',$report_avatar->content)
+                    ->with('new_sweet',$new_sweet->content)
+                    ->with('well_member',$well_member->content)
+                    ->with('money_cert',$money_cert->content)
+                    ->with('alert_account',$alert_account->content)
+                    ->with('label_vip',$label_vip->content)
+                    ->with('user_closed',$user_closed->content)
+                    ->with('rating_avg',$rating_avg)
+                    ->with('user_closed',$user_closed->content)
+                    ->with('evaluation_self',$evaluation_self)
+                    ->with('evaluation_data',$evaluation_data)
+                    ->with('vipDays',$vipDays)
+                    ->with('auth_check',$auth_check);
             }
 
     }
