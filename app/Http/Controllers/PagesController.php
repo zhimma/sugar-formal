@@ -1342,7 +1342,7 @@ class PagesController extends Controller
             if(User::isBanned($uid)){
                 Session::flash('closed', true);
                 Session::flash('message', '此用戶已關閉資料');
-                view('new.dashboard.viewuser', compact('user'));
+                return view('new.dashboard.viewuser', compact('user'));
             }
             if ($user->id != $uid) {
                 Visited::visit($user->id, $uid);
