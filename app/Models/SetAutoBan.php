@@ -67,18 +67,18 @@ class SetAutoBan extends Model
 
             if($violation){
                 Log::info('ban_set type='.$ban_set->set_ban.' id='.$ban_set->id);
-                if($ban_set->set_ban==1){
+                if($ban_set->set_ban == 1 && banned_users::where('member_id', $uid)->first() == null){
                     //直接封鎖
                     $userBanned = new banned_users;
                     $userBanned->member_id = $uid;
                     $userBanned->reason = "系統原因($ban_set->id)";
                     $userBanned->save();
-                }elseif($ban_set->set_ban==2){
-                    //隱性封鎖 新增測試
-                    if(BannedUsersImplicitly::where('target', $uid)->first() == null){
-                        BannedUsersImplicitly::insert(['fp' => 'BannedInUserInfo','user_id' => 0,'target' => $uid]);
-                    }
-                }elseif($ban_set->set_ban==3){
+                }
+                elseif($ban_set->set_ban == 2 && BannedUsersImplicitly::where('target', $uid)->first() == null){
+                    //隱性封鎖
+                    BannedUsersImplicitly::insert(['fp' => 'BannedInUserInfo','user_id' => 0,'target' => $uid]);
+                }
+                elseif($ban_set->set_ban == 3 && warned_users::where('member_id', $uid)->first() == null){
                     //警示會員
                     $userWarned = new warned_users;
                     $userWarned->member_id = $uid;
@@ -110,19 +110,18 @@ class SetAutoBan extends Model
                 $violation = true;
             }
             if ($violation) {
-                if ($ban_set->set_ban == 1) {
+                if($ban_set->set_ban == 1 && banned_users::where('member_id', $uid)->first() == null) {
                     //直接封鎖
                     $userBanned = new banned_users;
                     $userBanned->member_id = $uid;
                     $userBanned->reason = "系統原因($ban_set->id)";
                     $userBanned->save();
-                } elseif ($ban_set->set_ban == 2) {
-                    //隱性封鎖 新增測試
-                    $idch = BannedUsersImplicitly::where('target', $uid)->first();
-                    if (empty($idch)) {
-                        BannedUsersImplicitly::insert(['fp' => 'BannedInUserInfo', 'user_id' => 0, 'target' => $uid]);
-                    }
-                } elseif ($ban_set->set_ban == 3) {
+                }
+                elseif($ban_set->set_ban == 2 && BannedUsersImplicitly::where('target', $uid)->first() == null) {
+                    //隱性封鎖
+                    BannedUsersImplicitly::insert(['fp' => 'BannedInUserInfo', 'user_id' => 0, 'target' => $uid]);
+                }
+                elseif($ban_set->set_ban == 3 && warned_users::where('member_id', $uid)->first() == null) {
                     //警示會員
                     $userWarned = new warned_users;
                     $userWarned->member_id = $uid;
