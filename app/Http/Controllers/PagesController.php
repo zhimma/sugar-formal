@@ -2129,14 +2129,8 @@ class PagesController extends Controller
             $bannedUsers = \App\Services\UserService::getBannedId();
             $blocks = \App\Models\Blocked::where('member_id', $user->id)->whereNotIn('blocked_id',$bannedUsers)->orderBy('created_at','desc')->paginate(15);
 
-            $usersInfo = array();
-            foreach($blocks as $blockUser){
-                $id = $blockUser->blocked_id;
-                $usersInfo[$id] = User::findById($id);
-            }
             return view('new.dashboard.block')
             ->with('blocks', $blocks)
-            ->with('users', $usersInfo)
             ->with('user', $user);
         }
     }
