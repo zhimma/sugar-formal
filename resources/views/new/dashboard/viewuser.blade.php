@@ -1124,29 +1124,30 @@
         c5('無法檢舉');
     }
 
-    $('.evaluation').on('click', function() {
-        @if($user->id != $to->id)
-            @if($user->meta_()->isWarned == 1 || $user->isAdminWarned())
-                c5('您目前為警示帳戶，暫不可評價');
-            @elseif($user->engroup==2 && ($user->isSent3Msg($to->id)==0 || $auth_check==0))
-                // alert(1);
-                $('#tab_reject_female').show();
-                $(".announce_bg").show();
-            @elseif($user->engroup==1 && ($user->isSent3Msg($to->id)==0 || $vipDays<=30))
-                //alert(2);
-                $('#tab_reject_male').show();
-                $(".announce_bg").show();
-            @elseif(!isset($evaluation_self))
-                $('#tab_evaluation').show();
-                $(".announce_bg").show();
+    @if(isset($to))
+        $('.evaluation').on('click', function() {
+            @if($user->id != $to->id)
+                @if($user->meta_()->isWarned == 1 || $user->isAdminWarned())
+                    c5('您目前為警示帳戶，暫不可評價');
+                @elseif($user->engroup==2 && ($user->isSent3Msg($to->id)==0 || $auth_check==0))
+                    // alert(1);
+                    $('#tab_reject_female').show();
+                    $(".announce_bg").show();
+                @elseif($user->engroup==1 && ($user->isSent3Msg($to->id)==0 || $vipDays<=30))
+                    //alert(2);
+                    $('#tab_reject_male').show();
+                    $(".announce_bg").show();
+                @elseif(!isset($evaluation_self))
+                    $('#tab_evaluation').show();
+                    $(".announce_bg").show();
+                @else
+                    c5('您已評價過');
+                @endif
             @else
-                c5('您已評價過');
+                c5('不可對自己評價');
             @endif
-        @else
-            c5('不可對自己評價');
-        @endif
-
-    });
+        });
+    @endif
 
     function form_submit(){
         if( $("input[name='rating']:checked").val() == undefined) {
