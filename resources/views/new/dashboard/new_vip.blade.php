@@ -30,7 +30,7 @@
                             <div class="new_viplist" style="margin-bottom: 10px;">
                                 <ul>
                                     <li><div class="vipcion"><img src="/new/images/bicontop.png"></div>
-                                        <div class="new_fa">每季支付 NT</div>
+                                        <div class="new_fa">每季支付</div>
                                         <div class="new_fanext">
                                             <h2>NT$988/月</h2>
                                             <h2>每季自動扣款</h2>
@@ -43,7 +43,7 @@
                                         </form>
                                     </li>
                                     <li>
-                                        <div class="new_fa">每月支付 NT</div>
+                                        <div class="new_fa">每月支付</div>
                                         <div class="new_fanext">
                                             <h2>NT$1388/月</h2>
                                             <h2>每月自動扣款</h2>
@@ -63,7 +63,7 @@
                             <div class="new_viplist">
                                 <ul>
                                     <li>
-                                        <div class="new_fa">單季支付 NT</div>
+                                        <div class="new_fa">單季支付</div>
                                         <div class="new_fanext">
                                             <h2>NT$988/月</h2>
                                             <h2>單季體驗</h2>
@@ -115,7 +115,7 @@
 {{--                                        </form>--}}
                                     </li>
                                     <li>
-                                        <div class="new_fa">單月支付 NT</div>
+                                        <div class="new_fa">單月支付</div>
                                         <div class="new_fanext">
                                             <h2>NT$1388/月</h2>
                                             <h2>單月體驗</h2>
