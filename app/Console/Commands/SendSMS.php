@@ -42,11 +42,12 @@ class SendSMS extends Command
         $username = '54666024';
         $password = 'zxcvbnm';
         $smbody = '使用者註冊失敗，Email: ' . $this->argument('email');
+        $smbody = mb_convert_encoding($smbody, "BIG5", "UTF-8");
         $Data = array(
             "username" => $username, //三竹帳號
             "password" => $password, //三竹密碼
             "dstaddr" => $this->argument('mobile'), //客戶手機
-            "DestName" => '客戶', //對客戶的稱謂 於三竹後台看的時候用的
+            "DestName" => '系統回報', //對客戶的稱謂 於三竹後台看的時候用的
             "smbody" => $smbody, //簡訊內容
             // "response" =>$ReturnResultUrl, //回傳網址
             // "ClientID" => $ClientID //使用者代號
