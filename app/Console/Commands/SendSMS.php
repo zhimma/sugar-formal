@@ -41,7 +41,7 @@ class SendSMS extends Command
         $checkCode = str_pad(rand(0, pow(10, 5) - 1), 5, '0', STR_PAD_LEFT);
         $username = '54666024';
         $password = 'zxcvbnm';
-        $smbody = '使用者註冊失敗，Email: ' . $this->argument('email');
+        $smbody = config('app.name') . '使用者註冊失敗，Email:' . $this->argument('email');
         $smbody = mb_convert_encoding($smbody, "BIG5", "UTF-8");
         $Data = array(
             "username" => $username, //三竹帳號
