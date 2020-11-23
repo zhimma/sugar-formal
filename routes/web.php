@@ -251,9 +251,13 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/dashboard/web_manual', 'PagesController@web_manual');
     Route::get('/dashboard/anti_fraud_manual', 'PagesController@anti_fraud_manual');
     Route::post('/dashboard/newer_manual/isRead', 'PagesController@is_read_manual');
+    Route::get('/dashboard/openCloseAccount', 'PagesController@view_openCloseAccount');
+    Route::post('/dashboard/updateAccountStatus', 'PagesController@updateAccountStatus');
+    Route::get('/dashboard/accountAuth', 'PagesController@view_checkAccountAuth');
+    Route::post('/dashboard/checkAccountAuth', 'PagesController@checkAccountAuth');
 });
 
-Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckIsWarned']], function () {
+Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckIsWarned','CheckAccountStatus']], function () {
 
     /*
     |--------------------------------------------------------------------------

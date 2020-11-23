@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\CheckECpay;
+use App\Models\AccountStatusLog;
 use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
 use App\Models\BannedUsersImplicitly;
@@ -36,6 +37,7 @@ use App\Http\Requests\ReportRequest;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Http\Requests\FormFilterRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
@@ -44,6 +46,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Models\SimpleTables\banned_users;
 use Illuminate\Support\Facades\Input;
+use Intervention\Image\Facades\Image;
 use Session;
 use App\Notifications\AccountConsign;
 
@@ -963,6 +966,97 @@ class PagesController extends Controller
             }else{
                 return back()->with('message', '原密碼有誤，請重新操作');
             }
+    }
+
+    public function view_checkAccountAuth(Request $request)
+    {
+        $user = $request->user();
+        return view('new.dashboard.checkAccountAuth')->with('user', $user);
+    }
+
+    public function checkAccountAuth(Request $request)
+    {
+        $user = $request->user();
+        $input = $request->input();
+
+        if($user->email == $input['email']){
+            if(Auth::attempt(array('email' => $input['email'], 'password' => $input['password'])) ){
+                //驗證成功
+                session()->put('accountAuth','Y');
+                return view('new.dashboard.openCloseAccount')->with('user', $user);
+            }else{
+                //驗證失敗
+                session()->put('accountAuth','N');
+                return back()->with('message', '帳號驗證失敗');
+            }
+        }else{
+            //驗證失敗
+            session()->put('accountAuth','N');
+            return back()->with('message', '帳號驗證失敗');
+        }
+    }
+
+    public function view_openCloseAccount(Request $request)
+    {
+        $user = $request->user();
+        session()->put('accountAuth','N');
+
+        if(session()->get('accountAuth') == 'Y')
+            return view('new.dashboard.openCloseAccount')->with('user', $user);
+        else
+            return redirect('/dashboard/accountAuth')->with('user', $user);
+    }
+
+    public function updateAccountStatus(Request $request){
+        $user = $request->user();
+        $status = $request->get('status');
+
+        if($status == 'close'){
+
+            $image = $request->file('image');
+            if(!is_null($image)){
+                $now = Carbon::now()->format('Ymd');
+
+                $input['imagename'] = $now . rand(100000000,999999999) . '.' . $image->getClientOriginalExtension();
+
+                $rootPath = public_path('/img/Member');
+                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+
+                if(!is_dir($tempPath)) {
+                    File::makeDirectory($tempPath, 0777, true);
+                }
+                $destinationPath = '/img/Member/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
+
+                $img = Image::make($image->getRealPath());
+                $img->resize(400, 600, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($tempPath . $input['imagename']);
+            }
+
+            AccountStatusLog::insert([
+                'user_id' => $user->id,
+                'reasonType' => $request->get('reasonType'),
+                'reported_id' => $request->get('reportedId'),
+                'content' => $request->get('content'),
+                'image' => isset($destinationPath) ? $destinationPath : null,
+                'created_at' => Carbon::now()
+            ]);
+            $user->accountStatus = 0;
+            $user->save();
+
+            Auth::logout();
+            return redirect('/login')->with('message', '帳號已成功關閉');
+        }
+        else if ($status == 'open')
+        {
+            if(auth()->user()->isVip()){
+                $user->accountStatus = 1;
+                $user->save();
+                return redirect('/dashboard')->with('message', '帳號已成功開啟');
+            }else{
+                return redirect('/dashboard/openCloseAccount')->with('message', '帳號開啟失敗');
+            }
+        }
     }
 
     public function view_account_manage(Request $request)
