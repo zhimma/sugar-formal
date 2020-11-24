@@ -37,6 +37,7 @@ return [
     ],
     'admin' => [
         'email' => 'mmmaya111@gmail.com',
-        'showMessageCount' => 50
+        'showMessageCount' => 50,
+        'mobile' => ''
     ]
 ];

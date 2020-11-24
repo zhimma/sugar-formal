@@ -38,7 +38,6 @@ class SendSMS extends Command
     public function handle()
     {
         //
-        $checkCode = str_pad(rand(0, pow(10, 5) - 1), 5, '0', STR_PAD_LEFT);
         $username = '54666024';
         $password = 'zxcvbnm';
         $smbody = config('app.name') . '使用者註冊失敗，Email:' . $this->argument('email');
