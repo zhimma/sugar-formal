@@ -181,7 +181,8 @@ class UserService
 
             return $user;
         } catch (Exception $e) {
-            \Artisan::call('send:sms', ['mobile' => config('social.admin.mobile'), 'email' => $user->email]);
+            $mobile = config('social.admin.mobile');
+            \Artisan::call('send:sms', ['mobile' => "{$mobile}", 'email' => "{$user->email}"]);
             throw new Exception("We were unable to generate your profile, please try again later. " . $e, 1);
         }
     }
