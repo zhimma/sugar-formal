@@ -171,7 +171,7 @@ class UserMeta extends Model
                 }
             }
             return $query;
-        }))->whereHas('user_meta', function ($query) use ($agefrom, $ageto, $marriage, $budget, $income, $smoking, $drinking, $photo, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid){
+        }, 'vip'))->whereHas('user_meta', function ($query) use ($agefrom, $ageto, $marriage, $budget, $income, $smoking, $drinking, $photo, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid){
             $query = $query->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
             if (isset($agefrom) && isset($ageto) && strlen($agefrom) != 0 && strlen($ageto) != 0) {
                 $agefrom = $agefrom < 18 ? 18 : $agefrom;
