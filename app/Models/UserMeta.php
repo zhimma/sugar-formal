@@ -201,9 +201,9 @@ class UserMeta extends Model
             $user_area = explode(',', $meta->area);
 
             /* 判斷搜索者的 city 和 area 是否被被搜索者封鎖 */
-            foreach ($user_city as $key => $city){
-                $query = $query->where('blockcity', '<>', '%' . $city . '%')->where('blockarea', '<>', '%' . $user_area[$key] . '%');
-            }
+//            foreach ($user_city as $key => $city){
+//                $query = $query->where('blockcity', '<>', '%' . $city . '%')->where('blockarea', '<>', '%' . $user_area[$key] . '%');
+//            }
             
             $query = $query->whereNotIn('user_id', $bannedUsers)->whereNotIn('user_id', $blockedUsers)->whereNotIn('user_id', $beBlockedUsers)->where('is_active', 1);
             return $query;
