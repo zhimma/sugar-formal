@@ -80,6 +80,10 @@ class UserMeta extends Model
          return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
+    public function users(){
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
     public function age() {
         if (isset($this->birthdate) && $this->birthdate !== null && $this->birthdate != 'NULL')
         {
@@ -148,101 +152,64 @@ class UserMeta extends Model
     // 包養關係預設值為空是為了避免有的使用者在舊的 view 下出現錯誤
     public static function search($city, $area, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid, $exchange_period = '')
     {
-        if ($engroup == 1)
-        {
-            $engroup = 2;
-
-        }
+        if ($engroup == 1) { $engroup = 2; }
         else if ($engroup == 2) { $engroup = 1; }
-
+        if(isset($seqtime) && $seqtime == 2){ $orderBy = 'users.created_at'; }
+        else{ $orderBy = 'users.last_login'; }
         // 效能調整：Lazy Loading
-        $query = User::with(array('user_meta' => function($query) use ($city, $area, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid, $exchange_period)
-        {
-            $query->join('users', 'user_id', '=', 'users.id')->where('users.engroup', $engroup);
-            if (isset($exchange_period)&&$exchange_period!=''){
-                if(count($exchange_period) > 0){
-                    //                $query = $query->whereIn('exchange_period', $exchange_period);
-                    $query = $query->whereIn('users.exchange_period', $exchange_period)->where('engroup', $engroup);
+        $query = User::with(array('user_meta' => function($query) use ($city, $area, $cup, $exchange_period) {
+            if (isset($exchange_period) && $exchange_period != '') {
+                if (count($exchange_period) > 0) {
+                    $query = $query->whereIn('exchange_period', $exchange_period);
                 }
-                if (isset($city) && strlen($city) != 0) $query = $query->where('city','like', '%'.$city.'%');
-                if (isset($area) && strlen($area) != 0) $query = $query->where('area','like', '%'.$area.'%');
-                if (isset($cup)&&$cup!=''){
-                    if(count($cup) > 0){
-                        $query = $query->whereIn('cup', $cup);
-                    }
-                }
-                if (isset($marriage) && strlen($marriage) != 0) $query = $query->where('marriage', $marriage);
-                if (isset($budget) && strlen($budget) != 0) $query = $query->where('budget', $budget);
-                if (isset($income) && strlen($income) != 0) $query = $query->where('income', $income);
-                if (isset($smoking) && strlen($smoking) != 0) $query = $query->where('smoking', $smoking);
-                if (isset($drinking) && strlen($drinking) != 0) $query = $query->where('drinking', $drinking);
-                if (isset($body)&&$body!=''){
-                    if(count($body) > 0){
-                        $query = $query->whereIn('body', $body);
-                    }
-                }
-
-
-
-                if (isset($photo) && strlen($photo) != 0) $query = $query->whereNotNull('pic')->where('pic', '<>', 'NULL');
-                if (isset($agefrom) && isset($ageto) && strlen($agefrom) != 0 && strlen($ageto) != 0) {
-                    $agefrom = $agefrom < 18 ? 18 : $agefrom;
-                    // dd(date('Y-01-01', strtotime("-30 year")));
-                    try{
-                        if(strtotime(Carbon::now()->subYears($ageto))===strtotime(Carbon::now()->subYears($agefrom))){
-                            $to = Carbon::now()->subYears($ageto+1)->addDay(1);
-                            $from = Carbon::now()->subYears($agefrom);
-                            $query = $query->whereBetween('birthdate', [$to, $from]);
-                        }else{
-                            $to = Carbon::now()->subYears($ageto+1)->addDay(1);
-                            $from = Carbon::now()->subYears($agefrom);
-                            // dd($to, $from);
-                            $query = $query->whereBetween('birthdate', [$to, $from]);
-
-                        }
-                    }
-                    catch(\Exception $e){
-                        Log::info('Searching function exception occurred, user id: ' . $userid . ', $agefrom: ' . $agefrom . ', $ageto: ' . $ageto);
-                        Log::info('Useragent: ' . $_SERVER['HTTP_USER_AGENT']);
-                    }
-                }
-
-                try{
-                    $query = $query->where('birthdate', '<', Carbon::now()->subYears(18));
-                }
-                catch(\Exception $e){
-                    Log::info('Searching function exception occurred, user id: ' . $userid);
-                    Log::info('Useragent: ' . $_SERVER['HTTP_USER_AGENT']);
-                }
-
-                $bannedUsers = \App\Services\UserService::getBannedId();
-                $blockedUsers = blocked::select('blocked_id')->where('member_id',$userid)->get();
-                //if($blockedUsers)$query->whereNotIn('user_id', $blockedUsers);
-                $beBlockedUsers = blocked::select('member_id')->where('blocked_id',$userid)->get();
-
-
-                $block = UserMeta::where('users.id', $userid)->join('users', 'user_id', '=', 'users.id')->get()->first();
-                $user_city = explode(',',$block->city);
-                $user_area = explode(',',$block->area);
-
-
-                /*判斷搜尋的使用者的blockcity, blockarea是否為搜索者的city, area*/
-                $block_user = [];
-                $user_filter = $query->get();
-                foreach($user_filter as $user_filter){
-                    $block_c = explode(',',$user_filter->blockcity);
-                    $block_a = explode(',',$user_filter->blockarea);
-                    if(array_intersect($block_c, $user_city) && array_intersect($block_a, $user_area) ){
-                        array_push($block_user,$user_filter->user_id);
-                    }
-                }
-
-                if(isset($seqtime) && $seqtime == 2)
-                    $query->whereNotIn('user_id', $bannedUsers)->whereNotIn('user_id', $block_user)->whereNotIn('user_id', $blockedUsers)->whereNotIn('user_id', $beBlockedUsers)->where('is_active', 1)->orderBy('users.created_at', 'desc');
-                else
-                    $query->whereNotIn('user_id', $bannedUsers)->whereNotIn('user_id', $block_user)->whereNotIn('user_id', $blockedUsers)->whereNotIn('user_id', $beBlockedUsers)->where('is_active', 1)->orderBy('users.last_login', 'desc');
             }
-        }))->paginate(12);
+            if (isset($city) && strlen($city) != 0) $query = $query->where('city','like', '%'.$city.'%');
+            if (isset($area) && strlen($area) != 0) $query = $query->where('area','like', '%'.$area.'%');
+            if (isset($cup) && $cup!=''){
+                if(count($cup) > 0){
+                    $query = $query->whereIn('cup', $cup);
+                }
+            }
+            return $query;
+        }))->whereHas('user_meta', function ($query) use ($agefrom, $ageto, $marriage, $budget, $income, $smoking, $drinking, $photo, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid){
+            $query = $query->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
+            if (isset($agefrom) && isset($ageto) && strlen($agefrom) != 0 && strlen($ageto) != 0) {
+                $agefrom = $agefrom < 18 ? 18 : $agefrom;
+                $to = Carbon::now()->subYears($ageto + 1)->addDay(1)->format('Y-m-d');
+                $from = Carbon::now()->subYears($agefrom)->format('Y-m-d');
+                // 單純使用 whereBetween('birthdate', ... 的話會導致部分生日判斷錯誤
+                $query->whereBetween(\DB::raw("STR_TO_DATE(birthdate, '%Y-%m-%d')"), [$to, $from]);
+            }
+            if (isset($marriage) && strlen($marriage) != 0) $query = $query->where('marriage', $marriage);
+            if (isset($budget) && strlen($budget) != 0) $query = $query->where('budget', $budget);
+            if (isset($income) && strlen($income) != 0) $query = $query->where('income', $income);
+            if (isset($smoking) && strlen($smoking) != 0) $query = $query->where('smoking', $smoking);
+            if (isset($drinking) && strlen($drinking) != 0) $query = $query->where('drinking', $drinking);
+            if (isset($body) && $body != ''){
+                if(count($body) > 0){
+                    $query = $query->whereIn('body', $body);
+                }
+            }
+
+            if (isset($photo) && strlen($photo) != 0) $query = $query->whereNotNull('pic')->where('pic', '<>', 'NULL');
+
+            $bannedUsers = \App\Services\UserService::getBannedId();
+            $blockedUsers = blocked::select('blocked_id')->where('member_id',$userid)->get();
+            //if($blockedUsers)$query->whereNotIn('user_id', $blockedUsers);
+            $beBlockedUsers = blocked::select('member_id')->where('blocked_id',$userid)->get();
+
+            $meta = UserMeta::select('city', 'area')->where('user_id', $userid)->get()->first();
+            $user_city = explode(',', $meta->city);
+            $user_area = explode(',', $meta->area);
+
+            /* 判斷搜索者的 city 和 area 是否被被搜索者封鎖 */
+            foreach ($user_city as $key => $city){
+                $query = $query->where('blockcity', '<>', '%' . $city . '%')->where('blockarea', '<>', '%' . $user_area[$key] . '%');
+            }
+            
+            $query = $query->whereNotIn('user_id', $bannedUsers)->whereNotIn('user_id', $blockedUsers)->whereNotIn('user_id', $beBlockedUsers)->where('is_active', 1);
+            return $query;
+        })->where('engroup', $engroup)->orderBy($orderBy, 'desc')->paginate(12);
 
         return $query;
     }

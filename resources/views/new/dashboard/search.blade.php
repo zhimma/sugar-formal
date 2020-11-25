@@ -232,6 +232,7 @@
                         @foreach ($vis as $vi)
                             <?php $visitor = $vi;
                             try{
+                                $umeta = $visitor;
                                 if(isset($umeta->city)){
                                     $umeta->city = explode(",",$umeta->city);
                                     $umeta->area = explode(",",$umeta->area);
