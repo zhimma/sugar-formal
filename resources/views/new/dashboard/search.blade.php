@@ -224,6 +224,9 @@
                 @endif
                 <?php $icc = 1;
                 $vis = \App\Models\UserMeta::search($county, $district, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $user->engroup, $umeta->city, $umeta->area, $umeta->blockdomain, $umeta->blockdomainType, $seqtime, $body, $user->id,$exchange_period);
+                // vi vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php
+                // addWhereExistsQuery() remove $operator
+                // https://learnku.com/articles/28283?order_by=vote_count&
                 ?>
 
                 <div class="n_searchtit"><div class="n_seline"><span>搜索结果</span></div></div>
