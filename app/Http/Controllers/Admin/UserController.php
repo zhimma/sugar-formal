@@ -2981,4 +2981,54 @@ class UserController extends Controller
         return view('admin.users.memberList')->with('results',$results);
     }
 
+    public function showSendUserMessage()
+    {
+        $log_data = DB::table('message_admin_sent_user_log')
+            ->select('message.*')
+            ->join('message','message_admin_sent_user_log.message_id', 'message.id')
+            ->orderBy('message_admin_sent_user_log.created_at','desc')->get();
+
+        return view('admin.adminSendUserMessage')->with('log_data',$log_data);
+    }
+
+    public function sendUserMessageFindUserInfo(Request $request)
+    {
+        $user = User::findByEmail($request->email);
+
+        if(isset($user)) {
+            echo json_encode(['pic' => $user->meta_()->pic, 'name' => $user->name, 'title' => $user->title, 'gender' => $user->engroup,'status'=>'ok']);
+        }else{
+            echo json_encode(['status'=>'error']);
+        }
+        //echo json_encode($user->email);
+    }
+
+    public function sendUserMessage(Request $request)
+    {
+        $from_user = User::findByEmail($request->input('from-email'));
+        $to_user = User::findByEmail($request->input('to-email'));
+
+        if(!isset($from_user) || !isset($to_user)){
+            return back()->with('message', '請確認雙方EMAIL是否正確');
+        }
+
+        if($from_user->engroup == $to_user->engroup){
+            return back()->with('message', '相同性別無法傳送訊息');
+        }
+
+        Message::post($from_user->id, $to_user->id, $request->input('sendContent'), false, 0);
+
+        //find message id to log
+        $lastMessage = Message::latestMessage($from_user->id, $to_user->id);
+
+        DB::table('message_admin_sent_user_log')->insert(['message_id'=>$lastMessage->id]);
+
+        $log_data = DB::table('message_admin_sent_user_log')
+            ->select('message.*')
+            ->join('message','message_admin_sent_user_log.message_id', 'message.id')
+            ->orderBy('message_admin_sent_user_log.created_at','desc')->get();
+
+        return back()->with('message', '訊息發送成功')->with('log_data',$log_data);
+    }
+
 }
