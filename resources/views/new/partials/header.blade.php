@@ -9,6 +9,7 @@
 		<meta name="csrf-token" content="{{ csrf_token() }}">
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/webfont/1.6.28/webfontloader.js"></script>
 		<script src="/new/js/jquery-3.2.1.min.js" type="text/javascript"></script>
+		<script src="/new/js/jquery.lazyload.min.js" type="text/javascript"></script>
 {{--		<script src="https://code.jquery.com/jquery-3.4.1.min.js"--}}
 {{--				integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="--}}
 {{--				crossorigin="anonymous"></script>--}}

@@ -307,7 +307,7 @@
                                     @endif
                                 </div>
                                 <a href="/dashboard/viewuser/{{$visitor->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">
-                                    <div class="nt_photo"><img src="@if($visitor->meta_()->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->meta_()->pic}} @endif" @if ($visitor->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></div>
+                                    <div class="nt_photo"><img class="lazy" src="@if($visitor->meta_()->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->meta_()->pic}} @endif" data-original="@if($visitor->meta_()->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->meta_()->pic}} @endif" @if ($visitor->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></div>
                                     <div class="nt_bot nt_bgco">
                                         <h2>{{ $visitor->name }}<span>{{ $visitor->meta_()->age() }}歲</span></h2>
                                         <h3>
