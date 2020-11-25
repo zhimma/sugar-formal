@@ -45,7 +45,7 @@ class User extends Authenticatable
      */
     protected $hidden = ['password', 'remember_token'];
 
-    protected $append = ['isVip'];
+    protected $appends = [''];
 
     /*
     |--------------------------------------------------------------------------
@@ -91,23 +91,6 @@ class User extends Authenticatable
     |
     */
 
-    /**
-    * Whether the user is VIP
-    * 此函式用途未明，故先註解。
-    * @param int id
-    *
-    * @return boolean
-    */
-    // public function getIsVipAttribute()
-    // {
-    //     foreach($this->vip as $vip){
-    //         if($vip->active == 1){
-    //             return true;
-    //         }
-    //     }
-    //     return false;
-    // }
-
     public static function id_($uid)
     {
         return User::where('id', $uid)->first();
@@ -119,7 +102,8 @@ class User extends Authenticatable
         if(!isset($queries)){
             $queries = '*';
         }
-        return UserMeta::select($queries)->where('user_id', $this->id)->first();
+        $this->attributes['meta'] = $this->attributes['meta'] ?? UserMeta::select($queries)->where('user_id', $this->id)->first();
+        return $this->attributes['meta'];
     }
 
     /**
@@ -246,7 +230,8 @@ class User extends Authenticatable
         // Middleware 下的 VipCheck 會將「是 VIP」但「過期」的會員取消權限，
         // 如果這邊就先針對到期日過濾掉的話，後續會導致問題，如下次重新付費升級
         // 會依舊顯示非 VIP
-        return Vip::select('active')->where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first() !== null;
+        $this->attributes['isVip'] = $this->attributes['isVip'] ?? Vip::select('active')->where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first() !== null;
+        return $this->attributes['isVip'];
         // return Vip::select('active')->where('member_id', $this->id)->where('active', 1)->where(function($query)
         //             {$query->where('expiry', '0000-00-00 00:00:00')->orwhere('expiry', '>=', Carbon::now());}
         //            )->orderBy('created_at', 'desc')->first() !== null;
