@@ -230,9 +230,8 @@
                 <div class="n_sepeop">
                     @if (!empty($vis) && isset($vis) && sizeof($vis) > 0)
                         @foreach ($vis as $vi)
-                            <?php $visitor = $vi->user;
+                            <?php $visitor = $vi;
                             try{
-                                $umeta = $visitor->meta_();
                                 if(isset($umeta->city)){
                                     $umeta->city = explode(",",$umeta->city);
                                     $umeta->area = explode(",",$umeta->area);

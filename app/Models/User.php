@@ -116,6 +116,10 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class);
     }
 
+    public function user_meta(){
+        return $this->hasOne('App\Models\UserMeta');
+    }
+
     /**
      * Check if user has role
      *
