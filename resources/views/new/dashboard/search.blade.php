@@ -470,5 +470,8 @@
                 content: function () { return '<h4' + $(this).data('content') + '</h4>'; }
             });
         });
+        $("img.lazy").lazyload({
+            effect : "fadeIn"
+        });
     </script>
 @stop
