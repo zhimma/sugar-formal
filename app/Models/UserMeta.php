@@ -157,7 +157,8 @@ class UserMeta extends Model
         if(isset($seqtime) && $seqtime == 2){ $orderBy = 'users.created_at'; }
         else{ $orderBy = 'users.last_login'; }
         // 效能調整：Lazy Loading
-        $query = User::with(array('user_meta' => function($query) use ($city, $area, $cup, $exchange_period) {
+        $query = User::with(['user_meta', 'vip'])->whereHas('user_meta', function ($query) use ($city, $area, $cup, $exchange_period, $agefrom, $ageto, $marriage, $budget, $income, $smoking, $drinking, $photo, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid){
+            $query = $query->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
             if (isset($exchange_period) && $exchange_period != '') {
                 if (count($exchange_period) > 0) {
                     $query = $query->whereIn('exchange_period', $exchange_period);
@@ -170,9 +171,6 @@ class UserMeta extends Model
                     $query = $query->whereIn('cup', $cup);
                 }
             }
-            return $query;
-        }, 'vip'))->whereHas('user_meta', function ($query) use ($agefrom, $ageto, $marriage, $budget, $income, $smoking, $drinking, $photo, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid){
-            $query = $query->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
             if (isset($agefrom) && isset($ageto) && strlen($agefrom) != 0 && strlen($ageto) != 0) {
                 $agefrom = $agefrom < 18 ? 18 : $agefrom;
                 $to = Carbon::now()->subYears($ageto + 1)->addDay(1)->format('Y-m-d');
