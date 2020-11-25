@@ -157,6 +157,7 @@ class UserMeta extends Model
         if(isset($seqtime) && $seqtime == 2){ $orderBy = 'users.created_at'; }
         else{ $orderBy = 'users.last_login'; }
         // 效能調整：Lazy Loading
+        // 目前已知問題：城市地區消失、名單疑似不完整、最後登入日期也不正確
         $query = User::with(['user_meta', 'vip'])->whereHas('user_meta', function ($query) use ($city, $area, $cup, $exchange_period, $agefrom, $ageto, $marriage, $budget, $income, $smoking, $drinking, $photo, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid){
             $query = $query->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
             if (isset($exchange_period) && $exchange_period != '') {
