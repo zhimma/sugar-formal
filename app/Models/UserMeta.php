@@ -169,8 +169,8 @@ class UserMeta extends Model
                     $query->whereIn('exchange_period', $exchange_period);
                 }
             }
-            if (isset($city) && strlen($city) != 0) $query = $query->where('city','like', '%'.$city.'%');
-            if (isset($area) && strlen($area) != 0) $query = $query->where('area','like', '%'.$area.'%');
+            if (isset($city) && strlen($city) != 0) $query->where('city','like', '%'.$city.'%');
+            if (isset($area) && strlen($area) != 0) $query->where('area','like', '%'.$area.'%');
             if (isset($cup) && $cup!=''){
                 if(count($cup) > 0){
                     $query->whereIn('cup', $cup);
@@ -193,18 +193,15 @@ class UserMeta extends Model
                     $query->whereIn('body', $body);
                 }
             }
-
             if (isset($photo) && strlen($photo) != 0) $query->whereNotNull('pic')->where('pic', '<>', 'NULL');
-
-
-
             $meta = UserMeta::select('city', 'area')->where('user_id', $userid)->get()->first();
             $user_city = explode(',', $meta->city);
             $user_area = explode(',', $meta->area);
-
             /* 判斷搜索者的 city 和 area 是否被被搜索者封鎖 */
             foreach ($user_city as $key => $city){
                 $query->where(
+                    function ($query) use ($city, $user_area, $key){
+                    $query->where(
                     // 未設定封鎖城市地區
                     function ($query) use ($city, $user_area, $key){
                         $query->where(\DB::raw('LENGTH(blockcity) = 0'))
@@ -222,6 +219,7 @@ class UserMeta extends Model
                             $query->where('blockcity', '<>', '%' . $city . '%')
                                 ->where('blockarea', '<>', '%' . $user_area[$key] . '%');
                         });
+                });
             }
             return $query->where('is_active', 1);
         })->where('engroup', $engroup)->whereNotIn('users.id', $bannedUsers)->whereNotIn('users.id', $blockedUsers)->whereNotIn('users.id', $beBlockedUsers)->orderBy($orderBy, 'desc')->paginate(12);
