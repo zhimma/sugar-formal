@@ -163,17 +163,17 @@ class UserMeta extends Model
         // 效能調整：Lazy Loading
         // 目前已知問題：城市地區消失
         $query = User::with(['user_meta', 'vip'])->whereHas('user_meta', function ($query) use ($city, $area, $cup, $exchange_period, $agefrom, $ageto, $marriage, $budget, $income, $smoking, $drinking, $photo, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid){
-            $query = $query->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
+            $query->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
             if (isset($exchange_period) && $exchange_period != '') {
                 if (count($exchange_period) > 0) {
-                    $query = $query->whereIn('exchange_period', $exchange_period);
+                    $query->whereIn('exchange_period', $exchange_period);
                 }
             }
             if (isset($city) && strlen($city) != 0) $query = $query->where('city','like', '%'.$city.'%');
             if (isset($area) && strlen($area) != 0) $query = $query->where('area','like', '%'.$area.'%');
             if (isset($cup) && $cup!=''){
                 if(count($cup) > 0){
-                    $query = $query->whereIn('cup', $cup);
+                    $query->whereIn('cup', $cup);
                 }
             }
             if (isset($agefrom) && isset($ageto) && strlen($agefrom) != 0 && strlen($ageto) != 0) {
@@ -183,18 +183,18 @@ class UserMeta extends Model
                 // 單純使用 whereBetween('birthdate', ... 的話會導致部分生日判斷錯誤
                 $query->whereBetween(\DB::raw("STR_TO_DATE(birthdate, '%Y-%m-%d')"), [$to, $from]);
             }
-            if (isset($marriage) && strlen($marriage) != 0) $query = $query->where('marriage', $marriage);
-            if (isset($budget) && strlen($budget) != 0) $query = $query->where('budget', $budget);
-            if (isset($income) && strlen($income) != 0) $query = $query->where('income', $income);
-            if (isset($smoking) && strlen($smoking) != 0) $query = $query->where('smoking', $smoking);
-            if (isset($drinking) && strlen($drinking) != 0) $query = $query->where('drinking', $drinking);
+            if (isset($marriage) && strlen($marriage) != 0) $query->where('marriage', $marriage);
+            if (isset($budget) && strlen($budget) != 0) $query->where('budget', $budget);
+            if (isset($income) && strlen($income) != 0) $query->where('income', $income);
+            if (isset($smoking) && strlen($smoking) != 0) $query->where('smoking', $smoking);
+            if (isset($drinking) && strlen($drinking) != 0) $query->where('drinking', $drinking);
             if (isset($body) && $body != ''){
                 if(count($body) > 0){
-                    $query = $query->whereIn('body', $body);
+                    $query->whereIn('body', $body);
                 }
             }
 
-            if (isset($photo) && strlen($photo) != 0) $query = $query->whereNotNull('pic')->where('pic', '<>', 'NULL');
+            if (isset($photo) && strlen($photo) != 0) $query->whereNotNull('pic')->where('pic', '<>', 'NULL');
 
 
 
@@ -204,7 +204,7 @@ class UserMeta extends Model
 
             /* 判斷搜索者的 city 和 area 是否被被搜索者封鎖 */
             foreach ($user_city as $key => $city){
-                $query = $query->where(
+                $query->where(
                     // 未設定封鎖城市地區
                     function ($query) use ($city, $user_area, $key){
                         $query->where(\DB::raw('LENGTH(blockcity) = 0'))
