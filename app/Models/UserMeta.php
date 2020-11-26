@@ -193,18 +193,15 @@ class UserMeta extends Model
                     $query = $query->whereIn('body', $body);
                 }
             }
-
             if (isset($photo) && strlen($photo) != 0) $query = $query->whereNotNull('pic')->where('pic', '<>', 'NULL');
-
-
-
             $meta = UserMeta::select('city', 'area')->where('user_id', $userid)->get()->first();
             $user_city = explode(',', $meta->city);
             $user_area = explode(',', $meta->area);
-
             /* 判斷搜索者的 city 和 area 是否被被搜索者封鎖 */
             foreach ($user_city as $key => $city){
                 $query = $query->where(
+                    function ($query) use ($city, $user_area, $key){
+                    $query->where(
                     // 未設定封鎖城市地區
                     function ($query) use ($city, $user_area, $key){
                         $query->where(\DB::raw('LENGTH(blockcity) = 0'))
@@ -222,6 +219,7 @@ class UserMeta extends Model
                             $query->where('blockcity', '<>', '%' . $city . '%')
                                 ->where('blockarea', '<>', '%' . $user_area[$key] . '%');
                         });
+                });
             }
             return $query->where('is_active', 1);
         })->where('engroup', $engroup)->whereNotIn('users.id', $bannedUsers)->whereNotIn('users.id', $blockedUsers)->whereNotIn('users.id', $beBlockedUsers)->orderBy($orderBy, 'desc')->paginate(12);

@@ -194,7 +194,7 @@
                         $seqtime = "";
                         $body = "";
                         $exchange_period = "";
-                        $umeta = $user->meta_();
+                        $umeta = $user->meta;
                         if(isset($umeta->city)){
                             $umeta->city = explode(",",$umeta->city);
                             $umeta->area = explode(",",$umeta->area);
@@ -235,7 +235,7 @@
                         @foreach ($vis as $vi)
                             <?php $visitor = $vi;
                             try{
-                                $umeta = $visitor;
+                                $umeta = $visitor->meta;
                                 if(isset($umeta->city)){
                                     $umeta->city = explode(",",$umeta->city);
                                     $umeta->area = explode(",",$umeta->area);
@@ -273,7 +273,7 @@
                                         </div>
                                     @endif
                                     {{---------財力認證尚未實作-------------- <img src="/new/images/b_03.png">--}}
-                                    @if($visitor->isVip() && $visitor->engroup == 1)
+                                    @if($visitor->vip && $visitor->engroup == 1)
                                         <div class="hoverTip">
                                         <div class="tagText" data-toggle="popover" data-content="本站的付費會員。">
                                         @if($user->isVip())
@@ -285,7 +285,7 @@
                                         </div>
                                     @endif
                                     {{---------警示帳戶尚未實作-------------- <img src="/new/images/b_05.png">--}}
-                                    @if($visitor->meta_()->isWarned == 1 || $visitor->isAdminWarned())
+                                    @if($visitor->meta->isWarned == 1 || $visitor->isAdminWarned())
                                         <div class="hoverTip">
                                             <div class="tagText" data-toggle="popover" data-content="此人被多人檢舉！與此會員交流務必提高警覺！">
                                             @if($user->isVip())
@@ -310,22 +310,22 @@
                                     @endif
                                 </div>
                                 <a href="/dashboard/viewuser/{{$visitor->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">
-                                    <div class="nt_photo"><img class="lazy" src="@if($visitor->meta_()->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->meta_()->pic}} @endif" data-original="@if($visitor->meta_()->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->meta_()->pic}} @endif" @if ($visitor->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></div>
+                                    <div class="nt_photo"><img class="lazy" src="@if($visitor->meta->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->meta->pic}} @endif" data-original="@if($visitor->meta->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->meta->pic}} @endif" @if ($visitor->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></div>
                                     <div class="nt_bot nt_bgco">
-                                        <h2>{{ $visitor->name }}<span>{{ $visitor->meta_()->age() }}歲</span></h2>
+                                        <h2>{{ $visitor->name }}<span>{{ $visitor->meta->age() }}歲</span></h2>
                                         <h3>
                                             @if(!empty($umeta->city))
                                                 @foreach($umeta->city as $key => $cityval)
                                                     @if ($loop->first)
-                                                        {{$umeta->city[$key]}} @if($visitor->meta_()->isHideArea == 0){{$umeta->area[$key]}}@endif
+                                                        {{$umeta->city[$key]}} @if($visitor->meta->isHideArea == 0){{$umeta->area[$key]}}@endif
                                                     @else
-                                                        <span>{{$umeta->city[$key]}} @if($visitor->meta_()->isHideArea == 0){{$umeta->area[$key]}}@endif</span>
+                                                        <span>{{$umeta->city[$key]}} @if($visitor->meta->isHideArea == 0){{$umeta->area[$key]}}@endif</span>
                                                     @endif
                                                 @endforeach
                                             @endif
                                             @if($user->isVip())
-                                                @if($visitor->meta_()->isHideOccupation == 0 && !empty($visitor->meta_()->occupation) && $visitor->meta_()->occupation != 'null')
-                                                    <span style="margin-left: 0;">{{ $visitor->meta_()->occupation }}</span>
+                                                @if($visitor->meta->isHideOccupation == 0 && !empty($visitor->meta->occupation) && $visitor->meta->occupation != 'null')
+                                                    <span style="margin-left: 0;">{{ $visitor->meta->occupation }}</span>
                                                 @endif
                                             @else
                                                 <span style="margin-left: 10px;"><span style="padding-left: 5px;">職業</span><img src="/new/images/icon_35.png" class="nt_img"></span>
