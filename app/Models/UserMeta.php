@@ -160,9 +160,7 @@ class UserMeta extends Model
         $blockedUsers = blocked::select('blocked_id')->where('member_id',$userid)->get();
         //if($blockedUsers)$query->whereNotIn('user_id', $blockedUsers);
         $beBlockedUsers = blocked::select('member_id')->where('blocked_id',$userid)->get();
-        // 效能調整：Lazy Loading
-        // 目前已知問題：城市地區消失
-        $query = User::with(['user_meta', 'vip'])->whereHas('user_meta', function ($query) use ($city, $area, $cup, $exchange_period, $agefrom, $ageto, $marriage, $budget, $income, $smoking, $drinking, $photo, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid){
+        $constrain = function ($query) use ($city, $area, $cup, $exchange_period, $agefrom, $ageto, $marriage, $budget, $income, $smoking, $drinking, $photo, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid){
             $query->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
             if (isset($exchange_period) && $exchange_period != '') {
                 if (count($exchange_period) > 0) {
@@ -201,28 +199,30 @@ class UserMeta extends Model
             foreach ($user_city as $key => $city){
                 $query->where(
                     function ($query) use ($city, $user_area, $key){
-                    $query->where(
-                    // 未設定封鎖城市地區
-                    function ($query) use ($city, $user_area, $key){
-                        $query->where(\DB::raw('LENGTH(blockcity) = 0'))
-                            ->where(\DB::raw('LENGTH(blockarea) = 0'));
-                    })
-                    // 設定封鎖全城市
-                    ->orWhere(
-                        function ($query) use ($city, $user_area, $key){
-                            $query->where('blockcity', '<>', '%' . $city . '%')
-                                ->where(\DB::raw('LENGTH(blockarea) = 0'));
-                        })
-                    // 設定封鎖城市地區
-                    ->orWhere(
-                        function ($query) use ($city, $user_area, $key){
-                            $query->where('blockcity', '<>', '%' . $city . '%')
-                                ->where('blockarea', '<>', '%' . $user_area[$key] . '%');
-                        });
-                });
+                        $query->where(
+                        // 未設定封鎖城市地區
+                            function ($query) use ($city, $user_area, $key){
+                                $query->where(\DB::raw('LENGTH(blockcity) = 0'))
+                                    ->where(\DB::raw('LENGTH(blockarea) = 0'));
+                            })
+                            // 設定封鎖全城市
+                            ->orWhere(
+                                function ($query) use ($city, $user_area, $key){
+                                    $query->where('blockcity', '<>', '%' . $city . '%')
+                                        ->where(\DB::raw('LENGTH(blockarea) = 0'));
+                                })
+                            // 設定封鎖城市地區
+                            ->orWhere(
+                                function ($query) use ($city, $user_area, $key){
+                                    $query->where('blockcity', '<>', '%' . $city . '%')
+                                        ->where('blockarea', '<>', '%' . $user_area[$key] . '%');
+                                });
+                    });
             }
             return $query->where('is_active', 1);
-        })->where('engroup', $engroup)->whereNotIn('users.id', $bannedUsers)->whereNotIn('users.id', $blockedUsers)->whereNotIn('users.id', $beBlockedUsers)->orderBy($orderBy, 'desc')->paginate(12);
+        };
+        // 效能調整：Lazy Loading
+        $query = User::with(['user_meta' => $constrain, 'vip'])->whereHas('user_meta', $constrain)->where('engroup', $engroup)->whereNotIn('users.id', $bannedUsers)->whereNotIn('users.id', $blockedUsers)->whereNotIn('users.id', $beBlockedUsers)->orderBy($orderBy, 'desc')->paginate(12);
 
         return $query;
     }
