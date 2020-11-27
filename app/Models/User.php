@@ -45,7 +45,7 @@ class User extends Authenticatable
      */
     protected $hidden = ['password', 'remember_token'];
 
-    protected $appends = [''];
+    protected $with = ['user_meta', 'vip'];
 
     /*
     |--------------------------------------------------------------------------

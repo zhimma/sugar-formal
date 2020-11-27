@@ -194,7 +194,7 @@
                         $seqtime = "";
                         $body = "";
                         $exchange_period = "";
-                        $umeta = $user->meta;
+                        $umeta = $user->user_meta;
                         if(isset($umeta->city)){
                             $umeta->city = explode(",",$umeta->city);
                             $umeta->area = explode(",",$umeta->area);
@@ -273,7 +273,7 @@
                                         </div>
                                     @endif
                                     {{---------財力認證尚未實作-------------- <img src="/new/images/b_03.png">--}}
-                                    @if($visitor->vip && $visitor->engroup == 1)
+                                    @if($visitor->isVip() && $visitor->engroup == 1)
                                         <div class="hoverTip">
                                         <div class="tagText" data-toggle="popover" data-content="本站的付費會員。">
                                         @if($user->isVip())
