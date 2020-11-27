@@ -156,10 +156,6 @@ class UserMeta extends Model
         else if ($engroup == 2) { $engroup = 1; }
         if(isset($seqtime) && $seqtime == 2){ $orderBy = 'users.created_at'; }
         else{ $orderBy = 'users.last_login'; }
-        $bannedUsers = \App\Services\UserService::getBannedId();
-        $blockedUsers = blocked::select('blocked_id')->where('member_id',$userid)->get();
-        //if($blockedUsers)$query->whereNotIn('user_id', $blockedUsers);
-        $beBlockedUsers = blocked::select('member_id')->where('blocked_id',$userid)->get();
         $constrain = function ($query) use ($city, $area, $cup, $exchange_period, $agefrom, $ageto, $marriage, $budget, $income, $smoking, $drinking, $photo, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid){
             $query->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
             if (isset($exchange_period) && $exchange_period != '') {
@@ -221,13 +217,28 @@ class UserMeta extends Model
             }
             return $query->where('is_active', 1);
         };
+        /**
+         * 為加速效能，此三句功能以 subquery 形式在下方被替換，並以註解形式保留以利後續維護。
+         * $bannedUsers = \App\Services\UserService::getBannedId();
+         * $blockedUsers = blocked::select('blocked_id')->where('member_id',$userid)->get();
+         * $isBlockedByUsers = blocked::select('member_id')->where('blocked_id',$userid)->get();
+         */
         // 效能調整：Eager Loading
         $query = User::with(['user_meta' => $constrain, 'vip'])
             ->whereHas('user_meta', $constrain)
             ->where('engroup', $engroup)
-            ->whereNotIn('users.id', $bannedUsers)
-            ->whereNotIn('users.id', $blockedUsers)
-            ->whereNotIn('users.id', $beBlockedUsers)
+            ->whereNotIn('users.id', function($query){
+                $query->select('target')
+                    ->from(with(new BannedUsersImplicitly)->getTable());})
+            ->whereNotIn('users.id', function($query){
+                $query->select('member_id')
+                    ->from(with(new banned_users)->getTable());})
+            ->whereNotIn('users.id', function($query){
+                $query->select('blocked_id')
+                    ->from(with(new blocked)->getTable());})
+            ->whereNotIn('users.id', function($query){
+                $query->select('member_id')
+                    ->from(with(new blocked)->getTable());})
             ->orderBy($orderBy, 'desc')
             ->paginate(12);
 
