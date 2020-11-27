@@ -228,17 +228,23 @@ class UserMeta extends Model
             ->whereHas('user_meta', $constrain)
             ->where('engroup', $engroup)
             ->whereNotIn('users.id', function($query){
+                // $bannedUsers
                 $query->select('target')
                     ->from(with(new BannedUsersImplicitly)->getTable());})
             ->whereNotIn('users.id', function($query){
+                // $bannedUsers
                 $query->select('member_id')
                     ->from(with(new banned_users)->getTable());})
-            ->whereNotIn('users.id', function($query){
+            ->whereNotIn('users.id', function($query) use ($userid){
+                // $blockedUsers
                 $query->select('blocked_id')
-                    ->from(with(new blocked)->getTable());})
-            ->whereNotIn('users.id', function($query){
+                    ->from(with(new blocked)->getTable()
+                    ->where('member_id', $userid));})
+            ->whereNotIn('users.id', function($query) use ($userid){
+                // $isBlockedByUsers
                 $query->select('member_id')
-                    ->from(with(new blocked)->getTable());})
+                    ->from(with(new blocked)
+                    ->where('blocked_id', $userid)->getTable());})
             ->orderBy($orderBy, 'desc')
             ->paginate(12);
 
