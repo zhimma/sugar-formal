@@ -221,7 +221,7 @@ class UserMeta extends Model
             }
             return $query->where('is_active', 1);
         };
-        // 效能調整：Lazy Loading
+        // 效能調整：Eager Loading
         $query = User::with(['user_meta' => $constrain, 'vip'])->whereHas('user_meta', $constrain)->where('engroup', $engroup)->whereNotIn('users.id', $bannedUsers)->whereNotIn('users.id', $blockedUsers)->whereNotIn('users.id', $beBlockedUsers)->orderBy($orderBy, 'desc')->paginate(12);
 
         return $query;
