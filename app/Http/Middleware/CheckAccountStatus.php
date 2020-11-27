@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
+use Illuminate\Support\Facades\Session;
 
 class CheckAccountStatus
 {
@@ -37,8 +38,11 @@ class CheckAccountStatus
         if (!is_null($this->auth->user())){
             //0:帳號關閉中 1:帳號開啟中(預設)
             if ($this->auth->user()->accountStatus == 0) {
-                return response()->view('new.dashboard.checkAccountAuth',['user'=> auth()->user()]);
-                //return response()->view('new.dashboard.openCloseAccount',['user'=> auth()->user()]);
+                if(Session::get('needLogOut') == 'Y'){
+                    //logger('middleware=>'.Session::get('needLogOut'));
+                    Session::put('needLogOut','N');
+                }
+                return response()->view('new.dashboard.openCloseAccount',['user'=> auth()->user()]);
             }
         }
         return $next($request);

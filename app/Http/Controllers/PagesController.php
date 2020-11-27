@@ -968,13 +968,13 @@ class PagesController extends Controller
             }
     }
 
-    public function view_checkAccountAuth(Request $request)
+    public function view_openCloseAccount(Request $request)
     {
         $user = $request->user();
-        return view('new.dashboard.checkAccountAuth')->with('user', $user);
+        return view('new.dashboard.openCloseAccount')->with('user', $user)->with('reasonType', $request->get('reasonType',1));
     }
 
-    public function checkAccountAuth(Request $request)
+    public function view_closeAccountReason(Request $request)
     {
         $user = $request->user();
         $input = $request->input();
@@ -982,33 +982,28 @@ class PagesController extends Controller
         if($user->email == $input['email']){
             if(Auth::attempt(array('email' => $input['email'], 'password' => $input['password'])) ){
                 //驗證成功
-                session()->put('accountAuth','Y');
-                return view('new.dashboard.openCloseAccount')->with('user', $user);
+                $reasonType = $request->get('reasonType');
+                if($reasonType == '3'){
+                    $this->updateAccountStatus($request);
+                    //關閉帳號後需登出
+                    session()->put('needLogOut','Y');
+                    return redirect('/dashboard/openCloseAccount')->with('message', '非常感謝您選擇甜心花園來為您提供服務，也恭喜您找到適合的他/她，您的帳號目前為關閉狀態，系統將於30秒後自動登出。');
+                }
+                else
+                    return view('new.dashboard.closeAccountReason', compact('user','reasonType' ,'message','needLogout'));
             }else{
                 //驗證失敗
-                session()->put('accountAuth','N');
                 return back()->with('message', '帳號驗證失敗');
             }
         }else{
             //驗證失敗
-            session()->put('accountAuth','N');
             return back()->with('message', '帳號驗證失敗');
         }
     }
 
-    public function view_openCloseAccount(Request $request)
-    {
-        $user = $request->user();
-        session()->put('accountAuth','N');
-
-        if(session()->get('accountAuth') == 'Y')
-            return view('new.dashboard.openCloseAccount')->with('user', $user);
-        else
-            return redirect('/dashboard/accountAuth')->with('user', $user);
-    }
-
     public function updateAccountStatus(Request $request){
         $user = $request->user();
+        $input = $request->input();
         $status = $request->get('status');
 
         if($status == 'close'){
@@ -1037,26 +1032,54 @@ class PagesController extends Controller
                 'user_id' => $user->id,
                 'reasonType' => $request->get('reasonType'),
                 'reported_id' => $request->get('reportedId'),
-                'content' => $request->get('content'),
+                'content' => is_array($request->get('content')) ? json_encode($request->get('content')) : $request->get('content'),
                 'image' => isset($destinationPath) ? $destinationPath : null,
                 'created_at' => Carbon::now()
             ]);
             $user->accountStatus = 0;
             $user->save();
 
-            Auth::logout();
-            return redirect('/login')->with('message', '帳號已成功關閉');
+
+            $closeMsg = '';
+            switch ($input['reasonType']){
+                case 1 :
+                    $closeMsg = '非常感謝您撥空填寫，我們會盡速處理，若此帳號確實有違規行為，會對其進行懲處，並於email另行聯絡您。您的帳號目前為關閉狀態，系統將於30秒後自動登出。';
+                    break;
+                case 2 :
+                case 4 :
+                    $closeMsg = '非常感謝您的回饋，我們會盡速優化與改善此問題，您的帳號目前為關閉狀態，系統將於30秒後自動登出。';
+                    break;
+                case 3 :
+                    $closeMsg = '非常感謝您選擇甜心花園來為您提供服務，也恭喜您找到適合的他/她，您的帳號目前為關閉狀態，系統將於30秒後自動登出。';
+                    break;
+            }
+
+            //關閉帳號後需登出
+            session()->put('needLogOut','Y');
+            return redirect('/dashboard/openCloseAccount')->with('message', $closeMsg);
         }
         else if ($status == 'open')
         {
             if(auth()->user()->isVip()){
-                $user->accountStatus = 1;
-                $user->save();
-                return redirect('/dashboard')->with('message', '帳號已成功開啟');
+                if($user->email == $input['email']){
+                    if(Auth::attempt(array('email' => $input['email'], 'password' => $input['password'])) ){
+                        //驗證成功
+                        $user->accountStatus = 1;
+                        $user->save();
+                        return redirect('/dashboard')->with('message', '帳號已成功開啟');
+                    }else{
+                        //驗證失敗
+                        return back()->with('message', '帳號驗證失敗');
+                    }
+                }else{
+                    //驗證失敗
+                    return back()->with('message', '帳號驗證失敗');
+                }
             }else{
                 return redirect('/dashboard/openCloseAccount')->with('message', '帳號開啟失敗');
             }
         }
+        return view('new.dashboard.openCloseAccount')->with('user', $user);
     }
 
     public function view_account_manage(Request $request)
