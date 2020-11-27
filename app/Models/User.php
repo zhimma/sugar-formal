@@ -658,6 +658,21 @@ class User extends Authenticatable
         return $pr;
     }
 
+    public function age(){
+        if (isset($this->user_meta->birthdate) && $this->user_meta->birthdate !== null && $this->user_meta->birthdate != 'NULL')
+        {
+            $userDob = $this->user_meta->birthdate;
+            $dob = new \DateTime($userDob);
+
+            $now = new \DateTime();
+
+            $difference = $now->diff($dob);
+
+            $age = $difference->y;
+            return $age;
+        }
+    }
+
     public static function rating($uid)
     {
         $userBlockList = Blocked::select('blocked_id')->where('member_id', $uid)->get();
