@@ -238,13 +238,13 @@ class UserMeta extends Model
             ->whereNotIn('users.id', function($query) use ($userid){
                 // $blockedUsers
                 $query->select('blocked_id')
-                    ->from(with(new blocked)->getTable()
-                    ->where('member_id', $userid));})
+                    ->from(with(new blocked)->getTable())
+                    ->where('member_id', $userid);})
             ->whereNotIn('users.id', function($query) use ($userid){
                 // $isBlockedByUsers
                 $query->select('member_id')
-                    ->from(with(new blocked)
-                    ->where('blocked_id', $userid)->getTable());})
+                    ->from(with(new blocked)->getTable())
+                    ->where('blocked_id', $userid);})
             ->orderBy($orderBy, 'desc')
             ->paginate(12);
 
