@@ -465,6 +465,8 @@ class Message_new extends Model
             else if($message['from_id'] == $user->id) {
                 $msgUser =  $message['receiver'];
             }
+            unset($message['sender']);
+            unset($message['receiver']);
             if(\App\Models\Message::onlyShowVip($user, $msgUser, $isVip)) {
                 unset($messages[$key]);
                 continue;
