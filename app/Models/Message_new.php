@@ -393,11 +393,11 @@ class Message_new extends Model
         $isBlockedList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
         $query = Message::where(function ($query) use ($uid) {
                     $query->where(function ($query) use ($uid) {
-                        $query->where('to_id','=' ,$uid)
-                            ->where('from_id','!=',$uid);
+                        $query->where('to_id', '=', $uid)
+                            ->where('from_id', '!=', $uid);
                     })->orWhere(function ($query) use ($uid) {
-                        $query->where('to_id','!=' ,$uid)
-                            ->where('from_id','=',$uid);
+                        $query->where('to_id', '!=', $uid)
+                            ->where('from_id', '=', $uid);
                     });
                 });
 
@@ -467,6 +467,10 @@ class Message_new extends Model
             }
             unset($message['sender']);
             unset($message['receiver']);
+            if(!$msgUser){
+                unset($messages[$key]);
+                continue;
+            }
             if(\App\Models\Message::onlyShowVip($user, $msgUser, $isVip)) {
                 unset($messages[$key]);
                 continue;
