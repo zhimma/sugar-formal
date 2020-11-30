@@ -162,7 +162,7 @@ class Message extends Model
         if (!isset($msgUser)){
             return false;
         }
-        return $isVip && !$msgUser->isVip() && $user->meta_('notifhistory')->notifhistory == '顯示VIP會員信件';
+        return $isVip && !$msgUser->isVip() && $user->user_meta->notifhistory == '顯示VIP會員信件';
     }
 
     public static function showNoVip($user, $msgUser, $isVip = false) {
@@ -570,10 +570,17 @@ class Message extends Model
         return false;
     }
 
-    public static function latestMessage($uid, $sid)
+    /**
+     * 取得最新私人訊息
+     * @param  \App\Models\User $user
+     * @param  \App\Models\User $targetUser
+     */
+    public static function latestMessage($user, $targetUser, $userBlockList = null)
     {
         //echo '<br>' . $uid . '             ' . $sid;
-        if(Blocked::isBlocked($uid, $sid)) {
+        $uid = $user->id;
+        $sid = $targetUser->id;
+        if(in_array($sid, $userBlockList->toArray())) {
             $blockTime = Blocked::getBlockTime($uid, $sid);
             //echo 'blockTime = ' . $blockTime->created_at;
             $latestMessage = Message::where([['to_id', $uid],['from_id', $sid],['created_at', '<=', $blockTime->created_at]])->orWhere([['to_id', $sid],['from_id', $uid],['created_at', '<=', $blockTime->created_at]])->orderBy('created_at', 'desc')->first();

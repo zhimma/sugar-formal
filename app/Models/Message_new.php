@@ -301,7 +301,7 @@ class Message_new extends Model
             // add messages to array
             if(!in_array(['to_id' => $message->to_id, 'from_id' => $message->from_id], $tempMessages) && !in_array(['to_id' => $message->from_id, 'from_id' => $message->to_id], $tempMessages)) {
                 array_push($tempMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id]);
-                array_push($saveMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id, 'temp_id' => $message->temp_id,'all_delete_count' => $message->all_delete_count, 'is_row_delete_1' => $message->is_row_delete_1, 'is_row_delete_2' => $message->is_row_delete_2, 'is_single_delete_1' => $message->is_single_delete_1, 'is_single_delete_2' => $message->is_single_delete_2, 'sender' => $message->sender, 'receiver' => $message->receiver]);
+                array_push($saveMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id, 'temp_id' => $message->temp_id,'all_delete_count' => $message->all_delete_count, 'is_row_delete_1' => $message->is_row_delete_1, 'is_row_delete_2' => $message->is_row_delete_2, 'is_single_delete_1' => $message->is_single_delete_1, 'is_single_delete_2' => $message->is_single_delete_2, 'sender' => $message->sender, 'receiver' => $message->receiver, 'content' => $message->content, 'read' => $message->read, 'created_at' => $message->created_at]);
                 //$noVipCount++;
             }
         }
@@ -391,13 +391,15 @@ class Message_new extends Model
         $banned_users = \App\Services\UserService::getBannedId($uid);
         $userBlockList = Blocked::select('blocked_id')->where('member_id', $uid)->get();
         $isBlockedList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
-
-        $query = Message::with('sender', 'receiver')
-                    ->where(
-                        function($query)use($uid){
-                            $query->where('to_id','=' ,$uid)
-                                ->orWhere('from_id','=',$uid);
+        $query = Message::where(function ($query) use ($uid) {
+                    $query->where(function ($query) use ($uid) {
+                        $query->where('to_id','=' ,$uid)
+                            ->where('from_id','!=',$uid);
+                    })->orWhere(function ($query) use ($uid) {
+                        $query->where('to_id','!=' ,$uid)
+                            ->where('from_id','=',$uid);
                     });
+                });
 
         if($d==7){
             self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
@@ -439,44 +441,24 @@ class Message_new extends Model
         if(count($saveMessages) == 0){
             return array_values(['No data']);
         }else{
-            return Message_new::sortMessages($saveMessages, $banned_users, $userBlockList, $isBlockedList, $mm);
+            return Message_new::sortMessages($saveMessages, $userBlockList, $mm);
         }
         //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
     }
 
 
-    public static function sortMessages($messages, $banned_users = null, $userBlockList = null, $isBlockedList = null, $mm = []){
+    public static function sortMessages($messages, $userBlockList = null, $mm = []){
         if ($messages instanceof Illuminate\Database\Eloquent\Collection) {
             $messages = $messages->toArray();
         }
         $user = Auth::user();
         $block_people =  Config::get('social.block.block-people');
-        if(!$banned_users && !$userBlockList && !$isBlockedList){
-            $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
-            $isBlockedList = \App\Models\Blocked::select('member_id')->where('blocked_id', $user->id)->get();
-            $banned_users = \App\Services\UserService::getBannedId($user->id);
-        }
         $isVip = $user->isVip();
         $aa=[];
         foreach ($messages as $key => &$message){
             $to_id = isset($message["to_id"]) ? $message["to_id"] : null;
             $from_id = isset($message["from_id"]) ? $message["from_id"] : null;
-            if($banned_users->contains('member_id', $to_id)){
-                unset($messages[$key]);
-                continue;
-            }
-            if($banned_users->contains('member_id', $from_id) && $from_id != $user->id){
-                unset($messages[$key]);
-                continue;
-            }
-            if($userBlockList->contains('blocked_id', $from_id) || $userBlockList->contains('blocked_id', $to_id) || $isBlockedList->contains('member_id', $from_id) || $isBlockedList->contains('member_id', $to_id)){
-                unset($messages[$key]);
-                continue;
-            }
-//            if($message["all_delete_count"]==$user->id || $message["is_row_delete_1"]==$user->id || $message["is_row_delete_2"]==$user->id || $message["is_single_delete_1"]==$user->id || $message["is_single_delete_2"]==$user->id){
-//                unset($messages[$key]);
-//                continue;
-//            }
+
             if($message['to_id'] == $user->id) {
                 $msgUser = $message['sender'];
             }
@@ -488,34 +470,25 @@ class Message_new extends Model
                 continue;
             }
             if(isset($user->id) && isset($msgUser->id)){
-                $latestMessage = \App\Models\Message::latestMessage($user->id, $msgUser->id);
-                if(!empty($latestMessage)){
-                    if(\App\Models\Message::isAdminMessage($latestMessage->content)){
-                        $messages[$key]['isAdminMessage'] = 1;
-                    }
-                    else{
-                        $messages[$key]['isAdminMessage'] = 0;
-                    }
-                    if(\App\Models\Reported::cntr($msgUser->id) >= $block_people ){
-                        $messages[$key]['cntr'] = 1;
-                    }
-                    else{
-                        $messages[$key]['cntr'] = 0;
-                    }
-                    if(isset($latestMessage->isPreferred)){
-                        $message['isPreferred'] = 1;
-                        $message['button'] = $latestMessage->button;
-                    }
-                }
-                $messages[$key]['user_id'] = $msgUser->id;
-                if(isset($latestMessage)){
-                    $messages[$key]['read'] = $latestMessage->read;
-                    $messages[$key]['created_at'] = $latestMessage['created_at']->toDateTimeString();
+                if(\App\Models\Message::isAdminMessage($message["content"])){
+                    $messages[$key]['isAdminMessage'] = 1;
                 }
                 else{
-                    $messages[$key]['read'] = '';
-                    $messages[$key]['created_at'] = '';
+                    $messages[$key]['isAdminMessage'] = 0;
                 }
+                if(\App\Models\Reported::cntr($msgUser->id) >= $block_people ){
+                    $messages[$key]['cntr'] = 1;
+                }
+                else{
+                    $messages[$key]['cntr'] = 0;
+                }
+                $data = \App\Services\UserService::checkRecommendedUser($msgUser);
+                if(isset($data['button']) && isset($theMessage)){
+                    $message['isPreferred'] = 1;
+                    $message['button'] = $data['button'];
+                }
+                $messages[$key]['user_id'] = $msgUser->id;
+                $messages[$key]['created_at'] = $message['created_at']->toDateTimeString();
                 $messages[$key]['user_name'] = $msgUser->name;
                 $messages[$key]['isAvatarHidden'] = $msgUser->user_meta->isAvatarHidden;
                 $messages[$key]['pic'] = $msgUser->user_meta->pic;
@@ -526,7 +499,6 @@ class Message_new extends Model
                         $messages[$key]['pic'] = '/new/images/female.png';
                     }
                 }
-                $messages[$key]['content'] = $latestMessage == null ? '' : $latestMessage->content;
                 $messages[$key]['read_n'] = $mm[$msgUser->id] ?? 0;
                 $messages[$key]['isVip'] = $msgUser->isVip();
 //                $messages[$key]['isWarned']=$msgUser->meta_()->isWarned;
