@@ -990,7 +990,7 @@ class PagesController extends Controller
                     return redirect('/dashboard/openCloseAccount')->with('message', '非常感謝您選擇甜心花園來為您提供服務，也恭喜您找到適合的他/她，您的帳號目前為關閉狀態，系統將於30秒後自動登出。');
                 }
                 else
-                    return view('new.dashboard.closeAccountReason', compact('user','reasonType' ,'message','needLogout'));
+                    return view('new.dashboard.closeAccountReason', compact('user','reasonType'));
             }else{
                 //驗證失敗
                 return back()->with('message', '帳號驗證失敗');
@@ -1031,7 +1031,7 @@ class PagesController extends Controller
             AccountStatusLog::insert([
                 'user_id' => $user->id,
                 'reasonType' => $request->get('reasonType'),
-                'reported_id' => $request->get('reportedId'),
+                'reported_id' => is_array($request->get('reportedId')) ? implode(',', $request->get('reportedId'))  : $request->get('reportedId'),
                 'content' => is_array($request->get('content')) ? json_encode($request->get('content')) : $request->get('content'),
                 'image' => isset($destinationPath) ? $destinationPath : null,
                 'created_at' => Carbon::now()

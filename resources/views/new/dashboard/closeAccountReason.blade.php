@@ -41,7 +41,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                             <input type="hidden" name="status" value="close">
                                             <input type="hidden" name="userId" value="{{ $user->id }}">
                                             <input type="hidden" name="reasonType" value="1">
-                                            <input type="hidden" name="reportedId" value="">
                                             <ul style="margin: 0px 15px;">
                                                 <?php
                                                 $userList = \App\Models\Message::orwhere('from_id', $user->id)
@@ -62,8 +61,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                                 <span>{{ $account->name }}</span>
                                                                 <div class="sjright" >
                                                                     <h4>
-                                                                        <a href="javascript:" class="remove reportUser" data-id="{{ $account->user_id }}" style="margin-right: 20px;"><img src="/new/images/ncion_07.png">檢舉</a>
-{{--                                                                        <input type="checkbox" name="reportedId[]" value="{{ $account->user_id }}">--}}
+                                                                        <a href="javascript:" class="remove reportUser" data-id="{{ $account->user_id }}" style="margin-right: 20px;"><img src="/new/images/ncion_07.png">檢舉
+                                                                            <input type="checkbox" hidden name="reportedId[]" class="reportId_input" value="{{ $account->user_id }}">
+                                                                        </a>
                                                                     </h4>
                                                                 </div>
                                                             </div>
@@ -76,7 +76,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 </li>
                                                 <br>
                                                 <span>說明（必填）</span>
-                                                <span><textarea minlength="4" data-parsley-minlength="4" name="content" rows="3" class="select_xx05" placeholder="給站務人員的備註,或期望處理方式" required></textarea></span>
+                                                <span><textarea name="content" rows="3" class="select_xx05" placeholder="給站務人員的備註,或期望處理方式" required></textarea></span>
                                             </ul>
                                             <div class="col-sm-12 col-lg-12" style="margin-left: 18px;">
                                                 <!-- name 要與 FileUploader 相同 -->
@@ -139,14 +139,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     <dt>
                                         <span>功能操作不實用</span>
                                         <span>
-                                        <textarea minlength="4" data-parsley-minlength="4" required="" data-parsley-errors-messages-disabled="" name="about" cols="" rows="3" class="select_xx05" data-parsley-id="25" placeholder="請輸入功能名稱"></textarea>
+                                        <textarea required="" data-parsley-errors-messages-disabled="" name="about" cols="" rows="3" class="select_xx05" placeholder="請輸入功能名稱"></textarea>
                                         </span>
                                     </dt>
 
                                     <dt>
                                         <span>其他</span>
                                         <span>
-                                        <textarea minlength="4" data-parsley-minlength="4" required="" data-parsley-errors-messages-disabled="" name="about" cols="" rows="3" class="select_xx05" data-parsley-id="25" placeholder="請輸入功能名稱"></textarea>
+                                        <textarea required="" data-parsley-errors-messages-disabled="" name="about" cols="" rows="3" class="select_xx05" placeholder="請輸入功能名稱"></textarea>
                                         </span>
                                     </dt>
 
@@ -186,7 +186,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         <input type="hidden" name="userId" value="{{ $user->id }}">
                                         <input type="hidden" name="status" value="close">
                                         <input type="hidden" name="reasonType" value="4">
-                                        <textarea minlength="4" data-parsley-minlength="4" required="" data-parsley-errors-messages-disabled="" name="about" cols="" rows="3" class="select_xx05" data-parsley-id="25" placeholder="請輸入欲關閉帳號之原因"></textarea>
+                                        <textarea required="" data-parsley-errors-messages-disabled="" name="content" rows="3" class="select_xx05" placeholder="請輸入欲關閉帳號之原因"></textarea>
                                         <div class="n_bbutton" style="text-align: center;">
                                             <button type="submit" class="n_center" style="border-style: none; background: #8a9ff0; color:#ffffff; text-align: center; border-radius: 200px; width:150px; height: 40px;">送出</button>
                                         </div>
@@ -378,10 +378,20 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     });
 
     $('.reportUser').click(function() {
-        //$(this).toggleClass('reportFlag');
-        $('.reportUser').removeClass('reportFlag');
-        $(this).addClass('reportFlag');
-        $("input[name=reportedId]").val($(this).attr("data-id"));
+        var index = $('.reportUser').index(this);
+
+        $(this).toggleClass('reportFlag');
+        if($(this).hasClass('reportFlag')){
+            var count = $("input[name='reportedId[]']:checked").length;
+            if(count>=3){
+                c5('檢舉的對象最多勾選三位');
+                $(this).removeClass('reportFlag');
+            }else{
+                $("input[name='reportedId[]']").eq(index).attr('checked', true);
+            }
+        }
+        else
+            $("input[name='reportedId[]']").eq(index).attr('checked', false);
     });
 </script>
 @stop
