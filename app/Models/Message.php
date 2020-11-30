@@ -158,7 +158,6 @@ class Message extends Model
 
     // show message setting
     public static function onlyShowVip($user, $msgUser, $isVip = false) {
-        //return $user->isVip() && !$msgUser->isVip() && $user->meta_()->notifhistory == '顯示VIP會員信件';
         if (!isset($msgUser)){
             return false;
         }
@@ -166,8 +165,7 @@ class Message extends Model
     }
 
     public static function showNoVip($user, $msgUser, $isVip = false) {
-        //return $user->isVip() && !$msgUser->isVip() && ($user->meta_()->notifhistory == '顯示普通會員信件' || $user->meta_()->notifhistory == '');
-        return $isVip && !$msgUser->isVip() && ($user->meta_('notifhistory')->notifhistory == '顯示普通會員信件' || $user->meta_()->notifhistory == '');
+        return $isVip && !$msgUser->isVip() && ($user->user_meta->notifhistory == '顯示普通會員信件' || $user->user_meta->notifhistory == '');
     }
 
     public static function getLastSender($uid, $sid) {
@@ -181,7 +179,6 @@ class Message extends Model
         $tempMessages = [];
         $noVipCount = 0;
         $isAllDelete = true;
-        //$msgShow = User::findById($uid)->meta_()->notifhistory;
         $user = \Auth::user();
         $banned_users = \App\Services\UserService::getBannedId($user->id);
         foreach($messages as $key => &$message) {
@@ -246,7 +243,6 @@ class Message extends Model
         $saveMessages = [];
         $tempMessages = [];
         $isAllDelete = true;
-        //$msgShow = User::findById($uid)->meta_()->notifhistory;
         foreach($messages as $key => $message) {
             if($isVip == 0 && $noVipCount >0 &&$noVipCount >= Config::get('social.limit.show-chat')) {
                 break;
@@ -553,8 +549,8 @@ class Message extends Model
                 $messages[$key]['created_at'] = '';
             }
             $messages[$key]['user_name'] = $msgUser->name;
-            $messages[$key]['isAvatarHidden'] = $msgUser->meta_()->isAvatarHidden;
-            $messages[$key]['pic'] = $msgUser->meta_()->pic;
+            $messages[$key]['isAvatarHidden'] = $msgUser->user_meta->isAvatarHidden;
+            $messages[$key]['pic'] = $msgUser->user_meta->pic;
             $messages[$key]['content'] = $latestMessage == null ? '' : $latestMessage->content;
         }
         $messages['date'] = self::$date;
@@ -644,7 +640,7 @@ class Message extends Model
             ->where([['is_row_delete_1', '=' ,0], ['temp_id', '=', 0]])
             ->where('read', 'N')
             ->where([['message.created_at','>=',self::$date]]);
-        if($user->meta_()->notifhistory == '顯示VIP會員信件') {
+        if($user->user_meta->notifhistory == '顯示VIP會員信件') {
             //$allVip = \App\Models\Vip::allVip();
             //$all_msg = $all_msg->whereIn('from_id', $allVip);
             $all_msg = $all_msg->join('member_vip', 'member_vip.member_id', '=', 'message.from_id');
@@ -684,7 +680,7 @@ class Message extends Model
         $message->sys_notice = $sys_notice;
         $message->save();
         $curUser = User::findById($to_id);
-        if ($curUser->meta_()->notifmessage !== '不通知')
+        if ($curUser->user_meta->notifmessage !== '不通知')
         {
         // $curUser->notify(new MessageEmail($from_id, $to_id, $msg));
         }

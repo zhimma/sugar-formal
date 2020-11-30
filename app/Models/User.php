@@ -102,8 +102,7 @@ class User extends Authenticatable
         if(!isset($queries)){
             $queries = '*';
         }
-        $this->attributes['meta'] = $this->attributes['meta'] ?? UserMeta::select($queries)->where('user_id', $this->id)->first();
-        return $this->attributes['meta'];
+        return UserMeta::select($queries)->where('user_id', $this->id)->first();
     }
 
     /**
