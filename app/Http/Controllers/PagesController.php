@@ -1007,25 +1007,37 @@ class PagesController extends Controller
         $status = $request->get('status');
 
         if($status == 'close'){
+            if($request->get('reasonType') ==1){
 
-            $image = $request->file('image');
-            if(!is_null($image)){
-                $now = Carbon::now()->format('Ymd');
-
-                $input['imagename'] = $now . rand(100000000,999999999) . '.' . $image->getClientOriginalExtension();
-
-                $rootPath = public_path('/img/Member');
-                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
-
-                if(!is_dir($tempPath)) {
-                    File::makeDirectory($tempPath, 0777, true);
+                $image = $request->file('image');
+                $validator = Validator::make($request->input(),[ 'fileuploader-list-image' => 'required|mimes:jpeg,png,jpg,gif,svg|max:22000',] ,[
+                    'fileuploader-list-image.mimes' => $image->getClientOriginalName() .' 的檔案類型不被允許',
+                    'fileuploader-list-image.required' => '請上傳圖片',
+                    'fileuploader-list-image.max' => '最大圖片限制22M'
+                ]);
+                if($validator->fails()){
+                     return back()->with('message', $validator->errors()->all()[0]);
                 }
-                $destinationPath = '/img/Member/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
 
-                $img = Image::make($image->getRealPath());
-                $img->resize(400, 600, function ($constraint) {
-                    $constraint->aspectRatio();
-                })->save($tempPath . $input['imagename']);
+                $image = $request->file('image');
+                if(!is_null($image)){
+                    $now = Carbon::now()->format('Ymd');
+
+                    $input['imagename'] = $now . rand(100000000,999999999) . '.' . $image->getClientOriginalExtension();
+
+                    $rootPath = public_path('/img/Member');
+                    $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+
+                    if(!is_dir($tempPath)) {
+                        File::makeDirectory($tempPath, 0777, true);
+                    }
+                    $destinationPath = '/img/Member/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
+
+                    $img = Image::make($image->getRealPath());
+                    $img->resize(400, 600, function ($constraint) {
+                        $constraint->aspectRatio();
+                    })->save($tempPath . $input['imagename']);
+                }
             }
 
             AccountStatusLog::insert([

@@ -22,7 +22,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     <li><a href="{!! url('/dashboard/new_vip') !!}" class="g_pwicon_t4"><span>VIP</span></a></li>
                 </div>
                 <div class="gg_zh">
-                    <div class="gg_mm"><span><i></i>會員帳號開啟/關閉</span><img src="/new/images/darkPinkKey.png">
+                    <div class="gg_mm"><span><i></i>帳號開啟/關閉</span><img src="/new/images/darkPinkKey.png">
                 </div>
 
                 <div class="n_shtab">
@@ -32,7 +32,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     <div class="leftsidebar_box">
                         <dl class="system_log n_input">
                             @if($reasonType == 1)
-                            <dt class="blxg">以下是所有與您通訊過的會員，請勾選出欲檢舉的對象(最多三位)。</dt>
+                            <dt class="blxg">以下是過去半年與您通訊過的會員名單，請勾選出欲檢舉的對象(最多三位)。</dt>
                             <dd class="lebox3_content">
                                 <div class="row mb-4 ">
                                     <div class="sjlist">
@@ -45,9 +45,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 <?php
                                                 $userList = \App\Models\Message::orwhere('from_id', $user->id)
                                                     ->orwhere('to_id', $user->id)
-                                                    ->where('content', 'NOT LIKE', '%系統通知%')->distinct()->select('from_id')->get()->toArray();
+                                                    ->where('content', 'NOT LIKE', '%系統通知%')
+                                                    ->where('created_at','<=', date('Y-m-d H:i:s', strtotime("-6 month")))
+                                                    ->distinct()->select('from_id')->get()->toArray();
 
-                                                $accountList = \App\Models\UserMeta::leftJoin('users', 'users.id', '=', 'user_meta.user_id')->whereIn('user_meta.user_id', $userList)->where('user_meta.user_id', '!=', $user->id)->get();
+                                                $getList = \App\Models\UserMeta::leftJoin('users', 'users.id', '=', 'user_meta.user_id')->whereIn('user_meta.user_id', $userList)->where('user_meta.user_id', '!=', $user->id)->get();
+                                                $page = \Illuminate\Support\Facades\Request::get('page');
+                                                $perPage = 3;
+                                                $accountList = new \Illuminate\Pagination\LengthAwarePaginator($getList->forPage($page, $perPage), $getList->count(), $perPage, $page,  ['path' => '/dashboard/closeAccountReason/']);
                                                 ?>
                                                 @foreach($accountList as $account)
                                                 @php
@@ -72,16 +77,19 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                             @endif
                                                         </div>
                                                     </div>
-                                                @endforeach
                                                 </li>
+                                                @endforeach
+                                                <div style="text-align: center;">
+                                                    {!! $accountList->appends(request()->input())->links('pagination::sg-pages2') !!}
+                                                </div>
                                                 <br>
-                                                <span>說明（必填）</span>
+                                                <span>說明</span><span style="color: #fe92a8;">（必填）</span>
                                                 <span><textarea name="content" rows="3" class="select_xx05" placeholder="給站務人員的備註,或期望處理方式" required></textarea></span>
                                             </ul>
-                                            <div class="col-sm-12 col-lg-12" style="margin-left: 18px;">
+                                            <div class="col-sm-12 col-lg-12">
                                                 <!-- name 要與 FileUploader 相同 -->
                                                 <input type="file" name="image" data-fileuploader-files='' required>
-                                                <input type="submit" class="vipbut upload_btn abtn" value="上傳證據" style="border-style: none;  margin-bottom: 10px;">
+                                                <input type="submit" class="vipbut upload_btn abtn" value="檢舉騷擾/八大帳號" style="border-style: none;  margin-bottom: 10px;">
                                             </div>
                                         </form>
                                     </div>
@@ -96,55 +104,55 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     <input type="hidden" name="userId" value="{{ $user->id }}">
                                     <input type="hidden" name="reasonType" value="2">
 
-                                    <dt class="">介面設計不美觀 請勾選頁面圖示（複選）</dt>
+                                    <dt class="">1.介面設計不美觀 請勾選頁面圖示（複選）</dt>
                                     <div class="g_pwicon" style="width: 100%; padding: 0px 0px;">
                                         <li class="section1">
-                                            <input name="content[]"  type="checkbox" class="pick1" value="介面設計不美觀-整體設計">
+                                            <input name="content[]" hidden type="checkbox" class="pick1" value="介面設計不美觀-整體設計">
                                             <img src="/new/images/01-photo-index-uiux.jpg"><span class="reason">1.整體設計</span>
                                         </li>
                                         <li class="section2">
-                                            <input name="content[]"  type="checkbox"  class="pick2" value="介面設計不美觀-訊息收件">
+                                            <input name="content[]" hidden type="checkbox"  class="pick2" value="介面設計不美觀-訊息收件">
                                             <img src="/new/images/02-photo-chat-uiux.jpg"><span class="reason">2.訊息收件</span>
                                         </li>
                                         <li class="section3">
-                                            <input name="content[]"  type="checkbox" class="pick3" value="介面設計不美觀-搜索功能">
+                                            <input name="content[]" hidden type="checkbox" class="pick3" value="介面設計不美觀-搜索功能">
                                             <img src="/new/images/03-photo-search-uiux.jpg"><span class="reason">3.搜索功能</span>
                                         </li>
                                         <li class="section4">
-                                            <input name="content[]"  type="checkbox" class="pick4" value="介面設計不美觀-瀏覽會員">
+                                            <input name="content[]" hidden type="checkbox" class="pick4" value="介面設計不美觀-瀏覽會員">
                                             <img src="/new/images/04-photo-viewUser-uiux.jpg"><span class="reason">4.瀏覽會員</span>
                                         </li>
                                     </div>
 
-                                    <dt class="">載入速度太慢 請勾選頁面圖示（複選）</dt>
+                                    <dt class="">2.載入速度太慢 請勾選頁面圖示（複選）</dt>
                                     <div class="g_pwicon" style="width: 100%; padding: 0px 0px;">
                                         <li class="section5">
-                                            <input name="content[]"  type="checkbox" class="pick5" value="載入速度太慢-整體設計">
+                                            <input name="content[]" hidden type="checkbox" class="pick5" value="載入速度太慢-整體設計">
                                             <img src="/new/images/01-photo-index-uiux.jpg"><span class="reason">5.整體設計</span>
                                         </li>
                                         <li class="section6">
-                                            <input name="content[]"  type="checkbox" class="pick6" value="載入速度太慢-訊息收件">
+                                            <input name="content[]" hidden type="checkbox" class="pick6" value="載入速度太慢-訊息收件">
                                             <img src="/new/images/02-photo-chat-uiux.jpg"><span class="reason">6.訊息收件</span>
                                         </li>
                                         <li class="section7">
-                                            <input name="content[]"  type="checkbox" class="pick7" value="載入速度太慢-搜索功能">
+                                            <input name="content[]" hidden type="checkbox" class="pick7" value="載入速度太慢-搜索功能">
                                             <img src="/new/images/03-photo-search-uiux.jpg"><span class="reason">7.搜索功能</span>
                                         </li>
                                         <li class="section8" >
-                                            <input name="content[]"  type="checkbox" class="pick8" value="載入速度太慢-瀏覽會員">
+                                            <input name="content[]" hidden type="checkbox" class="pick8" value="載入速度太慢-瀏覽會員">
                                             <img src="/new/images/04-photo-viewUser-uiux.jpg"><span class="reason">8.瀏覽會員</span>
                                         </li>
                                     </div>
 
                                     <dt>
-                                        <span>功能操作不實用</span>
+                                        <span>3.功能操作不實用</span>
                                         <span>
                                         <textarea required="" data-parsley-errors-messages-disabled="" name="about" cols="" rows="3" class="select_xx05" placeholder="請輸入功能名稱"></textarea>
                                         </span>
                                     </dt>
 
                                     <dt>
-                                        <span>其他</span>
+                                        <span>4.其他</span>
                                         <span>
                                         <textarea required="" data-parsley-errors-messages-disabled="" name="about" cols="" rows="3" class="select_xx05" placeholder="請輸入功能名稱"></textarea>
                                         </span>
@@ -235,7 +243,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     }
 
     .reasonPick{
-        border: 1px solid pink;
+        border: 3px solid lightsteelblue;
     }
 
     .sjright{
@@ -261,10 +269,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     .reportFlag{
         background: rgba(255,24,34,0.71);
     }
+    .fileuploader-items .fileuploader-item .column-title div{
+        white-space: normal;
+    }
 </style>
 <script src="/plugins/hopscotch/js/hopscotch.min.js"></script>
 <script src="/plugins/fileuploader2.2/src/jquery.fileuploader.js"></script>
 <script>
+    @if(Session::has('message'))
+    c2('{{Session::get('message')}}');
+    @endif
+
     //preload pictures
     $("input[name='image']").fileuploader({
         addMore: true,
@@ -273,32 +288,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             ratio: "1:1",
             showGrid: true
         },
+        //extensions: ['jpg', 'jpeg', 'png', 'gif', 'svg'],
         onRemove: function(item) {
-            var isRemovable = true;
-            if(item.data.isPreload === true){
-                $.ajax({
-                    url: "/dashboard/avatar/delete/" + $("input[name='userId']").val(),
-                    method: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}"
-                    },
-                    success: function(data){
-                        //c2("刪除成功")
-                        $(".announce_bg").hide();
-                        $("#tab02").hide();
-                        c3(data);
-                        isRemovable = true
-                    },
-                    error: function(xhr, status, msg){
-                        c2("刪除失敗")
-                        isRemovable = false
-                    }
-                })
-            }
-
-            return isRemovable
         },
         captions: {
+            button: function(options) { return '上傳相關證據'; },
+            feedback: function(options) { return '前往選取證據'; },
             errors: {
                 filesLimit: function(){
                     return '照片上傳限制最多為一張！';
@@ -375,6 +370,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             $('.pick8').attr('checked', true);
         else
             $('.pick8').attr('checked', false);
+    });
+
+    $('.fenye').click(function () {
+        var reportedIdAry = [];
+        $("input[name='reportedId[]']:checked").each(function() {
+            reportedIdAry.push($(this).val());
+            //alert($(this).val());
+        });
+        //alert(reportedIdAry);
     });
 
     $('.reportUser').click(function() {

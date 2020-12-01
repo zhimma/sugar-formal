@@ -15,7 +15,7 @@
                         <li><a href="{!! url('/dashboard/new_vip') !!}" class="g_pwicon_t4"><span>VIP</span></a></li>
                     </div>
                     <div class="gg_zh">
-                        <div class="gg_mm"><span><i></i>會員帳號開啟/關閉</span><img src="/new/images/darkPinkKey.png"></div>
+                        <div class="gg_mm"><span><i></i>帳號開啟/關閉</span><img src="/new/images/darkPinkKey.png"></div>
                         @if($user->accountStatus == 0)
                             @if ($user->isVip())
                                 <div class="n_shtab">

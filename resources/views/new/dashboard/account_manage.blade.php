@@ -25,7 +25,7 @@
                             <font>更改密碼</font>
                         </a>
                         <a href="{!! url('/dashboard/openCloseAccount') !!}" class="gg_zh_li"><span><img src="/new/images/lightPinkKey.png"></span>
-                            <font>會員帳號開啟/關閉</font>
+                            <font>帳號開啟/關閉</font>
                         </a>
                         {{--                        @php--}}
 {{--                        //檢查是否有申請交付--}}

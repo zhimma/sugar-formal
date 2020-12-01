@@ -2228,7 +2228,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 
 
 @media (max-width:320px) {
-    .fenye a{margin: 0 13px;}
+    .fenye a{margin: 0 13px; font-size: 13px;}
 }
 
 
