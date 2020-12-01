@@ -79,8 +79,15 @@ class CheckECpay implements ShouldQueue
                 }
                 $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
                 $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
+                // 三個月一期或一個月一期
+                if(str_contains($this->vipData->payment, 'quarterly')){
+                    $days = 92;
+                }
+                else{
+                    $days = 31;
+                }
                 $now = \Carbon\Carbon::now();
-                if ($last['RtnCode'] == 1 && $lastProcessDate->diffInDays($now) > 31) {
+                if ($last['RtnCode'] == 1 && $lastProcessDate->diffInDays($now) > $days) {
                     Log::info('付費失敗');
                     Log::info($paymentData);
 
