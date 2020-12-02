@@ -35,14 +35,16 @@ class CheckAccountStatus
      */
     public function handle($request, Closure $next)
     {
-        if (!is_null($this->auth->user())){
-            //0:帳號關閉中 1:帳號開啟中(預設)
-            if ($this->auth->user()->accountStatus == 0) {
-                if(Session::get('needLogOut') == 'Y'){
-                    //logger('middleware=>'.Session::get('needLogOut'));
-                    Session::put('needLogOut','N');
+        if(!in_array($_SERVER['REQUEST_URI'], ['/dashboard/new_vip','/dashboard/vip'])){
+            if (!is_null($this->auth->user())){
+                //0:帳號關閉中 1:帳號開啟中(預設)
+                if ($this->auth->user()->accountStatus == 0) {
+                    if(Session::get('needLogOut') == 'Y'){
+                        //logger('middleware=>'.Session::get('needLogOut'));
+                        Session::put('needLogOut','N');
+                    }
+                    return response()->view('new.dashboard.openCloseAccount',['user'=> auth()->user()]);
                 }
-                return response()->view('new.dashboard.openCloseAccount',['user'=> auth()->user()]);
             }
         }
         return $next($request);

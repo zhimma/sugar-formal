@@ -49,18 +49,21 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                     ->where('created_at','<=', date('Y-m-d H:i:s', strtotime("-6 month")))
                                                     ->distinct()->select('from_id')->get()->toArray();
 
-                                                $getList = \App\Models\UserMeta::leftJoin('users', 'users.id', '=', 'user_meta.user_id')->whereIn('user_meta.user_id', $userList)->where('user_meta.user_id', '!=', $user->id)->get();
-                                                $page = \Illuminate\Support\Facades\Request::get('page');
-                                                $perPage = 3;
-                                                $accountList = new \Illuminate\Pagination\LengthAwarePaginator($getList->forPage($page, $perPage), $getList->count(), $perPage, $page,  ['path' => '/dashboard/closeAccountReason/']);
+                                                $accountList = \App\Models\UserMeta::leftJoin('users', 'users.id', '=', 'user_meta.user_id')->whereIn('user_meta.user_id', $userList)->where('user_meta.user_id', '!=', $user->id)->get();
+                                                $listIndex = 0;
                                                 ?>
                                                 @foreach($accountList as $account)
                                                 @php
                                                     $changeName = DB::table('account_name_change')->where('user_id', $account->user_id)->where('status',1)->orderBy('passed_at', 'desc')->first();
+                                                    $listIndex += 1;
                                                 @endphp
-                                                <li>
+                                                <li class="listAccount listIndex_{{$listIndex}}">
                                                     <div class="si_bg" style="margin-left: 0;">
-                                                        <div class="sjpic"><a href="/dashboard/viewuser/{{ $account->user_id }}"><img src="{{ $account->pic }}"></a></div>
+                                                        <div class="sjpic">
+                                                            <a href="/dashboard/viewuser/{{ $account->user_id }}">
+                                                                <img src="@if(file_exists( public_path().$account->pic ) && $account->pic != ""){{$account->pic}} @elseif($account->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
+                                                            </a>
+                                                        </div>
                                                         <div class="sjleft">
                                                             <div class="sjtable">
                                                                 <span>{{ $account->name }}</span>
@@ -79,17 +82,21 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                     </div>
                                                 </li>
                                                 @endforeach
-                                                <div style="text-align: center;">
-                                                    {!! $accountList->appends(request()->input())->links('pagination::sg-pages2') !!}
-                                                </div>
+                                                @if ($accountList->count() >15)
+                                                    <div class="fenye">
+                                                        <a class="prev_page" href="#">上一頁</a>
+                                                        <span class="new_page">第 1 頁</span>
+                                                        <a class="next_page" href="#">下一頁</a>
+                                                    </div>
+                                                @endif
                                                 <br>
                                                 <span>說明</span><span style="color: #fe92a8;">（必填）</span>
-                                                <span><textarea name="content" rows="3" class="select_xx05" placeholder="給站務人員的備註,或期望處理方式" required></textarea></span>
+                                                <span><textarea id="content1" name="content" rows="3" class="select_xx05" placeholder="給站務人員的備註,或期望處理方式" required></textarea></span>
                                             </ul>
                                             <div class="col-sm-12 col-lg-12">
                                                 <!-- name 要與 FileUploader 相同 -->
-                                                <input type="file" name="image" data-fileuploader-files='' required>
-                                                <input type="submit" class="vipbut upload_btn abtn" value="檢舉騷擾/八大帳號" style="border-style: none;  margin-bottom: 10px;">
+                                                <input type="file" name="image" data-fileuploader-files='' required  onchange="checkfile(this);">
+                                                <input type="submit" id="reportAccount_btn" class="vipbut upload_btn abtn" value="檢舉騷擾/八大帳號" style="border-style: none;  margin-bottom: 10px;">
                                             </div>
                                         </form>
                                     </div>
@@ -147,14 +154,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     <dt>
                                         <span>3.功能操作不實用</span>
                                         <span>
-                                        <textarea required="" data-parsley-errors-messages-disabled="" name="about" cols="" rows="3" class="select_xx05" placeholder="請輸入功能名稱"></textarea>
+                                        <textarea required="" data-parsley-errors-messages-disabled="" name="remark1" cols="" rows="3" class="select_xx05" placeholder="請輸入功能名稱"></textarea>
                                         </span>
                                     </dt>
 
                                     <dt>
                                         <span>4.其他</span>
                                         <span>
-                                        <textarea required="" data-parsley-errors-messages-disabled="" name="about" cols="" rows="3" class="select_xx05" placeholder="請輸入功能名稱"></textarea>
+                                        <textarea required="" data-parsley-errors-messages-disabled="" name="remark2" cols="" rows="3" class="select_xx05" placeholder="請輸入功能名稱"></textarea>
                                         </span>
                                     </dt>
 
@@ -388,7 +395,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         if($(this).hasClass('reportFlag')){
             var count = $("input[name='reportedId[]']:checked").length;
             if(count>=3){
-                c5('檢舉的對象最多勾選三位');
+                c3('檢舉的對象最多勾選三位');
                 $(this).removeClass('reportFlag');
             }else{
                 $("input[name='reportedId[]']").eq(index).attr('checked', true);
@@ -397,5 +404,66 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         else
             $("input[name='reportedId[]']").eq(index).attr('checked', false);
     });
+
+    function checkfile(sender) {
+        // 可接受的附檔名
+        var validExts = new Array(".jpeg", ".png", ".jpg", ".gif", ".svg");
+        var fileExt = sender.value;
+        fileExt = fileExt.substring(fileExt.lastIndexOf('.'));
+        if (validExts.indexOf(fileExt) < 0) {
+            c3('檔案類型不被允許，可接受的副檔名有：' + validExts.toString());
+            sender.value = null;
+            return false;
+        }
+        else return true;
+    }
+
+    $('#reportAccount_btn').click(function() {
+        var t = $(this).closest("form");
+
+        if(  $("input[name='reportedId[]']:checked").length < 1){
+            c3('請選出欲檢舉的對象');
+            return false;
+        }
+        if($('textarea[name="content"]').val().length == 0){
+            c3('"說明"欄位為必填，請勿空白。');
+            return false;
+        }
+        if(  $("input[name=image]").val() ==''){
+            c3('請上傳相關證據');
+            return false;
+        }
+        t.submit();
+    });
+
+    let nowPage = 1;
+    let perPage = 15;
+    let totalCount= '{{ isset($accountList) ? $accountList->count() : 0 }}';
+    showList(nowPage);
+    $('.prev_page').click(function() {
+        if(nowPage > 1) {
+            nowPage -= 1;
+            $('.new_page').text('第 '+nowPage+' 頁');
+            showList(nowPage);
+        }
+    });
+
+    $('.next_page').click(function() {
+        var lastPage = Math.ceil(totalCount/perPage) == 0 ? 1 : Math.ceil(totalCount/perPage);
+        if(nowPage < lastPage) {
+            nowPage += 1;
+            $('.new_page').text('第 '+nowPage+' 頁');
+            showList(nowPage);
+        }
+    });
+
+    function showList(nowPage) {
+        $('.listAccount').hide();
+        var start = (nowPage-1 ) * perPage + 1;
+        var end = nowPage * perPage ;
+        for(var i=start; i<=end; i++){
+            $('.listIndex_'+i).show();
+        }
+    }
 </script>
 @stop

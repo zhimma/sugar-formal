@@ -254,7 +254,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/dashboard/anti_fraud_manual', 'PagesController@anti_fraud_manual');
     Route::post('/dashboard/newer_manual/isRead', 'PagesController@is_read_manual');
     Route::get('/dashboard/openCloseAccount', 'PagesController@view_openCloseAccount');
-    Route::any('/dashboard/closeAccountReason', 'PagesController@view_closeAccountReason');
+    Route::post('/dashboard/closeAccountReason', 'PagesController@view_closeAccountReason');
     Route::post('/dashboard/updateAccountStatus', 'PagesController@updateAccountStatus');
 });
 

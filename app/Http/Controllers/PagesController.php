@@ -1010,16 +1010,6 @@ class PagesController extends Controller
             if($request->get('reasonType') ==1){
 
                 $image = $request->file('image');
-                $validator = Validator::make($request->input(),[ 'fileuploader-list-image' => 'required|mimes:jpeg,png,jpg,gif,svg|max:22000',] ,[
-                    'fileuploader-list-image.mimes' => $image->getClientOriginalName() .' 的檔案類型不被允許',
-                    'fileuploader-list-image.required' => '請上傳圖片',
-                    'fileuploader-list-image.max' => '最大圖片限制22M'
-                ]);
-                if($validator->fails()){
-                     return back()->with('message', $validator->errors()->all()[0]);
-                }
-
-                $image = $request->file('image');
                 if(!is_null($image)){
                     $now = Carbon::now()->format('Ymd');
 
@@ -1045,6 +1035,8 @@ class PagesController extends Controller
                 'reasonType' => $request->get('reasonType'),
                 'reported_id' => is_array($request->get('reportedId')) ? implode(',', $request->get('reportedId'))  : $request->get('reportedId'),
                 'content' => is_array($request->get('content')) ? json_encode($request->get('content')) : $request->get('content'),
+                'remark1' => $request->get('remark1'),
+                'remark2' => $request->get('remark2'),
                 'image' => isset($destinationPath) ? $destinationPath : null,
                 'created_at' => Carbon::now()
             ]);
