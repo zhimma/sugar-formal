@@ -60,9 +60,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 <li class="listAccount listIndex_{{$listIndex}}">
                                                     <div class="si_bg" style="margin-left: 0;">
                                                         <div class="sjpic">
-                                                            <a href="/dashboard/viewuser/{{ $account->user_id }}">
-                                                                <img src="@if(file_exists( public_path().$account->pic ) && $account->pic != ""){{$account->pic}} @elseif($account->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
-                                                            </a>
+                                                            <img src="@if(file_exists( public_path().$account->pic ) && $account->pic != ""){{$account->pic}} @elseif($account->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
                                                         </div>
                                                         <div class="sjleft">
                                                             <div class="sjtable">
@@ -85,7 +83,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 @if ($accountList->count() >15)
                                                     <div class="fenye">
                                                         <a class="prev_page" href="#">上一頁</a>
-                                                        <span class="new_page">第 1 頁</span>
+                                                        <span class="new_page"></span>
                                                         <a class="next_page" href="#">下一頁</a>
                                                     </div>
                                                 @endif
@@ -439,20 +437,22 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     let nowPage = 1;
     let perPage = 15;
     let totalCount= '{{ isset($accountList) ? $accountList->count() : 0 }}';
+    var lastPage = Math.ceil(totalCount/perPage) == 0 ? 1 : Math.ceil(totalCount/perPage);
     showList(nowPage);
+    $('.new_page').text(nowPage + '/' +lastPage + ' 頁');
+
     $('.prev_page').click(function() {
         if(nowPage > 1) {
             nowPage -= 1;
-            $('.new_page').text('第 '+nowPage+' 頁');
+            $('.new_page').text(nowPage + '/' +lastPage + ' 頁');
             showList(nowPage);
         }
     });
 
     $('.next_page').click(function() {
-        var lastPage = Math.ceil(totalCount/perPage) == 0 ? 1 : Math.ceil(totalCount/perPage);
         if(nowPage < lastPage) {
             nowPage += 1;
-            $('.new_page').text('第 '+nowPage+' 頁');
+            $('.new_page').text(nowPage + '/' +lastPage + ' 頁');
             showList(nowPage);
         }
     });

@@ -1064,7 +1064,15 @@ class PagesController extends Controller
         }
         else if ($status == 'open')
         {
-            if(auth()->user()->isVip()){
+            $dbCloseDay = \App\Models\AccountStatusLog::where('user_id',$user->id)->orderBy('created_at', 'desc')->first();
+            $waitDay = 30;
+            if(!is_null($dbCloseDay)){
+                $baseDay = date("Y-m-d",strtotime("+30 days",substr(strtotime($dbCloseDay->created_at), 0 ,10)));
+                $nowDay = date("Y-m-d");
+                $waitDay = round((strtotime($baseDay)-strtotime($nowDay))/3600/24);
+            }
+
+            if(auth()->user()->isVip() || $waitDay <=0){
                 if($user->email == $input['email']){
                     if(Auth::attempt(array('email' => $input['email'], 'password' => $input['password'])) ){
                         //驗證成功
