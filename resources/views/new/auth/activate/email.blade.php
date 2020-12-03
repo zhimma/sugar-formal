@@ -5,12 +5,12 @@
 	<div class="container matop70">
         <div class="row">
             <div class="col-sm-12 col-xs-12 col-md-12">
-                <div class="shou shou02 sh_line"><span>Email 驗證</span>
+                {{-- <div class="shou shou02 sh_line"><span>Email 驗證</span>
                     <font>Email confirmation</font>
-                </div>
+                </div> --}}
                 <div class="email">
                 @if(isset($user))
-                    <h2>帳號註冊成功(請到Email信箱收信驗證)</h2>
+                    <h2>帳號註冊成功</h2>
                     <div class="embg">
                             <div class="embg_1">
                             <h3>您已註冊成功，以下是您所填寫的註冊資料：</h3>
@@ -55,8 +55,8 @@
                                 </h4>
                             </div>
                     </div>
-                    <div class="yx_k">驗證碼已經寄到你的email : <a style="font-weight: bold">{{ $user->email }} (若Email填寫錯誤，請重新註冊)</a></div>
-                    <a href="{{ url('activate/send-token') }}" class="vipbut">重新發送</a>
+{{--                    <div class="yx_k">驗證碼已經寄到你的email : <a style="font-weight: bold">{{ $user->email }} (若Email填寫錯誤，請重新註冊)</a></div>--}}
+{{--                    <a href="{{ url('activate/send-token') }}" class="vipbut">重新發送</a>--}}
                 @elseif(isset($register))
                     <h2>註冊失敗</h2>
                     <div class="yx_k">系統無法找到您所填寫的資料，敬請重新註冊。</div>
