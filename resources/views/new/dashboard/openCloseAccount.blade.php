@@ -29,7 +29,7 @@
                                         $waitDay = round((strtotime($baseDay)-strtotime($closeDay))/3600/24);
                                     }
                                     ?>
-                                    <h2>您已於{{ $closeDay }}將會員帳號關閉，再次開啟此帳號，若要使用請先開啟此帳號，謝謝。</h2>
+                                    <h2>您已於{{ $closeDay }}將會員帳號關閉，若要使用請先開啟此帳號，謝謝。</h2>
                                 </div>
                                 <div class="sjlist_li">
                                     <div class="leftsidebar_box">
@@ -154,10 +154,10 @@
 
         var needLogout = '{{ (Session::has('needLogOut') && Session::get('needLogOut') == 'Y') ? 'Y' : 'N' }}';
         if(needLogout == 'Y'){
-            //alert('logout');
+            {{ Session::forget('needLogOut') }}
             window.setTimeout(function() {
                 location.href='/logout';
-            }, 5000);
+            }, 30000);
         }
     </script>
 @stop
