@@ -947,7 +947,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 
 .gtab{width:80%;position: fixed;left:10%;top:40%;z-index: 10;display:none;}
-.gxbut{min-width:250px;height:40px;padding-left:10px; padding-right:10px;background: #8a9ff0;border-radius: 200px;color: #ffffff;text-align: center;line-height: 40px;display: table;margin: 0 auto;font-size:16px;
+.gxbut{min-width:250px;height:40px;padding-left:10px; padding-right:10px;background: #8a9ff0;border-radius: 20px;color: #ffffff;text-align: center;line-height: 40px;display: table;margin: 0 auto;font-size:16px;
 -moz-box-shadow:2px 2px 10px #747373; -webkit-box-shadow:2px 2px 10px #747373; box-shadow:2px 2px 10px #747373;}
 .gxbut:hover{ color:#ffffff}
 
@@ -2228,7 +2228,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 
 
 @media (max-width:320px) {
-    .fenye a{margin: 0 13px;}
+    .fenye a{margin: 0 13px; font-size: 13px;}
 }
 
 

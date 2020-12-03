@@ -179,7 +179,9 @@ Route::get('/privacy', 'PagesController@privacy');
 Route::get('/notification', 'PagesController@notification');
 Route::get('/feature', 'PagesController@feature');
 Route::get('/about', 'PagesController@about');
-Route::get('/dashboard/browse', 'PagesController@browse');
+Route::group(['middleware' => ['CheckAccountStatus']], function () {
+    Route::get('/dashboard/browse', 'PagesController@browse');
+});
 Route::get('/terms', 'PagesController@terms');
 Route::get('/contact', 'PagesController@contact');
 Route::get('/buyAvip', function (){return view('dashboard.buyAvip');});
@@ -251,9 +253,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/dashboard/web_manual', 'PagesController@web_manual');
     Route::get('/dashboard/anti_fraud_manual', 'PagesController@anti_fraud_manual');
     Route::post('/dashboard/newer_manual/isRead', 'PagesController@is_read_manual');
+    Route::get('/dashboard/openCloseAccount', 'PagesController@view_openCloseAccount');
+    Route::post('/dashboard/closeAccountReason', 'PagesController@view_closeAccountReason');
+    Route::post('/dashboard/updateAccountStatus', 'PagesController@updateAccountStatus');
 });
 
-Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckIsWarned']], function () {
+Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckIsWarned','CheckAccountStatus']], function () {
 
     /*
     |--------------------------------------------------------------------------
