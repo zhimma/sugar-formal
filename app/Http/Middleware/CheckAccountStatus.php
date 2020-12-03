@@ -35,7 +35,7 @@ class CheckAccountStatus
      */
     public function handle($request, Closure $next)
     {
-        if(!in_array($_SERVER['REQUEST_URI'], ['/dashboard/new_vip','/dashboard/vip'])){
+        if(!in_array($_SERVER['REQUEST_URI'], ['/dashboard/new_vip','/dashboard/vip','/dashboard/upgradepay_ec'])){
             if (!is_null($this->auth->user())){
                 //0:帳號關閉中 1:帳號開啟中(預設)
                 if ($this->auth->user()->accountStatus == 0) {
