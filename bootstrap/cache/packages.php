@@ -1,4 +1,15 @@
 <?php return array (
+  'barryvdh/laravel-debugbar' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Barryvdh\\Debugbar\\ServiceProvider',
+    ),
+    'aliases' => 
+    array (
+      'Debugbar' => 'Barryvdh\\Debugbar\\Facade',
+    ),
+  ),
   'fideloper/proxy' => 
   array (
     'providers' => 
@@ -52,6 +63,13 @@
     array (
       'Form' => 'Collective\\Html\\FormFacade',
       'Html' => 'Collective\\Html\\HtmlFacade',
+    ),
+  ),
+  'neoxia/laravel-sftp' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Neoxia\\Filesystem\\SftpServiceProvider',
     ),
   ),
   'yab/crudmaker' => 
