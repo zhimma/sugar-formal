@@ -46,7 +46,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 $userList = \App\Models\Message::orwhere('from_id', $user->id)
                                                     ->orwhere('to_id', $user->id)
                                                     ->where('content', 'NOT LIKE', '%系統通知%')
-                                                    ->where('created_at','<=', date('Y-m-d H:i:s', strtotime("-6 month")))
+                                                    ->where('created_at', '>=', date('Y-m-d H:i:s', strtotime("-6 month")))
                                                     ->distinct()->select('from_id')->get()->toArray();
 
                                                 $accountList = \App\Models\UserMeta::leftJoin('users', 'users.id', '=', 'user_meta.user_id')->whereIn('user_meta.user_id', $userList)->where('user_meta.user_id', '!=', $user->id)->get();
