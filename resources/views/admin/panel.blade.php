@@ -27,7 +27,7 @@
 		<a href="{{ route('users/basic_setting') }}">基本設定</a>
 		<a href="{{ route('users/changePassword') }}">修改會員密碼</a>
 		<a href="{{ route('users/switch') }}">切換會員身份</a>
-		<a href="{{ route('users/closeAccountReason') }}">關閉會員帳號原因統計</a>
+		<a href="{{ route('users/closeAccountReasonList') }}">關閉會員帳號原因統計</a>
 		<a href="{{ route('inactive') }}">未啟動會員</a>
 		<a href="{{ route('admin/announcement') }}">站長公告</a>
 		<a href="{{ route('admin/masterwords') }}">站長的話</a>

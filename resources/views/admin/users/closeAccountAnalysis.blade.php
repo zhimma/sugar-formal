@@ -8,7 +8,7 @@
 <body style="padding: 15px;">
 <h1>會員帳號關閉原因查詢</h1>
 <div class="col col-12 col-sm-12 col-md-8 col-lg-6">
-    <form action="{{ route('closeAccountReasonList') }}" method='get'>
+    <form action="{{ route('users/closeAccountReasonList') }}" method='get'>
         <table class="table-hover table table-bordered">
             <tr>
                 <th>帳號</th>
