@@ -24,7 +24,10 @@
                         <a href="{!! url('/dashboard/password') !!}" class="gg_zh_li"><span><img src="/new/images/zh03.png"></span>
                             <font>更改密碼</font>
                         </a>
-{{--                        @php--}}
+                        <a href="{!! url('/dashboard/openCloseAccount') !!}" class="gg_zh_li"><span><img src="/new/images/lightPinkKey.png"></span>
+                            <font>帳號開啟/關閉</font>
+                        </a>
+                        {{--                        @php--}}
 {{--                        //檢查是否有申請交付--}}
 {{--                        $check_user = DB::table('account_consign')->whereNull('cancel_id')->where('a_user_id',$user->id)->orWhere('b_user_id',$user->id)->first();--}}
 {{--                        @endphp--}}

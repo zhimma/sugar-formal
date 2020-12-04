@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\CheckECpay;
+use App\Models\AccountStatusLog;
 use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
 use App\Models\BannedUsersImplicitly;
@@ -36,6 +37,7 @@ use App\Http\Requests\ReportRequest;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Http\Requests\FormFilterRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
@@ -44,6 +46,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Models\SimpleTables\banned_users;
 use Illuminate\Support\Facades\Input;
+use Intervention\Image\Facades\Image;
 use Session;
 use App\Notifications\AccountConsign;
 
@@ -963,6 +966,132 @@ class PagesController extends Controller
             }else{
                 return back()->with('message', '原密碼有誤，請重新操作');
             }
+    }
+
+    public function view_openCloseAccount(Request $request)
+    {
+        $user = $request->user();
+        return view('new.dashboard.openCloseAccount')->with('user', $user)->with('reasonType', $request->get('reasonType',1));
+    }
+
+    public function view_closeAccountReason(Request $request)
+    {
+        $user = $request->user();
+        $input = $request->input();
+
+        if($user->email == $input['email']){
+            if(Auth::attempt(array('email' => $input['email'], 'password' => $input['password'])) ){
+                //驗證成功
+                $reasonType = $request->get('reasonType');
+                if($reasonType == '3'){
+                    $this->updateAccountStatus($request);
+                    //關閉帳號後需登出
+                    session()->put('needLogOut','Y');
+                    return redirect('/dashboard/openCloseAccount')->with('message', '非常感謝您選擇甜心花園來為您提供服務，也恭喜您找到適合的他/她，您的帳號目前為關閉狀態，系統將於30秒後自動登出。');
+                }
+                else
+                    return view('new.dashboard.closeAccountReason', compact('user','reasonType'));
+            }else{
+                //驗證失敗
+                return back()->with('message', '帳號驗證失敗');
+            }
+        }else{
+            //驗證失敗
+            return back()->with('message', '帳號驗證失敗');
+        }
+    }
+
+    public function updateAccountStatus(Request $request){
+        $user = $request->user();
+        $input = $request->input();
+        $status = $request->get('status');
+
+        if($status == 'close'){
+            if($request->get('reasonType') ==1){
+
+                $image = $request->file('image');
+                if(!is_null($image)){
+                    $now = Carbon::now()->format('Ymd');
+
+                    $input['imagename'] = $now . rand(100000000,999999999) . '.' . $image->getClientOriginalExtension();
+
+                    $rootPath = public_path('/img/Member');
+                    $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+
+                    if(!is_dir($tempPath)) {
+                        File::makeDirectory($tempPath, 0777, true);
+                    }
+                    $destinationPath = '/img/Member/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
+
+                    $img = Image::make($image->getRealPath());
+                    $img->resize(400, 600, function ($constraint) {
+                        $constraint->aspectRatio();
+                    })->save($tempPath . $input['imagename']);
+                }
+            }
+
+            AccountStatusLog::insert([
+                'user_id' => $user->id,
+                'reasonType' => $request->get('reasonType'),
+                'reported_id' => is_array($request->get('reportedId')) ? implode(',', $request->get('reportedId'))  : $request->get('reportedId'),
+                'content' => is_array($request->get('content')) ? json_encode($request->get('content')) : $request->get('content'),
+                'remark1' => $request->get('remark1'),
+                'remark2' => $request->get('remark2'),
+                'image' => isset($destinationPath) ? $destinationPath : null,
+                'created_at' => Carbon::now()
+            ]);
+            $user->accountStatus = 0;
+            $user->save();
+
+
+            $closeMsg = '';
+            switch ($input['reasonType']){
+                case 1 :
+                    $closeMsg = '非常感謝您撥空填寫，我們會盡速處理，若此帳號確實有違規行為，會對其進行懲處，並於email另行聯絡您。您的帳號目前為關閉狀態，系統將於30秒後自動登出。';
+                    break;
+                case 2 :
+                case 4 :
+                    $closeMsg = '非常感謝您的回饋，我們會盡速優化與改善此問題，您的帳號目前為關閉狀態，系統將於30秒後自動登出。';
+                    break;
+                case 3 :
+                    $closeMsg = '非常感謝您選擇甜心花園來為您提供服務，也恭喜您找到適合的他/她，您的帳號目前為關閉狀態，系統將於30秒後自動登出。';
+                    break;
+            }
+
+            //關閉帳號後需登出
+            session()->put('needLogOut','Y');
+            return redirect('/dashboard/openCloseAccount')->with('message', $closeMsg);
+        }
+        else if ($status == 'open')
+        {
+            $dbCloseDay = \App\Models\AccountStatusLog::where('user_id',$user->id)->orderBy('created_at', 'desc')->first();
+            $waitDay = 30;
+            if(!is_null($dbCloseDay)){
+                $baseDay = date("Y-m-d",strtotime("+30 days",substr(strtotime($dbCloseDay->created_at), 0 ,10)));
+                $nowDay = date("Y-m-d");
+                $waitDay = round((strtotime($baseDay)-strtotime($nowDay))/3600/24);
+            }
+
+            if(auth()->user()->isVip() || $waitDay <=0){
+                if($user->email == $input['email']){
+                    if(Auth::attempt(array('email' => $input['email'], 'password' => $input['password'])) ){
+                        //驗證成功
+                        $user->accountStatus = 1;
+                        $user->save();
+                        return redirect('/dashboard')->with('message', '帳號已成功開啟');
+                    }else{
+                        //驗證失敗
+                        return back()->with('message', '帳號驗證失敗');
+                    }
+                }else{
+                    //驗證失敗
+                    return back()->with('message', '帳號驗證失敗');
+                }
+            }else{
+                return redirect('/dashboard/openCloseAccount')->with('message', '帳號開啟失敗');
+            }
+        }
+        return view('new.dashboard.openCloseAccount')->with('user', $user);
     }
 
     public function view_account_manage(Request $request)
