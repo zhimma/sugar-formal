@@ -53,6 +53,6 @@ ALTER TABLE `account_status_log`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 
-ALTER TABLE `users` ADD `accountStatus1` INT(1) NOT NULL DEFAULT '1' COMMENT '0:關閉 1:開啟(預設) ';
+ALTER TABLE `users` ADD `accountStatus` INT(1) NOT NULL DEFAULT '1' COMMENT '0:關閉 1:開啟(預設) ';
 
 UPDATE `admin_common_text` SET `content` = '<h2>VIP功能</h2>\r\n <h3><span>●</span>解鎖信箱限制</h3>\r\n <h3><span>●</span>解鎖發訊限制</h3>\r\n\r\n<h3><span>●</span>解鎖開啟及關閉帳號限制</h3>\r\n <h3><span>●</span>解鎖足跡功能</h3>\r\n <h3><span>●</span>解鎖進階搜尋功能</h3>\r\n <h3><span>●</span>解鎖車馬費評價功能</h3>\r\n <h3><span>●</span>可以看進階資料</h3>\r\n <h3><span>●</span>可以看已讀未讀</h3>\r\n ' WHERE `admin_common_text`.`id` = 40;
