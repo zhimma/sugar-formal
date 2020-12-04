@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\AccountStatusLog;
 use App\Models\Board;
 use App\Models\ExpectedBanningUsers;
 use App\Models\Fingerprint2;
@@ -35,6 +36,7 @@ use App\Models\SimpleTables\warned_users;
 use App\Models\BannedUsersImplicitly;
 use App\Notifications\BannedNotification;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Session;
 
@@ -339,6 +341,77 @@ class UserController extends Controller
         //        }
 
 
+    }
+
+    public function closeAccountReason(Request $request)
+    {
+        $getAccount =  AccountStatusLog::leftJoin('users', 'users.id', '=', 'account_status_log.user_id')->groupBy('user_id');
+        if(!empty($request->get('account'))){
+            $getAccount->where('users.email', $request->get('account'));
+        }
+        $getAccount = $getAccount->get();
+
+
+        $listAccount = array();
+        foreach ($getAccount as $key => $list)
+        {
+            $data = AccountStatusLog::leftJoin('users', 'users.id', '=', 'account_status_log.user_id');
+
+            if(!empty($request->get('date_start'))){
+                $data->where('account_status_log.created_at','>=', $request->get('date_start'));
+            }
+            if(!empty($request->get('date_end'))){
+                $data->where('account_status_log.created_at','<=', $request->get('date_end'));
+            }
+
+            $data->where('users.accountStatus', 0);
+            if(!empty($request->get('status'))){
+                switch ($request->get('status')){
+                    case '0':
+                        break;
+                    case 'more3':
+                        $data->where('account_status_log.created_at','>=', date("Y-m-d",strtotime("-3 months", strtotime(Now()))));
+                        break;
+                    case 'more6':
+                        $data->where('account_status_log.created_at','>=', date("Y-m-d",strtotime("-6 months", strtotime(Now()))));
+                        break;
+                    case 'more12':
+                        $data->where('account_status_log.created_at','>=', date("Y-m-d",strtotime("-12 months", strtotime(Now()))));
+                        break;
+                }
+            }
+            if(!empty($request->get('accountType'))){
+                $vipCondition = explode('_',$request->get('accountType'))[0];
+                $isVip = \App\Models\User::findById($list->id)->isVip();
+                if($vipCondition=='vip'){
+                    if(!$isVip){
+                        continue;
+                    }
+                }
+                else if ($vipCondition=='notvip'){
+                    if($isVip){
+                        continue;
+                    }
+                }
+                $engroup =  explode('_',$request->get('accountType'))[1];
+                $data->where('users.engroup', $engroup);
+            }
+            if(!empty($request->get('closeReason'))){
+                $data->where('account_status_log.reasonType', $request->get('closeReason'));
+            }
+
+            $data = $data->where('account_status_log.user_id', $list->user_id)->orderBy('account_status_log.created_at','DESC')->first();
+            if(!is_null($data)){
+                $listAccount[$key] = $data;
+            }
+        }
+
+        $listAccount = collect($listAccount);
+        $page = $request->get('page',1);
+        $perPage = 15;
+        $listAccount = new LengthAwarePaginator($listAccount->forPage($page, $perPage), $listAccount->count(), $perPage, $page,  ['path' => '/admin/users/closeAccountReason/']);
+
+        return view('admin.users.closeAccountAnalysis', compact('listAccount'));
     }
 
     public function unwarnedUser(Request $request)

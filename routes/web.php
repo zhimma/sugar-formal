@@ -540,7 +540,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::post('users/memberList', 'UserController@searchMemberList')->name('searchMemberList');
 
         Route::post('users/toggleUserWarned', 'UserController@toggleUserWarned');
-        
+        Route::get('users/closeAccountReason', 'UserController@closeAccountReason')->name('closeAccountReasonList');
+
         Route::group(['prefix'=>'users/message'], function(){
             Route::get('showBetween/{id1}/{id2}', 'UserController@showMessagesBetween')->name('admin/showMessagesBetween');
             Route::get('to/{id}', 'UserController@showAdminMessenger')->name('AdminMessage');
