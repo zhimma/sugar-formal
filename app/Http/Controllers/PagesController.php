@@ -1464,7 +1464,7 @@ class PagesController extends Controller
             $auth_check=1;
         }
         if (isset($user) && isset($uid)) {
-            $targetUser = User::where('id', $uid)->get()->first();
+            $targetUser = User::where('id', $uid)->where('accountStatus',1)->get()->first();
             if (!isset($targetUser)) {
                 return view('errors.nodata');
             }

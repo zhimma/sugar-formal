@@ -156,7 +156,7 @@ class UserMeta extends Model
         }
         else if ($engroup == 2) { $engroup = 1; }
 
-        $query = UserMeta::where('users.engroup', $engroup)->join('users', 'user_id', '=', 'users.id');
+        $query = UserMeta::where('users.engroup', $engroup)->where('accountStatus',1)->join('users', 'user_id', '=', 'users.id');
 
         if (isset($exchange_period)&&$exchange_period!=''){
             if(count($exchange_period) > 0){
