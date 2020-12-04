@@ -165,23 +165,30 @@ class Vip extends Model
         // 取消時，判斷會員性別，並確認沒有設定到期日，才開始動作，否則遇上多次取消，可能會導致到期日被延後的結果
         //20201015 變更不分性別
         if($user[0]->expiry == '0000-00-00 00:00:00'){
+            // 若未設定到期日，則從最近一筆 VIP 資料取得資料變更日期
             $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->updated_at);
+            // 取得變更日期的日
             $day = $date->day;
+            // 取得現在時間
             $now = \Carbon\Carbon::now();
+            // 以現在時間為基準，並將日置換為變更日期的日，
+            // 做為推算到期日的基準
             $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
+            // 若現在時間日 >= 變更日期日
             if($now->day >= $day){
+                // 依照付款類型設定到期日，同時也是預計下次扣款日
                 // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
                 if($user[0]->payment=='cc_quarterly_payment'){
                     $nextMonth = $now->addMonthsNoOverflow(3);
                 }else {
                     $nextMonth = $now->addMonthsNoOverflow(1);
                 }
-
                 $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $nextMonth->year.'-'.$nextMonth->month.'-'.$day.' 00:00:00');
             }
-            // 如果是使用綠界付費，且取消日距預計下次扣款日小於七天，則到期日再加一個月
-            if($user[0]->business_id == '3137610' && $now->diffInDays($date) <= 7) {
-
+            // 如果是使用綠界付費，且取消日距預計下次扣款日小於七天，則到期日再加一個週期
+            // 3137610: 正式商店編號
+            // 2000132: 測試商店編號
+            if(($user[0]->business_id == '3137610' || $user[0]->business_id == '2000132') && $now->diffInDays($date) <= 7) {
                 if($user[0]->payment=='cc_quarterly_payment'){
                     $date = $date->addMonthNoOverflow(3);
                 }else {
