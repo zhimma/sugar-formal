@@ -222,6 +222,7 @@ class UserMeta extends Model
         $query = User::with(['user_meta' => $constrain, 'vip'])
             ->whereHas('user_meta', $constrain)
             ->where('engroup', $engroup)
+            ->where('accountStatus', 1)
             ->whereNotIn('users.id', function($query){
                 // $bannedUsers
                 $query->select('target')
