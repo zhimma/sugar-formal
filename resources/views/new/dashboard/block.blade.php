@@ -20,7 +20,7 @@
                     @foreach ($blocks as $block)
                         <?php
                         $blockedUser = \App\Models\User::findById($block->blocked_id);
-                        if(!isset($blockedUser)){?>
+                        if(is_null($blockedUser) || !isset($blockedUser)){?>
                             <li>
                                 <div class="si_bg">
                                     <div class="sjpic"><a href=""><img src='makesomeerror' onerror="this.src='/new/images/male.png'"></a></div>
@@ -35,9 +35,6 @@
                                 </div>
                             </li>
                         <?}
-                        else{
-                            continue;
-                        }
                         $umeta = $blockedUser->meta_();
                         if(isset($umeta->city)){
                             $umeta->city = explode(",",$umeta->city);
