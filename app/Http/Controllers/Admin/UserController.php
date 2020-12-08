@@ -351,11 +351,10 @@ class UserController extends Controller
         }
         $getAccount = $getAccount->get();
 
-
         $listAccount = array();
         foreach ($getAccount as $key => $list)
         {
-            $data = AccountStatusLog::leftJoin('users', 'users.id', '=', 'account_status_log.user_id');
+            $data = AccountStatusLog::leftJoin('users', 'users.id', '=', 'account_status_log.user_id')->selectRaw('account_status_log.*, users.id, users.name, users.email, users.engroup');
 
             if(!empty($request->get('date_start'))){
                 $data->where('account_status_log.created_at','>=', $request->get('date_start'));
@@ -364,19 +363,16 @@ class UserController extends Controller
                 $data->where('account_status_log.created_at','<=', $request->get('date_end'));
             }
 
-            $data->where('users.accountStatus', 0);
             if(!empty($request->get('status'))){
                 switch ($request->get('status')){
-                    case '0':
-                        break;
                     case 'more3':
-                        $data->where('account_status_log.created_at','>=', date("Y-m-d",strtotime("-3 months", strtotime(Now()))));
+                        $data->where('account_status_log.created_at','<=', date("Y-m-d",strtotime("-3 months", strtotime(Now()))));
                         break;
                     case 'more6':
-                        $data->where('account_status_log.created_at','>=', date("Y-m-d",strtotime("-6 months", strtotime(Now()))));
+                        $data->where('account_status_log.created_at','<=', date("Y-m-d",strtotime("-6 months", strtotime(Now()))));
                         break;
                     case 'more12':
-                        $data->where('account_status_log.created_at','>=', date("Y-m-d",strtotime("-12 months", strtotime(Now()))));
+                        $data->where('account_status_log.created_at','<=', date("Y-m-d",strtotime("-12 months", strtotime(Now()))));
                         break;
                 }
             }
@@ -406,12 +402,23 @@ class UserController extends Controller
             }
         }
 
-        $listAccount = collect($listAccount);
+        $listAccount = collect($listAccount)->sortByDesc('created_at');
         $page = $request->get('page',1);
         $perPage = 15;
         $listAccount = new LengthAwarePaginator($listAccount->forPage($page, $perPage), $listAccount->count(), $perPage, $page,  ['path' => '/admin/users/closeAccountReason/']);
 
         return view('admin.users.closeAccountAnalysis', compact('listAccount'));
+    }
+
+    public function closeAccountDetail(Request $request)
+    {
+        $account = User::findById($request->get('userID'));
+        $data = [];
+        if(!is_null($account)){
+            $data = AccountStatusLog::where('user_id', $account->id)->orderBy('created_at','DESC')->get();
+        }
+
+        return view('admin.users.closeAccountDetail', compact('account','data'));
     }
 
     public function unwarnedUser(Request $request)

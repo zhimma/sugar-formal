@@ -6,7 +6,7 @@
     }
 </style>
 <body style="padding: 15px;">
-<h1>會員帳號關閉原因查詢</h1>
+<h1>關閉會員帳號原因統計</h1>
 <div class="col col-12 col-sm-12 col-md-8 col-lg-6">
     <form action="{{ route('users/closeAccountReasonList') }}" method='get'>
         <table class="table-hover table table-bordered">
@@ -93,17 +93,7 @@
         <td>帳號狀態(N)</td>
         <td>關閉時間</td>
         <td>關閉原因</td>
-        @if(isset($_GET['closeReason']) && $_GET['closeReason']=='1')
-            <td>檢舉此帳號</td>
-            <td>檢舉證據</td>
-            <td>說明</td>
-        @elseif(isset($_GET['closeReason']) && $_GET['closeReason']=='2')
-            <td>介面設計不優</td>
-            <td>載入速度太慢</td>
-            <td>說明</td>
-        @elseif(isset($_GET['closeReason']) && $_GET['closeReason']=='4')
-            <td>說明</td>
-        @endif
+        <td></td>
 	</tr>
 	@forelse($listAccount as $account)
     <tr>
@@ -112,14 +102,14 @@
         <td>{{ $account->name }}</td>
         <td>{{ \App\Models\User::findById($account->id)->isVip() ? 'VIP' : '普通' }}{{ $account->engroup == 1 ? '男':'女' }}</td>
         <td>
-            @if($account->created_at >=  date("Y-m-d",strtotime("-3 months", strtotime(Now()))))
-                關閉已超過3個月
-            @elseif($account->created_at >=  date("Y-m-d",strtotime("-3 months", strtotime(Now()))))
-                關閉已超過6個月
-            @elseif($account->created_at >=  date("Y-m-d",strtotime("-3 months", strtotime(Now()))))
-                關閉已超過12個月
-            @else
+            @if($account->created_at > date("Y-m-d",strtotime("-3 months", strtotime(Now()))))
                 目前關閉
+            @elseif($account->created_at <=  date("Y-m-d",strtotime("-12 months", strtotime(Now()))))
+                關閉已超過12個月
+            @elseif($account->created_at <=  date("Y-m-d",strtotime("-6 months", strtotime(Now()))))
+                關閉已超過6個月
+            @elseif($account->created_at <=  date("Y-m-d",strtotime("-3 months", strtotime(Now()))))
+                關閉已超過3個月
             @endif
             {{ '(' .\App\Models\AccountStatusLog::where('user_id',$account->user_id)->get()->count() . ')' }}
         </td>
@@ -135,38 +125,9 @@
                 其他原因
             @endif
         </td>
-
-        @if(isset($_GET['closeReason']) && $_GET['closeReason']=='1')
-            <td>
-                @foreach(explode(',',$account->reported_id) as $reportId)
-                    <a href="/admin/users/advInfo/{{$reportId}}">{{$reportId}}</a><br>
-                @endforeach
-            </td>
-            <td><img src="{{$account->image }}" style="width: 150px; height: 100px"></td>
-            <td>{{ $account->content }}</td>
-        @elseif (isset($_GET['closeReason']) && $_GET['closeReason']=='2')
-            @php
-                $reasonContent = json_decode($account->content);
-
-                $design = [];
-                $slow = [];
-                foreach ($reasonContent as $key =>$vale){
-                    $test1 = explode('-',$vale);
-                    if($test1[0] == '介面設計不美觀'){
-                        $design[] =$test1[1];
-                    }else if ($test1[0] == '載入速度太慢'){
-                        $slow[] =$test1[1];
-                    }
-                }
-                $design = implode(' ,',$design);
-                $slow = implode(' ,',$slow);
-            @endphp
-            <td>{{ $design }}</td>
-            <td>{{ $slow }}</td>
-            <td>{{ $account->remark1 }}</td>
-        @elseif (isset($_GET['closeReason']) && $_GET['closeReason']=='4')
-            <td>{{ $account->content }}</td>
-        @endif
+        <td>
+            <a href="/admin/users/closeAccountDetail?userID={{ $account->id }}" target="_blank" class='text-white btn btn-primary'>明細</a>
+        </td>
     </tr>
     @empty
     <tr>

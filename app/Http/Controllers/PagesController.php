@@ -1009,24 +1009,32 @@ class PagesController extends Controller
         if($status == 'close'){
             if($request->get('reasonType') ==1){
 
-                $image = $request->file('image');
-                if(!is_null($image)){
-                    $now = Carbon::now()->format('Ymd');
+                $images = $request->file('image');
+                if(!is_null($images))
+                {
+                    $destinationPath = [];
+                    foreach ($images as $image){
+                        $now = Carbon::now()->format('Ymd');
+                        $input['imagename'] = $now . rand(100000000,999999999) . '.' . $image->getClientOriginalExtension();
 
-                    $input['imagename'] = $now . rand(100000000,999999999) . '.' . $image->getClientOriginalExtension();
+                        $rootPath = public_path('/img/Member');
+                        $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
 
-                    $rootPath = public_path('/img/Member');
-                    $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+                        if(!is_dir($tempPath)) {
+                            File::makeDirectory($tempPath, 0777, true);
+                        }
+                        $destinationPath[] = '/img/Member/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
 
-                    if(!is_dir($tempPath)) {
-                        File::makeDirectory($tempPath, 0777, true);
+                        $img = Image::make($image->getRealPath());
+                        $img->resize(400, 600, function ($constraint) {
+                            $constraint->aspectRatio();
+                        })->save($tempPath . $input['imagename']);
                     }
-                    $destinationPath = '/img/Member/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
 
-                    $img = Image::make($image->getRealPath());
-                    $img->resize(400, 600, function ($constraint) {
-                        $constraint->aspectRatio();
-                    })->save($tempPath . $input['imagename']);
+                    //整理images
+                    if(count($destinationPath) > 0){
+                        $destinationPath = json_encode($destinationPath);
+                    }
                 }
             }
 

@@ -93,7 +93,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                             </ul>
                                             <div class="col-sm-12 col-lg-12">
                                                 <!-- name 要與 FileUploader 相同 -->
-                                                <input type="file" name="image" data-fileuploader-files='' required  onchange="checkfile(this);">
+                                                <input type="file" name="image[]" data-fileuploader-files='' required  onchange="checkfile(this);">
                                                 <input type="submit" id="reportAccount_btn" class="vipbut upload_btn abtn" value="檢舉騷擾/八大帳號" style="border-style: none;  margin-bottom: 10px;">
                                             </div>
                                         </form>
@@ -286,9 +286,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     @endif
 
     //preload pictures
-    $("input[name='image']").fileuploader({
+    $("input[name='image[]']").fileuploader({
         addMore: true,
-        limit: 1,
+        limit: 8,
         editor: {
             ratio: "1:1",
             showGrid: true
@@ -301,7 +301,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             feedback: function(options) { return '前往選取證據'; },
             errors: {
                 filesLimit: function(){
-                    return '照片上傳限制最多為一張！';
+                    return '照片上傳限制最多為8張！';
                 }
             }
         },
@@ -427,7 +427,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             c3('"說明"欄位為必填，請勿空白。');
             return false;
         }
-        if(  $("input[name=image]").val() ==''){
+        if($("input[name='image[]']").length <= 1){
             c3('請上傳相關證據');
             return false;
         }
