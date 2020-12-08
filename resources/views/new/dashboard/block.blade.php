@@ -35,6 +35,9 @@
                                 </div>
                             </li>
                         <?}
+                        else{
+                            continue;
+                        }
                         $umeta = $blockedUser->meta_();
                         if(isset($umeta->city)){
                             $umeta->city = explode(",",$umeta->city);
