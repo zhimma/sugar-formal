@@ -156,13 +156,8 @@ class UserMeta extends Model
         else if ($engroup == 2) { $engroup = 1; }
         if(isset($seqtime) && $seqtime == 2){ $orderBy = 'users.created_at'; }
         else{ $orderBy = 'users.last_login'; }
-        $constrain = function ($query) use ($city, $area, $cup, $exchange_period, $agefrom, $ageto, $marriage, $budget, $income, $smoking, $drinking, $photo, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid){
+        $constrain = function ($query) use ($city, $area, $cup, $agefrom, $ageto, $marriage, $budget, $income, $smoking, $drinking, $photo, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid){
             $query->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
-            if (isset($exchange_period) && $exchange_period != '') {
-                if (count($exchange_period) > 0) {
-                    $query->whereIn('exchange_period', $exchange_period);
-                }
-            }
             if (isset($city) && strlen($city) != 0) $query->where('city','like', '%'.$city.'%');
             if (isset($area) && strlen($area) != 0) $query->where('area','like', '%'.$area.'%');
             if (isset($cup) && $cup!=''){
@@ -227,6 +222,7 @@ class UserMeta extends Model
         $query = User::with(['user_meta' => $constrain, 'vip'])
             ->whereHas('user_meta', $constrain)
             ->where('engroup', $engroup)
+            ->where('accountStatus', 1)
             ->whereNotIn('users.id', function($query){
                 // $bannedUsers
                 $query->select('target')
@@ -244,11 +240,13 @@ class UserMeta extends Model
                 // $isBlockedByUsers
                 $query->select('member_id')
                     ->from(with(new blocked)->getTable())
-                    ->where('blocked_id', $userid);})
-            ->orderBy($orderBy, 'desc')
-            ->paginate(12);
-
-        return $query;
+                    ->where('blocked_id', $userid);});
+        if (isset($exchange_period) && $exchange_period != '') {
+            if (count($exchange_period) > 0) {
+                $query->whereIn('exchange_period', $exchange_period);
+            }
+        }
+        return $query->orderBy($orderBy, 'desc')->paginate(12);
     }
     public static function findByMemberId($memberId)
     {

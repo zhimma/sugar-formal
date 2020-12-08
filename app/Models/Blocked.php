@@ -48,6 +48,12 @@ class Blocked extends Model
         return Visited::where('visited_id', $uid)->orderBy('created_at', 'desc')->get();
     }
 
+    /**
+     * $uid 會員 ID, $bid 被封鎖 ID
+     *
+     * @param  string $uid
+     * @param  string $bid
+     */
     public static function isBlocked($uid, $bid) {
         $isBlocked = Blocked::where([['member_id', $uid],['blocked_id', $bid]])->count();
 
