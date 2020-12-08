@@ -173,32 +173,35 @@ class Vip extends Model
             $now = \Carbon\Carbon::now();
             // 以現在時間為基準，並將日置換為變更日期的日，
             // 做為推算到期日的基準
-            $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
+            $expiryDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
             // 若現在時間日 >= 變更日期日
             if($now->day >= $day){
+                // 確實複製變數，而不單純用 =，避免出現只將記憶體位置指向 $expectedNextPeriod
+                // 造成兩個變數實際上指向同一物件的問題發生
+                $expectedNextPeriod = clone $now;
                 // 依照付款類型設定到期日，同時也是預計下次扣款日
                 // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
                 if($user[0]->payment=='cc_quarterly_payment'){
-                    $nextMonth = $now->addMonthsNoOverflow(3);
+                    $expectedNextPeriod = $expectedNextPeriod->addMonthsNoOverflow(3);
                 }else {
-                    $nextMonth = $now->addMonthsNoOverflow(1);
+                    $expectedNextPeriod = $expectedNextPeriod->addMonthsNoOverflow(1);
                 }
-                $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $nextMonth->year.'-'.$nextMonth->month.'-'.$day.' 00:00:00');
+                $expiryDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $expectedNextPeriod->year.'-'.$expectedNextPeriod->month.'-'.$day.' 00:00:00');
             }
             // 如果是使用綠界付費，且取消日距預計下次扣款日小於七天，則到期日再加一個週期
             // 3137610: 正式商店編號
             // 2000132: 測試商店編號
-            if(($user[0]->business_id == '3137610' || $user[0]->business_id == '2000132') && $now->diffInDays($date) <= 7) {
+            if(($user[0]->business_id == '3137610' || $user[0]->business_id == '2000132') && $now->diffInDays($expiryDate) <= 7) {
                 if($user[0]->payment=='cc_quarterly_payment'){
-                    $date = $date->addMonthNoOverflow(3);
+                    $expiryDate = $expiryDate->addMonthNoOverflow(3);
                 }else {
-                    $date = $date->addMonthNoOverflow(1);
+                    $expiryDate = $expiryDate->addMonthNoOverflow(1);
                 }
 
             }
 
             foreach ($user as $u){
-                $u->expiry = $date->toDateTimeString();
+                $u->expiry = $expiryDate->toDateTimeString();
                 $u->save();
             }
             VipLog::addToLog($member_id, 'Cancel, expiry: ' . $date, 'XXXXXXXXX', 0, $free);
