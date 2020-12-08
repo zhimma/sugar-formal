@@ -1499,8 +1499,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 }
             }
         });
-        $("img.lazy").lazyload({
-            effect : "fadeIn"
+        $(document).on('DOMNodeInserted', 'img.lazy', function() {
+            $(this).lazyload({
+                effect: 'fadeIn'
+            });
         });
     </script>
 @stop
