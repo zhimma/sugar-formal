@@ -18,24 +18,9 @@
             <div class="sjlist">
                 <ul>
                     @foreach ($blocks as $block)
-
                         <?php
                         $blockedUser = \App\Models\User::findById($block->blocked_id);
-                        if(!isset($blockedUser)){?>
-                            <li>
-                                <div class="si_bg">
-                                    <div class="sjpic"><a href=""><img src='makesomeerror' onerror="this.src='/new/images/male.png'"></a></div>
-                                    <div class="sjleft">
-                                        <div class="sjtable"><a href=""><span>已刪除資料</span></a></div>
-                                        <font>
-                                        </font>
-                                    </div>
-                                    <div class="sjright">
-                                        <h4 class="fengs"><a href="" class="unblock" data-uid="" data-to=""><img src="/new/images/ncion_11.png"></a></h4>
-                                    </div>
-                                </div>
-                            </li>
-                        <?
+                        if(!isset($blockedUser)){
                             continue;
                         }
                         $umeta = $blockedUser->meta_();
