@@ -190,6 +190,21 @@ class Message_newController extends Controller {
     public function chatviewMore(Request $request)
     {
         $user_id = $request->uid;
+        /**
+         * function Message_new::allSendersAJAX(){
+         *      $saveMessage = Message_new::newChatArrayAJAX(){
+         *          foreach(){
+         *              if($message->all_delete_count == 2) {
+         *                  Message::deleteAllMessagesFromDB($message->to_id, $message->from_id);
+         *              }
+         *              if($message->all_delete_count == 1 && ($message->is_row_delete_1 == $message->to_id || $message->is_row_delete_2 == $message->to_id || $message->is_row_delete_1 == $message->from_id || $message->is_row_delete_2 == $message->from_id)) {
+         *                  Message::deleteAllMessagesFromDB($message->to_id, $message->from_id);
+         *              }
+         *          }
+         *      }
+         *      return Message_new::sortMessages($saveMessages,$mm);
+         *  }
+         */
         $data = Message_new::allSendersAJAX($user_id, $request->isVip,$request->date);
         if (isset($data)) {
             if(!empty($data['date'])){

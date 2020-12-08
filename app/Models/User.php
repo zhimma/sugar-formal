@@ -45,7 +45,7 @@ class User extends Authenticatable
      */
     protected $hidden = ['password', 'remember_token'];
 
-    protected $append = ['isVip'];
+    protected $with = ['user_meta', 'vip'];
 
     /*
     |--------------------------------------------------------------------------
@@ -62,7 +62,7 @@ class User extends Authenticatable
     //Vip
     public function vip()
     {
-        return $this->hasMany(Vip::class, 'member_id', 'id');
+        return $this->hasMany(Vip::class, 'member_id', 'id')->where('active', 1)->orderBy('created_at', 'desc');
     }
 
     //sent messages
@@ -91,23 +91,6 @@ class User extends Authenticatable
     |
     */
 
-    /**
-    * Whether the user is VIP
-    * 此函式用途未明，故先註解。
-    * @param int id
-    *
-    * @return boolean
-    */
-    // public function getIsVipAttribute()
-    // {
-    //     foreach($this->vip as $vip){
-    //         if($vip->active == 1){
-    //             return true;
-    //         }
-    //     }
-    //     return false;
-    // }
-
     public static function id_($uid)
     {
         return User::where('id', $uid)->first();
@@ -130,6 +113,10 @@ class User extends Authenticatable
     public function roles()
     {
         return $this->belongsToMany(Role::class);
+    }
+
+    public function user_meta(){
+        return $this->hasOne('App\Models\UserMeta');
     }
 
     /**
@@ -246,7 +233,7 @@ class User extends Authenticatable
         // Middleware 下的 VipCheck 會將「是 VIP」但「過期」的會員取消權限，
         // 如果這邊就先針對到期日過濾掉的話，後續會導致問題，如下次重新付費升級
         // 會依舊顯示非 VIP
-        return Vip::select('active')->where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first() !== null;
+        return $this->vip->first() !== null;
         // return Vip::select('active')->where('member_id', $this->id)->where('active', 1)->where(function($query)
         //             {$query->where('expiry', '0000-00-00 00:00:00')->orwhere('expiry', '>=', Carbon::now());}
         //            )->orderBy('created_at', 'desc')->first() !== null;
@@ -668,6 +655,21 @@ class User extends Authenticatable
         }
 
         return $pr;
+    }
+
+    public function age(){
+        if (isset($this->user_meta->birthdate) && $this->user_meta->birthdate !== null && $this->user_meta->birthdate != 'NULL')
+        {
+            $userDob = $this->user_meta->birthdate;
+            $dob = new \DateTime($userDob);
+
+            $now = new \DateTime();
+
+            $difference = $now->diff($dob);
+
+            $age = $difference->y;
+            return $age;
+        }
     }
 
     public static function rating($uid)
