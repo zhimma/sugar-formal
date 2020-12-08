@@ -392,14 +392,8 @@ class Message_new extends Model
         $userBlockList = Blocked::select('blocked_id')->where('member_id', $uid)->get();
         $isBlockedList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
         $query = Message::where(function ($query) use ($uid) {
-                    $query->where(function ($query) use ($uid) {
-                        $query->where('to_id', '=', $uid)
-                            ->where('from_id', '!=', $uid);
-                    })->orWhere(function ($query) use ($uid) {
-                        $query->where('to_id', '!=', $uid)
-                            ->where('from_id', '=', $uid);
-                    });
-                });
+            $query->where([['to_id', $uid], ['from_id', '!=', $uid]])->orWhere([['from_id', $uid], ['to_id', '!=',$uid]]);
+        });
 
         if($d==7){
             self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
