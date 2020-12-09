@@ -30,6 +30,12 @@
                     </select>
                 </td>
                 <td>
+                    <select name="isVip" id="">
+                        <option value="0">普通會員</option>
+                        <option value="1">VIP</option>
+                    </select>
+                </td>
+                <td>
                     <input type="number" name="sequence" min="1" value="1">
                 </td>
                 <td>

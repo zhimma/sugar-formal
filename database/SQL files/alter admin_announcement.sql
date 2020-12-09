@@ -1,0 +1,1 @@
+ALTER TABLE admin_announcement ADD isVip TINYINT(1) NULL DEFAULT 0 AFTER `en_group`;

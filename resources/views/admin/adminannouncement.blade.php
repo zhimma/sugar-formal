@@ -15,6 +15,7 @@ h3{
         <tr>
             <th class="text-center">內容</th>
             <th class="text-center">排序(預設為1)</th>
+            <th class="text-center">普通會員/VIP</th>
             <th class="text-center">建立時間</th>
             <th class="text-center">更新時間</th>
             <th class="text-center">操作</th>
@@ -24,6 +25,7 @@ h3{
                 <tr class="template">
                     <td style="word-break: break-all; width: 50%;">{!! nl2br($a->content) !!}</td>
                     <td>{{ $a->sequence }}</td>
+                    <td>@if($a->isVip==0)普通會員 @elseif($a->isVip==1)VIP @endif</td>
                     <td class="created_at">{{ $a->created_at }}</td>
                     <td class="updated_at">{{ $a->updated_at }}</td>
                     <td>
@@ -40,6 +42,7 @@ h3{
         <tr>
             <th class="text-center">內容</th>
             <th class="text-center">排序(預設為1)</th>
+            <th class="text-center">普通會員/VIP</th>
             <th class="text-center">建立時間</th>
             <th class="text-center">更新時間</th>
             <th class="text-center">操作</th>
@@ -49,6 +52,7 @@ h3{
                 <tr class="template">
                     <td style="word-break: break-all; width: 50%;">{!! nl2br($a->content) !!}</td>
                     <td>{{ $a->sequence }}</td>
+                    <td>@if($a->isVip==0)普通會員 @elseif($a->isVip==1)VIP @endif</td>
                     <td class="created_at">{{ $a->created_at }}</td>
                     <td class="updated_at">{{ $a->updated_at }}</td>
                     <td>

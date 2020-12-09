@@ -36,6 +36,7 @@ class AdminAnnounce extends Model
         $a->save();*/
         $a = AdminAnnounce::select('*')->where('id', '=', $request->id)->first();
         $a->en_group = $request->en_group;
+        $a->isVip = $request->isVip;
         $a->content = $request->content_word;
         $a->sequence = $request->sequence;
         $a->save();
@@ -45,6 +46,7 @@ class AdminAnnounce extends Model
     public static function newAnnouncement(Request $request) {
         $a = new AdminAnnounce;
         $a->en_group = $request->en_group;
+        $a->isVip = $request->isVip;
         $a->content = $request->content_word;
         $a->sequence = $request->sequence;
         $a->save();
