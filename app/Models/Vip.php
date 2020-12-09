@@ -150,52 +150,42 @@ class Vip extends Model
 
     public static function cancel($member_id, $free)
     {
-        //$curVip = Vip::where('member_id', $member_id)->orderBy('expiry', 'desc')->first();
-        //$curVip->expiry =
         $curUser = User::findById($member_id);
-        //$curUserName = User::id_($member_id)->meta_();
         $admin = User::findByEmail(Config::get('social.admin.email'));
-
         if ($curUser != null) {
             //$admin->notify(new CancelVipEmail($member_id, '761404', $member_id));
         }
         $user = Vip::select('id', 'expiry', 'created_at', 'updated_at','payment','business_id')
                 ->where('member_id', $member_id)
                 ->orderBy('created_at', 'desc')->get();
-        // 取消時，判斷會員性別，並確認沒有設定到期日，才開始動作，否則遇上多次取消，可能會導致到期日被延後的結果
-        //20201015 變更不分性別
+        // 取消時，確認沒有設定到期日，才開始動作，否則遇上多次取消，可能會導致到期日被延後的結果
         if($user[0]->expiry == '0000-00-00 00:00:00'){
-            // 若未設定到期日，則從最近一筆 VIP 資料取得資料變更日期
-            $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->updated_at);
-            // 取得變更日期的日
-            $day = $date->day;
+            // 若未設定到期日，則從最近一筆 VIP 資料取得資料變更日期做為基準日
+            $baseDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->updated_at);
             // 取得現在時間
             $now = \Carbon\Carbon::now();
-            // 以現在時間為基準，並將日置換為變更日期的日，
-            // 做為推算到期日的基準
-            $expiryDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
-            // 若現在時間日 >= 變更日期日
-            if($now->day >= $day){
-                // 確實複製變數，而不單純用 =，避免出現只將記憶體位置指向 $expectedNextPeriod
-                // 造成兩個變數實際上指向同一物件的問題發生
-                $expectedNextPeriod = clone $now;
-                // 依照付款類型設定到期日，同時也是預計下次扣款日
-                // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
-                if($user[0]->payment=='cc_quarterly_payment'){
-                    $expectedNextPeriod = $expectedNextPeriod->addMonthsNoOverflow(3);
-                }else {
-                    $expectedNextPeriod = $expectedNextPeriod->addMonthsNoOverflow(1);
-                }
-                $expiryDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $expectedNextPeriod->year.'-'.$expectedNextPeriod->month.'-'.$day.' 00:00:00');
+            // 確實複製變數，而不單純用 =，避免出現只將記憶體位置指向 $expectedNextPeriod
+            // 造成兩個變數實際上指向同一物件的問題發生
+            $expectedNextPeriod = clone $baseDate;
+            // 依照付款類形取得不同的預計下一週期扣款日
+            // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
+            if($user[0]->payment == 'cc_quarterly_payment'){
+                $expectedNextPeriod = $expectedNextPeriod->addMonthsNoOverflow(3);
+            }else {
+                $expectedNextPeriod = $expectedNextPeriod->addMonthNoOverflow(1);
             }
+            // 取得取消當下距預計下一週期扣款日的天數
+            $daysDiff = $now->diffInDays($expectedNextPeriod);
+            // 基準日加上得出的天數，即為取消後的到期日
+            $expiryDate = $baseDate->addDays($daysDiff);
             // 如果是使用綠界付費，且取消日距預計下次扣款日小於七天，則到期日再加一個週期
             // 3137610: 正式商店編號
             // 2000132: 測試商店編號
-            if(($user[0]->business_id == '3137610' || $user[0]->business_id == '2000132') && $now->diffInDays($expiryDate) <= 7) {
+            if(($user[0]->business_id == '3137610' || $user[0]->business_id == '2000132') && $daysDiff <= 7) {
                 if($user[0]->payment=='cc_quarterly_payment'){
-                    $expiryDate = $expiryDate->addMonthNoOverflow(3);
+                    $expiryDate = $baseDate->addMonthsNoOverflow(3);
                 }else {
-                    $expiryDate = $expiryDate->addMonthNoOverflow(1);
+                    $expiryDate = $baseDate->addMonthNoOverflow(1);
                 }
 
             }
@@ -204,7 +194,7 @@ class Vip extends Model
                 $u->expiry = $expiryDate->toDateTimeString();
                 $u->save();
             }
-            VipLog::addToLog($member_id, 'Cancel, expiry: ' . $date, 'XXXXXXXXX', 0, $free);
+            VipLog::addToLog($member_id, 'Cancel, expiry: ' . $expiryDate, 'XXXXXXXXX', 0, $free);
             return true;
         }
 //        else if($curUser->engroup == 2 && $free == 0 && $user[0]->expiry == '0000-00-00 00:00:00'){
