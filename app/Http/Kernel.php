@@ -76,6 +76,7 @@ class Kernel extends HttpKernel
         'newerManual' => \App\Http\Middleware\NewerManual::class,
         'femaleActive' => \App\Http\Middleware\FemaleVipActive::class,
         'vipCheck' => \App\Http\Middleware\VipCheck::class,
-        'CheckIsWarned' => \App\Http\Middleware\CheckIsWarned::class
+        'CheckIsWarned' => \App\Http\Middleware\CheckIsWarned::class,
+        'CheckAccountStatus' => \App\Http\Middleware\CheckAccountStatus::class
     ];
 }

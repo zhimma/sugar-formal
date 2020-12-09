@@ -155,14 +155,15 @@ class UserService
         try {
             DB::transaction(function () use ($user, $password, $sendEmail) {
                 $this->userMeta->firstOrCreate([
-                    'user_id' => $user->id
+                    'user_id' => $user->id,
+                    'is_active' => 1
                 ]);
 
                 //$this->assignRole($role, $user->id);
 
-                if ($sendEmail) {
-                    event(new UserRegisteredEmail($user, $password));
-                }
+//                if ($sendEmail) {
+//                    event(new UserRegisteredEmail($user, $password));
+//                }
 
             });
             $domains = config('banned.domains');
@@ -177,10 +178,44 @@ class UserService
                     );
                 }
             }
-            $this->setAndSendUserActivationToken($user);
+            //$this->setAndSendUserActivationToken($user);
 
             return $user;
         } catch (Exception $e) {
+            $mobile = config('social.admin.mobile');
+            // \Artisan::call('send:sms', ['mobile' => "{$mobile}", 'email' => "{$user->email}"]);
+            $username = '54666024';
+            $password = 'zxcvbnm';
+            $smbody = config('app.name') . '使用者註冊失敗，Email:' . $user->email;
+            $smbody = mb_convert_encoding($smbody, "BIG5", "UTF-8");
+            $Data = array(
+                "username" => $username, //三竹帳號
+                "password" => $password, //三竹密碼
+                "dstaddr" => $mobile, //客戶手機
+                "DestName" => '系統回報', //對客戶的稱謂 於三竹後台看的時候用的
+                "smbody" => $smbody, //簡訊內容
+                // "response" =>$ReturnResultUrl, //回傳網址
+                // "ClientID" => $ClientID //使用者代號
+            );
+            $dataString = http_build_query($Data);
+            $url = "http://smexpress.mitake.com.tw:9600/SmSendGet.asp?$dataString";
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            $output = curl_exec($ch);
+            curl_close($ch);
+            $Data['dstaddr'] = config('social.admin.mobile2');
+            $dataString = http_build_query($Data);
+            $url = "http://smexpress.mitake.com.tw:9600/SmSendGet.asp?$dataString";
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            $output = curl_exec($ch);
+            curl_close($ch);
             throw new Exception("We were unable to generate your profile, please try again later. " . $e, 1);
         }
     }

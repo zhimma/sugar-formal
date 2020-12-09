@@ -508,7 +508,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                   `;
             }
             li +=`
-                        <div class="sjpic"><img src="${pic}"></div>
+                        <div class="sjpic"><img class="lazy" src="${pic}" data-original="${pic}"></div>
                         <div class="sjleft">
                             <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
 
@@ -1499,6 +1499,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 }
             }
         });
-
+        $(document).on('DOMNodeInserted', 'img.lazy', function() {
+            $(this).lazyload({
+                effect: 'fadeIn'
+            });
+        });
     </script>
 @stop
