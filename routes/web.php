@@ -269,6 +269,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
     Route::get('/users/switch-back', 'Admin\UserController@switchUserBack')->name('escape');
     Route::post('/message/disableNotice', 'MessageController@disableNotice')->name('disableNotice');
     Route::post('/users/announceRead', 'MessageController@announceRead')->name('announceRead');
+    Route::post('/users/announceClose', 'MessageController@announceClose')->name('announceClose');
 
     /*
     |--------------------------------------------------------------------------
@@ -540,7 +541,9 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::post('users/memberList', 'UserController@searchMemberList')->name('searchMemberList');
 
         Route::post('users/toggleUserWarned', 'UserController@toggleUserWarned');
-        
+        Route::get('users/closeAccountReason', 'UserController@closeAccountReason')->name('users/closeAccountReasonList');
+        Route::get('users/closeAccountDetail', 'UserController@closeAccountDetail');
+
         Route::group(['prefix'=>'users/message'], function(){
             Route::get('showBetween/{id1}/{id2}', 'UserController@showMessagesBetween')->name('admin/showMessagesBetween');
             Route::get('to/{id}', 'UserController@showAdminMessenger')->name('AdminMessage');

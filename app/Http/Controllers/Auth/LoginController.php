@@ -292,6 +292,7 @@ class LoginController extends Controller
         //登出自動警示
         SetAutoBan::logout_warned(Auth::id());
 //        Session::flush();
+        $request->session()->forget('announceClose');
         Auth::logout();
         return redirect('/login');
     }

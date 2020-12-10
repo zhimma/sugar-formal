@@ -568,15 +568,14 @@ class Message extends Model
 
     /**
      * 取得最新私人訊息
-     * @param  \App\Models\User $user
-     * @param  \App\Models\User $targetUser
+     * @param  Int $user_id
+     * @param  Int $targetUser_id
      */
-    public static function latestMessage($user, $targetUser, $userBlockList = null)
+    public static function latestMessage($user_id, $targetUser_id, $userBlockList = null)
     {
-        //echo '<br>' . $uid . '             ' . $sid;
-        $uid = $user->id;
-        $sid = $targetUser->id;
-        if(in_array($sid, $userBlockList->toArray())) {
+        $uid = $user_id;
+        $sid = $targetUser_id;
+        if($userBlockList && in_array($sid, $userBlockList->toArray())) {
             $blockTime = Blocked::getBlockTime($uid, $sid);
             //echo 'blockTime = ' . $blockTime->created_at;
             $latestMessage = Message::where([['to_id', $uid],['from_id', $sid],['created_at', '<=', $blockTime->created_at]])->orWhere([['to_id', $sid],['from_id', $uid],['created_at', '<=', $blockTime->created_at]])->orderBy('created_at', 'desc')->first();

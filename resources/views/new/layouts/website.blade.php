@@ -8,35 +8,54 @@
 
     @if(str_contains(url()->current(), 'dashboard'))
 
-    <?php
-        $user = \Auth::user();
-        if(isset($user)){
-            $announceRead = \App\Models\AnnouncementRead::select('announcement_id')->where('user_id', $user->id)->get();
-            $announcement = \App\Models\AdminAnnounce::where('en_group', $user->engroup)->whereNotIn('id', $announceRead)->orderBy('sequence', 'desc')->get();
-            foreach ($announcement as &$a){
-                $a = str_replace(array("\r\n", "\r", "\n"), "<br>", $a);
+        @if(!Session::has('announceClose'))
+            <?php
+            $user = \Auth::user();
+            if(isset($user)){
+                $announceRead = \App\Models\AnnouncementRead::select('announcement_id')->where('user_id', $user->id)->get();
+                $announcement = \App\Models\AdminAnnounce::where('en_group', $user->engroup)->whereNotIn('id', $announceRead)->orderBy('sequence', 'asc')->get();
+                foreach ($announcement as &$a){
+                    $a = str_replace(array("\r\n", "\r", "\n"), "<br>", $a);
+                }
+                $cc=0;
             }
-            $cc=0;
-        }
-    ?>
-    @if(isset($announcement) && count($announcement) > 0)
-        <div class="announce_bg" onclick="gmBtnNoReload()" style="display:none;"></div>
-        <div class="gg_tab" id="" style="display: none;">
+            ?>
+        @endif
+
+    @if(isset($announcement) && count($announcement) > 0 && !Session::has('announceClose'))
+
+        <div class="announce_bg" onclick="gmBtnNoReload()" style="display:block;"></div>
+        <div class="gg_tab gg_tkimg" id="announcement" style="display: block;">
             <div class="owl-carousel owl-theme">
 
                 @foreach($announcement as $key =>  $a)
                     <?php $cc = $cc+1;?>
                     <div class="item">
                         <div class="ggtitle">站長公告(第{{ $cc }}/{{ count($announcement) }}則)</div>
-                        <div class="ggnr01 ">
-                        <div class="gg_nr">{!! nl2br($a->content) !!}</div>
-                        <div class="gg_bg">
-                            <a href="javascript:void(0);" class="gg_page"><img src="/new/images/bk_03.png"></a>
-                            <a class="ggbut" href="" onclick="disableAnnounce( {{ $a->id }} )" style="bottom: 10px;">不要顯示本公告</a>
-                            <a href="javascript:void(0);" class="gg_pager"><img src="/new/images/bk_05.png" ></a>
+                        <div class="new_poptk" style="height: auto;">
+                            <div @if(!$user->isVip() && $a->isVip==1)class="g_pfont"@endif>
+                            {!! nl2br($a->content) !!}
+                            @if(!$user->isVip() && $a->isVip==1)
+                                <div class="g_picon"><img src="/new/images/viponly.png" style="width: unset;"></div>
+                            @endif
+                            </div>
+
+{{--                            <div class="gg_bg">--}}
+{{--                                <a href="javascript:void(0);" class="gg_page"><img src="/new/images/bk_03.png"></a>--}}
+{{--                                <a class="ggbut" href="" onclick="disableAnnounce( {{ $a->id }} )" style="bottom: 10px;">不要顯示本公告</a>--}}
+{{--                                <a href="javascript:void(0);" class="gg_pager"><img src="/new/images/bk_05.png" ></a>--}}
+{{--                            </div>--}}
+
+                            <div class="gongg_bg">
+                                <a href="javascript:void(0);" class="gg_page gog_pager"><img src="/new/images/bk_03.png" class="left" style="width: unset;"></a>
+                                <div class="n_bbutton_rg">
+                                    <span><a href="" class="n_butleft gg_butnew" onclick="disableAnnounce( {{ $a->id }} )">不再顯示</a></span>
+                                    <span><a class="n_butright gg_butnew" onclick="announceClose()">關閉</a></span>
+                                </div>
+                                <a href="javascript:void(0);" class=" gg_pager gog_pager right"><img src="/new/images/bk_05.png" class="right" style="width: unset;"></a>
                             </div>
                         </div>
-                        <a id="" onclick="gmBtn1()" class="bl_gb"><img src="/new/images/gb_icon01.png" style="width: 30px;"></a>
+{{--                        <a id="" onclick="gmBtn1()" class="bl_gb"><img src="/new/images/gb_icon01.png" style="width: 30px;"></a>--}}
                     </div>
                 @endforeach
 
@@ -52,7 +71,8 @@
     <script src="/new/owlcarousel/owl.carousel.js"></script>
     <script>
 
-        function gmBtn1(){
+
+        function announceClose(){
             $(".announce_bg").hide();
             $("#tab02").hide();
             // $(".bl_gb").hide();
@@ -60,6 +80,25 @@
             if($('#tab05').is(":visible")){
                 $("#announce_bg").show();
             }
+            @if(!Session::has('announceClose'))
+            @php
+                Session::put('announceClose', 1);
+            @endphp
+            $.ajax({
+                type: 'POST',
+                url: '{{ route('announceClose') }}',
+                data: { _token: "{{ csrf_token() }}"},
+                success: function(xhr, status, error){
+                    console.log(xhr);
+                    console.log(error);
+                },
+                error: function(xhr, status, error){
+                    console.log(xhr);
+                    console.log(status);
+                    console.log(error);
+                }
+            });
+            @endif
         }
 
         @if(isset($user))
@@ -81,10 +120,10 @@
             }
         @endif
         $(document).ready(function() {
-            @if(isset($announcement) && count($announcement) > 0)
-                $('.announce_bg').show();
-                $(".gg_tab").show();
-            @endif
+{{--            @if(isset($announcement) && count($announcement) > 0)--}}
+{{--                $('.announce_bg').show();--}}
+{{--                $(".gg_tab").show();--}}
+{{--            @endif--}}
             $('.owl-carousel').owlCarousel({
                 loop: false,
                 margin: 0,
