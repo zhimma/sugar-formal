@@ -191,7 +191,7 @@ class Vip extends Model
             }
 
             foreach ($user as $u){
-                $u->expiry = $expiryDate->toDateTimeString();
+                $u->expiry = $expiryDate->startOfDay()->toDateTimeString();
                 $u->save();
             }
             VipLog::addToLog($member_id, 'Cancel, expiry: ' . $expiryDate, 'XXXXXXXXX', 0, $free);
