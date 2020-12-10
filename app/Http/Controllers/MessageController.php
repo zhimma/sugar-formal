@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Session;
 
 class MessageController extends Controller {
 
@@ -214,6 +215,15 @@ class MessageController extends Controller {
         return response()->json(array(
             'status' => 1,
             'msg' => 'already exists.',
+        ), 200);
+    }
+
+    public function announceClose(Request $request)
+    {
+        $request->session()->put('announceClose', 1);
+        return response()->json(array(
+            'status' => 1,
+            'msg' => 'announce close.',
         ), 200);
     }
 
