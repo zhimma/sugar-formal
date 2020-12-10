@@ -576,6 +576,15 @@ class Message extends Model
         if(!$user){
             $user = \Auth::user();
         }
+        if(!$user){
+            if(!$targetUser){
+                logger('Null $user, $targetUser exception.');
+            }
+            else {
+                logger('Null $user exception, $targetUser id: ' . $targetUser->id);
+            }
+            return false;
+        }
         $uid = $user->id;
         $sid = $targetUser->id;
         if(in_array($sid, $userBlockList->toArray())) {
