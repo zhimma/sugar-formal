@@ -573,7 +573,9 @@ class Message extends Model
      */
     public static function latestMessage($user, $targetUser, $userBlockList = null)
     {
-        //echo '<br>' . $uid . '             ' . $sid;
+        if(!$user){
+            $user = \Auth::user();
+        }
         $uid = $user->id;
         $sid = $targetUser->id;
         if(in_array($sid, $userBlockList->toArray())) {
