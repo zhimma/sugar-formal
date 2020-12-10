@@ -71,6 +71,7 @@
     <script src="/new/owlcarousel/owl.carousel.js"></script>
     <script>
 
+
         function announceClose(){
             $(".announce_bg").hide();
             $("#tab02").hide();
@@ -80,6 +81,9 @@
                 $("#announce_bg").show();
             }
             @if(!Session::has('announceClose'))
+            @php
+                Session::put('announceClose', 1);
+            @endphp
             $.ajax({
                 type: 'POST',
                 url: '{{ route('announceClose') }}',
