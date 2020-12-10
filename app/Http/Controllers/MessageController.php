@@ -117,6 +117,7 @@ class MessageController extends Controller {
 
     public function chatview(Request $request)
     {
+        return redirect(route('chat2View'));
         $user = $request->user();
         $m_time = '';
         if (isset($user)) {
