@@ -32,6 +32,12 @@
                     </select>
                 </td>
                 <td>
+                    <select name="isVip" id="">
+                        <option value="0" @if($announce->isVip == 0) selected @endif>普通會員</option>
+                        <option value="1" @if($announce->isVip == 1) selected @endif>VIP</option>
+                    </select>
+                </td>
+                <td>
                     <input type="number" name="sequence" min="1" value="{{ $announce->sequence }}">
                 </td>
                 <td class="created_at">{{ $announce->created_at }}</td>

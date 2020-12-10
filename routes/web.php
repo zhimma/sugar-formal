@@ -155,6 +155,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
     Route::get('/users/switch-back', 'Admin\UserController@switchUserBack')->name('escape');
     Route::post('/message/disableNotice', 'MessageController@disableNotice')->name('disableNotice');
     Route::post('/users/announceRead', 'MessageController@announceRead')->name('announceRead');
+    Route::post('/users/announceClose', 'MessageController@announceClose')->name('announceClose');
 
     /*
     |--------------------------------------------------------------------------
