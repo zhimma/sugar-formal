@@ -575,7 +575,7 @@ class Message extends Model
     {
         $uid = $user_id;
         $sid = $targetUser_id;
-        if(in_array($sid, $userBlockList->toArray())) {
+        if($userBlockList && in_array($sid, $userBlockList->toArray())) {
             $blockTime = Blocked::getBlockTime($uid, $sid);
             //echo 'blockTime = ' . $blockTime->created_at;
             $latestMessage = Message::where([['to_id', $uid],['from_id', $sid],['created_at', '<=', $blockTime->created_at]])->orWhere([['to_id', $sid],['from_id', $uid],['created_at', '<=', $blockTime->created_at]])->orderBy('created_at', 'desc')->first();
