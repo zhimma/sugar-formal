@@ -354,7 +354,8 @@ class UserController extends Controller
         $listAccount = array();
         foreach ($getAccount as $key => $list)
         {
-            $data = AccountStatusLog::leftJoin('users', 'users.id', '=', 'account_status_log.user_id')->selectRaw('account_status_log.*, users.id, users.name, users.email, users.engroup');
+            $data = AccountStatusLog::leftJoin('users', 'users.id', '=', 'account_status_log.user_id')
+                    ->selectRaw('account_status_log.*, users.id, users.name, users.email, users.engroup, users.accountStatus');
 
             if(!empty($request->get('date_start'))){
                 $data->where('account_status_log.created_at','>=', $request->get('date_start'));

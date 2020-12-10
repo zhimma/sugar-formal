@@ -81,28 +81,30 @@
         </table>
     </form>
 </div>
-<span>共 {{ $listAccount->count() }} 筆記錄</span>
+<div>查詢結果：共 <span style="color: red;">{{ $listAccount->count() }}</span> 筆關閉記錄。</div>
 <br>
-<span>狀態 (N):  N指此user關閉帳號統計次數。</span>
+<span>備註：帳號目前狀態  (N)：N指此會員總關閉次數。</span>
 <table class='table table-bordered table-hover'>
 	<tr>
         <td>會員ID</td>
 		<td>帳號</td>
 		<td>名稱</td>
         <td>身份</td>
-        <td>帳號狀態(N)</td>
+        <td>帳號目前狀態(N)</td>
         <td>關閉時間</td>
         <td>關閉原因</td>
         <td></td>
 	</tr>
 	@forelse($listAccount as $account)
     <tr>
-        <td>{{ $account->user_id }}</td>
+        <td><a href="/admin/users/advInfo/{{ $account->user_id }}" target="_blank">{{ $account->user_id }}</a></td>
         <td>{{ $account->email }}</td>
         <td>{{ $account->name }}</td>
         <td>{{ \App\Models\User::findById($account->id)->isVip() ? 'VIP' : '普通' }}{{ $account->engroup == 1 ? '男':'女' }}</td>
         <td>
-            @if($account->created_at > date("Y-m-d",strtotime("-3 months", strtotime(Now()))))
+            @if($account->accountStatus == 1)
+                目前開啟
+            @elseif($account->created_at > date("Y-m-d",strtotime("-3 months", strtotime(Now()))))
                 目前關閉
             @elseif($account->created_at <=  date("Y-m-d",strtotime("-12 months", strtotime(Now()))))
                 關閉已超過12個月
