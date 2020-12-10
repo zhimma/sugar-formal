@@ -568,25 +568,13 @@ class Message extends Model
 
     /**
      * 取得最新私人訊息
-     * @param  \App\Models\User $user
-     * @param  \App\Models\User $targetUser
+     * @param  Int $user_id
+     * @param  Int $targetUser_id
      */
-    public static function latestMessage($user, $targetUser, $userBlockList = null)
+    public static function latestMessage($user_id, $targetUser_id, $userBlockList = null)
     {
-        if(!$user){
-            $user = \Auth::user();
-        }
-        if(!$user){
-            if(!$targetUser){
-                logger('Null $user, $targetUser exception.');
-            }
-            else {
-                logger('Null $user exception, $targetUser id: ' . $targetUser->id);
-            }
-            return false;
-        }
-        $uid = $user->id;
-        $sid = $targetUser->id;
+        $uid = $user_id;
+        $sid = $targetUser_id;
         if(in_array($sid, $userBlockList->toArray())) {
             $blockTime = Blocked::getBlockTime($uid, $sid);
             //echo 'blockTime = ' . $blockTime->created_at;
