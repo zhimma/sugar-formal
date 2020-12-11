@@ -5,12 +5,12 @@
 	<div class="container matop70">
         <div class="row">
             <div class="col-sm-12 col-xs-12 col-md-12">
-                <div class="shou shou02 sh_line"><span>Email 驗證</span>
+                <div class="shou shou02 sh_line"><span>Email 認證尚未通過</span>
                     <font>Email confirmation</font>
                 </div>
                 <div class="email">
                 @if(isset($user))
-                    <h2>帳號註冊成功</h2>
+                    <h2>帳號註冊成功(請到Email信箱收信驗證)</h2>
                     <div class="embg">
                             <div class="embg_1">
                             <h3>您已註冊成功，以下是您所填寫的註冊資料：</h3>
@@ -48,6 +48,19 @@
                                 <h4>建議第一次接觸包養的大叔，看完以下文章</h4>
                                 @endif
 
+                                @elseif(Auth::check() && $user->engroup == 1)
+                                <p>歡迎來到甜心花園，多金的Daddy們都想找到一個美麗的 BaBy。</p>
+                                <p>這邊，站長跟各位提點，想找到稱心如意的女伴的幾個重點：</p>
+                                <p>1.金錢就是最強大的武器。</p>
+                                <p>在這邊，高不高帥不帥都不是妹妹關注的重點，你真不真誠，大不大方，才是勝出的關鍵。</p>
+                                <p>2.拒絕預支</p>
+                                <p>女生能詐騙男生的方法不多，預支是最常見的。無論如何，認識不深的情況下。拒絕超過半個月的零用錢預支要求。</p>
+                                <p>3.要利用網站的功能</p>
+                                <p>盡量加入 VIP，這是很多妹子第一個篩選的關卡。再來利用車馬費功能。雖說拒絕預支，但那是指萬計的大筆零用錢，初期千把塊的小額投資絕不可省。</p>
+                                <p>4.<a href="{!! url('contact') !!}" style="color: red; font-weight: bold;">如果沒收到認證信/認證失敗，請點此聯繫站長。</a></p>
+
+                                <p>建議第一次接觸包養的大叔，看完以下文章</p>
+                                @endif
                                 <h4>
                                     <a style="font-weight: bold" href="{!! url('notification') !!}">站長開講</a>
                                     <a style="font-weight: bold" href="{!! url('feature') !!}">網站使用</a>
