@@ -76,6 +76,7 @@ class CheckECpay implements ShouldQueue
                 }
                 catch (\Exception $e){
                     Log::error("ExecLog is null, VIP id: " . $this->vipData->id);
+                    return;
                 }
                 $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
                 $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
