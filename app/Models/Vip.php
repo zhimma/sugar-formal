@@ -160,10 +160,12 @@ class Vip extends Model
                 ->orderBy('created_at', 'desc')->get();
         // 取消時，確認沒有設定到期日，才開始動作，否則遇上多次取消，可能會導致到期日被延後的結果
         if($user[0]->expiry == '0000-00-00 00:00:00'){
-            // 若未設定到期日，則從最近一筆 VIP 資料取得資料變更日期做為基準日
-            $baseDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->updated_at);
+            // 未設定到期日區間
             // 取得現在時間
             $now = \Carbon\Carbon::now();
+            // 從最近一筆 VIP 資料取得資料變更日期的「日」加上現在年月做為基準日
+            $latestUpdatedAt = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->updated_at);
+            $baseDate = \Carbon\Carbon::createFromFormat('Y-m-d', $now->year . "-" . $now->month . "-" . $latestUpdatedAt->day);
             // 確實複製變數，而不單純用 =，避免出現只將記憶體位置指向 $expectedNextPeriod
             // 造成兩個變數實際上指向同一物件的問題發生
             $expectedNextPeriod = clone $baseDate;
