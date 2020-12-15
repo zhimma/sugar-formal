@@ -155,6 +155,9 @@ class Vip extends Model
         if ($curUser != null) {
             //$admin->notify(new CancelVipEmail($member_id, '761404', $member_id));
         }
+        else{
+            return false;
+        }
         $user = Vip::select('id', 'expiry', 'created_at', 'updated_at','payment','business_id')
                 ->where('member_id', $member_id)
                 ->orderBy('created_at', 'desc')->get();
@@ -183,13 +186,14 @@ class Vip extends Model
             // 如果是使用綠界付費，且取消日距預計下次扣款日小於七天，則到期日再加一個週期
             // 3137610: 正式商店編號
             // 2000132: 測試商店編號
+            $str = null;
             if(($user[0]->business_id == '3137610' || $user[0]->business_id == '2000132') && $daysDiff <= 7) {
                 if($user[0]->payment=='cc_quarterly_payment'){
                     $expiryDate = $baseDate->addMonthsNoOverflow(3);
                 }else {
                     $expiryDate = $baseDate->addMonthNoOverflow(1);
                 }
-
+                $str = $curUser->name . ' 您好，您已取消本站 VIP 續費。但由於您的扣款時間是每月'. $latestUpdatedAt->day .'號，取消時間低於七個工作天，作業不及。所以本次還是會正常扣款，下一週期就會停止扣款。造成不便敬請見諒。';
             }
 
             foreach ($user as $u){
@@ -197,7 +201,7 @@ class Vip extends Model
                 $u->save();
             }
             VipLog::addToLog($member_id, 'Cancel, expiry: ' . $expiryDate, 'XXXXXXXXX', 0, $free);
-            return true;
+            return [true, "str"  => $str];
         }
 //        else if($curUser->engroup == 2 && $free == 0 && $user[0]->expiry == '0000-00-00 00:00:00'){
 //            //取消當日+3天的時間

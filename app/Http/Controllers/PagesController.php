@@ -2492,36 +2492,20 @@ class PagesController extends Controller
                 $this->logService->cancelLog($vip);
                 $this->logService->writeLogToDB();
                 $file = $this->logService->writeLogToFile();
-                $before_cancelVip = $vip->updated_at;
                 logger('$before_cancelVip: '.$vip->updated_at);
                 if( strpos(\Storage::disk('local')->get($file[0]), $file[1]) !== false) {
-                    Vip::cancel($user->id, 0);
-                    $data = Vip::where('member_id', $user->id)->where('expiry', '!=', '0000-00-00 00:00:00')->get()->first();
-                    $date = date('Y年m月d日', strtotime($data->expiry));
-
-                    $offVIP = AdminCommonText::getCommonText(4);
-                    $offVIP = str_replace('DATE', $date, $offVIP);
-
-                    logger('$expiry: ' . $data->expiry);
-                    logger('base day: ' . $date);
-
-                    // 如果是使用綠界付費，且取消日距預計下次扣款日小於七天，則到期日再加一個週期
-                    // 3137610: 正式商店編號
-                    // 2000132: 測試商店編號
-                    if(($data->business_id == '3137610' || $data->business_id == '2000132')) {
-                        $before_cancelVip = Carbon::createFromFormat('Y-m-d H:i:s', $before_cancelVip);
-                        $expectedNextPeriod = clone $before_cancelVip;
-                        if($data->payment == 'cc_quarterly_payment'){
-                            $expectedNextPeriod = $expectedNextPeriod->addMonthsNoOverflow(3);
-                        }else {
-                            $expectedNextPeriod = $expectedNextPeriod->addMonthNoOverflow(1);
-                        }
-                        $daysDiff = Carbon::now()->diffInDays($expectedNextPeriod);
+                    $array = Vip::cancel($user->id, 0);
+                    if(isset($array["str"])){
+                        $offVIP = $array["str"];
+                    }
+                    else{
+                        $data = Vip::where('member_id', $user->id)->where('expiry', '!=', '0000-00-00 00:00:00')->get()->first();
+                        $date = date('Y年m月d日', strtotime($data->expiry));
+                        $offVIP = AdminCommonText::getCommonText(4);
+                        $offVIP = str_replace('DATE', $date, $offVIP);
+                        logger('$expiry: ' . $data->expiry);
+                        logger('base day: ' . $date);
                         logger('payment: ' . $data->payment);
-                        logger('diffIndays: '. $daysDiff);
-                        if($daysDiff <= 7){
-                            $offVIP = $user->name.' 您好，您已取消本站 VIP 續費。但由於您的扣款時間是每月'. $before_cancelVip->day .'號，取消時間低於七個工作天，作業不及。所以本次還是會正常扣款，下一週期就會停止扣款。造成不便敬請見諒。';
-                        }
                     }
                     logger('User ' . $user->id . ' cancellation finished.');
                     $request->session()->flash('cancel_notice', $offVIP);
