@@ -2501,41 +2501,22 @@ class PagesController extends Controller
                     $offVIP = AdminCommonText::getCommonText(4);
                     $offVIP = str_replace('DATE', $date, $offVIP);
 
-                    // 取得現在時間
-                    $now = \Carbon\Carbon::now();
-                    // 從最近一筆 VIP 資料取得資料變更日期的「日」加上現在年月做為基準日
-                    $latestUpdatedAt = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->updated_at);
-                    $baseDate = \Carbon\Carbon::createFromFormat('Y-m-d', $now->year . "-" . $now->month . "-" . $latestUpdatedAt->day);
-                    // 確實複製變數，而不單純用 =，避免出現只將記憶體位置指向 $expectedNextPeriod
-                    // 造成兩個變數實際上指向同一物件的問題發生
-                    $expectedNextPeriod = clone $baseDate;
-                    // 依照付款類形取得不同的預計下一週期扣款日
-                    // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
-                    if($user[0]->payment == 'cc_quarterly_payment'){
-                        $expectedNextPeriod = $expectedNextPeriod->addMonthsNoOverflow(3);
-                    }else {
-                        $expectedNextPeriod = $expectedNextPeriod->addMonthNoOverflow(1);
-                    }
-                    // 取得取消當下距預計下一週期扣款日的天數
-                    $daysDiff = $now->diffInDays($expectedNextPeriod);
-
                     logger('$expiry:' . $data->expiry);
                     logger('base day:' . $date);
-                    logger('diffIndays:'. $daysDiff);
 
                     // 如果是使用綠界付費，且取消日距預計下次扣款日小於七天，則到期日再加一個週期
                     // 3137610: 正式商店編號
                     // 2000132: 測試商店編號
-                    if(($user[0]->business_id == '3137610' || $user[0]->business_id == '2000132') && $daysDiff <= 7) {
-                        if($user[0]->payment=='cc_quarterly_payment'){
-                            // 基準日要先加上得出的天數
-                            $expiryDate = $baseDate->addDays($daysDiff)->addMonthsNoOverflow(3);
-                        }else {
-                            // 基準日要先加上得出的天數
-                            $expiryDate = $baseDate->addDays($daysDiff)->addMonthNoOverflow(1);
+                    if(($data->business_id == '3137610' || $data->business_id == '2000132')) {
+                        $expiryDate = Carbon::createFromFormat('Y-m-d H:i:s', $data->expiry);
+                        $daysDiff = Carbon::now()->diffInDays($expiryDate);
+                        logger('diffIndays:'. $daysDiff);
+                        if($data->payment=='cc_quarterly_payment' && $daysDiff >= 90){
+                            $offVIP = $user->name.' 您好，您已取消本站 VIP 續費。但由於您的扣款時間是每月'. $expiryDate->day .'號，取消時間低於七個工作天，作業不及。所以本次還是會正常扣款，下一週期就會停止扣款。造成不便敬請見諒。';
+                        }else if($daysDiff >= 30) {
+                            $offVIP = $user->name.' 您好，您已取消本站 VIP 續費。但由於您的扣款時間是每月'. $expiryDate->day .'號，取消時間低於七個工作天，作業不及。所以本次還是會正常扣款，下一週期就會停止扣款。造成不便敬請見諒。';
                         }
-                        $offVIP = $user->name.' 您好，您已取消本站 VIP 續費。但由於您的扣款時間是每月'. $expiryDate->format('d') .'號，取消時間低於七個工作天，作業不及。所以本次還是會正常扣款，下一週期就會停止扣款。造成不便敬請見諒。';
-                    }      
+                    }
 
                     $request->session()->flash('cancel_notice', $offVIP);
                     $request->session()->save();
