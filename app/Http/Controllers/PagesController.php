@@ -2509,12 +2509,13 @@ class PagesController extends Controller
                     // 2000132: 測試商店編號
                     if(($data->business_id == '3137610' || $data->business_id == '2000132')) {
                         $expiryDate = Carbon::createFromFormat('Y-m-d H:i:s', $data->expiry);
+                        $before_cancelVip = Carbon::createFromFormat('Y-m-d H:i:s', $before_cancelVip);
                         $daysDiff = Carbon::now()->diffInDays($expiryDate);
                         logger('diffIndays:'. $daysDiff);
                         if($data->payment=='cc_quarterly_payment' && $daysDiff >= 90){
-                            $offVIP = $user->name.' 您好，您已取消本站 VIP 續費。但由於您的扣款時間是每月'. $expiryDate->day .'號，取消時間低於七個工作天，作業不及。所以本次還是會正常扣款，下一週期就會停止扣款。造成不便敬請見諒。';
+                            $offVIP = $user->name.' 您好，您已取消本站 VIP 續費。但由於您的扣款時間是每月'. $before_cancelVip->day .'號，取消時間低於七個工作天，作業不及。所以本次還是會正常扣款，下一週期就會停止扣款。造成不便敬請見諒。';
                         }else if($daysDiff >= 30) {
-                            $offVIP = $user->name.' 您好，您已取消本站 VIP 續費。但由於您的扣款時間是每月'. $expiryDate->day .'號，取消時間低於七個工作天，作業不及。所以本次還是會正常扣款，下一週期就會停止扣款。造成不便敬請見諒。';
+                            $offVIP = $user->name.' 您好，您已取消本站 VIP 續費。但由於您的扣款時間是每月'. $before_cancelVip->day .'號，取消時間低於七個工作天，作業不及。所以本次還是會正常扣款，下一週期就會停止扣款。造成不便敬請見諒。';
                         }
                     }
 
