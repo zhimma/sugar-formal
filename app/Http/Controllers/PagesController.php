@@ -2487,7 +2487,7 @@ class PagesController extends Controller
             $log->user_id = $user->id;
             $log->save();
             if(Auth::attempt(array('email' => $payload['email'], 'password' => $payload['password']))){
-                $vip = Vip::findById($user->id);
+                $vip = Vip::findByIdWithDateDesc($user->id);
                 $this->logService->cancelLog($vip);
                 $this->logService->writeLogToDB();
                 $file = $this->logService->writeLogToFile();
@@ -2508,12 +2508,15 @@ class PagesController extends Controller
                     // 3137610: 正式商店編號
                     // 2000132: 測試商店編號
                     if(($data->business_id == '3137610' || $data->business_id == '2000132')) {
-                        $expiryDate = Carbon::createFromFormat('Y-m-d H:i:s', $data->expiry);
                         $before_cancelVip = Carbon::createFromFormat('Y-m-d H:i:s', $before_cancelVip);
-                        $daysDiff = Carbon::now()->diffInDays($expiryDate);
-                        if(($data->payment == 'cc_quarterly_payment' && $daysDiff >= 90)
-                            || ($data->payment == 'cc_monthly_payment' && $daysDiff >= 30)
-                            || ($data->payment == '' && $daysDiff >= 30)){
+                        $expectedNextPeriod = clone $before_cancelVip;
+                        if($data->payment == 'cc_quarterly_payment'){
+                            $expectedNextPeriod = $expectedNextPeriod->addMonthsNoOverflow(3);
+                        }else {
+                            $expectedNextPeriod = $expectedNextPeriod->addMonthNoOverflow(1);
+                        }
+                        $daysDiff = Carbon::now()->diffInDays($expectedNextPeriod);
+                        if($daysDiff <= 7){
                             logger('payment:' . $data->payment);
                             logger('diffIndays:'. $daysDiff);
                             $offVIP = $user->name.' 您好，您已取消本站 VIP 續費。但由於您的扣款時間是每月'. $before_cancelVip->day .'號，取消時間低於七個工作天，作業不及。所以本次還是會正常扣款，下一週期就會停止扣款。造成不便敬請見諒。';
