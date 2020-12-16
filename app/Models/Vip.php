@@ -182,7 +182,7 @@ class Vip extends Model
                 $periodRemained = 30 - ($daysDiff % 30);
             }
             // 基準日加上得出的天數，即為取消後的到期日
-            $expiryDate = $baseDate->addDays($periodRemained);
+            $expiryDate = $baseDate->addDays($periodRemained + 1);
             $output->writeln('$daysDiff: ' . $daysDiff);
             $output->writeln('$periodRemained: ' . $periodRemained);
             $output->writeln('$expiryDate: ' . $expiryDate);
