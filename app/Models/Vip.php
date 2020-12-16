@@ -126,8 +126,8 @@ class Vip extends Model
         }
 
         $admin = User::findByEmail(Config::get('social.admin.email'));
-
-        VipLog::addToLog($member_id, 'upgrade, order id: ' . $order_id, $txn_id, 1, $free);
+        $logStr = 'upgrade, order id: ' . $order_id . ', payment: ' . $payment . ', amount: ' . $amount;
+        VipLog::addToLog($member_id, $logStr, $txn_id, 1, $free);
 
         $curUser = User::findById($member_id);
         if ($curUser != null)
