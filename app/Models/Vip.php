@@ -166,11 +166,12 @@ class Vip extends Model
             // 未設定到期日區間
             // 取得現在時間
             $now = \Carbon\Carbon::now();
-            // 從最近一筆 VIP 資料取得資料變更日期的「日」加上現在年月做為基準日
+            // 從最近一筆 VIP 資料取得資料變更日期
             $latestUpdatedAt = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->updated_at);
-            $baseDate = \Carbon\Carbon::createFromFormat('Y-m-d', $now->year . "-" . $now->month . "-" . $latestUpdatedAt->day);
-            // 確實複製變數，而不單純用 =，避免出現只將記憶體位置指向 $daysDiff
+            // 確實複製變數，而不單純用 =，避免出現只將記憶體位置指向 $daysDiff, $baseDate，
             // 造成兩個變數實際上指向同一物件的問題發生
+            // 將現在時間做為基準日
+            $baseDate = clone $now;
             $daysDiff = clone $now;
             $daysDiff = $daysDiff->diffInDays($latestUpdatedAt);
             // 依照付款類形計算不同的取消當下距預計下一週期扣款日的天數
