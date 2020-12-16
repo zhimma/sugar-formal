@@ -175,7 +175,6 @@ class Vip extends Model
             $daysDiff = clone $now;
             $daysDiff = $daysDiff->diffInDays($latestUpdatedAt);
             // 依照付款類形計算不同的取消當下距預計下一週期扣款日的天數
-            $output = new \Symfony\Component\Console\Output\ConsoleOutput();
             if($user[0]->payment == 'cc_quarterly_payment'){
                 $periodRemained = 92 - ($daysDiff % 92);
             }else {
@@ -183,9 +182,13 @@ class Vip extends Model
             }
             // 基準日加上得出的天數，即為取消後的到期日
             $expiryDate = $baseDate->addDays($periodRemained + 1);
-            $output->writeln('$daysDiff: ' . $daysDiff);
-            $output->writeln('$periodRemained: ' . $periodRemained);
-            $output->writeln('$expiryDate: ' . $expiryDate);
+            /**
+             * Debugging codes.
+             * $output = new \Symfony\Component\Console\Output\ConsoleOutput();
+             * $output->writeln('$daysDiff: ' . $daysDiff);
+             * $output->writeln('$periodRemained: ' . $periodRemained);
+             * $output->writeln('$expiryDate: ' . $expiryDate);
+             */
             // 如果是使用綠界付費，且取消日距預計下次扣款日小於七天，則到期日再加一個週期
             // 3137610: 正式商店編號
             // 2000132: 測試商店編號
