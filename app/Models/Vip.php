@@ -174,13 +174,17 @@ class Vip extends Model
             $daysDiff = clone $now;
             $daysDiff = $daysDiff->diffInDays($latestUpdatedAt);
             // 依照付款類形計算不同的取消當下距預計下一週期扣款日的天數
+            $output = new \Symfony\Component\Console\Output\ConsoleOutput();
             if($user[0]->payment == 'cc_quarterly_payment'){
-                $periodRemained = 90 - ($daysDiff % 90);
+                $periodRemained = 92 - ($daysDiff % 92);
             }else {
                 $periodRemained = 30 - ($daysDiff % 30);
             }
             // 基準日加上得出的天數，即為取消後的到期日
             $expiryDate = $baseDate->addDays($periodRemained);
+            $output->writeln('$daysDiff: ' . $daysDiff);
+            $output->writeln('$periodRemained: ' . $periodRemained);
+            $output->writeln('$expiryDate: ' . $expiryDate);
             // 如果是使用綠界付費，且取消日距預計下次扣款日小於七天，則到期日再加一個週期
             // 3137610: 正式商店編號
             // 2000132: 測試商店編號
@@ -191,7 +195,7 @@ class Vip extends Model
                 }else {
                     $expiryDate = $expiryDate->addMonthNoOverflow(1);
                 }
-                $str = $curUser->name . ' 您好，您已取消本站 VIP 續費。但由於您的扣款時間是每月'. $latestUpdatedAt->day .'號，取消時間低於七個工作天，作業不及。所以本次還是會正常扣款，下一週期就會停止扣款。造成不便敬請見諒。';
+                $str = $curUser->name . ' 您好，您已取消本站 VIP 續期。但由於您的扣款時間是每月'. $latestUpdatedAt->day .'號，取消時間低於七個工作天，作業不及。所以本次還是會正常扣款，下一週期就會停止扣款。造成不便敬請見諒。';
             }
 
             foreach ($user as $u){
