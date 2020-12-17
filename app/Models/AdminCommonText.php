@@ -29,6 +29,11 @@ class AdminCommonText extends Model
         $tmp = AdminCommonText::select('content')->where('id', $id)->first();
         return $tmp->content;
     }
+
+    public static function getCommonTextByAlias($alias){
+        $tmp = AdminCommonText::select('content')->where('alias', $alias)->first();
+        return $tmp->content;
+    }
     
     public static function checkContent(Request $request) {
         return  AdminCommonText::where([['id', $request->id],['content', $request->content]])->first() !== null;

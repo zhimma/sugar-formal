@@ -7,6 +7,8 @@ use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Support\Facades\Log;
 use App\Models\Vip;
 use App\Models\User;
+use App\Models\Message;
+use App\Models\AdminCommonText;
 
 class VipCheck
 {
@@ -43,9 +45,20 @@ class VipCheck
         if ($user->isVip()) {
             $userVIP = $user->getVipData(true);
             $expiry = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $userVIP->expiry);
+
+            //藍新舊會員通知 過期則通知專屬頁面付費方案轉綠界
+            $send_msg ='';
+            if($userVIP->business_id == '761404'){
+                $send_msg = 1;
+            }
             if($now > $expiry && $userVIP->expiry != '0000-00-00 00:00:00'){
                 \App\Models\VipLog::addToLog($user->id, 'Expired auto cancellation.', 'XXXXXXXXX', 0, 0);
                 $userVIP->removeVIP();
+                if($send_msg==1){
+                    //vipForNewebPay msg
+                    $msg = AdminCommonText::getCommonTextByAlias('vipForNewebPay');
+                    Message::post(1049, $user->id, $msg, true, 1);
+                }
             }
         }
 

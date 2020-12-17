@@ -332,7 +332,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .viplist{width:100%; display:table; margin-top:20px !important; margin-bottom:10px !important;}
 .viplist ul{width:100%;}
 .viplist ul li{width:30% !important; height:170px !important;float:left; margin:0 0 0 2.4% !important;background-image:url(../images/fy_03.png); background-color:#f9f9f9; background-SIZE:90%; background-repeat:no-repeat; background-position:5px 45px !important; padding:30px 0 !important; border-radius:10px; color:#fd8cb4; position:relative;}
-.viplist ul li:last-child{ margin-left:0%; margin-right:0%;}
+/*.viplist ul li:last-child{ margin-left:0%; margin-right:0%;}*/
 
 
 .viptop20{ margin-top:10px;}
@@ -343,7 +343,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .vipfont h5{ font-size:12px !important;color:#fd8cb4; margin-top:5px;}
 
 .viptop{ margin-top:20px !important;}
-.vipcent{ text-align:center; color:#fd8cb4; font-size:16px !important; line-height:100px; margin-top:0px !important}
+.vipcent{ text-align:center; color:#fd8cb4; font-size:16px !important; line-height:35px; margin-top:0px !important}
 
 .vipbut{width:70%; height:40px; background:#fe92a8; border-radius:200px; color:#ffffff; text-align:center; line-height:40px; display:table; margin:0 auto; margin-top:20px; }
 
@@ -371,7 +371,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .viplist{width:100%; display:table; margin-top:40px; margin-bottom:20px;}
 .viplist ul{width:100%;}
 .viplist ul li{width:30% !important;float:left; margin:0 0 0 2.4% !important;background-image:url(../images/fy_03.png); background-color:#f9f9f9; background-SIZE:90%; background-repeat:no-repeat;padding:30px 0 !important; border-radius:10px; color:#fd8cb4; position:relative;}
-.viplist ul li:last-child{ margin-left:0%; margin-right:0%;}
+/*.viplist ul li:last-child{ margin-left:0%; margin-right:0%;}*/
 
 .viptop15{ margin-top:45px;}
 .vipfont h2{ font-size:34px !important; color:#fd8cb4; font-weight:bold; margin-top:50px;}
@@ -379,7 +379,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .vipfont h4{ font-size:13px !important; color:#fd8cb4;}
 .vipfont h5{color:#fd8cb4; margin-top:5px;}
 .viptop{ margin-top:20px !important;}
-.vipcent{ text-align:center; color:#fd8cb4;line-height:100px;}
+.vipcent{ text-align:center; color:#fd8cb4;line-height:35px;}
 
 .vipbut{width:40%; height:40px; background:#fe92a8; border-radius:200px; color:#ffffff; text-align:center; line-height:40px; display:table; margin:0 auto; margin-top:20px; }
 
