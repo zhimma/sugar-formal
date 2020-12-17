@@ -206,7 +206,7 @@ class Vip extends Model
                 $u->expiry = $expiryDate->startOfDay()->toDateTimeString();
                 $u->save();
             }
-            VipLog::addToLog($member_id, 'Cancel, expiry: ' . $expiryDate, 'XXXXXXXXX', 0, $free);
+            VipLog::addToLog($member_id, 'User cancel, expiry: ' . $expiryDate, 'XXXXXXXXX', 0, $free);
             return [true, "str"  => $str ?? null];
         }
 //        else if($curUser->engroup == 2 && $free == 0 && $user[0]->expiry == '0000-00-00 00:00:00'){
