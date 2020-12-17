@@ -1624,7 +1624,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
 
 
-        @if($user->login_times > 3)
+        @if($user->login_times >= 3)
 
             $(function(){
                 @if($user->checkTourRead('chat',1)==0)
