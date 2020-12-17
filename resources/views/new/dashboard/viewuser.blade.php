@@ -881,12 +881,14 @@
         }
     });
     // $( document ).ready(function() {
-        @if(isset($is_block_mid) && $is_block_mid == '是')
-            ccc('此用戶已關閉資料。');
-            $('.row').css('display','none');
-        @elseif($to->accountStatus == 0)
-            ccc('此用戶已關閉資料。');
-            $('.row').css('display','none');
+        @if(isset($to))
+            @if(isset($is_block_mid) && $is_block_mid == '是')
+                ccc('此用戶已關閉資料。');
+                $('.row').css('display','none');
+            @elseif($to->accountStatus == 0)
+                ccc('此用戶已關閉資料。');
+                $('.row').css('display','none');
+            @endif
         @endif
     // });
 
