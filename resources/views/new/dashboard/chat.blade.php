@@ -1127,7 +1127,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         content: function () { return '<h4' + $(this).data('content') + '</h4>'; }
                     });
 
-                    @if($user->checkTourRead('chat',5)==0 && $user->engroup==2)
+                    @if( ($user->checkTourRead('chat',7)==0 && $user->engroup==2) || (($user->checkTourRead('chat',6)==0 && $user->engroup==1)))
                     $('div[data-toggle="popover"]').popover('disable');
                     @endif
 
