@@ -1,0 +1,143 @@
+@charset "UTF-8";
+/*明引导页 by:clanlan 2020-10-27*/
+.introjs-overlay{background:rgba(0,0,0,.8);}
+.introjs-helperLayer {border:2px dashed #fd5678;border-radius:20px; overflow: hidden; min-width: 500px;}
+.introjs-tooltip{border:2px dashed #fff;border-radius: 20px; background:rgba(0,0,0,.2);min-width: auto; max-width:500px; width: 100%;
+    font: 16px/30px ""; color: #fff; margin-top: 50px;}
+.introjs-tooltiptext p{padding: 0 10px;}
+.introjs-tooltiptext h2{background:#fff; padding:5px 20px; font: bold 16px/24px ""; color: #fd5678; border-radius: 30px; margin: 10px 0;}
+.introjs-helperLayer,.introjs-tooltipReferenceLayer{max-width:500px; padding: 10px 20px;}
+.introjs-arrow{border:none;width:16%; background:url("../images/yd_jt.png") no-repeat 0 0; height: 40px;top:-45px;
+    left: 20%; background-size:100% auto;}
+.introjs-arrow.top {top: -50px;}
+.introjs-bullets{display: none;}
+.introjs-tooltiptext em{width:10%;min-height:30px;position: absolute;top:-30px; right: -30px; background: url("../images/yd_xx.png") no-repeat 0 0;
+background-size:100% auto;}
+.introjs-tooltiptext em:last-child{top:auto;right: auto; bottom:-30px; left: -30px;}
+.introjs-button,.introjs-button:focus,.introjs-button:active{ border:none; text-indent: -9999px; overflow: hidden;
+    position: absolute; bottom: -80px; left: 50%; margin-left: -60px;
+    width:120px; background: url("../images/yd_but.png") no-repeat 0 0; background-size: 100% auto; height: 60px;
+}
+.introjs-relativePosition, tr.introjs-showElement > td, tr.introjs-showElement > th{padding:0 15px}
+.introjs-button:hover {
+    border-color:none;
+    text-decoration: none;
+    box-shadow:none;
+}
+a:focus {outline:none;}
+.introjs-helperNumberLayer{display: none;}
+.zixun{width:500px; text-align: center;}
+.yd2a{width: 100%;padding: 10px 15px;}
+/*.introjs-skipbutton{display: block;}*/
+.introjs-disabled{display: none;}
+.introjs-prevbutton{display: none;}
+
+
+.introjs-tooltip.yd2{margin-top:0; margin-bottom:40px;min-height: 70px; padding: 10px 20px; width: 70%;}
+.yd2 .introjs-arrow{width:50px; background:url("../images/yd_jt3.png") no-repeat 0 0; height:70px;top:30px;
+    left:auto;right: -60px; background-size: auto 100%;}
+.yd2 .introjs-arrow.top {top: 0;}
+.yd2 .introjs-button,.yd2 .introjs-button:focus,.yd2 .introjs-button:active{bottom:-190px; margin-left: 0;}
+.yd2 .introjs-tooltiptext em{width:10%}
+.yd3 .introjs-tooltiptext em{width:15%}
+
+.introjs-helperLayer.yd3a{max-width: 100px; min-height: 100px; min-width:100px; border-radius: 100%;}
+.sjleft.introjs-relativePosition{ padding-top: 10px;}
+.introjs-tooltip.yd3{margin:0 0 0 150px; width: 100%;}
+.yd3 .introjs-arrow{width:40px; background:url("../images/yd_jt2.png") no-repeat 0 0; height:50px;top:0;
+    left:-50px;right:auto; background-size: auto 100%;}
+.yd3 .introjs-nextbutton,.yd2 .introjs-nextbutton,.yd4 .introjs-nextbutton,.yd5 .introjs-nextbutton,.yd6 .introjs-nextbutton{display: none;}
+
+.introjs-helperLayer.yd4a,.introjs-helperLayer.yd5a,.introjs-helperLayer.yd6a{max-width:100%; min-height:50px;  border-radius: 10px;}
+.introjs-tooltip.yd4,.introjs-tooltip.yd5,.introjs-tooltip.yd6{margin-top:0; margin-bottom:55px;min-height: 70px; padding:10px 20px;}
+.yd4 .introjs-arrow,.yd5 .introjs-arrow,.yd6 .introjs-arrow{height: 40px;top:auto; bottom: -50px;
+    left:30%;
+    transform:rotate(180deg);
+    -ms-transform:rotate(180deg); 	/* IE 9 */
+    -moz-transform:rotate(180deg); 	/* Firefox */
+    -webkit-transform:rotate(180deg); /* Safari 和 Chrome */
+    -o-transform:rotate(180deg);
+}
+.yd4 .introjs-button,.yd4 .introjs-button:focus,.yd4 .introjs-button:active{bottom:-200px; left: 75%;}
+.yd5 .introjs-button,.yd5 .introjs-button:focus,.yd5 .introjs-button:active{bottom:-200px; left: 75%;}
+.yd6 .introjs-button,.yd6 .introjs-button:focus,.yd6 .introjs-button:active{bottom:-200px; left: 75%;}
+
+.yd1 .introjs-nextbutton{background: none; position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index:999;}
+
+/* 大屏幕 ：大于等于1200px*/
+@media (max-width: 1179px) {
+
+}
+
+/*默认*/
+@media (max-width: 980px){
+
+}
+
+/* 平板电脑和小屏电脑之间的分辨率 */
+@media (min-width: 768px) and (max-width: 979px) {
+    .lebox2.introjs-showElement,.lebox3.introjs-showElement,.lebox_alert.introjs-showElement{width:100%;}
+}
+
+/* 横向放置的手机和竖向放置的平板之间的分辨率 */
+@media (max-width: 767px) {
+    .introjs-helperLayer { min-width: 300px;}
+    .introjs-tooltip.yd2{width:65%;}
+    .introjs-helperLayer.yd4a,.introjs-helperLayer.yd5a,.introjs-helperLayer.yd6a{max-width:90%; min-width:auto; min-height:50px; left: 5%;   border-radius: 10px; margin-left: 5%;}
+    .introjs-tooltip.yd4,.introjs-tooltip.yd5,.introjs-tooltip.yd6{width:86%; margin-left:5%;}
+    .lebox1.introjs-showElement,.lebox2.introjs-showElement,.lebox3.introjs-showElement,.lebox_alert.introjs-showElement{width:88%; margin-left:5%;}
+
+
+
+
+
+}
+
+/* 横向放置的手机及分辨率更小的设备 */
+@media (max-width: 480px) {
+   .introjs-tooltip{font:14px/20px ""; margin-top: 50px;}
+    .introjs-tooltiptext h2{font: bold 14px/20px "";}
+    .introjs-arrow{width:20%;}
+    .introjs-tooltiptext em{width:13%;top:-30px; right: -15px;}
+    .introjs-tooltiptext em:last-child{ bottom:-30px; left: -15px;}
+    .introjs-button,.introjs-button:focus,.introjs-button:active{ bottom: -70px; left: 50%; margin-left: -50px;
+        width:100px; height:50px;
+    }
+    .n_shtab h2 {font-size:14px;}
+    .introjs-tooltip.yd2{ margin-bottom:30px;}
+    .yd2 .introjs-button,.yd2 .introjs-button:focus,.yd2 .introjs-button:active{bottom:-170px; margin-left: 0;}
+    .yd3 .introjs-tooltiptext em{width:20%}
+    .introjs-tooltip.yd3{margin:0 0 0 130px;}
+    .yd3 .introjs-arrow{width:30px; height:40px;top:0;left:-35px;}
+    .yd3 .introjs-button,.yd3 .introjs-button:focus,.yd3 .introjs-button:active{left:-20%; margin-left: 0;bottom:-80px;}
+
+    .introjs-helperLayer.yd4a,.introjs-helperLayer.yd5a,.introjs-helperLayer.yd6a{max-width:90%; min-width:300px; min-height:50px; border-radius: 10px; margin-left:6%;}
+    .introjs-tooltip.yd4,.introjs-tooltip.yd5,.introjs-tooltip.yd6{width:86%; margin-left:3%;}
+    .yd4 .introjs-button,.yd4 .introjs-button:focus,.yd4 .introjs-button:active,
+    .yd5 .introjs-button,.yd5 .introjs-button:focus,.yd5 .introjs-button:active,
+    .yd6 .introjs-button,.yd6 .introjs-button:focus,.yd6 .introjs-button:active{bottom:-190px; left:50%;}
+    .lebox1.introjs-showElement,.lebox2.introjs-showElement,.lebox3.introjs-showElement,.lebox_alert.introjs-showElement{width:88.5%; margin-left:5.5%;}
+
+    .zixun{width:100%; text-align: center; position: relative; padding-bottom: 0;}
+    .yd2a{width:93%; padding: 10px 0; margin: 0 auto;font-size: 14px;}
+    .yd1 .introjs-nextbutton{background: none; position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index:999;}
+
+
+}
+@media (max-width: 375px) {
+    .introjs-tooltip.yd2{ margin-bottom:50px;}
+    /*.yd2b{top: 0; padding: 0; margin-top:-20px;}*/
+    .yd1 .introjs-nextbutton{background: none; position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index:999;}
+}
+@media (max-width: 320px) {
+    .introjs-tooltip{font:12px/18px "";}
+    .introjs-helperLayer { min-width:280px;}
+    .introjs-tooltip.yd4,.introjs-tooltip.yd5,.introjs-tooltip.yd6{padding: 10px;}
+    /*.yd2b{margin-top:0;}*/
+    .yd2a{font-size:12px;}
+    .introjs-helperLayer.yd4a,.introjs-helperLayer.yd5a,.introjs-helperLayer.yd6a{max-width:90%; min-width:200px; margin-left:6%;}
+    .lebox1.introjs-showElement,.lebox2.introjs-showElement,.lebox3.introjs-showElement,.lebox_alert.introjs-showElement{width:88%; margin-left:5.5%;}
+    .yd1 .introjs-nextbutton{background: none; position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index:999;}
+
+
+}

@@ -25,7 +25,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     }
     .shou_but{
          margin-top: 8px !important;
-         right: 80px;
+         /*right: 80px;*/
+         left: 80px;
          position: absolute;
          z-index: 1;
      }
@@ -35,7 +36,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         }
         .shou_but{
             margin-top: 8px !important;
-            right: 40px !important;
+            /*right: 40px !important;*/
+            left: 10px !important;
             position: absolute;
         }
     }
@@ -44,7 +46,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 @extends('new.layouts.website')
 
 @section('app-content')
-
+    <!--引导弹出层-->
+    <script type="text/javascript" src="/new/intro/intro.js"></script>
+    <link href="/new/intro/introjs.css" rel="stylesheet">
+    <link rel="stylesheet" href="/new/intro/cover.css">
     <div class="container matop70 chat">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -59,65 +64,120 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 <div class="n_shtab">
 
 {{--                    <h2><span>您目前為高級會員</span>訊息可保存天數：30，可通訊人數:無限</h2>--}}
-                    @if($user->isVip())
-                        <h2><span>{{$letter_vip}}</span>訊息可保存天數：180，可通訊人數:無限</h2>
+{{--                    @if($user->isVip())--}}
+{{--                        <h2><span>{{$letter_vip}}</span>訊息可保存天數：180，可通訊人數:無限</h2>--}}
+{{--                        @else--}}
+{{--                        <h2><span>{{$letter_normal_member}}</span>訊息可保存天數：7，可通訊人數:10</h2>--}}
+{{--                    @endif--}}
+                    <h2 data-step="1" data-highlightClass="yd1a" data-tooltipClass="yd1" data-intro="<p>不同等級會員可以有不同的信件讀取權限。</p>
+                        <p>普通會員：信件可保存30天，通訊人數限制10人。</p>
+                        <p>VIP 會員：信件可保存180天，無限制通訊人數。</p>
+                        <h2>@if($user->isVip())您目前是 {{$letter_vip}}，所以不限制通訊人數，且信件可保存180天。@else您目前是 {{$letter_normal_member}}，所以限制通訊人數10，且信件保存30天。 @endif</h2><em></em><em></em>">
+                        @if($user->isVip())
+                            <span>您目前為{{$letter_vip}}</span>訊息可保存天數：180，可通訊人數:無限數
                         @else
-                        <h2><span>{{$letter_normal_member}}</span>訊息可保存天數：7，可通訊人數:10</h2>
-                    @endif
+                            <span>您目前為{{$letter_normal_member}}</span>訊息可保存天數：30，可通訊人數:10
+                        @endif
+                    </h2>
                 </div>
                 <div class="sjlist_li">
                     <div class="leftsidebar_box">
                         <dl class="system_log">
                             @if($user->engroup==1)
-                            @php
-                                $exchange_period_name = DB::table('exchange_period_name')->get();
-                            @endphp
-                            <!--男性介面-->
-                            @foreach($exchange_period_name as $row)
-                            @if($user->isVip())
-                                <span class="exchange_period_delete_{{$row->id}} shou_but">全部刪除</span>
-                            @endif
-                            <dt class="lebox{{$row->id}} lebox_exchange_period_{{$row->id}}">{{$row->name}}</dt>
-                            <dd>
-                                <div class="loading warning" id="sjlist_exchange_period_warning_{{$row->id}}"><span class="loading_text">loading</span></div>
-                                <ul class="sjlist sjlist_exchange_period_{{$row->id}}">
-                                </ul>
-                                <div class="page page_exchange_period_{{$row->id}} fenye" style="text-align: center;"></div>
-                            </dd>
-                            @endforeach
-                            <!--男性介面-->
+                                @php
+                                    $exchange_period_name = DB::table('exchange_period_name')->get();
+                                @endphp
+                                <!--男性介面-->
+                                @foreach($exchange_period_name as $row)
+                                        @if($user->isVip())
+                                            <span class="exchange_period_delete_{{$row->id}} shou_but">全部刪除</span>
+                                        @endif
+                                <dt class="lebox{{$row->id}} lebox_exchange_period_{{$row->id}}" data-step="{{2+$row->id}}" data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
+                                    data-intro="<p>
+                                        @if($row->id==1)此區會員找尋的長期的包養關係。如果有發現此區會員有只約短期的現象，例如直接要line，或者第一次就約旅館，請向站方檢舉。
+                                        @elseif($row->id==2)此區會員可接受長期或短期的包養關係。如果有發現直接要 line的狀況，請向站方檢舉。
+                                        @elseif($row->id==3)本區會員主要希望單次約會為主。如果是找尋長期包養關係建議避開此區會員。@endif</p><em></em><em></em>">
+
+                                        {{$row->name}}
+                                </dt>
+                                <dd>
+                                    <div class="loading warning" id="sjlist_exchange_period_warning_{{$row->id}}"><span class="loading_text">loading</span></div>
+                                    <ul class="sjlist sjlist_exchange_period_{{$row->id}}">
+                                    </ul>
+                                    <div class="page page_exchange_period_{{$row->id}} fenye" style="text-align: center;"></div>
+                                </dd>
+                                @endforeach
+                                <!--男性介面-->
+
+{{--                                    @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))--}}
+{{--                                        <span class="alert_delete shou_but">全部刪除</span>--}}
+{{--                                    @endif--}}
+{{--                                    <dt class="lebox4 lebox_alert" data-position="top" data-highlightClass="yd5a" data-tooltipClass="yd5" data-step="6"--}}
+{{--                                        data-intro="警示原因會有多種，也許是被檢舉也許是站長設定為警示。站方強烈不建議與此區會員互動，若一定要跟此區會員互動請務必提高十二萬分警覺。<em></em><em></em>">--}}
+{{--                                        警示會員</dt>--}}
+{{--                                    <dd>--}}
+{{--                                        <div class="loading warning" id="sjlist_alert_warning"><span class="loading_text">loading</span></div>--}}
+{{--                                        <ul class="sjlist sjlist_alert">--}}
+{{--                                        </ul>--}}
+{{--                                    </dd>--}}
+
                             @endif
 
                             @if($user->engroup==2)
-                            <!--女性介面-->
-                            @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
-                            <span class="vip_delete shou_but">全部刪除</span>
-                            @endif
-                            <dt class="lebox1">VIP會員</dt>
-                            <dd>
-                                <div class="loading warning" id="sjlist_vip_warning"><span class="loading_text">loading</span></div>
-                                <ul class="sjlist sjlist_vip">
-                                </ul>
-                                <div class="page page_vip fenye" style="text-align: center;"></div>
-                            </dd>
-                            @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
-                            <span class="novip_delete shou_but">全部刪除</span>
-                            @endif
-                            <dt class="lebox2">普通會員</dt>
-                            <dd>
-                                <div class="loading warning" id="sjlist_novip_warning"><span class="loading_text">loading</span></div>
-                                <ul class="sjlist sjlist_novip">
-                                </ul>
-                                <div class="page page_novip fenye" style="text-align: center;"></div>
-                            </dd>
-                            <!--女性介面 END -->
+                                <!--女性介面-->
+                                    @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
+                                        <span class="vip_delete shou_but">全部刪除</span>
+                                    @endif
+                                <dt class="lebox1" data-step="3" data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4" data-intro="<p>站方建議盡量多與
+                                VIP 會員互動。本區會員的素質最佳，投訴率低於 0.1%。</p>
+                                        <em></em><em></em>">
+
+                                        VIP會員
+                                </dt>
+                                <dd>
+                                    <div class="loading warning" id="sjlist_vip_warning"><span class="loading_text">loading</span></div>
+                                    <ul class="sjlist sjlist_vip">
+                                    </ul>
+                                    <div class="page page_vip fenye" style="text-align: center;"></div>
+                                </dd>
+                                    @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
+                                        <span class="novip_delete shou_but">全部刪除</span>
+                                    @endif
+                                <dt class="lebox2" data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4" data-step="4"
+                                    data-intro="網站的普通會員。此區會員的申訴率比 vip 會員高非常多。如果要普通會員的daddy見面互動的話，請務必牢記新手教學。<em></em><em></em>">
+
+                                        普通會員
+                                </dt>
+                                <dd>
+                                    <div class="loading warning" id="sjlist_novip_warning"><span class="loading_text">loading</span></div>
+                                    <ul class="sjlist sjlist_novip">
+                                    </ul>
+                                    <div class="page page_novip fenye" style="text-align: center;"></div>
+                                </dd>
+                                <!--女性介面 END -->
+
+{{--                                    @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))--}}
+{{--                                        <span class="alert_delete shou_but">全部刪除</span>--}}
+{{--                                    @endif--}}
+{{--                                    <dt class="lebox3 lebox_alert" data-position="top" data-highlightClass="yd5a" data-tooltipClass="yd5" data-step="5"--}}
+{{--                                        data-intro="警示原因會有多種，也許是被檢舉也許是站長設定為警示。站方強烈不建議與此區會員互動，若一定要跟此區會員互動請務必提高十二萬分警覺。<em></em><em></em>">--}}
+{{--                                        警示會員</dt>--}}
+{{--                                    <dd>--}}
+{{--                                        <div class="loading warning" id="sjlist_alert_warning"><span class="loading_text">loading</span></div>--}}
+{{--                                        <ul class="sjlist sjlist_alert">--}}
+{{--                                        </ul>--}}
+{{--                                    </dd>--}}
+
                             @endif
 
 
-                            @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
-                            <span class="alert_delete shou_but">全部刪除</span>
-                            @endif
-                            <dt class="lebox_alert">警示會員</dt>
+                                @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
+                                    <span class="alert_delete shou_but">全部刪除</span>
+                                @endif
+                            <dt class="@if($user->engroup==2)lebox3 @else lebox4 @endif lebox_alert" data-position="top" data-highlightClass="yd5a" data-tooltipClass="yd5" @if($user->engroup==2)data-step="5" @else data-step="6" @endif
+                                data-intro="警示原因會有多種，也許是被檢舉也許是站長設定為警示。站方強烈不建議與此區會員互動，若一定要跟此區會員互動請務必提高十二萬分警覺。<em></em><em></em>">
+
+                                    警示會員</dt>
                             <dd>
                                 <div class="loading warning" id="sjlist_alert_warning"><span class="loading_text">loading</span></div>
                                 <ul class="sjlist sjlist_alert">
@@ -131,9 +191,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 <input name="rows" type="hidden" id="rows" value="">
 
                 <div class="zixun">
+                    <div class="yd2a" data-position="top" data-highlightClass="yd2b" data-tooltipClass="yd2" data-step="2"
+                         data-intro="信件顯示時間為：7天內，30天內， 以及全部<em></em><em></em>">
                     <span><input type="radio" name="RadioGroup1" value="7" id="RadioGroup1_0" checked>7天內訊息</span>
                     <span><input type="radio" name="RadioGroup1" value="30" id="RadioGroup1_1">30天內訊息</span>
                     <span><input type="radio" name="RadioGroup1" value="all" id="RadioGroup1_2">全部訊息</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -490,11 +553,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
             if(show==0 && engroup==1){
                 li += `
-                     <div class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位女會員，請至「全部訊息」確認通訊人數是否已超過10人，即可發訊息給${user_name}" style="width: 100%">
+                     <div onclick="yd3()" class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位女會員，請至「全部訊息」確認通訊人數是否已超過10人，即可發訊息給${user_name}" style="width: 100%">
                    `;
             }else if(show==0 && engroup==2){
                 li += `
-                     <div class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位男會員，請上傳大頭貼＋三張生活照就可以取得　ＶＩＰ　權限或是到「全部訊息」確認通訊人數是否已超過10人，即可發訊息給${user_name}" style="width: 100%">
+                     <div onclick="yd3()" class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位男會員，請上傳大頭貼＋三張生活照就可以取得　ＶＩＰ　權限或是到「全部訊息」確認通訊人數是否已超過10人，即可發訊息給${user_name}" style="width: 100%">
                   `;
             }
 
@@ -502,35 +565,53 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
             if(show==1) {
                 li += `<a href="${url}" target="_self">
+                        <div class="sjpic"><img src="${pic}"></div>
+                        <div class="sjleft">
+                            <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
+                  `;
+            }else if(show==0 && engroup==2){
+                li += `<a href="javascript:void(0)" target="_self">
+                        <div class="sjpic"><img src="${pic}"></div>
+                        <div class="sjleft" data-position="bottom" data-highlightClass="yd3a" data-tooltipClass="yd3" data-step="6"
+                                     data-intro="普通會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。<em></em><em></em>">
+                            <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }else if(show==0){
                 li += `<a href="javascript:void(0)" target="_self">
+                        <div class="sjpic"><img src="${pic}"></div>
+                        <div class="sjleft" data-position="bottom" data-highlightClass="yd3a" data-tooltipClass="yd3" data-step="7"
+                                     data-intro="普通會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。<em></em><em></em>">
+                            <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }
-            li +=`
-                        <div class="sjpic"><img class="lazy" src="${pic}" data-original="${pic}"></div>
-                        <div class="sjleft">
-                            <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
 
-                  `;
+            // if(show==1) {
+            //     li += `<a href="${url}" target="_self">
+            //       `;
+            // }else if(show==0){
+            //     li += `<a href="javascript:void(0)" target="_self">
+            //       `;
+            // }
+            // li +=`
+            //             <div class="sjpic"><img class="lazy" src="${pic}" data-original="${pic}"></div>
+            //             <div class="sjleft">
+            //                 <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
+            //
+            //       `;
             if(show==1) {
                 li += `
-                            <span class="box"><font class="ellipsis">${content}</font></span>
+                        <span class="box"><font class="ellipsis">${content}</font></span>
                         </div>
                         </a>
                    `;
             }else if(show==0 && engroup==1){
                 li += `
-
-
                      <font><img src="/new/images/icon_35.png"></font>
                      </div></a>
                    `;
             }else if(show==0 && engroup==2){
                 li += `
-
-
-                     <font><img src="/new/images/icon_35.png"></font>
+                     <font id="yd3"><img src="/new/images/icon_35.png"></font>
                      </div></a>
                    `;
             }
@@ -1046,6 +1127,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         content: function () { return '<h4' + $(this).data('content') + '</h4>'; }
                     });
 
+                    @if($user->checkTourRead('chat',5)==0 && $user->engroup==2)
+                    $('div[data-toggle="popover"]').popover('disable');
+                    @endif
+
                 }
             })
                 .done(function() {
@@ -1081,16 +1166,16 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             {{--$('.lebox2,.lebox3,.lebox_alert').next('dd').show();--}}
             {{--$('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle();--}}
 
-            @if($user->engroup==2)
-            $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on off');
-            $('.lebox1').toggleClass('on');
-            $('.lebox2,.lebox3,.lebox_alert').toggleClass('off');
-            // $('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");
-            @elseif($user->engroup==1)
-            $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on off');
-            $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');
-            // $('.lebox1,.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");
-            @endif
+{{--            @if($user->engroup==2)--}}
+{{--            $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on off');--}}
+{{--            $('.lebox1').toggleClass('on');--}}
+{{--            $('.lebox2,.lebox3,.lebox_alert').toggleClass('off');--}}
+{{--            // $('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");--}}
+{{--            @elseif($user->engroup==1)--}}
+{{--            $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on off');--}}
+{{--            $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');--}}
+{{--            // $('.lebox1,.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");--}}
+{{--            @endif--}}
 
 
             date= $('input[name=RadioGroup1]:checked').val();
@@ -1413,6 +1498,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 </style>
 
     <script>
+
+        var step1,step3,step4,step5,step6,step7,step8,step9,step10;
+
         $('.blbut').on('click', function() {
             $("#tab03").hide();
             $.post('{{ route('chatSet') }}', {
@@ -1432,22 +1520,26 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         // $('.lebox1').removeClass('off');
         // $('.lebox1').removeClass('on');
 
-        $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('off');
-        $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on');
+        // $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('off');
+        // $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on');
 
-        @if($user->engroup==2)
-        $('.lebox1').toggleClass('on');
-        $('.lebox2,.lebox3,.lebox_alert').toggleClass('off');
-        $('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");
-        @elseif($user->engroup==1)
-        $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');
-        $('.lebox1,.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");
-        @endif
+{{--        @if($user->engroup==2)--}}
+{{--        $('.lebox1').toggleClass('on');--}}
+{{--        $('.lebox2,.lebox3,.lebox_alert').toggleClass('off');--}}
+{{--        $('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");--}}
+{{--        @elseif($user->engroup==1)--}}
+{{--        $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');--}}
+{{--        $('.lebox1,.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");--}}
+{{--        @endif--}}
         // $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');
         // $(".leftsidebar_box dd").show();
         // $('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");
         //
         //
+
+                $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');
+                $('.lebox1,.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");
+
         $('.lebox1,.lebox2,.lebox3,.lebox_alert').click(function(e) {
             if ($(this).hasClass('off')) {
                 $(this).removeClass('off');
@@ -1495,7 +1587,21 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             }
             else{
                 if($(this).hasClass('on') && $(this).hasClass('lebox_alert')){
-                    c3('此為警示會員，要與此區會員交流請務必小心。');
+                    @if($user->engroup==1)
+                        @if($user->checkTourRead('chat',6))
+                            c3('此為警示會員，要與此區會員交流請務必小心。');
+                        @endif
+                        if(step6==1){
+                            c3('此為警示會員，要與此區會員交流請務必小心。');
+                        }
+                    @elseif($user->engroup==2)
+                        @if($user->checkTourRead('chat',5))
+                            c3('此為警示會員，要與此區會員交流請務必小心。');
+                        @endif
+                        if(step5==1){
+                            c3('此為警示會員，要與此區會員交流請務必小心。');
+                        }
+                    @endif
                 }
             }
         });
@@ -1504,5 +1610,116 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 effect: 'fadeIn'
             });
         });
+
+        function letTourRead(page,step){
+            $.post('{{ route('letTourRead') }}', {
+                uid: '{{ $user->id }}',
+                page: page,
+                step: step,
+                _token: '{{ csrf_token() }}'
+            }, function (data) {
+
+            });
+        }
+
+
+
+        @if($user->login_times > 3)
+
+            $(function(){
+                @if($user->checkTourRead('chat',1)==0)
+                if(step1 != 1) {
+                    $('#announcement').hide();
+                    $('.announce_bg').hide();
+                    introJs().setOption('showButtons', true).start();
+                    step1=1;
+                    letTourRead('chat',1);
+                }
+
+                @endif
+            });
+
+            $('.lebox1').click(function(){
+                @if($user->checkTourRead('chat',3)==0)
+                if(step3 != 1) {
+                    $('#announcement').hide();
+                    $('.announce_bg').hide();
+                    introJs().goToStep(2).start();
+                    step3 = 1;
+                    letTourRead('chat',3);
+                }
+                @endif
+            });
+
+            $('.lebox2').click(function(){
+                @if($user->checkTourRead('chat',4)==0)
+                if(step4 != 1) {
+                    $('#announcement').hide();
+                    $('.announce_bg').hide();
+                    introJs().goToStep(3).start();
+                    step4 = 1;
+                    letTourRead('chat',4);
+                }
+                @endif
+            });
+
+            $('.lebox3').click(function(){
+                @if($user->checkTourRead('chat',5)==0)
+                if(step5 != 1) {
+                    $('#announcement').hide();
+                    $('.announce_bg').hide();
+                    introJs().goToStep(4).start();
+                    step5 = 1;
+                    letTourRead('chat',5);
+                }
+                @endif
+            });
+
+            @if($user->engroup==1)
+                $('.lebox4').click(function(){
+                    @if($user->checkTourRead('chat',6)==0)
+                    if(step6 != 1) {
+                        $('#announcement').hide();
+                        $('.announce_bg').hide();
+                        introJs().goToStep(5).start();
+                        step6 = 1;
+                        letTourRead('chat',6);
+                    }
+                    @endif
+                });
+
+                function yd3() {
+                    @if($user->checkTourRead('chat',7)==0)
+                    if (step7 != 1) {
+                        $('#announcement').hide();
+                        $('.announce_bg').hide();
+                        introJs().goToStep(6).start();
+                        $('div[data-toggle="popover"]').popover('disable');
+                        step7 = 1;
+                        letTourRead('chat',7);
+                    }
+                    @endif
+                }
+
+            @else
+                function yd3() {
+                    @if($user->checkTourRead('chat',6)==0)
+                    if (step6 != 1) {
+                        $('#announcement').hide();
+                        $('.announce_bg').hide();
+                        introJs().goToStep(5).start();
+                        $('div[data-toggle="popover"]').popover('disable');
+                        step6 = 1;
+                        letTourRead('chat',6);
+                    }
+                    @endif
+                }
+            @endif
+
+
+        @endif
+
+
+
     </script>
 @stop
