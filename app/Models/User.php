@@ -731,4 +731,17 @@ class User extends Authenticatable
     {
         return Visited::where('visited_id', $this->id)->whereBetween('created_at',  [Carbon::now()->subSeconds(Config::get('social.user.viewed-seconds')), Carbon::now()])->count();
     }
+
+    public function checkTourRead($page,$step)
+    {
+        $checkData = DB::table('tour_read')->where('user_id',$this->id)->where('page',$page)->where('step',$step)->where('isRead',1)->first();
+        $login_times = User::select('login_times')->where('id',$this->id)->first();
+        if(isset($checkData) && $login_times->login_times >= 2){
+            $isRead =1;
+        }else{
+            $isRead =0;
+        }
+        return $isRead;
+    }
+
 }

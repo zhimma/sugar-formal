@@ -623,7 +623,8 @@ class Message extends Model
         if($user->isVip()) {
             self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
         }else {
-            self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
+//            self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
+            self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
         }
         $query = Message::where(function($query)use($uid)
         {

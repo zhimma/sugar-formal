@@ -169,11 +169,11 @@ class Message_newController extends Controller {
             /*編輯文案-檢舉大頭照-END*/
 
             /*編輯文案-檢舉大頭照-START*/
-            $letter_normal_member = AdminCommonText::where('category_alias','leter_text')->where('alias','normal_member')->get()->first();
+            $letter_normal_member = AdminCommonText::where('category_alias','letter_text')->where('alias','normal_member')->get()->first();
             /*編輯文案-檢舉大頭照-END*/
 
             /*編輯文案-檢舉大頭照-START*/
-            $letter_vip = AdminCommonText::where('category_alias','leter_text')->where('alias','vip')->get()->first();
+            $letter_vip = AdminCommonText::where('category_alias','letter_text')->where('alias','vip')->get()->first();
             /*編輯文案-檢舉大頭照-END*/
             return view('new.dashboard.chat')
                 ->with('user', $user)
@@ -182,8 +182,8 @@ class Message_newController extends Controller {
                 ->with('vip_member', $vip_member->content)
                 ->with('normal_member', $normal_member->content)
                 ->with('alert_member', $alert_member->content)
-                ->with('letter_normal_member', $letter_normal_member)
-                ->with('letter_vip', $letter_vip);
+                ->with('letter_normal_member', $letter_normal_member->content)
+                ->with('letter_vip', $letter_vip->content);
         }
     }
 

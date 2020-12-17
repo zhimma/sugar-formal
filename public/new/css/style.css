@@ -412,7 +412,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .vipbut{width:250px; height:40px; background:#fe92a8; border-radius:200px; color:#ffffff; text-align:center; line-height:40px; display:table; margin:0 auto; margin-top:20px; }
 .vipbut:hover{color:#ffffff;box-shadow:inset 0px 13px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;}
 
-.vipbongn{width:80%; margin:0 auto; padding:15px; display:table; border:#fedde9 2px solid; margin-top:20px; margin-bottom:10px; border-radius:5px;}
+.vipbongn{width:96%; margin:0 auto; padding:15px; display:table; border:#fedde9 2px solid; margin-top:20px; margin-bottom:10px; border-radius:5px;}
 .vipbongn h2{ font-size:20px;  font-weight:bold; color:#fd90b6; border-bottom:#fd90b6 3px solid; display:table; float:left; margin-bottom:10px;}
 .vipbongn h3{width:100%; display:table; font-size:15px; color:#999999; line-height:25px;}
 .vipbongn h3 span{ font-size:12px; margin-right:10px;}
@@ -479,19 +479,25 @@ a:hover{ color:#e44e71; text-decoration:none}
 .leftsidebar_box dt:last-child{border-bottom:none}
 
 
-.lebox1{background: url(../images/off.png) no-repeat right #ffbcca; background-position:98%; background-size:22px; padding:0px 20px;color:#ff3e65;font-size:16px;position:relative;line-height:40px;cursor:pointer;}
+.lebox1{background: url(../images/off.png) no-repeat right #ffbcca; background-position:98%; background-size:22px; padding:0px 20px;color:#ff3e65;font-size:16px;position:relative;line-height:40px;cursor:pointer;text-align: center;}
 .lebox1.on{background:  url(../images/on.png) no-repeat right #ffbcca;background-position:98%;  background-size:22px;position:relative;cursor:pointer;color: #ff3e65;}
 
-.lebox2{background: url(../images/off.png) no-repeat right #98d0ff; background-position:98%; background-size:22px; padding:0px 20px;color:#0089ff;font-size:16px;position:relative;line-height:40px;cursor:pointer;}
+.lebox2{background: url(../images/off.png) no-repeat right #98d0ff; background-position:98%; background-size:22px; padding:0px 20px;color:#0089ff;font-size:16px;position:relative;line-height:40px;cursor:pointer;text-align: center;}
+.lebox1.on{background:  url(../images/on.png) no-repeat right #ffbcca;background-position:98%;  background-size:22px;position:relative;cursor:pointer;color: #ff3e65;}}
 .lebox2.on{background:  url(../images/on.png) no-repeat right #98d0ff;background-position:98%;  background-size:22px;position:relative;cursor:pointer;color:#0089ff;}
 
 /*.lebox3{background: url(../images/off.png) no-repeat right #ffe8a0; background-position:98%; background-size:22px; padding:0px 20px;color:#fb8800;font-size:16px;position:relative;line-height:40px;cursor:pointer;}*/
 /*.lebox3.on{background:  url(../images/on.png) no-repeat right #ffe8a0;background-position:98%;  background-size:22px;position:relative;cursor:pointer;}*/
 
-.lebox3{background: url(../images/off.png) no-repeat right #ffc6a0; background-position:98%; background-size:22px; padding:0px 20px;color:#ea8948;font-size:16px;position:relative;line-height:40px;cursor:pointer;}
+.lebox3{background: url(../images/off.png) no-repeat right #ffc6a0; background-position:98%; background-size:22px; padding:0px 20px;color:#ea8948;font-size:16px;position:relative;line-height:40px;cursor:pointer;text-align: center;}
+.lebox1.on{background:  url(../images/on.png) no-repeat right #ffbcca;background-position:98%;  background-size:22px;position:relative;cursor:pointer;color: #ff3e65;}
 .lebox3.on{background:  url(../images/on.png) no-repeat right #ffc6a0;background-position:98%;  background-size:22px;position:relative;cursor:pointer;color:#ea8948;}
 
-.lebox_alert{background: url(../images/off.png) no-repeat right #ffe8a0; background-position:98%; background-size:22px; padding:0px 20px;color:#fb8800;font-size:16px;position:relative;line-height:40px;cursor:pointer;}
+.lebox4{background: url(../images/off.png) no-repeat right #ffc6a0; background-position:98%; background-size:22px; padding:0px 20px;color:#ea8948;font-size:16px;
+    position:relative;line-height:40px;cursor:pointer;text-align: center;}
+.lebox4.on{background:  url(../images/on.png) no-repeat right #ffc6a0;background-position:98%;  background-size:22px;position:relative;cursor:pointer;;color:#ea8948;}
+
+.lebox_alert{background: url(../images/off.png) no-repeat right #ffe8a0; background-position:98%; background-size:22px; padding:0px 20px;color:#fb8800;font-size:16px;position:relative;line-height:40px;cursor:pointer;text-align: center;}
 .lebox_alert.on{background:  url(../images/on.png) no-repeat right #ffe8a0;background-position:98%;  background-size:22px;position:relative;cursor:pointer;color:#fb8800;}
 
 
@@ -2420,7 +2426,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 
 .context-wrap{color: #3f3f3f;white-space: normal;word-wrap: break-word;display: -webkit-box;-webkit-box-orient: vertical;
     -webkit-line-clamp:2;text-overflow: ellipsis;overflow: hidden;min-height: 30px;}
-.on {color: #3f3f3f;white-space: normal;word-wrap: break-word;display: -webkit-box;-webkit-box-orient: vertical;
+.on {/*color: #3f3f3f;*/white-space: normal;word-wrap: break-word;display: -webkit-box;-webkit-box-orient: vertical;
     -webkit-line-clamp: 0;text-overflow: ellipsis;overflow: hidden;min-height: 30px;}
 
 

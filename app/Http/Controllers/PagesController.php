@@ -3239,4 +3239,37 @@ class PagesController extends Controller
         return json_encode($data);
     }
 
+    public function checkTourRead(Request $request)
+    {
+        $user_id = $request->uid;
+        $page = $request->page;
+        $step = $request->step;
+
+        $checkData = DB::table('tour_read')->where('user_id',$user_id)->where('page',$page)->where('step',$step)->where('isRead',1)->first();
+        if(isset($checkData)){
+
+            $isRead =1;
+        }else{
+            $isRead =0;
+            //DB::table('tour_read')->insert(['user_id' => $user_id,'page'=>$page,'step'=>$step,'isRead'=>1]);
+        }
+        return response()->json(['isRead'=>$isRead]);
+    }
+
+    public function letTourRead(Request $request)
+    {
+        $user_id = $request->uid;
+        $page = $request->page;
+        $step = $request->step;
+
+        $checkData = DB::table('tour_read')->where('user_id',$user_id)->where('page',$page)->where('step',$step)->where('isRead',1)->first();
+        if(!isset($checkData)){
+            DB::table('tour_read')->insert(['user_id' => $user_id,'page'=>$page,'step'=>$step,'isRead'=>1]);
+            $result='ok';
+        }else{
+            $result='error';
+        }
+        return $result;
+    }
+
 }
