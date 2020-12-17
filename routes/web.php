@@ -352,6 +352,8 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
     Route::get('/dashboard/password', 'PagesController@view_changepassword'); //new route
     Route::post('/dashboard/changepassword', 'PagesController@changePassword'); //new route
 
+    Route::get('/dashboard/vipForNewebPay', 'PagesController@viewVipForNewebPay'); //new route
+
     Route::get('/dashboard/account_manage', 'PagesController@view_account_manage'); //new route
     Route::get('/dashboard/account_name_modify', 'PagesController@view_name_modify'); //new route
     Route::post('/dashboard/changeName', 'PagesController@changeName'); //new route
