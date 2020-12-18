@@ -100,6 +100,19 @@
     </div>
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
+
+<div class="bl bl_tab" id="tab08">
+    <div class="bltitle">提示</div>
+    <div class="n_blnr01">
+        <div class="blnr bltext"></div>
+        <div class="n_bbutton">
+            <span><a class="n_left" href="javascript:" >確認</a></span>
+            <span><a onclick="gmBtnNoReload()" class="n_right" href="javascript:">返回</a></span>
+        </div>
+    </div>
+    <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+</div>
+
 @if(str_contains(url()->current(), 'dashboard') && Session::has('banned_reason'))
     <div class="blbg banned_bg" style="display:block"></div>
     <div class="gg_tab" id="tab_banned_alert" style="display: block; z-index: 999;">
