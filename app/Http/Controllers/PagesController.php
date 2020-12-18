@@ -2525,50 +2525,30 @@ class PagesController extends Controller
             $log->user_id = $user->id;
             $log->save();
             if(Auth::attempt(array('email' => $payload['email'], 'password' => $payload['password']))){
-                $vip = Vip::findById($user->id);
+                logger('User ' . $user->id . ' cancellation initiated.');
+                $vip = Vip::findByIdWithDateDesc($user->id);
                 $this->logService->cancelLog($vip);
                 $this->logService->writeLogToDB();
                 $file = $this->logService->writeLogToFile();
-                $before_cancelVip = $vip->updated_at;
-                logger('$before_cancelVip:'.$vip->updated_at);
+                logger('$before_cancelVip: '.$vip->updated_at);
                 if( strpos(\Storage::disk('local')->get($file[0]), $file[1]) !== false) {
-                    Vip::cancel($user->id, 0);
-                    $data = Vip::where('member_id', $user->id)->where('expiry', '!=', '0000-00-00 00:00:00')->get()->first();
-                    $date = date('Y年m月d日', strtotime($data->expiry));
-
-                    $offVIP = AdminCommonText::getCommonText(4);
-                    $offVIP = str_replace('DATE', $date, $offVIP);
-
-                    //如果VIP取消時間少於七個工作天，訊息提示。
-                    //$date取得原本VIP剩餘天數基準日
-                    $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $before_cancelVip);
-                    $day = $date->day;
-                    $now = \Carbon\Carbon::now();
-                    $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
-                    if($now->day >= $day){
-                        // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
-                        if($vip->payment=='cc_quarterly_payment'){
-                            $nextMonth = $now->addMonthsNoOverflow(3);
-                        }else {
-                            $nextMonth = $now->addMonthsNoOverflow(1);
-                        }
-
-                        $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $nextMonth->year.'-'.$nextMonth->month.'-'.$day.' 00:00:00');
+                    $array = Vip::cancel($user->id, 0);
+                    if(isset($array["str"])){
+                        $offVIP = $array["str"];
                     }
-
-                    logger('$expiry:'.$data->expiry);
-                    logger('base day:' . $date);
-                    logger('diffIndays:'.$now->diffInDays($date));
-
-                    if($vip->business_id == '3137610' && $now->diffInDays($date) <= 7 ){
-                        $offVIP = $user->name.' 您好，您已取消本站 VIP 續費。但由於您的扣款時間是每月'. $date->format('d') .'號，取消時間低於七個工作天，作業不及。所以本次還是會正常扣款，下個月就會停止扣款。造成不變敬請見諒。';
+                    else{
+                        $data = Vip::where('member_id', $user->id)->where('expiry', '!=', '0000-00-00 00:00:00')->get()->first();
+                        $date = date('Y年m月d日', strtotime($data->expiry));
+                        $offVIP = AdminCommonText::getCommonText(4);
+                        $offVIP = str_replace('DATE', $date, $offVIP);
+                        logger('$expiry: ' . $data->expiry);
+                        logger('base day: ' . $date);
+                        logger('payment: ' . $data->payment);
                     }
-
+                    logger('User ' . $user->id . ' cancellation finished.');
                     $request->session()->flash('cancel_notice', $offVIP);
                     $request->session()->save();
                     return redirect('/dashboard/new_vip#vipcanceled')->with('user', $user)->with('message', $offVIP);
-                    //return back()->with('user', $user)->with('message', 'VIP 取消成功！')->with('cancel_notice', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
-
                 }
                 else{
                     $log = new \App\Models\LogCancelVipFailed();
@@ -2576,7 +2556,6 @@ class PagesController extends Controller
                     $log->reason = 'File saving failed.';
                     $log->save();
                     return redirect('/dashboard/vip')->with('user', $user)->withErrors(['VIP 取消失敗！'])->with('cancel_notice', '本次VIP取消資訊沒有成功寫入，請再試一次。');
-                    //return back()->with('user', $user)->withErrors(['VIP 取消失敗！'])->with('cancel_notice', '本次VIP取消資訊沒有成功寫入，請再試一次。');
                 }
             }
             else{

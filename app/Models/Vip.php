@@ -126,8 +126,8 @@ class Vip extends Model
         }
 
         $admin = User::findByEmail(Config::get('social.admin.email'));
-
-        VipLog::addToLog($member_id, 'upgrade, order id: ' . $order_id, $txn_id, 1, $free);
+        $logStr = 'upgrade, order id: ' . $order_id . ', payment: ' . $payment . ', amount: ' . $amount;
+        VipLog::addToLog($member_id, $logStr, $txn_id, 1, $free);
 
         $curUser = User::findById($member_id);
         if ($curUser != null)
@@ -150,59 +150,64 @@ class Vip extends Model
 
     public static function cancel($member_id, $free)
     {
-        //$curVip = Vip::where('member_id', $member_id)->orderBy('expiry', 'desc')->first();
-        //$curVip->expiry =
         $curUser = User::findById($member_id);
-        //$curUserName = User::id_($member_id)->meta_();
         $admin = User::findByEmail(Config::get('social.admin.email'));
-
         if ($curUser != null) {
             //$admin->notify(new CancelVipEmail($member_id, '761404', $member_id));
+        }
+        else{
+            return false;
         }
         $user = Vip::select('id', 'expiry', 'created_at', 'updated_at','payment','business_id')
                 ->where('member_id', $member_id)
                 ->orderBy('created_at', 'desc')->get();
-        // 取消時，判斷會員性別，並確認沒有設定到期日，才開始動作，否則遇上多次取消，可能會導致到期日被延後的結果
-        //20201015 變更不分性別
+        // 取消時，確認沒有設定到期日，才開始動作，否則遇上多次取消，可能會導致到期日被延後的結果
         if($user[0]->expiry == '0000-00-00 00:00:00'){
-            // 若未設定到期日，則從最近一筆 VIP 資料取得資料變更日期
-            $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->updated_at);
-            // 取得變更日期的日
-            $day = $date->day;
+            // 未設定到期日區間
             // 取得現在時間
             $now = \Carbon\Carbon::now();
-            // 以現在時間為基準，並將日置換為變更日期的日，
-            // 做為推算到期日的基準
-            $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
-            // 若現在時間日 >= 變更日期日
-            if($now->day >= $day){
-                // 依照付款類型設定到期日，同時也是預計下次扣款日
-                // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
-                if($user[0]->payment=='cc_quarterly_payment'){
-                    $nextMonth = $now->addMonthsNoOverflow(3);
-                }else {
-                    $nextMonth = $now->addMonthsNoOverflow(1);
-                }
-                $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $nextMonth->year.'-'.$nextMonth->month.'-'.$day.' 00:00:00');
+            // 從最近一筆 VIP 資料取得資料變更日期
+            $latestUpdatedAt = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->updated_at);
+            // 確實複製變數，而不單純用 =，避免出現只將記憶體位置指向 $daysDiff, $baseDate，
+            // 造成兩個變數實際上指向同一物件的問題發生
+            // 將現在時間做為基準日
+            $baseDate = clone $now;
+            $daysDiff = clone $now;
+            $daysDiff = $daysDiff->diffInDays($latestUpdatedAt);
+            // 依照付款類形計算不同的取消當下距預計下一週期扣款日的天數
+            if($user[0]->payment == 'cc_quarterly_payment'){
+                $periodRemained = 92 - ($daysDiff % 92);
+            }else {
+                $periodRemained = 30 - ($daysDiff % 30);
             }
+            // 基準日加上得出的天數再加 1 (不加 1 到期日會少一天)，即為取消後的到期日
+            $expiryDate = $baseDate->addDays($periodRemained + 1);
+            /**
+             * Debugging codes.
+             * $output = new \Symfony\Component\Console\Output\ConsoleOutput();
+             * $output->writeln('$daysDiff: ' . $daysDiff);
+             * $output->writeln('$periodRemained: ' . $periodRemained);
+             * $output->writeln('$expiryDate: ' . $expiryDate);
+             */
             // 如果是使用綠界付費，且取消日距預計下次扣款日小於七天，則到期日再加一個週期
             // 3137610: 正式商店編號
             // 2000132: 測試商店編號
-            if(($user[0]->business_id == '3137610' || $user[0]->business_id == '2000132') && $now->diffInDays($date) <= 7) {
+            if(($user[0]->business_id == '3137610' || $user[0]->business_id == '2000132') && $now->diffInDays($expiryDate) <= 7) {
+                // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
                 if($user[0]->payment=='cc_quarterly_payment'){
-                    $date = $date->addMonthNoOverflow(3);
+                    $expiryDate = $expiryDate->addMonthsNoOverflow(3);
                 }else {
-                    $date = $date->addMonthNoOverflow(1);
+                    $expiryDate = $expiryDate->addMonthNoOverflow(1);
                 }
-
+                $str = $curUser->name . ' 您好，您已取消本站 VIP 續期。但由於您的扣款時間是每月'. $latestUpdatedAt->day .'號，取消時間低於七個工作天，作業不及。所以本次還是會正常扣款，下一週期就會停止扣款。造成不便敬請見諒。';
             }
 
             foreach ($user as $u){
-                $u->expiry = $date->toDateTimeString();
+                $u->expiry = $expiryDate->startOfDay()->toDateTimeString();
                 $u->save();
             }
-            VipLog::addToLog($member_id, 'Cancel, expiry: ' . $date, 'XXXXXXXXX', 0, $free);
-            return true;
+            VipLog::addToLog($member_id, 'User cancel, expiry: ' . $expiryDate, 'XXXXXXXXX', 0, $free);
+            return [true, "str"  => $str ?? null];
         }
 //        else if($curUser->engroup == 2 && $free == 0 && $user[0]->expiry == '0000-00-00 00:00:00'){
 //            //取消當日+3天的時間
