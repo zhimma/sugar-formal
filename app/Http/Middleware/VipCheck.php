@@ -52,7 +52,7 @@ class VipCheck
                 $send_msg = 1;
             }
             if($now > $expiry && $userVIP->expiry != '0000-00-00 00:00:00'){
-                \App\Models\VipLog::addToLog($user->id, 'Expired auto cancellation.', 'XXXXXXXXX', 0, 0);
+                \App\Models\VipLog::addToLog($user->id, 'Expired, system auto cancellation.', 'XXXXXXXXX', 0, 0);
                 $userVIP->removeVIP();
                 if($send_msg==1){
                     //vipForNewebPay msg
