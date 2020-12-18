@@ -2597,7 +2597,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 /*    .new_poptk{height:300px;}*/
 /*}*/
 
-.new_poptk{width:90%;/* height:240px; */height:200px;margin: 0 auto;color: #666666;padding-bottom: 20px; padding-top:15px;overflow-y: scroll; display: block;}
+.new_poptk{/*width:90%; height:240px; */height:200px;margin: 0 auto;color: #666666;padding-bottom: 20px; padding-top:15px;overflow-y: scroll; display: block;}
 @media (max-width:450px){
     .new_poptk{height:300px;}
 }
