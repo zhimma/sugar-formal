@@ -62,10 +62,11 @@ class VipCheck
             }
         }
 
-        // 傳換性別為男生時取消原女免費VIP
+        // 轉換性別為男生時取消原女免費 VIP
         if($user->isFreeVip()){
             if($user->engroup == 1) {
                 $userVIP = $user->getVipData(true);
+                \App\Models\VipLog::addToLog($user->id, '轉換性別為男生時取消原女免費 VIP', 'XXXXXXXXX', 0, 0);
                 $userVIP->removeVIP();
             }
         }
