@@ -507,6 +507,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 
 
+
 /*.si_bg{width:94%; margin:0 auto}*/
 .si_bg{width:92%; margin-left:30px;}
 .sjpic{width:50px; height:50px; float:left}
@@ -1480,7 +1481,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .send:after,.show:after,.msg:after{content: "";clear: both;display: table;}
 .msg>img{width:40px; height:40px;float: left; border-radius:100px;}
 
-.msg>p{float: left;margin:0 10px;padding:15px 8px;background: #f7f6fb;font-size:14px;position: relative;border-radius:10px;max-width:560px ;box-sizing: border-box;color:#333;word-break: break-word; /*min-width: 60px !important;*/}
+.msg>p{float: left;margin:0 10px;padding:8px 8px;background: #f7f6fb;font-size:14px;position: relative;border-radius:10px;max-width:560px ;box-sizing: border-box;color:#333;word-break: break-word; /*min-width: 60px !important;*/}
 
 .msg1>p {background:#ffcbcb;color:#fff;}
 
@@ -1521,12 +1522,12 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 }
 
 @media (max-width:766px) {
-.msg>p{float: left;margin:0 10px;padding:15px 8px;background: #f7f6fb;font-size:14px;position: relative;border-radius:10px;max-width:18rem;box-sizing: border-box;color:#333;}
+.msg>p{float: left;margin:0 10px;padding:8px 8px;background: #f7f6fb;font-size:14px;position: relative;border-radius:10px;max-width:18rem;box-sizing: border-box;color:#333;}
 .msg1>p {background:#ffcbcb;color:#fff;}
 }
 
 @media (max-width:370px) {
-.msg>p{float: left;margin:0 10px;padding:15px 8px;background: #f7f6fb;font-size:14px;position: relative;border-radius:10px;max-width:14rem;box-sizing: border-box;color:#333;}
+.msg>p{float: left;margin:0 10px;padding:8px 8px;background: #f7f6fb;font-size:14px;position: relative;border-radius:10px;max-width:14rem;box-sizing: border-box;color:#333;}
 .msg1>p {background:#ffcbcb;color:#fff;}
 }
 
@@ -2596,7 +2597,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 /*    .new_poptk{height:300px;}*/
 /*}*/
 
-.new_poptk{width:90%;/* height:240px; */height:200px;margin: 0 auto;color: #666666;padding-bottom: 20px; padding-top:15px;overflow-y: scroll; display: block;}
+.new_poptk{/*width:90%; height:240px; */height:200px;margin: 0 auto;color: #666666;padding-bottom: 20px; padding-top:15px;overflow-y: scroll; display: block;}
 @media (max-width:450px){
     .new_poptk{height:300px;}
 }

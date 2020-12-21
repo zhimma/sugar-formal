@@ -182,6 +182,12 @@
 		$("#tab07 .linktext").html(link);
 	}
 
+	function c8(str) {
+		$(".announce_bg").show();
+		$("#tab08").show();
+		$("#tab08 .bltext").text(str);
+	}
+
 	function show_message(str) {
 		$(".blbg").show();
 		$("#tab_message").show();

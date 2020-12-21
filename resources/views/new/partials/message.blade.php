@@ -1,3 +1,17 @@
+<style>
+    /* always show scrollbars */
+    .new_poptk::-webkit-scrollbar {
+        -webkit-appearance: none;
+        width: 5px;
+    }
+
+    .new_poptk::-webkit-scrollbar-thumb {
+        border-radius: 5px;
+        background-color: #8a9fef;
+        box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+    }
+</style>
+
 <div class="blbg" id="blbg" style="display: none;"></div>
 <div class="bl bl_tab" id="tab01">
   <div class="bltitle">提示</div>
@@ -47,7 +61,7 @@
 <div class="bl bl_tab " id="common_confirm">
     <div class="bltitle"><font>提示</font></div>
     <div class="new_poptk">
-        <p style="-webkit-user-modify: read-write-plaintext-only;outline: none;white-space: pre-line;"></p>
+        <p style="-webkit-user-modify: read-write-plaintext-only;outline: none;white-space: pre-line; padding: 0 5%"></p>
         <div class="n_bbutton">
             <span><a class="n_left">確定</a></span>
             <span><a class="n_right" onclick="$('.blbg').click();">取消</a></span>
@@ -100,6 +114,19 @@
     </div>
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
+
+<div class="bl bl_tab" id="tab08">
+    <div class="bltitle">提示</div>
+    <div class="n_blnr01">
+        <div class="blnr bltext"></div>
+        <div class="n_bbutton">
+            <span><a class="n_left" href="javascript:" >確認</a></span>
+            <span><a onclick="gmBtnNoReload()" class="n_right" href="javascript:">返回</a></span>
+        </div>
+    </div>
+    <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+</div>
+
 @if(str_contains(url()->current(), 'dashboard') && Session::has('banned_reason'))
     <div class="blbg banned_bg" style="display:block"></div>
     <div class="gg_tab" id="tab_banned_alert" style="display: block; z-index: 999;">

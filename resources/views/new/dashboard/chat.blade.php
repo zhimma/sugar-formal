@@ -510,10 +510,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             // Fragment exists
             var hash = window.location.hash.substring(1);
             date = hash;
-            // alert(hash);
+            //alert(hash);
         }
         // VIP資訊量較大顧預設為撈取七天
-        if(userIsVip == 1){
+        if(userIsVip == 1 && !hash){
             date=7;
         }
 
@@ -1392,10 +1392,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             // alert(IDs);
             // alert($('.sjlist_vip.row_data>li:visible').length);
             if($.trim(IDs) !== '') {
-                c4('確定要全部刪除嗎?');
+                c8('確定要全部刪除嗎?');
                 deleteRowAll(IDs);
             }else{
-                c2('沒有可刪除資料');
+                c3('沒有可刪除資料');
             }
         });
         $('.novip_delete').on('click', function() {
@@ -1405,10 +1405,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
             // alert(IDs);
             if($.trim(IDs) !== '') {
-                c4('確定要全部刪除嗎?');
+                c8('確定要全部刪除嗎?');
                 deleteRowAll(IDs);
             }else{
-                c2('沒有可刪除資料');
+                c3('沒有可刪除資料');
             }
         });
         $('.alert_delete').on('click', function() {
@@ -1417,10 +1417,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             $(".sjlist_alert").find("li").each(function(){ IDs.push(this.id); });
 
             if($.trim(IDs) !== '') {
-                c4('確定要全部刪除嗎?');
+                c8('確定要全部刪除嗎?');
                 deleteRowAll(IDs);
             }else{
-                c2('沒有可刪除資料');
+                c3('沒有可刪除資料');
             }
         });
 
@@ -1435,10 +1435,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                 // alert(IDs);
                 if($.trim(IDs) !== '') {
-                    c4('確定要全部刪除嗎?');
+                    c8('確定要全部刪除嗎?');
                     deleteRowAll(IDs);
                 }else{
-                    c2('沒有可刪除資料');
+                    c3('沒有可刪除資料');
                 }
             });
         @endforeach
@@ -1451,7 +1451,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             del_url = del_url.replace(':sid', sid);
             $(".n_left").on('click', function() {
 
-                $("#tab04").hide();
+                $("#tab08").hide();
                 show_message('刪除成功');
                 window.location=del_url;
             });
