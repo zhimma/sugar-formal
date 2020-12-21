@@ -333,15 +333,16 @@
 
         // 取消VIP內容
         $('#vip2_a').on('click', function(event) {
+            //changediv('vip');
             @if(!$user->isFreeVip())
+                    //alert(11);
                 @if(isset($vipLessThan7days) && $vipLessThan7days && $user->isVipNotCanceledNotOnePayment())
-            common_confirm("{{$cancel_vip}}");
+                    common_confirm("{{$cancel_vip}}");
                     // var r= confirm('123');
                 @elseif($user->isVip() && $user->isVipNotCanceledNotOnePayment() && !$user->isVipOnePaymentNotExpire())
-            common_confirm("{{$cancel_vip}}");
+                    common_confirm("{{$cancel_vip}}");
             // var r= confirm('123');
                 @endif
-                changediv('vip');
                 $(".n_left").on('click', function() {
                     $(".blbg").hide();
                     $('#common_confirm').hide();
