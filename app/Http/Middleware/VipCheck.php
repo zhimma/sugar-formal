@@ -52,7 +52,7 @@ class VipCheck
                 $send_msg = 1;
             }
             if($now > $expiry && $userVIP->expiry != '0000-00-00 00:00:00'){
-                \App\Models\VipLog::addToLog($user->id, 'Expired auto cancellation.', 'XXXXXXXXX', 0, 0);
+                \App\Models\VipLog::addToLog($user->id, 'Expired, system auto cancellation.', 'XXXXXXXXX', 0, 0);
                 $userVIP->removeVIP();
                 if($send_msg==1){
                     //vipForNewebPay msg
@@ -62,10 +62,11 @@ class VipCheck
             }
         }
 
-        // 傳換性別為男生時取消原女免費VIP
+        // 轉換性別為男生時取消原女免費 VIP
         if($user->isFreeVip()){
             if($user->engroup == 1) {
                 $userVIP = $user->getVipData(true);
+                \App\Models\VipLog::addToLog($user->id, 'Gender changed, free VIP checking and cancellation function triggered.', 'XXXXXXXXX', 0, 0);
                 $userVIP->removeVIP();
             }
         }
