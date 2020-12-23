@@ -169,46 +169,61 @@ class ValueAddedService extends Model
 
     public static function cancel($member_id, $service_name)
     {
-        //$curUser = User::findById($member_id);
+        $curUser = User::findById($member_id);
         $user = ValueAddedService::where('member_id', $member_id)
             ->where('service_name', $service_name)
             ->orderBy('created_at', 'desc')->get();
 
         if($user[0]->expiry == '0000-00-00 00:00:00'){
-            $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->updated_at);
-            $day = $date->day;
+            // 未設定到期日區間
+            // 取得現在時間
             $now = \Carbon\Carbon::now();
-            $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
-            if($now->day >= $day){
+            // 從最近一筆 VIP 資料取得資料變更日期
+            $latestUpdatedAt = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $user[0]->updated_at);
+            // 確實複製變數，而不單純用 =，避免出現只將記憶體位置指向 $daysDiff, $baseDate，
+            // 造成兩個變數實際上指向同一物件的問題發生
+            // 將現在時間做為基準日
+            $baseDate = clone $now;
+            $daysDiff = clone $now;
+            $daysDiff = $daysDiff->diffInDays($latestUpdatedAt);
+            // 依照付款類形計算不同的取消當下距預計下一週期扣款日的天數
+            if($user[0]->payment == 'cc_quarterly_payment'){
+                $periodRemained = 92 - ($daysDiff % 92);
+            }else {
+                $periodRemained = 30 - ($daysDiff % 30);
+            }
+            // 基準日加上得出的天數再加 1 (不加 1 到期日會少一天)，即為取消後的到期日
+            $expiryDate = $baseDate->addDays($periodRemained + 1);
+            /**
+             * Debugging codes.
+             * $output = new \Symfony\Component\Console\Output\ConsoleOutput();
+             * $output->writeln('$daysDiff: ' . $daysDiff);
+             * $output->writeln('$periodRemained: ' . $periodRemained);
+             * $output->writeln('$expiryDate: ' . $expiryDate);
+             */
+            // 如果是使用綠界付費，且取消日距預計下次扣款日小於七天，則到期日再加一個週期
+            // 3137610: 正式商店編號
+            // 2000132: 測試商店編號
+            if(($user[0]->business_id == '3137610' || $user[0]->business_id == '2000132') && $now->diffInDays($expiryDate) <= 7) {
                 // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
                 if($user[0]->payment=='cc_quarterly_payment'){
-                    $nextMonth = $now->addMonthsNoOverflow(3);
+                    $expiryDate = $expiryDate->addMonthsNoOverflow(3);
                 }else {
-                    $nextMonth = $now->addMonthsNoOverflow(1);
+                    $expiryDate = $expiryDate->addMonthNoOverflow(1);
                 }
-
-                $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $nextMonth->year.'-'.$nextMonth->month.'-'.$day.' 00:00:00');
-            }
-            // 如果是使用綠界付費，且取消日距預計下次扣款日小於七天，則到期日再加一個月
-            if($user[0]->business_id == '3137610' && $now->diffInDays($date) <= 7) {
-
-                if($user[0]->payment=='cc_quarterly_payment'){
-                    $date = $date->addMonthNoOverflow(3);
-                }else {
-                    $date = $date->addMonthNoOverflow(1);
+                if($service_name == "hideOnline"){
+                    $str = $curUser->name . ' 您好，您已取消本站 付費隱藏 續費。但由於您的扣款時間是每月'. $latestUpdatedAt->day .'號，取消時間低於七個工作天，作業不及。所以本次還是會正常扣款，下一週期就會停止扣款。造成不便敬請見諒。';
                 }
-
             }
 
             foreach ($user as $u){
-                $u->expiry = $date->toDateTimeString();
+                $u->expiry = $expiryDate->startOfDay()->toDateTimeString();
                 $u->save();
             }
-            ValueAddedServiceLog::addToLog($member_id, $service_name,'Cancelled ,expiry: ' . $date, $user[0]->order_id, $user[0]->txn_id,0);
 
-            return true;
+            ValueAddedServiceLog::addToLog($member_id, $service_name,'Cancelled ,expiry: ' . $expiryDate, $user[0]->order_id, $user[0]->txn_id,0);
+            return [true, "str"  => $str ?? null];
         }
-
     }
 
     public static function removeValueAddedService($member_id, $service_name)

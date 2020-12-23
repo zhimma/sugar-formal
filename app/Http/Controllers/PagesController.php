@@ -1534,67 +1534,34 @@ class PagesController extends Controller
                 $this->logService->cancelLog($valueAddedServiceData);
                 $this->logService->writeLogToDB();
                 $file = $this->logService->writeLogToFile();
-                $before_cancelValueAddedService = $valueAddedServiceData->updated_at;
                 logger('$before_cancelValueAddedService:'.$valueAddedServiceData->updated_at);
                 if( strpos(\Storage::disk('local')->get($file[0]), $file[1]) !== false) {
-                    ValueAddedService::cancel($user->id, $payload['service_name']);
-                    $data = ValueAddedService::where('member_id', $user->id)->where('service_name', $payload['service_name'])->where('expiry', '!=', '0000-00-00 00:00:00')->get()->first();
-                    $date = date('Y年m月d日', strtotime($data->expiry));
-
-                    //                    $offVIP = AdminCommonText::getCommonText(4);
-                    //                    $offVIP = str_replace('DATE', $date, $offVIP);
-                    if($payload['service_name']=='hideOnline') {
-                        $offVIP = '您已成功取消付費隱藏功能，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date;
+                    $array = ValueAddedService::cancel($user->id, 0);
+                    if(isset($array["str"])){
+                        $offVIP = $array["str"];
                     }
-
-                    //如果VIP取消時間少於七個工作天，訊息提示。
-                    //$date取得原本VIP剩餘天數基準日
-                    $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $before_cancelValueAddedService);
-                    $day = $date->day;
-                    $now = \Carbon\Carbon::now();
-                    $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
-                    if($now->day >= $day){
-                        // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
-                        if($valueAddedServiceData->payment=='cc_quarterly_payment'){
-                            $nextMonth = $now->addMonthsNoOverflow(3);
-                        }else {
-                            $nextMonth = $now->addMonthsNoOverflow(1);
+                    else{
+                        $data = ValueAddedService::where('member_id', $user->id)->where('service_name', $payload['service_name'])->where('expiry', '!=', '0000-00-00 00:00:00')->get()->first();
+                        $date = date('Y年m月d日', strtotime($data->expiry));
+                        if($payload['service_name'] == 'hideOnline') {
+                            $offVIP = '您已成功取消付費隱藏功能，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date;
                         }
-
-                        $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $nextMonth->year.'-'.$nextMonth->month.'-'.$day.' 00:00:00');
+                        logger('$expiry: ' . $data->expiry);
+                        logger('base day: ' . $date);
+                        logger('payment: ' . $data->payment);
                     }
-
-                    logger('$expiry:'.$data->expiry);
-                    logger('base day:' . $date);
-                    logger('diffIndays:'.$now->diffInDays($date));
-
-                    if($valueAddedServiceData->business_id == '3137610' && $now->diffInDays($date) <= 7 ){
-                        if($payload['service_name']=='hideOnline') {
-                            $offVIP = $user->name . ' 您好，您已取消本站 付費隱藏 續費。但由於您的扣款時間是每月' . $date->format('d') . '號，取消時間低於七個工作天，作業不及。所以本次還是會正常扣款，下個月就會停止扣款。造成不變敬請見諒。';
-                        }
-                    }
-
+                    logger('User ' . $user->id . ' ValueAddedService cancellation finished.');
                     $request->session()->flash('cancel_notice', $offVIP);
                     $request->session()->save();
                     if($payload['service_name']=='hideOnline') {
                         return redirect('/dashboard/valueAddedHideOnline#valueAddedServiceCanceled')->with('user', $user)->with('message', $offVIP);
                     }
-                    //return back()->with('user', $user)->with('message', 'VIP 取消成功！')->with('cancel_notice', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
-
                 }
                 else{
-                    //                    $log = new \App\Models\LogCancelVipFailed();
-                    //                    $log->user_id = $user->id;
-                    //                    $log->reason = 'File saving failed.';
-                    //                    $log->save();
                     return redirect('/dashboard/valueAddedHideOnline')->with('user', $user)->withErrors(['取消失敗！'])->with('cancel_notice', '本次取消資訊沒有成功寫入，請再試一次。');
-                    //return back()->with('user', $user)->withErrors(['VIP 取消失敗！'])->with('cancel_notice', '本次VIP取消資訊沒有成功寫入，請再試一次。');
                 }
             }
             else{
-                //                $log = new \App\Models\LogCancelVipFailed();
-                //                $log->user_id = $user->id;
-                //                $log->save();
                 return back()->with('message', '帳號密碼輸入錯誤');
             }
         }
