@@ -37,8 +37,6 @@ class ValueAddedServiceLog extends Model
         $log->order_id = $order_id;
         $log->txn_id = $txn_id;
         $log->action = $action;
-        $log->created_at = Carbon::now();
-        $log->updated_at = Carbon::now();
         $log->save();
     }
 }
