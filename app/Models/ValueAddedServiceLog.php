@@ -29,7 +29,6 @@ class ValueAddedServiceLog extends Model
     }
 
     public static function addToLog($member_id, $service_name, $content, $order_id, $txn_id, $action) {
-
         $log = new ValueAddedServiceLog();
         $log->member_id = $member_id;
         $log->service_name = $service_name;
@@ -38,5 +37,9 @@ class ValueAddedServiceLog extends Model
         $log->txn_id = $txn_id;
         $log->action = $action;
         $log->save();
+    }
+
+    public static function getLatestLog($member_id){
+        return self::where($member_id)->orderBy('created_at', 'desc')->first();
     }
 }
