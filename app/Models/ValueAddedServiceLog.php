@@ -40,6 +40,6 @@ class ValueAddedServiceLog extends Model
     }
 
     public static function getLatestLog($member_id){
-        return self::where($member_id)->orderBy('created_at', 'desc')->first();
+        return self::where('member_id', $member_id)->orderBy('created_at', 'desc')->first();
     }
 }
