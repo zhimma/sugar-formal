@@ -53,6 +53,7 @@ class RegisterController extends Controller
     {
         return view('new.adult');
     }
+
     /**
      * Get a validator for an incoming registration request.
      *
@@ -112,18 +113,26 @@ class RegisterController extends Controller
         ];
         $validator = \Validator::make($data, $rules, $messages, $attributes);
         return $validator;
-        // return Validator::make($data, [
-        //     'name' => 'required|max:255',
-        //     'email' => 'required|email|max:255|unique:users',
-        //     'password' => 'required|min:6|confirmed',
-        // ], [
-        //     'name.required' => '暱稱不可為空',
-        //     'email.required' => 'E-mail信箱不可為空',
-        //     'email.email' => 'E-mail格式錯誤',
-        //     'email.unique' => '此 E-mail 已被註冊',
-        //     'password.required' => '密碼不可為空',
-        //     'password.confirmed' => '密碼確認錯誤'
-        // ]);
+    }
+
+    /**
+     * Handle a registration request for the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function register(Request $request) : \Illuminate\Http\Response {
+        $this->validator($request->all())->validate();
+
+        $request->validate([
+            'google_recaptcha_token' => ['required', 'string', new \App\Rules\GoogleRecapchaV3Case()],
+        ]);
+
+        event(new \Illuminate\Auth\Events\Registered($user = $this->create($request->all())));
+
+        $this->guard()->login($user);
+
+        return $this->registered($request, $user) ? redirect($this->redirectPath()) : redirect($this->redirectPath());
     }
 
     /**
