@@ -161,6 +161,7 @@ class ValueAddedService extends Model
 //                User::where('id',$member_id)->update(['is_hide_online' => 1, 'hide_online_time' => Carbon::now()]);
 //            }
         }
+        ValueAddedServiceLog::addToLog($member_id, $service_name,'Upgrade, payment: ' . $payment . ', service: ' . $service_name, $order_id, $txn_id, 0);
     }
 
     public static function findByIdAndServiceNameWithDateDesc($member_id,$service_name) {
@@ -221,7 +222,7 @@ class ValueAddedService extends Model
                 $u->save();
             }
 
-            ValueAddedServiceLog::addToLog($member_id, $service_name,'Cancelled ,expiry: ' . $expiryDate, $user[0]->order_id, $user[0]->txn_id,0);
+            ValueAddedServiceLog::addToLog($member_id, $service_name,'Cancelled, expiry: ' . $expiryDate, $user[0]->order_id, $user[0]->txn_id,0);
             return [true, "str"  => $str ?? null];
         }
     }
