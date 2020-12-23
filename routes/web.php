@@ -41,6 +41,7 @@ Route::group(['middleware' => ['tipApi']], function () {
 
 Route::group(['middleware' => ['valueAddedServiceApi']], function () {
     Route::post('/dashboard/valueAddedService_ec', 'ECPayment@performValueAddedService')->name('valueAddedService_ec');
+    Route::post('/dashboard/postValueAddedService', 'PagesController@postValueAddedService')->name('postValueAddedService');
     Route::post('/dashboard/cancelValueAddedService', 'PagesController@cancelValueAddedService');
 });
 
