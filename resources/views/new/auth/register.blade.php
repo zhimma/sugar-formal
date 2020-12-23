@@ -50,7 +50,7 @@
                         </div>
 
                         <div class="decheck"><input required name="agree" type="checkbox" ><span>我同意甜心花園的使用條款和隱私政策</span></div>
-
+                        <input type="hidden" name="google_recaptcha_token" id="ctl-recaptcha-token">
                         {{-- <a href="javascript:void(0);" onclick="this.disabled = true" class="dlbut btn-register">註冊</a> --}}
                         <button onclick="this.disabled = true" class="dlbut btn-register" style="border-style: none;">註冊</button>
                         <a href="" class="zcbut matop20">取消</a>
@@ -60,7 +60,13 @@
             </div>
         </div>
     </div>
+    <script src="https://www.google.com/recaptcha/api.js?render={{ env('RECAPTCHA_SITE_KEY') }}"></script>
     <script>
+        grecaptcha.ready(function() {
+            grecaptcha.execute('{{env('RECAPTCHA_SITE_KEY')}}').then(function(token) {
+                document.getElementById('ctl-recaptcha-token').value = token;
+            });
+        });
         $(document).ready(function() {
 
             $("input[name='engroup']").change(function(){
