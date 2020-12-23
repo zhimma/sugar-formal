@@ -121,7 +121,7 @@ class RegisterController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function register(Request $request) : \Illuminate\Http\Response {
+    public function register(\Illuminate\Http\Request $request) : \Illuminate\Http\Response {
         $this->validator($request->all())->validate();
 
         $request->validate([
