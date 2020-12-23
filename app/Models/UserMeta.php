@@ -155,9 +155,9 @@ class UserMeta extends Model
         if ($engroup == 1) { $engroup = 2; }
         else if ($engroup == 2) { $engroup = 1; }
         if(isset($seqtime) && $seqtime == 2){ $orderBy = 'users.created_at'; }
-        else{ $orderBy = 'users.last_login'; }
+        else{ $orderBy = 'last_login'; }
         $constrain = function ($query) use ($city, $area, $cup, $agefrom, $ageto, $marriage, $budget, $income, $smoking, $drinking, $photo, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid){
-            $query->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
+            $query->select('*')->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
             if (isset($city) && strlen($city) != 0) $query->where('city','like', '%'.$city.'%');
             if (isset($area) && strlen($area) != 0) $query->where('area','like', '%'.$area.'%');
             if (isset($cup) && $cup!=''){
@@ -172,6 +172,8 @@ class UserMeta extends Model
                 // 單純使用 whereBetween('birthdate', ... 的話會導致部分生日判斷錯誤
                 $query->whereBetween(\DB::raw("STR_TO_DATE(birthdate, '%Y-%m-%d')"), [$to, $from]);
             }
+
+
             if (isset($marriage) && strlen($marriage) != 0) $query->where('marriage', $marriage);
             if (isset($budget) && strlen($budget) != 0) $query->where('budget', $budget);
             if (isset($income) && strlen($income) != 0) $query->where('income', $income);
@@ -210,8 +212,11 @@ class UserMeta extends Model
                                 });
                     });
             }
+
             return $query->where('is_active', 1);
         };
+
+
         /**
          * 為加速效能，此三句功能以 subquery 形式在下方被替換，並以註解形式保留以利後續維護。
          * $bannedUsers = \App\Services\UserService::getBannedId();
@@ -220,6 +225,7 @@ class UserMeta extends Model
          */
         // 效能調整：Eager Loading
         $query = User::with(['user_meta' => $constrain, 'vip'])
+		->select('*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))
             ->whereHas('user_meta', $constrain)
             ->where('engroup', $engroup)
             ->where('accountStatus', 1)
@@ -246,8 +252,10 @@ class UserMeta extends Model
                 $query->whereIn('exchange_period', $exchange_period);
             }
         }
+
         return $query->orderBy($orderBy, 'desc')->paginate(12);
     }
+
     public static function findByMemberId($memberId)
     {
         return UserMeta::where('user_id', $memberId)->first();

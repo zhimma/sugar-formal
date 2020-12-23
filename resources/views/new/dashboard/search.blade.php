@@ -342,7 +342,7 @@
                                                 @endif
                                             @endif
                                         </h3>
-                                        <h3>最後上線時間：{{substr($visitor->last_login,0,11)}}</h3>
+                                        <h3>最後上線時間：@if($visitor->valueAddedServiceStatus('hideOnline')==1 && $visitor->is_hide_online==1){{substr($visitor->hide_online_time,0,11)}}@else{{substr($visitor->last_login,0,11)}}@endif</h3>
                                     </div>
                                 </a>
                             </li>

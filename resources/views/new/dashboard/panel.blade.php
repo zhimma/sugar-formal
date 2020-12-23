@@ -4,7 +4,7 @@
         <div class="leftimg">
             <img src="@if(file_exists( public_path().$user->meta_()->pic ) && $user->meta_()->pic != ""){{$user->meta_()->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
             <h2 style="word-break: break-word;">@if (str_contains(url()->current(), 'dashboard')) {{ $user->name }} @elseif (isset($cur)) {{ $cur->name }} @endif
-                @if (((isset($cur) && $cur->isVip() && $cur->engroup == '1')) || ($user->isVip() && str_contains(url()->current(), 'dashboard'))) (VIP) @endif</h2>
+                @if (((isset($cur) && $cur->isVip() && $cur->engroup == '1')) || ($user->isVip() && str_contains(url()->current(), 'dashboard'))) (VIP) @endif @if($user->valueAddedServiceStatus('hideOnline')==1)<br>(隱藏) @endif</h2>
         </div>
         <div class="leul">
             <ul>
@@ -23,7 +23,7 @@
                    <a href="{!! url('dashboard/browse') !!}"><img src="/new/images/icon_46.png">瀏覽資料</a>
                 </li>
                 <li>
-                    <a href="{!! url('dashboard/new_vip') !!}"><img src="/new/images/us2.png">VIP</a>
+                    <a href="{!! url('dashboard/vipSelect') !!}"><img src="/new/images/us2.png">升級付費</a>
                 </li>
                 <li>
                     <a href="{!! url('logout') !!}"><img src="/new/images/iconout.png">退出</a>

@@ -152,6 +152,11 @@ Route::group(['middleware' => ['tipApi']], function () {
     Route::post('/dashboard/postChatpayEC', 'PagesController@postChatpayEC');
 });
 
+Route::group(['middleware' => ['valueAddedServiceApi']], function () {
+    Route::post('/dashboard/valueAddedService_ec', 'ECPayment@performValueAddedService')->name('valueAddedService_ec');
+    Route::post('/dashboard/cancelValueAddedService', 'PagesController@cancelValueAddedService');
+});
+
 /*
 |--------------------------------------------------------------------------
 | Error Handler Redirect Page
@@ -365,9 +370,13 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
     Route::post('/dashboard/consignCancel', 'PagesController@consignCancel'); //new route
     Route::get('/dashboard/account_exchange_period', 'PagesController@view_exchange_period'); //new route exchange_period_modify
     Route::post('/dashboard/exchangePeriodModify', 'PagesController@exchangePeriodModify'); //new route
+    Route::get('/dashboard/account_hide_online', 'PagesController@view_account_hide_online'); //new route
 
     Route::get('/dashboard/vip', 'PagesController@view_new_vip'); //new route
     Route::get('/dashboard/new_vip', 'PagesController@view_new_vip'); //new route
+    Route::get('/dashboard/vipSelect', 'PagesController@view_vipSelect'); //new route
+    Route::get('/dashboard/valueAddedHideOnline', 'PagesController@view_valueAddedHideOnline'); //new route
+    Route::post('/dashboard/hideOnlineSwitch', 'PagesController@hideOnlineSwitch')->name('hideOnlineSwitch'); //new route
     Route::get('/dashboard2', 'PagesController@dashboard2');
     Route::get('/dashboard/cancel', 'PagesController@showCheckAccount');
     Route::post('/dashboard/chat', 'MessageController@postChat');
