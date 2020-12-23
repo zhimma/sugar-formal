@@ -189,7 +189,10 @@ class PagesController extends Controller
     }
 
     public  function postChatpayEC(Request $request){
+        return '1|OK';
+    }
 
+    public function postValueAddedService(Request $request) : string{
         return '1|OK';
     }
 
