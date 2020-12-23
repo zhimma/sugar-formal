@@ -637,7 +637,7 @@ class Message extends Model
             ->whereNotIn('to_id', $block)
             ->whereNotIn('from_id', $blockedList)
             ->whereNotIn('to_id', $blockedList)
-            ->where([['is_row_delete_1', '=' ,0], ['temp_id', '=', 0]])
+            ->where([['is_row_delete_1', '=' ,0], ['is_single_delete_1', '<>', $uid], ['temp_id', '=', 0]])
             ->where('read', 'N')
             ->where([['message.created_at','>=',self::$date]]);
         if($user->user_meta->notifhistory == '顯示VIP會員信件') {
