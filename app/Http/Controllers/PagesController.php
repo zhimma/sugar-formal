@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\CheckECpay;
+use App\Jobs\CheckECpayForValueAddedService;
 use App\Models\AccountStatusLog;
 use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
@@ -49,6 +50,7 @@ use Illuminate\Support\Facades\Input;
 use Intervention\Image\Facades\Image;
 use Session;
 use App\Notifications\AccountConsign;
+use App\Models\ValueAddedService;
 
 class PagesController extends Controller
 {
@@ -589,6 +591,21 @@ class PagesController extends Controller
             }
         }
 
+        //valueAddedService
+        if($user->valueAddedServiceStatus('hideOnline')==1){
+            //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
+            $service_name = 'hideOnline';
+            $valueAddedServiceData = \App\Models\ValueAddedService::getData($user->id,'hideOnline');
+            if(is_object($valueAddedServiceData)){
+                $this->dispatch(new CheckECpayForValueAddedService($valueAddedServiceData));
+            }
+            else{
+                Log::info('ValueAddedService '.$service_name.' data null, user id: ' . $user->id);
+            }
+
+        }
+
+
         if(str_contains($url, '?img')) {
             $tabName = 'm_user_profile_tab_4';
         }
@@ -971,7 +988,8 @@ class PagesController extends Controller
     public function view_openCloseAccount(Request $request)
     {
         $user = $request->user();
-        return view('new.dashboard.openCloseAccount')->with('user', $user)->with('reasonType', $request->get('reasonType',1));
+        return view('new.dashboard.openCloseAccount')->with('user', $user)
+            ->with('reasonType', $request->get('reasonType',1));
     }
 
     public function view_closeAccountReason(Request $request)
@@ -1321,6 +1339,12 @@ class PagesController extends Controller
 
     }
 
+    public function view_account_hide_online(Request $request)
+    {
+        $user = $request->user();
+        return view('new.dashboard.account_hide_online')->with('user', $user)->with('cur', $user);
+    }
+
     public function viewVipForNewebPay(Request $request)
     {
 
@@ -1393,10 +1417,15 @@ class PagesController extends Controller
     public function view_new_vip(Request $request)
     {
 
-        $cc_monthly_payment = AdminCommonText::where('alias','cc_monthly_payment')->get()->first();
-        $cc_quarterly_payment = AdminCommonText::where('alias','cc_quarterly_payment')->get()->first();
-        $one_month_payment = AdminCommonText::where('alias','one_month_payment')->get()->first();
-        $one_quarter_payment = AdminCommonText::where('alias','one_quarter_payment')->get()->first();
+        $cc_monthly_payment = AdminCommonText::where('category_alias','vip_text')->where('alias','cc_monthly_payment')->get()->first();
+        $cc_quarterly_payment = AdminCommonText::where('category_alias','vip_text')->where('alias','cc_quarterly_payment')->get()->first();
+        $one_month_payment = AdminCommonText::where('category_alias','vip_text')->where('alias','one_month_payment')->get()->first();
+        $one_quarter_payment = AdminCommonText::where('category_alias','vip_text')->where('alias','one_quarter_payment')->get()->first();
+
+        $cc_monthly_payment_red = AdminCommonText::where('category_alias','vip_text_red')->where('alias','cc_monthly_payment')->get()->first();
+        $cc_quarterly_payment_red = AdminCommonText::where('category_alias','vip_text_red')->where('alias','cc_quarterly_payment')->get()->first();
+        $one_month_payment_red= AdminCommonText::where('category_alias','vip_text_red')->where('alias','one_month_payment')->get()->first();
+        $one_quarter_payment_red = AdminCommonText::where('category_alias','vip_text_red')->where('alias','one_quarter_payment')->get()->first();
 
         $cancel_vip = AdminCommonText::where('alias','cancel_vip')->get()->first();
 
@@ -1427,8 +1456,160 @@ class PagesController extends Controller
             ->with('cc_quarterly_payment',$cc_quarterly_payment->content)
             ->with('one_month_payment',$one_month_payment->content)
             ->with('one_quarter_payment',$one_quarter_payment->content)
+            ->with('cc_monthly_payment_red',$cc_monthly_payment_red->content)
+            ->with('cc_quarterly_payment_red',$cc_quarterly_payment_red->content)
+            ->with('one_month_payment_red',$one_month_payment_red->content)
+            ->with('one_quarter_payment_red',$one_quarter_payment_red->content)
             ->with('expiry_time', $expiry_time)
             ->with('days',$days);
+    }
+
+    public function view_valueAddedHideOnline(Request $request)
+    {
+        $user = $request->user();
+        $isPaidOnePayment = \App\Models\ValueAddedService::isPaidOnePayment($user->id,'hideOnline');
+        $isPaidCancelNotOnePayment = \App\Models\ValueAddedService::isPaidCancelNotOnePayment($user->id,'hideOnline');
+        $expiry_time = ValueAddedService::where('member_id', $user->id)->where('service_name', 'hideOnline')->where('expiry','!=','0000-00-00 00:00:00')->first();
+        $days=0;
+        if(isset($expiry_time)) {
+            $expiry_time = $expiry_time->expiry;
+            $expiry = Carbon::parse($expiry_time);
+            $days = $expiry->diffInDays(Carbon::now());
+        }
+
+
+        $cc_monthly_payment = AdminCommonText::where('category_alias','hideOnline_text')->where('alias','cc_monthly_payment')->get()->first();
+        $cc_quarterly_payment = AdminCommonText::where('category_alias','hideOnline_text')->where('alias','cc_quarterly_payment')->get()->first();
+        $one_month_payment = AdminCommonText::where('category_alias','hideOnline_text')->where('alias','one_month_payment')->get()->first();
+        $one_quarter_payment = AdminCommonText::where('category_alias','hideOnline_text')->where('alias','one_quarter_payment')->get()->first();
+
+        $cc_monthly_payment_red = AdminCommonText::where('category_alias','hideOnline_text_red')->where('alias','cc_monthly_payment')->get()->first();
+        $cc_quarterly_payment_red = AdminCommonText::where('category_alias','hideOnline_text_red')->where('alias','cc_quarterly_payment')->get()->first();
+        $one_month_payment_red = AdminCommonText::where('category_alias','hideOnline_text_red')->where('alias','one_month_payment')->get()->first();
+        $one_quarter_payment_red = AdminCommonText::where('category_alias','hideOnline_text_red')->where('alias','one_quarter_payment')->get()->first();
+
+        return view('new.dashboard.valueAddedHideOnline')
+            ->with('user', $user)
+            ->with('cur', $user)
+            ->with('isPaidOnePayment',$isPaidOnePayment)
+            ->with('isPaidCancelNotOnePayment',$isPaidCancelNotOnePayment)
+            ->with('cc_monthly_payment',$cc_monthly_payment->content)
+            ->with('cc_quarterly_payment',$cc_quarterly_payment->content)
+            ->with('one_month_payment',$one_month_payment->content)
+            ->with('one_quarter_payment',$one_quarter_payment->content)
+            ->with('cc_monthly_payment_red',$cc_monthly_payment_red->content)
+            ->with('cc_quarterly_payment_red',$cc_quarterly_payment_red->content)
+            ->with('one_month_payment_red',$one_month_payment_red->content)
+            ->with('one_quarter_payment_red',$one_quarter_payment_red->content)
+            ->with('expiry_time',$expiry_time)
+            ->with('days',$days);
+    }
+
+    public function hideOnlineSwitch(Request $request)
+    {
+
+        if($request->input('isHideOnline')=='0'){
+            User::where('id',$request->input('userId'))->update(['is_hide_online' => 0]);
+            return back()->with('message', '付費隱藏已關閉。');
+        }else if($request->input('isHideOnline')=='1'){
+            User::where('id',$request->input('userId'))->update(['is_hide_online' => 1, 'hide_online_time' => Carbon::now()]);
+            return back()->with('message', '付費隱藏已開啟。');
+        }
+        return back()->with('message', 'error');
+    }
+
+    public function cancelValueAddedService(Request $request)
+    {
+        $payload = $request->all();
+        $user = $request->user();
+
+        if ($user) {
+            $log = new \App\Models\LogCancelValueAddedService();
+            $log->user_id = $user->id;
+            $log->service_name = $payload['service_name'];
+            $log->created_at = \Carbon\Carbon::now();
+            $log->save();
+            if(Auth::attempt(array('email' => $payload['email'], 'password' => $payload['password']))){
+                $valueAddedServiceData = ValueAddedService::findByIdAndServiceNameWithDateDesc($user->id, $payload['service_name']);
+                $this->logService->cancelLog($valueAddedServiceData);
+                $this->logService->writeLogToDB();
+                $file = $this->logService->writeLogToFile();
+                $before_cancelValueAddedService = $valueAddedServiceData->updated_at;
+                logger('$before_cancelValueAddedService:'.$valueAddedServiceData->updated_at);
+                if( strpos(\Storage::disk('local')->get($file[0]), $file[1]) !== false) {
+                    ValueAddedService::cancel($user->id, $payload['service_name']);
+                    $data = ValueAddedService::where('member_id', $user->id)->where('service_name', $payload['service_name'])->where('expiry', '!=', '0000-00-00 00:00:00')->get()->first();
+                    $date = date('Y年m月d日', strtotime($data->expiry));
+
+                    //                    $offVIP = AdminCommonText::getCommonText(4);
+                    //                    $offVIP = str_replace('DATE', $date, $offVIP);
+                    if($payload['service_name']=='hideOnline') {
+                        $offVIP = '您已成功取消付費隱藏功能，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date;
+                    }
+
+                    //如果VIP取消時間少於七個工作天，訊息提示。
+                    //$date取得原本VIP剩餘天數基準日
+                    $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $before_cancelValueAddedService);
+                    $day = $date->day;
+                    $now = \Carbon\Carbon::now();
+                    $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $now->year.'-'.$now->month.'-'.$day.' 00:00:00');
+                    if($now->day >= $day){
+                        // addMonthsNoOverflow(): 避免如 10/31 加了一個月後變 12/01 的情形出現
+                        if($valueAddedServiceData->payment=='cc_quarterly_payment'){
+                            $nextMonth = $now->addMonthsNoOverflow(3);
+                        }else {
+                            $nextMonth = $now->addMonthsNoOverflow(1);
+                        }
+
+                        $date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $nextMonth->year.'-'.$nextMonth->month.'-'.$day.' 00:00:00');
+                    }
+
+                    logger('$expiry:'.$data->expiry);
+                    logger('base day:' . $date);
+                    logger('diffIndays:'.$now->diffInDays($date));
+
+                    if($valueAddedServiceData->business_id == '3137610' && $now->diffInDays($date) <= 7 ){
+                        if($payload['service_name']=='hideOnline') {
+                            $offVIP = $user->name . ' 您好，您已取消本站 付費隱藏 續費。但由於您的扣款時間是每月' . $date->format('d') . '號，取消時間低於七個工作天，作業不及。所以本次還是會正常扣款，下個月就會停止扣款。造成不變敬請見諒。';
+                        }
+                    }
+
+                    $request->session()->flash('cancel_notice', $offVIP);
+                    $request->session()->save();
+                    if($payload['service_name']=='hideOnline') {
+                        return redirect('/dashboard/valueAddedHideOnline#valueAddedServiceCanceled')->with('user', $user)->with('message', $offVIP);
+                    }
+                    //return back()->with('user', $user)->with('message', 'VIP 取消成功！')->with('cancel_notice', '您已成功取消VIP付款，下個月起將不再繼續扣款，目前的VIP權限可以維持到'.$date);
+
+                }
+                else{
+                    //                    $log = new \App\Models\LogCancelVipFailed();
+                    //                    $log->user_id = $user->id;
+                    //                    $log->reason = 'File saving failed.';
+                    //                    $log->save();
+                    return redirect('/dashboard/valueAddedHideOnline')->with('user', $user)->withErrors(['取消失敗！'])->with('cancel_notice', '本次取消資訊沒有成功寫入，請再試一次。');
+                    //return back()->with('user', $user)->withErrors(['VIP 取消失敗！'])->with('cancel_notice', '本次VIP取消資訊沒有成功寫入，請再試一次。');
+                }
+            }
+            else{
+                //                $log = new \App\Models\LogCancelVipFailed();
+                //                $log->user_id = $user->id;
+                //                $log->save();
+                return back()->with('message', '帳號密碼輸入錯誤');
+            }
+        }
+        else{
+            Log::error('User not found.');
+        }
+
+        return back()->with('message', 'error');
+    }
+
+    public function view_vipSelect(Request $request)
+    {
+        $user = $request->user();
+        return view('new.dashboard.vipSelect')
+            ->with('user', $user)->with('cur', $user);
     }
 
     public function viewuser(Request $request, $uid = -1) {
@@ -1482,7 +1663,7 @@ class PagesController extends Controller
                         'countSet'=> (int)$basic_setting['countSet'],
                     );
                 }
-                
+
                 return view('dashboard', $data)
                     ->with('user', $user)
                     ->with('cur', $this->service->find($uid))
@@ -1541,8 +1722,13 @@ class PagesController extends Controller
 
             /*瀏覽其他會員次數*/
             $visit_other_count = Visited::where('member_id', $uid)->count();
+
             /*被瀏覽次數*/
             $be_visit_other_count = Visited::where('visited_id', $uid)->count();
+
+            /*過去7天瀏覽其他會員次數*/
+            $visit_other_count_7 = Visited::where('member_id', $uid)->where('created_at', '>=', $date)->count();
+
             /*過去7天被瀏覽次數*/
             $be_visit_other_count_7 = Visited::where('visited_id', $uid)->where('created_at', '>=', $date)->count();
 
@@ -1561,6 +1747,7 @@ class PagesController extends Controller
                 'is_block_mid' => $is_block_mid,
                 'is_visit_mid' => $is_visit_mid,
                 'visit_other_count' => $visit_other_count,
+                'visit_other_count_7' => $visit_other_count_7,
                 'be_visit_other_count' => $be_visit_other_count,
                 'be_visit_other_count_7' => $be_visit_other_count_7,
                 'message_count' => $message_count,
@@ -2669,7 +2856,7 @@ class PagesController extends Controller
                 $userData['name'] = (mb_substr($userData['name'],0 ,3,"utf-8").'***');
             }
         }
-        
+
         return view('dashboard.adminannouncement_web')
                 ->with('user',$user)
                 ->with('users', $userBanned);

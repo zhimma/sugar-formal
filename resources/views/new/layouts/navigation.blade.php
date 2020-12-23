@@ -53,7 +53,7 @@
 						<ul id="menuList" class="change marg30">
                             <div class="comt"><img src="/new/images/t.png"></div>
                             <div class="coheight">
-							<div class="heyctop">{{ $user->name }}@if($user->isVip()) (VIP) @endif</div>
+							<div class="heyctop">{{ $user->name }}@if($user->isVip()) (VIP) @endif @if($user->valueAddedServiceStatus('hideOnline')==1)<br>(隱藏)@endif</div>
 							<div class="helist">
 								<ul>
 									<li>
@@ -71,7 +71,7 @@
 					                   <a href="{!! url('dashboard/browse') !!}"><img src="/new/images/icon_46.png">瀏覽資料</a>
 					                </li>
 									<li>
-										<a href="{!! url('dashboard/new_vip') !!}"><img src="/new/images/us2.png">VIP</a>
+										<a href="{!! url('dashboard/vipSelect') !!}"><img src="/new/images/us2.png">升級付費</a>
 									</li>
 								</ul>
 							</div>

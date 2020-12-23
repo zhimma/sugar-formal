@@ -70,6 +70,17 @@ class VipCheck
                 $userVIP->removeVIP();
             }
         }
+
+        //加值服務到期判斷
+        if($user->valueAddedServiceStatus('hideOnline')==1){
+            $userValueAddedService = \App\Models\ValueAddedService::getData($user->id,'hideOnline');
+            $expiry = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $userValueAddedService->expiry);
+            if($now > $expiry && $userValueAddedService->expiry != '0000-00-00 00:00:00') {
+                \App\Models\ValueAddedService::removeValueAddedService($user->id, $userValueAddedService->service_name);
+                \App\Models\ValueAddedServiceLog::addToLog($user->id, $userValueAddedService->service_name,'Expired, system auto cancellation.', $userValueAddedService->order_id, $userValueAddedService->txn_id,0);
+            }
+
+        }
         return $next($request);
     }
 }

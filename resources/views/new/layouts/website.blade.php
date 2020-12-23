@@ -32,7 +32,7 @@
                     <?php $cc = $cc+1;?>
                     <div class="item">
                         <div class="ggtitle">站長公告(第{{ $cc }}/{{ count($announcement) }}則)</div>
-                        <div class="new_poptk" style="height: auto;">
+                        <div class="new_poptk" style="height: auto; width: 90%;">
                             <div @if(!$user->isVip() && $a->isVip==1)class="g_pfont"@endif>
                             {!! nl2br($a->content) !!}
                             @if(!$user->isVip() && $a->isVip==1)

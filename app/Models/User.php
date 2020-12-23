@@ -8,6 +8,7 @@ use App\Models\Vip;
 use App\Models\Tip;
 use App\Models\UserMeta;
 use App\Models\MemberPic;
+use App\Models\ValueAddedService;
 use App\Models\SimpleTables\banned_users;
 use App\Models\SimpleTables\warned_users;
 use App\Notifications\ResetPassword;
@@ -742,6 +743,22 @@ class User extends Authenticatable
             $isRead =0;
         }
         return $isRead;
+    }
+
+    public function valueAddedServiceStatus($service_name)
+    {
+        $status = ValueAddedService::where('member_id', $this->id)->where('service_name', $service_name)->where('active',1)->orderBy('created_at', 'desc')->first();
+        if(!isset($status)){
+            return 0;
+        }
+
+//
+//        if($status->active==1){
+//            if($status->expiry == '0000-00-00 00:00:00' || $status->expiry >= Carbon::now()){
+//                return 1;
+//            }
+//        }
+        return 1;
     }
 
 }

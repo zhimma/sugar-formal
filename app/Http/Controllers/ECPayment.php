@@ -292,6 +292,102 @@ class ECPayment extends Controller
             //echo $e->getMessage();
         }
     }
+
+    public function performValueAddedService(Request $request){
+        /**
+         *   加值服務訂單
+         */
+        $PeriodType = '';
+        $Frequency = '';
+        $ExecTimes = '';
+
+        //new payment
+        if($request->payment == 'cc_quarterly_payment'){
+            $PeriodType = 'M';
+            $Frequency = '3';
+            $ExecTimes = '99';
+        }else if($request->payment == 'cc_monthly_payment') {
+            $PeriodType = 'M';
+            $Frequency = '1';
+            $ExecTimes = '99';
+        }
+
+        $amount = $request->amount;
+
+        try {
+            $obj = new ECPay_AllInOne();
+
+            if(env('APP_ENV') == 'local'){
+                $envStr = '_test';
+            }
+            else{
+                $envStr = '';
+            }
+
+            //服務參數
+            $obj->ServiceURL  = Config::get('ecpay.payment'.$envStr.'.ActionURL');   //服務位置
+            $obj->HashKey     = Config::get('ecpay.payment'.$envStr.'.HashKey');     //測試用Hashkey，請自行帶入ECPay提供的HashKey
+            $obj->HashIV      = Config::get('ecpay.payment'.$envStr.'.HashIV');      //測試用HashIV，請自行帶入ECPay提供的HashIV
+            $obj->MerchantID  = Config::get('ecpay.payment'.$envStr.'.MerchantID');  //測試用MerchantID，請自行帶入ECPay提供的MerchantID
+            $obj->EncryptType = '1';                                                 //CheckMacValue加密類型，請固定填入1，使用SHA256加密
+
+
+            //基本參數(請依系統規劃自行調整)
+            $MerchantTradeNo = "SG".time() ;
+            $obj->Send['ReturnURL']         = Config::get('ecpay.payment'.$envStr.'.postValueAddServiceReturnURL') ;    //付款完成通知回傳的網址
+            $obj->Send['ClientBackURL']     = Config::get('ecpay.payment'.$envStr.'.ClientBackURL') ;
+            $obj->Send['MerchantTradeNo']   = $MerchantTradeNo;                        //訂單編號
+            $obj->Send['MerchantTradeDate'] = date('Y/m/d H:i:s');                     //交易時間
+            $obj->Send['TotalAmount']       = $amount;                                     //交易金額
+            $obj->Send['TradeDesc']         = "SG-".$request->service_name."(".$request->userId.")";                                //交易描述
+            $obj->Send['PaymentType']       = "aio";
+
+            if($request->payment=='one_quarter_payment' || $request->payment=='one_month_payment') {
+                //                $obj->Send['ChoosePayment'] = $request->choosePayment;
+                //測試機測ALL才會回傳paymentInfo 正式機不確定 暫以ALL來寫
+                $obj->Send['ChoosePayment'] = ECPay_PaymentMethod::ALL;
+                $obj->Send['PaymentInfoURL'] = Config::get('ecpay.payment' . $envStr . '.PaymentInfoURL');
+
+                if($request->choosePayment=='Credit'){
+                    $obj->Send['IgnorePayment']  = "WebATM#ATM#CVS#BARCODE" ;
+                }elseif($request->choosePayment=='ATM'){
+                    $obj->Send['IgnorePayment']  = "WebATM#Credit#CVS#BARCODE" ;
+                }elseif($request->choosePayment=='CVS'){
+                    $obj->Send['IgnorePayment']  = "WebATM#Credit#ATM" ;
+                }
+                //                elseif($request->choosePayment=='BARCODE'){
+                //                    $obj->Send['IgnorePayment']  = "WebATM#Credit#ATM#CVS" ;
+                //                }
+
+                //                $obj->Send['ChoosePayment'] = ECPay_PaymentMethod::ALL;
+                //$obj->Send['IgnorePayment']     = ECPay_PaymentMethod::WebATM ;
+            }else {
+                $obj->Send['ChoosePayment'] = ECPay_PaymentMethod::Credit;             //付款方式:Credit
+                $obj->SendExtend['Redeem'] = false ;           //是否使用紅利折抵，預設false
+                $obj->SendExtend['UnionPay'] = false;          //是否為聯營卡，預設false;
+
+                //Credit信用卡定期定額付款延伸參數(可依系統需求選擇是否代入)
+                //以下參數不可以跟信用卡分期付款參數一起設定
+                $obj->SendExtend['PeriodAmount'] = $amount ;    //每次授權金額，預設空字串
+                $obj->SendExtend['PeriodType']   = $PeriodType ;    //週期種類，預設空字串
+                $obj->SendExtend['Frequency']    = $Frequency ;    //執行頻率，預設空字串
+                $obj->SendExtend['ExecTimes']    = $ExecTimes ;    //執行次數，預設空字串
+            }
+
+            // $obj->Send['IgnorePayment']     = ECPay_PaymentMethod::GooglePay ;           //不使用付款方式:GooglePay
+            $obj->Send['CustomField1']      = $request->userId;
+            $obj->Send['CustomField3']      = $request->payment;
+            $obj->Send['CustomField4']      = $request->service_name;
+            //訂單的商品資料
+            array_push($obj->Send['Items'], array('Name' => "SG-".$request->service_name."(".$request->userId.")", 'Price' => (int)$amount, 'Currency' => "元", 'Quantity' => (int) "1", 'URL' => ""));
+
+
+            //產生訂單(auto submit至ECPay)
+            $obj->CheckOut();
+        } catch (\Exception $e) {
+            //echo $e->getMessage();
+        }
+    }
 }
  
 ?>

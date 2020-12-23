@@ -11,14 +11,14 @@
                     <div class="g_pwicon">
                         <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t "><span>基本資料</span></a></li>
                         <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2"><span>照片管理</span></a></li>
-                        <li><a href="{!! url('/dashboard/account_manage') !!}" class="g_pwicon_t3 "><span>更改帳號</span></a></li>
-                        <li><a href="{!! url('/dashboard/new_vip') !!}" class="g_pwicon_t4 g_hicon4"><span>VIP</span></a></li>
+                        <li><a href="{!! url('dashboard/account_manage') !!}" class="g_pwicon_t3 "><span>帳號設定</span></a></li>
+                        <li><a href="{!! url('dashboard/vipSelect') !!}" class="g_pwicon_t4 g_hicon4"><span>升級付費</span></a></li>
                     </div>
                     <div class="new_viphig">
                         <div class="n_viptitle">
-                            <a href="#" onclick='changediv("vip")' id="vip_a" class="n_viphover" target=_parent>升級VIP</a>
+                            <a  onclick='changediv("vip")' id="vip_a" class="n_viphover" target=_parent>升級VIP</a>
 
-                            <a href="#" onclick='changediv("vip2")' id="vip2_a" target=_parent>取消VIP</a>
+                            <a  onclick='changediv("vip2")' id="vip2_a" target=_parent>取消VIP</a>
                         </div>
                         <div class="n_sjvip"  id="vip">
                             @if($user->engroup==2)
@@ -280,7 +280,7 @@
                         c2('您目前已是VIP會員');
                         return false;
                     @else
-                        common_confirm("{{$cc_monthly_payment}}","★取消 VIP 時間需要七個工作天，如下個月不續約請提前取消，以免權益受損");
+                        common_confirm("{{$cc_monthly_payment}}","{{$cc_monthly_payment_red}}");
                         id = 'cc_monthly_payment';
                         choosePayment='';
     // return false;
@@ -290,7 +290,7 @@
                         c2('您目前已是VIP會員');
                         return false;
                     @else
-                        common_confirm("{{ $cc_quarterly_payment}}","★取消 VIP 時間需要七個工作天，如下個月不續約請提前取消，以免權益受損");
+                        common_confirm("{{$cc_quarterly_payment}}","{{$cc_quarterly_payment_red}}");
                         id = 'cc_quarterly_payment';
                         choosePayment='';
                     @endif
@@ -300,7 +300,7 @@
                         c2('您目前已是VIP會員');
                         return false;
                     @else
-                        common_confirm("{{$one_month_payment}}");
+                        common_confirm("{{$one_month_payment}}","{{$one_month_payment_red}}");
                         id = 'one_month_payment';
                         choosePayment=$(this).parent().find("input[name='choosePayment']").val();
                     // alert(choosePayment);
@@ -312,7 +312,7 @@
                         c2('您目前已是VIP會員');
                         return false;
                     @else
-                        common_confirm("{{$one_quarter_payment}}");
+                        common_confirm("{{$one_quarter_payment}}","{{$one_quarter_payment_red}}");
                         id = 'one_quarter_payment';
                         choosePayment=$(this).parent().find("input[name='choosePayment']").val();
                         // alert(choosePayment);
