@@ -126,8 +126,12 @@ class ValueAddedService extends Model
 //            }
 
         }else{
-
-            //舊資料更新 從原expiry計算
+            // 檢查重複升級
+            if(ValueAddedServiceLog::getLatestLog($member_id)->order_id == $order_id){
+                ValueAddedServiceLog::addToLog($member_id, $service_name,'Upgrade duplicated.', $order_id, $txn_id, 0);
+                return 0;
+            }
+            // 舊資料更新 從原expiry計算
             if($payment == 'one_quarter_payment'){
                 if($valueAddedServiceData->expiry < Carbon::now()) {
                     $expiry = Carbon::now()->addMonthsNoOverflow(3);
