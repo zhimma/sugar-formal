@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Carbon\Carbon;
+use phpDocumentor\Reflection\Types\Mixed_;
 
 class RegisterController extends Controller
 {
@@ -121,7 +122,7 @@ class RegisterController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function register(\Illuminate\Http\Request $request) : \Illuminate\Http\Response {
+    public function register(\Illuminate\Http\Request $request) {
         $this->validator($request->all())->validate();
 
         $request->validate([
