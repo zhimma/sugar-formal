@@ -155,15 +155,14 @@ class UserService
         try {
             DB::transaction(function () use ($user, $password, $sendEmail) {
                 $this->userMeta->firstOrCreate([
-                    'user_id' => $user->id,
-                    'is_active' => 1
+                    'user_id' => $user->id
                 ]);
 
                 //$this->assignRole($role, $user->id);
 
-//                if ($sendEmail) {
-//                    event(new UserRegisteredEmail($user, $password));
-//                }
+                if ($sendEmail) {
+                    event(new UserRegisteredEmail($user, $password));
+                }
 
             });
             $domains = config('banned.domains');
@@ -178,7 +177,7 @@ class UserService
                     );
                 }
             }
-            //$this->setAndSendUserActivationToken($user);
+            $this->setAndSendUserActivationToken($user);
 
             return $user;
         } catch (Exception $e) {
