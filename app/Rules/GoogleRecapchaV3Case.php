@@ -61,6 +61,12 @@ class GoogleRecapchaV3Case implements Rule
         $code = $response->getStatusCode();
         $content = json_decode($response->getBody()->getContents());
 
-        return $code == 200 && $content->success == true;
+        if($code == 200 && $content->success == true){
+            return true;
+        }
+        else{
+            logger("reCAPTCHA failed.");
+            return false;
+        }
     }
 }

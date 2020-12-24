@@ -63,7 +63,7 @@
     <script src="https://www.google.com/recaptcha/api.js?render={{ env('RECAPTCHA_SITE_KEY') }}"></script>
     <script>
         grecaptcha.ready(function() {
-            grecaptcha.execute('{{env('RECAPTCHA_SITE_KEY')}}').then(function(token) {
+            grecaptcha.execute('{{ env('RECAPTCHA_SITE_KEY') }}', {action: 'register'}).then(function(token) {
                 document.getElementById('ctl-recaptcha-token').value = token;
             });
         });
