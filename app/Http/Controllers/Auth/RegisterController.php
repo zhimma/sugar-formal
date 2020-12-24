@@ -104,8 +104,7 @@ class RegisterController extends Controller
             'email.unique'  => '此 E-mail 已被註冊',
             'min:6' =>'密碼欄位需6個字元以上',
             'password.confirmed' => '密碼確認錯誤',
-            'google_recaptcha_token.required'=> '您無法通過 Google reCAPTCHA 驗證，請再試一次，如依舊有問題請洽詢站長。',
-            'google_recaptcha_token.failed'=> '您無法通過 Google reCAPTCHA 驗證，請再試一次，如依舊有問題請洽詢站長。',
+            ':attribute.failed' => '您無法通過 Google reCAPTCHA 驗證，請再試一次，如依舊有問題請洽詢站長。'
         ];
         $attributes = [
             'name'      => '暱稱',
