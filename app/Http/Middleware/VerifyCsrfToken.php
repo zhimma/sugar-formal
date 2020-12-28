@@ -20,6 +20,7 @@ class VerifyCsrfToken extends Middleware
         '/dashboard/paymentInfoEC',
         '/dashboard/chatpay_ec',
         '/dashboard/postChatpayEC',
-        '/dashboard/valueAddedService_ec'
+        '/dashboard/valueAddedService_ec',
+        '/dashboard/postValueAddedService'
     ];
 }
