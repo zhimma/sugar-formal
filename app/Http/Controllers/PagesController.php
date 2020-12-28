@@ -1539,7 +1539,7 @@ class PagesController extends Controller
                 $file = $this->logService->writeLogToFile();
                 logger('$before_cancelValueAddedService:'.$valueAddedServiceData->updated_at);
                 if( strpos(\Storage::disk('local')->get($file[0]), $file[1]) !== false) {
-                    $array = ValueAddedService::cancel($user->id, 0);
+                    $array = ValueAddedService::cancel($user->id, $payload['service_name']);
                     if(isset($array["str"])){
                         $offVIP = $array["str"];
                     }
