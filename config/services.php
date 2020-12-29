@@ -23,6 +23,9 @@ return [
         'key' => env('SES_KEY'),
         'secret' => env('SES_SECRET'),
         'region' => env('SES_REGION'),
+        'options' => [
+            'ConfigurationSetName' => env('AWS_SES_CONFIG_SET', ''),
+        ],
     ],
 
     'sparkpost' => [
