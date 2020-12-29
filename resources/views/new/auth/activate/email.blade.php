@@ -55,9 +55,9 @@
                             </div>
                     </div>
                     <div class="yx_k">驗證碼已經寄到你的email : <a style="font-weight: bold">{{ $user->email }} (若Email填寫錯誤，請重新註冊)</a></div>
-{{--                    <a href="{{ url('activate/send-token') }}" class="vipbut">重新發送</a>--}}
-                        <p>由於寄信系統維護中，如需重新驗證請直接向站長聯繫</p>
-                        <a href="{!! url('contact') !!}" style="color: red; font-weight: bold;">點此聯繫站長</a>
+                   <a href="{{ url('activate/send-token') }}" class="vipbut">重新發送</a>
+                        {{-- <p>由於寄信系統維護中，如需重新驗證請直接向站長聯繫</p>
+                        <a href="{!! url('contact') !!}" style="color: red; font-weight: bold;">點此聯繫站長</a> --}}
                 @elseif(isset($register))
                     <h2>註冊失敗</h2>
                     <div class="yx_k">系統無法找到您所填寫的資料，敬請重新註冊。</div>
