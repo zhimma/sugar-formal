@@ -339,7 +339,7 @@
 	</tr>
 	@foreach($userLogin_log as $logInLog)
 		<tr>
-			<td><a href="{{ route("showLoginLog", $logInLog->userID) }}" target="_blank">{{ substr($logInLog->loginDate ,0 ,10) . ' ['. $logInLog->dataCount .']' }}  </a></td>
+			<td><a href="{{ route("showLoginLog", ['uid'=>$logInLog->userID, 'date'=>$logInLog->loginDate] ) }}" target="_blank">{{ substr($logInLog->loginDate ,0 ,10) . ' ['. $logInLog->dataCount .']' }}  </a></td>
 		</tr>
 	@endforeach
 </table>
