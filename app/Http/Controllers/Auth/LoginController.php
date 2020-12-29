@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Fingerprint;
+use App\Models\LogUserLogin;
 use App\Models\SimpleTables\member_vip;
 use App\Models\Vip;
 use Carbon\Carbon;
@@ -267,6 +268,9 @@ class LoginController extends Controller
 
             //更新login_times
             User::where('id',$user->id)->update(['login_times'=>$user->login_times +1]);
+
+            //新增登入紀錄
+            LogUserLogin::create(['user_id' => $user->id, 'userAgent' => $_SERVER['HTTP_USER_AGENT'], 'ip' => $request->ip()]);
 
             return $this->sendLoginResponse($request);
         }
