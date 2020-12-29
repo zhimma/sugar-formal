@@ -270,7 +270,7 @@ class LoginController extends Controller
             User::where('id',$user->id)->update(['login_times'=>$user->login_times +1]);
 
             //新增登入紀錄
-            LogUserLogin::create(['user_id' => $user->id, 'userAgent' => $_SERVER['HTTP_USER_AGENT'], 'ip' => $request->ip()]);
+            LogUserLogin::create(['user_id' => $user->id, 'userAgent' => $_SERVER['HTTP_USER_AGENT'], 'ip' => $request->ip(), 'created_at' =>  date('Y-m-d H:i:s')]);
 
             return $this->sendLoginResponse($request);
         }
