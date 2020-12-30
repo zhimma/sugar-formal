@@ -696,8 +696,6 @@
         </div>
     </div>
 
-
-111={{$to->valueAddedServiceStatus('hideOnline')}}
     @if(isset($to))
     <div class="bl bl_tab" id="show_chat">
         <div class="bltitle"><span>發送給{{$to->name}}</span></div>
