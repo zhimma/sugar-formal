@@ -552,6 +552,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::post('users/unbans_fingerprint', 'UserController@unbanningFingnerprint')->name('unbanFingerprint');
         Route::post('users/unbanAll', 'UserController@unbanAll')->name('unbanAll');
         Route::get('users/showFingerprint/{showFingerprint}', 'UserController@showFingerprint')->name('showFingerprint');
+        Route::get('users/showLoginLog/{uid}/{date}', 'UserController@showLoginLog')->name('showLoginLog');
         Route::get('users/deleteFingerprintFromExpectedList/{fingerprint}', 'UserController@deleteFingerprintFromExpectedList')->name('deleteFingerprintFromExpectedList');
         Route::get('users/warning', 'UserController@showWarningUsers')->name('warningUsers');
         Route::get('users/suspectedMultiLogin', 'UserController@showSuspectedMultiLogin')->name('suspectedMultiLogin');

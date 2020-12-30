@@ -168,7 +168,8 @@
                                 <h3><span class="left">1: </span><var class="newtishi">過去七天瀏覽其他會員次數</var></h3>
                                 <h3><span class="left">2: </span><var class="newtishi">最後上線時間</var></h3>
                                 <h3><span class="left">3: </span><var class="newtishi">過去七天發信次數</var></h3>
-                                <h3><span class="left">4: </span><var class="newtishi">並附有"不公開"tag</var></h3>
+                                <h3><span class="left">4: </span><var class="newtishi">過去七天回信次數</var></h3>
+                                <h3><span class="left">5: </span><var class="newtishi">並附有"不公開"tag</var></h3>
                             </div>
                         </div>
                         <div class="hy_width n_viptop20"  id="vip_cancel" style="display:none">
@@ -299,7 +300,7 @@
                         return false;
                     @else
                         //c4("您確定要購買嗎?");
-                        common_confirm("{{$cc_monthly_payment}}","{{$cc_monthly_payment_red}}" +
+                        common_confirm('{!! $cc_monthly_payment !!}',"{{$cc_monthly_payment_red}}" +
                             "如同意以上所有條款請點確認，不同意點取消。");
                         id = 'cc_monthly_payment';
                         choosePayment='';
@@ -310,7 +311,7 @@
                         c3('您目前已在付費隱藏期間');
                         return false;
                     @else
-                        common_confirm("{{$cc_quarterly_payment}}","{{$cc_quarterly_payment_red}}" +
+                        common_confirm('{!! $cc_quarterly_payment !!}',"{{$cc_quarterly_payment_red}}" +
                         "如同意以上所有條款請點確認，不同意點取消。");
                         id = 'cc_quarterly_payment';
                         choosePayment='';
@@ -322,7 +323,7 @@
                         return false;
                     @else
                         //c4("您確定要購買嗎?");
-                        common_confirm("{{$one_month_payment}}","{{$one_month_payment_red}}" +
+                        common_confirm('{!! $one_month_payment !!}',"{{$one_month_payment_red}}" +
                             "如同意以上所有條款請點確認，不同意點取消。");
                         id = 'one_month_payment';
                         choosePayment=$(this).parent().find("input[name='choosePayment']").val();
@@ -336,7 +337,7 @@
                         return false;
                     @else
                         //c4("您確定要購買嗎?");
-                        common_confirm("{{$one_quarter_payment}}","{{$one_quarter_payment_red}}" +
+                        common_confirm('{!! $one_quarter_payment !!}',"{{$one_quarter_payment_red}}" +
                             "如同意以上所有條款請點確認，不同意點取消。");
                         id = 'one_quarter_payment';
                         choosePayment=$(this).parent().find("input[name='choosePayment']").val();
