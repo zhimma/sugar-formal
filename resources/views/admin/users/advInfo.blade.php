@@ -332,23 +332,34 @@
 	@endforeach
 </table>
 
-@if(isset($fingerprints))
-<h4>指紋記錄</h4>
-	<table class="table table-hover table-bordered">
+<h4>帳號登入紀錄</h4>
+<table class="table table-hover table-bordered">
+	<tr>
+		<td>登入時間</td>
+	</tr>
+	@foreach($userLogin_log as $logInLog)
 		<tr>
-			<td>Hash 值</td>
-			<td>IP</td>
-			<td>記錄時間</td>
+			<td><a href="{{ route("showLoginLog", ['uid'=>$logInLog->userID, 'date'=>$logInLog->loginDate] ) }}" target="_blank">{{ substr($logInLog->loginDate ,0 ,10) . ' ['. $logInLog->dataCount .']' }}  </a></td>
 		</tr>
-		@foreach($fingerprints as $f)
-			<tr>
-				<td><a href="{{ route("showFingerprint", $f->fp) }}" target="_blank">{{ $f->fp }}</a></td>
-				<td>{{ $f->ip }}</td>
-				<td>{{ $f->created_at }}</td>
-			</tr>
-		@endforeach
-	</table>
-@endif
+	@endforeach
+</table>
+{{--@if(isset($fingerprints))--}}
+{{--<h4>指紋記錄</h4>--}}
+{{--	<table class="table table-hover table-bordered">--}}
+{{--		<tr>--}}
+{{--			<td>Hash 值</td>--}}
+{{--			<td>IP</td>--}}
+{{--			<td>記錄時間</td>--}}
+{{--		</tr>--}}
+{{--		@foreach($fingerprints as $f)--}}
+{{--			<tr>--}}
+{{--				<td><a href="{{ route("showFingerprint", $f->fp) }}" target="_blank">{{ $f->fp }}</a></td>--}}
+{{--				<td>{{ $f->ip }}</td>--}}
+{{--				<td>{{ $f->created_at }}</td>--}}
+{{--			</tr>--}}
+{{--		@endforeach--}}
+{{--	</table>--}}
+{{--@endif--}}
 <h4>所有訊息</h4>
 <table class="table table-hover table-bordered">
 <form action="{{ route('users/message/modify') }}" method="post">

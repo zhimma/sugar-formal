@@ -6,6 +6,7 @@ use App\Models\AccountStatusLog;
 use App\Models\Board;
 use App\Models\ExpectedBanningUsers;
 use App\Models\Fingerprint2;
+use App\Models\LogUserLogin;
 use App\Models\MemberPic;
 use App\Models\Message;
 use App\Models\Reported;
@@ -707,6 +708,7 @@ class UserController extends Controller
         $implicitly_banReason = DB::table('reason_list')->select('content')->where('type', 'implicitly')->get();
         $warned_banReason = DB::table('reason_list')->select('content')->where('type', 'warned')->get();
         $fingerprints = Fingerprint2::select('ip', 'fp', 'created_at')->where('user_id', $user->id)->get();
+        $userLogin_log = LogUserLogin::selectRaw('DATE(created_at) as loginDate, user_id as userID, count(*) as dataCount')->where('user_id', $user->id)->groupBy(DB::raw("DATE(created_at)"))->get();
 
         //檢舉紀錄 reporter_id檢舉者uid  被檢舉者reported_user_id為此頁面主要會員
         $pic_report1 = ReportedAvatar::select('reporter_id as uid', 'reported_user_id as edid', 'cancel', 'created_at', 'content')->where('reported_user_id', $user->id)->where('reporter_id', '!=', $user->id)->groupBy('reporter_id')->get();
@@ -906,6 +908,7 @@ class UserController extends Controller
                 ->with('userMessage', $userMessage)
                 ->with('to_ids', $to_ids)
                 ->with('fingerprints', $fingerprints)
+                ->with('userLogin_log', $userLogin_log)
                 ->with('report_all', $report_all)
                 ->with('pr',$pr)
                 ->with('pr_log',$query_pr);
@@ -2640,6 +2643,16 @@ class UserController extends Controller
             ->with('fingerprint', $fingerprint)
             ->with('isFingerprintBanned', $isFingerprintBanned)
             ->with('banReason', $banReason);
+    }
+
+    public function showLoginLog(Request $request)
+    {
+        $user = User::findById($request->uid);
+        $loginLog = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' .  $request->date . '%')->orderBy('created_at','DESC')->get();
+
+        return view('admin.users.showLoginLog')
+            ->with('user', $user)
+            ->with('loginLog', $loginLog);
     }
 
     public function showWarningUsers()
