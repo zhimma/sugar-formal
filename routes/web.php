@@ -224,9 +224,10 @@ Route::get('/register2', 'Auth\RegisterController@showRegistrationForm')->name('
 Route::post('/register', 'Auth\RegisterController@register');
 
 Route::get('/activate/token/{token}', 'Auth\ActivateController@activate');
-
+Route::post('admin/api/aws-sns/ses', function(Request $request){
+    info($request);
+});
 Route::group(['middleware' => ['auth']], function () {
-
     Route::get('/activate', 'Auth\ActivateController@showActivate');
     Route::get('/activate/send-token', 'Auth\ActivateController@sendToken');
 });
@@ -494,9 +495,6 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
 
     });
 
-    Route::post('admin/api/aws-sns/ses', function(Request $request){
-        info($request);
-    });
     /*
     |--------------------------------------------------------------------------
     | Admin
