@@ -22,9 +22,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\FemaleVipActive' => [
             'App\Listeners\FemaleVipActiveListener'
         ],
-        'Illuminate\Mail\Events\MessageSending' => [
-            'App\Listeners\LogEmail',
-        ],
+        // 'Illuminate\Mail\Events\MessageSending' => [
+        //     'App\Listeners\LogEmail',
+        // ],
     ];
 
     /**
