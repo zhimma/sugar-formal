@@ -110,8 +110,8 @@ Route::get('/register2', 'Auth\RegisterController@showRegistrationForm')->name('
 Route::post('/register', 'Auth\RegisterController@register');
 
 Route::get('/activate/token/{token}', 'Auth\ActivateController@activate');
-Route::post('admin/api/aws-sns/ses', function(Request $request){
-    info($request);
+Route::post('/admin/api/aws-sns/ses', function(Request $request){
+    info($request->getContent());
 });
 Route::group(['middleware' => ['auth']], function () {
     Route::get('/activate', 'Auth\ActivateController@showActivate');
