@@ -494,6 +494,9 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
 
     });
 
+    Route::post('admin/api/aws-sns/ses', function(Request $request){
+        info($request);
+    });
     /*
     |--------------------------------------------------------------------------
     | Admin
