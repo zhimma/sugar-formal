@@ -1702,14 +1702,131 @@ class PagesController extends Controller
             /*過去7天被瀏覽次數*/
             $be_visit_other_count_7 = Visited::where('visited_id', $uid)->where('created_at', '>=', $date)->count();
 
-            /*發信次數*/
-            $message_count = Message::where('from_id', $uid)->count();
 
-            $message_count_7 = Message::where('from_id', $uid)->where('created_at', '>=', $date)->count();
+            /*發信＆回信次數統計*/
+            $messages_all = Message::select('id','to_id','from_id','created_at')->where('from_id', $uid)->orwhere('to_id', $uid)->orderBy('id')->get();
+            $countInfo['message_count'] = 0;
+            $countInfo['message_reply_count'] = 0;
+            $send = [];
+            $receive = [];
+            foreach ($messages_all as $message) {
+                if($message->from_id == $uid){
+                    $send[$message->to_id][]= $message->id;
+                }
+                if($message->to_id == $uid){
+                    $receive[$message->from_id][] = $message->id;
+                }
+                if ($message->from_id == $uid) {
+                    if(is_null(array_get($receive, $message->to_id)))
+                        $countInfo['message_count'] += 1;
+                    else
+                        $countInfo['message_reply_count'] += 1;
+                }
+            }
+
+            $messages_7days = Message::select('id','to_id','from_id','created_at')->where('from_id', $uid)->orwhere('to_id', $uid)->where('created_at','>=', $date)->orderBy('id')->get();
+            $countInfo['message_count_7'] = 0;
+            $countInfo['message_reply_count_7'] = 0;
+            $send = [];
+            $receive = [];
+            foreach ($messages_7days as $message) {
+                if($message->from_id == $uid){
+                    $send[$message->to_id][]= $message->id;
+                }
+                if($message->to_id == $uid){
+                    $receive[$message->from_id][] = $message->id;
+                }
+                if ($message->from_id == $uid) {
+                    if(is_null(array_get($receive, $message->to_id)))
+                        $countInfo['message_count_7'] += 1;
+                    else
+                        $countInfo['message_reply_count_7'] += 1;
+                }
+            }
+
+            /*發信次數*/
+            $message_count = $countInfo['message_count'];
+            /*過去7天發信次數*/
+            $message_count_7 = $countInfo['message_count_7'];
+            /*回信次數*/
+            $message_reply_count = $countInfo['message_reply_count'];
+            /*過去7天回信次數*/
+            $message_reply_count_7 = $countInfo['message_reply_count_7'];
+
+            /*過去7天罐頭訊息比例*/
+            $bannedUsers = UserService::getBannedId();
+            $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
+
+            $query = Message::select('users.email','users.name','users.title','users.engroup','users.created_at','users.last_login','message.id','message.from_id','message.content','user_meta.about')
+                ->join('users', 'message.from_id', '=', 'users.id')
+                ->join('user_meta', 'message.from_id', '=', 'user_meta.user_id')
+                ->where(function($query)use($bannedUsers,$isAdminWarnedList,$date) {
+                    $query->where('message.from_id','<>',1049)
+                        ->where('message.sys_notice',0)
+                        ->whereNotIn('message.from_id',$bannedUsers)
+                        ->whereNotIn('message.from_id',$isAdminWarnedList)
+                        ->where('message.created_at','>=', $date);
+                });
+            $query->where('users.email',$targetUser->email);
+            $results_a = $query->distinct('message.from_id')->get();
+
+            if ($results_a != null) {
+                $msg = array();
+                $from_content = array();
+                $user_similar_msg = array();
+
+                $messages = Message::select('id','content','created_at')
+                    ->where('from_id', $targetUser->id)
+                    ->where('sys_notice',0)
+                    ->where('created_at','>=', $date)
+                    ->take(100)
+                    ->get();
+
+                foreach($messages as $row){
+                    array_push($msg,array('id'=>$row->id,'content'=>$row->content,'created_at'=>$row->created_at));
+                }
+
+                array_push($from_content,  array('msg'=>$msg));
+
+                $unique_id = array(); //過濾重複ID用
+                //比對訊息
+                foreach($from_content as $data) {
+                    foreach ($data['msg'] as $word1) {
+                        foreach ($data['msg'] as $word2) {
+                            if ($word1['created_at'] != $word2['created_at']) {
+                                similar_text($word1['content'], $word2['content'], $percent);
+                                if ($percent >= 70) {
+                                    if(!in_array($word1['id'],$unique_id)) {
+                                        array_push($unique_id,$word1['id']);
+                                        array_push($user_similar_msg, array($word1['id'], $word1['content'], $word1['created_at'], $percent));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            $message_percent_7 = count($user_similar_msg) > 0 ? round( (count($user_similar_msg) / count($messages))*100 ).'%'  : '0%';
+
+
+            /*此會員封鎖多少其他會員*/
+            $bannedUsers = \App\Services\UserService::getBannedId();
+            $blocked_other_count = Blocked::join('users', 'users.id', '=', 'blocked.blocked_id')->where('member_id', $user->id)->whereNotIn('blocked_id',$bannedUsers)->count();
+
+
+            /*此會員被多少會員封鎖*/
+            $be_blocked_other_count = Blocked::where('blocked_id', $uid)->count();
+
+            /*每周平均上線次數*/
+            $datetime1 = new \DateTime(now());
+            $datetime2 = new \DateTime($targetUser->created_at);
+            $diffDays = $datetime1->diff($datetime2)->days;
+            $login_times_per_week = round($targetUser->login_times / ($diffDays/7));
 
             $is_banned = null;
 
             $data = array(
+                'login_times_per_week' => $login_times_per_week,
                 'tip_count' => $tip_count,
                 'fav_count' => $fav_count,
                 'be_fav_count' => $be_fav_count,
@@ -1722,6 +1839,11 @@ class PagesController extends Controller
                 'be_visit_other_count_7' => $be_visit_other_count_7,
                 'message_count' => $message_count,
                 'message_count_7' => $message_count_7,
+                'message_reply_count' => $message_reply_count,
+                'message_reply_count_7' => $message_reply_count_7,
+                'message_percent_7' => $message_percent_7,
+                'blocked_other_count' => $blocked_other_count,
+                'be_blocked_other_count' => $be_blocked_other_count,
                 'is_banned' => $is_banned
             );
             $member_pic = DB::table('member_pic')->where('member_id',$uid)->where('pic','<>',$targetUser->meta_()->pic)->get();
