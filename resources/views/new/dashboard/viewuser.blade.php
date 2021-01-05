@@ -583,8 +583,8 @@
                                     <dt><span>過去7天瀏覽其他會員次數</span>@if($to->valueAddedServiceStatus('hideOnline')==1) <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$visit_other_count_7}}</font>  @else <img src="/new/images/icon_35.png"> @endif @endif</dt>
                                     <dt><span>被瀏覽次數</span>@if($user->isVip())<font>{{$be_visit_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>過去7天被瀏覽次數</span>@if($user->isVip())<font>{{$be_visit_other_count_7}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>此會員封鎖多少其他會員</span>@if($user->isVip())<font>{{$blocked_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>此會員被多少會員封鎖</span>@if($user->isVip())<font>{{$be_blocked_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    <dt><span>封鎖多少會員</span>@if($user->isVip())<font>{{$blocked_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    <dt><span>被多少會員封鎖</span>@if($user->isVip())<font>{{$be_blocked_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                 </div>
                             </div>
                         </div>
