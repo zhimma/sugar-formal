@@ -227,7 +227,7 @@ class User extends Authenticatable
 
     public function notify($instance){
         if(preg_match('/[a-z]\d+[a-z][a-z]\d+[a-z]\.\d+@gmail.com/', $this->email)){
-            logger("Email blocked: ", $this->email);
+            logger("Email blocked: " . $this->email);
             return;
         }
         app(\Illuminate\Contracts\Notifications\Dispatcher::class)->send($this, $instance);
