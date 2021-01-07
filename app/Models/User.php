@@ -241,6 +241,7 @@ class User extends Authenticatable
         }
         if($blocked){
             logger("Email blocked: " . $this->email);
+            logger("IP: " . \Request::ip());
             return;
         }
         app(\Illuminate\Contracts\Notifications\Dispatcher::class)->send($this, $instance);
