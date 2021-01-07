@@ -226,6 +226,9 @@ class UserController extends Controller
                 switch ($request->page) {
                     case 'advInfo':
                         return redirect('admin/users/advInfo/' . $request->user_id);
+                    case 'noRedirect':
+                        echo json_encode(array('code' => '200', 'status' => 'success'));
+                        break;
                     default:
                         return redirect($request->page);
                         break;
@@ -250,6 +253,9 @@ class UserController extends Controller
                 switch ($request->page) {
                     case 'advInfo':
                         return redirect('admin/users/advInfo/' . $request->user_id);
+                    case 'noRedirect':
+                        echo json_encode(array('code' => '200', 'status' => 'success'));
+                        break;
                     default:
                         return redirect($request->page);
                         break;
@@ -1261,6 +1267,9 @@ class UserController extends Controller
                 foreach ($from_id as $key => $id) {
                     $sender = User::where('id', '=', $id)->get()->first();
                     // $vip_tmp = $sender->isVip() ? true : false;
+                    if(is_null($sender)){
+                        continue;
+                    }
                     $senders[$key] = $sender->toArray();
                     $senders[$key]['vip'] = Vip::vip_diamond($id);
                     $senders[$key]['isBlocked'] = banned_users::where('member_id', 'like', $id)->get()->first();
@@ -1922,10 +1931,12 @@ class UserController extends Controller
                     $datas['users'][$key]['warnedicon'] = $this->warned_icondata($key);
                 }
             }
+            $banReason = DB::table('reason_list')->select('content')->where('type', 'ban')->get();
 
             return view('admin.users.reportedUsers')
                 ->with('results', $datas['results'])
                 ->with('users', isset($datas['users']) ? $datas['users'] : null)
+                ->with('banReason', $banReason)
                 ->with('reported_id', isset($request->reported_id) ? $request->reported_id : null)
                 ->with('date_start', isset($request->date_start) ? $request->date_start : null)
                 ->with('date_end', isset($request->date_end) ? $request->date_end : null);
