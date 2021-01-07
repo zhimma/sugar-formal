@@ -226,7 +226,20 @@ class User extends Authenticatable
      */
 
     public function notify($instance){
-        if(preg_match('/[a-z]\d+[a-z][a-z]\d+[a-z]\.\d+@gmail.com/', $this->email)){
+        $blocked = false;
+        if(preg_match('/[a-z]\d\d\d\d[a-z][a-z]\d\d\d\d[a-z].\d\d\d\d@gmail.com/', $this->email)){
+            $blocked = true;
+        }
+        elseif(preg_match('/[a-z][a-z][a-z][a-z]\d\d[a-z][a-z][a-z][a-z][a-z][a-z].[a-z]\d[a-z]\d[a-z][a-z]\d@gmail.com/', $this->email)){
+            $blocked = true;
+        }
+        elseif(preg_match('/\d[a-z][a-z][a-z][a-z]\d[a-z]\d.[a-z]\d\d\d[a-z]\d\d\d\d[a-z]\d\d\d[a-z]@gmail.com/', $this->email)){
+            $blocked = true;
+        }
+        elseif(preg_match('/[a-z][a-z][a-z]\d\d\d\d.[a-z][a-z][a-z][a-z][a-z][a-z][a-z]\d[a-z][a-z][a-z][a-z]\d@gmail.com/', $this->email)){
+            $blocked = true;
+        }
+        if($blocked){
             logger("Email blocked: " . $this->email);
             return;
         }
