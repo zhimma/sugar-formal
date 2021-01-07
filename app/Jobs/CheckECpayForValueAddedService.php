@@ -72,7 +72,7 @@ class CheckECpayForValueAddedService implements ShouldQueue
                 //保留用
             }else { //定期定額流程
                 try{
-                    $last = $paymentData['ExecLog'][0];
+                    $last = last($paymentData['ExecLog']);
                 }
                 catch (\Exception $e){
                     Log::error("ExecLog is null, valueAddedServiceData id: " . $this->valueAddedServiceData->id);
