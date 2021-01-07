@@ -129,12 +129,7 @@
                                 </a>
                             </td>
                             <td>
-{{--                                <a class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" >撰寫</a>--}}
-                                @if (\Illuminate\Support\Facades\Auth::user()->can('admin'))
-                                    <a href="{{ route('AdminMessage', $result['reported_user_id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
-                                @elseif (\Illuminate\Support\Facades\Auth::user()->can('readonly'))
-                                    <a href="{{ route('AdminMessage/readOnly', $result['reported_user_id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
-                                @endif
+                                <a class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" >撰寫</a>
                             </td>
                             <td>
 {{--                                @if(isset($result['reporter_id']))--}}
@@ -204,12 +199,7 @@
                                 </a>
                             </td>
                             <td>
-{{--                                <a class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" >撰寫</a>--}}
-                                @if (\Illuminate\Support\Facades\Auth::user()->can('admin'))
-                                    <a href="{{ route('AdminMessage', $result['reporter_id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
-                                @elseif (\Illuminate\Support\Facades\Auth::user()->can('readonly'))
-                                    <a href="{{ route('AdminMessage/readOnly', $result['reporter_id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
-                                @endif
+                                <a class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" >撰寫</a>
                             </td>
                             <td>
 {{--                                @if(isset($result['reporter_id']))--}}

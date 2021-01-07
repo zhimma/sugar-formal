@@ -161,12 +161,7 @@
                     </a>
                 </td>
                 <td>
-{{--                    <a href="{{ route('AdminMessengerWithMessageId', [$result->from_id, $result->id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>--}}
-                    @if (\Illuminate\Support\Facades\Auth::user()->can('admin'))
-                        <a href="{{ route('AdminMessage', $result['from_id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
-                    @elseif (\Illuminate\Support\Facades\Auth::user()->can('readonly'))
-                        <a href="{{ route('AdminMessage/readOnly', $result['from_id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
-                    @endif
+                    <a href="{{ route('AdminMessengerWithMessageId', [$result->from_id, $result->id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
                 </td>
 {{--                @if(isset($reported) && $reported == 1)--}}
 {{--                <td>--}}
@@ -221,12 +216,7 @@
                     </a>
                 </td>
                 <td>
-{{--                    <a href="{{ route('AdminMessengerWithMessageId', [$result->to_id, $result->id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>--}}
-                    @if (\Illuminate\Support\Facades\Auth::user()->can('admin'))
-                        <a href="{{ route('AdminMessage', $result['to_id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
-                    @elseif (\Illuminate\Support\Facades\Auth::user()->can('readonly'))
-                        <a href="{{ route('AdminMessage/readOnly', $result['to_id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
-                    @endif
+                    <a href="{{ route('AdminMessengerWithMessageId', [$result->to_id, $result->id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
                 </td>
 {{--                @if(isset($reported) && $reported == 1)--}}
 {{--                <td>--}}
@@ -337,14 +327,7 @@
                         	{{ $sender['picsResult'] }}
                         </a>
                     </td>
-{{--                    <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][0]['id'] ]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>--}}
-                    <td>
-                        @if (\Illuminate\Support\Facades\Auth::user()->can('admin'))
-                            <a href="{{ route('AdminMessage', $sender['id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
-                        @elseif (\Illuminate\Support\Facades\Auth::user()->can('readonly'))
-                            <a href="{{ route('AdminMessage/readOnly', $sender['id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
-                        @endif
-                    </td>
+                    <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][0]['id'] ]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>
 {{--                    <td>--}}
 {{--                        <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }}" target="_blank">封鎖</a>--}}
 {{--                    </td>--}}
@@ -401,14 +384,7 @@
                 </tr>
                 @if(count($sender['messages']) > 1)
                     @for( $i = 1; $i < count($sender['messages']); $i++) <tr>
-{{--                        <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][$i]['id']]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>--}}
-                        <td>
-                            @if (\Illuminate\Support\Facades\Auth::user()->can('admin'))
-                                <a href="{{ route('AdminMessage', $sender['id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
-                            @elseif (\Illuminate\Support\Facades\Auth::user()->can('readonly'))
-                                <a href="{{ route('AdminMessage/readOnly', $sender['id']) }}" target="_blank" class='btn btn-dark'>撰寫站長訊息</a>
-                            @endif
-                        </td>
+                        <td><a href="{{ route('AdminMessengerWithMessageId', [$sender['id'], $sender['messages'][$i]['id']]) }}" target="_blank" class='btn btn-dark'>撰寫</a></td>
 {{--                        <td>--}}
 {{--                            <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$sender['id'], $sender['messages'][0]['id'] ]) }} " target="_blank">封鎖</a>--}}
 {{--                        </td>--}}
