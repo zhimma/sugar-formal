@@ -219,6 +219,21 @@ class User extends Authenticatable
      }
 
     /**
+     * Send the given notification.
+     *
+     * @param  mixed  $instance
+     * @return void
+     */
+
+    public function notify($instance){
+        if(preg_match('/[a-z]\d+[a-z][a-z]\d+[a-z]\.\d+@gmail.com/', $this->email)){
+            logger("Email blocked: ", $this->email);
+            return;
+        }
+        app(\Illuminate\Contracts\Notifications\Dispatcher::class)->send($this, $instance);
+    }
+
+    /**
      * Send the password reset notification.
      *
      * @param  string  $token
