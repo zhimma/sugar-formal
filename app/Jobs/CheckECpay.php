@@ -72,7 +72,7 @@ class CheckECpay implements ShouldQueue
                 //保留用
             }else { //定期定額流程
                 try{
-                    $last = last($paymentData['ExecLog']);
+                    $last = $paymentData['ExecLog'][0];
                 }
                 catch (\Exception $e){
                     Log::error("ExecLog is null, VIP id: " . $this->vipData->id);

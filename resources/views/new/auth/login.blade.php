@@ -95,9 +95,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 cookie.set('uniqueVisitorId', uniqueVisitorId);
             }
             var url = window.location.href;
-            var monitorUrl = 'http://130.251.101.3:18080/monitor/add?url=' + url + '&uniqueVisitorId=' + uniqueVisitorId;
-            var code = "<" + "script src='" + monitorUrl +"'></"+"script>";
-
             
             document.getElementById("uniqueVisitorId").value=uniqueVisitorId;
             document.write(code);
