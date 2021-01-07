@@ -138,7 +138,16 @@
                             <a href="{{ route('AdminMessengerWithReportedId', [$result->member_id, $result->reported_id, $result->id, 0, 'reported']) }}" target="_blank" class='btn btn-dark'>撰寫</a>
                         </td>
                         <td>
-                            <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$result['reported_id'], $result['id'], 'reported'])}}" target="_blank">封鎖</a>
+{{--                            <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$result['reported_id'], $result['id'], 'reported'])}}" target="_blank">封鎖</a>--}}
+                            @php
+                                $banned_users =  \App\Models\SimpleTables\banned_users::where('member_id', 'like', $result['reported_id'])->get()->first();
+                                $isBlocked = is_null($banned_users) ? 0 : 1;
+                            @endphp
+                            @if($isBlocked)
+                                <button type="button" class='unblock_user text-white btn @if($isBlocked) btn-success @else btn-danger @endif' onclick="Release({{ $result['reported_id'] }})" data-id="{{ $result['reported_id'] }}">解除封鎖</button>
+                            @else
+                                <a class="btn btn-danger ban-user block_user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $result['reported_id'] }}">封鎖會員</a>
+                            @endif
                             <br><br>
                             <a class="btn btn-danger ban-user" href="{{ route('warnedUserWithDayAndMessage', [$result['reported_id'], $result['id']])}}" target="_blank">站方警示</a>
 {{--                            <a class="btn btn-danger warned-user" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-id="{{ $result['reported_id'] }}" data-name="{{ $users[$result['reported_id']]['name']}}">站方警示</a>--}}
@@ -198,7 +207,16 @@
                             <a href="{{ route('AdminMessengerWithReportedId', [$result->member_id, $result->reported_id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
                         </td>
                         <td>
-                            <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [ $result['member_id'], $result['id'] , 'reported' ] ) }}" target="_blank">封鎖</a>
+{{--                            <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [ $result['member_id'], $result['id'] , 'reported' ] ) }}" target="_blank">封鎖</a>--}}
+                            @php
+                                $banned_users =  \App\Models\SimpleTables\banned_users::where('member_id', 'like', $result['member_id'])->get()->first();
+                                $isBlocked = is_null($banned_users) ? 0 : 1;
+                            @endphp
+                            @if($isBlocked)
+                                <button type="button" class='unblock_user text-white btn @if($isBlocked) btn-success @else btn-danger @endif' onclick="Release({{ $result['member_id'] }})" data-id="{{ $result['member_id'] }}">解除封鎖</button>
+                            @else
+                                <a class="btn btn-danger ban-user block_user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $result['member_id'] }}">封鎖會員</a>
+                            @endif
                             <br><br>
                             <a class="btn btn-danger ban-user" href="{{ route('warnedUserWithDayAndMessage', [ $result['member_id'], $result['id'] ] ) }}" target="_blank">站方警示</a>
 {{--                            <a class="btn btn-danger warned-user" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-id="{{ $result['member_id'] }}" data-name="{{ $users[$result['member_id']]['name']}}">站方警示</a>--}}
@@ -251,6 +269,57 @@
         </div>
     </div>
 </div> --}}
+@php
+    $banReason = DB::table('reason_list')->select('content')->where('type', 'ban')->get();
+@endphp
+<div class="modal fade" id="blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">封鎖</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="/admin/users/toggleUserBlock" method="POST" id="clickToggleUserBlock">
+{{--                {!! csrf_field() !!}--}}
+                <input type="hidden" value="" name="user_id" id="blockUserID">
+                <input type="hidden" value="noRedirect" name="page">
+                <div class="modal-body">
+                    封鎖時間
+                    <select name="days" class="days">
+                        <option value="3">三天</option>
+                        <option value="7">七天</option>
+                        <option value="15">十五天</option>
+                        <option value="30">三十天</option>
+                        <option value="X" selected>永久</option>
+                    </select>
+                    <hr>
+                    封鎖原因
+                    @foreach($banReason as $a)
+                        <a class="text-white btn btn-success banReason">{{ $a->content }}</a>
+                    @endforeach
+                    <br><br>
+                    <textarea class="form-control m-reason" name="reason" id="msg" rows="4" maxlength="200">廣告</textarea>
+                    <label style="margin:10px 0px;">
+                        <input type="checkbox" name="addreason" style="vertical-align:middle;width:20px;height:20px;"/>
+                        <sapn style="vertical-align:middle;">加入常用封鎖原因</sapn>
+                    </label>
+                    <hr>
+                    新增自動封鎖關鍵字(永久封鎖)
+                    <input placeholder="1.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='1.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+                    <input placeholder="2.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='2.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+                    <input placeholder="3.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='3.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+                </div>
+                <div class="modal-footer">
+{{--                    <button type="submit" class='btn btn-outline-success ban-user'> 送出 </button>--}}
+                    <button type="button" class='btn btn-outline-success ban-user' id="block_user_submit"> 送出 </button>
+                    <button type="button" class="btn btn-outline-danger" data-dismiss="modal" id="block_user_cancel">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <script>
     let date = new Date();
     let year = date.getFullYear();
@@ -337,6 +406,86 @@
         // $('.improper-photo').on('click', function(e) {
         //     $('.m-reason').val('照片不當');
         // });
+
+        $(".unblock_user").click(function(){
+            var data = $(this).data();
+            if(confirm('確定解除封鎖此會員?')){
+                $.ajax({
+                    type: 'POST',
+                    url: "/admin/users/unblock_user",
+                    data:{
+                        _token: '{{csrf_token()}}',
+                        data: data,
+                    },
+                    dataType:"json",
+                    success: function(res){
+                        if(res.code ==200){
+                            alert('解除封鎖成功');
+                        }else{
+                            alert('解除封鎖失敗');
+                        }
+                        location.reload();
+                    }});
+            }
+            else{
+                return false;
+            }
+        });
+
+        $("#block_user_submit").click(function(){
+            $("#block_user_cancel").click();
+            let data = $("#clickToggleUserBlock").serializeArray();
+            var days='';
+            var reason='';
+            var addreason='';
+            var addautoban= [];
+            for(var i=0; i<data.length; i++) {
+                if(data[i]['name'] =='days')
+                    days= data[i]['value'];
+                else if(data[i]['name'] =='reason')
+                    reason= data[i]['value'];
+                else if(data[i]['name'] =='addreason')
+                    addreason= data[i]['value'];
+                else if(data[i]['name'] =='addautoban[]')
+                    addautoban.push(data[i]['value']);
+            }
+            $.ajax({
+                type: 'POST',
+                url: "/admin/users/toggleUserBlock",
+                data:{
+                    _token: '{{csrf_token()}}',
+                    user_id: $("#blockUserID").val(),
+                    page: 'noRedirect',
+                    days: days,
+                    reason: reason,
+                    addreason: addreason,
+                    addautoban: addautoban
+                },
+                dataType:"json",
+                success: function(res){
+
+                    if(res.code ==200){
+                        alert('封鎖成功');
+                    }else{
+                        alert('封鎖失敗');
+                    }
+                    location.reload();
+                }
+            });
+        });
+
+
+        $(".block_user").click(function(){
+            $("#blockUserID").val($(this).attr("data-id"));
+        });
+
+        $(".banReason").each( function(){
+            $(this).bind("click" , function(){
+                var id = $("a").index(this);
+                var clickval = $("a").eq(id).text();
+                $('.m-reason').val(clickval);
+            });
+        });
     });
 
     function selectAll () {
@@ -363,6 +512,9 @@
         let url = "{{ url("") }}";
         window.open(url + '/admin/users/toggleUserBlock/' + id);
         history.go(0);
+    }
+    function Release(id) {
+        $("#blockUserID").val(id);
     }
     // let count = 0;
     // function setDays(a) {
