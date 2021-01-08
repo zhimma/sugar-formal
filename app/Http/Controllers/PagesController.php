@@ -1781,6 +1781,7 @@ class PagesController extends Controller
                     ->where('from_id', $targetUser->id)
                     ->where('sys_notice',0)
                     ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
+                    ->orderBy('created_at','desc')
                     ->take(100)
                     ->get();
 
