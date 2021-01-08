@@ -338,6 +338,9 @@ class UserController extends Controller
             switch ($request->page) {
                 case 'advInfo':
                     return redirect('admin/users/advInfo/' . $request->user_id);
+                case 'noRedirect':
+                    echo json_encode(array('code' => '200', 'status' => 'success'));
+                    break;
                 default:
                     return redirect($request->page);
                     break;
@@ -1425,26 +1428,19 @@ class UserController extends Controller
         $admin = $this->admin->checkAdmin();
         if ($admin) {
             $user = $this->service->find($id);
-            $msglib = Msglib::get();
+            $msglib = Msglib::where('kind','smsg')->get();
             $msglib_msg = collect();
             foreach ($msglib as $m) {
-                $m->msg = str_replace('|$report|', $user->name, $m->msg);
                 $m->msg = str_replace('NAME', $user->name, $m->msg);
-                $m->msg = str_replace('|$reported|', "|被檢舉者|", $m->msg);
+                $m->msg = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $m->msg);
                 $msglib_msg->push($m->msg);
             }
-            return view('admin.users.messenger')
+            return view('admin.users.adminMessenger')
                 ->with('admin', $admin)
                 ->with('user', $user)
                 ->with('from_user', $user)
-                ->with('to_user', $admin)
                 ->with('msglib', $msglib)
-                ->with('msglib2', collect())
-                ->with('msglib_report', null)
-                ->with('msglib_reported', null)
-                ->with('msglib_msg', $msglib_msg)
-                ->with('message_msg', collect())
-                ->with('msglib_msg2', collect());
+                ->with('msglib_msg', $msglib_msg);
         } else {
             return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
         }
@@ -1464,15 +1460,15 @@ class UserController extends Controller
             /*檢舉者 */
             $user = $this->service->find($id);
             $message = Message::where('id', $mid)->get()->first();
-            $sender = User::where('id', $message->from_id)->get()->first();
+            $sender = User::where('id', is_null($message) ? '' : $message->from_id)->get()->first();
             /*被檢舉者*/
-            $to_user_id = Message::where('id', $mid)->get()->first()->to_id;
-            $to_user = $this->service->find($to_user_id);
-            $message_msg = Message::where('to_id', $to_user->id)->where('from_id', $user->id)->get();
+            $to_user_id = Message::where('id', $mid)->get()->first();
+            $to_user = $this->service->find(is_null($to_user_id) ? '' : $to_user_id->to_id);
+            $message_msg = Message::where('to_id', is_null($to_user) ? '' :$to_user->id)->where('from_id', is_null($user) ? '' : $user->id)->get();
             if (!$msglib_report->isEmpty()) {
                 foreach ($msglib_report as $key => $msg) {
-                    $msglib_msg[$key] = str_replace('|$report|', $user->name, $msg['msg']);
-                    $msglib_msg[$key] = str_replace('|$reported|', $sender->name, $msglib_msg[$key]);
+                    $msglib_msg[$key] = str_replace('|$report|', is_null($user) ? '' : $user->name, $msg['msg']);
+                    $msglib_msg[$key] = str_replace('|$reported|', is_null($sender) ? '' : $sender->name, $msglib_msg[$key]);
                     $msglib_msg[$key] = str_replace('|$reportTime|', isset($message_msg[0]) ? $message_msg[0]->created_at : null, $msglib_msg[$key]);
                     $msglib_msg[$key] = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $msglib_msg[$key]);
                 }
@@ -1483,8 +1479,8 @@ class UserController extends Controller
             }
             if (!$msglib_reported->isEmpty()) {
                 foreach ($msglib_reported as $key => $msg) {
-                    $msglib_msg2[$key] = str_replace('|$report|', $user->name, $msg['msg']);
-                    $msglib_msg2[$key] = str_replace('|$reported|', $sender->name, $msglib_msg2[$key]);
+                    $msglib_msg2[$key] = str_replace('|$report|', is_null($user) ? '' :$user->name, $msg['msg']);
+                    $msglib_msg2[$key] = str_replace('|$reported|', is_null($sender) ? '' : $sender->name, $msglib_msg2[$key]);
                     $msglib_msg2[$key] = str_replace('|$reportTime|', isset($message_msg[0]) ? $message_msg[0]->created_at : null, $msglib_msg2[$key]);
                     $msglib_msg2[$key] = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $msglib_msg2[$key]);
                 }
@@ -1500,7 +1496,7 @@ class UserController extends Controller
                 ->with('to_user', $to_user)
                 ->with('from_user', $sender)
                 ->with('message', $message)
-                ->with('senderName', $sender->name)
+                ->with('senderName', is_null($sender) ? '':$sender->name)
                 ->with('msglib', $msglib_report)
                 ->with('msglib2', $msglib_reported)
                 ->with('msglib_report', $msglib_report)
