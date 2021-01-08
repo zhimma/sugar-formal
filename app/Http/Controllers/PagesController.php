@@ -1756,16 +1756,18 @@ class PagesController extends Controller
             /*過去7天罐頭訊息比例*/
             $bannedUsers = UserService::getBannedId();
             $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
+            $date_start = date("Y-m-d",strtotime("-6 days", strtotime(date('Y-m-d'))));
+            $date_end = date('Y-m-d');
 
             $query = Message::select('users.email','users.name','users.title','users.engroup','users.created_at','users.last_login','message.id','message.from_id','message.content','user_meta.about')
                 ->join('users', 'message.from_id', '=', 'users.id')
                 ->join('user_meta', 'message.from_id', '=', 'user_meta.user_id')
-                ->where(function($query)use($bannedUsers,$isAdminWarnedList,$date) {
+                ->where(function($query)use($date_start,$date_end,$bannedUsers,$isAdminWarnedList) {
                     $query->where('message.from_id','<>',1049)
                         ->where('message.sys_notice',0)
                         ->whereNotIn('message.from_id',$bannedUsers)
                         ->whereNotIn('message.from_id',$isAdminWarnedList)
-                        ->where('message.created_at','>=', $date);
+                        ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
                 });
             $query->where('users.email',$targetUser->email);
             $results_a = $query->distinct('message.from_id')->get();
@@ -1778,7 +1780,7 @@ class PagesController extends Controller
                 $messages = Message::select('id','content','created_at')
                     ->where('from_id', $targetUser->id)
                     ->where('sys_notice',0)
-                    ->where('created_at','>=', $date)
+                    ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
                     ->take(100)
                     ->get();
 
