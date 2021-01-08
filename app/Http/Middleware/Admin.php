@@ -35,7 +35,7 @@ class Admin
      */
     public function handle($request, Closure $next)
     {
-        if (Gate::allows('admin', $this->auth->user())) {
+        if (Gate::allows('admin', $this->auth->user()) || Gate::allows('juniorAdmin', $this->auth->user())) {
             return $next($request);
         }
 

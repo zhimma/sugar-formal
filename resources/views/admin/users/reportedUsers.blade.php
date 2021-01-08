@@ -149,8 +149,20 @@
                                 <a class="btn btn-danger ban-user block_user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $result['reported_id'] }}">封鎖會員</a>
                             @endif
                             <br><br>
-                            <a class="btn btn-danger ban-user" href="{{ route('warnedUserWithDayAndMessage', [$result['reported_id'], $result['id']])}}" target="_blank">站方警示</a>
-{{--                            <a class="btn btn-danger warned-user" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-id="{{ $result['reported_id'] }}" data-name="{{ $users[$result['reported_id']]['name']}}">站方警示</a>--}}
+{{--                            <a class="btn btn-danger ban-user" href="{{ route('warnedUserWithDayAndMessage', [$result['reported_id'], $result['id']])}}" target="_blank">站方警示</a>--}}
+                            @php
+                                $data = \App\Models\SimpleTables\warned_users::where('member_id', $result['reported_id'])->first();
+                                if (isset($data) && ($data->expire_date == null || $data->expire_date >= \Carbon\Carbon::now())) {
+                                    $isAdminWarned = 1;
+                                } else {
+                                    $isAdminWarned = 0;
+                                }
+                            @endphp
+                            @if($isAdminWarned==1)
+                                <button type="button" title="站方警示與自動封鎖的警示，只能經後台解除" class='unwarned_user text-white btn @if($isAdminWarned) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $result['reported_id'] }})" data-id="{{ $result['reported_id'] }}"> 解除站方警示 </button>
+                            @else
+                                <a class="btn btn-danger warned-user warned_user" title="站方警示與自動封鎖的警示，只能經後台解除" href="#" data-toggle="modal" data-target="#warned_modal" data-id="{{ $result['reported_id'] }}">站方警示</a>
+                            @endif
                         </td>
 
                         <td @if($result['isBlocked']) style="background-color:#FFFF00" @endif>
@@ -218,8 +230,20 @@
                                 <a class="btn btn-danger ban-user block_user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $result['member_id'] }}">封鎖會員</a>
                             @endif
                             <br><br>
-                            <a class="btn btn-danger ban-user" href="{{ route('warnedUserWithDayAndMessage', [ $result['member_id'], $result['id'] ] ) }}" target="_blank">站方警示</a>
-{{--                            <a class="btn btn-danger warned-user" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-id="{{ $result['member_id'] }}" data-name="{{ $users[$result['member_id']]['name']}}">站方警示</a>--}}
+{{--                            <a class="btn btn-danger ban-user" href="{{ route('warnedUserWithDayAndMessage', [ $result['member_id'], $result['id'] ] ) }}" target="_blank">站方警示</a>--}}
+                            @php
+                                $data = \App\Models\SimpleTables\warned_users::where('member_id', $result['member_id'])->first();
+                                if (isset($data) && ($data->expire_date == null || $data->expire_date >= \Carbon\Carbon::now())) {
+                                    $isAdminWarned = 1;
+                                } else {
+                                    $isAdminWarned = 0;
+                                }
+                            @endphp
+                            @if($isAdminWarned==1)
+                                <button type="button" title="站方警示與自動封鎖的警示，只能經後台解除" class='unwarned_user text-white btn @if($isAdminWarned) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $result['member_id'] }})" data-id="{{ $result['member_id'] }}"> 解除站方警示 </button>
+                            @else
+                                <a class="btn btn-danger warned-user warned_user" title="站方警示與自動封鎖的警示，只能經後台解除" href="#" data-toggle="modal" data-target="#warned_modal" data-id="{{ $result['member_id'] }}">站方警示</a>
+                            @endif
                         </td>
 
                         <td width="45%" style="word-wrap: break-word;">{{ $result['content'] }}</td>
@@ -235,6 +259,56 @@
 @endif
 
 </body>
+@php
+    $warned_banReason = DB::table('reason_list')->select('content')->where('type', 'warned')->get();
+@endphp
+
+<div class="modal fade" id="warned_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="warnedModalLabel">站方警示</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="/admin/users/toggleUserWarned" method="POST" id="clickToggleUserWarned">
+                {!! csrf_field() !!}
+                <input type="hidden" value="" name="user_id" id="warnedUserID">
+                <input type="hidden" value="noRedirect" name="page">
+                <div class="modal-body">
+                    警示時間
+                    <select name="days" class="days">
+                        <option value="3">三天</option>
+                        <option value="7">七天</option>
+                        <option value="15">十五天</option>
+                        <option value="30">三十天</option>
+                        <option value="X" selected>永久</option>
+                    </select>
+                    <hr>
+                    警示原因
+                    @foreach($warned_banReason as $a)
+                        <a class="text-white btn btn-success banReason">{{ $a->content }}</a>
+                    @endforeach
+                    <textarea class="form-control m-reason" name="reason" id="msg" rows="4" maxlength="200">廣告</textarea>
+                    <label style="margin:10px 0px;">
+                        <input type="checkbox" name="addreason" style="vertical-align:middle;width:20px;height:20px;"/>
+                        <sapn style="vertical-align:middle;">加入常用原因</sapn>
+                    </label>
+                    <hr>
+                    新增自動封鎖關鍵字(警示)
+                    <input placeholder="1.請輸入警示關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='1.請輸入警示關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+                    <input placeholder="2.請輸入警示關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='2.請輸入警示關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+                    <input placeholder="3.請輸入警示關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='3.請輸入警示關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class='btn btn-outline-success ban-user' id="warned_user_submit"> 送出 </button>
+                    <button type="button" class="btn btn-outline-danger" data-dismiss="modal" id="warned_user_cancel">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {{-- <div class="modal fade" id="blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -474,6 +548,72 @@
             });
         });
 
+        $(".unwarned_user").click(function(){
+            var data = $(this).data();
+            if(confirm('確定解除此會員站方警示?')){
+                $.ajax({
+                    type: 'POST',
+                    url: "/admin/users/unwarned_user",
+                    data:{
+                        _token: '{{csrf_token()}}',
+                        data: data,
+                    },
+                    dataType:"json",
+                    success: function(res){
+                        alert('已解除站方警示');
+                        location.reload();
+                    }});
+            }
+            else{
+                return false;
+            }
+        });
+        $("#warned_user_submit").click(function(){
+            $("#warned_user_cancel").click();
+            let data = $("#clickToggleUserWarned").serializeArray();
+            var days='';
+            var reason='';
+            var addreason='';
+            var addautoban= [];
+            for(var i=0; i<data.length; i++) {
+                if(data[i]['name'] =='days')
+                    days= data[i]['value'];
+                else if(data[i]['name'] =='reason')
+                    reason= data[i]['value'];
+                else if(data[i]['name'] =='addreason')
+                    addreason= data[i]['value'];
+                else if(data[i]['name'] =='addautoban[]')
+                    addautoban.push(data[i]['value']);
+            }
+            $.ajax({
+                type: 'POST',
+                url: "/admin/users/toggleUserWarned",
+                data:{
+                    _token: '{{csrf_token()}}',
+                    user_id: $("#warnedUserID").val(),
+                    page: 'noRedirect',
+                    days: days,
+                    reason: reason,
+                    addreason: addreason,
+                    addautoban: addautoban
+                },
+                dataType:"json",
+                success: function(res){
+
+                    if(res.code ==200){
+                        alert('站方警示成功');
+                    }else{
+                        alert('站方警示失敗');
+                    }
+                    location.reload();
+                }
+            });
+        });
+
+        $(".warned_user").click(function(){
+            $("#warnedUserID").val($(this).attr("data-id"));
+        });
+
 
         $(".block_user").click(function(){
             $("#blockUserID").val($(this).attr("data-id"));
@@ -516,6 +656,25 @@
     function Release(id) {
         $("#blockUserID").val(id);
     }
+    function WarnedToggler(user_id,isWarned){
+        $.ajax({
+            type: 'POST',
+            url: "/admin/users/isWarned_user",
+            data:{
+                _token: '{{csrf_token()}}',
+                id: user_id,
+                status: isWarned,
+            },
+            dataType:"json",
+            success: function(res){
+                // alert('解除封鎖成功');
+                location.reload();
+            }});
+    }
+   function ReleaseWarnedUser(id) {
+        $("#warnedUserID").val(id);
+    }
+
     // let count = 0;
     // function setDays(a) {
     //     if(count === 0){

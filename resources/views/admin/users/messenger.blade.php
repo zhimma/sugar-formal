@@ -85,7 +85,7 @@
                         </td>
                     </tr> --}}
                 </table>
-            @if (Auth::user()->can('admin'))
+            @if (Auth::user()->can('admin') || Auth::user()->can('juniorAdmin'))
                 <form action="{{ route('admin/send', (!isset($isReported))? $user->id : $isReportedId ) }}" id='message' method='POST'>
             @elseif (Auth::user()->can('readonly'))
                 <form action="{{ route('admin/send/readOnly', (!isset($isReported))? $user->id : $isReportedId ) }}" id='message' method='POST'>

@@ -46,6 +46,17 @@ class AuthServiceProvider extends ServiceProvider
             }
         );
 
+        Gate::define('juniorAdmin',
+            function ($user) {
+                if($user->roles->first()){
+                    return ($user->roles->first()->name == 'juniorAdmin');
+                }
+                else{
+                    return false;
+                }
+            }
+        );
+
         //
     }
 }
