@@ -227,16 +227,13 @@ class User extends Authenticatable
 
     public function notify($instance){
         $blocked = false;
-        if(preg_match('/[a-z]\d\d\d\d[a-z][a-z]\d\d\d\d[a-z].\d\d\d\d@gmail.com/', $this->email)){
-            $blocked = true;
+        $bannedPatterns = config('banned.patterns');
+        foreach ($bannedPatterns as $pattern){
+            if(preg_match($pattern, $this->email)){
+                $blocked = true;
+            }
         }
-        elseif(preg_match('/[a-z][a-z][a-z][a-z]\d\d[a-z][a-z][a-z][a-z][a-z][a-z].[a-z]\d[a-z]\d[a-z][a-z]\d@gmail.com/', $this->email)){
-            $blocked = true;
-        }
-        elseif(preg_match('/\d[a-z][a-z][a-z][a-z]\d[a-z]\d.[a-z]\d\d\d[a-z]\d\d\d\d[a-z]\d\d\d[a-z]@gmail.com/', $this->email)){
-            $blocked = true;
-        }
-        elseif(preg_match('/[a-z][a-z][a-z]\d\d\d\d.[a-z][a-z][a-z][a-z][a-z][a-z][a-z]\d[a-z][a-z][a-z][a-z]\d@gmail.com/', $this->email)){
+        if(in_array($this->email, config('banned.emails'))){
             $blocked = true;
         }
         if($blocked){
