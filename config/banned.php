@@ -9,7 +9,7 @@
 
 return [
     'domains' => [
-	    '   ',
+        '    ',
     ],
     'emails' => [
         'heh35qh.3hqere@gmail.com',
