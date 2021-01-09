@@ -9,9 +9,7 @@
 
 return [
     'domains' => [
-        'bcaoo.com',
-        'eoopy.com',
-        'zzrgg.com'
+        '    ',
     ],
     'emails' => [
         'heh35qh.3hqere@gmail.com',
