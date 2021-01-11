@@ -1824,12 +1824,12 @@ class PagesController extends Controller
             $datetime1 = new \DateTime(now());
             $datetime2 = new \DateTime($targetUser->created_at);
             $diffDays = $datetime1->diff($datetime2)->days;
-            $week = $diffDays / 7;
+            $week = ceil($diffDays / 7);
             if($week == 0){
                 $login_times_per_week = 0;
             }
             else{
-                $login_times_per_week = round($targetUser->login_times / ($week));
+                $login_times_per_week = round(($targetUser->login_times / $week), 0);
             }
 
             $is_banned = null;
