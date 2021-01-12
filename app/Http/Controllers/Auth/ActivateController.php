@@ -45,7 +45,9 @@ class ActivateController extends Controller
      */
     public function sendToken()
     {
-        // $this->service->sendActivationToken();
+        if(config('social.send-email')){
+            $this->service->sendActivationToken();
+        }
         $user = auth()->user();
 
         return view('new.auth.activate.token', compact('user'));
