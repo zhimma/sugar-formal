@@ -241,7 +241,9 @@ class User extends Authenticatable
             logger("IP: " . \Request::ip());
             return;
         }
-        app(\Illuminate\Contracts\Notifications\Dispatcher::class)->send($this, $instance);
+        if(config('social.send-email')){
+            app(\Illuminate\Contracts\Notifications\Dispatcher::class)->send($this, $instance);
+        }
     }
 
     /**

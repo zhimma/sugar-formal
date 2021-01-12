@@ -154,16 +154,19 @@ class UserService
     {
         try {
             DB::transaction(function () use ($user, $password, $sendEmail) {
-                $this->userMeta->firstOrCreate([
-                    'user_id' => $user->id
-                ]);
-
-                //$this->assignRole($role, $user->id);
-
                 if ($sendEmail) {
+                    $this->userMeta->firstOrCreate([
+                        'user_id' => $user->id
+                    ]);
                     event(new UserRegisteredEmail($user, $password));
                 }
-
+                else{
+                    $this->userMeta->firstOrCreate([
+                        'user_id' => $user->id,
+                        'is_active' => 1
+                    ]);
+                }
+                //$this->assignRole($role, $user->id);
             });
             $domains = config('banned.domains');
             $isExists = \DB::table('banned_users_implicitly')->where('target', $user->id)->exists();
@@ -177,7 +180,9 @@ class UserService
                     );
                 }
             }
-            $this->setAndSendUserActivationToken($user);
+            if ($sendEmail) {
+                $this->setAndSendUserActivationToken($user);
+            }
 
             return $user;
         } catch (Exception $e) {
@@ -636,7 +641,7 @@ class UserService
                 'password' => bcrypt($password)
             ]);
 
-            return $this->create($user, $password, $info['roles'], true);
+            return $this->create($user, $password, $info['roles'], config('social.send-email'));
         });
     }
 
