@@ -242,11 +242,10 @@
             });
         $('.last30days').click(
             function () {
-                minus_date.setDate(minus_date.getDate() - 29);
-                $('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
-                $('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
+                var start_date = new Date(new Date().setDate(date.getDate() - 30));
+                $('#datepicker_1').val(start_date.getFullYear() + '-' + parseInt(start_date.getMonth()+1) + '-' + start_date.getDate());
+                $('.datepicker_1').val(start_date.getFullYear() + '-' + parseInt(start_date.getMonth()+1) + '-' + start_date.getDate());
                 set_end_date();
-                minus_date.setDate(minus_date.getDate() + 29);
             });
         $('.last90days').click(
             function () {

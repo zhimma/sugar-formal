@@ -1707,42 +1707,38 @@ class PagesController extends Controller
             $messages_all = Message::select('id','to_id','from_id','created_at')->where('from_id', $uid)->orwhere('to_id', $uid)->orderBy('id')->get();
             $countInfo['message_count'] = 0;
             $countInfo['message_reply_count'] = 0;
-            $send = [];
-            $receive = [];
-            foreach ($messages_all as $message) {
-                if($message->from_id == $uid){
-                    $send[$message->to_id][]= $message->id;
-                }
-                if($message->to_id == $uid){
-                    $receive[$message->from_id][] = $message->id;
-                }
-                if ($message->from_id == $uid) {
-                    if(is_null(array_get($receive, $message->to_id)))
-                        $countInfo['message_count'] += 1;
-                    else
-                        $countInfo['message_reply_count'] += 1;
-                }
-            }
-
-            $messages_7days = Message::select('id','to_id','from_id','created_at')->where('from_id', $uid)->orwhere('to_id', $uid)->where('created_at','>=', $date)->orderBy('id')->get();
-            $countInfo['message_count_7'] = 0;
             $countInfo['message_reply_count_7'] = 0;
             $send = [];
             $receive = [];
-            foreach ($messages_7days as $message) {
-                if($message->from_id == $uid){
+            foreach ($messages_all as $message) {
+                //uid主動第一次發信
+                if($message->from_id == $uid && array_get($send, $message->to_id) < $message->id){
                     $send[$message->to_id][]= $message->id;
                 }
-                if($message->to_id == $uid){
+                //紀錄每個帳號第一次發信給uid
+                if ($message->to_id == $uid && array_get($receive, $message->from_id) < $message->id) {
                     $receive[$message->from_id][] = $message->id;
                 }
-                if ($message->from_id == $uid) {
-                    if(is_null(array_get($receive, $message->to_id)))
-                        $countInfo['message_count_7'] += 1;
-                    else
+                if(!is_null(array_get($receive, $message->to_id))){
+                    $countInfo['message_reply_count'] += 1;
+                    if($message->created_at >= $date){
+                        //計算七天內回信次數
                         $countInfo['message_reply_count_7'] += 1;
+                    }
                 }
             }
+            $countInfo['message_count'] = count($send);
+
+            $messages_7days = Message::select('id','to_id','from_id','created_at')->whereRaw('(from_id ='. $uid. ' OR to_id='.$uid .')')->where('created_at','>=', $date)->orderBy('id')->get();
+            $countInfo['message_count_7'] = 0;
+            $send = [];
+            foreach ($messages_7days as $message) {
+                //七天內uid主動第一次發信
+                if($message->from_id == $uid && array_get($send, $message->to_id) < $message->id){
+                    $send[$message->to_id][]= $message->id;
+                }
+            }
+            $countInfo['message_count_7'] = count($send);
 
             /*發信次數*/
             $message_count = $countInfo['message_count'];
