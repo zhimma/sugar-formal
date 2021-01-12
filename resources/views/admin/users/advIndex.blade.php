@@ -131,10 +131,10 @@
                         </select>
                         <hr>
                         封鎖原因
-                        <a class="text-white btn btn-success advertising">廣告</a>
-                        <a class="text-white btn btn-success improper-behavior">非徵求包養行為</a>
-                        <a class="text-white btn btn-success improper-words">用詞不當</a>
-                        <a class="text-white btn btn-success improper-photo">照片不當</a>
+                        <a class="text-white btn btn-success advertising banReason">廣告</a>
+                        <a class="text-white btn btn-success improper-behavior banReason">非徵求包養行為</a>
+                        <a class="text-white btn btn-success improper-words banReason">用詞不當</a>
+                        <a class="text-white btn btn-success improper-photo banReason">照片不當</a>
                         <br><br>
                         <textarea class="form-control m-reason" name="msg" id="msg" rows="4" maxlength="200">廣告</textarea>
                 </div>
@@ -148,7 +148,14 @@
 </div>
 
 <script>
-    
+    $(".banReason").each( function(){
+        $(this).bind("click" , function(){
+            var id = $("a").index(this);
+            var clickval = $("a").eq(id).text();
+            $('#msg').val(clickval);
+        });
+    });
+
     function setBlockade(value){
         if (typeof $(value).data('id') !== 'undefined') {
             $("#exampleModalLabel").html('封鎖 '+ $(value).data('name'))
