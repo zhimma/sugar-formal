@@ -21,7 +21,9 @@ return [
         'cwc9031@yahoo.com.tw',
         'lntegra_dc2@outlook.com',
         'fbe30691@yahoo.com.tw',
-        'h23tt34896f.bwe45448454545@gmail.com'
+        'h23tt34896f.bwe45448454545@gmail.com',
+        'g9926h3810f.810@gmail.com',
+        'y8912i8262e.748@gmail.com'
     ],
     'patterns' => [
         '/[a-z]\d\d\d\d[a-z][a-z]\d\d\d\d[a-z].\d\d\d\d@gmail.com/',
