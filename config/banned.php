@@ -29,6 +29,7 @@ return [
         '/[a-z]\d\d\d\d[a-z][a-z]\d\d\d\d[a-z].\d\d\d\d@gmail.com/',
         '/[a-z][a-z][a-z][a-z]\d\d[a-z][a-z][a-z][a-z][a-z][a-z].[a-z]\d[a-z]\d[a-z][a-z]\d@gmail.com/',
         '/\d[a-z][a-z][a-z][a-z]\d[a-z]\d.[a-z]\d\d\d[a-z]\d\d\d\d[a-z]\d\d\d[a-z]@gmail.com/',
-        '/[a-z][a-z][a-z]\d\d\d\d.[a-z][a-z][a-z][a-z][a-z][a-z][a-z]\d[a-z][a-z][a-z][a-z]\d@gmail.com/'
+        '/[a-z][a-z][a-z]\d\d\d\d.[a-z][a-z][a-z][a-z][a-z][a-z][a-z]\d[a-z][a-z][a-z][a-z]\d@gmail.com/',
+        '/[A-z]\d\d\d\d[A-z]\d\d\d\d[A-z].\d\d\d@gmail.com/',
     ]
 ];
