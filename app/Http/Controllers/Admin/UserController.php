@@ -2557,6 +2557,9 @@ class UserController extends Controller
 
         if (isset($request->page)) {
             switch ($request->page) {
+                case 'noRedirect':
+                    return json_encode(array('code' => '200', 'status' => 'success'));
+                    break;
                 default:
                     return redirect($request->page);
                     break;
