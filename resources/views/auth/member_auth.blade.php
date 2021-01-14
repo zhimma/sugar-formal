@@ -98,28 +98,38 @@
 		<div class="container matop120 yzheight">
 			<div class="row">
 				<div class="col-sm-12 col-xs-12 col-md-12">
-					    <div class="dengl matbot140">
-                                   <div class="zhuce"><h2>會員驗證</h2>
-                                       <h3 style="line-height:1.2;">請用您的智慧型手機<br>進行本人的身份驗證</h3>
-                                   </div>
-                                   <div class="de_input">
-                                         <div class="yanzheng_1">驗證1</div>
-                                       @if($user->isPhoneAuth())
-                                           <div>已完成驗證</div>
-                                           @else
-                                         <div class="zybg_new_bg">
-                                               <div class="zybg_new">
-                                                   <select name="" class="zy_select"><option>台灣</option><option>大陸</option></select>
-                                                   <input name="" type="text" id="mobile" class="xy_input" placeholder="手機號碼">
-                                               </div>
-                                               <a id="get_auth_code" class="zybg_right" style="cursor:pointer">獲取驗證碼</a>
-                                         </div>
-                                         <div class="zybg_new02">
-                                               <input name="" type="text" id="checkcode" class="xy_input xy_left" placeholder="請輸入驗證碼">
-                                               <a id="auth_phone1" class="xy_yanx"><div style="text-align:center">驗證</div></a>
-                                         </div>
-                                           @endif
-                                        </div>
+                    <div class="dengl matbot140">
+                       <div class="zhuce"><h2>會員驗證</h2>
+                           <h3 style="line-height:1.2;">請用您的智慧型手機<br>進行本人的身份驗證</h3>
+                       </div>
+                           <div class="de_input">
+                                 <div class="yanzheng_1">驗證1</div>
+                               @php
+                                   $data = \App\Models\SimpleTables\warned_users::where('member_id', $user->id)->where(function ($query){
+                                        $query->whereNull('expire_date')->orWhere('expire_date', '>=', \Carbon\Carbon::now());
+}                                   )->first();
+                                    if ($data) {
+                                        $isAdminWarned = 1;
+                                    } else {
+                                        $isAdminWarned = 0;
+                                    }
+                               @endphp
+                               @if($user->isPhoneAuth() or $isAdminWarned)
+                                   <div>已完成驗證</div>
+                               @else
+                                 <div class="zybg_new_bg">
+                                       <div class="zybg_new">
+                                           <select name="" class="zy_select"><option>台灣</option><option>大陸</option></select>
+                                           <input name="" type="text" id="mobile" class="xy_input" placeholder="手機號碼">
+                                       </div>
+                                       <a id="get_auth_code" class="zybg_right" style="cursor:pointer">獲取驗證碼</a>
+                                 </div>
+                                 <div class="zybg_new02">
+                                       <input name="" type="text" id="checkcode" class="xy_input xy_left" placeholder="請輸入驗證碼">
+                                       <a id="auth_phone1" class="xy_yanx"><div style="text-align:center">驗證</div></a>
+                                 </div>
+                               @endif
+                            </div>
                                       
 {{--                                      <div class="zy_line"></div>--}}
 {{--									  <form id="auth_all" enctype="multipart/form-data">--}}
