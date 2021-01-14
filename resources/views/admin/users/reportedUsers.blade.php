@@ -141,27 +141,48 @@
 {{--                            <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [$result['reported_id'], $result['id'], 'reported'])}}" target="_blank">封鎖</a>--}}
                             @php
                                 $banned_users =  \App\Models\SimpleTables\banned_users::where('member_id', 'like', $result['reported_id'])->get()->first();
-                                $isBlocked = is_null($banned_users) ? 0 : 1;
-                            @endphp
-                            @if($isBlocked)
-                                <button type="button" class='unblock_user text-white btn @if($isBlocked) btn-success @else btn-danger @endif' onclick="Release({{ $result['reported_id'] }})" data-id="{{ $result['reported_id'] }}">解除封鎖</button>
-                            @else
-                                <a class="btn btn-danger ban-user block_user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $result['reported_id'] }}">封鎖會員</a>
-                            @endif
-                            <br><br>
-{{--                            <a class="btn btn-danger ban-user" href="{{ route('warnedUserWithDayAndMessage', [$result['reported_id'], $result['id']])}}" target="_blank">站方警示</a>--}}
-                            @php
+                                $implicitly_users = \App\Models\BannedUsersImplicitly::where('target', $result['reported_id'])->get()->first();
+                                $isBlocked = is_null($banned_users) && is_null($implicitly_users) ? 0 : 1;
+
                                 $data = \App\Models\SimpleTables\warned_users::where('member_id', $result['reported_id'])->first();
                                 if (isset($data) && ($data->expire_date == null || $data->expire_date >= \Carbon\Carbon::now())) {
                                     $isAdminWarned = 1;
                                 } else {
                                     $isAdminWarned = 0;
                                 }
+                                $reportedInfo = \App\Models\User::findById($result['reported_id']);
+                                $reported_userMeta = \App\Models\UserMeta::where('user_id',$result['reported_id'])->first();
+                                $reported_auth_status = 0;
+                                if (!is_null($reportedInfo) && $reportedInfo->isPhoneAuth() == 1) {
+                                    $reported_auth_status = 1;
+                                }
                             @endphp
-                            @if($isAdminWarned==1)
-                                <button type="button" title="站方警示與自動封鎖的警示，只能經後台解除" class='unwarned_user text-white btn @if($isAdminWarned) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $result['reported_id'] }})" data-id="{{ $result['reported_id'] }}"> 解除站方警示 </button>
+                            @if(!is_null($reportedInfo))
+                                @if($isBlocked)
+                                    <button type="button" class='unblock_user text-white btn @if($isBlocked) btn-success @else btn-danger @endif' onclick="Release({{ $result['reported_id'] }})" data-id="{{ $result['reported_id'] }}">解除封鎖</button>
+                                @else
+                                    <a class="btn btn-danger ban-user block_user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $result['reported_id'] }}">封鎖會員</a>
+                                    <a class="btn btn-danger ban-user implicitly_user" href="#" data-toggle="modal" data-target="#implicitly_blockade" data-id="{{ $result['reported_id'] }}">隱性封鎖</a>
+                                @endif
+    {{--                            <a class="btn btn-danger ban-user" href="{{ route('warnedUserWithDayAndMessage', [$result['reported_id'], $result['id']])}}" target="_blank">站方警示</a>--}}
+                                @if($isAdminWarned==1)
+                                    <button type="button" title="站方警示與自動封鎖的警示，只能經後台解除" class='unwarned_user text-white btn @if($isAdminWarned) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $result['reported_id'] }})" data-id="{{ $result['reported_id'] }}"> 解除站方警示 </button>
+                                @else
+                                    <a class="btn btn-danger warned-user warned_user" title="站方警示與自動封鎖的警示，只能經後台解除" href="#" data-toggle="modal" data-target="#warned_modal" data-id="{{ $result['reported_id'] }}">站方警示</a>
+                                @endif
+
+                                @if($reported_userMeta->isWarned==0)
+                                    <button type="button" class="btn btn-info" title="自動計算檢舉分數達10分者警示，可經手機驗證解除警示(被檢舉總分)" onclick="WarnedToggler({{ $result['reported_id'] }},1)"
+                                            @if($reportedInfo->WarnedScore() >= 10 AND $reported_auth_status==1) disabled="disabled" style="background-color: #C0C0C0;border-color: #C0C0C0;" @endif>
+                                        警示用戶({{$reportedInfo->WarnedScore()}})
+                                    </button>
+                                @else
+                                    <button type="button" class="btn btn-danger" title="自動計算檢舉分數達10分者警示，可經手機驗證解除警示(被檢舉總分)" onclick="WarnedToggler({{ $result['reported_id'] }},0)">
+                                        取消警示用戶({{$reportedInfo->WarnedScore()}})
+                                    </button>
+                                @endif
                             @else
-                                <a class="btn btn-danger warned-user warned_user" title="站方警示與自動封鎖的警示，只能經後台解除" href="#" data-toggle="modal" data-target="#warned_modal" data-id="{{ $result['reported_id'] }}">站方警示</a>
+                                會員資料不存在
                             @endif
                         </td>
 
@@ -222,27 +243,50 @@
 {{--                            <a class="btn btn-danger ban-user" href="{{ route('banUserWithDayAndMessage', [ $result['member_id'], $result['id'] , 'reported' ] ) }}" target="_blank">封鎖</a>--}}
                             @php
                                 $banned_users =  \App\Models\SimpleTables\banned_users::where('member_id', 'like', $result['member_id'])->get()->first();
-                                $isBlocked = is_null($banned_users) ? 0 : 1;
-                            @endphp
-                            @if($isBlocked)
-                                <button type="button" class='unblock_user text-white btn @if($isBlocked) btn-success @else btn-danger @endif' onclick="Release({{ $result['member_id'] }})" data-id="{{ $result['member_id'] }}">解除封鎖</button>
-                            @else
-                                <a class="btn btn-danger ban-user block_user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $result['member_id'] }}">封鎖會員</a>
-                            @endif
-                            <br><br>
-{{--                            <a class="btn btn-danger ban-user" href="{{ route('warnedUserWithDayAndMessage', [ $result['member_id'], $result['id'] ] ) }}" target="_blank">站方警示</a>--}}
-                            @php
+                                $implicitly_users = \App\Models\BannedUsersImplicitly::where('target', $result['member_id'])->get()->first();
+                                $isBlocked = is_null($banned_users) && is_null($implicitly_users) ? 0 : 1;
+
                                 $data = \App\Models\SimpleTables\warned_users::where('member_id', $result['member_id'])->first();
                                 if (isset($data) && ($data->expire_date == null || $data->expire_date >= \Carbon\Carbon::now())) {
                                     $isAdminWarned = 1;
                                 } else {
                                     $isAdminWarned = 0;
                                 }
+                                $memberIDInfo = \App\Models\User::findById($result['member_id']);
+                                $memberID_userMeta = \App\Models\UserMeta::where('user_id', $result['member_id'])->first();
+                                $memberID_auth_status = 0;
+                                if (!is_null($memberIDInfo) && $memberIDInfo->isPhoneAuth() == 1) {
+                                    $memberID_auth_status = 1;
+                                }
                             @endphp
-                            @if($isAdminWarned==1)
-                                <button type="button" title="站方警示與自動封鎖的警示，只能經後台解除" class='unwarned_user text-white btn @if($isAdminWarned) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $result['member_id'] }})" data-id="{{ $result['member_id'] }}"> 解除站方警示 </button>
+
+                            @if(!is_null($memberIDInfo))
+                                @if($isBlocked)
+                                    <button type="button" class='unblock_user text-white btn @if($isBlocked) btn-success @else btn-danger @endif' onclick="Release({{ $result['member_id'] }})" data-id="{{ $result['member_id'] }}">解除封鎖</button>
+                                @else
+                                    <a class="btn btn-danger ban-user block_user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $result['member_id'] }}">封鎖會員</a>
+                                    <a class="btn btn-danger ban-user implicitly_user" href="#" data-toggle="modal" data-target="#implicitly_blockade" data-id="{{ $result['member_id'] }}">隱性封鎖</a>
+                                @endif
+    {{--                            <a class="btn btn-danger ban-user" href="{{ route('warnedUserWithDayAndMessage', [ $result['member_id'], $result['id'] ] ) }}" target="_blank">站方警示</a>--}}
+                                @php
+                                @endphp
+                                @if($isAdminWarned==1)
+                                    <button type="button" title="站方警示與自動封鎖的警示，只能經後台解除" class='unwarned_user text-white btn @if($isAdminWarned) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $result['member_id'] }})" data-id="{{ $result['member_id'] }}"> 解除站方警示 </button>
+                                @else
+                                    <a class="btn btn-danger warned-user warned_user" title="站方警示與自動封鎖的警示，只能經後台解除" href="#" data-toggle="modal" data-target="#warned_modal" data-id="{{ $result['member_id'] }}">站方警示</a>
+                                @endif
+                                @if($memberID_userMeta->isWarned==0)
+                                    <button type="button" class="btn btn-info" title="自動計算檢舉分數達10分者警示，可經手機驗證解除警示(被檢舉總分)" onclick="WarnedToggler({{ $result['member_id'] }},1)"
+                                            @if($memberIDInfo->WarnedScore() >= 10 AND $memberID_auth_status) disabled="disabled" style="background-color: #C0C0C0;border-color: #C0C0C0;" @endif>
+                                        警示用戶({{$memberIDInfo->WarnedScore()}})
+                                    </button>
+                                @else
+                                    <button type="button" class="btn btn-danger" title="自動計算檢舉分數達10分者警示，可經手機驗證解除警示(被檢舉總分)" onclick="WarnedToggler({{ $result['member_id'] }},0)">
+                                        取消警示用戶({{$memberIDInfo->WarnedScore()}})
+                                    </button>
+                                @endif
                             @else
-                                <a class="btn btn-danger warned-user warned_user" title="站方警示與自動封鎖的警示，只能經後台解除" href="#" data-toggle="modal" data-target="#warned_modal" data-id="{{ $result['member_id'] }}">站方警示</a>
+                                會員資料不存在
                             @endif
                         </td>
 
@@ -302,7 +346,7 @@
                     <input placeholder="3.請輸入警示關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='3.請輸入警示關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class='btn btn-outline-success ban-user' id="warned_user_submit"> 送出 </button>
+                    <button type="button" class='btn btn-outline-success ban-user' id="warned_user_submit"> 送出 </button>
                     <button type="button" class="btn btn-outline-danger" data-dismiss="modal" id="warned_user_cancel">取消</button>
                 </div>
             </form>
@@ -345,6 +389,7 @@
 </div> --}}
 @php
     $banReason = DB::table('reason_list')->select('content')->where('type', 'ban')->get();
+    $implicitly_banReason = DB::table('reason_list')->select('content')->where('type', 'implicitly')->get();
 @endphp
 <div class="modal fade" id="blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -394,6 +439,47 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="implicitly_blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="implicitly_blockade">隱性封鎖</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="{{ route('banningUserImplicitly') }}" method="POST">
+                {!! csrf_field() !!}
+                <input type="hidden" value="" name="user_id" id="implicitlyUserID">
+                <input type="hidden" value="BannedInUserInfo" name="fp">
+                <input type="hidden" value="noRedirect" name="page">
+                <div class="modal-body">
+                    隱性封鎖原因
+                    @foreach($implicitly_banReason as $a)
+                        <a class="text-white btn btn-success banReason">{{ $a->content }}</a>
+                    @endforeach
+                    <br><br>
+                    <textarea class="form-control m-reason" name="reason" id="implicitlyMsg" rows="4" maxlength="200">廣告</textarea>
+                    <label style="margin:10px 0px;">
+                        <input type="checkbox" name="addreason" style="vertical-align:middle;width:20px;height:20px;"/>
+                        <sapn style="vertical-align:middle;">加入常用隱性封鎖原因</sapn>
+                    </label>
+                    <hr>
+                    新增自動封鎖關鍵字(隱性封鎖)
+                    <input placeholder="1.請輸入隱性封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='1.請輸入隱性封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+                    <input placeholder="2.請輸入隱性封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='2.請輸入隱性封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+                    <input placeholder="3.請輸入隱性封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='3.請輸入隱性封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">
+                </div>
+                <div class="modal-footer">
+{{--                    <button type="submit" class='btn btn-outline-success ban-user'> 送出 </button>--}}
+                    <button type="button" class='btn btn-outline-success ban-user' id="implicitly_user_submit"> 送出 </button>
+                    <button type="button" class="btn btn-outline-danger" data-dismiss="modal" id="implicitly_user_cancel">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
     let date = new Date();
     let year = date.getFullYear();
@@ -547,6 +633,44 @@
             });
         });
 
+        $("#implicitly_user_submit").click(function(){
+            $("#implicitly_user_cancel").click();
+            let data = $("#implicitly_blockade").serializeArray();
+            var reason='';
+            var addreason='';
+            var addautoban= [];
+            for(var i=0; i<data.length; i++) {
+                if(data[i]['name'] =='reason')
+                    reason= data[i]['value'];
+                else if(data[i]['name'] =='addreason')
+                    addreason= data[i]['value'];
+                else if(data[i]['name'] =='addautoban[]')
+                    addautoban.push(data[i]['value']);
+            }
+            $.ajax({
+                type: 'POST',
+                url: "/admin/users/bans_implicitly",
+                data:{
+                    _token: '{{csrf_token()}}',
+                    user_id: $("#implicitlyUserID").val(),
+                    fp: 'BannedInUserInfo',
+                    page: 'noRedirect',
+                    reason: $("#implicitlyMsg").val(),
+                    addreason: addreason,
+                    addautoban: addautoban
+                },
+                dataType:"json",
+                success: function(res){
+                    if(res.code ==200){
+                        alert('隱性封鎖成功');
+                    }else{
+                        alert('隱性封鎖失敗');
+                    }
+                    location.reload();
+                }
+            });
+        });
+
         $(".unwarned_user").click(function(){
             var data = $(this).data();
             if(confirm('確定解除此會員站方警示?')){
@@ -613,9 +737,12 @@
             $("#warnedUserID").val($(this).attr("data-id"));
         });
 
-
         $(".block_user").click(function(){
             $("#blockUserID").val($(this).attr("data-id"));
+        });
+
+        $(".implicitly_user").click(function(){
+            $("#implicitlyUserID").val($(this).attr("data-id"));
         });
 
         $(".banReason").each( function(){
@@ -655,6 +782,10 @@
     function Release(id) {
         $("#blockUserID").val(id);
     }
+   function ReleaseWarnedUser(id) {
+        $("#warnedUserID").val(id);
+    }
+
     function WarnedToggler(user_id,isWarned){
         $.ajax({
             type: 'POST',
@@ -666,12 +797,13 @@
             },
             dataType:"json",
             success: function(res){
-                // alert('解除封鎖成功');
+                if(isWarned ==1)
+                    alert('警示用戶成功');
+                else
+                    alert('取消警示用戶成功');
                 location.reload();
-            }});
-    }
-   function ReleaseWarnedUser(id) {
-        $("#warnedUserID").val(id);
+            }
+        });
     }
 
     // let count = 0;
