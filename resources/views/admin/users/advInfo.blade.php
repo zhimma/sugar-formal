@@ -144,8 +144,11 @@
 			else if ($vipInfo->payment == 'one_month_payment')
 				$upgradeKind = '單月支付';
 
+			$vipLog = \App\Models\VipLog::where("member_id", $user->id)->orderBy('id', 'desc')->first();
 			//現狀:只有持續中跟未持續兩種。已取消扣款或者一次付清都是未持續。
 			if(in_array($vipInfo->payment, ['one_quarter_payment','one_month_payment']) || $vipInfo->active ==0)
+				$nowStatus = '未持續';
+			else if(\Str::contains($vipLog, 'cancel') || (\Str::contains($vipLog, 'Cancel') && !\Str::contains($vipLog, 'bypass')))
 				$nowStatus = '未持續';
 			else
 				$nowStatus = '持續中';
