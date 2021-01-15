@@ -1809,9 +1809,7 @@ class PagesController extends Controller
 
 
             /*此會員封鎖多少其他會員*/
-            $bannedUsers = \App\Services\UserService::getBannedId();
-            $blocked_other_count = Blocked::join('users', 'users.id', '=', 'blocked.blocked_id')->where('member_id', $user->id)->whereNotIn('blocked_id',$bannedUsers)->count();
-
+            $blocked_other_count = Blocked::where('member_id', $uid)->count();
 
             /*此會員被多少會員封鎖*/
             $be_blocked_other_count = Blocked::where('blocked_id', $uid)->count();
