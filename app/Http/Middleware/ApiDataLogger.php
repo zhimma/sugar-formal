@@ -169,7 +169,20 @@ class ApiDataLogger{
                         $this->logService->upgradeLogEC($payload, $user->id);
                         $this->logService->writeLogToDB();
                         $this->logService->writeLogToFile();
-                        Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0,$payload['CustomField3']);
+
+                        $transactionType='';
+                        if($payload['PaymentType'] == 'Credit_CreditCard')
+                            $transactionType='CREDIT'; //信用卡
+                        elseif(str_contains($payload['PaymentType'], 'ATM'))
+                            $transactionType='ATM'; //ATM
+                        elseif($payload['PaymentType'] == 'BARCODE_BARCODE')
+                            $transactionType='BARCODE'; //超商條碼
+                        elseif ($payload['PaymentType'] == 'CVS_CVS')
+                            $transactionType='CVS'; //超商代號
+
+                        logger('Middleware ApiDataLogger=> userID:'.$user->id.', 種類:' .$payload['CustomField3'].', 付款方式:' .$transactionType);
+
+                        Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0,$payload['CustomField3'],$transactionType);
                         return '1|OK';
                     }
                     elseif ($payload['RtnCode'] == '10100073' && $payload['PaymentType'] == 'BARCODE_BARCODE'){

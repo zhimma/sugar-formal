@@ -20,6 +20,7 @@
 		<th>是否為VIP</th>
 		<th>是否為免費方案</th>
 		<th>升級時的帳單編號</th>
+		<th>付費方式</th>
 		<th>VIP資料建立時間</th>
 		<th>VIP資料更新時間</th>
 		<th>變更男/女</th>
@@ -37,10 +38,34 @@
 			<td>是 @if($user->vip_data->expiry!="0000-00-00 00:00:00") (到期日: {{ substr($user->vip_data->expiry, 0, 10) }}) @endif</td>
 			<td>@if($user->vip_data->free == 1) 是 @else 否 @endif</td>
 			<td>{{ $user->vip_order_id }}</td>
+			<td>
+				@if ($user->vip_data->payment_method == 'CREDIT')
+				 	信用卡
+				@elseif ($user->vip_data->payment_method == 'ATM')
+					ATM
+				@elseif ($user->vip_data->payment_method == 'CVS')
+					超商代碼
+				@elseif ($user->vip_data->payment_method == 'BARCODE')
+					超商條碼
+				@endif
+			</td>
 		@else
 			<td>否</td>
 			<td>@if(isset($user->vip_data))@if($user->vip_data->free == 1) 是 @else 否 @endif @else 無資料 @endif</td>
 			<td>@if(isset($user->vip_order_id)){{ $user->vip_order_id }}@else 無資料 @endif</td>
+			<td>@if(isset( $user->vip_data->payment_method))
+					@if ($user->vip_data->payment_method == 'CREDIT')
+						信用卡
+					@elseif ($user->vip_data->payment_method == 'ATM')
+						ATM
+					@elseif ($user->vip_data->payment_method == 'CVS')
+						超商代碼
+					@elseif ($user->vip_data->payment_method == 'BARCODE')
+						超商條碼
+					@endif
+				@else 無資料
+				@endif
+			</td>
 		@endif
 		<td>@if(isset($user->vip_data->created_at))<a href="{{ route('stats/vip_log', $user->id) }}" target="_blank">{{ $user->vip_data->created_at }}</a>@else 無資料 @endif</td>
 		<td>@if(isset($user['updated_at'])){{ $user['updated_at'] }}@else 無資料 @endif</td>
