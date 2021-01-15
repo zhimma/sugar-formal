@@ -84,6 +84,7 @@ class Vip extends Model
             $vip->active = $active;
             $vip->free = $free;
             $vip->payment = $payment;
+            $vip->payment_method = $transactionType; //付款方法
 
             //單次付款到期日
             if(isset($expiry)){
@@ -116,6 +117,7 @@ class Vip extends Model
             $vipData->active = $active;
             $vipData->free = $free;
             $vipData->payment = $payment;
+            $vipData->payment_method = $transactionType; //付款方法
 
             //單次付款到期日
             if(isset($expiry)){
@@ -126,7 +128,7 @@ class Vip extends Model
         }
 
         $admin = User::findByEmail(Config::get('social.admin.email'));
-        $logStr = 'upgrade, order id: ' . $order_id . ', payment: ' . $payment . ', amount: ' . $amount;
+        $logStr = 'upgrade, order id: ' . $order_id . ', payment: ' . $payment . ', amount: ' . $amount . ', transactionType: ' . $transactionType;
         VipLog::addToLog($member_id, $logStr, $txn_id, 1, $free);
 
         $curUser = User::findById($member_id);

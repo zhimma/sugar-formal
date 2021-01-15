@@ -107,7 +107,55 @@
 	@endif
 </h1>
 <h4>基本資料</h4>
-<table class='table table-hover table-bordered '>	
+<table class='table table-hover table-bordered '>
+	@php
+		//帳號警示時間
+		$warnedInfo = \App\Models\SimpleTables\warned_users::where('member_id',$user->id)->first();
+        $warnedDay ='';
+        if(!is_null($warnedInfo)){
+            $warnedDay= date('Y-m-d', strtotime($warnedInfo->created_at));
+            $datetime1 = new \DateTime($warnedInfo->expire_date);
+            $datetime2 = new \DateTime($warnedInfo->created_at);
+            $diffDays = is_null($warnedInfo->expire_date) ? '永久' : $datetime1->diff($datetime2)->days;
+        }
+
+        //VIP帳號：起始時間,付費方式,種類,現狀
+        $vipInfo = \App\Models\Vip::findByIdWithDateDesc($user->id);
+
+        if(!is_null($vipInfo)){
+			$upgradeDay = date('Y-m-d', strtotime($vipInfo->created_at));
+			$upgradeWay ='';
+			if ($vipInfo->payment_method == 'CREDIT')
+				$upgradeWay = '信用卡';
+			else if ($vipInfo->payment_method == 'ATM')
+				$upgradeWay = 'ATM';
+			else if ($vipInfo->payment_method == 'CVS')
+				$upgradeWay = '超商代碼';
+			else if ($vipInfo->payment_method == 'BARCODE')
+				$upgradeWay = '超商條碼';
+
+			$upgradeKind ='';
+			if ($vipInfo->payment == 'cc_quarterly_payment')
+				$upgradeKind = '定期季繳';
+			else if ($vipInfo->payment == 'cc_monthly_payment')
+				$upgradeKind = '定期月繳';
+			else if ($vipInfo->payment == 'one_quarter_payment')
+				$upgradeKind = '單季支付';
+			else if ($vipInfo->payment == 'one_month_payment')
+				$upgradeKind = '單月支付';
+
+			//現狀:只有持續中跟未持續兩種。已取消扣款或者一次付清都是未持續。
+			if(in_array($vipInfo->payment, ['one_quarter_payment','one_month_payment']) || $vipInfo->active ==0)
+				$nowStatus = '未持續';
+			else
+				$nowStatus = '持續中';
+
+			$showVipInfo =  $upgradeDay .','.$upgradeWay .','.$upgradeKind .','. $nowStatus ;
+        }else{
+
+            $showVipInfo =  '暫無資料' ;
+        }
+	@endphp
 	<tr>
 		<th>會員ID</th>
 		<th>暱稱</th>
@@ -116,6 +164,8 @@
 		<th>Email</th>
 		<th>建立時間</th>
 		<th>更新時間</th>
+		<th>VIP起始時間,付費方式,種類,現狀</th>
+		@if(!is_null($warnedInfo))<th>警示時間</th>@endif
 		<th>上次登入</th>
 		<th>上站次數</th>
 	</tr>
@@ -127,6 +177,8 @@
 		<td>{{ $user->email }}</td>
 		<td>{{ $user->created_at }}</td>
 		<td>{{ $user->updated_at }}</td>
+		<td>{{ $showVipInfo }}</td>
+		@if(!is_null($warnedInfo))<td>{{ !is_null($warnedInfo) ? $warnedDay.'('.$diffDays.')' : ''}}</td>@endif
 		<td>{{ $user->last_login }}</td>
 		<td>{{ $user->login_times }}</td>
 	</tr>
