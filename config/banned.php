@@ -25,7 +25,8 @@ return [
         'g9926h3810f.810@gmail.com',
         'y8912i8262e.748@gmail.com',
         'registerqt23t.wgg4334@gmail.com',
-        '3q4yq35yqe989.v32r34t@gmail.com'
+        '3q4yq35yqe989.v32r34t@gmail.com',
+        'e5h35qgerq.23t4trtwhrh54@gmail.com'
     ],
     'patterns' => [
         '/[a-z]\d\d\d\d[a-z][a-z]\d\d\d\d[a-z].\d\d\d\d@gmail.com/',
