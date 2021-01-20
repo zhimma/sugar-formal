@@ -658,7 +658,7 @@
 			<input type="hidden" value="" name="isVip" id="isVip">
 			<input type="hidden" value="advInfo" name="page">
 		</form>
-	@elseif (Auth::user()->can('readonly'))
+	@elseif (Auth::user()->can('readonly') || Auth::user()->can('juniorAdmin'))
 		<form action="/users/VIPToggler/readOnly" method="POST" id="clickVipAction">
 			{{ csrf_field() }}
 			<input type="hidden" value="" name="user_id" id="vipID">
