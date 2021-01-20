@@ -651,14 +651,14 @@
 </div>
 
 <div>
-	@if (Auth::user()->can('admin'))
+	@if (Auth::user()->can('admin') || Auth::user()->can('juniorAdmin'))
 		<form action="/admin/users/VIPToggler" method="POST" id="clickVipAction">
 			{{ csrf_field() }}
 			<input type="hidden" value="" name="user_id" id="vipID">
 			<input type="hidden" value="" name="isVip" id="isVip">
 			<input type="hidden" value="advInfo" name="page">
 		</form>
-	@elseif (Auth::user()->can('readonly') || Auth::user()->can('juniorAdmin'))
+	@elseif (Auth::user()->can('readonly'))
 		<form action="/users/VIPToggler/readOnly" method="POST" id="clickVipAction">
 			{{ csrf_field() }}
 			<input type="hidden" value="" name="user_id" id="vipID">
