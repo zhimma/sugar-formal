@@ -36,6 +36,7 @@
 		<a href="{{ route('admin/chat') }}">站長信箱</a>
 		<a href="{{ route('admin/commontext') }}">編輯文案</a>
 		<a href="{{ route('admin/check') }}">站長審核</a>
+		<a href="{{ route('admin/getAdminActionLog') }}">Admin後台操作記錄</a>
 
 	@elseif (Auth::user()->can('readonly'))
 		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
