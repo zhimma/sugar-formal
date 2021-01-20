@@ -92,7 +92,8 @@
                 // ResultData({
                 //   msg: msg
                 // });
-                c2(msg);
+                alert(msg);
+                $(".btn-register").removeAttr('disabled', 'disabled')
             })
             .on('form:success', function () {
                 return true;

@@ -709,6 +709,8 @@ class UserController extends Controller
         $data = warned_users::where('member_id', $user->id)->first();
         if (isset($data) && ($data->expire_date == null || $data->expire_date >= Carbon::now())) {
             $user['isAdminWarned'] = 1;
+            $user['adminWarned_expireDate'] = $data->expire_date;
+            $user['adminWarned_createdAt'] = $data->created_at;
         } else {
             $user['isAdminWarned'] = 0;
         }
@@ -912,6 +914,7 @@ class UserController extends Controller
                 ->with('userMeta', $userMeta)
                 ->with('banReason', $banReason)
                 ->with('warned_banReason', $warned_banReason)
+                ->with('warned_info', $warned_banReason)
                 ->with('implicitly_banReason', $implicitly_banReason)
                 ->with('user', $user)
                 ->with('userMessage', $userMessage)

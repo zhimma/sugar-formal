@@ -792,6 +792,19 @@
           let birth = $('select[name=year]').val()+'/'+$('select[name=month]').val()+'/'+$('input[name=day]').val();
           console.log(birth);
           let age = getAge(birth);
+          let about = $('textarea[name=about]');
+          let style = $('textarea[name=style]');
+          console.log(about);
+          if(about.val().length < 5) {
+            about.focus();
+            c5('請輸入4～300個字符');
+            return false;
+          }
+          if(style.val().length < 5) {
+            style.focus();
+            c5('請輸入4～300個字符');
+            return false;
+          }
           if(age < 18){
           c5('您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。');
             // swal({

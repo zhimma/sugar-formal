@@ -228,6 +228,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 document.getElementById("btn-login").click();
             }
         });
+
+        var input1 = document.getElementById("email");
+        input1.addEventListener("keyup", function(event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                document.getElementById("btn-login").click();
+            }
+        });
     </script>
     
     <!-- <script src="/js/login.js" type="text/javascript"></script> -->
