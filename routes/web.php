@@ -582,6 +582,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::post('/chat', 'MessageController@postChat');
         Route::get('commontext', 'UserController@showAdminCommonText')->name('admin/commontext');
         Route::post('commontext/save', 'UserController@saveAdminCommonText')->name('admin/commontext/save');
+        Route::get('getAdminActionLog', 'UserController@adminActionLog')->name('admin/getAdminActionLog');
         Route::get('users/inactive', 'UserController@inactiveUsers')->name('inactive');
         Route::post('users/inactive', 'UserController@inactiveUsers')->name('inactive');
         Route::get('users/activate/token/{token}', 'UserController@activateUser')->name('activateUser');

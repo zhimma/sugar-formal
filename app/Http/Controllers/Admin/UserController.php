@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\AccountStatusLog;
+use App\Models\AdminActionLog;
 use App\Models\Board;
 use App\Models\ExpectedBanningUsers;
 use App\Models\Fingerprint2;
@@ -38,6 +39,7 @@ use App\Models\BannedUsersImplicitly;
 use App\Notifications\BannedNotification;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Session;
 
@@ -122,6 +124,10 @@ class UserController extends Controller
             $user->engroup = '1';
         }
         $user->save();
+
+        //新增Admin操作log
+        $this->insertAdminActionLog($request->user_id, $request->gender_now ==1 ? '變更性別(男->女)' : '變更性別(女->男)');
+
         if (isset($request->page)) {
             switch ($request->page) {
                 case 'advInfo':
@@ -168,6 +174,8 @@ class UserController extends Controller
             }
 
         }
+        //新增Admin操作log
+        $this->insertAdminActionLog($request->user_id, $request->isVip ==1 ? '取消VIP' : '升級VIP');
 
         VipLog::addToLog($request->user_id, $setVip == 0 ? 'manual_cancel' : 'manual_upgrade', 'Manual Setting', $setVip, 1);
         $user = User::select('id', 'email', 'name')
@@ -222,6 +230,8 @@ class UserController extends Controller
 
         if ($userBanned) {
             $userBanned->delete();
+            //新增Admin操作log
+            $this->insertAdminActionLog($request->user_id, '解除封鎖');
             if (isset($request->page)) {
                 switch ($request->page) {
                     case 'advInfo':
@@ -248,6 +258,8 @@ class UserController extends Controller
                 $userBanned->reason = $request->reason;
             }
             $userBanned->save();
+            //新增Admin操作log
+            $this->insertAdminActionLog($request->user_id, '封鎖會員');
 
             if (isset($request->page)) {
                 switch ($request->page) {
@@ -333,6 +345,8 @@ class UserController extends Controller
             $userWarned->reason = $request->reason;
         }
         $userWarned->save();
+        //新增Admin操作log
+        $this->insertAdminActionLog($request->user_id, '站方警示');
 
         if (isset($request->page)) {
             switch ($request->page) {
@@ -442,6 +456,9 @@ class UserController extends Controller
             warned_users::where('member_id', '=', $data['id'])->delete();
         }
 
+        //新增Admin操作log
+        $this->insertAdminActionLog($data['id'], '解除站方警示');
+
         $data = array(
             'code' => '200',
             'status' => 'success'
@@ -476,6 +493,9 @@ class UserController extends Controller
                 DB::select(DB::raw("update member_vip set updated_at = null where member_id = $request->user_id"));
             }
         }
+        //新增Admin操作log
+        $this->insertAdminActionLog($request->user_id, $request->Recommended ==1 ? '給予優選' : '取消優選');
+
         if (isset($request->page)) {
             switch ($request->page) {
                 case 'advInfo':
@@ -658,6 +678,10 @@ class UserController extends Controller
         }
         $userMeta = UserMeta::where('user_id', 'like', $id)->get()->first();
         $userMessage = Message::where('from_id', $id)->orderBy('created_at', 'desc')->paginate(config('social.admin.showMessageCount'));
+        if(!empty($request->get('page'))){
+            //新增Admin操作log
+            $this->insertAdminActionLog($id, '溜覽所有訊息');
+        }
         $to_ids = array();
         foreach ($userMessage as $u) {
             if (!array_key_exists($u->to_id, $to_ids)) {
@@ -1104,6 +1128,9 @@ class UserController extends Controller
 
         if ($request->delete) {
             $datas = $this->admin->deletePicture($request);
+            //新增Admin操作log
+            $this->insertAdminActionLog($request->avatar_id, '刪除大頭照');
+
             if ($datas == null) {
                 return redirect()->back()->withErrors(['沒有選擇訊息。'])->withInput();
             }
@@ -1604,6 +1631,9 @@ class UserController extends Controller
             //     }
             // }
         }
+        //新增Admin操作log
+        $this->insertAdminActionLog($id, '撰寫站長訊息');
+
         return back()->with('message', '傳送成功');
     }
 
@@ -1697,6 +1727,8 @@ class UserController extends Controller
      */
     public function switchToUser($id)
     {
+        //新增Admin操作log
+        $this->insertAdminActionLog($id, '切換成此會員前台');
         if ($this->service->switchToUser($id)) {
             return redirect('dashboard')->with('message', '成功切換使用者');
         }
@@ -1741,7 +1773,10 @@ class UserController extends Controller
     {
         //$result = $this->service->update($id, $request->except(['_token', '_method']));
         $result = $this->service->update($id, $request->all());
+
         if ($result) {
+            //新增Admin操作log
+            $this->insertAdminActionLog($id, '修改會員資本資料');
             return back()->with('message', '成功更新會員資料');
         }
 
@@ -2314,6 +2349,9 @@ class UserController extends Controller
             \App\Models\BannedUsersImplicitly::where('target', $data['id'])->delete();
         }
 
+        //新增Admin操作log
+        $this->insertAdminActionLog($data['id'], '解除封鎖');
+
         $data = array(
             'code' => '200',
             'status' => 'success'
@@ -2352,6 +2390,9 @@ class UserController extends Controller
             }
 
         }
+        //新增Admin操作log
+        $this->insertAdminActionLog($id, $status==1 ? '警示用戶'  : '取消警示用戶');
+
         $data = array(
             'code' => '200',
             'status' => 'success'
@@ -2530,6 +2571,9 @@ class UserController extends Controller
                 'target' => $request->user_id]
         );
         ExpectedBanningUsers::where('target', $request->user_id)->delete();
+
+        //新增Admin操作log
+        $this->insertAdminActionLog($request->user_id, '隱性封鎖');
 
         //隱形封鎖/封鎖某位user後，用站長名義寄一封信給一個月內曾經檢舉過這個user的user，
         //"XX您好，您在X月X日檢舉 OO，經站長檢視後，已於X月X日將其封鎖。您可到 瀏覽3:警示會員無法進行檢舉
@@ -3135,4 +3179,39 @@ class UserController extends Controller
         return back()->with('message', '訊息發送成功')->with('log_data',$log_data);
     }
 
+    public function adminActionLog(Request $request)
+    {
+        $getLogs = AdminActionLog::leftJoin('users', 'users.id', '=', 'admin_action_log.operator')->orderBy('admin_action_log.created_at', 'desc');
+
+        if(!empty($request->get('operator'))){
+            $getLogs->where('users.email',$request->get('operator'));
+        }
+        if(!empty($request->get('date_start'))){
+            $getLogs->where('admin_action_log.created_at','>=',$request->get('date_start'));
+        }
+        if(!empty($request->get('date_end'))){
+            $getLogs->where('admin_action_log.created_at','<=',date("Y-m-d",strtotime("+1 day", strtotime($request->get('date_end')))));
+        }
+        $getLogs = $getLogs->selectRaw('admin_action_log.*, users.email, (select email from users where id = admin_action_log.target_id) AS target_acc ');
+        $getLogs = $getLogs->get();
+
+
+        $page = $request->get('page',1);
+        $perPage = 50;
+        $totalCount = $getLogs->count();
+        $getLogs = new LengthAwarePaginator($getLogs->forPage($page, $perPage), $totalCount, $perPage, $page, ['path' => route('admin/getAdminActionLog', $request->input())]);
+
+
+        return view('admin.users.showAdminActionLog', compact('getLogs','totalCount'));
+    }
+
+    public function insertAdminActionLog($targetAccountID, $action)
+    {
+        AdminActionLog::create([
+            'operator'    => Auth::user()->id,
+            'target_id'  => $targetAccountID,
+            'act'         => $action,
+            'ip'          => array_get($_SERVER, 'REMOTE_ADDR')
+        ]);
+    }
 }
