@@ -242,7 +242,7 @@
                                         </div>
                                     </li>
                                 @endif
-                                @if($to->engroup == 2 && $to->isPhoneAuth())
+                                @if($to->isPhoneAuth())
                                     <li>
                                         <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。" style="width: 100%">
                                         @if($user->isVip())

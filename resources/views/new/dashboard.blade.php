@@ -741,7 +741,7 @@
         @php
             DB::table('payment_get_barcode_log')->where('user_id',$user->id)->where('ExpireDate','>=',now())->where('isRead',0)->update(['isRead' => 1]);
         @endphp
-        @elseif (!$umeta->isAllSet())
+        @elseif (!$umeta->isAllSet( $user->engroup ))
         c5('請寫上基本資料。');
           // swal({
           //   title:'請寫上基本資料。',
