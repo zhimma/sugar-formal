@@ -240,7 +240,7 @@
                       <span>CUP</span>
                       <span>
                         <select name="cup"  class="select_xx01" >
-                          <option value="">請選擇</option>
+                          <option value=null>請選擇</option>
                           <option value="A"
                                   @if($umeta->cup == 'A') selected @endif>A
                           </option>

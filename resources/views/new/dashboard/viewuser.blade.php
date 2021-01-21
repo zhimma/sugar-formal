@@ -621,7 +621,7 @@
                                                     <a href="/dashboard/viewuser/{{$row_user->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">{{$row_user->name}}</a>
                                                     {{--                                <font>{{ substr($row->created_at,0,10)}}</font>--}}
                                                     @if($row_user->id==$user->id)
-                                                        <font class="sc content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
+                                                        <font class="sc content_delete" data-id="{{$row->id}}" style="padding: 0px 3px;"><img src="/new/images/del_03.png" style="padding: 0px 0px 1px 5px;">刪除</font>
                                                     @endif
                                                 </div>
                                                 <div class="con">
@@ -1265,6 +1265,9 @@
 
     for(let i=0; i<button.length; i++) {
         button[i].onclick = function () {
+            if(this.innerHTML == "送出") {
+                return true;
+            }
             if(this.innerHTML == "完整評價"){
                 p[i].classList.remove("many-txt");
                 p[i].classList.add("all-txt");
