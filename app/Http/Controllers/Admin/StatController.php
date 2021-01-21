@@ -181,6 +181,7 @@ class StatController extends Controller
                         $query->select('member_id')
                             ->from(with(new Vip)->getTable())
                             ->where('active', 1)
+                            ->where('free', 0)
                             ->where('expiry', '<', Carbon::now());;
                     })->get()->count();
                 return $maleVip;
