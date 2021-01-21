@@ -156,7 +156,7 @@ class UserMeta extends Model
         else if ($engroup == 2) { $engroup = 1; }
         if(isset($seqtime) && $seqtime == 2){ $orderBy = 'users.created_at'; }
         else{ $orderBy = 'last_login'; }
-        $constrain = function ($query) use ($city, $area, $cup, $agefrom, $ageto, $marriage, $budget, $income, $smoking, $drinking, $photo, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid){
+        $constraint = function ($query) use ($city, $area, $cup, $agefrom, $ageto, $marriage, $budget, $income, $smoking, $drinking, $photo, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid){
             $query->select('*')->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
             if (isset($city) && strlen($city) != 0) $query->where('city','like', '%'.$city.'%');
             if (isset($area) && strlen($area) != 0) $query->where('area','like', '%'.$area.'%');
@@ -224,9 +224,9 @@ class UserMeta extends Model
          * $isBlockedByUsers = blocked::select('member_id')->where('blocked_id',$userid)->get();
          */
         // 效能調整：Eager Loading
-        $query = User::with(['user_meta' => $constrain, 'vip'])
+        $query = User::with(['user_meta' => $constraint, 'vip'])
 		->select('*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))
-            ->whereHas('user_meta', $constrain)
+            ->whereHas('user_meta', $constraint)
             ->where('engroup', $engroup)
             ->where('accountStatus', 1)
             ->whereNotIn('users.id', function($query){
