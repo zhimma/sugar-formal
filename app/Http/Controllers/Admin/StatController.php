@@ -180,7 +180,8 @@ class StatController extends Controller
                     $maleVip = User::select('id')->where('engroup', 1)->whereIn('id', function($query){
                         $query->select('member_id')
                             ->from(with(new Vip)->getTable())
-                            ->where('active', 1);
+                            ->where('active', 1)
+                            ->where('expiry', '<', Carbon::now());;
                     })->get()->count();
                 return $maleVip;
                 case 2:
