@@ -3,21 +3,20 @@
 @section('app-content')
 
     <style>
-        .swiper-container {width: 100%;max-height: 600px;border-radius:15px} 
-        .swiper-container1 {width: 100%;max-height: 600px;border-radius:15px}    
-        .swiper-slide {width: 100%;height: 280px;margin: 0 auto;padding: 0px;display: table}        
-        .swiper-slide img {width: 100%;height: 100%;}       
+        .swiper-container {width: 100%;max-height: 600px;border-radius:15px}
+        .swiper-container1 {width: 100%;max-height: 600px;border-radius:15px}
+        .swiper-slide {width: 100% !important;height: 280px !important;margin: 0 auto;padding: 0px;display: table;justify-content: center;align-items: center;background: #ffffff;overflow: hidden;display: flex;}
+        .swiper-slide img {width: auto;height: auto;max-width: 100%;max-height: 100%;}
         @media (max-width:767px) {
-        .swiper-container {width: 100%;height: auto;border-radius:15px}
-        .swiper-container1 {width: 100%;height: auto;border-radius:15px}
-        .swiper-slide {width: 100%;height: 280px !important;margin: 0 auto;padding: 0px;display: table}
-        .swiper-slide img {width: 100%;height: 100%;}
+            .swiper-container {width: 100%;height: auto;border-radius:15px}
+            .swiper-container1 {width: 100%;height: auto;border-radius:15px}
+            .swiper-slide {width: 100%;height:280px !important;margin: 0 auto;}
+
         }
         @media (max-width:992px) {
-        .swiper-container {width: 100%;height: auto;border-radius:15px}
-        .swiper-container1 {width: 100%;height: auto;border-radius:15px}
-        .swiper-slide {width: 100%;height: 280px;margin: 0 auto;padding: 0px;display: table;}
-        .swiper-slide img {width: 100%;height: 100%;}
+            .swiper-container {width: 100%;height: auto;border-radius:15px}
+            .swiper-container1 {width: 100%;height: auto;border-radius:15px}
+            .swiper-slide img {/* width: 100%; *//* height: 300px; */}
         }
     </style>
 
@@ -52,7 +51,7 @@
         <div class="n_tjleft left">
             <div class="swesy">
               <div class="swiper-container photo">
-                  <div class="swiper-wrapper">
+                  <div class="swiper-wrapper" style="height: 300px">
                       @foreach ($imgUserF as $k => $v)
                       @if(isset($v))
                       <div class="swiper-slide">
