@@ -1232,6 +1232,9 @@
 
     for(let i=0; i<button.length; i++) {
         button[i].onclick = function () {
+            if(this.innerHTML == "送出") {
+                return true;
+            }
             if(this.innerHTML == "完整評價"){
                 p[i].classList.remove("many-txt");
                 p[i].classList.add("all-txt");
