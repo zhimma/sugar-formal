@@ -199,13 +199,13 @@ class UserMeta extends Model
                                     ->where(\DB::raw('LENGTH(blockarea) = 0'));
                             })
                             // 設定封鎖全城市
-                            ->where(
+                            ->orWhere(
                                 function ($query) use ($city, $user_area, $key){
                                     $query->where('blockcity', '<>', '%' . $city . '%')
                                         ->where(\DB::raw('LENGTH(blockarea) = 0'));
                                 })
                             // 設定封鎖城市地區
-                            ->where(
+                            ->orWhere(
                                 function ($query) use ($city, $user_area, $key){
                                     $query->where('blockcity', '<>', '%' . $city . '%')
                                         ->where('blockarea', '<>', '%' . $user_area[$key] . '%');
