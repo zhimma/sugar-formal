@@ -626,8 +626,9 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::get('users/getBirthday', 'UserController@getBirthday');
         Route::post('users/unwarned_user', 'UserController@unwarnedUser');/*站方警示*/
         Route::post('users/changeExchangePeriod', 'UserController@changeExchangePeriod')->name('changeExchangePeriod');/*包養關係*/
-        Route::get("sendFakeMail/{repeat?}", function($repeat = 1){
+        Route::get("sendFakeMail/{repeat?}", function(){
             $str = "";
+            $repeat = request()->repeat ?? 1;
             for ($i = 0; $i++; $i < $repeat){
                 \Mail::raw("123", function ($message) {
                     $message->from('admin@sugar-garden.org', 'Sugar-garden');
