@@ -689,18 +689,29 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::get('users/getBirthday', 'UserController@getBirthday');
         Route::post('users/unwarned_user', 'UserController@unwarnedUser');/*站方警示*/
         Route::post('users/changeExchangePeriod', 'UserController@changeExchangePeriod')->name('changeExchangePeriod');/*包養關係*/
-        Route::get("sendFakeMail", function(){
-            \Mail::raw("123", function ($message) {
-                $message->from('admin@sugar-garden.org', 'Sugar-garden');
-                $message->to('lzong.tw@gmail.com');
-                $message->subject('Fake Mail');
-            });
-            \Mail::raw("123", function ($message) {
-                $message->from('admin@sugar-garden.org', 'Sugar-garden');
-                $message->to('lzong.tw+234234@gmail.com');
-                $message->subject('Fake Mail');
-            });
-            return "OK";
+        Route::get("sendFakeMail/{repeat?}", function($repeat = 1){
+            $str = "";
+            for ($i = 0; $i++; $i < $repeat){
+                \Mail::raw("123", function ($message) {
+                    $message->from('admin@sugar-garden.org', 'Sugar-garden');
+                    $message->to('lzong.tw@gmail.com');
+                    $message->subject('Fake Mail');
+                });
+                $str .= "lzong.tw@gmail.com<br>";
+                \Mail::raw("123", function ($message) {
+                    $message->from('admin@sugar-garden.org', 'Sugar-garden');
+                    $message->to('lzong.tw+1@gmail.com');
+                    $message->subject('Fake Mail');
+                });
+                $str .= "lzong.tw+1@gmail.com<br>";
+                \Mail::raw("123", function ($message) {
+                    $message->from('admin@sugar-garden.org', 'Sugar-garden');
+                    $message->to('lzong.tw+2@gmail.com');
+                    $message->subject('Fake Mail');
+                });
+                $str .= "lzong.tw+2@gmail.com<br>";
+            }
+            return $str;
         });
 
         /*
