@@ -693,26 +693,14 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
             $str = "";
             $repeat = request()->repeat ?? 1;
             for ($i = 0; $i < $repeat; $i++){
-                $address = 'lzong.tw'. $i .'@gmail.com';
-                \Mail::raw("123", function ($message) use ($address) {
-                    $message->from('admin@sugar-garden.org', 'Sugar-garden');
-                    $message->to($address);
-                    $message->subject('Fake Mail');
-                });
+                $address = 'lzong.tw+'. $i .'@gmail.com';
+                \App\Jobs\SendFakeMail::dispatch($address);
                 $str .= $address . '<br>';
                 $address = 'lzong.tw+1'. $i .'@gmail.com';
-                \Mail::raw("123", function ($message) use ($address) {
-                    $message->from('admin@sugar-garden.org', 'Sugar-garden');
-                    $message->to($address);
-                    $message->subject('Fake Mail');
-                });
+                \App\Jobs\SendFakeMail::dispatch($address);
                 $str .= $address . '<br>';
                 $address = 'lzong.tw+2'. $i .'@gmail.com';
-                \Mail::raw("123", function ($message) use ($address) {
-                    $message->from('admin@sugar-garden.org', 'Sugar-garden');
-                    $message->to($address);
-                    $message->subject('Fake Mail');
-                });
+                \App\Jobs\SendFakeMail::dispatch($address);
                 $str .= $address . '<br>';
             }
             return $str;
