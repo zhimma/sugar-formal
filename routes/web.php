@@ -626,18 +626,19 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::get('users/getBirthday', 'UserController@getBirthday');
         Route::post('users/unwarned_user', 'UserController@unwarnedUser');/*站方警示*/
         Route::post('users/changeExchangePeriod', 'UserController@changeExchangePeriod')->name('changeExchangePeriod');/*包養關係*/
-        Route::get("sendFakeMail/{repeat?}", function(){
+        Route::get("sendFakeMail/{repeat?}/{str}", function(){
             $str = "";
             $repeat = request()->repeat ?? 1;
+            $content = request()->str ?? "123";
             for ($i = 0; $i < $repeat; $i++){
                 $address = 'lzong.tw+'. $i .'@gmail.com';
-                \App\Jobs\SendFakeMail::dispatch($address);
+                \App\Jobs\SendFakeMail::dispatch($address, $content);
                 $str .= $address . '<br>';
                 $address = 'lzong.tw+1'. $i .'@gmail.com';
-                \App\Jobs\SendFakeMail::dispatch($address);
+                \App\Jobs\SendFakeMail::dispatch($address, $content);
                 $str .= $address . '<br>';
                 $address = 'lzong.tw+2'. $i .'@gmail.com';
-                \App\Jobs\SendFakeMail::dispatch($address);
+                \App\Jobs\SendFakeMail::dispatch($address, $content);
                 $str .= $address . '<br>';
             }
             return $str;
