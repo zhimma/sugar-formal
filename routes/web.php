@@ -692,7 +692,7 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
         Route::get("sendFakeMail/{repeat?}", function(){
             $str = "";
             $repeat = request()->repeat ?? 1;
-            for ($i = 0; $i++; $i < $repeat){
+            for ($i = 0; $i < $repeat; $i++){
                 \Mail::raw("123", function ($message) {
                     $message->from('admin@sugar-garden.org', 'Sugar-garden');
                     $message->to('lzong.tw@gmail.com');
