@@ -693,24 +693,27 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
             $str = "";
             $repeat = request()->repeat ?? 1;
             for ($i = 0; $i < $repeat; $i++){
-                \Mail::raw("123", function ($message) {
+                $address = 'lzong.tw'. $i .'@gmail.com';
+                \Mail::raw("123", function ($message) use ($address) {
                     $message->from('admin@sugar-garden.org', 'Sugar-garden');
-                    $message->to('lzong.tw@gmail.com');
+                    $message->to($address);
                     $message->subject('Fake Mail');
                 });
-                $str .= "lzong.tw@gmail.com<br>";
-                \Mail::raw("123", function ($message) {
+                $str .= $address . '<br>';
+                $address = 'lzong.tw+1'. $i .'@gmail.com';
+                \Mail::raw("123", function ($message) use ($address) {
                     $message->from('admin@sugar-garden.org', 'Sugar-garden');
-                    $message->to('lzong.tw+1@gmail.com');
+                    $message->to($address);
                     $message->subject('Fake Mail');
                 });
-                $str .= "lzong.tw+1@gmail.com<br>";
-                \Mail::raw("123", function ($message) {
+                $str .= $address . '<br>';
+                $address = 'lzong.tw+2'. $i .'@gmail.com';
+                \Mail::raw("123", function ($message) use ($address) {
                     $message->from('admin@sugar-garden.org', 'Sugar-garden');
-                    $message->to('lzong.tw+2@gmail.com');
+                    $message->to($address);
                     $message->subject('Fake Mail');
                 });
-                $str .= "lzong.tw+2@gmail.com<br>";
+                $str .= $address . '<br>';
             }
             return $str;
         });
