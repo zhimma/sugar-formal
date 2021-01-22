@@ -12,17 +12,18 @@ class SendFakeMail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $address;
+    protected $address, $content;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($address)
+    public function __construct($address, $content)
     {
         //
         $this->address = $address;
+        $this->content = $content;
     }
 
     /**
@@ -34,7 +35,8 @@ class SendFakeMail implements ShouldQueue
     {
         //
         $address = $this->address;
-        \Mail::raw("123", function ($message) use ($address) {
+        $content = $this->content;
+        \Mail::raw($content, function ($message) use ($address) {
             $message->from('admin@sugar-garden.org', 'Sugar-garden');
             $message->to($address);
             $message->subject('Fake Mail');
