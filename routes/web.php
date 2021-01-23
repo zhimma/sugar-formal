@@ -634,12 +634,6 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
                 $address = 'lzong.tw+'. $i .'@gmail.com';
                 \App\Jobs\SendFakeMail::dispatch($address, $content);
                 $str .= $address . '<br>';
-                $address = 'lzong.tw+1'. $i .'@gmail.com';
-                \App\Jobs\SendFakeMail::dispatch($address, $content);
-                $str .= $address . '<br>';
-                $address = 'lzong.tw+2'. $i .'@gmail.com';
-                \App\Jobs\SendFakeMail::dispatch($address, $content);
-                $str .= $address . '<br>';
             }
             return $str;
         });
