@@ -1492,9 +1492,9 @@ class UserController extends Controller
             $to_user_id = Message::where('id', $mid)->get()->first();
             $to_user = $this->service->find(is_null($to_user_id) ? '' : $to_user_id->to_id);
             $message_msg = Message::where('to_id', is_null($to_user) ? '' :$to_user->id)->where('from_id', is_null($user) ? '' : $user->id)->get();
-            if (!$msglib_report->isEmpty()) {
-                foreach ($msglib_report as $key => $msg) {
-                    $msglib_msg[$key] = str_replace('|$report|', is_null($user) ? '' : $user->name, $msg['msg']);
+            if (!$msglib_reported->isEmpty()) {
+                foreach ($msglib_reported as $key => $msg) {
+                    $msglib_msg[$key] = str_replace('|$report|', is_null($to_user) ? '' : $to_user->name, $msg['msg']);
                     $msglib_msg[$key] = str_replace('|$reported|', is_null($sender) ? '' : $sender->name, $msglib_msg[$key]);
                     $msglib_msg[$key] = str_replace('|$reportTime|', isset($message_msg[0]) ? $message_msg[0]->created_at : null, $msglib_msg[$key]);
                     $msglib_msg[$key] = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $msglib_msg[$key]);
@@ -1504,9 +1504,9 @@ class UserController extends Controller
                     $msglib_msg[$key] = $msg['msg'];
                 }
             }
-            if (!$msglib_reported->isEmpty()) {
-                foreach ($msglib_reported as $key => $msg) {
-                    $msglib_msg2[$key] = str_replace('|$report|', is_null($user) ? '' :$user->name, $msg['msg']);
+            if (!$msglib_report->isEmpty()) {
+                foreach ($msglib_report as $key => $msg) {
+                    $msglib_msg2[$key] = str_replace('|$report|', is_null($to_user) ? '' :$to_user->name, $msg['msg']);
                     $msglib_msg2[$key] = str_replace('|$reported|', is_null($sender) ? '' : $sender->name, $msglib_msg2[$key]);
                     $msglib_msg2[$key] = str_replace('|$reportTime|', isset($message_msg[0]) ? $message_msg[0]->created_at : null, $msglib_msg2[$key]);
                     $msglib_msg2[$key] = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $msglib_msg2[$key]);
@@ -1524,8 +1524,8 @@ class UserController extends Controller
                 ->with('from_user', $sender)
                 ->with('message', $message)
                 ->with('senderName', is_null($sender) ? '':$sender->name)
-                ->with('msglib', $msglib_report)
-                ->with('msglib2', $msglib_reported)
+                ->with('msglib', $msglib_reported)
+                ->with('msglib2', $msglib_report)
                 ->with('msglib_report', $msglib_report)
                 ->with('msglib_reported', $msglib_reported)
                 ->with('msglib_msg', $msglib_msg)
@@ -1560,7 +1560,7 @@ class UserController extends Controller
             $user = $this->service->find($id);
             /*被檢舉者 */
             $reported = User::where('id', $reported_id)->get()->first();
-            foreach ($msglib_report as $key => $msg) {
+            foreach ($msglib_reported as $key => $msg) {
                 $msglib_msg[$key] = str_replace('|$report|', $user->name, $msg['msg']);
                 if ($reported) {
                     $msglib_msg[$key] = str_replace('|$reported|', $reported->name, $msglib_msg[$key]);
@@ -1568,7 +1568,7 @@ class UserController extends Controller
                 $msglib_msg[$key] = str_replace('|$reportTime|', isset($report->created_at) ? $report->created_at : null, $msglib_msg[$key]);
                 $msglib_msg[$key] = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $msglib_msg[$key]);
             }
-            foreach ($msglib_reported as $key => $msg) {
+            foreach ($msglib_report as $key => $msg) {
                 $msglib_msg2[$key] = str_replace('|$report|', $user->name, $msg['msg']);
                 if ($reported) {
                     $msglib_msg2[$key] = str_replace('|$reported|', $reported->name, $msglib_msg2[$key]);
@@ -1588,8 +1588,8 @@ class UserController extends Controller
                 ->with('isReported', $isReported)
                 ->with('isReportedId', $reported_id)
                 ->with('pic_id', $pic_id)
-                ->with('msglib', $msglib_report)
-                ->with('msglib2', $msglib_reported)
+                ->with('msglib', $msglib_reported)
+                ->with('msglib2', $msglib_report)
                 ->with('msglib_report', $msglib_report)
                 ->with('msglib_reported', $msglib_reported)
                 ->with('msglib_msg', isset($msglib_msg) ? $msglib_msg : null)
