@@ -131,7 +131,7 @@ class ApiDataLogger{
                 }
 
                 //存入超商條碼取號紀錄
-                if(isset($payload['RtnCode']) && $payload['RtnCode']=='10100073' && $payload['PaymentType']=='BARCODE_BARCODE') {
+                if(isset($payload['RtnCode']) && $payload['RtnCode'] == '10100073' && ($payload['PaymentType'] == 'BARCODE_BARCODE' || $payload['PaymentType'] == 'CVS_CVS')) {
 
                     DB::table('payment_get_barcode_log')->insert([
                         'user_id' => $payload['CustomField1'],
