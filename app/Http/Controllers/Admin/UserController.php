@@ -13,6 +13,7 @@ use App\Models\Message;
 use App\Models\Reported;
 use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
+use App\Models\SetAutoBan;
 use App\Models\SimpleTables\users;
 use App\Notifications\AccountConsign;
 use App\Notifications\BannedUserImplicitly;
@@ -2347,9 +2348,11 @@ class UserController extends Controller
         // dd($ban);
         if (count($ban) > 0) {
             banned_users::where('member_id', '=', $data['id'])->first()->delete();
+            SetAutoBan::where('cuz_user_set', $data['id'])->delete();
         }
         if ($banImplicitly->count() > 0) {
             \App\Models\BannedUsersImplicitly::where('target', $data['id'])->delete();
+            SetAutoBan::where('cuz_user_set', $data['id'])->delete();
         }
 
         //新增Admin操作log

@@ -1106,7 +1106,7 @@
             }
         });
 
-        $$(".addFav").on('click', function() {
+        $(".addFav").on('click', function() {
             var uid='{{ $user->id }}';
             var to='{{$to->id}}';
             if(uid != to){

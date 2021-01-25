@@ -244,9 +244,9 @@ class Vip extends Model
 
     public static function vip_diamond($id){
         //黑鑽 曾經是 vip現在不是 & 現在是 vip 但已經選擇取消不續約
-        $sqltmp = Vip::select('member_id', 'active', 'expiry')->where('member_id', $id)->orderBy('created_at', 'desc')->get()->first();
+        $sqltmp = Vip::select('member_id', 'active', 'expiry', 'payment')->where('member_id', $id)->orderBy('created_at', 'desc')->get()->first();
         if($sqltmp){
-            if($sqltmp->active == '0' OR $sqltmp->expiry != '0000-00-00 00:00:00') return 'diamond_black';
+            if($sqltmp->active == '0' OR $sqltmp->expiry != '0000-00-00 00:00:00' OR $sqltmp->payment == 'one_month_payment') return 'diamond_black';
             //現在是VIP且無取消續約的 連續續約月數轉換鑽石數
             if($sqltmp->active == '1' OR $sqltmp->expiry = '0000-00-00 00:00:00'){
                 $now = \Carbon\Carbon::now();

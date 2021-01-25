@@ -66,7 +66,7 @@
                   </dt>
                   <dt>
                     <span>一句話形容自己<i>(必填)</i></span>
-                    <span><input name="title" type="text" class="select_xx01"  placeholder="請輸入" value="{{$user->title}}" required data-parsley-errors-messages-disabled></span>
+                    <span><input name="title" type="text" class="select_xx01"  placeholder="請輸入" value="{{$user->title}}" data-parsley-errors-messages-disabled></span>
                   </dt>
 
                   <dt>
@@ -190,7 +190,7 @@
                   <dt class="">
                       <span>預算<i>(必填)</i></span>
                       <span>
-                        <select required data-parsley-errors-messages-disabled name="budget"  class="select_xx01">
+                        <select data-parsley-errors-messages-disabled name="budget"  class="select_xx01">
                           <option value="">請選擇</option>
                           <option value="基礎" {{($umeta->budget == '基礎')?"selected":""  }}>基礎</option>
                           <option value="進階"
@@ -211,12 +211,12 @@
                       <span>
                         <input type="hidden" name="day" value="01">
                         <div class="se_zlman left">
-                          <select required data-parsley-errors-messages-disabled name="year"  class="select_xx04 sel_year" data-value="{{ $year }}">
+                          <select data-parsley-errors-messages-disabled name="year"  class="select_xx04 sel_year" data-value="{{ $year }}">
                           </select>
                           <i class="right">年</i>
                         </div>
                         <div class="se_zlman right">
-                          <select required data-parsley-errors-messages-disabled name="month"  class="select_xx04 sel_month" data-value="{{ $month }}">
+                          <select data-parsley-errors-messages-disabled name="month"  class="select_xx04 sel_month" data-value="{{ $month }}">
                           </select>
                           <i class="right">月</i>
                         </div>
@@ -224,7 +224,7 @@
                   </dt>
                   <dt>
                       <span>身高（cm）<i>(必填)</i></span>
-                      <span><input minlength="3" data-parsley-minlength="3" name="height" id="height" type="number" class="select_xx01"  placeholder="請輸入數字範圍140～210" value="{{$umeta->height}}" title="請輸入140~210範圍"></span>
+                      <span><input name="height" id="height" type="number" class="select_xx01"  placeholder="請輸入數字範圍140～210" value="{{$umeta->height}}" title="請輸入140~210範圍"></span>
                   </dt>
                   @if($user->engroup==2)
 {{--                  <dt>--}}
@@ -291,17 +291,17 @@
                   </dt>
                   <dt>
                       <span>關於我<i>(必填)</i></span>
-                      <span><textarea minlength="4"  data-parsley-minlength="4" required data-parsley-errors-messages-disabled name="about" cols="" rows="3" class="select_xx05">{{$umeta->about}}</textarea></span>
+                      <span><textarea data-parsley-errors-messages-disabled name="about" cols="" rows="3" class="select_xx05">{{$umeta->about}}</textarea></span>
                   </dt>
                   <dt class="matopj15">
                       <span>期待的約會模式<i>(必填)</i></span>
-                      <span><textarea minlength="4"  data-parsley-minlength="4" required data-parsley-errors-messages-disabled name="style" cols="" rows="3" class="select_xx05">{{$umeta->style}}</textarea></span>
+                      <span><textarea data-parsley-errors-messages-disabled name="style" cols="" rows="3" class="select_xx05">{{$umeta->style}}</textarea></span>
                   </dt>
                   @if($user->engroup==2)
                   <dt class="matopj15">
                       <span>現況<i>(必填)</i></span>
                       <span>
-                        <select required data-parsley-errors-messages-disabled name="situation"  class="select_xx01">
+                        <select data-parsley-errors-messages-disabled name="situation"  class="select_xx01">
                           <option value="">請選擇</option>
                           <option value="學生"
                                   @if($umeta->situation == '學生') selected @endif>
@@ -489,7 +489,7 @@
                   <dt>
                       <span>教育<i>(必填)</i></span>
                       <span>
-                        <select required data-parsley-errors-messages-disabled name="education"  class="select_xx01">
+                        <select data-parsley-errors-messages-disabled name="education"  class="select_xx01">
                           <option value="">請選擇</option>
                           <option value="國中"
                                   @if($umeta->education == '國中') selected @endif>
@@ -513,7 +513,7 @@
                   <dt>
                       <span>婚姻<i>(必填)</i></span>
                       <span>
-                        <select required data-parsley-errors-messages-disabled name="marriage"  class="select_xx01">
+                        <select data-parsley-errors-messages-disabled name="marriage"  class="select_xx01">
                           <option value="">請選擇</option>
                           <option value="已婚"
                                   @if($umeta->marriage == '已婚') selected @endif>已婚
@@ -541,7 +541,7 @@
                   <dt>
                       <span>喝酒<i>(必填)</i></span>
                       <span>
-                        <select required data-parsley-errors-messages-disabled name="drinking"  class="select_xx01">
+                        <select data-parsley-errors-messages-disabled name="drinking"  class="select_xx01">
                           <option value="">請選擇</option>
                           <option value="不喝"
                                   @if($umeta->drinking == '不喝') selected @endif>不喝
@@ -559,7 +559,7 @@
                   <dt>
                       <span>抽煙<i>(必填)</i></span>
                       <span>
-                        <select required data-parsley-errors-messages-disabled name="smoking"  class="select_xx01">
+                        <select data-parsley-errors-messages-disabled name="smoking"  class="select_xx01">
                           <option value="">請選擇</option>
                           <option value="不抽"
                                   @if($umeta->smoking == '不抽') selected @endif>不抽
@@ -578,7 +578,7 @@
                   <dt>
                       <span>年收<i>(必填)</i></span>
                       <span>
-                        <select required data-parsley-errors-messages-disabled name="income"  class="select_xx01">
+                        <select data-parsley-errors-messages-disabled name="income"  class="select_xx01">
                           <option value="">請選擇</option>
                           <option value="50萬以下"
                                   @if($umeta->income == '50萬以下') selected @endif>
@@ -605,7 +605,7 @@
                   </dt>
                   <dt>
                       <span>資產<i>(必填)</i></span>
-                      <span><input required data-parsley-errors-messages-disabled name="assets" id="assets" value="{{$umeta->assets}}" type="number" class="select_xx01"  placeholder="請輸入數字範圍0～10000000000"></span>
+                      <span><input data-parsley-errors-messages-disabled name="assets" id="assets" value="{{$umeta->assets}}" type="number" class="select_xx01"  placeholder="請輸入數字範圍0～10000000000"></span>
                   </dt>
                   @endif
                 </div>
@@ -790,29 +790,108 @@
         e.preventDefault();
         if($(this).parsley().isValid()){
           let birth = $('select[name=year]').val()+'/'+$('select[name=month]').val()+'/'+$('input[name=day]').val();
-          console.log(birth);
           let age = getAge(birth);
+          let title = $('input[name=title]');
           let about = $('textarea[name=about]');
           let style = $('textarea[name=style]');
-          console.log(about);
-          if(about.val().length < 5) {
-            about.focus();
-            c5('請輸入4～300個字符');
+          let budget = $('select[name=budget]');
+          let assets = $('#assets');
+          let height = $('#height');
+          let income = $('select[name=income]');
+          let marriage = $('select[name=marriage]');
+          let education = $('select[name=education]');
+          let drinking = $('select[name=drinking]');
+          let smoking = $('select[name=smoking]');
+          let county = $("#county");
+          let situation = $('select[name=situation]');
+          if(title.val() === "") {
+            title.focus();
+            c5('請輸入一句話形容自己');
             return false;
           }
-          if(style.val().length < 5) {
-            style.focus();
-            c5('請輸入4～300個字符');
+          if($(county).find('.twzipcode').length == 0) {
+            c5('請選擇地區');
+            return false;
+          } else {
+            $(county).find('.twzipcode').each(function(index, element) {
+                if(index == 0 && $(element).find('select').val() === ""){
+                  c5('請選擇地區');
+                  return false;
+                }
+            })
+          }
+          
+          
+          if(budget.val() === "") {
+            budget.focus();
+            c5('請選擇預算');
             return false;
           }
-          if(age < 18){
-          c5('您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。');
+          if($('select[name=year]').val() == "" || $('select[name=month]').val() == "" || age < 18){
+            c5('您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。');
             // swal({
             //     title:'您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。',
             //     type:'warning'
             // });
             return false;
           }
+          if(height.val() == '' || height.val() < 140 || height.val() > 210) {
+            height.focus();
+            c5('身高不在140~210數字範圍：請輸入數字範圍140~210');
+            return false;
+          }
+          if(about.val().length < 5 || about.val().length > 300) {
+            about.focus();
+            c5('關於我低於4個字：請輸入4～300個字符');
+            return false;
+          }
+          if(style.val().length < 5 || style.val().length > 300) {
+            style.focus();
+            c5('期待約會模式低於4個字：請輸入4～300個字符');
+            return false;
+          }
+          if('{{$user->engroup}}' == '2'){
+            if(situation.val() === "") {
+              situation.focus();
+              c5('請選擇現況');
+              return false;
+            };
+          }
+          if(education.val() === "") {
+            education.focus();
+            c5('請選擇教育');
+            return false;
+          }
+          if(marriage.val() === "") {
+            marriage.focus();
+            c5('請選擇婚姻');
+            return false;
+          }
+          if(drinking.val() === "") {
+            drinking.focus();
+            c5('請選擇喝酒');
+            return false;
+          }
+          if(smoking.val() === "") {
+            smoking.focus();
+            c5('請選擇抽煙');
+            return false;
+          }
+          if('{{$user->engroup}}' == '1'){
+            console.log(income.val())
+            if(income.val() === "") {
+              income.focus();
+              c5('請選擇年收');
+              return false;
+            }
+            if(assets.val() == '' || assets.val() < 0 || style.val() > 10000000000) {
+              assets.focus();
+              c5('請輸入資產數字範圍0～10000000000');
+              return false;
+            }
+          }
+          
+          
           var form_dump = $(this);
           c4('確定要變更會員資料嗎?');
           // swal({
@@ -843,7 +922,7 @@
         }
         return false;
       });
-      let county = $("#county");
+      
       let add_county = $("#add_county");
       $(add_county).click(function(){
           if($(county).find('.twzipcode').length < 3) {

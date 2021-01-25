@@ -543,9 +543,16 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 .si_bg{width:90%; /*margin-left:13%;*/}
 }
+.nnn_adbut_img {
+    margin-left: -10px;
+    margin-right: 5px;
+}
 @media (max-width:320px) {
     .si_bg{width:88%; /*margin-left:9%;*/}
-
+    .nnn_adbut_img {
+        margin-left: -8px;
+        margin-right: 2px;
+    }
 }
 .hy_bg01{ background:#ffe8f8;}
 .hy_bg02{
@@ -962,7 +969,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 @media (max-width:797px) {
 .bl_tab{width:90%;background:#e2e8ff; border:#8a9fef 2px solid;border-radius:5px;position: fixed;left: 5%;top: 20%;z-index: 10;display:none;}
-.gg_tab{width:90%;background:#fcedf1; border:#fd90b6 2px solid;border-radius:5px;position: fixed;left:5%;top: 20%;z-index: 10;display:none;}
+.gg_tab{width:90%;background:#fcedf1; border:#fd90b6 2px solid;border-radius:5px;position: fixed;left:5%;top: 20%;z-index: 10;display:none;max-height: 60%;}
 
 .gg_bg{width:310px; margin:0 auto; padding:0px; display:table; position:relative}
 
@@ -2599,7 +2606,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 
 .new_poptk{/*width:90%; height:240px; */height:200px;margin: 0 auto;color: #666666;padding-bottom: 20px; padding-top:15px;overflow-y: scroll; display: block;}
 @media (max-width:450px){
-    .new_poptk{height:300px;}
+    /*.new_poptk{height:300px;}*/
 }
 
 .new_yk {width:90%;height:400px;margin: 0 auto;color: #666666;padding-bottom: 20px; padding-top:15px;overflow-y: scroll;}

@@ -119,8 +119,8 @@
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
                 @if(isset($to))
-                    <div class="shouxq">
-                        <a><img src="{{ asset('/new/images/gg2.png') }}" class="xlimg"></a><span><a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a></span>
+                    <div class="shouxq" style="display: flex;">
+                        <a class="nnn_adbut" href="javascript:history.back()"><img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回</a><span style="flex: 6; text-align: center;"><a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a></span>
                         @if($user->engroup==1)
                             <?php //$orderNumber = \App\Models\Vip::lastid() . $user->id; $code = Config::get('social.payment.code');?>
 {{--                            <form action="{{ Config::get('social.payment.actionURL') }}" style="float: right; position: relative;" method="POST" id="form1">--}}
@@ -139,7 +139,7 @@
 {{--                                <input type=hidden name="ReturnURL" value="{{ route('chatpay') }}">--}}
 {{--                                <button type="button" class="paypay" onclick="checkPay('form1')"><a class="nnn_adbut">車馬費2</a></button>--}}
 {{--                            </form>--}}
-                            <form class="" style="float: right; position: relative;" action="{{ route('chatpay_ec') }}" method=post id="ecpay">
+                            <form class="" style="float: right; position: relative; text-align: right;" action="{{ route('chatpay_ec') }}" method=post id="ecpay">
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                 <input type="hidden" name="userId" value="{{ $user->id }}">
                                 <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">

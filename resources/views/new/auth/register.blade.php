@@ -33,23 +33,23 @@
 
                         <div class="de_input02">
                             <h2>帳號類型（Daddy / Baby）</h2>
-                            <h3><input required type="radio"  name="engroup" value="1" id="RadioGroup1_0"><span>甜心大哥</span></h3>
+                            <h3><input required type="radio"  name="engroup" value="1" id="RadioGroup1_0" {{old('engroup') == '1'? 'checked' : '' }}><span>甜心大哥</span></h3>
                             <h4>你願意用禮物、美食、旅遊等種種方式，寵愛對方，為了得到他的陪伴</h4>
-                            <h3><input required type="radio" name="engroup" value="2" id="RadioGroup1_1"><span>甜心寶貝</span></h3>
+                            <h3><input required type="radio" name="engroup" value="2" id="RadioGroup1_1" {{old('engroup') == '2'? 'checked' : '' }}><span>甜心寶貝</span></h3>
                             <h4>妳想得到寵愛，陪伴甜心大哥</h4>
                         </div>
                         <br>
                         @php
                             $exchange_period_name = DB::table('exchange_period_name')->get();
                         @endphp
-                        <div class="de_input02 exchange_period" style="display: none;">
+                        <div class="de_input02 exchange_period" style="{{old('exchange_period') == ''? 'display: none;' : ''}}">
                             <h2>包養關係</h2>
                             @foreach($exchange_period_name as $row)
-                            <h3><input type="radio" name="exchange_period" value="{{$row->id}}"><span>{{$row->name}}</span></h3>
+                            <h3><input type="radio" name="exchange_period" value="{{$row->id}}" {{old('exchange_period') == $row->id? 'checked' : '' }}><span>{{$row->name}}</span></h3>
                             @endforeach
                         </div>
 
-                        <div class="decheck"><input required name="agree" type="checkbox" ><span>我同意甜心花園的使用條款和隱私政策</span></div>
+                        <div class="decheck"><input required name="agree" type="checkbox" {{old('agree') == 'on'? 'checked' : '' }}><span>我同意甜心花園的使用條款和隱私政策</span></div>
                         <input type="hidden" name="google_recaptcha_token" id="ctl-recaptcha-token">
                         {{-- <a href="javascript:void(0);" onclick="this.disabled = true" class="dlbut btn-register">註冊</a> --}}
                         <button onclick="this.disabled = true" class="dlbut btn-register" style="border-style: none;">註冊</button>
@@ -92,7 +92,7 @@
                 // ResultData({
                 //   msg: msg
                 // });
-                alert(msg);
+                c5(msg);
                 $(".btn-register").removeAttr('disabled', 'disabled')
             })
             .on('form:success', function () {
@@ -107,7 +107,7 @@
                 // ResultData({
                 //     msg: errormsg
                 // });
-                c2(errormsg);
+                c5(errormsg);
             @endif
         });
         $('.alert-danger').css('display','none');
@@ -119,7 +119,7 @@
                 if($("input[name='exchange_period']").is(':checked')) {
                     t.submit();
                 }else{
-                    c2('包養關係尚未填寫');
+                    c5('包養關係尚未填寫');
                     return false;
                 }
             }else{

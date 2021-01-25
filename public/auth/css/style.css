@@ -1255,10 +1255,10 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .new_wyz{width:400px;}
 .newtishi{font-style: normal;display: -webkit-box;-webkit-box-orient: vertical; float: right;}
 @media (max-width:1920px){
-.newtishi{width: calc(100% - 35px);}
+.newtishi{width: calc(100% - 23px);}
 }
 @media (max-width:1366x){
-.newtishi{width: calc(100% - 25px);font-style: normal;display: -webkit-box;-webkit-box-orient: vertical; float: right;}
+.newtishi{width: calc(100% - 23px);font-style: normal;display: -webkit-box;-webkit-box-orient: vertical; float: right;}
 }
 
 @media (max-width:992px) {
