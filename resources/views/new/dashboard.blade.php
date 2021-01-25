@@ -667,7 +667,7 @@
 
   <div class="bl bl_tab" id="isGetBarCodeNotVIP" style="display: none;">
       <div class="bltitle">提示</div>
-      <div class="blnr bltext">超商條碼付款，會在七天內 綠界回傳就直接給 VIP</div>
+      <div class="blnr bltext">超商條碼或超商代碼付款，會在七天內待綠界回傳資料就直接給 VIP</div>
 
       <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
   </div>
