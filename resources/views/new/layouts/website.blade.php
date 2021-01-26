@@ -23,7 +23,13 @@
         @endif
 
     @if(isset($announcement) && count($announcement) > 0 && !Session::has('announceClose'))
-
+        <style type="text/css">
+            .new_poptk::-webkit-scrollbar-thumb {
+                border-radius: 5px;
+                background-color: #fd90b6 !important;
+                box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+            }
+        </style>
         <div class="announce_bg" onclick="gmBtnNoReload()" style="display:block;"></div>
         <div class="gg_tab gg_tkimg" id="announcement" style="display: block;">
             <div class="owl-carousel owl-theme">
@@ -32,7 +38,7 @@
                     <?php $cc = $cc+1;?>
                     <div class="item">
                         <div class="ggtitle">站長公告(第{{ $cc }}/{{ count($announcement) }}則)</div>
-                        <div class="new_poptk" style="height: auto; width: 90%;">
+                        <div class="new_poptk" style="width: 90%; max-height: 350px;">
                             <div @if(!$user->isVip() && $a->isVip==1)class="g_pfont"@endif>
                             {!! nl2br($a->content) !!}
                             @if(!$user->isVip() && $a->isVip==1)

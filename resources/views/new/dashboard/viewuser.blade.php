@@ -242,7 +242,7 @@
                                         </div>
                                     </li>
                                 @endif
-                                @if($to->engroup == 2 && $to->isPhoneAuth())
+                                @if($to->isPhoneAuth())
                                     <li>
                                         <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。" style="width: 100%">
                                         @if($user->isVip())
@@ -311,7 +311,11 @@
                                     @if($isBlocked)
                                         <a class="unblock"><img src="/new/images/icon_12_h.png" class="tubiao_i"><span>解除封鎖</span></a>
                                     @else
+                                        @if($user->id == $to->id)
+                                        <a onclick="show_message('不可封鎖給自己');"><img src="/new/images/icon_12.png" class="tubiao_i"><span>封鎖</span></a>
+                                        @else
                                         <a onclick="show_block()"><img src="/new/images/icon_12.png" class="tubiao_i"><span>封鎖</span></a>
+                                        @endif
                                     @endif
                                 </li>
                             @else
@@ -1031,14 +1035,26 @@
 
     function show_chat() {
         //$(".blbg").show();
-        $(".announce_bg").show();
-        $("#show_chat").show();
+        var uid='{{ $user->id }}';
+        var to='{{$to->id}}';
+        if(uid != to){
+            $(".announce_bg").show();
+            $("#show_chat").show();
+        }else{
+            show_message('不可發信給自己');
+        }
     }
 
     function show_banned() {
         //$(".blbg").show();
-        $(".announce_bg").show();
-        $("#show_banned").show();
+        var uid='{{ $user->id }}';
+        var to='{{$to->id}}';
+        if(uid != to){
+            $(".announce_bg").show();
+            $("#show_banned").show();
+        }else{
+            show_message('不可檢舉給自己');
+        }
     }
 
     function show_reportPic() {
@@ -1050,17 +1066,23 @@
     }
     @if(isset($to))
         $(".but_block").on('click', function() {
-            $.post('{{ route('postBlockAJAX') }}', {
-                uid: '{{ $user->id }}',
-                sid: '{{$to->id}}',
-                _token: '{{ csrf_token() }}'
-            }, function (data) {
-                // if(data.save=='ok') {
-                    $("#tab_block").hide();
-                    // $(".blbg").hide();
-                    show_message('封鎖成功');
-                // }
-            });
+            var uid='{{ $user->id }}';
+            var to='{{$to->id}}';
+            if(uid != to){
+                $.post('{{ route('postBlockAJAX') }}', {
+                    uid: uid,
+                    to: to,
+                    _token: '{{ csrf_token() }}'
+                }, function (data) {
+                    // if(data.save=='ok') {
+                        $("#tab_block").hide();
+                        // $(".blbg").hide();
+                        show_message('封鎖成功');
+                    // }
+                });
+            }else{
+                show_message('不可封鎖自己');
+            }
         });
 
 
@@ -1068,34 +1090,45 @@
             c4('確定要解除封鎖嗎?');
             var uid='{{ $user->id }}';
             var to='{{$to->id}}';
-            $(".n_left").on('click', function() {
-                $.post('{{ route('unblockAJAX') }}', {
+            if(uid != to){
+                $(".n_left").on('click', function() {
+                    $.post('{{ route('unblockAJAX') }}', {
+                        uid: uid,
+                        to: to,
+                        _token: '{{ csrf_token() }}'
+                    }, function (data) {
+                        $("#tab04").hide();
+                        show_message('已解除封鎖');
+                    });
+                });
+            }else{
+                show_message('不可解除封鎖自己');
+            }
+        });
+
+        $(".addFav").on('click', function() {
+            var uid='{{ $user->id }}';
+            var to='{{$to->id}}';
+            if(uid != to){
+                $.post('{{ route('postfavAJAX') }}', {
                     uid: uid,
                     to: to,
                     _token: '{{ csrf_token() }}'
                 }, function (data) {
-                    $("#tab04").hide();
-                    show_message('已解除封鎖');
+                    if(data.save=='ok') {
+                        c2('收藏成功');
+                    }else if(data.save=='error'){
+                        c2('收藏失敗');
+                    }else if(data.isBlocked){
+                        c2('封鎖中無法收藏');
+                    }else if(data.isFav){
+                        c2('已在收藏名單中');
+                    }
                 });
-            });
-        });
-
-        $(".addFav").on('click', function() {
-            $.post('{{ route('postfavAJAX') }}', {
-                uid: '{{ $user->id }}',
-                to: '{{$to->id}}',
-                _token: '{{ csrf_token() }}'
-            }, function (data) {
-                if(data.save=='ok') {
-                    c2('收藏成功');
-                }else if(data.save=='error'){
-                    c2('收藏失敗');
-                }else if(data.isBlocked){
-                    c2('封鎖中無法收藏');
-                }else if(data.isFav){
-                    c2('已在收藏名單中');
-                }
-            });
+            }else{
+                c2('不可收藏自己');
+            }
+            
         });
          $("#msgsnd").on('click', function(){
 
