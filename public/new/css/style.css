@@ -1334,10 +1334,15 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 
 
 .swesy{position:relative;box-shadow: 0 0 10px #cccccc; margin-top:15px; border-radius:15px;width:100%; margin-bottom:10px;}
-.swname{ position:absolute; top:30%;width:50%; text-align:center; z-index:3; color:#ffffff; font-size:24px; font-weight:bold; margin-left:25%}
-.swname span{overflow : hidden;text-overflow : ellipsis;white-space : nowrap;width:300px; height:45px; line-height:30px; background:rgba(231,93,124,0.7); display:table; margin:0 auto; border-radius:100px; margin-top:5px; font-weight:normal; font-size:18px; padding:15px 20px}
-.swname_s{ background:rgba(115,203,243,0.7) !important; }
+.swname{ position:absolute; top:30%; text-align:center; z-index:3; color:#ffffff; font-size:24px; font-weight:bold; margin-left:0%}
+.swname span{
+overflow : hidden;text-overflow : ellipsis;white-space : nowrap;width:300px;height:45px;line-height: 18px;background:rgba(231,93,124,0.7);display: block;margin:0 auto;
+border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15px 20px;}
 
+.swname_s{ background:rgba(115,203,243,0.7) !important; }
+@media (max-width:797px) {
+.swname {margin-left: 25%;}
+}
 
 .swtext{width:90%; display:table; margin-top:15px; margin-left:20px;}
 .swtext h2{ height:20px; line-height:20px; font-size:20px; font-weight:bold; border-left:5px solid #fe92a8; color:#fe92a8; margin-bottom:10px;}
