@@ -842,12 +842,12 @@
           }
           if(about.val().length < 5 || about.val().length > 300) {
             about.focus();
-            c5('關於我低於4個字：請輸入4～300個字符');
+            c5('關於我低於4個字：請輸入4～300個字');
             return false;
           }
           if(style.val().length < 5 || style.val().length > 300) {
             style.focus();
-            c5('期待約會模式低於4個字：請輸入4～300個字符');
+            c5('期待約會模式低於4個字：請輸入4～300個字');
             return false;
           }
           if('{{$user->engroup}}' == '2'){
