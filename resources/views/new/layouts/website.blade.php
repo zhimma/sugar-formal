@@ -39,7 +39,7 @@
                     <div class="item">
                         <div class="ggtitle">站長公告(第{{ $cc }}/{{ count($announcement) }}則)</div>
                         <div class="new_poptk" style="width: 90%; max-height: 350px;">
-                            <div @if(!$user->isVip() && $a->isVip==1)class="g_pfont"@endif>
+                            <div style="min-height: 105px;" @if(!$user->isVip() && $a->isVip==1)class="g_pfont"@endif>
                             {!! nl2br($a->content) !!}
                             @if(!$user->isVip() && $a->isVip==1)
                                 <div class="g_picon"><img src="/new/images/viponly.png" style="width: unset;"></div>
