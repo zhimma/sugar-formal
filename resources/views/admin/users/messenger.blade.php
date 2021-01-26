@@ -20,25 +20,25 @@
     @if ($errors->count() > 0)
     @else
         @if(!isset($msgs))
-	    @if(isset($msglib_report)) 
+        @if(isset($msglib_reported))
                 <table class="table table-bordered table-hover">
-                    <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create/reporter" target="_blank"><div class="btn btn-success message_block">新增</div></a>
+                    <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create/reported" target="_blank"><div class="btn btn-success message_block">新增</div></a>
                     <br>
                     <tr>
                         <td>訊息標題</td>
                         <td></td>
                         <td>訊息內容</td>
                     </tr>
-                    @foreach($msglib_report as $msglib_report)
+                    @foreach($msglib_reported as $msglib_reported)
                         <tr>
-                            <td>{{$msglib_report->title}}</td>
-                            <td class="btn btn_edit btn-success" id="{{$msglib_report->id}}"><a href="/admin/users/message/msglib/create/reporter/{{$msglib_report->id}}" style="color:white" target="_blank">編輯</a></td>
-                            <td class="btn btn_del btn-danger" id="{{$msglib_report->id}}">刪除</td>
-                            <td>{{$msglib_report->msg}}</td>
+                            <td>{{$msglib_reported->title}}</td>
+                            <td class="btn btn_edit btn-success" id="{{$msglib_reported->id}}"><a href="/admin/users/message/msglib/create/reported/{{$msglib_reported->id}}" style="color:white" target="_blank">編輯</a></td>
+                            <td class="btn btn_del btn-danger" id="{{$msglib_reported->id}}">刪除</td>
+                            <td>{{$msglib_reported->msg}}</td>
                         </tr>
                     @endforeach
                 </table>
-	@endif            
+        @endif
             @if(!isset($from_user))
                 @php
                     echo '$from_user 不是一個物件。';
@@ -86,7 +86,7 @@
                     </tr> --}}
                 </table>
             @if (Auth::user()->can('admin') || Auth::user()->can('juniorAdmin'))
-                <form action="{{ route('admin/send', (!isset($isReported))? $user->id : $isReportedId ) }}" id='message' method='POST'>
+                <form action="{{ route('admin/send', $from_user->id ) }}" id='message' method='POST'>
             @elseif (Auth::user()->can('readonly'))
                 <form action="{{ route('admin/send/readOnly', (!isset($isReported))? $user->id : $isReportedId ) }}" id='message' method='POST'>
             @endif
@@ -97,12 +97,12 @@
                     @if(isset($isReported))
                     <textarea name="msg" id="msg" class="form-control" cols="80" rows="5">{{ $reportedName }}您好，您被檢舉圖片/大頭照，站長認為並無問題，若有疑慮請來訊。</textarea>
                     @else
-                        <textarea name="msg" id="msg" class="form-control" cols="80" rows="5">{{ $user->name }}您好，您先前所檢舉{{ $reportedName }}的圖片/大頭照，站長已檢視，認為並無問題，若有疑慮請來訊。</textarea>
+                        <textarea name="msg" id="msg" class="form-control" cols="80" rows="5">{{ $user->name }}您好，您先前所檢舉{{ $to_user->name }}的圖片/大頭照，站長已檢視，認為並無問題，若有疑慮請來訊。</textarea>
                     @endif
                 @elseif(isset($isReported))
                     <textarea name="msg" id="msg" class="form-control" cols="80" rows="5">{{ $reportedName }}您好，您被檢舉，站長認為並無問題，若有疑慮請來訊。</textarea>
                 @else
-                    <textarea name="msg" id="msg" class="form-control" cols="80" rows="5">@if(isset($message) && !isset($report)){{ $from_user->name }}您好，您先前所檢舉，由{{ $senderName }}於{{ $message->created_at }}發送的訊息，站長已檢視，認為並無問題，若有疑慮請來訊。@elseif(isset($message) && isset($report)) {{ $from_user->name }}您好，您先前在{{ $report->created_at }}檢舉了會員「{{ $reportedName }}」，經站長檢視理由，認為此會員並無問題，若有疑慮請來訊。 @endif</textarea>
+                    <textarea name="msg" id="msg" class="form-control" cols="80" rows="5">@if(isset($message) && !isset($report)){{ $from_user->name }}您好，您先前所檢舉，由{{ $to_user->name }}於{{ $message->created_at }}發送的訊息，站長已檢視，認為並無問題，若有疑慮請來訊。@elseif(isset($message) && isset($report)) {{ $from_user->name }}您好，您先前在{{ $report->created_at }}檢舉了會員「{{ $to_user->name }}」，經站長檢視理由，認為此會員並無問題，若有疑慮請來訊。 @endif</textarea>
                 @endif
                 <br>
                 @if(isset($isPic) && ($isPic))
@@ -123,26 +123,25 @@
             </form>
 
             <div>===================================================================================================</div>
-	    @if(isset($msglib_reported))
-                <table class="table table-bordered table-hover">
-                    <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create/reported" target="_blank"><div class="btn btn-success message_block">新增</div></a>
-                    <br>
+        @if(isset($msglib_report))
+            <table class="table table-bordered table-hover">
+                <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create/reporter" target="_blank"><div class="btn btn-success message_block">新增</div></a>
+                <br>
+                <tr>
+                    <td>訊息標題</td>
+                    <td></td>
+                    <td>訊息內容</td>
+                </tr>
+                @foreach($msglib_report as $msglib_report)
                     <tr>
-                        <td>訊息標題</td>
-                        <td></td>
-                        <td>訊息內容</td>
+                        <td>{{$msglib_report->title}}</td>
+                        <td class="btn btn_edit btn-success" id="{{$msglib_report->id}}"><a href="/admin/users/message/msglib/create/reporter/{{$msglib_report->id}}" style="color:white" target="_blank">編輯</a></td>
+                        <td class="btn btn_del btn-danger" id="{{$msglib_report->id}}">刪除</td>
+                        <td>{{$msglib_report->msg}}</td>
                     </tr>
-                    @foreach($msglib_reported as $msglib_reported)
-                        <tr>
-                            <td>{{$msglib_reported->title}}</td>
-                            <td class="btn btn_edit btn-success" id="{{$msglib_reported->id}}"><a href="/admin/users/message/msglib/create/reported/{{$msglib_reported->id}}" style="color:white" target="_blank">編輯</a></td>
-                            <td class="btn btn_del btn-danger" id="{{$msglib_reported->id}}">刪除</td>
-                            <td>{{$msglib_reported->msg}}</td>
-                        </tr>
-                    @endforeach
-                </table>
-	    @endif
-            
+                @endforeach
+            </table>
+        @endif
             <h1>發送站長訊息給{{$to_user->name}}(收件者)</h1>
                 <table class="table table-bordered table-hover">
                     <tr>
@@ -199,8 +198,7 @@
                         </td>
                     </tr> --}}
                 </table>
-            
-            <form action="{{ route('admin/send', (!isset($isReported))? $to_user->id : $isReportedId ) }}" id='message' method='POST'>
+            <form action="{{ route('admin/send', $to_user->id) }}" id='message' method='POST'>
                 {!! csrf_field() !!}
                 <input type="hidden" value="{{ $admin->id }}" name="admin_id">
                 @if(isset($isPic) && ($isPic))
@@ -210,7 +208,7 @@
                         <textarea name="msg" id="msg2" class="form-control" cols="80" rows="5">{{ $to_user->name }}您好，您先前所檢舉{{ $reportedName }}的圖片/大頭照，站長已檢視，認為並無問題，若有疑慮請來訊。</textarea>
                     @endif
                 @elseif(isset($isReported))
-                    <textarea name="msg" id="msg2" class="form-control" cols="80" rows="5">{{ $reportedName }}您好，您被檢舉，站長認為並無問題，若有疑慮請來訊。</textarea>
+                    <textarea name="msg" id="msg2" class="form-control" cols="80" rows="5">{{ $to_user->name }}您好，您被檢舉，站長認為並無問題，若有疑慮請來訊。</textarea>
                 @else
                     <textarea name="msg" id="msg2" class="form-control" cols="80" rows="5">@if(isset($message) && !isset($report)){{ $to_user->name }}您好，您先前所檢舉，由{{ $senderName }}於{{ $message->created_at }}發送的訊息，站長已檢視，認為並無問題，若有疑慮請來訊。@elseif(isset($message) && isset($report)) {{ $to_user->name }}您好，您先前在{{ $report->created_at }}檢舉了會員「{{ $reportedName }}」，經站長檢視理由，認為此會員並無問題，若有疑慮請來訊。 @endif</textarea>
                 @endif
