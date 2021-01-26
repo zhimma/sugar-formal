@@ -7,7 +7,7 @@
 		<meta name="format-detection" content="telephone=no" />
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-		<title>會員驗證</title>
+		<title>手機驗證</title>
 		<!-- Bootstrap -->
 		<link href="/auth/css/bootstrap.min.css" rel="stylesheet">
 		<link href="/auth/css/bootstrap-theme.min.css" rel="stylesheet">
@@ -99,7 +99,7 @@
 			<div class="row">
 				<div class="col-sm-12 col-xs-12 col-md-12">
                     <div class="dengl matbot140">
-                       <div class="zhuce"><h2>會員驗證</h2>
+                       <div class="zhuce"><h2>手機驗證</h2>
                            <h3 style="line-height:1.2;">請用您的智慧型手機<br>進行本人的身份驗證</h3>
                        </div>
                            <div class="de_input">
@@ -130,6 +130,23 @@
                                  </div>
                                @endif
                             </div>
+                             <div class="vipbongn new_wyz">
+                                <h2>驗證說明</h2>
+                                @if($user->engroup == 1)
+                                <h3><span class="left">●</span><var class="newtishi">手機驗證後，能加強帳號及身份的真實性。</var></h3>
+                                <h3><span class="left">●</span><var class="newtishi">手機驗證能夠解除警示紀錄，假若無法解除，請點右下方站長line@詢問。</var></h3>
+                                <h3><span class="left">●</span><var class="newtishi">您所提供的手機門號不會用在本站手機驗證以外的用途。</var></h3>
+                                <h3><span class="left">●</span><var class="newtishi">您所提供的資料於驗證完成後會嚴加保管，方便您日後快速地重新驗證。</var></h3>
+                                <h3><span class="left">●</span><var class="newtishi">請放心，驗證過程所有資料，僅用於驗證，驗證完成後刪除。</var></h3>
+                                @else
+                                <h3><span class="left">●</span><var class="newtishi">手機驗證後，能加強帳號及身份的真實性。</var></h3>
+                                <h3><span class="left">●</span><var class="newtishi">手機驗證能夠解除警示紀錄，假若無法解除，請點右下方站長line@詢問。</var></h3>
+                                <h3><span class="left">●</span><var class="newtishi">根據本站統計，daddy們對於有通過手機驗證的baby，會更主動聯絡。</var></h3>
+                                <h3><span class="left">●</span><var class="newtishi">您所提供的手機門號不會用在本站手機驗證以外的用途。</var></h3>
+                                <h3><span class="left">●</span><var class="newtishi">您所提供的資料於驗證完成後會嚴加保管，方便您日後快速地重新驗證。</var></h3>
+                                <h3><span class="left">●</span><var class="newtishi">請放心，驗證過程所有資料，僅用於驗證，驗證完成後刪除。</var></h3>
+                                @endif
+                              </div>
                                       
 {{--                                      <div class="zy_line"></div>--}}
 {{--									  <form id="auth_all" enctype="multipart/form-data">--}}
