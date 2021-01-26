@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 
 	<head>
@@ -29,7 +29,7 @@
 				right:10%;
 
 			}
-            .chbottom{ position:fixed;bottom:0;}
+            .chbottom{ position:relative;bottom:0;}
 
 		</style>
 		<style>
@@ -524,7 +524,7 @@
                 location.reload();
             });
             $(document).ready(function(){
-                $(".bot").addClass('chbottom');
+                // $(".bot").addClass('chbottom');
             });
 
         </script>

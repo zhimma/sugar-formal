@@ -36,7 +36,7 @@ class Filled
      */
     public function handle($request, Closure $next)
     {
-        if (!$this->auth->user()->meta_()->isAllSet()) {
+        if (!$this->auth->user()->meta_()->isAllSet($this->auth->user()->engroup)) {
             $collection = collect([
                 (string)$this->auth->user()->meta_()->returnUnSet()
             ]);
