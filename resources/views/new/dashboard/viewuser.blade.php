@@ -312,7 +312,7 @@
                                         <a class="unblock"><img src="/new/images/icon_12_h.png" class="tubiao_i"><span>解除封鎖</span></a>
                                     @else
                                         @if($user->id == $to->id)
-                                        <a onclick="show_message('不可封鎖給自己');"><img src="/new/images/icon_12.png" class="tubiao_i"><span>封鎖</span></a>
+                                        <a onclick="show_message('不可封鎖自己');"><img src="/new/images/icon_12.png" class="tubiao_i"><span>封鎖</span></a>
                                         @else
                                         <a onclick="show_block()"><img src="/new/images/icon_12.png" class="tubiao_i"><span>封鎖</span></a>
                                         @endif
@@ -1053,7 +1053,7 @@
             $(".announce_bg").show();
             $("#show_banned").show();
         }else{
-            show_message('不可檢舉給自己');
+            show_message('不可檢舉自己');
         }
     }
 

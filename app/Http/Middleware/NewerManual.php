@@ -35,8 +35,9 @@ class NewerManual
      */
     public function handle($request, Closure $next)
     {
+
         if (!is_null($this->auth->user())){
-            if (!$this->auth->user()->meta_()->isAllSet()  && $this->auth->user()->isReadManual == 0) {
+            if (!$this->auth->user()->meta_()->isAllSet($this->auth->user()->engroup)  && $this->auth->user()->isReadManual == 0) {
                 return response()->view('new.dashboard.newer_manual',['user'=> auth()->user()]);
             }
         }
