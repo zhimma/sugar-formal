@@ -206,14 +206,14 @@ class UserMeta extends Model
                             // 設定封鎖全城市
                             ->orWhere(
                                 function ($query) use ($city, $user_area, $key){
-                                    $query->where('blockcity', '<>', $city)
-                                        ->where(\DB::raw('LENGTH(blockarea) = 0'));
+                                    $query->whereRaw('blockcity not LIKE "%' . $city .'%"')
+                                    ->where(\DB::raw('LENGTH(blockarea) = 0'));
                                 })
                             // 設定封鎖城市地區
                             ->orWhere(
                                 function ($query) use ($city, $user_area, $key){
-                                    $query->where('blockcity', '<>', $city)
-                                        ->where('blockarea', '<>', $user_area[$key]);
+                                    $query->whereRaw('blockcity not LIKE "%' . $city .'%"')
+                                        ->whereRaw('blockarea not LIKE "%' . $user_area[$key] .'%"');
                                 });
                     });
             }
