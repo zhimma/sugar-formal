@@ -327,7 +327,8 @@
                 type: 'POST',
                 url: "/dashboard/newer_manual/isRead",
                 data:{
-                    _token: '{{csrf_token()}}'
+                    _token: '{{csrf_token()}}',
+                    {{ str_random() }}: '{{ str_random() }}'
                 },
                 dataType:"json",
                 complete: function () {
