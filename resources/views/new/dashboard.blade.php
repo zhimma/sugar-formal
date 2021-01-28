@@ -884,7 +884,7 @@
               c5('請選擇年收');
               return false;
             }
-            if(assets.val() == '' || assets.val() < 0 || style.val() > 10000000000) {
+            if(assets.val() == '' || assets.val() < 0 || assets.val() > 10000000000) {
               assets.focus();
               c5('請輸入資產數字範圍0～10000000000');
               return false;
