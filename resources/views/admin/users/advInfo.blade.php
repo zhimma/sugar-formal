@@ -153,9 +153,62 @@
 			else
 				$nowStatus = '持續中';
 
-			$showVipInfo =  $upgradeDay .','.$upgradeWay .','.$upgradeKind .','. $nowStatus ;
-        }else{
+			$showVipInfo_1 =  $upgradeDay .','.$upgradeWay .','.$upgradeKind .','. $nowStatus ;
 
+			//計算總繳費月數
+			//upgrage的log抓起始日，然後從取消的地方抓 expiry，可以算出一段的時間，
+			//如果是早期沒記錄expiry的log，再從auto cancellation 抓取消時間,每段時間算出來以後再加起來
+			$getLog = \Illuminate\Support\Facades\DB::table('member_vip_log')->where('member_id',$user->id)->orderBy('id')->get();
+			$totalMonths = 0;
+			$flag = 0; //1:upgrade ,2:cancel
+			foreach ($getLog as $log){
+			    $action = $log->member_name;
+
+			    //取得vip開始日期
+			    if(str_contains($action, 'upgrade')){
+					$vipStartDate = $log->created_at;
+					$flag = 1;
+			    }
+
+			    //取得vip過期日期
+			    if($flag  && str_contains($action, 'expiry')){
+			        $vipExpiryData = explode(': ',$action)[1];
+			        $flag = 2;
+			    }else if ($flag  && str_contains($action, 'auto cancellation')) {
+					$vipExpiryData = $log->created_at;
+			        $flag = 2;
+			    }
+
+			    //算這段vip時間
+			    if($flag ==2){
+					$Date_1 = date("Y-m-d", strtotime($vipStartDate));
+					$Date_2 = date("Y-m-d", strtotime($vipExpiryData));
+					$d1 = strtotime($Date_1);
+					$d2 = strtotime($Date_2);
+					$diffDays = round(($d2-$d1)/3600/24);
+
+					$totalMonths += floor($diffDays/30);
+					$flag = 0;
+			    }
+
+			    //有payment紀錄, 直接計入繳費月數
+			    if(str_contains($action, 'cc_quarterly_payment') || str_contains($action, 'one_quarter_payment')){
+			        $totalMonths += 3;
+			        $flag = 0;
+			    }
+			    else if(str_contains($action, 'cc_monthly_payment') || str_contains($action, 'one_month_payment')){
+			        $totalMonths += 1;
+			        $flag = 0;
+			    }
+			}
+			$showVipInfo_0 =  $upgradeDay .','.$totalMonths .','. $nowStatus ;
+
+			if($nowStatus =='未持續')
+			    $showVipInfo = $showVipInfo_0;
+			else
+				$showVipInfo = $showVipInfo_1;
+        }else{
+            $nowStatus = '';
             $showVipInfo =  '暫無資料' ;
         }
 	@endphp
@@ -167,7 +220,7 @@
 		<th>Email</th>
 		<th>建立時間</th>
 		<th>更新時間</th>
-		<th>VIP起始時間,付費方式,種類,現狀</th>
+		@if($nowStatus =='未持續')<th>VIP起始時間,總繳費月數,現狀</th> @else <th>VIP起始時間,付費方式,種類,現狀</th> @endif
 		@if(!is_null($warnedInfo))<th>警示時間</th>@endif
 		<th>上次登入</th>
 		<th>上站次數</th>
