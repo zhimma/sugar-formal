@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         \App\Console\Commands\UsersToBakArea::class,
         \App\Console\Commands\SendSMS::class,
+        \App\Console\Commands\BlockAreaUpdate::class,
     ];
 
     /**
