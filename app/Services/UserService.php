@@ -242,7 +242,8 @@ class UserService
                 if($key!='blockcity'&&$key!='blockarea'&&preg_match("/$setBlockKeys/i", $key)){
                     if($key != $setBlockKeys){
                         if(is_null($payload[$key])){
-                            unset($payload[$key]);
+                            //unset($payload[$key]);
+                            $payload[$setBlockKeys] = $payload[$setBlockKeys]. ",";
                         }else{
                             if(isset($notLikeBlockKeys[$setBlockKeys])){
                                 if(!in_array($key, $notLikeBlockKeys)){
@@ -258,6 +259,29 @@ class UserService
                 }
             }
         }
+
+        if(isset($payload['blockcity'])){
+
+            //移除空白blockcity
+            $blockcityCheck = explode(',',$payload['blockcity']);
+            $blockareaCheck = explode(',',$payload['blockarea']);
+            foreach ($blockcityCheck as $key => $value){
+                if(empty($value)){
+                    unset($blockcityCheck[$key]);
+                    unset($blockareaCheck[$key]);
+                }
+            }
+
+            //整理blockarea欄位,寫入格式為city+area (ex: 臺北市中正區, 臺北市全區)
+            foreach ($blockcityCheck as $citykey => $cityval){
+                $area_str = empty($blockareaCheck[$citykey]) ? '全區' : $blockareaCheck[$citykey];
+                $blockareaCheck[$citykey] = $cityval.$area_str;
+            }
+            $payload['blockcity'] = implode(",", $blockcityCheck);
+            $payload['blockarea'] = implode(",", $blockareaCheck);
+        }
+
+        //logger('city=>'.json_encode($payload));
         $setKeys = ['city','area'];
         $notLikeKeys = ['area' => 'isHideArea'];
         foreach($setKeys as $setKey){
@@ -403,11 +427,17 @@ class UserService
                   {
                     $payload['meta']['blockcity'] = $payload['blockcity'];
                     unset($payload['blockcity']);
+                  }else{
+                      $payload['meta']['blockcity'] = null;
+                      unset($payload['blockcity']);
                   }
                   if (isset($payload['blockarea']))
                   {
                     $payload['meta']['blockarea'] = $payload['blockarea'];
                     unset($payload['blockarea']);
+                  }else{
+                      $payload['meta']['blockarea'] = null;
+                      unset($payload['blockarea']);
                   }
                   if (isset($payload['body']))
                   {

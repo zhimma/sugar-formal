@@ -195,28 +195,25 @@ class UserMeta extends Model
             $user_area = explode(',', $meta->area);
             /* 判斷搜索者的 city 和 area 是否被被搜索者封鎖 */
             foreach ($user_city as $key => $city){
-                $query->where(
-                    function ($query) use ($city, $user_area, $key){
-                        $query->where(
-                        // 未設定封鎖城市地區
-                            function ($query) use ($city, $user_area, $key){
-                                $query->where(\DB::raw('LENGTH(blockcity) = 0'))
-                                    ->where(\DB::raw('LENGTH(blockarea) = 0'));
-                            })
-                            // 設定封鎖全城市
-                            ->orWhere(
-                                function ($query) use ($city, $user_area, $key){
-                                    $query->whereRaw('blockcity not LIKE "%' . $city .'%"')
-                                    ->where(\DB::raw('LENGTH(blockarea) = 0'));
-                                })
-                            // 設定封鎖城市地區
-                            ->orWhere(
-                                function ($query) use ($city, $user_area, $key){
-                                    $query->whereRaw('blockcity not LIKE "%' . $city .'%"')
-                                        ->whereRaw('blockarea not LIKE "%' . $user_area[$key] .'%"');
-                                });
-                    });
+                $query->whereRaw('(blockarea not LIKE "%' . $city .$user_area[$key]  .'%"  AND blockarea not LIKE "%'.$city.'全區%")');
             }
+
+//            foreach ($user_city as $key => $city){
+//                $query->where(
+//                    function ($query) use ($city, $user_area, $key){
+//                        $query->where(
+//                        // 未設定封鎖城市地區
+//                            function ($query) use ($city, $user_area, $key){
+//                                $query->where(\DB::raw('LENGTH(blockcity) = 0'))
+//                                    ->where(\DB::raw('LENGTH(blockarea) = 0'));
+//                            })
+//                            // 設定封鎖城市地區
+//                            ->orWhere(
+//                                function ($query) use ($city, $user_area, $key){
+//                                    $query->whereRaw('(blockarea not LIKE "%' . $city .$user_area[$key]  .'%"  AND blockarea not LIKE "%'.$city.'全區%")');
+//                                });
+//                    });
+//            }
 
             return $query->where('is_active', 1);
         };
