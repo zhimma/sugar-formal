@@ -2244,10 +2244,15 @@ class PagesController extends Controller
             $isBlocked = Blocked::isBlocked($aid, $bid);
             if(!$isBlocked) {
                 Blocked::block($aid, $bid);
-                //有收藏名單則刪除
-                $isFav = MemberFav::where('member_id', $aid)->where('member_fav_id',$bid)->count();
-                if($isFav>0){
+                // 有收藏名單則刪除
+                $isFav = MemberFav::where('member_id', $aid)->where('member_fav_id', $bid)->count();
+                if($isFav > 0){
                     MemberFav::remove($aid, $bid);
+                }
+                // 對方的收藏名單也刪除
+                $isFavved = MemberFav::where('member_id', $bid)->where('member_fav_id', $aid)->count();
+                if($isFavved > 0){
+                    MemberFav::remove($bid, $aid);
                 }
                 return response()->json(['save' => 'ok']);
             }
