@@ -328,7 +328,7 @@
                 url: "/dashboard/newer_manual/isRead",
                 data:{
                     _token: '{{csrf_token()}}',
-                    {{ str_random() }}: '{{ str_random() }}'
+                    s{{ str_random() }}: '{{ str_random() }}'
                 },
                 dataType:"json",
                 complete: function () {
