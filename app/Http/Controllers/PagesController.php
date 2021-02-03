@@ -585,7 +585,7 @@ class PagesController extends BaseController
         $user = $this->user;
         $url = $request->fullUrl();
 
-        if($user->isVip() && !$user->isFreeVip()){
+        if($this->userIsVip && !$user->isFreeVip()){
             $vipData = $user->getVipData(true);
             if(is_object($vipData)){
                 $this->dispatch(new CheckECpay($vipData));
@@ -596,7 +596,7 @@ class PagesController extends BaseController
         }
 
         //valueAddedService
-        if($user->valueAddedServiceStatus('hideOnline')==1){
+        if($this->valueAddedServices['hideOnline'] == 1){
             //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
             $service_name = 'hideOnline';
             $valueAddedServiceData = \App\Models\ValueAddedService::getData($user->id,'hideOnline');

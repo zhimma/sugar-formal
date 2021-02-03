@@ -19,7 +19,7 @@
 								<a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}">
 									<img src="/new/images/icon_45.png">
 								</a>
-								<span>{{ \App\Models\Message::unread($user->id) }}</span>
+								<span>{{ $unread }}</span>
 							</span>
 {{--							@endif--}}
 							<a href="{!! url('dashboard') !!}"><img src="/new/images/icon_48.png"></a>
@@ -53,7 +53,7 @@
 						<ul id="menuList" class="change marg30">
                             <div class="comt"><img src="/new/images/t.png"></div>
                             <div class="coheight">
-							<div class="heyctop">{{ $user->name }}@if($user->isVip()) (VIP) @endif @if($user->valueAddedServiceStatus('hideOnline')==1)<br>(隱藏)@endif</div>
+							<div class="heyctop">{{ $user->name }}@if($user->isVip()) (VIP) @endif @if(view()->shared('valueAddedServices')['hideOnline'] == 1)<br>(隱藏)@endif</div>
 							<div class="helist">
 								<ul>
 									<li>
