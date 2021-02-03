@@ -4,7 +4,7 @@
 					<a href="{!! url('') !!}" >
 						<img src="/new/images/icon_41.png" class="logo" />
 					</a>
-					@if (isset($user) && Auth::user() && !str_contains(url()->current(), 'activate') && $user->meta_()->is_active ==1)
+					@if (isset($user) && !str_contains(url()->current(), 'activate') && $user->meta->is_active ==1)
 						@if(Session::has('original_user'))
 							<div class="ndlrfont">
 								<a href="{{ route('escape') }}" class="m-nav__link m-dropdown__toggle">
@@ -41,7 +41,7 @@
 							<a href="{!! url('') !!}" >
 								<img src="/new/images/icon_41.png" class="logo" />
 							</a>
-							@if (isset($user) && Auth::user() && !str_contains(url()->current(), 'activate') && $user->meta_()->is_active ==1)
+							@if (isset($user) && !str_contains(url()->current(), 'activate') && $user->meta->is_active ==1)
 							<span id="menuButton"><img src="/new/images/icon.png" class="he_img"></span>
 							@elseif(isset($user) && Auth::user() && $user->meta_()->is_active ==0)
 								<div class="ndlrfont"><a href="{!! url('logout') !!}">登出</a></div>
@@ -49,7 +49,7 @@
 							<div class="ndlrfont"><a href="{!! url('/checkAdult') !!}">註冊</a>丨<a href="{!! url('login') !!}">登入</a></div>
 							@endif
 						</div>
-						@if (isset($user) && Auth::user() && !str_contains(url()->current(), 'activate') && $user->meta_()->is_active ==1)
+						@if (isset($user) && !str_contains(url()->current(), 'activate') && $user->meta->is_active ==1)
 						<ul id="menuList" class="change marg30">
                             <div class="comt"><img src="/new/images/t.png"></div>
                             <div class="coheight">
@@ -64,7 +64,7 @@
 										<a href="{!! url('dashboard/search') !!}"><img src="/new/images/icon_38.png">搜索</a>
 									</li>
 									<li>
-										<a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}"><img src="/new/images/icon_45.png">收件夾</a><span>{{ \App\Models\Message::unread($user->id) }}</span>
+										<a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}"><img src="/new/images/icon_45.png">收件夾</a><span>{{ $unread }}</span>
 									</li>
 {{--									@endif--}}
 									<li>

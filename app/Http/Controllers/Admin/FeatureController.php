@@ -8,7 +8,7 @@ use App\Services\FeatureService;
 use App\Http\Requests\FeatureCreateRequest;
 use App\Http\Requests\FeatureUpdateRequest;
 
-class FeatureController extends BaseController
+class FeatureController extends \App\Http\Controllers\BaseController
 {
     public function __construct(FeatureService $featureService)
     {

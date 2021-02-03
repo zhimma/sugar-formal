@@ -8,7 +8,7 @@ use App\Http\Requests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
-class MessageController extends BaseController {
+class MessageController extends \App\Http\Controllers\BaseController {
 
 //    // handle delete message
 //    public function deleteBetween($uid, $sid) {

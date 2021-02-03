@@ -9,7 +9,7 @@ use App\Models\SetAutoBan;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
 
-class ActivateController extends BaseController
+class ActivateController extends \App\Http\Controllers\BaseController
 {
     /**
      * Create a new controller instance.

@@ -56,6 +56,7 @@ class PagesController extends BaseController
 {
     public function __construct(UserService $userService, VipLogService $logService)
     {
+        parent::__construct();
         $this->service = $userService;
         $this->logService = $logService;
     }
@@ -459,10 +460,12 @@ class PagesController extends BaseController
     {
         $imgUserM = User::select('users.name', 'users.title', 'user_meta.pic')
             ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->withOut('vip')
             ->whereNotNull('user_meta.pic')
             ->where('engroup', 1)->inRandomorder()->take(3)->get();
         $imgUserF = User::select('users.name', 'users.title', 'user_meta.pic')
             ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->withOut('vip')
             ->whereNotNull('user_meta.pic')
             ->where('engroup', 2)->inRandomorder()->take(3)->get();
         return view('new.welcome')
@@ -579,7 +582,7 @@ class PagesController extends BaseController
         //      1. 綠界：連 API 檢查，使用 Laravel Queue 執行檢查
         //      2. 藍新：後台手動
         
-        $user = $request->user();
+        $user = $this->user;
         $url = $request->fullUrl();
 
         if($user->isVip() && !$user->isFreeVip()){

@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\SimpleTables\banned_users;
 use Carbon\Carbon;
 
-class PagesController extends BaseController
+class PagesController extends \App\Http\Controllers\BaseController
 {
     public function __construct(UserService $userService, VipLogService $logService)
     {

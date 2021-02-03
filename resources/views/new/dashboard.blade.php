@@ -6,7 +6,7 @@
     if (!isset($user)) {
         $umeta = null;
     } else {
-        $umeta = $user->meta_();
+        $umeta = $user->meta;
         $umeta_block = [];
         // dd($umeta);
         if(isset($umeta->city)){
