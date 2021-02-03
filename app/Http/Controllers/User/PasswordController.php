@@ -11,7 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PasswordUpdateRequest;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 
-class PasswordController extends Controller
+class PasswordController extends BaseController
 {
     use ResetsPasswords;
 

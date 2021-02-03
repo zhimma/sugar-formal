@@ -52,7 +52,7 @@ use Session;
 use App\Notifications\AccountConsign;
 use App\Models\ValueAddedService;
 
-class PagesController extends Controller
+class PagesController extends BaseController
 {
     public function __construct(UserService $userService, VipLogService $logService)
     {
@@ -457,7 +457,6 @@ class PagesController extends Controller
      */
     public function home(Request $request)
     {
-        $user = $request->user();
         $imgUserM = User::select('users.name', 'users.title', 'user_meta.pic')
             ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
             ->whereNotNull('user_meta.pic')
@@ -467,8 +466,7 @@ class PagesController extends Controller
             ->whereNotNull('user_meta.pic')
             ->where('engroup', 2)->inRandomorder()->take(3)->get();
         return view('new.welcome')
-            ->with('user', $user)
-            ->with('cur', $user)
+            ->with('cur', view()->shared('user'))
             ->with('imgUserM', $imgUserM)
             ->with('imgUserF', $imgUserF);
     }

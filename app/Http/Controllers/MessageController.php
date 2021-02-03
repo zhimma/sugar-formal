@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Session;
 
-class MessageController extends Controller {
+class MessageController extends BaseController {
 
     // handle delete message
     public function deleteBetween(Request $request) {

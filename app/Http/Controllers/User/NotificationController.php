@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Services\NotificationService;
 use App\Http\Requests\NotificationRequest;
 
-class NotificationController extends Controller
+class NotificationController extends BaseController
 {
     public function __construct(NotificationService $notificationService)
     {

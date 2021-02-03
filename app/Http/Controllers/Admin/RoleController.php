@@ -8,7 +8,7 @@ use App\Services\RoleService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RoleCreateRequest;
 
-class RoleController extends Controller
+class RoleController extends BaseController
 {
     public function __construct(RoleService $roleService)
     {

@@ -25,7 +25,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
-class StatController extends Controller
+class StatController extends BaseController
 {
     public function __construct(UserService $userService, AdminService $adminService)
     {

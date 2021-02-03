@@ -8,7 +8,7 @@ use App\Services\UserService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserUpdateRequest;
 
-class SettingsController extends Controller
+class SettingsController extends BaseController
 {
     public function __construct(UserService $userService)
     {

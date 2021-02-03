@@ -11,7 +11,7 @@ use Illuminate\Foundation\Auth\RegistersUsers;
 use Carbon\Carbon;
 use phpDocumentor\Reflection\Types\Mixed_;
 
-class RegisterController extends Controller
+class RegisterController extends BaseController
 {
     /*
     |--------------------------------------------------------------------------

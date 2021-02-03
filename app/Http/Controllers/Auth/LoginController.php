@@ -21,7 +21,7 @@ use App\Services\FingerprintService;
 use Illuminate\Support\Facades\DB;
 use Session;
 
-class LoginController extends Controller
+class LoginController extends BaseController
 {
     /*
     |--------------------------------------------------------------------------

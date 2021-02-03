@@ -44,7 +44,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Session;
 
-class UserController extends Controller
+class UserController extends BaseController
 {
     public function __construct(UserService $userService, AdminService $adminService)
     {
