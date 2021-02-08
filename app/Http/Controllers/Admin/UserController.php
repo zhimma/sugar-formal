@@ -744,7 +744,11 @@ class UserController extends Controller
         $implicitly_banReason = DB::table('reason_list')->select('content')->where('type', 'implicitly')->get();
         $warned_banReason = DB::table('reason_list')->select('content')->where('type', 'warned')->get();
         $fingerprints = Fingerprint2::select('ip', 'fp', 'created_at')->where('user_id', $user->id)->get();
-        $userLogin_log = LogUserLogin::selectRaw('DATE(created_at) as loginDate, user_id as userID, count(*) as dataCount')->where('user_id', $user->id)->groupBy(DB::raw("DATE(created_at)"))->get();
+        // $userLogin_log = LogUserLogin::selectRaw('DATE(created_at) as loginDate, user_id as userID, count(*) as dataCount, GROUP_CONCAT(DISTINCT created_at SEPARATOR ",&p,") AS loginDates, GROUP_CONCAT(DISTINCT ip SEPARATOR ",&p,") AS ips, GROUP_CONCAT(DISTINCT userAgent SEPARATOR ",&p,") AS userAgents')->where('user_id', $user->id)->groupBy(DB::raw("DATE(created_at)"))->get();
+        $userLogin_log = LogUserLogin::selectRaw('DATE(created_at) as loginDate, user_id as userID, ip, count(*) as dataCount')->where('user_id', $user->id)->groupBy(DB::raw("DATE(created_at)"))->get();
+        foreach ($userLogin_log as $key => $value) {
+            $userLogin_log[$key]['items'] = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' .  $value->loginDate . '%')->orderBy('created_at','DESC')->get();
+        }
 
         //檢舉紀錄 reporter_id檢舉者uid  被檢舉者reported_user_id為此頁面主要會員
         $pic_report1 = ReportedAvatar::select('reporter_id as uid', 'reported_user_id as edid', 'cancel', 'created_at', 'content')->where('reported_user_id', $user->id)->where('reporter_id', '!=', $user->id)->groupBy('reporter_id')->get();
@@ -922,6 +926,28 @@ class UserController extends Controller
             $query_pr='';
         }
 
+        $evaluation_data = DB::table('evaluation')->where('from_id',$user->id)->get(); 
+        $out_evaluation_data = array();
+        foreach ($evaluation_data as $row) {
+            $tmp = array();
+            $f_user = User::findById($row->to_id);
+            $tmp['content'] = $row->content;
+            $tmp['re_content'] = $row->re_content;
+            $tmp['rating'] = $row->rating;
+            $tmp['re_created_at'] = $row->re_created_at;
+            $tmp['created_at'] = $row->created_at;
+            $tmp['to_email'] = $f_user->email;
+            $tmp['to_name'] = $f_user->name;
+            $tmp['to_isvip'] = $f_user->isVip();
+            $auth_status = 0;
+            if ($f_user->isPhoneAuth() == 1) {
+                $auth_status = 1;
+            }
+            $tmp['to_auth_status'] = $auth_status;
+            array_push($out_evaluation_data, $tmp);
+        }
+        // dd($out_evaluation_data);
+
         if (str_contains(url()->current(), 'edit')) {
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
             $birthday = explode('-', $birthday);
@@ -947,6 +973,7 @@ class UserController extends Controller
                 ->with('fingerprints', $fingerprints)
                 ->with('userLogin_log', $userLogin_log)
                 ->with('report_all', $report_all)
+                ->with('out_evaluation_data', $out_evaluation_data)
                 ->with('pr',$pr)
                 ->with('pr_log',$query_pr);
         }

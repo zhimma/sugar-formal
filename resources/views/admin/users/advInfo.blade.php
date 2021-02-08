@@ -386,15 +386,78 @@
 		</tr>
 	@endforeach
 </table>
+<h4>評價紀錄</h4>
+<table class="table table-hover table-bordered">
+	<tr>
+		<th>暱稱</th>
+		<th>帳號</th>
+		<th>檢舉時間</th>
+		<th>VIP</th>
+		<th>會員認證</th>
+		<th>評價內容</th>
+	</tr>
+	@foreach($out_evaluation_data as $row)
+		<tr>
+			<td>{{ $row['to_name'] }}</td>
+			<td>{{ $row['to_email'] }}</td>
+			<td>{{ $row['created_at'] }}</td>
+			<td>@if($row['to_isvip']==1) VIP @endif</td>
+			<td>@if($row['to_auth_status']==1) 已認證 @else N/A @endif</td>
+			<td>{{ $row['content'] }}</td>
+		</tr>
+	@endforeach
+</table>
 
 <h4>帳號登入紀錄</h4>
-<table class="table table-hover table-bordered">
+<table id="table_userLogin_log" class="table table-hover table-bordered">
 	<tr>
 		<td>登入時間</td>
 	</tr>
 	@foreach($userLogin_log as $logInLog)
 		<tr>
-			<td><a href="{{ route("showLoginLog", ['uid'=>$logInLog->userID, 'date'=>$logInLog->loginDate] ) }}" target="_blank">{{ substr($logInLog->loginDate ,0 ,10) . ' ['. $logInLog->dataCount .']' }}  </a></td>
+			<td>
+				<a>{{ substr($logInLog->loginDate ,0 ,10) . ' ['. $logInLog->dataCount .']' }}  </a>
+				<ul class="hidden">
+					<li>
+						<table class="table table-hover table-bordered">
+							<tr>
+								<th>登入時間</th>
+								<th>IP</th>
+								<th>登入裝置</th>
+							</tr>
+							@php
+							//$loginDates = explode(",&p,", $logInLog->loginDates);
+							//$userAgents = explode(",&p,", $logInLog->userAgents);
+							//$ips = explode(",&p,", $logInLog->ips);
+							@endphp
+							@php
+							//$items = explode("/sojs/", $logInLog->items);
+							//print_r($items);
+							@endphp
+							@foreach($logInLog->items as $key => $item)
+							<tr>
+								<?php
+									// $sitem = explode("/i#", $item);
+					                if(isset($sitem[1]) && preg_match("/(iPod|iPhone)/", $item->userAgent))
+					                    $device = '手機';
+					                else if(isset($sitem[1]) && preg_match("/iPad/", $item->userAgent))
+					                    $device = '平板';
+					                else if(isset($sitem[1]) && preg_match("/android/i", $item->userAgent))
+					                    $device = '手機';
+					                else
+					                    $device = '電腦';
+					            ?>
+								<td>{{$item->created_at}}</td>
+								<td>{{$item->ip}}</td>
+					            <td>
+					                {{ $device }}
+					            </td>
+							</tr>
+							@endforeach
+						</table>
+					</li>
+				</ul>
+			</td>			
 		</tr>
 	@endforeach
 </table>
@@ -725,6 +788,14 @@ jQuery(document).ready(function(){
 	});
 	$('.improper-photo').on('click', function(e) {
 		$('.m-reason').val('照片不當');
+	});
+	$('#table_userLogin_log .hidden').hide();
+	$('#table_userLogin_log td').click(function(){
+		if($(this).find('.hidden').is(":visible")){
+			$(this).find('.hidden').hide();
+		}else{
+			$(this).find('.hidden').show()
+		}
 	});
 });
 function Release(id) {
