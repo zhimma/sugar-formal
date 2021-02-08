@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Repositories\FingerprintRepository;
 
-class FingerprintController extends Controller
+class FingerprintController extends BaseController
 {
     protected $repositroy;
     public function __construct(FingerprintRepository $repositroy)

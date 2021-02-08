@@ -7,7 +7,7 @@ use App\Services\ECPay_PaymentMethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 
-class ECPayment extends Controller
+class ECPayment extends BaseController
 {
     public function performPayment(Request $request){
         /**

@@ -21,7 +21,7 @@ use App\Models\Vip;
 use App\Models\AdminCommonText;
 use Illuminate\Support\Facades\Log;
 
-class ImageController extends Controller
+class ImageController extends BaseController
 {
     private $imageBasePath;
     private $uploadDir;

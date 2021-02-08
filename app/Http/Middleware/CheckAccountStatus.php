@@ -35,10 +35,11 @@ class CheckAccountStatus
      */
     public function handle($request, Closure $next)
     {
+        $user = view()->shared('user');
         if(!in_array($_SERVER['REQUEST_URI'], ['/dashboard/new_vip','/dashboard/vip','/dashboard/upgradepay_ec'])){
-            if (!is_null($this->auth->user())){
+            if (!is_null($user)){
                 //0:帳號關閉中 1:帳號開啟中(預設)
-                if ($this->auth->user()->accountStatus == 0) {
+                if ($user->accountStatus == 0) {
                     if(Session::get('needLogOut') == 'Y'){
                         //logger('middleware=>'.Session::get('needLogOut'));
                         Session::put('needLogOut','N');

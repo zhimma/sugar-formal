@@ -7,7 +7,7 @@ use App\Services\EsafePay_PaymentMethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 
-class EsafePayment extends Controller
+class EsafePayment extends BaseController
 {
     public function performPayment(Request $request){
         /**
