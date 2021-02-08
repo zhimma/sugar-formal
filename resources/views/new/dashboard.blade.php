@@ -735,11 +735,12 @@
         var blockarea2_selected = '{{ isset($umeta->blockarea[2]) ? str_replace($umeta->blockcity[2],'',$umeta->blockarea[2]) : '全區'  }}';
 
 
-        //alert(blockarea_selected);
         if($("select[name='blockarea'] option:eq(0)").text()!=='全區'){
             //$("select[name='blockarea']").prepend('<option value="">全區</option>');
             if(blockarea_selected == '全區'){
-                $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
+                if($("select[name='blockcity']").val() !== ''){
+                    $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
+                }
             }else{
                 $("select[name='blockarea'] option[value="+ blockarea_selected +"]").attr('selected', true);
             }
