@@ -1066,12 +1066,12 @@
     }
     @if(isset($to))
         $(".but_block").on('click', function() {
-            var uid='{{ $user->id }}';
-            var to='{{$to->id}}';
+            let uid='{{ $user->id }}';
+            let to='{{$to->id}}';
             if(uid != to){
                 $.post('{{ route('postBlockAJAX') }}', {
                     uid: uid,
-                    to: to,
+                    sid: to,
                     _token: '{{ csrf_token() }}'
                 }, function (data) {
                     // if(data.save=='ok') {

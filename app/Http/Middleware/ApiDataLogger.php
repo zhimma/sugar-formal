@@ -179,6 +179,8 @@ class ApiDataLogger{
                             $transactionType='BARCODE'; //超商條碼
                         elseif ($payload['PaymentType'] == 'CVS_CVS')
                             $transactionType='CVS'; //超商代號
+                        else
+                            $transactionType=$payload['PaymentType']; //寫入回傳的PaymentType
 
                         logger('Middleware ApiDataLogger=> userID:'.$user->id.', 種類:' .$payload['CustomField3'].', 付款方式:' .$transactionType);
 
