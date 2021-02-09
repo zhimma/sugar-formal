@@ -616,6 +616,9 @@ class Message extends Model
         // block information
         //
         $user = \View::shared('user');
+        if(!$user){
+            $user = User::find($uid);
+        }
         $block = Blocked::getAllBlockedId($uid);
         $blockedList = Blocked::select('member_id')->where('blocked_id', $user->id)->get();
         $banned_users = \App\Services\UserService::getBannedId();
