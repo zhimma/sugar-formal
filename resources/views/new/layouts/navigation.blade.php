@@ -1,9 +1,3 @@
-@php
-	$user = \Auth::user();
-	if($user){
-	    $unread = \App\Models\Message::unread($user->id);
-	}
-@endphp
 		<div class="head_3 head hetop">
 			<div class="container">
 				<div class="col-sm-12 col-xs-12 col-md-12">
