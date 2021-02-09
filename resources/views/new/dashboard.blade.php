@@ -735,7 +735,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         if(type=='')$('#domain option:not(:first)').remove();
     }
     $(document).ready(function() {
-        var blockarea_selected = '{{ isset($umeta->blockarea[0]) ? str_replace($umeta->blockcity[0],'',$umeta->blockarea[0]) : '全區' }}';
+        var blockarea_selected = '{{ isset($umeta->blockarea[0]) ? ($umeta->blockarea[0] == null or "" ? "縣市" : str_replace($umeta->blockcity[0],'',$umeta->blockarea[0])) : '全區' }}';
         var blockarea1_selected = '{{ isset($umeta->blockarea[1]) ? str_replace($umeta->blockcity[1],'',$umeta->blockarea[1]) :'全區'  }}';
         var blockarea2_selected = '{{ isset($umeta->blockarea[2]) ? str_replace($umeta->blockcity[2],'',$umeta->blockarea[2]) : '全區'  }}';
 
