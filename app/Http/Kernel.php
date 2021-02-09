@@ -65,7 +65,7 @@ class Kernel extends HttpKernel
         'permissions' => \App\Http\Middleware\Permissions::class,
         'roles' => \App\Http\Middleware\Roles::class,
         'active' => \App\Http\Middleware\Active::class,
-        'auth' => \App\Http\Middleware\Authenticate::class,
+        'auth' => \Illuminate\Auth\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
@@ -81,6 +81,7 @@ class Kernel extends HttpKernel
         'femaleActive' => \App\Http\Middleware\FemaleVipActive::class,
         'vipCheck' => \App\Http\Middleware\VipCheck::class,
         'CheckIsWarned' => \App\Http\Middleware\CheckIsWarned::class,
-        'CheckAccountStatus' => \App\Http\Middleware\CheckAccountStatus::class
+        'CheckAccountStatus' => \App\Http\Middleware\CheckAccountStatus::class,
+        'global' => \App\Http\Middleware\GlobalVariables::class,
     ];
 }
