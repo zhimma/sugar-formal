@@ -637,7 +637,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
   <div class="bl bl_tab" id="isWarned" style="display: none;">
       <div class="bltitle">提示</div>
       <div class="blnr bltext">
-          @if($user->isAdminWarned())
+          @if($isAdminWarned)
               @php
                   $warned_users = \App\Models\SimpleTables\warned_users::where('member_id', $user->id)->where(
                       function ($query) {
@@ -836,9 +836,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
           //   title:'您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。',
           //   type:'warning'
           // });
-        @elseif (($umeta->isWarned==1 && $umeta->isWarnedRead==0 ) || ( $user->isAdminWarned() && $isAdminWarnedRead->isAdminWarnedRead==0 ) )
+        @elseif (($umeta->isWarned==1 && $umeta->isWarnedRead==0 ) || ( $isAdminWarned && $isAdminWarnedRead->isAdminWarnedRead==0 ) )
                 @php
-                 if($user->isAdminWarned()){
+                 if($isAdminWarned){
                     //標記已讀
                     \App\Models\User::isAdminWarnedRead($user->id);
                   }
