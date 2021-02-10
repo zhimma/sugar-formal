@@ -651,13 +651,21 @@ class Message extends Model
                         ->leftJoin('blocked as b8', function($join) use($uid) {
                             $join->on('b8.member_id', '=', 'm.to_id')
                                 ->where('b8.blocked_id', $uid); });
-        $all_msg = $query->where(function($query)use($uid){
-                        $query->where('m.to_id','=' ,$uid)
-                            ->where('m.from_id','!=',$uid);
-                    })
-            ->where([['m.is_row_delete_1', '=' ,0], ['m.is_single_delete_1', '<>', $uid], ['m.temp_id', '=', 0]])
-            ->where('m.read', 'N')
-            ->where([['m.created_at','>=',self::$date]]);
+        $all_msg = $query->whereNull('b1.member_id')
+                        ->whereNull('b2.member_id')
+                        ->whereNull('b3.target')
+                        ->whereNull('b4.target')
+                        ->whereNull('b5.member_id')
+                        ->whereNull('b6.member_id')
+                        ->whereNull('b7.member_id')
+                        ->whereNull('b8.member_id')
+                        ->where(function($query)use($uid){
+                            $query->where('m.to_id','=' ,$uid)
+                                ->where('m.from_id','!=',$uid);
+                        })
+                        ->where([['m.is_row_delete_1', '=' ,0], ['m.is_single_delete_1', '<>', $uid], ['m.temp_id', '=', 0]])
+                        ->where('m.read', 'N')
+                        ->where([['m.created_at','>=',self::$date]]);
 //        $query = Message::where(function($query)use($uid){
 //                    $query->where('to_id','=' ,$uid)
 //                        ->where('from_id','!=',$uid);
