@@ -285,7 +285,7 @@
                                         </div>
                                     @endif
                                     {{---------警示帳戶尚未實作-------------- <img src="/new/images/b_05.png">--}}
-                                    @if($visitor->user_meta->isWarned == 1 || $visitor->isAdminWarned())
+                                    @if($visitor->user_meta->isWarned == 1 || isset($visitor->aw_relation))
                                         <div class="hoverTip">
                                             <div class="tagText" data-toggle="popover" data-content="此人被多人檢舉！與此會員交流務必提高警覺！">
                                             @if($user->isVip())
@@ -342,7 +342,7 @@
                                                 @endif
                                             @endif
                                         </h3>
-                                        <h3>最後上線時間：@if($visitor->valueAddedServiceStatus('hideOnline')==1 && $visitor->is_hide_online==1){{substr($visitor->hide_online_time,0,11)}}@else{{substr($visitor->last_login,0,11)}}@endif</h3>
+                                        <h3>最後上線時間：@if(isset($visitor->vas->hideOnline) && $visitor->vas->is_hide_online == 1) {{ substr($visitor->vas->hide_online_time, 0, 11) }} @else {{ substr($visitor->last_login, 0, 11) }} @endif</h3>
                                     </div>
                                 </a>
                             </li>
