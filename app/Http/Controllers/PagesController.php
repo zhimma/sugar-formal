@@ -1616,30 +1616,27 @@ class PagesController extends BaseController
             /*車馬費邀請次數*/
             $tip_count = Tip::where('to_id', $uid)->get()->count();
 
-            $memberFavData = MemberFav::select(\DB::raw('sum(IF(member_id = ' . $uid . ', 1, 0)) AS fav_count, sum(IF(member_fav_id = ' . $uid . ', 1, 0)) AS faved_count'))->first();
             /*收藏會員次數*/
-            $fav_count = $memberFavData->fav_count;
+            $fav_count = MemberFav::where('member_id', $uid)->get()->count();
             /*被收藏次數*/
-            $be_fav_count = $memberFavData->faved_count;
+            $be_fav_count = MemberFav::where('member_fav_id', $uid)->get()->count();
 
             /*是否封鎖我*/
             $is_block_mid = Blocked::where('blocked_id', $user->id)->where('member_id', $uid)->count() >= 1 ? '是' : '否';
-
-            $visitedData = Visited::select(\DB::raw('IF(EXISTS(SELECT visited_id FROM visited WHERE visited_id = ' . $user->id . '), "是", "否") as visited_me, sum(IF(member_id = ' . $uid . ', 1, 0)) as visited_others_count, sum(IF(visited_id = ' . $uid . ', 1, 0)) as visited_count, (SELECT count(*) FROM visited WHERE member_id = ' . $uid . ' AND created_at >= "' . $date . '") as visit_other_count_7,  (SELECT count(*) FROM visited WHERE visited_id = ' . $uid . ' AND created_at >= "' . $date . '") as visited_by_others_count_7'))->first();
             /*是否看過我*/
-            $is_visit_mid = $visitedData->visited_me;
+            $is_visit_mid = Visited::where('visited_id', $user->id)->where('member_id', $uid)->count() >= 1 ? '是' : '否';
 
             /*瀏覽其他會員次數*/
-            $visit_other_count = $visitedData->visited_others_count;
+            $visit_other_count = Visited::where('member_id', $uid)->count();
 
             /*被瀏覽次數*/
-            $be_visit_other_count = $visitedData->visited_count;
+            $be_visit_other_count = Visited::where('visited_id', $uid)->count();
 
             /*過去7天瀏覽其他會員次數*/
-            $visit_other_count_7 = $visitedData->visit_other_count_7;
+            $visit_other_count_7 = Visited::where('member_id', $uid)->where('created_at', '>=', $date)->count();
 
             /*過去7天被瀏覽次數*/
-            $be_visit_other_count_7 = $visitedData->visited_by_others_count_7;
+            $be_visit_other_count_7 = Visited::where('visited_id', $uid)->where('created_at', '>=', $date)->count();
 
 
             /*發信＆回信次數統計*/
