@@ -1931,11 +1931,19 @@ class PagesController extends BaseController
 //            if(User::isBanned($uid)){
 //                Session::flash('message', $user_closed->content);
 //            }
-
+            $to = $this->service->find($uid);
+            $valueAddedServicesStatus['hideOnline'] = 0;
+            $valueAddedServicesStatusRows = $to->valueAddedServiceStatus();
+            if($valueAddedServicesStatusRows){
+                foreach($valueAddedServicesStatusRows as $valueAddedServicesStatusRow){
+                    $valueAddedServicesStatus[$valueAddedServicesStatusRow->service_name] = 1;
+                }
+            }
             return view('new.dashboard.viewuser', $data)
                     ->with('user', $user)
                     ->with('blockadepopup', $blockadepopup)
-                    ->with('to', $this->service->find($uid))
+                    ->with('to', $to)
+                    ->with('valueAddedServiceStatus', $valueAddedServicesStatus)
                     ->with('cur', $user)
                     ->with('member_pic',$member_pic)
                     ->with('isVip', $isVip)

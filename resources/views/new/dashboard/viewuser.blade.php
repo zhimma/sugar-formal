@@ -175,7 +175,7 @@
                     <div class="metx">
                         <div class="swiper-container photo">
                             <div class="swiper-wrapper">
-                                <div class="swiper-slide" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="@if(file_exists( public_path().$to->meta_()->pic ) && $to->meta_()->pic != ""){{$to->meta_()->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>
+                                <div class="swiper-slide" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>
 
                                 @foreach($member_pic as $row)
                                     <div class="swiper-slide" data-type="pic" data-sid="{{$to->id}}" data-pic_id="{{$row->id}}"><img src="{{$row->pic}}"></div>
@@ -230,7 +230,7 @@
                                     </li>
                                 @endif
                                 {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
-                                @if($to->meta_()->isWarned == 1 || $to->isAdminWarned())
+                                @if($to->meta->isWarned == 1 || $to->isAdminWarned())
                                     <li>
 
                                         <div class="tagText" data-toggle="popover" data-content="此人被多人檢舉！與此會員交流務必提高警覺！">
@@ -300,7 +300,7 @@
                                 </li>
                             @endif
                             <li>
-                                @if($user->isAdminWarned())
+                                @if($isAdminWarned)
                                     <a onclick="show_Warned()"><img src="/new/images/icon_10.png" class="tubiao_i"><span>檢舉</span></a>
                                 @else
                                     <a onclick="show_banned()"><img src="/new/images/icon_10.png" class="tubiao_i"><span>檢舉</span></a>
@@ -384,14 +384,14 @@
                                         </dt>
                                     @endif
 
-                                    @if($to->meta_()->isHideArea == '0')
+                                    @if($to->meta->isHideArea == '0')
                                     <dt>
                                         <span>地區</span>
                                         <?php
                                         if (!isset($to)) {
                                             $umeta = null;
                                         } else {
-                                            $umeta = $to->meta_();
+                                            $umeta = $to->meta;
                                             if(isset($umeta->city)){
                                                 $umeta->city = explode(",",$umeta->city);
                                                 $umeta->area = explode(",",$umeta->area);
@@ -409,153 +409,153 @@
                                             @endif
                                         @else
                                             <span>
-                                                <font class="select_xx senhs left hy_new">{{$to->meta_()->city}}</font>
-                                                <font class="select_xx senhs right hy_new">{{$to->meta_()->area}}</font>
+                                                <font class="select_xx senhs left hy_new">{{$to->meta->city}}</font>
+                                                <font class="select_xx senhs right hy_new">{{$to->meta->area}}</font>
                                             </span>
                                         @endif
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->budget))
+                                    @if(!empty($to->meta->budget))
                                     <dt>
                                         <span>預算</span>
                                         <span>
-                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->budget}}</div>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta->budget}}</div>
                                         </span>
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->age()))
+                                    @if(!empty($to->meta->age()))
                                     <dt>
                                         <span>年齡</span>
                                         <span>
-                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->age()}}</div>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta->age()}}</div>
                                         </span>
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->height))
+                                    @if(!empty($to->meta->height))
                                     <dt>
                                         <span>身高（cm）</span>
                                         <span>
-                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->height}}</div>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta->height}}</div>
                                         </span>
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->body) && $to->meta_()->body != null && $to->meta_()->body != 'null')
+                                    @if(!empty($to->meta->body) && $to->meta->body != null && $to->meta->body != 'null')
                                     <dt>
                                         <span>體型</span>
                                         <span>
-                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->body}}</div>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta->body}}</div>
                                         </span>
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->cup) && $to->meta_()->isHideCup == '0')
+                                    @if(!empty($to->meta->cup) && $to->meta->isHideCup == '0')
                                     <dt>
                                         <span>CUP</span>
                                         <span>
-                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->cup}}</div>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta->cup}}</div>
                                         </span>
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->about))
+                                    @if(!empty($to->meta->about))
                                     <dt>
                                         <span>關於我</span>
                                         <span>
-                                            <div class="select_xx03" >{!! nl2br($to->meta_()->about) !!}</div>
+                                            <div class="select_xx03" >{!! nl2br($to->meta->about) !!}</div>
                                         </span>
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->style))
+                                    @if(!empty($to->meta->style))
                                     <dt>
                                         <span>期待的約會模式</span>
                                         <span>
-                                            <div class="select_xx03" >{!! nl2br($to->meta_()->style) !!}</div>
+                                            <div class="select_xx03" >{!! nl2br($to->meta->style) !!}</div>
                                         </span>
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->situation) && $to->meta_()->situation != null && $to->meta_()->situation != 'null' && $to->engroup==2)
+                                    @if(!empty($to->meta->situation) && $to->meta->situation != null && $to->meta->situation != 'null' && $to->engroup==2)
                                         <dt>
                                             <span>現況</span>
                                             <span>
-                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->situation}}</div>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta->situation}}</div>
                                         </span>
                                         </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->domainType) && $to->meta_()->domainType != null && $to->meta_()->domainType != 'null' )
+                                    @if(!empty($to->meta->domainType) && $to->meta->domainType != null && $to->meta->domainType != 'null' )
                                     <dt>
                                         <span>產業</span>
                                         <span>
-                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->domainType}}  @if(!empty($to->meta_()->domain) && $to->meta_()->domain != null && $to->meta_()->domain != 'null'){{$to->meta_()->domain}}@endif</div>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta->domainType}}  @if(!empty($to->meta->domain) && $to->meta->domain != null && $to->meta->domain != 'null'){{$to->meta->domain}}@endif</div>
                                         </span>
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->occupation) && $to->meta_()->isHideOccupation == '0' && $user->isVip() && $to->meta_()->occupation != 'null')
+                                    @if(!empty($to->meta->occupation) && $to->meta->isHideOccupation == '0' && $user->isVip() && $to->meta->occupation != 'null')
                                     <dt>
                                         <span>職業</span>
                                         <span>
-                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->occupation}}</div>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta->occupation}}</div>
                                         </span>
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->education))
+                                    @if(!empty($to->meta->education))
                                     <dt>
                                         <span>教育</span>
                                         <span>
-                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->education}}</div>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta->education}}</div>
                                         </span>
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->marriage))
+                                    @if(!empty($to->meta->marriage))
                                     <dt>
                                         <span>婚姻</span>
                                         <span>
-                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->marriage}}</div>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta->marriage}}</div>
                                         </span>
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->drinking))
+                                    @if(!empty($to->meta->drinking))
                                     <dt>
                                         <span>喝酒</span>
                                         <span>
-                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->drinking}}</div>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta->drinking}}</div>
                                         </span>
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->smoking))
+                                    @if(!empty($to->meta->smoking))
                                     <dt>
                                         <span>抽煙</span>
                                         <span>
-                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->smoking}}</div>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta->smoking}}</div>
                                         </span>
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->income) && $to->engroup==1)
+                                    @if(!empty($to->meta->income) && $to->engroup==1)
                                     <dt>
                                         <span>收入</span>
                                         <span>
-                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->income}}</div>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta->income}}</div>
                                         </span>
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta_()->assets) && $to->engroup==1)
+                                    @if(!empty($to->meta->assets) && $to->engroup==1)
                                     <dt>
                                         <span>資產</span>
                                         <span>
-                                            <div class="select_xx01 senhs hy_new">{{$to->meta_()->assets}}</div>
+                                            <div class="select_xx01 senhs hy_new">{{$to->meta->assets}}</div>
                                         </span>
                                     </dt>
                                     @endif
@@ -571,20 +571,20 @@
                             <div class="xiliao_input">
                                 <div class="xl_text">
                                     <dt><span>註冊時間</span>@if($user->isVip())<font>{{substr($to->created_at,0,10)}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>最後上線時間</span>@if($to->valueAddedServiceStatus('hideOnline')==1) <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{substr($to->last_login,0,10)}}</font> @else <img src="/new/images/icon_35.png"> @endif  @endif</dt>
-                                    <dt><span>每周平均上線次數</span>@if($to->valueAddedServiceStatus('hideOnline')==1) <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$login_times_per_week }}</font> @else <img src="/new/images/icon_35.png"> @endif  @endif</dt>
+                                    <dt><span>最後上線時間</span>@if($valueAddedServiceStatus['hideOnline'] == 1) <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{substr($to->last_login,0,10)}}</font> @else <img src="/new/images/icon_35.png"> @endif  @endif</dt>
+                                    <dt><span>每周平均上線次數</span>@if($valueAddedServiceStatus['hideOnline'] == 1) <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$login_times_per_week }}</font> @else <img src="/new/images/icon_35.png"> @endif  @endif</dt>
                                     <dt><span>被收藏次數</span>@if($user->isVip()) <font>{{$be_fav_count}}</font> @else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>收藏會員次數</span>@if($user->isVip())<font>{{$fav_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>車馬費邀請次數</span>@if($user->isVip())<font>{{$tip_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>發信次數</span>@if($user->isVip())<font>{{$message_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>過去7天發信次數</span>@if($to->valueAddedServiceStatus('hideOnline')==1) <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$message_count_7}}</font> @else <img src="/new/images/icon_35.png"> @endif @endif </dt>
+                                    <dt><span>過去7天發信次數</span>@if($valueAddedServiceStatus['hideOnline'] == 1) <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$message_count_7}}</font> @else <img src="/new/images/icon_35.png"> @endif @endif </dt>
                                     <dt><span>回信次數</span>@if($user->isVip())<font>{{$message_reply_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>過去7天回信次數</span>@if($to->valueAddedServiceStatus('hideOnline')==1) <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$message_reply_count_7}}</font> @else <img src="/new/images/icon_35.png"> @endif @endif </dt>
-                                    <dt><span>過去7天罐頭訊息比例</span>@if($to->valueAddedServiceStatus('hideOnline')==1) <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$message_percent_7}}</font> @else <img src="/new/images/icon_35.png"> @endif @endif </dt>
+                                    <dt><span>過去7天回信次數</span>@if($valueAddedServiceStatus['hideOnline'] == 1) <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$message_reply_count_7}}</font> @else <img src="/new/images/icon_35.png"> @endif @endif </dt>
+                                    <dt><span>過去7天罐頭訊息比例</span>@if($valueAddedServiceStatus['hideOnline'] == 1) <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$message_percent_7}}</font> @else <img src="/new/images/icon_35.png"> @endif @endif </dt>
                                     <dt><span>是否封鎖我</span>@if($user->isVip())<font>{{$is_block_mid}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>是否看過我</span>@if($user->isVip())<font>{{$is_visit_mid}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>瀏覽其他會員次數</span>@if($user->isVip())<font>{{$visit_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>過去7天瀏覽其他會員次數</span>@if($to->valueAddedServiceStatus('hideOnline')==1) <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$visit_other_count_7}}</font>  @else <img src="/new/images/icon_35.png"> @endif @endif</dt>
+                                    <dt><span>過去7天瀏覽其他會員次數</span>@if($valueAddedServiceStatus['hideOnline'] == 1) <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$visit_other_count_7}}</font>  @else <img src="/new/images/icon_35.png"> @endif @endif</dt>
                                     <dt><span>被瀏覽次數</span>@if($user->isVip())<font>{{$be_visit_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>過去7天被瀏覽次數</span>@if($user->isVip())<font>{{$be_visit_other_count_7}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>封鎖多少會員</span>@if($user->isVip())<font>{{$blocked_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
@@ -649,7 +649,7 @@
                                                 @elseif(!empty($row->re_content))
                                                     <div class="hu_p">
                                                         <div class="he_b">
-                                                            <span class="left"><img src="@if(file_exists( public_path().$to_user->meta_()->pic ) && $to_user->meta_()->pic != ""){{$to_user->meta_()->pic}} @elseif($to_user->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to_user->name}}</span>
+                                                            <span class="left"><img src="@if(file_exists( public_path().$to_user->meta->pic ) && $to_user->meta->pic != ""){{$to_user->meta->pic}} @elseif($to_user->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to_user->name}}</span>
                                                             @if($to_user->id==$user->id)
                                                                 <font class="sc re_content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
                                                             @endif
@@ -1173,7 +1173,7 @@
     @if(isset($to))
         $('.evaluation').on('click', function() {
             @if($user->id != $to->id)
-                @if($user->meta_()->isWarned == 1 || $user->isAdminWarned())
+                @if($user->meta->isWarned == 1 || $isAdminWarned)
                     c5('您目前為警示帳戶，暫不可評價');
                 @elseif($user->engroup==2 && ($user->isSent3Msg($to->id)==0 || $auth_check==0))
                     // alert(1);

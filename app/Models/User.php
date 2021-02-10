@@ -774,20 +774,21 @@ class User extends Authenticatable
         return $isRead;
     }
 
-    public function valueAddedServiceStatus($service_name)
+    public function valueAddedServiceStatus($service_name = null)
     {
-        $status = ValueAddedService::where('member_id', $this->id)->where('service_name', $service_name)->where('active',1)->orderBy('created_at', 'desc')->first();
+        if($service_name){
+            $status = ValueAddedService::where('member_id', $this->id)->where('service_name', $service_name)->where('active',1)->orderBy('created_at', 'desc')->first();
+        }
+        else{
+            $status = ValueAddedService::where('member_id', $this->id)->where('active',1)->get();
+        }
         if(!isset($status)){
             return 0;
         }
-
-//
-//        if($status->active==1){
-//            if($status->expiry == '0000-00-00 00:00:00' || $status->expiry >= Carbon::now()){
-//                return 1;
-//            }
-//        }
-        return 1;
+        if($service_name){
+            return 1;
+        }
+        return $status;
     }
 
 }
