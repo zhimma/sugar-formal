@@ -629,20 +629,48 @@ class Message extends Model
 //            self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
             self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
         }
-        $query = Message::where(function($query)use($uid)
-        {
-            $query->where('to_id','=' ,$uid)
-                ->where('from_id','!=',$uid);
-        });
-        $all_msg = $query->whereNotIn('from_id', $banned_users)
-            ->whereNotIn('to_id', $banned_users)
-            ->whereNotIn('from_id', $block)
-            ->whereNotIn('to_id', $block)
-            ->whereNotIn('from_id', $blockedList)
-            ->whereNotIn('to_id', $blockedList)
-            ->where([['is_row_delete_1', '=' ,0], ['is_single_delete_1', '<>', $uid], ['temp_id', '=', 0]])
-            ->where('read', 'N')
-            ->where([['message.created_at','>=',self::$date]]);
+        /**
+         * 效能調整：使用左結合取代 where in 以取得更好的效能
+         *
+         * @author LZong <lzong.tw@gmail.com>
+         */
+        $query = Message::from('message as m')
+                        ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'm.from_id')
+                        ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'm.to_id')
+                        ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'm.from_id')
+                        ->leftJoin('banned_users_implicitly as b4', 'b4.target', '=', 'm.to_id')
+                        ->leftJoin('blocked as b5', function($join) use($uid) {
+                            $join->on('b5.blocked_id', '=', 'm.from_id')
+                                ->where('b5.member_id', $uid); })
+                        ->leftJoin('blocked as b6', function($join) use($uid) {
+                            $join->on('b6.blocked_id', '=', 'm.to_id')
+                                ->where('b6.member_id', $uid); })
+                        ->leftJoin('blocked as b7', function($join) use($uid) {
+                            $join->on('b7.member_id', '=', 'm.from_id')
+                                ->where('b7.blocked_id', $uid); })
+                        ->leftJoin('blocked as b8', function($join) use($uid) {
+                            $join->on('b8.member_id', '=', 'm.to_id')
+                                ->where('b8.blocked_id', $uid); });
+        $all_msg = $query->where(function($query)use($uid){
+                        $query->where('m.to_id','=' ,$uid)
+                            ->where('m.from_id','!=',$uid);
+                    })
+            ->where([['m.is_row_delete_1', '=' ,0], ['m.is_single_delete_1', '<>', $uid], ['m.temp_id', '=', 0]])
+            ->where('m.read', 'N')
+            ->where([['m.created_at','>=',self::$date]]);
+//        $query = Message::where(function($query)use($uid){
+//                    $query->where('to_id','=' ,$uid)
+//                        ->where('from_id','!=',$uid);
+//                });
+//        $all_msg = $query->whereNotIn('from_id', $banned_users)
+//            ->whereNotIn('to_id', $banned_users)
+//            ->whereNotIn('from_id', $block)
+//            ->whereNotIn('to_id', $block)
+//            ->whereNotIn('from_id', $blockedList)
+//            ->whereNotIn('to_id', $blockedList)
+//            ->where([['is_row_delete_1', '=' ,0], ['is_single_delete_1', '<>', $uid], ['temp_id', '=', 0]])
+//            ->where('read', 'N')
+//            ->where([['message.created_at','>=',self::$date]]);
         if($user->user_meta->notifhistory == '顯示VIP會員信件') {
             //$allVip = \App\Models\Vip::allVip();
             //$all_msg = $all_msg->whereIn('from_id', $allVip);
