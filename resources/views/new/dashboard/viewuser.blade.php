@@ -811,7 +811,7 @@
                     </tr>
                     <tr>
                         <td class="new_baa">男方須回覆女方三次以上</td>
-                        <td class="">@if(!$user->isSent3Msg($to->id))<img src="/new/images/ticon_02.png">@else<img src="/new/images/ticon_01.png">@endif</td>
+                        <td class="">@if(!$isSent3Msg)<img src="/new/images/ticon_02.png">@else<img src="/new/images/ticon_01.png">@endif</td>
                     </tr>
                 </table>
             </div>
@@ -832,7 +832,7 @@
                     </tr>
                     <tr>
                         <td class="new_baa">女方須有回覆男方三次以上</td>
-                        <td class="">@if(!$user->isSent3Msg($to->id))<img src="/new/images/ticon_02.png">@else<img src="/new/images/ticon_01.png">@endif</td>
+                        <td class="">@if(!$isSent3Msg)<img src="/new/images/ticon_02.png">@else<img src="/new/images/ticon_01.png">@endif</td>
                     </tr>
                 </table>
             </div>
@@ -1175,11 +1175,11 @@
             @if($user->id != $to->id)
                 @if($user->meta->isWarned == 1 || $isAdminWarned)
                     c5('您目前為警示帳戶，暫不可評價');
-                @elseif($user->engroup==2 && ($user->isSent3Msg($to->id)==0 || $auth_check==0))
+                @elseif($user->engroup==2 && ($isSent3Msg==0 || $auth_check==0))
                     // alert(1);
                     $('#tab_reject_female').show();
                     $(".announce_bg").show();
-                @elseif($user->engroup==1 && ($user->isSent3Msg($to->id)==0 || $vipDays<=30))
+                @elseif($user->engroup==1 && ($isSent3Msg==0 || $vipDays<=30))
                     //alert(2);
                     $('#tab_reject_male').show();
                     $(".announce_bg").show();
