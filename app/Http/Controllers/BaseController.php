@@ -15,6 +15,8 @@ class BaseController extends Controller
             $this->user = view()->shared('user');
             $this->user_meta = view()->shared('user_meta');
             $this->userIsVip = view()->shared('isVip');
+            $this->userIsFreeVip = view()->shared('isFreeVip');
+            $this->userVipData = view()->shared('vipData');
             $this->unread = view()->shared('unread');
             $this->valueAddedServices = view()->shared('valueAddedServices');
 
