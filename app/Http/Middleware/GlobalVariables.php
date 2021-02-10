@@ -54,15 +54,10 @@ class GlobalVariables
             \View::share('unread', $unread);
             \View::share('user_meta', $user->meta);
             \View::share('isFreeVip', $isFreeVip);
-            \View::composer('new.dashboard', function($view) use ($user) {
+            \View::composer(['new.dashboard', 'new.dashboard.viewuser'], function($view) use ($user) {
                 $view->with('isAdminWarned', $user->isAdminWarned());
              });
         }
-        // View::composer 使用場合 https://castion2293.medium.com/laravel%E4%BD%BF%E7%94%A8view-composer%E7%B5%84%E4%BB%B6-4b07b0753692
-        // https://adon988.logdown.com/posts/7831625-laravel-view-composer-introduction
-        //  \View::composer('*', function($view) {
-        //
-        // });
         return $next($request);
     }
 }
