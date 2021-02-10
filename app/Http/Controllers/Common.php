@@ -7,7 +7,7 @@ use App\Services\VipLogService;
 use Illuminate\Http\Request;
 use DB;
 
-class Common extends Controller {
+class Common extends BaseController {
     public function get_message(Request $request){
 
         $user=$request->user();

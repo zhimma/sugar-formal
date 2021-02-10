@@ -63,7 +63,7 @@ class VipCheck
         }
 
         // 轉換性別為男生時取消原女免費 VIP
-        if($user->isFreeVip()){
+        if(view()->share('isFreeVip')){
             if($user->engroup == 1) {
                 $userVIP = $user->getVipData(true);
                 \App\Models\VipLog::addToLog($user->id, 'Gender changed, free VIP checking and cancellation function triggered.', 'XXXXXXXXX', 0, 0);
@@ -72,7 +72,7 @@ class VipCheck
         }
 
         //加值服務到期判斷
-        if($user->valueAddedServiceStatus('hideOnline')==1){
+        if(view()->shared('valueAddedServices')['hideOnline'] == 1){
             $userValueAddedService = \App\Models\ValueAddedService::getData($user->id,'hideOnline');
             $expiry = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $userValueAddedService->expiry);
             if($now > $expiry && $userValueAddedService->expiry != '0000-00-00 00:00:00') {

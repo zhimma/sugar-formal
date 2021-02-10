@@ -52,10 +52,11 @@ use Session;
 use App\Notifications\AccountConsign;
 use App\Models\ValueAddedService;
 
-class PagesController extends Controller
+class PagesController extends BaseController
 {
     public function __construct(UserService $userService, VipLogService $logService)
     {
+        parent::__construct();
         $this->service = $userService;
         $this->logService = $logService;
     }
@@ -457,18 +458,18 @@ class PagesController extends Controller
      */
     public function home(Request $request)
     {
-        $user = $request->user();
         $imgUserM = User::select('users.name', 'users.title', 'user_meta.pic')
             ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->withOut('vip')
             ->whereNotNull('user_meta.pic')
             ->where('engroup', 1)->inRandomorder()->take(3)->get();
         $imgUserF = User::select('users.name', 'users.title', 'user_meta.pic')
             ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->withOut('vip')
             ->whereNotNull('user_meta.pic')
             ->where('engroup', 2)->inRandomorder()->take(3)->get();
         return view('new.welcome')
-            ->with('user', $user)
-            ->with('cur', $user)
+            ->with('cur', view()->shared('user'))
             ->with('imgUserM', $imgUserM)
             ->with('imgUserF', $imgUserF);
     }
@@ -581,10 +582,10 @@ class PagesController extends Controller
         //      1. 綠界：連 API 檢查，使用 Laravel Queue 執行檢查
         //      2. 藍新：後台手動
         
-        $user = $request->user();
+        $user = $this->user;
         $url = $request->fullUrl();
 
-        if($user->isVip() && !$user->isFreeVip()){
+        if($this->userIsVip && !$user->isFreeVip()){
             $vipData = $user->getVipData(true);
             if(is_object($vipData)){
                 $this->dispatch(new CheckECpay($vipData));
@@ -595,7 +596,7 @@ class PagesController extends Controller
         }
 
         //valueAddedService
-        if($user->valueAddedServiceStatus('hideOnline')==1){
+        if($this->valueAddedServices['hideOnline'] == 1){
             //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
             $service_name = 'hideOnline';
             $valueAddedServiceData = \App\Models\ValueAddedService::getData($user->id,'hideOnline');
@@ -2244,10 +2245,15 @@ class PagesController extends Controller
             $isBlocked = Blocked::isBlocked($aid, $bid);
             if(!$isBlocked) {
                 Blocked::block($aid, $bid);
-                //有收藏名單則刪除
-                $isFav = MemberFav::where('member_id', $aid)->where('member_fav_id',$bid)->count();
-                if($isFav>0){
+                // 有收藏名單則刪除
+                $isFav = MemberFav::where('member_id', $aid)->where('member_fav_id', $bid)->count();
+                if($isFav > 0){
                     MemberFav::remove($aid, $bid);
+                }
+                // 對方的收藏名單也刪除
+                $isFavved = MemberFav::where('member_id', $bid)->where('member_fav_id', $aid)->count();
+                if($isFavved > 0){
+                    MemberFav::remove($bid, $aid);
                 }
                 return response()->json(['save' => 'ok']);
             }

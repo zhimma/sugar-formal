@@ -8,7 +8,7 @@ use _namespace_services_\_camel_case_Service;
 use _namespace_request_\_camel_case_CreateRequest;
 use _namespace_request_\_camel_case_UpdateRequest;
 
-class _ucCamel_casePlural_Controller extends Controller
+class _ucCamel_casePlural_Controller extends BaseController
 {
     public function __construct(_camel_case_Service $_lower_case__service)
     {

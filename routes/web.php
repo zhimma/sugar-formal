@@ -113,7 +113,7 @@ Route::get('/activate/token/{token}', 'Auth\ActivateController@activate');
 Route::post('/admin/api/aws-sns/ses', function(Request $request){
     info($request->getContent());
 });
-Route::group(['middleware' => ['auth']], function () {
+Route::group(['middleware' => ['auth', 'global']], function () {
     Route::get('/activate', 'Auth\ActivateController@showActivate');
     Route::get('/activate/send-token', 'Auth\ActivateController@sendToken');
 });
@@ -140,7 +140,7 @@ Route::group(['middleware' => ['auth']], function () {
 | Authenticated Routes
 |--------------------------------------------------------------------------
 */
-Route::group(['middleware' => ['auth']], function () {
+Route::group(['middleware' => ['auth', 'global']], function () {
     //新手教學
     Route::get('/dashboard/newer_manual', 'PagesController@newer_manual');
     Route::get('/dashboard/web_manual', 'PagesController@web_manual');
@@ -151,7 +151,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/dashboard/updateAccountStatus', 'PagesController@updateAccountStatus');
 });
 
-Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckIsWarned','CheckAccountStatus']], function () {
+Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckIsWarned','CheckAccountStatus']], function () {
 
     /*
     |--------------------------------------------------------------------------

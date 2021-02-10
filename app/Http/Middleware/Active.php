@@ -35,7 +35,8 @@ class Active
      */
     public function handle($request, Closure $next)
     {
-        if (! $this->auth->user()->meta_()->is_active) {
+        $user = view()->shared('user');
+        if (! $user->meta->is_active) {
             return redirect()->guest('activate');
         }
 
