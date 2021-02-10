@@ -1858,7 +1858,7 @@ class PagesController extends BaseController
 
             $evaluation_self = DB::table('evaluation')->where('to_id',$uid)->where('from_id',$user->id)->first();
             /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
-            $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
+//            $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
             /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
 
             // todo: 此處程式碼有誤，應檢查檢視者是否被被檢視者封鎖，若是，才存入變數
@@ -1894,7 +1894,7 @@ class PagesController extends BaseController
                     ->with('alert_account',$alert_account->content)
                     ->with('label_vip',$label_vip->content)
                     ->with('rating_avg',$rating_avg)
-                    ->with('user_closed',$user_closed->content)
+//                    ->with('user_closed',$user_closed->content)
                     ->with('evaluation_self',$evaluation_self)
                     ->with('evaluation_data',$evaluation_data)
                     ->with('vipDays',$vipDays)
