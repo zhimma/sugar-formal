@@ -1640,7 +1640,7 @@ class PagesController extends BaseController
 
 
             /*發信＆回信次數統計*/
-            $messages_all = Message::select('id','to_id','from_id','created_at')->where('from_id', $uid)->orwhere('to_id', $uid)->orderBy('id')->get();
+            $messages_all = Message::select('id','to_id','from_id','created_at')->where('to_id', $uid)->orwhere('from_id', $uid)->orderBy('id')->get();
             $countInfo['message_count'] = 0;
             $countInfo['message_reply_count'] = 0;
             $countInfo['message_reply_count_7'] = 0;
@@ -1665,7 +1665,7 @@ class PagesController extends BaseController
             }
             $countInfo['message_count'] = count($send);
 
-            $messages_7days = Message::select('id','to_id','from_id','created_at')->whereRaw('(from_id ='. $uid. ' OR to_id='.$uid .')')->where('created_at','>=', $date)->orderBy('id')->get();
+            $messages_7days = Message::select('id','to_id','from_id','created_at')->whereRaw('(to_id ='. $uid. ' OR from_id='.$uid .')')->where('created_at','>=', $date)->orderBy('id')->get();
             $countInfo['message_count_7'] = 0;
             $send = [];
             foreach ($messages_7days as $message) {
@@ -1675,12 +1675,6 @@ class PagesController extends BaseController
                 }
             }
             $countInfo['message_count_7'] = count($send);
-
-            $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $uid)->get();
-            $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
-            $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
-            $bannedUsers = UserService::getBannedId();
-            $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
 
             /*發信次數*/
             $message_count = $countInfo['message_count'];
@@ -1693,6 +1687,13 @@ class PagesController extends BaseController
             /*過去7天罐頭訊息比例*/
             $date_start = date("Y-m-d",strtotime("-6 days", strtotime(date('Y-m-d'))));
             $date_end = date('Y-m-d');
+
+
+            $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $uid)->get();
+            $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
+            $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
+            $bannedUsers = UserService::getBannedId();
+            $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
 
             $query = Message::select('users.email','users.name','users.title','users.engroup','users.created_at','users.last_login','message.id','message.from_id','message.content','user_meta.about')
                 ->join('users', 'message.from_id', '=', 'users.id')
@@ -1788,7 +1789,9 @@ class PagesController extends BaseController
                 'be_blocked_other_count' => $be_blocked_other_count,
                 'is_banned' => $is_banned
             );
+            //////////////////////////////////////////////////////////////////////////////////////////
             $member_pic = DB::table('member_pic')->where('member_id',$uid)->where('pic','<>',$targetUser->meta->pic)->get();
+            //////////////////////////////////////////////////////////////////////////////////////////
             if($user->isVip()){
                 $vipLevel = 1;
             }else{
@@ -1838,6 +1841,7 @@ class PagesController extends BaseController
             $label_vip = $adminCommonTextArray['label_vip'];
             /*編輯文案-label_vip-END*/
 
+            //////////////////////////////////////////////////////////////////////////////////////////
             $rating_avg = DB::table('evaluation')->where('to_id',$uid)
                 ->whereNotIn('from_id',$userBlockList)
                 ->whereNotIn('from_id',$isBlockList)
@@ -1845,9 +1849,9 @@ class PagesController extends BaseController
                 ->whereNotIn('from_id',$isAdminWarnedList)
                 ->whereNotIn('from_id',$isWarnedList)
                 ->avg('rating');
-
+            //////////////////////////////////////////////////////////////////////////////////////////
             $rating_avg = floatval($rating_avg);
-
+            //////////////////////////////////////////////////////////////////////////////////////////
             $evaluation_data = DB::table('evaluation')->where('to_id',$uid)
                 ->whereNotIn('from_id',$userBlockList)
                 ->whereNotIn('from_id',$isBlockList)
@@ -1855,6 +1859,7 @@ class PagesController extends BaseController
                 ->whereNotIn('from_id',$isAdminWarnedList)
                 ->whereNotIn('from_id',$isWarnedList)
                 ->paginate(10);
+            //////////////////////////////////////////////////////////////////////////////////////////
 
             $evaluation_self = DB::table('evaluation')->where('to_id',$uid)->where('from_id',$user->id)->first();
             /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
