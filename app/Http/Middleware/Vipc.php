@@ -35,8 +35,8 @@ class Vipc
      */
     public function handle($request, Closure $next)
     {
-        if (!view()->share('isVip')) {
-            return redirect('/dashboard/upgrade');
+        if (!$this->auth->user()->isVip()) {
+            return redirect('/dashboard/vipSelect');
         }
 
         return $next($request);
