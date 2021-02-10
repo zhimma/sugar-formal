@@ -226,7 +226,7 @@ class UserMeta extends Model
          * $isBlockedByUsers = blocked::select('member_id')->where('blocked_id',$userid)->get();
          */
         // 效能調整：Eager Loading
-        $query = User::with(['user_meta' => $constraint, 'vip', 'vas', 'aw_relation'])
+        $query = User::with(['user_meta' => $constraint, 'vip', 'vas', 'aw_relation', 'fa_relation'])
 		->select('*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))
             ->whereHas('user_meta', $constraint)
             ->where('engroup', $engroup)

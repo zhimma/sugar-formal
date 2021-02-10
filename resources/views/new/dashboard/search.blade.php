@@ -1,6 +1,14 @@
 @extends('new.layouts.website')
-
 @section('app-content')
+@if($user->engroup == 1 && $user->isVip())
+    @php
+        $exchange_period_name = DB::table('exchange_period_name')->get();
+        $epn_array = array();
+        foreach($exchange_period_name as $epn){
+            $epn_array[$epn->id] = $epn->name;
+        }
+    @endphp
+@endif
 <style>
 .pagination > li > a:focus,
 .pagination > li > a:hover,
@@ -153,7 +161,6 @@
                                 <span>包養關係</span>
                                 <span class="line20">
                                     @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
                                         $temp_id=0;
                                     @endphp
                                     @foreach($exchange_period_name as $row)
@@ -297,7 +304,7 @@
                                         </div>
                                     @endif
                                     {{--手機驗證--}}
-                                    @if($visitor->engroup == 2 && $visitor->isPhoneAuth())
+                                    @if($visitor->engroup == 2 && isset($visitor->fa_relation))
                                         <div class="hoverTip">
                                         <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。">
                                         @if($user->isVip())
@@ -333,10 +340,7 @@
 
                                             @if($user->engroup==1)
                                                 @if($user->isVip())
-                                                @php
-                                                    $exchange_period_name = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
-                                                @endphp
-                                                    <i class="j_lxx">丨</i><span>{{$exchange_period_name->name}}</span>
+                                                    <i class="j_lxx">丨</i><span>{{ $epn_array[$visitor->exchange_period] }}</span>
                                                 @else
                                                     <i class="j_lxx">丨</i><span>包養關係<img src="/new/images/icon_35.png" class="nt_img"></span>
                                                 @endif
