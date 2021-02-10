@@ -619,9 +619,9 @@ class Message extends Model
         if(!$user){
             $user = User::find($uid);
         }
-        $block = Blocked::getAllBlockedId($uid);
-        $blockedList = Blocked::select('member_id')->where('blocked_id', $user->id)->get();
-        $banned_users = \App\Services\UserService::getBannedId();
+//        $block = Blocked::getAllBlockedId($uid);
+//        $blockedList = Blocked::select('member_id')->where('blocked_id', $user->id)->get();
+//        $banned_users = \App\Services\UserService::getBannedId();
 
         if($user->isVip()) {
             self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
