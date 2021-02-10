@@ -1583,71 +1583,6 @@ class PagesController extends BaseController
             ->with('user', $user)->with('cur', $user);
     }
 
-    public function viewuser(Request $request, $uid = -1) {
-        $user = $request->user();
-        // dd($user);
-
-        if (isset($user) && isset($uid)) {
-            $targetUser = User::where('id', $uid)->get()->first();
-            if(!isset($targetUser)){
-                return view('errors.nodata');
-            }
-            if(User::isBanned($uid)){
-                return view('errors.nodata');
-            }
-            if ($user->id != $uid) {
-                Visited::visit($user->id, $uid);
-            }
-
-            $checkRecommendedUser['description'] = null;
-            $checkRecommendedUser['stars'] = null;
-            $checkRecommendedUser['background'] = null;
-            $checkRecommendedUser['title'] = null;
-            $checkRecommendedUser['button'] = null;
-            $checkRecommendedUser['height'] = null;
-            try{
-                $checkRecommendedUser = $this->service->checkRecommendedUser($targetUser);
-                $tracker = $checkRecommendedUser['description'];
-            }
-            catch (\Exception $e){
-                Log::info('Current URL: ' . url()->current());
-                Log::debug('checkRecommendedUser() failed, $targetUser: '. $targetUser);
-            }
-            finally{
-                if($user->vip_record=='0000-00-00 00:00:00'){
-                    $vipLevel = 0;
-                }else{
-                    $vipLevel = 1;
-                }
-                // dd($vipLevel);
-                $basic_setting = BasicSetting::where('vipLevel',$vipLevel)->where('gender',$user->engroup)->get()->first();
-                // dd($basic_setting);
-
-                $data = array();
-
-                if(isset($basic_setting['countSet'])){
-                    if($basic_setting['countSet']==-1){
-                        $basic_setting['countSet'] = 10000;
-                    }
-                    $data = array(
-                        'timeSet'=> (int)$basic_setting['timeSet'],
-                        'countSet'=> (int)$basic_setting['countSet'],
-                    );
-                }
-
-                return view('dashboard', $data)
-                    ->with('user', $user)
-                    ->with('cur', $this->service->find($uid))
-                    ->with('description', $checkRecommendedUser['description'])
-                    ->with('stars', $checkRecommendedUser['stars'])
-                    ->with('background', $checkRecommendedUser['background'])
-                    ->with('title', $checkRecommendedUser['title'])
-                    ->with('button', $checkRecommendedUser['button'])
-                    ->with('height', $checkRecommendedUser['height']);
-            }
-        }
-    }
-
     public function viewuser2(Request $request, $uid = -1) {
         $user = $request->user();
 
@@ -1672,7 +1607,7 @@ class PagesController extends BaseController
                 return view('new.dashboard.viewuser', compact('user'));
             }
             if ($user->id != $uid) {
-                Visited::visit($user->id, $uid);
+                Visited::visit($user->id, $targetUser);
             }
 
             /*七天前*/
@@ -1741,6 +1676,12 @@ class PagesController extends BaseController
             }
             $countInfo['message_count_7'] = count($send);
 
+            $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $uid)->get();
+            $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
+            $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
+            $bannedUsers = UserService::getBannedId();
+            $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
+
             /*發信次數*/
             $message_count = $countInfo['message_count'];
             /*過去7天發信次數*/
@@ -1749,10 +1690,7 @@ class PagesController extends BaseController
             $message_reply_count = $countInfo['message_reply_count'];
             /*過去7天回信次數*/
             $message_reply_count_7 = $countInfo['message_reply_count_7'];
-
             /*過去7天罐頭訊息比例*/
-            $bannedUsers = UserService::getBannedId();
-            $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
             $date_start = date("Y-m-d",strtotime("-6 days", strtotime(date('Y-m-d'))));
             $date_end = date('Y-m-d');
 
@@ -1850,7 +1788,7 @@ class PagesController extends BaseController
                 'be_blocked_other_count' => $be_blocked_other_count,
                 'is_banned' => $is_banned
             );
-            $member_pic = DB::table('member_pic')->where('member_id',$uid)->where('pic','<>',$targetUser->meta_()->pic)->get();
+            $member_pic = DB::table('member_pic')->where('member_id',$uid)->where('pic','<>',$targetUser->meta->pic)->get();
             if($user->isVip()){
                 $vipLevel = 1;
             }else{
@@ -1868,35 +1806,37 @@ class PagesController extends BaseController
             }
             $blockadepopup = AdminCommonText::getCommonText(5);//id5封鎖說明popup
             $isVip = $user->isVip() ? '1':'0';
+
+            $adminCommonTexts = AdminCommonText::whereIn('alias', ['report_reason', 'report_member', 'report_avatar', 'new_sweet', 'well_member', 'money_cert', 'alert_account', 'label_vip'])->get();
+            $adminCommonTextArray = array();
+            foreach($adminCommonTexts as $adminCommonText){
+                $adminCommonTextArray[$adminCommonText->alias] = $adminCommonText;
+            }
+
             /*編輯文案-檢舉會員訊息-START*/
-            $report_reason = AdminCommonText::where('alias','report_reason')->get()->first();
+            $report_reason = $adminCommonTextArray['report_reason'];
             /*編輯文案-檢舉會員訊息-END*/
             /*編輯文案-檢舉會員-START*/
-            $report_member = AdminCommonText::where('alias','report_member')->get()->first();
+            $report_member = $adminCommonTextArray['report_member'];
             /*編輯文案-檢舉會員-END*/
             /*編輯文案-檢舉大頭照-START*/
-            $report_avatar = AdminCommonText::where('alias','report_avatar')->get()->first();
+            $report_avatar = $adminCommonTextArray['report_avatar'];
             /*編輯文案-檢舉大頭照-END*/
             /*編輯文案-new_sweet-START*/
-            $new_sweet = AdminCommonText::where('category_alias', 'label_text')->where('alias','new_sweet')->get()->first();
+            $new_sweet = $adminCommonTextArray['new_sweet'];
             /*編輯文案-new_sweet-END*/
             /*編輯文案-well_member-START*/
-            $well_member = AdminCommonText::where('category_alias', 'label_text')->where('alias','well_member')->get()->first();
+            $well_member = $adminCommonTextArray['well_member'];
             /*編輯文案-well_member-END*/
             /*編輯文案-money_cert-START*/
-            $money_cert = AdminCommonText::where('category_alias', 'label_text')->where('alias','money_cert')->get()->first();
+            $money_cert = $adminCommonTextArray['money_cert'];
             /*編輯文案-money_cert-END*/
             /*編輯文案-alert_account-START*/
-            $alert_account = AdminCommonText::where('category_alias', 'label_text')->where('alias','alert_account')->get()->first();
+            $alert_account = $adminCommonTextArray['alert_account'];
             /*編輯文案-alert_account-END*/
             /*編輯文案-label_vip-START*/
-            $label_vip = AdminCommonText::where('category_alias', 'label_text')->where('alias','label_vip')->get()->first();
+            $label_vip = $adminCommonTextArray['label_vip'];
             /*編輯文案-label_vip-END*/
-            $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $uid)->get();
-            $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
-            $bannedUsers = \App\Services\UserService::getBannedId();
-            $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
-            $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
 
             $rating_avg = DB::table('evaluation')->where('to_id',$uid)
                 ->whereNotIn('from_id',$userBlockList)
@@ -1907,12 +1847,6 @@ class PagesController extends BaseController
                 ->avg('rating');
 
             $rating_avg = floatval($rating_avg);
-
-            $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $uid)->get();
-            $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
-            $bannedUsers = \App\Services\UserService::getBannedId();
-            $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
-            $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
 
             $evaluation_data = DB::table('evaluation')->where('to_id',$uid)
                 ->whereNotIn('from_id',$userBlockList)
@@ -1931,7 +1865,7 @@ class PagesController extends BaseController
 //            if(User::isBanned($uid)){
 //                Session::flash('message', $user_closed->content);
 //            }
-            $to = $this->service->find($uid);
+            $to = $targetUser;
             $valueAddedServicesStatus['hideOnline'] = 0;
             $valueAddedServicesStatusRows = $to->valueAddedServiceStatus();
             if($valueAddedServicesStatusRows){
@@ -1939,11 +1873,14 @@ class PagesController extends BaseController
                     $valueAddedServicesStatus[$valueAddedServicesStatusRow->service_name] = 1;
                 }
             }
+            $isSent3Msg = $user->isSent3Msg($uid);
+
             return view('new.dashboard.viewuser', $data)
                     ->with('user', $user)
                     ->with('blockadepopup', $blockadepopup)
                     ->with('to', $to)
                     ->with('valueAddedServiceStatus', $valueAddedServicesStatus)
+                    ->with('isSent3Msg', $isSent3Msg)
                     ->with('cur', $user)
                     ->with('member_pic',$member_pic)
                     ->with('isVip', $isVip)

@@ -67,15 +67,14 @@ class Visited extends Model
 
     }
 
-    public static function visit($member_id, $visited_id)
+    public static function visit($member_id, $curUser)
     {
         $visited = new Visited;
         $visited->member_id = $member_id;
-        $visited->visited_id = $visited_id;
+        $visited->visited_id = $curUser->id;
         $visited->created_at = Carbon::now();
         $visited->save();
-        $curUser = User::findById($visited_id);
-        if ($curUser != null && $curUser->meta_()->notifhistory !== '不通知')
+        if ($curUser != null && $curUser->meta->notifhistory !== '不通知')
         {
         // $curUser->notify(new MessageEmail($member_id, $visited_id, "瀏覽你的資料"));
         }
