@@ -585,16 +585,7 @@ class PagesController extends BaseController
         $user = $this->user;
         $url = $request->fullUrl();
 
-        if($this->userIsVip && !$this->userIsFreeVip){
-            $vipData = $this->userVipData;
-            if(is_object($vipData)){
-                $this->dispatch(new CheckECpay($vipData));
-            }
-            else{
-                Log::info('VIP data null, user id: ' . $user->id);
-            }
-        }
-
+        $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
         //valueAddedService
         if($this->valueAddedServices['hideOnline'] == 1){
             //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
@@ -2406,6 +2397,20 @@ class PagesController extends BaseController
         $user = $request->user();
         $m_time = '';
         $report_reason = AdminCommonText::where('alias', 'report_reason')->get()->first();
+        $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
+        //valueAddedService
+        if($this->valueAddedServices['hideOnline'] == 1){
+            //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
+            $service_name = 'hideOnline';
+            $valueAddedServiceData = \App\Models\ValueAddedService::getData($user->id,'hideOnline');
+            if(is_object($valueAddedServiceData)){
+                $this->dispatch(new CheckECpayForValueAddedService($valueAddedServiceData));
+            }
+            else{
+                Log::info('ValueAddedService '.$service_name.' data null, user id: ' . $user->id);
+            }
+
+        }
         if (isset($user)) {
             $isVip = $user->isVip();
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
@@ -2510,7 +2515,20 @@ class PagesController extends BaseController
     public function search2(Request $request)
     {
         $user = $request->user();
+        $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
+        //valueAddedService
+        if($this->valueAddedServices['hideOnline'] == 1){
+            //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
+            $service_name = 'hideOnline';
+            $valueAddedServiceData = \App\Models\ValueAddedService::getData($user->id,'hideOnline');
+            if(is_object($valueAddedServiceData)){
+                $this->dispatch(new CheckECpayForValueAddedService($valueAddedServiceData));
+            }
+            else{
+                Log::info('ValueAddedService '.$service_name.' data null, user id: ' . $user->id);
+            }
 
+        }
         return view('new.dashboard.search')->with('user', $user);
     }
 
