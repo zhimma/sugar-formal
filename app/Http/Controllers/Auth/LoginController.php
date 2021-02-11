@@ -179,7 +179,7 @@ class LoginController extends \App\Http\Controllers\BaseController
      */
     public function login(Request $request)
     {
-        $user = User::select('id', 'last_login')->withOut(['vip', 'meta'])->where('email', $request->email)->get()->first();
+        $user = User::select('id', 'last_login')->withOut(['vip', 'user_meta'])->where('email', $request->email)->get()->first();
         if(isset($user) && Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $user->id)->exists()){
             $request->remember = true;
         }
