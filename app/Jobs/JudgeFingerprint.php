@@ -38,12 +38,7 @@ class JudgeFingerprint implements ShouldQueue
     public function handle()
     {
         $fingerprintService = new FingerprintService;
-        try{
-            $fingerprintService->judgeUserFingerprintAll($this->uid, $this->payload);
-            $fingerprintService->judgeUserFingerprintCanvasOnly($this->uid, $this->payload);
-        }
-        catch (\Exception $e){
-            Log::info($e);
-        }
+        $fingerprintService->judgeUserFingerprintAll($this->uid, $this->payload);
+        $fingerprintService->judgeUserFingerprintCanvasOnly($this->uid, $this->payload);
     }
 }
