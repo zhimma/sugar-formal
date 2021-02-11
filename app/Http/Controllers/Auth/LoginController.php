@@ -179,12 +179,12 @@ class LoginController extends \App\Http\Controllers\BaseController
      */
     public function login(Request $request)
     {
-        $uid = User::select('id', 'last_login')->where('email', $request->email)->get()->first();
-        if(isset($uid) && Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $uid->id)->exists()){
+        $user = User::select('id', 'last_login')->withOut(['vip', 'meta'])->where('email', $request->email)->get()->first();
+        if(isset($user) && Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $user->id)->exists()){
             $request->remember = true;
         }
-        if(isset($uid)){
-            $request->session()->put('last_login', $uid->last_login);
+        if(isset($user)){
+            $request->session()->put('last_login', $user->last_login);
         }
         $this->validateLogin($request);
 
@@ -195,23 +195,6 @@ class LoginController extends \App\Http\Controllers\BaseController
             $this->fireLockoutEvent($request);
 
             return $this->sendLockoutResponse($request);
-        }
-
-        // check if account logging in for first time
-        // check against old md5 password, if correct, create bcrypted updated pw
-        //dd($request->input('email'));
-        $user = User::findByEmail($request->input('email'));
-        //dd($user->password_updated);
-        if (isset($user) && !$user->password_updated) {
-            //if (md5($request->input('password')) == $user->password) {
-            if($user->isLoginSuccess($request->input('email'), $request->input('password'))) {
-                $user->password = bcrypt($request->input('password'));
-                $user->password_updated = 1;
-                $user->save();
-            } else {
-                //return $this->sendLoginResponse($request);
-            }
-            //dd($user->password_updated);
         }
 
         // if ($this->attemptLogin($request)) {
