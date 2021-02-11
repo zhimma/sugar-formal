@@ -20,7 +20,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 
 class Message_newController extends BaseController {
-
+    public function __construct(UserService $userService) {
+        $this->service = $userService;
+    }
 
     // handle delete message
     public function deleteBetween(Request $request) {
