@@ -1,6 +1,6 @@
 @extends('new.layouts.website')
 @section('app-content')
-@if($user->engroup == 1 && $user->isVip())
+@if($user->engroup == 1)
     @php
         $exchange_period_name = DB::table('exchange_period_name')->get();
         $epn_array = array();
@@ -155,18 +155,18 @@
                             </span>
                             </dt>
 
-                            @if($user->engroup==1)
+                            @if($user->engroup == 1)
                             <div class="jin_search"><span>進階搜尋</span></div>
                             <dt>
                                 <span>包養關係</span>
                                 <span class="line20">
                                     @php
-                                        $temp_id=0;
+                                        $temp_id = 0;
                                     @endphp
                                     @foreach($exchange_period_name as $row)
                                         <label class="n_tx j_lr"><input type="checkbox" name="exchange_period[{{$temp_id}}]" value={{$row->id}} id="" @if( !empty( $_POST["exchange_period"][$temp_id] ) && $_POST["exchange_period"][$temp_id] == $row->id ) checked @elseif(!empty( $_GET["exchange_period"][$temp_id] ) && $_GET["exchange_period"][$temp_id] == $row->id) checked @endif><i>{{$row->name}}</i></label>
                                         @php
-                                            $temp_id=$temp_id+1;
+                                            $temp_id = $temp_id + 1;
                                         @endphp
                                     @endforeach
 {{--                                      <label class="n_tx"><input type="checkbox" name="exchange_period" value="長期為主" id="Checkbox"><i>長期為主</i></label>--}}
