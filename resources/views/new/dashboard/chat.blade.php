@@ -4,6 +4,9 @@ header("Pragma: no-cache");
 header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 ?>
+@php
+    $exchange_period_name = DB::table('exchange_period_name')->get();
+@endphp
 <style>
     .page>li{
         display: none !important;
@@ -84,9 +87,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     <div class="leftsidebar_box">
                         <dl class="system_log">
                             @if($user->engroup==1)
-                                @php
-                                    $exchange_period_name = DB::table('exchange_period_name')->get();
-                                @endphp
                                 <!--男性介面-->
                                 @foreach($exchange_period_name as $row)
                                         @if($user->isVip())
@@ -207,15 +207,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         <div class="blnr02 ">
             <h2>信息通知</h2>
             <select name="notifmessage" id="notifmessage" class="blinput">
-                <option value="收到即通知" @if($user->meta_()->notifmessage=='收到即通知') selected @endif>收到即通知</option>
-                <option value="每天通知一次" @if($user->meta_()->notifmessage=='每天通知一次') selected @endif>每天通知一次</option>
-                <option value="不通知" @if($user->meta_()->notifmessage=='不通知') selected @endif>不通知</option>
+                <option value="收到即通知" @if($user->meta->notifmessage=='收到即通知') selected @endif>收到即通知</option>
+                <option value="每天通知一次" @if($user->meta->notifmessage=='每天通知一次') selected @endif>每天通知一次</option>
+                <option value="不通知" @if($user->meta->notifmessage=='不通知') selected @endif>不通知</option>
             </select>
             <h2>收信設定</h2>
             <select name="notifhistory" id="notifhistory" class="blinput">
-                <option value="顯示普通會員信件" @if($user->meta_()->notifhistory=='顯示普通會員信件') selected @endif>顯示普通會員信件</option>
-                <option value="顯示VIP會員信件" @if($user->meta_()->notifhistory=='顯示VIP會員信件') selected @endif>顯示VIP會員信件</option>
-                <option value="顯示全部會員信件" @if($user->meta_()->notifhistory=='顯示全部會員信件') selected @endif>顯示全部會員信件</option>
+                <option value="顯示普通會員信件" @if($user->meta->notifhistory=='顯示普通會員信件') selected @endif>顯示普通會員信件</option>
+                <option value="顯示VIP會員信件" @if($user->meta->notifhistory=='顯示VIP會員信件') selected @endif>顯示VIP會員信件</option>
+                <option value="顯示全部會員信件" @if($user->meta->notifhistory=='顯示全部會員信件') selected @endif>顯示全部會員信件</option>
             </select>
 
             <a class="blbut" href="">更新資料</a>
@@ -369,9 +369,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             }
         };
 
-        @php
-            $exchange_period_name = DB::table('exchange_period_name')->get();
-        @endphp
         @foreach($exchange_period_name as $row)
             var  Page_exchange_period_{{$row->id}}= {
             page : 1,
@@ -686,9 +683,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $('.page_vip').hide();
                         $('.page_novip').hide();
                     @elseif($user->engroup==1)
-                        @php
-                            $exchange_period_name = DB::table('exchange_period_name')->get();
-                        @endphp
                         @foreach($exchange_period_name as $row)
                         $('.sjlist_exchange_period_{{$row->id}}').html('');
                         $('.page_exchange_period_{{$row->id}}').hide();
@@ -757,9 +751,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     if (userGender==1 && e.user_id == 1049){
                                         $('.sjlist_exchange_period_1').append(li).find('.row_data').addClass('date7 exchange_period_member_1 common30');
                                     }
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
                                     @foreach($exchange_period_name as $row)
                                         if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0){
                                             $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('date7 exchange_period_member_{{$row->id}} common30');
@@ -780,9 +771,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     if (userGender==1 && e.user_id == 1049){
                                         $('.sjlist_exchange_period_1').append(li).find('.row_data').addClass('date30 exchange_period_member_1 common30');
                                     }
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
                                     @foreach($exchange_period_name as $row)
                                         if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0){
                                             $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('date30 exchange_period_member_{{$row->id}} common30');
@@ -803,9 +791,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     if (userGender==1 && e.user_id == 1049){
                                         $('.sjlist_exchange_period_1').append(li).find('.row_data').addClass('dateAll exchange_period_member_1');
                                     }
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
                                     @foreach($exchange_period_name as $row)
                                         if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0){
                                             $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('dateAll exchange_period_member_{{$row->id}}');
@@ -855,9 +840,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                                 @elseif($user->engroup==1)
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
                                     @foreach($exchange_period_name as $row)
 
                                     let exchange_period_counts_{{$row->id}} = $('.date7.exchange_period_member_{{$row->id}}').length;
@@ -895,9 +877,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                                 @elseif($user->engroup==1)
-                                        @php
-                                            $exchange_period_name = DB::table('exchange_period_name')->get();
-                                        @endphp
                                         @foreach($exchange_period_name as $row)
 
                                         let exchange_period_counts_{{$row->id}} = $('.common30.exchange_period_member_{{$row->id}}').length;
@@ -936,9 +915,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                                 @elseif($user->engroup==1)
-                                        @php
-                                            $exchange_period_name = DB::table('exchange_period_name')->get();
-                                        @endphp
                                         @foreach($exchange_period_name as $row)
 
                                         let exchange_period_counts_{{$row->id}} = $('.exchange_period_member_{{$row->id}}').length;
@@ -979,9 +955,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                                 @elseif($user->engroup==1)
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
                                     @foreach($exchange_period_name as $row)
 
                                     let exchange_period_counts_{{$row->id}} = $('.date7.exchange_period_member_{{$row->id}}').length;
@@ -1020,9 +993,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                                 @elseif($user->engroup==1)
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
                                     @foreach($exchange_period_name as $row)
 
                                         let exchange_period_counts_{{$row->id}} = $('.common30.exchange_period_member_{{$row->id}}').length;
@@ -1059,9 +1029,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                                 @elseif($user->engroup==1)
-                                    @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                    @endphp
                                     @foreach($exchange_period_name as $row)
 
                                         let exchange_period_counts_{{$row->id}} = $('.exchange_period_member_{{$row->id}}').length;
@@ -1102,9 +1069,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 $('.sjlist_alert').append(no_row_li);
                             }
                         @elseif($user->engroup==1)
-                            @php
-                                $exchange_period_name = DB::table('exchange_period_name')->get();
-                            @endphp
                             @foreach($exchange_period_name as $row)
                             $('.sjlist_exchange_period_{{$row->id}}>.li_no_data').remove();
                             if ($('.sjlist_exchange_period_{{$row->id}}>li:visible').length == 0) {
@@ -1180,9 +1144,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             date= $('input[name=RadioGroup1]:checked').val();
             window.location.hash = '#'+ date;
             @if($user->engroup==1)
-                    @php
-                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                    @endphp
                     @foreach($exchange_period_name as $row)
                         Page_exchange_period_{{$row->id}}.page=1;
                         $('.page_exchange_period_{{$row->id}}').hide();
@@ -1218,9 +1179,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                  @elseif($user->engroup==1)
-                         @php
-                             $exchange_period_name = DB::table('exchange_period_name')->get();
-                         @endphp
                          @foreach($exchange_period_name as $row)
                             let exchange_period_counts_{{$row->id}} = $('.date7.exchange_period_member_{{$row->id}}').length;
                             if (exchange_period_counts_{{$row->id}} > 10) {
@@ -1257,9 +1215,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         Page_noVip.DrawPage(novip_counts);
                         $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
                      @elseif($user->engroup==1)
-                         @php
-                             $exchange_period_name = DB::table('exchange_period_name')->get();
-                         @endphp
                          @foreach($exchange_period_name as $row)
                              let exchange_period_counts_{{$row->id}} = $('.common30.exchange_period_member_{{$row->id}}').length;
                              if (exchange_period_counts_{{$row->id}} > 10) {
@@ -1294,9 +1249,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                          $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
 
                      @elseif($user->engroup==1)
-                         @php
-                             $exchange_period_name = DB::table('exchange_period_name')->get();
-                         @endphp
                          @foreach($exchange_period_name as $row)
                              let exchange_period_counts_{{$row->id}} = $('.exchange_period_member_{{$row->id}}').length;
                              if (exchange_period_counts_{{$row->id}} > 10) {
@@ -1335,9 +1287,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             }
                         }
                     @elseif($user->engroup==1)
-                        @php
-                            $exchange_period_name = DB::table('exchange_period_name')->get();
-                        @endphp
                         @foreach($exchange_period_name as $row)
                             $('.sjlist_exchange_period_{{$row->id}}>.li_no_data').remove();
                             if ($('.sjlist_exchange_period_{{$row->id}}>li:visible').length == 0 && isLoading == 0) {
@@ -1424,9 +1373,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             }
         });
 
-        @php
-        $exchange_period_name = DB::table('exchange_period_name')->get();
-        @endphp
         @foreach($exchange_period_name as $row)
             $('.exchange_period_delete_{{$row->id}}').on('click', function() {
                 // c4('確定要全部刪除嗎?');
@@ -1562,9 +1508,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 $('.sjlist_novip').append(no_row_li);
             }
             @elseif($user->engroup==1)
-                @php
-                    $exchange_period_name = DB::table('exchange_period_name')->get();
-                @endphp
                 @foreach($exchange_period_name as $row)
                 $('.sjlist_exchange_period_{{$row->id}}>.li_no_data').remove();
                 if ($('.sjlist_exchange_period_{{$row->id}}>li:visible').length == 0) {
