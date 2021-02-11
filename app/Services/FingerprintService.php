@@ -11,8 +11,7 @@ class FingerprintService{
 	// Fingerprint Model
 	public $model;
     
-    public function __construct(Fingerprint $fingerprint){
-    	$this->model = $fingerprint;
+    public function __construct(){
     }
 
     public static function isExist($fingerprint)

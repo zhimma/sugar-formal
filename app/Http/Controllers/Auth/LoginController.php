@@ -240,13 +240,7 @@ class LoginController extends \App\Http\Controllers\BaseController
                     $result = $db;
                     $result = $result->insert($payload);
                 }
-                try{
-                    $this->fingerprint->judgeUserFingerprintAll($uid, $payload);
-                    $this->fingerprint->judgeUserFingerprintCanvasOnly($uid, $payload);
-                }
-                catch (\Exception $e){
-                    \Illuminate\Support\Facades\Log::info($e);
-                }
+                $this->dispatch(new \App\Jobs\JudgeFingerprint($uid, $payload));
             }
 
             //更新login_times
