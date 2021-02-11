@@ -393,7 +393,7 @@ class Message_new extends Model
          *
          * @author LZong <lzong.tw@gmail.com>
          */
-        $query = Message::from('message as m')
+        $query = Message::with(['sender', 'receiver'])->select("m.*")->from('message as m')
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'm.from_id')
             ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'm.to_id')
             ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'm.from_id')
@@ -427,16 +427,10 @@ class Message_new extends Model
             self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
         }else if($d==30){
             self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
-//            if($isVip) {
-//                self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
-//            }else {
-//                self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
-//            }
         }else if($d=='all'){
             if($isVip) {
                 self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
             }else {
-//                self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
                 self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
             }
         }
