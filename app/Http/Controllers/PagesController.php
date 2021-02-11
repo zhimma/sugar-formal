@@ -1865,8 +1865,9 @@ class PagesController extends BaseController
                         ->where('isWarned', 1); })
                 ->leftJoin('warned_users as wu', function($join) {
                     $join->on('wu.member_id', '=', 'e.from_id')
-                        ->where('wu.expire_date', '>=', Carbon::now())
-                        ->orWhere('wu.expire_date', null); })
+                        ->where(function($query){
+                            $query->where('wu.expire_date', '>=', Carbon::now())
+                                ->orWhere('wu.expire_date', null); }); })
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
                 ->whereNull('b5.member_id')
