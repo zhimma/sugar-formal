@@ -613,20 +613,13 @@ class Message extends Model
 
     public static function unread($uid)
     {
-        // block information
-        //
         $user = \View::shared('user');
         if(!$user){
             $user = User::find($uid);
         }
-//        $block = Blocked::getAllBlockedId($uid);
-//        $blockedList = Blocked::select('member_id')->where('blocked_id', $user->id)->get();
-//        $banned_users = \App\Services\UserService::getBannedId();
-
         if($user->isVip()) {
             self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
         }else {
-//            self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
             self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
         }
         /**
@@ -666,22 +659,7 @@ class Message extends Model
                         ->where([['m.is_row_delete_1', '=' ,0], ['m.is_single_delete_1', '<>', $uid], ['m.temp_id', '=', 0]])
                         ->where('m.read', 'N')
                         ->where([['m.created_at','>=',self::$date]]);
-//        $query = Message::where(function($query)use($uid){
-//                    $query->where('to_id','=' ,$uid)
-//                        ->where('from_id','!=',$uid);
-//                });
-//        $all_msg = $query->whereNotIn('from_id', $banned_users)
-//            ->whereNotIn('to_id', $banned_users)
-//            ->whereNotIn('from_id', $block)
-//            ->whereNotIn('to_id', $block)
-//            ->whereNotIn('from_id', $blockedList)
-//            ->whereNotIn('to_id', $blockedList)
-//            ->where([['is_row_delete_1', '=' ,0], ['is_single_delete_1', '<>', $uid], ['temp_id', '=', 0]])
-//            ->where('read', 'N')
-//            ->where([['message.created_at','>=',self::$date]]);
         if($user->user_meta->notifhistory == '顯示VIP會員信件') {
-            //$allVip = \App\Models\Vip::allVip();
-            //$all_msg = $all_msg->whereIn('from_id', $allVip);
             $all_msg = $all_msg->join('member_vip', 'member_vip.member_id', '=', 'm.from_id');
             $all_msg = $all_msg->where('member_vip.active', 1);
         }
