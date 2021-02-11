@@ -1688,21 +1688,26 @@ class PagesController extends BaseController
             $date_start = date("Y-m-d",strtotime("-6 days", strtotime(date('Y-m-d'))));
             $date_end = date('Y-m-d');
 
-
-            $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $uid)->get();
-            $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
-            $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
-            $bannedUsers = UserService::getBannedId();
-            $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
-
+            /**
+             * 效能調整：使用左結合以大幅降低處理時間
+             *
+             * @author LZong <lzong.tw@gmail.com>
+             */
             $query = Message::select('users.email','users.name','users.title','users.engroup','users.created_at','users.last_login','message.id','message.from_id','message.content','user_meta.about')
                 ->join('users', 'message.from_id', '=', 'users.id')
                 ->join('user_meta', 'message.from_id', '=', 'user_meta.user_id')
-                ->where(function($query)use($date_start,$date_end,$bannedUsers,$isAdminWarnedList) {
+                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
+                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
+                ->leftJoin('warned_users as wu', function($join) {
+                    $join->on('wu.member_id', '=', 'message.from_id')
+                        ->where('wu.expire_date', '>=', Carbon::now())
+                        ->orWhere('wu.expire_date', null); })
+                ->whereNull('b1.member_id')
+                ->whereNull('b3.target')
+                ->whereNull('wu.member_id')
+                ->where(function($query)use($date_start,$date_end) {
                     $query->where('message.from_id','<>',1049)
                         ->where('message.sys_notice',0)
-                        ->whereNotIn('message.from_id',$bannedUsers)
-                        ->whereNotIn('message.from_id',$isAdminWarnedList)
                         ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
                 });
             $query->where('users.email',$targetUser->email);
@@ -1789,9 +1794,9 @@ class PagesController extends BaseController
                 'be_blocked_other_count' => $be_blocked_other_count,
                 'is_banned' => $is_banned
             );
-            //////////////////////////////////////////////////////////////////////////////////////////
-            $member_pic = DB::table('member_pic')->where('member_id',$uid)->where('pic','<>',$targetUser->meta->pic)->get();
-            //////////////////////////////////////////////////////////////////////////////////////////
+
+            $member_pic = DB::table('member_pic')->where('member_id', $uid)->where('pic', '<>', $targetUser->meta->pic)->get();
+
             if($user->isVip()){
                 $vipLevel = 1;
             }else{
@@ -1841,25 +1846,38 @@ class PagesController extends BaseController
             $label_vip = $adminCommonTextArray['label_vip'];
             /*編輯文案-label_vip-END*/
 
-            //////////////////////////////////////////////////////////////////////////////////////////
-            $rating_avg = DB::table('evaluation')->where('to_id',$uid)
-                ->whereNotIn('from_id',$userBlockList)
-                ->whereNotIn('from_id',$isBlockList)
-                ->whereNotIn('from_id',$bannedUsers)
-                ->whereNotIn('from_id',$isAdminWarnedList)
-                ->whereNotIn('from_id',$isWarnedList)
-                ->avg('rating');
-            //////////////////////////////////////////////////////////////////////////////////////////
+            /**
+             * 效能調整：使用左結合以大幅降低處理時間，並且減少 query 次數，進一步降低時間及程式碼複雜度
+             *
+             * @author LZong <lzong.tw@gmail.com>
+             */
+            $query = DB::table('evaluation as e')
+                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'e.from_id')
+                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'e.from_id')
+                ->leftJoin('blocked as b5', function($join) use($uid) {
+                    $join->on('b5.blocked_id', '=', 'e.from_id')
+                        ->where('b5.member_id', $uid); })
+                ->leftJoin('blocked as b7', function($join) use($uid) {
+                    $join->on('b7.member_id', '=', 'e.from_id')
+                        ->where('b7.blocked_id', $uid); })
+                ->leftJoin('user_meta as um', function($join) {
+                    $join->on('um.user_id', '=', 'e.from_id')
+                        ->where('isWarned', 1); })
+                ->leftJoin('warned_users as wu', function($join) {
+                    $join->on('wu.member_id', '=', 'e.from_id')
+                        ->where('wu.expire_date', '>=', Carbon::now())
+                        ->orWhere('wu.expire_date', null); })
+                ->whereNull('b1.member_id')
+                ->whereNull('b3.target')
+                ->whereNull('b5.member_id')
+                ->whereNull('b7.member_id')
+                ->whereNull('um.user_id')
+                ->whereNull('wu.member_id');
+
+            $rating_avg = $query->avg('rating');
             $rating_avg = floatval($rating_avg);
-            //////////////////////////////////////////////////////////////////////////////////////////
-            $evaluation_data = DB::table('evaluation')->where('to_id',$uid)
-                ->whereNotIn('from_id',$userBlockList)
-                ->whereNotIn('from_id',$isBlockList)
-                ->whereNotIn('from_id',$bannedUsers)
-                ->whereNotIn('from_id',$isAdminWarnedList)
-                ->whereNotIn('from_id',$isWarnedList)
-                ->paginate(10);
-            //////////////////////////////////////////////////////////////////////////////////////////
+
+            $evaluation_data = $query->paginate(10);
 
             $evaluation_self = DB::table('evaluation')->where('to_id',$uid)->where('from_id',$user->id)->first();
             /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
