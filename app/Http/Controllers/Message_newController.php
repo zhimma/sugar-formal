@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Config;
 
 class Message_newController extends BaseController {
     public function __construct(UserService $userService) {
+        parent::__construct();
         $this->service = $userService;
     }
 
