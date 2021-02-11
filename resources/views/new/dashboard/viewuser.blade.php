@@ -645,7 +645,7 @@
                                                 @elseif(!empty($row->re_content))
                                                     <div class="hu_p">
                                                         <div class="he_b">
-                                                            <span class="left"><img src="@if(file_exists( public_path().$to->meta->pic ) && $to_user->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to->name}}</span>
+                                                            <span class="left"><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to->name}}</span>
                                                             @if($to->id==$user->id)
                                                                 <font class="sc re_content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
                                                             @endif
