@@ -1851,7 +1851,7 @@ class PagesController extends BaseController
              *
              * @author LZong <lzong.tw@gmail.com>
              */
-            $query = \App\Models\Evaluation::from('evaluation as e')->with('user')
+            $query = \App\Models\Evaluation::select('e.*')->from('evaluation as e')->with('user')
                 ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'e.from_id')
                 ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'e.from_id')
                 ->leftJoin('blocked as b5', function($join) use($uid) {
