@@ -603,10 +603,6 @@
                                 <div class="pjliuyan02 amar15">
                                     <ul style="width: 100%;">
                                         @foreach( $evaluation_data as $row)
-                                            @php
-                                                $row_user = \App\Models\User::findById($row->from_id);
-                                                $to_user = \App\Models\User::findById($row->to_id);
-                                            @endphp
                                             <li>
                                                 <div class="piname">
                                                     <span>
@@ -618,10 +614,10 @@
                                                             @endif
                                                         @endfor
                                                     </span>
-                                                    <a href="/dashboard/viewuser/{{$row_user->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">{{$row_user->name}}</a>
+                                                    <a href="/dashboard/viewuser/{{ $row->user->id }}?time={{ \Carbon\Carbon::now()->timestamp }}">{{ $row->user->name }}</a>
                                                     {{--                                <font>{{ substr($row->created_at,0,10)}}</font>--}}
-                                                    @if($row_user->id==$user->id)
-                                                        <font class="sc content_delete" data-id="{{$row->id}}" style="padding: 0px 3px;"><img src="/new/images/del_03.png" style="padding: 0px 0px 1px 5px;">刪除</font>
+                                                    @if($row->user->id == $user->id)
+                                                        <font class="sc content_delete" data-id="{{ $row->id }}" style="padding: 0px 3px;"><img src="/new/images/del_03.png" style="padding: 0px 0px 1px 5px;">刪除</font>
                                                     @endif
                                                 </div>
                                                 <div class="con">
@@ -649,8 +645,8 @@
                                                 @elseif(!empty($row->re_content))
                                                     <div class="hu_p">
                                                         <div class="he_b">
-                                                            <span class="left"><img src="@if(file_exists( public_path().$to_user->meta->pic ) && $to_user->meta->pic != ""){{$to_user->meta->pic}} @elseif($to_user->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to_user->name}}</span>
-                                                            @if($to_user->id==$user->id)
+                                                            <span class="left"><img src="@if(file_exists( public_path().$to->meta->pic ) && $to_user->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to->name}}</span>
+                                                            @if($to->id==$user->id)
                                                                 <font class="sc re_content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
                                                             @endif
                                                         </div>
