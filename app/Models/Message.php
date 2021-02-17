@@ -628,7 +628,7 @@ class Message extends Model
          * @author LZong <lzong.tw@gmail.com>
          */
         $query = Message::from('message as m')
-                        ->with('sender')
+                        ->leftJoin('users as u', 'u.id', '=', 'm.from_id')
                         ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'm.from_id')
                         ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'm.to_id')
                         ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'm.from_id')
@@ -645,7 +645,8 @@ class Message extends Model
                         ->leftJoin('blocked as b8', function($join) use($uid) {
                             $join->on('b8.member_id', '=', 'm.to_id')
                                 ->where('b8.blocked_id', $uid); });
-        $all_msg = $query->whereNull('b1.member_id')
+        $all_msg = $query->whereNotNull('u.id')
+                        ->whereNull('b1.member_id')
                         ->whereNull('b2.member_id')
                         ->whereNull('b3.target')
                         ->whereNull('b4.target')
