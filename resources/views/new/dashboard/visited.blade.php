@@ -31,7 +31,7 @@
                             }
                             ?>
                                 @if(isset($histUser))
-                                    <li @if(isset($histUser->user->vip->active) && $histUser->user->vip->active) class="hy_bg01" @endif>
+                                    <li @if($histUser->user->vip->first() && $histUser->user->vip->first()->active) class="hy_bg01" @endif>
                                         <div class="si_bg">
                                             <a href="/dashboard/viewuser/{{$histUser->user->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">
                                             <div class="sjpic"><img src="@if($histUser->user->meta->isAvatarHidden) {{ 'makesomeerror' }} @else {{$histUser->user->meta->pic}} @endif" @if ($histUser->user->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></div>
