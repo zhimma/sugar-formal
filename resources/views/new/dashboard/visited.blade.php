@@ -54,7 +54,7 @@
                                             </div>
                                             </a>
                                             <div class="sjright">
-                                                <h3>{{ $visitor->created_at }}</h3>
+                                                <h3>{{ $visitor->latest_visited }}</h3>
                                             </div>
                                         </div>
                                     </li>

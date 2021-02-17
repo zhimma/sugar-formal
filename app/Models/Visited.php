@@ -62,9 +62,9 @@ class Visited extends Model
 
     public static function findBySelf($uid)
     {
-        return Visited::select("v.*")
+        return Visited::select(\DB::raw('v.*, max(v.created_at) as latest_visited'))
             ->with(['user', 'user.vip', 'user.meta'])
-            ->from(\DB::raw('(SELECT * FROM visited WHERE visited_id = ' . $uid . ' ORDER BY created_at DESC) v'))
+            ->from('visited as v')
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'v.member_id')
             ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'v.member_id')
             ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'v.member_id')
