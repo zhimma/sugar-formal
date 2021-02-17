@@ -19,11 +19,11 @@
                 <ul>
                     @foreach ($blocks as $block)
                         <?php
-                        $blockedUser = \App\Models\User::findById($block->blocked_id);
+                        $blockedUser = $block->blocked_user;
                         if(!isset($blockedUser)){
                             continue;
                         }
-                        $umeta = $blockedUser->meta_();
+                        $umeta = $blockedUser->meta;
                         if(isset($umeta->city)){
                             $umeta->city = explode(",",$umeta->city);
                             $umeta->area = explode(",",$umeta->area);
@@ -31,20 +31,20 @@
                         ?>
                     <li>
                         <div class="si_bg">
-                            <div class="sjpic"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><img src="@if($blockedUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{$blockedUser->meta_()->pic}} @endif" @if ($blockedUser->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></a></div>
+                            <div class="sjpic"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><img src="@if($blockedUser->meta->isAvatarHidden) {{ 'makesomeerror' }} @else {{$blockedUser->meta->pic}} @endif" @if ($blockedUser->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></a></div>
                             <div class="sjleft">
-                                <div class="sjtable"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><span>{{$blockedUser->name}}<!-- <i class="cicd">●</i>{{ $blockedUser->meta_()->age() }}--></span></a></div>
+                                <div class="sjtable"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><span>{{$blockedUser->name}}<!-- <i class="cicd">●</i>{{ $blockedUser->meta->age() }}--></span></a></div>
                                 <font>
                                     @if (is_array($umeta->city) || is_object($umeta->city))
                                         @foreach($umeta->city as $key => $cityval)
                                             @if ($loop->first)
-                                                {{$umeta->city[$key]}} @if($blockedUser->meta_()->isHideArea == 0){{$umeta->area[$key]}}@endif
+                                                {{$umeta->city[$key]}} @if($blockedUser->meta->isHideArea == 0){{$umeta->area[$key]}}@endif
                                             @else
-                                                {{$umeta->city[$key]}} @if($blockedUser->meta_()->isHideArea == 0){{$umeta->area[$key]}}@endif
+                                                {{$umeta->city[$key]}} @if($blockedUser->meta->isHideArea == 0){{$umeta->area[$key]}}@endif
                                             @endif
                                         @endforeach
                                     @endif
-{{--                                    {{ $blockedUser->meta_()->city }} {{ $blockedUser->meta_()->area }}--}}
+{{--                                    {{ $blockedUser->meta->city }} {{ $blockedUser->meta->area }}--}}
                                 </font>
                             </div>
                             <div class="sjright">

@@ -414,8 +414,8 @@ class Message_new extends Model
                 ->whereNull('b2.member_id')
                 ->whereNull('b3.target')
                 ->whereNull('b4.target')
-                ->whereNull('b5.member_id')
-                ->whereNull('b6.member_id')
+                ->whereNull('b5.blocked_id')
+                ->whereNull('b6.blocked_id')
                 ->whereNull('b7.member_id')
                 ->whereNull('b8.member_id')
                 ->where(function ($query) use ($uid) {

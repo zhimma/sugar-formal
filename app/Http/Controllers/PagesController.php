@@ -1877,7 +1877,7 @@ class PagesController extends BaseController
                                 ->orWhere('wu.expire_date', null); }); })
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
-                ->whereNull('b5.member_id')
+                ->whereNull('b5.blocked_id')
                 ->whereNull('b7.member_id')
                 ->whereNull('um.user_id')
                 ->whereNull('wu.member_id')
@@ -2594,7 +2594,11 @@ class PagesController extends BaseController
         {
             // blocked by user->id
             $bannedUsers = \App\Services\UserService::getBannedId();
-            $blocks = \App\Models\Blocked::join('users', 'users.id', '=', 'blocked.blocked_id')->where('member_id', $user->id)->whereNotIn('blocked_id',$bannedUsers)->orderBy('blocked.created_at','desc')->paginate(15);
+            $blocks = \App\Models\Blocked::with(['blocked_user', 'blocked_user.meta'])
+                ->join('users', 'users.id', '=', 'blocked.blocked_id')
+                ->where('member_id', $user->id)
+                ->whereNotIn('blocked_id',$bannedUsers)
+                ->orderBy('blocked.created_at','desc')->paginate(15);
 
             return view('new.dashboard.block')
             ->with('blocks', $blocks)

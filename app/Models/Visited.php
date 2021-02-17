@@ -27,8 +27,11 @@ class Visited extends Model
         'created_at'
     ];
 
-    public static function unique($array,$key_id = null, $key_create = null) {
+    public function user(){
+        return $this->hasOne(User::class, 'id', 'member_id');
+    }
 
+    public static function unique($array,$key_id = null, $key_create = null) {
         if(null == $key_id){
             return array_unique($array);
         }
@@ -59,12 +62,35 @@ class Visited extends Model
 
     public static function findBySelf($uid)
     {
-        //加入排除封鎖名單
-        $blocks = Blocked::select('blocked_id')->where('member_id', $uid)->get();
-        $isBlocks = Blocked::select('member_id')->where('blocked_id', $uid)->get();
-        $bannedUsers = \App\Services\UserService::getBannedId();
-        return Visited::unique(Visited::where('visited_id', $uid)->whereNotIn('member_id',$blocks)->whereNotIn('member_id',$isBlocks)->whereNotIn('member_id',$bannedUsers)->distinct()->orderBy('created_at', 'desc')->get(), "member_id", "created_at");
-
+        return Visited::select("v.*")
+            ->with(['user', 'user.vip', 'user.meta'])
+            ->from(\DB::raw('(SELECT * FROM visited WHERE visited_id = ' . $uid . ' ORDER BY created_at DESC) v'))
+            ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'v.member_id')
+            ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'v.member_id')
+            ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'v.member_id')
+            ->leftJoin('banned_users_implicitly as b4', 'b4.target', '=', 'v.member_id')
+            ->leftJoin('blocked as b5', function($join) use($uid) {
+                $join->on('b5.blocked_id', '=', 'v.member_id')
+                    ->where('b5.member_id', $uid); })
+            ->leftJoin('blocked as b6', function($join) use($uid) {
+                $join->on('b6.blocked_id', '=', 'v.visited_id')
+                    ->where('b6.member_id', $uid); })
+            ->leftJoin('blocked as b7', function($join) use($uid) {
+                $join->on('b7.member_id', '=', 'v.member_id')
+                    ->where('b7.blocked_id', $uid); })
+            ->leftJoin('blocked as b8', function($join) use($uid) {
+                $join->on('b8.member_id', '=', 'v.visited_id')
+                    ->where('b8.blocked_id', $uid); })
+            ->whereNull('b1.member_id')
+            ->whereNull('b2.member_id')
+            ->whereNull('b3.target')
+            ->whereNull('b4.target')
+            ->whereNull('b5.blocked_id')
+            ->whereNull('b6.blocked_id')
+            ->whereNull('b7.member_id')
+            ->whereNull('b8.member_id')
+            ->where('v.visited_id', $uid)
+            ->groupBy('v.member_id')->get();
     }
 
     public static function visit($member_id, $curUser)

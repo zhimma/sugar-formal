@@ -24,6 +24,10 @@ class Blocked extends Model
         'blocked_id'
     ];
 
+    public function blocked_user(){
+        return $this->hasOne(User::class, 'id', 'blocked_id');
+    }
+
     public static function getAllBlock($uid) {
         return Blocked::where('member_id', $uid)->get();
     }
