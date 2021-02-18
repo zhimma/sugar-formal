@@ -65,7 +65,7 @@ class Visited extends Model
         return Visited::select(\DB::raw('v.*, max(v.created_at) as latest_visited'))
             ->with(['user'])
             ->from('visited as v')
-            ->leftJoin('users as u', 'u.id', '=', 'm.from_id')
+            ->leftJoin('users as u', 'u.id', '=', 'v.member_id')
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'v.member_id')
             ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'v.member_id')
             ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'v.member_id')
