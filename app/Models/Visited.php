@@ -92,7 +92,8 @@ class Visited extends Model
             ->whereNull('b7.member_id')
             ->whereNull('b8.member_id')
             ->where('v.visited_id', $uid)
-            ->groupBy('v.member_id')->get();
+            ->groupBy('v.member_id')
+            ->orderBy('latest_visited', 'desc')->get();
     }
 
     public static function visit($member_id, $curUser)
