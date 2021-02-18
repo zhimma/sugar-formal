@@ -1,12 +1,17 @@
+<?
+header("Cache-Control: no-cache, no-store, must-revalidate, post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
+?>
 @extends('new.layouts.website')
-
 @section('app-content')
 
   <?php
     if (!isset($user)) {
         $umeta = null;
     } else {
-        $umeta = $user->meta_();
+        $umeta = $user->meta;
         $umeta_block = [];
         // dd($umeta);
         if(isset($umeta->city)){
@@ -632,7 +637,7 @@
   <div class="bl bl_tab" id="isWarned" style="display: none;">
       <div class="bltitle">提示</div>
       <div class="blnr bltext">
-          @if($user->isAdminWarned())
+          @if($isAdminWarned)
               @php
                   $warned_users = \App\Models\SimpleTables\warned_users::where('member_id', $user->id)->where(
                       function ($query) {
@@ -730,16 +735,17 @@
         if(type=='')$('#domain option:not(:first)').remove();
     }
     $(document).ready(function() {
-        var blockarea_selected = '{{ isset($umeta->blockarea[0]) ? str_replace($umeta->blockcity[0],'',$umeta->blockarea[0]) : '全區' }}';
+        var blockarea_selected = '{{ isset($umeta->blockarea[0]) ? ($umeta->blockarea[0] == "" ? "全區" : str_replace($umeta->blockcity[0],'',$umeta->blockarea[0])) : '全區' }}';
         var blockarea1_selected = '{{ isset($umeta->blockarea[1]) ? str_replace($umeta->blockcity[1],'',$umeta->blockarea[1]) :'全區'  }}';
         var blockarea2_selected = '{{ isset($umeta->blockarea[2]) ? str_replace($umeta->blockcity[2],'',$umeta->blockarea[2]) : '全區'  }}';
 
 
-        //alert(blockarea_selected);
         if($("select[name='blockarea'] option:eq(0)").text()!=='全區'){
             //$("select[name='blockarea']").prepend('<option value="">全區</option>');
             if(blockarea_selected == '全區'){
-                $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
+                if($("select[name='blockcity']").val() !== ''){
+                    $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
+                }
             }else{
                 $("select[name='blockarea'] option[value="+ blockarea_selected +"]").attr('selected', true);
             }
@@ -830,9 +836,9 @@
           //   title:'您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。',
           //   type:'warning'
           // });
-        @elseif (($umeta->isWarned==1 && $umeta->isWarnedRead==0 ) || ( $user->isAdminWarned() && $isAdminWarnedRead->isAdminWarnedRead==0 ) )
+        @elseif (($umeta->isWarned==1 && $umeta->isWarnedRead==0 ) || ( $isAdminWarned && $isAdminWarnedRead->isAdminWarnedRead==0 ) )
                 @php
-                 if($user->isAdminWarned()){
+                 if($isAdminWarned){
                     //標記已讀
                     \App\Models\User::isAdminWarnedRead($user->id);
                   }

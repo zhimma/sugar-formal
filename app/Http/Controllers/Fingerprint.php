@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use DB;
 
-class Fingerprint extends Controller {
+class Fingerprint extends BaseController {
 
 	public function index()
 	{

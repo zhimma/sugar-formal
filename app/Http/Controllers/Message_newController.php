@@ -19,8 +19,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 
-class Message_newController extends Controller {
-
+class Message_newController extends BaseController {
+    public function __construct(UserService $userService) {
+        parent::__construct();
+        $this->service = $userService;
+    }
 
     // handle delete message
     public function deleteBetween(Request $request) {
@@ -155,6 +158,7 @@ class Message_newController extends Controller {
         $user = $request->user();
         $m_time = '';
         if (isset($user)) {
+            $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
             $isVip = $user->isVip();
             /*編輯文案-檢舉大頭照-START*/
             $vip_member = AdminCommonText::where('alias','vip_member')->get()->first();

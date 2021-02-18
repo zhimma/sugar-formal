@@ -195,7 +195,7 @@ class UserMeta extends Model
             $user_area = explode(',', $meta->area);
             /* 判斷搜索者的 city 和 area 是否被被搜索者封鎖 */
             foreach ($user_city as $key => $city){
-                $query->whereRaw('(blockarea not LIKE "%' . $city .$user_area[$key]  .'%"  AND blockarea not LIKE "%'.$city.'全區%")');
+                $query->whereRaw('((blockarea is null or blockarea not LIKE "%' . $city .$user_area[$key]  .'%") AND (blockarea is null or blockarea not LIKE "%'.$city.'全區%"))');
             }
 
 //            foreach ($user_city as $key => $city){
@@ -226,7 +226,7 @@ class UserMeta extends Model
          * $isBlockedByUsers = blocked::select('member_id')->where('blocked_id',$userid)->get();
          */
         // 效能調整：Eager Loading
-        $query = User::with(['user_meta' => $constraint, 'vip'])
+        $query = User::with(['user_meta' => $constraint, 'vip', 'vas', 'aw_relation', 'fa_relation'])
 		->select('*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))
             ->whereHas('user_meta', $constraint)
             ->where('engroup', $engroup)

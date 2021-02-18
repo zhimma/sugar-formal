@@ -66,6 +66,19 @@ class User extends Authenticatable
         return $this->hasMany(Vip::class, 'member_id', 'id')->where('active', 1)->orderBy('created_at', 'desc');
     }
 
+    public function vas()
+    {
+        return $this->hasMany(ValueAddedService::class, 'member_id', 'id')->where('active', 1)->orderBy('created_at', 'desc');
+    }
+
+    public function aw_relation() {
+        return $this->hasOne(\App\Models\SimpleTables\warned_users::class, 'member_id', 'id')->whereNull('expire_date')->orWhere('expire_date', '>=', Carbon::now());
+    }
+
+    public function fa_relation() {
+        return $this->hasOne(\App\Models\SimpleTables\short_message::class, 'member_id', 'id')->where('active', 1);
+    }
+
     //sent messages
     public function sentMessages()
     {
@@ -323,7 +336,8 @@ class User extends Authenticatable
     public function existHeaderImage() {
         $pics = MemberPic::where('member_id', $this->id)->count();
         //echo $pics;
-        return isset($this->meta_()->pic) && ($pics >= 3);
+        $user_meta = view()->shared('user_meta');
+        return isset($user_meta->pic) && ($pics >= 3);
     }
 
     public function isActive() {
@@ -773,20 +787,21 @@ class User extends Authenticatable
         return $isRead;
     }
 
-    public function valueAddedServiceStatus($service_name)
+    public function valueAddedServiceStatus($service_name = null)
     {
-        $status = ValueAddedService::where('member_id', $this->id)->where('service_name', $service_name)->where('active',1)->orderBy('created_at', 'desc')->first();
+        if($service_name){
+            $status = ValueAddedService::where('member_id', $this->id)->where('service_name', $service_name)->where('active',1)->orderBy('created_at', 'desc')->first();
+        }
+        else{
+            $status = ValueAddedService::where('member_id', $this->id)->where('active',1)->get();
+        }
         if(!isset($status)){
             return 0;
         }
-
-//
-//        if($status->active==1){
-//            if($status->expiry == '0000-00-00 00:00:00' || $status->expiry >= Carbon::now()){
-//                return 1;
-//            }
-//        }
-        return 1;
+        if($service_name){
+            return 1;
+        }
+        return $status;
     }
 
 }
