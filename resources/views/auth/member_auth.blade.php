@@ -201,7 +201,7 @@
     <div class="bltitle_a"><span>提示</span></div>
     <div class="n_blnr02 matop10">
          <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
-         <div class="n_fengs" style="text-align:center;width:100%;">請輸入手機號碼及獲取驗證碼取得驗證碼</div>
+         <div class="n_fengs" style="text-align:center;width:100%;">請輸入手機號碼以獲取驗證碼</div>
     </div>
     <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
 </div>
