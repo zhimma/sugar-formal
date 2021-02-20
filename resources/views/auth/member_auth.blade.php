@@ -64,36 +64,7 @@
 		</style>
 	</head>
 	<body>
-		<div class="head_3">
-			<div class="container">
-				<div class="col-sm-12 col-xs-12 col-md-12">
-					<div class="commonMenu">
-						<div class="menuTop">
-                            <a href="{!! url('') !!}" >
-							<img src="/auth/images/icon_41.png" class="logo" />
-                            </a>
-                            <!-- <div class="ndlrfont"><a href="">註冊</a>丨<a href="">登入</a></div> -->
-						</div>
-						<!--<ul id="menuList" class="change marg30">
-                            <div class="comt"><img src="images/t.png"></div>
-                            <div class="coheight">
-							<div class="heyctop">測試系統賬號</div>
-							<div class="helist">
-								<ul>
-									<li><a href=""><img src="images/icon_38.png">搜索</a></li>
-									<li><a href=""><img src="images/icon_45.png">訊息</a><span>10</span></li>
-									<li><a href=""><img src="images/icon_46.png">名單</a></li>
-									<li><a href=""><img src="images/icon_48.png">我的</a></li>
-								</ul>
-							</div>
-							<a href="" class="tcbut">LOGOUT</a>
-                            </div>
-						</ul>-->
-					</div>
-				</div>
-			</div>
-		</div>
-
+    @include('new.layouts.navigation')
 		<!---->
 		<div class="container matop120 yzheight">
 			<div class="row">
@@ -319,6 +290,15 @@
     <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
 </div>
 
+<div class="bl bl_tab bl_tab_male_alert" id="tab04" style="display: none;">
+    <div class="bltitle_a"><span>提示</span></div>
+    <div class="n_blnr02 matop10">
+        <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
+        <div class="n_fengs" style="text-align:center;width:100%;">請先完成手機驗證，加強身分真實性後，才能繼續使用網站喔</div>
+    </div>
+    <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
+</div>
+
 
         <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
         <script>
@@ -527,6 +507,14 @@
                 // $(".bot").addClass('chbottom');
             });
 
+
+            @if(Session::has('message'))
+                @if(Session::get('message')=='male_alert')
+                    $(".blbg").show();
+                    $(".bl_tab_male_alert").css('display','block');
+                @endif
+            <?php session()->forget('message');?>
+            @endif
         </script>
 
 	</body>

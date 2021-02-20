@@ -43,6 +43,9 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 .matop70{ margin-top:90px;}
 
+.getNum span{ position:absolute; right:44px; top:-5px; background:#F00; border-radius:100px; color:#ffffff; height:15px; width:15px; line-height:14px; font-size:8px;text-align:center}
+
+
 @media (max-width:767px) {
 .matop70{ margin-top:70px;}
 
