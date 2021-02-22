@@ -2373,29 +2373,29 @@ class UserController extends \App\Http\Controllers\BaseController
 
         DB::table('user_meta')->where('user_id', $id)->update(['isWarned' => $status, 'isWarnedRead' => 0]);
 
-        if ($status == 1) {
-            //加入警示流程
-            //清除認證資料
-            //            DB::table('auth_img')->where('user_id',$id)->delete();
-            DB::table('short_message')->where('member_id', $id)->delete();
-        } else if ($status == 0) {
-            $user = User::findById($id);
-            //取消警示流程
-            //加入認證資料 假資料
-            if ($user->WarnedScore() >= 10) {
-
-                if ($user->isPhoneAuth() == 0) {
-                    DB::table('short_message')->insert(
-                        ['member_id' => $id, 'active' => 1]);
-                }
-
-                //                if ($user->isImgAuth() == 0) {
-                //                    DB::table('auth_img')->insert(
-                //                        ['user_id' => $id, 'status' => 1, 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
-                //                }
-            }
-
-        }
+//        if ($status == 1) {
+//            //加入警示流程
+//            //清除認證資料
+//            //            DB::table('auth_img')->where('user_id',$id)->delete();
+//            DB::table('short_message')->where('member_id', $id)->delete();
+//        } else if ($status == 0) {
+//            $user = User::findById($id);
+//            //取消警示流程
+//            //加入認證資料 假資料
+//            if ($user->WarnedScore() >= 10) {
+//
+//                if ($user->isPhoneAuth() == 0) {
+//                    DB::table('short_message')->insert(
+//                        ['member_id' => $id, 'active' => 1]);
+//                }
+//
+//                //                if ($user->isImgAuth() == 0) {
+//                //                    DB::table('auth_img')->insert(
+//                //                        ['user_id' => $id, 'status' => 1, 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+//                //                }
+//            }
+//
+//        }
         //新增Admin操作log
         $this->insertAdminActionLog($id, $status==1 ? '警示用戶'  : '取消警示用戶');
 
