@@ -244,7 +244,11 @@
                                 @endif
                                 @if($to->isPhoneAuth())
                                     <li>
-                                        <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。" style="width: 100%">
+                                        @if($to->engroup == 1)
+                                            <div class="tagText" data-toggle="popover" data-content="Baby們可通過完成手機驗證的Daddy，加強其身份真實性，提升信賴感55%以上。" style="width: 100%">
+                                        @else
+                                            <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。" style="width: 100%">
+                                        @endif
                                         @if($user->isVip())
                                         <img src="/new/images/a6.png" class="">
                                         @else
