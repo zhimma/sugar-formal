@@ -315,6 +315,18 @@
                                         </div>
                                         </div>
                                     @endif
+
+                                    @if($visitor->engroup == 1 && isset($visitor->fa_relation))
+                                        <div class="hoverTip">
+                                            <div class="tagText" data-toggle="popover" data-content="Baby們可通過完成手機驗證的Daddy，加強其身份真實性，提升信賴感55%以上。">
+                                                @if($user->isVip())
+                                                    <img src="/new/images/a6.png">
+                                                @else
+                                                    <img src="/new/images/b_6.png">
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
                                 <a href="/dashboard/viewuser/{{$visitor->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">
                                     <div class="nt_photo"><img class="lazy" src="@if($visitor->user_meta->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->user_meta->pic}} @endif" data-original="@if($visitor->user_meta->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->user_meta->pic}} @endif" @if ($visitor->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></div>
