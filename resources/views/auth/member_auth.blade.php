@@ -75,17 +75,17 @@
                        </div>
                            <div class="de_input">
                                  <div class="yanzheng_1">驗證1</div>
-                               @php
-                                   $data = \App\Models\SimpleTables\warned_users::where('member_id', $user->id)->where(function ($query){
-                                        $query->whereNull('expire_date')->orWhere('expire_date', '>=', \Carbon\Carbon::now());
-}                                   )->first();
-                                    if ($data) {
-                                        $isAdminWarned = 1;
-                                    } else {
-                                        $isAdminWarned = 0;
-                                    }
-                               @endphp
-                               @if($user->isPhoneAuth() or $isAdminWarned)
+{{--                               @php--}}
+{{--                                   $data = \App\Models\SimpleTables\warned_users::where('member_id', $user->id)->where(function ($query){--}}
+{{--                                        $query->whereNull('expire_date')->orWhere('expire_date', '>=', \Carbon\Carbon::now());--}}
+{{--}                                   )->first();--}}
+{{--                                    if ($data) {--}}
+{{--                                        $isAdminWarned = 1;--}}
+{{--                                    } else {--}}
+{{--                                        $isAdminWarned = 0;--}}
+{{--                                    }--}}
+{{--                               @endphp--}}
+                               @if($user->isPhoneAuth() /*or $isAdminWarned*/)
                                    <div>已完成驗證</div>
                                @else
                                  <div class="zybg_new_bg">
