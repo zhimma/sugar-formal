@@ -40,10 +40,9 @@ class NewerManual
         if (!is_null($this->auth->user())){
             if (!$user_meta->isAllSet($this->auth->user()->engroup)  && $this->auth->user()->isReadManual == 0) {
                 return response()->view('new.dashboard.newer_manual',['user'=> auth()->user()]);
+            }
 
-
-            }else if( $this->auth->user()->isReadManual == 1 &&
-                $this->auth->user()->engroup==1 &&
+            if( $this->auth->user()->engroup==1 &&
                 !$this->auth->user()->isVip() &&
                 !$this->auth->user()->isPhoneAuth() &&
                 !str_contains(url()->current(), 'vip') &&
@@ -52,6 +51,7 @@ class NewerManual
                 return Redirect::to('member_auth')->with('message', 'male_alert');
             }
         }
+
         return $next($request);
     }
 
