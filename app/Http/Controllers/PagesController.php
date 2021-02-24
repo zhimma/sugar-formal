@@ -1903,7 +1903,7 @@ class PagesController extends Controller
             $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
 
             $rating_avg = DB::table('evaluation')->where('to_id',$uid)
-                ->whereNotIn('from_id',$userBlockList)
+                // ->whereNotIn('from_id',$userBlockList)
                 ->whereNotIn('from_id',$isBlockList)
                 ->whereNotIn('from_id',$bannedUsers)
                 ->whereNotIn('from_id',$isAdminWarnedList)
@@ -1918,14 +1918,15 @@ class PagesController extends Controller
             $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
             $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
 
+            // dd($userBlockList, $isBlockList);
             $evaluation_data = DB::table('evaluation')->where('to_id',$uid)
-                ->whereNotIn('from_id',$userBlockList)
-                ->whereNotIn('from_id',$isBlockList)
+                // ->whereNotIn('from_id',$userBlockList)
+                // ->whereNotIn('from_id',$isBlockList)
                 ->whereNotIn('from_id',$bannedUsers)
                 ->whereNotIn('from_id',$isAdminWarnedList)
                 ->whereNotIn('from_id',$isWarnedList)
                 ->paginate(10);
-
+                // dd($evaluation_data);
             $evaluation_self = DB::table('evaluation')->where('to_id',$uid)->where('from_id',$user->id)->first();
             /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
             $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
