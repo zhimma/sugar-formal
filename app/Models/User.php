@@ -76,7 +76,7 @@ class User extends Authenticatable
     }
 
     public function fa_relation() {
-        return $this->hasOne(\App\Models\SimpleTables\short_message::class, 'member_id', 'id')->where('active', 1);
+        return $this->hasOne(\App\Models\SimpleTables\short_message::class, 'member_id', 'id')->where('member_id',$this->id)->where('mobile','!=','')->where('active', 1);
     }
 
     //sent messages
