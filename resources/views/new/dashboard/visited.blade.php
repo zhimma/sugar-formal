@@ -33,7 +33,11 @@
                             @php
                                 if($user->meta->isWarned == 1 || $user->isAdminWarned()){
                                     $isBlur = true;
-                                }else {
+                                }
+                                else if ($user->engroup == 2){
+                                    $isBlur = false;
+                                }
+                                else {
                                     $isBlur = true;
                                     $blurryAvatar = isset($histUser->meta->blurryAvatar)? $histUser->meta->blurryAvatar : "";
                                     $blurryAvatar = explode(',', $blurryAvatar);

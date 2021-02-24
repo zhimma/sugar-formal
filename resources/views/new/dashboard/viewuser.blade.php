@@ -195,14 +195,22 @@
             if(sizeof($blurryAvatar)>1){
                 $nowB = $user->isVip()? 'VIP' : 'general';
                 $isBlurAvatar = in_array($nowB, $blurryAvatar);
-            } else {
+            }
+            else if ($user->engroup == 2){
+                $isBlurAvatar = false;
+            }
+            else {
                 $isBlurAvatar = !$user->isVip();
             }
 
             if(sizeof($blurryLifePhoto)>1){
                 $nowB = $user->isVip()? 'VIP' : 'general';
                 $isBlurLifePhoto = in_array($nowB, $blurryLifePhoto);
-            } else {
+            }
+            else if ($user->engroup == 2){
+                $isBlurLifePhoto = false;
+            }
+            else {
                 $isBlurLifePhoto = !$user->isVip();
             }
         }

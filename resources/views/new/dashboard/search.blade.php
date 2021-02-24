@@ -331,16 +331,19 @@
                                 @php
                                     if($user->meta->isWarned == 1 || $user->aw_relation){
                                         $isBlur = true;
-                                    }else {
+                                    }
+                                    else if ($user->engroup == 2){
                                         $isBlur = false;
+                                    }
+                                    else {
                                         $blurryAvatar = isset($visitor->user_meta->blurryAvatar)? $visitor->user_meta->blurryAvatar : "";
                                         $blurryAvatar = explode(',', $blurryAvatar);
 
                                         if(sizeof($blurryAvatar)>1){
                                             $nowB = $user->isVip()? 'VIP' : 'general';
                                             $isBlur = in_array($nowB, $blurryAvatar);
-                                        } else if (!$user->isVip()) {
-                                            $isBlur = true;
+                                        } else{
+                                            $isBlur = !$user->isVip();
                                         }
                                     }
                                 @endphp
