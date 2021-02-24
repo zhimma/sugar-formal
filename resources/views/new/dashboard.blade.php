@@ -911,12 +911,12 @@
             c5('身高不在140~210數字範圍：請輸入數字範圍140~210');
             return false;
           }
-          if(about.val().length < 5 || about.val().length > 300) {
+          if(about.val().length < 4 || about.val().length > 300) {
             about.focus();
             c5('關於我低於4個字：請輸入4～300個字');
             return false;
           }
-          if(style.val().length < 5 || style.val().length > 300) {
+          if(style.val().length < 4 || style.val().length > 300) {
             style.focus();
             c5('期待約會模式低於4個字：請輸入4～300個字');
             return false;
