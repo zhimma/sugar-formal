@@ -706,7 +706,7 @@ class PagesController extends BaseController
             $tabName = 'm_user_profile_tab_1';
         }
 
-        $member_pics = MemberPic::select('*')->where('member_id',$user->id)->get()->take(6);
+        $member_pics = MemberPic::select('*')->where('member_id',$user->id)->whereRaw('pic  NOT LIKE "%IDPhoto%"')->get()->take(6);
         $avatar = UserMeta::where('user_id', $user->id)->get()->first();
 
         $birthday = date('Y-m-d', strtotime($user->meta_()->birthdate));
