@@ -444,9 +444,10 @@
 	<tr>
 		<th>暱稱</th>
 		<th>帳號</th>
-		<th>檢舉時間</th>
+		<th>評價時間</th>
 		<th>VIP</th>
 		<th>會員認證</th>
+		<th>星等分數</th>
 		<th>評價內容</th>
 	</tr>
 	@foreach($out_evaluation_data as $row)
@@ -456,6 +457,7 @@
 			<td>{{ $row['created_at'] }}</td>
 			<td>@if($row['to_isvip']==1) VIP @endif</td>
 			<td>@if($row['to_auth_status']==1) 已認證 @else N/A @endif</td>
+			<td>{{ $row['rating'] }}</td>
 			<td>{{ $row['content'] }}</td>
 		</tr>
 	@endforeach
