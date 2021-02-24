@@ -309,8 +309,24 @@
                                         </div>
                                     @endif
                                 </div>
+                                @php
+                                    if($user->meta_()->isWarned == 1 || $user->isAdminWarned()){
+                                        $isBlur = true;
+                                    }else {
+                                        $isBlur = true;
+                                        $blurryAvatar = isset($visitor->user_meta->blurryAvatar)? $visitor->user_meta->blurryAvatar : "";
+                                        $blurryAvatar = explode(',', $blurryAvatar);
+
+                                        if(sizeof($blurryAvatar)>1){
+                                            $nowB = $user->isVip()? 'VIP' : 'general';
+                                            $isBlur = in_array($nowB, $blurryAvatar);
+                                        } else {
+                                            $isBlur = !$user->isVip();
+                                        }
+                                    }
+                                @endphp
                                 <a href="/dashboard/viewuser/{{$visitor->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">
-                                    <div class="nt_photo"><img class="lazy" src="@if($visitor->user_meta->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->user_meta->pic}} @endif" data-original="@if($visitor->user_meta->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->user_meta->pic}} @endif" @if ($visitor->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></div>
+                                    <div class="nt_photo @if($isBlur) blur_img @endif"><img class="lazy" src="@if($visitor->user_meta->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->user_meta->pic}} @endif" data-original="@if($visitor->user_meta->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->user_meta->pic}} @endif" @if ($visitor->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></div>
                                     <div class="nt_bot nt_bgco">
                                         <h2>{{ $visitor->name }}<span>{{ $visitor->age() }}歲</span></h2>
                                         <h3>
@@ -365,7 +381,10 @@
 
 @section('javascript')
     <style>
-
+        .blur_img {
+            filter: blur(3px);
+            -webkit-filter: blur(3px);
+        }
         .select_xx07{
             /* width: 425px; */
             border-radius: 4px;

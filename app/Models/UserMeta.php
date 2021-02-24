@@ -194,7 +194,7 @@ class UserMeta extends Model
             $user_city = explode(',', $meta->city);
             $user_area = explode(',', $meta->area);
             /* 判斷搜索者的 city 和 area 是否被被搜索者封鎖 */
-            foreach ($user_city as $key => $city){
+            foreach ($user_city as $key => $city) {
                 $query->whereRaw('(blockarea not LIKE "%' . $city .$user_area[$key]  .'%"  AND blockarea not LIKE "%'.$city.'全區%")');
             }
 
@@ -239,16 +239,17 @@ class UserMeta extends Model
                 // $bannedUsers
                 $query->select('member_id')
                     ->from(with(new banned_users)->getTable());})
-            ->whereNotIn('users.id', function($query) use ($userid){
-                // $blockedUsers
-                $query->select('blocked_id')
-                    ->from(with(new blocked)->getTable())
-                    ->where('member_id', $userid);})
-            ->whereNotIn('users.id', function($query) use ($userid){
-                // $isBlockedByUsers
-                $query->select('member_id')
-                    ->from(with(new blocked)->getTable())
-                    ->where('blocked_id', $userid);});
+            // ->whereNotIn('users.id', function($query) use ($userid){
+            //     // $blockedUsers
+            //     $query->select('blocked_id')
+            //         ->from(with(new blocked)->getTable())
+            //         ->where('member_id', $userid);})
+            // ->whereNotIn('users.id', function($query) use ($userid){
+            //     // $isBlockedByUsers
+            //     $query->select('member_id')
+            //         ->from(with(new blocked)->getTable())
+            //         ->where('blocked_id', $userid);})
+            ;
         if (isset($exchange_period) && $exchange_period != '') {
             if (count($exchange_period) > 0) {
                 $query->whereIn('exchange_period', $exchange_period);

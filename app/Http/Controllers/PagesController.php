@@ -700,6 +700,9 @@ class PagesController extends Controller
 
         $member_pics = MemberPic::select('*')->where('member_id',$user->id)->get()->take(6);
         $avatar = UserMeta::where('user_id', $user->id)->get()->first();
+        $userMeta = UserMeta::where('user_id', $user->id)->first();
+        $blurryAvatar = $userMeta->blurryAvatar;
+        $blurryLifePhoto = $userMeta->blurryLifePhoto;
 
         $birthday = date('Y-m-d', strtotime($user->meta_()->birthdate));
         $birthday = explode('-', $birthday);
@@ -747,7 +750,9 @@ class PagesController extends Controller
                     ->with('day', $day)
                     ->with('member_pics', $member_pics)
                     ->with('girl_to_vip', $girl_to_vip->content)
-                    ->with('avatar', $avatar);
+                    ->with('avatar', $avatar)
+                    ->with('blurry_avatar', $blurryAvatar)
+                    ->with('blurry_life_photo', $blurryLifePhoto);
             }
         }
     }
@@ -2439,6 +2444,7 @@ class PagesController extends Controller
             $isVip = $user->isVip();
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
             $messages = Message::allToFromSender($user->id, $cid);
+            $c_user_meta = UserMeta::where('user_id', $cid)->get()->first();
             //$messages = Message::allSenders($user->id, 1);
             if (isset($cid)) {
                 if(!$user->isVip() && $user->engroup == 1){
@@ -2451,6 +2457,7 @@ class PagesController extends Controller
                 }
                 return view('new.dashboard.chatWithUser')
                     ->with('user', $user)
+                    ->with('cmeta', $c_user_meta)
                     ->with('to', $this->service->find($cid))
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
@@ -2461,6 +2468,7 @@ class PagesController extends Controller
             else {
                 return view('new.dashboard.chatWithUser')
                     ->with('user', $user)
+                    ->with('cmeta', $c_user_meta)
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
                     ->with('tippopup', $tippopup)
@@ -3276,6 +3284,55 @@ class PagesController extends Controller
             'msg' =>'檢舉大頭貼成功',
         );
         return json_encode($data);
+    }
+
+    public function getBlurryAvatar(Request $request) {
+        $userId = $request->userId;
+        $authId = auth()->id();
+        if($userId == $authId){
+            $avatar = UserMeta::where('user_id', $userId)->get()->first();
+
+            $data = array(
+                'code'=>'200',
+                'data' => [
+                    'blurryAvatar' => $avatar->blurryAvatar
+                ],
+                'msg' =>'成功',
+            );
+            return json_encode($data);
+        }
+    }
+
+    public function blurryAvatar(Request $request) {
+        $userId = $request->userId;
+        $authId = auth()->id();
+        if($userId == $authId){
+            $avatar = UserMeta::where('user_id', $userId)->get()->first();
+            $avatar->blurryAvatar = $request->input('blurrys');
+            $avatar->save();
+
+            $data = array(
+                'code'=>'200',
+                'msg' =>'成功',
+            );
+            return json_encode($data);
+        }
+    }
+
+    public function blurryLifePhoto(Request $request) {
+        $userId = $request->userId;
+        $authId = auth()->id();
+        if($userId == $authId){
+            $avatar = UserMeta::where('user_id', $userId)->get()->first();
+            $avatar->blurryLifePhoto = $request->input('blurrys');
+            $avatar->save();
+
+            $data = array(
+                'code'=>'200',
+                'msg' =>'成功',
+            );
+            return json_encode($data);
+        }
     }
 
     public function member_auth(Request $request){

@@ -352,6 +352,9 @@ Route::group(['middleware' => ['auth', 'active', 'femaleActive', 'vipCheck', 'ne
     Route::post('/dashboard/pictures/upload','ImageController@uploadPictures');
     Route::post('/dashboard/pictures/delete', 'ImageController@deletePictures');
     Route::get('/dashboard/avatar/{userId?}', 'ImageController@getAvatar');
+    Route::get('/dashboard/avatar/blurry/{userId?}', 'PagesController@getBlurryAvatar');
+    Route::post('/dashboard/avatar/blurry/{userId?}', 'PagesController@blurryAvatar');
+    Route::post('/dashboard/lifephoto/blurry/{userId?}', 'PagesController@blurryLifePhoto');
     Route::post('/dashboard/avatar/upload', 'ImageController@uploadAvatar');
     Route::post('/dashboard/avatar/delete/{userId}', 'ImageController@deleteAvatar');
     Route::post('/dashboard/delPic', 'PagesController@delPic');

@@ -493,6 +493,8 @@ class Message_new extends Model
                 $messages[$key]['created_at'] = $message['created_at']->toDateTimeString();
                 $messages[$key]['user_name'] = $msgUser->name;
                 $messages[$key]['isAvatarHidden'] = $msgUser->user_meta->isAvatarHidden;
+                $messages[$key]['blurry_avatar'] = $msgUser->user_meta->blurryAvatar;
+                $messages[$key]['blurry_life_photo'] = $msgUser->user_meta->blurryLifePhoto;
                 $messages[$key]['pic'] = $msgUser->user_meta->pic;
                 if(!file_exists( public_path().$msgUser->user_meta->pic ) || $msgUser->user_meta->pic==null){
                     if($msgUser->engroup==1) {
