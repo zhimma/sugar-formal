@@ -2805,3 +2805,12 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 .flxz span{ margin-right: 20px; font-size: 18px; font-weight: bold;}
 .flxz span i{ font-style: normal; margin-left: 5px;}
 
+
+.huiy_na{width:100%;display:table}
+.huiy_na span {
+    text-align: center;
+    width: 100%;
+    display: table;
+    margin-top: 15px;
+}
+
