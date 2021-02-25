@@ -744,7 +744,11 @@ class UserController extends \App\Http\Controllers\BaseController
         $implicitly_banReason = DB::table('reason_list')->select('content')->where('type', 'implicitly')->get();
         $warned_banReason = DB::table('reason_list')->select('content')->where('type', 'warned')->get();
         $fingerprints = Fingerprint2::select('ip', 'fp', 'created_at')->where('user_id', $user->id)->get();
-        $userLogin_log = LogUserLogin::selectRaw('DATE(created_at) as loginDate, user_id as userID, count(*) as dataCount')->where('user_id', $user->id)->groupBy(DB::raw("DATE(created_at)"))->get();
+        // $userLogin_log = LogUserLogin::selectRaw('DATE(created_at) as loginDate, user_id as userID, count(*) as dataCount, GROUP_CONCAT(DISTINCT created_at SEPARATOR ",&p,") AS loginDates, GROUP_CONCAT(DISTINCT ip SEPARATOR ",&p,") AS ips, GROUP_CONCAT(DISTINCT userAgent SEPARATOR ",&p,") AS userAgents')->where('user_id', $user->id)->groupBy(DB::raw("DATE(created_at)"))->get();
+        $userLogin_log = LogUserLogin::selectRaw('DATE(created_at) as loginDate, user_id as userID, ip, count(*) as dataCount')->where('user_id', $user->id)->groupBy(DB::raw("DATE(created_at)"))->get();
+        foreach ($userLogin_log as $key => $value) {
+            $userLogin_log[$key]['items'] = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' .  $value->loginDate . '%')->orderBy('created_at','DESC')->get();
+        }
 
         //檢舉紀錄 reporter_id檢舉者uid  被檢舉者reported_user_id為此頁面主要會員
         $pic_report1 = ReportedAvatar::select('reporter_id as uid', 'reported_user_id as edid', 'cancel', 'created_at', 'content')->where('reported_user_id', $user->id)->where('reporter_id', '!=', $user->id)->groupBy('reporter_id')->get();
