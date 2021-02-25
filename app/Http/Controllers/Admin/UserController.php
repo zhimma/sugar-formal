@@ -915,6 +915,14 @@ class UserController extends \App\Http\Controllers\BaseController
             }
         }
 
+        //PR
+        $pr = User::PR($user->id);
+        $query_pr = DB::table('pr_log')->where('user_id',$user->id)->orderBy('created_at','desc')->first();
+        if(!isset($query_pr)){
+            $query_pr='';
+        }
+
+        $evaluation_data = DB::table('evaluation')->where('from_id',$user->id)->get();
         $out_evaluation_data = array();
         foreach ($evaluation_data as $row) {
             $tmp = array();
@@ -934,14 +942,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $tmp['to_auth_status'] = $auth_status;
             array_push($out_evaluation_data, $tmp);
         }
-
-        //PR
-        $pr = User::PR($user->id);
-        $query_pr = DB::table('pr_log')->where('user_id',$user->id)->orderBy('created_at','desc')->first();
-        if(!isset($query_pr)){
-            $query_pr='';
-        }
-
+        
         if (str_contains(url()->current(), 'edit')) {
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
             $birthday = explode('-', $birthday);
