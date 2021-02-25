@@ -1021,4 +1021,15 @@ class UserService
         $groupingReplied = $this->groupingMale($groupingReplied);
         return ['messages' => $groupingMsg, 'replied' => $groupingReplied];
     }
+
+    public function dispatchCheckECPay($userIsVip, $userIsFreeVip, $vipData){
+        if($userIsVip && !$userIsFreeVip){
+            if(is_object($vipData)){
+                \App\Jobs\CheckECpay::dispatch($vipData);
+            }
+            else{
+                Log::info('VIP data null, user id: ' . \Auth::user()->id);
+            }
+        }
+    }
 }

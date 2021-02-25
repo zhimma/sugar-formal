@@ -1,6 +1,14 @@
 @extends('new.layouts.website')
-
 @section('app-content')
+@if($user->engroup == 1)
+    @php
+        $exchange_period_name = DB::table('exchange_period_name')->get();
+        $epn_array = array();
+        foreach($exchange_period_name as $epn){
+            $epn_array[$epn->id] = $epn->name;
+        }
+    @endphp
+@endif
 <style>
 .pagination > li > a:focus,
 .pagination > li > a:hover,
@@ -147,19 +155,18 @@
                             </span>
                             </dt>
 
-                            @if($user->engroup==1)
+                            @if($user->engroup == 1)
                             <div class="jin_search"><span>進階搜尋</span></div>
                             <dt>
                                 <span>包養關係</span>
                                 <span class="line20">
                                     @php
-                                        $exchange_period_name = DB::table('exchange_period_name')->get();
-                                        $temp_id=0;
+                                        $temp_id = 0;
                                     @endphp
                                     @foreach($exchange_period_name as $row)
                                         <label class="n_tx j_lr"><input type="checkbox" name="exchange_period[{{$temp_id}}]" value={{$row->id}} id="" @if( !empty( $_POST["exchange_period"][$temp_id] ) && $_POST["exchange_period"][$temp_id] == $row->id ) checked @elseif(!empty( $_GET["exchange_period"][$temp_id] ) && $_GET["exchange_period"][$temp_id] == $row->id) checked @endif><i>{{$row->name}}</i></label>
                                         @php
-                                            $temp_id=$temp_id+1;
+                                            $temp_id = $temp_id + 1;
                                         @endphp
                                     @endforeach
 {{--                                      <label class="n_tx"><input type="checkbox" name="exchange_period" value="長期為主" id="Checkbox"><i>長期為主</i></label>--}}
@@ -285,7 +292,7 @@
                                         </div>
                                     @endif
                                     {{---------警示帳戶尚未實作-------------- <img src="/new/images/b_05.png">--}}
-                                    @if($visitor->user_meta->isWarned == 1 || $visitor->isAdminWarned())
+                                    @if($visitor->user_meta->isWarned == 1 || isset($visitor->aw_relation))
                                         <div class="hoverTip">
                                             <div class="tagText" data-toggle="popover" data-content="此人被多人檢舉！與此會員交流務必提高警覺！">
                                             @if($user->isVip())
@@ -297,7 +304,7 @@
                                         </div>
                                     @endif
                                     {{--手機驗證--}}
-                                    @if($visitor->engroup == 2 && $visitor->isPhoneAuth())
+                                    @if($visitor->engroup == 2 && isset($visitor->fa_relation))
                                         <div class="hoverTip">
                                         <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。">
                                         @if($user->isVip())
@@ -306,6 +313,18 @@
                                         <img src="/new/images/b_6.png">
                                         @endif
                                         </div>
+                                        </div>
+                                    @endif
+
+                                    @if($visitor->engroup == 1 && isset($visitor->fa_relation))
+                                        <div class="hoverTip">
+                                            <div class="tagText" data-toggle="popover" data-content="Baby們可通過完成手機驗證的Daddy，加強其身份真實性，提升信賴感55%以上。">
+                                                @if($user->isVip())
+                                                    <img src="/new/images/a6.png">
+                                                @else
+                                                    <img src="/new/images/b_6.png">
+                                                @endif
+                                            </div>
                                         </div>
                                     @endif
                                 </div>
@@ -349,16 +368,13 @@
 
                                             @if($user->engroup==1)
                                                 @if($user->isVip())
-                                                @php
-                                                    $exchange_period_name = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
-                                                @endphp
-                                                    <i class="j_lxx">丨</i><span>{{$exchange_period_name->name}}</span>
+                                                    <i class="j_lxx">丨</i><span>{{ $epn_array[$visitor->exchange_period] }}</span>
                                                 @else
                                                     <i class="j_lxx">丨</i><span>包養關係<img src="/new/images/icon_35.png" class="nt_img"></span>
                                                 @endif
                                             @endif
                                         </h3>
-                                        <h3>最後上線時間：@if($visitor->valueAddedServiceStatus('hideOnline')==1 && $visitor->is_hide_online==1){{substr($visitor->hide_online_time,0,11)}}@else{{substr($visitor->last_login,0,11)}}@endif</h3>
+                                        <h3>最後上線時間：@if(isset($visitor->vas->hideOnline) && $visitor->vas->is_hide_online == 1) {{ substr($visitor->vas->hide_online_time, 0, 11) }} @else {{ substr($visitor->last_login, 0, 11) }} @endif</h3>
                                     </div>
                                 </a>
                             </li>

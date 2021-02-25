@@ -44,7 +44,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Session;
 
-class UserController extends Controller
+class UserController extends \App\Http\Controllers\BaseController
 {
     public function __construct(UserService $userService, AdminService $adminService)
     {
@@ -926,7 +926,7 @@ class UserController extends Controller
             $query_pr='';
         }
 
-        $evaluation_data = DB::table('evaluation')->where('from_id',$user->id)->get(); 
+        $evaluation_data = DB::table('evaluation')->where('from_id',$user->id)->get();
         $out_evaluation_data = array();
         foreach ($evaluation_data as $row) {
             $tmp = array();
@@ -946,8 +946,7 @@ class UserController extends Controller
             $tmp['to_auth_status'] = $auth_status;
             array_push($out_evaluation_data, $tmp);
         }
-        // dd($out_evaluation_data);
-
+        
         if (str_contains(url()->current(), 'edit')) {
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
             $birthday = explode('-', $birthday);
@@ -2413,7 +2412,7 @@ class UserController extends Controller
 
                 if ($user->isPhoneAuth() == 0) {
                     DB::table('short_message')->insert(
-                        ['member_id' => $id, 'active' => 1]);
+                        ['mobile' => '0922222222','member_id' => $id, 'active' => 1]);
                 }
 
                 //                if ($user->isImgAuth() == 0) {

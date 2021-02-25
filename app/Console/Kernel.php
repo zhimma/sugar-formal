@@ -36,6 +36,12 @@ class Kernel extends ConsoleKernel
             $this->checkDatFile();
         })->timezone('Asia/Taipei')->dailyAt('3:00');
         $schedule->call(function (){
+            $this->checkECPayVip();
+        })->timezone('Asia/Taipei')->dailyAt('3:00');
+        $schedule->call(function (){
+            $this->checkVipExpired();
+        })->timezone('Asia/Taipei')->dailyAt('3:10');
+        $schedule->call(function (){
             $this->VIPCheck();
         })->timezone('Asia/Taipei')->dailyAt('4:00');
         $schedule->call(function (){
@@ -68,6 +74,27 @@ class Kernel extends ConsoleKernel
         $this->load(__DIR__.'/Commands');
 
         require base_path('routes/console.php');
+    }
+
+    protected function checkECPayVip(){
+        $vipDatas = \App\Models\Vip::where(['business_id' => '3137610', 'active' => 1])->get();
+        foreach ($vipDatas as $vipData){
+            \App\Jobs\CheckECpay::dispatch($vipData);
+        }
+    }
+
+    protected function checkVipExpired(){
+        $vipDatas = \App\Models\Vip::where(['active' => 1])->get();
+        foreach ($vipDatas as $vipData){
+            if($vipData->expiry != "0000-00-00 00:00:00"){
+                $date = \Carbon\Carbon::createFromFormat("Y-m-d H:i:s", $vipData->expiry);
+                $now = \Carbon\Carbon::now();
+                if($now > $date){
+                    $vipData->addToLog(0, 'Background auto cancellation, with expiry: ' . $vipData->expiry);
+                    $vipData->removeVIP();
+                }
+            }
+        }
     }
 
     protected function VIPCheck($date_set = null){

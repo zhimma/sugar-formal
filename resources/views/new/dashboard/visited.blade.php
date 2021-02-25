@@ -16,56 +16,45 @@
                     @if(count($visitors)>0)
                     <ul>
                         @foreach ($visitors as $visitor)
-                            <?php $histUser = \App\Models\User::findById($visitor->member_id);
+                            <?php $histUser = $visitor;
                             if(!isset($histUser)){
                                 continue;
                             }
-                            $umeta = $histUser->meta_();
-                            if(isset($umeta->city)){
+                            $umeta = $histUser->user->meta;
+                            if(isset($umeta->city) && !is_array($umeta->city)){
                                 $umeta->city = explode(",",$umeta->city);
                                 $umeta->area = explode(",",$umeta->area);
                             }
+                            else{
+                                $umeta->city = null;
+                                $umeta->area = null;
+                            }
                             ?>
-                            @php
-                                if($user->meta_()->isWarned == 1 || $user->isAdminWarned()){
-                                    $isBlur = true;
-                                }else {
-                                    $isBlur = true;
-                                    $blurryAvatar = isset($histUser->meta_()->blurryAvatar)? $histUser->meta_()->blurryAvatar : "";
-                                    $blurryAvatar = explode(',', $blurryAvatar);
-                                    if(sizeof($blurryAvatar)>1){
-                                        $nowB = $user->isVip()? 'VIP' : 'general';
-                                        $isBlur = in_array($nowB, $blurryAvatar);
-                                    } else {
-                                        $isBlur = !$user->isVip();
-                                    }
-                                }
-                            @endphp
                                 @if(isset($histUser))
-                                    <li @if($histUser->isVip()) class="hy_bg01" @endif>
+                                    <li @if($histUser->user->vip->first() && $histUser->user->vip->first()->active) class="hy_bg01" @endif>
                                         <div class="si_bg">
-                                            <a href="/dashboard/viewuser/{{$histUser->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">
-                                            <div class="sjpic @if($isBlur) blur_img @endif"><img src="@if($histUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{$histUser->meta_()->pic}} @endif" @if ($histUser->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></div>
+                                            <a href="/dashboard/viewuser/{{$histUser->user->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">
+                                            <div class="sjpic"><img src="@if($histUser->user->meta->isAvatarHidden) {{ 'makesomeerror' }} @else {{$histUser->user->meta->pic}} @endif" @if ($histUser->user->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></div>
                                             <div class="sjleft">
-                                                <div class="sjtable"><span>{{ $histUser->name }}<i class="cicd">●</i>{{ $histUser->meta_()->age() }}</span></div>
+                                                <div class="sjtable"><span>{{ $histUser->user->name }}<i class="cicd">●</i>{{ $histUser->user->meta->age() }}</span></div>
                                                 <font>
                                                     @if(!is_array($umeta->city))
 
                                                     @else
                                                         @foreach($umeta->city as $key => $cityval)
                                                             @if ($loop->first)
-                                                                {{$umeta->city[$key]}} @if($histUser->meta_()->isHideArea == 0){{$umeta->area[$key]}}@endif
+                                                                {{$umeta->city[$key]}} @if($histUser->user->meta->isHideArea == 0){{$umeta->area[$key]}}@endif
                                                             @else
-                                                                {{$umeta->city[$key]}} @if($histUser->meta_()->isHideArea == 0){{$umeta->area[$key]}}@endif
+                                                                {{$umeta->city[$key]}} @if($histUser->user->meta->isHideArea == 0){{$umeta->area[$key]}}@endif
                                                             @endif
                                                         @endforeach
                                                     @endif
-{{--                                                    {{ $histUser->meta_()->city }}  {{ $histUser->meta_()->area }}--}}
+{{--                                                    {{ $histUser->user->meta->city }}  {{ $histUser->user->meta->area }}--}}
                                                 </font>
                                             </div>
                                             </a>
                                             <div class="sjright">
-                                                <h3>{{ $visitor->created_at }}</h3>
+                                                <h3>{{ $visitor->latest_visited }}</h3>
                                             </div>
                                         </div>
                                     </li>
@@ -87,10 +76,4 @@
 
         </div>
     </div>
-<style>
-    .blur_img {
-        filter: blur(1px);
-        -webkit-filter: blur(1px);
-    }
-</style>
 @stop

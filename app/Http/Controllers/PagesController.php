@@ -52,10 +52,11 @@ use Session;
 use App\Notifications\AccountConsign;
 use App\Models\ValueAddedService;
 
-class PagesController extends Controller
+class PagesController extends BaseController
 {
     public function __construct(UserService $userService, VipLogService $logService)
     {
+        parent::__construct();
         $this->service = $userService;
         $this->logService = $logService;
     }
@@ -457,18 +458,34 @@ class PagesController extends Controller
      */
     public function home(Request $request)
     {
-        $user = $request->user();
         $imgUserM = User::select('users.name', 'users.title', 'user_meta.pic')
             ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'users.id')
+            ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'users.id')
+            ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'users.id')
+            ->leftJoin('banned_users_implicitly as b4', 'b4.target', '=', 'users.id')
+            ->withOut(['vip', 'user_meta'])
+            ->whereNull('b1.member_id')
+            ->whereNull('b2.member_id')
+            ->whereNull('b3.target')
+            ->whereNull('b4.target')
             ->whereNotNull('user_meta.pic')
             ->where('engroup', 1)->inRandomorder()->take(3)->get();
         $imgUserF = User::select('users.name', 'users.title', 'user_meta.pic')
             ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
+            ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'users.id')
+            ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'users.id')
+            ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'users.id')
+            ->leftJoin('banned_users_implicitly as b4', 'b4.target', '=', 'users.id')
+            ->withOut(['vip', 'user_meta'])
+            ->whereNull('b1.member_id')
+            ->whereNull('b2.member_id')
+            ->whereNull('b3.target')
+            ->whereNull('b4.target')
             ->whereNotNull('user_meta.pic')
             ->where('engroup', 2)->inRandomorder()->take(3)->get();
         return view('new.welcome')
-            ->with('user', $user)
-            ->with('cur', $user)
+            ->with('cur', view()->shared('user'))
             ->with('imgUserM', $imgUserM)
             ->with('imgUserF', $imgUserF);
     }
@@ -581,21 +598,12 @@ class PagesController extends Controller
         //      1. 綠界：連 API 檢查，使用 Laravel Queue 執行檢查
         //      2. 藍新：後台手動
         
-        $user = $request->user();
+        $user = $this->user;
         $url = $request->fullUrl();
 
-        if($user->isVip() && !$user->isFreeVip()){
-            $vipData = $user->getVipData(true);
-            if(is_object($vipData)){
-                $this->dispatch(new CheckECpay($vipData));
-            }
-            else{
-                Log::info('VIP data null, user id: ' . $user->id);
-            }
-        }
-
+        $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
         //valueAddedService
-        if($user->valueAddedServiceStatus('hideOnline')==1){
+        if($this->valueAddedServices['hideOnline'] == 1){
             //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
             $service_name = 'hideOnline';
             $valueAddedServiceData = \App\Models\ValueAddedService::getData($user->id,'hideOnline');
@@ -698,11 +706,8 @@ class PagesController extends Controller
             $tabName = 'm_user_profile_tab_1';
         }
 
-        $member_pics = MemberPic::select('*')->where('member_id',$user->id)->get()->take(6);
+        $member_pics = MemberPic::select('*')->where('member_id',$user->id)->whereRaw('pic  NOT LIKE "%IDPhoto%"')->get()->take(6);
         $avatar = UserMeta::where('user_id', $user->id)->get()->first();
-        $userMeta = UserMeta::where('user_id', $user->id)->first();
-        $blurryAvatar = $userMeta->blurryAvatar;
-        $blurryLifePhoto = $userMeta->blurryLifePhoto;
 
         $birthday = date('Y-m-d', strtotime($user->meta_()->birthdate));
         $birthday = explode('-', $birthday);
@@ -750,9 +755,7 @@ class PagesController extends Controller
                     ->with('day', $day)
                     ->with('member_pics', $member_pics)
                     ->with('girl_to_vip', $girl_to_vip->content)
-                    ->with('avatar', $avatar)
-                    ->with('blurry_avatar', $blurryAvatar)
-                    ->with('blurry_life_photo', $blurryLifePhoto);
+                    ->with('avatar', $avatar);
             }
         }
     }
@@ -1587,71 +1590,6 @@ class PagesController extends Controller
             ->with('user', $user)->with('cur', $user);
     }
 
-    public function viewuser(Request $request, $uid = -1) {
-        $user = $request->user();
-        // dd($user);
-
-        if (isset($user) && isset($uid)) {
-            $targetUser = User::where('id', $uid)->get()->first();
-            if(!isset($targetUser)){
-                return view('errors.nodata');
-            }
-            if(User::isBanned($uid)){
-                return view('errors.nodata');
-            }
-            if ($user->id != $uid) {
-                Visited::visit($user->id, $uid);
-            }
-
-            $checkRecommendedUser['description'] = null;
-            $checkRecommendedUser['stars'] = null;
-            $checkRecommendedUser['background'] = null;
-            $checkRecommendedUser['title'] = null;
-            $checkRecommendedUser['button'] = null;
-            $checkRecommendedUser['height'] = null;
-            try{
-                $checkRecommendedUser = $this->service->checkRecommendedUser($targetUser);
-                $tracker = $checkRecommendedUser['description'];
-            }
-            catch (\Exception $e){
-                Log::info('Current URL: ' . url()->current());
-                Log::debug('checkRecommendedUser() failed, $targetUser: '. $targetUser);
-            }
-            finally{
-                if($user->vip_record=='0000-00-00 00:00:00'){
-                    $vipLevel = 0;
-                }else{
-                    $vipLevel = 1;
-                }
-                // dd($vipLevel);
-                $basic_setting = BasicSetting::where('vipLevel',$vipLevel)->where('gender',$user->engroup)->get()->first();
-                // dd($basic_setting);
-
-                $data = array();
-
-                if(isset($basic_setting['countSet'])){
-                    if($basic_setting['countSet']==-1){
-                        $basic_setting['countSet'] = 10000;
-                    }
-                    $data = array(
-                        'timeSet'=> (int)$basic_setting['timeSet'],
-                        'countSet'=> (int)$basic_setting['countSet'],
-                    );
-                }
-
-                return view('dashboard', $data)
-                    ->with('user', $user)
-                    ->with('cur', $this->service->find($uid))
-                    ->with('description', $checkRecommendedUser['description'])
-                    ->with('stars', $checkRecommendedUser['stars'])
-                    ->with('background', $checkRecommendedUser['background'])
-                    ->with('title', $checkRecommendedUser['title'])
-                    ->with('button', $checkRecommendedUser['button'])
-                    ->with('height', $checkRecommendedUser['height']);
-            }
-        }
-    }
-
     public function viewuser2(Request $request, $uid = -1) {
         $user = $request->user();
 
@@ -1676,7 +1614,7 @@ class PagesController extends Controller
                 return view('new.dashboard.viewuser', compact('user'));
             }
             if ($user->id != $uid) {
-                Visited::visit($user->id, $uid);
+                Visited::visit($user->id, $targetUser);
             }
 
             /*七天前*/
@@ -1709,7 +1647,7 @@ class PagesController extends Controller
 
 
             /*發信＆回信次數統計*/
-            $messages_all = Message::select('id','to_id','from_id','created_at')->where('from_id', $uid)->orwhere('to_id', $uid)->orderBy('id')->get();
+            $messages_all = Message::select('id','to_id','from_id','created_at')->where('to_id', $uid)->orwhere('from_id', $uid)->orderBy('id')->get();
             $countInfo['message_count'] = 0;
             $countInfo['message_reply_count'] = 0;
             $countInfo['message_reply_count_7'] = 0;
@@ -1734,7 +1672,7 @@ class PagesController extends Controller
             }
             $countInfo['message_count'] = count($send);
 
-            $messages_7days = Message::select('id','to_id','from_id','created_at')->whereRaw('(from_id ='. $uid. ' OR to_id='.$uid .')')->where('created_at','>=', $date)->orderBy('id')->get();
+            $messages_7days = Message::select('id','to_id','from_id','created_at')->whereRaw('(to_id ='. $uid. ' OR from_id='.$uid .')')->where('created_at','>=', $date)->orderBy('id')->get();
             $countInfo['message_count_7'] = 0;
             $send = [];
             foreach ($messages_7days as $message) {
@@ -1753,21 +1691,30 @@ class PagesController extends Controller
             $message_reply_count = $countInfo['message_reply_count'];
             /*過去7天回信次數*/
             $message_reply_count_7 = $countInfo['message_reply_count_7'];
-
             /*過去7天罐頭訊息比例*/
-            $bannedUsers = UserService::getBannedId();
-            $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
             $date_start = date("Y-m-d",strtotime("-6 days", strtotime(date('Y-m-d'))));
             $date_end = date('Y-m-d');
 
+            /**
+             * 效能調整：使用左結合以大幅降低處理時間
+             *
+             * @author LZong <lzong.tw@gmail.com>
+             */
             $query = Message::select('users.email','users.name','users.title','users.engroup','users.created_at','users.last_login','message.id','message.from_id','message.content','user_meta.about')
                 ->join('users', 'message.from_id', '=', 'users.id')
                 ->join('user_meta', 'message.from_id', '=', 'user_meta.user_id')
-                ->where(function($query)use($date_start,$date_end,$bannedUsers,$isAdminWarnedList) {
+                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
+                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
+                ->leftJoin('warned_users as wu', function($join) {
+                    $join->on('wu.member_id', '=', 'message.from_id')
+                        ->where('wu.expire_date', '>=', Carbon::now())
+                        ->orWhere('wu.expire_date', null); })
+                ->whereNull('b1.member_id')
+                ->whereNull('b3.target')
+                ->whereNull('wu.member_id')
+                ->where(function($query)use($date_start,$date_end) {
                     $query->where('message.from_id','<>',1049)
                         ->where('message.sys_notice',0)
-                        ->whereNotIn('message.from_id',$bannedUsers)
-                        ->whereNotIn('message.from_id',$isAdminWarnedList)
                         ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
                 });
             $query->where('users.email',$targetUser->email);
@@ -1854,7 +1801,9 @@ class PagesController extends Controller
                 'be_blocked_other_count' => $be_blocked_other_count,
                 'is_banned' => $is_banned
             );
-            $member_pic = DB::table('member_pic')->where('member_id',$uid)->where('pic','<>',$targetUser->meta_()->pic)->get();
+
+            $member_pic = DB::table('member_pic')->where('member_id', $uid)->where('pic', '<>', $targetUser->meta->pic)->get();
+
             if($user->isVip()){
                 $vipLevel = 1;
             }else{
@@ -1872,75 +1821,116 @@ class PagesController extends Controller
             }
             $blockadepopup = AdminCommonText::getCommonText(5);//id5封鎖說明popup
             $isVip = $user->isVip() ? '1':'0';
+
+            $adminCommonTexts = AdminCommonText::whereIn('alias', ['report_reason', 'report_member', 'report_avatar', 'new_sweet', 'well_member', 'money_cert', 'alert_account', 'label_vip'])->get();
+            $adminCommonTextArray = array();
+            foreach($adminCommonTexts as $adminCommonText){
+                $adminCommonTextArray[$adminCommonText->alias] = $adminCommonText;
+            }
+
             /*編輯文案-檢舉會員訊息-START*/
-            $report_reason = AdminCommonText::where('alias','report_reason')->get()->first();
+            $report_reason = $adminCommonTextArray['report_reason'];
             /*編輯文案-檢舉會員訊息-END*/
             /*編輯文案-檢舉會員-START*/
-            $report_member = AdminCommonText::where('alias','report_member')->get()->first();
+            $report_member = $adminCommonTextArray['report_member'];
             /*編輯文案-檢舉會員-END*/
             /*編輯文案-檢舉大頭照-START*/
-            $report_avatar = AdminCommonText::where('alias','report_avatar')->get()->first();
+            $report_avatar = $adminCommonTextArray['report_avatar'];
             /*編輯文案-檢舉大頭照-END*/
             /*編輯文案-new_sweet-START*/
-            $new_sweet = AdminCommonText::where('category_alias', 'label_text')->where('alias','new_sweet')->get()->first();
+            $new_sweet = $adminCommonTextArray['new_sweet'];
             /*編輯文案-new_sweet-END*/
             /*編輯文案-well_member-START*/
-            $well_member = AdminCommonText::where('category_alias', 'label_text')->where('alias','well_member')->get()->first();
+            $well_member = $adminCommonTextArray['well_member'];
             /*編輯文案-well_member-END*/
             /*編輯文案-money_cert-START*/
-            $money_cert = AdminCommonText::where('category_alias', 'label_text')->where('alias','money_cert')->get()->first();
+            $money_cert = $adminCommonTextArray['money_cert'];
             /*編輯文案-money_cert-END*/
             /*編輯文案-alert_account-START*/
-            $alert_account = AdminCommonText::where('category_alias', 'label_text')->where('alias','alert_account')->get()->first();
+            $alert_account = $adminCommonTextArray['alert_account'];
             /*編輯文案-alert_account-END*/
             /*編輯文案-label_vip-START*/
-            $label_vip = AdminCommonText::where('category_alias', 'label_text')->where('alias','label_vip')->get()->first();
+            $label_vip = $adminCommonTextArray['label_vip'];
             /*編輯文案-label_vip-END*/
-            $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $uid)->get();
-            $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
-            $bannedUsers = \App\Services\UserService::getBannedId();
-            $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
-            $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
 
-            $rating_avg = DB::table('evaluation')->where('to_id',$uid)
-                // ->whereNotIn('from_id',$userBlockList)
-                ->whereNotIn('from_id',$isBlockList)
-                ->whereNotIn('from_id',$bannedUsers)
-                ->whereNotIn('from_id',$isAdminWarnedList)
-                ->whereNotIn('from_id',$isWarnedList)
-                ->avg('rating');
+            /**
+             * 效能調整：使用左結合以大幅降低處理時間，並且減少 query 次數，進一步降低時間及程式碼複雜度
+             *
+             * @author LZong <lzong.tw@gmail.com>
+             */
+            $query = \App\Models\Evaluation::select('e.*')->from('evaluation as e')->with('user')
+                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'e.from_id')
+                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'e.from_id')
+                ->leftJoin('blocked as b7', function($join) use($uid) {
+                    $join->on('b7.member_id', '=', 'e.from_id')
+                        ->where('b7.blocked_id', $uid); })
+                ->leftJoin('user_meta as um', function($join) {
+                    $join->on('um.user_id', '=', 'e.from_id')
+                        ->where('isWarned', 1); })
+                ->leftJoin('warned_users as wu', function($join) {
+                    $join->on('wu.member_id', '=', 'e.from_id')
+                        ->where(function($query){
+                            $query->where('wu.expire_date', '>=', Carbon::now())
+                                ->orWhere('wu.expire_date', null); }); })
+                ->whereNull('b1.member_id')
+                ->whereNull('b3.target')
+                ->whereNull('b7.member_id')
+                ->whereNull('um.user_id')
+                ->whereNull('wu.member_id')
+                ->where('e.to_id', $uid);
 
+            $rating_avg = $query->avg('rating');
             $rating_avg = floatval($rating_avg);
 
-            $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $uid)->get();
-            $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
-            $bannedUsers = \App\Services\UserService::getBannedId();
-            $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
-            $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
+            /**
+             * 效能調整：使用左結合以大幅降低處理時間，並且減少 query 次數，進一步降低時間及程式碼複雜度
+             *
+             * @author LZong <lzong.tw@gmail.com>
+             */
+            $query = \App\Models\Evaluation::select('e.*')->from('evaluation as e')->with('user')
+                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'e.from_id')
+                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'e.from_id')
+                ->leftJoin('user_meta as um', function($join) {
+                    $join->on('um.user_id', '=', 'e.from_id')
+                        ->where('isWarned', 1); })
+                ->leftJoin('warned_users as wu', function($join) {
+                    $join->on('wu.member_id', '=', 'e.from_id')
+                        ->where(function($query){
+                            $query->where('wu.expire_date', '>=', Carbon::now())
+                                ->orWhere('wu.expire_date', null); }); })
+                ->whereNull('b1.member_id')
+                ->whereNull('b3.target')
+                ->whereNull('um.user_id')
+                ->whereNull('wu.member_id')
+                ->where('e.to_id', $uid);
 
-            // dd($userBlockList, $isBlockList);
-            $evaluation_data = DB::table('evaluation')->where('to_id',$uid)
-                // ->whereNotIn('from_id',$userBlockList)
-                // ->whereNotIn('from_id',$isBlockList)
-                ->whereNotIn('from_id',$bannedUsers)
-                ->whereNotIn('from_id',$isAdminWarnedList)
-                ->whereNotIn('from_id',$isWarnedList)
-                ->paginate(10);
-                // dd($evaluation_data);
+            $evaluation_data = $query->paginate(10);
+
             $evaluation_self = DB::table('evaluation')->where('to_id',$uid)->where('from_id',$user->id)->first();
             /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
-            $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
+//            $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
             /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
 
             // todo: 此處程式碼有誤，應檢查檢視者是否被被檢視者封鎖，若是，才存入變數
 //            if(User::isBanned($uid)){
 //                Session::flash('message', $user_closed->content);
 //            }
+            $to = $targetUser;
+            $valueAddedServicesStatus['hideOnline'] = 0;
+            $valueAddedServicesStatusRows = $to->valueAddedServiceStatus();
+            if($valueAddedServicesStatusRows){
+                foreach($valueAddedServicesStatusRows as $valueAddedServicesStatusRow){
+                    $valueAddedServicesStatus[$valueAddedServicesStatusRow->service_name] = 1;
+                }
+            }
+            $isSent3Msg = $user->isSent3Msg($uid);
 
             return view('new.dashboard.viewuser', $data)
                     ->with('user', $user)
                     ->with('blockadepopup', $blockadepopup)
-                    ->with('to', $this->service->find($uid))
+                    ->with('to', $to)
+                    ->with('valueAddedServiceStatus', $valueAddedServicesStatus)
+                    ->with('isSent3Msg', $isSent3Msg)
                     ->with('cur', $user)
                     ->with('member_pic',$member_pic)
                     ->with('isVip', $isVip)
@@ -1954,7 +1944,7 @@ class PagesController extends Controller
                     ->with('alert_account',$alert_account->content)
                     ->with('label_vip',$label_vip->content)
                     ->with('rating_avg',$rating_avg)
-                    ->with('user_closed',$user_closed->content)
+//                    ->with('user_closed',$user_closed->content)
                     ->with('evaluation_self',$evaluation_self)
                     ->with('evaluation_data',$evaluation_data)
                     ->with('vipDays',$vipDays)
@@ -2441,11 +2431,24 @@ class PagesController extends Controller
         $user = $request->user();
         $m_time = '';
         $report_reason = AdminCommonText::where('alias', 'report_reason')->get()->first();
+        $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
+        //valueAddedService
+        if($this->valueAddedServices['hideOnline'] == 1){
+            //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
+            $service_name = 'hideOnline';
+            $valueAddedServiceData = \App\Models\ValueAddedService::getData($user->id,'hideOnline');
+            if(is_object($valueAddedServiceData)){
+                $this->dispatch(new CheckECpayForValueAddedService($valueAddedServiceData));
+            }
+            else{
+                Log::info('ValueAddedService '.$service_name.' data null, user id: ' . $user->id);
+            }
+
+        }
         if (isset($user)) {
             $isVip = $user->isVip();
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
             $messages = Message::allToFromSender($user->id, $cid);
-            $c_user_meta = UserMeta::where('user_id', $cid)->get()->first();
             //$messages = Message::allSenders($user->id, 1);
             if (isset($cid)) {
                 if(!$user->isVip() && $user->engroup == 1){
@@ -2458,7 +2461,6 @@ class PagesController extends Controller
                 }
                 return view('new.dashboard.chatWithUser')
                     ->with('user', $user)
-                    ->with('cmeta', $c_user_meta)
                     ->with('to', $this->service->find($cid))
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
@@ -2469,7 +2471,6 @@ class PagesController extends Controller
             else {
                 return view('new.dashboard.chatWithUser')
                     ->with('user', $user)
-                    ->with('cmeta', $c_user_meta)
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
                     ->with('tippopup', $tippopup)
@@ -2548,7 +2549,20 @@ class PagesController extends Controller
     public function search2(Request $request)
     {
         $user = $request->user();
+        $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
+        //valueAddedService
+        if($this->valueAddedServices['hideOnline'] == 1){
+            //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
+            $service_name = 'hideOnline';
+            $valueAddedServiceData = \App\Models\ValueAddedService::getData($user->id,'hideOnline');
+            if(is_object($valueAddedServiceData)){
+                $this->dispatch(new CheckECpayForValueAddedService($valueAddedServiceData));
+            }
+            else{
+                Log::info('ValueAddedService '.$service_name.' data null, user id: ' . $user->id);
+            }
 
+        }
         return view('new.dashboard.search')->with('user', $user);
     }
 
@@ -2598,7 +2612,11 @@ class PagesController extends Controller
         {
             // blocked by user->id
             $bannedUsers = \App\Services\UserService::getBannedId();
-            $blocks = \App\Models\Blocked::join('users', 'users.id', '=', 'blocked.blocked_id')->where('member_id', $user->id)->whereNotIn('blocked_id',$bannedUsers)->orderBy('blocked.created_at','desc')->paginate(15);
+            $blocks = \App\Models\Blocked::with(['blocked_user', 'blocked_user.meta'])
+                ->join('users', 'users.id', '=', 'blocked.blocked_id')
+                ->where('member_id', $user->id)
+                ->whereNotIn('blocked_id',$bannedUsers)
+                ->orderBy('blocked.created_at','desc')->paginate(15);
 
             return view('new.dashboard.block')
             ->with('blocks', $blocks)
@@ -3285,55 +3303,6 @@ class PagesController extends Controller
             'msg' =>'檢舉大頭貼成功',
         );
         return json_encode($data);
-    }
-
-    public function getBlurryAvatar(Request $request) {
-        $userId = $request->userId;
-        $authId = auth()->id();
-        if($userId == $authId){
-            $avatar = UserMeta::where('user_id', $userId)->get()->first();
-
-            $data = array(
-                'code'=>'200',
-                'data' => [
-                    'blurryAvatar' => $avatar->blurryAvatar
-                ],
-                'msg' =>'成功',
-            );
-            return json_encode($data);
-        }
-    }
-
-    public function blurryAvatar(Request $request) {
-        $userId = $request->userId;
-        $authId = auth()->id();
-        if($userId == $authId){
-            $avatar = UserMeta::where('user_id', $userId)->get()->first();
-            $avatar->blurryAvatar = $request->input('blurrys');
-            $avatar->save();
-
-            $data = array(
-                'code'=>'200',
-                'msg' =>'成功',
-            );
-            return json_encode($data);
-        }
-    }
-
-    public function blurryLifePhoto(Request $request) {
-        $userId = $request->userId;
-        $authId = auth()->id();
-        if($userId == $authId){
-            $avatar = UserMeta::where('user_id', $userId)->get()->first();
-            $avatar->blurryLifePhoto = $request->input('blurrys');
-            $avatar->save();
-
-            $data = array(
-                'code'=>'200',
-                'msg' =>'成功',
-            );
-            return json_encode($data);
-        }
     }
 
     public function member_auth(Request $request){
