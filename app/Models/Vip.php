@@ -235,6 +235,11 @@ class Vip extends Model
         return Vip::cancel($this->member_id, $this->free);
     }
 
+    public function addToLog($action, $content = null, $txn_id = 'XXXXXX'){
+        VipLog::addToLog($this->member_id, $content, $txn_id, $action, $this->free);
+        return true;
+    }
+
     public function removeVIP(){
         $user = Vip::select('member_id', 'active', 'expiry')
             ->where('member_id', $this->member_id)
