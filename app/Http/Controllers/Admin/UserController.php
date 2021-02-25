@@ -915,6 +915,26 @@ class UserController extends \App\Http\Controllers\BaseController
             }
         }
 
+        $out_evaluation_data = array();
+        foreach ($evaluation_data as $row) {
+            $tmp = array();
+            $f_user = User::findById($row->to_id);
+            $tmp['content'] = $row->content;
+            $tmp['re_content'] = $row->re_content;
+            $tmp['rating'] = $row->rating;
+            $tmp['re_created_at'] = $row->re_created_at;
+            $tmp['created_at'] = $row->created_at;
+            $tmp['to_email'] = $f_user->email;
+            $tmp['to_name'] = $f_user->name;
+            $tmp['to_isvip'] = $f_user->isVip();
+            $auth_status = 0;
+            if ($f_user->isPhoneAuth() == 1) {
+                $auth_status = 1;
+            }
+            $tmp['to_auth_status'] = $auth_status;
+            array_push($out_evaluation_data, $tmp);
+        }
+
         //PR
         $pr = User::PR($user->id);
         $query_pr = DB::table('pr_log')->where('user_id',$user->id)->orderBy('created_at','desc')->first();
@@ -947,6 +967,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('fingerprints', $fingerprints)
                 ->with('userLogin_log', $userLogin_log)
                 ->with('report_all', $report_all)
+                ->with('out_evaluation_data', $out_evaluation_data)
                 ->with('pr',$pr)
                 ->with('pr_log',$query_pr);
         }
