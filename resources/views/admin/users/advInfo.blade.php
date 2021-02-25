@@ -439,8 +439,6 @@
 		</tr>
 	@endforeach
 </table>
-<<<<<<< HEAD
-=======
 <h4>評價紀錄</h4>
 <table class="table table-hover table-bordered">
 	<tr>
@@ -464,7 +462,6 @@
 		</tr>
 	@endforeach
 </table>
->>>>>>> 7e0214c... 後台新增評價
 
 <h4>帳號登入紀錄</h4>
 <table class="table table-hover table-bordered">
