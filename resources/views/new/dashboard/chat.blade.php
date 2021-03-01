@@ -730,7 +730,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     });
 
                     $.each(res.msg,function(i,e) {
-                        if(e != "No data") {
+                        if(e != "No data" && e.blurry_avatar) {
                             var isBlur = true;
                             var blurryAvatar = e.blurry_avatar.split(',');
                             if (blurryAvatar.length > 1) {
