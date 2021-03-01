@@ -156,7 +156,7 @@
                         @endphp
                          <h2>為保護會員隱私，網站可以設定照片自動模糊化</h2>
                           <ul>
-                              <li><span>◎</span>預設為只給 vip 看清楚的照片</li>
+                              <li><span>◎</span>預設為只給 VIP 看清楚的照片</li>
                               <li><span>◎</span>如果你想要開放給所有人看照片</li>
                               <li><span>◎</span>請自行勾選下方的 "普通會員"</li>
                           </ul>
@@ -197,7 +197,7 @@
                         @endphp
                          <h2>為保護會員隱私，網站可以設定照片自動模糊化</h2>
                           <ul>
-                              <li><span>◎</span>預設為只給 vip 看清楚的照片</li>
+                              <li><span>◎</span>預設為只給 VIP 看清楚的照片</li>
                               <li><span>◎</span>如果你想要開放給所有人看照片</li>
                               <li><span>◎</span>請自行勾選下方的 "普通會員"</li>
                           </ul>
