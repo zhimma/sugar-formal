@@ -50,7 +50,12 @@ class VipCheck
             $send_msg ='';
             if($userVIP->business_id == '761404'){
                 $send_msg = 1;
+                $msg = AdminCommonText::getCommonTextByAlias('vipForNewebPay');
+                if(!Message::where(['from_id' => 1049, 'to_id' => $user->id])->where('content', 'like', '系統通知: 舊會員專屬優惠通知%')->first()){
+                    Message::post(1049, $user->id, $msg, true, 1);
+                }
             }
+
             if($now > $expiry && $userVIP->expiry != '0000-00-00 00:00:00'){
                 \App\Models\VipLog::addToLog($user->id, 'Expired, system auto cancellation.', 'XXXXXXXXX', 0, 0);
                 $userVIP->removeVIP();
