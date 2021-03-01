@@ -1617,6 +1617,10 @@ class PagesController extends BaseController
                 Visited::visit($user->id, $targetUser);
             }
 
+            if($user->engroup == $targetUser->engroup){
+                return redirect()->route('listSeatch2');
+            }
+
             /*七天前*/
             $date = date('Y-m-d H:m:s', strtotime('-7 days'));
 
