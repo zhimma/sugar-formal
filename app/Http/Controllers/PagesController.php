@@ -1613,11 +1613,11 @@ class PagesController extends BaseController
             if (!isset($targetUser)) {
                 return view('errors.nodata');
             }
-            if(User::isBanned($uid)){
-                Session::flash('closed', true);
-                Session::flash('message', '此用戶已關閉資料');
-                return view('new.dashboard.viewuser', compact('user'));
-            }
+            // if(User::isBanned($uid)){
+                // Session::flash('closed', true);
+                // Session::flash('message', '此用戶已關閉資料');
+                // return view('new.dashboard.viewuser', compact('user'));
+            // }
             if ($user->id != $uid) {
                 Visited::visit($user->id, $targetUser);
             }
