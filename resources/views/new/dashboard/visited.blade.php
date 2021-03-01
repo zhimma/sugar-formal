@@ -30,11 +30,26 @@
                                 $umeta->area = null;
                             }
                             ?>
+                            @php
+                                if($user->meta_()->isWarned == 1 || $user->isAdminWarned()){
+                                    $isBlur = true;
+                                }else {
+                                    $isBlur = true;
+                                    $blurryAvatar = isset($histUser->meta_()->blurryAvatar)? $histUser->meta_()->blurryAvatar : "";
+                                    $blurryAvatar = explode(',', $blurryAvatar);
+                                    if(sizeof($blurryAvatar)>1){
+                                        $nowB = $user->isVip()? 'VIP' : 'general';
+                                        $isBlur = in_array($nowB, $blurryAvatar);
+                                    } else {
+                                        $isBlur = !$user->isVip();
+                                    }
+                                }
+                            @endphp
                                 @if(isset($histUser))
                                     <li @if($histUser->user->vip->first() && $histUser->user->vip->first()->active) class="hy_bg01" @endif>
                                         <div class="si_bg">
                                             <a href="/dashboard/viewuser/{{$histUser->user->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">
-                                            <div class="sjpic"><img src="@if($histUser->user->meta->isAvatarHidden) {{ 'makesomeerror' }} @else {{$histUser->user->meta->pic}} @endif" @if ($histUser->user->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></div>
+                                            <div class="sjpic @if($isBlur) blur_img @endif"><img src="@if($histUser->user->meta->isAvatarHidden) {{ 'makesomeerror' }} @else {{$histUser->user->meta->pic}} @endif" @if ($histUser->user->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></div>
                                             <div class="sjleft">
                                                 <div class="sjtable"><span>{{ $histUser->user->name }}<i class="cicd">●</i>{{ $histUser->user->meta->age() }}</span></div>
                                                 <font>
@@ -76,4 +91,10 @@
 
         </div>
     </div>
+<style>
+    .blur_img {
+        filter: blur(1px);
+        -webkit-filter: blur(1px);
+    }
+</style>
 @stop
