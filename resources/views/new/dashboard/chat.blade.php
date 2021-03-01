@@ -730,18 +730,20 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     });
 
                     $.each(res.msg,function(i,e) {
-                        var isBlur = true;
-                        var blurryAvatar = e.blurry_avatar.split(',');
-                        if(blurryAvatar.length > 1){
-                            var nowB = '{{$user->isVip()? "VIP" : "general"}}';
-                            if( blurryAvatar.indexOf(nowB) != -1){
-                                // console.log(blurryAvatar);
-                                isBlur = true;
+                        if(e != "No data") {
+                            var isBlur = true;
+                            var blurryAvatar = e.blurry_avatar.split(',');
+                            if (blurryAvatar.length > 1) {
+                                var nowB = '{{$user->isVip()? "VIP" : "general"}}';
+                                if (blurryAvatar.indexOf(nowB) != -1) {
+                                    // console.log(blurryAvatar);
+                                    isBlur = true;
+                                } else {
+                                    isBlur = false;
+                                }
                             } else {
-                                isBlur = false;
+                                isBlur = !e.isVip;
                             }
-                        } else {
-                            isBlur = !e.isVip;
                         }
                         
                         rr += parseInt(e.read_n);
