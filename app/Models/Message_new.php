@@ -393,7 +393,7 @@ class Message_new extends Model
          *
          * @author LZong <lzong.tw@gmail.com>
          */
-        $query = Message::with(['sender', 'receiver'])->select("m.*")->from('message as m')
+        $query = Message::with(['sender', 'receiver', 'sender.aw_relation', 'receiver.aw_relation'])->select("m.*")->from('message as m')
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'm.from_id')
             ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'm.to_id')
             ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'm.from_id')
@@ -522,7 +522,7 @@ class Message_new extends Model
                 $messages[$key]['read_n'] = $mm[$msgUser->id] ?? 0;
                 $messages[$key]['isVip'] = $msgUser->isVip();
 //                $messages[$key]['isWarned']=$msgUser->meta_()->isWarned;
-                if(($msgUser->user_meta->isWarned==1 || $msgUser->isAdminWarned() ) && $msgUser->id != 1049){
+                if(($msgUser->user_meta->isWarned==1 || $msgUser->aw_relation ) && $msgUser->id != 1049){
                     $messages[$key]['isWarned']=1;
                 }else{
                     $messages[$key]['isWarned']=0;
