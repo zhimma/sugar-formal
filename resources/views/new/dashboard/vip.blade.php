@@ -187,7 +187,7 @@
         // 升級VIP內容
         $('.n_vip01').on('click', function(event) {
             @if($user->isVipNotCanceledORCanceledButNotExpire() == true)
-            c2('您目前已是VIP會員');
+            c5('您目前已是VIP會員');
             return false;
             @else
 
@@ -225,7 +225,7 @@
 
         $('#qty').on('change',function(){
             if($('#qty').val() < 1){
-                c3('至少1次');
+                c5('至少1次');
             }else {
                 $('.bka_cor').text($('#qty').val() * 888);
                 $('#amount').val($('#qty').val() * 888);
@@ -234,7 +234,7 @@
         });
         function payback_submit(){
             if($('#qty').val() < 1){
-                c3('請輸入次數');
+                c5('請輸入次數');
             }else{
                 $('#payback_form').submit();
             }
@@ -250,9 +250,9 @@
             $('#vip_cancel').hide();
             if(id === 'vip2'){
                 @if (!$user->isVip() && !$user->isFreeVip())
-                c2('您目前尚未成為VIP會員');
+                c5('您目前尚未成為VIP會員');
                 @elseif($user->isFreeVip())
-                c2('您是免費VIP，刪除您的大頭照或生活照少於三張就會取消VIP');
+                c5('您是免費VIP，刪除您的大頭照或生活照少於三張就會取消VIP');
                 @elseif($user->isVipNotCanceledORCanceledButNotExpire() == false)
                 $('#vip_cancel').show();
                 $('#vip2').hide();

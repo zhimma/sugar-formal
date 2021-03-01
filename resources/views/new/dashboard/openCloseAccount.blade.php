@@ -145,11 +145,11 @@
 @section('javascript')
     <script>
         @if(Session::has('message'))
-        c2('{{Session::get('message')}}');
+        c5('{{Session::get('message')}}');
         @endif
 
         @if(isset($message))
-        c2('{{$message}}');
+        c5('{{$message}}');
         @endif
 
         var needLogout = '{{ (Session::has('needLogOut') && Session::get('needLogOut') == 'Y') ? 'Y' : 'N' }}';

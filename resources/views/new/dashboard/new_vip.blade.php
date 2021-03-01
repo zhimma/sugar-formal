@@ -227,9 +227,9 @@
                 $('.vipbongn').hide();
                 $('.n_vipbotf').hide();
                 @if (!$user->isVip() && !$user->isFreeVip())
-                c2('您目前尚未成為VIP會員');
+                c5('您目前尚未成為VIP會員');
                 @elseif($user->isFreeVip())
-                c2('您是免費VIP，刪除您的大頭照或生活照少於三張就會取消VIP');
+                c5('您是免費VIP，刪除您的大頭照或生活照少於三張就會取消VIP');
                 @elseif(!$user->isVipNotCanceledNotOnePayment() || $user->isVipOnePaymentNotExpire())
                 $('#vip_cancel').show();
                 $('#vip2').hide();
@@ -256,7 +256,7 @@
         // 升級VIP內容
         $('.n_vip01').on('click', function(event) {
             @if($user->isVipNotCanceledNotOnePayment() == true)
-            c2('您目前已是VIP會員');
+            c5('您目前已是VIP會員');
             return false;
             @else
 
@@ -271,13 +271,13 @@
 
         $('.paySubmit').on('click', function(event) {
 {{--            @if($user->isVipNotCanceledORCanceledButNotExpire())--}}
-{{--                c2('您目前已是VIP會員');--}}
+{{--                c5('您目前已是VIP會員');--}}
 {{--                return false;--}}
 {{--            @else--}}
                 var id,choosePayment;
                 if($(this).hasClass("cc_monthly_payment")) {
                     @if(($user->isVipNotCanceledNotOnePayment() || $user->isVipNotOnePaymentNotExpiry() || $user->isVipOnePaymentNotExpire()))
-                        c2('您目前已是VIP會員');
+                        c5('您目前已是VIP會員');
                         return false;
                     @else
                         common_confirm("{{$cc_monthly_payment}}","{{$cc_monthly_payment_red}}");
@@ -287,7 +287,7 @@
                     @endif
                 }else if($(this).hasClass("cc_quarterly_payment")){
                     @if(($user->isVipNotCanceledNotOnePayment() || $user->isVipNotOnePaymentNotExpiry() || $user->isVipOnePaymentNotExpire()))
-                        c2('您目前已是VIP會員');
+                        c5('您目前已是VIP會員');
                         return false;
                     @else
                         common_confirm("{{$cc_quarterly_payment}}","{{$cc_quarterly_payment_red}}");
@@ -297,7 +297,7 @@
                 }else if($(this).hasClass("one_month_payment")){
                     //定期定額會員無法購買單次方案
                     @if($user->isVipNotCanceledNotOnePayment() && !$user->isVipOnePaymentNotExpire())
-                        c2('您目前已是VIP會員');
+                        c5('您目前已是VIP會員');
                         return false;
                     @else
                         common_confirm("{{$one_month_payment}}","{{$one_month_payment_red}}");
@@ -309,7 +309,7 @@
                 }else if($(this).hasClass("one_quarter_payment")){
                     //定期定額會員無法購買單次方案
                     @if($user->isVipNotCanceledNotOnePayment() && !$user->isVipOnePaymentNotExpire())
-                        c2('您目前已是VIP會員');
+                        c5('您目前已是VIP會員');
                         return false;
                     @else
                         common_confirm("{{$one_quarter_payment}}","{{$one_quarter_payment_red}}");
@@ -363,7 +363,7 @@
 
         $('#qty').on('change',function(){
             if($('#qty').val() < 1){
-                c3('至少1次');
+                c5('至少1次');
             }else {
                 $('.bka_cor').text($('#qty').val() * 888);
                 $('#amount').val($('#qty').val() * 888);
@@ -372,7 +372,7 @@
         });
         function payback_submit(){
             if($('#qty').val() < 1){
-                c3('請輸入次數');
+                c5('請輸入次數');
             }else{
                 $('#payback_form').submit();
             }

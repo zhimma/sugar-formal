@@ -282,7 +282,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 <script src="/plugins/fileuploader2.2/src/jquery.fileuploader.js"></script>
 <script>
     @if(Session::has('message'))
-    c2('{{Session::get('message')}}');
+    c5('{{Session::get('message')}}');
     @endif
 
     //preload pictures
@@ -312,7 +312,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             },
             // confirm dialog
             confirm: function(text, callback) {
-                c2(text) ? callback() : null;
+                c5(text) ? callback() : null;
             }
         }
     })
@@ -393,7 +393,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         if($(this).hasClass('reportFlag')){
             var count = $("input[name='reportedId[]']:checked").length;
             if(count>=3){
-                c3('檢舉的對象最多勾選三位');
+                c5('檢舉的對象最多勾選三位');
                 $(this).removeClass('reportFlag');
             }else{
                 $("input[name='reportedId[]']").eq(index).attr('checked', true);
@@ -409,7 +409,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         var fileExt = sender.value;
         fileExt = fileExt.substring(fileExt.lastIndexOf('.'));
         if (validExts.indexOf(fileExt) < 0) {
-            c3('檔案類型不被允許，可接受的副檔名有：' + validExts.toString());
+            c5('檔案類型不被允許，可接受的副檔名有：' + validExts.toString());
             sender.value = null;
             return false;
         }
@@ -420,15 +420,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         var t = $(this).closest("form");
 
         if(  $("input[name='reportedId[]']:checked").length < 1){
-            c3('請選出欲檢舉的對象');
+            c5('請選出欲檢舉的對象');
             return false;
         }
         if($('textarea[name="content"]').val().length == 0){
-            c3('"說明"欄位為必填，請勿空白。');
+            c5('"說明"欄位為必填，請勿空白。');
             return false;
         }
         if($("input[name='image[]']").length <= 1){
-            c3('請上傳相關證據');
+            c5('請上傳相關證據');
             return false;
         }
         t.submit();

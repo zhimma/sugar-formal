@@ -1363,7 +1363,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 c8('確定要全部刪除嗎?');
                 deleteRowAll(IDs);
             }else{
-                c3('沒有可刪除資料');
+                c5('沒有可刪除資料');
             }
         });
         $('.novip_delete').on('click', function() {
@@ -1376,7 +1376,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 c8('確定要全部刪除嗎?');
                 deleteRowAll(IDs);
             }else{
-                c3('沒有可刪除資料');
+                c5('沒有可刪除資料');
             }
         });
         $('.alert_delete').on('click', function() {
@@ -1388,7 +1388,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 c8('確定要全部刪除嗎?');
                 deleteRowAll(IDs);
             }else{
-                c3('沒有可刪除資料');
+                c5('沒有可刪除資料');
             }
         });
 
@@ -1403,7 +1403,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     c8('確定要全部刪除嗎?');
                     deleteRowAll(IDs);
                 }else{
-                    c3('沒有可刪除資料');
+                    c5('沒有可刪除資料');
                 }
             });
         @endforeach
@@ -1550,17 +1550,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 if($(this).hasClass('on') && $(this).hasClass('lebox_alert')){
                     @if($user->engroup==1)
                         @if($user->checkTourRead('chat',6))
-                            c3('此為警示會員，要與此區會員交流請務必小心。');
+                            c5('此為警示會員，要與此區會員交流請務必小心。');
                         @endif
                         if(step6==1){
-                            c3('此為警示會員，要與此區會員交流請務必小心。');
+                            c5('此為警示會員，要與此區會員交流請務必小心。');
                         }
                     @elseif($user->engroup==2)
                         @if($user->checkTourRead('chat',5))
-                            c3('此為警示會員，要與此區會員交流請務必小心。');
+                            c5('此為警示會員，要與此區會員交流請務必小心。');
                         @endif
                         if(step5==1){
-                            c3('此為警示會員，要與此區會員交流請務必小心。');
+                            c5('此為警示會員，要與此區會員交流請務必小心。');
                         }
                     @endif
                 }

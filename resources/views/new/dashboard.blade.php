@@ -1124,13 +1124,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
               $("input[name=engroup][value=2]").prop('checked',true);
               $("input[name=engroup][value=1]").prop('checked',false);
             }
-                  c4('您已經改變過帳號類型(甜心大哥/大姐、甜心寶貝)，每個帳號只能變更一次');
+                  c5('您已經改變過帳號類型(甜心大哥/大姐、甜心寶貝)，每個帳號只能變更一次');
             // swal({
             //   title:'您已經改變過帳號類型(甜心大哥/大姐、甜心寶貝)，每個帳號只能變更一次',
             //   type:'warning'
             // });
           @else
-                  c4('確定要改變帳號類型(甜心大哥/大姐、甜心寶貝)嗎?，每個帳號只能變更一次');
+                  c5('確定要改變帳號類型(甜心大哥/大姐、甜心寶貝)嗎?，每個帳號只能變更一次');
             // swal(
             //   '確定要改變帳號類型(甜心大哥/大姐、甜心寶貝)嗎?，每個帳號只能變更一次',
             //   '',
@@ -1146,21 +1146,21 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
       //validation
         $("#name").keyup(function() {
             if(this.value.length>=8){
-                c3('至多八個字');
+                c5('至多八個字');
             }
         });
 
         $("#height").on("change", function() {
             var val = Math.abs(parseInt(this.value, 10) || 1);
             if(this.value>210 || this.value<140) {
-                c3('請輸入數字範圍140～210');
+                c5('請輸入數字範圍140～210');
                 this.value = val > 210 ? 210 : val < 140 ? 140 : val ;
             }
         });
 
         $("#assets").keyup(function() {
             if($.isNumeric(this.value) == false){
-                c3('請輸入數字範圍0～10000000000');
+                c5('請輸入數字範圍0～10000000000');
             }
         });
 
