@@ -31,11 +31,11 @@
                             }
                             ?>
                             @php
-                                if($user->meta_()->isWarned == 1 || $user->isAdminWarned()){
+                                if($user->meta->isWarned == 1 || $user->isAdminWarned()){
                                     $isBlur = true;
                                 }else {
                                     $isBlur = true;
-                                    $blurryAvatar = isset($histUser->meta_()->blurryAvatar)? $histUser->meta_()->blurryAvatar : "";
+                                    $blurryAvatar = isset($histUser->meta->blurryAvatar)? $histUser->meta->blurryAvatar : "";
                                     $blurryAvatar = explode(',', $blurryAvatar);
                                     if(sizeof($blurryAvatar)>1){
                                         $nowB = $user->isVip()? 'VIP' : 'general';
