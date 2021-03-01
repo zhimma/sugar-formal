@@ -4,6 +4,10 @@
 <meta http-equiv="Expires" content="0" />
 @section('app-content')
     <style>
+        .blur_img {
+            filter: blur(3px);
+            -webkit-filter: blur(3px);
+        }
         .swiper-container {
             width: 100%;
             /*height: auto;*/
@@ -163,7 +167,47 @@
         .xl_text img{
             padding: 6px 0 0 0;
         }
+        .hzk {
+            margin: 0 auto;
+            display: table;
+            line-height: 30px;
+            color: #999;
+            margin-top: 15px;
+        }
+        .hzk img {
+            height: 12px;
+            margin: 0 auto;
+            display: block;
+            cursor: pointer;
+        }
     </style>
+    @php
+        $isBlurAvatar = true;$isBlurLifePhoto = true;
+        $blurryAvatar = isset($to->meta_()->blurryAvatar)? $to->meta_()->blurryAvatar : "";
+        $blurryLifePhoto = isset($to->meta_()->blurryLifePhoto)? $to->meta_()->blurryLifePhoto : "";
+        $blurryAvatar = explode(',', $blurryAvatar);
+        $blurryLifePhoto = explode(',', $blurryLifePhoto);
+
+        if($user->meta_()->isWarned == 1 || $user->isAdminWarned()){
+            $isBlurAvatar = true;
+            $isBlurLifePhoto = true;
+        }else{
+            if(sizeof($blurryAvatar)>1){
+                $nowB = $user->isVip()? 'VIP' : 'general';
+                $isBlurAvatar = in_array($nowB, $blurryAvatar);
+            } else {
+                $isBlurAvatar = !$user->isVip();
+            }
+
+            if(sizeof($blurryLifePhoto)>1){
+                $nowB = $user->isVip()? 'VIP' : 'general';
+                $isBlurLifePhoto = in_array($nowB, $blurryLifePhoto);
+            } else {
+                $isBlurLifePhoto = !$user->isVip();
+            }
+        }
+        
+    @endphp
     <div class="container matop80">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -175,7 +219,7 @@
                     <div class="metx">
                         <div class="swiper-container photo">
                             <div class="swiper-wrapper">
-                                <div class="swiper-slide" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>
+                                <div class="swiper-slide @if($isBlurAvatar) blur_img @endif" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>
 
                                 @foreach($member_pic as $row)
                                     @if(!str_contains($row->pic, 'IDPhoto'))
