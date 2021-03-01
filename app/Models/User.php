@@ -72,11 +72,13 @@ class User extends Authenticatable
     }
 
     public function aw_relation() {
-        return $this->hasOne(\App\Models\SimpleTables\warned_users::class, 'member_id', 'id')->whereNull('expire_date')->orWhere('expire_date', '>=', Carbon::now());
+        return $this->hasOne(\App\Models\SimpleTables\warned_users::class, 'member_id', 'id')->where(function ($query){
+            $query->whereNull('expire_date')->orWhere('expire_date', '>=', Carbon::now());
+        });
     }
 
     public function fa_relation() {
-        return $this->hasOne(\App\Models\SimpleTables\short_message::class, 'member_id', 'id')->where('active', 1);
+        return $this->hasOne(\App\Models\SimpleTables\short_message::class, 'member_id', 'id')->where('member_id',$this->id)->where('mobile','!=','')->where('active', 1);
     }
 
     //sent messages

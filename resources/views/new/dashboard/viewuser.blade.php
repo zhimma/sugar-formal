@@ -4,6 +4,10 @@
 <meta http-equiv="Expires" content="0" />
 @section('app-content')
     <style>
+        .blur_img {
+            filter: blur(3px);
+            -webkit-filter: blur(3px);
+        }
         .swiper-container {
             width: 100%;
             /*height: auto;*/
@@ -163,7 +167,55 @@
         .xl_text img{
             padding: 6px 0 0 0;
         }
+        .hzk {
+            margin: 0 auto;
+            display: table;
+            line-height: 30px;
+            color: #999;
+            margin-top: 15px;
+        }
+        .hzk img {
+            height: 12px;
+            margin: 0 auto;
+            display: block;
+            cursor: pointer;
+        }
     </style>
+    @php
+        $isBlurAvatar = true;$isBlurLifePhoto = true;
+        $blurryAvatar = isset($to->meta_()->blurryAvatar)? $to->meta_()->blurryAvatar : "";
+        $blurryLifePhoto = isset($to->meta_()->blurryLifePhoto)? $to->meta_()->blurryLifePhoto : "";
+        $blurryAvatar = explode(',', $blurryAvatar);
+        $blurryLifePhoto = explode(',', $blurryLifePhoto);
+
+        if($user->meta_()->isWarned == 1 || $user->isAdminWarned()){
+            $isBlurAvatar = true;
+            $isBlurLifePhoto = true;
+        }else{
+            if(sizeof($blurryAvatar)>1){
+                $nowB = $user->isVip()? 'VIP' : 'general';
+                $isBlurAvatar = in_array($nowB, $blurryAvatar);
+            }
+            else if ($user->engroup == 2){
+                $isBlurAvatar = false;
+            }
+            else {
+                $isBlurAvatar = !$user->isVip();
+            }
+
+            if(sizeof($blurryLifePhoto)>1){
+                $nowB = $user->isVip()? 'VIP' : 'general';
+                $isBlurLifePhoto = in_array($nowB, $blurryLifePhoto);
+            }
+            else if ($user->engroup == 2){
+                $isBlurLifePhoto = false;
+            }
+            else {
+                $isBlurLifePhoto = !$user->isVip();
+            }
+        }
+        
+    @endphp
     <div class="container matop80">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -175,10 +227,12 @@
                     <div class="metx">
                         <div class="swiper-container photo">
                             <div class="swiper-wrapper">
-                                <div class="swiper-slide" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>
+                                <div class="swiper-slide @if($isBlurAvatar) blur_img @endif" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>
 
                                 @foreach($member_pic as $row)
-                                    <div class="swiper-slide" data-type="pic" data-sid="{{$to->id}}" data-pic_id="{{$row->id}}"><img src="{{$row->pic}}"></div>
+                                    @if(!str_contains($row->pic, 'IDPhoto'))
+                                        <div class="swiper-slide" data-type="pic" data-sid="{{$to->id}}" data-pic_id="{{$row->id}}"><img src="{{$row->pic}}"></div>
+                                    @endif
                                 @endforeach
                             </div>
                             <!-- Add Arrows -->
@@ -316,7 +370,7 @@
                                         <a class="unblock"><img src="/new/images/icon_12_h.png" class="tubiao_i"><span>解除封鎖</span></a>
                                     @else
                                         @if($user->id == $to->id)
-                                        <a onclick="show_message('不可封鎖自己');"><img src="/new/images/icon_12.png" class="tubiao_i"><span>封鎖</span></a>
+                                        <a onclick="c5('不可封鎖自己');"><img src="/new/images/icon_12.png" class="tubiao_i"><span>封鎖</span></a>
                                         @else
                                         <a onclick="show_block()"><img src="/new/images/icon_12.png" class="tubiao_i"><span>封鎖</span></a>
                                         @endif
@@ -575,20 +629,20 @@
                             <div class="xiliao_input">
                                 <div class="xl_text">
                                     <dt><span>註冊時間</span>@if($user->isVip())<font>{{substr($to->created_at,0,10)}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>最後上線時間</span>@if($valueAddedServiceStatus['hideOnline'] == 1) <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{substr($to->last_login,0,10)}}</font> @else <img src="/new/images/icon_35.png"> @endif  @endif</dt>
-                                    <dt><span>每周平均上線次數</span>@if($valueAddedServiceStatus['hideOnline'] == 1) <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$login_times_per_week }}</font> @else <img src="/new/images/icon_35.png"> @endif  @endif</dt>
+                                    <dt><span>最後上線時間</span>@if($valueAddedServiceStatus['hideOnline'] == 1 || $is_block_mid=='是') <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{substr($to->last_login,0,10)}}</font> @else <img src="/new/images/icon_35.png"> @endif  @endif</dt>
+                                    <dt><span>每周平均上線次數</span>@if($valueAddedServiceStatus['hideOnline'] == 1 || $is_block_mid=='是') <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$login_times_per_week }}</font> @else <img src="/new/images/icon_35.png"> @endif  @endif</dt>
                                     <dt><span>被收藏次數</span>@if($user->isVip()) <font>{{$be_fav_count}}</font> @else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>收藏會員次數</span>@if($user->isVip())<font>{{$fav_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>車馬費邀請次數</span>@if($user->isVip())<font>{{$tip_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>發信次數</span>@if($user->isVip())<font>{{$message_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>過去7天發信次數</span>@if($valueAddedServiceStatus['hideOnline'] == 1) <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$message_count_7}}</font> @else <img src="/new/images/icon_35.png"> @endif @endif </dt>
+                                    <dt><span>過去7天發信次數</span>@if($valueAddedServiceStatus['hideOnline'] == 1 || $is_block_mid=='是') <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$message_count_7}}</font> @else <img src="/new/images/icon_35.png"> @endif @endif </dt>
                                     <dt><span>回信次數</span>@if($user->isVip())<font>{{$message_reply_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>過去7天回信次數</span>@if($valueAddedServiceStatus['hideOnline'] == 1) <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$message_reply_count_7}}</font> @else <img src="/new/images/icon_35.png"> @endif @endif </dt>
+                                    <dt><span>過去7天回信次數</span>@if($valueAddedServiceStatus['hideOnline'] == 1 || $is_block_mid=='是') <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$message_reply_count_7}}</font> @else <img src="/new/images/icon_35.png"> @endif @endif </dt>
                                     <dt><span>過去7天罐頭訊息比例</span>@if($valueAddedServiceStatus['hideOnline'] == 1) <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$message_percent_7}}</font> @else <img src="/new/images/icon_35.png"> @endif @endif </dt>
                                     <dt><span>是否封鎖我</span>@if($user->isVip())<font>{{$is_block_mid}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>是否看過我</span>@if($user->isVip())<font>{{$is_visit_mid}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>瀏覽其他會員次數</span>@if($user->isVip())<font>{{$visit_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>過去7天瀏覽其他會員次數</span>@if($valueAddedServiceStatus['hideOnline'] == 1) <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$visit_other_count_7}}</font>  @else <img src="/new/images/icon_35.png"> @endif @endif</dt>
+                                    <dt><span>過去7天瀏覽其他會員次數</span>@if($valueAddedServiceStatus['hideOnline'] == 1 || $is_block_mid=='是') <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$visit_other_count_7}}</font>  @else <img src="/new/images/icon_35.png"> @endif @endif</dt>
                                     <dt><span>被瀏覽次數</span>@if($user->isVip())<font>{{$be_visit_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>過去7天被瀏覽次數</span>@if($user->isVip())<font>{{$be_visit_other_count_7}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>封鎖多少會員</span>@if($user->isVip())<font>{{$blocked_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
@@ -605,8 +659,32 @@
                         <div class="xiliao_input">
                             <div class="xl_text">
                                 <div class="pjliuyan02 amar15">
+                                    @if(sizeof($evaluation_data) > 0)
+                                    @php
+                                        $showCount = 0;
+                                        $blockMidList = array();
+                                    @endphp
                                     <ul style="width: 100%;">
                                         @foreach( $evaluation_data as $row)
+                                            @php
+                                                $row_user = \App\Models\User::findById($row->from_id);
+                                                $to_user = \App\Models\User::findById($row->to_id);
+                                                $isBlocked = \App\Models\Blocked::isBlocked($row->to_id, $row->from_id);
+                                                /*
+                                                echo 'from: '. $row->from_id. ',';
+                                                echo 'now: '. $user->id. ',';
+                                                echo 'to: '. $to->id. ',';
+                                                echo $isBlocked? 'yes' : 'no';
+                                                */
+                                            @endphp
+                                            @if(($to->id == $user->id && !$isBlocked) || ($to->id != $user->id))
+                                            @php
+                                                if($isBlocked) {
+                                                    array_push( $blockMidList, $row );
+                                                    continue;
+                                                }
+                                                $showCount++;
+                                            @endphp
                                             <li>
                                                 <div class="piname">
                                                     <span>
@@ -662,14 +740,99 @@
                                                         <div class="he_twotime">{{ substr($row->re_created_at,0,10)}}<span class="z_more">展開</span></div>
                                                     </div>
                                                 @endif
-
                                             </li>
+                                            @endif
                                         @endforeach
+                                        @if(sizeof($blockMidList) > 0)
+                                        <div style="display: none;" id="plshow">
+                                        @foreach($blockMidList as $row)
+                                            @php
+                                                $row_user = \App\Models\User::findById($row->from_id);
+                                                $to_user = \App\Models\User::findById($row->to_id);
+                                                $isBlocked = \App\Models\Blocked::isBlocked($user->id, $row->from_id);
+                                            @endphp
+                                            @if(($to->id == $user->id && !$isBlocked) || ($to->id != $user->id))
+                                            @php
+                                                $showCount++;
+                                            @endphp
+                                            <li>
+                                                <div class="piname">
+                                                    <span>
+                                                        @for ($i = 1; $i <= 5; $i++)
+                                                            @if($row->rating>=$i)
+                                                                <img src="/new/images/sxx_1.png">
+                                                            @else
+                                                                <img src="/new/images/sxx_4.png">
+                                                            @endif
+                                                        @endfor
+                                                    </span>
+                                                    <a href="/dashboard/viewuser/{{$row_user->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">{{$row_user->name}}</a>
+                                                    {{--                                <font>{{ substr($row->created_at,0,10)}}</font>--}}
+                                                    @if($row_user->id==$user->id)
+                                                        <font class="sc content_delete" data-id="{{$row->id}}" style="padding: 0px 3px;"><img src="/new/images/del_03.png" style="padding: 0px 0px 1px 5px;">刪除</font>
+                                                    @endif
+                                                </div>
+                                                <div class="con">
+                                                    <p class="many-txt">{!! nl2br($row->content) !!}</p>
+                                                    <h4>
+                                                        <span class="btime">{{ substr($row->created_at,0,10)}}</span>
+                                                        <button type="button" class="al_but">完整評價</button>
+                                                    </h4>
+                                                </div>
 
+                                                @if(empty($row->re_content) && $to->id == $user->id)
+                                                    <div class="huf">
+                                                        <form id="form_re_content" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                                            <span class="huinput">
+                                                                <textarea name="re_content" type="text" class="hf_i" placeholder="請輸入回覆（最多120個字符）" maxlength="120"></textarea>
+                                                            </span>
+                                                            <div class="re_area">
+                                                                <a class="hf_but" onclick="form_re_content_submit()">回覆</a>
+                                                            </div>
+                                                            <input type="hidden" name="id" value={{$row->id}}>
+                                                            <input type="hidden" name="eid" value={{$to->id}}>
+                                                        </form>
+                                                    </div>
+                                                @elseif(!empty($row->re_content))
+                                                    <div class="hu_p">
+                                                        <div class="he_b">
+                                                            <span class="left"><img src="@if(file_exists( public_path().$to_user->meta_()->pic ) && $to_user->meta_()->pic != ""){{$to_user->meta_()->pic}} @elseif($to_user->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to_user->name}}</span>
+                                                            @if($to_user->id==$user->id)
+                                                                <font class="sc re_content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
+                                                            @endif
+                                                        </div>
+                                                        <div class="he_two">
+                                                            <div class="context">
+                                                                <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="he_twotime">{{ substr($row->re_created_at,0,10)}}<span class="z_more">展開</span></div>
+                                                    </div>
+                                                @endif
+                                            </li>
+                                            @endif
+                                        @endforeach
+                                        </div>
+                                        <div class="hzk">
+                                            <img src="/new/images/zk_icon.png" onclick="toggleBlockMid(this)">
+                                            <h2>部分被封鎖的會員評價已經被隱藏，點此全部顯示</h2>
+                                        </div>
+                                        @endif
                                     </ul>
                                     <div style="text-align: center;">
                                         {!! $evaluation_data->appends(request()->input())->links('pagination::sg-pages2') !!}
                                     </div>
+                                        @if($showCount < 1)
+                                        <div class="pjliuyan02 amar15" style=" min-height: auto; margin-bottom: 0;">
+                                            <div class="huiy_na"><img src="/new/images/pjicon.png" class="feng_img"><span>暫無資料</span></div>
+                                        </div>
+                                        @endif
+                                    @else
+                                    <div class="pjliuyan02 amar15" style=" min-height: auto; margin-bottom: 0;">
+                                         <div class="huiy_na"><img src="/new/images/pjicon.png" class="feng_img"><span>暫無資料</span></div>
+                                    </div>
+                                    @endif
                                 </div>
 
 
@@ -846,6 +1009,16 @@
 @section('javascript')
 
 <script>
+    function toggleBlockMid(obj) {
+        var div1=document.getElementById("plshow");
+        if(div1.style.display=="block"){
+            div1.style.display="none";
+            obj.src="/new/images/zk_icon.png";
+        } else {
+            div1.style.display="block";
+            obj.src="/new/images/zk_iconup.png";
+        }
+    }
 
     $( document ).ready(function() {
 
@@ -895,11 +1068,11 @@
     // $( document ).ready(function() {
         @if(isset($to))
             @if(isset($is_block_mid) && $is_block_mid == '是')
-                ccc('此用戶已關閉資料。');
-                $('.row').css('display','none');
+                // ccc('此用戶已關閉資料。');
+                // $('.row').css('display','none');
             @elseif($to->accountStatus == 0)
-                ccc('此用戶已關閉資料。');
-                $('.row').css('display','none');
+                // ccc('此用戶已關閉資料。');
+                // $('.row').css('display','none');
             @endif
         @endif
     // });
@@ -1150,8 +1323,8 @@
     @endif
 
     @if (Session::has('message') && Session::get('message')=="此用戶已關閉資料。")
-        ccc('{{Session::get('message')}}');
-    @elseif(Session::has('message'))
+        // ccc('{{Session::get('message')}}');
+    @elseif(Session::has('message') && Session::get('message')!="此用戶已關閉資料。")
         c5('{{Session::get('message')}}');
     @endif
 

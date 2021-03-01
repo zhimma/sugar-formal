@@ -706,8 +706,11 @@ class PagesController extends BaseController
             $tabName = 'm_user_profile_tab_1';
         }
 
-        $member_pics = MemberPic::select('*')->where('member_id',$user->id)->get()->take(6);
+        $member_pics = MemberPic::select('*')->where('member_id',$user->id)->whereRaw('pic  NOT LIKE "%IDPhoto%"')->get()->take(6);
         $avatar = UserMeta::where('user_id', $user->id)->get()->first();
+        $userMeta = UserMeta::where('user_id', $user->id)->first();
+        $blurryAvatar = $userMeta->blurryAvatar;
+        $blurryLifePhoto = $userMeta->blurryLifePhoto;
 
         $birthday = date('Y-m-d', strtotime($user->meta_()->birthdate));
         $birthday = explode('-', $birthday);
@@ -755,7 +758,9 @@ class PagesController extends BaseController
                     ->with('day', $day)
                     ->with('member_pics', $member_pics)
                     ->with('girl_to_vip', $girl_to_vip->content)
-                    ->with('avatar', $avatar);
+                    ->with('avatar', $avatar)
+                    ->with('blurry_avatar', $blurryAvatar)
+                    ->with('blurry_life_photo', $blurryLifePhoto);
             }
         }
     }
@@ -1861,9 +1866,6 @@ class PagesController extends BaseController
             $query = \App\Models\Evaluation::select('e.*')->from('evaluation as e')->with('user')
                 ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'e.from_id')
                 ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'e.from_id')
-                ->leftJoin('blocked as b5', function($join) use($uid) {
-                    $join->on('b5.blocked_id', '=', 'e.from_id')
-                        ->where('b5.member_id', $uid); })
                 ->leftJoin('blocked as b7', function($join) use($uid) {
                     $join->on('b7.member_id', '=', 'e.from_id')
                         ->where('b7.blocked_id', $uid); })
@@ -1877,7 +1879,6 @@ class PagesController extends BaseController
                                 ->orWhere('wu.expire_date', null); }); })
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
-                ->whereNull('b5.blocked_id')
                 ->whereNull('b7.member_id')
                 ->whereNull('um.user_id')
                 ->whereNull('wu.member_id')
@@ -1885,6 +1886,28 @@ class PagesController extends BaseController
 
             $rating_avg = $query->avg('rating');
             $rating_avg = floatval($rating_avg);
+
+            /**
+             * 效能調整：使用左結合以大幅降低處理時間，並且減少 query 次數，進一步降低時間及程式碼複雜度
+             *
+             * @author LZong <lzong.tw@gmail.com>
+             */
+            $query = \App\Models\Evaluation::select('e.*')->from('evaluation as e')->with('user')
+                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'e.from_id')
+                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'e.from_id')
+                ->leftJoin('user_meta as um', function($join) {
+                    $join->on('um.user_id', '=', 'e.from_id')
+                        ->where('isWarned', 1); })
+                ->leftJoin('warned_users as wu', function($join) {
+                    $join->on('wu.member_id', '=', 'e.from_id')
+                        ->where(function($query){
+                            $query->where('wu.expire_date', '>=', Carbon::now())
+                                ->orWhere('wu.expire_date', null); }); })
+                ->whereNull('b1.member_id')
+                ->whereNull('b3.target')
+                ->whereNull('um.user_id')
+                ->whereNull('wu.member_id')
+                ->where('e.to_id', $uid);
 
             $evaluation_data = $query->paginate(10);
 
@@ -2431,6 +2454,7 @@ class PagesController extends BaseController
             $isVip = $user->isVip();
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
             $messages = Message::allToFromSender($user->id, $cid);
+            $c_user_meta = UserMeta::where('user_id', $cid)->get()->first();
             //$messages = Message::allSenders($user->id, 1);
             if (isset($cid)) {
                 if(!$user->isVip() && $user->engroup == 1){
@@ -2443,6 +2467,7 @@ class PagesController extends BaseController
                 }
                 return view('new.dashboard.chatWithUser')
                     ->with('user', $user)
+                    ->with('cmeta', $c_user_meta)
                     ->with('to', $this->service->find($cid))
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
@@ -2453,6 +2478,7 @@ class PagesController extends BaseController
             else {
                 return view('new.dashboard.chatWithUser')
                     ->with('user', $user)
+                    ->with('cmeta', $c_user_meta)
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
                     ->with('tippopup', $tippopup)
@@ -3285,6 +3311,55 @@ class PagesController extends BaseController
             'msg' =>'檢舉大頭貼成功',
         );
         return json_encode($data);
+    }
+
+    public function getBlurryAvatar(Request $request) {
+        $userId = $request->userId;
+        $authId = auth()->id();
+        if($userId == $authId){
+            $avatar = UserMeta::where('user_id', $userId)->get()->first();
+
+            $data = array(
+                'code'=>'200',
+                'data' => [
+                    'blurryAvatar' => $avatar->blurryAvatar
+                ],
+                'msg' =>'成功',
+            );
+            return json_encode($data);
+        }
+    }
+
+    public function blurryAvatar(Request $request) {
+        $userId = $request->userId;
+        $authId = auth()->id();
+        if($userId == $authId){
+            $avatar = UserMeta::where('user_id', $userId)->get()->first();
+            $avatar->blurryAvatar = $request->input('blurrys');
+            $avatar->save();
+
+            $data = array(
+                'code'=>'200',
+                'msg' =>'成功',
+            );
+            return json_encode($data);
+        }
+    }
+
+    public function blurryLifePhoto(Request $request) {
+        $userId = $request->userId;
+        $authId = auth()->id();
+        if($userId == $authId){
+            $avatar = UserMeta::where('user_id', $userId)->get()->first();
+            $avatar->blurryLifePhoto = $request->input('blurrys');
+            $avatar->save();
+
+            $data = array(
+                'code'=>'200',
+                'msg' =>'成功',
+            );
+            return json_encode($data);
+        }
     }
 
     public function member_auth(Request $request){

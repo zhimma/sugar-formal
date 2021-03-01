@@ -34,6 +34,17 @@
             width: 154px !important;
         }
     }
+    /* 2-24 */
+    .two_container{width: 100%; border: #fe92a9 dashed 1px; padding: 10px; background: #fff; box-shadow: #ffdfe6 0 0 10px;}
+    .two_container h2{ background: #fff4f6; padding:5px; color: #db5b7a; font-weight: bold; font-size: 18px;}
+    .two_container ul{width: 100%; padding: 8px 0; border-bottom: #eee 1px solid;}
+    .two_container ul li{color: #333; line-height: 30px; font-size: 15px;}
+    .two_container ul li span{ color: #999; padding-right: 5px;line-height: 30px;font-size:18px; vertical-align: middle;}
+
+    .two_container h3{width: 100%; display: table; font-size: 15px; color: #666; margin-top: 10px;}
+    .two_container h4{width: 100%; display: table; font-size: 15px; color: #333; margin-top:5px; font-weight: bold;}
+    .two_container h4 span{ margin-right:35px;}
+    .two_container h4 span input{ margin-right: 3px;}
 
 </style>
 
@@ -127,7 +138,36 @@
                     <h2 class="h5" id="fileuploader-ajax">上傳照片 (點擊圖片可以裁切)<a href="javascript:;"  onclick="tour(fileuploader_ajax_tour)"><i class="ion ion-md-help-circle"></i></a></h2>
                     <h4>如未更新上傳後照片, 請嘗試重新整理<br>
                     如照片無法順利上傳，請點擊頁面最下方聯絡我們加站長 line 洽詢。</h4>
-
+                    @if($user->engroup==2)
+                    <div class="two_container">
+                        @php
+                            $blurryAvatar = isset($blurry_avatar)? $blurry_avatar : '';
+                            $blurryAvatar = explode(',', $blurryAvatar);
+                            $isVVIP = true;$isVIP = true;$isGeneral = true;
+                            foreach($blurryAvatar as $row){
+                                if($row == 'V_VIP'){
+                                    $isVVIP = false;
+                                } elseif($row == 'VIP') {
+                                    $isVIP = false;
+                                } elseif($row == 'general') {
+                                    $isGeneral = false;
+                                }
+                            }
+                        @endphp
+                         <h2>為保護會員隱私，網站可以設定照片自動模糊化</h2>
+                          <ul>
+                              <li><span>◎</span>預設為只給 VIP 看清楚的照片</li>
+                              <li><span>◎</span>如果你想要開放給所有人看照片</li>
+                              <li><span>◎</span>請自行勾選下方的 "普通會員"</li>
+                          </ul>
+                          <h3>清晰照片開放給</h3>
+                          <h4>
+                              <span><input name="picBlurryAvatar" type="checkbox" value="VIP" @if($isVIP) checked @endif>VIP</span>
+                              <span><input name="picBlurryAvatar" type="checkbox" value="general" @if($isGeneral) checked @endif>普通會員</span>
+                          </h4>
+                    </div>
+                    @endif
+                    
                     <div class="row mb-4 ">
                         <div class="col-sm-12 col-lg-12">
                             <form action="{{ url('/dashboard/avatar/upload') }}" method="post" enctype="multipart/form-data">
@@ -138,6 +178,36 @@
                             </form>
                         </div>
                     </div>
+
+                    @if($user->engroup==2)
+                    <div class="two_container" style="margin-top: 3%;">
+                        @php
+                            $blurryLifePhoto = isset($blurry_life_photo)? $blurry_life_photo : '';
+                            $blurryLifePhoto = explode(',', $blurryLifePhoto);
+                            $isVVIP = true;$isVIP = true;$isGeneral = true;
+                            foreach($blurryAvatar as $row){
+                                if($row == 'V_VIP'){
+                                    $isVVIP = false;
+                                } elseif($row == 'VIP') {
+                                    $isVIP = false;
+                                } elseif($row == 'general') {
+                                    $isGeneral = false;
+                                }
+                            }
+                        @endphp
+                         <h2>為保護會員隱私，網站可以設定照片自動模糊化</h2>
+                          <ul>
+                              <li><span>◎</span>預設為只給 VIP 看清楚的照片</li>
+                              <li><span>◎</span>如果你想要開放給所有人看照片</li>
+                              <li><span>◎</span>請自行勾選下方的 "普通會員"</li>
+                          </ul>
+                          <h3>清晰照片開放給</h3>
+                          <h4>
+                              <span><input name="picBlurryLifePhoto" type="checkbox" value="VIP" @if($isVIP) checked @endif>VIP</span>
+                              <span><input name="picBlurryLifePhoto" type="checkbox" value="general" @if($isGeneral) checked @endif>普通會員</span>
+                          </h4>
+                    </div>
+                    @endif
 
                     <div class="row mb-4 ">
                         <div class="col-sm-12 col-lg-12">
@@ -343,6 +413,50 @@
             console.log(msg)
         }
     })
+
+    $("input:checkbox[name='picBlurryAvatar']").on('click', function() {
+        var values = "";
+        $.each($("input[name='picBlurryAvatar']"), function() {
+            if(!$(this).is(':checked')){
+                values = values + $(this).val() +',';
+            }
+        });
+        $.ajax({
+            url: '/dashboard/avatar/blurry/' + userId,
+            method: 'POST',
+            data: {
+                _token: "{{ csrf_token() }}",
+                'blurrys': values
+            },
+            dataType: 'json',
+
+            success: function(data) {
+            }
+        });
+    });
+
+    $("input:checkbox[name='picBlurryLifePhoto']").on('click', function() {
+        var values = "";
+        $.each($("input[name='picBlurryLifePhoto']"), function() {
+            if(!$(this).is(':checked')){
+                values = values + $(this).val() +',';
+            }
+        });
+        $.ajax({
+            url: '/dashboard/lifephoto/blurry/' + userId,
+            method: 'POST',
+            data: {
+                _token: "{{ csrf_token() }}",
+                'blurrys': values
+            },
+            dataType: 'json',
+
+            success: function(data) {
+            }
+        });
+    });
+    //preload avatar
+
 })
 
     var fileuploader_ajax_tour = {
