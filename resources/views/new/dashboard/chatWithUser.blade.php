@@ -110,6 +110,10 @@
     .message_fixed{
         position: fixed;
     }
+    .blur_img {
+        filter: blur(2px);
+        -webkit-filter: blur(2px);
+    }
 </style>
 @section('app-content')
     <div class="container matop70 chat">
@@ -156,6 +160,16 @@
                 <div class="message">
                     @php
                         $date_temp='';
+                        $isBlur = true;
+                        $blurryAvatar = isset($cmeta->blurryAvatar)? $cmeta->blurryAvatar : "";
+                        $blurryAvatar = explode(',', $blurryAvatar);
+
+                        if(sizeof($blurryAvatar)>1){
+                            $nowB = $isVip? 'VIP' : 'general';
+                            $isBlur = in_array($nowB, $blurryAvatar);
+                        } else {
+                            $isBlur = !$isVip;
+                        }
                     @endphp
                     @if(!empty($messages))
                         @foreach ($messages as $message)
@@ -186,7 +200,7 @@
                                         <img src="@if(file_exists( public_path().$user->meta_()->pic ) && $user->meta_()->pic != ""){{$user->meta_()->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
                                     @else
                                         <a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">
-                                        <img src="@if(file_exists( public_path().$msgUser->meta_()->pic ) && $msgUser->meta_()->pic != ""){{$msgUser->meta_()->pic}} @elseif($msgUser->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
+                                        <img class="@if($isBlur) blur_img @endif" src="@if(file_exists( public_path().$msgUser->meta_()->pic ) && $msgUser->meta_()->pic != ""){{$msgUser->meta_()->pic}} @elseif($msgUser->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
                                         </a>
                                     @endif
                                     <p>
