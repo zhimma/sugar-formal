@@ -30,6 +30,12 @@
     </div>
 </div>
 
+<style type="text/css">
+    .blur_img {
+        filter: blur(1px);
+        -webkit-filter: blur(1px);
+    }
+</style>
 <script>
 
     var Page = {
@@ -77,7 +83,7 @@
     var total = 0;//總筆數
     var date=7;
 
-    function liContent(e,i){
+    function liContent(e,i,isBlur=false){
         var li='',k;
         var ss =((i+1)>Page.row)?'display:none;':'display:none;';
         var c = (e.vip)?'hy_bg01':'';
@@ -90,13 +96,14 @@
             area_string = e.city+' '+e.area;
         }
 
+        var styBlur = isBlur? "blur_img" : "";
         var url = '{!! url("/dashboard/viewuser/:uid") !!}';
         url = url.replace(':uid', e.member_fav_id);
 
         li +=`
             <li  style="${ss}" class="${c}">
                 <div class="si_bg">
-                    <div class="sjpic"><a href="${url}"><img src="${e.pic}"></a></div>
+                    <div class="sjpic ${styBlur}"><a href="${url}"><img src="${e.pic}"></a></div>
                     <div class="sjleft">
                         <div class="sjtable"><span><a href="${url}">${e.name}<i class="cicd">●</i>${e.age}</a></span></div>
                         <font>${area_string}</font>
@@ -133,8 +140,28 @@
             success:function(res){
                 var li = '';//樣板容器
                 $.each(res.msg,function(i,e){
+                    var isBlur = true;
+                    if('{{$user->meta_()->isWarned == 1 || $user->isAdminWarned()}}' == true){
+                        isBlur = true;
+                    }else{
+                        if(e.blurry_avatar){
+                            var blurryAvatar = e.blurry_avatar.split(',');
+                            if(blurryAvatar.length > 1){
+                                var nowB = '{{$user->isVip()? "VIP" : "general"}}';
+                                if( blurryAvatar.indexOf(nowB) != -1){
+                                    isBlur = true;
+                                } else {
+                                    isBlur = false;
+                                }
+                            } else {
+                                isBlur = !e.vip;
+                            }
+                        }
+                    }
+                    
+
                     nn++;
-                    li = liContent(e,i);
+                    li = liContent(e,i,isBlur);
                     if(typeof e.name !== 'undefined')
                     $('.sjlist>ul').append(li)
                 });

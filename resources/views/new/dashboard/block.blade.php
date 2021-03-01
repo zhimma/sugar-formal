@@ -29,9 +29,30 @@
                             $umeta->area = explode(",",$umeta->area);
                         }
                         ?>
+                        @php
+                            if($user->meta->isWarned == 1 || $user->isAdminWarned()){
+                                $isBlur = true;
+                            }
+                            else if ($user->engroup == 2){
+                                $isBlur = false;
+                            }
+                            else {
+                                $isBlur = true;
+                                $blurryAvatar = isset($umeta->blurryAvatar)? $umeta->blurryAvatar : "";
+                                $blurryAvatar = explode(',', $blurryAvatar);
+
+                                if(sizeof($blurryAvatar)>1){
+                                    $nowB = $user->isVip()? 'VIP' : 'general';
+                                    $isBlur = in_array($nowB, $blurryAvatar);
+                                } else {
+                                    $isBlur = !$user->isVip();
+                                }
+                            }
+                            
+                        @endphp
                     <li>
                         <div class="si_bg">
-                            <div class="sjpic"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><img src="@if($blockedUser->meta->isAvatarHidden) {{ 'makesomeerror' }} @else {{$blockedUser->meta->pic}} @endif" @if ($blockedUser->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></a></div>
+                            <div class="sjpic @if($isBlur) blur_img @endif"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><img src="@if($blockedUser->meta->isAvatarHidden) {{ 'makesomeerror' }} @else {{$blockedUser->meta->pic}} @endif" @if ($blockedUser->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></a></div>
                             <div class="sjleft">
                                 <div class="sjtable"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><span>{{$blockedUser->name}}<!-- <i class="cicd">●</i>{{ $blockedUser->meta->age() }}--></span></a></div>
                                 <font>
@@ -78,7 +99,12 @@
 </div>
 
 @stop
-
+<style>
+    .blur_img {
+        filter: blur(1px);
+        -webkit-filter: blur(1px);
+    }
+</style>
 @section('javascript')
 <script>
     $('.unblock').on('click', function() {
