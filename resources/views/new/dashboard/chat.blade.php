@@ -8,6 +8,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     $exchange_period_name = DB::table('exchange_period_name')->get();
 @endphp
 <style>
+    .blur_img {
+        filter: blur(1px);
+        -webkit-filter: blur(1px);
+    }
     .page>li{
         display: none !important;
     }
@@ -523,7 +527,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         {
             return new Date(dt.getFullYear(), dt.getMonth(), 1);
         }
-        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned,exchange_period){
+        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned,exchange_period,isBlur=false){
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
             var username = '{{$user->name}}';
@@ -560,22 +564,23 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
             li += `<div class="si_bg">`;
 
+            var styBlur = isBlur? "blur_img" : "";
             if(show==1) {
                 li += `<a href="${url}" target="_self">
-                        <div class="sjpic"><img src="${pic}"></div>
+                        <div class="sjpic ${styBlur}"><img src="${pic}"></div>
                         <div class="sjleft">
                             <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }else if(show==0 && engroup==2){
                 li += `<a href="javascript:void(0)" target="_self">
-                        <div class="sjpic"><img src="${pic}"></div>
+                        <div class="sjpic ${styBlur}"><img src="${pic}"></div>
                         <div class="sjleft" data-position="bottom" data-highlightClass="yd3a" data-tooltipClass="yd3" data-step="6"
                                      data-intro="普通會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。<em></em><em></em>">
                             <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }else if(show==0){
                 li += `<a href="javascript:void(0)" target="_self">
-                        <div class="sjpic"><img src="${pic}"></div>
+                        <div class="sjpic ${styBlur}"><img src="${pic}"></div>
                         <div class="sjleft" data-position="bottom" data-highlightClass="yd3a" data-tooltipClass="yd3" data-step="7"
                                      data-intro="普通會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。<em></em><em></em>">
                             <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
@@ -725,16 +730,30 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     });
 
                     $.each(res.msg,function(i,e) {
+                        var isBlur = true;
+                        var blurryAvatar = e.blurry_avatar.split(',');
+                        if(blurryAvatar.length > 1){
+                            var nowB = '{{$user->isVip()? "VIP" : "general"}}';
+                            if( blurryAvatar.indexOf(nowB) != -1){
+                                // console.log(blurryAvatar);
+                                isBlur = true;
+                            } else {
+                                isBlur = false;
+                            }
+                        } else {
+                            isBlur = !e.isVip;
+                        }
+                        
                         rr += parseInt(e.read_n);
                         if (userIsVip != 1 && i < hide_vip_counts && hide_vip_counts > 0 ) {
                             if(e.user_id == 1049){
                                 hide_vip_counts = hide_vip_counts+1;
-                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.exchange_period);
+                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.exchange_period,isBlur);
                             }else {
-                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.exchange_period);
+                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.exchange_period,isBlur);
                             }
                         }else {
-                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.exchange_period);
+                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.exchange_period,isBlur);
                         }
 
                         if (typeof e.created_at !== 'undefined') {
