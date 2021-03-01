@@ -42,21 +42,21 @@
         function formSubmit(){
 
             @if($user->engroup_change==1)
-                    c2('您已申請過，無法再修改喔！');
+                    c5('您已申請過，無法再修改喔！');
                     return false;
             @endif
 
             if(!$('.gender').is(':checked')){
-                c2('您尚未選擇類型');
+                c5('您尚未選擇類型');
                 return false;
             }else if($('#reason').val()==''){
-                c2('請輸入欲修改的原因');
+                c5('請輸入欲修改的原因');
                 return false;
             }else if($('#password').val()==''){
-                c2('請輸入您的密碼');
+                c5('請輸入您的密碼');
                 return false;
             }else if($('input[name=gender]:checked', '#change_gender').val() == '{{$user->engroup}}') {
-                c2('您當前所選類型無需變更');
+                c5('您當前所選類型無需變更');
                 return false;
             }else{
                 c4('一人只能申請一次變更，並且要通過站長同意，確定變更嗎？');
@@ -68,7 +68,7 @@
         }
 
         @if(Session::has('message'))
-            c2('{{Session::get('message')}}');
+            c5('{{Session::get('message')}}');
         @endif
     </script>
 @stop

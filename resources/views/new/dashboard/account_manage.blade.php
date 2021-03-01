@@ -67,7 +67,7 @@
         function checkChangeName() {
 
             @if($user->meta_()->name_change==1)
-                c2('您已申請過，無法再修改喔！');
+                c5('您已申請過，無法再修改喔！');
                 return false;
             @endif
 
@@ -78,7 +78,7 @@
         function checkChangeGender() {
 
             @if($user->engroup_change >= 1)
-            c2('您已申請過，無法再修改喔！');
+            c5('您已申請過，無法再修改喔！');
             return false;
             @endif
 
@@ -89,7 +89,7 @@
         function checkExchangePeriod() {
 
             @if($user->meta_()->exchange_period_change >= 1)
-            c2('您已申請過，無法再修改喔！');
+            c5('您已申請過，無法再修改喔！');
             return false;
             @endif
 
@@ -100,7 +100,7 @@
         function checkHideOnline() {
 
             @if($user->valueAddedServiceStatus('hideOnline') != 1)
-            c2('您尚未購買隱藏付費功能');
+            c5('您尚未購買隱藏付費功能');
             return false;
             @endif
 

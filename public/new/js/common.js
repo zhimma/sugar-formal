@@ -104,7 +104,7 @@
 	function ResultData(result){
 		if(result.status){
 			if(result.msg){
-				c2(result.msg);
+				c5(result.msg);
 				if(result.redirect){
 					$(document).on('click','.blbg',function(event) {
 				    	location.href=result.redirect;
@@ -134,18 +134,20 @@
 	}
 
 	function cl(str) {
-     	$(".blbg").show();
-        $("#tab01").show();
-        $("#tab01 .bltext").text(str);
+     	// $(".blbg").show();
+      //   $("#tab01").show();
+      //   $("#tab01 .bltext").text(str);
     }
 
     function c2(str) {
+    	// c5(str)
 		 $(".blbg").show();
          $("#tab02").show();
          $("#tab02 .gxbut").text(str);
     }
 
 	function c3(str) {
+		// c5(str)
 		$(".announce_bg").show();
 		$("#tab02").show();
 		$("#tab02 .gxbut").text(str);
@@ -158,6 +160,7 @@
 		window.location.reload();
     });
     function c4(str) {
+    	// c5(str)
 		 $(".blbg").show();
          $("#tab04").show();
          $("#tab04 .bltext").text(str);
@@ -188,10 +191,17 @@
 		$("#tab08 .bltext").text(str);
 	}
 
+	function show_pop_message(str) {
+		$(".announce_bg").show();
+		$("#tabPopM").show();
+		$("#tabPopM .bltext").text(str);
+	}
+
 	function show_message(str) {
 		$(".blbg").show();
 		$("#tab_message").show();
 		$("#tab_message .gxbut").text(str);
+		// c5(str);
 	}
 
 	function show_block() {

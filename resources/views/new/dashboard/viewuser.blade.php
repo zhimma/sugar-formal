@@ -53,13 +53,13 @@
         }
         @media (max-width:768px) {
             .metx{
-                position: unset;
+                /*position: unset;*/
             }
         }
         @media (max-width:1366px) {
             .swiper-container {
                 width: 100%;
-                height: 280px;
+                height: 268px;
             }
             .swiper-slide {
                 /*width: 100%;*/
@@ -145,6 +145,19 @@
             z-index: 1;
             /*color: #FFD700;*/
             /*height: 20px;*/
+        }
+        .hzk {
+            margin: 0 auto;
+            display: table;
+            line-height: 30px;
+            color: #999;
+            margin-top: 15px;
+        }
+        .hzk img {
+            height: 12px;
+            margin: 0 auto;
+            display: block;
+            cursor: pointer;
         }
 
         .hf_i {
@@ -240,7 +253,12 @@
                             <div class="swiper-button-prev"></div>
                         </div>
                         <div class="n_jianj"><a onclick="show_reportPic()">檢舉大頭照</a></div>
-                        <div class="tubiao">
+                        <!--新改-->
+                        <div class="tubiao" data-step="1" data-position="top" data-highlightClass="yindao2" data-tooltipClass="yindao1" data-intro="<ul>
+                                <li><img src='/new/images/a1.png'> <span>註冊未滿30天的新進會員</span></li>
+                                <li><img src='/new/images/a6.png'> <span>通過手機認證的會員</span></li>
+                                <li><img src='/new/images/a5.png'> <span>被多人檢舉或被網站評為可疑的會員</span></li>
+                                </ul>">
                             <ul>
                                 @php
                                     $isBlocked = \App\Models\Blocked::isBlocked($user->id, $to->id);
@@ -313,6 +331,15 @@
                                 @endif
                             </ul>
                         </div>
+                        <!--引导弹出层-->
+                        <script type="text/javascript" src="/new/intro/intro.js"></script>
+                        <link href="/new/intro/introjs.css" rel="stylesheet">
+                        <link rel="stylesheet" href="/new/intro/cover.css">
+                        <script>
+                            $(function(){
+                                introJs().setOption('showButtons',true).start();
+                            })
+                        </script>
 
                         <div class="eg_o">
                             <!-- <div class="eg_oleft">
@@ -1040,24 +1067,24 @@
 
 
         if(window.matchMedia("(min-width: 992px)").matches){
-            $(".swiper-container").css('height',$(".metx").height()- 70);
+            $(".swiper-container").css('height',$(".metx").height()- 56);
         }
         //固定高取得
         var bottom_height=$('.tubiao ul').height();
         //浮動高度
         var img_height = $(".swiper-container").height();
         // alert(img_height);
-        $(".swiper-slide img").css('height',img_height - (bottom_height/2));
+        $(".swiper-slide img").css('height',img_height - (bottom_height/2) + 25);
         // $(".swiper-slide img").css('height',img_height);
-        $('.tubiao').css('top',img_height - (bottom_height/2) - 40);
+        $('.tubiao').css('top',img_height - (bottom_height/2) + 5);
         $(window).resize(function() {
             // alert($('.tubiao ul').height());
             // var wdth=$(window).width();
             // $("span").text(wdth);
             var img_height = $(".swiper-container").height();
-            $(".swiper-slide img").css('height',img_height - (bottom_height/2));
+            $(".swiper-slide img").css('height',img_height - (bottom_height/2) + 20);
             // $(".swiper-slide img").css('height',img_height);
-            $('.tubiao').css('top',img_height - (bottom_height/2) - 40);
+            $('.tubiao').css('top',img_height - (bottom_height/2) + 5);
             // alert(img_height - ($('.tubiao ul').height() / 2));
         });
 
@@ -1214,7 +1241,7 @@
             $(".announce_bg").show();
             $("#show_chat").show();
         }else{
-            show_message('不可發信給自己');
+            c5('不可發信給自己');
         }
     }
 
@@ -1226,7 +1253,7 @@
             $(".announce_bg").show();
             $("#show_banned").show();
         }else{
-            show_message('不可檢舉自己');
+            c5('不可檢舉自己');
         }
     }
 
@@ -1250,11 +1277,11 @@
                     // if(data.save=='ok') {
                         $("#tab_block").hide();
                         // $(".blbg").hide();
-                        show_message('封鎖成功');
+                        c5('封鎖成功');
                     // }
                 });
             }else{
-                show_message('不可封鎖自己');
+                c5('不可封鎖自己');
             }
         });
 
@@ -1271,11 +1298,11 @@
                         _token: '{{ csrf_token() }}'
                     }, function (data) {
                         $("#tab04").hide();
-                        show_message('已解除封鎖');
+                        c5('已解除封鎖');
                     });
                 });
             }else{
-                show_message('不可解除封鎖自己');
+                c5('不可解除封鎖自己');
             }
         });
 
@@ -1289,17 +1316,17 @@
                     _token: '{{ csrf_token() }}'
                 }, function (data) {
                     if(data.save=='ok') {
-                        c2('收藏成功');
+                        c5('收藏成功');
                     }else if(data.save=='error'){
-                        c2('收藏失敗');
+                        c5('收藏失敗');
                     }else if(data.isBlocked){
-                        c2('封鎖中無法收藏');
+                        c5('封鎖中無法收藏');
                     }else if(data.isFav){
-                        c2('已在收藏名單中');
+                        c5('已在收藏名單中');
                     }
                 });
             }else{
-                c2('不可收藏自己');
+                c5('不可收藏自己');
             }
             
         });
@@ -1398,7 +1425,8 @@
                 _token: '{{ csrf_token() }}'
             }, function (data) {
                 $("#tab04").hide();
-                c5('評價已刪除');
+                show_pop_message('評價已刪除');
+                
             });
         });
     });

@@ -115,6 +115,15 @@
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
+<div class="bl bl_tab" id="tabPopM">
+    <div class="bltitle">提示</div>
+    <div class="n_blnr01 matop10">
+    <div class="blnr bltext"></div>
+    <a class="n_bllbut matop30" href="javascript:location.reload()">確定</a>
+    </div>
+    <a id="" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+</div>
+
 <div class="bl bl_tab" id="tab08">
     <div class="bltitle">提示</div>
     <div class="n_blnr01">

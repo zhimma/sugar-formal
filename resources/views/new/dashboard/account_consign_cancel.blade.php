@@ -46,14 +46,14 @@
 
             @if($user->meta_()->isConaign==0 && $user->meta_()->consign_expiry_date > \Carbon\Carbon::now() )
                 let expiry_time = '{{$user->meta_()->consign_expiry_date}}';
-                c2('您已申請結束交付帳號，雙方帳號將於 ' + expiry_time + ' 後啟用。');
+                c5('您已申請結束交付帳號，雙方帳號將於 ' + expiry_time + ' 後啟用。');
             return false;
             @endif
 
             if($('#account').val()==''){
-                c2('請輸入對方的帳號');
+                c5('請輸入對方的帳號');
             }else if($('#password').val()=='') {
-                c2('請輸入您的密碼');
+                c5('請輸入您的密碼');
             }else{
                 c4('確定開啟帳號嗎？');
                 $('.n_left').on('click', function(event) {
@@ -63,7 +63,7 @@
         }
 
         @if(Session::has('message'))
-        c3('{{Session::get('message')}}');
+        c5('{{Session::get('message')}}');
         @endif
 
     </script>
