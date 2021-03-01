@@ -4,6 +4,10 @@
 <meta http-equiv="Expires" content="0" />
 @section('app-content')
     <style>
+        .blur_img {
+            filter: blur(3px);
+            -webkit-filter: blur(3px);
+        }
         .swiper-container {
             width: 100%;
             /*height: auto;*/
@@ -49,13 +53,13 @@
         }
         @media (max-width:768px) {
             .metx{
-                /*position: unset;*/
+                position: unset;
             }
         }
         @media (max-width:1366px) {
             .swiper-container {
                 width: 100%;
-                height: 268px;
+                height: 280px;
             }
             .swiper-slide {
                 /*width: 100%;*/
@@ -142,19 +146,6 @@
             /*color: #FFD700;*/
             /*height: 20px;*/
         }
-        .hzk {
-            margin: 0 auto;
-            display: table;
-            line-height: 30px;
-            color: #999;
-            margin-top: 15px;
-        }
-        .hzk img {
-            height: 12px;
-            margin: 0 auto;
-            display: block;
-            cursor: pointer;
-        }
 
         .hf_i {
             min-height: 35px;
@@ -176,7 +167,55 @@
         .xl_text img{
             padding: 6px 0 0 0;
         }
+        .hzk {
+            margin: 0 auto;
+            display: table;
+            line-height: 30px;
+            color: #999;
+            margin-top: 15px;
+        }
+        .hzk img {
+            height: 12px;
+            margin: 0 auto;
+            display: block;
+            cursor: pointer;
+        }
     </style>
+    @php
+        $isBlurAvatar = true;$isBlurLifePhoto = true;
+        $blurryAvatar = isset($to->meta_()->blurryAvatar)? $to->meta_()->blurryAvatar : "";
+        $blurryLifePhoto = isset($to->meta_()->blurryLifePhoto)? $to->meta_()->blurryLifePhoto : "";
+        $blurryAvatar = explode(',', $blurryAvatar);
+        $blurryLifePhoto = explode(',', $blurryLifePhoto);
+
+        if($user->meta_()->isWarned == 1 || $user->isAdminWarned()){
+            $isBlurAvatar = true;
+            $isBlurLifePhoto = true;
+        }else{
+            if(sizeof($blurryAvatar)>1){
+                $nowB = $user->isVip()? 'VIP' : 'general';
+                $isBlurAvatar = in_array($nowB, $blurryAvatar);
+            }
+            else if ($user->engroup == 2){
+                $isBlurAvatar = false;
+            }
+            else {
+                $isBlurAvatar = !$user->isVip();
+            }
+
+            if(sizeof($blurryLifePhoto)>1){
+                $nowB = $user->isVip()? 'VIP' : 'general';
+                $isBlurLifePhoto = in_array($nowB, $blurryLifePhoto);
+            }
+            else if ($user->engroup == 2){
+                $isBlurLifePhoto = false;
+            }
+            else {
+                $isBlurLifePhoto = !$user->isVip();
+            }
+        }
+        
+    @endphp
     <div class="container matop80">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -188,7 +227,7 @@
                     <div class="metx">
                         <div class="swiper-container photo">
                             <div class="swiper-wrapper">
-                                <div class="swiper-slide" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>
+                                <div class="swiper-slide @if($isBlurAvatar) blur_img @endif" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>
 
                                 @foreach($member_pic as $row)
                                     @if(!str_contains($row->pic, 'IDPhoto'))
@@ -201,12 +240,7 @@
                             <div class="swiper-button-prev"></div>
                         </div>
                         <div class="n_jianj"><a onclick="show_reportPic()">檢舉大頭照</a></div>
-                        <!--新改-->
-                        <div class="tubiao" data-step="1" data-position="top" data-highlightClass="yindao2" data-tooltipClass="yindao1" data-intro="<ul>
-                                <li><img src='/new/images/a1.png'> <span>註冊未滿30天的新進會員</span></li>
-                                <li><img src='/new/images/a6.png'> <span>通過手機認證的會員</span></li>
-                                <li><img src='/new/images/a5.png'> <span>被多人檢舉或被網站評為可疑的會員</span></li>
-                                </ul>">
+                        <div class="tubiao">
                             <ul>
                                 @php
                                     $isBlocked = \App\Models\Blocked::isBlocked($user->id, $to->id);
@@ -279,15 +313,6 @@
                                 @endif
                             </ul>
                         </div>
-                        <!--引导弹出层-->
-                        <script type="text/javascript" src="/new/intro/intro.js"></script>
-                        <link href="/new/intro/introjs.css" rel="stylesheet">
-                        <link rel="stylesheet" href="/new/intro/cover.css">
-                        <script>
-                            $(function(){
-                                introJs().setOption('showButtons',true).start();
-                            })
-                        </script>
 
                         <div class="eg_o">
                             <!-- <div class="eg_oleft">
@@ -1015,24 +1040,24 @@
 
 
         if(window.matchMedia("(min-width: 992px)").matches){
-            $(".swiper-container").css('height',$(".metx").height()- 56);
+            $(".swiper-container").css('height',$(".metx").height()- 70);
         }
         //固定高取得
         var bottom_height=$('.tubiao ul').height();
         //浮動高度
         var img_height = $(".swiper-container").height();
         // alert(img_height);
-        $(".swiper-slide img").css('height',img_height - (bottom_height/2) + 25);
+        $(".swiper-slide img").css('height',img_height - (bottom_height/2));
         // $(".swiper-slide img").css('height',img_height);
-        $('.tubiao').css('top',img_height - (bottom_height/2) + 5);
+        $('.tubiao').css('top',img_height - (bottom_height/2) - 40);
         $(window).resize(function() {
             // alert($('.tubiao ul').height());
             // var wdth=$(window).width();
             // $("span").text(wdth);
             var img_height = $(".swiper-container").height();
-            $(".swiper-slide img").css('height',img_height - (bottom_height/2) + 20);
+            $(".swiper-slide img").css('height',img_height - (bottom_height/2));
             // $(".swiper-slide img").css('height',img_height);
-            $('.tubiao').css('top',img_height - (bottom_height/2) + 5);
+            $('.tubiao').css('top',img_height - (bottom_height/2) - 40);
             // alert(img_height - ($('.tubiao ul').height() / 2));
         });
 
@@ -1189,7 +1214,7 @@
             $(".announce_bg").show();
             $("#show_chat").show();
         }else{
-            c5('不可發信給自己');
+            show_message('不可發信給自己');
         }
     }
 
@@ -1201,7 +1226,7 @@
             $(".announce_bg").show();
             $("#show_banned").show();
         }else{
-            c5('不可檢舉自己');
+            show_message('不可檢舉自己');
         }
     }
 
@@ -1225,11 +1250,11 @@
                     // if(data.save=='ok') {
                         $("#tab_block").hide();
                         // $(".blbg").hide();
-                        c5('封鎖成功');
+                        show_message('封鎖成功');
                     // }
                 });
             }else{
-                c5('不可封鎖自己');
+                show_message('不可封鎖自己');
             }
         });
 
@@ -1246,11 +1271,11 @@
                         _token: '{{ csrf_token() }}'
                     }, function (data) {
                         $("#tab04").hide();
-                        c5('已解除封鎖');
+                        show_message('已解除封鎖');
                     });
                 });
             }else{
-                c5('不可解除封鎖自己');
+                show_message('不可解除封鎖自己');
             }
         });
 
@@ -1264,17 +1289,17 @@
                     _token: '{{ csrf_token() }}'
                 }, function (data) {
                     if(data.save=='ok') {
-                        c5('收藏成功');
+                        c2('收藏成功');
                     }else if(data.save=='error'){
-                        c5('收藏失敗');
+                        c2('收藏失敗');
                     }else if(data.isBlocked){
-                        c5('封鎖中無法收藏');
+                        c2('封鎖中無法收藏');
                     }else if(data.isFav){
-                        c5('已在收藏名單中');
+                        c2('已在收藏名單中');
                     }
                 });
             }else{
-                c5('不可收藏自己');
+                c2('不可收藏自己');
             }
             
         });
@@ -1373,8 +1398,7 @@
                 _token: '{{ csrf_token() }}'
             }, function (data) {
                 $("#tab04").hide();
-                show_pop_message('評價已刪除');
-                
+                c5('評價已刪除');
             });
         });
     });

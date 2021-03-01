@@ -167,7 +167,11 @@
                         if(sizeof($blurryAvatar)>1){
                             $nowB = $isVip? 'VIP' : 'general';
                             $isBlur = in_array($nowB, $blurryAvatar);
-                        } else {
+                        }
+                        else if ($user->engroup == 2){
+                            $isBlur = false;
+                        }
+                        else {
                             $isBlur = !$isVip;
                         }
                     @endphp
