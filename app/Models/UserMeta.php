@@ -231,15 +231,15 @@ class UserMeta extends Model
             ->whereHas('user_meta', $constraint)
             ->where('engroup', $engroup)
             ->where('accountStatus', 1)
-            ->whereNotIn('users.id', function($query){
-                // $bannedUsers
-                $query->select('target')
-                    ->from(with(new BannedUsersImplicitly)->getTable());})
-            ->whereNotIn('users.id', function($query){
-                // $bannedUsers
-                $query->select('member_id')
-                    ->from(with(new banned_users)->getTable());})
-            ->whereNotIn('users.id', function($query) use ($userid){
+            // ->whereNotIn('users.id', function($query){
+            //     // $bannedUsers
+            //     $query->select('target')
+            //         ->from(with(new BannedUsersImplicitly)->getTable());})
+            // ->whereNotIn('users.id', function($query){
+            //     // $bannedUsers
+            //     $query->select('member_id')
+            //         ->from(with(new banned_users)->getTable());})
+            /*->whereNotIn('users.id', function($query) use ($userid){
                 // $blockedUsers
                 $query->select('blocked_id')
                     ->from(with(new blocked)->getTable())
@@ -248,7 +248,7 @@ class UserMeta extends Model
                 // $isBlockedByUsers
                 $query->select('member_id')
                     ->from(with(new blocked)->getTable())
-                    ->where('blocked_id', $userid);});
+                    ->where('blocked_id', $userid);}) */;
         if (isset($exchange_period) && $exchange_period != '') {
             if (count($exchange_period) > 0) {
                 $query->whereIn('exchange_period', $exchange_period);
