@@ -329,7 +329,7 @@
                                     @endif
                                 </div>
                                 @php
-                                    if($user->meta_()->isWarned == 1 || $user->isAdminWarned()){
+                                    if($user->meta->isWarned == 1 || $user->isAdminWarned()){
                                         $isBlur = true;
                                     }else {
                                         $isBlur = true;
