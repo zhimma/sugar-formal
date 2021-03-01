@@ -329,18 +329,18 @@
                                     @endif
                                 </div>
                                 @php
-                                    if($user->meta->isWarned == 1 || $user->isAdminWarned()){
+                                    if($user->meta->isWarned == 1 || $user->aw_relation){
                                         $isBlur = true;
                                     }else {
-                                        $isBlur = true;
+                                        $isBlur = false;
                                         $blurryAvatar = isset($visitor->user_meta->blurryAvatar)? $visitor->user_meta->blurryAvatar : "";
                                         $blurryAvatar = explode(',', $blurryAvatar);
 
                                         if(sizeof($blurryAvatar)>1){
                                             $nowB = $user->isVip()? 'VIP' : 'general';
                                             $isBlur = in_array($nowB, $blurryAvatar);
-                                        } else {
-                                            $isBlur = !$user->isVip();
+                                        } else if (!$user->isVip()) {
+                                            $isBlur = true;
                                         }
                                     }
                                 @endphp
