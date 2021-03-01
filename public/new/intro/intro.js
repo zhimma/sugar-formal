@@ -690,11 +690,9 @@
     if (helperLayer) {
       //prevent error when `this._currentStep` in undefined
       if (!this._introItems[this._currentStep]) return;
-
       var currentElement  = this._introItems[this._currentStep],
           elementPosition = _getOffset(currentElement.element),
           widthHeightPadding = 10;
-
       // if the target element is fixed, the tooltip should be fixed as well.
       if (_isFixed(currentElement.element)) {
         helperLayer.className += ' introjs-fixedTooltip';
