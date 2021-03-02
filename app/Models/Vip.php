@@ -182,8 +182,8 @@ class Vip extends Model
             }else {
                 $periodRemained = 30 - ($daysDiff % 30);
             }
-            // 基準日加上得出的天數再加 1 (不加 1 到期日會少一天)，即為取消後的到期日
-            $expiryDate = $baseDate->addDays($periodRemained + 1);
+            // 基準日加上得出的天數，就會是預計的到期日
+            $expiryDate = $baseDate->addDays($periodRemained);
             /**
              * Debugging codes.
              * $output = new \Symfony\Component\Console\Output\ConsoleOutput();
@@ -203,7 +203,8 @@ class Vip extends Model
                 }
                 $str = $curUser->name . ' 您好，您已取消本站 VIP 續期。但由於您的扣款時間是每月'. $latestUpdatedAt->day .'號，取消時間低於七個工作天，作業不及。所以本次還是會正常扣款，下一週期就會停止扣款。造成不便敬請見諒。';
             }
-
+            //儲存到期日時，要再加 1 天(不加 1 的話，實際的到期日會少一天)，這時即為取消後的到期日
+            $expiryDate = $expiryDate->addDay();
             foreach ($user as $u){
                 $u->expiry = $expiryDate->startOfDay()->toDateTimeString();
                 $u->save();
