@@ -141,7 +141,7 @@
                 var li = '';//樣板容器
                 $.each(res.msg,function(i,e){
                     var isBlur = true;
-                    if('{{$user->meta_()->isWarned == 1 || $user->isAdminWarned()}}' == true){
+                    if('{{$user->meta_()->isWarned == 1 || $user->aw_relation}}' == true){
                         isBlur = true;
                     }else{
                         if(e.blurry_avatar){

@@ -188,7 +188,7 @@
         $blurryAvatar = explode(',', $blurryAvatar);
         $blurryLifePhoto = explode(',', $blurryLifePhoto);
 
-        if($user->meta_()->isWarned == 1 || $user->isAdminWarned()){
+        if($user->meta_()->isWarned == 1 || $user->aw_relation){
             $isBlurAvatar = true;
             $isBlurLifePhoto = true;
         }else{
@@ -284,7 +284,7 @@
                                     </li>
                                 @endif
                                 {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
-                                @if($to->meta->isWarned == 1 || $to->isAdminWarned())
+                                @if($to->meta->isWarned == 1 || $to->aw_relation)
                                     <li>
 
                                         <div class="tagText" data-toggle="popover" data-content="此人被多人檢舉！與此會員交流務必提高警覺！">
