@@ -200,32 +200,31 @@
         $blurryLifePhoto = isset($to->meta_()->blurryLifePhoto)? $to->meta_()->blurryLifePhoto : "";
         $blurryAvatar = explode(',', $blurryAvatar);
         $blurryLifePhoto = explode(',', $blurryLifePhoto);
-
         if($user->meta_()->isWarned == 1 || $user->aw_relation){
             $isBlurAvatar = true;
             $isBlurLifePhoto = true;
         }else{
-            if(sizeof($blurryAvatar)>1){
+            if ($user->engroup == 2){
+                $isBlurAvatar = false;
+            }
+            else if(sizeof($blurryAvatar)>1){
                 $nowB = $user->isVip()? 'VIP' : 'general';
                 $isBlurAvatar = in_array($nowB, $blurryAvatar);
-            }
-            else if ($user->engroup == 2){
-                $isBlurAvatar = false;
             }
             else {
                 $isBlurAvatar = !$user->isVip();
             }
 
-            if(sizeof($blurryLifePhoto)>1){
+            if ($user->engroup == 2){
+                $isBlurLifePhoto = false;
+            }else if(sizeof($blurryLifePhoto)>1){
                 $nowB = $user->isVip()? 'VIP' : 'general';
                 $isBlurLifePhoto = in_array($nowB, $blurryLifePhoto);
-            }
-            else if ($user->engroup == 2){
-                $isBlurLifePhoto = false;
             }
             else {
                 $isBlurLifePhoto = !$user->isVip();
             }
+
         }
         
     @endphp
@@ -244,7 +243,7 @@
 
                                 @foreach($member_pic as $row)
                                     @if(!str_contains($row->pic, 'IDPhoto'))
-                                        <div class="swiper-slide" data-type="pic" data-sid="{{$to->id}}" data-pic_id="{{$row->id}}"><img src="{{$row->pic}}"></div>
+                                        <div class="swiper-slide @if($isBlurLifePhoto) blur_img @endif" data-type="pic" data-sid="{{$to->id}}" data-pic_id="{{$row->id}}"><img src="{{$row->pic}}"></div>
                                     @endif
                                 @endforeach
                             </div>
