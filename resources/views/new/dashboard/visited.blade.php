@@ -31,7 +31,7 @@
                             }
                             ?>
                             @php
-                                if($user->meta->isWarned == 1 || $user->isAdminWarned()){
+                                if($user->meta->isWarned == 1 || $user->aw_relation){
                                     $isBlur = true;
                                 }
                                 else if ($user->engroup == 2){
