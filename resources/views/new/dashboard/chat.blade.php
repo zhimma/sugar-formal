@@ -737,18 +737,25 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                     $.each(res.msg,function(i,e) {
                         var isBlur = true;
-                        var blurryAvatar = e.blurry_avatar.split(',');
-                        if(blurryAvatar.length > 1){
-                            var nowB = '{{$user->isVip()? "VIP" : "general"}}';
-                            if( blurryAvatar.indexOf(nowB) != -1){
-                                // console.log(blurryAvatar);
-                                isBlur = true;
+                        if('{{$user->meta_()->isWarned == 1 || $user->aw_relation}}' == true){
+                            isBlur = true;
+                        }else if ('{{$user->engroup == 2}}' == true){
+                            isBlur = false;
+                        }else{
+                            var blurryAvatar = e.blurry_avatar? e.blurry_avatar.split(',') : '';
+                            if(blurryAvatar.length > 1){
+                                var nowB = '{{$user->isVip()? "VIP" : "general"}}';
+                                if( blurryAvatar.indexOf(nowB) != -1){
+                                    // console.log(blurryAvatar);
+                                    isBlur = true;
+                                } else {
+                                    isBlur = false;
+                                }
                             } else {
                                 isBlur = false;
                             }
-                        } else {
-                            isBlur = !e.isVip;
                         }
+                        
                         
                         rr += parseInt(e.read_n);
                         if (userIsVip != 1 && i < hide_vip_counts && hide_vip_counts > 0 ) {

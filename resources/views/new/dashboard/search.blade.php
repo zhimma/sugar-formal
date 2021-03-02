@@ -314,6 +314,7 @@
                                         $isBlur = true;
                                     }else {
                                         $isBlur = true;
+                                        print_r($visitor->user_meta->blurryAvatar);
                                         $blurryAvatar = isset($visitor->user_meta->blurryAvatar)? $visitor->user_meta->blurryAvatar : "";
                                         $blurryAvatar = explode(',', $blurryAvatar);
 
@@ -323,7 +324,7 @@
                                             $nowB = $user->isVip()? 'VIP' : 'general';
                                             $isBlur = in_array($nowB, $blurryAvatar);
                                         } else {
-                                            $isBlur = !$user->isVip();
+                                            $isBlur = false;
                                         }
                                     }
                                 @endphp

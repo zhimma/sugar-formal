@@ -161,14 +161,21 @@
                     @php
                         $date_temp='';
                         $isBlur = true;
-                        $blurryAvatar = isset($cmeta->blurryAvatar)? $cmeta->blurryAvatar : "";
-                        $blurryAvatar = explode(',', $blurryAvatar);
-
-                        if(sizeof($blurryAvatar)>1){
-                            $nowB = $isVip? 'VIP' : 'general';
-                            $isBlur = in_array($nowB, $blurryAvatar);
+                        if($user->meta->isWarned == 1 || $user->aw_relation){
+                            $isBlur = true;
+                        }
+                        else if ($user->engroup == 2){
+                            $isBlur = false;
                         } else {
-                            $isBlur = !$isVip;
+                            $blurryAvatar = isset($cmeta->blurryAvatar)? $cmeta->blurryAvatar : "";
+                            $blurryAvatar = explode(',', $blurryAvatar);
+
+                            if(sizeof($blurryAvatar)>1){
+                                $nowB = $isVip? 'VIP' : 'general';
+                                $isBlur = in_array($nowB, $blurryAvatar);
+                            } else {
+                                $isBlur = false;
+                            }
                         }
                     @endphp
                     @if(!empty($messages))

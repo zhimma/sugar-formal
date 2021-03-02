@@ -199,7 +199,7 @@
                 $isBlurAvatar = in_array($nowB, $blurryAvatar);
             }
             else {
-                $isBlurAvatar = !$user->isVip();
+                $isBlurAvatar = false;
             }
 
             if ($user->engroup == 2){
@@ -209,7 +209,7 @@
                 $isBlurLifePhoto = in_array($nowB, $blurryLifePhoto);
             }
             else {
-                $isBlurLifePhoto = !$user->isVip();
+                $isBlurLifePhoto = false;
             }
 
         }
