@@ -1619,11 +1619,10 @@ class PagesController extends BaseController
                 // return view('new.dashboard.viewuser', compact('user'));
             // }
             if ($user->id != $uid) {
+                if($user->engroup == $targetUser->engroup){
+                    return redirect()->route('listSeatch2');
+                }
                 Visited::visit($user->id, $targetUser);
-            }
-
-            if($user->engroup == $targetUser->engroup){
-                return redirect()->route('listSeatch2');
             }
 
             /*七天前*/
