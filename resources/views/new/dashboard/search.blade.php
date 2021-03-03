@@ -331,6 +331,8 @@
                                 @php
                                     if($user->meta->isWarned == 1 || $user->aw_relation){
                                         $isBlur = true;
+                                    }
+                                    else{
                                         $blurryAvatar = isset($visitor->user_meta->blurryAvatar)? $visitor->user_meta->blurryAvatar : "";
                                         $blurryAvatar = explode(',', $blurryAvatar);
 
