@@ -193,6 +193,15 @@
             display: block;
             cursor: pointer;
         }
+        .tubiao{
+            margin-top: 50px;
+        }
+        .eg_o {
+            margin-bottom: 40px;
+        }
+        .bottub {
+            margin-top: -24px;
+        }
     </style>
     @php
         $isBlurAvatar = true;$isBlurLifePhoto = true;
@@ -252,6 +261,8 @@
                             <div class="swiper-button-prev"></div>
                         </div>
                         <div class="n_jianj"><a onclick="show_reportPic()">檢舉大頭照</a></div>
+                        <div class="tubiao">
+                            <ul>
                         <!--新改-->
                         @php
                             $isBlocked = \App\Models\Blocked::isBlocked($user->id, $to->id);
@@ -323,6 +334,7 @@
                                     </li>
                                 @endif
                             </ul>
+                        </div>
                         <!--引导弹出层-->
                         <script type="text/javascript" src="/new/intro/intro.js"></script>
                         <link href="/new/intro/introjs.css" rel="stylesheet">
