@@ -253,16 +253,28 @@
                         </div>
                         <div class="n_jianj"><a onclick="show_reportPic()">檢舉大頭照</a></div>
                         <!--新改-->
+                        @php
+                            $isBlocked = \App\Models\Blocked::isBlocked($user->id, $to->id);
+                            $data = \App\Services\UserService::checkRecommendedUser($to);
+                        @endphp
                         <div class="tubiao" data-step="1" data-position="top" data-highlightClass="yindao2" data-tooltipClass="yindao1" data-intro="<ul>
-                                <li><img src='/new/images/a1.png'> <span>註冊未滿30天的新進會員</span></li>
-                                <li><img src='/new/images/a6.png'> <span>通過手機認證的會員</span></li>
-                                <li><img src='/new/images/a5.png'> <span>被多人檢舉或被網站評為可疑的會員</span></li>
+                                @if(isset($data['description']) && $to->engroup == 2)
+                                <li><img src='@if($user->isVip())/new/images/a1.png @else/new/images/b_1.png @endif'> <span>註冊未滿30天的新進會員</span></li>
+                                @endif
+                                @if(isset($data['description']) && $to->engroup == 1)
+                                <li><img src='@if($user->isVip())/new/images/a2.png @else/new/images/b_2.png @endif'> <span>長期付費的VIP，或者常用車馬費邀請的男會員</span></li>
+                                @endif
+                                @if($to->isVip() && $to->engroup == 1)
+                                <li><img src='@if($user->isVip())/new/images/a4.png @else/new/images/b_4.png @endif'> <span>本站付費會員</span></li>
+                                @endif
+                                @if($to->meta->isWarned == 1 || $to->aw_relation)
+                                <li><img src='@if($user->isVip())/new/images/a5.png @else/new/images/b_5.png @endif'> <span>被多人檢舉或被網站評為可疑的會員</span></li>
+                                @endif
+                                @if($to->isPhoneAuth())
+                                <li><img src='@if($user->isVip())/new/images/a6.png @else/new/images/b_6.png @endif'> <span>通過手機認證的會員</span></li>
+                                @endif
                                 </ul>">
                             <ul>
-                                @php
-                                    $isBlocked = \App\Models\Blocked::isBlocked($user->id, $to->id);
-                                    $data = \App\Services\UserService::checkRecommendedUser($to);
-                                @endphp
                                 @if(isset($data['description']) && $to->engroup == 2)
                                     <li>
                                         <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。" style="width: 100%">
@@ -274,6 +286,9 @@
                                         </div>
 {{--                                        <span>{{$new_sweet}}</span>--}}
                                     </li>
+                                @php
+                                    $user->isReadIntro = 1;
+                                @endphp
                                 @endif
                                 @if(isset($data['description']) && $to->engroup == 1)
                                     <li>
@@ -286,6 +301,9 @@
                                         </div>
 {{--                                        <span>{{$well_member}}</span>--}}
                                     </li>
+                                @php
+                                    $user->isReadIntro = 1;
+                                @endphp
                                 @endif
                                 {{--                            <li><img src="/new/images/icon_23.png"><span>{{$money_cert}}</span></li>--}}
                                 @if($to->isVip() && $to->engroup == 1)
@@ -299,6 +317,9 @@
                                         </div>
 {{--                                        <span>{{$label_vip}}</span>--}}
                                     </li>
+                                @php
+                                    $user->isReadIntro = 1;
+                                @endphp
                                 @endif
                                 {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
                                 @if($to->meta->isWarned == 1 || $to->aw_relation)
@@ -312,6 +333,9 @@
                                         @endif
                                         </div>
                                     </li>
+                                @php
+                                    $user->isReadIntro = 1;
+                                @endphp
                                 @endif
                                 @if($to->isPhoneAuth())
                                     <li>
@@ -327,6 +351,9 @@
                                         @endif
                                         </div>
                                     </li>
+                                @php
+                                    $user->isReadIntro = 1;
+                                @endphp
                                 @endif
                             </ul>
                         </div>
@@ -336,7 +363,12 @@
                         <link rel="stylesheet" href="/new/intro/cover.css">
                         <script>
                             $(function(){
+                                @if($user->login_times == 2 && $isReadIntro == 0)
                                 introJs().setOption('showButtons',true).start();
+                                @php
+                                    $user->save();
+                                @endphp
+                                @endif
                             })
                         </script>
 
