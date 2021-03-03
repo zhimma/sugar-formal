@@ -245,7 +245,7 @@
                 dataType: 'JSON',
                 success: function (result) {
                     $("#tab04").hide();
-                    show_message('移除成功');
+                    show_pop_message('移除成功');
                     // ResultData(result);
                     // if (result.status) {
                     //     LoadTable();
@@ -303,7 +303,7 @@
                 dataType: 'JSON',
                 success: function (result) {
                     $("#tab04").hide();
-                    show_message('移除成功');
+                    c5('移除成功');
                     ResultData(result);
                     if (result.status) {
                         LoadTable();

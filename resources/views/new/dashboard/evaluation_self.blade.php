@@ -126,7 +126,7 @@
                 _token: '{{ csrf_token() }}'
             }, function (data) {
                 $("#tab04").hide();
-                show_message('已刪除');
+                show_pop_message('已刪除');
             });
         });
         return false;
@@ -140,7 +140,7 @@
                 _token: '{{ csrf_token() }}'
             }, function (data) {
                 $("#tab04").hide();
-                show_message('評價已刪除');
+                show_pop_message('評價已刪除');
             });
         });
     });
@@ -161,7 +161,7 @@
                 _token: '{{ csrf_token() }}'
             }, function (data) {
                 $("#tab04").hide();
-                show_message('回覆已刪除');
+                show_pop_message('回覆已刪除');
             });
         });
     });

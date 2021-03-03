@@ -1380,7 +1380,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             c4('確定要刪除嗎?');
             $(".n_left").on('click', function () {
                 $("#tab04").hide();
-                show_message('刪除成功');
+                c5('刪除成功');
                 window.location=url;
             });
             return false;
@@ -1397,7 +1397,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     _token: '{{ csrf_token() }}'
                 }, function (data) {
                     $("#tab04").hide();
-                    show_message('封鎖成功');
+                    c5('封鎖成功');
                     window.location.reload();
                 });
             });
@@ -1421,7 +1421,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 c8('確定要全部刪除嗎?');
                 deleteRowAll(IDs);
             }else{
-                c3('沒有可刪除資料');
+                c5('沒有可刪除資料');
             }
         });
         $('.novip_delete').on('click', function() {
@@ -1434,7 +1434,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 c8('確定要全部刪除嗎?');
                 deleteRowAll(IDs);
             }else{
-                c3('沒有可刪除資料');
+                c5('沒有可刪除資料');
             }
         });
         $('.alert_delete').on('click', function() {
@@ -1446,7 +1446,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 c8('確定要全部刪除嗎?');
                 deleteRowAll(IDs);
             }else{
-                c3('沒有可刪除資料');
+                c5('沒有可刪除資料');
             }
         });
 
@@ -1464,7 +1464,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     c8('確定要全部刪除嗎?');
                     deleteRowAll(IDs);
                 }else{
-                    c3('沒有可刪除資料');
+                    c5('沒有可刪除資料');
                 }
             });
         @endforeach
@@ -1478,7 +1478,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             $(".n_left").on('click', function() {
 
                 $("#tab08").hide();
-                show_message('刪除成功');
+                c5('刪除成功');
                 window.location=del_url;
             });
             return false;
@@ -1612,19 +1612,20 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             }
             else{
                 if($(this).hasClass('on') && $(this).hasClass('lebox_alert')){
+                    c5('此為警示會員，要與此區會員交流請務必小心。');
                     @if($user->engroup==1)
                         @if($user->checkTourRead('chat',6))
-                            c3('此為警示會員，要與此區會員交流請務必小心。');
+                            //c5('此為警示會員，要與此區會員交流請務必小心。');
                         @endif
                         if(step6==1){
-                            c3('此為警示會員，要與此區會員交流請務必小心。');
+                            //c5('此為警示會員，要與此區會員交流請務必小心。');
                         }
                     @elseif($user->engroup==2)
                         @if($user->checkTourRead('chat',5))
-                            c3('此為警示會員，要與此區會員交流請務必小心。');
+                            //c5('此為警示會員，要與此區會員交流請務必小心。');
                         @endif
                         if(step5==1){
-                            c3('此為警示會員，要與此區會員交流請務必小心。');
+                            //c5('此為警示會員，要與此區會員交流請務必小心。');
                         }
                     @endif
                 }

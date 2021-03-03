@@ -150,8 +150,8 @@
                                 <button type="button" class="paypay" onclick="checkPay('ecpay')"><a class="nnn_adbut">車馬費</a></button>
                             </form>
                         @else
-{{--                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c2('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -15px">車馬費2</a></button>--}}
-                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c2('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -15px">車馬費</a></button>
+{{--                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c5('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -15px">車馬費2</a></button>--}}
+                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c5('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -15px">車馬費</a></button>
                         @endif
                     </div>
                 @else
@@ -412,7 +412,7 @@
                 }, function (data) {
                     //window.location.reload();
                     $("#tab04").hide();
-                    c2('刪除成功');
+                    c5('刪除成功');
                 });
             });
         });
@@ -532,7 +532,7 @@
     }
 
     @if (Session::has('message'))
-        c3('{{ Session::get('message') }}');
+        c5('{{ Session::get('message') }}');
     @endif
 
     @if (isset($errors) && $errors->count() > 0)

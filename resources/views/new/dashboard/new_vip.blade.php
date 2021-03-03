@@ -229,7 +229,7 @@
                 @if (!$user->isVip() && !$user->isFreeVip())
                 c5('您目前尚未成為VIP會員');
                 @elseif($user->isFreeVip())
-                c5('您是免費VIP，刪除您的大頭照或生活照少於三張就會取消VIP');
+                show_pop_message('您是免費VIP，刪除您的大頭照或生活照少於三張就會取消VIP');
                 @elseif(!$user->isVipNotCanceledNotOnePayment() || $user->isVipOnePaymentNotExpire())
                 $('#vip_cancel').show();
                 $('#vip2').hide();
