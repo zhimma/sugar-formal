@@ -1620,7 +1620,7 @@ class PagesController extends BaseController
             }
             if ($user->id != $uid) {
                 if($user->engroup == $targetUser->engroup){
-                    return redirect()->route('listSeatch2');
+                    return redirect()->route('listSearch2');
                 }
                 Visited::visit($user->id, $targetUser);
             }
