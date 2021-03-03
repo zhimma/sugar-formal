@@ -45,7 +45,7 @@
                                     $nowB = $user->isVip()? 'VIP' : 'general';
                                     $isBlur = in_array($nowB, $blurryAvatar);
                                 } else {
-                                    $isBlur = !$user->isVip();
+                                    $isBlur = false;
                                 }
                             }
                             
@@ -118,7 +118,7 @@
                 _token: '{{ csrf_token() }}'
             }, function (data) {
                 $("#tab04").hide();
-                show_message('已解除封鎖');
+                show_pop_message('已解除封鎖');
             });
         });
     });
@@ -131,7 +131,7 @@
                 _token: '{{ csrf_token() }}'
             }, function (data) {
                 $("#tab04").hide();
-                show_message('已解除封鎖');
+                show_pop_message('已解除封鎖');
             });
         });
         return false;

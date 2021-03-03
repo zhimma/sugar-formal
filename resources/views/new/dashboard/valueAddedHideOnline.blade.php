@@ -251,7 +251,7 @@
                 $('.vipbongn').hide();
                 // $('.n_vipbotf').hide();
                 @if ($user->valueAddedServiceStatus('hideOnline') == 0)
-                c3('您目前尚未購買付費隱藏');
+                c5('您目前尚未購買付費隱藏');
                 @elseif($user->valueAddedServiceStatus('hideOnline') == 1 && $isPaidCancelNotOnePayment == 0 && $isPaidOnePayment == 0)
                 $('#vip_cancel').hide();
                 $('#vip2').show();
@@ -298,7 +298,7 @@
                 var id,choosePayment;
                 if($(this).hasClass("cc_monthly_payment")) {
                     @if($user->valueAddedServiceStatus('hideOnline') == 1)
-                        c3('您目前已在付費隱藏期間');
+                        c5('您目前已在付費隱藏期間');
                         return false;
                     @else
                         //c4("您確定要購買嗎?");
@@ -310,7 +310,7 @@
                     @endif
                 }else if($(this).hasClass("cc_quarterly_payment")){
                     @if($user->valueAddedServiceStatus('hideOnline') == 1)
-                        c3('您目前已在付費隱藏期間');
+                        c5('您目前已在付費隱藏期間');
                         return false;
                     @else
                         common_confirm('{!! $cc_quarterly_payment !!}',"{{$cc_quarterly_payment_red}}" +
@@ -321,7 +321,7 @@
                 }else if($(this).hasClass("one_month_payment")){
                     //定期定額會員無法購買單次方案
                     @if($user->valueAddedServiceStatus('hideOnline') == 1 && $isPaidOnePayment != 1)
-                        c3('您目前已在付費隱藏期間');
+                        c5('您目前已在付費隱藏期間');
                         return false;
                     @else
                         //c4("您確定要購買嗎?");
@@ -335,7 +335,7 @@
                 }else if($(this).hasClass("one_quarter_payment")){
                     //定期定額會員無法購買單次方案
                     @if($user->valueAddedServiceStatus('hideOnline') == 1 && $isPaidOnePayment != 1)
-                        c3('您目前已在付費隱藏期間');
+                        c5('您目前已在付費隱藏期間');
                         return false;
                     @else
                         //c4("您確定要購買嗎?");

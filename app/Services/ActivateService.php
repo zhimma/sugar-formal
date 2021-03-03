@@ -54,7 +54,9 @@ class ActivateService
         if ($user) {
             if($user->update([
                 'is_active' => true,
-                'activation_token' => null
+                'activation_token' => null,
+                'blurryAvatar' => 'general,',
+                'blurryLifePhoto' => 'general,'
             ])){
                 return User::find($user->user_id);
             }

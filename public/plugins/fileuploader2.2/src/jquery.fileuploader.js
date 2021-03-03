@@ -526,7 +526,7 @@
                                         } else {
                                             if (n.thumbnails.removeConfirmation) {
                                                 n.dialogs.confirm(f._assets.textParse(n.captions.removeConfirmation, item), c_delete);
-												c2('刪除成功');
+												c5('刪除成功');
                                             } else {
 												c6('確認要刪除照片嗎?');
                                             }
@@ -4310,7 +4310,7 @@
                     item.popup.html.on('click', '[data-action="remove"]', function(e) {
                         item.popup.close();
                         item.remove();
-						c2('刪除成功');
+						c5('刪除成功');
                     }).on('click', '[data-action="cancel"]', function(e) {
                         item.popup.close();
                     }).on('click', '[data-action="save"]', function(e) {
@@ -4395,7 +4395,7 @@
 					c_delete();
 					$('#tab06').hide();
 					$('.blbg').hide();
-					c3('刪除成功');
+					c5('刪除成功');
 					// $('.blbg').hide();
 				}
 			}

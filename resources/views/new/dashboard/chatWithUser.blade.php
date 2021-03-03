@@ -150,8 +150,8 @@
                                 <button type="button" class="paypay" onclick="checkPay('ecpay')"><a class="nnn_adbut">車馬費</a></button>
                             </form>
                         @else
-{{--                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c2('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -15px">車馬費2</a></button>--}}
-                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c2('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -15px">車馬費</a></button>
+{{--                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c5('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -15px">車馬費2</a></button>--}}
+                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c5('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -15px">車馬費</a></button>
                         @endif
                     </div>
                 @else
@@ -161,18 +161,21 @@
                     @php
                         $date_temp='';
                         $isBlur = true;
-                        $blurryAvatar = isset($cmeta->blurryAvatar)? $cmeta->blurryAvatar : "";
-                        $blurryAvatar = explode(',', $blurryAvatar);
-
-                        if(sizeof($blurryAvatar)>1){
-                            $nowB = $isVip? 'VIP' : 'general';
-                            $isBlur = in_array($nowB, $blurryAvatar);
+                        if($user->meta->isWarned == 1 || $user->aw_relation){
+                            $isBlur = true;
                         }
                         else if ($user->engroup == 2){
                             $isBlur = false;
-                        }
-                        else {
-                            $isBlur = !$isVip;
+                        } else {
+                            $blurryAvatar = isset($cmeta->blurryAvatar)? $cmeta->blurryAvatar : "";
+                            $blurryAvatar = explode(',', $blurryAvatar);
+
+                            if(sizeof($blurryAvatar)>1){
+                                $nowB = $isVip? 'VIP' : 'general';
+                                $isBlur = in_array($nowB, $blurryAvatar);
+                            } else {
+                                $isBlur = false;
+                            }
                         }
                     @endphp
                     @if(!empty($messages))
@@ -201,10 +204,10 @@
                             <div class="@if($message['from_id'] == $user->id) show @else send @endif">
                                 <div class="msg @if($message['from_id'] == $user->id) msg1 @endif">
                                     @if($message['from_id'] == $user->id)
-                                        <img src="@if(file_exists( public_path().$user->meta_()->pic ) && $user->meta_()->pic != ""){{$user->meta_()->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
+                                        <img src="@if(file_exists( public_path().$user->meta->pic ) && $user->meta->pic != ""){{$user->meta->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
                                     @else
                                         <a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">
-                                        <img class="@if($isBlur) blur_img @endif" src="@if(file_exists( public_path().$msgUser->meta_()->pic ) && $msgUser->meta_()->pic != ""){{$msgUser->meta_()->pic}} @elseif($msgUser->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
+                                        <img class="@if($isBlur) blur_img @endif" src="@if(file_exists( public_path().$msgUser->meta->pic ) && $msgUser->meta->pic != ""){{$msgUser->meta->pic}} @elseif($msgUser->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
                                         </a>
                                     @endif
                                     <p>
@@ -409,7 +412,7 @@
                 }, function (data) {
                     //window.location.reload();
                     $("#tab04").hide();
-                    c2('刪除成功');
+                    c5('刪除成功');
                 });
             });
         });
@@ -529,7 +532,7 @@
     }
 
     @if (Session::has('message'))
-        c3('{{ Session::get('message') }}');
+        c5('{{ Session::get('message') }}');
     @endif
 
     @if (isset($errors) && $errors->count() > 0)

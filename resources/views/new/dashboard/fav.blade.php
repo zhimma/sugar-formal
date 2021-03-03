@@ -143,6 +143,8 @@
                     var isBlur = true;
                     if('{{$user->meta_()->isWarned == 1 || $user->aw_relation}}' == true){
                         isBlur = true;
+                    }else if ('{{$user->engroup == 2}}' == true){
+                        isBlur = false;
                     }else{
                         if(e.blurry_avatar){
                             var blurryAvatar = e.blurry_avatar.split(',');
@@ -154,7 +156,7 @@
                                     isBlur = false;
                                 }
                             } else {
-                                isBlur = !e.vip;
+                                isBlur = false;
                             }
                         }
                     }
@@ -243,7 +245,7 @@
                 dataType: 'JSON',
                 success: function (result) {
                     $("#tab04").hide();
-                    show_message('移除成功');
+                    show_pop_message('移除成功');
                     // ResultData(result);
                     // if (result.status) {
                     //     LoadTable();
@@ -301,7 +303,7 @@
                 dataType: 'JSON',
                 success: function (result) {
                     $("#tab04").hide();
-                    show_message('移除成功');
+                    c5('移除成功');
                     ResultData(result);
                     if (result.status) {
                         LoadTable();

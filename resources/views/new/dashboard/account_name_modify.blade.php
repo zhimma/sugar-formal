@@ -42,18 +42,18 @@
     <script>
         function formSubmit(){
             @if($user->meta_()->name_change==1)
-                c2('您已申請過，無法再修改喔！');
+                c5('您已申請過，無法再修改喔！');
                 return false;
             @endif
 
             if($('#name').val()==''){
-                c2('請輸入欲修改的暱稱');
+                c5('請輸入欲修改的暱稱');
                 return false;
             }else if($('#reason').val()==''){
-                c2('請輸入欲修改的原因');
+                c5('請輸入欲修改的原因');
                 return false;
             }else if($('#password').val()==''){
-                c2('請輸入您的密碼');
+                c5('請輸入您的密碼');
                 return false;
             }else {
                 c4('暱稱只能申請修改一次，並且要通過站長同意，確定要修改暱稱嗎？');
@@ -65,7 +65,7 @@
         }
 
         @if(Session::has('message'))
-        c2('{{Session::get('message')}}');
+        c5('{{Session::get('message')}}');
         @endif
 
     </script>

@@ -71,13 +71,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
         function submit(){
             if($('#reason').val()==''){
-                c2('請輸入欲修改的原因');
+                c5('請輸入欲修改的原因');
                 return false;
             }else if($('#password').val()==''){
-                c2('請輸入您的密碼');
+                c5('請輸入您的密碼');
                 return false;
             }else if($('input[name=exchange_period]:checked', '#exchange_period_modify').val() == '{{$user->exchange_period}}') {
-                c2('您當前所選項目無需變更');
+                c5('您當前所選項目無需變更');
                 return false;
             }else{
                 c4('確定要變更包養關係嗎？');
@@ -88,7 +88,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         }
 
         @if(Session::has('message'))
-        c3('{{Session::get('message')}}');
+        c5('{{Session::get('message')}}');
         @endif
 
     </script>

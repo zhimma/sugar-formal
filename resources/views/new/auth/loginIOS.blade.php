@@ -88,7 +88,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 ResultData({
                   msg: msg
                 });
-                //c2(msg);
+                //c5(msg);
             })
             .on('form:success', function () {
                 return true;
@@ -101,7 +101,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 ResultData({
                     msg: errormsg
                 });
-                //c2(errormsg);
+                //c5(errormsg);
             @endif
         });
         $('.alert-danger').css('display','none');
@@ -112,7 +112,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             var password = $("input[name=password]").val();
             var t = $(this).closest("form");
             if(email.length==0||password.length==0){
-                c2('請輸入帳號或密碼');
+                c5('請輸入帳號或密碼');
                 // swal({
                 //     title:'請輸入帳號或密碼',
                 //     type:'error'

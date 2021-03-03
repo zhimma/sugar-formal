@@ -39,13 +39,13 @@
                                 }
                                 else {
                                     $isBlur = true;
-                                    $blurryAvatar = isset($histUser->meta->blurryAvatar)? $histUser->meta->blurryAvatar : "";
+                                    $blurryAvatar = isset($umeta->blurryAvatar)? $umeta->blurryAvatar : "";
                                     $blurryAvatar = explode(',', $blurryAvatar);
                                     if(sizeof($blurryAvatar)>1){
                                         $nowB = $user->isVip()? 'VIP' : 'general';
                                         $isBlur = in_array($nowB, $blurryAvatar);
                                     } else {
-                                        $isBlur = !$user->isVip();
+                                        $isBlur = false;
                                     }
                                 }
                             @endphp

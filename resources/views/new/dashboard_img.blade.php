@@ -185,7 +185,7 @@
                             $blurryLifePhoto = isset($blurry_life_photo)? $blurry_life_photo : '';
                             $blurryLifePhoto = explode(',', $blurryLifePhoto);
                             $isVVIP = true;$isVIP = true;$isGeneral = true;
-                            foreach($blurryAvatar as $row){
+                            foreach($blurryLifePhoto as $row){
                                 if($row == 'V_VIP'){
                                     $isVVIP = false;
                                 } elseif($row == 'VIP') {
@@ -258,12 +258,12 @@
     }
     $(document).ready(function(){
         @if(Session::has('message'))
-            c3("{{ Session::get('message') }}");
+            c5("{{ Session::get('message') }}");
         @endif
 
         //errors
         @foreach ($errors->all() as $error)
-            c3('{{$error}}');
+            c5('{{$error}}');
         @endforeach
 
         let userId = $("input[name='userId']").val()
@@ -298,7 +298,7 @@
                                 //c2("刪除成功")
                                 $(".announce_bg").hide();
                                 $("#tab02").hide();
-                                c3(data);
+                                c5(data);
                                 // if(data.length>4){
                                 //     c2(data);
                                 // }else {
@@ -307,7 +307,7 @@
                                 isRemovable = true
                             },
                             error: function(xhr, status, msg){
-                                c2("刪除失敗")
+                                c5("刪除失敗")
                                 isRemovable = false
                             }
                         })
@@ -330,7 +330,7 @@
 
                     // confirm dialog
                     confirm: function(text, callback) {
-                        c2(text) ? callback() : null;
+                        c5(text) ? callback() : null;
                     }
                 }
             })
@@ -369,7 +369,7 @@
                             success: function(data){
                                 $(".announce_bg").hide();
                                 $("#tab02").hide();
-                                c3(data);
+                                c5(data);
                                 // if(data.length>4){
                                 //     c1(data);
                                 // }else {
@@ -379,7 +379,7 @@
 
                             },
                             error: function(xhr, status, msg){
-                                c2("刪除失敗")
+                                c5("刪除失敗")
                                 isRemovable = false
                             }
                         })
@@ -402,7 +402,7 @@
 
                     // confirm dialog
                     confirm: function(text, callback) {
-                        c2(text) ? callback() : null;
+                        c5(text) ? callback() : null;
                     }
                 }
             })
