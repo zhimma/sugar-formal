@@ -185,7 +185,7 @@
                             $blurryLifePhoto = isset($blurry_life_photo)? $blurry_life_photo : '';
                             $blurryLifePhoto = explode(',', $blurryLifePhoto);
                             $isVVIP = true;$isVIP = true;$isGeneral = true;
-                            foreach($blurryAvatar as $row){
+                            foreach($blurryLifePhoto as $row){
                                 if($row == 'V_VIP'){
                                     $isVVIP = false;
                                 } elseif($row == 'VIP') {

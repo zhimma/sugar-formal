@@ -67,7 +67,9 @@ class UserMeta extends Model
         'income',
         'notifmessage',
         'notifhistory',
-        'adminNote'
+        'adminNote',
+        'blurryLifePhoto',
+        'blurryAvatar'
     ];
 
     /*

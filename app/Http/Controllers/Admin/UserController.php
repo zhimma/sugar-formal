@@ -2173,10 +2173,13 @@ class UserController extends \App\Http\Controllers\BaseController
     public function activateUser($token)
     {
         $user = UserMeta::where('activation_token', $token)->first();
+
         if ($user) {
             $user->update([
                 'is_active' => true,
-                'activation_token' => null
+                'activation_token' => null,
+                'blurryAvatar' => 'general,',
+                'blurryLifePhoto' => 'general,'
             ]);
             return back()->with('message', '啟動成功。');
         }
