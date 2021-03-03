@@ -730,7 +730,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     });
 
                     $.each(res.msg,function(i,e) {
-                        var isBlur = true;
+                        let isBlur = true;
                         if('{{$user->meta->isWarned == 1 || $user->aw_relation}}' == true){
                             isBlur = true;
                         }else if ('{{$user->engroup == 2}}' == true){
@@ -748,6 +748,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             } else {
                                 isBlur = !e.isVip;
                             }
+                        }
+                        else{
+                            isBlur = false;
                         }
                         
                         
