@@ -1424,7 +1424,8 @@
                 _token: '{{ csrf_token() }}'
             }, function (data) {
                 $("#tab04").hide();
-                c5('評價已刪除');
+                show_pop_message('評價已刪除');
+                
             });
         });
     });
