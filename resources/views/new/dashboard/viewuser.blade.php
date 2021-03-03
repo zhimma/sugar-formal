@@ -252,12 +252,11 @@
                             <div class="swiper-button-prev"></div>
                         </div>
                         <div class="n_jianj"><a onclick="show_reportPic()">檢舉大頭照</a></div>
-                        <div class="tubiao">
-                            <ul>
-                                @php
-                                    $isBlocked = \App\Models\Blocked::isBlocked($user->id, $to->id);
-                                    $data = \App\Services\UserService::checkRecommendedUser($to);
-                                @endphp
+                        <!--新改-->
+                        @php
+                            $isBlocked = \App\Models\Blocked::isBlocked($user->id, $to->id);
+                            $data = \App\Services\UserService::checkRecommendedUser($to);
+                        @endphp
                                 @if(isset($data['description']) && $to->engroup == 2)
                                     <li>
                                         <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。" style="width: 100%">
@@ -324,7 +323,14 @@
                                     </li>
                                 @endif
                             </ul>
-                        </div>
+                        <!--引导弹出层-->
+                        <script type="text/javascript" src="/new/intro/intro.js"></script>
+                        <link href="/new/intro/introjs.css" rel="stylesheet">
+                        <link rel="stylesheet" href="/new/intro/cover.css">
+                        <script>
+                            $(function(){
+                            })
+                        </script>
 
                         <div class="eg_o">
                             <!-- <div class="eg_oleft">
