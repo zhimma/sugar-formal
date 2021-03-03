@@ -45,7 +45,7 @@
                                     $nowB = $user->isVip()? 'VIP' : 'general';
                                     $isBlur = in_array($nowB, $blurryAvatar);
                                 } else {
-                                    $isBlur = !$user->isVip();
+                                    $isBlur = false;
                                 }
                             }
                             
