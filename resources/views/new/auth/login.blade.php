@@ -183,10 +183,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     msg[i]=error.eq(i).html();
                 }
                 msg = Array.from(new Set(msg));
-                ResultData({
-                  msg: msg
-                });
-                //c5(msg);
+                // ResultData({
+                //   msg: msg
+                // });
+                c5(msg);
             })
             .on('form:success', function () {
                 return true;
@@ -198,7 +198,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 }
                 ResultData({
                     msg: errormsg,
-                    showLink: '<div><a href="/password/reset" class="linkcolor">忘記密碼 (請點我)</a></div>'
+                    showLink: '<a class="n_bllbut matop30" href="/password/reset">忘記密碼 (請點我)</a>'
                 });
                 //c5(errormsg);
             @endif

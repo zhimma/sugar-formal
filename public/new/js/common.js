@@ -179,9 +179,9 @@
    }
 
 	function c7(str, link) {
-		$(".blbg").show();
+		$(".announce_bg").show();
 		$("#tab07").show();
-		$("#tab07 .msgtext").text(str);
+		$("#tab07 .bltext").text(str);
 		$("#tab07 .linktext").html(link);
 	}
 

@@ -88,7 +88,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         }
 
         @if(Session::has('message'))
-        c3('{{Session::get('message')}}');
+        c5('{{Session::get('message')}}');
         @endif
 
     </script>

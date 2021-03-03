@@ -65,7 +65,7 @@
         }
 
         @if(Session::has('message'))
-        c2('{{Session::get('message')}}');
+        c5('{{Session::get('message')}}');
         @endif
 
     </script>
