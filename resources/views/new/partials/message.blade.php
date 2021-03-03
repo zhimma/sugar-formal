@@ -83,11 +83,13 @@
     <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>	
 </div>
 
-<div class="bl gtab" id="tab07">
-    <div class="gxbut" style="min-width: 250px; height: 80px; border-radius: 10px;">
-        <div class="msgtext"></div>
+<div class="bl bl_tab" id="tab07">
+    <div class="bltitle">提示</div>
+    <div class="n_blnr01 matop10">
+        <div class="blnr bltext"></div>
         <div class="linktext"></div>
     </div>
+    <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
 <div class="bl bl_tab" id="tab_block">
