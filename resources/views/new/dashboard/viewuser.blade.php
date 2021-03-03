@@ -1276,7 +1276,7 @@
                     // if(data.save=='ok') {
                         $("#tab_block").hide();
                         // $(".blbg").hide();
-                        c5('封鎖成功');
+                        show_pop_message('封鎖成功');
                     // }
                 });
             }else{
@@ -1297,7 +1297,7 @@
                         _token: '{{ csrf_token() }}'
                     }, function (data) {
                         $("#tab04").hide();
-                        c5('已解除封鎖');
+                        show_pop_message('已解除封鎖');
                     });
                 });
             }else{
