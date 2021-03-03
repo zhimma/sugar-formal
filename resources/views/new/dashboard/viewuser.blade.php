@@ -252,12 +252,7 @@
                             <div class="swiper-button-prev"></div>
                         </div>
                         <div class="n_jianj"><a onclick="show_reportPic()">檢舉大頭照</a></div>
-                        <!--新改-->
-                        <div class="tubiao" data-step="1" data-position="top" data-highlightClass="yindao2" data-tooltipClass="yindao1" data-intro="<ul>
-                                <li><img src='/new/images/a1.png'> <span>註冊未滿30天的新進會員</span></li>
-                                <li><img src='/new/images/a6.png'> <span>通過手機認證的會員</span></li>
-                                <li><img src='/new/images/a5.png'> <span>被多人檢舉或被網站評為可疑的會員</span></li>
-                                </ul>">
+                        <div class="tubiao">
                             <ul>
                                 @php
                                     $isBlocked = \App\Models\Blocked::isBlocked($user->id, $to->id);
