@@ -516,6 +516,7 @@
 		</tr>
 	@endforeach
 </table>
+{{-- 
 @if(isset($fingerprints))
 <h4>指紋記錄</h4>
 	<table class="table table-hover table-bordered">
@@ -526,13 +527,14 @@
 		</tr>
 		@foreach($fingerprints as $f)
 			<tr>
-				<td><a href="{{ route("showFingerprint", $f->fp) }}" target="_blank">{{ $f->fp }}</a></td>
+				<td><a href="{{ route("showFingerprint", $f->fp) }}" target="_blank">{{ $f->fp }}</a></td> 
 				<td>{{ $f->ip }}</td>
 				<td>{{ $f->created_at }}</td>
 			</tr>
 		@endforeach
 	</table>
 @endif
+--}}
 <h4>所有訊息</h4>
 <table class="table table-hover table-bordered">
 <form action="{{ route('users/message/modify') }}" method="post">
