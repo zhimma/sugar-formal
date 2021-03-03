@@ -1933,6 +1933,8 @@ class PagesController extends BaseController
             }
             $isSent3Msg = $user->isSent3Msg($uid);
 
+            $isReadIntro = $user->isReadIntro;
+
             return view('new.dashboard.viewuser', $data)
                     ->with('user', $user)
                     ->with('blockadepopup', $blockadepopup)
@@ -1956,6 +1958,7 @@ class PagesController extends BaseController
                     ->with('evaluation_self',$evaluation_self)
                     ->with('evaluation_data',$evaluation_data)
                     ->with('vipDays',$vipDays)
+                    ->with('isReadIntro',$isReadIntro)
                     ->with('auth_check',$auth_check);
             }
 
