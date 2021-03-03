@@ -330,15 +330,6 @@
                                 @endif
                             </ul>
                         </div>
-                        <!--引导弹出层-->
-                        <script type="text/javascript" src="/new/intro/intro.js"></script>
-                        <link href="/new/intro/introjs.css" rel="stylesheet">
-                        <link rel="stylesheet" href="/new/intro/cover.css">
-                        <script>
-                            $(function(){
-                                introJs().setOption('showButtons',true).start();
-                            })
-                        </script>
 
                         <div class="eg_o">
                             <!-- <div class="eg_oleft">
