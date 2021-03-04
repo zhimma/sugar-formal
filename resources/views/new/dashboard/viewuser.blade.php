@@ -59,7 +59,7 @@
         @media (max-width:1366px) {
             .swiper-container {
                 width: 100%;
-                height: 268px;
+                height: 270px;
             }
             .swiper-slide {
                 /*width: 100%;*/
@@ -194,10 +194,10 @@
             cursor: pointer;
         }
         .tubiao{
-            margin-top: 2px;
+            margin-top: -5px;
         }
         .eg_o {
-            margin-top: 30px;
+            margin-top: 27px;
         }
         .bottub {
             margin-top: -24px;
@@ -271,7 +271,7 @@
                                 @if(isset($data['description']) && $to->engroup == 2)
                                     <li>
                                         <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。" style="width: 100%">
-                                        @if($user->isVip())
+                                        @if($to->isVip())
                                         <img src="/new/images/a1.png">
                                         @else
                                         <img src="/new/images/b_1.png" style="height: 50px;">
@@ -283,7 +283,7 @@
                                 @if(isset($data['description']) && $to->engroup == 1)
                                     <li>
                                         <div class="tagText" data-toggle="popover" data-content="優質會員是願意長期付費的VIP，或者常用車馬費邀請的男會員，建議女會員優先考慮。" style="width: 100%">
-                                        @if($user->isVip())
+                                        @if($to->isVip())
                                         <img src="/new/images/a2.png">
                                         @else
                                         <img src="/new/images/b_2.png" style="height: 50px;">
@@ -296,7 +296,7 @@
                                 @if($to->isVip() && $to->engroup == 1)
                                     <li>
                                         <div class="tagText" data-toggle="popover" data-content="本站的付費會員。" style="width: 100%">
-                                        @if($user->isVip())
+                                        @if($to->isVip())
                                         <img src="/new/images/a4.png">
                                         @else
                                         <img src="/new/images/b_4.png" style="height: 50px;">
@@ -310,7 +310,7 @@
                                     <li>
 
                                         <div class="tagText" data-toggle="popover" data-content="此人被多人檢舉！與此會員交流務必提高警覺！">
-                                        @if($user->isVip())
+                                        @if($to->isVip())
                                         <img src="/new/images/a5.png">
                                         @else
                                         <img src="/new/images/b_5.png" style="height: 50px;">
@@ -325,7 +325,7 @@
                                         @else
                                             <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。" style="width: 100%">
                                         @endif
-                                        @if($user->isVip())
+                                        @if($to->isVip())
                                         <img src="/new/images/a6.png" class="">
                                         @else
                                         <img src="/new/images/b_6.png" style="height: 50px;">
