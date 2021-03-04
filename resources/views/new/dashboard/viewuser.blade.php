@@ -201,11 +201,7 @@
             @endif
         }
         .eg_o {
-            @if($to->isVip())
-                margin-top: 20px;
-            @else
-                margin-top: 27px;
-            @endif
+            margin-top: 27px;
             margin-bottom: 0;
         }
         .bottub {
