@@ -37,15 +37,18 @@ class Kernel extends ConsoleKernel
         })->timezone('Asia/Taipei')->dailyAt('3:00');
         $schedule->call(function (){
             $this->checkECPayVip();
+            $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('3:00');
         $schedule->call(function (){
             $this->checkVipExpired();
         })->timezone('Asia/Taipei')->dailyAt('3:10');
         $schedule->call(function (){
             $this->VIPCheck();
+            $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('4:00');
         $schedule->call(function (){
             $this->checkDatFile();
+            $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('5:00');
         $schedule->call(function (){
             $this->VIPCheck();
@@ -74,6 +77,16 @@ class Kernel extends ConsoleKernel
         $this->load(__DIR__.'/Commands');
 
         require base_path('routes/console.php');
+    }
+
+    protected function checkEmailVailUser(){
+        $constraint = function ($query){
+            return $query->where('is_active', 0);
+        };
+        $user = \App\Models\User::with(['user_meta'=>$constraint])
+            ->whereHas('user_meta', $constraint)
+            ->where('created_at', '<',Carbon::now()->subHours(48))->first();
+        $user->delete();
     }
 
     protected function checkECPayVip(){
