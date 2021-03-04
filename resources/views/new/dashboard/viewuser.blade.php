@@ -195,9 +195,9 @@
         }
         .tubiao{
             @if($to->isVip())
-                margin-top: 0;
+                margin-top: 3px;
             @else
-            margin-top: -5px;
+                margin-top: -5px;
             @endif
         }
         .eg_o {
