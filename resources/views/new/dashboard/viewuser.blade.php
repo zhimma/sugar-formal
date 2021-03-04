@@ -201,8 +201,10 @@
             @endif
         }
         .eg_o {
-            margin-top: 27px;
             margin-bottom: 0;
+        }
+        .eg_oright{
+            margin: 27px auto 0 auto;
         }
         .bottub {
             margin-top: -24px;
