@@ -201,10 +201,8 @@
             @endif
         }
         .eg_o {
+            margin-top: 27px;
             margin-bottom: 0;
-        }
-        .eg_oright{
-            margin: 27px auto 0 auto;
         }
         .bottub {
             margin-top: -24px;
@@ -268,7 +266,7 @@
                             <div class="swiper-button-prev"></div>
                         </div>
                         <div class="n_jianj"><a onclick="show_reportPic()">檢舉大頭照</a></div>
-                        <div class="tubiao">
+                        <div class="tubiao" id="tubiao">
                             <ul>
                         <!--新改-->
                         @php
@@ -1295,6 +1293,9 @@
             }
         });
 
+        if($("#tubiao ul").children().length == 0){
+            $("#tubiao").css({'margin-top': 0});
+        }
 
         $('.unblock').on('click', function() {
             c4('確定要解除封鎖嗎?');
