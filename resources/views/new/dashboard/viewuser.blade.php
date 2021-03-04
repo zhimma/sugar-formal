@@ -194,10 +194,10 @@
             cursor: pointer;
         }
         .tubiao{
-            margin-top: 50px;
+            margin-top: 2px;
         }
         .eg_o {
-            margin-bottom: 40px;
+            margin-top: 30px;
         }
         .bottub {
             margin-top: -24px;
