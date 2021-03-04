@@ -194,10 +194,19 @@
             cursor: pointer;
         }
         .tubiao{
+            @if($to->isVip())
+                margin-top: 0;
+            @else
             margin-top: -5px;
+            @endif
         }
         .eg_o {
-            margin-top: 27px;
+            @if($to->isVip())
+                margin-top: 20px;
+            @else
+                margin-top: 27px;
+            @endif
+            margin-bottom: 0;
         }
         .bottub {
             margin-top: -24px;
