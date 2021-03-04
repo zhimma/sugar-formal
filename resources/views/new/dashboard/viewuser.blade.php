@@ -1294,7 +1294,7 @@
         });
 
         if($("#tubiao ul").children().length == 0){
-            $("#tubiao").css({'margin-top': 0});
+            $(".eg_o").css({'margin-top': 0});
         }
 
         $('.unblock').on('click', function() {
