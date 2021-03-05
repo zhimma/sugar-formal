@@ -22,6 +22,7 @@ class VerifyCsrfToken extends Middleware
         '/dashboard/postChatpayEC',
         '/dashboard/valueAddedService_ec',
         '/dashboard/postValueAddedService',
-        '/admin/api/aws-sns/ses'
+        '/admin/api/aws-sns/ses',
+        '/dashboard/line/callback'
     ];
 }

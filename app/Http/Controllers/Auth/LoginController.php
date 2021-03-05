@@ -41,7 +41,7 @@ class LoginController extends \App\Http\Controllers\BaseController
      *
      * @var string
      */
-    protected $redirectTo = 'dashboard';
+    protected $redirectTo = 'dashboard/personalPage';
 
     protected $fingerprint;
     /**
@@ -170,7 +170,7 @@ class LoginController extends \App\Http\Controllers\BaseController
             $request->session()->flash('banned_reason', $reason);
         }
 
-        return redirect('/dashboard');
+        return redirect('/dashboard/personalPage');
     }
 
     /**
@@ -306,7 +306,7 @@ class LoginController extends \App\Http\Controllers\BaseController
 
             //重新驗證帳號密碼
             if (\Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-                return redirect('/dashboard');
+                return redirect('/dashboard/personalPage');
             }
         }
     }

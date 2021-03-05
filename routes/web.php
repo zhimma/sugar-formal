@@ -354,6 +354,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/banned', 'PagesController@dashboard_banned');
         Route::get('/dashboard/visited', 'PagesController@visited');
         Route::get('/dashboard/viewuser/{uid?}', 'PagesController@viewuser2'); //new route
+        Route::get('/dashboard/personalPage', 'PagesController@personalPage'); //new route
+        Route::post('/dashboard/personalPage/reportDelete', 'PagesController@report_delete')->name('report_delete');
+
 
         Route::get('/dashboard/board', 'PagesController@board');
         //Route::get('/dashboard/history', 'PagesController@history');
@@ -382,6 +385,14 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         //Route::get('/dashboard/block', 'PagesController@block');
         Route::get('/dashboard/upgrade', 'PagesController@upgrade');
    // Route::get('/dashboard/cancel', 'PagesController@cancel');
+
+        /*
+        |--------------------------------------------------------------------------
+        | LINE
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/dashboard/line/callback', 'LineNotify@lineNotifyCallback')->name('lineNotifyCallback');
+        Route::get('/dashboard/line/notifyCancel', 'LineNotify@lineNotifyCancel')->name('lineNotifyCancel');
 
 
     });
