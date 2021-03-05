@@ -682,4 +682,62 @@ class Message_new extends Model
             ->orderBy('created_at', 'desc')
             ->get();
     }
+
+    public static function allSenders($uid, $isVip, $d = 7)
+    {
+        /**
+         * 效能調整：使用左結合取代 where in 以取得更好的效能
+         *
+         * @author LZong <lzong.tw@gmail.com>
+         */
+        $query = Message::with(['sender', 'receiver'])->select("m.*")->from('message as m')
+            ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'm.from_id')
+            ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'm.to_id')
+            ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'm.from_id')
+            ->leftJoin('banned_users_implicitly as b4', 'b4.target', '=', 'm.to_id')
+            ->leftJoin('blocked as b5', function($join) use($uid) {
+                $join->on('b5.blocked_id', '=', 'm.from_id')
+                    ->where('b5.member_id', $uid); })
+            ->leftJoin('blocked as b6', function($join) use($uid) {
+                $join->on('b6.blocked_id', '=', 'm.to_id')
+                    ->where('b6.member_id', $uid); })
+            ->leftJoin('blocked as b7', function($join) use($uid) {
+                $join->on('b7.member_id', '=', 'm.from_id')
+                    ->where('b7.blocked_id', $uid); })
+            ->leftJoin('blocked as b8', function($join) use($uid) {
+                $join->on('b8.member_id', '=', 'm.to_id')
+                    ->where('b8.blocked_id', $uid); });
+        $query = $query->whereNull('b1.member_id')
+            ->whereNull('b2.member_id')
+            ->whereNull('b3.target')
+            ->whereNull('b4.target')
+            ->whereNull('b5.blocked_id')
+            ->whereNull('b6.blocked_id')
+            ->whereNull('b7.member_id')
+            ->whereNull('b8.member_id')
+            ->where(function ($query) use ($uid) {
+                $query->where([['m.to_id', $uid], ['m.from_id', '!=', $uid]])
+                    ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid]]);
+            });
+
+        if($d==7){
+            self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
+        }else if($d==30){
+            self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
+        }else if($d=='all'){
+            if($isVip) {
+                self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
+            }else {
+                self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
+            }
+        }
+        $query->where([['m.created_at','>=',self::$date]]);
+        //$query->orderBy('m.created_at', 'desc');
+        $query->where('is_row_delete_1','!=',$uid)->where('is_row_delete_2','!=',$uid)->where('is_single_delete_1','!=',$uid)->where('is_single_delete_2','!=',$uid);
+        $query->where('m.to_id','!=',$uid);
+        $messages = $query->distinct()->count('m.to_id');
+
+        return $messages;
+    }
+
 }

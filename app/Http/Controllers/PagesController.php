@@ -8,6 +8,7 @@ use App\Models\AccountStatusLog;
 use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
 use App\Models\BannedUsersImplicitly;
+use App\Models\Message_new;
 use App\Models\SimpleTables\warned_users;
 use App\Notifications\BannedUserImplicitly;
 use Auth;
@@ -3664,6 +3665,354 @@ class PagesController extends BaseController
             $result='error';
         }
         return $result;
+    }
+
+    public function personalPage(Request $request) {
+        //$user = $request->user();
+        $user = \View::shared('user');
+
+        $vipStatus = '您目前還不是VIP，<a class="red" href="../dashboard/new_vip">立即成為VIP!</a>';
+        $vipDays=0;
+
+        if($user->isVip()) {
+            $vip_record = Carbon::parse($user->vip_record);
+            $vipDays = $vip_record->diffInDays(Carbon::now());
+            if(!$user->isFreeVip()) {
+                $vip = Vip::where('member_id', $user->id)->first();
+                if($vip->payment){
+
+                    switch ($vip->payment_method){
+                        case 'CREDIT':
+                            $payment = '信用卡繳費';
+                            break;
+                        case 'ATM':
+                            $payment = 'ATM繳費';
+                            break;
+                        case 'CVS':
+                            $payment = '超商代碼繳費';
+                            break;
+                        case 'BARCODE':
+                            $payment = '超商條碼繳費';
+                            break;
+                        default:
+                            $payment = '';
+                    }
+                    if(env('APP_ENV') == 'local'){
+                        $envStr = '_test';
+                    }
+                    else{
+                        $envStr = '';
+                    }
+                    if(substr($vip->payment,0,3) == 'cc_' && $vip->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID')){
+
+                        $ecpay = new \App\Services\ECPay_AllInOne();
+                        $ecpay->MerchantID = Config::get('ecpay.payment'.$envStr.'.MerchantID');
+                        $ecpay->ServiceURL = Config::get('ecpay.payment'.$envStr.'.ServiceURL');//定期定額查詢
+                        $ecpay->HashIV = Config::get('ecpay.payment'.$envStr.'.HashIV');
+                        $ecpay->HashKey = Config::get('ecpay.payment'.$envStr.'.HashKey');
+                        $ecpay->Query = [
+                            'MerchantTradeNo' => $vip->order_id,
+                            'TimeStamp' => 	time()
+                        ];
+                        $paymentData = $ecpay->QueryPeriodCreditCardTradeInfo(); //信用卡定期定額
+                        $last = last($paymentData['ExecLog']);
+                        $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
+                        $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
+
+                        //計算下次扣款日
+                        if($vip->payment == 'cc_quarterly_payment'){
+                            $periodRemained = 92;
+                        }else {
+                            $periodRemained = 30;
+                        }
+                        $nextProcessDate = substr($lastProcessDate->addDays($periodRemained),0,10);
+                    }
+
+                    switch ($vip->payment){
+                        case 'cc_monthly_payment':
+                            if(isset($nextProcessDate)){
+                                $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate;
+                            }else{
+                                $nextProcessDate='';
+                            }
+                            $vipStatus='您目前的 VIP 是每月定期 '.$payment.'。'.$nextProcessDate;
+                            break;
+                        case 'cc_quarterly_payment':
+
+                            if(isset($nextProcessDate)){
+                                $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate;
+                            }else{
+                                $nextProcessDate='';
+                            }
+                            $vipStatus='您目前的 VIP 是每季定期 '.$payment.'。'.$nextProcessDate;
+                            break;
+                        case 'one_month_payment':
+                            $vipStatus='您目前的 VIP 是單次之付本月費用 '.$payment.'，到期日為'.substr($vip->expiry,0,10);
+                            break;
+                        case 'one_quarter_payment':
+                            $vipStatus='您目前的 vip 是單次支付本季費用 '.$payment.'，到期日為'.substr($vip->expiry,0,10);
+                            break;
+                    }
+                }
+            }else{
+                $vipStatus = '您目前為免費VIP';
+            }
+        }
+
+        //封鎖
+        $isBannedStatus = '';
+        $banned_data = banned_users::where('member_id',$user->id)->first();
+        if($banned_data){
+            if(!$banned_data->expire_date) {
+                $isBannedStatus = '您目前已被站方封鎖，原因是 ' . $banned_data->reason . '，如有需要反應請點右下聯絡我們聯絡站長。';
+            }else if($banned_data->expire_date > now() ) {
+                $datetime1 = new \DateTime(now());
+                $datetime2 = new \DateTime($banned_data->expire_date);
+                $diffDays = $datetime1->diff($datetime2)->days;
+                $isBannedStatus .= '您從 '.substr($banned_data->created_at,0,10).' 被站方封鎖 '.$diffDays.' 天，預計至 '.substr($banned_data->expire_date,0,10).' 日解除，原因是 '.$banned_data->reason.'，如有需要反應請點右下聯絡我們聯絡站長。';
+            }
+        }
+
+//        $isBannedImplicitlyStatus = '';
+//        $banned_users_implicitly_data = BannedUsersImplicitly::where('target',$user->id)->first();
+//        if($banned_users_implicitly_data){
+//            $isBannedImplicitlyStatus = '您目前已被站方封鎖，原因是 ' . $banned_users_implicitly_data->reason . '，如有需要反應請點右下聯絡我們聯絡站長。';
+//        }
+
+        //警示
+        $adminWarnedStatus = '';
+        if($user->isAdminWarned()){
+            $data = warned_users::where('member_id', $user->id)->first();
+            if(!$data->expire_date) {
+                $adminWarnedStatus = '您前已被站方警示，原因是 ' . $data->reason . '，如有需要反應請點右下聯絡我們聯絡站長。';
+            }else if($data->expire_date > now() ) {
+                $datetime1 = new \DateTime(now());
+                $datetime2 = new \DateTime($data->expire_date);
+                $diffDays = $datetime1->diff($datetime2)->days;
+                $adminWarnedStatus .= '您從 '.substr($data->created_at,0,10).' 被站方警示 '.$diffDays.' 天，預計至 '.substr($data->expire_date,0,10).' 日解除，原因是 '.$data->reason.'，如有需要反應請點右下聯絡我們聯絡站長。';
+            }
+        }
+
+        $isWarnedStatus = '';
+        if($user->meta_()->isWarned==1){
+            $isWarnedStatus = '您目前已被系統自動警示，做完手機認證即可解除<a class="red" href="../member_auth">[請點我進行認證]</a>。PS:此對系統針對八大行業的自動警示機制，帶來不便敬請見諒。';
+        }
+
+
+        //本月封鎖數
+        $banned_users = banned_users::select('id')
+            ->where('created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->count();
+
+        //隱形封鎖
+        $banned_users_implicitly = BannedUsersImplicitly::select('id')
+            ->where('created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->count();
+
+        //取得封鎖資料總筆數
+        $bannedCount = $banned_users + $banned_users_implicitly;
+
+        //本月被檢舉人數
+        $reported = Reported::select('reported_id as uid')->distinct('reported_id')->where('created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->get();
+        $reported_pic = ReportedPic::select('member_pic.member_id as uid')
+            ->join('member_pic','member_pic.id','=','reported_pic.reported_pic_id')
+            ->distinct('member_pic.member_id')
+            ->where('reported_pic.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->get();
+        $reported_avatar = ReportedAvatar::select('reported_user_id as uid')->distinct('reported_user_id')->where('created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->get();
+        $reported_message = Message::select('from_id as uid')->distinct('from_id')->where('isReported',1)->where('created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->get();
+        $reportedCount = collect([$reported, $reported_pic, $reported_avatar, $reported_message])->collapse()->unique('uid')->count();
+        //$reportedCount = $reported + $reported_pic + $reported_avatar + $reported_message;
+
+        //本月警示人數
+        $warnedCount = warned_users::select('id')->where('created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->distinct()->count('member_id');
+
+        //個人檢舉紀錄
+        $reportedStatus = '';
+
+        $reported = Reported::select('id','reported_id as rid','content as reason', 'created_at as reporter_time');
+        $reported = $reported->addSelect(DB::raw("'reported' as table_name"));
+        $reported = $reported->where('member_id',$user->id)->get();
+
+        $reported_pic = ReportedPic::select('reported_pic.id','reported_pic.reporter_id as rid','reported_pic.content as reason','reported_pic.created_at as reporter_time');
+        $reported_pic = $reported_pic->addSelect(DB::raw("'reported_pic' as table_name"));
+        $reported_pic = $reported_pic->join('member_pic','member_pic.id','=','reported_pic.reported_pic_id')
+            ->where('reported_pic.reporter_id',$user->id)
+            ->get();
+
+        $reported_avatar = ReportedAvatar::select('id','reported_user_id as rid', 'content as reason', 'created_at as reporter_time');
+        $reported_avatar = $reported_avatar->addSelect(DB::raw("'reported_avatar' as table_name"));
+        $reported_avatar = $reported_avatar->where('reporter_id',$user->id)->get();
+
+        $reported_message = Message::select('id','from_id as rid', 'reportContent as reason', 'updated_at as reporter_time');
+        $reported_message = $reported_message->addSelect(DB::raw("'message' as table_name"));
+        $reported_message = $reported_message->where('to_id',$user->id)->where('isReported',1)->get();
+
+        $collection = collect([$reported, $reported_pic,$reported_avatar,$reported_message]);
+        $report_all = $collection->collapse()->sortByDesc('reporter_time');
+
+        $reportedStatus = array();
+//        if(is_array($report_all)) {
+            foreach ($report_all as $row) {
+                $reported_user = User::findById($row->rid);
+                if (isset($reported_user['id']) && !empty($reported_user['id'])) {
+                    $content_1 = '您於 ' . substr($row->reporter_time, 0, 16) . ' 檢舉了 <a href=../dashboard/viewuser/' . $row->rid . '?time=' . \Carbon\Carbon::now()->timestamp . '>' . $reported_user['name'] . '</a>，檢舉緣由是 ' . $row->reason;
+                    $content_2 = '';
+                    //檢查被檢舉者是否被站方封鎖或警示
+                    //封鎖
+                    $reporter_isBannedStatus = 0;
+                    $reporter_isBannedStatus_expire = '';
+                    $reporter_isBanned = banned_users::where('member_id', $reported_user['id'])->first();
+                    if ($reporter_isBanned) {
+
+                        if ($reporter_isBanned->expire_date == null) {
+                            $reporter_isBannedStatus = 1;
+                        } else if ($reporter_isBanned->expire_date > now()) {
+                            $reporter_isBannedStatus = 1;
+                            $datetime1 = new \DateTime(now());
+                            $datetime2 = new \DateTime($reporter_isBanned->expire_date);
+                            $diffDays = $datetime1->diff($datetime2)->days;
+                            $reporter_isBannedStatus_expire = $diffDays;
+                        }
+                    }
+
+                    $reporter_isBannedImplicitlyStatus = 0;
+                    $reporter_is_banned_users_implicitly = BannedUsersImplicitly::where('target', $reported_user['id'])->first();
+                    if ($reporter_is_banned_users_implicitly) {
+                        $reporter_isBannedImplicitlyStatus = 1;
+                    }
+
+                    //警示
+                    $reporter_isAdminWarnedStatus = 0;
+                    $reporter_isAdminWarnedStatus_expire = '';
+                    $reporter_isAdminWarned = warned_users::where('member_id', $reported_user['id'])->first();
+                    if ($reporter_isAdminWarned) {
+                        if ($reporter_isAdminWarned->expire_date == null) {
+                            $reporter_isAdminWarnedStatus = 1;
+                        } else if ($reporter_isAdminWarned->expire_date > now()) {
+                            $reporter_isAdminWarnedStatus = 1;
+                            $datetime1 = new \DateTime(now());
+                            $datetime2 = new \DateTime($reporter_isAdminWarned->expire_date);
+                            $diffDays = $datetime1->diff($datetime2)->days;
+                            $reporter_isAdminWarnedStatus_expire = $diffDays;
+                        }
+                    }
+
+                    $reporter_isWarnedStatus = 0;
+                    if ($reported_user->meta_()->isWarned == 1) {
+                        $reporter_isWarnedStatus = 1;
+                    }
+
+                    if ($reporter_isBannedStatus == 1 /*|| $reporter_isBannedImplicitlyStatus == 1*/) {
+                        $content_2 = '目前該會員被處分為 封鎖 ';
+                        if (!empty($reporter_isBannedStatus_expire)) {
+                            $content_2 .= $reporter_isBannedStatus_expire . ' 日。';
+                        }
+                    }
+
+                    if ($reporter_isAdminWarnedStatus == 1 || $reporter_isWarnedStatus == 1) {
+                        $content_2 = '目前該會員被處分為 警示 ';
+                        if (!empty($reporter_isAdminWarnedStatus_expire)) {
+                            $content_2 .= $reporter_isAdminWarnedStatus_expire . ' 日。';
+                        }
+                    }
+                    array_push($reportedStatus, array('table' => $row->table_name, 'id' => $row->id, 'rid' => $reported_user['id'], 'content' => $content_1, 'status' => $content_2));
+                }
+            }
+//        }
+
+        //你收藏的會員上線
+        $myFav = array();
+        $userFav = MemberFav::showFav($user->id);
+        if($userFav){
+            foreach ($userFav as $row){
+                $fav_user = User::findById($row->member_fav_id);
+
+                if(isset($fav_user)) {
+                    $isVisited = Visited::where('visited_id', $user->id)->where('member_id', $fav_user['id'])->count() >= 1 ? '是' : '否';
+
+                    if ($isVisited == '是') {
+                        $visitedTime = Visited::select('created_at')->where('visited_id', $user->id)->where('member_id', $fav_user['id'])->first();
+                        $visitedTime = '，' . $visitedTime->created_at;
+                    } else {
+                        $visitedTime = '';
+                    }
+                    array_push($myFav,
+                        array(
+                            'name' => $fav_user['name'],
+                            'title' => $fav_user['title'],
+                            'last_login' => $fav_user['last_login'],
+                            'visited' => $isVisited . $visitedTime
+                        ));
+                }
+            }
+        }
+
+        //收藏你的會員上線
+        $otherFav = array();
+        $userFav = MemberFav::where('member_fav_id', $user->id)->get();
+        if($userFav){
+            foreach ($userFav as $row){
+                $fav_user = User::findById($row->member_id);
+                if(isset($fav_user)) {
+
+                    array_push($otherFav,
+                        array(
+                            'name' => $fav_user['name'],
+                            'title' => $fav_user['title'],
+                            'last_login' => $fav_user['last_login']
+                        ));
+                }
+            }
+        }
+
+        //msg
+        $msgMemberCount = Message_new::allSenders($user->id,$user->isVip(),$d = 'all');
+
+        if (isset($user)) {
+
+            $data = array(
+                'vipStatus' => $vipStatus,
+                'isBannedStatus' => $isBannedStatus,
+//                'isBannedImplicitlyStatus' => $isBannedImplicitlyStatus,
+                'adminWarnedStatus' => $adminWarnedStatus,
+                'isWarnedStatus' => $isWarnedStatus,
+                'bannedCount' => $bannedCount,
+                'reportedCount' => $reportedCount,
+                'warnedCount' => $warnedCount,
+                'reportedStatus' => $reportedStatus,
+                'msgMemberCount' => $msgMemberCount
+            );
+
+
+
+            return view('new.dashboard.personalPage', $data)
+                ->with('user', $user)
+                ->with('cur', $user)
+                ->with('myFav', $myFav)
+                ->with('otherFav',$otherFav)
+                ->with('vipDays',$vipDays);
+        }
+
+    }
+
+    public function report_delete(Request $request)
+    {
+        $table = $request->table;
+        $id = $request->id;
+
+        if($table != 'message'){
+            $result = DB::table($table)->where('id',$id)->delete();
+        }else if($table == 'message'){
+            $result = DB::table($table)->where('id',$id)->update(['isReported' => 0, 'reportContent' => '']);
+        }
+        if($result){
+            $status = 'ok';
+        }else{
+            $status = 'error';
+        }
+        $data = array(
+            'save' => $status
+        );
+
+        return json_encode($data);
     }
 
 }

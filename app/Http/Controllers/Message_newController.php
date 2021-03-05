@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\MemberFav;
 use App\Models\Message;
 use App\Models\Message_new;
 use App\Models\AnnouncementRead;
 use App\Models\AdminAnnounce;
 use App\Models\SimpleTables\banned_users;
+use App\Models\SimpleTables\warned_users;
 use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\SetAutoBan;
@@ -18,6 +20,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+//use Shivella\Bitly\Facade\Bitly;
 
 class Message_newController extends BaseController {
     public function __construct(UserService $userService) {
@@ -146,6 +149,19 @@ class Message_newController extends BaseController {
             }
         }
         Message::post(auth()->id(), $payload['to'], $payload['msg']);
+
+        //line通知訊息
+        $to_user = User::findById($payload['to']);
+        $check_fav = memberFav::where('member_id',$payload['to'])->where('member_fav_id',auth()->id())->first();
+        if($to_user->line_notify_token != null && $check_fav){
+            $url = url('/dashboard/chat2/chatShow/'.auth()->id());
+            $url = app('bitly')->getUrl($url); //新套件用，如無法使用則先隱藏相關class
+
+            //send notify
+            $message = '您有一則訊息來自 '.$user->name.'。'.$url;
+            User::sendLineNotify($to_user->line_notify_token, $message);
+
+        }
 
         //發送訊息後後判斷是否需備自動封鎖
         // SetAutoBan::auto_ban(auth()->id());
