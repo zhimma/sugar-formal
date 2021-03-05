@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Contracts\Auth\Factory as Auth;
+use Illuminate\Support\Facades\Config;
 
 class GlobalVariables
 {
@@ -57,6 +58,9 @@ class GlobalVariables
             \View::composer(['new.dashboard', 'new.dashboard.viewuser'], function($view) use ($user) {
                 $view->with('isAdminWarned', $user->isAdminWarned());
              });
+
+            $allMessage = \App\Models\Message::allMessage($user->id);
+            \View::share('allMessage', $allMessage);
         }
         return $next($request);
     }

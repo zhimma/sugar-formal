@@ -601,14 +601,40 @@ class Message extends Model
 
     public static function allToFromSender($uid, $sid)
     {
-        if(Blocked::isBlocked($uid, $sid)) {
-            $blockTime = Blocked::getBlockTime($uid, $sid);
-            return Message::where([['to_id', $uid],['from_id', $sid],['created_at', '<=', $blockTime->created_at]])->orWhere([['from_id', $uid],['to_id', $sid]])->distinct()->orderBy('created_at', 'desc')->paginate(10);
+        $user = \View::shared('user');
+        if(!$user){
+            $user = User::find($uid);
+        }
+        if($user->isVip()) {
+            self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
+        }else {
+            self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
         }
 
-        return Message::where([['to_id', $uid],['from_id', $sid],['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]])
-            ->orWhere([['from_id', $uid],['to_id', $sid],['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]])
-            ->distinct()->orderBy('created_at', 'desc')->paginate(10);
+        if(Blocked::isBlocked($uid, $sid)) {
+            $blockTime = Blocked::getBlockTime($uid, $sid);
+            return Message::where('created_at','>=',self::$date)->where([['to_id', $uid],['from_id', $sid],['created_at', '<=', $blockTime->created_at]])
+                ->orWhere([['from_id', $uid],['to_id', $sid]])
+                ->where('created_at','>=',self::$date)
+                ->distinct()
+                ->orderBy('created_at', 'desc')
+                ->paginate(10);
+        }
+        $query = Message::where('created_at','>=',self::$date);
+        $query = $query->where([['to_id', $uid],['from_id', $sid],['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]])
+            ->orWhere([['from_id', $uid],['to_id', $sid],['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]]);
+        $query = $query->where('created_at','>=',self::$date)
+            ->distinct()
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+        return $query;
+
+//        return Message::where([['to_id', $uid],['from_id', $sid],['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]])
+//            ->orWhere([['from_id', $uid],['to_id', $sid],['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]])
+//            ->where('created_at','>=',self::$date)
+//            ->distinct()
+//            ->orderBy('created_at', 'desc')
+//            ->paginate(10);
     }
 
     public static function unread($uid)
@@ -677,6 +703,61 @@ class Message extends Model
             $message->read = 'Y';
             $message->save();
         }
+    }
+
+    public static function allMessage($uid)
+    {
+        $user = \View::shared('user');
+        $allMessageCount=0;
+        if(!$user){
+            $user = User::find($uid);
+        }
+        if($user->isVip()) {
+            self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
+        }else {
+            self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
+        }
+        /**
+         * 效能調整：使用左結合取代 where in 以取得更好的效能
+         *
+         * @author LZong <lzong.tw@gmail.com>
+         */
+        $query = Message::from('message as m')
+            ->leftJoin('users as u', 'u.id', '=', 'm.from_id')
+            ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'm.from_id')
+            ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'm.to_id')
+            ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'm.from_id')
+            ->leftJoin('banned_users_implicitly as b4', 'b4.target', '=', 'm.to_id')
+            ->leftJoin('blocked as b5', function($join) use($uid) {
+                $join->on('b5.blocked_id', '=', 'm.from_id')
+                    ->where('b5.member_id', $uid); })
+            ->leftJoin('blocked as b6', function($join) use($uid) {
+                $join->on('b6.blocked_id', '=', 'm.to_id')
+                    ->where('b6.member_id', $uid); })
+            ->leftJoin('blocked as b7', function($join) use($uid) {
+                $join->on('b7.member_id', '=', 'm.from_id')
+                    ->where('b7.blocked_id', $uid); })
+            ->leftJoin('blocked as b8', function($join) use($uid) {
+                $join->on('b8.member_id', '=', 'm.to_id')
+                    ->where('b8.blocked_id', $uid); });
+        $all_msg = $query->whereNotNull('u.id')
+            ->whereNull('b1.member_id')
+            ->whereNull('b2.member_id')
+            ->whereNull('b3.target')
+            ->whereNull('b4.target')
+            ->whereNull('b5.blocked_id')
+            ->whereNull('b6.blocked_id')
+            ->whereNull('b7.member_id')
+            ->whereNull('b8.member_id')
+            ->where(function($query)use($uid){
+                $query->where('m.to_id','=' ,$uid)
+                    ->orWhere('m.from_id','=',$uid);
+            })
+            ->where([['m.is_row_delete_1','<>', $uid], ['m.is_single_delete_1', '<>', $uid], ['m.temp_id', '=', 0]])
+            ->where([['m.created_at','>=',self::$date]]);
+        $allMessageCount = $all_msg->count();
+
+        return $allMessageCount;
     }
 
     public static function post($from_id, $to_id, $msg, $tip_action = true, $sys_notice = 0)

@@ -806,4 +806,29 @@ class User extends Authenticatable
         return $status;
     }
 
+    public static function sendLineNotify($access_token, $message) {
+
+        if (is_array($message)) {
+            $message = chr(13).chr(10) . implode(chr(13).chr(10), $message);
+        }
+
+        $apiUrl = config('line.line_notify.notify_url');
+
+        $params = [
+            'message' => $message/*,
+            'stickerPackageId' => $stickerPackageId,
+            'stickerId' => $stickerId*/
+        ];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $access_token
+        ]);
+        curl_setopt($ch, CURLOPT_URL, $apiUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
+        $output = curl_exec($ch);
+        curl_close($ch);
+    }
+
 }
