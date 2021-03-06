@@ -67,6 +67,7 @@ a:focus {outline:none;}
 .introjs-helperLayer.yindao2{top:0; margin:-5px auto; width: 100%; max-width:100%; background:#fff3f7;}
 .yindao1,.yindao1b,.yindao1c{background: url("../images/tanchubghy.png")no-repeat 0 0; box-shadow: unset; bottom:120px !important;
     background-size: 100% 100%;height:260px; border:none; margin:0 10%;max-width:80% ;display: flex;align-items: center; justify-content: center;}
+.yd_small{background-image: url("../images/tanchu_s.png"); height:180px;max-width:80%;}
 .yindao1b{height: 300px;}
 .yindao1c{height: 320px;}
 .yindao1 .introjs-arrow,.yindao1b .introjs-arrow,.yindao1c .introjs-arrow{display: none; background:url("../images/jiantou_03.png") no-repeat 0 0; background-size: auto 100%; left:48%; width: 75px; height:70px;}
@@ -177,6 +178,7 @@ a:focus {outline:none;}
     .yd2a{width:93%; padding: 10px 0; margin: 0 auto;font-size: 14px;}
     .yd1 .introjs-nextbutton{background: none; position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index:999;}
     .yindao1,.yindao1b,.yindao1c{ margin:0 auto; max-width:95%; height:220px;}
+    .yd_small{ height: 120px;}
     .yindao1c{height:280px;}
     /*.introjs-helperLayer.yindao2 {margin: -10px auto;}*/
     .tubiao{ bottom:60px;}
