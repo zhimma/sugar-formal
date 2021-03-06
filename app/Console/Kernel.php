@@ -85,7 +85,7 @@ class Kernel extends ConsoleKernel
         };
         $user = \App\Models\User::with(['user_meta'=>$constraint])
             ->whereHas('user_meta', $constraint)
-            ->where('created_at', '<',Carbon::now()->subHours(24))->first();
+            ->where('created_at', '<',Carbon::now()->subHours(48))->first();
         $user->delete();
     }
 

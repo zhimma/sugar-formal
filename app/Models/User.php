@@ -78,7 +78,7 @@ class User extends Authenticatable
     }
 
     public function fa_relation() {
-        return $this->hasOne(\App\Models\SimpleTables\short_message::class, 'member_id', 'id')->where('member_id',$this->id)->where('mobile','!=','')->where('active', 1);
+        return $this->hasOne(\App\Models\SimpleTables\short_message::class, 'member_id', 'id')->where('mobile','!=','')->where('active', 1);
     }
 
     //sent messages
@@ -804,6 +804,31 @@ class User extends Authenticatable
             return 1;
         }
         return $status;
+    }
+
+    public static function sendLineNotify($access_token, $message) {
+
+        if (is_array($message)) {
+            $message = chr(13).chr(10) . implode(chr(13).chr(10), $message);
+        }
+
+        $apiUrl = config('line.line_notify.notify_url');
+
+        $params = [
+            'message' => $message/*,
+            'stickerPackageId' => $stickerPackageId,
+            'stickerId' => $stickerId*/
+        ];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $access_token
+        ]);
+        curl_setopt($ch, CURLOPT_URL, $apiUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
+        $output = curl_exec($ch);
+        curl_close($ch);
     }
 
 }
