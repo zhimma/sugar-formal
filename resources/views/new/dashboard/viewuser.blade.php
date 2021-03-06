@@ -256,6 +256,7 @@
                         @php
                             $isBlocked = \App\Models\Blocked::isBlocked($user->id, $to->id);
                             $data = \App\Services\UserService::checkRecommendedUser($to);
+                            $introCount = 0;
                         @endphp
                         <div class="tubiao" data-step="1" data-position="top" data-highlightClass="yindao2" data-tooltipClass="yindao1" data-intro="<ul>
                                 @if(isset($data['description']) && $to->engroup == 2)
@@ -288,6 +289,7 @@
                                     </li>
                                 @php
                                     $user->isReadIntro = 1;
+                                    $introCount++;
                                 @endphp
                                 @endif
                                 @if(isset($data['description']) && $to->engroup == 1)
@@ -303,6 +305,7 @@
                                     </li>
                                 @php
                                     $user->isReadIntro = 1;
+                                    $introCount++;
                                 @endphp
                                 @endif
                                 {{--                            <li><img src="/new/images/icon_23.png"><span>{{$money_cert}}</span></li>--}}
@@ -319,6 +322,7 @@
                                     </li>
                                 @php
                                     $user->isReadIntro = 1;
+                                    $introCount++;
                                 @endphp
                                 @endif
                                 {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
@@ -335,6 +339,7 @@
                                     </li>
                                 @php
                                     $user->isReadIntro = 1;
+                                    $introCount++;
                                 @endphp
                                 @endif
                                 @if($to->isPhoneAuth())
@@ -353,6 +358,7 @@
                                     </li>
                                 @php
                                     $user->isReadIntro = 1;
+                                    $introCount++;
                                 @endphp
                                 @endif
                             </ul>
@@ -363,10 +369,15 @@
                         <link rel="stylesheet" href="/new/intro/cover.css">
                         <script>
                             $(function(){
-                                @if($user->login_times == 2 && $isReadIntro == 0)
+                                @if($introCount == 1)
+                                    $('.tubiao').attr('data-tooltipClass', 'yindao1 yd_small')
+                                @endif
+                                
                                 introJs().setOption('showButtons',true).start();
+                                @if($user->login_times == 2 && $isReadIntro == 0)
+                                
                                 @php
-                                    $user->save();
+                                    // $user->save();
                                 @endphp
                                 @endif
                             })
@@ -1096,9 +1107,28 @@
         //     $(this).popover('toggle');
         });
 
+        var vipDiff = parseInt('{{$user->isVip()? '6' : '0'}}');
+
 
         if(window.matchMedia("(min-width: 992px)").matches){
+            console.log("123")
             $(".swiper-container").css('height',$(".metx").height()- 56);
+        }
+        if(window.matchMedia("(max-width: 1366px)").matches && window.matchMedia("(min-width: 993px)").matches){
+            console.log("1366px")
+            $(".swiper-container").css('height',$(".metx").height() - 51+ vipDiff);
+        }
+        if(window.matchMedia("(max-width: 992px)").matches && window.matchMedia("(min-width: 737px)").matches){
+            console.log("992px")
+            $(".swiper-container").css('height',$(".metx").height()- 56 + vipDiff);
+        }
+        if(window.matchMedia("(max-width: 736px)").matches && window.matchMedia("(min-width: 661px)").matches){
+            console.log("736px")
+            $(".swiper-container").css('height',$(".metx").height()- 45);
+        }
+        if(window.matchMedia("(max-width: 660px)").matches){
+            console.log("660px")
+            $(".swiper-container").css('height',$(".metx").height() - 55 - vipDiff);
         }
         //固定高取得
         var bottom_height=$('.tubiao ul').height();
