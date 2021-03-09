@@ -70,7 +70,7 @@ a:focus {outline:none;}
 .yd_small{background-image: url("../images/tanchu_s.png"); height:180px;max-width:80%;}
 .yindao1b{height: 300px;}
 .yindao1c{height: 320px;}
-.yindao1 .introjs-arrow,.yindao1b .introjs-arrow,.yindao1c .introjs-arrow{display: none; background:url("../images/jiantou_03.png") no-repeat 0 0; background-size: auto 100%; left:48%; width: 75px; height:70px;}
+.yindao1 .introjs-arrow,.yindao1b .introjs-arrow,.yindao1c .introjs-arrow{display: none; background:url("../images/jiantou_03.png") no-repeat 0 0; background-size: auto 100%; left:36%; width: 60px; height:53px;}
 .yindao1 .introjs-arrow.bottom,.yindao1b .introjs-arrow.bottom,.yindao1c .introjs-arrow.bottom{top:auto; bottom: -48px;
     transform:rotate(180deg);
     -ms-transform:rotate(180deg); 	/* IE 9 */
