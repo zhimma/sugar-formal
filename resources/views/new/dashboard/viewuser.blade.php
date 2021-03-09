@@ -195,38 +195,8 @@
         }
     </style>
     @php
-        $isBlurAvatar = true;$isBlurLifePhoto = true;
-        $blurryAvatar = isset($to->meta_()->blurryAvatar)? $to->meta_()->blurryAvatar : "";
-        $blurryLifePhoto = isset($to->meta_()->blurryLifePhoto)? $to->meta_()->blurryLifePhoto : "";
-        $blurryAvatar = explode(',', $blurryAvatar);
-        $blurryLifePhoto = explode(',', $blurryLifePhoto);
-        if($user->meta_()->isWarned == 1 || $user->aw_relation){
-            $isBlurAvatar = true;
-            $isBlurLifePhoto = true;
-        }else{
-            if ($user->engroup == 2){
-                $isBlurAvatar = false;
-            }
-            else if(sizeof($blurryAvatar)>1){
-                $nowB = $user->isVip()? 'VIP' : 'general';
-                $isBlurAvatar = in_array($nowB, $blurryAvatar);
-            }
-            else {
-                $isBlurAvatar = false;
-            }
-
-            if ($user->engroup == 2){
-                $isBlurLifePhoto = false;
-            }else if(sizeof($blurryLifePhoto)>1){
-                $nowB = $user->isVip()? 'VIP' : 'general';
-                $isBlurLifePhoto = in_array($nowB, $blurryLifePhoto);
-            }
-            else {
-                $isBlurLifePhoto = false;
-            }
-
-        }
-        
+        $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
+        $isBlurLifePhoto = \App\Services\UserService::isBlurLifePhoto($to, $user);
     @endphp
     <div class="container matop80">
         <div class="row">
@@ -262,11 +232,11 @@
                                 @if(isset($data['description']) && $to->engroup == 2)
                                 <li><img src='@if($user->isVip())/new/images/a1.png @else/new/images/b_1.png @endif'> <span>註冊未滿30天的新進會員</span></li>
                                 @endif
-                                @if(isset($data['description']) && $to->engroup == 1)
-                                <li><img src='@if($user->isVip())/new/images/a2.png @else/new/images/b_2.png @endif'> <span>長期付費的VIP，或者常用車馬費邀請的男會員</span></li>
-                                @endif
                                 @if($to->isVip() && $to->engroup == 1)
                                 <li><img src='@if($user->isVip())/new/images/a4.png @else/new/images/b_4.png @endif'> <span>本站付費會員</span></li>
+                                @endif
+                                @if(isset($data['description']) && $to->engroup == 1)
+                                <li><img src='@if($user->isVip())/new/images/a2.png @else/new/images/b_2.png @endif'> <span>長期付費的VIP，或者常用車馬費邀請的男會員</span></li>
                                 @endif
                                 @if($to->meta->isWarned == 1 || $to->aw_relation)
                                 <li><img src='@if($user->isVip())/new/images/a5.png @else/new/images/b_5.png @endif'> <span>被多人檢舉或被網站評為可疑的會員</span></li>
@@ -373,7 +343,9 @@
                                     $('.tubiao').attr('data-tooltipClass', 'yindao1 yd_small')
                                 @endif
                                 
-                                introJs().setOption('showButtons',true).start();
+                                @if($introCount > 0)
+                                    introJs().setOption('showButtons',true).start();
+                                @endif
                                 @if($user->login_times == 2 && $isReadIntro == 0)
                                 
                                 @php
@@ -1109,27 +1081,30 @@
 
         var vipDiff = parseInt('{{$user->isVip()? '6' : '0'}}');
 
-
-        if(window.matchMedia("(min-width: 992px)").matches){
+        if(window.matchMedia("(min-width: 992px)").matches && window.matchMedia("(max-width: 1599px)").matches){
             console.log("123")
             $(".swiper-container").css('height',$(".metx").height()- 56);
         }
-        if(window.matchMedia("(max-width: 1366px)").matches && window.matchMedia("(min-width: 993px)").matches){
-            console.log("1366px")
-            $(".swiper-container").css('height',$(".metx").height() - 51+ vipDiff);
+        if(window.matchMedia("(min-width: 1600px)").matches){
+            console.log("456")
+            $(".swiper-container").css('height',$(".metx").height()- 56);
         }
-        if(window.matchMedia("(max-width: 992px)").matches && window.matchMedia("(min-width: 737px)").matches){
-            console.log("992px")
-            $(".swiper-container").css('height',$(".metx").height()- 56 + vipDiff);
-        }
-        if(window.matchMedia("(max-width: 736px)").matches && window.matchMedia("(min-width: 661px)").matches){
-            console.log("736px")
-            $(".swiper-container").css('height',$(".metx").height()- 45);
-        }
-        if(window.matchMedia("(max-width: 660px)").matches){
-            console.log("660px")
-            $(".swiper-container").css('height',$(".metx").height() - 55 - vipDiff);
-        }
+        // if(window.matchMedia("(max-width: 1366px)").matches && window.matchMedia("(min-width: 993px)").matches){
+        //     console.log("1366px")
+        //     $(".swiper-container").css('height',$(".metx").height() - 30+ vipDiff);
+        // }
+        // if(window.matchMedia("(max-width: 992px)").matches && window.matchMedia("(min-width: 737px)").matches){
+        //     console.log("992px")
+        //     $(".swiper-container").css('height',$(".metx").height()- 56 + vipDiff);
+        // }
+        // if(window.matchMedia("(max-width: 736px)").matches && window.matchMedia("(min-width: 661px)").matches){
+        //     console.log("736px")
+        //     $(".swiper-container").css('height',$(".metx").height()- 45);
+        // }
+        // if(window.matchMedia("(max-width: 660px)").matches){
+        //     console.log("660px")
+        //     $(".swiper-container").css('height',$(".metx").height() - 55 - vipDiff);
+        // }
         //固定高取得
         var bottom_height=$('.tubiao ul').height();
         //浮動高度

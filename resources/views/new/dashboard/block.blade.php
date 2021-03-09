@@ -30,25 +30,7 @@
                         }
                         ?>
                         @php
-                            if($user->meta->isWarned == 1 || $user->aw_relation){
-                                $isBlur = true;
-                            }
-                            else if ($user->engroup == 2){
-                                $isBlur = false;
-                            }
-                            else {
-                                $isBlur = true;
-                                $blurryAvatar = isset($umeta->blurryAvatar)? $umeta->blurryAvatar : "";
-                                $blurryAvatar = explode(',', $blurryAvatar);
-
-                                if(sizeof($blurryAvatar)>1){
-                                    $nowB = $user->isVip()? 'VIP' : 'general';
-                                    $isBlur = in_array($nowB, $blurryAvatar);
-                                } else {
-                                    $isBlur = false;
-                                }
-                            }
-                            
+                            $isBlurAvatar = \App\Services\UserService::isBlurAvatar($blockedUser, $user);
                         @endphp
                     <li>
                         <div class="si_bg">
