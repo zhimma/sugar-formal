@@ -52,7 +52,11 @@
 				@php
 					$user = \App\Models\User::findById($result->cuz_user_set);
 				@endphp
-				{{ $user->email }}
+				@if($user)
+					{{ $user->email }}
+				@else
+					會員資料已刪除
+				@endif
 			</a>
 			@endif
 		</td>
