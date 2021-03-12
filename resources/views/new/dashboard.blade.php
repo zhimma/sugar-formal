@@ -62,7 +62,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 <input type="hidden" name="userId" value="{{$user->id}}">
                 <div class="n_input">
                     <dt>
-                        <span>LINE 通知</span>
+                        <span>LINE 通知: 優先收到收藏中的會員訊息</span>
                         <span><div class="select_xx03">@if($user->line_notify_token==null) 尚未綁定<button class="btn btn-success line_notify">立即綁定</button> @else 已綁定 <button class="btn btn-secondary line_notify_cancel">取消綁定</button>@endif</div></span>
                     </dt>
                   <dt>
