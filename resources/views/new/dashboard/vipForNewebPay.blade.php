@@ -49,7 +49,7 @@
                             </div>
                             <div class="gvip_input">
                                 <span>
-                                    @if(isset($expiry_time) && $expiry_time < \Carbon\Carbon::now())
+                                    @if(isset($vipData) && $vipData->business_id == "761404")
                                         <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                         <input type="hidden" name="userId" value="{{$user->id}}">
@@ -113,7 +113,7 @@
         }
 
         {{--alert({{$days}});--}}
-        @if(isset($expiry_time) && $expiry_time < \Carbon\Carbon::now())
+        @if(isset($vipData) && $vipData->business_id == "761404")
 
         @else
             c5('此為舊會員專屬優惠頁');

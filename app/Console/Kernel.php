@@ -52,18 +52,23 @@ class Kernel extends ConsoleKernel
         })->timezone('Asia/Taipei')->dailyAt('5:00');
         $schedule->call(function (){
             $this->VIPCheck();
+            $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('8:00');
         $schedule->call(function (){
             $this->VIPCheck();
+            $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('12:00');
         $schedule->call(function (){
             $this->VIPCheck();
+            $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('16:00');
         $schedule->call(function (){
             $this->VIPCheck();
+            $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('20:00');
         $schedule->call(function (){
             $this->VIPCheck();
+            $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('23:59');
     }
 
@@ -83,10 +88,12 @@ class Kernel extends ConsoleKernel
         $constraint = function ($query){
             return $query->where('is_active', 0);
         };
-        $user = \App\Models\User::with(['user_meta'=>$constraint])
+        $users = \App\Models\User::with(['user_meta'=>$constraint])
             ->whereHas('user_meta', $constraint)
-            ->where('created_at', '<',Carbon::now()->subHours(48))->first();
-        $user->delete();
+            ->where('created_at', '<',Carbon::now()->subHours(48))->get();
+        foreach ($users as $user){
+            $user->delete();
+        }
     }
 
     protected function checkECPayVip(){
