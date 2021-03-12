@@ -22,7 +22,7 @@
 								<span>{{ $unread }}</span>
 							</span>
 {{--							@endif--}}
-							<a href="{!! url('dashboard/personalPage') !!}"><img src="/new/images/icon_48.png"></a>
+							<a href="{!! url('dashboard') !!}"><img src="/new/images/icon_48.png"></a>
 						</div>
 						@endif
 					@elseif(isset($user) && Auth::user() && $user->meta_()->is_active ==0)
@@ -56,9 +56,6 @@
 							<div class="heyctop">{{ $user->name }}@if($user->isVip()) (VIP) @endif @if(view()->shared('valueAddedServices')['hideOnline'] == 1)<br>(隱藏)@endif</div>
 							<div class="helist">
 								<ul>
-									<li>
-										<a href="{!! url('dashboard/personalPage') !!}"><img src="/new/images/icon_48.png">專屬頁面</a>
-									</li>
 									<li>
 										<a href="{!! url('dashboard') !!}"><img src="/new/images/icon_48.png">個人資料</a>
 									</li>
