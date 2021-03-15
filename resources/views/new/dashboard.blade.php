@@ -61,6 +61,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="userId" value="{{$user->id}}">
                 <div class="n_input">
+                    <dt>
+                        <span>LINE 通知</span>
+                        <span><div class="select_xx03">@if($user->line_notify_token==null) 尚未綁定<button class="btn btn-success line_notify">立即綁定</button> @else 已綁定 <button class="btn btn-secondary line_notify_cancel">取消綁定</button>@endif</div></span>
+                    </dt>
                   <dt>
                     <span>暱稱<i>(必填)</i></span>
                     <span>
@@ -1166,6 +1170,27 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
     });
 
+    $(".line_notify").on('click', function() {
+        var lineClientId = '{{config('line.line_notify.client_id')}}';
+        var callbackUrl = '{{config('line.line_notify.callback_url')}}';
+        var URL = '{{config('line.line_notify.authorize_url')}}?';
+        URL += 'response_type=code';
+        URL += '&client_id='+lineClientId;
+        URL += '&redirect_uri='+callbackUrl;
+        URL += '&scope=notify';
+        URL += '&state={{csrf_token()}}';
+        window.location.href = URL;
+    });
+
+    $(".line_notify_cancel").on('click', function() {
+        c4('確定要解除LINE綁定通知嗎?');
+        var URL = '{{route('lineNotifyCancel')}}';
+        $(".n_left").on('click', function() {
+            $("#tab04").hide();
+            $(".blbg").hide();
+            window.location.href = URL;
+        });
+    });
 
   </script>
 
