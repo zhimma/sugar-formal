@@ -297,7 +297,7 @@
                                         </div>
                                     @endif
                                     {{--手機驗證--}}
-                                    @if($visitor->engroup == 2 && $visitor->isPhoneAuth())
+                                    @if($visitor->isPhoneAuth())
                                         <div class="hoverTip">
                                         <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。">
                                         @if($user->isVip())
