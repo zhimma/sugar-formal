@@ -277,23 +277,6 @@
             changediv('vip2');
         }
 
-
-        // 升級VIP內容
-        {{--$('.n_vip01').on('click', function(event) {--}}
-        {{--    @if($user->isVipNotCanceledNotOnePayment() == true)--}}
-        {{--    c2('您目前已是VIP會員');--}}
-        {{--    return false;--}}
-        {{--    @else--}}
-
-        {{--    var r = confirm("{{ $upgrade_vip }}");--}}
-        {{--    --}}
-        {{--    if(!r) {--}}
-        {{--        event.preventDefault();--}}
-        {{--    }--}}
-        {{--    @endif--}}
-
-        {{--});--}}
-
         $('.paySubmit').on('click', function(event) {
                 var id,choosePayment;
                 if($(this).hasClass("cc_monthly_payment")) {
@@ -306,8 +289,11 @@
                             "如同意以上所有條款請點確認，不同意點取消。");
                         id = 'cc_monthly_payment';
                         choosePayment='';
-    // return false;
+                        $(".n_left").on('click', function() {
+                            $('#'+id+choosePayment+'Form').submit();
+                        });
                     @endif
+
                 }else if($(this).hasClass("cc_quarterly_payment")){
                     @if($user->valueAddedServiceStatus('hideOnline') == 1)
                         c5('您目前已在付費隱藏期間');
@@ -317,7 +303,11 @@
                         "如同意以上所有條款請點確認，不同意點取消。");
                         id = 'cc_quarterly_payment';
                         choosePayment='';
+                        $(".n_left").on('click', function() {
+                            $('#'+id+choosePayment+'Form').submit();
+                        });
                     @endif
+
                 }else if($(this).hasClass("one_month_payment")){
                     //定期定額會員無法購買單次方案
                     @if($user->valueAddedServiceStatus('hideOnline') == 1 && $isPaidOnePayment != 1)
@@ -329,7 +319,19 @@
                             "如同意以上所有條款請點確認，不同意點取消。");
                         id = 'one_month_payment';
                         choosePayment=$(this).parent().find("input[name='choosePayment']").val();
-                    // alert(choosePayment);
+
+                        if(choosePayment == 'ATM' || choosePayment == 'CVS'){
+                            $(".n_left").on('click', function () {
+                                common_confirm("{{$atm_cvs_notice}}","{{$atm_cvs_notice_red}}");
+                                $(".n_left").on('click', function () {
+                                    $('#' + id + choosePayment + 'Form').submit();
+                                });
+                            });
+                        }else {
+                            $(".n_left").on('click', function () {
+                                $('#' + id + choosePayment + 'Form').submit();
+                            });
+                        }
 
                     @endif
                 }else if($(this).hasClass("one_quarter_payment")){
@@ -343,14 +345,26 @@
                             "如同意以上所有條款請點確認，不同意點取消。");
                         id = 'one_quarter_payment';
                         choosePayment=$(this).parent().find("input[name='choosePayment']").val();
-                        // alert(choosePayment);
+
+                        if(choosePayment == 'ATM' || choosePayment == 'CVS'){
+                            $(".n_left").on('click', function () {
+                                common_confirm("{{$atm_cvs_notice}}","{{$atm_cvs_notice_red}}");
+                                $(".n_left").on('click', function () {
+                                    $('#' + id + choosePayment + 'Form').submit();
+                                });
+                            });
+                        }else {
+                            $(".n_left").on('click', function () {
+                                $('#' + id + choosePayment + 'Form').submit();
+                            });
+                        }
+
                     @endif
                 }
 
-            $(".n_left").on('click', function() {
-                // alert(choosePayment);
-                $('#'+id+choosePayment+'Form').submit();
-            });
+            // $(".n_left").on('click', function() {
+            //     $('#'+id+choosePayment+'Form').submit();
+            // });
             return false;
                 // if(!r) {
                 //     event.preventDefault();
