@@ -270,10 +270,7 @@
         });
 
         $('.paySubmit').on('click', function(event) {
-{{--            @if($user->isVipNotCanceledORCanceledButNotExpire())--}}
-{{--                c5('您目前已是VIP會員');--}}
-{{--                return false;--}}
-{{--            @else--}}
+
                 var id,choosePayment;
                 if($(this).hasClass("cc_monthly_payment")) {
                     @if(($user->isVipNotCanceledNotOnePayment() || $user->isVipNotOnePaymentNotExpiry() || $user->isVipOnePaymentNotExpire()))
@@ -283,8 +280,11 @@
                         common_confirm("{{$cc_monthly_payment}}","{{$cc_monthly_payment_red}}");
                         id = 'cc_monthly_payment';
                         choosePayment='';
-    // return false;
                     @endif
+                    $(".n_left").on('click', function() {
+                        $('#'+id+choosePayment+'Form').submit();
+                    });
+
                 }else if($(this).hasClass("cc_quarterly_payment")){
                     @if(($user->isVipNotCanceledNotOnePayment() || $user->isVipNotOnePaymentNotExpiry() || $user->isVipOnePaymentNotExpire()))
                         c5('您目前已是VIP會員');
@@ -294,6 +294,10 @@
                         id = 'cc_quarterly_payment';
                         choosePayment='';
                     @endif
+                    $(".n_left").on('click', function() {
+                        $('#'+id+choosePayment+'Form').submit();
+                    });
+
                 }else if($(this).hasClass("one_month_payment")){
                     //定期定額會員無法購買單次方案
                     @if($user->isVipNotCanceledNotOnePayment() && !$user->isVipOnePaymentNotExpire())
@@ -303,9 +307,22 @@
                         common_confirm("{{$one_month_payment}}","{{$one_month_payment_red}}");
                         id = 'one_month_payment';
                         choosePayment=$(this).parent().find("input[name='choosePayment']").val();
-                    // alert(choosePayment);
 
+                        if(choosePayment == 'ATM' || choosePayment == 'CVS'){
+                            $(".n_left").on('click', function () {
+                                common_confirm("{{$atm_cvs_notice}}","{{$atm_cvs_notice_red}}");
+                                $(".n_left").on('click', function () {
+                                    $('#' + id + choosePayment + 'Form').submit();
+                                });
+                            });
+                        }else {
+                            $(".n_left").on('click', function () {
+                                $('#' + id + choosePayment + 'Form').submit();
+                            });
+                        }
                     @endif
+
+
                 }else if($(this).hasClass("one_quarter_payment")){
                     //定期定額會員無法購買單次方案
                     @if($user->isVipNotCanceledNotOnePayment() && !$user->isVipOnePaymentNotExpire())
@@ -315,19 +332,23 @@
                         common_confirm("{{$one_quarter_payment}}","{{$one_quarter_payment_red}}");
                         id = 'one_quarter_payment';
                         choosePayment=$(this).parent().find("input[name='choosePayment']").val();
-                        // alert(choosePayment);
-                    @endif
-                }
 
-            $(".n_left").on('click', function() {
-                // alert(choosePayment);
-                $('#'+id+choosePayment+'Form').submit();
-            });
+                        if(choosePayment == 'ATM' || choosePayment == 'CVS'){
+                            $(".n_left").on('click', function () {
+                                common_confirm("{{$atm_cvs_notice}}","{{$atm_cvs_notice_red}}");
+                                $(".n_left").on('click', function () {
+                                    $('#' + id + choosePayment + 'Form').submit();
+                                });
+                            });
+                        }else {
+                            $(".n_left").on('click', function () {
+                                $('#' + id + choosePayment + 'Form').submit();
+                            });
+                        }
+                    @endif
+
+                }
             return false;
-                // if(!r) {
-                //     event.preventDefault();
-                // }
-{{--            @endif--}}
         });
 
 
