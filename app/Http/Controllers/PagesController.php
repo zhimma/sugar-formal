@@ -1438,11 +1438,13 @@ class PagesController extends BaseController
         $cc_quarterly_payment = AdminCommonText::where('category_alias','vip_text')->where('alias','cc_quarterly_payment')->get()->first();
         $one_month_payment = AdminCommonText::where('category_alias','vip_text')->where('alias','one_month_payment')->get()->first();
         $one_quarter_payment = AdminCommonText::where('category_alias','vip_text')->where('alias','one_quarter_payment')->get()->first();
+        $atm_cvs_notice = AdminCommonText::where('category_alias','vip_text')->where('alias','atm_cvs_notice')->get()->first();
 
         $cc_monthly_payment_red = AdminCommonText::where('category_alias','vip_text_red')->where('alias','cc_monthly_payment')->get()->first();
         $cc_quarterly_payment_red = AdminCommonText::where('category_alias','vip_text_red')->where('alias','cc_quarterly_payment')->get()->first();
         $one_month_payment_red= AdminCommonText::where('category_alias','vip_text_red')->where('alias','one_month_payment')->get()->first();
         $one_quarter_payment_red = AdminCommonText::where('category_alias','vip_text_red')->where('alias','one_quarter_payment')->get()->first();
+        $atm_cvs_notice_red = AdminCommonText::where('category_alias','vip_text_red')->where('alias','atm_cvs_notice')->get()->first();
 
         $cancel_vip = AdminCommonText::where('alias','cancel_vip')->get()->first();
 
@@ -1477,6 +1479,8 @@ class PagesController extends BaseController
             ->with('cc_quarterly_payment_red',$cc_quarterly_payment_red->content)
             ->with('one_month_payment_red',$one_month_payment_red->content)
             ->with('one_quarter_payment_red',$one_quarter_payment_red->content)
+            ->with('atm_cvs_notice',$atm_cvs_notice->content)
+            ->with('atm_cvs_notice_red',$atm_cvs_notice_red->content)
             ->with('expiry_time', $expiry_time)
             ->with('days',$days);
     }
@@ -1499,11 +1503,13 @@ class PagesController extends BaseController
         $cc_quarterly_payment = AdminCommonText::where('category_alias','hideOnline_text')->where('alias','cc_quarterly_payment')->get()->first();
         $one_month_payment = AdminCommonText::where('category_alias','hideOnline_text')->where('alias','one_month_payment')->get()->first();
         $one_quarter_payment = AdminCommonText::where('category_alias','hideOnline_text')->where('alias','one_quarter_payment')->get()->first();
+        $atm_cvs_notice = AdminCommonText::where('category_alias','hideOnline_text')->where('alias','atm_cvs_notice')->get()->first();
 
         $cc_monthly_payment_red = AdminCommonText::where('category_alias','hideOnline_text_red')->where('alias','cc_monthly_payment')->get()->first();
         $cc_quarterly_payment_red = AdminCommonText::where('category_alias','hideOnline_text_red')->where('alias','cc_quarterly_payment')->get()->first();
         $one_month_payment_red = AdminCommonText::where('category_alias','hideOnline_text_red')->where('alias','one_month_payment')->get()->first();
         $one_quarter_payment_red = AdminCommonText::where('category_alias','hideOnline_text_red')->where('alias','one_quarter_payment')->get()->first();
+        $atm_cvs_notice_red = AdminCommonText::where('category_alias','hideOnline_text_red')->where('alias','atm_cvs_notice')->get()->first();
 
         return view('new.dashboard.valueAddedHideOnline')
             ->with('user', $user)
@@ -1518,6 +1524,8 @@ class PagesController extends BaseController
             ->with('cc_quarterly_payment_red',$cc_quarterly_payment_red->content)
             ->with('one_month_payment_red',$one_month_payment_red->content)
             ->with('one_quarter_payment_red',$one_quarter_payment_red->content)
+            ->with('atm_cvs_notice',$atm_cvs_notice->content)
+            ->with('atm_cvs_notice_red',$atm_cvs_notice_red->content)
             ->with('expiry_time',$expiry_time)
             ->with('days',$days);
     }
