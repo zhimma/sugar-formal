@@ -493,11 +493,11 @@
 							<tr>
 								<?php
 									// $sitem = explode("/i#", $item);
-					                if(isset($sitem[1]) && preg_match("/(iPod|iPhone)/", $item->userAgent))
+					                if(preg_match("/(iPod|iPhone)/", $item->userAgent))
 					                    $device = '手機';
-					                else if(isset($sitem[1]) && preg_match("/iPad/", $item->userAgent))
+					                else if(preg_match("/iPad/", $item->userAgent))
 					                    $device = '平板';
-					                else if(isset($sitem[1]) && preg_match("/android/i", $item->userAgent))
+					                else if(preg_match("/android/i", $item->userAgent))
 					                    $device = '手機';
 					                else
 					                    $device = '電腦';
