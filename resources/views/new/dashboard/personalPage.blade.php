@@ -109,12 +109,22 @@
                                                     </thead>
                                                     <tbody id="collapseExample" class="collapse">
                                                         @foreach($reportedStatus as $row)
-                                                        <tr>
-                                                            <td><a href="javascript:void(0)" class="reportDelete" data-rid="{{$row['rid']}}" data-table="{{$row['table']}}"><img src="/new/images/del_03.png" style="height: 14px;" alt="刪除" title="刪除"></a></td>
-                                                            <td>{!! $row['content'] !!}</td>
-                                                            <td>{!! $row['status'] !!}</td>
-                                                            <td></td>
-                                                        </tr>
+                                                            @if(isset($row['table']))
+                                                                <tr>
+                                                                    <td><a href="javascript:void(0)" class="reportDelete" data-rid="{{$row['rid']}}" data-table="{{$row['table']}}"><img src="/new/images/del_03.png" style="height: 14px;" alt="刪除" title="刪除"></a></td>
+                                                                    <td>{!! $row['content'] !!}</td>
+                                                                    <td>{!! $row['status'] !!}</td>
+                                                                    <td></td>
+                                                                </tr>
+                                                            @else
+                                                                <tr>
+                                                                    <td><a href="javascript:void(0)" class="reportDelete" data-rid="{{$row['rid']}}" data-table=""><img src="/new/images/del_03.png" style="height: 14px;" alt="刪除" title="刪除"></a></td>
+                                                                    <td>{!! $row['content'] !!}</td>
+                                                                    <td>{!! $row['status'] !!}</td>
+                                                                    <td></td>
+                                                                </tr>
+                                                                {{ logger('index table not available, row:' . $row) }}
+                                                            @endif
                                                         @endforeach
                                                     </tbody>
                                                 </table>
