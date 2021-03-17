@@ -123,7 +123,7 @@
                                                                     <td>{!! $row['status'] !!}</td>
                                                                     <td></td>
                                                                 </tr>
-                                                                {{ logger('index table not available, row:' . $row) }}
+                                                                {{ logger('index table not available, row:' . implode("|", $row)) }}
                                                             @endif
                                                         @endforeach
                                                     </tbody>
