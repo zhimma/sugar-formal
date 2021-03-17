@@ -1089,56 +1089,44 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function searchUserPictures(Request $request)
     {
-        $userNames = array();
-        $pics = MemberPic::select('*');
-        $avatars = UserMeta::select('user_id', 'pic', 'isAvatarHidden', 'updated_at')->whereNotNull('pic');
+        $pics = DB::table('member_pic')
+            ->leftJoin('users', 'users.id', '=', 'member_pic.member_id')
+            ->leftJoin('user_meta', 'user_meta.user_id', '=', 'member_pic.member_id')
+            ->selectRaw('member_pic.id, member_pic.member_id, member_pic.pic, users.name, member_pic.updated_at, users.email, users.title, users.last_login, user_meta.about, user_meta.style')
+            ->whereNotNull('member_pic.pic');
+
         if ($request->hidden) {
-            $pics = $pics->where('isHidden', 1);
-            $avatars = $avatars->where('isAvatarHidden', 1);
+            $pics = $pics->where('member_pic.isHidden', 1)->where('user_meta.isAvatarHidden', 1);
         } else {
-            $pics = $pics->where('isHidden', 0);
-            $avatars = $avatars->where('isAvatarHidden', 0);
+            $pics = $pics->where('member_pic.isHidden', 0)->where('user_meta.isAvatarHidden', 0);
         }
         if ($request->date_start) {
-            $pics = $pics->where('updated_at', '>=', $request->date_start);
-            $avatars = $avatars->where('updated_at', '>=', $request->date_start);
+            $pics = $pics->where('member_pic.updated_at', '>=', $request->date_start);
         }
         if ($request->date_end) {
-            $pics = $pics->where('updated_at', '<=', $request->date_end . ' 23:59:59');
-            $avatars = $avatars->where('updated_at', '<=', $request->date_end . ' 23:59:59');
+            $pics = $pics->where('member_pic.updated_at', '<=', $request->date_end . ' 23:59:59');
         }
         if ($request->en_group) {
-            $users = User::select('id')->where('engroup', $request->en_group)->get();
-            $pics = $pics->whereIn('member_id', $users);
-            $avatars = $avatars->whereIn('user_id', $users);
+            $pics = $pics->where('users.engroup', $request->en_group);
         }
         if ($request->city) {
-            $users = UserMeta::select('user_id')->where('city', $request->city)->get();
-            $pics = $pics->whereIn('member_id', $users);
-            $avatars = $avatars->whereIn('user_id', $users);
+            $pics = $pics->where('user_meta.city', $request->city);
         }
         if ($request->area) {
-            $users = UserMeta::select('user_id')->where('area', $request->area)->get();
-            $pics = $pics->whereIn('member_id', $users);
-            $avatars = $avatars->whereIn('user_id', $users);
+            $pics = $pics->where('user_meta.area', $request->area);
+        }
+        if(isset($request->order_by) && $request->order_by=='updated_at'){
+            $pics = $pics->orderBy('member_pic.updated_at','desc');
+        }
+        if(isset($request->order_by) && $request->order_by=='last_login'){
+            $pics = $pics->orderBy('users.last_login','desc');
         }
         $pics = $pics->get();
-        $avatars = $avatars->get();
-        foreach ($pics as $pic) {
-            $userNames[$pic->member_id] = '';
-        }
-        foreach ($avatars as $avatar) {
-            $userNames[$avatar->user_id] = '';
-        }
-        foreach ($userNames as $key => $userName) {
-            $userNames[$key] = User::findById($key);
-            $userNames[$key] = isset($userNames[$key]->name) ? $userNames[$key]->name : '會員資料已刪除';
-        }
+
         return view('admin.users.userPictures',
             ['pics' => $pics,
-                'avatars' => $avatars,
-                'userNames' => $userNames,
                 'en_group' => isset($request->en_group) ? $request->en_group : null,
+                'order_by' => isset($request->order_by) ? $request->order_by : null,
                 'city' => isset($request->city) ? $request->city : null,
                 'area' => isset($request->area) ? $request->area : null,
                 'hiddenSearch' => isset($request->hidden) ? true : false]);
