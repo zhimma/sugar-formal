@@ -2630,7 +2630,7 @@ class UserController extends \App\Http\Controllers\BaseController
             //dd($userName, $userBannedDay, $bannedName, $adminBannedDay);
             $userNotify = User::id_($account->member_id);
             if ($userNotify != null) {
-                $userNotify->notify(new BannedUserImplicitly($userName, $userBannedDay, $bannedName, $adminBannedDay));
+                //$userNotify->notify(new BannedUserImplicitly($userName, $userBannedDay, $bannedName, $adminBannedDay));
             }
         }
 
