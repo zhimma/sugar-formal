@@ -394,6 +394,8 @@ class Message_new extends Model
          * @author LZong <lzong.tw@gmail.com>
          */
         $query = Message::with(['sender', 'receiver', 'sender.aw_relation', 'receiver.aw_relation'])->select("m.*")->from('message as m')
+            ->leftJoin('users as u1', 'u1.id', '=', 'm.from_id')
+            ->leftJoin('users as u2', 'u2.id', '=', 'm.to_id')
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'm.from_id')
             ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'm.to_id')
             ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'm.from_id')
@@ -410,7 +412,9 @@ class Message_new extends Model
             ->leftJoin('blocked as b8', function($join) use($uid) {
                 $join->on('b8.member_id', '=', 'm.to_id')
                     ->where('b8.blocked_id', $uid); });
-        $query = $query->whereNull('b1.member_id')
+        $query = $query->whereNotNull('u1.id')
+                ->whereNotNull('u2.id')
+                ->whereNull('b1.member_id')
                 ->whereNull('b2.member_id')
                 ->whereNull('b3.target')
                 ->whereNull('b4.target')
@@ -436,7 +440,7 @@ class Message_new extends Model
         }
 
         $query->where([['m.created_at','>=',self::$date]]);
-        $query->orderBy('m.created_at', 'desc');
+        $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);$query->orderBy('m.created_at', 'desc');
         $messages = $query->get();
 
         $mm = [];
@@ -444,7 +448,7 @@ class Message_new extends Model
             if(!isset($mm[$v->from_id])){
                 $mm[$v->from_id] = 0;
             }
-            if($v->read=='N' && $v->all_delete_count != $uid && $v->is_row_delete_1 == 0 && $v->is_row_delete_2 != $uid && $v->is_single_delete_1 != $uid && $v->is_single_delete_2 != $uid){
+            if($v->read=='N' && $v->all_delete_count != $uid && $v->is_row_delete_1 != $uid && $v->is_row_delete_2 != $uid && $v->is_single_delete_1 != $uid && $v->is_single_delete_2 != $uid){
                 $mm[$v->from_id]++;
             }
 
@@ -690,7 +694,9 @@ class Message_new extends Model
          *
          * @author LZong <lzong.tw@gmail.com>
          */
-        $query = Message::with(['sender', 'receiver'])->select("m.*")->from('message as m')
+        $query = Message::select( 'm.*',DB::raw('(m.to_id + m.from_id) as temp'))->from('message as m')
+            ->leftJoin('users as u1', 'u1.id', '=', 'm.from_id')
+            ->leftJoin('users as u2', 'u2.id', '=', 'm.to_id')
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'm.from_id')
             ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'm.to_id')
             ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'm.from_id')
@@ -707,7 +713,8 @@ class Message_new extends Model
             ->leftJoin('blocked as b8', function($join) use($uid) {
                 $join->on('b8.member_id', '=', 'm.to_id')
                     ->where('b8.blocked_id', $uid); });
-        $query = $query->whereNull('b1.member_id')
+        $query = $query->whereNotNull('u1.id')->whereNotNull('u2.id')
+            ->whereNull('b1.member_id')
             ->whereNull('b2.member_id')
             ->whereNull('b3.target')
             ->whereNull('b4.target')
@@ -731,13 +738,11 @@ class Message_new extends Model
                 self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
             }
         }
+        $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);
         $query->where([['m.created_at','>=',self::$date]]);
-        //$query->orderBy('m.created_at', 'desc');
-        $query->where('is_row_delete_1','!=',$uid)->where('is_row_delete_2','!=',$uid)->where('is_single_delete_1','!=',$uid)->where('is_single_delete_2','!=',$uid);
-        $query->where('m.to_id','!=',$uid);
-        $messages = $query->distinct()->count('m.to_id');
+        $allSenders = $query->groupBy('temp')->get()->count();
 
-        return $messages;
+        return $allSenders;
     }
 
 }
