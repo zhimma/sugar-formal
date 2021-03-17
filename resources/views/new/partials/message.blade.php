@@ -138,39 +138,39 @@
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
-@if(str_contains(url()->current(), 'dashboard') && Session::has('banned_reason'))
-    <div class="blbg banned_bg" style="display:block"></div>
-    <div class="gg_tab" id="tab_banned_alert" style="display: block; z-index: 999;">
-        <div class="ggtitle">封鎖提示</div>
-        <div class="ggnr01 ">
-            <div class="gg_nr">您因為 {{ Session::get('banned_reason') }} 被站長封鎖{{ Session::get('expire_diff_in_days') }}，如有問題請點右下聯絡我們加站長 line 反應。</div>
-            <div class="gg_bg"><a class="gg_page"></a><a class="ggbut" onclick="gmBtn1_banned()">確定</a><a class="gg_pager"></a></div>
-        </div>
-        <a id="" onclick="gmBtn1_banned()" class="bl_gb"><img src="/new/images/gb_icon01.png"></a>
-    </div>
-    <script>
-        $(".bl_tab").hide();
-        $(".announce_bg").hide();
-        function banned_alert() {
-            $(".announce_bg").hide();
-            $(".banned_bg").show();
-            $("#tab_banned_alert").show();
-        }
-        function gmBtn1_banned(){
-            $(".banned_bg").hide();
-            $(".gg_tab").hide();
+{{--@if(str_contains(url()->current(), 'dashboard') && Session::has('banned_reason'))--}}
+{{--    <div class="blbg banned_bg" style="display:block"></div>--}}
+{{--    <div class="gg_tab" id="tab_banned_alert" style="display: block; z-index: 999;">--}}
+{{--        <div class="ggtitle">封鎖提示</div>--}}
+{{--        <div class="ggnr01 ">--}}
+{{--            <div class="gg_nr">您因為 {{ Session::get('banned_reason') }} 被站長封鎖{{ Session::get('expire_diff_in_days') }}，如有問題請點右下聯絡我們加站長 line 反應。</div>--}}
+{{--            <div class="gg_bg"><a class="gg_page"></a><a class="ggbut" onclick="gmBtn1_banned()">確定</a><a class="gg_pager"></a></div>--}}
+{{--        </div>--}}
+{{--        <a id="" onclick="gmBtn1_banned()" class="bl_gb"><img src="/new/images/gb_icon01.png"></a>--}}
+{{--    </div>--}}
+{{--    <script>--}}
+{{--        $(".bl_tab").hide();--}}
+{{--        $(".announce_bg").hide();--}}
+{{--        function banned_alert() {--}}
+{{--            $(".announce_bg").hide();--}}
+{{--            $(".banned_bg").show();--}}
+{{--            $("#tab_banned_alert").show();--}}
+{{--        }--}}
+{{--        function gmBtn1_banned(){--}}
+{{--            $(".banned_bg").hide();--}}
+{{--            $(".gg_tab").hide();--}}
 {{--                {{Auth::logout()}}--}}
-             window.location = "/logout";
-        }
-        $(document).on('click','.banned_bg',function(event) {
-            $(".banned_bg").hide();
-            $(".announce_bg").hide();
-            $(".gg_tab").hide();
+{{--             window.location = "/logout";--}}
+{{--        }--}}
+{{--        $(document).on('click','.banned_bg',function(event) {--}}
+{{--            $(".banned_bg").hide();--}}
+{{--            $(".announce_bg").hide();--}}
+{{--            $(".gg_tab").hide();--}}
 {{--                {{Auth::logout()}}--}}
-            window.location = "/logout";
-        });
-    </script>
-@endif
+{{--            window.location = "/logout";--}}
+{{--        });--}}
+{{--    </script>--}}
+{{--@endif--}}
 <style>
     .linkcolor{color: pink;}
     .linkcolor:hover{color: white;}
