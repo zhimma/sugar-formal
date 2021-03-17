@@ -3740,7 +3740,7 @@ class PagesController extends BaseController
                             if(isset($nextProcessDate)){
                                 $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate;
                             }else{
-                                $nextProcessDate='';
+                                $nextProcessDate = '已停止扣款，VIP 到期日為' . substr($vip->expiry,0,10);
                             }
                             $vipStatus='您目前的 VIP 是每月定期 '.$payment.'。'.$nextProcessDate;
                             break;
@@ -3749,15 +3749,15 @@ class PagesController extends BaseController
                             if(isset($nextProcessDate)){
                                 $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate;
                             }else{
-                                $nextProcessDate='';
+                                $nextProcessDate = '已停止扣款，VIP 到期日為' . substr($vip->expiry,0,10);
                             }
                             $vipStatus='您目前的 VIP 是每季定期 '.$payment.'。'.$nextProcessDate;
                             break;
                         case 'one_month_payment':
-                            $vipStatus='您目前的 VIP 是單次之付本月費用 '.$payment.'，到期日為'.substr($vip->expiry,0,10);
+                            $vipStatus='您目前的 VIP 是單次之付本月費用 '.$payment.'，到期日為'. substr($vip->expiry,0,10);
                             break;
                         case 'one_quarter_payment':
-                            $vipStatus='您目前的 vip 是單次支付本季費用 '.$payment.'，到期日為'.substr($vip->expiry,0,10);
+                            $vipStatus='您目前的 vip 是單次支付本季費用 '.$payment.'，到期日為'. substr($vip->expiry,0,10);
                             break;
                     }
                 }
