@@ -3681,10 +3681,11 @@ class PagesController extends BaseController
         $vipStatus = '您目前還不是VIP，<a class="red" href="../dashboard/new_vip">立即成為VIP!</a>';
 
         if($user->isVip()) {
+            $vipStatus='您已是 VIP';
             $vip_record = Carbon::parse($user->vip_record);
             $vipDays = $vip_record->diffInDays(Carbon::now());
             if(!$user->isFreeVip()) {
-                $vip = Vip::select('payment','payment_method')->where('member_id', $user->id)->first();
+                $vip = Vip::select('payment','payment_method','expiry')->where('member_id', $user->id)->first();
                 if($vip->payment){
 
                     switch ($vip->payment_method){
