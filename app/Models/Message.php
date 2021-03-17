@@ -723,7 +723,8 @@ class Message extends Model
          * @author LZong <lzong.tw@gmail.com>
          */
         $query = Message::from('message as m')
-            ->leftJoin('users as u', 'u.id', '=', 'm.from_id')
+            ->leftJoin('users as u1', 'u1.id', '=', 'm.from_id')
+            ->leftJoin('users as u2', 'u2.id', '=', 'm.to_id')
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'm.from_id')
             ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'm.to_id')
             ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'm.from_id')
@@ -740,7 +741,7 @@ class Message extends Model
             ->leftJoin('blocked as b8', function($join) use($uid) {
                 $join->on('b8.member_id', '=', 'm.to_id')
                     ->where('b8.blocked_id', $uid); });
-        $all_msg = $query->whereNotNull('u.id')
+        $all_msg = $query->whereNotNull('u1.id')->whereNotNull('u2.id')
             ->whereNull('b1.member_id')
             ->whereNull('b2.member_id')
             ->whereNull('b3.target')
@@ -750,11 +751,12 @@ class Message extends Model
             ->whereNull('b7.member_id')
             ->whereNull('b8.member_id')
             ->where(function($query)use($uid){
-                $query->where('m.to_id','=' ,$uid)
-                    ->orWhere('m.from_id','=',$uid);
+                $query->where([['m.to_id', $uid], ['m.from_id', '!=', $uid]])
+                    ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid]]);
             })
-            ->where([['m.is_row_delete_1','<>', $uid], ['m.is_single_delete_1', '<>', $uid], ['m.temp_id', '=', 0]])
+//            ->where([['m.is_row_delete_1','<>', $uid], ['m.is_single_delete_1', '<>', $uid], ['m.temp_id', '=', 0]])
             ->where([['m.created_at','>=',self::$date]]);
+        $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);
         $allMessageCount = $all_msg->count();
 
         return $allMessageCount;
