@@ -164,7 +164,7 @@ class UserController extends \App\Http\Controllers\BaseController
             if (isset($tmpsql)) {
                 $user = Vip::select('member_id', 'active')
                     ->where('member_id', $request->user_id)
-                    ->update(array('active' => $setVip, 'order_id' => 'BackendFree', 'expiry' => '0000-00-00 00:00:00'));
+                    ->update(array('active' => $setVip, 'business_id' => 'BackendFree', 'order_id' => 'BackendFree', 'expiry' => '0000-00-00 00:00:00'));
             } else {
                 //從來都沒VIP資料的
                 $vip_user = new Vip;
