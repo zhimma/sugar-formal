@@ -27,12 +27,13 @@ class GlobalVariables
         \View::share('user', $user);
         if(isset($user)) {
             $valueAddedServices = array();
-            $valueAddedServices['hideOnline'] = 0;
+//            $valueAddedServices['hideOnline'] = 0;
+            $valueAddedServices['hideOnline'] = $user->valueAddedServiceStatus('hideOnline');
             $isFreeVip = false;
             if ($user->isVip()) {
                 \View::share('isVip', true);
                 $isFreeVip = $user->isFreeVip();
-                $valueAddedServices['hideOnline'] = $user->valueAddedServiceStatus('hideOnline');
+
                 $vipData = $user->vip->sortByDesc("created_at")->first();
                 // 全域 VIP 資料
                 \View::share('vipData', $vipData);
