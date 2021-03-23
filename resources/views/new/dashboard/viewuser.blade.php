@@ -227,25 +227,26 @@
                             $isBlocked = \App\Models\Blocked::isBlocked($user->id, $to->id);
                             $data = \App\Services\UserService::checkRecommendedUser($to);
                             $introCount = 0;
+                            $introMinDiv = $user->isVip()? '111px' : '85px';
                         @endphp
                         <div class="tubiao" data-step="1" data-position="top" data-highlightClass="yindao2" data-tooltipClass="yindao1" data-intro="<ul>
                                 @if(isset($data['description']) && $to->engroup == 2)
-                                <li><img src='@if($user->isVip())/new/images/a1.png @else/new/images/b_1.png @endif'> <span>註冊未滿30天的新進會員</span></li>
+                                <li><div style='min-width:{{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a1.png @else/new/images/b_1.png @endif'></div> <span>註冊未滿30天的新進會員</span></li>
                                 @endif
                                 @if($to->isVip() && $to->engroup == 1)
-                                <li><img src='@if($user->isVip())/new/images/a4.png @else/new/images/b_4.png @endif'> <span>本站付費會員</span></li>
+                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='65px'@endif src='@if($user->isVip())/new/images/a4.png @else/new/images/b_4.png @endif'></div> <span>本站付費會員</span></li>
                                 @endif
                                 @if(isset($data['description']) && $to->engroup == 1)
-                                <li><img src='@if($user->isVip())/new/images/a2.png @else/new/images/b_2.png @endif'> <span>長期付費的VIP，或者常用車馬費邀請的男會員</span></li>
+                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a2.png @else/new/images/b_2.png @endif'></div> <span>長期付費的VIP，或者常用車馬費邀請的男會員</span></li>
                                 @endif
                                 @if($to->meta->isWarned == 1 || $to->aw_relation)
-                                <li><img src='@if($user->isVip())/new/images/a5.png @else/new/images/b_5.png @endif'> <span>被多人檢舉或被網站評為可疑的會員</span></li>
+                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a5.png @else/new/images/b_5.png @endif'></div> <span>被多人檢舉或被網站評為可疑的會員</span></li>
                                 @endif
                                 @if($to->isPhoneAuth())
-                                <li><img src='@if($user->isVip())/new/images/a6.png @else/new/images/b_6.png @endif'> <span>通過手機認證的會員</span></li>
+                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a6.png @else/new/images/b_6.png @endif'></div> <span>通過手機認證的會員</span></li>
                                 @endif
                                 </ul>">
-                            <ul>
+                            <ul @if(!$user->isVip())style="margin-top: -5px;"@endif>
                                 @if(isset($data['description']) && $to->engroup == 2)
                                     <li>
                                         <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。" style="width: 100%">
@@ -322,7 +323,7 @@
                                         @if($user->isVip())
                                         <img src="/new/images/a6.png" class="">
                                         @else
-                                        <img src="/new/images/b_6.png" style="height: 50px;">
+                                        <img src="/new/images/b_6.png" style="height: 50px; margin-bottom: 10px;">
                                         @endif
                                         </div>
                                     </li>
@@ -343,14 +344,11 @@
                                     $('.tubiao').attr('data-tooltipClass', 'yindao1 yd_small')
                                 @endif
                                 
-                                @if($introCount > 0)
+                                @if($user->introl_login_times == 2 && $isReadIntro == 0 && $introCount>0)
                                     introJs().setOption('showButtons',true).start();
-                                @endif
-                                @if($user->login_times == 2 && $isReadIntro == 0)
-                                
-                                @php
-                                    // $user->save();
-                                @endphp
+                                    @php
+                                        $user->save();
+                                    @endphp
                                 @endif
                             })
                         </script>
@@ -380,7 +378,7 @@
                         </div>
 
                     </div>
-                    <div class="bottub">
+                    <div class="bottub" style="z-index: 9;">
 
                         <ul>
                             @if(!$isBlocked)
@@ -1088,6 +1086,26 @@
         if(window.matchMedia("(min-width: 1600px)").matches){
             console.log("456")
             $(".swiper-container").css('height',$(".metx").height()- 56);
+        }
+        if(window.matchMedia("(min-width: 376px)").matches && window.matchMedia("(max-width: 991px)").matches){
+            $(".swiper-container").css('height',$(".metx").height()-48);
+        }
+        
+
+        if( /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+            if(window.matchMedia("(max-width: 375px)").matches){
+                $(".swiper-container").css('height',$(".metx").height()- 46);
+            }
+            if(window.matchMedia("(min-width: 767px)").matches && window.matchMedia("(max-width: 770px)").matches){
+                console.log("768px")
+                $(".swiper-container").css('height',$(".metx").height()- 46);
+            }
+            if(window.innerWidth > window.innerHeight){
+                console.log("land")
+                $(".swiper-container").css('height',$(".metx").height()- 55);
+            }
+        } else {
+            
         }
         // if(window.matchMedia("(max-width: 1366px)").matches && window.matchMedia("(min-width: 993px)").matches){
         //     console.log("1366px")

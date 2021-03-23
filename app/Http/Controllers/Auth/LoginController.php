@@ -179,7 +179,7 @@ class LoginController extends \App\Http\Controllers\BaseController
      */
     public function login(Request $request)
     {
-        $user = User::select('id', 'last_login')->withOut(['vip', 'user_meta'])->where('email', $request->email)->get()->first();
+        $user = User::select('id', 'last_login','login_times','introl_login_times')->withOut(['vip', 'user_meta'])->where('email', $request->email)->get()->first();
         if(isset($user) && Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $user->id)->exists()){
             $request->remember = true;
         }
@@ -216,6 +216,7 @@ class LoginController extends \App\Http\Controllers\BaseController
                     );
                 }
             }
+            // dd('99999');
             if(isset($payload['fp'])){
                 $db = null;
                 if(env("APP_ENV", "local") != "local"){
@@ -242,9 +243,11 @@ class LoginController extends \App\Http\Controllers\BaseController
                 }
                 $this->dispatch(new \App\Jobs\JudgeFingerprint($uid, $payload));
             }
-
+            
             //更新login_times
             User::where('id',$user->id)->update(['login_times'=>$user->login_times +1]);
+            //更新談頻次數
+            User::where('id',$user->id)->update(['introl_login_times'=>$user->introl_login_times +1]);
 
             //新增登入紀錄
             LogUserLogin::create(['user_id' => $user->id, 'userAgent' => $_SERVER['HTTP_USER_AGENT'], 'ip' => $request->ip(), 'created_at' =>  date('Y-m-d H:i:s')]);
