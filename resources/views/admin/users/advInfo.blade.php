@@ -1,5 +1,10 @@
 @include('partials.header')
 @include('partials.message')
+<style>
+	.hiddenRow {
+		padding: 0 !important;
+	}
+</style>
 <body style="padding: 15px;">
 <h1>
 	{{ $user->name }}
@@ -364,6 +369,47 @@
 </table>
 @endif
 
+<h4>檢舉紀錄</h4>
+<table class="table table-hover table-bordered">
+	<tr>
+		<th>暱稱</th>
+		<th>帳號</th>
+		<th>檢舉時間</th>
+		<th>VIP</th>
+		<th>會員認證</th>
+		<th>檢舉理由</th>
+		<th>檢舉類型</th>
+	</tr>
+	@foreach($reportBySelf as $row)
+		<tr>
+			<td>{{$row['name']}}
+				@if($row['vip'])
+					@if($row['vip']=='diamond_black')
+						<img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+					@else
+						@for($z = 0; $z < $row['vip']; $z++)
+							<img src="/img/diamond.png" style="height: 16px;width: 16px;">
+						@endfor
+					@endif
+				@endif
+				@for($i = 0; $i < $row['tipcount']; $i++)
+					👍
+				@endfor</td>
+			<td>
+				<a href="{{ route('users/advInfo', $row['reporter_id']) }}" target='_blank'>
+					{{ $row['email'] }}
+				</a>
+			</td>
+			<td>{{ $row['created_at'] }}</td>
+			<td>@if($row['isvip']==1) VIP @endif</td>
+			<td>@if($row['auth_status']==1) 已認證 @else N/A @endif</td>
+			<td>{{ $row['content'] }}</td>
+			<td>{{ $row['report_type'] }}</td>
+
+		</tr>
+	@endforeach
+</table>
+
 <h4>被檢舉紀錄</h4>
 <table class="table table-hover table-bordered">
 	<tr>
@@ -465,57 +511,51 @@
 
 <h4>帳號登入紀錄</h4>
 <table id="table_userLogin_log" class="table table-hover table-bordered">
-	<tr>
-		<td>登入時間</td>
-	</tr>
+{{--	<tr>--}}
+{{--		<td>登入時間</td>--}}
+{{--	</tr>--}}
 	@foreach($userLogin_log as $logInLog)
-		<tr>
-			<td>
-				<a>{{ substr($logInLog->loginDate ,0 ,10) . ' ['. $logInLog->dataCount .']' }}  </a>
-				<ul class="hidden">
-					<li>
-						<table class="table table-hover table-bordered">
-							<tr>
-								<th>登入時間</th>
-								<th>IP</th>
-								<th>登入裝置</th>
-							</tr>
-							@php
-							//$loginDates = explode(",&p,", $logInLog->loginDates);
-							//$userAgents = explode(",&p,", $logInLog->userAgents);
-							//$ips = explode(",&p,", $logInLog->ips);
-							@endphp
-							@php
-							//$items = explode("/sojs/", $logInLog->items);
-							//print_r($items);
-							@endphp
-							@foreach($logInLog->items as $key => $item)
+		<tr data-toggle="collapse" data-target="#loginTime{{substr($logInLog->loginDate,0,7)}}" class="accordion-toggle">
+			<td colspan="3">{{ substr($logInLog->loginDate,0,7) . ' ['. $logInLog->dataCount .']' }}  </td>
+		</tr>
+		<tr class="accordian-body collapse" id="loginTime{{substr($logInLog->loginDate,0,7)}}">
+			<td class="hiddenRow" colspan="">
+					<table class="table table-bordered">
+						<thead>
+						<tr class="info">
+							<th>登入時間</th>
+							<th>IP</th>
+							<th>登入裝置</th>
+						</tr>
+						</thead>
+						<tbody>
+						@foreach($logInLog->items as $key => $item)
 							<tr>
 								<?php
-									// $sitem = explode("/i#", $item);
-					                if(preg_match("/(iPod|iPhone)/", $item->userAgent))
-					                    $device = '手機';
-					                else if(preg_match("/iPad/", $item->userAgent))
-					                    $device = '平板';
-					                else if(preg_match("/android/i", $item->userAgent))
-					                    $device = '手機';
-					                else
-					                    $device = '電腦';
-					            ?>
+								// $sitem = explode("/i#", $item);
+								if(preg_match("/(iPod|iPhone)/", $item->userAgent))
+									$device = '手機';
+								else if(preg_match("/iPad/", $item->userAgent))
+									$device = '平板';
+								else if(preg_match("/android/i", $item->userAgent))
+									$device = '手機';
+								else
+									$device = '電腦';
+								?>
 								<td>{{$item->created_at}}</td>
 								<td>{{$item->ip}}</td>
-					            <td>
-					                {{ $device }}
-					            </td>
+								<td>
+									{{ $device }}
+								</td>
 							</tr>
-							@endforeach
-						</table>
-					</li>
-				</ul>
-			</td>			
+						@endforeach
+						</tbody>
+					</table>
+			</td>
 		</tr>
 	@endforeach
 </table>
+
 {{-- 
 @if(isset($fingerprints))
 <h4>指紋記錄</h4>
