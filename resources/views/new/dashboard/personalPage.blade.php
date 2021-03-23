@@ -22,10 +22,10 @@
                             <div class="ztitle"><span>會員專屬資訊</span>Personal Information</div>
                             <div class="xiliao_input">
                                 <div class="xl_input">
-                                    <dt>
-                                        <span>LINE 通知</span>
-                                        <span><div class="select_xx03">@if($user->line_notify_token==null) 尚未綁定<button class="btn btn-success line_notify">立即綁定</button> @else 已綁定 <button class="btn btn-secondary line_notify_cancel">取消綁定</button>@endif</div></span>
-                                    </dt>
+{{--                                    <dt>--}}
+{{--                                        <span>LINE 通知</span>--}}
+{{--                                        <span><div class="select_xx03">@if($user->line_notify_token==null) 尚未綁定<button class="btn btn-success line_notify">立即綁定</button> @else 已綁定 <button class="btn btn-secondary line_notify_cancel">取消綁定</button>@endif</div></span>--}}
+{{--                                    </dt>--}}
                                     <dt>
                                         <span>VIP狀態</span>
                                         <span>
@@ -46,23 +46,17 @@
                                             <div class="select_xx03">{{ $allMessage }}</div>
                                         </span>
                                     </dt>
-
+                                    @if($isBannedStatus != '')
                                     <dt>
                                         <span>站方封鎖</span>
                                         <span>
-                                            @if($isBannedStatus == '')
-                                                <div class="select_xx03">無</div>
-                                            @else
-                                                <div class="select_xx03">
-                                                    {!! $isBannedStatus !!}
-                                                </div>
-{{--                                                <div class="select_xx03">--}}
-{{--                                                    {!! $isBannedImplicitlyStatus !!}--}}
-{{--                                                </div>--}}
-                                            @endif
+                                            <div class="select_xx03">
+                                                {!! $isBannedStatus !!}
+                                            </div>
                                         </span>
                                     </dt>
-
+                                    @endif
+                                    @if($adminWarnedStatus != '' || $isWarnedStatus != '')
                                     <dt>
                                         <span>警示紀錄</span>
                                         <span>
@@ -82,6 +76,7 @@
                                             @endif
                                         </span>
                                     </dt>
+                                    @endif
 
                                     <dt>
                                         <span>當月網站管理狀況</span>
@@ -89,7 +84,7 @@
                                             <div class="select_xx03">
                                                 <table class="table">
                                                     <tbody>
-                                                    <tr><td>被檢舉人數 {{$reportedCount}} 人</td></tr>
+{{--                                                    <tr><td>被檢舉人數 {{$reportedCount}} 人</td></tr>--}}
                                                     <tr><td>封鎖人數 {{$bannedCount}} 人</td></tr>
                                                     <tr><td>警示人數 {{$warnedCount}} 人</td></tr>
                                                     </tbody>
@@ -113,20 +108,13 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody id="collapseExample" class="collapse">
-                                                        @php
-                                                        $id = '';
-//print_r($reportedStatus);
-                                                        @endphp
                                                         @foreach($reportedStatus as $row)
-                                                        <tr>
-                                                            <td><a href="javascript:void(0)" class="reportDelete" data-tid="{{$row['id']}}" data-table="{{$row['table']}}"><img src="/new/images/del_03.png" style="height: 14px;" alt="刪除" title="刪除"></a></td>
-                                                            <td>{!! $row['content'] !!}</td>
-                                                            <td>@if($id != $row['rid']){!! $row['status'] !!}@endif</td>
-                                                            <td></td>
-                                                        </tr>
-                                                            @php
-                                                            $id = $row['rid'];
-                                                            @endphp
+                                                            <tr>
+                                                                <td><a href="javascript:void(0)" class="reportDelete" data-rid="{{$row['rid']}}"{{-- data-table="{{$row['table']}}" --}}><img src="/new/images/del_03.png" style="height: 14px;" alt="刪除" title="刪除"></a></td>
+                                                                <td>{!! $row['content'] !!}</td>
+                                                                <td>{!! $row['status'] !!}</td>
+                                                                <td></td>
+                                                            </tr>
                                                         @endforeach
                                                     </tbody>
                                                 </table>
@@ -137,10 +125,11 @@
                                         </span>
                                     </dt>
 
-                                    @if($user->isVip())
+
                                     <dt>
                                         <span>你收藏的會員上線</span>
                                         <span>
+                                            @if($user->isVip())
                                             <div class="select_xx03">
                                                 @if(!empty($myFav))
                                                 <table class="table">
@@ -153,28 +142,32 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                    @foreach($myFav as $row)
 
+                                                    @foreach($myFav as $row)
                                                         <tr>
-                                                            <td>{{$row['name']}}</td>
-                                                            <td>{{$row['title']}}</td>
-                                                            <td>{{$row['last_login']}}</td>
-                                                            <td>{{$row['visited']}}</td>
+                                                            <td><a href="{{url('/dashboard/viewuser/' . $row->member_fav_id . '?time=' . \Carbon\Carbon::now()->timestamp)}}">{{$row->name}}</a></td>
+                                                            <td>{{$row->title}}</td>
+                                                            <td>{{ substr($row->last_login,0,16)}}</td>
+                                                            <td>@if($row->vid !='')是，{{substr($row->visited_created_at,0,16)}}@endif</td>
                                                         </tr>
                                                     @endforeach
 
                                                     </tbody>
                                                 </table>
                                                 @else
-                                                    無
+                                                    暫無收藏的會員
                                                 @endif
                                             </div>
+                                                @else
+                                                <div class="select_xx03">此功能僅開方給VIP，<a class="red" href="{{url('/dashboard/new_vip')}}">立即升級</a></div>
+                                                @endif
                                         </span>
                                     </dt>
 
                                     <dt>
                                         <span>收藏你的會員上線</span>
                                         <span>
+                                            @if($user->isVip())
                                             <div class="select_xx03">
                                                 @if(!empty($otherFav))
                                                 <table class="table">
@@ -188,21 +181,23 @@
                                                     <tbody>
                                                         @foreach($otherFav as $row)
 
-                                                            <tr>
-                                                            <td>{{$row['name']}}</td>
-                                                            <td>{{$row['title']}}</td>
-                                                            <td>{{$row['last_login']}}</td>
+                                                        <tr>
+                                                            <td><a href="{{url('/dashboard/viewuser/' . $row->member_id . '?time=' . \Carbon\Carbon::now()->timestamp)}}">{{$row->name}}</a></td>
+                                                            <td>{{$row->title}}</td>
+                                                            <td>{{ substr($row->last_login,0,16)}}</td>
                                                         </tr>
                                                         @endforeach
                                                     </tbody>
                                                 </table>
                                                 @else
-                                                    無
+                                                    暫無收藏的會員
                                                 @endif
                                             </div>
+                                                @else
+                                                <div class="select_xx03">此功能僅開方給VIP，<a class="red" href="{{url('/dashboard/new_vip')}}">立即升級</a></div>
+                                            @endif
                                         </span>
                                     </dt>
-                                    @endif
 
                                 </div>
                             </div>
@@ -222,47 +217,54 @@
 
     $(".reportDelete").on('click', function() {
         var table=$(this).data("table");
-        var id=$(this).data("tid");
+        var id=$(this).data("rid");
         if($(this).data("table").length > 0){
             c4('確定要刪除嗎?');
             $(".n_left").on('click', function() {
                 $.post('{{ route('report_delete') }}', {
-                    table: table,
+                    // table: table,
                     id: id,
+                    uid: '{{$user->id}}',
                     _token: '{{ csrf_token() }}'
                 }, function (data) {
                     var obj = JSON.parse(data);
                     // alert(obj.save);
                     $("#tab04").hide();
                     if(obj.save == 'ok') {
-                        show_message('紀錄已刪除');
+                        ccc('紀錄已刪除');
+                        $(".n_bllbut_tab_other").on('click', function() {
+                            $(".blbg").hide();
+                            $(".bl").hide();
+                            $(".gg_tab").hide();
+                            window.location.reload();
+                        });
                     }
                 });
             });
         }
     });
 
-    $(".line_notify").on('click', function() {
-        var lineClientId = '{{config('line.line_notify.client_id')}}';
-        var callbackUrl = '{{config('line.line_notify.callback_url')}}';
-        var URL = '{{config('line.line_notify.authorize_url')}}?';
-        URL += 'response_type=code';
-        URL += '&client_id='+lineClientId;
-        URL += '&redirect_uri='+callbackUrl;
-        URL += '&scope=notify';
-        URL += '&state={{csrf_token()}}';
-        window.location.href = URL;
-    });
+    {{--$(".line_notify").on('click', function() {--}}
+    {{--    var lineClientId = '{{config('line.line_notify.client_id')}}';--}}
+    {{--    var callbackUrl = '{{config('line.line_notify.callback_url')}}';--}}
+    {{--    var URL = '{{config('line.line_notify.authorize_url')}}?';--}}
+    {{--    URL += 'response_type=code';--}}
+    {{--    URL += '&client_id='+lineClientId;--}}
+    {{--    URL += '&redirect_uri='+callbackUrl;--}}
+    {{--    URL += '&scope=notify';--}}
+    {{--    URL += '&state={{csrf_token()}}';--}}
+    {{--    window.location.href = URL;--}}
+    {{--});--}}
 
-    $(".line_notify_cancel").on('click', function() {
-        c4('確定要解除LINE綁定通知嗎?');
-        var URL = '{{route('lineNotifyCancel')}}';
-        $(".n_left").on('click', function() {
-            $("#tab04").hide();
-            $(".blbg").hide();
-            window.location.href = URL;
-        });
-    });
+    {{--$(".line_notify_cancel").on('click', function() {--}}
+    {{--    c4('確定要解除LINE綁定通知嗎?');--}}
+    {{--    var URL = '{{route('lineNotifyCancel')}}';--}}
+    {{--    $(".n_left").on('click', function() {--}}
+    {{--        $("#tab04").hide();--}}
+    {{--        $(".blbg").hide();--}}
+    {{--        window.location.href = URL;--}}
+    {{--    });--}}
+    {{--});--}}
 
     $('#collapseExample').collapse('hide');
 

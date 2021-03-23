@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Fingerprint;
 use App\Models\LogUserLogin;
 use App\Models\SimpleTables\member_vip;
 use App\Models\Vip;
@@ -17,7 +16,6 @@ use App\Models\SetAutoBan;
 use Auth;
 use App\Models\SimpleTables\banned_users;
 use Illuminate\Support\Facades\Config;
-use App\Services\FingerprintService;
 use Illuminate\Support\Facades\DB;
 use Session;
 
@@ -43,16 +41,14 @@ class LoginController extends \App\Http\Controllers\BaseController
      */
     protected $redirectTo = 'dashboard/personalPage';
 
-    protected $fingerprint;
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(FingerprintService $fingerprint)
+    public function __construct()
     {
         $this->middleware('guest', ['except' => 'logout']);
-        $this->fingerprint = $fingerprint;
     }
     //新樣板
     public function showLoginForm2()
@@ -216,34 +212,7 @@ class LoginController extends \App\Http\Controllers\BaseController
                     );
                 }
             }
-            // dd('99999');
-            if(isset($payload['fp'])){
-                $db = null;
-                if(env("APP_ENV", "local") != "local"){
-                    $db = \DB::connection('mysql_fp')->table('fingerprint2');
-                }
-                else{
-                    $db = \DB::table('fingerprint2');
-                }
-                $ip = $request->ip();
-                $isFp = $db;
-                $isFp = $isFp->where('fp', $payload['fp'])
-                    ->where('user_id', $uid)
-                    ->where('ip', $ip)
-                    ->get()->count();
-                if($isFp <= 0){
-                    unset($payload['_token']);
-                    unset($payload['email']);
-                    unset($payload['password']);
-                    $payload['user_id'] = $uid;
-                    $payload['ip'] = $ip;
-                    $payload['mac_address'] = $this->get_mac_address();
-                    $result = $db;
-                    $result = $result->insert($payload);
-                }
-                $this->dispatch(new \App\Jobs\JudgeFingerprint($uid, $payload));
-            }
-            
+
             //更新login_times
             User::where('id',$user->id)->update(['login_times'=>$user->login_times +1]);
             //更新談頻次數

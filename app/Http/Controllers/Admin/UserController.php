@@ -164,7 +164,7 @@ class UserController extends \App\Http\Controllers\BaseController
             if (isset($tmpsql)) {
                 $user = Vip::select('member_id', 'active')
                     ->where('member_id', $request->user_id)
-                    ->update(array('active' => $setVip, 'expiry' => '0000-00-00 00:00:00'));
+                    ->update(array('active' => $setVip, 'business_id' => 'BackendFree', 'order_id' => 'BackendFree', 'expiry' => '0000-00-00 00:00:00'));
             } else {
                 //從來都沒VIP資料的
                 $vip_user = new Vip;
@@ -745,11 +745,87 @@ class UserController extends \App\Http\Controllers\BaseController
         $warned_banReason = DB::table('reason_list')->select('content')->where('type', 'warned')->get();
         $fingerprints = Fingerprint2::select('ip', 'fp', 'created_at')->where('user_id', $user->id)->get();
         // $userLogin_log = LogUserLogin::selectRaw('DATE(created_at) as loginDate, user_id as userID, count(*) as dataCount, GROUP_CONCAT(DISTINCT created_at SEPARATOR ",&p,") AS loginDates, GROUP_CONCAT(DISTINCT ip SEPARATOR ",&p,") AS ips, GROUP_CONCAT(DISTINCT userAgent SEPARATOR ",&p,") AS userAgents')->where('user_id', $user->id)->groupBy(DB::raw("DATE(created_at)"))->get();
-        $userLogin_log = LogUserLogin::selectRaw('DATE(created_at) as loginDate, user_id as userID, ip, count(*) as dataCount')->where('user_id', $user->id)->groupBy(DB::raw("DATE(created_at)"))->get();
+        $userLogin_log = LogUserLogin::selectRaw('MONTH(created_at) as loginMonth, DATE(created_at) as loginDate, user_id as userID, ip, count(*) as dataCount')
+            ->where('user_id', $user->id)
+            ->groupBy(DB::raw("MONTH(created_at)"))
+            ->orderBy('created_at','DESC')->get();
         foreach ($userLogin_log as $key => $value) {
-            $userLogin_log[$key]['items'] = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' .  $value->loginDate . '%')->orderBy('created_at','DESC')->get();
+            $userLogin_log[$key]['items'] = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' .  substr($value->loginDate,0,7) . '%')->orderBy('created_at','DESC')->take(50)->get();
         }
 
+        //個人檢舉紀錄
+        $reported = Reported::select('reported.id','reported.reported_id as rid','reported.content as reason', 'reported.created_at as reporter_time','u.name','u.email','u.engroup','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
+            ->leftJoin('users as u', 'u.id','reported.reported_id')->where('u.id','!=',null)
+            ->leftJoin('user_meta as m','u.id','m.user_id')
+            ->leftJoin('banned_users as b','u.id','b.member_id')
+            ->leftJoin('warned_users as w','u.id','w.member_id');
+        $reported = $reported->addSelect(DB::raw("'reported' as table_name"));
+        $reported = $reported->where('reported.member_id',$user->id)->get();
+
+        $reported_pic = ReportedPic::select('reported_pic.id','member_pic.member_id as rid','reported_pic.content as reason','reported_pic.created_at as reporter_time','u.name','u.email','u.engroup','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date');
+        $reported_pic = $reported_pic->addSelect(DB::raw("'reported_pic' as table_name"));
+        $reported_pic = $reported_pic->join('member_pic','member_pic.id','=','reported_pic.reported_pic_id')
+            ->leftJoin('users as u', 'u.id','member_pic.member_id')->where('u.id','!=',null)
+            ->leftJoin('user_meta as m','u.id','m.user_id')
+            ->leftJoin('banned_users as b','u.id','b.member_id')
+            ->leftJoin('warned_users as w','u.id','w.member_id')
+            ->where('reported_pic.reporter_id',$user->id)->get();
+
+        $reported_avatar = ReportedAvatar::select('reported_avatar.id','reported_avatar.reported_user_id as rid', 'reported_avatar.content as reason', 'reported_avatar.created_at as reporter_time','u.name','u.email','u.engroup','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
+            ->leftJoin('users as u', 'u.id','reported_avatar.reported_user_id')->where('u.id','!=',null)
+            ->leftJoin('user_meta as m','u.id','m.user_id')
+            ->leftJoin('banned_users as b','u.id','b.member_id')
+            ->leftJoin('warned_users as w','u.id','w.member_id');
+        $reported_avatar = $reported_avatar->addSelect(DB::raw("'reported_avatar' as table_name"));
+        $reported_avatar = $reported_avatar->where('reported_avatar.reporter_id',$user->id)->get();
+
+        $reported_message = Message::select('message.id','message.from_id as rid', 'message.reportContent as reason', 'message.updated_at as reporter_time','u.name','u.email','u.engroup','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
+            ->leftJoin('users as u', 'u.id','message.from_id')->where('u.id','!=',null)
+            ->leftJoin('user_meta as m','u.id','m.user_id')
+            ->leftJoin('banned_users as b','u.id','b.member_id')
+            ->leftJoin('warned_users as w','u.id','w.member_id');
+        $reported_message = $reported_message->addSelect(DB::raw("'message' as table_name"));
+        $reported_message = $reported_message->where('message.to_id',$user->id)->where('message.isReported',1)->get();
+
+        $collections = collect([$reported, $reported_pic, $reported_avatar, $reported_message]);
+        $report_all_personal = $collections->collapse()->unique('rid')->sortByDesc('reporter_time');
+
+        $reportBySelf = array();
+        foreach ($report_all_personal as $row) {
+            switch ($row->table_name){
+                case 'reported':
+                    $report_type = '會員檢舉';
+                break;
+                case 'reported_pic':
+                    $report_type = '照片檢舉';
+                break;
+                case 'reported_avatar':
+                    $report_type = '大頭照檢舉';
+                break;
+                case 'message';
+                    $report_type = '訊息檢舉';
+                break;
+            }
+            $r_user = User::findById($row->rid);
+            array_push($reportBySelf,
+                array(
+                    'reporter_id' => $row->rid,
+                    'content' => $row->reason,
+                    'created_at' => $row->reporter_time,
+                    'tipcount' => Tip::TipCount_ChangeGood($row->rid),
+                    'vip' => Vip::vip_diamond($row->rid),
+                    'name' => $row->name,
+                    'email' => $row->email,
+                    'isvip' => $r_user->isVip(),
+                    'auth_status' => $r_user->isPhoneAuth(),
+                    'report_type' => $report_type,
+                    'engroup' => $row->engroup
+                )
+            );
+            continue;
+        }
+
+        //被檢舉紀錄
         //檢舉紀錄 reporter_id檢舉者uid  被檢舉者reported_user_id為此頁面主要會員
         $pic_report1 = ReportedAvatar::select('reporter_id as uid', 'reported_user_id as edid', 'cancel', 'created_at', 'content')->where('reported_user_id', $user->id)->where('reporter_id', '!=', $user->id)->groupBy('reporter_id')->get();
         $pic_report2 = ReportedPic::select('reported_pic.reporter_id as uid', 'member_pic.member_id as edid', 'cancel', 'reported_pic.created_at', 'content')->join('member_pic', 'reported_pic.reported_pic_id', '=', 'member_pic.id')->where('member_pic.member_id', $user->id)->where('reported_pic.reporter_id', '!=', $user->id)->groupBy('reported_pic.reporter_id')->get();
@@ -967,10 +1043,12 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('warned_info', $warned_banReason)
                 ->with('implicitly_banReason', $implicitly_banReason)
                 ->with('user', $user)
+//                ->with('userMessage_log',$userMessage_log)
                 ->with('userMessage', $userMessage)
                 ->with('to_ids', $to_ids)
                 ->with('fingerprints', $fingerprints)
                 ->with('userLogin_log', $userLogin_log)
+                ->with('reportBySelf',$reportBySelf)
                 ->with('report_all', $report_all)
                 ->with('out_evaluation_data', $out_evaluation_data)
                 ->with('pr',$pr)
@@ -1028,7 +1106,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
             Reported::where('member_id', $request->reporter_id)->where('reported_id', $request->reported_id)->update(array('cancel' => 1));
 
-            Message::where('id', $request->report_dbid)->update(array('cancel' => 1));
+            Message::where('from_id', $request->reported_id)->where('to_id', $request->reporter_id)->update(array('cancel' => 1));
         } elseif ($request->cancel == 1) {
             ReportedPic::join('member_pic', 'reported_pic.reported_pic_id', '=', 'member_pic.id')
                 ->where('member_pic.member_id', $request->reported_id)
@@ -1039,7 +1117,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
             Reported::where('member_id', $request->reporter_id)->where('reported_id', $request->reported_id)->update(array('cancel' => 0));
 
-            Message::where('id', $request->report_dbid)->update(array('cancel' => 0));
+            Message::where('from_id', $request->reported_id)->where('to_id', $request->reporter_id)->update(array('cancel' => 0));
         }
 
         return back();
@@ -1089,56 +1167,44 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function searchUserPictures(Request $request)
     {
-        $userNames = array();
-        $pics = MemberPic::select('*');
-        $avatars = UserMeta::select('user_id', 'pic', 'isAvatarHidden', 'updated_at')->whereNotNull('pic');
+        $pics = DB::table('member_pic')
+            ->leftJoin('users', 'users.id', '=', 'member_pic.member_id')
+            ->leftJoin('user_meta', 'user_meta.user_id', '=', 'member_pic.member_id')
+            ->selectRaw('member_pic.id, member_pic.member_id, member_pic.pic, users.name, member_pic.updated_at, users.email, users.title, users.last_login, user_meta.about, user_meta.style')
+            ->whereNotNull('member_pic.pic');
+
         if ($request->hidden) {
-            $pics = $pics->where('isHidden', 1);
-            $avatars = $avatars->where('isAvatarHidden', 1);
+            $pics = $pics->where('member_pic.isHidden', 1)->where('user_meta.isAvatarHidden', 1);
         } else {
-            $pics = $pics->where('isHidden', 0);
-            $avatars = $avatars->where('isAvatarHidden', 0);
+            $pics = $pics->where('member_pic.isHidden', 0)->where('user_meta.isAvatarHidden', 0);
         }
         if ($request->date_start) {
-            $pics = $pics->where('updated_at', '>=', $request->date_start);
-            $avatars = $avatars->where('updated_at', '>=', $request->date_start);
+            $pics = $pics->where('member_pic.updated_at', '>=', $request->date_start);
         }
         if ($request->date_end) {
-            $pics = $pics->where('updated_at', '<=', $request->date_end . ' 23:59:59');
-            $avatars = $avatars->where('updated_at', '<=', $request->date_end . ' 23:59:59');
+            $pics = $pics->where('member_pic.updated_at', '<=', $request->date_end . ' 23:59:59');
         }
         if ($request->en_group) {
-            $users = User::select('id')->where('engroup', $request->en_group)->get();
-            $pics = $pics->whereIn('member_id', $users);
-            $avatars = $avatars->whereIn('user_id', $users);
+            $pics = $pics->where('users.engroup', $request->en_group);
         }
         if ($request->city) {
-            $users = UserMeta::select('user_id')->where('city', $request->city)->get();
-            $pics = $pics->whereIn('member_id', $users);
-            $avatars = $avatars->whereIn('user_id', $users);
+            $pics = $pics->where('user_meta.city', $request->city);
         }
         if ($request->area) {
-            $users = UserMeta::select('user_id')->where('area', $request->area)->get();
-            $pics = $pics->whereIn('member_id', $users);
-            $avatars = $avatars->whereIn('user_id', $users);
+            $pics = $pics->where('user_meta.area', $request->area);
+        }
+        if(isset($request->order_by) && $request->order_by=='updated_at'){
+            $pics = $pics->orderBy('member_pic.updated_at','desc');
+        }
+        if(isset($request->order_by) && $request->order_by=='last_login'){
+            $pics = $pics->orderBy('users.last_login','desc');
         }
         $pics = $pics->get();
-        $avatars = $avatars->get();
-        foreach ($pics as $pic) {
-            $userNames[$pic->member_id] = '';
-        }
-        foreach ($avatars as $avatar) {
-            $userNames[$avatar->user_id] = '';
-        }
-        foreach ($userNames as $key => $userName) {
-            $userNames[$key] = User::findById($key);
-            $userNames[$key] = isset($userNames[$key]->name) ? $userNames[$key]->name : '會員資料已刪除';
-        }
+
         return view('admin.users.userPictures',
             ['pics' => $pics,
-                'avatars' => $avatars,
-                'userNames' => $userNames,
                 'en_group' => isset($request->en_group) ? $request->en_group : null,
+                'order_by' => isset($request->order_by) ? $request->order_by : null,
                 'city' => isset($request->city) ? $request->city : null,
                 'area' => isset($request->area) ? $request->area : null,
                 'hiddenSearch' => isset($request->hidden) ? true : false]);
@@ -2630,7 +2696,7 @@ class UserController extends \App\Http\Controllers\BaseController
             //dd($userName, $userBannedDay, $bannedName, $adminBannedDay);
             $userNotify = User::id_($account->member_id);
             if ($userNotify != null) {
-                $userNotify->notify(new BannedUserImplicitly($userName, $userBannedDay, $bannedName, $adminBannedDay));
+                //$userNotify->notify(new BannedUserImplicitly($userName, $userBannedDay, $bannedName, $adminBannedDay));
             }
         }
 
