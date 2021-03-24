@@ -344,7 +344,7 @@
                                     $('.tubiao').attr('data-tooltipClass', 'yindao1 yd_small')
                                 @endif
                                 
-                                @if($user->introl_login_times == 2 && $isReadIntro == 0 && $introCount>0)
+                                @if($user->intro_login_times == 2 && $isReadIntro == 0 && $introCount>0)
                                     introJs().setOption('showButtons',true).start();
                                     @php
                                         $user->save();
