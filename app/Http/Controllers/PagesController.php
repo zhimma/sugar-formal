@@ -1622,14 +1622,14 @@ class PagesController extends BaseController
             if (!isset($targetUser)) {
                 return view('errors.nodata');
             }
-            if(User::isBanned($uid)){
-                Session::flash('closed', true);
-                Session::flash('message', '此用戶已關閉資料');
-                return view('new.dashboard.viewuser', compact('user'));
-            }
+            // if(User::isBanned($uid)){
+                // Session::flash('closed', true);
+                // Session::flash('message', '此用戶已關閉資料');
+                // return view('new.dashboard.viewuser', compact('user'));
+            // }
             if ($user->id != $uid) {
                 if($user->engroup == $targetUser->engroup){
-                    return redirect()->route('listSearch2');
+                    return redirect()->route('listSeatch2');
                 }
                 Visited::visit($user->id, $targetUser);
             }

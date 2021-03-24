@@ -30,29 +30,11 @@
                         }
                         ?>
                         @php
-                            if($user->meta->isWarned == 1 || $user->aw_relation){
-                                $isBlur = true;
-                            }
-                            else if ($user->engroup == 2){
-                                $isBlur = false;
-                            }
-                            else {
-                                $isBlur = true;
-                                $blurryAvatar = isset($umeta->blurryAvatar)? $umeta->blurryAvatar : "";
-                                $blurryAvatar = explode(',', $blurryAvatar);
-
-                                if(sizeof($blurryAvatar)>1){
-                                    $nowB = $user->isVip()? 'VIP' : 'general';
-                                    $isBlur = in_array($nowB, $blurryAvatar);
-                                } else {
-                                    $isBlur = false;
-                                }
-                            }
-                            
+                            $isBlurAvatar = \App\Services\UserService::isBlurAvatar($blockedUser, $user);
                         @endphp
                     <li>
                         <div class="si_bg">
-                            <div class="sjpic @if($isBlur) blur_img @endif"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><img src="@if($blockedUser->meta->isAvatarHidden) {{ 'makesomeerror' }} @else {{$blockedUser->meta->pic}} @endif" @if ($blockedUser->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></a></div>
+                            <div class="sjpic @if($isBlurAvatar) blur_img @endif"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><img src="@if($blockedUser->meta_()->isAvatarHidden) {{ 'makesomeerror' }} @else {{$blockedUser->meta_()->pic}} @endif" @if ($blockedUser->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></a></div>
                             <div class="sjleft">
                                 <div class="sjtable"><a href="/dashboard/viewuser/{{$blockedUser->id}}"><span>{{$blockedUser->name}}<!-- <i class="cicd">●</i>{{ $blockedUser->meta->age() }}--></span></a></div>
                                 <font>

@@ -160,23 +160,7 @@
                 <div class="message">
                     @php
                         $date_temp='';
-                        $isBlur = true;
-                        if($user->meta->isWarned == 1 || $user->aw_relation){
-                            $isBlur = true;
-                        }
-                        else if ($user->engroup == 2){
-                            $isBlur = false;
-                        } else {
-                            $blurryAvatar = isset($cmeta->blurryAvatar)? $cmeta->blurryAvatar : "";
-                            $blurryAvatar = explode(',', $blurryAvatar);
-
-                            if(sizeof($blurryAvatar)>1){
-                                $nowB = $isVip? 'VIP' : 'general';
-                                $isBlur = in_array($nowB, $blurryAvatar);
-                            } else {
-                                $isBlur = false;
-                            }
-                        }
+                        $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
                     @endphp
                     @if(!empty($messages))
                         @foreach ($messages as $message)
@@ -207,7 +191,7 @@
                                         <img src="@if(file_exists( public_path().$user->meta->pic ) && $user->meta->pic != ""){{$user->meta->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
                                     @else
                                         <a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">
-                                        <img class="@if($isBlur) blur_img @endif" src="@if(file_exists( public_path().$msgUser->meta->pic ) && $msgUser->meta->pic != ""){{$msgUser->meta->pic}} @elseif($msgUser->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
+                                        <img class="@if($isBlurAvatar) blur_img @endif" src="@if(file_exists( public_path().$msgUser->meta->pic ) && $msgUser->meta->pic != ""){{$msgUser->meta->pic}} @elseif($msgUser->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">
                                         </a>
                                     @endif
                                     <p>

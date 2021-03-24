@@ -59,7 +59,7 @@
         @media (max-width:1366px) {
             .swiper-container {
                 width: 100%;
-                height: 270px;
+                height: 268px;
             }
             .swiper-slide {
                 /*width: 100%;*/
@@ -193,54 +193,10 @@
             display: block;
             cursor: pointer;
         }
-        .tubiao{
-            @if($user->isVip())
-                margin-top: 3px;
-            @else
-                margin-top: -5px;
-            @endif
-        }
-        .eg_o {
-            margin-top: 27px;
-            margin-bottom: 0;
-        }
-        .bottub {
-            margin-top: -24px;
-        }
     </style>
     @php
-        $isBlurAvatar = true;$isBlurLifePhoto = true;
-        $blurryAvatar = isset($to->meta_()->blurryAvatar)? $to->meta_()->blurryAvatar : "";
-        $blurryLifePhoto = isset($to->meta_()->blurryLifePhoto)? $to->meta_()->blurryLifePhoto : "";
-        $blurryAvatar = explode(',', $blurryAvatar);
-        $blurryLifePhoto = explode(',', $blurryLifePhoto);
-        if($user->meta_()->isWarned == 1 || $user->aw_relation){
-            $isBlurAvatar = true;
-            $isBlurLifePhoto = true;
-        }else{
-            if ($user->engroup == 2){
-                $isBlurAvatar = false;
-            }
-            else if(sizeof($blurryAvatar)>1){
-                $nowB = $user->isVip()? 'VIP' : 'general';
-                $isBlurAvatar = in_array($nowB, $blurryAvatar);
-            }
-            else {
-                $isBlurAvatar = false;
-            }
-
-            if ($user->engroup == 2){
-                $isBlurLifePhoto = false;
-            }else if(sizeof($blurryLifePhoto)>1){
-                $nowB = $user->isVip()? 'VIP' : 'general';
-                $isBlurLifePhoto = in_array($nowB, $blurryLifePhoto);
-            }
-            else {
-                $isBlurLifePhoto = false;
-            }
-
-        }
-        
+        $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
+        $isBlurLifePhoto = \App\Services\UserService::isBlurLifePhoto($to, $user);
     @endphp
     <div class="container matop80">
         <div class="row">
@@ -266,13 +222,31 @@
                             <div class="swiper-button-prev"></div>
                         </div>
                         <div class="n_jianj"><a onclick="show_reportPic()">檢舉大頭照</a></div>
-                        <div class="tubiao" id="tubiao">
-                            <ul>
                         <!--新改-->
                         @php
                             $isBlocked = \App\Models\Blocked::isBlocked($user->id, $to->id);
                             $data = \App\Services\UserService::checkRecommendedUser($to);
+                            $introCount = 0;
+                            $introMinDiv = $user->isVip()? '111px' : '85px';
                         @endphp
+                        <div class="tubiao" data-step="1" data-position="top" data-highlightClass="yindao2" data-tooltipClass="yindao1" data-intro="<ul>
+                                @if(isset($data['description']) && $to->engroup == 2)
+                                <li><div style='min-width:{{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a1.png @else/new/images/b_1.png @endif'></div> <span>註冊未滿30天的新進會員</span></li>
+                                @endif
+                                @if($to->isVip() && $to->engroup == 1)
+                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='65px'@endif src='@if($user->isVip())/new/images/a4.png @else/new/images/b_4.png @endif'></div> <span>本站付費會員</span></li>
+                                @endif
+                                @if(isset($data['description']) && $to->engroup == 1)
+                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a2.png @else/new/images/b_2.png @endif'></div> <span>長期付費的VIP，或者常用車馬費邀請的男會員</span></li>
+                                @endif
+                                @if($to->meta->isWarned == 1 || $to->aw_relation)
+                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a5.png @else/new/images/b_5.png @endif'></div> <span>被多人檢舉或被網站評為可疑的會員</span></li>
+                                @endif
+                                @if($to->isPhoneAuth())
+                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a6.png @else/new/images/b_6.png @endif'></div> <span>通過手機認證的會員</span></li>
+                                @endif
+                                </ul>">
+                            <ul @if(!$user->isVip())style="margin-top: -5px;"@endif>
                                 @if(isset($data['description']) && $to->engroup == 2)
                                     <li>
                                         <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。" style="width: 100%">
@@ -284,6 +258,10 @@
                                         </div>
 {{--                                        <span>{{$new_sweet}}</span>--}}
                                     </li>
+                                @php
+                                    $user->isReadIntro = 1;
+                                    $introCount++;
+                                @endphp
                                 @endif
                                 @if(isset($data['description']) && $to->engroup == 1)
                                     <li>
@@ -296,6 +274,10 @@
                                         </div>
 {{--                                        <span>{{$well_member}}</span>--}}
                                     </li>
+                                @php
+                                    $user->isReadIntro = 1;
+                                    $introCount++;
+                                @endphp
                                 @endif
                                 {{--                            <li><img src="/new/images/icon_23.png"><span>{{$money_cert}}</span></li>--}}
                                 @if($to->isVip() && $to->engroup == 1)
@@ -309,6 +291,10 @@
                                         </div>
 {{--                                        <span>{{$label_vip}}</span>--}}
                                     </li>
+                                @php
+                                    $user->isReadIntro = 1;
+                                    $introCount++;
+                                @endphp
                                 @endif
                                 {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
                                 @if($to->meta->isWarned == 1 || $to->aw_relation)
@@ -322,6 +308,10 @@
                                         @endif
                                         </div>
                                     </li>
+                                @php
+                                    $user->isReadIntro = 1;
+                                    $introCount++;
+                                @endphp
                                 @endif
                                 @if($to->isPhoneAuth())
                                     <li>
@@ -333,10 +323,14 @@
                                         @if($user->isVip())
                                         <img src="/new/images/a6.png" class="">
                                         @else
-                                        <img src="/new/images/b_6.png" style="height: 50px;">
+                                        <img src="/new/images/b_6.png" style="height: 50px; margin-bottom: 10px;">
                                         @endif
                                         </div>
                                     </li>
+                                @php
+                                    $user->isReadIntro = 1;
+                                    $introCount++;
+                                @endphp
                                 @endif
                             </ul>
                         </div>
@@ -346,6 +340,16 @@
                         <link rel="stylesheet" href="/new/intro/cover.css">
                         <script>
                             $(function(){
+                                @if($introCount == 1)
+                                    $('.tubiao').attr('data-tooltipClass', 'yindao1 yd_small')
+                                @endif
+                                
+                                @if($user->introl_login_times == 2 && $isReadIntro == 0 && $introCount>0)
+                                    introJs().setOption('showButtons',true).start();
+                                    @php
+                                        $user->save();
+                                    @endphp
+                                @endif
                             })
                         </script>
 
@@ -374,7 +378,7 @@
                         </div>
 
                     </div>
-                    <div class="bottub">
+                    <div class="bottub" style="z-index: 9;">
 
                         <ul>
                             @if(!$isBlocked)
@@ -1073,10 +1077,52 @@
         //     $(this).popover('toggle');
         });
 
+        var vipDiff = parseInt('{{$user->isVip()? '6' : '0'}}');
 
-        if(window.matchMedia("(min-width: 992px)").matches){
+        if(window.matchMedia("(min-width: 992px)").matches && window.matchMedia("(max-width: 1599px)").matches){
+            console.log("123")
             $(".swiper-container").css('height',$(".metx").height()- 56);
         }
+        if(window.matchMedia("(min-width: 1600px)").matches){
+            console.log("456")
+            $(".swiper-container").css('height',$(".metx").height()- 56);
+        }
+        if(window.matchMedia("(min-width: 376px)").matches && window.matchMedia("(max-width: 991px)").matches){
+            $(".swiper-container").css('height',$(".metx").height()-48);
+        }
+        
+
+        if( /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+            if(window.matchMedia("(max-width: 375px)").matches){
+                $(".swiper-container").css('height',$(".metx").height()- 46);
+            }
+            if(window.matchMedia("(min-width: 767px)").matches && window.matchMedia("(max-width: 770px)").matches){
+                console.log("768px")
+                $(".swiper-container").css('height',$(".metx").height()- 46);
+            }
+            if(window.innerWidth > window.innerHeight){
+                console.log("land")
+                $(".swiper-container").css('height',$(".metx").height()- 55);
+            }
+        } else {
+            
+        }
+        // if(window.matchMedia("(max-width: 1366px)").matches && window.matchMedia("(min-width: 993px)").matches){
+        //     console.log("1366px")
+        //     $(".swiper-container").css('height',$(".metx").height() - 30+ vipDiff);
+        // }
+        // if(window.matchMedia("(max-width: 992px)").matches && window.matchMedia("(min-width: 737px)").matches){
+        //     console.log("992px")
+        //     $(".swiper-container").css('height',$(".metx").height()- 56 + vipDiff);
+        // }
+        // if(window.matchMedia("(max-width: 736px)").matches && window.matchMedia("(min-width: 661px)").matches){
+        //     console.log("736px")
+        //     $(".swiper-container").css('height',$(".metx").height()- 45);
+        // }
+        // if(window.matchMedia("(max-width: 660px)").matches){
+        //     console.log("660px")
+        //     $(".swiper-container").css('height',$(".metx").height() - 55 - vipDiff);
+        // }
         //固定高取得
         var bottom_height=$('.tubiao ul').height();
         //浮動高度
@@ -1293,9 +1339,6 @@
             }
         });
 
-        if($("#tubiao ul").children().length == 0){
-            $(".eg_o").css({'margin-top': '15px'});
-        }
 
         $('.unblock').on('click', function() {
             c4('確定要解除封鎖嗎?');
