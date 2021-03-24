@@ -138,18 +138,24 @@
             complete: function () {
             },
             success:function(res){
+                console.log(res);
                 var li = '';//樣板容器
                 $.each(res.msg,function(i,e){
                     var isBlur = true;
-                    if('{{$user->meta_()->isWarned == 1 || $user->aw_relation}}' == true){
+                    if('{{$user->meta->isWarned == 1 || $user->aw_relation}}' == true){
+                        // console.log("1")
                         isBlur = true;
                     }else if ('{{$user->engroup == 2}}' == true){
+                        // console.log("2")
                         isBlur = false;
                     }else{
+                        console.log(e.blurry_avatar)
                         if(e.blurry_avatar){
                             var blurryAvatar = e.blurry_avatar.split(',');
                             if(blurryAvatar.length > 1){
                                 var nowB = '{{$user->isVip()? "VIP" : "general"}}';
+                                console.log(e)
+                                console.log(nowB);
                                 if( blurryAvatar.indexOf(nowB) != -1){
                                     isBlur = true;
                                 } else {
@@ -158,6 +164,8 @@
                             } else {
                                 isBlur = false;
                             }
+                        }else{
+                            isBlur = false;
                         }
                     }
                     
