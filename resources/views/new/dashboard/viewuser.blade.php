@@ -375,7 +375,7 @@
                         </div>
 
                     </div>
-                    <div class="bottub" style="z-index: 9;">
+                    <div class="bottub" style="z-index: 8;">
 
                         <ul>
                             @if(!$isBlocked)
