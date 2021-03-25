@@ -50,7 +50,7 @@
 							@endif
 						</div>
 						@if (isset($user) && !str_contains(url()->current(), 'activate') && $user->meta->is_active ==1)
-						<ul id="menuList" class="change marg30">
+						<ul id="menuList" class="change marg30" style="z-index: 10;">
                             <div class="comt"><img src="/new/images/t.png"></div>
                             <div class="coheight">
 							<div class="heyctop">{{ $user->name }}@if($user->isVip()) (VIP) @endif @if(view()->shared('valueAddedServices')['hideOnline'] == 1)<br>(隱藏)@endif</div>
