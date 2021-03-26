@@ -791,19 +791,7 @@ class User extends Authenticatable
 
     public function valueAddedServiceStatus($service_name = null)
     {
-        if($service_name){
-            $status = ValueAddedService::where('member_id', $this->id)->where('service_name', $service_name)->where('active',1)->orderBy('created_at', 'desc')->first();
-        }
-        else{
-            $status = ValueAddedService::where('member_id', $this->id)->where('active',1)->get();
-        }
-        if(!isset($status)){
-            return 0;
-        }
-        if($service_name){
-            return 1;
-        }
-        return $status;
+        return ValueAddedService::status($this->id,$service_name);
     }
 
     public static function sendLineNotify($access_token, $message) {

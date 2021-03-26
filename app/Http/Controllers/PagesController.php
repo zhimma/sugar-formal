@@ -8,6 +8,7 @@ use App\Models\AccountStatusLog;
 use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
 use App\Models\BannedUsersImplicitly;
+use App\Models\Evaluation;
 use App\Models\Message_new;
 use App\Models\SimpleTables\warned_users;
 use App\Notifications\BannedUserImplicitly;
@@ -1881,18 +1882,19 @@ class PagesController extends BaseController
                 ->leftJoin('blocked as b7', function($join) use($uid) {
                     $join->on('b7.member_id', '=', 'e.from_id')
                         ->where('b7.blocked_id', $uid); })
-                ->leftJoin('user_meta as um', function($join) {
-                    $join->on('um.user_id', '=', 'e.from_id')
-                        ->where('isWarned', 1); })
+//                ->leftJoin('user_meta as um', function($join) {
+//                    $join->on('um.user_id', '=', 'e.from_id')
+//                        ->where('isWarned', 1); })
                 ->leftJoin('warned_users as wu', function($join) {
                     $join->on('wu.member_id', '=', 'e.from_id')
                         ->where(function($query){
                             $query->where('wu.expire_date', '>=', Carbon::now())
                                 ->orWhere('wu.expire_date', null); }); })
+                ->leftJoin('is_warned_log as iw', 'iw.user_id', '=', 'e.from_id')
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
                 ->whereNull('b7.member_id')
-                ->whereNull('um.user_id')
+//                ->whereNull('um.user_id')
                 ->whereNull('wu.member_id')
                 ->where('e.to_id', $uid);
 
@@ -1907,18 +1909,19 @@ class PagesController extends BaseController
             $query = \App\Models\Evaluation::select('e.*')->from('evaluation as e')->with('user')
                 ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'e.from_id')
                 ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'e.from_id')
-                ->leftJoin('user_meta as um', function($join) {
-                    $join->on('um.user_id', '=', 'e.from_id')
-                        ->where('isWarned', 1); })
-                ->leftJoin('warned_users as wu', function($join) {
-                    $join->on('wu.member_id', '=', 'e.from_id')
-                        ->where(function($query){
-                            $query->where('wu.expire_date', '>=', Carbon::now())
-                                ->orWhere('wu.expire_date', null); }); })
+//                ->leftJoin('user_meta as um', function($join) {
+//                    $join->on('um.user_id', '=', 'e.from_id')
+//                        ->where('isWarned', 1); })
+//                ->leftJoin('warned_users as wu', function($join) {
+//                    $join->on('wu.member_id', '=', 'e.from_id')
+//                        ->where(function($query){
+//                            $query->where('wu.expire_date', '>=', Carbon::now())
+//                                ->orWhere('wu.expire_date', null); }); })
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
-                ->whereNull('um.user_id')
-                ->whereNull('wu.member_id')
+//                ->whereNull('um.user_id')
+//                ->whereNull('wu.member_id')
+                ->orderBy('e.created_at','desc')
                 ->where('e.to_id', $uid);
 
             $evaluation_data = $query->paginate(10);
@@ -1977,15 +1980,13 @@ class PagesController extends BaseController
     {
         $user = $request->user();
 
-//        $bannedUsers = \App\Services\UserService::getBannedId();
-//        $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
-//        $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
-
-        $evaluation_data = DB::table('evaluation')->where('from_id',$user->id)
-//            ->whereNotIn('to_id',$bannedUsers)
-//            ->whereNotIn('from_id',$isAdminWarnedList)
-//            ->whereNotIn('from_id',$isWarnedList)
-            ->paginate(15);
+        $evaluation_data = Evaluation::select('e.*')->from('evaluation as e')->with('user')
+            ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'e.to_id')
+            ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'e.to_id')
+            ->whereNull('b1.member_id')
+            ->whereNull('b3.target')
+            ->orderBy('e.created_at','desc')
+            ->where('e.from_id', $user->id)->paginate(15);
 
         return view('new.dashboard.evaluation_self')
             ->with('user', $user)
