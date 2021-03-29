@@ -706,21 +706,19 @@
                                                 $row_user = \App\Models\User::findById($row->from_id);
                                                 $to_user = \App\Models\User::findById($row->to_id);
                                                 $isBlocked = \App\Models\Blocked::isBlocked($row->to_id, $row->from_id);
-                                                /*
-                                                echo 'from: '. $row->from_id. ',';
-                                                echo 'now: '. $user->id. ',';
-                                                echo 'to: '. $to->id. ',';
-                                                echo $isBlocked? 'yes' : 'no';
-                                                */
-                                            @endphp
-                                            @if(($to->id == $user->id && !$isBlocked) || ($to->id != $user->id))
-                                            @php
+                                                $hadWarned = DB::table('is_warned_log')->where('user_id',$row->user->id)->first();
+                                                $warned_users = DB::table('warned_users')->where('member_id',$row->user->id)
+                                                    ->where(function($warned_users){
+                                                    $warned_users->where('expire_date', '>=', \Carbon\Carbon::now())
+                                                        ->orWhere('expire_date', null); })->first();
+
                                                 if($isBlocked) {
                                                     array_push( $blockMidList, $row );
                                                     continue;
                                                 }
                                                 $showCount++;
                                             @endphp
+                                            @if(!$isBlocked && !isset($hadWarned) && !isset($warned_users))
                                             <li>
                                                 <div class="piname">
                                                     <span>
@@ -754,7 +752,7 @@
                                                                 <textarea name="re_content" type="text" class="hf_i" placeholder="請輸入回覆（最多120個字符）" maxlength="120"></textarea>
                                                             </span>
                                                             <div class="re_area">
-                                                                <a class="hf_but" onclick="form_re_content_submit()">回覆</a>
+                                                                <a class="hf_but" data-id="{{$row->id}}" onclick="form_re_content_submit()">回覆</a>
                                                             </div>
                                                             <input type="hidden" name="id" value={{$row->id}}>
                                                             <input type="hidden" name="eid" value={{$to->id}}>
@@ -785,24 +783,34 @@
                                             @php
                                                 $row_user = \App\Models\User::findById($row->from_id);
                                                 $to_user = \App\Models\User::findById($row->to_id);
-                                                $isBlocked = \App\Models\Blocked::isBlocked($user->id, $row->from_id);
-                                            @endphp
-                                            @if(($to->id == $user->id && !$isBlocked) || ($to->id != $user->id))
-                                            @php
+                                                //$isBlocked = \App\Models\Blocked::isBlocked($user->id, $row->from_id);
+                                                $hadWarned = DB::table('is_warned_log')->where('user_id',$row_user->id)->first();
+                                                $warned_users = DB::table('warned_users')->where('member_id',$row_user->id)
+                                                    ->where(function($warned_users){
+                                                    $warned_users->where('expire_date', '>=', \Carbon\Carbon::now())
+                                                        ->orWhere('expire_date', null); })->first();
                                                 $showCount++;
                                             @endphp
                                             <li>
+                                                <div class="kll">
                                                 <div class="piname">
                                                     <span>
-                                                        @for ($i = 1; $i <= 5; $i++)
-                                                            @if($row->rating>=$i)
-                                                                <img src="/new/images/sxx_1.png">
-                                                            @else
-                                                                <img src="/new/images/sxx_4.png">
-                                                            @endif
-                                                        @endfor
+                                                        @if(!$warned_users && !$hadWarned)
+                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                @if($row->rating>=$i)
+                                                                    <img src="/new/images/sxx_1.png">
+                                                                @else
+                                                                    <img src="/new/images/sxx_4.png">
+                                                                @endif
+                                                            @endfor
+                                                        @endif
                                                     </span>
                                                     <a href="/dashboard/viewuser/{{$row_user->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">{{$row_user->name}}</a>
+                                                    @if(isset($warned_users) || isset($hadWarned))
+                                                        <img src="/new/images/kul.png" class="sxyh">
+                                                    @else
+                                                        <img src="/new/images/kul02.png" class="sxyh">
+                                                    @endif
                                                     {{--                                <font>{{ substr($row->created_at,0,10)}}</font>--}}
                                                     @if($row_user->id==$user->id)
                                                         <font class="sc content_delete" data-id="{{$row->id}}" style="padding: 0px 3px;"><img src="/new/images/del_03.png" style="padding: 0px 0px 1px 5px;">刪除</font>
@@ -815,6 +823,7 @@
                                                         <button type="button" class="al_but">完整評價</button>
                                                     </h4>
                                                 </div>
+                                                </div>
 
                                                 @if(empty($row->re_content) && $to->id == $user->id)
                                                     <div class="huf">
@@ -824,7 +833,7 @@
                                                                 <textarea name="re_content" type="text" class="hf_i" placeholder="請輸入回覆（最多120個字符）" maxlength="120"></textarea>
                                                             </span>
                                                             <div class="re_area">
-                                                                <a class="hf_but" onclick="form_re_content_submit()">回覆</a>
+                                                                <a class="hf_but" data-id="{{$row->id}}" onclick="form_re_content_submit()">回覆</a>
                                                             </div>
                                                             <input type="hidden" name="id" value={{$row->id}}>
                                                             <input type="hidden" name="eid" value={{$to->id}}>
@@ -847,11 +856,10 @@
                                                     </div>
                                                 @endif
                                             </li>
-                                            @endif
                                         @endforeach
                                         </div>
-                                        <div class="hzk">
-                                            <img src="/new/images/zk_icon.png" onclick="toggleBlockMid(this)">
+                                        <div class="hzk" onclick="toggleBlockMid(this)">
+                                            <img src="/new/images/zk_icon.png">
                                             <h2>部分被封鎖的會員評價已經被隱藏，點此全部顯示</h2>
                                         </div>
                                         @endif
@@ -1049,10 +1057,14 @@
         var div1=document.getElementById("plshow");
         if(div1.style.display=="block"){
             div1.style.display="none";
-            obj.src="/new/images/zk_icon.png";
+            //obj.src="/new/images/zk_icon.png";
+            $('.hzk').find('img').attr("src","/new/images/zk_icon.png");
+            $('.hzk').find('h2').text('部分被封鎖的會員評價已經被隱藏，點此全部顯示');
         } else {
             div1.style.display="block";
-            obj.src="/new/images/zk_iconup.png";
+            //obj.src="/new/images/zk_iconup.png";
+            $('.hzk').find('img').attr("src","/new/images/zk_iconup.png");
+            $('.hzk').find('h2').text('收起');
         }
     }
 
@@ -1470,9 +1482,10 @@
 
     $('.content_delete').on( "click", function() {
         c4('確定要刪除嗎?');
+        var id = $(this).data('id');
         $(".n_left").on('click', function() {
             $.post('{{ route('evaluation_delete') }}', {
-                id: $('.content_delete').data('id'),
+                id: id,
                 _token: '{{ csrf_token() }}'
             }, function (data) {
                 $("#tab04").hide();
@@ -1482,23 +1495,34 @@
         });
     });
 
-    function form_re_content_submit(){
-        if($.trim($(".hf_i").val())=='') {
+    // function form_re_content_submit(){
+    //     if($.trim($(".hf_i").val())=='') {
+    //         c5('請輸入內容');
+    //     }else{
+    //         $('#form_re_content').submit();
+    //     }
+    // }
+
+    $('.hf_but').on( "click", function() {
+
+        if($('#form_re_content'+ $(this).data('id')).find('.hf_i').val() == ''){
             c5('請輸入內容');
         }else{
-            $('#form_re_content').submit();
+            $('#form_re_content'+ $(this).data('id')).submit();
         }
-    }
+
+    });
 
     $('.re_content_delete').on( "click", function() {
         c4('確定要刪除嗎?');
+        var id = $(this).data('id');
         $(".n_left").on('click', function() {
             $.post('{{ route('evaluation_re_content_delete') }}', {
-                id: $('.re_content_delete').data('id'),
+                id: id,
                 _token: '{{ csrf_token() }}'
             }, function (data) {
                 $("#tab04").hide();
-                c5('回覆已刪除');
+                show_pop_message('回覆已刪除');
             });
         });
     });

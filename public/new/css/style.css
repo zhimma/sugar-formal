@@ -2416,7 +2416,7 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 
 .btime{float: left; color: #999999;}
 
-.sc{border-radius: 100px; border: #dadada 1px solid; display: table;
+.sc{border-radius: 100px; border: #dadada 1px solid; display: table; background: #fff;
     padding: 0 5px; height: 15px; line-height: 24px !important;color: #999999;width:60px; float: right;}
 .sc img{ height: 15px; margin-right: 3px;}
 .sc:hover{color:#999999;box-shadow:inset 0px 15px 10px -10px #eeeeee,inset 0px -10px 10px -20px #eeeeee;background:#ffffff;}
@@ -2813,4 +2813,7 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
     display: table;
     margin-top: 15px;
 }
+
+.kll{background: #e9eef4; padding: 10px; border-radius: 5px;}
+.sxyh{ height:2.1em; margin-left:2px; margin-top: -10px;}
 
