@@ -858,7 +858,7 @@
                                             </li>
                                         @endforeach
                                         </div>
-                                        <div class="hzk" onclick="toggleBlockMid(this)">
+                                        <div class="hzk" onclick="toggleBlockMid(this)" style="z-index: 8;">
                                             <img src="/new/images/zk_icon.png">
                                             <h2>部分被封鎖的會員評價已經被隱藏，點此全部顯示</h2>
                                         </div>
