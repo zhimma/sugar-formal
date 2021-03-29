@@ -36,11 +36,27 @@
             @if(count($evaluation_data)>0)
             <div class="pjliuyan02">
                 <ul>
+                    @php
+                        $showCount = 0;
+                        $blockMidList = array();
+                    @endphp
                     @foreach( $evaluation_data as $row)
                         @php
                             $row_user = \App\Models\User::findById($row->from_id);
                             $to_user = \App\Models\User::findById($row->to_id);
+                            $isBlocked = \App\Models\Blocked::isBlocked($row->to_id, $row->from_id);
+                            $hadWarned = DB::table('is_warned_log')->where('user_id',$to_user->id)->first();
+                            $warned_users = DB::table('warned_users')->where('member_id',$to_user->id)
+                                ->where(function($warned_users){
+                                $warned_users->where('expire_date', '>=', \Carbon\Carbon::now())
+                                    ->orWhere('expire_date', null); })->first();
+                            if($isBlocked || isset($hadWarned) || isset($warned_users)) {
+                                array_push( $blockMidList, $row );
+
+                            }
+                            $showCount++;
                         @endphp
+                        @if(!$isBlocked && !isset($hadWarned) && !isset($warned_users))
                         <li>
                             <div class="piname">
                                 <span>
@@ -96,7 +112,75 @@
                             @endif
 
                         </li>
+                        @endif
                     @endforeach
+                    @if(sizeof($blockMidList) > 0)
+                        <div id="plshow">
+                            @foreach($blockMidList as $row)
+                                @php
+                                    $row_user = \App\Models\User::findById($row->from_id);
+                                    $to_user = \App\Models\User::findById($row->to_id);
+                                    $isBlocked = \App\Models\Blocked::isBlocked($row->to_id, $row->from_id);
+                                    $hadWarned = DB::table('is_warned_log')->where('user_id',$row->to_id)->first();
+                                    $warned_users = DB::table('warned_users')->where('member_id',$row->to_id)
+                                        ->where(function($warned_users){
+                                        $warned_users->where('expire_date', '>=', \Carbon\Carbon::now())
+                                            ->orWhere('expire_date', null); })->first();
+                                    $showCount++;
+                                @endphp
+                            @if(!$isBlocked)
+                                <li>
+                                    <div class="kll">
+                                        <div class="piname">
+                                                    <span>
+                                                        @if(!$warned_users && !$hadWarned)
+                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                @if($row->rating>=$i)
+                                                                    <img src="/new/images/sxx_1.png">
+                                                                @else
+                                                                    <img src="/new/images/sxx_4.png">
+                                                                @endif
+                                                            @endfor
+                                                        @endif
+                                                    </span>
+                                            <a href="/dashboard/viewuser/{{$row->to_id}}?time={{ \Carbon\Carbon::now()->timestamp }}">{{$to_user->name}}</a>
+                                            @if(isset($warned_users) || isset($hadWarned))
+                                                <img src="/new/images/kul.png" class="sxyh">
+                                            @else
+                                                <img src="/new/images/kul02.png" class="sxyh">
+                                            @endif
+                                            <font class="sc content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
+                                        </div>
+                                        <div class="con">
+                                            <p class="many-txt">{!! nl2br($row->content) !!}</p>
+                                            <h4>
+                                                <span class="btime">{{ substr($row->created_at,0,10)}}</span>
+                                                <button type="button" class="al_but">完整評價</button>
+                                            </h4>
+                                        </div>
+                                    </div>
+
+                                    @if(!empty($row->re_content))
+                                        <div class="hu_p">
+                                            <div class="he_b">
+                                                <span class="left"><img src="@if(file_exists( public_path().$to_user->meta_()->pic ) && $to_user->meta_()->pic != ""){{$to_user->meta_()->pic}} @elseif($to_user->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to_user->name}}</span>
+                                                @if($row_user->id==$user->id)
+                                                    <font class="sc re_content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
+                                                @endif
+                                            </div>
+                                            <div class="he_two">
+                                                <div class="context">
+                                                    <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
+                                                </div>
+                                            </div>
+                                            <div class="he_twotime">{{ substr($row->re_created_at,0,10)}}<span class="z_more">展開</span></div>
+                                        </div>
+                                    @endif
+                                </li>
+                                @endif
+                            @endforeach
+                        </div>
+                    @endif
 
                 </ul>
                 <div style="text-align: center;">
@@ -134,9 +218,10 @@
 
     $('.content_delete').on( "click", function() {
         c4('確定要刪除嗎?');
+        var id = $(this).data('id');
         $(".n_left").on('click', function() {
             $.post('{{ route('evaluation_delete') }}', {
-                id: $('.content_delete').data('id'),
+                id: id,
                 _token: '{{ csrf_token() }}'
             }, function (data) {
                 $("#tab04").hide();
