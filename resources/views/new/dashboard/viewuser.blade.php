@@ -749,7 +749,7 @@
                                                         <form id="form_re_content" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post">
                                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                                             <span class="huinput">
-                                                                <textarea name="re_content" type="text" class="hf_i" placeholder="請輸入回覆（最多120個字符）" maxlength="120"></textarea>
+                                                                <textarea name="re_content" type="text" class="hf_i" placeholder="請輸入回覆（最多120個字元）" maxlength="120"></textarea>
                                                             </span>
                                                             <div class="re_area">
                                                                 <a class="hf_but" data-id="{{$row->id}}" onclick="form_re_content_submit()">回覆</a>
@@ -830,7 +830,7 @@
                                                         <form id="form_re_content" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post">
                                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                                             <span class="huinput">
-                                                                <textarea name="re_content" type="text" class="hf_i" placeholder="請輸入回覆（最多120個字符）" maxlength="120"></textarea>
+                                                                <textarea name="re_content" type="text" class="hf_i" placeholder="請輸入回覆（最多120個字元）" maxlength="120"></textarea>
                                                             </span>
                                                             <div class="re_area">
                                                                 <a class="hf_but" data-id="{{$row->id}}" onclick="form_re_content_submit()">回覆</a>
@@ -992,7 +992,7 @@
                         <div class="clear"></div>
                     </div>
                 </div>
-                <textarea id="content" name="content" cols="" rows="" class="n_nutext evaluation_content" style="border-style: none;" maxlength="300" placeholder="請輸入內容(至多300個字符)"></textarea>
+                <textarea id="content" name="content" cols="" rows="" class="n_nutext evaluation_content" style="border-style: none;" maxlength="300" placeholder="請輸入內容(至多300個字元)"></textarea>
                     <input type="hidden" name="uid" value={{$user->id}}>
                     <input type="hidden" name="eid" value={{$to->id}}>
                 <span class="alert_tip" style="color:red;"></span>
@@ -1472,7 +1472,7 @@
         }else if($(".evaluation_content").val().length>300) {
             // c5('請輸入評價內容');
             $('.alert_tip').text();
-            $('.alert_tip').text('評價至多300個字符');
+            $('.alert_tip').text('評價至多300個字元');
             return false;
         }else{
             $('#form1').submit();
