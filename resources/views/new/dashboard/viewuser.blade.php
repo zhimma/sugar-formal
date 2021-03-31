@@ -365,7 +365,7 @@
                                         @break
                                     @endif
                                 @endfor
-                                @for ($i = 1; $i <= 5-round($rating_avg); $i++)
+                                @for ($i = 1; $i <= 5-ceil($rating_avg); $i++)
                                     <img src="/new/images/sxx_4.png">
                                 @endfor
 {{--                                <img src="/new/images/st_o.png"><img src="/new/images/sxx_1.png">--}}
@@ -746,7 +746,7 @@
 
                                                 @if(empty($row->re_content) && $to->id == $user->id)
                                                     <div class="huf">
-                                                        <form id="form_re_content" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post">
+                                                        <form id="form_re_content{{$row->id}}" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post">
                                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                                             <span class="huinput">
                                                                 <textarea name="re_content" type="text" class="hf_i" placeholder="請輸入回覆（最多120個字元）" maxlength="120"></textarea>
@@ -827,7 +827,7 @@
 
                                                 @if(empty($row->re_content) && $to->id == $user->id)
                                                     <div class="huf">
-                                                        <form id="form_re_content" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post">
+                                                        <form id="form_re_content{{$row->id}}" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post">
                                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                                             <span class="huinput">
                                                                 <textarea name="re_content" type="text" class="hf_i" placeholder="請輸入回覆（最多120個字元）" maxlength="120"></textarea>
@@ -858,7 +858,7 @@
                                             </li>
                                         @endforeach
                                         </div>
-                                        <div class="hzk" onclick="toggleBlockMid(this)" style="z-index: 8;">
+                                        <div class="hzk toggleBlockMid" style="z-index: 8;">
                                             <img src="/new/images/zk_icon.png">
                                             <h2>部分被封鎖的會員評價已經被隱藏，點此全部顯示</h2>
                                         </div>
@@ -1053,23 +1053,8 @@
 @section('javascript')
 
 <script>
-    function toggleBlockMid(obj) {
-        var div1=document.getElementById("plshow");
-        if(div1.style.display=="block"){
-            div1.style.display="none";
-            //obj.src="/new/images/zk_icon.png";
-            $('.hzk').find('img').attr("src","/new/images/zk_icon.png");
-            $('.hzk').find('h2').text('部分被封鎖的會員評價已經被隱藏，點此全部顯示');
-        } else {
-            div1.style.display="block";
-            //obj.src="/new/images/zk_iconup.png";
-            $('.hzk').find('img').attr("src","/new/images/zk_iconup.png");
-            $('.hzk').find('h2').text('收起');
-        }
-    }
 
     $( document ).ready(function() {
-
         // $('.tagText').on('click', function() {
         //    alert($(this).data('content'));
         //    c3($(this).data('content'));
@@ -1393,6 +1378,7 @@
             }
             
         });
+
          $("#msgsnd").on('click', function(){
 
             $.ajax({
@@ -1627,6 +1613,25 @@
     function isEllipsisActive(e) {
         return ($(e).innerHeight() < $(e)[0].scrollHeight);
     }
+
+    //解衝突，排除mobile無法作用的問題
+    // jQuery.noConflict();
+    </script>
+<script src="/new/js/jquery-3.2.1.min.js" type="text/javascript"></script>
+<script>
+    $(document).on('click', '.toggleBlockMid', function() {
+            //do stuff
+            if ( $('#plshow').is(':visible') ){
+                $('#plshow').hide();
+                $('.hzk').find('img').attr("src","/new/images/zk_icon.png");
+                $('.hzk').find('h2').text('部分被封鎖的會員評價已經被隱藏，點此全部顯示');
+            }else{
+                $('#plshow').show();
+                $('.hzk').find('img').attr("src","/new/images/zk_iconup.png");
+                $('.hzk').find('h2').text('收起');
+
+            }
+        });
 </script>
 
 @stop
