@@ -1034,6 +1034,7 @@ class UserService
     }
 
     public static function isBlurAvatar($to, $user) {
+      if($to->id == $user->id) return false;
       $isBlurAvatar = true;
       $blurryAvatar = isset($to->meta->blurryAvatar)? $to->meta->blurryAvatar : "";
       $blurryAvatar = explode(',', $blurryAvatar);
@@ -1055,6 +1056,7 @@ class UserService
     }
 
     public static function isBlurLifePhoto($to, $user) {
+      if($to->id == $user->id) return false;
       $isBlurLifePhoto = true;
       $blurryLifePhoto = isset($to->meta->blurryLifePhoto)? $to->meta->blurryLifePhoto : "";
       $blurryLifePhoto = explode(',', $blurryLifePhoto);
