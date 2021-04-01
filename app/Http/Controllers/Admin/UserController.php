@@ -346,6 +346,8 @@ class UserController extends \App\Http\Controllers\BaseController
             $userWarned->reason = $request->reason;
         }
         $userWarned->save();
+        //寫入log
+        DB::table('is_warned_log')->insert(['user_id'=>$request->user_id]);
         //新增Admin操作log
         $this->insertAdminActionLog($request->user_id, '站方警示');
 

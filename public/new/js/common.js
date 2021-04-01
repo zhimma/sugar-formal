@@ -192,7 +192,7 @@
 	}
 
 	function show_pop_message(str) {
-		$(".announce_bg").show();
+		$(".blbg").show();
 		$("#tabPopM").show();
 		$("#tabPopM .bltext").text(str);
 	}

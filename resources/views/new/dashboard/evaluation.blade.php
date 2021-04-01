@@ -246,7 +246,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 <form id="form_re_content" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post">
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                     <span class="huinput">
-                                        <textarea name="re_content" type="text" class="hf_i" placeholder="請輸入回覆（最多120個字符）" maxlength="120"></textarea>
+                                        <textarea name="re_content" type="text" class="hf_i" placeholder="請輸入回覆（最多120個字元）" maxlength="120"></textarea>
                                     </span>
                                     <div class="re_area">
                                     <a class="hf_but" onclick="form_re_content_submit()">回覆</a>
