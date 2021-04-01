@@ -1628,7 +1628,7 @@
     //解衝突，排除mobile無法作用的問題
     // jQuery.noConflict();
     </script>
-<script src="/new/js/jquery-3.2.1.min.js" type="text/javascript"></script>
+{{-- <script src="/new/js/jquery-3.2.1.min.js" type="text/javascript"></script> --}}
 <script>
     $(document).on('click', '.toggleBlockMid', function() {
             //do stuff
