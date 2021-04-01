@@ -7,7 +7,7 @@
         }
         .swiper-container {
             width: 100%;
-            /*height: auto;*/
+            height: 254px;
             /*z-index: unset;*/
         }
 
@@ -189,6 +189,12 @@
             margin: 0 auto;
             display: block;
             cursor: pointer;
+        }
+
+        .re_sc img{
+            height: 1.9em;
+            margin-right: 3px;
+            padding-bottom: 6px !important;
         }
     </style>
     @php
@@ -697,6 +703,7 @@
                                 <div class="pjliuyan02 amar15">
                                     @if(sizeof($evaluation_data) > 0)
                                     @php
+                                   // print_r($evaluation_data);
                                         $showCount = 0;
                                         $blockMidList = array();
                                     @endphp
@@ -706,13 +713,13 @@
                                                 $row_user = \App\Models\User::findById($row->from_id);
                                                 $to_user = \App\Models\User::findById($row->to_id);
                                                 $isBlocked = \App\Models\Blocked::isBlocked($row->to_id, $row->from_id);
-                                                $hadWarned = DB::table('is_warned_log')->where('user_id',$row->user->id)->first();
-                                                $warned_users = DB::table('warned_users')->where('member_id',$row->user->id)
+                                                $hadWarned = DB::table('is_warned_log')->where('user_id',$row_user->id)->first();
+                                                $warned_users = DB::table('warned_users')->where('member_id',$row_user->id)
                                                     ->where(function($warned_users){
                                                     $warned_users->where('expire_date', '>=', \Carbon\Carbon::now())
                                                         ->orWhere('expire_date', null); })->first();
 
-                                                if($isBlocked) {
+                                                if($isBlocked || isset($hadWarned) || isset($warned_users)) {
                                                     array_push( $blockMidList, $row );
                                                     continue;
                                                 }
@@ -730,9 +737,9 @@
                                                             @endif
                                                         @endfor
                                                     </span>
-                                                    <a href="/dashboard/viewuser/{{ $row->user->id }}?time={{ \Carbon\Carbon::now()->timestamp }}">{{ $row->user->name }}</a>
+                                                    <a href="/dashboard/viewuser/{{ $row_user->id }}?time={{ \Carbon\Carbon::now()->timestamp }}">{{ $row->user->name }}</a>
                                                     {{--                                <font>{{ substr($row->created_at,0,10)}}</font>--}}
-                                                    @if($row->user->id == $user->id)
+                                                    @if($row_user->id == $user->id)
                                                         <font class="sc content_delete" data-id="{{ $row->id }}" style="padding: 0px 3px;"><img src="/new/images/del_03.png" style="padding: 0px 0px 1px 5px;">刪除</font>
                                                     @endif
                                                 </div>
@@ -763,7 +770,7 @@
                                                         <div class="he_b">
                                                             <span class="left"><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to->name}}</span>
                                                             @if($to->id==$user->id)
-                                                                <font class="sc re_content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
+                                                                <font class="sc re_content_delete re_sc" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
                                                             @endif
                                                         </div>
                                                         <div class="he_two">
@@ -778,9 +785,13 @@
                                             @endif
                                         @endforeach
                                         @if(sizeof($blockMidList) > 0)
+                                            @php
+                                            //print_r($blockMidList);
+                                            @endphp
                                         <div style="display: none;" id="plshow">
                                         @foreach($blockMidList as $row)
                                             @php
+                                            //print_r($row->from_id);
                                                 $row_user = \App\Models\User::findById($row->from_id);
                                                 $to_user = \App\Models\User::findById($row->to_id);
                                                 //$isBlocked = \App\Models\Blocked::isBlocked($user->id, $row->from_id);
@@ -844,7 +855,7 @@
                                                         <div class="he_b">
                                                             <span class="left"><img src="@if(file_exists( public_path().$to_user->meta_()->pic ) && $to_user->meta_()->pic != ""){{$to_user->meta_()->pic}} @elseif($to_user->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to_user->name}}</span>
                                                             @if($to_user->id==$user->id)
-                                                                <font class="sc re_content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
+                                                                <font class="sc re_content_delete re_sc" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
                                                             @endif
                                                         </div>
                                                         <div class="he_two">
