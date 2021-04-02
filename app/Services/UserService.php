@@ -1034,45 +1034,46 @@ class UserService
     }
 
     public static function isBlurAvatar($to, $user) {
-        $isBlurAvatar = true;
-        $blurryAvatar = isset($to->meta->blurryAvatar)? $to->meta->blurryAvatar : "";
-        $blurryAvatar = explode(',', $blurryAvatar);
-        if($user->meta->isWarned == 1 || $user->aw_relation){
-            $isBlurAvatar = true;
-        }
-        else{
-            if ($user->engroup == 2){
-                $isBlurAvatar = false;
-            }
-            else if(sizeof($blurryAvatar)>1){
-                $nowB = $user->isVip()? 'VIP' : 'general';
-                $isBlurAvatar = in_array($nowB, $blurryAvatar);
-            }
-            else {
-                $isBlurAvatar = false;
-            }
-        }
-        return $isBlurAvatar;
+      if($to->id == $user->id) return false;
+      $isBlurAvatar = true;
+      $blurryAvatar = isset($to->meta->blurryAvatar)? $to->meta->blurryAvatar : "";
+      $blurryAvatar = explode(',', $blurryAvatar);
+      if($user->meta->isWarned == 1 || $user->aw_relation){
+          $isBlurAvatar = true;
+      }else{
+          if ($user->engroup == 2){
+              $isBlurAvatar = false;
+          }
+          else if(sizeof($blurryAvatar)>1){
+              $nowB = $user->isVip()? 'VIP' : 'general';
+              $isBlurAvatar = in_array($nowB, $blurryAvatar);
+          }
+          else {
+              $isBlurAvatar = false;
+          }
+      }
+      return $isBlurAvatar;
     }
 
     public static function isBlurLifePhoto($to, $user) {
-        $isBlurLifePhoto = true;
-        $blurryLifePhoto = isset($to->meta->blurryLifePhoto)? $to->meta->blurryLifePhoto : "";
-        $blurryLifePhoto = explode(',', $blurryLifePhoto);
-        if($user->meta->isWarned == 1 || $user->aw_relation){
-            $isBlurLifePhoto = true;
+      if($to->id == $user->id) return false;
+      $isBlurLifePhoto = true;
+      $blurryLifePhoto = isset($to->meta->blurryLifePhoto)? $to->meta->blurryLifePhoto : "";
+      $blurryLifePhoto = explode(',', $blurryLifePhoto);
+      if($user->meta->isWarned == 1 || $user->aw_relation){
+          $isBlurLifePhoto = true;
+      }else{
+        if ($user->engroup == 2){
+            $isBlurLifePhoto = false;
+        }else if(sizeof($blurryLifePhoto)>1){
+            $nowB = $user->isVip()? 'VIP' : 'general';
+            $isBlurLifePhoto = in_array($nowB, $blurryLifePhoto);
         }
-        else{
-            if ($user->engroup == 2){
-                $isBlurLifePhoto = false;
-            }else if(sizeof($blurryLifePhoto)>1){
-                $nowB = $user->isVip() ? 'VIP' : 'general';
-                $isBlurLifePhoto = in_array($nowB, $blurryLifePhoto);
-            }
-            else {
-                $isBlurLifePhoto = false;
-            }
+        else {
+            $isBlurLifePhoto = false;
         }
-        return $isBlurLifePhoto;
+      }
+
+      return $isBlurLifePhoto;
     }
 }
