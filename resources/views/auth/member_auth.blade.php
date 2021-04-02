@@ -294,7 +294,7 @@
     <div class="bltitle_a"><span>提示</span></div>
     <div class="n_blnr02 matop10">
         <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
-        <div class="n_fengs" style="text-align:center;width:100%;">請先完成手機驗證，加強身分真實性後，才能繼續使用網站喔</div>
+        <div class="n_fengs" style="text-align:center;width:100%;">請先完成手機驗證，加強身分真實性；或請直接<a href="{!! url('dashboard/vipSelect') !!}" class="red">點此升級 VIP</a>，開始使用網站喔！</div>
     </div>
     <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
 </div>
