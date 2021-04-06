@@ -746,7 +746,6 @@ class UserController extends \App\Http\Controllers\BaseController
         $banReason = DB::table('reason_list')->select('content')->where('type', 'ban')->get();
         $implicitly_banReason = DB::table('reason_list')->select('content')->where('type', 'implicitly')->get();
         $warned_banReason = DB::table('reason_list')->select('content')->where('type', 'warned')->get();
-        $fingerprints = Fingerprint2::select('ip', 'fp', 'created_at')->where('user_id', $user->id)->get();
         // $userLogin_log = LogUserLogin::selectRaw('DATE(created_at) as loginDate, user_id as userID, count(*) as dataCount, GROUP_CONCAT(DISTINCT created_at SEPARATOR ",&p,") AS loginDates, GROUP_CONCAT(DISTINCT ip SEPARATOR ",&p,") AS ips, GROUP_CONCAT(DISTINCT userAgent SEPARATOR ",&p,") AS userAgents')->where('user_id', $user->id)->groupBy(DB::raw("DATE(created_at)"))->get();
         $userLogin_log = LogUserLogin::selectRaw('MONTH(created_at) as loginMonth, DATE(created_at) as loginDate, user_id as userID, ip, count(*) as dataCount')
             ->where('user_id', $user->id)
@@ -1049,7 +1048,6 @@ class UserController extends \App\Http\Controllers\BaseController
 //                ->with('userMessage_log',$userMessage_log)
                 ->with('userMessage', $userMessage)
                 ->with('to_ids', $to_ids)
-                ->with('fingerprints', $fingerprints)
                 ->with('userLogin_log', $userLogin_log)
                 ->with('reportBySelf',$reportBySelf)
                 ->with('report_all', $report_all)
