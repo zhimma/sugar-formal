@@ -220,6 +220,7 @@ class UserService
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             $output = curl_exec($ch);
             curl_close($ch);
+            logger($e);
             throw new Exception("We were unable to generate your profile, please try again later. " . $e, 1);
         }
     }
