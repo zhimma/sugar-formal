@@ -16,7 +16,9 @@
 		<a href="{{ route('implicitlyBanned') }}">指紋比對清單</a>
 		<a href="{{ route('warningUsers') }}">警示名單</a>
 		<a href="{{ route('suspectedMultiLogin') }}">疑似多重登入名單</a>
+		<a href="{{ route('users/suspiciousUser') }}">可疑名單列表</a>
 		<a href="{{ route('users/pictures') }}">會員照片管理</a>
+		<a href="{{ route('users/picturesSimple') }}">會員照片管理簡化版</a>
 		<a href="{{ route('users/reported/count') }}">會員被檢舉次數</a>
 		<a href="{{ route('users/board') }}">留言板管理</a>
 		<a href="{{ route('users/message/search') }}">會員訊息管理</a>
