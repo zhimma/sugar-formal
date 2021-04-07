@@ -15,6 +15,7 @@ use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
 use App\Models\SetAutoBan;
 use App\Models\SimpleTables\users;
+use App\Models\SuspiciousUser;
 use App\Notifications\AccountConsign;
 use App\Notifications\BannedUserImplicitly;
 use Illuminate\Database\Eloquent\Collection;
@@ -745,7 +746,6 @@ class UserController extends \App\Http\Controllers\BaseController
         $banReason = DB::table('reason_list')->select('content')->where('type', 'ban')->get();
         $implicitly_banReason = DB::table('reason_list')->select('content')->where('type', 'implicitly')->get();
         $warned_banReason = DB::table('reason_list')->select('content')->where('type', 'warned')->get();
-        $fingerprints = Fingerprint2::select('ip', 'fp', 'created_at')->where('user_id', $user->id)->get();
         // $userLogin_log = LogUserLogin::selectRaw('DATE(created_at) as loginDate, user_id as userID, count(*) as dataCount, GROUP_CONCAT(DISTINCT created_at SEPARATOR ",&p,") AS loginDates, GROUP_CONCAT(DISTINCT ip SEPARATOR ",&p,") AS ips, GROUP_CONCAT(DISTINCT userAgent SEPARATOR ",&p,") AS userAgents')->where('user_id', $user->id)->groupBy(DB::raw("DATE(created_at)"))->get();
         $userLogin_log = LogUserLogin::selectRaw('MONTH(created_at) as loginMonth, DATE(created_at) as loginDate, user_id as userID, ip, count(*) as dataCount')
             ->where('user_id', $user->id)
@@ -1048,7 +1048,6 @@ class UserController extends \App\Http\Controllers\BaseController
 //                ->with('userMessage_log',$userMessage_log)
                 ->with('userMessage', $userMessage)
                 ->with('to_ids', $to_ids)
-                ->with('fingerprints', $fingerprints)
                 ->with('userLogin_log', $userLogin_log)
                 ->with('reportBySelf',$reportBySelf)
                 ->with('report_all', $report_all)
@@ -3316,5 +3315,145 @@ class UserController extends \App\Http\Controllers\BaseController
             'act'         => $action,
             'ip'          => array_get($_SERVER, 'REMOTE_ADDR')
         ]);
+    }
+
+//    public function adminRole(Request $request)
+//    {
+//        $role_data = DB::table('role_user')
+//            ->select('ru.*','r.*','u.email','u.name as user_name')
+//            ->from('role_user as ru')
+//            ->leftJoin('roles as r','r.id','ru.role_id')
+//            ->leftJoin('users as u','u.id','ru.user_id')
+//            ->whereNotNull('u.id')
+//            ->orderBy('ru.user_id')
+//            ->get();
+//
+//        $permission_data = DB::table('roles')->get();
+//
+//
+//        return view('admin.adminRole', compact('role_data','permission_data'));
+//    }
+
+//    public function adminRoleEdit(Request $request)
+//    {
+//        $email = $request->input('email');
+//        $role_id = $request->input('permission_id');
+//        $delete_mode = $request->input('delete_mode');
+//        $user = User::where('email', $email)->first();
+//        if($delete_mode=='off') {
+//
+//            if (!$user) {
+//                return back()->with('message', '查無此會員');
+//            } else {
+//                $role_user = DB::table('role_user')->where('user_id', $user->id)->first();
+//                if ($role_user) {
+//                    //update
+//                    DB::table('role_user')->where('user_id', $user->id)->update(['role_id' => $role_id]);
+//                    return back()->with('message', '資料已更新');
+//                } else {
+//                    //insert
+//                    DB::table('role_user')->insert(['user_id' => $user->id, 'role_id' => $role_id]);
+//                    return back()->with('message', '新增成功');
+//                }
+//            }
+//
+//        }else{
+//            DB::table('role_user')->where(['user_id' => $user->id, 'role_id' => $role_id])->delete();
+//            return back()->with('message', '刪除成功');
+//        }
+//    }
+
+    public function showUserPicturesSimple()
+    {
+        return view('admin.users.userPicturesSimple');
+    }
+
+    public function searchUserPicturesSimple(Request $request)
+    {
+        $pics = DB::table('member_pic')
+            ->leftJoin('users', 'users.id', '=', 'member_pic.member_id')
+            ->leftJoin('user_meta', 'user_meta.user_id', '=', 'member_pic.member_id')
+            ->leftJoin('suspicious_user', function ($join){
+                $join->on('users.id','=','suspicious_user.user_id')
+                    ->where('suspicious_user.deleted_at',null);
+            })
+            ->selectRaw('member_pic.id, member_pic.member_id, member_pic.pic, users.name, member_pic.updated_at, users.email, users.title, users.last_login, user_meta.about, user_meta.style, suspicious_user.user_id as sid')
+            ->whereNotNull('member_pic.pic')
+            ->whereNotNull('users.id');
+
+        if ($request->hidden) {
+            $pics = $pics->where('member_pic.isHidden', 1)->where('user_meta.isAvatarHidden', 1);
+        } else {
+            $pics = $pics->where('member_pic.isHidden', 0)->where('user_meta.isAvatarHidden', 0);
+        }
+        if ($request->date_start) {
+            $pics = $pics->where('member_pic.updated_at', '>=', $request->date_start);
+        }
+        if ($request->date_end) {
+            $pics = $pics->where('member_pic.updated_at', '<=', $request->date_end . ' 23:59:59');
+        }
+        if ($request->en_group) {
+            $pics = $pics->where('users.engroup', $request->en_group);
+        }
+        if ($request->city) {
+            $pics = $pics->where('user_meta.city', $request->city);
+        }
+        if ($request->area) {
+            $pics = $pics->where('user_meta.area', $request->area);
+        }
+        if(isset($request->order_by) && $request->order_by=='updated_at'){
+            $pics = $pics->orderBy('member_pic.updated_at','desc');
+        }
+        if(isset($request->order_by) && $request->order_by=='last_login'){
+            $pics = $pics->orderBy('users.last_login','desc');
+        }
+
+        //預設排序
+        if($request->order_by==''){
+            $pics = $pics->orderBy('member_pic.updated_at','desc');
+        }
+
+        $pics = $pics->paginate(20);
+
+        return view('admin.users.userPicturesSimple',
+            ['pics' => $pics,
+                'en_group' => isset($request->en_group) ? $request->en_group : null,
+                'order_by' => isset($request->order_by) ? $request->order_by : null,
+                'city' => isset($request->city) ? $request->city : null,
+                'area' => isset($request->area) ? $request->area : null,
+                'hiddenSearch' => isset($request->hidden) ? true : false]);
+    }
+
+    public function suspicious_user_toggle(Request $request){
+
+        $sid = $request->sid;
+        $uid = $request->uid;
+        $admin_id = Auth::user()->id;
+
+        if($sid==''){
+            //先刪後增
+            SuspiciousUser::where('user_id',$uid)->delete();
+            //insert
+            SuspiciousUser::insert(['admin_id' => $admin_id, 'user_id' => $uid, 'created_at' => Carbon::now() ]);
+            return back()->with('message', '已加入可疑名單');
+
+        }else{
+            //softDelete
+            SuspiciousUser::where('user_id',$sid)->delete();
+            return back()->with('message', '已至可疑名單移除');
+        }
+    }
+
+    public function suspiciousUser(Request $request){
+
+        $query = SuspiciousUser::select('users.*','user_meta.pic','user_meta.style','user_meta.about')
+            ->leftJoin('users','users.id','suspicious_user.user_id')
+            ->leftJoin('user_meta','user_meta.user_id','suspicious_user.user_id')
+            ->where('suspicious_user.deleted_at',null)
+            ->whereNotNull('users.id')
+            ->paginate(20);
+        $suspiciousUser = $query;
+
+        return view('admin.users.suspiciousUser', compact('suspiciousUser'));
     }
 }
