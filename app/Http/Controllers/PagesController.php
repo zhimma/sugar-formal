@@ -9,6 +9,7 @@ use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
 use App\Models\BannedUsersImplicitly;
 use App\Models\Evaluation;
+use App\Models\hideOnlineData;
 use App\Models\Message_new;
 use App\Models\SimpleTables\warned_users;
 use App\Notifications\BannedUserImplicitly;
@@ -1533,15 +1534,217 @@ class PagesController extends BaseController
 
     public function hideOnlineSwitch(Request $request)
     {
+        $user_id = $request->input('userId');
+        $isHideOnline = $request->input('isHideOnline');
+        $insertData = false;
+        $status_msg = 'error';
 
-        if($request->input('isHideOnline')=='0'){
-            User::where('id',$request->input('userId'))->update(['is_hide_online' => 0]);
-            return back()->with('message', '付費隱藏已關閉。');
-        }else if($request->input('isHideOnline')=='1'){
-            User::where('id',$request->input('userId'))->update(['is_hide_online' => 1, 'hide_online_time' => Carbon::now()]);
-            return back()->with('message', '付費隱藏已開啟。');
+        if($isHideOnline == 0){
+
+            User::where('id', $user_id)->update(['is_hide_online' => 0]);
+            $status_msg = '搜索排序設定已開啟。';
+
+        }else if($isHideOnline == 1){
+            //check current is_hide_online
+            $checkHideOnlineData = hideOnlineData::where('user_id',$user_id)->where('deleted_at', null)->get()->first();
+            $user = User::where('id', $user_id)->get()->first();
+            $insertData = true;
+
+            if($user->is_hide_online==2 && isset($checkHideOnlineData)){
+                $insertData = false;
+            }
+
+            User::where('id', $user_id)->update(['is_hide_online' => 1, 'hide_online_time' => Carbon::now()]);
+
+            $status_msg = '搜索排序設定已關閉。';
+
+        }else if($isHideOnline == 2){
+            //check current is_hide_online
+            $checkHideOnlineData = hideOnlineData::where('user_id',$user_id)->where('deleted_at', null)->get()->first();
+            $user = User::where('id', $user_id)->get()->first();
+            $insertData = true;
+
+            if($user->is_hide_online==1 && isset($checkHideOnlineData)){
+                $insertData = false;
+            }
+
+            User::where('id', $user_id)->update(['is_hide_online' => 2, 'hide_online_hide_time' => Carbon::now()]);
+
+            $status_msg = '搜索排序設定已隱藏。';
         }
-        return back()->with('message', 'error');
+
+        if($insertData == true) {
+            //如當前使用者為隱藏is_hide_online=2 則跳離快照
+            $register_time = $user->created_at;
+            $login_time = Carbon::now();
+            /*每周平均上線次數*/
+            $datetime1 = new \DateTime(now());
+            $datetime2 = new \DateTime($user->created_at);
+            $diffDays = $datetime1->diff($datetime2)->days;
+            $week = ceil($diffDays / 7);
+            if ($week == 0) {
+                $login_times_per_week = 0;
+            } else {
+                $login_times_per_week = round(($user->login_times / $week), 0);
+            }
+            $be_fav_count = MemberFav::where('member_fav_id', $user_id)->get()->count();
+            $fav_count = MemberFav::where('member_id', $user_id)->get()->count();
+            $tip_count = Tip::where('to_id', $user_id)->get()->count();
+            /*七天前*/
+            $date = date('Y-m-d H:m:s', strtotime('-7 days'));
+            /*發信＆回信次數統計*/
+            $messages_all = Message::select('id', 'to_id', 'from_id', 'created_at')->where('to_id', $user_id)->orwhere('from_id', $user_id)->orderBy('id')->get();
+            $countInfo['message_count'] = 0;
+            $countInfo['message_reply_count'] = 0;
+            $countInfo['message_reply_count_7'] = 0;
+            $send = [];
+            $receive = [];
+            foreach ($messages_all as $message) {
+                //user_id主動第一次發信
+                if ($message->from_id == $user_id && array_get($send, $message->to_id) < $message->id) {
+                    $send[$message->to_id][] = $message->id;
+                }
+                //紀錄每個帳號第一次發信給uid
+                if ($message->to_id == $user_id && array_get($receive, $message->from_id) < $message->id) {
+                    $receive[$message->from_id][] = $message->id;
+                }
+                if (!is_null(array_get($receive, $message->to_id))) {
+                    $countInfo['message_reply_count'] += 1;
+                    if ($message->created_at >= $date) {
+                        //計算七天內回信次數
+                        $countInfo['message_reply_count_7'] += 1;
+                    }
+                }
+            }
+            $countInfo['message_count'] = count($send);
+
+            $messages_7days = Message::select('id', 'to_id', 'from_id', 'created_at')->whereRaw('(to_id =' . $user_id . ' OR from_id=' . $user_id . ')')->where('created_at', '>=', $date)->orderBy('id')->get();
+            $countInfo['message_count_7'] = 0;
+            $send = [];
+            foreach ($messages_7days as $message) {
+                //七天內uid主動第一次發信
+                if ($message->from_id == $user_id && array_get($send, $message->to_id) < $message->id) {
+                    $send[$message->to_id][] = $message->id;
+                }
+            }
+            $countInfo['message_count_7'] = count($send);
+
+            /*發信次數*/
+            $message_count = $countInfo['message_count'];
+            /*過去7天發信次數*/
+            $message_count_7 = $countInfo['message_count_7'];
+            /*回信次數*/
+            $message_reply_count = $countInfo['message_reply_count'];
+            /*過去7天回信次數*/
+            $message_reply_count_7 = $countInfo['message_reply_count_7'];
+            /*過去7天罐頭訊息比例*/
+            $date_start = date("Y-m-d", strtotime("-6 days", strtotime(date('Y-m-d'))));
+            $date_end = date('Y-m-d');
+
+            /**
+             * 效能調整：使用左結合以大幅降低處理時間
+             *
+             * @author LZong <lzong.tw@gmail.com>
+             */
+            $query = Message::select('users.email', 'users.name', 'users.title', 'users.engroup', 'users.created_at', 'users.last_login', 'message.id', 'message.from_id', 'message.content', 'user_meta.about')
+                ->join('users', 'message.from_id', '=', 'users.id')
+                ->join('user_meta', 'message.from_id', '=', 'user_meta.user_id')
+                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
+                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
+                ->leftJoin('warned_users as wu', function ($join) {
+                    $join->on('wu.member_id', '=', 'message.from_id')
+                        ->where('wu.expire_date', '>=', Carbon::now())
+                        ->orWhere('wu.expire_date', null);
+                })
+                ->whereNull('b1.member_id')
+                ->whereNull('b3.target')
+                ->whereNull('wu.member_id')
+                ->where(function ($query) use ($date_start, $date_end) {
+                    $query->where('message.from_id', '<>', 1049)
+                        ->where('message.sys_notice', 0)
+                        ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
+                });
+            $query->where('users.email', $user->email);
+            $results_a = $query->distinct('message.from_id')->get();
+
+            if ($results_a != null) {
+                $msg = array();
+                $from_content = array();
+                $user_similar_msg = array();
+
+                $messages = Message::select('id', 'content', 'created_at')
+                    ->where('from_id', $user->id)
+                    ->where('sys_notice', 0)
+                    ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
+                    ->orderBy('created_at', 'desc')
+                    ->take(100)
+                    ->get();
+
+                foreach ($messages as $row) {
+                    array_push($msg, array('id' => $row->id, 'content' => $row->content, 'created_at' => $row->created_at));
+                }
+
+                array_push($from_content, array('msg' => $msg));
+
+                $unique_id = array(); //過濾重複ID用
+                //比對訊息
+                foreach ($from_content as $data) {
+                    foreach ($data['msg'] as $word1) {
+                        foreach ($data['msg'] as $word2) {
+                            if ($word1['created_at'] != $word2['created_at']) {
+                                similar_text($word1['content'], $word2['content'], $percent);
+                                if ($percent >= 70) {
+                                    if (!in_array($word1['id'], $unique_id)) {
+                                        array_push($unique_id, $word1['id']);
+                                        array_push($user_similar_msg, array($word1['id'], $word1['content'], $word1['created_at'], $percent));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            $message_percent_7 = count($user_similar_msg) > 0 ? round((count($user_similar_msg) / count($messages)) * 100) . '%' : '0%';
+            /*瀏覽其他會員次數*/
+            $visit_other_count = Visited::where('member_id', $user_id)->count();
+            /*被瀏覽次數*/
+            $be_visit_other_count = Visited::where('visited_id', $user_id)->count();
+            /*過去7天瀏覽其他會員次數*/
+            $visit_other_count_7 = Visited::where('member_id', $user_id)->where('created_at', '>=', $date)->count();
+            /*過去7天被瀏覽次數*/
+            $be_visit_other_count_7 = Visited::where('visited_id', $user_id)->where('created_at', '>=', $date)->count();
+            /*此會員封鎖多少其他會員*/
+            $blocked_other_count = Blocked::where('member_id', $user_id)->count();
+            /*此會員被多少會員封鎖*/
+            $be_blocked_other_count = Blocked::where('blocked_id', $user_id)->count();
+            //寫入hide_online_data
+
+            //先刪後增 softDelete
+            hideOnlineData::where('user_id', $user_id)->delete();
+            hideOnlineData::insert([
+                'user_id' => $user_id,
+                'created_at' => Carbon::now(),
+                'register_time' => $register_time,
+                'login_time' => $login_time,
+                'login_times_per_week' => $login_times_per_week,
+                'be_fav_count' => $be_fav_count,
+                'fav_count' => $fav_count,
+                'tip_count' => $tip_count,
+                'message_count' => $message_count,
+                'message_count_7' => $message_count_7,
+                'message_reply_count' => $message_reply_count,
+                'message_reply_count_7' => $message_reply_count_7,
+                'message_percent_7' => $message_percent_7,
+                'visit_other_count' => $visit_other_count,
+                'visit_other_count_7' => $visit_other_count_7,
+                'be_visit_other_count' => $be_visit_other_count,
+                'be_visit_other_count_7' => $be_visit_other_count_7,
+                'blocked_other_count' => $blocked_other_count,
+                'be_blocked_other_count' => $be_blocked_other_count
+            ]);
+        }
+
+        return back()->with('message', $status_msg);
     }
 
     public function cancelValueAddedService(Request $request)
@@ -1798,6 +2001,29 @@ class PagesController extends BaseController
 
             $is_banned = null;
 
+            //
+            $userHideOnlinePayStatus = ValueAddedService::status($uid,'hideOnline');
+            if($userHideOnlinePayStatus == 1 && $targetUser->is_hide_online != 0){
+                $hideOnlineData = hideOnlineData::where('user_id',$uid)->where('deleted_at',null)->get()->first();
+                if(isset($hideOnlineData)){
+                    $login_times_per_week = $hideOnlineData->login_times_per_week;
+//                    $be_fav_count = $hideOnlineData->login_times_per_week;
+//                    $fav_count = $hideOnlineData->login_times_per_week;
+//                    $tip_count = $hideOnlineData->tip_count;
+//                    $message_count = $hideOnlineData->message_count;
+                    $message_count_7 = $hideOnlineData->message_count_7;
+//                    $message_reply_count = $hideOnlineData->message_reply_count;
+                    $message_reply_count_7 = $hideOnlineData->message_reply_count_7;
+                    $message_percent_7 = $hideOnlineData->message_percent_7;
+//                    $visit_other_count = $hideOnlineData->visit_other_count;
+                    $visit_other_count_7 = $hideOnlineData->visit_other_count_7;
+//                    $be_visit_other_count = $hideOnlineData->be_visit_other_count;
+//                    $be_visit_other_count_7 = $hideOnlineData->be_visit_other_count_7;
+//                    $blocked_other_count = $hideOnlineData->blocked_other_count;
+//                    $be_blocked_other_count = $hideOnlineData->be_blocked_other_count;
+                }
+            }
+
             $data = array(
                 'login_times_per_week' => $login_times_per_week,
                 'tip_count' => $tip_count,
@@ -1817,7 +2043,8 @@ class PagesController extends BaseController
                 'message_percent_7' => $message_percent_7,
                 'blocked_other_count' => $blocked_other_count,
                 'be_blocked_other_count' => $be_blocked_other_count,
-                'is_banned' => $is_banned
+                'is_banned' => $is_banned,
+                'userHideOnlinePayStatus' => $userHideOnlinePayStatus
             );
 
             $member_pic = DB::table('member_pic')->where('member_id', $uid)->where('pic', '<>', $targetUser->meta->pic)->get();

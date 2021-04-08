@@ -673,20 +673,46 @@
                             <div class="xiliao_input">
                                 <div class="xl_text">
                                     <dt><span>註冊時間</span>@if($user->isVip())<font>{{substr($to->created_at,0,10)}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>最後上線時間</span>@if($valueAddedServiceStatus['hideOnline'] == 1 || $is_block_mid=='是') <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{substr($to->last_login,0,10)}}</font> @else <img src="/new/images/icon_35.png"> @endif  @endif</dt>
-                                    <dt><span>每周平均上線次數</span>@if($valueAddedServiceStatus['hideOnline'] == 1 || $is_block_mid=='是') <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$login_times_per_week }}</font> @else <img src="/new/images/icon_35.png"> @endif  @endif</dt>
+                                    <dt><span>最後上線時間</span>
+                                        {{--                                        @if(view()->shared('valueAddedServices')['hideOnline'] == 1  || $is_block_mid=='是') <img src="/new/images/no_open.png"> @else--}}
+                                        @if($user->isVip())
+                                            @if($userHideOnlinePayStatus == 1 && $to->is_hide_online == 1) <font>{{substr($to->hide_online_time,0,10)}}</font> @else <font>{{substr($to->last_login,0,10)}}</font> @endif
+                                        @else <img src="/new/images/icon_35.png"> @endif
+                                        {{--                                        @endif--}}
+                                    </dt>
+                                    <dt><span>每周平均上線次數</span>
+                                        {{--                                        @if(view()->shared('valueAddedServices')['hideOnline'] == 1 || $is_block_mid=='是') <img src="/new/images/no_open.png"> @else--}}
+                                        @if($user->isVip())  <font>{{$login_times_per_week }}</font> @else <img src="/new/images/icon_35.png"> @endif
+                                        {{--                                        @endif--}}
+                                    </dt>
                                     <dt><span>被收藏次數</span>@if($user->isVip()) <font>{{$be_fav_count}}</font> @else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>收藏會員次數</span>@if($user->isVip())<font>{{$fav_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>車馬費邀請次數</span>@if($user->isVip())<font>{{$tip_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>發信次數</span>@if($user->isVip())<font>{{$message_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>過去7天發信次數</span>@if($valueAddedServiceStatus['hideOnline'] == 1 || $is_block_mid=='是') <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$message_count_7}}</font> @else <img src="/new/images/icon_35.png"> @endif @endif </dt>
+                                    <dt><span>過去7天發信次數</span>
+                                        {{--                                        @if(view()->shared('valueAddedServices')['hideOnline'] == 1 || $is_block_mid=='是') <img src="/new/images/no_open.png"> @else--}}
+                                        @if($user->isVip())  <font>{{$message_count_7}}</font> @else <img src="/new/images/icon_35.png"> @endif
+                                        {{--                                        @endif--}}
+                                    </dt>
                                     <dt><span>回信次數</span>@if($user->isVip())<font>{{$message_reply_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>過去7天回信次數</span>@if($valueAddedServiceStatus['hideOnline'] == 1 || $is_block_mid=='是') <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$message_reply_count_7}}</font> @else <img src="/new/images/icon_35.png"> @endif @endif </dt>
-                                    <dt><span>過去7天罐頭訊息比例</span>@if($valueAddedServiceStatus['hideOnline'] == 1) <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$message_percent_7}}</font> @else <img src="/new/images/icon_35.png"> @endif @endif </dt>
+                                    <dt><span>過去7天回信次數</span>
+                                        {{--                                        @if(view()->shared('valueAddedServices')['hideOnline'] == 1 || $is_block_mid=='是') <img src="/new/images/no_open.png"> @else--}}
+                                        @if($user->isVip())  <font>{{$message_reply_count_7}}</font> @else <img src="/new/images/icon_35.png"> @endif
+                                        {{--                                        @endif--}}
+                                    </dt>
+                                    <dt><span>過去7天罐頭訊息比例</span>
+                                        {{--                                        @if(view()->shared('valueAddedServices')['hideOnline'] == 1) <img src="/new/images/no_open.png"> @else--}}
+                                        @if($user->isVip())  <font>{{$message_percent_7}}</font> @else <img src="/new/images/icon_35.png"> @endif
+                                        {{--                                        @endif--}}
+                                    </dt>
                                     <dt><span>是否封鎖我</span>@if($user->isVip())<font>{{$is_block_mid}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>是否看過我</span>@if($user->isVip())<font>{{$is_visit_mid}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>瀏覽其他會員次數</span>@if($user->isVip())<font>{{$visit_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>過去7天瀏覽其他會員次數</span>@if($valueAddedServiceStatus['hideOnline'] == 1 || $is_block_mid=='是') <img src="/new/images/no_open.png"> @else @if($user->isVip())  <font>{{$visit_other_count_7}}</font>  @else <img src="/new/images/icon_35.png"> @endif @endif</dt>
+                                    <dt><span>過去7天瀏覽其他會員次數</span>
+                                        {{--                                        @if(view()->shared('valueAddedServices')['hideOnline'] == 1 || $is_block_mid=='是') <img src="/new/images/no_open.png"> @else--}}
+                                        @if($user->isVip())  <font>{{$visit_other_count_7}}</font>  @else <img src="/new/images/icon_35.png"> @endif
+                                        {{--                                        @endif--}}
+                                    </dt>
                                     <dt><span>被瀏覽次數</span>@if($user->isVip())<font>{{$be_visit_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>過去7天被瀏覽次數</span>@if($user->isVip())<font>{{$be_visit_other_count_7}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>封鎖多少會員</span>@if($user->isVip())<font>{{$blocked_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
