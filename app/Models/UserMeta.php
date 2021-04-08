@@ -196,9 +196,9 @@ class UserMeta extends Model
             $user_city = explode(',', $meta->city);
             $user_area = explode(',', $meta->area);
             /* 判斷搜索者的 city 和 area 是否被被搜索者封鎖 */
-            foreach ($user_city as $key => $city) {
-                 $query->whereRaw('(blockarea not LIKE "%' . $city .$user_area[$key]  .'%"  AND blockarea not LIKE "%'.$city.'全區%")');
-            }
+//            foreach ($user_city as $key => $city) {
+//                 $query->whereRaw('(blockarea not LIKE "%' . $city .$user_area[$key]  .'%"  AND blockarea not LIKE "%'.$city.'全區%")');
+//            }
 
 //            foreach ($user_city as $key => $city){
 //                $query->where(
