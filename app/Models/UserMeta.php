@@ -196,9 +196,9 @@ class UserMeta extends Model
             $user_city = explode(',', $meta->city);
             $user_area = explode(',', $meta->area);
             /* 判斷搜索者的 city 和 area 是否被被搜索者封鎖 */
-            foreach ($user_city as $key => $city) {
-                 $query->whereRaw('(blockarea not LIKE "%' . $city .$user_area[$key]  .'%"  AND blockarea not LIKE "%'.$city.'全區%")');
-            }
+//            foreach ($user_city as $key => $city) {
+//                 $query->whereRaw('(blockarea not LIKE "%' . $city .$user_area[$key]  .'%"  AND blockarea not LIKE "%'.$city.'全區%")');
+//            }
 
 //            foreach ($user_city as $key => $city){
 //                $query->where(
@@ -233,6 +233,7 @@ class UserMeta extends Model
             ->whereHas('user_meta', $constraint)
             ->where('engroup', $engroup)
             ->where('accountStatus', 1)
+            ->where('is_hide_online', '<>', 2)
             // ->whereNotIn('users.id', function($query){
             //     // $bannedUsers
             //     $query->select('target')

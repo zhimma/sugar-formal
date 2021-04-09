@@ -233,6 +233,10 @@ class ValueAddedService extends Model
 
     public static function removeValueAddedService($member_id, $service_name)
     {
+        if($service_name=='hideOnline'){
+            User::where('id',$member_id)->update(['is_hide_online' => 0]);
+        }
+
         return ValueAddedService::where('member_id', $member_id)
             ->where('service_name', $service_name)
             ->update(array('active' => 0, 'expiry' => null));

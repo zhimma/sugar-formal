@@ -49,7 +49,7 @@
                         @endif
 
                         <a href="javascript:void(0)" class="gg_zh_li" onclick="checkHideOnline();"><span><img src="/new/images/zh07.png"></span>
-                            <font>隱藏上線時間設定</font>
+                            <font>搜索隱藏設定</font>
                         </a>
 
 

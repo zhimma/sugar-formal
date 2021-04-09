@@ -165,13 +165,16 @@
                                 <h2>可獲得以下功能</h2>
                                 <h3><span class="left">●</span><var class="newtishi">搜索頁上可自行選擇，是否隱藏最後上線時間</var></h3>
                                 <h4 style=" padding: 5px 0; font-size: 16px; color: #fd90b6;">-會員頁中的進階資料不會公開</h4>
-                                <h3><span class="left">1: </span><var class="newtishi">最後上線時間</var></h3>
-                                <h3><span class="left">2: </span><var class="newtishi">每週平均上線次數</var></h3>
+                                <h3><span class="left">1: </span><var class="newtishi">過去七天瀏覽其他會員次數</var></h3>
+                                <h3><span class="left">2: </span><var class="newtishi">最後上線時間</var></h3>
                                 <h3><span class="left">3: </span><var class="newtishi">過去七天發信次數</var></h3>
-                                <h3><span class="left">4: </span><var class="newtishi">過去七天回信次數</var></h3>
-                                <h3><span class="left">5: </span><var class="newtishi">過去七天罐頭訊息比例</var></h3>
-                                <h3><span class="left">6: </span><var class="newtishi">過去七天瀏覽其他會員次數</var></h3>
-                                <h3><span class="left">7: </span><var class="newtishi">並附有"不公開"tag</var></h3>
+
+{{--                                <h3><span class="left">2: </span><var class="newtishi">每週平均上線次數</var></h3>--}}
+
+{{--                                <h3><span class="left">4: </span><var class="newtishi">過去七天回信次數</var></h3>--}}
+{{--                                <h3><span class="left">5: </span><var class="newtishi">過去七天罐頭訊息比例</var></h3>--}}
+
+{{--                                <h3><span class="left">7: </span><var class="newtishi">並附有"不公開"tag</var></h3>--}}
                             </div>
                         </div>
                         <div class="hy_width n_viptop20"  id="vip_cancel" style="display:none">
