@@ -200,22 +200,23 @@ class UserMeta extends Model
 //                 $query->whereRaw('(blockarea not LIKE "%' . $city .$user_area[$key]  .'%"  AND blockarea not LIKE "%'.$city.'全區%")');
 //            }
 
-//            foreach ($user_city as $key => $city){
-//                $query->where(
-//                    function ($query) use ($city, $user_area, $key){
-//                        $query->where(
-//                        // 未設定封鎖城市地區
-//                            function ($query) use ($city, $user_area, $key){
-//                                $query->where(\DB::raw('LENGTH(blockcity) = 0'))
-//                                    ->where(\DB::raw('LENGTH(blockarea) = 0'));
-//                            })
-//                            // 設定封鎖城市地區
-//                            ->orWhere(
-//                                function ($query) use ($city, $user_area, $key){
-//                                    $query->whereRaw('(blockarea not LIKE "%' . $city .$user_area[$key]  .'%"  AND blockarea not LIKE "%'.$city.'全區%")');
-//                                });
-//                    });
-//            }
+            foreach ($user_city as $key => $city){
+                $query->where(
+                    function ($query) use ($city, $user_area, $key){
+                        $query->where(
+                        // 未設定封鎖城市地區
+                            function ($query) use ($city, $user_area, $key){
+                                $query->where(\DB::raw('LENGTH(blockcity) = 0'))
+                                    ->where(\DB::raw('LENGTH(blockarea) = 0'));
+                            })
+                            // 設定封鎖城市地區
+                            ->orWhere(
+                                function ($query) use ($city, $user_area, $key){
+                                    $query->whereRaw('(blockarea not LIKE "%' . $city .$user_area[$key]  .'%"  AND blockarea not LIKE "%'.$city.'全區%")')
+                                    ->whereRaw('LENGTH(blockarea) <> 0');
+                                });
+                    });
+            }
 
             return $query->where('is_active', 1);
         };
