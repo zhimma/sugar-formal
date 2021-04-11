@@ -124,16 +124,16 @@ class Message_newController extends BaseController {
             return back()->withErrors(['請勿僅輸入空白！']);
         }
         $user = Auth::user();
-        // 非 VIP: 一律限 60 秒發一次。
-        // 女會員: 無論是否 VIP，一律限 60 秒發一次。
+        // 非 VIP: 一律限 8 秒發一次。
+        // 女會員: 無論是否 VIP，一律限 8 秒發一次。
         if(!$user->isVIP()){
             $m_time = Message::select('created_at')->
             where('from_id', $user->id)->
             orderBy('created_at', 'desc')->first();
             if(isset($m_time)) {
                 $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
-                if ($diffInSecs < 30) {
-                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每30秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
+                if ($diffInSecs < 8) {
+                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
                 }
             }
         }
@@ -143,8 +143,8 @@ class Message_newController extends BaseController {
             orderBy('created_at', 'desc')->first();
             if(isset($m_time)) {
                 $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
-                if ($diffInSecs < 30) {
-                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每30秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
+                if ($diffInSecs < 8) {
+                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
                 }
             }
         }
