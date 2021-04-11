@@ -86,7 +86,7 @@
 {{--                                    }--}}
 {{--                               @endphp--}}
                                @if($user->isPhoneAuth() /*or $isAdminWarned*/)
-                                   <div>已完成驗證</div>
+                                   <div>已完成驗證，<a href="{!! url('dashboard') !!}" class="red">按此開始使用網站</a></div>
                                @else
                                  <div class="zybg_new_bg">
                                        <div class="zybg_new">
