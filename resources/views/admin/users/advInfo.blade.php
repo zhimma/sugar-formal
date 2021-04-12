@@ -353,6 +353,42 @@
 			<th>站長註解<div><button type="submit" class="text-white btn btn-primary">修改</button></div></th>
 			<td colspan='3'><textarea class="form-control m-input" type="textarea" name="adminNote" rows="3" maxlength="300">{{ $userMeta->adminNote }}</textarea></td>
 		</form>
+
+		<th>手機驗證
+			<div style="display: flex;">
+				<form action="{{ route('phoneDelete') }}" method='POST'>
+					{!! csrf_field() !!}
+					<input type="hidden" name="user_id" value="{{ $userMeta->user_id }}">
+					<button type="submit" class="text-white btn btn-danger delete_phone_submit" style="float: right;">刪除</button>
+				</form>
+				@if ($user->isPhoneAuth() == false)
+					`<form action="{{ route('phoneModify') }}" method='POST'>
+						{!! csrf_field() !!}
+						<input type="hidden" name="user_id" value="{{ $userMeta->user_id }}">
+						<input type="hidden" name="phone" value="">
+						<input type="hidden" name="pass" value="1">
+						<button type="submit" class="text-white btn btn btn-success" style="float: right;">通過</button>
+					</form>
+				@else
+					<form action="{{ route('phoneDelete') }}" method='POST'>
+						{!! csrf_field() !!}
+						<input type="hidden" name="user_id" value="{{ $userMeta->user_id }}">
+						<button type="submit" class="text-white btn btn btn-success" style="float: right;">不通過</button>
+					</form>
+				@endif
+			</div>
+		</th>
+		<td>
+			<form action="{{ route('phoneModify') }}" method='POST'>
+				{!! csrf_field() !!}
+				<input type="hidden" name="user_id" value="{{ $userMeta->user_id }}">
+				<input class="form-control m-input phoneInput" type=text name="phone" value="{{ $user->isPhoneAuth() ? $userMeta->phone : '暫無手機' }}" readonly="readonly" >
+				@if ($user->isPhoneAuth())
+					<div class="text-white btn btn-primary test" onclick="showPhoneInput()">修改</div>
+					<button type="submit" class="text-white btn btn-primary modify_phone_submit" style="display: none;">確認修改</button>
+				@endif
+			</form>
+		</td>
 	</tr>
 </table>
 @if($user->engroup==1)
@@ -485,6 +521,44 @@
 		</tr>
 	@endforeach
 </table>
+<h4>被評價紀錄</h4>
+<table class="table table-hover table-bordered">
+	<tr>
+		<th>暱稱</th>
+		<th>帳號</th>
+		<th>評價時間</th>
+		<th>VIP</th>
+		<th>會員認證</th>
+		<th>星等分數</th>
+		<th>評價內容</th>
+		<th>動作</th>
+	</tr>
+	@foreach($out_evaluation_data_2 as $row)
+		<tr>
+			<td>{{ $row['to_name'] }}</td>
+			<td><a href="{{ route('users/advInfo', $row['to_id']) }}" target='_blank'>{{ $row['to_email'] }}</a></td>
+			<td>{{ $row['created_at'] }}</td>
+			<td>@if($row['to_isvip']==1) VIP @endif</td>
+			<td>@if($row['to_auth_status']==1) 已認證 @else N/A @endif</td>
+			<td>{{ $row['rating'] }}</td>
+			<td>{{ $row['content'] }}</td>
+			<td>
+				<form method="POST" action="{{ route('evaluationModifyContent', $row['id']) }}" style="margin:0px;display:inline;">
+					{!! csrf_field() !!}
+					<input type="hidden" name="id" value="{{$row['id']}}">
+					<textarea class="form-control m-input content_{{$row['id']}}" type="textarea" name="evaluation_content" rows="3" maxlength="300" style="display: none;"></textarea>
+					<div class="btn btn-primary modify_content_btn modify_content_btn_{{$row['id']}}" onclick="showTextArea({{ $row['id'] }})">修改評價內容</div>
+					<button type="submit" class="text-white btn btn-primary modify_content_submit evaluation_content_btn_{{ $row['id'] }}" style="display: none;">確認修改</button>
+				</form>
+				<form method="POST" action="{{ route('evaluationDelete') }}" style="margin:0px;display:inline;">
+					{!! csrf_field() !!}
+					<input type="hidden" name="id" value="{{$row['id']}}">
+					<button type="submit" class="btn btn-danger evaluation_delete_submit">刪除評價</button>
+				</form>
+			</td>
+		</tr>
+	@endforeach
+</table>
 <h4>評價紀錄</h4>
 <table class="table table-hover table-bordered">
 	<tr>
@@ -495,16 +569,31 @@
 		<th>會員認證</th>
 		<th>星等分數</th>
 		<th>評價內容</th>
+		<th>動作</th>
 	</tr>
 	@foreach($out_evaluation_data as $row)
 		<tr>
 			<td>{{ $row['to_name'] }}</td>
-			<td>{{ $row['to_email'] }}</td>
+			<td><a href="{{ route('users/advInfo', $row['to_id']) }}" target='_blank'>{{ $row['to_email'] }}</a></td>
 			<td>{{ $row['created_at'] }}</td>
 			<td>@if($row['to_isvip']==1) VIP @endif</td>
 			<td>@if($row['to_auth_status']==1) 已認證 @else N/A @endif</td>
 			<td>{{ $row['rating'] }}</td>
 			<td>{{ $row['content'] }}</td>
+			<td>
+				<form method="POST" action="{{ route('evaluationModifyContent', $row['id']) }}" style="margin:0px;display:inline;">
+					{!! csrf_field() !!}
+					<input type="hidden" name="id" value="{{$row['id']}}">
+					<textarea class="form-control m-input content_{{$row['id']}}" type="textarea" name="evaluation_content" rows="3" maxlength="300" style="display: none;"></textarea>
+					<div class="btn btn-primary modify_content_btn modify_content_btn_{{$row['id']}}" onclick="showTextArea({{ $row['id'] }})">修改評價內容</div>
+					<button type="submit" class="text-white btn btn-primary modify_content_submit evaluation_content_btn_{{ $row['id'] }}" style="display: none;">確認修改</button>
+				</form>
+				<form method="POST" action="{{ route('evaluationDelete') }}" style="margin:0px;display:inline;">
+					{!! csrf_field() !!}
+					<input type="hidden" name="id" value="{{$row['id']}}">
+					<button type="submit" class="btn btn-danger evaluation_delete_submit">刪除評價</button>
+				</form>
+			</td>
 		</tr>
 	@endforeach
 </table>
@@ -1006,6 +1095,41 @@ $( "#exchange_period" ).change(function() {
 	{{--		location.reload();--}}
 	{{--}});--}}
 
+});
+
+function showTextArea(id){
+	$('.modify_content_btn_'+id).hide();
+	$('.content_'+id).show();
+	$('.evaluation_content_btn_'+id).show();
+}
+$('.modify_content_submit').on('click',function(e){
+
+	if(!confirm('確定要修改該筆評價內容?')){
+		e.preventDefault();
+	}
+});
+$('.evaluation_delete_submit').on('click',function(e){
+	if(!confirm('確定要刪除該筆評價?')){
+		e.preventDefault();
+	}
+});
+
+function showPhoneInput(){
+	$('.modify_phone_submit').show();
+	$("input[name='phone']").val('');
+	$('.phoneInput').removeAttr('readonly');
+	$('.test').hide();
+}
+$('.modify_phone_submit').on('click',function(e){
+
+	if(!confirm('確定要修改手機?')){
+		e.preventDefault();
+	}
+});
+$('.delete_phone_submit').on('click',function(e){
+	if(!confirm('確定要刪除手機?')){
+		e.preventDefault();
+	}
 });
 
 
