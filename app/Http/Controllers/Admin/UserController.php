@@ -830,7 +830,7 @@ class UserController extends \App\Http\Controllers\BaseController
         //被檢舉紀錄
         //檢舉紀錄 reporter_id檢舉者uid  被檢舉者reported_user_id為此頁面主要會員
         $pic_report1 = ReportedAvatar::select('reporter_id as uid', 'reported_user_id as edid', 'cancel', 'created_at', 'content')->where('reported_user_id', $user->id)->where('reporter_id', '!=', $user->id)->groupBy('reporter_id')->get();
-        $pic_report2 = ReportedPic::select('reported_pic.reporter_id as uid', 'member_pic.member_id as edid', 'cancel', 'reported_pic.created_at', 'content')->join('member_pic', 'reported_pic.reported_pic_id', '=', 'member_pic.id')->where('member_pic.member_id', $user->id)->where('reported_pic.reporter_id', '!=', $user->id)->groupBy('reported_pic.reporter_id')->get();
+        $pic_report2 = ReportedPic::select('reported_pic.reporter_id as uid', 'member_pic.member_id as edid', 'cancel', 'reported_pic.created_at', 'reported_pic.content')->join('member_pic', 'reported_pic.reported_pic_id', '=', 'member_pic.id')->where('member_pic.member_id', $user->id)->where('reported_pic.reporter_id', '!=', $user->id)->groupBy('reported_pic.reporter_id')->get();
         //大頭照與照片合併計算
         $collection = collect([$pic_report1, $pic_report2]);
         $pic_all_report = $collection->collapse()->unique('uid');
@@ -1009,11 +1009,13 @@ class UserController extends \App\Http\Controllers\BaseController
         foreach ($evaluation_data as $row) {
             $tmp = array();
             $f_user = User::findById($row->to_id);
+            $tmp['id'] = $row->id;
             $tmp['content'] = $row->content;
             $tmp['re_content'] = $row->re_content;
             $tmp['rating'] = $row->rating;
             $tmp['re_created_at'] = $row->re_created_at;
             $tmp['created_at'] = $row->created_at;
+            $tmp['to_id'] = $f_user->id;
             $tmp['to_email'] = $f_user->email;
             $tmp['to_name'] = $f_user->name;
             $tmp['to_isvip'] = $f_user->isVip();
@@ -1023,6 +1025,29 @@ class UserController extends \App\Http\Controllers\BaseController
             }
             $tmp['to_auth_status'] = $auth_status;
             array_push($out_evaluation_data, $tmp);
+        }
+
+        $evaluation_data = DB::table('evaluation')->where('to_id',$user->id)->get();
+        $out_evaluation_data_2 = array();
+        foreach ($evaluation_data as $row) {
+            $tmp = array();
+            $f_user = User::findById($row->from_id);
+            $tmp['id'] = $row->id;
+            $tmp['content'] = $row->content;
+            $tmp['re_content'] = $row->re_content;
+            $tmp['rating'] = $row->rating;
+            $tmp['re_created_at'] = $row->re_created_at;
+            $tmp['created_at'] = $row->created_at;
+            $tmp['to_id'] = $f_user->id;
+            $tmp['to_email'] = $f_user->email;
+            $tmp['to_name'] = $f_user->name;
+            $tmp['to_isvip'] = $f_user->isVip();
+            $auth_status = 0;
+            if ($f_user->isPhoneAuth() == 1) {
+                $auth_status = 1;
+            }
+            $tmp['to_auth_status'] = $auth_status;
+            array_push($out_evaluation_data_2, $tmp);
         }
         
         if (str_contains(url()->current(), 'edit')) {
@@ -1052,6 +1077,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('reportBySelf',$reportBySelf)
                 ->with('report_all', $report_all)
                 ->with('out_evaluation_data', $out_evaluation_data)
+                ->with('out_evaluation_data_2', $out_evaluation_data_2)
                 ->with('pr',$pr)
                 ->with('pr_log',$query_pr);
         }
@@ -3455,5 +3481,43 @@ class UserController extends \App\Http\Controllers\BaseController
         $suspiciousUser = $query;
 
         return view('admin.users.suspiciousUser', compact('suspiciousUser'));
+    }
+
+    public function modifyContent(Request $request)
+    {
+        DB::table('evaluation')->where('id',$request->input('id'))->update(
+            ['content' => $request->input('evaluation_content')]
+        );
+        return back()->with('message', '評價內容已更新');
+    }
+
+    public function evaluationDelete(Request $request)
+    {
+        DB::table('evaluation')->where('id',$request->id)->delete();
+        return back()->with('message', '評價已刪除');
+    }
+
+    public function modifyPhone(Request $request)
+    {
+        if((DB::table('short_message')->where('mobile', $request->phone)->first() !== null ) && !empty($request->phone)){
+            return back()->with('message', '已存在資料,手機號碼重複驗證');
+        }
+
+        if (DB::table('short_message')->where([['member_id', $request->user_id]])->first() == null) {
+            DB::table('short_message')->insert(['member_id' =>  $request->user_id, 'mobile' => $request->phone, 'active' =>1]);
+        }else{
+            DB::table('short_message')->where('member_id', $request->user_id)->update(['mobile' => $request->phone, 'active' =>1]);
+        }
+        UserMeta::where('user_id', $request->user_id)->update(['phone' => $request->phone]);
+
+        return back()->with('message', $request->pass ? '已通過手機驗證':'手機已更新');
+    }
+
+    public function deletePhone(Request $request)
+    {
+        DB::table('short_message')->where('member_id', $request->user_id)->delete();
+        UserMeta::where('user_id', $request->user_id)->update(['phone' => '']);
+
+        return back()->with('message', '手機已刪除');
     }
 }
