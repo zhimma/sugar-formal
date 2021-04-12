@@ -488,7 +488,7 @@ class User extends Authenticatable
 
     public function isPhoneAuth()
     {
-        $auth_phone = DB::table('short_message')->where('member_id',$this->id)->where('mobile','!=','')->where('active',1)->count();
+        $auth_phone = DB::table('short_message')->where('member_id',$this->id)->where('active',1)->count(); //->where('mobile','!=','')
         return isset($auth_phone) && $auth_phone>0;
     }
     public function isImgAuth()

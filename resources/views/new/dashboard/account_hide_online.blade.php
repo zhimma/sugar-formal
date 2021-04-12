@@ -33,8 +33,10 @@
                                     <span><input name="isHideOnline" type="radio" value="0" @if($user->is_hide_online==0)checked @endif><i>開啟</i></span>
                                     <span><input name="isHideOnline" type="radio" value="1" @if($user->is_hide_online==1)checked @endif><i>關閉</i></span>
                                     <span><input name="isHideOnline" type="radio" value="2" @if($user->is_hide_online==2)checked @endif><i>隱藏</i></span>
-                                    @if($user->is_hide_online==1)
-                                        <br><span>關閉時間：{{substr($user->hide_online_time,0,11)}}</span>
+                                    @if($user->is_hide_online == 1)
+                                        <br><span>關閉時間：{{ substr($user->hide_online_time, 0, 11) }}</span>
+                                    @elseif($user->is_hide_online == 2)
+                                        <br><span>關閉時間：{{ substr($user->hide_online_hide_time, 0, 11) }}</span>
                                     @endif
                                     </form>
                                 </div>
