@@ -98,7 +98,7 @@ class CheckECpay implements ShouldQueue
                     if($vipData){
                         $vipData->removeVIP();
                     }
-                    \App\Models\VipLog::addToLog($user->id, 'Auto cancel', '自動取消', 0, 0);
+                    \App\Models\VipLog::addToLog($user->id, 'Background auto cancel, last process date: ' . $lastProcessDate->format('Y-m-d'), '自動取消', 0, 0);
                     $message = $user->name . "您好，您的 VIP 付費(卡號後四碼 " . $paymentData['card4no'] . ")最後一次付費月份為 " . $lastProcessDate->format('Y 年 m 月') . " ，距今已逾一個月，故停止您的 VIP 權限。優選會員資格一併取消，若有疑問請點右下聯絡我們連絡站長。";
                     \App\Models\Message_new::post($admin->id, $user->id, $message);
 
@@ -117,7 +117,7 @@ class CheckECpay implements ShouldQueue
                     $admin = User::findByEmail(Config::get('social.admin.email'));
                     $user = User::findById($this->vipData->member_id);
                     $user->getVipData(true)->removeVIP();
-                    \App\Models\VipLog::addToLog($user->id, 'Auto cancel', '自動取消', 0, 0);
+                    \App\Models\VipLog::addToLog($user->id, 'Background auto cancel, last process date: ' . $lastProcessDate->format('Y-m-d'), '自動取消', 0, 0);
                     $message = $user->name . "您好，您的 VIP 付費(卡號後四碼 " . $paymentData['card4no'] . ")已於 " . $lastProcessDate->format('Y 年 m 月') . " 扣款失敗，故停止您的 VIP 權限。優選會員資格一併取消，若有疑問請點右下聯絡我們連絡站長。";
                     \App\Models\Message_new::post($admin->id, $user->id, $message);
 
