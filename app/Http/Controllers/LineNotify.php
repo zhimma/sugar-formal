@@ -27,7 +27,7 @@ class LineNotify extends Controller
         ### LINE Access Token ###
         $this->getNotifyAccessToken($user,$code);
         session()->flash('message', '連動完成!');
-        return redirect('/dashboard');
+        return redirect('/dashboard/chat/chatNotice');
     }
          /**
      * 取得LINE Notify Access Token
@@ -79,10 +79,10 @@ class LineNotify extends Controller
         if (!empty($user->line_notify_token)) {
             $this->lineNotifyRevoke($user->id, $user->line_notify_token);
             session()->flash('message', '解除連動');
-            return redirect('/dashboard');
+            return back();
         }
 
-        return redirect('/dashboard');
+        return back();
     }
 
 

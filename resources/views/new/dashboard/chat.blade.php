@@ -60,11 +60,19 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 @include('new.dashboard.panel')
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
-                <div class="shou"><span>收件夾</span>
+                <div class="shou">
+                    <div class="sj_iconleft"><a href="{{route('viewChatNotice')}}"><img src="/new/images/ncion_03.png"></a></div>
+                    <span>收件夾</span>
                     <font>Inbox</font>
 {{--                    <a href="" class="shou_but">全部刪除</a>--}}
-                    <a href="javascript:void(0);" onclick="showChatSet()"><img src="/new/images/ncion_03.png" class="whoicon02 marlr10"></a>
+{{--                    <a href="javascript:void(0);" onclick="showChatSet()"><img src="/new/images/ncion_03.png" class="whoicon02 marlr10"></a>--}}
+                    <div class="sj_iconright"><img src="/new/images/sj_icon2.png"></div>
                 </div>
+{{--                <div class="shou_j">--}}
+{{--                    <div class="sj_iconleft"><a href="{{route('viewChatNotice')}}"><img src="/new/images/ncion_03.png"></a></div>--}}
+{{--                    <span>收件夾</span>--}}
+{{--                    <div class="sj_iconright"><img src="/new/images/sj_icon2.png"></div>--}}
+{{--                </div>--}}
                 <div class="n_shtab">
 
 {{--                    <h2><span>您目前為高級會員</span>訊息可保存天數：30，可通訊人數:無限</h2>--}}
