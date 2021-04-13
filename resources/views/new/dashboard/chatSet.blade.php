@@ -7,7 +7,7 @@
           @include('new.dashboard.panel')
       </div>
       <div class="col-sm-12 col-xs-12 col-md-10 g_pnr_gq">
-          <div class="shou"><span style="margin-left: 58px;">設定</span>
+          <div class="shou" style="text-align: center;"><span style="margin-left: 58px; border-bottom: unset;">設定</span>
               <font>Setting</font>
               <a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}" class="shou_but">返回</a>
           </div>
