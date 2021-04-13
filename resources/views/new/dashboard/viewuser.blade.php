@@ -348,12 +348,13 @@
                                 @endif
                                 
                                 @if($user->intro_login_times >= 2 && $isReadIntro == 0 && $introCount>0)
+                                    $('.metx').css('position','unset');
                                     introJs().setOption('showButtons',true).start();
                                     @php
                                         $user->save();
                                     @endphp
                                 @else
-                                    $('.tubiao').attr('style', 'z-index: -1')
+                                    // $('.tubiao').attr('style', 'z-index: -1')
                                 @endif
                             })
                         </script>
@@ -383,7 +384,7 @@
                         </div>
 
                     </div>
-                    <div class="bottub" style="z-index: 8;">
+                    <div class="bottub">
 
                         <ul>
                             @if(!$isBlocked)
@@ -724,7 +725,7 @@
                 </div>
                     <div class="line"></div>
 
-                    <div class="ziliao ziliao3" style="z-index: 9">
+                    <div class="ziliao ziliao3">
                         <div class="ztitle"><span>會員評價</span>Evaluation</div>
                         <div class="xiliao_input">
                             <div class="xl_text">
@@ -897,7 +898,7 @@
                                             </li>
                                         @endforeach
                                         </div>
-                                        <div class="hzk toggleBlockMid" style="z-index: 9;">
+                                        <div class="hzk toggleBlockMid">
                                             <img src="/new/images/zk_icon.png">
                                             <h2>部分被封鎖的會員評價已經被隱藏，點此全部顯示</h2>
                                         </div>
@@ -1176,7 +1177,7 @@
         });
 
         if( /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
-            $('.metx').css('position','unset');
+            // $('.metx').css('position','unset');
         }
     });
     // $( document ).ready(function() {
