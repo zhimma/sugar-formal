@@ -60,9 +60,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 @include('new.dashboard.panel')
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
-                <div class="shou">
+                <div class="shou" style="text-align: center;">
                     <div class="sj_iconleft"><a href="{{route('viewChatNotice')}}"><img src="/new/images/ncion_03.png"></a></div>
-                    <span>收件夾</span>
+                    <span style="border-bottom: unset;">收件夾</span>
                     <font>Inbox</font>
 {{--                    <a href="" class="shou_but">全部刪除</a>--}}
 {{--                    <a href="javascript:void(0);" onclick="showChatSet()"><img src="/new/images/ncion_03.png" class="whoicon02 marlr10"></a>--}}
