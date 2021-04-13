@@ -432,8 +432,8 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 
 /*收件夹*/
-.shou{width:94%; height:40px; line-height:40px; margin:0 auto; border-bottom:#e44e71 1px solid; margin-top:0px; margin-bottom:20px; text-align: center }
-.shou span{ color:#fd5678; /*border-bottom:#fd5678 3px solid;*/ font-size:20px; font-weight:bold; line-height:50px;}
+.shou{width:94%; height:40px; line-height:40px; margin:0 auto; border-bottom:#e44e71 1px solid; margin-top:0px; margin-bottom:20px;}
+.shou span{ color:#fd5678; border-bottom:#fd5678 3px solid; font-size:20px; font-weight:bold; line-height:50px;}
 .shou font{ color:#999999; margin-left:10px;font-size:16px;}
 .shou_but{float:right; padding:0px 15px; background:#fd5678; height:24px; line-height:24px; color:#ffffff; text-align:center; border-radius:100px; margin-top:13px;}
 .shou_but:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;background:#fe92a8;}
