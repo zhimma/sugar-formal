@@ -494,7 +494,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::post('users/banUserWithDayAndMessage', 'UserController@banUserWithDayAndMessage');
         Route::get('users/pictures', 'UserController@showUserPictures')->name('users/pictures');
-        Route::post('users/pictures', 'UserController@searchUserPictures')->name('users/pictures');
+        Route::get('users/pictures', 'UserController@searchUserPictures')->name('users/pictures');
         Route::post('users/pictures/modify', 'UserController@modifyUserPictures')->name('users/pictures/modify');
         Route::get('users/reported/count', 'UserController@showReportedCountPage')->name('users/reported/count');
         Route::post('users/reported/count', 'UserController@showReportedCountList')->name('users/reported/count');
