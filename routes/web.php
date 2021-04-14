@@ -626,8 +626,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('checkGenderChange', 'UserController@AdminCheckGenderChangeSave');
         Route::get('checkExchangePeriod', 'UserController@showAdminCheckExchangePeriod')->name('admin/checkExchangePeriod');
         Route::post('checkExchangePeriod', 'UserController@AdminCheckExchangePeriodSave');
-//        Route::get('roleManage', 'UserController@adminRole')->name('admin/role');
-//        Route::post('roleEdit', 'UserController@adminRoleEdit')->name('admin/role/edit');
+        Route::get('roleManage', 'UserController@adminRole')->name('admin/role');
+        Route::post('roleEdit', 'UserController@adminRoleEdit')->name('admin/role/edit');
         Route::get('users/picturesSimple', 'UserController@showUserPicturesSimple')->name('users/picturesSimple');
         Route::get('users/picturesSimpleSearch', 'UserController@searchUserPicturesSimple')->name('users/picturesSimpleSearch');
         Route::post('users/suspicious_user_toggle', 'UserController@suspicious_user_toggle')->name('users/suspicious_user_toggle');
