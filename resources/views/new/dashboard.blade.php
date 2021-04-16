@@ -1170,27 +1170,27 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
     });
 
-    {{--$(".line_notify").on('click', function() {--}}
-    {{--    var lineClientId = '{{config('line.line_notify.client_id')}}';--}}
-    {{--    var callbackUrl = '{{config('line.line_notify.callback_url')}}';--}}
-    {{--    var URL = '{{config('line.line_notify.authorize_url')}}?';--}}
-    {{--    URL += 'response_type=code';--}}
-    {{--    URL += '&client_id='+lineClientId;--}}
-    {{--    URL += '&redirect_uri='+callbackUrl;--}}
-    {{--    URL += '&scope=notify';--}}
-    {{--    URL += '&state={{csrf_token()}}';--}}
-    {{--    window.location.href = URL;--}}
-    {{--});--}}
+    $(".line_notify").on('click', function() {
+        var lineClientId = '{{config('line.line_notify.client_id')}}';
+        var callbackUrl = '{{config('line.line_notify.callback_url')}}';
+        var URL = '{{config('line.line_notify.authorize_url')}}?';
+        URL += 'response_type=code';
+        URL += '&client_id='+lineClientId;
+        URL += '&redirect_uri='+callbackUrl;
+        URL += '&scope=notify';
+        URL += '&state={{csrf_token()}}';
+        window.location.href = URL;
+    });
 
-    {{--$(".line_notify_cancel").on('click', function() {--}}
-    {{--    c4('確定要解除LINE綁定通知嗎?');--}}
-    {{--    var URL = '{{route('lineNotifyCancel')}}';--}}
-    {{--    $(".n_left").on('click', function() {--}}
-    {{--        $("#tab04").hide();--}}
-    {{--        $(".blbg").hide();--}}
-    {{--        window.location.href = URL;--}}
-    {{--    });--}}
-    {{--});--}}
+    $(".line_notify_cancel").on('click', function() {
+        c4('確定要解除LINE綁定通知嗎?');
+        var URL = '{{route('lineNotifyCancel')}}';
+        $(".n_left").on('click', function() {
+            $("#tab04").hide();
+            $(".blbg").hide();
+            window.location.href = URL;
+        });
+    });
 
   </script>
 
