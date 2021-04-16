@@ -63,7 +63,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 <div class="n_input">
                     <dt>
                         <span>LINE 通知</span>
-                        <span><div class="select_xx03">@if($user->line_notify_token==null) 尚未綁定<a class="btn btn-success line_notify">立即綁定</a> @else 已綁定 <a class="btn btn-secondary line_notify_cancel">取消綁定</a>@endif</div></span>
+                        <span>
+                            <div class="select_xx03">@if($user->line_notify_token == null) 尚未綁定<a class="btn btn-success line_notify">立即綁定</a> @else 已綁定 <a class="btn btn-secondary line_notify_cancel">取消綁定</a>@endif</div>
+                            @if($user->line_notify_token != null)
+                                <input type="radio" name="line_notify_switch" value="1"
+                                @if($user->line_notify_switch == 1) checked @endif> 開啟所有通知
+                                <input type="radio" name="line_notify_switch" value="0" @if($user->line_notify_switch == 0) checked @endif> 關閉所有通知
+                            @endif
+                        </span>
                     </dt>
                   <dt>
                     <span>暱稱<i>(必填)</i></span>
