@@ -204,7 +204,7 @@ class Message_newController extends BaseController {
         Message::post(auth()->id(), $payload['to'], $payload['msg']);
 
         //line通知訊息
-        $to_user = User::findById('id', $payload['to']);
+        $to_user = User::findById($payload['to']);
         $line_notify_send = false;
         //收藏者通知
         $check_fav = memberFav::where('member_id', $to_user->id)->where('member_fav_id', auth()->id())->first();
