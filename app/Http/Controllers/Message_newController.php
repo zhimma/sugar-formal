@@ -204,7 +204,7 @@ class Message_newController extends BaseController {
         Message::post(auth()->id(), $payload['to'], $payload['msg']);
 
         //line通知訊息
-        $to_user = User::where('id', $payload['to'])->where('line_notify_switch', 1)->first();
+        $to_user = User::findById('id', $payload['to']);
         $line_notify_send = false;
         //收藏者通知
         $check_fav = memberFav::where('member_id', $to_user->id)->where('member_fav_id', auth()->id())->first();
@@ -243,7 +243,7 @@ class Message_newController extends BaseController {
             }
         }
 
-        if($to_user->line_notify_token != null && ($check_fav || $line_notify_send)){
+        if($to_user->line_notify_token != null && $to_user->line_notify_switch == 1 && ($check_fav || $line_notify_send)){
             $url = url('/dashboard/chat2/chatShow/'.auth()->id());
             $url = app('bitly')->getUrl($url); //新套件用，如無法使用則先隱藏相關class
 
