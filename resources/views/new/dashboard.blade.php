@@ -64,13 +64,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     <dt>
                         <span>LINE 通知</span>
                         <span>
-                            <div class="select_xx03">@if($user->line_notify_token == null) 尚未綁定<a class="btn btn-success line_notify">立即綁定</a> @else 已綁定 <a class="btn btn-secondary line_notify_cancel">取消綁定</a>@endif</div>
-                            @if($user->line_notify_token != null)
-                                <div>是否開啟收藏中會員的來信通知</div>
-                                <input type="radio" name="line_notify_switch" value="1"
-                                @if($user->line_notify_switch == 1) checked @endif> 開啟
-                                <input type="radio" name="line_notify_switch" value="0" @if($user->line_notify_switch == 0) checked @endif> 關閉
-                            @endif
+                            <div class="select_xx03">@if($user->line_notify_token == null) 尚未綁定<a class="btn btn-success line_notify">立即綁定</a> @else 已綁定 <a class="btn btn-secondary line_notify_cancel">取消綁定</a>&nbsp;<a href="{{route('viewChatNotice')}}">請點我設定</a>@endif</div>
                         </span>
                     </dt>
                   <dt>
