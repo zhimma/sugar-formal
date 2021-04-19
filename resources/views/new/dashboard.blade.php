@@ -64,10 +64,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     <dt>
                         <span>LINE 通知</span>
                         <span>
-                            <div class="select_xx03">@if($user->line_notify_token == null) 尚未綁定<a class="btn btn-success line_notify">立即綁定</a> @else 已綁定 <a class="btn btn-secondary line_notify_cancel">取消綁定</a>@endif</div>
-                            @if($user->line_notify_token != null)
-                                <a href="{{route('viewChatNotice')}}">請點我設定</a>
-                            @endif
+                            <div class="select_xx03">@if($user->line_notify_token == null) 尚未綁定<a class="btn btn-success line_notify">立即綁定</a> @else 已綁定 <a class="btn btn-secondary line_notify_cancel">取消綁定</a>&nbsp;<a href="{{route('viewChatNotice')}}">請點我設定</a>@endif</div>
                         </span>
                     </dt>
                   <dt>
