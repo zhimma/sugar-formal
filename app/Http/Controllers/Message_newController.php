@@ -206,8 +206,6 @@ class Message_newController extends BaseController {
         //line通知訊息
         $to_user = User::findById($payload['to']);
         $line_notify_send = false;
-        //收藏者通知
-        $check_fav = memberFav::where('member_id', $to_user->id)->where('member_fav_id', auth()->id())->first();
         //收件夾設定通知
         $line_notify_chat_set_data = lineNotifyChatSet::select('line_notify_chat_set.*', 'line_notify_chat.name','line_notify_chat.gender')
             ->leftJoin('line_notify_chat', 'line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
@@ -240,10 +238,14 @@ class Message_newController extends BaseController {
                         break;
                     }
                 }
+                else if($row->gender==0 && $row->name == '收藏會員'){
+                    //收藏者通知
+                    $line_notify_send = memberFav::where('member_id', $to_user->id)->where('member_fav_id', auth()->id())->first();
+                }
             }
         }
 
-        if($to_user->line_notify_token != null && $to_user->line_notify_switch == 1 && ($check_fav || $line_notify_send)){
+        if($to_user->line_notify_token != null && $to_user->line_notify_switch == 1 && $line_notify_send){
             $url = url('/dashboard/chat2/chatShow/'.auth()->id());
             $url = app('bitly')->getUrl($url); //新套件用，如無法使用則先隱藏相關class
 
