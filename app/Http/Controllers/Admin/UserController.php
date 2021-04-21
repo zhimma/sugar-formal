@@ -1226,10 +1226,44 @@ class UserController extends \App\Http\Controllers\BaseController
         if(isset($request->order_by) && $request->order_by=='last_login'){
             $pics = $pics->orderBy('users.last_login','desc');
         }
-        $pics = $pics->get();
+        $pics = $pics->paginate(20);
+
+        $account = array();
+        foreach ($pics as $key => $pic) {
+            $user = User::where('id', $pic->member_id)->get()->first();
+            $userMeta = UserMeta::where('user_id', $pic->member_id)->get()->first();
+            if(is_null($user)){
+                continue;
+            }
+            $account[$key]['user'] = $user;
+            $account[$key]['userMeta'] = $userMeta;
+            $account[$key]['engroup'] = $user->engroup;
+            $account[$key]['isVip'] = $user->isVip();
+            $account[$key]['auth_status'] = 0;
+            if ($user->isPhoneAuth() == 1) $account[$key]['auth_status'] = 1;
+            $account[$key]['tipcount']= \App\Models\Tip::TipCount_ChangeGood($pic->member_id);
+            $account[$key]['vip'] = \App\Models\Vip::vip_diamond($pic->member_id);
+            $account[$key]['isBlocked'] = \App\Models\SimpleTables\banned_users::where('member_id', 'like', $pic->member_id)->get()->first();
+            if (!isset($account[$key]['isBlocked'])) {
+                $account[$key]['isBlocked'] = \App\Models\BannedUsersImplicitly::where('target', $pic->member_id)->get()->first();
+                if (isset($account[$key]['isBlocked'])) {
+                    $account[$key]['isBlocked_implicitly'] = 1;
+                }
+            }
+
+            $data = \App\Models\SimpleTables\warned_users::where('member_id', $pic->member_id)->first();
+            if (isset($data) && ($data->expire_date == null || $data->expire_date >= Carbon::now())) {
+                $account[$key]['isAdminWarned'] = 1;
+                $account[$key]['adminWarned_expireDate'] = $data->expire_date;
+                $account[$key]['adminWarned_createdAt'] = $data->created_at;
+            } else {
+                $account[$key]['isAdminWarned'] = 0;
+            }
+        }
 
         return view('admin.users.userPictures',
             ['pics' => $pics,
+                'account' => $account,
                 'en_group' => isset($request->en_group) ? $request->en_group : null,
                 'order_by' => isset($request->order_by) ? $request->order_by : null,
                 'city' => isset($request->city) ? $request->city : null,
@@ -3441,8 +3475,42 @@ class UserController extends \App\Http\Controllers\BaseController
 
         $pics = $pics->paginate(20);
 
+        $account = array();
+        foreach ($pics as $key => $pic) {
+            $user = User::where('id', $pic->member_id)->get()->first();
+            $userMeta = UserMeta::where('user_id', $pic->member_id)->get()->first();
+            if(is_null($user)){
+                continue;
+            }
+            $account[$key]['user'] = $user;
+            $account[$key]['userMeta'] = $userMeta;
+            $account[$key]['engroup'] = $user->engroup;
+            $account[$key]['isVip'] = $user->isVip();
+            $account[$key]['auth_status'] = 0;
+            if ($user->isPhoneAuth() == 1) $account[$key]['auth_status'] = 1;
+            $account[$key]['tipcount']= \App\Models\Tip::TipCount_ChangeGood($pic->member_id);
+            $account[$key]['vip'] = \App\Models\Vip::vip_diamond($pic->member_id);
+            $account[$key]['isBlocked'] = \App\Models\SimpleTables\banned_users::where('member_id', 'like', $pic->member_id)->get()->first();
+            if (!isset($account[$key]['isBlocked'])) {
+                $account[$key]['isBlocked'] = \App\Models\BannedUsersImplicitly::where('target', $pic->member_id)->get()->first();
+                if (isset($account[$key]['isBlocked'])) {
+                    $account[$key]['isBlocked_implicitly'] = 1;
+                }
+            }
+
+            $data = \App\Models\SimpleTables\warned_users::where('member_id', $pic->member_id)->first();
+            if (isset($data) && ($data->expire_date == null || $data->expire_date >= Carbon::now())) {
+                $account[$key]['isAdminWarned'] = 1;
+                $account[$key]['adminWarned_expireDate'] = $data->expire_date;
+                $account[$key]['adminWarned_createdAt'] = $data->created_at;
+            } else {
+                $account[$key]['isAdminWarned'] = 0;
+            }
+        }
+
         return view('admin.users.userPicturesSimple',
             ['pics' => $pics,
+                'account' => $account,
                 'en_group' => isset($request->en_group) ? $request->en_group : null,
                 'order_by' => isset($request->order_by) ? $request->order_by : null,
                 'city' => isset($request->city) ? $request->city : null,

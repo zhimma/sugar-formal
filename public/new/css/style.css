@@ -432,7 +432,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 
 /*收件夹*/
-.shou{width:94%; height:40px; line-height:40px; margin:0 auto; border-bottom:#e44e71 1px solid; margin-top:0px; margin-bottom:20px }
+.shou{width:94%; height:40px; line-height:40px; margin:0 auto; border-bottom:#e44e71 1px solid; margin-top:0px; margin-bottom:20px;}
 .shou span{ color:#fd5678; border-bottom:#fd5678 3px solid; font-size:20px; font-weight:bold; line-height:50px;}
 .shou font{ color:#999999; margin-left:10px;font-size:16px;}
 .shou_but{float:right; padding:0px 15px; background:#fd5678; height:24px; line-height:24px; color:#ffffff; text-align:center; border-radius:100px; margin-top:13px;}
@@ -2823,4 +2823,161 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 
 .kll{background: #e9eef4; padding: 10px; border-radius: 5px;}
 .sxyh{ height:2.1em; margin-left:2px; margin-top: -10px;}
+
+/* 3-15 */
+.sj_iconleft{ position: relative; /*left: 0;*/ top: 10px; cursor: pointer;float: left;}
+.sj_iconleft img{ height: 24px;}
+.sj_iconright{ position: relative; /*right: 0;*/ top: 10px; cursor: pointer; float: right;}
+.sj_iconright img{ height: 24px;}
+
+/* chatSet */
+
+.gqzx{width: 95%; margin: 0 auto; display: table;background-image: linear-gradient(to right,#fe92a8 ,#fee0e2); border-radius: 5px; padding: 10px 0;}
+.gqzx_title{width:95%; margin: 0 auto;font-size: 18px; color: #fff; font-weight: bold;}
+.gqzx_title img{ height: 25px;}
+.gqzx_ne{width: 95%; margin: 0 auto;color: #fff;padding: 10px;
+    background: #f8f8f8;
+    border: #d8d8d8 1px solid;
+    color: #666666;
+    display: table;
+    margin-top: 10px;
+    border-radius: 5px;}
+
+
+
+.gq_nrong{width: 95%; margin: 0 auto; display: table; margin-top: 15px;background-image: linear-gradient(to bottom,#ffeaee ,#fff); padding: 15px 0; border-radius: 5px;}
+.gq_nrong_title{width: 100%; margin: 0 auto; display: table; text-align: center; font-size: 16px; font-weight: bold; color: #333333;}
+
+.ga_tabli{width:80%;margin: 0 auto; display: table; margin-top:15px;}
+.ga_tabli ul{width:100%; margin: 0 auto; display: table;}
+.ga_tabli ul span{ float: left; line-height: 40px;width:4%; text-align: center;color: #ccc;}
+.gezx_input{width:48%; float: left; background: #fff; border: #ccc 1px solid; height: 40px; line-height: 40px; padding-left: 10px; border-radius: 5px; outline: none;}
+
+
+@media (max-width:450px){
+    .ga_tabli{width:95%;}
+}
+
+
+.ge_lable{width: 95%; margin: 0 auto; display: table;background-image: linear-gradient(to bottom,#f9f9f9 ,#ffebef);margin-top: 15px;border-radius: 5px; margin-bottom: 20px; }
+.ge_lable_title{width: 95%; margin: 0 auto;padding: 15px 0 10px 0; display: table;  color: #fd5678; font-size: 18px; font-weight: bold;}
+.ge_lable_title img{ height:26px; }
+
+.ge_tiznr{width: 100%; background: #fff;box-shadow: 0 0 10px #eee; border-radius: 5px; padding:20px 0 0 0; overflow: hidden;}
+.ge_tiznr ul{width: 95%; margin: 0 auto; display: table; margin-bottom: 10px;}
+.ge_tiznr ul li{ background: #eee;width: 100%; border-radius: 5px; padding: 10px 10px 5px 10px; display: table; margin-bottom: 10px;}
+
+.ge_zinlright{width: calc(100% - 20px); float: right;}
+
+.ge_check{ background: #fff;}
+
+.ge_cbottom{width: 100%; display: table; background: #ffebef; padding: 10px 0; font-size: 16px;}
+.ge_cbottom span{width: 95%; margin: 0 auto; display: table;}
+
+
+
+.g_pnr_gq{min-height:825px;}
+@media (max-width:1024px){
+    .g_pnr_gq{min-height:1180px;}
+}
+@media (max-width:768px){
+    .g_pnr_gq{min-height:830px;}
+}
+
+@media (max-width:450px){
+    .g_pnr_gq{min-height:630px;}
+}
+.gqzx_ys{width: 100%; display: table;}
+.gqzx_ys h2{ width: 100%; font-size: 14px; color: #666; display: table; margin-top: 5px;}
+.gqzx_ys h2 span{width: calc(100% - 20px); float: right;}
+.gqzx_ys h3{ width: 100%;  font-size: 14px; color: #fd5678;padding: 5px 0; margin-top: 10px; border-top: #ccc 1px solid;display: table;}
+.gqzx_ys h3 span{width: calc(100% - 20px); float: right;}
+
+.gqq_poptk{width:90%;height:240px; height:200px;margin: 0 auto;color: #666666;padding-bottom: 20px; padding-top:15px;overflow-y: scroll; display: block;}
+@media (max-width:450px){
+    .gqq_poptk{height:260px;}
+}
+
+.kk_star{ float: left;}
+.kk_star img{ height:16px; margin-right:2px; vertical-align: middle; margin-top:5px;}
+.kll{background: #e9eef4; padding: 10px; border-radius: 5px;}
+.sxyh{ height:22px; margin-left:2px; margin-top: -3px;}
+@media (max-width:320px){
+    .kk_star img {height: 12px;margin-top: 7px;}
+
+}
+
+.sys_log{ margin:0 auto; padding:0px; display:table;width: 100%; margin-top: 10px;background: #ffffff; box-shadow: 0 0 10px #eee; margin-bottom: 15px;}
+.sidebar_box {width:95%; margin: 0 auto;  display:table;}
+.sidebar_box dt{width: 96%; margin: 0 auto;left: 2%;background: url(../images/zk_icon.png) no-repeat;background-size:18px; line-height: 40px;
+    background-position:right 15px;position:relative;cursor:pointer; margin: 5px 0; font-size: 18px; color: #ee5472; font-weight: bold; }
+
+.sidebar_box dt span{overflow: hidden; display: table;}
+.sidebar_box dt span img{ height: 26px; margin-right: 3px;}
+.sidebar_box dd{ display: none;border-top: #eee 1px solid;width: 96%; margin: 0 auto; }
+.sidebar_box dd a{color:#f5f5f5;line-height:30px; display:block;}
+.sidebar_box dd a:hover{color:#fff; background:#4fb9f3;}
+
+.sidebar_box dt.on{background:  url(../images/zk_iconup.png) no-repeat; background-size:18px;background-position:right 15px;position:relative;cursor:pointer;}
+
+.tuba{width:100%; padding: 10px; background: #fff3f7; color: #fe92a8; display: table; margin-top: 10px; border-radius: 5px;}
+.tu_bd{width: 100%; padding:10px 0; display: table; line-height: 30px;}
+.tuk_bdbutton{width: 80px; height: 30px; line-height: 30px;background-image: linear-gradient(to top,#0ec040 ,#82d58e); border: #27b943 1px solid; color: #fff; border-radius: 5px; text-align: center;}
+.tuk_bdbutton:hover{background-image: linear-gradient(to bottom,#0ec040 ,#82d58e) !important; }
+
+.qux_bdbutton{width: 80px; height: 30px; line-height: 30px;background-image: linear-gradient(to top,#fd5678 ,#fe95aa); border: #fd5678 1px solid; color: #fff; border-radius: 5px; text-align: center;}
+.qux_bdbutton:hover{background-image: linear-gradient(to bottom,#fd5678 ,#fe95aa) !important; }
+
+
+
+
+.ti_ktx{width: 100%; background: #f0f0f0; line-height: 30px; display: table;}
+.ti_ktx span{ font-weight: bold; margin-left: 10px;}
+
+.ti_xcheck{width: 100%; padding:5px 0 10px 0;display: table; color: #333333;}
+.ti_xcheck span{margin-RIGHT:20px; line-height: 30px; float: left;}
+.ti_xcheck span INPUT{margin-right: 3px;margin-top: 8px;display: table;float: left;}
+
+/*@media (max-width:450px){*/
+/*    .ti_xcheck span{margin-RIGHT:0;width: 25%;}*/
+/*}*/
+@media (max-width:320px){
+    .ti_xcheck span{/*margin-RIGHT:0;*/ font-size: 12px;}
+    .ti_xcheck span INPUT{ margin-right:2px;}
+    .leftsidebar_box dt{left: 0;}
+}
+
+
+.nesdxbot{width:100%; padding: 10px; background: #f8f8f8; border: #d8d8d8 1px solid; color: #666666; display: table; margin-top:10px; border-radius: 5px;}
+.nesdxbot h2{ border-bottom: #d8d8d8 1px solid;}
+.nesdxbot h2:last-child{ border-bottom: none;}
+
+
+.ne_dxz{width: 100%;  padding:10px 0 15px 0;display: table; color: #333333;}
+.ne_dxz span{ margin-right:25px;line-height:25px; float: left;}
+.ne_dxz span INPUT{margin-right: 3px;margin-top: 7px;display: table;float: left;}
+.ne_dxz font{margin-right: 25px;line-height:25px; float: left;}
+.ne_dxz font INPUT{margin-right: 3px;margin-top: 7px;display: table;float: left;}
+.ne_dxz font i{ font-style: normal;}
+.ne_input{width: 50px; height: 25px; border: #ccc 1px solid; margin: 0 5px; float: left; margin-top: 0 !important;}
+
+
+
+@media (max-width:450px){
+    .ne_dxz span{width: 20%;line-height:25px; float: left; margin-right:0;}
+    .ne_dxz font{width: 100%;line-height: 25px; margin-right:0; margin-top: 5px;}
+    .ne_dxz{ padding:7px 0 15px 0;}
+}
+
+
+.ne_talicon{ font-style: normal; line-height:40px; color: #fe92a8; margin-right: 10px;}
+.ne_talicon img{ height:20px; width: 20px; vertical-align: middle;margin-top:10px; margin-right: 3px;}
+
+
+
+@media (max-width:320px){
+    .zq_font1{font-size: 18px !important;}
+    .zq_font2{font-size: 13px !important;;}
+
+}
 

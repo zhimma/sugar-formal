@@ -88,14 +88,48 @@
             <td width="12%">上線時間</td>
             <td width="5%">可疑名單</td>
         </tr>
-            @foreach ($pics as $pic)
+            @foreach ($pics as $key =>$pic)
                 <tr>
-                    <td>
+                    <td @if( $account[$key]['isBlocked']) style="background-color:#FFFF00" @endif>
                         @if (Auth::user()->can('readonly'))
-                            <a href="{{ route('users/pictures/editPic_sendMsg/readOnly', $pic->member_id) }}">{{ $pic->name }}</a>
+                        <a href="{{ route('users/pictures/editPic_sendMsg/readOnly', $pic->member_id) }}">
                         @else
-                            <a href="advInfo/editPic_sendMsg/{{ $pic->member_id }}">{{ $pic->name }}</a>
+                        <a href="advInfo/editPic_sendMsg/{{ $pic->member_id }}">
                         @endif
+                            <p @if($account[$key]['engroup']== '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $pic->name }}
+                                @if($account[$key]['vip'])
+                                    @if($account[$key]['vip']=='diamond_black')
+                                        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+                                    @else
+                                        @for($z = 0; $z < $account[$key]['vip']; $z++)
+                                            <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+                                        @endfor
+                                    @endif
+                                @endif
+                                @for($i = 0; $i < $account[$key]['tipcount']; $i++)
+                                    👍
+                                @endfor
+                                @if(!is_null($account[$key]['isBlocked']))
+                                    @if(!is_null($account[$key]['isBlocked']->expire_date))
+                                        @if(round((strtotime($account[$key]['isBlocked']->expire_date) - getdate()[0])/3600/24)>0)
+                                            {{ round((strtotime($account[$key]['isBlocked']->expire_date) - getdate()[0])/3600/24 ) }}天
+                                        @else
+                                            此會員登入後將自動解除封鎖
+                                        @endif
+                                    @elseif(isset($account[$key]['isBlocked_implicitly']))
+                                        (隱性)
+                                    @else
+                                        (永久)
+                                    @endif
+                                @endif
+                                @if($account[$key]['isAdminWarned']==1 OR $account[$key]['userMeta']->isWarned==1)
+                                    <img src="/img/warned_red.png" style="height: 16px;width: 16px;">
+                                @endif
+                                @if($account[$key]['userMeta']->isWarned==0 AND $account[$key]['user']->WarnedScore() >= 10 AND $account[$key]['auth_status']==1)
+                                    <img src="/img/warned_black.png" style="height: 16px;width: 16px;">
+                                @endif
+                            </p>
+                        </a>
                     </td>
                     <td><img src="{{ url($pic->pic) }}" width="150px"></td>
                     <td>{{ $pic->updated_at }}</td>

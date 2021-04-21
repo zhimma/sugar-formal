@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\lineNotifyChat;
+use App\Models\lineNotifyChatSet;
 use App\Models\MemberFav;
 use App\Models\Message;
 use App\Models\Message_new;
@@ -20,6 +22,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
+
 //use Shivella\Bitly\Facade\Bitly;
 
 class Message_newController extends BaseController {
@@ -95,6 +99,55 @@ class Message_newController extends BaseController {
         }
     }
 
+    public function viewChatNoticeSet(Request $request) {
+        $user = \View::shared('user');
+        $line_notify_chat = lineNotifyChat::where('active', 1)->whereIn('gender', [$user->engroup, 0])->orderBy('order')->get();
+
+        $line_notify_chat_set_data = lineNotifyChatSet::select('line_notify_chat_set.*')
+            ->leftJoin('line_notify_chat','line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
+            ->where('line_notify_chat.active',1)
+            ->where('line_notify_chat_set.user_id', $user->id)->where('line_notify_chat_set.deleted_at',null)->get();
+        $user_line_notify_chat_set = array();
+        foreach ($line_notify_chat_set_data as $row){
+            array_push($user_line_notify_chat_set, $row->line_notify_chat_id);
+        }
+
+        return view('new.dashboard.chatSet')
+            ->with('line_notify_chat', $line_notify_chat)
+            ->with('user_line_notify_chat_set', $user_line_notify_chat_set);
+    }
+
+    public function chatNoticeSet(Request $request) {
+        $user = \View::shared('user');
+
+        //line notify start
+        $group_name = $request->input('group_name');
+        if(empty($group_name)){
+            //全刪除
+            lineNotifyChatSet::where('user_id', $user->id)->delete();
+        }else {
+            //先刪後增
+            lineNotifyChatSet::where('user_id', $user->id)->whereNotIn('line_notify_chat_id', $group_name)->delete();
+            $line_notify_chat_set_data = lineNotifyChatSet::select('line_notify_chat_set.*')
+                ->leftJoin('line_notify_chat', 'line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
+                ->where('line_notify_chat.active', 1)
+                ->where('line_notify_chat_set.user_id', $user->id)->where('line_notify_chat_set.deleted_at', null)->get();
+            $user_line_notify_chat_set = array();
+            foreach ($line_notify_chat_set_data as $row) {
+                array_push($user_line_notify_chat_set, $row->line_notify_chat_id);
+            }
+            foreach ($group_name as $v) {
+                if (!in_array($v, $user_line_notify_chat_set)) {
+                    //不存在則新增
+                    lineNotifyChatSet::insert(['user_id' => $user->id, 'line_notify_chat_id' => $v, 'created_at' => \Carbon\Carbon::now()]);
+                }
+            }
+        }
+        //line notify end
+
+        return back()->with('message','設定已更新');
+    }
+
     public function reportMessage(Request $request){
         Message::reportMessage($request->id, $request->content);
 
@@ -152,8 +205,47 @@ class Message_newController extends BaseController {
 
         //line通知訊息
         $to_user = User::findById($payload['to']);
-        $check_fav = memberFav::where('member_id',$payload['to'])->where('member_fav_id',auth()->id())->first();
-        if($to_user->line_notify_token != null && $check_fav){
+        $line_notify_send = false;
+        //收件夾設定通知
+        $line_notify_chat_set_data = lineNotifyChatSet::select('line_notify_chat_set.*', 'line_notify_chat.name','line_notify_chat.gender')
+            ->leftJoin('line_notify_chat', 'line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
+            ->where('line_notify_chat.active', 1)
+            ->where('line_notify_chat_set.user_id', $to_user->id)->where('line_notify_chat_set.deleted_at', null)->get();
+        if(!empty($line_notify_chat_set_data)){
+            $user_meta_data = UserMeta::select('user_meta.isWarned','user_meta.exchange_period_change','exchange_period_name.*')
+                ->leftJoin('exchange_period_name','exchange_period_name.id','user_meta.exchange_period_change')
+                ->where('user_id', auth()->id())
+                ->get()->first();
+            foreach($line_notify_chat_set_data as $row){
+                if($row->gender==1 && $row->name == $user_meta_data->name){
+                        $line_notify_send = true;
+                        break;
+                }else if($row->gender==2){
+                    if($row->name == 'VIP' && $user->isVIP()){
+                        $line_notify_send = true;
+                        break;
+                    }
+                    if($row->name == '普通會員' && !$user->isVIP()){
+                        $line_notify_send = true;
+                        break;
+                    }
+                }else if($row->gender==0 && $row->name == '警示會員'){
+                    //警示會員
+                    //站方警示
+                    $isAdminWarned = warned_users::where('member_id',auth()->id())->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
+                    if($user_meta_data->isWarned==1 || !empty($isAdminWarned)){
+                        $line_notify_send = true;
+                        break;
+                    }
+                }
+                else if($row->gender==0 && $row->name == '收藏會員'){
+                    //收藏者通知
+                    $line_notify_send = memberFav::where('member_id', $to_user->id)->where('member_fav_id', auth()->id())->first();
+                }
+            }
+        }
+
+        if($to_user->line_notify_token != null && $to_user->line_notify_switch == 1 && $line_notify_send){
             $url = url('/dashboard/chat2/chatShow/'.auth()->id());
             $url = app('bitly')->getUrl($url); //新套件用，如無法使用則先隱藏相關class
 

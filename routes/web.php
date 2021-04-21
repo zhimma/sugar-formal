@@ -449,6 +449,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/chat2/deleterowall/{uid}/{sid}', 'Message_newController@deleteBetweenGetAll')->name('deleteBetweenGetAll');
         Route::post('/dashboard/chat2/deleteall', 'Message_newController@deleteAll')->name('delete2All');
         Route::post('/dashboard/chat2/chatSet', 'Message_newController@chatSet')->name('chatSet');
+        Route::get('/dashboard/chat/chatNotice', 'Message_newController@viewChatNoticeSet')->name('viewChatNotice');
+        Route::post('/dashboard/chat/chatNoticeSet', 'Message_newController@chatNoticeSet')->name('chatNoticeSet');
         Route::post('/dashboard/announcement_post', 'Message_newController@announcePost')->name('announcePost');
         Route::get('/dashboard/manual', 'PagesController@manual');
 
@@ -557,7 +559,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::post('users/banUserWithDayAndMessage', 'UserController@banUserWithDayAndMessage');
         Route::get('users/pictures', 'UserController@showUserPictures')->name('users/pictures');
-        Route::post('users/pictures', 'UserController@searchUserPictures')->name('users/pictures');
+        Route::get('users/pictures', 'UserController@searchUserPictures')->name('users/pictures');
         Route::post('users/pictures/modify', 'UserController@modifyUserPictures')->name('users/pictures/modify');
         Route::get('users/reported/count', 'UserController@showReportedCountPage')->name('users/reported/count');
         Route::post('users/reported/count', 'UserController@showReportedCountList')->name('users/reported/count');
@@ -680,8 +682,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('checkGenderChange', 'UserController@AdminCheckGenderChangeSave');
         Route::get('checkExchangePeriod', 'UserController@showAdminCheckExchangePeriod')->name('admin/checkExchangePeriod');
         Route::post('checkExchangePeriod', 'UserController@AdminCheckExchangePeriodSave');
-//        Route::get('roleManage', 'UserController@adminRole')->name('admin/role');
-//        Route::post('roleEdit', 'UserController@adminRoleEdit')->name('admin/role/edit');
+        Route::get('roleManage', 'UserController@adminRole')->name('admin/role');
+        Route::post('roleEdit', 'UserController@adminRoleEdit')->name('admin/role/edit');
         Route::get('users/picturesSimple', 'UserController@showUserPicturesSimple')->name('users/picturesSimple');
         Route::get('users/picturesSimpleSearch', 'UserController@searchUserPicturesSimple')->name('users/picturesSimpleSearch');
         Route::post('users/suspicious_user_toggle', 'UserController@suspicious_user_toggle')->name('users/suspicious_user_toggle');
