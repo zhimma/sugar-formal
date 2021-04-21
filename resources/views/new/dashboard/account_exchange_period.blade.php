@@ -46,9 +46,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 </div>
                                 <br>
                                 <div class="blxg">只能申請改一次，並且要通過站長同意</div>
-                                <a class="dlbut g_inputt40" onclick="submit()">確定</a>
                             </form>
-
+                            <a class="dlbut g_inputt40" onclick="submit()">確定</a>
                         </div>
 
                     </div>
