@@ -68,7 +68,10 @@
 		<!---->
 		<div class="container matop120 yzheight">
 			<div class="row">
-				<div class="col-sm-12 col-xs-12 col-md-12">
+                <div class="col-sm-2 col-xs-2 col-md-2 dinone" style="margin-top: 40px !important;">
+                    @include('new.dashboard.panel')
+                </div>
+				<div class="col-sm-12 col-xs-12 col-md-10">
                     <div class="dengl matbot140">
                        <div class="zhuce"><h2>手機驗證</h2>
                            <h3 style="line-height:1.2;">請用您的智慧型手機<br>進行本人的身份驗證</h3>
