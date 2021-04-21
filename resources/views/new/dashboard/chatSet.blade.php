@@ -23,7 +23,15 @@
                       <div class="ti_xcheck">
 
                           @foreach($line_notify_chat as $row)
-                              <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>
+                              @if($row->name == '收藏會員')
+                                  @if($user->isVip())
+                                      <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>
+                                  @else
+                                      @continue
+                                  @endif
+                              @else
+                                  <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>
+                              @endif
                           @endforeach
                       </div>
                   </dd>
