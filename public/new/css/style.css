@@ -412,16 +412,16 @@ a:hover{ color:#e44e71; text-decoration:none}
 .vipbut{width:250px; height:40px; background:#fe92a8; border-radius:200px; color:#ffffff; text-align:center; line-height:40px; display:table; margin:0 auto; margin-top:20px; }
 .vipbut:hover{color:#ffffff;box-shadow:inset 0px 13px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;}
 
-.vipbongn{width:96%; margin:0 auto; padding:15px; display:table; border:#fedde9 2px solid; margin-top:20px; margin-bottom:10px; border-radius:5px;}
+.vipbongn{width:82%; margin:0 auto; padding:15px; display:table; border:#fedde9 2px solid; margin-top:20px; margin-bottom:10px; border-radius:5px;}
 .vipbongn h2{ font-size:20px;  font-weight:bold; color:#fd90b6; border-bottom:#fd90b6 3px solid; display:table; float:left; margin-bottom:10px;}
 .vipbongn h3{width:100%; display:table; font-size:15px; color:#999999; line-height:25px;}
 .vipbongn h3 span{ font-size:12px; margin-right:10px;}
 @media (max-width:992px) {
-.vipbongn{width:94%; margin:0 auto; padding:15px; display:table; border:#fedde9 3px solid; margin-top:20px; margin-bottom:20px;}
+.vipbongn{width:82%; margin:0 auto; padding:15px; display:table; border:#fedde9 3px solid; margin-top:20px; margin-bottom:20px;}
 
 
 }
-@media (max-width:767px) {
+@media (max-width:768px) {
 .vipbongn{width:94%; margin:0 auto; padding:15px; display:table; border:#fedde9 2px solid; margin-top:20px; margin-bottom:10px;}
 .vipbongn h2{ font-size:18px;color:#fd90b6; border-bottom:#fd90b6 3px solid; display:table; float:left; margin-bottom:10px;}
 .vipbongn h3{width:100%; display:table; font-size:13px; color:#999999; line-height:25px;}
