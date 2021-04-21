@@ -46,6 +46,30 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         }
     }
 
+    .select_cont {
+width: 94%;
+margin: 20px auto;
+}
+.select_cont select {
+border-radius: 6px;
+border: 1px solid #ddd;
+cursor: pointer;
+padding: 5px 35px 5px 10px;
+appearance: none;
+-moz-appearance: none;
+-webkit-appearance: none;
+background: url(../../new/images/sjx_down.png)no-repeat right center #f5f5f5;
+background-size: auto 100%;
+}
+.send:after, .show:after, .msg:after, .select_cont:after {
+content: "";
+clear: both;
+display: table;
+}
+.select_cont option {
+text-align: center;
+}
+
 </style>
 @extends('new.layouts.website')
 
@@ -84,6 +108,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         @endif
                     </h2>
                 </div>
+                <div class=" select_cont">
+                    <select id="daysSelect" class="right">
+                        <option value="7">訊息</option>
+                        <option value="7">7天内</option>
+                        <option value="30">30天内</option>
+                        <option value="all">全部</option>
+                    </select>
+                </div>
                 <div class="sjlist_li">
                     <div class="leftsidebar_box">
                         <dl class="system_log">
@@ -98,7 +130,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         @endif
                                 <dt class="lebox{{$row->id}} lebox_exchange_period_{{$row->id}}" data-step="{{2+$row->id}}" data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
                                     data-intro="<p>
-                                        @if($row->id==1)此區會員找尋的長期的包養關係。如果有發現此區會員有只約短期的現象，例如直接要line，或者第一次就約旅館，請向站方檢舉。
+                                        @if($row->id==1)此區會員找尋長期包養關係，如若發現短期或是直接外約+line的，請直接檢舉。
                                         @elseif($row->id==2)此區會員可接受長期或短期的包養關係。如果有發現直接要 line的狀況，請向站方檢舉。
                                         @elseif($row->id==3)本區會員主要希望單次約會為主。如果是找尋長期包養關係建議避開此區會員。@endif</p><em></em><em></em>">
 
@@ -148,7 +180,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         <span class="novip_delete shou_but">全部刪除</span>
                                     @endif
                                 <dt class="lebox2" data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4" data-step="4"
-                                    data-intro="網站的普通會員。此區會員的申訴率比 vip 會員高非常多。如果要普通會員的daddy見面互動的話，請務必牢記新手教學。<em></em><em></em>">
+                                    data-intro="未付費的會員賴帳機率高於VIP 50倍<em></em><em></em>">
 
                                         普通會員
                                 </dt>
@@ -179,7 +211,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     <span class="alert_delete shou_but">全部刪除</span>
                                 @endif
                             <dt class="@if($user->engroup==2)lebox3 @else lebox4 @endif lebox_alert" data-position="top" data-highlightClass="yd5a" data-tooltipClass="yd5" @if($user->engroup==2)data-step="5" @else data-step="6" @endif
-                                data-intro="警示原因會有多種，也許是被檢舉也許是站長設定為警示。站方強烈不建議與此區會員互動，若一定要跟此區會員互動請務必提高十二萬分警覺。<em></em><em></em>">
+                                data-intro="被多人或站方檢舉，互動過程請提高十二萬分警覺。<em></em><em></em>">
 
                                     警示會員</dt>
                             <dd>
@@ -194,7 +226,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                 <input name="rows" type="hidden" id="rows" value="">
 
-                <div class="zixun">
+                <div class="zixun" style="display: none;">
                     <div class="yd2a" data-position="top" data-highlightClass="yd2b" data-tooltipClass="yd2" data-step="2"
                          data-intro="信件顯示時間為：7天內，30天內， 以及全部<em></em><em></em>">
                     <span><input type="radio" name="RadioGroup1" value="7" id="RadioGroup1_0" checked>7天內訊息</span>
@@ -293,7 +325,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     }
                     Page.DrawPage(total);
 
-                    date= $('input[name=RadioGroup1]:checked').val();
+                    // date= $('input[name=RadioGroup1]:checked').val();
+                    date= $("#daysSelect option:selected").val();
 
                     if(date==7){
                         $('.sjlist_vip>.date7.vipMember').slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
@@ -353,7 +386,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         default: Page_noVip.page = parseInt($(this).data('p'));
                     }
                     Page_noVip.DrawPage(total);
-                    date= $('input[name=RadioGroup1]:checked').val();
+                    // date= $('input[name=RadioGroup1]:checked').val();
+                    date= $("#daysSelect option:selected").val();
 
                     if(date==7) {
                         $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
@@ -419,7 +453,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         default: Page_exchange_period_{{$row->id}}.page = parseInt($(this).data('p'));
                     }
                     Page_exchange_period_{{$row->id}}.DrawPage(total);
-                    date= $('input[name=RadioGroup1]:checked').val();
+                    // date= $('input[name=RadioGroup1]:checked').val();
+                    date= $("#daysSelect option:selected").val();
 
                     if(date==7) {
                         $('.sjlist_exchange_period_{{$row->id}}>.date7.exchange_period_member_{{$row->id}}').slice((Page_exchange_period_{{$row->id}}.page - 1) * Page_exchange_period_{{$row->id}}.row, Page_exchange_period_{{$row->id}}.page * Page_exchange_period_{{$row->id}}.row).css('display', '');
@@ -481,7 +516,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         default: Page_warned.page = parseInt($(this).data('p'));
                     }
                     Page_warned.DrawPage(total);
-                    date= $('input[name=RadioGroup1]:checked').val();
+                    // date= $('input[name=RadioGroup1]:checked').val();
+                    date= $("#daysSelect option:selected").val();
 
                     if(date==7) {
                         $('.sjlist_alert>.date7.novipMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
@@ -1172,7 +1208,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
         LoadTable();
 
-        $('input[name=RadioGroup1]').on('click', function(event) {
+        // $('#daysSelect').on('change', function() {
+        //   alert( this.value );
+        //   console.log($("#daysSelect option:selected").val())
+        // });
+
+        $('#daysSelect').on('change', function() {
+        // $('input[name=RadioGroup1]').on('click', function(event) {
 
             // $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('off');
             // $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on');
@@ -1203,7 +1245,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 {{--            @endif--}}
 
 
-            date= $('input[name=RadioGroup1]:checked').val();
+            // date= $('input[name=RadioGroup1]:checked').val();
+            date= $("#daysSelect option:selected").val();
             window.location.hash = '#'+ date;
             @if($user->engroup==1)
                     @php
@@ -1651,15 +1694,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
 
         @if($user->login_times >= 3)
-
             $(function(){
+                
                 @if($user->checkTourRead('chat',1)==0)
                 if(step1 != 1) {
-                    $('#announcement').hide();
-                    $('.announce_bg').hide();
-                    introJs().setOption('showButtons', true).start();
-                    step1=1;
-                    letTourRead('chat',1);
+                    // $('#announcement').hide();
+                    // $('.announce_bg').hide();
+                    // introJs().setOption('showButtons', true).start();
+                    // step1=1;
+                    // letTourRead('chat',1);
                 }
 
                 @endif
