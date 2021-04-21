@@ -248,6 +248,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::post('/dashboard/changepassword', 'PagesController@changePassword'); //new route
 
     Route::get('/dashboard/vipForNewebPay', 'PagesController@viewVipForNewebPay'); //new route
+    Route::get('/dashboard/suspicious', 'PagesController@viewSuspicious'); //new route
+    Route::post('/dashboard/suspicious_u_account', 'PagesController@suspiciousUserAccount')->name('suspicious_u_account'); //new route
 
     Route::get('/dashboard/account_manage', 'PagesController@view_account_manage'); //new route
     Route::get('/dashboard/account_name_modify', 'PagesController@view_name_modify'); //new route
@@ -533,16 +535,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
             Route::post('search', 'UserController@searchSpamTextMessage')->name('searchSpamTextMessage');
         });
 
-        Route::group(['prefix'=>'users/evaluation'], function(){
-            Route::post('modify', 'UserController@modifyContent')->name('evaluationModifyContent');
-            Route::post('delete', 'UserController@evaluationDelete')->name('evaluationDelete');
-        });
-
-        Route::group(['prefix'=>'users/phone'], function(){
-            Route::post('modify', 'UserController@modifyPhone')->name('phoneModify');
-            Route::post('delete', 'UserController@deletePhone')->name('phoneDelete');
-        });
-
+        
         Route::get('statistics', 'UserController@statisticsReply')->name("statistics");
         Route::post('statistics', 'UserController@statisticsReply');
 

@@ -54,14 +54,17 @@ use Intervention\Image\Facades\Image;
 use Session;
 use App\Notifications\AccountConsign;
 use App\Models\ValueAddedService;
+use App\Repositories\SuspiciousRepository;
 
 class PagesController extends BaseController
 {
-    public function __construct(UserService $userService, VipLogService $logService)
+    protected $suspiciousRepo = null;
+    public function __construct(UserService $userService, VipLogService $logService, SuspiciousRepository $suspiciousRepo)
     {
         parent::__construct();
         $this->service = $userService;
         $this->logService = $logService;
+        $this->suspiciousRepo = $suspiciousRepo;
     }
 
     public function error() {
@@ -987,21 +990,35 @@ class PagesController extends BaseController
         return view('new.dashboard.password')->with('user', $user)->with('cur', $user);
     }
 
-    public function changePassword(Request $request){
-            $user = $request->user();
-            if($request->input('password') != $request->input('password_confirmation')){
-                return back()->with('message', '確認新密碼不符合，請重新操作');
-            }
+    public function viewSuspicious(Request $request) 
+    {
+        $user = $request->user();
+        $suspicious = [];
 
-           // dd(Hash::make($request->input('old_password')));
-            if( Hash::check($request->input('old_password'),$user->password) ) {
-                $password = $request->input('password') == null ? '123456' : $request->input('password');
-                $user->password = bcrypt($password);
-                $user->save();
-                return back()->with('message', '更新成功');
-            }else{
-                return back()->with('message', '原密碼有誤，請重新操作');
-            }
+        if($request->has('q') && !empty($request->input('q'))) {
+            $suspicious = $this->suspiciousRepo->wherePaginate($request->input('q'));
+        } else {
+            $suspicious = $this->suspiciousRepo->paginate();
+        }
+        // dd($suspicious);
+        return view('new.dashboard.suspicious')->with('user', $user)->with('suspicious', $suspicious)->with('query', $request->input('q'));
+    }
+
+    public function changePassword(Request $request){
+        $user = $request->user();
+        if($request->input('password') != $request->input('password_confirmation')){
+            return back()->with('message', '確認新密碼不符合，請重新操作');
+        }
+
+       // dd(Hash::make($request->input('old_password')));
+        if( Hash::check($request->input('old_password'),$user->password) ) {
+            $password = $request->input('password') == null ? '123456' : $request->input('password');
+            $user->password = bcrypt($password);
+            $user->save();
+            return back()->with('message', '更新成功');
+        }else{
+            return back()->with('message', '原密碼有誤，請重新操作');
+        }
     }
 
     public function view_openCloseAccount(Request $request)
@@ -2162,6 +2179,10 @@ class PagesController extends BaseController
 //            if(User::isBanned($uid)){
 //                Session::flash('message', $user_closed->content);
 //            }
+            if($uid == $user->id) {
+                \App\Models\Evaluation::where('to_id',$uid)->update(['read'=>0]);
+            }
+
             $to = $targetUser;
             $valueAddedServicesStatus['hideOnline'] = 0;
             $valueAddedServicesStatusRows = $to->valueAddedServiceStatus();
@@ -2279,11 +2300,11 @@ class PagesController extends BaseController
 
         if(isset($evaluation_self)){
             DB::table('evaluation')->where('to_id',$request->input('eid'))->where('from_id',$request->input('uid'))->update(
-                ['content' => $request->input('content'), 'rating' => $request->input('rating'), 'updated_at' => now()]
+                ['content' => $request->input('content'), 'rating' => $request->input('rating'), 'read' => 1, 'updated_at' => now()]
             );
         }else {
             DB::table('evaluation')->insert(
-                ['from_id' => $request->input('uid'), 'to_id' => $request->input('eid'), 'content' => $request->input('content'), 'rating' => $request->input('rating'), 'created_at' => now(), 'updated_at' => now()]
+                ['from_id' => $request->input('uid'), 'to_id' => $request->input('eid'), 'content' => $request->input('content'), 'rating' => $request->input('rating'), 'read' => 1, 'created_at' => now(), 'updated_at' => now()]
             );
         }
 
@@ -2532,6 +2553,15 @@ class PagesController extends BaseController
     public function unblockAll(Request $request)
     {
         Blocked::unblockAll($request->uid);
+        return response()->json(['save' => 'ok']);
+    }
+
+    public function suspiciousUserAccount(Request $request)
+    {
+        $array['name'] = $request->user()->name;
+        $array['user_id'] = $request->input('uid');
+        $array['account_text'] = $request->input('account_txt');
+        $this->suspiciousRepo->insert($array);
         return response()->json(['save' => 'ok']);
     }
 
@@ -4170,6 +4200,7 @@ class PagesController extends BaseController
         $myFav = $myFav->whereNull('b1.member_id')
             ->whereNull('b3.target')
             ->whereNull('b5.blocked_id')
+            ->where('b.last_login', '>=', Carbon::now()->subDays(7))
             ->groupBy('a.member_fav_id')
             ->get();
 
@@ -4185,11 +4216,52 @@ class PagesController extends BaseController
         $otherFav = $otherFav->whereNull('b1.member_id')
             ->whereNull('b3.target')
             ->whereNull('b5.blocked_id')
+            ->where('b.last_login', '>=', Carbon::now()->subDays(7))
             ->get();
 
         //msg
         $msgMemberCount = Message_new::allSenders($user->id,$user->isVip(),$d = 'all');
 
+        $queryBE = \App\Models\Evaluation::select('e.*')->from('evaluation as e')->with('user')
+                ->leftJoin('blocked as b1', 'b1.blocked_id', '=', 'e.from_id')
+//                ->leftJoin('user_meta as um', function($join) {
+//                    $join->on('um.user_id', '=', 'e.from_id')
+//                        ->where('isWarned', 1); })
+//                ->leftJoin('warned_users as wu', function($join) {
+//                    $join->on('wu.member_id', '=', 'e.from_id')
+//                        ->where(function($query){
+//                            $query->where('wu.expire_date', '>=', Carbon::now())
+//                                ->orWhere('wu.expire_date', null); }); })
+//                ->whereNull('um.user_id')
+//                ->whereNull('wu.member_id')
+                ->orderBy('e.created_at','desc')
+                ->where('b1.member_id', $uid)
+                ->where('e.to_id', $uid)
+                ->where('e.read', 1)
+                ->get();
+
+        $isBannedEvaluation = sizeof($queryBE) > 0? true : false;
+
+        $queryHE = \App\Models\Evaluation::select('e.*')->from('evaluation as e')
+                ->orderBy('e.created_at','desc')
+                ->where('e.to_id', $uid)
+                ->where('e.read', 1)
+                ->get();
+        
+        $arrayHE = [];
+        foreach ($queryHE as $k1 => $v1) {
+            $tmp = false;
+            foreach ($queryBE as $k2 => $v2) {
+                if($v1->from_id == $v2->from_id) {
+                    $tmp = true;
+                    break;
+                }
+            }
+            if(!$tmp) array_push($arrayHE, $v1);
+        }
+
+        $isHasEvaluation = sizeof($arrayHE) > 0? true : false;
+        
         if (isset($user)) {
 
             $data = array(
@@ -4202,7 +4274,9 @@ class PagesController extends BaseController
 //                'reportedCount' => $reportedCount,
                 'warnedCount' => $warnedCount,
                 'reportedStatus' => $reportedStatus,
-                'msgMemberCount' => $msgMemberCount
+                'msgMemberCount' => $msgMemberCount,
+                'isBannedEvaluation' => $isBannedEvaluation,
+                'isHasEvaluation' => $isHasEvaluation,
             );
 
 

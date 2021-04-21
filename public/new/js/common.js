@@ -221,8 +221,23 @@
 		$("#tab_other .bltext").text(str);
 	}
 
-	function loading() {
+	function popSus(str) {
 		$(".blbg").show();
+		$("#popSus").show();
+	}
+
+	function popSusNew() {
+		$(".blbg").show();
+		$("#popSusNew").show();
+	}
+
+	function popEvaluation() {
+		$(".blbg").show();
+		$("#popEvaluation").show();
+	}
+
+	function loading() {
+		$(".announce_bg").show();
 		$("#tab_loading").show();
 		// $("#tab02 .gxbut").text(str);
 	}
