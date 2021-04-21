@@ -241,6 +241,7 @@ class Message_newController extends BaseController {
                 else if($row->gender==0 && $row->name == '收藏會員'){
                     //收藏者通知
                     $line_notify_send = memberFav::where('member_id', $to_user->id)->where('member_fav_id', auth()->id())->first();
+                    break;
                 }
             }
         }
