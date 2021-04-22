@@ -168,7 +168,7 @@
 <div class="bl bl_tab" id="popSusNew">
     <div class="bltitle">新增銀行帳號</div>
     <div class="n_blnr01">
-        <input type="number" name="n_input" class="blinput" style="padding:0px 5px;" placeholder="請輸入銀行帳號"/>
+        <input type="text" name="n_input" class="blinput" style="padding:0px 5px;" placeholder="請輸入銀行帳號"/>
         <div class="n_bbutton">
             <span><a class="n_left" href="javascript:" >確定</a></span>
             <span><a onclick="$('#popSusNew').hide();$('.blbg').hide()" class="n_right" href="javascript:">取消</a></span>

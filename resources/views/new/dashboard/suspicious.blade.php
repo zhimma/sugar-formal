@@ -265,6 +265,18 @@
     $('.zhp_xz').on('click', function() {
         popSusNew();
         $(".n_left").on('click', function() {
+            if($(".blinput").val() == "") {
+                $("#popSusNew").hide();
+                $(".blbg").hide();
+                c5('帳號不能為空白')
+                return
+            }
+            if($.isNumeric($(".blinput").val()) == false){
+                $("#popSusNew").hide();
+                $(".blbg").hide();
+                c5('帳號只能為數字');
+                return
+            }
             $.post('{{ route('suspicious_u_account') }}', {
                 uid: '{{ $user->id }}',
                 account_txt: $(".blinput").val(),

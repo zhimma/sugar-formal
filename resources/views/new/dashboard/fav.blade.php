@@ -90,10 +90,16 @@
         var area_string='';
         if( typeof e.city !== 'undefined' && e.city.length>1){
             for(k=0 ; k < e.city.length;k++){
-                area_string += e.city[k]+' '+e.area[k]+' ';
+                if(typeof e.area[k] !== 'undefined' && e.area[k].length>1)
+                    area_string += e.city[k]+' '+e.area[k]+' '; 
+                else
+                    area_string += e.city[k]+' '
             }
         }else{
-            area_string = e.city+' '+e.area;
+            if(typeof e.area !== 'undefined')
+                area_string = e.city+' '+e.area;
+            else
+                area_string = e.city+' '
         }
 
         var styBlur = isBlur? "blur_img" : "";
