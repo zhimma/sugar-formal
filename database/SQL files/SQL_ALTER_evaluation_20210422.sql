@@ -1,0 +1,1 @@
+ALTER TABLE `evaluation` ADD `read` TINYINT(1) NULL AFTER `re_content`;
