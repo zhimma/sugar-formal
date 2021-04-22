@@ -16,8 +16,8 @@
             <a class="item"href="{!! url('/dashboard/banned') !!}"><li style="float: right;"><img src="/new/images/z_02.png"><span class="n_zylg">懲處名單</span></li></a>
 {{--            <a class="item" href="{!! url('dashboard/board') !!}"><li><img src="/new/images/z_03.png"><span>留言板</span></li></a>--}}
             <a class="item" href="{!! url('dashboard/newer_manual') !!}"><li><img src="/new/images/z_08.png"><span class="n_zylg">新手教學</span></li></a>
-            <a class="item" href="{!! url('dashboard/anti_fraud_manual') !!}"><li style="float: right;"><img src="/new/images/z_07.png"><span class="n_zylg01 zpfont">拒絕詐騙手<font class="n_flbr">冊</font></span></li></a>
-            <a class="item" href="{!! url('dashboard/web_manual') !!}"><li><img src="/new/images/z_09.png"><span class="n_zylg01">網站進階<font class="n_flbr">使用主頁</font></span></li></a>
+            <a class="item" href="{!! url('dashboard/anti_fraud_manual') !!}"><li style="float: right;"><img src="/new/images/z_07.png"><span class="n_zylg zpfont">拒絕詐騙手冊</span></li></a>
+            {{-- <a class="item" href="{!! url('dashboard/web_manual') !!}"><li><img src="/new/images/z_09.png"><span class="n_zylg01">網站進階<font class="n_flbr">使用主頁</font></span></li></a> --}}
             @if(isset($user) &&
                 $user->meta_()->isConsign == 0 && (
                     $user->meta_()->consign_expiry_date == null ||
@@ -38,12 +38,12 @@
             @endif
             {{-- <a class="item" href="{!! url('dashboard/posts_list') !!}"><li><img src="/new/images/letter.png"><span class="n_zylg">投稿文章</span></li></a> --}}
 
-            <li><a href="{!! url('dashboard/evaluation_self') !!}"><img src="/new/images/z_10.png"><span class="n_zylg">評價名單</span></a></li>
+            <a class="item" href="{!! url('dashboard/evaluation_self') !!}"><li style="float: right;"><img src="/new/images/z_10.png"><span class="n_zylg">評價名單</span></li></a>
             @if(isset($user) && $user->engroup == 1)
             @if (isset($user) && $user->isVip())
-                <a class="item" href="{!! url('dashboard/suspicious') !!}"><li style="float: right;"><img src="/new/images/z_11.png"><span class="n_zylg01">可疑帳號<font class="n_flbr">交流區</font></span></li></a>
+                <a class="item" href="{!! url('dashboard/suspicious') !!}"><li><img src="/new/images/z_11.png"><span class="n_zylg01">可疑帳號<font class="n_flbr">交流區</font></span></li></a>
             @else
-                <a class="item" href="javascript:void(0);"><li style="float: right;"><img src="/new/images/z_11.png"><span class="n_zylg01">可疑帳號<font class="n_flbr">交流區</font></span><span class="vipOnly"><img src="/new/images/icon_36.png" style="height: auto;width:120px;"></span></li></a>
+                <a class="item" href="javascript:void(0);"><li><img src="/new/images/z_11.png"><span class="n_zylg01">可疑帳號<font class="n_flbr">交流區</font></span><span class="vipOnly"><img src="/new/images/icon_36.png" style="height: auto;width:120px;"></span></li></a>
             @endif
             @endif
         </div>
