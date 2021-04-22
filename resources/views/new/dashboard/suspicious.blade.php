@@ -274,6 +274,7 @@
             if($.isNumeric($(".blinput").val()) == false){
                 $("#popSusNew").hide();
                 $(".blbg").hide();
+                $(".blinput").val('')
                 c5('帳號只能為數字');
                 return
             }
@@ -284,7 +285,7 @@
             }, function (data) {
                 $("#popSusNew").hide();
                 $(".blbg").hide();
-                c8('新增成功');
+                show_pop_message('新增成功');
                 $(".n_left").on('click', function() {
                     $(".blbg").hide();
                     $("#tab08").hide();
