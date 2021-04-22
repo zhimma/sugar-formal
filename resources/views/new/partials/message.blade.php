@@ -147,7 +147,7 @@
             <p style="font-size: 14px;">3. 本區資料屬機密資料，請勿外流。隨意外流將面臨法律責任！</p>
         </div>
         <div class="n_bbutton">
-            <span><a class="n_left" onclick="$('#popSus').hide();$('.blbg').hide();window.location.href = '?s=false'" >同意</a></span>
+            <span><a class="n_left" onclick="$('#popSus').hide();$('.blbg').hide();window.location.replace('?s=false');" >同意</a></span>
             <span><a onclick="window.history.back();" class="n_right">不同意</a></span>
         </div>
     </div>
