@@ -512,7 +512,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .si_bg{width:92%; margin-left:30px;}
 .sjpic{width:50px; height:50px; float:left}
 .sjpic img{width:50px; height:50px; border-radius:500px; object-fit: contain;}
-.sjleft{width:50%; height:50px; float:left; line-height:25px; margin-left:10px;text-overflow: ellipsis;
+.sjleft{width:64%; height:50px; float:left; line-height:25px; margin-left:10px;text-overflow: ellipsis;
     white-space: nowrap;
     display: block;}
 .sjtable{width:100%; display: table;}
@@ -585,10 +585,10 @@ a:hover{ color:#e44e71; text-decoration:none}
 }
 
 @media (max-width:360px) {
-    .sjleft{width:38%;}
+    .sjleft{width:57%;}
 }
 @media (max-width:320px) {
-    .sjleft{width:34%;}
+    .sjleft{width:50%;}
     .leftsidebar_box dt{padding:0px 15px;/*color:#333;*/ background-position:99%; }
     .leftsidebar_box dt.on{background-position:99%;}
 }
