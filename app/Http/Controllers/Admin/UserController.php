@@ -3568,7 +3568,7 @@ class UserController extends \App\Http\Controllers\BaseController
     public function modifyPhone(Request $request)
     {
         if((DB::table('short_message')->where('mobile', $request->phone)->first() !== null ) && !empty($request->phone)){
-            return back()->with('message', '已存在資料,手機號碼重複驗證');
+            return back()->with('error', '已存在資料,手機號碼重複驗證');
         }
 
         if (DB::table('short_message')->where([['member_id', $request->user_id]])->first() == null) {
