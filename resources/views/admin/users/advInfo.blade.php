@@ -362,7 +362,7 @@
 					<button type="submit" class="text-white btn btn-danger delete_phone_submit" style="float: right;">刪除</button>
 				</form>
 				@if ($user->isPhoneAuth() == false)
-					`<form action="{{ route('phoneModify') }}" method='POST'>
+					<form action="{{ route('phoneModify') }}" method='POST'>
 						{!! csrf_field() !!}
 						<input type="hidden" name="user_id" value="{{ $userMeta->user_id }}">
 						<input type="hidden" name="phone" value="">
@@ -382,7 +382,17 @@
 			<form action="{{ route('phoneModify') }}" method='POST'>
 				{!! csrf_field() !!}
 				<input type="hidden" name="user_id" value="{{ $userMeta->user_id }}">
-				<input class="form-control m-input phoneInput" type=text name="phone" value="{{ $user->isPhoneAuth() ? $userMeta->phone : '暫無手機' }}" readonly="readonly" >
+				@php
+					$showPhone = '暫無手機';
+					$phoneAuth = DB::table('short_message')->where('member_id', $user->id)->where('active',1)->first();
+					if($user->isPhoneAuth()){
+					    if(empty(trim($phoneAuth->mobile)))
+							$showPhone = '已驗證,尚未填寫手機';
+						else
+						    $showPhone = $phoneAuth->mobile;
+					}
+				@endphp
+				<input class="form-control m-input phoneInput" type=text name="phone" value="{{ $showPhone }}" readonly="readonly" >
 				@if ($user->isPhoneAuth())
 					<div class="text-white btn btn-primary test" onclick="showPhoneInput()">修改</div>
 					<button type="submit" class="text-white btn btn-primary modify_phone_submit" style="display: none;">確認修改</button>
