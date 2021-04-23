@@ -535,7 +535,16 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
             Route::post('search', 'UserController@searchSpamTextMessage')->name('searchSpamTextMessage');
         });
 
-        
+        Route::group(['prefix'=>'users/evaluation'], function(){
+            Route::post('modify', 'UserController@modifyContent')->name('evaluationModifyContent');
+            Route::post('delete', 'UserController@evaluationDelete')->name('evaluationDelete');
+        });
+
+        Route::group(['prefix'=>'users/phone'], function(){
+            Route::post('modify', 'UserController@modifyPhone')->name('phoneModify');
+            Route::post('delete', 'UserController@deletePhone')->name('phoneDelete');
+        });
+
         Route::get('statistics', 'UserController@statisticsReply')->name("statistics");
         Route::post('statistics', 'UserController@statisticsReply');
 
