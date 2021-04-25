@@ -264,7 +264,7 @@
 
     $('.zhp_xz').on('click', function() {
         popSusNew();
-        $(".n_left").on('click', function() {
+        $("#popSusNew .n_left").on('click', function() {
             if($(".blinput").val() == "") {
                 $("#popSusNew").hide();
                 $(".blbg").hide();
@@ -286,11 +286,6 @@
                 $("#popSusNew").hide();
                 $(".blbg").hide();
                 show_pop_message('新增成功');
-                $(".n_left").on('click', function() {
-                    $(".blbg").hide();
-                    $("#tab08").hide();
-                    window.location.href = '?s=false'
-                });
             });
         });
         return false;
