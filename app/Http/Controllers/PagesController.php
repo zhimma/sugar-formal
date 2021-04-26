@@ -3637,7 +3637,9 @@ class PagesController extends BaseController
 
     public function member_auth(Request $request){
         $user = $request->user();
-        return view('/auth/member_auth')->with('user',$user);
+        return view('/auth/member_auth')
+                ->with('user',$user)
+                ->with('cur', $user);
     }
 
     public function member_auth_photo(Request $request){
