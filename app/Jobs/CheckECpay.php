@@ -17,17 +17,18 @@ class CheckECpay implements ShouldQueue
 
     public $timeout = 60;
 
-    protected $vipData;
+    protected $vipData, $userIsVip;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($vipData)
+    public function __construct($vipData, $userIsVip = 0)
     {
         //
         $this->vipData = $vipData;
+        $this->userIsVip = $userIsVip;
     }
 
     /**
@@ -88,6 +89,7 @@ class CheckECpay implements ShouldQueue
                     $days = 31;
                 }
                 $now = \Carbon\Carbon::now();
+                // 最後一次付款成功，但已過期
                 if ($last['RtnCode'] == 1 && $lastProcessDate->diffInDays($now) > $days) {
                     Log::info('付費失敗');
                     Log::info($paymentData);
@@ -110,7 +112,32 @@ class CheckECpay implements ShouldQueue
                         $message->to('admin@sugar-garden.org');
                         $message->subject('綠界扣款失敗通知');
                     });
-                } else if ($last['RtnCode'] != 1) {
+                }
+                // 非 VIP，檢查最後一次付款是否成功且在週期內
+                else if (!$this->userIsVip && $last['RtnCode'] == 1 && $lastProcessDate->diffInDays($now) < $days) {
+                    Log::info('VIP 回復');
+                    Log::info($paymentData);
+
+                    $admin = User::findByEmail(Config::get('social.admin.email'));
+                    $user = User::findById($this->vipData->member_id);
+                    \App\Models\Vip::select('member_id', 'active')
+                        ->where('member_id', $this->vipData->member_id)
+                        ->update(array('active' => 1, 'expiry' => '0000-00-00 00:00:00'));
+                    \App\Models\VipLog::addToLog($user->id, 'Background auto upgrade, last process date: ' . $lastProcessDate->format('Y-m-d'), '自動回復', 0, 0);
+                    $message = $user->name . "您好，由於您的 VIP 付費(卡號後四碼 " . $paymentData['card4no'] . ")曾因扣款失敗被停止 VIP 權限，但最近一次又再次付費成功，月份為 " . $lastProcessDate->format('Y 年 m 月') . "，故回復您的 VIP 權限。若有疑問請點右下聯絡我們連絡站長。";
+                    \App\Models\Message_new::post($admin->id, $user->id, $message);
+
+                    $str = '末四碼：' . $paymentData['card4no'] . "<br>" .
+                        "會員 ID：" . $this->vipData->member_id . "<br>" .
+                        "訂單編號：" . $this->vipData->order_id;
+                    \Mail::raw($str, function ($message) {
+                        $message->from('admin@sugar-garden.org', 'Sugar-garden');
+                        $message->to('admin@sugar-garden.org');
+                        $message->subject('VIP 回復通知');
+                    });
+                }
+                // 最後一次付款失敗
+                else if ($last['RtnCode'] != 1) {
                     Log::info('付費失敗');
                     Log::info($paymentData);
 

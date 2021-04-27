@@ -1024,9 +1024,9 @@ class UserService
     }
 
     public function dispatchCheckECPay($userIsVip, $userIsFreeVip, $vipData){
-        if($userIsVip && !$userIsFreeVip){
+        if(!$userIsFreeVip){
             if(is_object($vipData)){
-                \App\Jobs\CheckECpay::dispatch($vipData);
+                \App\Jobs\CheckECpay::dispatch($vipData, $userIsVip);
             }
             else{
                 Log::info('VIP data null, user id: ' . \Auth::user()->id);
