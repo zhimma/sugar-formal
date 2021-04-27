@@ -232,6 +232,7 @@
 </style>
 @section('javascript')
 <script>
+    let sent = false;
     $('.unblock').on('click', function() {
        c4('確定要解除封鎖嗎?')
         var uid=$(this).data('uid');
@@ -268,25 +269,29 @@
             if($(".blinput").val() == "") {
                 $("#popSusNew").hide();
                 $(".blbg").hide();
-                c5('帳號不能為空白')
-                return
+                c5('帳號不能為空白');
+                return;
             }
             if($.isNumeric($(".blinput").val()) == false){
                 $("#popSusNew").hide();
                 $(".blbg").hide();
-                $(".blinput").val('')
+                $(".blinput").val('');
                 c5('帳號只能為數字');
-                return
+                return;
             }
-            $.post('{{ route('suspicious_u_account') }}', {
-                uid: '{{ $user->id }}',
-                account_txt: $(".blinput").val(),
-                _token: '{{ csrf_token() }}'
-            }, function (data) {
-                $("#popSusNew").hide();
-                $(".blbg").hide();
-                show_pop_message('新增成功');
-            });
+            if(!sent){
+                sent = true;
+                $.post('{{ route('suspicious_u_account') }}', {
+                    uid: '{{ $user->id }}',
+                    account_txt: $(".blinput").val(),
+                    _token: '{{ csrf_token() }}'
+                }, function (data) {
+                    $("#popSusNew").hide();
+                    $(".blbg").hide();
+                    show_pop_message('新增成功');
+                });
+            }
+            return;
         });
         return false;
     });
