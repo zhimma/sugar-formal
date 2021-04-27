@@ -2140,6 +2140,7 @@ class PagesController extends BaseController
                 ->whereNull('b7.member_id')
 //                ->whereNull('um.user_id')
                 ->whereNull('wu.member_id')
+                ->whereNull('iw.user_id')
                 ->where('e.to_id', $uid);
 
             $rating_avg = $query->avg('rating');
