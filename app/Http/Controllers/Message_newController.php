@@ -248,7 +248,7 @@ class Message_newController extends BaseController {
 
         if($to_user->line_notify_token != null && $to_user->line_notify_switch == 1 && $line_notify_send){
             $url = url('/dashboard/chat2/chatShow/'.auth()->id());
-            $url = app('bitly')->getUrl($url); //新套件用，如無法使用則先隱藏相關class
+//            $url = app('bitly')->getUrl($url); //新套件用，如無法使用則先隱藏相關class
 
             //send notify
             $message = '您有一則訊息來自 '.$user->name.'。'.$url;
