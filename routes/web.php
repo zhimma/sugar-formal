@@ -263,6 +263,7 @@ Route::group(['middleware' => ['auth', 'global']], function () {
     Route::get('/dashboard/openCloseAccount', 'PagesController@view_openCloseAccount');
     Route::post('/dashboard/closeAccountReason', 'PagesController@view_closeAccountReason');
     Route::post('/dashboard/updateAccountStatus', 'PagesController@updateAccountStatus');
+    Route::post('/multiple-login', 'PagesController@multipleLogin')->name('multipleLogin');
 });
 
 Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckIsWarned','CheckAccountStatus']], function () {
@@ -332,7 +333,6 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     | Dashboard
     |--------------------------------------------------------------------------
     */
-    
     Route::post('/dashboard/postAcceptor', 'PagesController@postAcceptor');/*投稿列表功能*/
     Route::get('/dashboard/posts_list', 'PagesController@posts_list');/*投稿列表功能*/
     // Route::get('/dashboard/post_detail/', 'PagesController@post_detail');
@@ -645,6 +645,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/deleteFingerprintFromExpectedList/{fingerprint}', 'UserController@deleteFingerprintFromExpectedList')->name('deleteFingerprintFromExpectedList');
         Route::get('users/warning', 'UserController@showWarningUsers')->name('warningUsers');
         Route::get('users/suspectedMultiLogin', 'UserController@showSuspectedMultiLogin')->name('suspectedMultiLogin');
+        Route::get('users/multiple-login', 'UserController@multipleLogin')->name('users/multipleLogin');
         Route::get('users/customizeMigrationFiles', 'UserController@customizeMigrationFiles')->name('users/customize_migration_files');
         Route::post('users/customizeMigrationFiles', 'UserController@customizeMigrationFiles')->name('users/customize_migration_files');
         Route::match(['get', 'post'], 'users/VIP/ECCancellations', 'PagesController@showECCancellations')->name('users/VIP/ECCancellations');
