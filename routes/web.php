@@ -263,6 +263,7 @@ Route::group(['middleware' => ['auth', 'global']], function () {
     Route::get('/dashboard/openCloseAccount', 'PagesController@view_openCloseAccount');
     Route::post('/dashboard/closeAccountReason', 'PagesController@view_closeAccountReason');
     Route::post('/dashboard/updateAccountStatus', 'PagesController@updateAccountStatus');
+    Route::post('/multiple-login', 'PagesController@multipleLogin')->name('multipleLogin');
 });
 
 Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckIsWarned','CheckAccountStatus']], function () {
@@ -332,7 +333,6 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     | Dashboard
     |--------------------------------------------------------------------------
     */
-    
     Route::post('/dashboard/postAcceptor', 'PagesController@postAcceptor');/*投稿列表功能*/
     Route::get('/dashboard/posts_list', 'PagesController@posts_list');/*投稿列表功能*/
     // Route::get('/dashboard/post_detail/', 'PagesController@post_detail');
@@ -697,6 +697,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/picturesSimpleSearch', 'UserController@searchUserPicturesSimple')->name('users/picturesSimpleSearch');
         Route::post('users/suspicious_user_toggle', 'UserController@suspicious_user_toggle')->name('users/suspicious_user_toggle');
         Route::get('users/suspiciousUser', 'UserController@suspiciousUser')->name('users/suspiciousUser');
+        Route::get('users/multiple-login', 'UserController@multipleLogin')->name('users/multipleLogin');
 
         /*新增、編輯訊息*/
         Route::post('users/getmsglib', 'UserController@getMessageLib');
