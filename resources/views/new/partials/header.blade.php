@@ -45,4 +45,34 @@
 			gtag('js', new Date());
 			gtag('config', 'UA-151409328-1');
 		</script>
-	</head>
+		@if (isset($user))
+			<script>
+				const user = {
+					id: '{{ $user->id }}',
+					email: '{{ $user->email }}'
+				}
+				let userLocal = window.localStorage.getItem('user');
+				if(!userLocal){
+					window.localStorage.setItem('user', JSON.stringify(user));
+				}
+				else{
+					userLocal = JSON.parse(userLocal);
+					if(userLocal.id !== user.id){
+						$.ajax({
+							type: 'POST',
+							url: '{{ route('multipleLogin') }}',
+							data: {
+								_token:"{{ csrf_token() }}",
+								original_id : userLocal.id,
+								new_id : user.id
+							},
+							dataType: 'json',
+							success: function(xhr){
+								console.log(xhr.msg);
+							}
+						});
+					}
+				}
+			</script>
+		@endif
+</head>
