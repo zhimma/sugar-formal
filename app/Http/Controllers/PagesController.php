@@ -4326,7 +4326,7 @@ class PagesController extends BaseController
 
     public function multipleLogin(Request $request){
         $isExist = \DB::table('multiple_login')->where(['original_id' => $request->original_id, 'new_id' => $request->new_id])->get();
-        if($isExist){
+        if(count($isExist) > 0){
             return response()->json(array(
                 'status' => 1,
                 'msg' => 'exists',
