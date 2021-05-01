@@ -76,7 +76,7 @@ class SetAutoBan extends Model
                 }
                 elseif($ban_set->set_ban == 2 && BannedUsersImplicitly::where('target', $uid)->first() == null){
                     //隱性封鎖
-                    BannedUsersImplicitly::insert(['fp' => 'BannedInUserInfo','user_id' => 0,'target' => $uid]);
+                    BannedUsersImplicitly::insert(['fp' => 'Line 79, BannedInUserInfo, ban_set ID: ' . $ban_set->id . ', content: ' . $content, 'user_id' => 0, 'target' => $uid]);
                 }
                 elseif($ban_set->set_ban == 3 && warned_users::where('member_id', $uid)->first() == null){
                     //警示會員
@@ -121,7 +121,7 @@ class SetAutoBan extends Model
                 }
                 elseif($ban_set->set_ban == 2 && BannedUsersImplicitly::where('target', $uid)->first() == null) {
                     //隱性封鎖
-                    BannedUsersImplicitly::insert(['fp' => 'BannedInUserInfo', 'user_id' => 0, 'target' => $uid]);
+                    BannedUsersImplicitly::insert(['fp' => 'Line 124, BannedInUserInfo, ban_set ID: ' . $ban_set->id . ', content: ' . $ban_set->content, 'user_id' => 0, 'target' => $uid]);
                 }
                 elseif($ban_set->set_ban == 3 && warned_users::where('member_id', $uid)->first() == null) {
                     //警示會員

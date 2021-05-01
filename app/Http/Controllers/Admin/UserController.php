@@ -3588,4 +3588,11 @@ class UserController extends \App\Http\Controllers\BaseController
 
         return back()->with('message', '手機已刪除');
     }
+
+    public function multipleLogin() {
+        $results = \DB::table('multiple_login')->get();
+        $original_users =  User::whereIn('id', $results->pluck('original_id'))->get();
+        $new_users =  User::whereIn('id', $results->pluck('new_id'))->get();
+        return view('admin.users.multipleLoginList', compact('results', 'original_users', 'new_users'));
+    }
 }

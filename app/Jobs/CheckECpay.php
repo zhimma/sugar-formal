@@ -24,11 +24,16 @@ class CheckECpay implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($vipData, $userIsVip = 0)
+    public function __construct($vipData, $userIsVip = null)
     {
         //
         $this->vipData = $vipData;
-        $this->userIsVip = $userIsVip;
+        if($userIsVip){
+            $this->userIsVip = $userIsVip;
+        }
+        else{
+            $this->userIsVip = $vipData->active;
+        }
     }
 
     /**
