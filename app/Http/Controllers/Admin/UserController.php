@@ -3583,7 +3583,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function deletePhone(Request $request)
     {
-        DB::table('short_message')->where('member_id', $request->user_id)->delete();
+        DB::table('short_message')->where('member_id', $request->user_id)->update(['active' =>0]);
         UserMeta::where('user_id', $request->user_id)->update(['phone' => '']);
 
         return back()->with('message', '手機已刪除');
