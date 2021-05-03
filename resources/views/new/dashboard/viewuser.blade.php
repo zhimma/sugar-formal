@@ -196,6 +196,21 @@
             margin-right: 3px;
             padding-bottom: 6px !important;
         }
+
+        .zw_dw {
+            float: right;
+            padding: 0px 15px;
+            background: #fd5678;
+            height: 24px;
+            line-height: 24px;
+            color: #ffffff;
+            text-align: center;
+            border-radius: 100px;
+            margin-top: 10px;
+            color: #ffffff;
+            font-size: 13px;
+            cursor: pointer;
+        }
     </style>
     @php
         $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
@@ -724,8 +739,8 @@
                 </div>
                     <div class="line"></div>
 
-                    <div class="ziliao ziliao3">
-                        <div class="ztitle"><span>會員評價</span>Evaluation</div>
+                    <div id="hash_evaluation" class="ziliao ziliao3">
+                        <div class="ztitle"><span>會員評價</span>Evaluation<a onClick="popEvaluation()"class="zw_dw">請按我</a></div>
                         <div class="xiliao_input">
                             <div class="xl_text">
                                 <div class="pjliuyan02 amar15">
@@ -1113,11 +1128,9 @@
         var vipDiff = parseInt('{{$user->isVip()? '6' : '0'}}');
 
         if(window.matchMedia("(min-width: 992px)").matches && window.matchMedia("(max-width: 1599px)").matches){
-            console.log("123")
             $(".swiper-container").css('height',$(".metx").height()- 56);
         }
         if(window.matchMedia("(min-width: 1600px)").matches){
-            console.log("456")
             $(".swiper-container").css('height',$(".metx").height()- 56);
         }
         if(window.matchMedia("(min-width: 376px)").matches && window.matchMedia("(max-width: 991px)").matches){
@@ -1441,6 +1454,9 @@
         // ccc('{{Session::get('message')}}');
     @elseif(Session::has('message') && Session::get('message')!="此用戶已關閉資料。")
         c5('{{Session::get('message')}}');
+        @if(Session::get('message') == '評價已完成')
+        popEvaluation()
+        @endif
     @endif
 
     $(".n_bllbut_tab_other").on('click', function() {
