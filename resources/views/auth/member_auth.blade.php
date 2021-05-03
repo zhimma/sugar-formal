@@ -74,10 +74,10 @@
 				<div class="col-sm-12 col-xs-12 col-md-10">
                     <div class="dengl matbot140">
                        <div class="zhuce"><h2>手機驗證</h2>
-                           <h3 style="line-height:1.2;">請用您的智慧型手機<br>進行本人的身份驗證</h3>
+{{--                           <h3 style="line-height:1.2;">請用您的智慧型手機<br>進行本人的身份驗證</h3>--}}
                        </div>
                            <div class="de_input">
-                                 <div class="yanzheng_1">驗證1</div>
+{{--                                 <div class="yanzheng_1">驗證1</div>--}}
 {{--                               @php--}}
 {{--                                   $data = \App\Models\SimpleTables\warned_users::where('member_id', $user->id)->where(function ($query){--}}
 {{--                                        $query->whereNull('expire_date')->orWhere('expire_date', '>=', \Carbon\Carbon::now());--}}
@@ -102,9 +102,18 @@
                                        <input name="" type="text" id="checkcode" class="xy_input xy_left" placeholder="請輸入驗證碼">
                                        <a id="auth_phone1" class="xy_yanx"><div style="text-align:center">驗證</div></a>
                                  </div>
+                                 <div class="de_input pink">
+                                     <span>如果收不到驗證碼，請透過信用卡付費認證，</span>
+                                     <a href="#" onclick="beforeSwipeCardAlert()">請按我，進行信用卡付費。</a>
+                                     <form id="mobile_verify_paymentForm" class="m-form m-form--fit" action="{{ route('mobileAutoVerify_ec') }}" method=post style="display: none;">
+                                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                         <input type="hidden" name="userId" value="{{$user->id}}">
+                                         <button type="submit" class="new_gvip_input paySubmit" style="border-style: none; outline: none;">請按我，進行信用卡付費。</button>
+                                     </form>
+                                 </div>
                                @endif
                             </div>
-                             <div class="vipbongn new_wyz">
+                        <div class="vipbongn new_wyz">
                                 <h2>驗證說明</h2>
                                 @if($user->engroup == 1)
                                 <h3><span class="left">●</span><var class="newtishi">手機驗證後，能加強帳號及身份的真實性。</var></h3>
@@ -168,7 +177,7 @@
 
 
 
-        <div class="blbg" onclick="gmBtn1()" style="display: none;"></div>
+<div class="blbg" onclick="gmBtn1()" style="display: none;"></div>
 {{--		<div class="blbg tab_phone" onclick="gmBtn1()" style="display: none;"></div>--}}
 <div class="bl bl_tab " id="tab01" style="display: none;">
     <div class="bltitle"><span>提示</span></div>
@@ -183,6 +192,24 @@
     <a id="" onclick="gmBtn1()" class="bl_gb"><img src="/auth/images/gb_icon.png"></a>
 </div>
 
+<div class="blbg" onclick="gmBtn1()" ></div>
+<div class="bl bl_tab " id="beforeSwipeCard" >
+    <div class="bltitle"><span>提示</span></div>
+    <div class="n_blnr01 matop10">
+        <div class="n_fengs" >
+            <p>● 您選擇的是一次性支付。金額是30 元。</p>
+            <p>● 您申請 完成繳費後，經確認繳費程序完成，則將通過本站身分認證，開啟本站相關服務設定，即視同您已經開始使用所購買之本站服務。</p>
+            <p>● 刷卡後將不予退費。</p>
+            <p>如同意以上所有條款請點確認，不同意點取消</p>
+        </div>
+
+        <div class="n_bbutton">
+            <span><a class="n_left" onclick="sendSwipeCardSummit()">確定</a></span>
+            <span><a class="n_right" onclick="gmBtn1()">取消</a></span>
+        </div>
+    </div>
+    <a  onclick="gmBtn1()" class="bl_gb"><img src="/auth/images/gb_icon.png"></a>
+</div>
 
 
 
@@ -518,6 +545,14 @@
                 @endif
             <?php session()->forget('message');?>
             @endif
+
+            function beforeSwipeCardAlert() {
+                $(".blbg").show();
+                $("#beforeSwipeCard").show();
+            }
+            function sendSwipeCardSummit() {
+                $("#mobile_verify_paymentForm").submit();
+            }
         </script>
 
 	</body>
