@@ -7,15 +7,15 @@
 </style>
 <body style="padding: 15px;">
 <h1>多重登入名單</h1>
-共 {{ count($results) }} 筆資料
+共 {{ $results->total() }} 筆資料
 <table class='table table-bordered table-hover'>
 	<tr>
 		<td>原會員 Email(暱稱)</td>
-        <td class="col-md-2">原會員關於我</td>
-        <td class="col-md-2">原會員期待的約會模式</td>
+        <td>原會員關於我</td>
+        <td>原會員期待的約會模式</td>
         <td>新會員 Email(暱稱)</td>
-        <td class="col-md-2">新會員關於我</td>
-        <td class="col-md-2">新會員期待的約會模式</td>
+        <td>新會員關於我</td>
+        <td>新會員期待的約會模式</td>
         <td>建立時間</td>
 	</tr>
 	@forelse($results as $result)
