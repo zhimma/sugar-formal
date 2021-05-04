@@ -19,7 +19,7 @@
         <td>建立時間</td>
 	</tr>
 	@forelse($results as $result)
-    <tr>
+    <tr class="rows" original-id="{{ $result->original_id }}">
         @if($result->original_user)
             <td><a href="advInfo/{{ $result->original_id }}" target="_blank" style="color: {{ $result->original_user->engroup == 1 ? 'blue' : 'red' }}">{{ $result->original_user->email }}({{ $result->original_user->name }})</a></td>
             <td style="color: {{ $result->original_user->engroup == 1 ? 'blue' : 'red' }}">{{ $result->original_user->user_meta->about }}</td>
@@ -47,5 +47,23 @@
     @endforelse
 </table>
 {!! $results->links() !!}
+<script>
+    window.onload = function (){
+        let rows = document.getElementsByClassName("rows");
+        for(let i = 0; i < rows.length ; i++){
+            let id = rows[i].getAttribute("original-id");
+            rows[i].style.backgroundColor = intToRGB(id);
+        }
+    }
+
+    var intToRGB = function(value) {
+        //credit to https://stackoverflow.com/a/2262117/2737978 for the idea of how to implement
+        var blue = Math.floor(value % 256);
+        var green = Math.floor(value / 256 % 256);
+        var red = Math.floor(value / 256 / 256 % 256);
+        console.log("rgb(" + red + "," + green + "," + blue + ")");
+        return "rgba(" + red + "," + green + "," + blue + ", 0.2)";
+    }
+</script>
 </body>
 @stop
