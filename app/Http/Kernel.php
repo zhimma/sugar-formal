@@ -51,6 +51,10 @@ class Kernel extends HttpKernel
         'valueAddedServiceApi' => [
             \App\Http\Middleware\ValueAddedServiceApiDataLogger::class,
         ],
+
+        'mobileVerifyApi' => [
+            \App\Http\Middleware\MobileVerifyApiDataLogger::class,
+        ],
     ];
 
     /**

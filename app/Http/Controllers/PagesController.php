@@ -203,6 +203,10 @@ class PagesController extends BaseController
         return '1|OK';
     }
 
+    public  function postMobileVerifyPayEC(Request $request){
+        return '1|OK';
+    }
+
     public function postChatpay(Request $request)
     {
         $user = $request->user();

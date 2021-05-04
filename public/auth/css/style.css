@@ -1433,5 +1433,18 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 
 
 
+.pink{text-align: center;
+    color: #999;
+    font-size:15px; line-height: 26px;
+}
+.pink a{ color: #e44e71;}
+.pink a:hover{text-decoration: underline;}
+.pink span{display: block; text-align: center;}
 
+@media (max-width:360px){
+    .pink{font-size:14px;}
+}
+@media (max-width:320px){
+    .pink{font-size:12px;}
+}
 
