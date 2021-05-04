@@ -70,6 +70,20 @@ display: table;
 text-align: center;
 }
 
+.sjleftmm{width:64%; height:50px; float:left; line-height:25px; margin-left:10px;text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;}
+.sjleftmm span{ font-size:14px;text-align:left !important; height:25px; float:left;  -webkit-line-clamp:3;white-space:nowrap;display: -webkit-box;-webkit-box-orient: vertical;overflow: hidden !important; }
+.sjleftmm font{ font-size:14px;height:25px; overflow:hidden; text-align:left; color:#999999; display:block; text-overflow:ellipsis;/*white-space: nowrap*/}
+.sjleftmm font img{ height:20px}
+ @media (max-width:360px) {
+    .sjleftmm{width:57%;}
+ }
+ @media (max-width:320px) {
+    .sjleftmm{width:50%;}
+ }
+
+
 </style>
 @extends('new.layouts.website')
 
@@ -615,7 +629,7 @@ text-align: center;
             if(show==1) {
                 li += `<a href="${url}" target="_self">
                         <div class="sjpic ${styBlur}"><img src="${pic}"></div>
-                        <div class="sjleft">
+                        <div class="sjleftmm">
                             <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }else if(show==0 && engroup==2){
