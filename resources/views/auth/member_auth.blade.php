@@ -104,7 +104,7 @@
                                     </div>
                                     @if($user->engroup == 1)
                                         <div class="de_input pink">
-                                            <span>如果不願意採用手機認證，可以選擇透過信用卡付費認證，</span>
+                                            <span>如果不願意採用手機認證，可以選擇透過信用卡付費 30 元認證，此費用單純做為本站註冊認證使用，並非 VIP 帳號付費，所享有權利與手機驗證相同。不同意請勿採用此方式認證，</span>
                                             <a href="#" onclick="beforeSwipeCardAlert()">請按我，進行信用卡付費。</a>
                                             <form id="mobile_verify_paymentForm" class="m-form m-form--fit" action="{{ route('mobileAutoVerify_ec') }}" method=post style="display: none;">
                                                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
