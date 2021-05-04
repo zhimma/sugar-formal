@@ -20,20 +20,20 @@
 	</tr>
     @php
         $last_original_id = 0;
-        $changeColor = false;
+        $changeColor = 0;
     @endphp
 	@forelse($results as $result)
         @if($last_original_id == 0)
             @php
-                $changeColor = false;
+                $changeColor = 0;
             @endphp
         @elseif($last_original_id == $result->original_id)
             @php
-                $changeColor = false;
+                $changeColor = 0;
             @endphp
         @else
             @php
-                $changeColor = true;
+                $changeColor = $changeColor ^ 0xFFFFFFFF;
             @endphp
         @endif
     <tr @if($changeColor) style="background-color: rgb(206,211,213);" @endif>
