@@ -25,7 +25,7 @@
         @elseif(!$loop->first)
             @php $changeColor = true; @endphp
         @endif
-    <tr @if($changeColor) style="background-color: yellow" @endif>
+    <tr @if($changeColor) style="background-color: rgb(206,211,213);" @endif>
         @if($result->original_user)
             <td><a href="advInfo/{{ $result->original_id }}" target="_blank" style="color: {{ $result->original_user->engroup == 1 ? 'blue' : 'red' }}">{{ $result->original_user->email }}({{ $result->original_user->name }})</a></td>
             <td style="color: {{ $result->original_user->engroup == 1 ? 'blue' : 'red' }}">{{ $result->original_user->user_meta->about }}</td>
