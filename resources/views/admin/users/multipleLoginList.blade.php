@@ -62,7 +62,7 @@
         var green = Math.floor(value / 25 % 256);
         var red = Math.floor(value / 25 / 256 % 256);
         console.log("rgb(" + red + "," + green + "," + blue + ")");
-        return "rgba(" + red + "," + green + "," + blue + ", 0.2)";
+        return "rgba(" + red + "," + green + "," + blue + ", 0.4)";
     }
 </script>
 </body>
