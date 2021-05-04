@@ -59,8 +59,8 @@
     var intToRGB = function(value) {
         //credit to https://stackoverflow.com/a/2262117/2737978 for the idea of how to implement
         var blue = Math.floor(value % 256);
-        var green = Math.floor(value / 256 % 256);
-        var red = Math.floor(value / 256 / 256 % 256);
+        var green = Math.floor(value / 25 % 256);
+        var red = Math.floor(value / 25 / 256 % 256);
         console.log("rgb(" + red + "," + green + "," + blue + ")");
         return "rgba(" + red + "," + green + "," + blue + ", 0.2)";
     }
