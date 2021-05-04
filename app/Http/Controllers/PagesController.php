@@ -4329,14 +4329,14 @@ class PagesController extends BaseController
     }
 
     public function multipleLogin(Request $request){
-        $isExist = \DB::table('multiple_login')->where(['original_id' => $request->original_id, 'new_id' => $request->new_id])->get();
+        $isExist = \DB::table('multiple_logins')->where(['original_id' => $request->original_id, 'new_id' => $request->new_id])->get();
         if(count($isExist) > 0){
             return response()->json(array(
                 'status' => 1,
                 'msg' => 'exists',
             ), 200);
         }
-        \DB::table('multiple_login')
+        \DB::table('multiple_logins')
             ->insert(['original_id' => $request->original_id,
                       'new_id' => $request->new_id,
                       'created_at' => Carbon::now(),
