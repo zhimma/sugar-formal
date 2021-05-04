@@ -18,12 +18,23 @@
         <td>新會員期待的約會模式</td>
         <td>建立時間</td>
 	</tr>
-    @php $changeColor = false; @endphp
+    @php
+        $last_original_id = 0;
+        $changeColor = false;
+    @endphp
 	@forelse($results as $result)
-        @if(!$loop->first && $result->original_id != $results[$loop->index - 1]->original_id)
-            @php $changeColor = true; @endphp
+        @if($last_original_id == 0)
+            @php
+                $changeColor = false;
+            @endphp
+        @elseif($last_original_id == $result->original_id)
+            @php
+                $changeColor = false;
+            @endphp
         @else
-            @php $changeColor = false; @endphp
+            @php
+                $changeColor = true;
+            @endphp
         @endif
     <tr @if($changeColor) style="background-color: rgb(206,211,213);" @endif>
         @if($result->original_user)
@@ -46,6 +57,9 @@
         @endif
         <td>{{ $result->created_at }}</td>
     </tr>
+    @php
+        $last_original_id = $result->original_id;
+    @endphp
     @empty
     <tr>
         找不到資料
