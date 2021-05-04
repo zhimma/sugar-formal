@@ -20,9 +20,7 @@
 	</tr>
     @php $changeColor = false; @endphp
 	@forelse($results as $result)
-        @if(!$loop->first && $result->original_id == $results[$loop->index - 1]->original_id)
-            @php $changeColor = false; @endphp
-        @elseif(!$loop->first)
+        @if(!$loop->first && $result->original_id != $results[$loop->index - 1]->original_id)
             @php $changeColor = true; @endphp
         @endif
     <tr @if($changeColor) style="background-color: rgb(206,211,213);" @endif>
