@@ -11,11 +11,11 @@
 <table class='table table-bordered table-hover'>
 	<tr>
 		<td>原會員 Email(暱稱)</td>
-        <td>原會員關於我</td>
-        <td style="width: 30%">原會員期待的約會模式</td>
+        <td class="col-md-2">原會員關於我</td>
+        <td class="col-md-2">原會員期待的約會模式</td>
         <td>新會員 Email(暱稱)</td>
-        <td>新會員關於我</td>
-        <td>新會員期待的約會模式</td><td></td>
+        <td class="col-md-2">新會員關於我</td>
+        <td class="col-md-2">新會員期待的約會模式</td>
         <td>建立時間</td>
 	</tr>
 	@forelse($results as $result)
@@ -38,6 +38,7 @@
             <td>資料已刪除</td>
             <td>資料已刪除</td>
         @endif
+        <td>{{ $result->created_at }}</td>
     </tr>
     @empty
     <tr>
