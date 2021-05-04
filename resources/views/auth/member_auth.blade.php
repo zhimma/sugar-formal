@@ -73,10 +73,10 @@
                 </div>
 				<div class="col-sm-12 col-xs-12 col-md-10">
                     <div class="dengl matbot140">
-                       <div class="zhuce"><h2>手機驗證</h2>
+                        <div class="zhuce"><h2>手機驗證</h2>
 {{--                           <h3 style="line-height:1.2;">請用您的智慧型手機<br>進行本人的身份驗證</h3>--}}
-                       </div>
-                           <div class="de_input">
+                        </div>
+                            <div class="de_input">
 {{--                                 <div class="yanzheng_1">驗證1</div>--}}
 {{--                               @php--}}
 {{--                                   $data = \App\Models\SimpleTables\warned_users::where('member_id', $user->id)->where(function ($query){--}}
@@ -88,30 +88,32 @@
 {{--                                        $isAdminWarned = 0;--}}
 {{--                                    }--}}
 {{--                               @endphp--}}
-                               @if($user->isPhoneAuth() /*or $isAdminWarned*/)
-                                   <div>已完成驗證，<a href="{!! url('dashboard') !!}" class="red">按此開始使用網站</a></div>
-                               @else
-                                 <div class="zybg_new_bg">
-                                       <div class="zybg_new">
-                                           <select name="" class="zy_select"><option>台灣</option><option>大陸</option></select>
-                                           <input name="" type="text" id="mobile" class="xy_input" placeholder="手機號碼">
+                                @if($user->isPhoneAuth() /*or $isAdminWarned*/)
+                                    <div>已完成驗證，<a href="{!! url('dashboard') !!}" class="red">按此開始使用網站</a></div>
+                                @else
+                                    <div class="zybg_new_bg">
+                                        <div class="zybg_new">
+                                            <select name="" class="zy_select"><option>台灣</option><option>大陸</option></select>
+                                            <input name="" type="text" id="mobile" class="xy_input" placeholder="手機號碼">
                                        </div>
                                        <a id="get_auth_code" class="zybg_right" style="cursor:pointer">獲取驗證碼</a>
-                                 </div>
-                                 <div class="zybg_new02">
-                                       <input name="" type="text" id="checkcode" class="xy_input xy_left" placeholder="請輸入驗證碼">
-                                       <a id="auth_phone1" class="xy_yanx"><div style="text-align:center">驗證</div></a>
-                                 </div>
-                                 <div class="de_input pink">
-                                     <span>如果收不到驗證碼，請透過信用卡付費認證，</span>
-                                     <a href="#" onclick="beforeSwipeCardAlert()">請按我，進行信用卡付費。</a>
-                                     <form id="mobile_verify_paymentForm" class="m-form m-form--fit" action="{{ route('mobileAutoVerify_ec') }}" method=post style="display: none;">
-                                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-                                         <input type="hidden" name="userId" value="{{$user->id}}">
-                                         <button type="submit" class="new_gvip_input paySubmit" style="border-style: none; outline: none;">請按我，進行信用卡付費。</button>
-                                     </form>
-                                 </div>
-                               @endif
+                                    </div>
+                                    <div class="zybg_new02">
+                                        <input name="" type="text" id="checkcode" class="xy_input xy_left" placeholder="請輸入驗證碼">
+                                        <a id="auth_phone1" class="xy_yanx"><div style="text-align:center">驗證</div></a>
+                                    </div>
+                                    @if($user->engroup == 1)
+                                        <div class="de_input pink">
+                                            <span>如果不願意採用手機認證，可以選擇透過信用卡付費認證，</span>
+                                            <a href="#" onclick="beforeSwipeCardAlert()">請按我，進行信用卡付費。</a>
+                                            <form id="mobile_verify_paymentForm" class="m-form m-form--fit" action="{{ route('mobileAutoVerify_ec') }}" method=post style="display: none;">
+                                                <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                                <input type="hidden" name="userId" value="{{$user->id}}">
+                                                <button type="submit" class="new_gvip_input paySubmit" style="border-style: none; outline: none;">請按我，進行信用卡付費。</button>
+                                            </form>
+                                        </div>
+                                    @endif
+                                @endif
                             </div>
                         <div class="vipbongn new_wyz">
                                 <h2>驗證說明</h2>
