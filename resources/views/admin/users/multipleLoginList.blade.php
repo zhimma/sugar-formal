@@ -20,7 +20,7 @@
 	</tr>
     @php $changeColor = false; @endphp
 	@forelse($results as $result)
-        @if(!$loop->first && $result->original_id == $result->lines[$loop->index - 1]->original_id)
+        @if(!$loop->first && $result->original_id == $results[$loop->index - 1]->original_id)
             @php $changeColor = false; @endphp
         @elseif(!$loop->first)
             @php $changeColor = true; @endphp
