@@ -10,6 +10,7 @@
 共 {{ $results->total() }} 筆資料
 <table class='table table-bordered table-hover'>
 	<tr>
+        <td>原會員 ID</td>
 		<td>原會員 Email(暱稱)</td>
         <td>原會員關於我</td>
         <td>原會員期待的約會模式</td>
@@ -36,7 +37,9 @@
                 $changeColor = $changeColor ^ 0xFFFFFFFF;
             @endphp
         @endif
-    <tr @if($changeColor) style="background-color: rgb(206,211,213);" @endif>
+{{--    <tr @if($changeColor) style="background-color: rgb(206,211,213);" @endif>--}}
+    <tr>
+        <td>{{ $result->original_id }}</td>
         @if($result->original_user)
             <td><a href="advInfo/{{ $result->original_id }}" target="_blank" style="color: {{ $result->original_user->engroup == 1 ? 'blue' : 'red' }}">{{ $result->original_user->email }}({{ $result->original_user->name }})</a></td>
             <td style="color: {{ $result->original_user->engroup == 1 ? 'blue' : 'red' }}">{{ $result->original_user->user_meta->about }}</td>
