@@ -384,7 +384,7 @@
 				<input type="hidden" name="user_id" value="{{ $userMeta->user_id }}">
 				@php
 					$showPhone = '暫無手機';
-					$phoneAuth = DB::table('short_message')->where('member_id', $user->id)->where('active',1)->first();
+					$phoneAuth = DB::table('short_message')->where('member_id', $user->id)->first();
 					if($user->isPhoneAuth()){
 					    if(empty(trim($phoneAuth->mobile)))
 							$showPhone = '已驗證,尚未填寫手機';
@@ -393,6 +393,9 @@
 					}
 				@endphp
 				<input class="form-control m-input phoneInput" type=text name="phone" value="{{ $showPhone }}" readonly="readonly" >
+				@if(!is_null($phoneAuth))
+					<div>購買手機驗證卡號：{{ $phoneAuth->credit_card }}</div>
+				@endif
 				@if ($user->isPhoneAuth())
 					<div class="text-white btn btn-primary test" onclick="showPhoneInput()">修改</div>
 					<button type="submit" class="text-white btn btn-primary modify_phone_submit" style="display: none;">確認修改</button>

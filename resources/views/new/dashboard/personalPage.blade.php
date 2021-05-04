@@ -124,8 +124,28 @@
                                             </div>
                                         </span>
                                     </dt>
-
-
+                                    <dt>
+                                        <span>評價紀錄</span>
+                                        @if($isHasEvaluation || $isBannedEvaluation)
+                                        <span>
+                                            <div class="select_xx03">
+                                                @if($isHasEvaluation)
+                                                    您有多了一個新評價。<a class="red" href="/dashboard/viewuser/{{$user->id}}#hash_evaluation">[點此查看]</a>
+                                                @endif
+                                                @if($isBannedEvaluation)
+                                                <br>
+                                                    您有多了一個新評價，此評價來自於被您封鎖的會員。<a class="red" href="/dashboard/viewuser/{{$user->id}}#hash_evaluation">[如果想看，點此查看]</a>
+                                                @endif
+                                            </div>
+                                        </span>
+                                        @else
+                                         <span>
+                                            <div class="select_xx03">
+                                                「暫無新評價」
+                                            </div>
+                                        </span>
+                                        @endif
+                                    </dt>
                                     <dt>
                                         <span>你收藏的會員上線</span>
                                         <span>

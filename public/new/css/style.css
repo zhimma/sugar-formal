@@ -512,14 +512,13 @@ a:hover{ color:#e44e71; text-decoration:none}
 .si_bg{width:92%; margin-left:30px;}
 .sjpic{width:50px; height:50px; float:left}
 .sjpic img{width:50px; height:50px; border-radius:500px; object-fit: contain;}
-.sjleft{width:64%; height:50px; float:left; line-height:25px; margin-left:10px;text-overflow: ellipsis;
+.sjleft{width:40%; height:50px; float:left; line-height:25px; margin-left:10px;text-overflow: ellipsis;
     white-space: nowrap;
     display: block;}
 .sjtable{width:100%; display: table;}
 .sjleft span{ font-size:14px;text-align:left !important; height:25px; float:left;  -webkit-line-clamp:3;white-space:nowrap;display: -webkit-box;-webkit-box-orient: vertical;overflow: hidden !important; }
 .sjleft font{ font-size:14px;height:25px; overflow:hidden; text-align:left; color:#999999; display:block; text-overflow:ellipsis;/*white-space: nowrap*/}
 .sjleft font img{ height:20px}
-
 
 .number{ background:#fe92a8; color:#ffffff; border-radius:10px; margin-left:3px; padding:0px 5px; height:20px !important; line-height:20px !important; font-style:normal; font-size:12px; float:left; margin-top:3px;}
 
@@ -585,10 +584,10 @@ a:hover{ color:#e44e71; text-decoration:none}
 }
 
 @media (max-width:360px) {
-    .sjleft{width:57%;}
+    .sjleft{width:38%;}
 }
 @media (max-width:320px) {
-    .sjleft{width:50%;}
+    .sjleft{width:34%;}
     .leftsidebar_box dt{padding:0px 15px;/*color:#333;*/ background-position:99%; }
     .leftsidebar_box dt.on{background-position:99%;}
 }
@@ -2981,3 +2980,18 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 
 }
 
+
+.pink{text-align: center;
+    color: #999;
+    font-size:15px; line-height: 26px;
+}
+.pink a{ color: #e44e71;}
+.pink a:hover{text-decoration: underline;}
+.pink span{display: block; text-align: center;}
+
+@media (max-width:360px){
+    .pink{font-size:14px;}
+}
+@media (max-width:320px){
+    .pink{font-size:12px;}
+}

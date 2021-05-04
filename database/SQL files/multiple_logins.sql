@@ -5,3 +5,6 @@ CREATE TABLE `multiple_login` (
     `created_at` DATETIME NULL DEFAULT NULL , 
     `updated_at` DATETIME NULL DEFAULT NULL , PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
+
+ALTER TABLE `multiple_login` 
+RENAME TO  `multiple_logins` ;

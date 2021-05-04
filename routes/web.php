@@ -44,7 +44,10 @@ Route::group(['middleware' => ['valueAddedServiceApi']], function () {
     Route::post('/dashboard/postValueAddedService', 'PagesController@postValueAddedService')->name('postValueAddedService');
     Route::post('/dashboard/cancelValueAddedService', 'PagesController@cancelValueAddedService');
 });
-
+Route::group(['middleware' => ['mobileVerifyApi']], function () {
+    Route::post('/dashboard/mobileVerifyPay_ec', 'ECPayment@performMobileVerify')->name('mobileAutoVerify_ec');
+    Route::post('/dashboard/postMobileVerifyPayEC', 'PagesController@postMobileVerifyPayEC');
+});
 /*
 |--------------------------------------------------------------------------
 | Error Handler Redirect Page
