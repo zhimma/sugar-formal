@@ -9,15 +9,15 @@
 		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 		<title>手機驗證</title>
 		<!-- Bootstrap -->
-		<link href="/auth/css/bootstrap.min.css" rel="stylesheet">
-		<link href="/auth/css/bootstrap-theme.min.css" rel="stylesheet">
+		<link href="/new/css/bootstrap.min.css" rel="stylesheet">
+		<link href="/new/css/bootstrap-theme.min.css" rel="stylesheet">
 		<!-- owl-carousel-->
 		<!--    css-->
-		<link rel="stylesheet" href="/auth/css/style.css">
-		<link rel="stylesheet" href="/auth/css/swiper.min.css">
-		<script src="/auth/js/jquery-2.1.1.min.js" type="text/javascript"></script>
-		<script src="/auth/js/bootstrap.min.js"></script>
-		<script src="/auth/js/main.js" type="text/javascript"></script>
+		<link rel="stylesheet" href="/new/css/style.css">
+		<link rel="stylesheet" href="/new/css/swiper.min.css">
+		<script src="/new/js/jquery-2.1.1.min.js" type="text/javascript"></script>
+		<script src="/new/js/bootstrap.min.js"></script>
+		<script src="/new/js/main.js" type="text/javascript"></script>
 		<style>
 			
 			.upload_width{
