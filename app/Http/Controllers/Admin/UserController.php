@@ -3590,7 +3590,7 @@ class UserController extends \App\Http\Controllers\BaseController
     }
 
     public function multipleLogin() {
-        $results = \App\Models\MultipleLogin::with(['original_user', 'original_user.user_meta', 'new_user', 'new_user.user_meta'])->orderBy('original_id', 'desc')->paginate(50);
+        $results = \App\Models\MultipleLogin::with(['original_user', 'original_user.user_meta', 'new_user', 'new_user.user_meta'])->orderBy('original_id', 'desc')->get();
         return view('admin.users.multipleLoginList', compact('results'));
     }
 }
