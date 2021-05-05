@@ -16,7 +16,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(Factory $validator) {
         if (class_exists('Debugbar')) {
-            \Debugbar::disable();
+//            \Debugbar::disable();
         }
         //
         require_once app_path() . '/validators.php';
