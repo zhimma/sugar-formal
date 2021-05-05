@@ -7,7 +7,7 @@
 </style>
 <body style="padding: 15px;">
 <h1>多重登入名單</h1>
-共 {{ $results->total() }} 筆資料
+共 {{ $results->count() }} 筆資料
 <table class='table table-bordered table-hover'>
 	<tr>
         <td>原會員 ID</td>
