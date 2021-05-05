@@ -69,6 +69,5 @@
     </tr>
     @endforelse
 </table>
-{!! $results->links() !!}
 </body>
 @stop
