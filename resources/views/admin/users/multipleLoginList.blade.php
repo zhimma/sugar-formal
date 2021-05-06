@@ -12,7 +12,7 @@
 共 {{ $results->count() }} 筆資料
 <table class='table table-bordered table-hover'>
 	<tr>
-        <td width="10%">原會員 ID</td>
+        <td style="width: 10%!important;">原會員 ID</td>
 		<td>原會員 Email(暱稱)</td>
         <td>原會員關於我</td>
         <td>原會員期待的約會模式</td>
