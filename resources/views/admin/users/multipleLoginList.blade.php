@@ -28,11 +28,11 @@
         @endphp
         <tr>
             <td @if($result->original_user)
-                    @if($result->original_user->banned or $result->original_user->implicitlyBanned)
-                        @php $bgColor = '#FDFF8C'; @endphp
-                    @endif
                     @if($result->original_user->aw_relation)
                         @php $bgColor = '#B0FFB1'; @endphp
+                    @endif
+                    @if($result->original_user->banned or $result->original_user->implicitlyBanned)
+                        @php $bgColor = '#FDFF8C'; @endphp
                     @endif
                 @endif
                 @if($bgColor) style="background-color: {{ $bgColor }}" @endif
@@ -48,12 +48,15 @@
                 <td>資料已刪除</td>
                 <td>資料已刪除</td>
             @endif
+            @php
+                $bgColor = null;
+            @endphp
             @if($result->new_user)
-                @if($result->new_user->banned or $result->new_user->implicitlyBanned)
-                    @php $bgColor = '#FDFF8C'; @endphp
-                @endif
                 @if($result->new_user->aw_relation)
                     @php $bgColor = '#B0FFB1'; @endphp
+                @endif
+                @if($result->new_user->banned or $result->new_user->implicitlyBanned)
+                    @php $bgColor = '#FDFF8C'; @endphp
                 @endif
                 <td @if($bgColor) style="background-color: {{ $bgColor }}" @endif><a href="advInfo/{{ $result->new_id }}" target="_blank" style="color: {{ $result->new_user->engroup == 1 ? 'blue' : 'red' }}">{{ $result->new_user->email }}<br>{{ $result->new_user->name }}</a></td>
                 <td style="color: {{ $result->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $result->new_user->user_meta->about }}</td>
