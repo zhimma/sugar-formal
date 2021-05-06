@@ -135,6 +135,14 @@ class User extends Authenticatable
         return $this->hasOne('App\Models\UserMeta');
     }
 
+    public function banned(){
+        return $this->hasOne(banned_users::class, 'member_id', 'id');
+    }
+
+    public function implicitlyBanned(){
+        return $this->hasOne(BannedUsersImplicitly::class, 'target', 'id');
+    }
+
     /**
      * Check if user has role
      *
