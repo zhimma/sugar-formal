@@ -4,6 +4,8 @@
     .table > tbody > tr > td, .table > tbody > tr > th{
         vertical-align: middle;
     }
+    table {width:100%; table-layout: fixed;}
+    table td {word-wrap:break-word;}
 </style>
 <body style="padding: 15px;">
 <h1>多重登入名單</h1>
@@ -24,15 +26,18 @@
             $bgColor = null;
         @endphp
         <tr>
-            <td>{{ $result->original_id }}</td>
+            <td @if($result->original_user)
+                    @if($result->original_user->banned or $result->original_user->implicitlyBanned)
+                        @php $bgColor = '#FDFF8C'; @endphp
+                    @endif
+                    @if($result->original_user->aw_relation)
+                        @php $bgColor = '#B0FFB1'; @endphp
+                    @endif
+                @endif
+                @if($bgColor) style="background-color: {{ $bgColor }}" @endif
+            >{{ $result->original_id }}</td>
             @if($result->original_user)
-                @if($result->original_user->banned or $result->original_user->implicitlyBanned)
-                    @php $bgColor = '#FDFF8C'; @endphp
-                @endif
-                @if($result->original_user->aw_relation)
-                    @php $bgColor = '#B0FFB1'; @endphp
-                @endif
-                <td @if($bgColor) style="background-color: {{ $bgColor }}" @endif><a href="advInfo/{{ $result->original_id }}" target="_blank" style="color: {{ $result->original_user->engroup == 1 ? 'blue' : 'red' }}">{{ $result->original_user->email }}({{ $result->original_user->name }})</a></td>
+                <td @if($bgColor) style="background-color: {{ $bgColor }}" @endif><a href="advInfo/{{ $result->original_id }}" target="_blank" style="color: {{ $result->original_user->engroup == 1 ? 'blue' : 'red' }}">{{ $result->original_user->email }}<br>{{ $result->original_user->name }}</a></td>
                 <td style="color: {{ $result->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $result->original_user->user_meta->about }}</td>
                 <td style="color: {{ $result->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $result->original_user->user_meta->style }}</td>
             @else
@@ -47,7 +52,7 @@
                 @if($result->new_user->aw_relation)
                     @php $bgColor = '#B0FFB1'; @endphp
                 @endif
-                <td @if($bgColor) style="background-color: {{ $bgColor }}" @endif><a href="advInfo/{{ $result->new_id }}" target="_blank" style="color: {{ $result->new_user->engroup == 1 ? 'blue' : 'red' }}">{{ $result->new_user->email }}({{ $result->new_user->name }})</a></td>
+                <td @if($bgColor) style="background-color: {{ $bgColor }}" @endif><a href="advInfo/{{ $result->new_id }}" target="_blank" style="color: {{ $result->new_user->engroup == 1 ? 'blue' : 'red' }}">{{ $result->new_user->email }}<br>{{ $result->new_user->name }}</a></td>
                 <td style="color: {{ $result->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $result->new_user->user_meta->about }}</td>
                 <td style="color: {{ $result->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $result->new_user->user_meta->style }}</td>
             @else
