@@ -12,10 +12,11 @@
 共 {{ $results->count() }} 筆資料
 <table class='table table-bordered table-hover'>
 	<tr>
-        <td>原會員 ID</td>
+        <td width="10%">原會員 ID</td>
 		<td>原會員 Email(暱稱)</td>
         <td>原會員關於我</td>
         <td>原會員期待的約會模式</td>
+        <td>原會員上次登入時間</td>
         <td>新會員 Email(暱稱)</td>
         <td>新會員關於我</td>
         <td>新會員期待的約會模式</td>
@@ -40,7 +41,9 @@
                 <td @if($bgColor) style="background-color: {{ $bgColor }}" @endif><a href="advInfo/{{ $result->original_id }}" target="_blank" style="color: {{ $result->original_user->engroup == 1 ? 'blue' : 'red' }}">{{ $result->original_user->email }}<br>{{ $result->original_user->name }}</a></td>
                 <td style="color: {{ $result->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $result->original_user->user_meta->about }}</td>
                 <td style="color: {{ $result->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $result->original_user->user_meta->style }}</td>
+                <td style="color: {{ $result->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $result->original_user->last_login }}</td>
             @else
+                <td>資料已刪除</td>
                 <td>資料已刪除</td>
                 <td>資料已刪除</td>
                 <td>資料已刪除</td>
