@@ -19,54 +19,48 @@
         <td>新會員期待的約會模式</td>
         <td>建立時間</td>
 	</tr>
-    @php
-        $last_original_id = 0;
-        $changeColor = 0;
-    @endphp
 	@forelse($results as $result)
-        @if($last_original_id == 0)
-            @php
-                $changeColor = 0;
-            @endphp
-        @elseif($last_original_id == $result->original_id)
-            @php
-                $changeColor = 0;
-            @endphp
-        @else
-            @php
-                $changeColor = $changeColor ^ 0xFFFFFFFF;
-            @endphp
-        @endif
-{{--    <tr @if($changeColor) style="background-color: rgb(206,211,213);" @endif>--}}
-    <tr>
-        <td>{{ $result->original_id }}</td>
-        @if($result->original_user)
-            <td><a href="advInfo/{{ $result->original_id }}" target="_blank" style="color: {{ $result->original_user->engroup == 1 ? 'blue' : 'red' }}">{{ $result->original_user->email }}({{ $result->original_user->name }})</a></td>
-            <td style="color: {{ $result->original_user->engroup == 1 ? 'blue' : 'red' }}">{{ $result->original_user->user_meta->about }}</td>
-            <td style="color: {{ $result->original_user->engroup == 1 ? 'blue' : 'red' }}">{{ $result->original_user->user_meta->style }}</td>
-        @else
-            <td>資料已刪除</td>
-            <td>資料已刪除</td>
-            <td>資料已刪除</td>
-        @endif
-        @if($result->new_user)
-            <td><a href="advInfo/{{ $result->new_id }}" target="_blank" style="color: {{ $result->new_user->engroup == 1 ? 'blue' : 'red' }}">{{ $result->new_user->email }}({{ $result->new_user->name }})</a></td>
-            <td style="color: {{ $result->new_user->engroup == 1 ? 'blue' : 'red' }}">{{ $result->new_user->user_meta->about }}</td>
-            <td style="color: {{ $result->new_user->engroup == 1 ? 'blue' : 'red' }}">{{ $result->new_user->user_meta->style }}</td>
-        @else
-            <td>資料已刪除</td>
-            <td>資料已刪除</td>
-            <td>資料已刪除</td>
-        @endif
-        <td>{{ $result->created_at }}</td>
-    </tr>
-    @php
-        $last_original_id = $result->original_id;
-    @endphp
-    @empty
-    <tr>
-        找不到資料
-    </tr>
+        @php
+            $bgColor = null;
+        @endphp
+        <tr>
+            <td>{{ $result->original_id }}</td>
+            @if($result->original_user)
+                @if($result->original_user->banned or $result->original_user->implicitlyBanned)
+                    @php $bgColor = '#FDFF8C'; @endphp
+                @endif
+                @if($result->original_user->aw_relation)
+                    @php $bgColor = '#B0FFB1'; @endphp
+                @endif
+                <td @if($bgColor) style="background-color: {{ $bgColor }}" @endif><a href="advInfo/{{ $result->original_id }}" target="_blank" style="color: {{ $result->original_user->engroup == 1 ? 'blue' : 'red' }}">{{ $result->original_user->email }}({{ $result->original_user->name }})</a></td>
+                <td style="color: {{ $result->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $result->original_user->user_meta->about }}</td>
+                <td style="color: {{ $result->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $result->original_user->user_meta->style }}</td>
+            @else
+                <td>資料已刪除</td>
+                <td>資料已刪除</td>
+                <td>資料已刪除</td>
+            @endif
+            @if($result->new_user)
+                @if($result->new_user->banned or $result->new_user->implicitlyBanned)
+                    @php $bgColor = '#FDFF8C'; @endphp
+                @endif
+                @if($result->new_user->aw_relation)
+                    @php $bgColor = '#B0FFB1'; @endphp
+                @endif
+                <td @if($bgColor) style="background-color: {{ $bgColor }}" @endif><a href="advInfo/{{ $result->new_id }}" target="_blank" style="color: {{ $result->new_user->engroup == 1 ? 'blue' : 'red' }}">{{ $result->new_user->email }}({{ $result->new_user->name }})</a></td>
+                <td style="color: {{ $result->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $result->new_user->user_meta->about }}</td>
+                <td style="color: {{ $result->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $result->new_user->user_meta->style }}</td>
+            @else
+                <td>資料已刪除</td>
+                <td>資料已刪除</td>
+                <td>資料已刪除</td>
+            @endif
+            <td>{{ $result->created_at }}</td>
+        </tr>
+        @empty
+        <tr>
+            找不到資料
+        </tr>
     @endforelse
 </table>
 </body>
