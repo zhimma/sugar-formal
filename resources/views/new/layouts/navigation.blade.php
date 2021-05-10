@@ -27,7 +27,7 @@
 						@endif
 					@elseif(isset($user) && Auth::user() && $user->meta_()->is_active ==0)
 						<div class="ndlrfont"><a href="{!! url('logout') !!}">登出</a></div>
-					@else
+					@elseif(!str_contains(url()->current(), 'member_auth'))
 						<div class="ndlrfont"><a href="{!! url('/checkAdult') !!}">註冊</a>丨<a href="{!! url('login') !!}">登入</a></div>
 					@endif
 				</div>
