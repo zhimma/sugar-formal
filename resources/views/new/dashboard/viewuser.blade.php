@@ -569,7 +569,7 @@
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta->cup) && $to->meta->isHideCup == '0')
+                                    @if(!empty($to->meta->cup) && $to->meta->isHideCup == '0' && ($to->meta->cup == 'A' || $to->meta->cup == 'B' ||$to->meta->cup == 'C' || $to->meta->cup == 'D' || $to->meta->cup == 'E' || $to->meta->cup == 'F'))
                                     <dt>
                                         <span>CUP</span>
                                         <span>

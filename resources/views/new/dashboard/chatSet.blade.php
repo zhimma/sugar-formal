@@ -7,35 +7,74 @@
           @include('new.dashboard.panel')
       </div>
       <div class="col-sm-12 col-xs-12 col-md-10 g_pnr_gq">
+{{-- 
           <div class="shou" style="text-align: center;"><span style="margin-left: 58px; border-bottom: unset;">設定</span>
               <font>Setting</font>
               <a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}" class="shou_but">返回</a>
           </div>
-          <form id="chatSetForm" action="{{ route('chatNoticeSet') }}" method="post">
-              {!! csrf_field() !!}
-          <div class="sidebar_box">
-              <div class="sys_log">
-                  <dt class=""><span><img src="/new/images/shed_icon.png">Line通知設定</span></dt>
-                  <dd style="">
-                      <div class="tuba">當您開啟LINE通知後，將優先接收您所收藏的會員來訊通知，並可設定不同會員等級來訊通知與否。</div>
-                      <div class="tu_bd">狀態：@if($user->line_notify_token==null)尚未綁定<a href="javascript:void(0);" class="tuk_bdbutton right line_notify">立即绑定</a>@else 已綁定<a href="javascript:void(0);" class="qux_bdbutton right line_notify_cancel">取消綁定</a>@endif</div>
-                      <div class="ti_ktx"><span>來訊通知</span></div>
-                      <div class="ti_xcheck">
-
-                          @foreach($line_notify_chat as $row)
-                              @if($row->name == '收藏會員')
-                                  @if($user->isVip())
-                                      <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>
-                                  @else
-                                      @continue
-                                  @endif
-                              @else
-                                  <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>
-                              @endif
-                          @endforeach
-                      </div>
-                  </dd>
+--}}
+          <div class="g_password g_pnr">
+              <div class="g_pwicon">
+                <li><a href="" class="g_pwicon_t"><span>基本資料</span></a></li>
+                <li><a href="" class="g_pwicon_t2"><span>照片管理</span></a></li>
+                <li><a href="" class="g_pwicon_t3 g_hicon3"><span>更改帳號</span></a></li>
+                <li><a href="" class="g_pwicon_t4"><span>VIP</span></a></li>
               </div>
+              
+              <!-- <div class="shou n_dw90" style="margin-top: 20px;"><span>設定</span>
+                <font>Setting</font>
+                <a href="" class="shou_but">返回</a>
+              </div> -->
+              
+              <div class="gg_zh">
+                <div class="gg_mm"><span><i></i>Line通知設定</span><img src="/new/images/shed_icon.png"></div>
+              <dd style="display: block;">
+                  <div class="tuba">當您開啟LINE通知後，可設定不同會員等級或收藏的會員 來訊通知與否。</div>     
+                  <div class="tu_bd">狀態：@if($user->line_notify_token==null)尚未綁定<a href="javascript:void(0);" class="tuk_bdbutton right line_notify">立即绑定</a>@else 已綁定<a href="javascript:void(0);" class="qux_bdbutton right line_notify_cancel">取消綁定</a>@endif</div>
+                  <div class="ti_ktx"><span>來訊通知</span></div>
+                  <form id="chatSetForm" action="{{ route('chatNoticeSet') }}" method="post">
+                    <div class="ti_xcheck">
+                      @foreach($line_notify_chat as $row)
+                          @if($row->name == '收藏會員')
+                              @if($user->isVip())
+                                  <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>
+                              @else
+                                  @continue
+                              @endif
+                          @else
+                              <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>
+                          @endif
+                      @endforeach
+                    </div>
+                    <a class="dlbut matop10 mabot_30 form_submit">更新資料</a>
+                  </form>
+              </dd>
+          </div>
+{{--          <form id="chatSetForm" action="{{ route('chatNoticeSet') }}" method="post">--}}
+{{--              {!! csrf_field() !!}--}}
+{{--          <div class="sidebar_box">--}}
+{{--              <div class="sys_log">--}}
+{{--                  <dt class=""><span><img src="/new/images/shed_icon.png">Line通知設定</span></dt>--}}
+{{--                  <dd style="">--}}
+{{--                      <div class="tuba">當您開啟LINE通知後，將優先接收您所收藏的會員來訊通知，並可設定不同會員等級來訊通知與否。</div>--}}
+{{--                      <div class="tu_bd">狀態：@if($user->line_notify_token==null)尚未綁定<a href="javascript:void(0);" class="tuk_bdbutton right line_notify">立即绑定</a>@else 已綁定<a href="javascript:void(0);" class="qux_bdbutton right line_notify_cancel">取消綁定</a>@endif</div>--}}
+{{--                      <div class="ti_ktx"><span>來訊通知</span></div>--}}
+{{--                      <div class="ti_xcheck">--}}
+
+{{--                          @foreach($line_notify_chat as $row)--}}
+{{--                              @if($row->name == '收藏會員')--}}
+ {{--                                 @if($user->isVip())--}}
+ {{--                                     <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>--}}
+{{--                                  @else--}}
+{{--                                      @continue--}}
+{{--                                  @endif--}}
+{{--                              @else--}}
+{{--                                  <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>--}}
+{{--                              @endif--}}
+{{--                          @endforeach--}}
+{{--                      </div>--}}
+{{--                  </dd>--}}
+{{--              </div>--}}
 {{--              <div class="sys_log">--}}
 {{--                  <dt class=""><span><img src="/new/images/shed_icon.png">拒絕收信設定</span></dt>--}}
 {{--                  <dd style="">--}}
@@ -60,9 +99,9 @@
 {{--                      </div>--}}
 {{--                  </dd>--}}
 {{--              </div>--}}
-          </div>
-          <a class="dlbut matop10 mabot_30 form_submit">更新資料</a>
-          </form>
+{{--          </div>--}}
+{{--          <a class="dlbut matop10 mabot_30 form_submit">更新資料</a>--}}
+{{--          </form>--}}
       </div>
     </div>
   </div>
