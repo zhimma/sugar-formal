@@ -3590,10 +3590,19 @@ class UserController extends \App\Http\Controllers\BaseController
     }
 
     public function multipleLogin() {
-        $results = \App\Models\MultipleLogin::with(['original_user', 'original_user.user_meta', 'original_user.banned', 'original_user.implicitlyBanned', 'original_user.aw_relation', 'new_user', 'new_user.user_meta', 'new_user.banned', 'new_user.implicitlyBanned', 'new_user.aw_relation'])->orderBy('original_id', 'desc')
+        $original_users = \App\Models\MultipleLogin::with(['original_user', 'original_user.user_meta', 'original_user.banned', 'original_user.implicitlyBanned', 'original_user.aw_relation'])
             ->join('users', 'users.id', '=', 'multiple_logins.original_id')
+            ->groupBy('original_id')->orderBy('users.last_login', 'desc')
+            ->get();
+        $new_users = \App\Models\MultipleLogin::with(['new_user', 'new_user.user_meta', 'new_user.banned', 'new_user.implicitlyBanned', 'new_user.aw_relation'])
+            ->leftJoin('users', 'users.id', '=', 'multiple_logins.new_id')
             ->orderBy('users.last_login', 'desc')
             ->get();
-        return view('admin.users.multipleLoginList', compact('results'));
+        $original_new_map = $new_users->mapWithKeys(function ($new_user) {
+//            dd($new_user->original_id);
+            return [$new_user->original_id => $new_user];
+        });
+//        dd($original_new_map);
+        return view('admin.users.multipleLoginList', compact('original_users' ,'original_new_map'));
     }
 }
