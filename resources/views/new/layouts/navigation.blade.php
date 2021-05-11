@@ -4,7 +4,7 @@
 					<a href="{!! url('') !!}" >
 						<img src="/new/images/icon_41.png" class="logo" />
 					</a>
-					@if (isset($user) && !str_contains(url()->current(), 'activate') && $user->meta->is_active ==1)
+					@if (isset($user) && !str_contains(url()->current(), 'activate') && !str_contains(url()->current(), 'member_auth') && $user->meta->is_active ==1)
 						@if(Session::has('original_user'))
 							<div class="ndlrfont">
 								<a href="{{ route('escape') }}" class="m-nav__link m-dropdown__toggle">
@@ -27,7 +27,7 @@
 						@endif
 					@elseif(isset($user) && Auth::user() && $user->meta_()->is_active ==0)
 						<div class="ndlrfont"><a href="{!! url('logout') !!}">登出</a></div>
-					@else
+					@elseif(!str_contains(url()->current(), 'member_auth'))
 						<div class="ndlrfont"><a href="{!! url('/checkAdult') !!}">註冊</a>丨<a href="{!! url('login') !!}">登入</a></div>
 					@endif
 				</div>

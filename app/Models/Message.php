@@ -620,11 +620,16 @@ class Message extends Model
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
         }
+        $block = Blocked::where('member_id',$sid)->where('blocked_id', $uid)->get()->first();
         $query = Message::where('created_at','>=',self::$date);
-        $query = $query->where([['to_id', $uid],['from_id', $sid],['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]])
-            ->orWhere([['from_id', $uid],['to_id', $sid],['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]]);
+        $query = $query->where(function ($query) use ($uid,$sid) {
+            $query->where([['to_id', $uid],['from_id', $sid],['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]])
+                ->orWhere([['from_id', $uid],['to_id', $sid],['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]]);
+        });
+        if($block) {
+            $query = $query->where('from_id', '<>', $block->member_id);
+        }
         $query = $query->where('created_at','>=',self::$date)
-            ->distinct()
             ->orderBy('created_at', 'desc')
             ->paginate(10);
         return $query;
