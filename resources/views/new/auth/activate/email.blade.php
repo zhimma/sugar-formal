@@ -20,6 +20,10 @@
                             <h3>Email：<span>{{ $user->email }} (若Email填寫錯誤，請重新註冊)</span></h3>
                             </div>
                     </div>
+                    <div class="vipbut1_block">
+                        <a href="{{ url('activate/send-token') }}" class="vipbut1">重新發送</a>
+                        <a href="{{ url('login') }}" class="vipbut1">關閉</a>
+                    </div>
                     <div class="wxsy_title">站長的話</div>
                     <div class="wxsy_k">
                             <div class="wknr">
@@ -55,7 +59,7 @@
                             </div>
                     </div>
                     <div class="yx_k">驗證碼已經寄到你的email : <a style="font-weight: bold">{{ $user->email }} (若Email填寫錯誤，請重新註冊)</a></div>
-                   <a href="{{ url('activate/send-token') }}" class="vipbut">重新發送</a>
+                   
                         {{-- <p>由於寄信系統維護中，如需重新驗證請直接向站長聯繫</p>
                         <a href="{!! url('contact') !!}" style="color: red; font-weight: bold;">點此聯繫站長</a> --}}
                 @elseif(isset($register))
@@ -71,3 +75,33 @@
         </div>
     </div>
 @stop
+<style type="text/css">
+    .vipbut1 {
+        height: 40px;
+        background: #fe92a8;
+        border-radius: 200px;
+        color: #ffffff;
+        text-align: center;
+        line-height: 40px;
+        display: table;
+        margin: 0 auto;
+        margin: 0 5%;
+        flex: 1;
+    }
+    .vipbut1_block {
+        width: 50%;
+        margin: 0 auto;
+        display: flex; 
+        padding: 5% 0;
+    }
+    @media (max-width:736px) {
+        .vipbut1_block{ 
+            width: 80%;
+        }
+    }
+    @media (max-width:667px) {
+        .vipbut1_block{ 
+            width: 80%;
+        }
+    }
+</style>
