@@ -516,7 +516,7 @@
     }
 
     @if (Session::has('message'))
-        c5('{{ Session::get('message') }}');
+        {{--c5('{{ Session::get('message') }}');--}}
     @endif
 
     @if (isset($errors) && $errors->count() > 0)
