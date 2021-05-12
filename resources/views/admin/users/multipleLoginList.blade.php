@@ -4,6 +4,8 @@
     .table > tbody > tr > td, .table > tbody > tr > th{
         vertical-align: middle;
     }
+    .content-table { width:100%; table-layout: fixed; }
+    .content-table td { word-wrap:break-word; }
 </style>
 <body style="padding: 15px;">
 <h1>多重登入名單</h1>
@@ -35,7 +37,7 @@
     </table>
 </form>
 共 {{ $new_users->count() }} 筆資料
-<table class='table table-bordered table-hover'>
+<table class='table table-bordered table-hover content-table'>
 	<tr>
         <td>隱藏</td>
         <td style="width: 10%!important;">會員 ID</td>
