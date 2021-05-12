@@ -25,7 +25,7 @@
                             <input  data-parsley-equalto="#pw" data-parsley-required name="password_confirmation" type="password" class="zcinput" placeholder="密碼確認" value="{{old('password_confirmation')}}" autocomplete="off" data-parsley-required-message="請再次輸入密碼">
                         </div>
                         <div class="de_input01 dlmarbot">
-                            <input data-parsley-required id="name" name="name"  type="text" class="zcinput" placeholder="暱稱 (至多八個字)" value="{{old('name')}}" maxlength="8" data-parsley-required-message="請輸入暱稱">
+                            <input data-parsley-required data-parsley-excluded=true id="name" name="name"  type="text" class="zcinput" placeholder="暱稱 (至多八個字)" value="{{old('name')}}" maxlength="8" data-parsley-required-message="請輸入暱稱">
                         </div>
                         <div class="de_input01 dlmarbot">
                             <input data-parsley-required name="title" type="text" class="zcinput" placeholder="一句話形容自已"  value="{{old('title')}}" data-parsley-required-message="請輸入一句話形容自己">

@@ -32,20 +32,21 @@
                     <div class="tu_bd">狀態：@if($user->line_notify_token==null)尚未綁定<a href="javascript:void(0);" class="tuk_bdbutton right line_notify">立即绑定</a>@else 已綁定<a href="javascript:void(0);" class="qux_bdbutton right line_notify_cancel">取消綁定</a>@endif</div>
                     <div class="ti_ktx"><span>來訊通知</span></div>
                     <form id="chatSetForm" action="{{ route('chatNoticeSet') }}" method="post">
-                      <div class="ti_xcheck">
-                        @foreach($line_notify_chat as $row)
-                            @if($row->name == '收藏會員')
-                                @if($user->isVip())
-                                    <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>
+                        {{ csrf_field() }}
+                          <div class="ti_xcheck">
+                            @foreach($line_notify_chat as $row)
+                                @if($row->name == '收藏會員')
+                                    @if($user->isVip())
+                                        <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>
+                                    @else
+                                        @continue
+                                    @endif
                                 @else
-                                    @continue
+                                    <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>
                                 @endif
-                            @else
-                                <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>
-                            @endif
-                        @endforeach
-                      </div>
-                      <a class="dlbut matop10 mabot_30 form_submit">更新資料</a>
+                            @endforeach
+                          </div>
+                        <a class="dlbut matop10 mabot_30 form_submit">更新資料</a>
                     </form>
                 </dd>
             </div>
