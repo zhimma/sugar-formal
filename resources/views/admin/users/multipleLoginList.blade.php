@@ -53,7 +53,7 @@
         @endphp
         <tr style="border-top: 3px solid;">
             @if($original_user->original_user)
-                @if($original_user->original_user->aw_relation)
+                @if($original_user->original_user->aw_relation or $original_user->original_user->user_meta->isWarned)
                     @php $bgColor = '#B0FFB1'; @endphp
                 @endif
                 @if($original_user->original_user->banned or $original_user->original_user->implicitlyBanned)
@@ -83,7 +83,7 @@
                 @endphp
                 <tr>
                     @if($new_user->new_user)
-                        @if($new_user->new_user->aw_relation)
+                        @if($new_user->new_user->aw_relation or $new_user->new_user->user_meta->isWarned)
                             @php $bgColor = '#B0FFB1'; @endphp
                         @endif
                         @if($new_user->new_user->banned or $new_user->new_user->implicitlyBanned)
