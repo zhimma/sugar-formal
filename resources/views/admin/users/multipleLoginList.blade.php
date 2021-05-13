@@ -77,10 +77,10 @@
                 <td>資料已刪除</td>
             @endif
         </tr>
-            @php
-                $bgColor = null;
-            @endphp
             @foreach($original_new_map[$original_user->id] as $new_user)
+                @php
+                    $bgColor = null;
+                @endphp
                 <tr>
                     @if($new_user->new_user)
                         @if($new_user->new_user->aw_relation)
