@@ -22,7 +22,7 @@
                     </div>
                     <div class="vipbut1_block">
                         <a href="{{ url('activate/send-token') }}" class="vipbut1">重新發送</a>
-                        <a href="{{ url('login') }}" class="vipbut1">關閉</a>
+                        <a href="{{ url('logout') }}" class="vipbut1">關閉</a>
                     </div>
                     <div class="wxsy_title">站長的話</div>
                     <div class="wxsy_k">
