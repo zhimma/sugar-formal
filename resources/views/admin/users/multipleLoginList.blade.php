@@ -40,7 +40,7 @@
 <table class='table table-bordered table-hover content-table'>
 	<tr>
         <td>隱藏</td>
-        <td style="width: 10%!important;">會員 ID</td>
+        <td style="width: 10%!important;">原 ID</td>
 		<td>會員 Email</td>
         <td>會員暱稱</td>
         <td>會員關於我</td>
@@ -51,7 +51,7 @@
         @php
             $bgColor = null;
         @endphp
-        <tr style="font-weight: bold;">
+        <tr style="border-top: 3px solid;">
             @if($original_user->original_user)
                 @if($original_user->original_user->aw_relation)
                     @php $bgColor = '#B0FFB1'; @endphp
@@ -90,7 +90,7 @@
                             @php $bgColor = '#FDFF8C'; @endphp
                         @endif
                         <td></td>
-                        <td style="color: {{ $new_user->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $new_user->new_id }}</td>
+                        <td style="color: {{ $new_user->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $new_user->original_id }}</td>
                         <td style="color: {{ $new_user->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif"><a href="advInfo/{{ $new_user->new_id }}" target="_blank" style="color: {{ $new_user->new_user->engroup == 1 ? 'blue' : 'red' }}">{{ $new_user->new_user->email }}</a></td>
                         <td style="color: {{ $new_user->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $new_user->new_user->name }}</td>
                         <td style="color: {{ $new_user->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $new_user->new_user->user_meta->about }}</td>
@@ -98,7 +98,7 @@
                         <td style="color: {{ $new_user->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $new_user->new_user->last_login }}</td>
                     @else
                         <td></td>
-                        <td>{{ $new_user->new_id }}</td>
+                        <td>{{ $new_user->original_id }}</td>
                         <td>資料已刪除</td>
                         <td>資料已刪除</td>
                         <td>資料已刪除</td>
