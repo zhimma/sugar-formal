@@ -212,8 +212,9 @@ class Message_newController extends BaseController {
             ->where('line_notify_chat.active', 1)
             ->where('line_notify_chat_set.user_id', $to_user->id)->where('line_notify_chat_set.deleted_at', null)->get();
         if(!empty($line_notify_chat_set_data)){
-            $user_meta_data = UserMeta::select('user_meta.isWarned','user_meta.exchange_period_change','exchange_period_name.*')
-                ->leftJoin('exchange_period_name','exchange_period_name.id','user_meta.exchange_period_change')
+            $user_meta_data = UserMeta::select('user_meta.isWarned', 'exchange_period_name.*')
+                ->leftJoin('users', 'users.id', 'user_meta.user_id')
+                ->leftJoin('exchange_period_name', 'exchange_period_name.id', 'users.exchange_period')
                 ->where('user_id', auth()->id())
                 ->get()->first();
             foreach($line_notify_chat_set_data as $row){
