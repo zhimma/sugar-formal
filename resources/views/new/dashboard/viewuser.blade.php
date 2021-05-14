@@ -25,6 +25,7 @@
             /*max-height: 280px;*/
             display: block;
             margin: 0 auto;
+            object-fit: contain;
         }
 
         @media (max-width:767px) {

@@ -235,14 +235,14 @@ class UserMeta extends Model
             ->where('engroup', $engroup)
             ->where('accountStatus', 1)
             ->where('is_hide_online', '<>', 2)
-            // ->whereNotIn('users.id', function($query){
-            //     // $bannedUsers
-            //     $query->select('target')
-            //         ->from(with(new BannedUsersImplicitly)->getTable());})
-            // ->whereNotIn('users.id', function($query){
-            //     // $bannedUsers
-            //     $query->select('member_id')
-            //         ->from(with(new banned_users)->getTable());})
+            ->whereNotIn('users.id', function($query){
+                // $bannedUsers
+                $query->select('target')
+                    ->from(with(new BannedUsersImplicitly)->getTable());})
+            ->whereNotIn('users.id', function($query){
+                // $bannedUsers
+                $query->select('member_id')
+                    ->from(with(new banned_users)->getTable());})
             /*->whereNotIn('users.id', function($query) use ($userid){
                 // $blockedUsers
                 $query->select('blocked_id')
