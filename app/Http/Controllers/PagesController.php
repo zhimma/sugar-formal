@@ -3661,7 +3661,11 @@ class PagesController extends BaseController
 
     public function posts_list(Request $request)
     {
-        $posts = Posts::selectraw('users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->orderBy('posts.created_at','desc')->paginate(10);
+        $posts = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at')
+            ->LeftJoin('users', 'users.id','=','posts.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->where('posts.type','main')
+            ->orderBy('posts.created_at','desc')->paginate(10);
         
         // foreach($posts['data'] as $key=>$post){
         //     array_push($posts['data'][$key], $post['pcontents']);
@@ -3698,16 +3702,20 @@ class PagesController extends BaseController
     public function post_detail(Request $request)
     {
         $user = $request->user();
-        
 
         $pid = $request->pid;
         $this->post_views($pid);
-        $posts = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')->LeftJoin('users', 'users.id','=','posts.user_id')->join('user_meta', 'users.id','=','user_meta.user_id')->where('posts.id', $pid)->get();
-        $data = array(
-            'posts' => $posts
-        );
+        $postDetail = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
+            ->LeftJoin('users', 'users.id','=','posts.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->where('posts.id', $pid)->first();
 
-        return view('/dashboard/post_detail', $data)->with('user', $user);;
+        $replyDetail = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
+            ->LeftJoin('users', 'users.id','=','posts.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->where('posts.reply_id', $pid)->get();
+
+        return view('/dashboard/post_detail', compact('postDetail','replyDetail'))->with('user', $user);
     }
 
     public function getPosts(Request $request)
@@ -3778,34 +3786,57 @@ class PagesController extends BaseController
         }
     }
 
+    public function postsEdit($id)
+    {
+        $postInfo = Posts::find($id);
+        return view('/dashboard/posts_edit',compact('postInfo'));
+    }
+
     public function doPosts(Request $request)
     {
-        
-        $posts = new Posts;
-        // $anonymous = $request->get('anonymous','no');
-        // $combine   = $request->get('combine','no');
-        $is_anonymous = $request->get('is_anonymous');
-        $agreement = $request->get('agreement','no');
-        $posts->title      = $request->get('title');
-        $posts->contents   = str_replace('..','',$request->get('contents'));
         $user=$request->user();
-        $posts->user_id = $user->id;
 
-        // $posts->anonymous = $anonymous=='on' ? '1':'0';
-        // $posts->combine   = $combine=='on'   ? '1':'0';
-        $posts->is_anonymous = $is_anonymous;
-        $posts->agreement = $agreement=='on' ? '1':'0';
+        if($request->get('action') == 'update'){
+            Posts::find($request->get('post_id'))->update(['title'=>$request->get('title'),'contents'=>$request->get('contents')]);
+            return redirect($request->get('redirect_path'))->with('message','修改成功');
 
-        if(($posts->is_anonymous=='anonymous' || $posts->is_anonymous=='combine')){
-            $result = $posts->save();
-            // Session::flash('message', '資料更新成功');
-            return redirect('/dashboard/posts_list');
         }else{
-            return redirect('/dashboard/posts');
+            $posts = new Posts;
+            $posts->user_id = $user->id;
+            $posts->title = $request->get('title');
+            $posts->type = $request->get('type','main');
+            $posts->contents=$request->get('contents');
+            $posts->save();
+            return redirect('/dashboard/posts_list')->with('message','發表成功');
         }
+    }
 
+    public function posts_reply(Request $request)
+    {
+        $posts = new Posts;
+        $posts->reply_id = $request->get('reply_id');
+        $posts->user_id = $request->get('user_id');
+        $posts->type = $request->get('type','sub');
+        $posts->contents   = str_replace('..','',$request->get('contents'));
+        $posts->save();
 
+        return back()->with('message', '留言成功!');
+    }
 
+    public function posts_delete(Request $request)
+    {
+        $posts = Posts::where('id',$request->get('pid'))->first();
+        if($posts->user_id!== auth()->user()->id){
+            return response()->json(['msg'=>'留言刪除失敗 不可刪除別人的留言!']);
+        }else{
+            $postsType = $posts->type;
+            $posts->delete();
+
+            if($postsType=='main')
+                return response()->json(['msg'=>'刪除成功!','postType'=>'main','redirectTo'=>'/dashboard/posts_list']);
+            else
+                return response()->json(['msg'=>'留言刪除成功!','postType'=>'sub']);
+        }
     }
 
     public function post_views($pid)
