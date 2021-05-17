@@ -2,7 +2,9 @@
 <body class="" >
     @include('new.layouts.navigation')
     @yield("app-content")
-    @include('new.partials.footer')
+    @if(!str_contains(url()->current(), 'post_detail'))
+        @include('new.partials.footer')
+    @endif
     @include('new.partials.message')
     @include('new.partials.scripts')
 

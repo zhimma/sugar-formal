@@ -61,7 +61,8 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 /* 菜单 */
 .commonMenu {width:100%;position: fixed;top: 0;z-index: 9;}
-.comt{/*height: 15px;*/margin-left: 93px;}
+.comt{height: 15px;margin-left: 95px;}
+.comt img{margin-top: 8px;}
 .commonMenu .menuTop {width: 100%;position:relative; height:70px;}
 .back{height:20px;position:absolute; top:16px; left:10px;}
 .back img{ height:20px !important;}
@@ -76,8 +77,8 @@ a:hover{ color:#e44e71; text-decoration:none}
 .jt img{ height:15px;}
 .menuBg {width: 100%;max-width: 640px;height: 100vh;position: fixed;z-index: 8;background: rgba(0, 0, 0, 0.2);display: none}
 
-.helist{width:100%;border-bottom:#eeeeee 1px solid; margin-bottom:20px; display:table}
-.helist ul{width:85%; margin:0 auto; padding:15px 0; display:table; margin-left:8%}
+.helist{width:100%;border-bottom:#eeeeee 1px solid; margin-bottom:20px; display:table;}
+.helist ul{width:85%; margin:0 auto; padding:0px 0; display:table; margin-left:8%}
 .helist ul li{line-height:35px; position:relative}
 .helist ul li a{color:#999999;}
 .helist ul li img{ margin-right:10px;}
@@ -86,6 +87,26 @@ a:hover{ color:#e44e71; text-decoration:none}
 .marg30{ margin-right:18px !important;}
 
 }
+
+.juanzhou{height: 180px; display: block; overflow: scroll; overflow-x: hidden;}
+.juanzhou::-webkit-scrollbar{ border-radius: 100PX;
+    width:6px;
+    height: 6px;
+    background-color: #EEE;
+}
+
+/*定义滚动条轨道 内阴影+圆角*/
+.juanzhou::-webkit-scrollbar-track{
+    border-radius: 10px;
+    background-color: #EEE;
+}
+
+/*定义滑块 内阴影+圆角*/
+.juanzhou::-webkit-scrollbar-thumb{
+    border-radius: 10px;
+    background-color: #ffdce8;
+}
+
 
 
 
@@ -111,7 +132,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 /* 菜单 */
 .commonMenu {width:100%;position: fixed;top: 0;z-index: 9;}
-.comt{/*height: 15px;*/margin-left: 93px;}
+.comt{height: 15px;margin-left: 95px;}
 .commonMenu .menuTop {width: 100%;position:relative; height:70px;}
 .back{height:20px;position:absolute; top:16px; left:10px;}
 .back img{ height:20px !important;}
@@ -126,13 +147,42 @@ a:hover{ color:#e44e71; text-decoration:none}
 .jt img{ height:15px;}
 .menuBg {width: 100%;max-width: 640px;height: 100vh;position: fixed;z-index: 8;background: rgba(0, 0, 0, 0.2);display: none}
 
-.helist{width:100%;border-bottom:#eeeeee 1px solid; margin-bottom:20px; display:table}
-.helist ul{width:85%; margin:0 auto; padding:15px 0; display:table; margin-left:8%}
+.helist{width:100%;border-bottom:#eeeeee 1px solid; margin-bottom:20px; display:table; padding:8px 0;}
+.helist ul{width:90%; margin:0 auto; display:table; margin-left:8%; height: auto;}
 .helist ul li{line-height:35px; position:relative}
 .helist ul li a{color:#999999;}
 .helist ul li img{ margin-right:10px;}
 .helist ul li span{ position:absolute; right:10px; top:8px; background:#F00; border-radius:100px; color:#ffffff; height:20px; width:20px; line-height:20px; font-size:12px;text-align:center}
 
+    .helist ul::-webkit-scrollbar{ border-radius: 100PX;
+        width:6px;
+        height: 6px;
+        background-color: #eee;
+    }
+
+    /*定义滚动条轨道 内阴影+圆角*/
+    .helist ul::-webkit-scrollbar-track{
+        border-radius: 10px;
+        background-color: #eee;
+    }
+
+    /*定义滑块 内阴影+圆角*/
+    .helist ul::-webkit-scrollbar-thumb{
+        border-radius: 10px;
+        background-color: #fbccd4;
+    }
+
+
+    @media (max-width:824px) {
+        .helist ul{/* height: 140px;overflow-y: scroll; */ display: block;}
+    }
+    @media (max-width:569px) {
+        .helist ul{ /* height: 100px;overflow-y: scroll; */ display: block;}
+    }
+
+    @media (max-width:450px) {
+        .helist ul{/* height: 150px; */}
+    }
 }
 
 @media (max-width:823px) and (max-height: 411px) {
@@ -2970,7 +3020,7 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 
 
 .ne_talicon{ font-style: normal; line-height:40px; color: #fe92a8; margin-right: 10px;}
-.ne_talicon img{ height:20px; width: 20px; vertical-align: middle;margin-top:10px; margin-right: 3px;}
+.ne_talicon img{ height:20px; width: 20px; vertical-align: middle;margin-right: 3px;}
 
 
 

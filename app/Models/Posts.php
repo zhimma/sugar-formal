@@ -35,5 +35,16 @@ class Posts extends Model
         'agreement',
     ];
 
+    public static function showContent($content)
+    {
+        $pattern = array(
+            '/ /',//半角下空格
+            '/　/',//全角下空格
+            '/\r\n/',//window 下换行符
+            '/\n/',//Linux && Unix 下换行符
+        );
+        $replace = array('&nbsp;','&nbsp;','<br />','<br />');
+        return preg_replace($pattern, $replace,$content );
+    }
     
 }
