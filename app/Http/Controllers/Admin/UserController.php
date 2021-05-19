@@ -3595,7 +3595,7 @@ class UserController extends \App\Http\Controllers\BaseController
             ->groupBy('original_id')->orderBy('users.last_login', 'desc');
         $new_users = \App\Models\MultipleLogin::with(['new_user', 'new_user.user_meta', 'new_user.banned', 'new_user.implicitlyBanned', 'new_user.aw_relation'])
             ->leftJoin('users', 'users.id', '=', 'multiple_logins.new_id')
-            ->orderBy('users.last_login', 'desc');
+            ->groupBy('new_id')->orderBy('users.last_login', 'desc');
         if($request->isMethod("POST")){
             if($request->date_start){
                 $original_users = $original_users->where('users.last_login', ">=",$request->date_start . " 00:00:00");
