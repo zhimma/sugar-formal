@@ -21,9 +21,11 @@
                 <li>
                     <a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}"><img src="/new/images/icon_45.png">收件夾</a><span>{{ $unread }}</span>
                 </li>
-                <li>
-                    <a href="/dashboard/posts_list"><img src="/new/images/tlq.png">討論區</a>
-                </li>
+                @if($user->engroup==1)
+                    <li>
+                        <a href="/dashboard/posts_list"><img src="/new/images/tlq.png">討論區</a>
+                    </li>
+                @endif
 {{--                @endif--}}
                 <li>
                    <a href="{!! url('dashboard/browse') !!}"><img src="/new/images/icon_46.png">瀏覽資料</a>

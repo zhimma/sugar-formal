@@ -336,17 +336,19 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     | Dashboard
     |--------------------------------------------------------------------------
     */
-    Route::post('/dashboard/postAcceptor', 'PagesController@postAcceptor');/*投稿列表功能*/
-    Route::get('/dashboard/posts_list', 'PagesController@posts_list');/*投稿列表功能*/
-    // Route::get('/dashboard/post_detail/', 'PagesController@post_detail');
-    Route::get('/dashboard/post_detail/{pid}', 'PagesController@post_detail');
-    Route::post('/dashboard/getPosts', 'PagesController@getPosts');/*動態取得列表資料*/
-    Route::get('/dashboard/posts', 'PagesController@posts');/*投稿功能*/
-    Route::get('/dashboard/postsEdit/{id}', 'PagesController@postsEdit');/*投稿修改功能*/
-    Route::post('/dashboard/doPosts', 'PagesController@doPosts');/*投稿功能*/
-    Route::post('/dashboard/posts_reply', 'PagesController@posts_reply');/*討論區留言回覆*/
-    Route::post('/dashboard/posts_delete', 'PagesController@posts_delete');/*討論區留言刪除*/
-    Route::post('/dashboard/post_views', 'PagesController@post_views');
+    Route::group(['middleware' => ['CheckDiscussPermissions']], function () {
+        Route::post('/dashboard/postAcceptor', 'PagesController@postAcceptor');/*投稿列表功能*/
+        Route::get('/dashboard/posts_list', 'PagesController@posts_list');/*投稿列表功能*/
+        Route::get('/dashboard/post_detail/{pid}', 'PagesController@post_detail');
+        Route::post('/dashboard/getPosts', 'PagesController@getPosts');/*動態取得列表資料*/
+        Route::get('/dashboard/posts', 'PagesController@posts');/*投稿功能*/
+        Route::get('/dashboard/postsEdit/{id}', 'PagesController@postsEdit');/*投稿修改功能*/
+        Route::post('/dashboard/doPosts', 'PagesController@doPosts');/*投稿功能*/
+        Route::post('/dashboard/posts_reply', 'PagesController@posts_reply');/*討論區留言回覆*/
+        Route::post('/dashboard/posts_delete', 'PagesController@posts_delete');/*討論區留言刪除*/
+        Route::post('/dashboard/post_views', 'PagesController@post_views');
+    });
+
     Route::post('/dashboard', 'PagesController@profileUpdate');
     Route::post('/dashboard2', 'PagesController@profileUpdate_ajax')->name('dashboard2');
     Route::post('dashboard/settings', 'PagesController@settingsUpdate');
