@@ -54,31 +54,36 @@
                             <div class="comt"><img src="/new/images/t.png"></div>
                             <div class="coheight">
 							<div class="heyctop">{{ $user->name }}@if($user->isVip()) (VIP) @endif @if(view()->shared('valueAddedServices')['hideOnline'] == 1)<br>(隱藏)@endif</div>
-							<div class="helist">
-								<ul>
-									<li>
-										<a href="{!! url('dashboard/personalPage') !!}"><img src="/new/images/icon_48.png">專屬頁面</a>
-									</li>
-									<li>
-										<a href="{!! url('dashboard') !!}"><img src="/new/images/icon_48.png">個人資料</a>
-									</li>
-{{--									@if($user->meta_()->isConsign == 0 && ($user->meta_()->consign_expiry_date == null||$user->meta_()->consign_expiry_date <= \Carbon\Carbon::now()))--}}
-									<li>
-										<a href="{!! url('dashboard/search') !!}"><img src="/new/images/icon_38.png">搜索</a>
-									</li>
-									<li>
-										<a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}"><img src="/new/images/icon_45.png">收件夾</a><span>{{ $unread }}</span>
-									</li>
-{{--									@endif--}}
-									<li>
-					                   <a href="{!! url('dashboard/browse') !!}"><img src="/new/images/icon_46.png">瀏覽資料</a>
-					                </li>
-									<li>
-										<a href="{!! url('dashboard/vipSelect') !!}"><img src="/new/images/us2.png">升級付費</a>
-									</li>
-								</ul>
-							</div>
-							<a href="{!! url('logout') !!}" class="tcbut">LOGOUT</a>
+								<div class="juanzhou">
+									<div class="helist">
+										<ul>
+											<li>
+												<a href="{!! url('dashboard/personalPage') !!}"><img src="/new/images/icon_48.png">專屬頁面</a>
+											</li>
+											<li>
+												<a href="{!! url('dashboard') !!}"><img src="/new/images/icon_48.png">個人資料</a>
+											</li>
+		{{--									@if($user->meta_()->isConsign == 0 && ($user->meta_()->consign_expiry_date == null||$user->meta_()->consign_expiry_date <= \Carbon\Carbon::now()))--}}
+											<li>
+												<a href="{!! url('dashboard/search') !!}"><img src="/new/images/icon_38.png">搜索</a>
+											</li>
+											<li>
+												<a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}"><img src="/new/images/icon_45.png">收件夾</a><span>{{ $unread }}</span>
+											</li>
+											<li>
+												<a href="/dashboard/posts_list"><img src="/new/images/tlq.png">討論區</a>
+											</li>
+		{{--									@endif--}}
+											<li>
+											   <a href="{!! url('dashboard/browse') !!}"><img src="/new/images/icon_46.png">瀏覽資料</a>
+											</li>
+											<li>
+												<a href="{!! url('dashboard/vipSelect') !!}"><img src="/new/images/us2.png">升級付費</a>
+											</li>
+										</ul>
+									</div>
+									<a href="{!! url('logout') !!}" class="tcbut">LOGOUT</a>
+								</div>
                             </div>
 						</ul>
 						@endif
