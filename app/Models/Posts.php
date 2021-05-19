@@ -33,6 +33,7 @@ class Posts extends Model
         'anonymous',
         'combine',
         'agreement',
+        'tag_user_id',
     ];
 
     public static function showContent($content)

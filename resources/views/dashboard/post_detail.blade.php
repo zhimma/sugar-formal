@@ -39,7 +39,7 @@
 							<div class="tougao_xnew">
 								<a href="/dashboard/viewuser/{{$postDetail->uid}}">
 									<div class="tou_img_1">
-										<div class="tou_tx_img"><img src="{{ $postDetail->umpic }}" class="hycov"></div>
+										<div class="tou_tx_img"><img src="@if(file_exists( public_path().$postDetail->umpic ) && $postDetail->umpic != ""){{$postDetail->umpic}} @elseif($postDetail->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div>
 										<span>{{ $postDetail->uname }}<i class="tou_fi">{{ date('Y-m-d H:i',strtotime($postDetail->pcreated_at)) }}</i></span>
 									</div>
 								</a>
@@ -73,23 +73,17 @@
 								@foreach($replyDetail as $reply)
 									<li>
 										<a href="/dashboard/viewuser/{{$reply->uid}}">
-											<div class="tg_imgtx"><img src="{{ $reply->umpic }}" class="hycov"></div>
+											<div class="tg_imgtx"><img src="@if(file_exists( public_path().$reply->umpic ) && $reply->umpic != ""){{$reply->umpic}} @elseif($reply->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div>
 										</a>
 										<div class="ta_rightnr">
 											<div class="ta_nr">
 												<h2><a href="/dashboard/viewuser/{{$reply->uid}}">{{ $reply->uname }}</a><font>{{ date('Y-m-d H:i',strtotime($reply->pcreated_at)) }}</font></h2>
-												<div class="sj_rr sj_two" style="right: 0px;display: none;">
-													<a onclick="postReply('{{ $reply->pid }}','{{ $reply->uname }}');">@他</a>
-													@if($reply->uid == auth()->user()->id)
-														<a onclick="postDelete({{ $reply->pid }})"><span class="iconfont icon-lajitong"></span>刪除</a>
-													@endif
-												</div>
 												<div class="dropdown" style="right:10px;">
 													<div class="dropdown-toggle pd_dd01" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true">
 														<span class="iconfont icon-sandian"></span>
 													</div>
 													<div class="dropdown-menu dp_hxx" aria-labelledby="dropdownMenuButton">
-														<a class="dropdown-item" onclick="postReply('{{ $reply->pid }}','{{ $reply->uname }}');">@ 回覆</a>
+														<a class="dropdown-item" onclick="postReply('{{ $reply->pid }}','{{ $reply->uname }}','{{ $reply->uid }}');">@ 回覆</a>
 														@if($reply->uid == auth()->user()->id)
 															<a class="dropdown-item" onclick="postDelete({{ $reply->pid }})"><span class="iconfont icon-lajitong"></span>刪除</a>
 														@endif
@@ -101,7 +95,7 @@
 										</div>
 										<!--  -->
 										@php
-											$subDetails = \App\Models\Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
+											$subDetails = \App\Models\Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.tag_user_id as tagid, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
 														->LeftJoin('users', 'users.id','=','posts.user_id')
 														->join('user_meta', 'users.id','=','user_meta.user_id')
 														->where('posts.reply_id', $reply->pid)->get();
@@ -111,28 +105,33 @@
 												@foreach($subDetails as $key => $subReply)
 													@if($key==0)
 														<div class="{{count($subDetails)>1 ? 'two_hf' : 'xxxxno_'. count($subDetails) .'_'.$reply->pid}}">
-															<a href="/dashboard/viewuser/{{$subReply->uid}}"><div class="two_tetx"><img src="{{ $subReply->umpic }}" class="hycov"></div></a>
+															<a href="/dashboard/viewuser/{{$subReply->uid}}"><div class="two_tetx"><img src="@if(file_exists( public_path().$subReply->umpic ) && $subReply->umpic != ""){{$subReply->umpic}} @elseif($subReply->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div></a>
 															<div class="two_ta_rightnr">
 																<div class="two_ta_nr">
 																	<h2><a href="/dashboard/viewuser/{{$subReply->uid}}">{{ $subReply->uname }}</a><font>{{ date('Y-m-d H:i',strtotime($subReply->pcreated_at)) }}</font></h2>
-																	<div class="sj_rr sj_two" style="display: none;">
-																		<a onclick="postReply('{{ $reply->pid }}','{{ $subReply->uname }}');">@他</a>
-																		@if($subReply->uid == auth()->user()->id)
-																			<a onclick="postDelete({{ $subReply->pid }})"><span class="iconfont icon-lajitong"></span>刪除</a>
-																		@endif
-																	</div>
 																	<div class="dropdown">
 																		<div class="dropdown-toggle pd_dd01" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true">
 																			<span class="iconfont icon-sandian"></span>
 																		</div>
 																		<div class="dropdown-menu dp_hxx" aria-labelledby="dropdownMenuButton">
-																			<a class="dropdown-item" onclick="postReply('{{ $reply->pid }}','{{ $subReply->uname }}');">@ 回覆</a>
+																			<a class="dropdown-item" onclick="postReply('{{ $reply->pid }}','{{ $subReply->uname }}','{{ $subReply->uid }}');">@ 回覆</a>
 																			@if($subReply->uid == auth()->user()->id)
 																				<a class="dropdown-item" onclick="postDelete({{ $subReply->pid }})"><span class="iconfont icon-lajitong"></span>刪除</a>
 																			@endif
 																		</div>
 																	</div>
-																	<p><a href="/dashboard/viewuser/{{$subReply->uid}}"><span class="blue">{{ $reply->uname }}</span></a> {!! \App\Models\Posts::showContent($subReply->pcontents) !!}</p>
+																	@php
+																		if($subReply->tagid){
+                                                                            $tagUser=\App\Models\User::find($subReply->tagid);
+                                                                            $tag_userid=$tagUser->id;
+                                                                            $tag_username=$tagUser->name;
+                                                                        }
+                                                                        else{
+                                                                            $tag_userid=$reply->uid;
+                                                                            $tag_username=$reply->uname;
+                                                                        }
+																	@endphp
+																	<p><a href="/dashboard/viewuser/{{$tag_userid}}"><span class="blue">{{ $tag_username }}</span></a> {!! \App\Models\Posts::showContent($subReply->pcontents) !!}</p>
 																</div>
 															</div>
 														</div>
@@ -144,28 +143,34 @@
 														@foreach($subDetails as $key => $subReply)
 															@if($key>=1)
 																<div class="two_hf">
-																	<div class="two_tetx"><img src="{{ $subReply->umpic }}" class="hycov"></div>
+																	<a href="/dashboard/viewuser/{{$subReply->uid}}"><div class="two_tetx"><img src="@if(file_exists( public_path().$subReply->umpic ) && $subReply->umpic != ""){{$subReply->umpic}} @elseif($subReply->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div></a>
 																	<div class="two_ta_rightnr">
 																		<div class="two_ta_nr">
-																			<h2>{{ $subReply->uname }}<font>{{ date('Y-m-d H:i',strtotime($subReply->pcreated_at)) }}</font></h2>
-																			<div class="sj_rr sj_two" style="display: none;">
-																				<a onclick="postReply('{{ $reply->pid }}','{{ $subReply->uname }}');">@他</a>
-																				@if($subReply->uid == auth()->user()->id)
-																					<a onclick="postDelete({{ $subReply->pid }});"><span class="iconfont icon-lajitong"></span>刪除</a>
-																				@endif
-																			</div>
+																			<h2><a href="/dashboard/viewuser/{{$subReply->uid}}">{{ $subReply->uname }}</a><font>{{ date('Y-m-d H:i',strtotime($subReply->pcreated_at)) }}</font></h2>
 																			<div class="dropdown">
 																				<div class="dropdown-toggle pd_dd01" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true">
 																					<span class="iconfont icon-sandian"></span>
 																				</div>
 																				<div class="dropdown-menu dp_hxx" aria-labelledby="dropdownMenuButton">
-																					<a class="dropdown-item" onclick="postReply('{{ $reply->pid }}','{{ $subReply->uname }}');">@ 回覆</a>
+																					<a class="dropdown-item" onclick="postReply('{{ $reply->pid }}','{{ $subReply->uname }}','{{ $subReply->uid }}');">@ 回覆</a>
 																					@if($subReply->uid == auth()->user()->id)
 																						<a class="dropdown-item" onclick="postDelete({{ $subReply->pid }});"><span class="iconfont icon-lajitong"></span>刪除</a>
 																					@endif
 																				</div>
 																			</div>
-																			<p><span class="blue">{{ $reply->uname }}</span> {!! \App\Models\Posts::showContent($subReply->pcontents) !!}</p>
+																			@php
+																				if($subReply->tagid){
+    																				$tagUser=\App\Models\User::find($subReply->tagid);
+    																				$tag_userid=$tagUser->id;
+    																				$tag_username=$tagUser->name;
+																				}
+																				else{
+																				    $tag_userid=$reply->uid;
+    																				$tag_username=$reply->uname;
+																				}
+
+																			@endphp
+																			<p><a href="/dashboard/viewuser/{{$tag_userid}}"><span class="blue">{{ $tag_username }}</span></a> {!! \App\Models\Posts::showContent($subReply->pcontents) !!}</p>
 																		</div>
 																	</div>
 																</div>
@@ -201,6 +206,7 @@
 									<input type="hidden" name="_token" value="{{ csrf_token() }}">
 									<input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
 									<input type="hidden" name="reply_id" id ="reply_id" value="{{ $postDetail->pid }}">
+									<input type="hidden" name="tag_user_id" id ="tag_user_id" value="">
 									<div class="bot_nnew">
 										<div id="tagAcc" class="blue" style=" padding-top: 2px; margin-left:8px;"></div>
 										<textarea id="contents" name="contents" rows="1" class="select_xx05 bot_input" placeholder="回應此篇文章"></textarea>
@@ -220,7 +226,7 @@
 		<div class="bl bl_tab bl_tab_01" id="tab_title" style="display: none;">
 			<div class="bltitle_a"><span class="font14" style="text-align:center;float:none !important">提示</span></div>
 			<div class="n_blnr02 matop10">
-				<div class="n_fengs" style="text-align:center;width:100%;">{{ Session::get('message') }}</div>
+				<div class="n_fengs" style="text-align:center;width:100%;">{{ Session::get('message') }}.ddd</div>
 			</div>
 			<a onclick="gmBtn1()" class="bl_gb01"><img src="/posts/images/gb_icon.png"></a>
 		</div>
@@ -273,8 +279,9 @@
 				document.getElementById('btn_'+index).href = "javascript:show("+index+");";
 			}
 			
-			function postReply(pid, tag_name) {
+			function postReply(pid, tag_name, tag_user_id) {
 				$('#reply_id').val(pid);
+				$('#tag_user_id').val(tag_user_id);
 				$('#tagAcc').text('@'+tag_name);
 			}
 
@@ -331,6 +338,7 @@
 
 </script>
 <style>
+	.blnr{padding-bottom: 14px;}
 	.blbg_new{width:100%; height:100%;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 9;display:none;}
 </style>
 @stop
