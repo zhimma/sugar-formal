@@ -15,8 +15,8 @@
 CREATE TABLE IF NOT EXISTS `posts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
-  `title` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `contents` varchar(2000) COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(100) COLLATE 'utf8mb4_general_ci' NOT NULL,
+  `contents` varchar(2000) COLLATE 'utf8mb4_general_ci' NOT NULL,
   `anonymous` int(11) NOT NULL,
   `combine` int(11) NOT NULL,
   `agreement` int(11) NOT NULL,
@@ -37,3 +37,4 @@ CREATE TABLE IF NOT EXISTS `posts` (
 
 ALTER TABLE `posts` ADD `type` VARCHAR(10) NULL AFTER `id`, ADD `reply_id` INT(11) NULL AFTER `type`;
 ALTER TABLE `posts` ADD `tag_user_id` INT(11) NULL AFTER `user_id`;
+ALTER TABLE `posts` ADD `is_anonymous` varchar(11) NOT NULL AFTER `contents`;
