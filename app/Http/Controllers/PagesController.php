@@ -3661,6 +3661,10 @@ class PagesController extends BaseController
 
     public function posts_list(Request $request)
     {
+        $user = $this->user;
+        if ($user && $user->engroup == 2){
+            return back();
+        }
         $posts = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at')
             ->selectRaw('(select count(*) from posts where reply_id=pid and type ="sub") as replyCount')
             ->LeftJoin('users', 'users.id','=','posts.user_id')
@@ -3678,7 +3682,6 @@ class PagesController extends BaseController
             'posts' => $posts
         );
 
-        $user = $request->user();
         if ($user)
         {
             // blocked by user->id
@@ -3732,7 +3735,10 @@ class PagesController extends BaseController
 
     public function posts(Request $request)
     {
-        $user = $request->user();
+        $user = $this->user;
+        if ($user && $user->engroup == 2){
+            return back();
+        }
         $url = $request->fullUrl();
         //echo $url;
 
