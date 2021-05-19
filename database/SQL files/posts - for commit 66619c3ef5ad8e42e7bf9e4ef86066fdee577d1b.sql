@@ -36,3 +36,4 @@ CREATE TABLE IF NOT EXISTS `posts` (
 
 
 ALTER TABLE `posts` ADD `type` VARCHAR(10) NULL AFTER `id`, ADD `reply_id` INT(11) NULL AFTER `type`;
+ALTER TABLE `posts` ADD `tag_user_id` INT(11) NULL AFTER `user_id`;

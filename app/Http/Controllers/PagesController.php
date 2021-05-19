@@ -3662,10 +3662,13 @@ class PagesController extends BaseController
     public function posts_list(Request $request)
     {
         $posts = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at')
+            ->selectRaw('(select count(*) from posts where reply_id=pid and type ="sub") as replyCount')
             ->LeftJoin('users', 'users.id','=','posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->where('posts.type','main')
-            ->orderBy('posts.created_at','desc')->paginate(10);
+            ->orderBy('replyCount','desc')
+            ->orderBy('posts.created_at','desc')
+            ->paginate(10);
         
         // foreach($posts['data'] as $key=>$post){
         //     array_push($posts['data'][$key], $post['pcontents']);
@@ -3704,7 +3707,7 @@ class PagesController extends BaseController
         $user = $request->user();
 
         $pid = $request->pid;
-        $this->post_views($pid);
+        //$this->post_views($pid);
         $postDetail = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
             ->LeftJoin('users', 'users.id','=','posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
@@ -3818,6 +3821,7 @@ class PagesController extends BaseController
         $posts->user_id = $request->get('user_id');
         $posts->type = $request->get('type','sub');
         $posts->contents   = str_replace('..','',$request->get('contents'));
+        $posts->tag_user_id = $request->get('tag_user_id');
         $posts->save();
 
         return back()->with('message', '留言成功!');
