@@ -96,3 +96,6 @@
 		$(".gg_tab").hide();
 	});
 </script>
+<style>
+	.blnr{padding-bottom: 14px;}
+</style>
