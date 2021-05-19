@@ -87,5 +87,6 @@ class Kernel extends HttpKernel
         'vipCheck' => \App\Http\Middleware\VipCheck::class,
         'CheckIsWarned' => \App\Http\Middleware\CheckIsWarned::class,
         'CheckAccountStatus' => \App\Http\Middleware\CheckAccountStatus::class,
+        'CheckDiscussPermissions' => \App\Http\Middleware\CheckDiscussPermissions::class,
     ];
 }
