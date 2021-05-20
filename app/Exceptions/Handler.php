@@ -54,7 +54,10 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {   
-        if(!$exception instanceof ValidationException && !$exception instanceof AuthenticationException && !$exception instanceof ThrottleRequestsException) {
+        if($exception instanceof ThrottleRequestsException){
+            return parent::render($request, $exception);
+        }
+        if(!$exception instanceof ValidationException && !$exception instanceof AuthenticationException) {
             return response()->view('errors.exception', [ 'exception' => $exception->getMessage() == null ? null : $exception->getMessage()]);
         }
     //    $requestStr =  $request->all();
