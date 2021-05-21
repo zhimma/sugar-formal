@@ -25,3 +25,7 @@ bootstrap/cache/config.php
 *.DS_Store
 /public/Member_pics
 
+
+bootstrap/cache/packages.php
+
+bootstrap/cache/services.php

@@ -54,7 +54,7 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {   
-        if($exception instanceof ThrottleRequestsException){
+        if($exception->getMessage() == 'Too Many Attempts.'){
             return parent::render($request, $exception);
         }
         if(!$exception instanceof ValidationException && !$exception instanceof AuthenticationException) {
