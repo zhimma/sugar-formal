@@ -3,7 +3,9 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<title>甜心花園包養網測試站</title>
+		<title>甜心花園包養網，台灣人數最多的甜心與糖爹的約會包養網站。</title>
+		<meta name="Keywords" content="包養|包養網|甜心花園|包養金額|包養管道|包養行情">
+		<meta name="Description" content="甜心花園網是台灣最大，人數最多的包養媒合網站，本站管理嚴謹，制度完善，遠離詐騙。擁有最多上線人數的甜心與最優質的糖爹，是優秀男女約會交友的第一選擇。">
 		<meta name="csrf-token" content="{{ csrf_token() }}">
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/webfont/1.6.28/webfontloader.js"></script>
 		<script src="/new/js/jquery-3.2.1.min.js" type="text/javascript"></script>
