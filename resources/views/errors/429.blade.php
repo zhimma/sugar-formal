@@ -14,8 +14,21 @@
                             <h5>您目前連線次數過多，請稍後重試</h5>
                             @if(isset($user))
                                 {{ logger('429, user id: ' . $user->id . ', IP: ' . request()->ip()) }}
+                                @php
+                                    \DB::table('log_too_many_requests')->insert(
+                                        ['user_id' => $user->id,
+                                        'ip' => request()->ip(),
+                                        "created_at" =>  \Carbon\Carbon::now(),
+                                        "updated_at" => \Carbon\Carbon::now(),]);
+                                @endphp
                             @else
                                 {{ logger('429, IP: ' . request()->ip()) }}
+                                @php
+                                    \DB::table('log_too_many_requests')->insert(
+                                        ['ip' => request()->ip(),
+                                        "created_at" =>  \Carbon\Carbon::now(),
+                                        "updated_at" => \Carbon\Carbon::now(),]);
+                                @endphp
                             @endif
                         </div>
                     </div>
