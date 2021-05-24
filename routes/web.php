@@ -667,6 +667,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/getBirthday', 'UserController@getBirthday');
         Route::post('users/unwarned_user', 'UserController@unwarnedUser');/*站方警示*/
         Route::post('users/changeExchangePeriod', 'UserController@changeExchangePeriod')->name('changeExchangePeriod');/*包養關係*/
+        Route::get('too_many_requests', 'PagesController@tooManyRequests')->name('tooMantRequests');
         Route::get("sendFakeMail/{repeat?}/{str?}", function(){
             $str = "";
             $repeat = request()->repeat ?? 1;

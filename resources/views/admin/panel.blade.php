@@ -16,6 +16,7 @@
 		<a href="{{ route('users/bannedList') }}">會員封鎖清單</a>
 		<a href="{{ route('implicitlyBanned') }}">指紋比對清單</a>
 		<a href="{{ route('warningUsers') }}">警示名單</a>
+		<a href="{{ route('tooMantRequests') }}">異常連線記錄</a>
 		<a href="{{ route('users/multipleLogin') }}">多重登入名單</a>
 		<a href="{{ route('suspectedMultiLogin') }}">疑似多重登入名單</a>
 		<a href="{{ route('users/suspiciousUser') }}">可疑名單列表</a>

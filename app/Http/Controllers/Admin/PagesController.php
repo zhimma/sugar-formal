@@ -97,4 +97,11 @@ class PagesController extends \App\Http\Controllers\BaseController
             ->with('date_end', $request->date_end)
             ->with('keyword', $request->keyword);
     }
+
+    public function tooManyRequests(){
+        $results = \DB::table('log_too_many_requests')
+            ->select('log_too_many_requests.*', 'users.name')
+            ->leftJoin('users', 'users.id', '=', 'log_too_many_requests.user_id')->get();
+        return view('admin.stats.tooManyRequests', compact('results'));
+    }
 }
