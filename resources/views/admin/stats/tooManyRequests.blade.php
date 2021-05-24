@@ -17,9 +17,9 @@
 			@else 無 @endif</td>
 		<td>
             @if($r->is_pseudo)
-				每 15 分鐘超過 400 次請求，純記錄
+				每 {{ $r->mins }} 分鐘超過 {{ $r->requests }} 次請求，純記錄
 			@else
-				每分鐘超過 50 次請求，已被阻擋
+				每 {{ $r->mins }} 分鐘超過 {{ $r->requests }} 次請求，已被阻擋
 			@endif
         </td>
 		<td>{{ $r->created_at }}</td>
