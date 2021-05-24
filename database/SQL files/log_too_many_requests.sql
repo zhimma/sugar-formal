@@ -1,1 +1,2 @@
 CREATE TABLE `log_too_many_requests` ( `id` INT NOT NULL AUTO_INCREMENT , `user_id` INT NULL DEFAULT NULL , `ip` VARCHAR(60) NULL DEFAULT NULL , `is_pseudo` BOOLEAN NOT NULL DEFAULT FALSE , `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , `updated_at` TIMESTAMP NULL DEFAULT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+ALTER TABLE `log_too_many_requests` ADD `requests` INT NOT NULL AFTER `is_pseudo`, ADD `mins` INT NOT NULL AFTER `requests`;

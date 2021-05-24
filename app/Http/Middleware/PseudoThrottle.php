@@ -54,6 +54,8 @@ class PseudoThrottle
                     ['user_id' => \Auth::user()->id,
                         'ip' => request()->ip(),
                         'is_pseudo' => 1,
+                        'requests' => $maxAttempts,
+                        'mins' => $decayMinutes,
                         "created_at" => \Carbon\Carbon::now(),
                         "updated_at" => \Carbon\Carbon::now(),]);
             }
@@ -61,6 +63,8 @@ class PseudoThrottle
                 \DB::table('log_too_many_requests')->insert(
                         ['ip' => request()->ip(),
                             'is_pseudo' => 1,
+                            'requests' => $maxAttempts,
+                            'mins' => $decayMinutes,
                             "created_at" =>  \Carbon\Carbon::now(),
                             "updated_at" => \Carbon\Carbon::now(),]);
             }

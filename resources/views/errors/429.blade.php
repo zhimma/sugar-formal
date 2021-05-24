@@ -18,6 +18,8 @@
                                     \DB::table('log_too_many_requests')->insert(
                                         ['user_id' => $user->id,
                                         'ip' => request()->ip(),
+                                        'requests' => 50,
+                                        'mins' => 1,
                                         "created_at" =>  \Carbon\Carbon::now(),
                                         "updated_at" => \Carbon\Carbon::now(),]);
                                 @endphp
@@ -26,6 +28,8 @@
                                 @php
                                     \DB::table('log_too_many_requests')->insert(
                                         ['ip' => request()->ip(),
+                                        'requests' => 50,
+                                        'mins' => 1,
                                         "created_at" =>  \Carbon\Carbon::now(),
                                         "updated_at" => \Carbon\Carbon::now(),]);
                                 @endphp
