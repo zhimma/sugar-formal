@@ -101,7 +101,8 @@ class PagesController extends \App\Http\Controllers\BaseController
     public function tooManyRequests(){
         $results = \DB::table('log_too_many_requests')
             ->select('log_too_many_requests.*', 'users.name')
-            ->leftJoin('users', 'users.id', '=', 'log_too_many_requests.user_id')->get();
+            ->leftJoin('users', 'users.id', '=', 'log_too_many_requests.user_id')
+            ->orderBy('created_at', 'desc')->get();
         return view('admin.stats.tooManyRequests', compact('results'));
     }
 }
