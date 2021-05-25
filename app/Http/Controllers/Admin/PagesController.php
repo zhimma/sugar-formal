@@ -103,7 +103,7 @@ class PagesController extends \App\Http\Controllers\BaseController
             $results = \DB::table('log_too_many_requests')
                 ->select('log_too_many_requests.*', 'users.name')
                 ->leftJoin('users', 'users.id', '=', 'log_too_many_requests.user_id')
-                ->where('pseudo', 1)
+                ->where('is_pseudo', 1)
                 ->groupBy('user_id')
                 ->orderBy('created_at', 'desc')->get();
             return view('admin.stats.tooManyRequests', compact('results'));
@@ -111,7 +111,7 @@ class PagesController extends \App\Http\Controllers\BaseController
         $results = \DB::table('log_too_many_requests')
             ->select('log_too_many_requests.*', 'users.name')
             ->leftJoin('users', 'users.id', '=', 'log_too_many_requests.user_id')
-            ->where('pseudo', 0)
+            ->where('is_pseudo', 0)
             ->orderBy('created_at', 'desc')->get();
         return view('admin.stats.tooManyRequests', compact('results'));
     }
