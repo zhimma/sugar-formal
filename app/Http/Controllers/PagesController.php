@@ -3662,18 +3662,15 @@ class PagesController extends BaseController
     public function posts_list(Request $request)
     {
         $posts = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at')
-            ->selectRaw('(select count(*) from posts where reply_id=pid and type ="sub") as replyCount')
+            ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid order by updated_at desc limit 1) as currentReplyTime')
+            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
             ->LeftJoin('users', 'users.id','=','posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->where('posts.type','main')
-            ->orderBy('replyCount','desc')
-            ->orderBy('posts.created_at','desc')
+            ->orderBy('adminFlag','desc')
+            ->orderBy('currentReplyTime','desc')
             ->paginate(10);
-        
-        // foreach($posts['data'] as $key=>$post){
-        //     array_push($posts['data'][$key], $post['pcontents']);
-        // }
-        // dd($posts);
+
         $data = array(
             'posts' => $posts
         );
@@ -3714,9 +3711,11 @@ class PagesController extends BaseController
             ->where('posts.id', $pid)->first();
 
         $replyDetail = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
+            ->selectRaw('(select updated_at from posts where reply_id=pid order by updated_at desc limit 1) as currentReplyTime')
             ->LeftJoin('users', 'users.id','=','posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
-            ->where('posts.reply_id', $pid)->get();
+            ->where('posts.reply_id', $pid)
+            ->orderBy('currentReplyTime','desc')->get();
 
         return view('/dashboard/post_detail', compact('postDetail','replyDetail'))->with('user', $user);
     }
