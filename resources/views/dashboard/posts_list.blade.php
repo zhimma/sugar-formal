@@ -76,7 +76,7 @@
 						<div class="tou_list">
 							<ul>
 								@foreach($posts as $post)
-									<li>
+									<li {{ $post->uid==1049 ? 'style=background:#ddf3ff;padding:10px' : ''}}>
 										<div class="tou_tx">
 											<a href="/dashboard/viewuser/{{$post->uid}}">
 												<div class="tou_tx_img"><img src="@if(file_exists( public_path().$post->umpic ) && $post->umpic != ""){{$post->umpic}} @elseif($post->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div>
