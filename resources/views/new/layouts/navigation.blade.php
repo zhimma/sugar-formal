@@ -53,7 +53,7 @@
 						<ul id="menuList" class="change marg30" style="z-index: 10;">
                             <div class="comt"><img src="/new/images/t.png"></div>
                             <div class="coheight">
-							<div class="heyctop">{{ $user->name }}@if($user->isVip()) (VIP) @endif @if(view()->shared('valueAddedServices')['hideOnline'] == 1)<br>(隱藏)@endif</div>
+							<div class="heyctop">{{ $user->name }}@if($user->isVip()) (VIP) @endif @if(view()->shared('valueAddedServices')['hideOnline'] ?? 0 == 1)<br>(隱藏)@endif</div>
 								<div class="juanzhou">
 									<div class="helist">
 										<ul>
@@ -68,7 +68,7 @@
 												<a href="{!! url('dashboard/search') !!}"><img src="/new/images/icon_38.png">搜索</a>
 											</li>
 											<li>
-												<a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}"><img src="/new/images/icon_45.png">收件夾</a><span>{{ $unread }}</span>
+												<a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}"><img src="/new/images/icon_45.png">收件夾</a><span>{{ $unread ?? 0 }}</span>
 											</li>
 											@if($user->engroup == 1)
 												<li>
