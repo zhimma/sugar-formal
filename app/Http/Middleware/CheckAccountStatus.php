@@ -35,7 +35,7 @@ class CheckAccountStatus
      */
     public function handle($request, Closure $next)
     {
-        $user = view()->shared('user');
+        $user = $this->auth->user();
         $pass_ary=['/dashboard/new_vip','/dashboard/vip','/dashboard/upgradepay_ec'];
         if($user->engroup==1){
             $pass_ary=array_merge(['/dashboard/vipSelect'],$pass_ary);
