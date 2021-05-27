@@ -3992,7 +3992,7 @@ class PagesController extends BaseController
             $vip_record = Carbon::parse($user->vip_record);
             $vipDays = $vip_record->diffInDays(Carbon::now());
             if(!$user->isFreeVip()) {
-                $vip = Vip::select('payment','payment_method','expiry')->where('member_id', $user->id)->first();
+                $vip = Vip::select('business_id', 'payment', 'payment_method', 'expiry')->where('member_id', $user->id)->first();
                 if($vip->payment){
 
                     switch ($vip->payment_method){
