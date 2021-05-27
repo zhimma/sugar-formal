@@ -2499,9 +2499,11 @@ class PagesController extends BaseController
         $payload = $request->all();
         $bid = $payload['to'];
         $aid = auth()->id();
-        if ($aid !== $bid)
-        {
-            Blocked::block($aid, $bid);
+        if ($aid !== $bid) {
+            $isBlocked = Blocked::isBlocked($aid, $bid);
+            if(!$isBlocked) {
+                Blocked::block($aid, $bid);
+            }
         }
         return back()->with('message', '封鎖成功');
     }
