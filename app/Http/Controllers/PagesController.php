@@ -3668,7 +3668,7 @@ class PagesController extends BaseController
             return back();
         }
         $posts = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at')
-            ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid order by updated_at desc limit 1) as currentReplyTime')
+            ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid or reply_id in ((select distinct(id) from posts where type="sub" and reply_id=pid) )  order by updated_at desc limit 1) as currentReplyTime')
             ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
             ->LeftJoin('users', 'users.id','=','posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
@@ -3716,11 +3716,10 @@ class PagesController extends BaseController
             ->where('posts.id', $pid)->first();
 
         $replyDetail = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
-            ->selectRaw('(select updated_at from posts where reply_id=pid order by updated_at desc limit 1) as currentReplyTime')
             ->LeftJoin('users', 'users.id','=','posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
-            ->where('posts.reply_id', $pid)
-            ->orderBy('currentReplyTime','desc')->get();
+            ->orderBy('pcreated_at','desc')
+            ->where('posts.reply_id', $pid)->get();
 
         return view('/dashboard/post_detail', compact('postDetail','replyDetail'))->with('user', $user);
     }
