@@ -4045,7 +4045,7 @@ class PagesController extends BaseController
                     switch ($vip->payment){
                         case 'cc_monthly_payment':
                             if(isset($nextProcessDate)){
-                                $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate;
+                                $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate.' 扣款金額：'.$vip->amount;
                             }else{
                                 $nextProcessDate = '已停止扣款，VIP 到期日為' . substr($vip->expiry,0,10);
                             }
@@ -4054,7 +4054,7 @@ class PagesController extends BaseController
                         case 'cc_quarterly_payment':
 
                             if(isset($nextProcessDate)){
-                                $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate;
+                                $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate.' 扣款金額：'.$vip->amount;
                             }else{
                                 $nextProcessDate = '已停止扣款，VIP 到期日為' . substr($vip->expiry,0,10);
                             }
