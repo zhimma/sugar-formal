@@ -24,7 +24,7 @@
 				</div>
 				<div class="col-sm-12 col-xs-12 col-md-10">
 					<div class="shou">
-						<span><img src="/posts/images/tg_15.png" style="height: 26px; margin-right: 5px; margin-bottom: 8px;">修改文章</span>
+						<span><img src="/posts/images/tg_15.png" style="height: 26px; margin-right: 5px; margin-bottom: 8px;">{{ $editType=='all' ? '修改文章' : '修改內容'}}</span>
 						<font>Publish</font>
 						<a href="{{url()->previous()}}" class="toug_back"><img src="/posts/images/back_icon.png">返回</a>
 					</div>
@@ -36,7 +36,9 @@
 								<input type="hidden" name="action" value="update">
 								<input type="hidden" name="post_id" value="{{ $postInfo->id }}">
 								<input type="hidden" name="redirect_path" value="{{  url()->previous() }}">
-								<input name="title" id="title" type="text" class="tw_input" placeholder="#標題" value="{{ $postInfo->title  }}">
+								@if($editType=='all')
+									<input name="title" id="title" type="text" class="tw_input" placeholder="#標題" value="{{ $postInfo->title  }}">
+								@endif
 								<textarea name="contents" id="contents" cols="" rows="" class="tw_textinput" placeholder="#内容">{{ $postInfo->contents }}</textarea>
 								<div class="dlbut matop30" onclick="send_posts_btn()">確定</div>
 							</form>
@@ -49,12 +51,15 @@
 
 <script>
 	function send_posts_btn() {
-
-		var title = $("#title").val();
-		if (title == '') {
-			c5('您的標題不可以為空！');
-			return false;
+		var editType = '{{ $editType }}';
+		if(editType=='all'){
+			var title = $("#title").val();
+			if (title == '') {
+				c5('您的標題不可以為空！');
+				return false;
+			}
 		}
+
 		var content =$('#contents').val();
 		if(content.length <=0 ){
 			c5('您的內容不可以為空！');

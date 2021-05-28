@@ -1016,9 +1016,11 @@ class UserController extends \App\Http\Controllers\BaseController
             $tmp['re_created_at'] = $row->re_created_at;
             $tmp['created_at'] = $row->created_at;
             $tmp['to_id'] = $f_user->id;
+            $tmp['from_id'] = $row->from_id;
             $tmp['to_email'] = $f_user->email;
             $tmp['to_name'] = $f_user->name;
             $tmp['to_isvip'] = $f_user->isVip();
+            $tmp['is_check'] = $row->is_check;
             $auth_status = 0;
             if ($f_user->isPhoneAuth() == 1) {
                 $auth_status = 1;
@@ -1039,9 +1041,11 @@ class UserController extends \App\Http\Controllers\BaseController
             $tmp['re_created_at'] = $row->re_created_at;
             $tmp['created_at'] = $row->created_at;
             $tmp['to_id'] = $f_user->id;
+            $tmp['from_id'] = $row->to_id;
             $tmp['to_email'] = $f_user->email;
             $tmp['to_name'] = $f_user->name;
             $tmp['to_isvip'] = $f_user->isVip();
+            $tmp['is_check'] = $row->is_check;
             $auth_status = 0;
             if ($f_user->isPhoneAuth() == 1) {
                 $auth_status = 1;
@@ -3563,6 +3567,22 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         DB::table('evaluation')->where('id',$request->id)->delete();
         return back()->with('message', '評價已刪除');
+    }
+
+    public function evaluationCheck(Request $request)
+    {
+        DB::table('evaluation')->where('id',$request->input('id'))->update(['is_check'=>$request->get('is_check')]);
+
+        if($request->get('is_check')){
+            $msg='評價內容審核中';
+            //return redirect('admin/users/message/to/'.$request->get('userid'))->with('message', '評價內容審核中');
+
+        }
+        else{
+            $msg='評價內容審核結束';
+            //return back()->with('message', '評價內容審核中');
+        }
+        return json_encode(array('code' => '200', 'status' => 'success','msg'=>$msg,'redirect_to'=>'/admin/users/message/to/'.$request->get('userid')));
     }
 
     public function modifyPhone(Request $request)
