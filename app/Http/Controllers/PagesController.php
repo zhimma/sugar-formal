@@ -3835,10 +3835,10 @@ class PagesController extends BaseController
         }
     }
 
-    public function postsEdit($id)
+    public function postsEdit($id, $editType='all')
     {
         $postInfo = Posts::find($id);
-        return view('/dashboard/posts_edit',compact('postInfo'));
+        return view('/dashboard/posts_edit',compact('postInfo','editType'));
     }
 
     public function doPosts(Request $request)
