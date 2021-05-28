@@ -175,9 +175,6 @@
         .hide_more{
             display: none;
         }
-        .xl_text img{
-            padding: 6px 0 0 0;
-        }
         .hzk {
             margin: 0 auto;
             display: table;
@@ -212,6 +209,77 @@
             font-size: 13px;
             cursor: pointer;
         }
+        .new_pjckbox{width: 100%; background: rgba(255,255,255,0.4); padding:10px 10px 5px 10px; border-radius: 5px; margin-top: 10px; color: #999999;}
+        .new_pjckbox span{width: 100%; padding:0px 0px; display: table; color: #e44e71; line-height:20px;}
+        .new_pjckbox span label{ font-weight: normal;}
+        .new_pjckbox span input{ margin-right: 3px; margin-top: 3px;display: table;float: left;}
+
+
+        .zap_photo{width: 100%; overflow: hidden; padding-left: 10px;}
+        .zap_photo>li{float: left; width:18%; height:102px;background: #fff9fa;justify-content: center;align-items: center;overflow: hidden;display: flex;
+            border: #fe92a8 1px dashed; position: relative; margin: 10px 2% 0 0;cursor: pointer;}
+        .zap_photo>li>img{max-width: 100%; max-height: 100%;}
+        .zap_photo>li>em{position: absolute; left: 0; top:0; width: 100%; height: 100%; background: rgba(0,0,0,.5); color: #fff; display: flex; align-items: center; justify-content: center;}
+        .pjliuyan02 .zap_photo>li{padding: 0;display: flex;width:19%; margin: 10px 1% 0 0; height:140px;background: #f5f5f5; border: none; overflow: hidden;}
+        .pjliuyan02 .zap_photo{margin: 0; display: block;}
+        .pjliuyan02 .zap_photo>li>img{width: 100%; max-height:unset;}
+
+        @media (max-width:768px){
+            .zap_bb>.text>a>em{padding-left:11px;}
+        }
+        @media (max-width:450px){
+            .zap_bb>.text>a>em{padding-left:7px;}
+            .zap_photo>li{width:23%; height: 90px;}
+            .zap_photo{padding-left: 0;}
+            .pjliuyan02 .zap_photo>li{width:30.33%;margin:12px 1.5% 0 1.5%;height: 100px;}
+        }
+        .big_img .swiper-pagination-bullet {background:#fff; width: 12px;height: 12px; cursor: pointer;}
+        .fileuploader-icon-remove:after {content: none !important;}
+
+        .xin_input_qq{width: calc(100% - 45px);float: right;margin-right:6px; margin-left:0px;outline: none;}
+
+
+        @media (max-width:450px) {
+            .huiyoic{ height:118px;}
+        }
+    </style>
+    <style>
+        .new_pot1{width:96%;height:auto;margin: 0 auto;color: #666666;display: block; margin-top: 20px; margin-bottom: 20px;}
+        @media (max-width:824px){
+            .new_pot1{height:195px;overflow-y: scroll; padding-bottom:15px; }
+        }
+        @media (max-width:450px){
+            .new_pot1{height:280px;}
+        }
+        @media (max-width:320px){
+            .new_pot1{height:280px;}
+        }
+        .new_pot1::-webkit-scrollbar {
+            /*滚动条整体样式*/
+            width :4px;  /*高宽分别对应横竖滚动条的尺寸*/
+            height: 1px;
+        }
+
+        .new_pot1::-webkit-scrollbar-thumb {
+            /*滚动条里面小方块*/
+            border-radius: 100px;
+            background: #8a9fef;
+        }
+        .new_pot1::-webkit-scrollbar-track {
+            /*滚动条里面轨道*/
+            border-radius: 100px;
+            background:rgba(255,255,255,0.6);
+        }
+        @media (max-width:824px) {
+            .fpt_pic1{height:170px;padding: 0 5px;}
+        }
+        @media (max-width:450px) {
+            .fpt_pic1{height: 280px;}
+        }
+        @media (max-width:320px) {
+            .fpt_pic1{height: 280px;}
+        }
+
     </style>
     @php
         $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
@@ -796,19 +864,32 @@
                                                     @endif
                                                 </div>
                                                 <div class="con">
-                                                    <p class="many-txt">{!! nl2br($row->content) !!}</p>
+                                                    @if($row->is_check==1)
+                                                        <p class="many-txt" style="color: red;">***此評價目前由站方審核中***</p>
+                                                    @else
+                                                        <p class="many-txt">{!! nl2br($row->content) !!}</p>
+                                                    @endif
+                                                    @php
+                                                        $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
+                                                    @endphp
+                                                    <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                        @foreach($evaluationPics as $evaluationPic)
+                                                            <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                        @endforeach
+                                                    </ul>
                                                     <h4>
                                                         <span class="btime">{{ substr($row->created_at,0,10)}}</span>
-                                                        <button type="button" class="al_but">完整評價</button>
+                                                        <button type="button" class="al_but">[完整評價]</button>
                                                     </h4>
                                                 </div>
-
-                                                @if(empty($row->re_content) && $to->id == $user->id)
-                                                    <div class="huf">
-                                                        <form id="form_re_content{{$row->id}}" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post">
+{{--                                                || $user->id==697--}}
+                                                @if(empty($row->re_content) && $to->id == $user->id )
+                                                    <div class="huf" style="width: 100%;">
+                                                        <form id="form_re_content{{$row->id}}" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post" enctype="multipart/form-data">
                                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                                             <span class="huinput">
-                                                                <textarea name="re_content" type="text" class="hf_i" placeholder="請輸入回覆（最多120個字元）" maxlength="120"></textarea>
+                                                                <a class="xin_nleft_qq" onclick="tab_evaluation_reply_show('{{$row->id}}','{{$to->id}}');"><img src="/new/images/moren_pic.png"></a>
+                                                                <textarea name="re_content" type="text" class="hf_i xin_input_qq" placeholder="請輸入回覆（最多120個字元）" maxlength="120"></textarea>
                                                             </span>
                                                             <div class="re_area">
                                                                 <a class="hf_but" data-id="{{$row->id}}" onclick="form_re_content_submit()">回覆</a>
@@ -822,12 +903,24 @@
                                                         <div class="he_b">
                                                             <span class="left"><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to->name}}</span>
                                                             @if($to->id==$user->id)
-                                                                <font class="sc re_content_delete re_sc" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
+                                                                <font class="sc re_content_delete" data-id="{{$row->id}}" data-userid="{{ $to->id }}"><img src="/new/images/del_03.png">刪除</font>
                                                             @endif
                                                         </div>
                                                         <div class="he_two">
                                                             <div class="context">
-                                                                <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
+                                                                @if($row->is_check==1)
+                                                                    <div id="test" class="context-wrap" style="word-break: break-all;color: red;">***此評價目前由站方審核中***</div>
+                                                                @else
+                                                                    <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
+                                                                @endif
+                                                                @php
+                                                                    $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
+                                                                @endphp
+                                                                <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                                    @foreach($evaluationPics as $evaluationPic)
+                                                                        <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                                    @endforeach
+                                                                </ul>
                                                             </div>
                                                         </div>
                                                         <div class="he_twotime">{{ substr($row->re_created_at,0,10)}}<span class="z_more">展開</span></div>
@@ -880,20 +973,33 @@
                                                     @endif
                                                 </div>
                                                 <div class="con">
-                                                    <p class="many-txt">{!! nl2br($row->content) !!}</p>
+                                                    @if($row->is_check==1)
+                                                        <p class="many-txt" style="color: red;">***此評價目前由站方審核中***</p>
+                                                    @else
+                                                        <p class="many-txt">{!! nl2br($row->content) !!}</p>
+                                                    @endif
+                                                    @php
+                                                        $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
+                                                    @endphp
+                                                    <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                        @foreach($evaluationPics as $evaluationPic)
+                                                            <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                        @endforeach
+                                                    </ul>
                                                     <h4>
                                                         <span class="btime">{{ substr($row->created_at,0,10)}}</span>
-                                                        <button type="button" class="al_but">完整評價</button>
+                                                        <button type="button" class="al_but">[完整評價]</button>
                                                     </h4>
                                                 </div>
                                                 </div>
 
                                                 @if(empty($row->re_content) && $to->id == $user->id)
-                                                    <div class="huf">
-                                                        <form id="form_re_content{{$row->id}}" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post">
+                                                    <div class="huf" style="width: 100%;">
+                                                        <form id="form_re_content{{$row->id}}" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post" method="post" enctype="multipart/form-data">
                                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                                             <span class="huinput">
-                                                                <textarea name="re_content" type="text" class="hf_i" placeholder="請輸入回覆（最多120個字元）" maxlength="120"></textarea>
+                                                                <a class="xin_nleft_qq" onclick="tab_evaluation_reply_show('{{$row->id}}','{{$to->id}}');"><img src="/new/images/moren_pic.png"></a>
+                                                                <textarea name="re_content" type="text" class="hf_i xin_input_qq" placeholder="請輸入回覆（最多120個字元）" maxlength="120"></textarea>
                                                             </span>
                                                             <div class="re_area">
                                                                 <a class="hf_but" data-id="{{$row->id}}" onclick="form_re_content_submit()">回覆</a>
@@ -907,12 +1013,24 @@
                                                         <div class="he_b">
                                                             <span class="left"><img src="@if(file_exists( public_path().$to_user->meta_()->pic ) && $to_user->meta_()->pic != ""){{$to_user->meta_()->pic}} @elseif($to_user->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to_user->name}}</span>
                                                             @if($to_user->id==$user->id)
-                                                                <font class="sc re_content_delete re_sc" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
+                                                                <font class="sc re_content_delete" data-id="{{$row->id}}" data-userid="{{ $to->id }}"><img src="/new/images/del_03.png">刪除</font>
                                                             @endif
                                                         </div>
                                                         <div class="he_two">
                                                             <div class="context">
-                                                                <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
+                                                                @if($row->is_check==1)
+                                                                    <div id="test" class="context-wrap" style="word-break: break-all;color: red;">***此評價目前由站方審核中***</div>
+                                                                @else
+                                                                    <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
+                                                                @endif
+                                                                @php
+                                                                    $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
+                                                                @endphp
+                                                                <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                                    @foreach($evaluationPics as $evaluationPic)
+                                                                        <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                                    @endforeach
+                                                                </ul>
                                                             </div>
                                                         </div>
                                                         <div class="he_twotime">{{ substr($row->re_created_at,0,10)}}<span class="z_more">展開</span></div>
@@ -1035,37 +1153,67 @@
         <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
 
-    <div class="bl bl_tab" id="tab_evaluation" style="display: none;">
-        <div class="bltitle"><span>評價 {{$to->name}}</span></div>
-        <div class="n_blnr01" style="padding-top: 10px !important;">
-            <form id="form1" action="{{ route('evaluation')."?n=".time() }}" method="post">
-                <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                <div class="nhuiy_a" style="margin-bottom: 10px;">
-                    <div class="rating">
-                        <input id="star5" name="rating" type="radio" value="5" class="radio-btn hide" data-title="5"/>
-                        <label for="star5" data-title="5"><img src="/new/images/sxx_4.png" style="transform: scale(.8);"></label>
-                        <input id="star4" name="rating" type="radio" value="4" class="radio-btn hide"/>
-                        <label for="star4" data-title="4"><img src="/new/images/sxx_4.png" style="transform: scale(.8);"></label>
-                        <input id="star3" name="rating" type="radio" value="3" class="radio-btn hide"/>
-                        <label for="star3" data-title="3"><img src="/new/images/sxx_4.png" style="transform: scale(.8);" ></label>
-                        <input id="star2" name="rating" type="radio" value="2" class="radio-btn hide"/>
-                        <label for="star2" data-title="2"><img src="/new/images/sxx_4.png" style="transform: scale(.8);" alt="2"></label>
-                        <input id="star1" name="rating" type="radio" value="1" class="radio-btn hide"/>
-                        <label for="star1" data-title="1"><img src="/new/images/sxx_4.png" style="transform: scale(.8);" data-toggle="tooltip" data-placement="top" title="1"></label>
-                        <div class="clear"></div>
+    <div class="bl bl_tab_aa" id="tab_evaluation" style="display: none;">
+        <div class="bl_tab_bb">
+            <div class="bltitle"><span style="text-align: center; float: none;">評價 {{$to->name}}</span></div>
+            <div class="new_pot new_poptk_nn">
+                <div class="fpt_pic">
+                    <form id="form1" action="{{ route('evaluation')."?n=".time() }}" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <div class="pj_add">
+                            <div class="rating">
+                                <input id="star5" name="rating" type="radio" value="5" class="radio-btn hide" data-title="5"/>
+                                <label for="star5" data-title="5"><img src="/new/images/sxx_4.png" style="transform: scale(.8);"></label>
+                                <input id="star4" name="rating" type="radio" value="4" class="radio-btn hide"/>
+                                <label for="star4" data-title="4"><img src="/new/images/sxx_4.png" style="transform: scale(.8);"></label>
+                                <input id="star3" name="rating" type="radio" value="3" class="radio-btn hide"/>
+                                <label for="star3" data-title="3"><img src="/new/images/sxx_4.png" style="transform: scale(.8);" ></label>
+                                <input id="star2" name="rating" type="radio" value="2" class="radio-btn hide"/>
+                                <label for="star2" data-title="2"><img src="/new/images/sxx_4.png" style="transform: scale(.8);" alt="2"></label>
+                                <input id="star1" name="rating" type="radio" value="1" class="radio-btn hide"/>
+                                <label for="star1" data-title="1"><img src="/new/images/sxx_4.png" style="transform: scale(.8);" data-toggle="tooltip" data-placement="top" title="1"></label>
+                                <div class="clear"></div>
+                            </div>
+                        </div>
+                        <textarea id="content" name="content" cols="" rows="" class="n_nutext evaluation_content" style="border-style: none;" maxlength="300" placeholder="請輸入內容(至多300個字元)"></textarea>
+                        <input type="hidden" name="uid" value={{$user->id}}>
+                        <input type="hidden" name="eid" value={{$to->id}}>
+                        <span class="alert_tip" style="color:red;"></span>
+                        <input type="file" name="images" accept="image/*">
+                        <div class="new_pjckbox">
+                            評價請敘述事實，並盡量佐以圖片證明。主觀性評價站方得有修改或刪除的權力不另行通知
+                            <span><input type="checkbox" name="agree"><label>我同意上述說明</label></span>
+                        </div>
+                        <div class="n_bbutton" style="margin-top:0px;">
+                            <a class="n_bllbut" onclick="form_submit()">送出</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <a onclick="tab_evaluation_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+        </div>
+    </div>
+
+    <div class="bl_tab_aa" id="tab_evaluation_reply" style="display: none;">
+        <form id="form_evaluation_reply" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+            <input type="hidden" id="id_reply" name="id" value="">
+            <input type="hidden" id="eid_reply" name="eid" value="">
+            <div class="bl_tab_bb">
+                <div class="bltitle"><span style="text-align: center; float: none;">評價回覆</span></div>
+                <div class="new_pot1 new_poptk_nn">
+                    <div class="fpt_pic1">
+                        <textarea id="re_content_reply" name="re_content" cols="" rows="" class="n_nutext evaluation_content" style="border-style: none;" maxlength="120" placeholder="請輸入回覆（最多120個字元）"></textarea>
+                        <span class="alert_tip" style="color:red;"></span>
+                        <input id="images_reply" type="file" name="images" accept="image/*">
+                        <div class="n_bbutton" style="margin-top:0px;">
+                            <a class="n_bllbut" onclick="form_evaluation_reply_submit()">送出</a>
+                        </div>
                     </div>
                 </div>
-                <textarea id="content" name="content" cols="" rows="" class="n_nutext evaluation_content" style="border-style: none;" maxlength="300" placeholder="請輸入內容(至多300個字元)"></textarea>
-                    <input type="hidden" name="uid" value={{$user->id}}>
-                    <input type="hidden" name="eid" value={{$to->id}}>
-                <span class="alert_tip" style="color:red;"></span>
-                <div class="n_bbutton" style="margin-top:18px;">
-                    <span><a class="n_left" onclick="form_submit()">送出</a></span>
-                    <span><a class="n_right" onclick="$('#tab_evaluation').hide();$('.blbg').hide()">返回</a></span>
-                </div>
-            </form>
-        </div>
-        <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+                <a onclick="tab_evaluation_reply_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+            </div>
+        </form>
     </div>
 
     <div class="bl bl_tab" id="tab_reject_female" style="display: none;">
@@ -1111,6 +1259,78 @@
     </div>
 
     @endif
+
+    <!--照片查看-->
+    <div class="big_img">
+        <!-- 自定义分页器 -->
+        <div class="swiper-num">
+            <span class="active"></span>/
+            <span class="total"></span>
+        </div>
+        <div class="swiper-container2">
+            <div class="swiper-wrapper">
+            </div>
+        </div>
+        <div class="swiper-pagination2"></div>
+
+    </div>
+    <link type="text/css" rel="stylesheet" href="/new/css/app.css">
+    <link rel="stylesheet" type="text/css" href="/new/css/swiper2.min.css"/>
+    <script type="text/javascript" src="/new/js/swiper.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            /*调起大图 S*/
+            var mySwiper = new Swiper('.swiper-container2',{
+                pagination : '.swiper-pagination2',
+                paginationClickable:true,
+                onInit: function(swiper){//Swiper初始化了
+                    // var total = swiper.bullets.length;
+                    var active =swiper.activeIndex;
+                    $(".swiper-num .active").text(active);
+                    // $(".swiper-num .total").text(total);
+                },
+                onSlideChangeEnd: function(swiper){
+                    var active =swiper.realIndex +1;
+                    $(".swiper-num .active").text(active);
+                }
+            });
+
+            $(".zap_photo li").on("click",
+                function () {
+                    var imgBox = $(this).parent(".zap_photo").find("li");
+                    var i = $(imgBox).index(this);
+                    $(".big_img .swiper-wrapper").html("")
+
+                    for (var j = 0, c = imgBox.length; j < c ; j++) {
+                        $(".big_img .swiper-wrapper").append('<div class="swiper-slide"><div class="cell"><img src="' + imgBox.eq(j).find("img").attr("src") + '" / ></div></div>');
+                    }
+                    mySwiper.updateSlidesSize();
+                    mySwiper.updatePagination();
+                    $(".big_img").css({
+                        "z-index": 1001,
+                        "opacity": "1"
+                    });
+                    //分页器
+                    var num = $(".swiper-pagination2 span").length;
+                    $(".swiper-num .total").text(num);
+                    // var active =$(".swiper-pagination2").index(".swiper-pagination-bullet-active");
+                    $(".swiper-num .active").text(i + 1);
+                    // console.log(active)
+
+                    mySwiper.slideTo(i, 0, false);
+                    return false;
+                });
+            $(".swiper-container2").click(function(){
+                $(this).parent(".big_img").css({
+                    "z-index": "-1",
+                    "opacity": "0"
+                });
+            });
+
+        });
+        /*调起大图 E*/
+    </script>
+    <!--照片查看end-->
 @stop
 
 @section('javascript')
@@ -1556,6 +1776,11 @@
             $('.alert_tip').text();
             $('.alert_tip').text('評價至多300個字元');
             return false;
+        }else if($("input[name='agree']:checked").val() == undefined) {
+            // c5('請勾選同意上述說明');
+            $('.alert_tip').text();
+            $('.alert_tip').text('請勾選同意上述說明');
+            return false;
         }else{
             $('#form1').submit();
         }
@@ -1576,7 +1801,6 @@
             });
         });
     });
-
     // function form_re_content_submit(){
     //     if($.trim($(".hf_i").val())=='') {
     //         c5('請輸入內容');
@@ -1585,6 +1809,14 @@
     //     }
     // }
 
+    function form_evaluation_reply_submit(){
+        if($.trim($("#re_content_reply").val())=='') {
+            $('.alert_tip').text();
+            $('.alert_tip').text('請輸入內容');
+        }else{
+            $('#form_evaluation_reply').submit();
+        }
+    }
     $('.hf_but').on( "click", function() {
 
         if($('#form_re_content'+ $(this).data('id')).find('.hf_i').val() == ''){
@@ -1598,9 +1830,11 @@
     $('.re_content_delete').on( "click", function() {
         c4('確定要刪除嗎?');
         var id = $(this).data('id');
+        var userid = $(this).data('userid');
         $(".n_left").on('click', function() {
             $.post('{{ route('evaluation_re_content_delete') }}', {
                 id: id,
+                userid:userid,
                 _token: '{{ csrf_token() }}'
             }, function (data) {
                 $("#tab04").hide();
@@ -1621,20 +1855,18 @@
     let button = document.getElementsByTagName('button');
     let p = document.getElementsByTagName('p');
 
-    for(let i=0; i<button.length; i++) {
-        button[i].onclick = function () {
-            if(this.innerHTML == "送出") {
-                return true;
-            }
-            if(this.innerHTML == "完整評價"){
+    for (let i = 0; i < button.length; i++) {
+        button[i].onclick = function() {
+            if (this.innerHTML == "[完整評價]") {
                 p[i].classList.remove("many-txt");
                 p[i].classList.add("all-txt");
-                this.innerHTML = "點擊收起";
-            }
-            else{
+                this.innerHTML = "[點擊收起]";
+                $(this).parent().siblings('.zap_photo').removeClass('huiyoic');
+            } else {
                 p[i].classList.remove("all-txt");
                 p[i].classList.add("many-txt");
-                this.innerHTML = "完整評價";
+                this.innerHTML = "[完整評價]";
+                $(this).parent().siblings('.zap_photo').addClass('huiyoic');
             }
         }
     }
@@ -1642,78 +1874,89 @@
     $(".z_more").on( "click", function() {
         $(this).parent().prev().find('.context').find("div").first().toggleClass('on context-wrap')
         $(this).html($(this).text() === '展開' ? '收起' : '展開');
+        $(this).parent().prev().find('.context').find(".zap_photo").toggleClass('huiyoic');
     });
+    //
+    // $('div.context-wrap').each(function(i) {
+    //     if (isEllipsisActive(this)) {
+    //         $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
+    //         $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
+    //         $(this).parents('.hu_p').find('span.z_more').addClass('show_more');
+    //     }
+    //     else {
+    //         $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
+    //         $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
+    //         $(this).parents('.hu_p').find('span.z_more').addClass('hide_more');
+    //     }
+    // });
+    //
+    // $(window).resize(function() {
+    //     $('div.context-wrap').each(function(i) {
+    //         if (isEllipsisActive(this)) {
+    //             $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
+    //             $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
+    //
+    //             $(this).parents('.hu_p').find('span.z_more').addClass('show_more');
+    //         }
+    //         else {
+    //             $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
+    //             $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
+    //
+    //             $(this).parents('.hu_p').find('span.z_more').addClass('hide_more');
+    //         }
+    //     });
+    // });
+    //
+    // $('.many-txt').each(function(i) {
+    //     if (isEllipsisActive(this)) {
+    //         $(this).parents('.con').find('.al_but').removeClass('hide_more');
+    //         $(this).parents('.con').find('.al_but').removeClass('show_more');
+    //
+    //         $(this).parents('.con').find('.al_but').addClass('show_more');
+    //     }
+    //     else {
+    //         $(this).parents('.con').find('.al_but').removeClass('hide_more');
+    //         $(this).parents('.con').find('.al_but').removeClass('show_more');
+    //
+    //         $(this).parents('.con').find('.al_but').addClass('hide_more');
+    //     }
+    // });
+    //
+    // $(window).resize(function() {
+    //     $('.many-txt').each(function(i) {
+    //         if (isEllipsisActive(this)) {
+    //             $(this).parents('.con').find('.al_but').removeClass('hide_more');
+    //             $(this).parents('.con').find('.al_but').removeClass('show_more');
+    //
+    //             $(this).parents('.con').find('.al_but').addClass('show_more');
+    //         }
+    //         else {
+    //             $(this).parents('.con').find('.al_but').removeClass('hide_more');
+    //             $(this).parents('.con').find('.al_but').removeClass('show_more');
+    //
+    //             $(this).parents('.con').find('.al_but').addClass('hide_more');
+    //         }
+    //     });
+    // });
+    //
+    // function isEllipsisActive(e) {
+    //     return ($(e).innerHeight() < $(e)[0].scrollHeight);
+    // }
 
-    $('div.context-wrap').each(function(i) {
-        if (isEllipsisActive(this)) {
-            $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
-            $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
-            $(this).parents('.hu_p').find('span.z_more').addClass('show_more');
+    $(".al_but").on("click", function() {
+        if ($(this).hasClass("active")) {
+            $(this).text("[完整評價]");
+            $(this).removeClass("active");
+        } else {
+            $(this).text("[點擊收起]");
+            $(this).addClass("active");
         }
-        else {
-            $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
-            $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
-            $(this).parents('.hu_p').find('span.z_more').addClass('hide_more');
-        }
+        return false;
     });
-
-    $(window).resize(function() {
-        $('div.context-wrap').each(function(i) {
-            if (isEllipsisActive(this)) {
-                $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
-                $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
-
-                $(this).parents('.hu_p').find('span.z_more').addClass('show_more');
-            }
-            else {
-                $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
-                $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
-
-                $(this).parents('.hu_p').find('span.z_more').addClass('hide_more');
-            }
-        });
-    });
-
-    $('.many-txt').each(function(i) {
-        if (isEllipsisActive(this)) {
-            $(this).parents('.con').find('.al_but').removeClass('hide_more');
-            $(this).parents('.con').find('.al_but').removeClass('show_more');
-
-            $(this).parents('.con').find('.al_but').addClass('show_more');
-        }
-        else {
-            $(this).parents('.con').find('.al_but').removeClass('hide_more');
-            $(this).parents('.con').find('.al_but').removeClass('show_more');
-
-            $(this).parents('.con').find('.al_but').addClass('hide_more');
-        }
-    });
-
-    $(window).resize(function() {
-        $('.many-txt').each(function(i) {
-            if (isEllipsisActive(this)) {
-                $(this).parents('.con').find('.al_but').removeClass('hide_more');
-                $(this).parents('.con').find('.al_but').removeClass('show_more');
-
-                $(this).parents('.con').find('.al_but').addClass('show_more');
-            }
-            else {
-                $(this).parents('.con').find('.al_but').removeClass('hide_more');
-                $(this).parents('.con').find('.al_but').removeClass('show_more');
-
-                $(this).parents('.con').find('.al_but').addClass('hide_more');
-            }
-        });
-    });
-
-    function isEllipsisActive(e) {
-        return ($(e).innerHeight() < $(e)[0].scrollHeight);
-    }
 
     //解衝突，排除mobile無法作用的問題
     // jQuery.noConflict();
     </script>
-{{-- <script src="/new/js/jquery-3.2.1.min.js" type="text/javascript"></script> --}}
 <script>
     $(document).on('click', '.toggleBlockMid', function() {
             //do stuff
@@ -1728,6 +1971,179 @@
 
             }
         });
+</script>
+
+<link href="{{ asset('css/jquery.fileuploader.min.css') }}" media="all" rel="stylesheet">
+<link href="{{ asset('new/css/fileupload.css') }}" media="all" rel="stylesheet">
+<link href="{{ asset('css/font/font-fileuploader.css') }}" media="all" rel="stylesheet">
+<script src="{{ asset('js/jquery.fileuploader.js') }}" type="text/javascript"></script>
+<script>
+
+    $(document).ready(function () {
+        $('input[name="images"]').fileuploader({
+            extensions: ['jpg', 'png', 'jpeg', 'bmp'],
+            changeInput: ' ',
+            theme: 'thumbnails',
+            enableApi: true,
+            addMore: true,
+            limit: 5,
+            thumbnails: {
+                box: '<div class="fileuploader-items">' +
+                    '<ul class="fileuploader-items-list">' +
+                    '<li class="fileuploader-thumbnails-input"><div class="fileuploader-thumbnails-input-inner" style="background: url({{ asset("new/images/addpic.png") }}); background-size:100%"></div></li>' +
+                    '</ul>' +
+                    '</div>',
+                item: '<li class="fileuploader-item">' +
+                    '<div class="fileuploader-item-inner">' +
+                    '<div class="type-holder">${extension}</div>' +
+                    '<div class="actions-holder">' +
+                    '<button type="button" class="fileuploader-action fileuploader-action-remove" title="${captions.remove}"><i class="fileuploader-icon-remove"></i></button>' +
+                    '</div>' +
+                    '<div class="thumbnail-holder">' +
+                    '${image}' +
+                    '<span class="fileuploader-action-popup"></span>' +
+                    '</div>' +
+                    '<div class="content-holder"><h5>${name}</h5><span>${size2}</span></div>' +
+                    '<div class="progress-holder">${progressBar}</div>' +
+                    '</div>' +
+                    '</li>',
+                item2: '<li class="fileuploader-item">' +
+                    '<div class="fileuploader-item-inner">' +
+                    '<div class="type-holder">${extension}</div>' +
+                    '<div class="actions-holder">' +
+                    '<a href="${file}" class="fileuploader-action fileuploader-action-download" title="${captions.download}" download><i class="fileuploader-icon-download"></i></a>' +
+                    '<button type="button" class="fileuploader-action fileuploader-action-remove" title="${captions.remove}"><i class="fileuploader-icon-remove"></i></button>' +
+                    '</div>' +
+                    '<div class="thumbnail-holder">' +
+                    '${image}' +
+                    '<span class="fileuploader-action-popup"></span>' +
+                    '</div>' +
+                    '<div class="content-holder"><h5 title="${name}">${name}</h5><span>${size2}</span></div>' +
+                    '<div class="progress-holder">${progressBar}</div>' +
+                    '</div>' +
+                    '</li>',
+                startImageRenderer: true,
+                canvasImage: false,
+                _selectors: {
+                    list: '.fileuploader-items-list',
+                    item: '.fileuploader-item',
+                    start: '.fileuploader-action-start',
+                    retry: '.fileuploader-action-retry',
+                    remove: '.fileuploader-action-remove'
+                },
+                onItemShow: function(item, listEl, parentEl, newInputEl, inputEl) {
+                    var plusInput = listEl.find('.fileuploader-thumbnails-input'),
+                        api = $.fileuploader.getInstance(inputEl.get(0));
+
+                    plusInput.insertAfter(item.html)[api.getOptions().limit && api.getChoosedFiles().length >= api.getOptions().limit ? 'hide' : 'show']();
+
+                    if(item.format == 'image') {
+                        item.html.find('.fileuploader-item-icon').hide();
+                    }
+
+                    if (api.getListEl().length > 0) {
+                        $('.fileuploader-thumbnails-input-inner').css('background-image', 'url({{ asset("new/images/addpic.png") }})');
+                    }
+                },
+                onItemRemove: function(html, listEl, parentEl, newInputEl, inputEl) {
+                    var plusInput = listEl.find('.fileuploader-thumbnails-input'),
+                        api = $.fileuploader.getInstance(inputEl.get(0));
+
+                    html.children().animate({'opacity': 0}, 200, function() {
+                        html.remove();
+
+                        if (api.getOptions().limit && api.getChoosedFiles().length - 1 < api.getOptions().limit)
+                            plusInput.show();
+                    });
+
+                    if (api.getFiles().length == 1) {
+                        $('.fileuploader-thumbnails-input-inner').css('background-image', 'url({{ asset("new/images/addpic.png") }})');
+                    }
+                }
+            },
+            dialogs: {
+                alert:function(message) {
+                    alert(message);
+                },
+                // confirm:function(message, confirm) {
+                //     popUpTrueOrFalse(message, function () {
+                //         confirm();
+                //         gmBtn2();
+                //     })
+                // }
+            },
+            dragDrop: {
+                container: '.fileuploader-thumbnails-input'
+            },
+            afterRender: function(listEl, parentEl, newInputEl, inputEl) {
+                var plusInput = listEl.find('.fileuploader-thumbnails-input'),
+                    api = $.fileuploader.getInstance(inputEl.get(0));
+
+                plusInput.on('click', function() {
+                    api.open();
+                });
+
+                api.getOptions().dragDrop.container = plusInput;
+            },
+            editor: {
+                cropper: {
+                    showGrid: true,
+                },
+            },
+            captions: {
+                confirm: '確認',
+                cancel: '取消',
+                name: '檔案名稱',
+                type: '類型',
+                size: '容量',
+                dimensions: '尺寸',
+                duration: '持續時間',
+                crop: '裁切',
+                rotate: '旋轉',
+                sort: '分類',
+                download: '下載',
+                remove: '刪除',
+                drop: '拖曳至此上傳檔案',
+                open: '打開',
+                removeConfirmation: '確認要刪除檔案嗎?',
+                errors: {
+                    filesLimit: function(options) {
+                        return '最多上傳 ${limit} 張圖片.'
+                    },
+                    filesType: '檔名: ${name} 不支援此格式, 只允許 ${extensions} 檔案類型上傳.',
+                    fileSize: '${name} 檔案太大, 請確認容量需小於 ${fileMaxSize}MB.',
+                    filesSizeAll: '上傳的所有檔案過大, 請確認未超過 ${maxSize} MB.',
+                    fileName: '${name} 已有選取相同名稱的檔案.',
+                }
+            }
+        });
+
+
+        $(".announce_bg").on("click", function() {
+            $('.bl_tab_aa').hide();
+        });
+
+    });
+
+    function tab_evaluation_close(){
+        $(".announce_bg").hide();
+        $("#tab_evaluation").hide();
+    }
+
+    function tab_evaluation_reply_close(){
+        $(".announce_bg").hide();
+        $("#tab_evaluation_reply").hide();
+    }
+
+    function tab_evaluation_reply_show(id, eid) {
+        $(".announce_bg").show();
+        //$("#re_content_reply").val('');
+        //$("#images_reply").val('');
+        $("#tab_evaluation_reply").show();
+        $("#tab_evaluation_reply #id_reply").val(id);
+        $("#tab_evaluation_reply #eid_reply").val(eid);
+    }
+
 </script>
 
 @stop

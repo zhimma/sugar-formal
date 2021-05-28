@@ -9,6 +9,7 @@ use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
 use App\Models\BannedUsersImplicitly;
 use App\Models\Evaluation;
+use App\Models\EvaluationPic;
 use App\Models\hideOnlineData;
 use App\Models\Message_new;
 use App\Models\SimpleTables\warned_users;
@@ -2310,25 +2311,63 @@ class PagesController extends BaseController
                 ['content' => $request->input('content'), 'rating' => $request->input('rating'), 'read' => 1, 'updated_at' => now()]
             );
         }else {
-            DB::table('evaluation')->insert(
-                ['from_id' => $request->input('uid'), 'to_id' => $request->input('eid'), 'content' => $request->input('content'), 'rating' => $request->input('rating'), 'read' => 1, 'created_at' => now(), 'updated_at' => now()]
-            );
+
+            $evaluation=Evaluation::create([
+                'from_id' => $request->input('uid'), 'to_id' => $request->input('eid'), 'content' => $request->input('content'), 'rating' => $request->input('rating'), 'read' => 1, 'created_at' => now(), 'updated_at' => now()
+            ]);
+            //儲存評論照片
+            $this->evaluation_pic_save($evaluation->id, $request->input('uid'), $request->file('images'));
         }
 
         //return redirect('/dashboard/evaluation/'.$request->input('eid'))->with('message', '評價已完成');
         return back()->with('message', '評價已完成');
     }
 
+    public function evaluation_pic_save($evaluation_id, $uid, $images)
+    {
+        if($files = $images) //$request->file('images')
+        {
+            foreach ($files as $file) {
+                $now = Carbon::now()->format('Ymd');
+                $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
+
+                $rootPath = public_path('/img/Evaluation');
+                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+
+                if(!is_dir($tempPath)) {
+                    File::makeDirectory($tempPath, 0777, true);
+                }
+
+                $destinationPath = '/img/Evaluation/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
+
+                $img = Image::make($file->getRealPath());
+                $img->resize(400, 600, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($tempPath . $input['imagename']);
+
+                //新增images到db
+                $evaluationPic = new EvaluationPic();
+                $evaluationPic->evaluation_id = $evaluation_id;//$request->input('evaluation_id'); //評價id
+                $evaluationPic->member_id = $uid;//$request->input('uid');
+                $evaluationPic->pic = $destinationPath;
+                $evaluationPic->save();
+            }
+        }
+    }
+
     public function evaluation_delete(Request $request)
     {
-
         DB::table('evaluation')->where('id',$request->id)->delete();
+        EvaluationPic::where('evaluation_id',$request->id)->delete();
 
         return response()->json(['save' => 'ok']);
     }
 
     public function evaluation_re_content_save(Request $request)
     {
+        EvaluationPic::where('evaluation_id',$request->id)->where('member_id',$request->eid)->delete();
+        //儲存評論照片
+        $this->evaluation_pic_save($request->input('id'), $request->input('eid'), $request->file('images'));
 
         DB::table('evaluation')->where('id',$request->input('id'))->update(
             ['re_content' => $request->input('re_content'), 're_created_at' => now()]
@@ -2344,6 +2383,7 @@ class PagesController extends BaseController
         DB::table('evaluation')->where('id',$request->id)->update(
             ['re_content' => null]
         );
+        EvaluationPic::where('evaluation_id',$request->id)->where('member_id',$request->userid)->delete();
 
         return response()->json(['save' => 'ok']);
     }
