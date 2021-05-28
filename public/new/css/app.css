@@ -1,0 +1,53 @@
+/*图片查看器*/
+
+.big_img {
+    position: fixed;
+    z-index: -1;
+    opacity: 0;
+    background: rgba(0, 0, 0, .9);
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0
+}
+.big_img .swiper-num{position: absolute; top:20px; right: 20px; color: #fff; padding: 5px 10px; border-radius: 20px; background:rgba(0,0,0,.5); z-index: 9999;}
+.big_img .swiper-container2 {
+    position: relative;
+    width: 100%;
+    height: 100%
+}
+
+.big_img .swiper-container2 .swiper-wrapper {
+    width: 100%;
+    height: 100%
+}
+
+.big_img .swiper-slide {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.big_img .swiper-slide .cell {
+    width: 100%;
+    height: 100%;
+    display: flex;align-items: center;justify-content: center;
+    cursor: pointer;
+}
+
+.big_img .swiper-slide img {
+    max-width: 90%;
+    max-height: 90%;
+    margin: 0 auto
+}
+
+.big_img .swiper-pagination2 {
+    position: absolute;
+    bottom: 20px;
+    text-align: center;
+    width: 100% ;z-index: 9999;
+}
+
+.big_img .swiper-pagination2 span {
+    margin: 0 5px
+}

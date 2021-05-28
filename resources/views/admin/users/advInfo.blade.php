@@ -554,7 +554,11 @@
 			<td>@if($row['to_isvip']==1) VIP @endif</td>
 			<td>@if($row['to_auth_status']==1) 已認證 @else N/A @endif</td>
 			<td>{{ $row['rating'] }}</td>
-			<td>{{ $row['content'] }}</td>
+			@if($row['is_check']==1)
+				<td style="color: red;">***此評價目前由站方審核中***</td>
+			@else
+				<td>{{ $row['content'] }}</td>
+			@endif
 			<td>
 				<form method="POST" action="{{ route('evaluationModifyContent', $row['id']) }}" style="margin:0px;display:inline;">
 					{!! csrf_field() !!}
@@ -568,6 +572,7 @@
 					<input type="hidden" name="id" value="{{$row['id']}}">
 					<button type="submit" class="btn btn-danger evaluation_delete_submit">刪除評價</button>
 				</form>
+				<div class="btn {{ $row['is_check'] ? 'btn-success':'btn-danger' }} evaluation_check_submit{{$row['id']}}" onclick="evaluationCheck('{{$row["id"]}}','{{$row["from_id"]}}','{{$row["is_check"] ? 0 : 1}}')">{{ $row['is_check'] ? '結束審核':'審核評價內容' }}</div>
 			</td>
 		</tr>
 	@endforeach
@@ -592,7 +597,11 @@
 			<td>@if($row['to_isvip']==1) VIP @endif</td>
 			<td>@if($row['to_auth_status']==1) 已認證 @else N/A @endif</td>
 			<td>{{ $row['rating'] }}</td>
-			<td>{{ $row['content'] }}</td>
+			@if($row['is_check']==1)
+				<td style="color: red;">***此評價目前由站方審核中***</td>
+			@else
+				<td>{{ $row['content'] }}</td>
+			@endif
 			<td>
 				<form method="POST" action="{{ route('evaluationModifyContent', $row['id']) }}" style="margin:0px;display:inline;">
 					{!! csrf_field() !!}
@@ -606,6 +615,7 @@
 					<input type="hidden" name="id" value="{{$row['id']}}">
 					<button type="submit" class="btn btn-danger evaluation_delete_submit">刪除評價</button>
 				</form>
+				<div class="btn {{ $row['is_check'] ? 'btn-success':'btn-danger' }} evaluation_check_submit{{$row['id']}}" onclick="evaluationCheck('{{$row["id"]}}','{{$row["from_id"]}}','{{$row["is_check"] ? 0 : 1}}')">{{ $row['is_check'] ? '結束審核':'審核評價內容' }}</div>
 			</td>
 		</tr>
 	@endforeach
@@ -1126,6 +1136,31 @@ $('.evaluation_delete_submit').on('click',function(e){
 		e.preventDefault();
 	}
 });
+function evaluationCheck(eid,userid,is_check) {
+	if ($(".evaluation_check_submit"+eid).text() == '結束審核')
+		var showMsg = '確定要將該筆評價移除"審核中"狀態?';
+	else
+		var showMsg = '確定要將該筆評價變更為"審核中"?';
+
+	if (confirm(showMsg)) {
+		$.ajax({
+			type: 'POST',
+			url: "/admin/users/evaluation/check",
+			data: {
+				_token: '{{csrf_token()}}',
+				id: eid,
+				userid: userid,
+				is_check: is_check,
+			},
+			dataType: "json",
+			success: function (res) {
+				var tempwindow=window.open('_blank');
+				tempwindow.location=res.redirect_to ;
+				location.reload();
+			}
+		});
+	}
+}
 
 function showPhoneInput(){
 	$('.modify_phone_submit').show();
