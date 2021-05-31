@@ -157,13 +157,13 @@ class UserMeta extends Model
     }
 
     // 包養關係預設值為空是為了避免有的使用者在舊的 view 下出現錯誤
-    public static function search($city, $area, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid, $exchange_period = '')
+    public static function search($city, $area, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid, $exchange_period = '', $isBlocked=1, $isVip)
     {
         if ($engroup == 1) { $engroup = 2; }
         else if ($engroup == 2) { $engroup = 1; }
         if(isset($seqtime) && $seqtime == 2){ $orderBy = 'users.created_at'; }
         else{ $orderBy = 'last_login'; }
-        $constraint = function ($query) use ($city, $area, $cup, $agefrom, $ageto, $marriage, $budget, $income, $smoking, $drinking, $photo, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid){
+        $constraint = function ($query) use ($city, $area, $cup, $agefrom, $ageto, $marriage, $budget, $income, $smoking, $drinking, $photo, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid,$exchange_period,$isBlocked, $isVip){
             $query->select('*')->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
             if (isset($city) && strlen($city) != 0) $query->where('city','like', '%'.$city.'%');
             if (isset($area) && strlen($area) != 0) $query->where('area','like', '%'.$area.'%');
@@ -253,10 +253,17 @@ class UserMeta extends Model
                 $query->select('member_id')
                     ->from(with(new blocked)->getTable())
                     ->where('blocked_id', $userid);}) */;
-        if (isset($exchange_period) && $exchange_period != '') {
-            if (count($exchange_period) > 0) {
+        if (isset($exchange_period) && $exchange_period != '' && count($exchange_period)>0) {
                 $query->whereIn('exchange_period', $exchange_period);
-            }
+        }
+
+        if($isBlocked==1 && $isVip){
+            $query->whereNotIn('users.id', function($query) use ($userid){
+                // $blockedUsers
+                $query->select('blocked_id')
+                    ->from(with(new blocked)->getTable())
+                    ->where('member_id', $userid);
+            });
         }
 
         return $query->orderBy($orderBy, 'desc')->paginate(12);
