@@ -544,6 +544,7 @@
 		<th>會員認證</th>
 		<th>星等分數</th>
 		<th>評價內容</th>
+		<th>上傳照片</th>
 		<th>動作</th>
 	</tr>
 	@foreach($out_evaluation_data_2 as $row)
@@ -559,6 +560,13 @@
 			@else
 				<td>{{ $row['content'] }}</td>
 			@endif
+			<td style="display: flex;">
+				@foreach($row['evaluation_pic'] as $evaluationPic)
+					<li>
+						<img src="{{ $evaluationPic->pic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+					</li>
+				@endforeach
+			</td>
 			<td>
 				<form method="POST" action="{{ route('evaluationModifyContent', $row['id']) }}" style="margin:0px;display:inline;">
 					{!! csrf_field() !!}
@@ -587,6 +595,7 @@
 		<th>會員認證</th>
 		<th>星等分數</th>
 		<th>評價內容</th>
+		<th>上傳照片</th>
 		<th>動作</th>
 	</tr>
 	@foreach($out_evaluation_data as $row)
@@ -602,6 +611,13 @@
 			@else
 				<td>{{ $row['content'] }}</td>
 			@endif
+			<td style="display: flex;">
+				@foreach($row['evaluation_pic'] as $evaluationPic)
+					<li>
+						<img src="{{ $evaluationPic->pic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+					</li>
+				@endforeach
+			</td>
 			<td>
 				<form method="POST" action="{{ route('evaluationModifyContent', $row['id']) }}" style="margin:0px;display:inline;">
 					{!! csrf_field() !!}

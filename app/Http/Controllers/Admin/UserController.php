@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\AccountStatusLog;
 use App\Models\AdminActionLog;
 use App\Models\Board;
+use App\Models\EvaluationPic;
 use App\Models\ExpectedBanningUsers;
 use App\Models\Fingerprint2;
 use App\Models\LogUserLogin;
@@ -1021,6 +1022,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $tmp['to_name'] = $f_user->name;
             $tmp['to_isvip'] = $f_user->isVip();
             $tmp['is_check'] = $row->is_check;
+            $tmp['evaluation_pic'] = EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
             $auth_status = 0;
             if ($f_user->isPhoneAuth() == 1) {
                 $auth_status = 1;
@@ -1046,6 +1048,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $tmp['to_name'] = $f_user->name;
             $tmp['to_isvip'] = $f_user->isVip();
             $tmp['is_check'] = $row->is_check;
+            $tmp['evaluation_pic'] = EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$f_user->id)->get();
             $auth_status = 0;
             if ($f_user->isPhoneAuth() == 1) {
                 $auth_status = 1;
