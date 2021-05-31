@@ -580,7 +580,7 @@
 					<input type="hidden" name="id" value="{{$row['id']}}">
 					<button type="submit" class="btn btn-danger evaluation_delete_submit">刪除評價</button>
 				</form>
-				<div class="btn {{ $row['is_check'] ? 'btn-success':'btn-danger' }} evaluation_check_submit{{$row['id']}}" onclick="evaluationCheck('{{$row["id"]}}','{{$row["from_id"]}}','{{$row["is_check"] ? 0 : 1}}')">{{ $row['is_check'] ? '結束審核':'審核評價內容' }}</div>
+				<div class="btn {{ $row['is_check'] ? 'btn-success':'btn-danger' }} evaluation_check_submit{{$row['id']}}" onclick="evaluationCheck('{{$row["id"]}}','{{$row["to_id"]}}','{{$row["is_check"] ? 0 : 1}}')">{{ $row['is_check'] ? '結束審核':'審核評價內容' }}</div>
 			</td>
 		</tr>
 	@endforeach
