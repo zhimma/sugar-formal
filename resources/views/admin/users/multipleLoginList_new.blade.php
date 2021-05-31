@@ -8,7 +8,7 @@
     .content-table td { word-wrap:break-word; }
 </style>
 <body style="padding: 15px;">
-<h1>多重登入名單(舊版)</h1>
+<h1>多重登入名單</h1>
 <form action="{{ route('users/multipleLogin') }}" method="post">
     {{ csrf_field() }}
     <table class="table-hover table table-bordered" style="width: 50%;">

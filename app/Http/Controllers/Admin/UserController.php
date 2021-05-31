@@ -3672,10 +3672,80 @@ class UserController extends \App\Http\Controllers\BaseController
             array_push($original_new_map[$new_user->original_id], $new_user);
         }
 
+
+//        @forelse($original_users as $original_user)
+//        @php
+//            $bgColor = null;
+//        @endphp
+//        <tr style="border-top: 3px solid;">
+//            @if($original_user->original_user)
+//            @if($original_user->original_user->aw_relation or $original_user->original_user->user_meta->isWarned)
+//            @php $bgColor = '#B0FFB1'; @endphp
+//                @endif
+//                @if($original_user->original_user->banned or $original_user->original_user->implicitlyBanned)
+//            @php $bgColor = '#FDFF8C'; @endphp
+//                @endif
+//                <td></td>
+//                <td style="color: {{ $original_user->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif"
+//            >{{ $original_user->original_id }}</td>
+//                <td style="color: {{ $original_user->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif"><a href="advInfo/{{ $original_user->original_id }}" target="_blank" style="color: {{ $original_user->original_user->engroup == 1 ? 'blue' : 'red' }}">{{ $original_user->original_user->email }}</a></td>
+//                <td style="color: {{ $original_user->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $original_user->original_user->name }}</td>
+//                <td style="color: {{ $original_user->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $original_user->original_user->user_meta->about }}</td>
+//                <td style="color: {{ $original_user->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $original_user->original_user->user_meta->style }}</td>
+//                <td style="color: {{ $original_user->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $original_user->original_user->last_login }}</td>
+//        @else
+//                <td></td>
+//                <td>{{ $original_user->original_id }}</td>
+//                <td>資料已刪除</td>
+//                <td>資料已刪除</td>
+//                <td>資料已刪除</td>
+//                <td>資料已刪除</td>
+//                <td>資料已刪除</td>
+//        @endif
+//        </tr>
+//        @if(isset($original_new_map[$original_user->id]))
+//            @foreach($original_new_map[$original_user->id] as $new_user)
+//            @php
+//                        $bgColor = null;
+//                    @endphp
+//                    <tr>
+//                        @if($new_user->new_user)
+//            @if($new_user->new_user->aw_relation or $new_user->new_user->user_meta->isWarned)
+//            @php $bgColor = '#B0FFB1'; @endphp
+//                            @endif
+//                            @if($new_user->new_user->banned or $new_user->new_user->implicitlyBanned)
+//            @php $bgColor = '#FDFF8C'; @endphp
+//                            @endif
+//                            <td></td>
+//                            <td style="color: {{ $new_user->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $new_user->original_id }}</td>
+//                            <td style="color: {{ $new_user->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif"><a href="advInfo/{{ $new_user->new_id }}" target="_blank" style="color: {{ $new_user->new_user->engroup == 1 ? 'blue' : 'red' }}">{{ $new_user->new_user->email }}</a></td>
+//                            <td style="color: {{ $new_user->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $new_user->new_user->name }}</td>
+//                            <td style="color: {{ $new_user->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $new_user->new_user->user_meta->about }}</td>
+//                            <td style="color: {{ $new_user->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $new_user->new_user->user_meta->style }}</td>
+//                            <td style="color: {{ $new_user->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $new_user->new_user->last_login }}</td>
+//        @else
+//                            <td></td>
+//                            <td>{{ $new_user->original_id }}</td>
+//                            <td>資料已刪除</td>
+//                            <td>資料已刪除</td>
+//                            <td>資料已刪除</td>
+//                            <td>資料已刪除</td>
+//                            <td>資料已刪除</td>
+//        @endif
+//                    </tr>
+//        @endforeach
+//            @endif
+//        @empty
+//        <tr>
+//            找不到資料
+//            </tr>
+//        @endforelse
+
+
         if($request->isMethod('POST')){
             $request->flash();
-            return view('admin.users.multipleLoginList', compact('original_users' ,'original_new_map', 'new_users'));
+            return view('admin.users.multipleLoginList_new', compact('original_users' ,'original_new_map', 'new_users'));
         }
-        return view('admin.users.multipleLoginList', compact('original_users' ,'original_new_map', 'new_users'));
+        return view('admin.users.multipleLoginList_new', compact('original_users' ,'original_new_map', 'new_users'));
     }
 }
