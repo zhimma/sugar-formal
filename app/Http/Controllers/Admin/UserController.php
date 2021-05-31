@@ -3613,6 +3613,39 @@ class UserController extends \App\Http\Controllers\BaseController
     }
 
     public function multipleLogin(Request $request) {
+        if($request->old_version){
+            $original_users = \App\Models\MultipleLogin::with(['original_user', 'original_user.user_meta', 'original_user.banned', 'original_user.implicitlyBanned', 'original_user.aw_relation'])
+                ->join('users', 'users.id', '=', 'multiple_logins.original_id')
+                ->groupBy('original_id')->orderBy('users.last_login', 'desc');
+            $new_users = \App\Models\MultipleLogin::with(['new_user', 'new_user.user_meta', 'new_user.banned', 'new_user.implicitlyBanned', 'new_user.aw_relation'])
+                ->leftJoin('users', 'users.id', '=', 'multiple_logins.new_id')
+                ->groupBy('new_id')->orderBy('users.last_login', 'desc');
+            if($request->isMethod("POST")){
+                if($request->date_start){
+                    $original_users = $original_users->where('users.last_login', ">=",$request->date_start . " 00:00:00");
+                    $new_users = $new_users->where('users.last_login', ">=", $request->date_start . " 00:00:00");
+                }
+                if($request->date_end){
+                    $original_users = $original_users->where('users.last_login', "<=", $request->date_end . " 23:59:59");
+                    $new_users = $new_users->where('users.last_login', "<=", $request->date_end . " 23:59:59");
+                }
+            }
+            $original_users = $original_users->get();
+            $new_users = $new_users->get();
+            $original_new_map = array();
+            foreach($new_users as $new_user) {
+                if(!isset($original_new_map[$new_user->original_id])) {
+                    $original_new_map[$new_user->original_id] = array();
+                }
+                array_push($original_new_map[$new_user->original_id], $new_user);
+            }
+
+            if($request->isMethod('POST')){
+                $request->flash();
+                return view('admin.users.multipleLoginList', compact('original_users' ,'original_new_map', 'new_users'));
+            }
+            return view('admin.users.multipleLoginList', compact('original_users' ,'original_new_map', 'new_users'));
+        }
         $original_users = \App\Models\MultipleLogin::with(['original_user', 'original_user.user_meta', 'original_user.banned', 'original_user.implicitlyBanned', 'original_user.aw_relation'])
             ->join('users', 'users.id', '=', 'multiple_logins.original_id')
             ->groupBy('original_id')->orderBy('users.last_login', 'desc');
