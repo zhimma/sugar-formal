@@ -471,11 +471,11 @@
                     <div class="bottub">
 
                         <ul>
-                            @if(!$isBlocked)
+{{--                            @if(!$isBlocked)--}}
                                 <li>
                                     <a onclick="show_chat()"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
                                 </li>
-                            @endif
+{{--                            @endif--}}
                             @if($user->isVip())
                                 <li>
                                     @php

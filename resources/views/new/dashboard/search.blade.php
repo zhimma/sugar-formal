@@ -168,12 +168,59 @@
                                 </span>
                             </dt>
                             @endif
+                            @if ($user->isVIP())
+                            <dt class="b_nsead matopjf10">
+                                <div class="b_nsead_tit"><i>身份選擇</i></div>
+                                <div class="b_nsba">
+{{--                                    <li>--}}
+{{--                                        <span>是否為VIP</span>--}}
+{{--                                        <font>--}}
+{{--                                            <label class="ba_tx"><input type="radio" name="CheckboxGroup5" value="复选框" id="Checkbox"><i>是</i></label>--}}
+{{--                                            <label class="ba_tx"><input type="radio" name="CheckboxGroup5" value="复选框" id="Checkbox1" checked=""><i>否</i></label>--}}
+{{--                                        </font>--}}
+{{--                                    </li>--}}
+                                    <li>
+                                        <span>顯示已封鎖會員</span>
+                                        <font>
+                                            <label class="ba_tx"><input type="radio" name="isBlocked" value="2" id="isBlocked" @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == 2 ) checked @elseif(!empty( $_GET["isBlocked"] ) && $_GET["isBlocked"]== 2) checked @endif><i>是</i></label>
+                                            <label class="ba_tx"><input type="radio" name="isBlocked" value="1" id="isBlocked1" @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == 1 ) checked @elseif(!empty( $_GET["isBlocked"]) && $_GET["isBlocked"] == 1) checked @endif><i>否</i></label>
+                                        </font>
+                                    </li>
+{{--                                    <li>--}}
+{{--                                        <span>顯示警示帳戶</span>--}}
+{{--                                        <font>--}}
+{{--                                            <label class="ba_tx"><input type="radio" name="CheckboxGroup3" value="复选框" id="Checkbox"><i>是</i></label>--}}
+{{--                                            <label class="ba_tx"><input type="radio" name="CheckboxGroup3" value="复选框" id="Checkbox1" checked=""><i>否</i></label>--}}
+{{--                                        </font>--}}
+{{--                                    </li>--}}
+{{--                                    <li>--}}
+{{--                                        <span>通過手機驗證</span>--}}
+{{--                                        <font>--}}
+{{--                                            <label class="ba_tx"><input type="radio" name="CheckboxGroup4" value="复选框" id="Checkbox"><i>開啟</i></label>--}}
+{{--                                            <label class="ba_tx"><input type="radio" name="CheckboxGroup4" value="复选框" id="Checkbox1" checked=""><i>關閉</i></label>--}}
+{{--                                        </font>--}}
+{{--                                    </li>--}}
+                                </div>
+                            </dt>
+                            @endif
+
 
                         </div>
                         <div class="n_txbut">
-                            <button type="submit" class="n_dlbut" style="border-style: none;">搜索</button>
-                            <button type="reset" class="n_zcbut">取消</button>
+                            <button type="submit" class="n_dlbut se_but1" style="border-style: none;">搜索</button>
+                            <button type="reset" class="n_zcbut se_but2">取消</button>
                         </div>
+                        <style>
+                            .n_dlbut{width:150px;height: 40px;background: #fe92a8;/*border-radius:10px;*/color: #ffffff;text-align: center;line-height: 40px;display: table;
+                                font-size:16px; float:left; cursor: pointer; box-shadow: 0 0 20px #ffb6c5;}
+                            .n_dlbut:hover{color:#ffffff;box-shadow:inset 0px 13px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;}
+
+                            .n_zcbut{width: 150px;height: 40px;background: #ffffff; border:#e44e71 1px solid;/*border-radius: 10px;*/color: #e44e71;text-align: center;line-height: 40px;
+                                display: table; float:right;font-size:16px;box-shadow: 0 0 20px #ffb6c5;}
+                            .n_zcbut:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;
+                                background:#fe92a8; border:#fe92a8 1px solid;}
+
+                        </style>
 
                     </div>
                 </form>
@@ -195,6 +242,7 @@
                         $body = "";
                         $exchange_period = "";
                         $umeta = $user->user_meta;
+                        $isBlocked = 1;
                         if(isset($umeta->city)){
                             $umeta->city = explode(",",$umeta->city);
                             $umeta->area = explode(",",$umeta->area);
@@ -220,10 +268,12 @@
                     if (isset($_POST['seqtime'])){$seqtime = $_POST['seqtime'];}elseif(isset($_GET['seqtime'])){ $seqtime = $_GET['seqtime'];}
                     if (isset($_POST['body'])){$body = $_POST['body'];}elseif(isset($_GET['body'])){$body = $_GET['body'];}
                     if (isset($_POST['exchange_period'])){$exchange_period = $_POST['exchange_period'];}elseif(isset($_GET['exchange_period'])){$exchange_period = $_GET['exchange_period'];}
+                    if (isset($_POST['isBlocked'])){$isBlocked = $_POST['isBlocked'];}elseif(isset($_GET['isBlocked'])){$isBlocked = $_GET['isBlocked'];}
                     ?>
                 @endif
                 <?php $icc = 1;
-                $vis = \App\Models\UserMeta::search($county, $district, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $user->engroup, $umeta->city, $umeta->area, $umeta->blockdomain, $umeta->blockdomainType, $seqtime, $body, $user->id,$exchange_period);
+                $isVip = $user->isVIP();
+                $vis = \App\Models\UserMeta::search($county, $district, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $user->engroup, $umeta->city, $umeta->area, $umeta->blockdomain, $umeta->blockdomainType, $seqtime, $body, $user->id,$exchange_period,$isBlocked,$isVip);
                 // vi vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php
                 // addWhereExistsQuery() remove $operator
                 // https://learnku.com/articles/28283?order_by=vote_count&
@@ -413,6 +463,10 @@
 
     </style>
     <script>
+        if ( ! $("input[name='isBlocked']").is(':checked') ){
+            $('#isBlocked1').attr('checked', true);
+        }
+
         $('.n_zcbut').click(function(){
 
             $("#agefrom").attr("value","");

@@ -132,7 +132,7 @@ text-align: center;
                 </div>
                 <div class=" select_cont">
                     <select id="daysSelect" class="right">
-                        <option value="7">訊息</option>
+{{--                        <option value="7">訊息</option>--}}
                         <option value="7">7天内</option>
                         <option value="30">30天内</option>
                         <option value="all">全部</option>
