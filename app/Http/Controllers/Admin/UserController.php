@@ -3649,7 +3649,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $original_users = \App\Models\MultipleLogin::with(['original_user', 'original_user.user_meta', 'original_user.banned', 'original_user.implicitlyBanned', 'original_user.aw_relation'])
             ->join('users', 'users.id', '=', 'multiple_logins.original_id')
             ->groupBy('original_id')->orderBy('users.last_login', 'desc');
-        $new_users = \App\Models\MultipleLogin::with(['new_user', 'new_user.user_meta', 'new_user.banned', 'new_user.implicitlyBanned', 'new_user.aw_relation'])
+        $new_users = \App\Models\MultipleLogin::with(['original_user', 'new_user', 'new_user.user_meta', 'new_user.banned', 'new_user.implicitlyBanned', 'new_user.aw_relation'])
             ->leftJoin('users', 'users.id', '=', 'multiple_logins.new_id')
             ->groupBy('new_id')->orderBy('users.last_login', 'desc');
         if($request->isMethod("POST")){
@@ -3672,29 +3672,45 @@ class UserController extends \App\Http\Controllers\BaseController
             array_push($original_new_map[$new_user->original_id], $new_user);
         }
 
+        /*
+         * $user_set: 每個元素的 key 值為原 user_id，首元素為原 user，
+         *            users 將新舊會員合併，各會員登入時間獨立記錄，方便排序，
+         *            再將排序後的 users 首個登入時間記在每個元素的 date 裡，再次排序
+         */
         $user_set = array();
 
         foreach ($original_users as $original_user) {
-            if (isset($original_new_map[$original_user->id])) {
-                array_push($user_set[$original_user->last_login], $original_user);
-            }
-            else{
-                array_push($user_set['0'], $original_user);
-            }
-            foreach ($original_new_map[$original_user->id] as $new_user) {
-                if($new_user->new_user) {
-                    array_push($user_set[$original_user->last_login], $original_user);
+            if (isset($original_new_map[$original_user->id]) && !in_array($original_user->id, $user_set)) {
+                $user_set[$original_user->id] = array();
+                array_push($user_set[$original_user->id], $original_user);
+                $user_set[$original_user->id]['users'] = array();
+                foreach ($original_new_map[$original_user->id] as $new_user) {
+                    if ($new_user->new_user) {
+                        $user_set[$original_user->id]['users'][$new_user->id]['date'] = $new_user->last_login;
+                        $user_set[$original_user->id]['users'][$new_user->id]['new'] = 1;
+                        array_push($user_set[$original_user->id]['users'][$new_user->id] , $new_user);
+                    }
                 }
-                else {
-                    array_push($user_set['0'], $original_user);
-                }
+                $user_set[$original_user->id]['users'][$original_user->id]['date'] = $original_user->last_login;
+                $user_set[$original_user->id]['users'][$original_user->id]['old'] = 1;
+                array_push($user_set[$original_user->id]['users'][$original_user->id] , $original_user);
+                usort($user_set[$original_user->id]['users'], array('\App\Http\Controllers\Admin\UserController', 'sortByDate'));
             }
         }
-
+        foreach ($user_set as &$set){
+            $set['date'] = $set['users'][0]['date'];
+        }
+        usort($user_set, array('\App\Http\Controllers\Admin\UserController', 'sortByDate'));
         if($request->isMethod('POST')){
             $request->flash();
-            return view('admin.users.multipleLoginList_new', compact('original_users' ,'original_new_map', 'new_users'));
+            return view('admin.users.multipleLoginList_new', compact('user_set'));
         }
-        return view('admin.users.multipleLoginList_new', compact('original_users' ,'original_new_map', 'new_users'));
+        return view('admin.users.multipleLoginList_new', compact('user_set'));
+    }
+
+    function sortByDate($arr1, $arr2) {
+        $tmp1 = strtotime($arr1['date']);
+        $tmp2 = strtotime($arr2['date']);
+        return $tmp2 - $tmp1;
     }
 }
