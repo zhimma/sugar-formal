@@ -317,12 +317,44 @@
 			});
 
 			$('#response_send').on('click', function() {
-				var form = $(this).closest("form");
-				if($("#contents").val().length ==0){
-					c5('請輸入文字再送出');
+
+				var checkUserVip='{{ $checkUserVip }}';
+				var checkProhibit='{{ $user->prohibit_posts }}';
+				var checkAccess='{{ $user->access_posts }}';
+				if(checkUserVip==0) {
+					c5('此功能目前開放給連續兩個月以上的VIP會員使用');
+					return false;
+				}else if(checkProhibit==1){
+					c5('您好，您目前被站方禁止發言，若有疑問請點右下角，聯繫站長Line@');
+					return false;
+				}else if(checkAccess==1){
+					c5('您好，您目前被站方限制使用討論區，若有疑問請點右下角，聯繫站長Line@');
+					return false;
+				}else{
+					var form = $(this).closest("form");
+					if($("#contents").val().length ==0){
+						c5('請輸入文字再送出');
+						return false;
+					}
+					form.submit();
+				}
+			});
+
+			$('.bot_wid_nr').on('click', function() {
+
+				var checkUserVip='{{ $checkUserVip }}';
+				var checkProhibit='{{ $user->prohibit_posts }}';
+				var checkAccess='{{ $user->access_posts }}';
+				if(checkUserVip==0) {
+					c5('此功能目前開放給連續兩個月以上的VIP會員使用');
+					return false;
+				}else if(checkProhibit==1){
+					c5('您好，您目前被站方禁止發言，若有疑問請點右下角，聯繫站長Line@');
+					return false;
+				}else if(checkAccess==1){
+					c5('您好，您目前被站方限制使用討論區，若有疑問請點右下角，聯繫站長Line@');
 					return false;
 				}
-				form.submit();
 			});
 
 			$(document).keydown(function (event) {
@@ -341,8 +373,7 @@
 
 </script>
 <style>
-	.dropdown-menu{z-index: 0;}
-	.blnr{padding-bottom: 14px;}
+	.commonMenu{z-index: 10001;}
 	.blbg_new{width:100%; height:100%;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 9;display:none;}
 </style>
 @stop

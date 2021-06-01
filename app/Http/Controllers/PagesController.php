@@ -3735,15 +3735,22 @@ class PagesController extends BaseController
             }
             
         }
-        
+
+        //檢查是否為連續兩個月以上的VIP會員
+        $checkUserVip=0;
+        $isVip =Vip::where('member_id',auth()->user()->id)->where('expiry','0000-00-00 00:00:00')->where('active',1)->where('free',0)->first();
+        if($isVip){
+            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+            if($months>=2){
+                $checkUserVip=1;
+            }
+        }
 
         return view('/dashboard/posts_list', $data)
+        ->with('checkUserVip', $checkUserVip)
         ->with('blocks', $blocks)
         ->with('users', $usersInfo)
         ->with('user', $user);
-
-
-            
     }
 
     public function post_detail(Request $request)
@@ -3763,7 +3770,16 @@ class PagesController extends BaseController
             ->orderBy('pcreated_at','desc')
             ->where('posts.reply_id', $pid)->get();
 
-        return view('/dashboard/post_detail', compact('postDetail','replyDetail'))->with('user', $user);
+        //檢查是否為連續兩個月以上的VIP會員
+        $checkUserVip=0;
+        $isVip =Vip::where('member_id',auth()->user()->id)->where('expiry','0000-00-00 00:00:00')->where('active',1)->where('free',0)->first();
+        if($isVip){
+            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+            if($months>=2){
+                $checkUserVip=1;
+            }
+        }
+        return view('/dashboard/post_detail', compact('postDetail','replyDetail', 'checkUserVip'))->with('user', $user);
     }
 
     public function getPosts(Request $request)
