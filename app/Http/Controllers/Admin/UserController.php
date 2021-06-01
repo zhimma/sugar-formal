@@ -3672,10 +3672,29 @@ class UserController extends \App\Http\Controllers\BaseController
             array_push($original_new_map[$new_user->original_id], $new_user);
         }
 
+        $user_set = array();
+
+        foreach ($original_users as $original_user) {
+            if (isset($original_new_map[$original_user->id])) {
+                array_push($user_set[$original_user->last_login], $original_user);
+            }
+            else{
+                array_push($user_set['0'], $original_user);
+            }
+            foreach ($original_new_map[$original_user->id] as $new_user) {
+                if($new_user->new_user) {
+                    array_push($user_set[$original_user->last_login], $original_user);
+                }
+                else {
+                    array_push($user_set['0'], $original_user);
+                }
+            }
+        }
+
         if($request->isMethod('POST')){
             $request->flash();
-            return view('admin.users.multipleLoginList', compact('original_users' ,'original_new_map', 'new_users'));
+            return view('admin.users.multipleLoginList_new', compact('original_users' ,'original_new_map', 'new_users'));
         }
-        return view('admin.users.multipleLoginList', compact('original_users' ,'original_new_map', 'new_users'));
+        return view('admin.users.multipleLoginList_new', compact('original_users' ,'original_new_map', 'new_users'));
     }
 }
