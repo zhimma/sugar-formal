@@ -3676,9 +3676,15 @@ class UserController extends \App\Http\Controllers\BaseController
 
         foreach ($original_users as $original_user) {
             if (isset($original_new_map[$original_user->id])) {
+                if(!is_array($user_set[$original_user->last_login])){
+                    $user_set[$original_user->last_login] = array();
+                }
                 array_push($user_set[$original_user->last_login], $original_user);
             }
             else{
+                if(!is_array($user_set[$original_user->last_login])){
+                    $user_set[$original_user->last_login] = array();
+                }
                 array_push($user_set['0'], $original_user);
             }
             foreach ($original_new_map[$original_user->id] as $new_user) {
