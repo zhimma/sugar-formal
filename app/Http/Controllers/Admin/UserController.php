@@ -3649,7 +3649,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $original_users = \App\Models\MultipleLogin::with(['original_user', 'original_user.user_meta', 'original_user.banned', 'original_user.implicitlyBanned', 'original_user.aw_relation'])
             ->join('users', 'users.id', '=', 'multiple_logins.original_id')
             ->groupBy('original_id')->orderBy('users.last_login', 'desc');
-        $new_users = \App\Models\MultipleLogin::with(['new_user', 'new_user.user_meta', 'new_user.banned', 'new_user.implicitlyBanned', 'new_user.aw_relation'])
+        $new_users = \App\Models\MultipleLogin::with(['original_user', 'new_user', 'new_user.user_meta', 'new_user.banned', 'new_user.implicitlyBanned', 'new_user.aw_relation'])
             ->leftJoin('users', 'users.id', '=', 'multiple_logins.new_id')
             ->groupBy('new_id')->orderBy('users.last_login', 'desc');
         if($request->isMethod("POST")){
@@ -3673,29 +3673,23 @@ class UserController extends \App\Http\Controllers\BaseController
         }
 
         $user_set = array();
+        $user_set['null_original_user'] = array();
 
         foreach ($original_users as $original_user) {
-            if (isset($original_new_map[$original_user->id])) {
-                if(!is_array($user_set[$original_user->last_login])){
-                    $user_set[$original_user->last_login] = array();
-                }
-                array_push($user_set[$original_user->last_login], $original_user);
-            }
-            else{
-                if(!is_array($user_set[$original_user->last_login])){
-                    $user_set[$original_user->last_login] = array();
-                }
-                array_push($user_set['0'], $original_user);
-            }
-            foreach ($original_new_map[$original_user->id] as $new_user) {
-                if($new_user->new_user) {
-                    array_push($user_set[$original_user->last_login], $original_user);
-                }
-                else {
-                    array_push($user_set['0'], $original_user);
+            if (isset($original_new_map[$original_user->id]) && !in_array($original_user->id, $user_set)) {
+                $user_set[$original_user->id] = array();
+                array_push($user_set[$original_user->id], $original_user);
+                foreach ($original_new_map[$original_user->id] as $new_user) {
+                    if ($new_user->new_user) {
+                        $user_set[$original_user->id]['new_users'] = array();
+                        array_push($user_set[$original_user->id]['new_users'], $new_user);
+                        dd($user_set);
+                    }
                 }
             }
         }
+
+        dd($user_set);
 
         if($request->isMethod('POST')){
             $request->flash();
