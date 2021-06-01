@@ -36,7 +36,7 @@
         </tr>
     </table>
 </form>
-共 {{ $new_users->count() }} 筆資料
+{{--共 {{ $us->count() }} 筆資料--}}
 <table class='table table-bordered table-hover content-table'>
 	<tr>
         <td>隱藏</td>
@@ -47,69 +47,57 @@
         <td>會員期待的約會模式</td>
         <td>會員上次登入時間</td>
 	</tr>
-	@forelse($original_users as $original_user)
-        @php
-            $bgColor = null;
-        @endphp
-        <tr style="border-top: 3px solid;">
-            @if($original_user->original_user)
-                @if($original_user->original_user->aw_relation or $original_user->original_user->user_meta->isWarned)
+	@forelse($user_set as $an_set_of_original_user)
+{{--        {{dd($user_set)}}--}}
+        @foreach($an_set_of_original_user['users'] as $u)
+            @php
+                $bgColor = null;
+            @endphp
+            @if($loop->first)
+                <tr style="border-top: 3px solid;">
+            @else
+                <tr>
+            @endif
+            @if(isset($u['new']))
+                @if($u[0]->new_user->aw_relation or $u[0]->new_user->user_meta->isWarned)
                     @php $bgColor = '#B0FFB1'; @endphp
                 @endif
-                @if($original_user->original_user->banned or $original_user->original_user->implicitlyBanned)
+                @if($u[0]->new_user->banned or $u[0]->new_user->implicitlyBanned)
                     @php $bgColor = '#FDFF8C'; @endphp
                 @endif
                 <td></td>
-                <td style="color: {{ $original_user->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif"
-                >{{ $original_user->original_id }}</td>
-                <td style="color: {{ $original_user->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif"><a href="advInfo/{{ $original_user->original_id }}" target="_blank" style="color: {{ $original_user->original_user->engroup == 1 ? 'blue' : 'red' }}">{{ $original_user->original_user->email }}</a></td>
-                <td style="color: {{ $original_user->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $original_user->original_user->name }}</td>
-                <td style="color: {{ $original_user->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $original_user->original_user->user_meta->about }}</td>
-                <td style="color: {{ $original_user->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $original_user->original_user->user_meta->style }}</td>
-                <td style="color: {{ $original_user->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $original_user->original_user->last_login }}</td>
+                <td style="color: {{ $u[0]->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $u[0]->original_id }}</td>
+                <td style="color: {{ $u[0]->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif"><a href="advInfo/{{ $u[0]->new_id }}" target="_blank" style="color: {{ $u[0]->new_user->engroup == 1 ? 'blue' : 'red' }}">{{ $u[0]->new_user->email }}</a></td>
+                <td style="color: {{ $u[0]->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $u[0]->new_user->name }}</td>
+                <td style="color: {{ $u[0]->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $u[0]->new_user->user_meta->about }}</td>
+                <td style="color: {{ $u[0]->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $u[0]->new_user->user_meta->style }}</td>
+                <td style="color: {{ $u[0]->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $u[0]->new_user->last_login }}</td>
+            @elseif(isset($u['old']))
+                @if($u[0]->original_user->aw_relation or $u[0]->original_user->user_meta->isWarned)
+                    @php $bgColor = '#B0FFB1'; @endphp
+                @endif
+                @if($u[0]->original_user->banned or $u[0]->original_user->implicitlyBanned)
+                    @php $bgColor = '#FDFF8C'; @endphp
+                @endif
+                <td></td>
+                <td style="color: {{ $u[0]->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $u[0]->original_id }}</td>
+                <td style="color: {{ $u[0]->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif"><a href="advInfo/{{ $u[0]->original_id }}" target="_blank" style="color: {{ $u[0]->original_user->engroup == 1 ? 'blue' : 'red' }}">{{ $u[0]->original_user->email }}</a></td>
+                <td style="color: {{ $u[0]->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $u[0]->original_user->name }}</td>
+                <td style="color: {{ $u[0]->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $u[0]->original_user->user_meta->about }}</td>
+                <td style="color: {{ $u[0]->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $u[0]->original_user->user_meta->style }}</td>
+                <td style="color: {{ $u[0]->original_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $u[0]->original_user->last_login }}</td>
             @else
                 <td></td>
-                <td>{{ $original_user->original_id }}</td>
+                <td>{{ $u[0]->original_id }}</td>
                 <td>資料已刪除</td>
                 <td>資料已刪除</td>
                 <td>資料已刪除</td>
                 <td>資料已刪除</td>
                 <td>資料已刪除</td>
             @endif
-        </tr>
-            @if(isset($original_new_map[$original_user->id]))
-                @foreach($original_new_map[$original_user->id] as $new_user)
-                    @php
-                        $bgColor = null;
-                    @endphp
-                    <tr>
-                        @if($new_user->new_user)
-                            @if($new_user->new_user->aw_relation or $new_user->new_user->user_meta->isWarned)
-                                @php $bgColor = '#B0FFB1'; @endphp
-                            @endif
-                            @if($new_user->new_user->banned or $new_user->new_user->implicitlyBanned)
-                                @php $bgColor = '#FDFF8C'; @endphp
-                            @endif
-                            <td></td>
-                            <td style="color: {{ $new_user->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $new_user->original_id }}</td>
-                            <td style="color: {{ $new_user->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif"><a href="advInfo/{{ $new_user->new_id }}" target="_blank" style="color: {{ $new_user->new_user->engroup == 1 ? 'blue' : 'red' }}">{{ $new_user->new_user->email }}</a></td>
-                            <td style="color: {{ $new_user->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $new_user->new_user->name }}</td>
-                            <td style="color: {{ $new_user->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $new_user->new_user->user_meta->about }}</td>
-                            <td style="color: {{ $new_user->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $new_user->new_user->user_meta->style }}</td>
-                            <td style="color: {{ $new_user->new_user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">{{ $new_user->new_user->last_login }}</td>
-                        @else
-                            <td></td>
-                            <td>{{ $new_user->original_id }}</td>
-                            <td>資料已刪除</td>
-                            <td>資料已刪除</td>
-                            <td>資料已刪除</td>
-                            <td>資料已刪除</td>
-                            <td>資料已刪除</td>
-                        @endif
-                    </tr>
-                @endforeach
-            @endif
-        @empty
+            </tr>
+        @endforeach
+    @empty
         <tr>
             找不到資料
         </tr>
