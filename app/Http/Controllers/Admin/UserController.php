@@ -3678,6 +3678,7 @@ class UserController extends \App\Http\Controllers\BaseController
          *            再將排序後的 users 首個登入時間記在每個元素的 date 裡，再次排序
          */
         $user_set = array();
+        $total_users = 0;
 
         foreach ($original_users as $original_user) {
             if (isset($original_new_map[$original_user->id]) && !in_array($original_user->id, $user_set)) {
@@ -3689,11 +3690,13 @@ class UserController extends \App\Http\Controllers\BaseController
                         $user_set[$original_user->id]['users'][$new_user->id]['date'] = $new_user->last_login;
                         $user_set[$original_user->id]['users'][$new_user->id]['new'] = 1;
                         array_push($user_set[$original_user->id]['users'][$new_user->id] , $new_user);
+                        $total_users++;
                     }
                 }
                 $user_set[$original_user->id]['users'][$original_user->id]['date'] = $original_user->last_login;
                 $user_set[$original_user->id]['users'][$original_user->id]['old'] = 1;
                 array_push($user_set[$original_user->id]['users'][$original_user->id] , $original_user);
+                $total_users++;
                 usort($user_set[$original_user->id]['users'], array('\App\Http\Controllers\Admin\UserController', 'sortByDate'));
             }
         }
@@ -3703,9 +3706,9 @@ class UserController extends \App\Http\Controllers\BaseController
         usort($user_set, array('\App\Http\Controllers\Admin\UserController', 'sortByDate'));
         if($request->isMethod('POST')){
             $request->flash();
-            return view('admin.users.multipleLoginList_new', compact('user_set'));
+            return view('admin.users.multipleLoginList_new', compact('user_set', 'total_users'));
         }
-        return view('admin.users.multipleLoginList_new', compact('user_set'));
+        return view('admin.users.multipleLoginList_new', compact('user_set', 'total_users'));
     }
 
     function sortByDate($arr1, $arr2) {

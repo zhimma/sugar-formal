@@ -36,7 +36,7 @@
         </tr>
     </table>
 </form>
-{{--共 {{ $us->count() }} 筆資料--}}
+共 {{ $total_users }} 筆資料
 <table class='table table-bordered table-hover content-table'>
 	<tr>
         <td>隱藏</td>
