@@ -39,6 +39,9 @@ class CheckDiscussPermissions
         if ($this->auth->user()->engroup!==1) {
             return redirect('/dashboard');
         }
+        if($this->auth->user()->access_posts==1){
+            return redirect('/dashboard')->with('message', '您好，您目前被站方限制使用討論區，若有疑問請點右下角，聯繫站長Line@');
+        }
         if (!$this->auth->user()->isVip()) {
             return redirect('/dashboard/new_vip')->with('message', '請先升級VIP，加入即時討論');
 
