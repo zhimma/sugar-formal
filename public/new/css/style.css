@@ -3125,7 +3125,7 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
     .pink{font-size:12px;}
 }
 
-.hyneback{position: absolute; left:10px; top:-10px;background:linear-gradient(to right, #ffa2b5, #ffc1cd); z-index:6; color: #ffffff; border-radius: 100px; padding:0px 10px 0px 10px;
+.hyneback{position: absolute; left:10px; top:-10px;background:linear-gradient(to right, #ffa2b5, #ffc1cd); z-index:3; color: #ffffff; border-radius: 100px; padding:0px 10px 0px 10px;
     line-height:26px; box-shadow: 0 5px 5px #ffc1cd;}
 .hyneback:hover{background:linear-gradient(to left, #ffa2b5, #ffc1cd);color: #fff;}
 .hyneback img{ height: 14px; vertical-align: middle; margin-top: -3px; margin-right: 2px;}
