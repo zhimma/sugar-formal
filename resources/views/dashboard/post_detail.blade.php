@@ -374,6 +374,7 @@
 </script>
 <style>
 	.commonMenu{z-index: 10001;}
+	.blnr{padding-bottom: 14px;}
 	.blbg_new{width:100%; height:100%;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 9;display:none;}
 </style>
 @stop
