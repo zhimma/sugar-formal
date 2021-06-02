@@ -827,4 +827,30 @@ class User extends Authenticatable
         curl_close($ch);
     }
 
+    public static function warned_icondata($id)
+    {
+        $userMeta = UserMeta::where('user_id', $id)->get()->first();
+        $warned_users = warned_users::where('member_id', $id)->first();
+        $f_user = User::findById($id);
+        if (isset($warned_users) && ($warned_users->expire_date == null || $warned_users->expire_date >= Carbon::now())) {
+            $data['isAdminWarned'] = 1;
+        } else {
+            $data['isAdminWarned'] = 0;
+        }
+        $data['auth_status'] = 0;
+        if (isset($userMeta)) {
+            $data['isWarned'] = $userMeta->isWarned;
+        } else {
+            $data['isWarned'] = null;
+        }
+        if (isset($f_user)) {
+            $data['WarnedScore'] = $f_user->WarnedScore();
+            $data['auth_status'] = $f_user->isPhoneAuth();
+        } else {
+            $data['WarnedScore'] = null;
+            $data['auth_status'] = null;
+        }
+        return $data;
+    }
+
 }
