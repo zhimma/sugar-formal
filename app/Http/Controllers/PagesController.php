@@ -4144,7 +4144,8 @@ class PagesController extends BaseController
         }else if(!empty($user_isBannedOrWarned->banned_id) && $user_isBannedOrWarned->banned_expire_date > now() ) {
             $datetime1 = new \DateTime(now());
             $datetime2 = new \DateTime($user_isBannedOrWarned->banned_expire_date);
-            $diffDays = $datetime1->diff($datetime2)->days;
+            $datetime3 = new \DateTime($user_isBannedOrWarned->banned_created_at);
+            $diffDays = $datetime2->diff($datetime3)->days;
             $isBannedStatus .= '您從 '.substr($user_isBannedOrWarned->banned_created_at,0,10).' 被站方封鎖 '.$diffDays.' 天，預計至 '.substr($user_isBannedOrWarned->banned_expire_date,0,10).' 日解除，原因是 '.$user_isBannedOrWarned->banned_reason.'，如有需要反應請點右下聯絡我們聯絡站長。';
         }
 
@@ -4161,7 +4162,8 @@ class PagesController extends BaseController
         }else if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date > now() ) {
             $datetime1 = new \DateTime(now());
             $datetime2 = new \DateTime($user_isBannedOrWarned->warned_expire_date);
-            $diffDays = $datetime1->diff($datetime2)->days;
+            $datetime3 = new \DateTime($user_isBannedOrWarned->warned_created_at);
+            $diffDays = $datetime2->diff($datetime3)->days;
             $adminWarnedStatus .= '您從 '.substr($user_isBannedOrWarned->warned_created_at,0,10).' 被站方警示 '.$diffDays.' 天，預計至 '.substr($user_isBannedOrWarned->warned_expire_date,0,10).' 日解除，原因是 '.$user_isBannedOrWarned->warned_reason.'，如有需要反應請點右下聯絡我們聯絡站長。';
         }
 
