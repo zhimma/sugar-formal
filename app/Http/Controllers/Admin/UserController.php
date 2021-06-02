@@ -11,6 +11,7 @@ use App\Models\Fingerprint2;
 use App\Models\LogUserLogin;
 use App\Models\MemberPic;
 use App\Models\Message;
+use App\Models\Posts;
 use App\Models\Reported;
 use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
@@ -3529,13 +3530,14 @@ class UserController extends \App\Http\Controllers\BaseController
 
         $sid = $request->sid;
         $uid = $request->uid;
+        $reason = $request->reason;
         $admin_id = Auth::user()->id;
 
         if($sid==''){
             //先刪後增
             SuspiciousUser::where('user_id',$uid)->delete();
             //insert
-            SuspiciousUser::insert(['admin_id' => $admin_id, 'user_id' => $uid, 'created_at' => Carbon::now() ]);
+            SuspiciousUser::insert(['admin_id' => $admin_id, 'user_id' => $uid, 'reason'=>$reason, 'created_at' => Carbon::now() ]);
             return back()->with('message', '已加入可疑名單');
 
         }else{
@@ -3644,5 +3646,74 @@ class UserController extends \App\Http\Controllers\BaseController
             return view('admin.users.multipleLoginList', compact('original_users' ,'original_new_map', 'new_users'));
         }
         return view('admin.users.multipleLoginList', compact('original_users' ,'original_new_map', 'new_users'));
+    }
+
+    public function postsList(Request $request) {
+        $postsList = Posts::Join('users', 'users.id', '=', 'posts.user_id')
+            ->selectRaw('posts.*, users.email, users.name, users.prohibit_posts, users.access_posts')
+            ->orderBy('posts.created_at','desc');
+
+        if(!empty($request->get('account'))){
+            $postsList->where('users.email', 'like', '%' . $request->get('account') . '%');
+        }
+        if(!empty($request->get('date_start'))){
+            $postsList->where('posts.created_at','>=', $request->get('date_start'));
+        }
+        if(!empty($request->get('date_end'))){
+            $postsList->where('posts.created_at','<=', $request->get('date_end'). ' 23:59:59');
+        }
+        if(!empty($request->get('type'))){
+            $postsList->where('posts.type', $request->get('type'));
+        }
+
+
+        $postsList = $postsList->get();
+
+        $page = $request->get('page',1);
+        $perPage = 20;
+        $postsList = new LengthAwarePaginator($postsList->forPage($page, $perPage), $postsList->count(), $perPage, $page,   ['path' => '/admin/users/posts/']);
+        return view('admin.users.postsManage', compact('postsList'));
+    }
+
+    public function postsDelete($id)
+    {
+        $data= Posts::where('id', $id)->get()->first();
+        if ($data->delete()) {
+            return back()->with('message', '刪除成功');
+        } else {
+            return back()->withErrors(['發生不明錯誤，刪除失敗！']);
+        }
+    }
+
+    public function toggleUser_prohibit_posts(Request $request)
+    {
+        $user= User::findById($request->uid);
+        if ($user) {
+            if($request->prohibit){
+                $user->prohibit_posts=1;
+                $user->save();
+                return back()->with('message', $user->name . '禁止發言成功');
+            }else{
+                $user->prohibit_posts=0;
+                $user->save();
+                return back()->with('message', $user->name . '解除禁止發言');
+            }
+        }
+    }
+
+    public function toggleUser_access_posts(Request $request)
+    {
+        $user= User::findById($request->uid);
+        if ($user) {
+            if($request->access){
+                $user->access_posts=1;
+                $user->save();
+                return back()->with('message', $user->name . '封鎖進入討論區');
+            }else {
+                $user->access_posts = 0;
+                $user->save();
+                return back()->with('message', $user->name . '解除封鎖進入討論區');
+            }
+        }
     }
 }

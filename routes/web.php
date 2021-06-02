@@ -574,6 +574,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/board', 'PagesController@board')->name('users/board');
         Route::post('users/board', 'PagesController@board')->name('users/board/search');
         Route::get('users/board/delete/{id}', 'UserController@deleteBoard')->name('users/board/delete');
+        Route::get('users/posts', 'UserController@postsList')->name('users/posts');
+        Route::get('users/posts/delete/{id}', 'UserController@postsDelete')->name('users/posts/delete');
+        Route::post('users/posts/prohibit', 'UserController@toggleUser_prohibit_posts');
+        Route::post('users/posts/access', 'UserController@toggleUser_access_posts');
 
         Route::get('users/memberList', 'UserController@memberList')->name('users/memberList');
         Route::post('users/memberList', 'UserController@searchMemberList')->name('searchMemberList');

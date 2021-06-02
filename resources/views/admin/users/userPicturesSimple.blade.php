@@ -139,6 +139,14 @@
                     <td>{{ $pic->last_login }}</td>
                     <td>
                         <button class="btn_sid btn @if($pic->sid !='')btn-danger @else btn-primary @endif" data-sid="{{$pic->sid}}" data-uid="{{$pic->member_id}}">@if($pic->sid !='') 否 @else 是 @endif</button>
+                        @php
+                            $suspicious=\App\Models\SuspiciousUser::where('user_id',$pic->member_id)->first();
+                        @endphp
+                        @if(!is_null($suspicious))
+                            <div>可疑原因：{{ !is_null($suspicious) ? $suspicious->reason : '' }}</div>
+                        @else
+                            <input class="reason" placeholder="請輸入可疑原因" value="{{ !is_null($suspicious) ? $suspicious->reason : '' }}">
+                        @endif
                     </td>
                 </tr>
             @endforeach
@@ -150,6 +158,7 @@
     {!! csrf_field() !!}
     <input type="hidden" name="sid" id="sid" value="">
     <input type="hidden" name="uid" id="uid" value="">
+    <input type="hidden" name="reason" id="reason" value="">
 </form>
 </body>
 
@@ -241,6 +250,9 @@
 
         $('#sid').val($(this).data('sid'));
         $('#uid').val($(this).data('uid'));
+        var reason = $(this).siblings('.reason').val();
+        $('#reason').val(reason);
+
        let sid = $(this).data('sid'),
            r = false;
 
