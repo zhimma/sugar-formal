@@ -3736,10 +3736,10 @@ class PagesController extends BaseController
 
         //檢查是否為連續兩個月以上的VIP會員
         $checkUserVip=0;
-        $isVip =Vip::where('member_id',auth()->user()->id)->where('expiry','0000-00-00 00:00:00')->where('active',1)->where('free',0)->first();
+        $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
         if($isVip){
             $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
-            if($months>=2){
+            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
                 $checkUserVip=1;
             }
         }
@@ -3770,10 +3770,10 @@ class PagesController extends BaseController
 
         //檢查是否為連續兩個月以上的VIP會員
         $checkUserVip=0;
-        $isVip =Vip::where('member_id',auth()->user()->id)->where('expiry','0000-00-00 00:00:00')->where('active',1)->where('free',0)->first();
+        $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
         if($isVip){
             $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
-            if($months>=2){
+            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
                 $checkUserVip=1;
             }
         }
