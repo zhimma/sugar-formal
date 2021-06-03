@@ -1866,7 +1866,11 @@ class PagesController extends BaseController
             $date = date('Y-m-d H:m:s', strtotime('-7 days'));
 
             /*車馬費邀請次數*/
-            $tip_count = Tip::where('to_id', $uid)->get()->count();
+            if($targetUser->engroup==2) {
+                $tip_count = Tip::where('to_id', $uid)->get()->count();
+            }else{
+                $tip_count = Tip::where('member_id', $uid)->get()->count();
+            }
 
             /*收藏會員次數*/
             $fav_count = MemberFav::where('member_id', $uid)->get()->count();
@@ -3738,10 +3742,10 @@ class PagesController extends BaseController
 
         //檢查是否為連續兩個月以上的VIP會員
         $checkUserVip=0;
-        $isVip =Vip::where('member_id',auth()->user()->id)->where('expiry','0000-00-00 00:00:00')->where('active',1)->where('free',0)->first();
+        $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
         if($isVip){
             $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
-            if($months>=2){
+            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
                 $checkUserVip=1;
             }
         }
@@ -3772,10 +3776,10 @@ class PagesController extends BaseController
 
         //檢查是否為連續兩個月以上的VIP會員
         $checkUserVip=0;
-        $isVip =Vip::where('member_id',auth()->user()->id)->where('expiry','0000-00-00 00:00:00')->where('active',1)->where('free',0)->first();
+        $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
         if($isVip){
             $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
-            if($months>=2){
+            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
                 $checkUserVip=1;
             }
         }
