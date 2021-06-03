@@ -1866,7 +1866,11 @@ class PagesController extends BaseController
             $date = date('Y-m-d H:m:s', strtotime('-7 days'));
 
             /*車馬費邀請次數*/
-            $tip_count = Tip::where('to_id', $uid)->get()->count();
+            if($targetUser->engroup==2) {
+                $tip_count = Tip::where('to_id', $uid)->get()->count();
+            }else{
+                $tip_count = Tip::where('member_id', $uid)->get()->count();
+            }
 
             /*收藏會員次數*/
             $fav_count = MemberFav::where('member_id', $uid)->get()->count();
