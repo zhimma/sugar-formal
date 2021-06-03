@@ -294,7 +294,7 @@
                 @if(isset($to))
                 <div class="rightbg">
                     <div class="metx">
-                        <a href="{{ \Illuminate\Support\Facades\URL::previous() }}" class="hyneback"><img src="/new/images/back_icon.png">返回</a>
+                        <a href="{{ \Illuminate\Support\Facades\URL::previous() }}" class="hyneback" style="z-index: 999;"><img src="/new/images/back_icon.png">返回</a>
                         <div class="swiper-container photo">
                             <div class="swiper-wrapper">
                                 <div class="swiper-slide @if($isBlurAvatar) blur_img @endif" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>
