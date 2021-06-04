@@ -551,6 +551,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
             Route::post('modify', 'UserController@modifyContent')->name('evaluationModifyContent');
             Route::post('delete', 'UserController@evaluationDelete')->name('evaluationDelete');
             Route::post('check', 'UserController@evaluationCheck')->name('evaluationCheck');
+            Route::get('showPic/{eid}/{uid}', 'UserController@showEvaluationPic')->name('showEvaluationPic');
+            Route::post('picDelete/{picID}', 'UserController@evaluationPicDelete')->name('evaluationPicDelete');
+            Route::post('picAdd', 'UserController@evaluationPicAdd')->name('evaluationPicAdd');
         });
 
         Route::group(['prefix'=>'users/phone'], function(){
