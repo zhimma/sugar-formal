@@ -46,16 +46,41 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
       <div class="col-sm-12 col-xs-12 col-md-10">
         <div class="g_password">
           <div class="g_pwicon">
+              <li><a href="/dashboard/viewuser/{{$user->id}}" class="g_pwicon_t5 "><span>自我預覽</span></a></li>
               <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t g_hicon1"><span>基本資料</span></a></li>
               <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2"><span>照片管理</span></a></li>
               <li><a href="{!! url('dashboard/account_manage') !!}" class="g_pwicon_t3"><span>帳號設定</span></a></li>
-              <li><a href="{!! url('dashboard/vipSelect') !!}" class="g_pwicon_t4"><span>升級付費</span></a></li>
+{{--              <li><a href="{!! url('dashboard/vipSelect') !!}" class="g_pwicon_t4"><span>升級付費</span></a></li>--}}
           </div>
           <div class="addpic g_inputt">
 
-            <div class="n_adbut">
-                <a href="/dashboard/viewuser/{{$user->id}}"><img src="/new/images/1_06.png">預覽</a></div>
-               <div class="n_adbut"><a href="/member_auth/" style="padding-left: 10px;">手機驗證</a></div>
+{{--              <div class="n_adbut"><a href="/dashboard/viewuser/{{$user->id}}"><img src="/new/images/1_06.png">預覽</a></div>--}}
+{{--              <div class="n_adbut"><a href="/member_auth/" style="padding-left: 10px;">手機驗證</a></div>--}}
+              @if($user->engroup==1)
+              <div style="float:right; padding-right: 5px;">
+                  <div class="vvipjdt_aa" onclick="pr()" style="cursor: pointer;">
+                      @if($pr != false && $pr >= 1)
+                          @php
+                          if($pr==1){$pr = 0;}
+                          @endphp
+                          <div class="progress progress-striped vvipjdt_pre" title="大方指數">
+                              <div class="progress-bar progress_info" role="progressbar" aria-valuenow="{{$pr}}" aria-valuemin="0" aria-valuemax="100"
+                                   style="width:{{$pr}}%;">
+                                  <span class="prfont pr_text">PR: {{$pr}}</span>
+                              </div>
+                          </div>
+                      @elseif($pr == false)
+                          <div class="progress progress-striped vvipjdt_pre" title="大方指數">
+                              <div class="progress-bar progress_info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                   style="width:0%;">
+                                  <span class="prfont pr_text">PR: 無</span>
+                              </div>
+                          </div>
+                      @endif
+                  </div>
+                  <img src="/new/images/tx_new.png" style="position: absolute; width:40px; margin-top:-44px; margin-left:-25px;">
+              </div>
+              @endif
             <div class="xiliao_input">
                <form class="m-form m-form--fit m-form--label-align-right" method="POST" name="user_data" action="" id="information" data-parsley-validate novalidate>
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -692,7 +717,46 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
       <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
   </div>
 
+  <div class="bl bl_tab_cc prz" id="prz" style="display: none;">
+      <div class=" bl_tab_bb">
+          <div class="bltitle"><span style="text-align: center; float: none;">PR值說明</span></div>
+          <div class="new_poptk_aa new_poptk_nn">
+              <div class="fpt_z_cc">
+                  <div class="pj_add">
+                      <p class="yidy_font">此數字為daddy的大方指數，您目前指數為 @if($pr != false && $pr >= 1)@php if($pr==1){$pr = 0;} @endphp {{$pr}} @else 無 @endif</p>
+                      <img src="/new/images/ziliao.png" class="yiimg">
+                      <div class="ytext_img">
+                          <div class="ye_title"><img src="/new/images/zhe_dd.png">提升方式</div>
+                          <h2 class="ye_h2">[連續型 vip 會員]</h2>
+                          <h3 class="ye_h3">◎保持您的 vip 不中斷</h3>
+                          <h3 class="ye_h3">◎多使用車馬費邀請</h3>
+                          <h2 class="ye_h2">[單月繳會員]</h2>
+                          <h3 class="ye_h3">◎改為連續繳款/季繳</h3>
+                          <h3 class="ye_h3">◎保持您的 vip 不中斷</h3>
+                          <h3 class="ye_h3">◎多使用車馬費邀請</h3>
+                          <h2 class="ye_h2">[非 vip]</h2>
+                          <h3 class="ye_h3">◎升級 vip </h3>
+
+                      </div>
+                  </div>
+                  <div class="n_bbutton">
+                      <span><a class="n_left" onclick="$('.blbg').click();">確定</a></span>
+                      <span><a class="n_right" onclick="$('.blbg').click();">取消</a></span>
+                  </div>
+
+              </div>
+
+          </div>
+          <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+      </div>
+  </div>
+
 <script>
+    function pr() {
+        $(".blbg").show();
+        $(".prz").show();
+    }
+
     $(document).ready(function() {
         @if(Session::has('message'))
         c5('{{Session::get('message')}}');

@@ -656,6 +656,7 @@ class PagesController extends BaseController
             $year=$month=$day='';
         }
         if ($user) {
+            $pr = User::PR($user->id);
             $cancel_notice = $request->session()->get('cancel_notice');
             $message = $request->session()->get('message');
             if(isset($cancel_notice)){
@@ -681,7 +682,8 @@ class PagesController extends BaseController
                 ->with('cancel_notice', $cancel_notice)
                 ->with('add_avatar', $add_avatar)
                 ->with('isAdminWarnedRead',$isAdminWarnedRead)
-                ->with('no_avatar', $no_avatar->content);
+                ->with('no_avatar', $no_avatar->content)
+                ->with('pr', $pr);
 //                ->with('isWarnedReason',$isWarnedReason)
         }
     }
@@ -2206,6 +2208,7 @@ class PagesController extends BaseController
             $isSent3Msg = $user->isSent3Msg($uid);
 
             $isReadIntro = $user->isReadIntro;
+            $pr = User::PR($to->id);
 
             return view('new.dashboard.viewuser', $data)
                     ->with('user', $user)
@@ -2231,7 +2234,8 @@ class PagesController extends BaseController
                     ->with('evaluation_data',$evaluation_data)
                     ->with('vipDays',$vipDays)
                     ->with('isReadIntro',$isReadIntro)
-                    ->with('auth_check',$auth_check);
+                    ->with('auth_check',$auth_check)
+                ->with('pr', $pr);
             }
 
     }

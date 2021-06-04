@@ -449,22 +449,47 @@
                                     <font class="ef_pr">PR:20</font>
                                 </div>
                             </div> -->
-                            <div class="eg_oright">
-                                @for ($i = 1; $i <= 5; $i++)
-                                    @if(intval($rating_avg)>=$i)
-                                        <img src="/new/images/sxx_1.png">
-                                    @elseif(strstr($rating_avg,'.') && ctype_digit($rating_avg)==false)
-                                        <img src="/new/images/sxx_2.png">
-                                        @break
-                                    @endif
-                                @endfor
-                                @for ($i = 1; $i <= 5-ceil($rating_avg); $i++)
-                                    <img src="/new/images/sxx_4.png">
-                                @endfor
-{{--                                <img src="/new/images/st_o.png"><img src="/new/images/sxx_1.png">--}}
-{{--                                <img src="/new/images/sxx_2.png"><img--}}
-{{--                                        src="/new/images/sxx_4.png"><img src="/new/images/sxx_4.png">--}}
-                            </div>
+                            @if($to->engroup == 1)
+                                <div class="eg_oright">
+
+                                    <div class="vvipjdt">
+                                        @if($pr != false && $pr >= 1)
+                                            @php
+                                                if($pr==1){$pr = 0;}
+                                            @endphp
+                                            <div class="progress progress-striped vvipjdt_pre" title="大方指數">
+                                                <div class="progress-bar progress_info" role="progressbar" aria-valuenow="{{$pr}}" aria-valuemin="0"
+                                                     aria-valuemax="100" style="width:{{$pr}}%;">
+                                                    <span class="prfont">PR: {{$pr}}</span>
+                                                </div>
+                                            </div>
+                                        @elseif($pr == false)
+                                            <div class="progress progress-striped vvipjdt_pre" title="大方指數" onClick="jidutiao()" style="cursor: pointer;">
+                                                <div class="progress-bar progress_info" role="progressbar" aria-valuenow="0" aria-valuemin="0"
+                                                     aria-valuemax="100" style="width:0%;">
+                                                    <span class="prfont">PR: 無</span>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+
+
+                                    {{--                                @for ($i = 1; $i <= 5; $i++)--}}
+                                    {{--                                    @if(intval($rating_avg)>=$i)--}}
+                                    {{--                                        <img src="/new/images/sxx_1.png">--}}
+                                    {{--                                    @elseif(strstr($rating_avg,'.') && ctype_digit($rating_avg)==false)--}}
+                                    {{--                                        <img src="/new/images/sxx_2.png">--}}
+                                    {{--                                        @break--}}
+                                    {{--                                    @endif--}}
+                                    {{--                                @endfor--}}
+                                    {{--                                @for ($i = 1; $i <= 5-ceil($rating_avg); $i++)--}}
+                                    {{--                                    <img src="/new/images/sxx_4.png">--}}
+                                    {{--                                @endfor--}}
+                                    {{--                                <img src="/new/images/st_o.png"><img src="/new/images/sxx_1.png">--}}
+                                    {{--                                <img src="/new/images/sxx_2.png"><img--}}
+                                    {{--                                        src="/new/images/sxx_4.png"><img src="/new/images/sxx_4.png">--}}
+                                </div>
+                            @endif
                         </div>
 
                     </div>
@@ -776,6 +801,25 @@
                                         {{--                                        @if(view()->shared('valueAddedServices')['hideOnline'] == 1 || $is_block_mid=='是') <img src="/new/images/no_open.png"> @else--}}
                                         @if($user->isVip())  <font>{{$login_times_per_week }}</font> @else <img src="/new/images/icon_35.png"> @endif
                                         {{--                                        @endif--}}
+                                    </dt>
+                                    <dt><span>使用者評價</span>
+                                        @if($user->isVip())
+                                            <font>
+                                                <div class="star_new">
+                                                    @for ($i = 1; $i <= 5; $i++)
+                                                        @if(intval($rating_avg)>=$i)
+                                                            <img src="/new/images/sxx_1.png">
+                                                        @elseif(strstr($rating_avg,'.') && ctype_digit($rating_avg)==false)
+                                                            <img src="/new/images/sxx_2.png">
+                                                            @break
+                                                        @endif
+                                                    @endfor
+                                                    @for ($i = 1; $i <= 5-ceil($rating_avg); $i++)
+                                                        <img src="/new/images/sxx_4.png">
+                                                    @endfor
+                                                </div>
+                                            </font>
+                                        @else <img src="/new/images/icon_35.png"> @endif
                                     </dt>
                                     <dt><span>被收藏次數</span>@if($user->isVip()) <font>{{$be_fav_count}}</font> @else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>收藏會員次數</span>@if($user->isVip())<font>{{$fav_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
@@ -1336,6 +1380,10 @@
 @section('javascript')
 
 <script>
+
+    function jidutiao() {
+        c5('此會員註冊時間過短，無法判斷');
+    }
 
     $( document ).ready(function() {
         // $('.tagText').on('click', function() {
