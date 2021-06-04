@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\AccountStatusLog;
 use App\Models\AdminActionLog;
 use App\Models\Board;
+use App\Models\Evaluation;
 use App\Models\EvaluationPic;
 use App\Models\ExpectedBanningUsers;
 use App\Models\Fingerprint2;
@@ -45,6 +46,8 @@ use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Intervention\Image\Facades\Image;
 use Session;
 
 class UserController extends \App\Http\Controllers\BaseController
@@ -3716,4 +3719,64 @@ class UserController extends \App\Http\Controllers\BaseController
             }
         }
     }
+
+    public function showEvaluationPic($eid, $uid)
+    {
+        $user=User::findById($uid);
+
+        $evaluation=Evaluation::where('id',$eid)->first();
+        $evaluation_id=$eid;
+        $to_user=User::findById($evaluation->to_id);
+        $picList=EvaluationPic::where('evaluation_id',$eid)->where('member_id',$uid)->get();
+        return view('admin.users.showEvaluationPic',compact('picList','user','to_user','evaluation_id'));
+    }
+
+    public function evaluationPicDelete($picID)
+    {
+        EvaluationPic::where('id',$picID)->delete();
+        return back();
+    }
+
+    public function evaluationPicAdd(Request $request)
+    {
+        $evaluation_id=$request->input('evaluation_id');
+        $uid=$request->input('uid');
+        $nowCount = EvaluationPic::where('evaluation_id',$evaluation_id)->where('member_id',$uid)->count();
+
+        if($nowCount+ count( $request->file('images'))>5){
+            return back()->with('error', '總共不能上傳超過5張照片');
+        }
+
+        if($files = $request->file('images'))
+        {
+            foreach ($files as $file) {
+                $now = Carbon::now()->format('Ymd');
+                $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
+
+                $rootPath = public_path('/img/Evaluation');
+                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+
+                if(!is_dir($tempPath)) {
+                    File::makeDirectory($tempPath, 0777, true);
+                }
+
+                $destinationPath = '/img/Evaluation/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
+
+                $img = Image::make($file->getRealPath());
+                $img->resize(400, 600, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($tempPath . $input['imagename']);
+
+                //新增images到db
+                $evaluationPic = new EvaluationPic();
+                $evaluationPic->evaluation_id = $evaluation_id;
+                $evaluationPic->member_id = $uid;
+                $evaluationPic->pic = $destinationPath;
+                $evaluationPic->save();
+            }
+        }
+        return back();
+    }
+
+
 }
