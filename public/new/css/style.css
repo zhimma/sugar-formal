@@ -938,7 +938,7 @@ background: transparent;
 
 
 
-.head_3{background-image: linear-gradient(to right, #f5c2c0 0%, #ffe4e7 100%);width: 100%;height:70px; position:fixed; top:0; z-index:5}
+.head_3{background-image: linear-gradient(to right, #f5c2c0 0%, #ffe4e7 100%);width: 100%;height:70px; position:fixed; top:0; z-index:7}
 .ndlrfont{position: absolute;right:23px;top:25px;}
 .ndlrfont a{ padding:0 5px;}
 
@@ -3550,3 +3550,12 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 /*    border: #f5c2c0 1px solid;*/
 /*    margin-bottom: 20px;*/
 /*}*/
+
+.mohu_li{position:relative;}
+.mohu{color:white;background:transparent url(http://91jean.oss-cn-hangzhou.aliyuncs.com/18-8-31/16567303.jpg) center center no-repeat;
+    filter:blur(5px);background-size:cover;pointer-events: none;}
+
+.mohu01{color:white;background:transparent url(http://91jean.oss-cn-hangzhou.aliyuncs.com/18-8-31/16567303.jpg) center center no-repeat;
+    filter:blur(5px);background-size:cover;/* height:500px;*/ overflow: hidden;pointer-events: none;margin-bottom: 30px;}
+.mohu_icon{position: absolute;top:40%;left:0;z-index:1;width: 100%;}
+.mohu_icon img{ margin: 0 auto; display: table;width:120px;}
