@@ -35,7 +35,7 @@
 						<a href="/dashboard/posts_list" class="toug_back"><img src="/posts/images/back_icon.png">返回</a>
 					</div>
 					<div class="t_xqheight">
-						<div class="toug_xq" style="position: relative;">
+						<div class="toug_xq" style="position: relative; {{ $postDetail->uid==1049 ? 'background:#ddf3ff;' : ''}}">
 							<div class="tougao_xnew">
 								<a href="/dashboard/viewuser/{{$postDetail->uid}}">
 									<div class="tou_img_1">
@@ -47,7 +47,7 @@
 							</div>
 							@if($postDetail->uid == auth()->user()->id)
 								<div class="ap_but" style="margin-top: 10px; margin-right:5px;">
-									<a id="repostLink" href="/dashboard/postsEdit/{{ $postDetail->pid }}"><span class="iconfont icon-xiugai_nn"></span>修改</a>
+									<a id="repostLink" href="/dashboard/postsEdit/{{ $postDetail->pid }}/all"><span class="iconfont icon-xiugai_nn"></span>修改</a>
 									<a onclick="postDelete({{ $postDetail->pid }})"><span class="iconfont icon-lajitong"></span>刪除</a>
 								</div>
 							@endif
@@ -85,6 +85,7 @@
 													<div class="dropdown-menu dp_hxx" aria-labelledby="dropdownMenuButton">
 														<a class="dropdown-item" onclick="postReply('{{ $reply->pid }}','{{ $reply->uname }}','{{ $reply->uid }}');">@ 回覆</a>
 														@if($reply->uid == auth()->user()->id)
+															<a class="dropdown-item" href="/dashboard/postsEdit/{{ $reply->pid }}/contents"><span class="iconfont icon-xiugai_nn"></span>修改</a>
 															<a class="dropdown-item" onclick="postDelete({{ $reply->pid }})"><span class="iconfont icon-lajitong"></span>刪除</a>
 														@endif
 													</div>
@@ -116,6 +117,7 @@
 																		<div class="dropdown-menu dp_hxx" aria-labelledby="dropdownMenuButton">
 																			<a class="dropdown-item" onclick="postReply('{{ $reply->pid }}','{{ $subReply->uname }}','{{ $subReply->uid }}');">@ 回覆</a>
 																			@if($subReply->uid == auth()->user()->id)
+																				<a class="dropdown-item" href="/dashboard/postsEdit/{{ $subReply->pid }}/contents"><span class="iconfont icon-xiugai_nn"></span>修改</a>
 																				<a class="dropdown-item" onclick="postDelete({{ $subReply->pid }})"><span class="iconfont icon-lajitong"></span>刪除</a>
 																			@endif
 																		</div>
@@ -154,6 +156,7 @@
 																				<div class="dropdown-menu dp_hxx" aria-labelledby="dropdownMenuButton">
 																					<a class="dropdown-item" onclick="postReply('{{ $reply->pid }}','{{ $subReply->uname }}','{{ $subReply->uid }}');">@ 回覆</a>
 																					@if($subReply->uid == auth()->user()->id)
+																						<a class="dropdown-item" href="/dashboard/postsEdit/{{ $subReply->pid }}/contents"><span class="iconfont icon-xiugai_nn"></span>修改</a>
 																						<a class="dropdown-item" onclick="postDelete({{ $subReply->pid }});"><span class="iconfont icon-lajitong"></span>刪除</a>
 																					@endif
 																				</div>
@@ -314,12 +317,44 @@
 			});
 
 			$('#response_send').on('click', function() {
-				var form = $(this).closest("form");
-				if($("#contents").val().length ==0){
-					c5('請輸入文字再送出');
+
+				var checkUserVip='{{ $checkUserVip }}';
+				var checkProhibit='{{ $user->prohibit_posts }}';
+				var checkAccess='{{ $user->access_posts }}';
+				if(checkUserVip==0) {
+					c5('此功能目前開放給連續兩個月以上的VIP會員使用');
+					return false;
+				}else if(checkProhibit==1){
+					c5('您好，您目前被站方禁止發言，若有疑問請點右下角，聯繫站長Line@');
+					return false;
+				}else if(checkAccess==1){
+					c5('您好，您目前被站方限制使用討論區，若有疑問請點右下角，聯繫站長Line@');
+					return false;
+				}else{
+					var form = $(this).closest("form");
+					if($("#contents").val().length ==0){
+						c5('請輸入文字再送出');
+						return false;
+					}
+					form.submit();
+				}
+			});
+
+			$('.bot_wid_nr').on('click', function() {
+
+				var checkUserVip='{{ $checkUserVip }}';
+				var checkProhibit='{{ $user->prohibit_posts }}';
+				var checkAccess='{{ $user->access_posts }}';
+				if(checkUserVip==0) {
+					c5('此功能目前開放給連續兩個月以上的VIP會員使用');
+					return false;
+				}else if(checkProhibit==1){
+					c5('您好，您目前被站方禁止發言，若有疑問請點右下角，聯繫站長Line@');
+					return false;
+				}else if(checkAccess==1){
+					c5('您好，您目前被站方限制使用討論區，若有疑問請點右下角，聯繫站長Line@');
 					return false;
 				}
-				form.submit();
 			});
 
 			$(document).keydown(function (event) {
@@ -338,6 +373,7 @@
 
 </script>
 <style>
+	.commonMenu{z-index: 10001;}
 	.blnr{padding-bottom: 14px;}
 	.blbg_new{width:100%; height:100%;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 9;display:none;}
 </style>

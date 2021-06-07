@@ -228,7 +228,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/post_detail/{pid}', 'PagesController@post_detail');
         Route::post('/dashboard/getPosts', 'PagesController@getPosts');/*動態取得列表資料*/
         Route::get('/dashboard/posts', 'PagesController@posts');/*投稿功能*/
-        Route::get('/dashboard/postsEdit/{id}', 'PagesController@postsEdit');/*投稿修改功能*/
+        Route::get('/dashboard/postsEdit/{id}/{editType}', 'PagesController@postsEdit');/*投稿修改功能*/
         Route::post('/dashboard/doPosts', 'PagesController@doPosts');/*投稿功能*/
         Route::post('/dashboard/posts_reply', 'PagesController@posts_reply');/*討論區留言回覆*/
         Route::post('/dashboard/posts_delete', 'PagesController@posts_delete');/*討論區留言刪除*/
@@ -511,6 +511,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/board', 'PagesController@board')->name('users/board');
         Route::post('users/board', 'PagesController@board')->name('users/board/search');
         Route::get('users/board/delete/{id}', 'UserController@deleteBoard')->name('users/board/delete');
+        Route::get('users/posts', 'UserController@postsList')->name('users/posts');
+        Route::get('users/posts/delete/{id}', 'UserController@postsDelete')->name('users/posts/delete');
+        Route::post('users/posts/prohibit', 'UserController@toggleUser_prohibit_posts');
+        Route::post('users/posts/access', 'UserController@toggleUser_access_posts');
 
         Route::get('users/memberList', 'UserController@memberList')->name('users/memberList');
         Route::post('users/memberList', 'UserController@searchMemberList')->name('searchMemberList');
@@ -546,6 +550,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::group(['prefix'=>'users/evaluation'], function(){
             Route::post('modify', 'UserController@modifyContent')->name('evaluationModifyContent');
             Route::post('delete', 'UserController@evaluationDelete')->name('evaluationDelete');
+            Route::post('check', 'UserController@evaluationCheck')->name('evaluationCheck');
+            Route::get('showPic/{eid}/{uid}', 'UserController@showEvaluationPic')->name('showEvaluationPic');
+            Route::post('picDelete/{picID}', 'UserController@evaluationPicDelete')->name('evaluationPicDelete');
+            Route::post('picAdd', 'UserController@evaluationPicAdd')->name('evaluationPicAdd');
         });
 
         Route::group(['prefix'=>'users/phone'], function(){

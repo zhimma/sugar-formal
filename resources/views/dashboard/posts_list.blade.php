@@ -65,7 +65,7 @@
 				<div class="col-sm-12 col-xs-12 col-md-10">
 					<div class="shou"><span>討論區列表</span>
 						<font>Discussion</font>
-						<a href="/dashboard/posts" class="toug_but"><img src="/posts/images/tg_03.png">我要發表</a>
+						<a onclick="checkUserVip();" class="toug_but"><img src="/posts/images/tg_03.png">我要發表</a>
 					</div>
 
 					@if(count($posts)==0)
@@ -76,7 +76,7 @@
 						<div class="tou_list">
 							<ul>
 								@foreach($posts as $post)
-									<li>
+									<li {{ $post->uid==1049 ? 'style=background:#ddf3ff;padding:10px' : ''}}>
 										<div class="tou_tx">
 											<a href="/dashboard/viewuser/{{$post->uid}}">
 												<div class="tou_tx_img"><img src="@if(file_exists( public_path().$post->umpic ) && $post->umpic != ""){{$post->umpic}} @elseif($post->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div>
@@ -102,7 +102,26 @@
 			</div>
 		</div>
 		@stop
+<script>
+	function checkUserVip() {
 
+		var checkUserVip='{{ $checkUserVip }}';
+		var checkProhibit='{{ $user->prohibit_posts }}';
+		var checkAccess='{{ $user->access_posts }}';
+		if(checkUserVip==0) {
+			c5('此功能目前開放給連續兩個月以上的VIP會員使用');
+			return false;
+		}else if(checkProhibit==1){
+			c5('您好，您目前被站方禁止發言，若有疑問請點右下角，聯繫站長Line@');
+			return false;
+		}else if(checkAccess==1){
+			c5('您好，您目前被站方限制使用討論區，若有疑問請點右下角，聯繫站長Line@');
+			return false;
+		} else{
+			window.location.href = "/dashboard/posts";
+		}
+	}
+</script>
 <style>
 	.pagination > li > a:focus,
 	.pagination > li > a:hover,
@@ -128,4 +147,5 @@
 		border-color:#ee5472 !important;
 		color:white !important;
 	}
+	.blnr{padding-bottom: 14px;}
 </style>

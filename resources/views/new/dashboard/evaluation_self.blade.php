@@ -19,6 +19,24 @@
         .hide_more{
             display: none;
         }
+        .zap_photo{width: 100%; overflow: hidden; padding-left: 10px;}
+        .zap_photo>li{float: left; width:18%; height:102px;background: #fff9fa;justify-content: center;align-items: center;overflow: hidden;display: flex;
+            border: #fe92a8 1px dashed; position: relative; margin: 10px 2% 0 0;cursor: pointer;}
+        .zap_photo>li>img{max-width: 100%; max-height: 100%;}
+        .zap_photo>li>em{position: absolute; left: 0; top:0; width: 100%; height: 100%; background: rgba(0,0,0,.5); color: #fff; display: flex; align-items: center; justify-content: center;}
+        .pjliuyan02 .zap_photo>li{padding: 0;display: flex;width:19%; margin: 10px 1% 0 0; height:140px;background: #f5f5f5; border: none; overflow: hidden;}
+        .pjliuyan02 .zap_photo{margin: 0; display: block;}
+        .pjliuyan02 .zap_photo>li>img{width: 100%; max-height:unset;}
+
+        @media (max-width:768px){
+            .zap_bb>.text>a>em{padding-left:11px;}
+        }
+        @media (max-width:450px){
+            .zap_bb>.text>a>em{padding-left:7px;}
+            .zap_photo>li{width:23%; height: 90px;}
+            .zap_photo{padding-left: 0;}
+            .pjliuyan02 .zap_photo>li{width:30.33%;margin:12px 1.5% 0 1.5%;height: 100px;}
+        }
     </style>
 <div class="container matop70">
     <div class="row">
@@ -69,10 +87,24 @@
                                     @endfor
                                 </span>
                                 <a href="/dashboard/viewuser/{{$to_user->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">{{$to_user->name}}</a>
+                                @if($to_user->id==$user->id)
                                     <font class="sc content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
+                                @endif
                             </div>
                             <div class="con">
-                                <p class="many-txt">{!! nl2br($row->content) !!}</p>
+                                @if($row->is_check==1)
+                                    <p class="many-txt" style="color: red;">***此評價目前由站方審核中***</p>
+                                @else
+                                    <p class="many-txt">{!! nl2br($row->content) !!}</p>
+                                @endif
+                                @php
+                                    $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
+                                @endphp
+                                <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                    @foreach($evaluationPics as $evaluationPic)
+                                        <li><img src="{{ $evaluationPic->pic }}"></li>
+                                    @endforeach
+                                </ul>
                                 <h4>
                                     <span class="btime">{{ substr($row->created_at,0,10)}}</span>
                                     <button type="button" class="al_but">完整評價</button>
@@ -97,14 +129,25 @@
                                 <div class="hu_p">
                                     <div class="he_b">
                                         <span class="left"><img src="@if(file_exists( public_path().$to_user->meta_()->pic ) && $to_user->meta_()->pic != ""){{$to_user->meta_()->pic}} @elseif($to_user->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to_user->name}}</span>
-                                        @if($to_user->id==$user->id)
+                                        @if($row_user->id==$user->id)
                                             <font class="sc re_content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
                                         @endif
-
                                     </div>
                                     <div class="he_two">
                                         <div class="context">
-                                            <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
+                                            @if($row->is_check==1)
+                                                <div id="test" class="context-wrap" style="word-break: break-all;color: red;">***此評價目前由站方審核中***</div>
+                                            @else
+                                                <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
+                                            @endif
+                                            @php
+                                                $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
+                                            @endphp
+                                            <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                @foreach($evaluationPics as $evaluationPic)
+                                                    <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                @endforeach
+                                            </ul>
                                         </div>
                                     </div>
                                     <div class="he_twotime">{{ substr($row->re_created_at,0,10)}}<span class="z_more">展開</span></div>
@@ -149,10 +192,24 @@
                                             @else
                                                 <img src="/new/images/kul02.png" class="sxyh">
                                             @endif
-                                            <font class="sc content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
+                                            @if($to_user->id==$user->id)
+                                                <font class="sc content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
+                                            @endif
                                         </div>
                                         <div class="con">
-                                            <p class="many-txt">{!! nl2br($row->content) !!}</p>
+                                            @if($row->is_check==1)
+                                                <p class="many-txt" style="color: red;">***此評價目前由站方審核中***</p>
+                                            @else
+                                                <p class="many-txt">{!! nl2br($row->content) !!}</p>
+                                            @endif
+                                            @php
+                                                $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
+                                            @endphp
+                                            <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                @foreach($evaluationPics as $evaluationPic)
+                                                    <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                @endforeach
+                                            </ul>
                                             <h4>
                                                 <span class="btime">{{ substr($row->created_at,0,10)}}</span>
                                                 <button type="button" class="al_but">完整評價</button>
@@ -163,14 +220,26 @@
                                     @if(!empty($row->re_content))
                                         <div class="hu_p">
                                             <div class="he_b">
-                                                <span class="left"><img src="@if(file_exists( public_path().$to_user->meta_()->pic ) && $to_user->meta_()->pic != ""){{$to_user->meta_()->pic}} @elseif($to_user->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to_user->name}}</span>
+                                                <span class="left"><img src="@if(file_exists( public_path().$row_user->meta_()->pic ) && $row_user->meta_()->pic != ""){{$row_user->meta_()->pic}} @elseif($row_user->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$row_user->name}}</span>
                                                 @if($row_user->id==$user->id)
                                                     <font class="sc re_content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
                                                 @endif
                                             </div>
                                             <div class="he_two">
                                                 <div class="context">
-                                                    <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
+                                                    @if($row->is_check==1)
+                                                        <div id="test" class="context-wrap" style="word-break: break-all;color: red;">***此評價目前由站方審核中***</div>
+                                                    @else
+                                                        <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
+                                                    @endif
+                                                    @php
+                                                        $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
+                                                    @endphp
+                                                    <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                        @foreach($evaluationPics as $evaluationPic)
+                                                            <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                        @endforeach
+                                                    </ul>
                                                 </div>
                                             </div>
                                             <div class="he_twotime">{{ substr($row->re_created_at,0,10)}}<span class="z_more">展開</span></div>
@@ -349,4 +418,75 @@
         return ($(e).innerHeight() < $(e)[0].scrollHeight);
     }
 </script>
+<!--照片查看-->
+<div class="big_img">
+    <!-- 自定义分页器 -->
+    <div class="swiper-num">
+        <span class="active"></span>/
+        <span class="total"></span>
+    </div>
+    <div class="swiper-container2">
+        <div class="swiper-wrapper">
+        </div>
+    </div>
+    <div class="swiper-pagination2"></div>
+
+</div>
+<link type="text/css" rel="stylesheet" href="/new/css/app.css">
+<link rel="stylesheet" type="text/css" href="/new/css/swiper2.min.css"/>
+<script type="text/javascript" src="/new/js/swiper.min.js"></script>
+<script>
+    $(document).ready(function () {
+        /*调起大图 S*/
+        var mySwiper = new Swiper('.swiper-container2',{
+            pagination : '.swiper-pagination2',
+            paginationClickable:true,
+            onInit: function(swiper){//Swiper初始化了
+                // var total = swiper.bullets.length;
+                var active =swiper.activeIndex;
+                $(".swiper-num .active").text(active);
+                // $(".swiper-num .total").text(total);
+            },
+            onSlideChangeEnd: function(swiper){
+                var active =swiper.realIndex +1;
+                $(".swiper-num .active").text(active);
+            }
+        });
+
+        $(".zap_photo li").on("click",
+            function () {
+                var imgBox = $(this).parent(".zap_photo").find("li");
+                var i = $(imgBox).index(this);
+                $(".big_img .swiper-wrapper").html("")
+
+                for (var j = 0, c = imgBox.length; j < c ; j++) {
+                    $(".big_img .swiper-wrapper").append('<div class="swiper-slide"><div class="cell"><img src="' + imgBox.eq(j).find("img").attr("src") + '" / ></div></div>');
+                }
+                mySwiper.updateSlidesSize();
+                mySwiper.updatePagination();
+                $(".big_img").css({
+                    "z-index": 1001,
+                    "opacity": "1"
+                });
+                //分页器
+                var num = $(".swiper-pagination2 span").length;
+                $(".swiper-num .total").text(num);
+                // var active =$(".swiper-pagination2").index(".swiper-pagination-bullet-active");
+                $(".swiper-num .active").text(i + 1);
+                // console.log(active)
+
+                mySwiper.slideTo(i, 0, false);
+                return false;
+            });
+        $(".swiper-container2").click(function(){
+            $(this).parent(".big_img").css({
+                "z-index": "-1",
+                "opacity": "0"
+            });
+        });
+
+    });
+    /*调起大图 E*/
+</script>
+<!--照片查看end-->
 @stop

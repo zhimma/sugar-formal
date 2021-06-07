@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Models\AccountStatusLog;
 use App\Models\AdminActionLog;
 use App\Models\Board;
+use App\Models\Evaluation;
+use App\Models\EvaluationPic;
 use App\Models\ExpectedBanningUsers;
 use App\Models\Fingerprint2;
 use App\Models\LogUserLogin;
 use App\Models\MemberPic;
 use App\Models\Message;
+use App\Models\Posts;
 use App\Models\Reported;
 use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
@@ -43,6 +46,8 @@ use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Intervention\Image\Facades\Image;
 use Session;
 
 class UserController extends \App\Http\Controllers\BaseController
@@ -1016,9 +1021,12 @@ class UserController extends \App\Http\Controllers\BaseController
             $tmp['re_created_at'] = $row->re_created_at;
             $tmp['created_at'] = $row->created_at;
             $tmp['to_id'] = $f_user->id;
+            $tmp['from_id'] = $row->from_id;
             $tmp['to_email'] = $f_user->email;
             $tmp['to_name'] = $f_user->name;
             $tmp['to_isvip'] = $f_user->isVip();
+            $tmp['is_check'] = $row->is_check;
+            $tmp['evaluation_pic'] = EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
             $auth_status = 0;
             if ($f_user->isPhoneAuth() == 1) {
                 $auth_status = 1;
@@ -1039,9 +1047,12 @@ class UserController extends \App\Http\Controllers\BaseController
             $tmp['re_created_at'] = $row->re_created_at;
             $tmp['created_at'] = $row->created_at;
             $tmp['to_id'] = $f_user->id;
+            $tmp['from_id'] = $row->to_id;
             $tmp['to_email'] = $f_user->email;
             $tmp['to_name'] = $f_user->name;
             $tmp['to_isvip'] = $f_user->isVip();
+            $tmp['is_check'] = $row->is_check;
+            $tmp['evaluation_pic'] = EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$f_user->id)->get();
             $auth_status = 0;
             if ($f_user->isPhoneAuth() == 1) {
                 $auth_status = 1;
@@ -3522,13 +3533,14 @@ class UserController extends \App\Http\Controllers\BaseController
 
         $sid = $request->sid;
         $uid = $request->uid;
+        $reason = $request->reason;
         $admin_id = Auth::user()->id;
 
         if($sid==''){
             //先刪後增
             SuspiciousUser::where('user_id',$uid)->delete();
             //insert
-            SuspiciousUser::insert(['admin_id' => $admin_id, 'user_id' => $uid, 'created_at' => Carbon::now() ]);
+            SuspiciousUser::insert(['admin_id' => $admin_id, 'user_id' => $uid, 'reason'=>$reason, 'created_at' => Carbon::now() ]);
             return back()->with('message', '已加入可疑名單');
 
         }else{
@@ -3565,6 +3577,22 @@ class UserController extends \App\Http\Controllers\BaseController
         return back()->with('message', '評價已刪除');
     }
 
+    public function evaluationCheck(Request $request)
+    {
+        DB::table('evaluation')->where('id',$request->input('id'))->update(['is_check'=>$request->get('is_check')]);
+
+        if($request->get('is_check')){
+            $msg='評價內容審核中';
+            //return redirect('admin/users/message/to/'.$request->get('userid'))->with('message', '評價內容審核中');
+
+        }
+        else{
+            $msg='評價內容審核結束';
+            //return back()->with('message', '評價內容審核中');
+        }
+        return json_encode(array('code' => '200', 'status' => 'success','msg'=>$msg,'redirect_to'=>'/admin/users/message/to/'.$request->get('userid')));
+    }
+
     public function modifyPhone(Request $request)
     {
         if((DB::table('short_message')->where('mobile', $request->phone)->first() !== null ) && !empty($request->phone)){
@@ -3590,10 +3618,43 @@ class UserController extends \App\Http\Controllers\BaseController
     }
 
     public function multipleLogin(Request $request) {
+        if($request->old_version){
+            $original_users = \App\Models\MultipleLogin::with(['original_user', 'original_user.user_meta', 'original_user.banned', 'original_user.implicitlyBanned', 'original_user.aw_relation'])
+                ->join('users', 'users.id', '=', 'multiple_logins.original_id')
+                ->groupBy('original_id')->orderBy('users.last_login', 'desc');
+            $new_users = \App\Models\MultipleLogin::with(['new_user', 'new_user.user_meta', 'new_user.banned', 'new_user.implicitlyBanned', 'new_user.aw_relation'])
+                ->leftJoin('users', 'users.id', '=', 'multiple_logins.new_id')
+                ->groupBy('new_id')->orderBy('users.last_login', 'desc');
+            if($request->isMethod("POST")){
+                if($request->date_start){
+                    $original_users = $original_users->where('users.last_login', ">=",$request->date_start . " 00:00:00");
+                    $new_users = $new_users->where('users.last_login', ">=", $request->date_start . " 00:00:00");
+                }
+                if($request->date_end){
+                    $original_users = $original_users->where('users.last_login', "<=", $request->date_end . " 23:59:59");
+                    $new_users = $new_users->where('users.last_login', "<=", $request->date_end . " 23:59:59");
+                }
+            }
+            $original_users = $original_users->get();
+            $new_users = $new_users->get();
+            $original_new_map = array();
+            foreach($new_users as $new_user) {
+                if(!isset($original_new_map[$new_user->original_id])) {
+                    $original_new_map[$new_user->original_id] = array();
+                }
+                array_push($original_new_map[$new_user->original_id], $new_user);
+            }
+
+            if($request->isMethod('POST')){
+                $request->flash();
+                return view('admin.users.multipleLoginList', compact('original_users' ,'original_new_map', 'new_users'));
+            }
+            return view('admin.users.multipleLoginList', compact('original_users' ,'original_new_map', 'new_users'));
+        }
         $original_users = \App\Models\MultipleLogin::with(['original_user', 'original_user.user_meta', 'original_user.banned', 'original_user.implicitlyBanned', 'original_user.aw_relation'])
             ->join('users', 'users.id', '=', 'multiple_logins.original_id')
             ->groupBy('original_id')->orderBy('users.last_login', 'desc');
-        $new_users = \App\Models\MultipleLogin::with(['new_user', 'new_user.user_meta', 'new_user.banned', 'new_user.implicitlyBanned', 'new_user.aw_relation'])
+        $new_users = \App\Models\MultipleLogin::with(['original_user', 'new_user', 'new_user.user_meta', 'new_user.banned', 'new_user.implicitlyBanned', 'new_user.aw_relation'])
             ->leftJoin('users', 'users.id', '=', 'multiple_logins.new_id')
             ->groupBy('new_id')->orderBy('users.last_login', 'desc');
         if($request->isMethod("POST")){
@@ -3616,10 +3677,177 @@ class UserController extends \App\Http\Controllers\BaseController
             array_push($original_new_map[$new_user->original_id], $new_user);
         }
 
+        /*
+         * $user_set: 每個元素的 key 值為原 user_id，首元素為原 user，
+         *            users 將新舊會員合併，各會員登入時間獨立記錄，方便排序，
+         *            再將排序後的 users 首個登入時間記在每個元素的 date 裡，再次排序
+         */
+        $user_set = array();
+        $total_users = 0;
+
+        foreach ($original_users as $original_user) {
+            if (isset($original_new_map[$original_user->id]) && !in_array($original_user->id, $user_set)) {
+                $user_set[$original_user->id] = array();
+                array_push($user_set[$original_user->id], $original_user);
+                $user_set[$original_user->id]['users'] = array();
+                foreach ($original_new_map[$original_user->id] as $new_user) {
+                    if ($new_user->new_user) {
+                        $user_set[$original_user->id]['users'][$new_user->id]['date'] = $new_user->last_login;
+                        $user_set[$original_user->id]['users'][$new_user->id]['new'] = 1;
+                        array_push($user_set[$original_user->id]['users'][$new_user->id] , $new_user);
+                        $total_users++;
+                    }
+                }
+                $user_set[$original_user->id]['users'][$original_user->id]['date'] = $original_user->last_login;
+                $user_set[$original_user->id]['users'][$original_user->id]['old'] = 1;
+                array_push($user_set[$original_user->id]['users'][$original_user->id] , $original_user);
+                $total_users++;
+                usort($user_set[$original_user->id]['users'], array('\App\Http\Controllers\Admin\UserController', 'sortByDate'));
+            }
+        }
+        foreach ($user_set as &$set){
+            $set['date'] = $set['users'][0]['date'];
+        }
+        usort($user_set, array('\App\Http\Controllers\Admin\UserController', 'sortByDate'));
         if($request->isMethod('POST')){
             $request->flash();
-            return view('admin.users.multipleLoginList', compact('original_users' ,'original_new_map', 'new_users'));
+            return view('admin.users.multipleLoginList_new', compact('user_set', 'total_users'));
         }
-        return view('admin.users.multipleLoginList', compact('original_users' ,'original_new_map', 'new_users'));
+        return view('admin.users.multipleLoginList_new', compact('user_set', 'total_users'));
     }
+
+    function sortByDate($arr1, $arr2) {
+        $tmp1 = strtotime($arr1['date']);
+        $tmp2 = strtotime($arr2['date']);
+        return $tmp2 - $tmp1;
+    }
+
+    public function postsList(Request $request) {
+        $postsList = Posts::Join('users', 'users.id', '=', 'posts.user_id')
+            ->selectRaw('posts.*, users.email, users.name, users.prohibit_posts, users.access_posts')
+            ->orderBy('posts.created_at','desc');
+
+        if(!empty($request->get('account'))){
+            $postsList->where('users.email', 'like', '%' . $request->get('account') . '%');
+        }
+        if(!empty($request->get('date_start'))){
+            $postsList->where('posts.created_at','>=', $request->get('date_start'));
+        }
+        if(!empty($request->get('date_end'))){
+            $postsList->where('posts.created_at','<=', $request->get('date_end'). ' 23:59:59');
+        }
+        if(!empty($request->get('type'))){
+            $postsList->where('posts.type', $request->get('type'));
+        }
+
+
+        $postsList = $postsList->get();
+
+        $page = $request->get('page',1);
+        $perPage = 20;
+        $postsList = new LengthAwarePaginator($postsList->forPage($page, $perPage), $postsList->count(), $perPage, $page,   ['path' => '/admin/users/posts/']);
+        return view('admin.users.postsManage', compact('postsList'));
+    }
+
+    public function postsDelete($id)
+    {
+        $data= Posts::where('id', $id)->get()->first();
+        if ($data->delete()) {
+            return back()->with('message', '刪除成功');
+        } else {
+            return back()->withErrors(['發生不明錯誤，刪除失敗！']);
+        }
+    }
+
+    public function toggleUser_prohibit_posts(Request $request)
+    {
+        $user= User::findById($request->uid);
+        if ($user) {
+            if($request->prohibit){
+                $user->prohibit_posts=1;
+                $user->save();
+                return back()->with('message', $user->name . '禁止發言成功');
+            }else{
+                $user->prohibit_posts=0;
+                $user->save();
+                return back()->with('message', $user->name . '解除禁止發言');
+            }
+        }
+    }
+
+    public function toggleUser_access_posts(Request $request)
+    {
+        $user= User::findById($request->uid);
+        if ($user) {
+            if($request->access){
+                $user->access_posts=1;
+                $user->save();
+                return back()->with('message', $user->name . '封鎖進入討論區');
+            }else {
+                $user->access_posts = 0;
+                $user->save();
+                return back()->with('message', $user->name . '解除封鎖進入討論區');
+            }
+        }
+    }
+
+    public function showEvaluationPic($eid, $uid)
+    {
+        $user=User::findById($uid);
+
+        $evaluation=Evaluation::where('id',$eid)->first();
+        $evaluation_id=$eid;
+        $to_user=User::findById($evaluation->to_id);
+        $picList=EvaluationPic::where('evaluation_id',$eid)->where('member_id',$uid)->get();
+        return view('admin.users.showEvaluationPic',compact('picList','user','to_user','evaluation_id'));
+    }
+
+    public function evaluationPicDelete($picID)
+    {
+        EvaluationPic::where('id',$picID)->delete();
+        return back();
+    }
+
+    public function evaluationPicAdd(Request $request)
+    {
+        $evaluation_id=$request->input('evaluation_id');
+        $uid=$request->input('uid');
+        $nowCount = EvaluationPic::where('evaluation_id',$evaluation_id)->where('member_id',$uid)->count();
+
+        if($nowCount+ count( $request->file('images'))>5){
+            return back()->with('error', '總共不能上傳超過5張照片');
+        }
+
+        if($files = $request->file('images'))
+        {
+            foreach ($files as $file) {
+                $now = Carbon::now()->format('Ymd');
+                $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
+
+                $rootPath = public_path('/img/Evaluation');
+                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+
+                if(!is_dir($tempPath)) {
+                    File::makeDirectory($tempPath, 0777, true);
+                }
+
+                $destinationPath = '/img/Evaluation/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
+
+                $img = Image::make($file->getRealPath());
+                $img->resize(400, 600, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($tempPath . $input['imagename']);
+
+                //新增images到db
+                $evaluationPic = new EvaluationPic();
+                $evaluationPic->evaluation_id = $evaluation_id;
+                $evaluationPic->member_id = $uid;
+                $evaluationPic->pic = $destinationPath;
+                $evaluationPic->save();
+            }
+        }
+        return back();
+    }
+
+
 }

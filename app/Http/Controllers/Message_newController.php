@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Blocked;
 use App\Models\lineNotifyChat;
 use App\Models\lineNotifyChatSet;
 use App\Models\MemberFav;
@@ -247,9 +248,16 @@ class Message_newController extends BaseController {
                     break;
                 }
             }
+
+            //檢查封鎖
+            $checkIsBlock = Blocked::isBlocked($to_user->id, auth()->id());
+            if($checkIsBlock){
+                $line_notify_send = false;
+            }
+
         }
 
-        if($to_user->line_notify_token != null && $to_user->line_notify_switch == 1 && $line_notify_send){
+        if($to_user->line_notify_token != null && $line_notify_send){
             $url = url('/dashboard/chat2/chatShow/'.auth()->id());
 //            $url = app('bitly')->getUrl($url); //新套件用，如無法使用則先隱藏相關class
 
@@ -262,7 +270,7 @@ class Message_newController extends BaseController {
         //發送訊息後後判斷是否需備自動封鎖
         // SetAutoBan::auto_ban(auth()->id());
         SetAutoBan::msg_auto_ban(auth()->id(), $payload['to'], $payload['msg']);
-        return back()->with('message','發送成功');
+        return back();
     }
 
     public function chatview(Request $request)

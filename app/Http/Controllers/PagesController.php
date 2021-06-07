@@ -9,6 +9,7 @@ use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
 use App\Models\BannedUsersImplicitly;
 use App\Models\Evaluation;
+use App\Models\EvaluationPic;
 use App\Models\hideOnlineData;
 use App\Models\Message_new;
 use App\Models\SimpleTables\warned_users;
@@ -1865,7 +1866,11 @@ class PagesController extends BaseController
             $date = date('Y-m-d H:m:s', strtotime('-7 days'));
 
             /*車馬費邀請次數*/
-            $tip_count = Tip::where('to_id', $uid)->get()->count();
+            if($targetUser->engroup==2) {
+                $tip_count = Tip::where('to_id', $uid)->get()->count();
+            }else{
+                $tip_count = Tip::where('member_id', $uid)->get()->count();
+            }
 
             /*收藏會員次數*/
             $fav_count = MemberFav::where('member_id', $uid)->get()->count();
@@ -2310,25 +2315,63 @@ class PagesController extends BaseController
                 ['content' => $request->input('content'), 'rating' => $request->input('rating'), 'read' => 1, 'updated_at' => now()]
             );
         }else {
-            DB::table('evaluation')->insert(
-                ['from_id' => $request->input('uid'), 'to_id' => $request->input('eid'), 'content' => $request->input('content'), 'rating' => $request->input('rating'), 'read' => 1, 'created_at' => now(), 'updated_at' => now()]
-            );
+
+            $evaluation=Evaluation::create([
+                'from_id' => $request->input('uid'), 'to_id' => $request->input('eid'), 'content' => $request->input('content'), 'rating' => $request->input('rating'), 'read' => 1, 'created_at' => now(), 'updated_at' => now()
+            ]);
+            //儲存評論照片
+            $this->evaluation_pic_save($evaluation->id, $request->input('uid'), $request->file('images'));
         }
 
         //return redirect('/dashboard/evaluation/'.$request->input('eid'))->with('message', '評價已完成');
         return back()->with('message', '評價已完成');
     }
 
+    public function evaluation_pic_save($evaluation_id, $uid, $images)
+    {
+        if($files = $images) //$request->file('images')
+        {
+            foreach ($files as $file) {
+                $now = Carbon::now()->format('Ymd');
+                $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
+
+                $rootPath = public_path('/img/Evaluation');
+                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+
+                if(!is_dir($tempPath)) {
+                    File::makeDirectory($tempPath, 0777, true);
+                }
+
+                $destinationPath = '/img/Evaluation/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
+
+                $img = Image::make($file->getRealPath());
+                $img->resize(400, 600, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($tempPath . $input['imagename']);
+
+                //新增images到db
+                $evaluationPic = new EvaluationPic();
+                $evaluationPic->evaluation_id = $evaluation_id;//$request->input('evaluation_id'); //評價id
+                $evaluationPic->member_id = $uid;//$request->input('uid');
+                $evaluationPic->pic = $destinationPath;
+                $evaluationPic->save();
+            }
+        }
+    }
+
     public function evaluation_delete(Request $request)
     {
-
         DB::table('evaluation')->where('id',$request->id)->delete();
+        EvaluationPic::where('evaluation_id',$request->id)->delete();
 
         return response()->json(['save' => 'ok']);
     }
 
     public function evaluation_re_content_save(Request $request)
     {
+        EvaluationPic::where('evaluation_id',$request->id)->where('member_id',$request->eid)->delete();
+        //儲存評論照片
+        $this->evaluation_pic_save($request->input('id'), $request->input('eid'), $request->file('images'));
 
         DB::table('evaluation')->where('id',$request->input('id'))->update(
             ['re_content' => $request->input('re_content'), 're_created_at' => now()]
@@ -2344,6 +2387,7 @@ class PagesController extends BaseController
         DB::table('evaluation')->where('id',$request->id)->update(
             ['re_content' => null]
         );
+        EvaluationPic::where('evaluation_id',$request->id)->where('member_id',$request->userid)->delete();
 
         return response()->json(['save' => 'ok']);
     }
@@ -2499,9 +2543,11 @@ class PagesController extends BaseController
         $payload = $request->all();
         $bid = $payload['to'];
         $aid = auth()->id();
-        if ($aid !== $bid)
-        {
-            Blocked::block($aid, $bid);
+        if ($aid !== $bid) {
+            $isBlocked = Blocked::isBlocked($aid, $bid);
+            if(!$isBlocked) {
+                Blocked::block($aid, $bid);
+            }
         }
         return back()->with('message', '封鎖成功');
     }
@@ -3668,18 +3714,15 @@ class PagesController extends BaseController
             return back();
         }
         $posts = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at')
-            ->selectRaw('(select count(*) from posts where reply_id=pid and type ="sub") as replyCount')
+            ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid or reply_id in ((select distinct(id) from posts where type="sub" and reply_id=pid) )  order by updated_at desc limit 1) as currentReplyTime')
+            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
             ->LeftJoin('users', 'users.id','=','posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->where('posts.type','main')
-            ->orderBy('replyCount','desc')
-            ->orderBy('posts.created_at','desc')
+            ->orderBy('adminFlag','desc')
+            ->orderBy('currentReplyTime','desc')
             ->paginate(10);
-        
-        // foreach($posts['data'] as $key=>$post){
-        //     array_push($posts['data'][$key], $post['pcontents']);
-        // }
-        // dd($posts);
+
         $data = array(
             'posts' => $posts
         );
@@ -3696,15 +3739,22 @@ class PagesController extends BaseController
             }
             
         }
-        
+
+        //檢查是否為連續兩個月以上的VIP會員
+        $checkUserVip=0;
+        $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
+        if($isVip){
+            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+                $checkUserVip=1;
+            }
+        }
 
         return view('/dashboard/posts_list', $data)
+        ->with('checkUserVip', $checkUserVip)
         ->with('blocks', $blocks)
         ->with('users', $usersInfo)
         ->with('user', $user);
-
-
-            
     }
 
     public function post_detail(Request $request)
@@ -3721,9 +3771,19 @@ class PagesController extends BaseController
         $replyDetail = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
             ->LeftJoin('users', 'users.id','=','posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->orderBy('pcreated_at','desc')
             ->where('posts.reply_id', $pid)->get();
 
-        return view('/dashboard/post_detail', compact('postDetail','replyDetail'))->with('user', $user);
+        //檢查是否為連續兩個月以上的VIP會員
+        $checkUserVip=0;
+        $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
+        if($isVip){
+            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+                $checkUserVip=1;
+            }
+        }
+        return view('/dashboard/post_detail', compact('postDetail','replyDetail', 'checkUserVip'))->with('user', $user);
     }
 
     public function getPosts(Request $request)
@@ -3797,10 +3857,10 @@ class PagesController extends BaseController
         }
     }
 
-    public function postsEdit($id)
+    public function postsEdit($id, $editType='all')
     {
         $postInfo = Posts::find($id);
-        return view('/dashboard/posts_edit',compact('postInfo'));
+        return view('/dashboard/posts_edit',compact('postInfo','editType'));
     }
 
     public function doPosts(Request $request)
@@ -3993,7 +4053,7 @@ class PagesController extends BaseController
             $vip_record = Carbon::parse($user->vip_record);
             $vipDays = $vip_record->diffInDays(Carbon::now());
             if(!$user->isFreeVip()) {
-                $vip = Vip::select('payment','payment_method','expiry')->where('member_id', $user->id)->first();
+                $vip = Vip::select('business_id', 'order_id', 'payment', 'payment_method', 'expiry', 'amount')->where('member_id', $user->id)->first();
                 if($vip->payment){
 
                     switch ($vip->payment_method){
@@ -4046,7 +4106,7 @@ class PagesController extends BaseController
                     switch ($vip->payment){
                         case 'cc_monthly_payment':
                             if(isset($nextProcessDate)){
-                                $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate;
+                                $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate.' 扣款金額：'.$vip->amount;
                             }else{
                                 $nextProcessDate = '已停止扣款，VIP 到期日為' . substr($vip->expiry,0,10);
                             }
@@ -4055,7 +4115,7 @@ class PagesController extends BaseController
                         case 'cc_quarterly_payment':
 
                             if(isset($nextProcessDate)){
-                                $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate;
+                                $nextProcessDate = '預計下次扣款日為 '.$nextProcessDate.' 扣款金額：'.$vip->amount;
                             }else{
                                 $nextProcessDate = '已停止扣款，VIP 到期日為' . substr($vip->expiry,0,10);
                             }
@@ -4088,7 +4148,8 @@ class PagesController extends BaseController
         }else if(!empty($user_isBannedOrWarned->banned_id) && $user_isBannedOrWarned->banned_expire_date > now() ) {
             $datetime1 = new \DateTime(now());
             $datetime2 = new \DateTime($user_isBannedOrWarned->banned_expire_date);
-            $diffDays = $datetime1->diff($datetime2)->days;
+            $datetime3 = new \DateTime($user_isBannedOrWarned->banned_created_at);
+            $diffDays = $datetime2->diff($datetime3)->days;
             $isBannedStatus .= '您從 '.substr($user_isBannedOrWarned->banned_created_at,0,10).' 被站方封鎖 '.$diffDays.' 天，預計至 '.substr($user_isBannedOrWarned->banned_expire_date,0,10).' 日解除，原因是 '.$user_isBannedOrWarned->banned_reason.'，如有需要反應請點右下聯絡我們聯絡站長。';
         }
 
@@ -4105,7 +4166,8 @@ class PagesController extends BaseController
         }else if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date > now() ) {
             $datetime1 = new \DateTime(now());
             $datetime2 = new \DateTime($user_isBannedOrWarned->warned_expire_date);
-            $diffDays = $datetime1->diff($datetime2)->days;
+            $datetime3 = new \DateTime($user_isBannedOrWarned->warned_created_at);
+            $diffDays = $datetime2->diff($datetime3)->days;
             $adminWarnedStatus .= '您從 '.substr($user_isBannedOrWarned->warned_created_at,0,10).' 被站方警示 '.$diffDays.' 天，預計至 '.substr($user_isBannedOrWarned->warned_expire_date,0,10).' 日解除，原因是 '.$user_isBannedOrWarned->warned_reason.'，如有需要反應請點右下聯絡我們聯絡站長。';
         }
 

@@ -125,6 +125,7 @@
         }
 
         //VIP帳號：起始時間,付費方式,種類,現狀
+        //VIP起始時間,現狀,付費方式,種類
         $vipInfo = \App\Models\Vip::findByIdWithDateDesc($user->id);
 
         if(!is_null($vipInfo)){
@@ -141,13 +142,13 @@
 
 			$upgradeKind ='';
 			if ($vipInfo->payment == 'cc_quarterly_payment')
-				$upgradeKind = '定期季繳';
+				$upgradeKind = '持續季繳';
 			else if ($vipInfo->payment == 'cc_monthly_payment')
-				$upgradeKind = '定期月繳';
+				$upgradeKind = '持續月繳';
 			else if ($vipInfo->payment == 'one_quarter_payment')
-				$upgradeKind = '單季支付';
+				$upgradeKind = '季繳一季';
 			else if ($vipInfo->payment == 'one_month_payment')
-				$upgradeKind = '單月支付';
+				$upgradeKind = '月繳一月';
 
 			$vipLog = \App\Models\VipLog::where("member_id", $user->id)->orderBy('id', 'desc')->first();
 			//現狀:只有持續中跟未持續兩種。已取消扣款或者一次付清都是未持續。
@@ -158,8 +159,20 @@
 			else
 				$nowStatus = '持續中';
 
-			$showVipInfo_1 =  $upgradeDay .','.$upgradeWay .','.$upgradeKind .','. $nowStatus ;
+			//VIP起始時間,現狀,付費方式,種類
+			if(is_null($vipInfo->payment_method) && is_null($vipInfo->payment)){
+			    $upgradeWay='手動升級';
+			    $upgradeKind='手動升級';
+			}
+			if($vipInfo->free==1){
+			    $upgradeWay='免費';
+			    $upgradeKind='免費';
+			}
+			$getUserInfo=\App\Models\User::findById($user->id);//->isVip? '是':'否';
+			$isVipStatus=$getUserInfo->isVip() ? '是':'否';
+			$showVipInfo =  $upgradeDay .','. $isVipStatus .','. $upgradeWay .','. $upgradeKind;
 
+			/*
 			//計算總繳費月數
 			//upgrage的log抓起始日，然後從取消的地方抓 expiry，可以算出一段的時間，
 			//如果是早期沒記錄expiry的log，再從auto cancellation 抓取消時間,每段時間算出來以後再加起來
@@ -212,9 +225,12 @@
 			    $showVipInfo = $showVipInfo_0;
 			else
 				$showVipInfo = $showVipInfo_1;
+			*/
+
         }else{
             $nowStatus = '';
-            $showVipInfo =  '暫無資料' ;
+            //還沒有成為過vip
+            $showVipInfo =  '未曾加入,否,無,無';
         }
 	@endphp
 	<tr>
@@ -225,7 +241,8 @@
 		<th>Email</th>
 		<th>建立時間</th>
 		<th>更新時間</th>
-		@if($nowStatus =='未持續')<th>VIP起始時間,總繳費月數,現狀</th> @else <th>VIP起始時間,付費方式,種類,現狀</th> @endif
+{{--		@if($nowStatus =='未持續')<th>VIP起始時間,總繳費月數,現狀</th> @else <th>VIP起始時間,付費方式,種類,現狀</th> @endif--}}
+		<th>VIP起始時間,現狀,付費方式,種類</th>
 		@if(!is_null($warnedInfo))<th>警示時間</th>@endif
 		<th>上次登入</th>
 		<th>上站次數</th>
@@ -544,6 +561,7 @@
 		<th>會員認證</th>
 		<th>星等分數</th>
 		<th>評價內容</th>
+		<th>上傳照片</th>
 		<th>動作</th>
 	</tr>
 	@foreach($out_evaluation_data_2 as $row)
@@ -554,7 +572,18 @@
 			<td>@if($row['to_isvip']==1) VIP @endif</td>
 			<td>@if($row['to_auth_status']==1) 已認證 @else N/A @endif</td>
 			<td>{{ $row['rating'] }}</td>
-			<td>{{ $row['content'] }}</td>
+			@if($row['is_check']==1)
+				<td style="color: red;">***此評價目前由站方審核中***</td>
+			@else
+				<td>{{ $row['content'] }}</td>
+			@endif
+			<td class="evaluation_zoomIn" style="display: flex;">
+				@foreach($row['evaluation_pic'] as $evaluationPic)
+					<li>
+						<img src="{{ $evaluationPic->pic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+					</li>
+				@endforeach
+			</td>
 			<td>
 				<form method="POST" action="{{ route('evaluationModifyContent', $row['id']) }}" style="margin:0px;display:inline;">
 					{!! csrf_field() !!}
@@ -568,6 +597,8 @@
 					<input type="hidden" name="id" value="{{$row['id']}}">
 					<button type="submit" class="btn btn-danger evaluation_delete_submit">刪除評價</button>
 				</form>
+				<div class="btn {{ $row['is_check'] ? 'btn-success':'btn-danger' }} evaluation_check_submit{{$row['id']}}" onclick="evaluationCheck('{{$row["id"]}}','{{$row["to_id"]}}','{{$row["is_check"] ? 0 : 1}}')">{{ $row['is_check'] ? '結束審核':'審核評價內容' }}</div>
+				<a href="{{ route('showEvaluationPic', [ $row['id'], $row["to_id"]]) }}" target="_blank" class="btn btn-warning">照片編輯</a>
 			</td>
 		</tr>
 	@endforeach
@@ -582,6 +613,7 @@
 		<th>會員認證</th>
 		<th>星等分數</th>
 		<th>評價內容</th>
+		<th>上傳照片</th>
 		<th>動作</th>
 	</tr>
 	@foreach($out_evaluation_data as $row)
@@ -592,7 +624,18 @@
 			<td>@if($row['to_isvip']==1) VIP @endif</td>
 			<td>@if($row['to_auth_status']==1) 已認證 @else N/A @endif</td>
 			<td>{{ $row['rating'] }}</td>
-			<td>{{ $row['content'] }}</td>
+			@if($row['is_check']==1)
+				<td style="color: red;">***此評價目前由站方審核中***</td>
+			@else
+				<td>{{ $row['content'] }}</td>
+			@endif
+			<td class="evaluation_zoomIn" style="display: flex;">
+				@foreach($row['evaluation_pic'] as $evaluationPic)
+					<li>
+						<img src="{{ $evaluationPic->pic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+					</li>
+				@endforeach
+			</td>
 			<td>
 				<form method="POST" action="{{ route('evaluationModifyContent', $row['id']) }}" style="margin:0px;display:inline;">
 					{!! csrf_field() !!}
@@ -606,6 +649,8 @@
 					<input type="hidden" name="id" value="{{$row['id']}}">
 					<button type="submit" class="btn btn-danger evaluation_delete_submit">刪除評價</button>
 				</form>
+				<div class="btn {{ $row['is_check'] ? 'btn-success':'btn-danger' }} evaluation_check_submit{{$row['id']}}" onclick="evaluationCheck('{{$row["id"]}}','{{$row["from_id"]}}','{{$row["is_check"] ? 0 : 1}}')">{{ $row['is_check'] ? '結束審核':'審核評價內容' }}</div>
+				<a href="{{ route('showEvaluationPic', [ $row['id'], $row["from_id"]]) }}" target="_blank" class="btn btn-warning">照片編輯</a>
 			</td>
 		</tr>
 	@endforeach
@@ -937,6 +982,19 @@
 		<input type="hidden" value="advInfo" name="page">
 	</form>
 </div>
+<!--照片查看-->
+<div class="big_img">
+	<!-- 自定义分页器 -->
+	<div class="swiper-num">
+		<span class="active"></span>/
+		<span class="total"></span>
+	</div>
+	<div class="swiper-container2">
+		<div class="swiper-wrapper">
+		</div>
+	</div>
+	<div class="swiper-pagination2"></div>
+</div>
 <script src="/js/vendors.bundle.js" type="text/javascript"></script>
 <script>
 jQuery(document).ready(function(){
@@ -1126,6 +1184,31 @@ $('.evaluation_delete_submit').on('click',function(e){
 		e.preventDefault();
 	}
 });
+function evaluationCheck(eid,userid,is_check) {
+	if ($(".evaluation_check_submit"+eid).text() == '結束審核')
+		var showMsg = '確定要將該筆評價移除"審核中"狀態?';
+	else
+		var showMsg = '確定要將該筆評價變更為"審核中"?';
+
+	if (confirm(showMsg)) {
+		$.ajax({
+			type: 'POST',
+			url: "/admin/users/evaluation/check",
+			data: {
+				_token: '{{csrf_token()}}',
+				id: eid,
+				userid: userid,
+				is_check: is_check,
+			},
+			dataType: "json",
+			success: function (res) {
+				var tempwindow=window.open('_blank');
+				tempwindow.location=res.redirect_to ;
+				location.reload();
+			}
+		});
+	}
+}
 
 function showPhoneInput(){
 	$('.modify_phone_submit').show();
@@ -1147,4 +1230,62 @@ $('.delete_phone_submit').on('click',function(e){
 
 
 </script>
+<!--照片查看-->
+<link type="text/css" rel="stylesheet" href="/new/css/app.css">
+<link rel="stylesheet" type="text/css" href="/new/css/swiper2.min.css"/>
+<script type="text/javascript" src="/new/js/swiper.min.js"></script>
+<script>
+	$(document).ready(function () {
+		/*调起大图 S*/
+		var mySwiper = new Swiper('.swiper-container2',{
+			pagination : '.swiper-pagination2',
+			paginationClickable:true,
+			onInit: function(swiper){//Swiper初始化了
+				// var total = swiper.bullets.length;
+				var active =swiper.activeIndex;
+				$(".swiper-num .active").text(active);
+				// $(".swiper-num .total").text(total);
+			},
+			onSlideChangeEnd: function(swiper){
+				var active =swiper.realIndex +1;
+				$(".swiper-num .active").text(active);
+			}
+		});
+
+		$(".evaluation_zoomIn li").on("click",
+			function () {
+				var imgBox = $(this).parent(".evaluation_zoomIn").find("li");
+				var i = $(imgBox).index(this);
+				$(".big_img .swiper-wrapper").html("")
+
+				for (var j = 0, c = imgBox.length; j < c ; j++) {
+					$(".big_img .swiper-wrapper").append('<div class="swiper-slide"><div class="cell"><img src="' + imgBox.eq(j).find("img").attr("src") + '" / ></div></div>');
+				}
+				mySwiper.updateSlidesSize();
+				mySwiper.updatePagination();
+				$(".big_img").css({
+					"z-index": 1001,
+					"opacity": "1"
+				});
+				//分页器
+				var num = $(".swiper-pagination2 span").length;
+				$(".swiper-num .total").text(num);
+				// var active =$(".swiper-pagination2").index(".swiper-pagination-bullet-active");
+				$(".swiper-num .active").text(i + 1);
+				// console.log(active)
+
+				mySwiper.slideTo(i, 0, false);
+				return false;
+			});
+		$(".swiper-container2").click(function(){
+			$(this).parent(".big_img").css({
+				"z-index": "-1",
+				"opacity": "0"
+			});
+		});
+
+	});
+	/*调起大图 E*/
+</script>
+<!--照片查看end-->
 </html>
