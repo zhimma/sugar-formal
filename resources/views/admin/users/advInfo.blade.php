@@ -164,6 +164,10 @@
 			    $upgradeWay='手動升級';
 			    $upgradeKind='手動升級';
 			}
+			if($vipInfo->free==1){
+			    $upgradeWay='免費';
+			    $upgradeKind='免費';
+			}
 			$getUserInfo=\App\Models\User::findById($user->id);//->isVip? '是':'否';
 			$isVipStatus=$getUserInfo->isVip() ? '是':'否';
 			$showVipInfo =  $upgradeDay .','. $isVipStatus .','. $upgradeWay .','. $upgradeKind;

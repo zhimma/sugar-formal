@@ -222,7 +222,7 @@
         .zap_photo>li>em{position: absolute; left: 0; top:0; width: 100%; height: 100%; background: rgba(0,0,0,.5); color: #fff; display: flex; align-items: center; justify-content: center;}
         .pjliuyan02 .zap_photo>li{padding: 0;display: flex;width:19%; margin: 10px 1% 0 0; height:140px;background: #f5f5f5; border: none; overflow: hidden;}
         .pjliuyan02 .zap_photo{margin: 0; display: block;}
-        .pjliuyan02 .zap_photo>li>img{width: 100%; max-height:unset;}
+        /*.pjliuyan02 .zap_photo>li>img{width: 100%; max-height:unset;}*/
 
         @media (max-width:768px){
             .zap_bb>.text>a>em{padding-left:11px;}
@@ -294,7 +294,7 @@
                 @if(isset($to))
                 <div class="rightbg">
                     <div class="metx">
-                        <a href="{{ \Illuminate\Support\Facades\URL::previous() }}" class="hyneback"><img src="/new/images/back_icon.png">返回</a>
+                        <a href="{{ \Illuminate\Support\Facades\URL::previous() }}" class="hyneback" style="z-index: 6;"><img src="/new/images/back_icon.png">返回</a>
                         <div class="swiper-container photo">
                             <div class="swiper-wrapper">
                                 <div class="swiper-slide @if($isBlurAvatar) blur_img @endif" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>
@@ -820,14 +820,17 @@
                         <div class="ztitle"><span>會員評價</span>Evaluation<a onClick="popEvaluation()"class="zw_dw">請按我</a></div>
                         <div class="xiliao_input">
                             <div class="xl_text">
-                                <div class="pjliuyan02 amar15">
-                                    @if(sizeof($evaluation_data) > 0)
+                                <div class="pjliuyan02 amar15 mohu_li" style=" min-height: auto; margin-bottom: 0;">
                                     @php
-                                   // print_r($evaluation_data);
-                                        $showCount = 0;
-                                        $blockMidList = array();
+                                        // print_r($evaluation_data);
+                                         $showCount = 0;
+                                         $blockMidList = array();
+                                         $isVip=$user->isVip();
                                     @endphp
-                                    <ul style="width: 100%;">
+                                    @if((!$isVip && $user->id!=$to->id) && sizeof($evaluation_data) > 0)<div class="mohu_icon"><img src="/new/images/icon_36.png"></div>@endif
+                                    @if(sizeof($evaluation_data) > 0)
+                                    <ul style="width: 100%;" class="showSelfEvaluation_notvip" ></ul>
+                                    <ul style="width: 100%;" class="evaluationList {{ !$isVip && $user->id!=$to->id ? 'mohu01':'' }}">
                                         @foreach( $evaluation_data as $row)
                                             @php
                                                 $row_user = \App\Models\User::findById($row->from_id);
@@ -846,7 +849,7 @@
                                                 $showCount++;
                                             @endphp
                                             @if(!$isBlocked && !isset($hadWarned) && !isset($warned_users))
-                                            <li>
+                                            <li class="{{ ($row_user->id == $user->id)  ? 'showSelfEvaluation':'' }}">
                                                 <div class="piname">
                                                     <span>
                                                         @for ($i = 1; $i <= 5; $i++)
@@ -872,18 +875,20 @@
                                                     @php
                                                         $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
                                                     @endphp
+                                                    @if($row->is_check==0)
                                                     <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
                                                         @foreach($evaluationPics as $evaluationPic)
                                                             <li><img src="{{ $evaluationPic->pic }}"></li>
                                                         @endforeach
                                                     </ul>
+                                                    @endif
                                                     <h4>
                                                         <span class="btime">{{ substr($row->created_at,0,10)}}</span>
                                                         <button type="button" class="al_but">[完整評價]</button>
                                                     </h4>
                                                 </div>
 {{--                                                || $user->id==697--}}
-                                                @if(empty($row->re_content) && $to->id == $user->id )
+                                                @if(empty($row->re_content) && $to->id == $user->id)
                                                     <div class="huf" style="width: 100%;">
                                                         <form id="form_re_content{{$row->id}}" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post" enctype="multipart/form-data">
                                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -916,11 +921,13 @@
                                                                 @php
                                                                     $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
                                                                 @endphp
+                                                                @if($row->is_check==0)
                                                                 <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
                                                                     @foreach($evaluationPics as $evaluationPic)
                                                                         <li><img src="{{ $evaluationPic->pic }}"></li>
                                                                     @endforeach
                                                                 </ul>
+                                                                @endif
                                                             </div>
                                                         </div>
                                                         <div class="he_twotime">{{ substr($row->re_created_at,0,10)}}<span class="z_more">展開</span></div>
@@ -947,7 +954,7 @@
                                                         ->orWhere('expire_date', null); })->first();
                                                 $showCount++;
                                             @endphp
-                                            <li>
+                                            <li class="{{ ($row_user->id == $user->id)  ? 'showSelfEvaluation_block':'' }}">
                                                 <div class="kll">
                                                 <div class="piname">
                                                     <span>
@@ -981,11 +988,13 @@
                                                     @php
                                                         $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
                                                     @endphp
+                                                    @if($row->is_check==0)
                                                     <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
                                                         @foreach($evaluationPics as $evaluationPic)
                                                             <li><img src="{{ $evaluationPic->pic }}"></li>
                                                         @endforeach
                                                     </ul>
+                                                    @endif
                                                     <h4>
                                                         <span class="btime">{{ substr($row->created_at,0,10)}}</span>
                                                         <button type="button" class="al_but">[完整評價]</button>
@@ -1026,11 +1035,13 @@
                                                                 @php
                                                                     $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
                                                                 @endphp
+                                                                @if($row->is_check==0)
                                                                 <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
                                                                     @foreach($evaluationPics as $evaluationPic)
                                                                         <li><img src="{{ $evaluationPic->pic }}"></li>
                                                                     @endforeach
                                                                 </ul>
+                                                                @endif
                                                             </div>
                                                         </div>
                                                         <div class="he_twotime">{{ substr($row->re_created_at,0,10)}}<span class="z_more">展開</span></div>
@@ -1059,8 +1070,6 @@
                                     </div>
                                     @endif
                                 </div>
-
-
                             </div>
                         </div>
                     </div>
@@ -1338,6 +1347,20 @@
 <script>
 
     $( document ).ready(function() {
+
+
+        var isVip='{{ $isVip && $user->id!=$to->id }}';
+
+        if(!isVip){
+            //非VIP會員只顯示自己的評價, 其餘評價模糊處理
+            if($('.evaluationList li').hasClass('showSelfEvaluation')){
+                $('.showSelfEvaluation_notvip').html('<li>'+$('.showSelfEvaluation').html() +'</li>');
+            }
+            if($('.evaluationList li').hasClass('showSelfEvaluation_block')){
+                $('.showSelfEvaluation_notvip').append('<li>'+$('.showSelfEvaluation_block').html() +'</li>');
+            }
+        }
+
         // $('.tagText').on('click', function() {
         //    alert($(this).data('content'));
         //    c3($(this).data('content'));
@@ -1751,6 +1774,7 @@
                 @elseif(!isset($evaluation_self))
                     $('#tab_evaluation').show();
                     $(".announce_bg").show();
+                    $('body').css("overflow", "hidden");
                 @else
                     c5('您已評價過');
                 @endif
@@ -2128,11 +2152,13 @@
     function tab_evaluation_close(){
         $(".announce_bg").hide();
         $("#tab_evaluation").hide();
+        $('body').css("overflow", "auto");
     }
 
     function tab_evaluation_reply_close(){
         $(".announce_bg").hide();
         $("#tab_evaluation_reply").hide();
+        $('body').css("overflow", "auto");
     }
 
     function tab_evaluation_reply_show(id, eid) {
@@ -2142,6 +2168,7 @@
         $("#tab_evaluation_reply").show();
         $("#tab_evaluation_reply #id_reply").val(id);
         $("#tab_evaluation_reply #eid_reply").val(eid);
+        $('body').css("overflow", "hidden");
     }
 
 </script>
