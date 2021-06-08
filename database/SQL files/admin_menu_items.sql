@@ -79,6 +79,8 @@ ALTER TABLE `admin_menu_items`
 
 
 
-ALTER TABLE `role_user` ADD `created_at` TIMESTAMP NULL AFTER `item_permission`, ADD `updated_at` TIMESTAMP NULL AFTER `created_at`;
+ALTER TABLE `role_user` 
+ADD `item_permission` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL AFTER `role_id`,
+ADD `created_at` TIMESTAMP NULL AFTER `item_permission`, ADD `updated_at` TIMESTAMP NULL AFTER `created_at`;
 ALTER TABLE role_user  drop foreign key role_user_role_id_foreign;
 ALTER TABLE role_user  drop foreign key role_user_user_id_foreign;
