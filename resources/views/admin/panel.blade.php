@@ -1,6 +1,7 @@
 <div id="mySidenav" class="sidenav">
 	@if (Auth::user()->can('admin'))
 		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+		<a href="{{ route('accessPermission') }}">初階站長權限管理</a>
 {{--		<a href="{{ route('stats/date_file_log') }}">異動檔上傳/檢查記錄</a>--}}
 		<a href="{{ route('stats/set_autoBan') }}">自動封鎖警示設定</a>
 {{--		<a href="{{ route('stats/cron_log') }}">VIP 排程檢查記錄</a>--}}
@@ -53,12 +54,22 @@
 
 	@elseif (Auth::user()->can('juniorAdmin'))
 		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-		<a href="{{ route('users/manager') }}">會員搜尋(變更男女、VIP資料)</a>
+		@php
+			$adminUser=\Illuminate\Support\Facades\Auth::user();
+			$getPermission=\Illuminate\Support\Facades\DB::table('role_user')->where('user_id',$adminUser->id)->first()->item_permission;
+			$getMenuList=explode(',',$getPermission);
+		@endphp
+		@if(!is_null($getPermission))
+			@foreach(\Illuminate\Support\Facades\DB::table('admin_menu_items')->whereIn('id',$getMenuList)->get() as $key =>$item)
+				<a href="{{ $item->route_path }}">{{ $item->title }}</a>
+			@endforeach
+		@endif
+		{{--<a href="{{ route('users/manager') }}">會員搜尋(變更男女、VIP資料)</a>
 		<a href="{{ route('users/advSearch') }}">進階會員搜尋</a>
 		<a href="{{ route('users/message/search') }}">會員訊息管理</a>
 		<a href="{{ route('users/reported') }}">被檢舉會員清單</a>
 		<a href="{{ route('users/pics/reported') }}">被檢舉照片清單</a>
 		<a href="{{ route('admin/check') }}">站長審核</a>
-		<a href="{{ route('users/picturesSimple') }}">會員照片管理簡化版</a>
+		<a href="{{ route('users/picturesSimple') }}">會員照片管理簡化版</a>--}}
 	@endif
 </div>
