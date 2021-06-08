@@ -478,6 +478,12 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
             return '<h1>Clear Config cleared</h1>';
         });
 
+        Route::get('dashboard/accessPermission', 'DashboardController@accessPermission')->name('accessPermission');
+        Route::get('dashboard/accessPermission/show', 'DashboardController@showJuniorAdmin')->name('showJuniorAdmin');
+        Route::post('dashboard/accessPermission/create', 'DashboardController@juniorAdminCreate')->name('juniorAdminCreate');
+        Route::post('dashboard/accessPermission/edit', 'DashboardController@juniorAdminEdit')->name('juniorAdminEdit');
+        Route::post('dashboard/accessPermission/delete/{userid}', 'DashboardController@juniorAdminDelete')->name('juniorAdminDelete');
+
         Route::get('dashboard', 'DashboardController@index');
         /*
         |--------------------------------------------------------------------------
