@@ -558,9 +558,9 @@ class User extends Authenticatable
         if($checkMessages==0 && !$user->isVip()){
             $pr = '無';
             $pr_log = '註冊後如無任何傳訊紀錄+不是vip';
-            //舊紀錄更新active=0
-            DB::table('pr_log')->where('user_id',$uid)->update(['active' => 0]);
-            return DB::table('pr_log')->insert([ 'user_id' => $uid, 'pr' => $pr, 'pr_log' => $pr_log, 'active' => 1 ]);
+            //舊紀錄刪除
+            Pr_log::where('user_id',$uid)->delete();
+            return Pr_log::insert([ 'user_id' => $uid, 'pr' => $pr, 'pr_log' => $pr_log, 'active' => 1 ]);
         }
 
         //default
@@ -828,10 +828,10 @@ class User extends Authenticatable
         }
 
 
-        //舊紀錄更新active=0
-        DB::table('pr_log')->where('user_id',$uid)->update(['active' => 0]);
+        //舊紀錄刪除
+        Pr_log::where('user_id',$uid)->delete();
         //存LOG
-        return DB::table('pr_log')->insert([ 'user_id' => $uid, 'pr' => $pr, 'pr_log' => $pr_log, 'active' => 1]);
+        return Pr_log::insert([ 'user_id' => $uid, 'pr' => $pr, 'pr_log' => $pr_log, 'active' => 1]);
 //        $query_pr = DB::table('pr_log')->where('user_id',$uid)->orderBy('created_at','desc')->first();
 //        if( (isset($query_pr) && $query_pr->pr_log != $pr_log) || !isset($query_pr)) {
 //            DB::table('pr_log')->insert([
