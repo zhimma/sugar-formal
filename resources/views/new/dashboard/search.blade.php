@@ -300,40 +300,40 @@
                                     @php
                                         $data = \App\Services\UserService::checkRecommendedUser($visitor);
                                     @endphp
-                                    @if(isset($data['description']) && $visitor->engroup == 2)
-                                        <div class="hoverTip">
-                                        <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。">
-                                        @if($user->isVip())
-                                        <img src="/new/images/a1.png">
-                                        @else
-                                        <img src="/new/images/b_1.png">
-                                        @endif
-                                        </div>
-                                        </div>
-                                    @endif
-                                    @if(isset($data['description']) && $visitor->engroup == 1)
-                                        <div class="hoverTip">
-                                        <div class="tagText" data-toggle="popover" data-content="優質會員是願意長期付費的VIP，或者常用車馬費邀請的男會員，建議女會員優先考慮。">
-                                        @if($user->isVip())
-                                        <img src="/new/images/a2.png">
-                                        @else
-                                        <img src="/new/images/b_2.png">
-                                        @endif
-                                        </div>
-                                        </div>
-                                    @endif
+{{--                                    @if(isset($data['description']) && $visitor->engroup == 2)--}}
+{{--                                        <div class="hoverTip">--}}
+{{--                                        <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。">--}}
+{{--                                        @if($user->isVip())--}}
+{{--                                        <img src="/new/images/a1.png">--}}
+{{--                                        @else--}}
+{{--                                        <img src="/new/images/b_1.png">--}}
+{{--                                        @endif--}}
+{{--                                        </div>--}}
+{{--                                        </div>--}}
+{{--                                    @endif--}}
+{{--                                    @if(isset($data['description']) && $visitor->engroup == 1)--}}
+{{--                                        <div class="hoverTip">--}}
+{{--                                        <div class="tagText" data-toggle="popover" data-content="優質會員是願意長期付費的VIP，或者常用車馬費邀請的男會員，建議女會員優先考慮。">--}}
+{{--                                        @if($user->isVip())--}}
+{{--                                        <img src="/new/images/a2.png">--}}
+{{--                                        @else--}}
+{{--                                        <img src="/new/images/b_2.png">--}}
+{{--                                        @endif--}}
+{{--                                        </div>--}}
+{{--                                        </div>--}}
+{{--                                    @endif--}}
                                     {{---------財力認證尚未實作-------------- <img src="/new/images/b_03.png">--}}
-                                    @if($visitor->isVip() && $visitor->engroup == 1)
-                                        <div class="hoverTip">
-                                        <div class="tagText" data-toggle="popover" data-content="本站的付費會員。">
-                                        @if($user->isVip())
-                                        <img src="/new/images/a4.png">
-                                        @else
-                                        <img src="/new/images/b_4.png">
-                                        @endif
-                                        </div>
-                                        </div>
-                                    @endif
+{{--                                    @if($visitor->isVip() && $visitor->engroup == 1)--}}
+{{--                                        <div class="hoverTip">--}}
+{{--                                        <div class="tagText" data-toggle="popover" data-content="本站的付費會員。">--}}
+{{--                                        @if($user->isVip())--}}
+{{--                                        <img src="/new/images/a4.png">--}}
+{{--                                        @else--}}
+{{--                                        <img src="/new/images/b_4.png">--}}
+{{--                                        @endif--}}
+{{--                                        </div>--}}
+{{--                                        </div>--}}
+{{--                                    @endif--}}
                                     {{---------警示帳戶尚未實作-------------- <img src="/new/images/b_05.png">--}}
                                     @if($visitor->user_meta->isWarned == 1 || $visitor->isAdminWarned())
                                         <div class="hoverTip">
@@ -345,18 +345,53 @@
                                             @endif
                                             </div>
                                         </div>
+                                    @elseif(isset($data['description']) && $visitor->engroup == 2)
+                                        <div class="hoverTip">
+                                            <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。">
+                                                @if($user->isVip())
+                                                    <img src="/new/images/a1.png">
+                                                @else
+                                                    <img src="/new/images/b_1.png">
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @elseif($visitor->isVip() && $visitor->engroup == 1)
+                                        <div class="hoverTip">
+                                            <div class="tagText" data-toggle="popover" data-content="本站的付費會員。">
+                                                @if($user->isVip())
+                                                    <img src="/new/images/a4.png">
+                                                @else
+                                                    <img src="/new/images/b_4.png">
+                                                @endif
+                                            </div>
+                                        </div>
                                     @endif
                                     {{--手機驗證--}}
-                                    @if($visitor->isPhoneAuth())
-                                        <div class="hoverTip">
-                                        <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。">
-                                        @if($user->isVip())
-                                        <img src="/new/images/a6.png">
-                                        @else
-                                        <img src="/new/images/b_6.png">
-                                        @endif
+{{--                                    @if($visitor->isPhoneAuth())--}}
+{{--                                        <div class="hoverTip">--}}
+{{--                                        <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。">--}}
+{{--                                        @if($user->isVip())--}}
+{{--                                        <img src="/new/images/a6.png">--}}
+{{--                                        @else--}}
+{{--                                        <img src="/new/images/b_6.png">--}}
+{{--                                        @endif--}}
+{{--                                        </div>--}}
+{{--                                        </div>--}}
+{{--                                    @endif--}}
+                                    @if($visitor->engroup == 1)
+                                    <div class="tixright_a">
+                                        <div class="span zi_sc">大方指數</div>
+                                        <div class="font">
+                                            <div class="vvipjdt tm_new">
+                                                <div class="progress progress-striped vvipjdt_pre_a">
+                                                    <div class="progress-bar progress_info_a" role="progressbar" aria-valuenow="60" aria-valuemin="0"
+                                                         aria-valuemax="100" @if(isset($visitor->pr_log)) style="width:{{ $visitor->pr_log->pr }}%;" @else style="width: 0%;" @endif>
+                                                        <span class="prfont_a">PR</span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        </div>
+                                    </div>
                                     @endif
                                 </div>
                                 @php

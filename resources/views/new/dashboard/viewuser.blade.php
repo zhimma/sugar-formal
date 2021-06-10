@@ -222,7 +222,7 @@
         .zap_photo>li>em{position: absolute; left: 0; top:0; width: 100%; height: 100%; background: rgba(0,0,0,.5); color: #fff; display: flex; align-items: center; justify-content: center;}
         .pjliuyan02 .zap_photo>li{padding: 0;display: flex;width:19%; margin: 10px 1% 0 0; height:140px;background: #f5f5f5; border: none; overflow: hidden;}
         .pjliuyan02 .zap_photo{margin: 0; display: block;}
-        .pjliuyan02 .zap_photo>li>img{width: 100%; max-height:unset;}
+        /*.pjliuyan02 .zap_photo>li>img{width: 100%; max-height:unset;}*/
 
         @media (max-width:768px){
             .zap_bb>.text>a>em{padding-left:11px;}
@@ -294,7 +294,7 @@
                 @if(isset($to))
                 <div class="rightbg">
                     <div class="metx">
-                        <a href="{{ \Illuminate\Support\Facades\URL::previous() }}" class="hyneback" style="z-index: 999;"><img src="/new/images/back_icon.png">返回</a>
+                        <a href="{{ \Illuminate\Support\Facades\URL::previous() }}" class="hyneback" style="z-index: 6;"><img src="/new/images/back_icon.png">返回</a>
                         <div class="swiper-container photo">
                             <div class="swiper-wrapper">
                                 <div class="swiper-slide @if($isBlurAvatar) blur_img @endif" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>
@@ -318,72 +318,79 @@
                             $introMinDiv = $user->isVip()? '111px' : '85px';
                         @endphp
                         <div class="tubiao" data-step="1" data-position="top" data-highlightClass="yindao2" data-tooltipClass="yindao1" data-intro="<ul>
-                                @if(isset($data['description']) && $to->engroup == 2)
-                                <li><div style='min-width:{{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a1.png @else/new/images/b_1.png @endif'></div> <span>註冊未滿30天的新進會員</span></li>
-                                @endif
-                                @if($to->isVip() && $to->engroup == 1)
-                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='65px'@endif src='@if($user->isVip())/new/images/a4.png @else/new/images/b_4.png @endif'></div> <span>本站付費會員</span></li>
-                                @endif
-                                @if(isset($data['description']) && $to->engroup == 1)
-                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a2.png @else/new/images/b_2.png @endif'></div> <span>長期付費的VIP，或者常用車馬費邀請的男會員</span></li>
-                                @endif
+{{--                                @if(isset($data['description']) && $to->engroup == 2)--}}
+{{--                                <li><div style='min-width:{{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a1.png @else/new/images/b_1.png @endif'></div> <span>註冊未滿30天的新進會員</span></li>--}}
+{{--                                @endif--}}
+{{--                                @if($to->isVip() && $to->engroup == 1)--}}
+{{--                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='65px'@endif src='@if($user->isVip())/new/images/a4.png @else/new/images/b_4.png @endif'></div> <span>本站付費會員</span></li>--}}
+{{--                                @endif--}}
+{{--                                @if(isset($data['description']) && $to->engroup == 1)--}}
+{{--                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a2.png @else/new/images/b_2.png @endif'></div> <span>長期付費的VIP，或者常用車馬費邀請的男會員</span></li>--}}
+{{--                                @endif--}}
+
                                 @if($to->meta->isWarned == 1 || $to->aw_relation)
                                 <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a5.png @else/new/images/b_5.png @endif'></div> <span>被多人檢舉或被網站評為可疑的會員</span></li>
+                                @elseif(isset($data['description']) && $to->engroup == 2)
+                                <li><div style='min-width:{{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a1.png @else/new/images/b_1.png @endif'></div> <span>註冊未滿30天的新進會員</span></li>
+                                @elseif($to->isVip() && $to->engroup == 1)
+                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='65px'@endif src='@if($user->isVip())/new/images/a4.png @else/new/images/b_4.png @endif'></div> <span>本站付費會員</span></li>
                                 @endif
-                                @if($to->isPhoneAuth())
-                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a6.png @else/new/images/b_6.png @endif'></div> <span>通過手機認證的會員</span></li>
-                                @endif
+
+{{--                                @if($to->isPhoneAuth())--}}
+{{--                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a6.png @else/new/images/b_6.png @endif'></div> <span>通過手機認證的會員</span></li>--}}
+{{--                                @endif--}}
                                 </ul>">
                             <ul @if(!$user->isVip())style="margin-top: -5px;"@endif>
-                                @if(isset($data['description']) && $to->engroup == 2)
-                                    <li>
-                                        <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。" style="width: 100%">
-                                        @if($user->isVip())
-                                        <img src="/new/images/a1.png">
-                                        @else
-                                        <img src="/new/images/b_1.png" style="height: 50px;">
-                                        @endif
-                                        </div>
+{{--                                @if(isset($data['description']) && $to->engroup == 2)--}}
+{{--                                    <li>--}}
+{{--                                        <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。" style="width: 100%">--}}
+{{--                                        @if($user->isVip())--}}
+{{--                                        <img src="/new/images/a1.png">--}}
+{{--                                        @else--}}
+{{--                                        <img src="/new/images/b_1.png" style="height: 50px;">--}}
+{{--                                        @endif--}}
+{{--                                        </div>--}}
 {{--                                        <span>{{$new_sweet}}</span>--}}
-                                    </li>
-                                @php
-                                    $user->isReadIntro = 1;
-                                    $introCount++;
-                                @endphp
-                                @endif
-                                @if(isset($data['description']) && $to->engroup == 1)
-                                    <li>
-                                        <div class="tagText" data-toggle="popover" data-content="優質會員是願意長期付費的VIP，或者常用車馬費邀請的男會員，建議女會員優先考慮。" style="width: 100%">
-                                        @if($user->isVip())
-                                        <img src="/new/images/a2.png">
-                                        @else
-                                        <img src="/new/images/b_2.png" style="height: 50px;">
-                                        @endif
-                                        </div>
+{{--                                    </li>--}}
+{{--                                @php--}}
+{{--                                    $user->isReadIntro = 1;--}}
+{{--                                    $introCount++;--}}
+{{--                                @endphp--}}
+{{--                                @endif--}}
+{{--                                @if(isset($data['description']) && $to->engroup == 1)--}}
+{{--                                    <li>--}}
+{{--                                        <div class="tagText" data-toggle="popover" data-content="優質會員是願意長期付費的VIP，或者常用車馬費邀請的男會員，建議女會員優先考慮。" style="width: 100%">--}}
+{{--                                        @if($user->isVip())--}}
+{{--                                        <img src="/new/images/a2.png">--}}
+{{--                                        @else--}}
+{{--                                        <img src="/new/images/b_2.png" style="height: 50px;">--}}
+{{--                                        @endif--}}
+{{--                                        </div>--}}
 {{--                                        <span>{{$well_member}}</span>--}}
-                                    </li>
-                                @php
-                                    $user->isReadIntro = 1;
-                                    $introCount++;
-                                @endphp
-                                @endif
+{{--                                    </li>--}}
+{{--                                @php--}}
+{{--                                    $user->isReadIntro = 1;--}}
+{{--                                    $introCount++;--}}
+{{--                                @endphp--}}
+{{--                                @endif--}}
                                 {{--                            <li><img src="/new/images/icon_23.png"><span>{{$money_cert}}</span></li>--}}
-                                @if($to->isVip() && $to->engroup == 1)
-                                    <li>
-                                        <div class="tagText" data-toggle="popover" data-content="本站的付費會員。" style="width: 100%">
-                                        @if($user->isVip())
-                                        <img src="/new/images/a4.png">
-                                        @else
-                                        <img src="/new/images/b_4.png" style="height: 50px;">
-                                        @endif
-                                        </div>
+{{--                                @if($to->isVip() && $to->engroup == 1)--}}
+{{--                                    <li>--}}
+{{--                                        <div class="tagText" data-toggle="popover" data-content="本站的付費會員。" style="width: 100%">--}}
+{{--                                        @if($user->isVip())--}}
+{{--                                        <img src="/new/images/a4.png">--}}
+{{--                                        @else--}}
+{{--                                        <img src="/new/images/b_4.png" style="height: 50px;">--}}
+{{--                                        @endif--}}
+{{--                                        </div>--}}
 {{--                                        <span>{{$label_vip}}</span>--}}
-                                    </li>
-                                @php
-                                    $user->isReadIntro = 1;
-                                    $introCount++;
-                                @endphp
-                                @endif
+{{--                                    </li>--}}
+{{--                                @php--}}
+{{--                                    $user->isReadIntro = 1;--}}
+{{--                                    $introCount++;--}}
+{{--                                @endphp--}}
+{{--                                    --}}
+{{--                                @endif--}}
                                 {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
                                 @if($to->meta->isWarned == 1 || $to->aw_relation)
                                     <li>
@@ -400,26 +407,56 @@
                                     $user->isReadIntro = 1;
                                     $introCount++;
                                 @endphp
-                                @endif
-                                @if($to->isPhoneAuth())
+                                @elseif(isset($data['description']) && $to->engroup == 2)
                                     <li>
-                                        @if($to->engroup == 1)
-                                            <div class="tagText" data-toggle="popover" data-content="Baby們可通過完成手機驗證的Daddy，加強其身份真實性，提升信賴感55%以上。" style="width: 100%">
-                                        @else
-                                            <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。" style="width: 100%">
-                                        @endif
-                                        @if($user->isVip())
-                                        <img src="/new/images/a6.png" class="">
-                                        @else
-                                        <img src="/new/images/b_6.png" style="height: 50px; margin-bottom: 10px;">
-                                        @endif
+                                        <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。" style="width: 100%">
+                                            @if($user->isVip())
+                                                <img src="/new/images/a1.png">
+                                            @else
+                                                <img src="/new/images/b_1.png" style="height: 50px;">
+                                            @endif
                                         </div>
+                                        {{--                                        <span>{{$new_sweet}}</span>--}}
                                     </li>
-                                @php
-                                    $user->isReadIntro = 1;
-                                    $introCount++;
-                                @endphp
+                                    @php
+                                        $user->isReadIntro = 1;
+                                        $introCount++;
+                                    @endphp
+                                @elseif($to->isVip() && $to->engroup == 1)
+                                    <li>
+                                        <div class="tagText" data-toggle="popover" data-content="本站的付費會員。" style="width: 100%">
+                                            @if($user->isVip())
+                                                <img src="/new/images/a4.png">
+                                            @else
+                                                <img src="/new/images/b_4.png" style="height: 50px;">
+                                            @endif
+                                        </div>
+                                        {{--                                        <span>{{$label_vip}}</span>--}}
+                                    </li>
+                                    @php
+                                        $user->isReadIntro = 1;
+                                        $introCount++;
+                                    @endphp
                                 @endif
+{{--                                @if($to->isPhoneAuth())--}}
+{{--                                    <li>--}}
+{{--                                        @if($to->engroup == 1)--}}
+{{--                                            <div class="tagText" data-toggle="popover" data-content="Baby們可通過完成手機驗證的Daddy，加強其身份真實性，提升信賴感55%以上。" style="width: 100%">--}}
+{{--                                        @else--}}
+{{--                                            <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。" style="width: 100%">--}}
+{{--                                        @endif--}}
+{{--                                        @if($user->isVip())--}}
+{{--                                        <img src="/new/images/a6.png" class="">--}}
+{{--                                        @else--}}
+{{--                                        <img src="/new/images/b_6.png" style="height: 50px; margin-bottom: 10px;">--}}
+{{--                                        @endif--}}
+{{--                                        </div>--}}
+{{--                                    </li>--}}
+{{--                                @php--}}
+{{--                                    $user->isReadIntro = 1;--}}
+{{--                                    $introCount++;--}}
+{{--                                @endphp--}}
+{{--                                @endif--}}
                             </ul>
                         </div>
                         <!--引导弹出层-->
@@ -431,15 +468,15 @@
                                 @if($introCount == 1)
                                     $('.tubiao').attr('data-tooltipClass', 'yindao1 yd_small')
                                 @endif
-                                @if($user->intro_login_times >= 2 && $isReadIntro == 0 && $introCount>0)
-                                    // $('.metx').css('position','unset');
-                                    introJs().setOption('showButtons',true).start();
-                                    @php
-                                        $user->save();
-                                    @endphp
-                                @else
-                                    // $('.tubiao').attr('style', 'z-index: -1')
-                                @endif
+{{--                                @if($user->intro_login_times >= 2 && $isReadIntro == 0 && $introCount>0)--}}
+{{--                                    // $('.metx').css('position','unset');--}}
+{{--                                    introJs().setOption('showButtons',true).start();--}}
+{{--                                    @php--}}
+{{--                                        $user->save();--}}
+{{--                                    @endphp--}}
+{{--                                @else--}}
+{{--                                    // $('.tubiao').attr('style', 'z-index: -1')--}}
+{{--                                @endif--}}
                             })
                         </script>
 
@@ -451,26 +488,28 @@
                             </div> -->
                             @if($to->engroup == 1)
                                 <div class="eg_oright">
-
-                                    <div class="vvipjdt">
-                                        @if($pr != false && $pr >= 1)
-                                            @php
-                                                if($pr==1){$pr = 0;}
-                                            @endphp
-                                            <div class="progress progress-striped vvipjdt_pre" title="大方指數">
+                                    <div class="dfzs">
+                                        <div class="slzs">大方指數</div>
+                                    <div class="vvipjdt" style="float: right;">
+{{--                                        @if($pr != false && $pr >= 1)--}}
+{{--                                            @php--}}
+{{--                                                if($pr==1){$pr = 0;}--}}
+{{--                                            @endphp--}}
+                                            <div class="progress progress-striped vvipjdt_pre" title="大方指數" @if($pr=='無') onClick="jidutiao() @endif">
                                                 <div class="progress-bar progress_info" role="progressbar" aria-valuenow="{{$pr}}" aria-valuemin="0"
                                                      aria-valuemax="100" style="width:{{$pr}}%;">
                                                     <span class="prfont">PR: {{$pr}}</span>
                                                 </div>
                                             </div>
-                                        @elseif($pr == false)
-                                            <div class="progress progress-striped vvipjdt_pre" title="大方指數" onClick="jidutiao()" style="cursor: pointer;">
-                                                <div class="progress-bar progress_info" role="progressbar" aria-valuenow="0" aria-valuemin="0"
-                                                     aria-valuemax="100" style="width:0%;">
-                                                    <span class="prfont">PR: 無</span>
-                                                </div>
-                                            </div>
-                                        @endif
+{{--                                        @elseif($pr == false)--}}
+{{--                                            <div class="progress progress-striped vvipjdt_pre" title="大方指數" onClick="jidutiao()" style="cursor: pointer;">--}}
+{{--                                                <div class="progress-bar progress_info" role="progressbar" aria-valuenow="0" aria-valuemin="0"--}}
+{{--                                                     aria-valuemax="100" style="width:0%;">--}}
+{{--                                                    <span class="prfont">PR: 無</span>--}}
+{{--                                                </div>--}}
+{{--                                            </div>--}}
+{{--                                        @endif--}}
+                                    </div>
                                     </div>
 
 
@@ -864,14 +903,17 @@
                         <div class="ztitle"><span>會員評價</span>Evaluation<a onClick="popEvaluation()"class="zw_dw">請按我</a></div>
                         <div class="xiliao_input">
                             <div class="xl_text">
-                                <div class="pjliuyan02 amar15">
-                                    @if(sizeof($evaluation_data) > 0)
+                                <div class="pjliuyan02 amar15 mohu_li" style=" min-height: auto; margin-bottom: 0;">
                                     @php
-                                   // print_r($evaluation_data);
-                                        $showCount = 0;
-                                        $blockMidList = array();
+                                        // print_r($evaluation_data);
+                                         $showCount = 0;
+                                         $blockMidList = array();
+                                         $isVip=$user->isVip();
                                     @endphp
-                                    <ul style="width: 100%;">
+                                    @if((!$isVip && $user->id!=$to->id) && sizeof($evaluation_data) > 0)<div class="mohu_icon"><img src="/new/images/icon_36.png"></div>@endif
+                                    @if(sizeof($evaluation_data) > 0)
+                                    <ul style="width: 100%;" class="showSelfEvaluation_notvip" ></ul>
+                                    <ul style="width: 100%;" class="evaluationList {{ !$isVip && $user->id!=$to->id ? 'mohu01':'' }}">
                                         @foreach( $evaluation_data as $row)
                                             @php
                                                 $row_user = \App\Models\User::findById($row->from_id);
@@ -890,7 +932,7 @@
                                                 $showCount++;
                                             @endphp
                                             @if(!$isBlocked && !isset($hadWarned) && !isset($warned_users))
-                                            <li>
+                                            <li class="{{ ($row_user->id == $user->id)  ? 'showSelfEvaluation':'' }}">
                                                 <div class="piname">
                                                     <span>
                                                         @for ($i = 1; $i <= 5; $i++)
@@ -916,18 +958,20 @@
                                                     @php
                                                         $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
                                                     @endphp
+                                                    @if($row->is_check==0)
                                                     <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
                                                         @foreach($evaluationPics as $evaluationPic)
                                                             <li><img src="{{ $evaluationPic->pic }}"></li>
                                                         @endforeach
                                                     </ul>
+                                                    @endif
                                                     <h4>
                                                         <span class="btime">{{ substr($row->created_at,0,10)}}</span>
                                                         <button type="button" class="al_but">[完整評價]</button>
                                                     </h4>
                                                 </div>
 {{--                                                || $user->id==697--}}
-                                                @if(empty($row->re_content) && $to->id == $user->id )
+                                                @if(empty($row->re_content) && $to->id == $user->id)
                                                     <div class="huf" style="width: 100%;">
                                                         <form id="form_re_content{{$row->id}}" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post" enctype="multipart/form-data">
                                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -960,11 +1004,13 @@
                                                                 @php
                                                                     $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
                                                                 @endphp
+                                                                @if($row->is_check==0)
                                                                 <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
                                                                     @foreach($evaluationPics as $evaluationPic)
                                                                         <li><img src="{{ $evaluationPic->pic }}"></li>
                                                                     @endforeach
                                                                 </ul>
+                                                                @endif
                                                             </div>
                                                         </div>
                                                         <div class="he_twotime">{{ substr($row->re_created_at,0,10)}}<span class="z_more">展開</span></div>
@@ -991,7 +1037,7 @@
                                                         ->orWhere('expire_date', null); })->first();
                                                 $showCount++;
                                             @endphp
-                                            <li>
+                                            <li class="{{ ($row_user->id == $user->id)  ? 'showSelfEvaluation_block':'' }}">
                                                 <div class="kll">
                                                 <div class="piname">
                                                     <span>
@@ -1025,11 +1071,13 @@
                                                     @php
                                                         $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
                                                     @endphp
+                                                    @if($row->is_check==0)
                                                     <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
                                                         @foreach($evaluationPics as $evaluationPic)
                                                             <li><img src="{{ $evaluationPic->pic }}"></li>
                                                         @endforeach
                                                     </ul>
+                                                    @endif
                                                     <h4>
                                                         <span class="btime">{{ substr($row->created_at,0,10)}}</span>
                                                         <button type="button" class="al_but">[完整評價]</button>
@@ -1070,11 +1118,13 @@
                                                                 @php
                                                                     $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
                                                                 @endphp
+                                                                @if($row->is_check==0)
                                                                 <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
                                                                     @foreach($evaluationPics as $evaluationPic)
                                                                         <li><img src="{{ $evaluationPic->pic }}"></li>
                                                                     @endforeach
                                                                 </ul>
+                                                                @endif
                                                             </div>
                                                         </div>
                                                         <div class="he_twotime">{{ substr($row->re_created_at,0,10)}}<span class="z_more">展開</span></div>
@@ -1103,8 +1153,6 @@
                                     </div>
                                     @endif
                                 </div>
-
-
                             </div>
                         </div>
                     </div>
@@ -1382,10 +1430,24 @@
 <script>
 
     function jidutiao() {
-        c5('此會員註冊時間過短，無法判斷');
+        c5('此會員使用紀錄不足，無法判斷');
     }
 
     $( document ).ready(function() {
+
+
+        var isVip='{{ $isVip && $user->id!=$to->id }}';
+
+        if(!isVip){
+            //非VIP會員只顯示自己的評價, 其餘評價模糊處理
+            if($('.evaluationList li').hasClass('showSelfEvaluation')){
+                $('.showSelfEvaluation_notvip').html('<li>'+$('.showSelfEvaluation').html() +'</li>');
+            }
+            if($('.evaluationList li').hasClass('showSelfEvaluation_block')){
+                $('.showSelfEvaluation_notvip').append('<li>'+$('.showSelfEvaluation_block').html() +'</li>');
+            }
+        }
+
         // $('.tagText').on('click', function() {
         //    alert($(this).data('content'));
         //    c3($(this).data('content'));
@@ -1799,6 +1861,7 @@
                 @elseif(!isset($evaluation_self))
                     $('#tab_evaluation').show();
                     $(".announce_bg").show();
+                    $('body').css("overflow", "hidden");
                 @else
                     c5('您已評價過');
                 @endif
@@ -2176,11 +2239,13 @@
     function tab_evaluation_close(){
         $(".announce_bg").hide();
         $("#tab_evaluation").hide();
+        $('body').css("overflow", "auto");
     }
 
     function tab_evaluation_reply_close(){
         $(".announce_bg").hide();
         $("#tab_evaluation_reply").hide();
+        $('body').css("overflow", "auto");
     }
 
     function tab_evaluation_reply_show(id, eid) {
@@ -2190,6 +2255,7 @@
         $("#tab_evaluation_reply").show();
         $("#tab_evaluation_reply #id_reply").val(id);
         $("#tab_evaluation_reply #eid_reply").val(eid);
+        $('body').css("overflow", "hidden");
     }
 
 </script>

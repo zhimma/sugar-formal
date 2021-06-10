@@ -1003,10 +1003,15 @@ class UserController extends \App\Http\Controllers\BaseController
         }
 
         //PR
-        $pr = User::PR($user->id);
-        $query_pr = DB::table('pr_log')->where('user_id',$user->id)->orderBy('created_at','desc')->first();
-        if(!isset($query_pr)){
-            $query_pr='';
+        $pr = DB::table('pr_log')->where('user_id',$user->id)->where('active',1)->first();
+        if(isset($pr)){
+            $pr_created_at = $pr->created_at;
+            $query_pr = $pr->pr_log;
+            $pr = $pr->pr;
+        }else{
+            $pr_created_at = '';
+            $query_pr = '';
+            $pr = '無';
         }
 
         $evaluation_data = DB::table('evaluation')->where('from_id',$user->id)->get();
@@ -1090,7 +1095,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('out_evaluation_data', $out_evaluation_data)
                 ->with('out_evaluation_data_2', $out_evaluation_data_2)
                 ->with('pr',$pr)
-                ->with('pr_log',$query_pr);
+                ->with('pr_log',$query_pr)
+                ->with('pr_created_at',$pr_created_at);
         }
     }
 

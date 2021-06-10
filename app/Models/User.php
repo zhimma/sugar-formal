@@ -4,11 +4,11 @@ namespace App\Models;
 
 use App\Models\Role;
 use App\Models\Blocked;
+use App\Models\ValueAddedService;
 use App\Models\Vip;
 use App\Models\Tip;
 use App\Models\UserMeta;
 use App\Models\MemberPic;
-use App\Models\ValueAddedService;
 use App\Models\SimpleTables\banned_users;
 use App\Models\SimpleTables\warned_users;
 use App\Notifications\ResetPassword;
@@ -81,6 +81,10 @@ class User extends Authenticatable
         return $this->hasOne(\App\Models\SimpleTables\short_message::class, 'member_id', 'id')->where('mobile','!=','')->where('active', 1);
     }
 
+    public function pr_log() {
+        return $this->hasOne(Pr_log::class, 'user_id', 'id')->where('active', 1);
+    }
+
     //sent messages
     public function sentMessages()
     {
@@ -98,7 +102,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(MemberPic::class, 'member_id', 'id');
     }
-    
+
     /*
     |--------------------------------------------------------------------------
     | Mutators and Accessors
@@ -111,7 +115,7 @@ class User extends Authenticatable
     {
         return User::where('id', $uid)->first();
     }
-    
+
 
     public function meta_($queries = null)
     {
@@ -544,9 +548,19 @@ class User extends Authenticatable
         //車馬費次數
         $tip_count = Tip::where('member_id',$uid)->count();
         //註冊天數
-        $days = Carbon::parse($user->created_at)->diffInDays(Carbon::now());
-        if( /*(!$user->isVip() && $tip_count==0) || */ (!$user->isVip() && $days<=30) || $user->engroup==2){
-            return false;//普通會員需註冊滿1個月後，其餘不列計
+//        $days = Carbon::parse($user->created_at)->diffInDays(Carbon::now());
+//        if( /*(!$user->isVip() && $tip_count==0) || */ (!$user->isVip() && $days<=30) || $user->engroup==2){
+//            return false;//普通會員需註冊滿1個月後，其餘不列計
+//        }
+
+        //註冊後如無任何傳訊紀錄 + 不是 vip 則顯示 無
+        $checkMessages = Message::where('from_id', $uid)->get()->count();
+        if($checkMessages==0 && !$user->isVip()){
+            $pr = '無';
+            $pr_log = '註冊後如無任何傳訊紀錄+不是vip';
+            //舊紀錄刪除
+            Pr_log::where('user_id',$uid)->delete();
+            return Pr_log::insert([ 'user_id' => $uid, 'pr' => $pr, 'pr_log' => $pr_log, 'active' => 1 ]);
         }
 
         //default
@@ -554,13 +568,16 @@ class User extends Authenticatable
         $pr_log = '';
 
         //車馬費計分 次數上限5
-        if($tip_count>0){
-            if($tip_count>5){
-                $tip_count = 5;
-            }
-            $pr = $pr + ($tip_count*2);
-            $pr_log = $pr_log.'車馬費計分+'.$tip_count*2 .'分=>'.$pr.'; ';
-        }
+//        if($tip_count>0){
+//            if($tip_count>5){
+//                $tip_count = 5;
+//            }
+//            $pr = $pr + ($tip_count*2);
+//            $pr_log = $pr_log.'車馬費計分+'.$tip_count*2 .'分=>'.$pr.'; ';
+//        }
+
+        $pr = $pr + ($tip_count * 1.004);
+        $pr_log = $pr_log.'車馬費 '.$tip_count.' 次計分 +'.$tip_count*1.004 .' 分=>'.$pr.'; ';
 
 
 //        $userBlockList = Blocked::select('blocked_id')->where('member_id', $uid)->get();
@@ -638,52 +655,92 @@ class User extends Authenticatable
 
         //註冊後沒有VIP扣分計算
         //$vip = Vip::where('member_id',$uid)->where('active',1)->where('free',0)->where('amount','<>',0)->first();
-        $vip = Vip::where('member_id',$uid)->where('amount','<>',0)->first();
-        if(isset($vip)){
-            //曾有VIP 計算VIP前未刷扣分
-            $months = Carbon::parse($user->created_at)->diffInMonths($vip->created_at);
-            $pr = $pr - ($months * 2.5);
-            $pr_log = $pr_log.'註冊後未刷VIP '.$months.' 個月=>'.$pr.'; ';
-        }else{
-            //未曾有付費VIP紀錄 計算扣分
-            $months = Carbon::parse($user->created_at)->diffInMonths(Carbon::now());
-            $pr = $pr - ($months * 2.5);
-            $pr_log = $pr_log . '註冊後未刷VIP ' . $months . ' 個月=>' . $pr . '; ';
-        }
+//        $vip = Vip::where('member_id',$uid)->where('amount','<>',0)->first();
+//        if(isset($vip)){
+//            //曾有VIP 計算VIP前未刷扣分
+//            $months = Carbon::parse($user->created_at)->diffInMonths($vip->created_at);
+//            $pr = $pr - ($months * 2.5);
+//            $pr_log = $pr_log.'註冊後未刷VIP '.$months.' 個月=>'.$pr.'; ';
+//        }else{
+//            //未曾有付費VIP紀錄 計算扣分
+//            $months = Carbon::parse($user->created_at)->diffInMonths(Carbon::now());
+//            $pr = $pr - ($months * 2.5);
+//            $pr_log = $pr_log . '註冊後未刷VIP ' . $months . ' 個月=>' . $pr . '; ';
+//        }
 
-        //VIP加分計算
+        //當前有VIP 連續加分計算
         if(isset($vip)) {
+            $months = Carbon::parse($vip->created_at)->diffInMonths(Carbon::now());
             //定期定額累計加分
             if ($vip->payment != null && substr($vip->payment, 0, 3) == 'cc_' && $vip->expiry == '0000-00-00 00:00:00' && $vip->active == 1) {
-                $months = Carbon::parse($vip->created_at)->diffInMonths(Carbon::now());
-                $pr = $pr + ($months * 5);
-                $pr_log = $pr_log . '定期定額VIP累計 ' . $months . ' 個月=>' . $pr . '; ';
+                $pr = $pr + ($months * 5)+ (($months-1)*2.5);
+                $otherMonths = $months - 1;
+                $pr_log = $pr_log . '當前定期定額VIP累計 ' .$months. ' 個月, 額外連續VIP '.$otherMonths.' 個月=>' . $pr .'; ';
+                if(substr($vip->payment, 0, 3) == 'cc_quarterly_payment'){
+                    $pr = $pr - 15;
+                    $pr_log = $pr_log . '扣除1次單次季繳計算=>' . $pr .'; ';
+                }elseif(substr($vip->payment, 0, 3) == 'cc_month_payment'){
+                    $pr = $pr - 5;
+                    $pr_log = $pr_log . '扣除1次單次月繳計算=>' . $pr .'; ';
+                }
             } elseif ($vip->payment != null && substr($vip->payment, 0, 3) == 'cc_' && $vip->expiry != '0000-00-00 00:00:00') {
                 $months = Carbon::parse($vip->created_at)->diffInMonths($vip->expiry);
-                $pr = $pr + ($months * 5);
-                $pr_log = $pr_log . '定期定額VIP累計 ' . $months . ' 個月=>' . $pr . '; ';
+                $pr = $pr + ($months * 5)+ (($months-1)*2.5);
+                $otherMonths = $months - 1;
+                $pr_log = $pr_log . '當前定期定額VIP累計 ' . $months . ' 個月, 額外連續VIP '.$otherMonths.' 個月=>' . $pr .'; ';
             }
 
             //舊的定期定額付費紀錄
             if ($vip->payment == null && $vip->expiry == '0000-00-00 00:00:00' && $vip->active == 1) {
-                $months = Carbon::parse($vip->created_at)->diffInMonths(Carbon::now());
-                $pr = $pr + ($months * 5);
-                $pr_log = $pr_log . '定期定額VIP累計 ' . $months . ' 個月=>' . $pr . '; ';
+                $pr = $pr + ($months * 5) + (($months-1)*2.5);
+                $otherMonths = $months - 1;
+                $pr_log = $pr_log . '當前定期定額VIP累計 ' .$months. ' 個月, 額外連續VIP '.$otherMonths.' 個月=>' . $pr .'; ';
             } elseif ($vip->payment == null && $vip->expiry != '0000-00-00 00:00:00') {
-                $months = Carbon::parse($vip->created_at)->diffInMonths($vip->expiry);
-                $pr = $pr + ($months * 5);
-                $pr_log = $pr_log . '定期定額VIP累計 ' . $months . ' 個月=>' . $pr . '; ';
+                $pr = $pr + ($months * 5) + (($months-1)*2.5);
+                $otherMonths = $months - 1;
+                $pr_log = $pr_log . '當前定期定額VIP累計 ' . $months . ' 個月, 額外連續VIP '.$otherMonths.' 個月=>' . $pr .'; ';
             }
 
             //單次付費加分
-            if ($vip->payment != null && $vip->payment == 'one_quarter_payment') {
+            if ($vip->payment != null && $vip->payment == 'one_quarterly_payment') {
+                $pr = $pr + 2.5 + 2.5;
+                $pr_log = $pr_log . '當前有VIP+額外連續VIP =>' . $pr . '; ';
+            }
+//            elseif ($vip->payment != null && $vip->payment == 'one_month_payment') {
+//                $pr = $pr + 5;
+//                $pr_log = $pr_log . '單次付費月付VIP =>' . $pr . '; ';
+//            }
+        }
+
+        //從 log 取得
+        $vip_log = DB::table('member_vip_log')
+            ->where('member_id', $uid)
+            ->where('action', 1)
+            ->where('free', 0)
+            ->where('txn_id', '')
+            ->where('member_name','like','%SG%')
+            ->where('member_name','like','%order id%')
+            ->get();
+
+        foreach ($vip_log as $row){
+            if (strpos($row->member_name, 'one_quarterly_payment') !== false) {
                 $pr = $pr + 15;
-                $pr_log = $pr_log . '單次付費季付VIP =>' . $pr . '; ';
-            } elseif ($vip->payment != null && $vip->payment == 'one_month_payment') {
+                $pr_log = $pr_log . '曾經單次付費季付VIP =>' . $pr . '; ';
+            }
+            if (strpos($row->member_name, 'one_month_payment') !== false) {
                 $pr = $pr + 5;
-                $pr_log = $pr_log . '單次付費月付VIP =>' . $pr . '; ';
+                $pr_log = $pr_log . '曾經單次付費月付VIP =>' . $pr . '; ';
+            }
+            if (strpos($row->member_name, 'cc_quarterly_payment') !== false) {
+                $pr = $pr + 15;
+                $pr_log = $pr_log . '曾經定期定額季付VIP =>' . $pr . '; ';
+            }
+            if (strpos($row->member_name, 'cc_month_payment') !== false) {
+                $pr = $pr + 5;
+                $pr_log = $pr_log . '曾經定期定額月付VIP =>' . $pr . '; ';
             }
         }
+
 
 
         //vip 一個月內
@@ -748,7 +805,16 @@ class User extends Authenticatable
 
         //VVIP直接100計算 待VVIP實作後加入
 
+        //非VIP 扣分 每位通訊人數扣0.2
+        if(!$user->isVip()) {
+            $checkMessageUsers = Message::select('to_id')->where('from_id', $uid)->distinct()->get()->count();
+            if($checkMessageUsers>0){
+                $pr = $pr - ($checkMessageUsers * 0.2);
+                $pr_log = $pr_log.'非VIP通訊人數 '.$checkMessageUsers.' 人扣分 =>'.$pr.'; ';
+            }
+        }
 
+        $pr = round($pr,0);
         //分數上限
         if($pr>100){
             $pr=100;
@@ -757,20 +823,24 @@ class User extends Authenticatable
 
         //分數下限
         if($pr<1){
-            $pr=1;
+            $pr=0;
             $pr_log = $pr_log.'PR低於或等於0以0計算=>'.$pr.'; ';
         }
 
-        //存LOG
-        $query_pr = DB::table('pr_log')->where('user_id',$uid)->orderBy('created_at','desc')->first();
-        if( (isset($query_pr) && $query_pr->pr_log != $pr_log) || !isset($query_pr)) {
-            DB::table('pr_log')->insert([
-                'user_id' => $uid,
-                'pr_log' => $pr_log
-            ]);
-        }
 
-        return $pr;
+        //舊紀錄刪除
+        Pr_log::where('user_id',$uid)->delete();
+        //存LOG
+        return Pr_log::insert([ 'user_id' => $uid, 'pr' => $pr, 'pr_log' => $pr_log, 'active' => 1]);
+//        $query_pr = DB::table('pr_log')->where('user_id',$uid)->orderBy('created_at','desc')->first();
+//        if( (isset($query_pr) && $query_pr->pr_log != $pr_log) || !isset($query_pr)) {
+//            DB::table('pr_log')->insert([
+//                'user_id' => $uid,
+//                'pr_log' => $pr_log
+//            ]);
+//        }
+//
+//        return $pr;
     }
 
     public function age(){

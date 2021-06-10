@@ -59,24 +59,24 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
               @if($user->engroup==1)
               <div style="float:right; padding-right: 5px;">
                   <div class="vvipjdt_aa" onclick="pr()" style="cursor: pointer;">
-                      @if($pr != false && $pr >= 1)
-                          @php
-                          if($pr==1){$pr = 0;}
-                          @endphp
+{{--                      @if($pr != false && $pr >= 1)--}}
+{{--                          @php--}}
+{{--                          if($pr==1){$pr = 0;}--}}
+{{--                          @endphp--}}
                           <div class="progress progress-striped vvipjdt_pre" title="大方指數">
                               <div class="progress-bar progress_info" role="progressbar" aria-valuenow="{{$pr}}" aria-valuemin="0" aria-valuemax="100"
                                    style="width:{{$pr}}%;">
                                   <span class="prfont pr_text">PR: {{$pr}}</span>
                               </div>
                           </div>
-                      @elseif($pr == false)
-                          <div class="progress progress-striped vvipjdt_pre" title="大方指數">
-                              <div class="progress-bar progress_info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                   style="width:0%;">
-                                  <span class="prfont pr_text">PR: 無</span>
-                              </div>
-                          </div>
-                      @endif
+{{--                      @elseif($pr == false)--}}
+{{--                          <div class="progress progress-striped vvipjdt_pre" title="大方指數">--}}
+{{--                              <div class="progress-bar progress_info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"--}}
+{{--                                   style="width:0%;">--}}
+{{--                                  <span class="prfont pr_text">PR: 無</span>--}}
+{{--                              </div>--}}
+{{--                          </div>--}}
+{{--                      @endif--}}
                   </div>
                   <img src="/new/images/tx_new.png" style="position: absolute; width:40px; margin-top:-44px; margin-left:-25px;">
               </div>
@@ -723,7 +723,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
           <div class="new_poptk_aa new_poptk_nn">
               <div class="fpt_z_cc">
                   <div class="pj_add">
-                      <p class="yidy_font">此數字為daddy的大方指數，您目前指數為 @if($pr != false && $pr >= 1)@php if($pr==1){$pr = 0;} @endphp {{$pr}} @else 無 @endif</p>
+                      <p class="yidy_font">此數字為daddy的大方指數，您目前指數為 {{$pr}}</p>
                       <img src="/new/images/ziliao.png" class="yiimg">
                       <div class="ytext_img">
                           <div class="ye_title"><img src="/new/images/zhe_dd.png">提升方式</div>

@@ -164,6 +164,10 @@
 			    $upgradeWay='手動升級';
 			    $upgradeKind='手動升級';
 			}
+			if($vipInfo->free==1){
+			    $upgradeWay='免費';
+			    $upgradeKind='免費';
+			}
 			$getUserInfo=\App\Models\User::findById($user->id);//->isVip? '是':'否';
 			$isVipStatus=$getUserInfo->isVip() ? '是':'否';
 			$showVipInfo =  $upgradeDay .','. $isVipStatus .','. $upgradeWay .','. $upgradeKind;
@@ -423,10 +427,12 @@
 	<tr>
 		<th width="30%">PR值</th>
 		<th>PR值歷程</th>
+		<th>資料時間</th>
 	</tr>
 	<tr>
-		<td>@if(isset($pr) && $pr != false){{$pr}}@else不列計@endif</td>
-		<td>@if(isset($pr_log) && $pr != false){{$pr_log->pr_log}}@endif</td>
+		<td>{{$pr}}</td>
+		<td>{{$pr_log}}</td>
+		<td>{{$pr_created_at}}</td>
 	</tr>
 </table>
 @endif
