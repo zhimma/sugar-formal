@@ -3392,7 +3392,7 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 /*.prfont{position: absolute;float: left; color: #ffffff; line-height:25px;left:10px; font-size: 15px;}*/
 
 
-.vvipjdt{width:130px; margin: 0 auto;display: table;/*margin-top:10px;*/margin-bottom: 10px; position: relative;}
+.vvipjdt{width:130px; margin: 0 auto;display: table;/*margin-top:10px;margin-bottom: 10px; */position: relative;}
 .vvipjdt_aa{width:100px; margin: 0 auto;display: table;margin-top:6px;margin-bottom: 10px; position: relative;}
 .vvipjdt_pre{margin-bottom:0px;overflow: hidden;height:25px;background-color: #ffdafe !important;border-radius:50px;
     -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);box-shadow:none;background-image: -webkit-linear-gradient(top, #ffdafe 0, #ffdafe 100%);}
@@ -3654,3 +3654,23 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
     filter:blur(5px);background-size:cover;/* height:500px;*/ overflow: hidden;pointer-events: none;margin-bottom: 30px;}
 .mohu_icon{position: absolute;top:40%;left:0;z-index:1;width: 100%;}
 .mohu_icon img{ margin: 0 auto; display: table;width:120px;}
+
+.zi_sc{color: #e18bdf !important;}
+
+.dfzs{margin: 0 auto;box-shadow: 0 0 10px #ffdce8;background:rgba(255,255,255,0.5);display: table;border-radius: 100px;padding: 0 0 0 10px;margin-top:-5px;margin-bottom: 10px;}
+.slzs{line-height: 25px;color: #e18bdf;margin-right: 5px;float: left;}
+@media (max-width:450px) {
+    .dfzs{/* margin-top:7px; */}
+}
+
+.tm_new{width:60px; margin-left: 5px;margin-top:4px; }
+.vvipjdt_pre_a{margin-bottom:0px;overflow: hidden;height:20px;background-color: #ffdafe !important;border-radius:50px;-webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);box-shadow:none;background-image: -webkit-linear-gradient(top, #ffdafe 0, #ffdafe 100%);}
+.progress_info_a {background-color:#e28de0}
+.prfont_a{position: absolute;float: left; color: #ffffff; line-height:20px;left:10px; font-size: 12px;}
+
+
+.tixright_a{ float: right;box-shadow: 0 0 10px #ffecec; height:28px; padding:0 5px; border-radius:10px; margin-top:5px;background: rgba(255,255,255,0.8);}
+.tixright_a .span{ float: left; border-right: #eee 1px solid; padding-right: 5px; line-height:20px; margin-top:4px; color: #fdc32c; font-size: 12px;}
+.tixright_a .font{ float: right; margin-left: 5px;}
+.tixright_a .font img{ height: 12px; margin-top: 5px;}
+
