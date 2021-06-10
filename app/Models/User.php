@@ -66,12 +66,6 @@ class User extends Authenticatable
         return $this->hasMany(Vip::class, 'member_id', 'id')->where('active', 1)->orderBy('created_at', 'desc');
     }
 
-    //VVIP
-    public function VVIP()
-    {
-        return $this->hasMany(ValueAddedService::class, 'member_id', 'id')->where('service_name','VVIP')->where('active', 1)->orderBy('created_at', 'desc');
-    }
-
     public function vas()
     {
         return $this->hasMany(ValueAddedService::class, 'member_id', 'id')->where('active', 1)->orderBy('created_at', 'desc');
@@ -990,75 +984,6 @@ class User extends Authenticatable
             $data['auth_status'] = null;
         }
         return $data;
-    }
-
-    public function is3MonthVip()
-    {
-        //三個月以上(不含三個月)"信用卡"付費的 vip
-        $vip = Vip::where('member_id', $this->id)->where('expiry','0000-00-00 00:00:00')->where('active',1)->where('free',0)->first();
-        if(isset($vip)){
-            $months = Carbon::parse($vip->created_at)->diffInMonths(Carbon::now());
-            if($months < 3){ return 0;}
-        }
-        return 1;
-    }
-
-    public function isEverWarned()
-    {
-        //未曾受到警示/封鎖處分
-        $isWarnedUsers = warned_users::where('member_id', $this->id)->get()->first();
-        $isWarnedLog = DB::table('is_warned_log')->where('user_id', $this->id)->get()->first();
-        if(isset($isWarnedUsers) || isset($isWarnedLog)){ return 1; }
-        return 0;
-    }
-
-    public function canVVIP()
-    {
-        //        //三個月以上(不含三個月)"信用卡"付費的 vip
-        //        $vip = Vip::where('member_id', $this->id)->where('expiry','0000-00-00 00:00:00')->where('active',1)->where('free',0)->first();
-        //        if(isset($vip)){
-        //            $months = Carbon::parse($vip->created_at)->diffInMonths(Carbon::now());
-        //            if($months < 3){ return 0;}
-        //        }
-        //        //未曾受到警示/封鎖處分
-        //        $isWarnedUsers = warned_users::where('member_id', $this->id)->get();
-        //        $isWarnedLog = DB::table('is_warned_log')->where('user_id', $this->id)->get();
-        //        if($isWarnedUsers || $isWarnedLog){ return 0; }
-        //        return 1;
-        $user = view()->shared('user');
-        $vip = $user->is3MonthVip();
-        $warned = $user->isEverWarned();
-        if($vip && !$warned){
-            return 1;
-        }else{
-            return 0;
-        }
-    }
-
-    public function passVVIP()
-    {
-        $passVVIP = VvipApplication::where('user_id', $this->id)->where('status',1)->first();
-        if(isset($passVVIP)){ return 1;}
-        return 0;
-    }
-
-    public function cancelVVIP()
-    {
-        $cancelVVIP = VvipApplication::where('user_id', $this->id)->where('status',4)->first();
-        if(isset($cancelVVIP)){ return 1;}
-        return 0;
-    }
-
-    public function isVVIP()
-    {
-        return ValueAddedService::select('active')
-                ->where('member_id', $this->id)
-                ->where('active', 1)
-                ->where('service_name', 'VVIP')
-                ->where(function($query) {
-                    $query->where('expiry', '0000-00-00 00:00:00')
-                        ->orwhere('expiry', '>=', Carbon::now());}
-                )->orderBy('created_at', 'desc')->first() !== null;
     }
 
 }
