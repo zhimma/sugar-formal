@@ -656,6 +656,13 @@ class PagesController extends BaseController
             $year=$month=$day='';
         }
         if ($user) {
+
+            $pr = DB::table('pr_log')->where('user_id',$user->id)->where('active',1)->first();
+            if(isset($pr)){
+                $pr = $pr->pr;
+            }else{
+                $pr = '無';
+            }
             $cancel_notice = $request->session()->get('cancel_notice');
             $message = $request->session()->get('message');
             if(isset($cancel_notice)){
@@ -681,7 +688,8 @@ class PagesController extends BaseController
                 ->with('cancel_notice', $cancel_notice)
                 ->with('add_avatar', $add_avatar)
                 ->with('isAdminWarnedRead',$isAdminWarnedRead)
-                ->with('no_avatar', $no_avatar->content);
+                ->with('no_avatar', $no_avatar->content)
+                ->with('pr', $pr);
 //                ->with('isWarnedReason',$isWarnedReason)
         }
     }
@@ -2207,6 +2215,13 @@ class PagesController extends BaseController
 
             $isReadIntro = $user->isReadIntro;
 
+            $pr = DB::table('pr_log')->where('user_id',$to->id)->where('active',1)->first();
+            if(isset($pr)){
+                $pr = $pr->pr;
+            }else{
+                $pr = '無';
+            }
+
             return view('new.dashboard.viewuser', $data)
                     ->with('user', $user)
                     ->with('blockadepopup', $blockadepopup)
@@ -2231,7 +2246,8 @@ class PagesController extends BaseController
                     ->with('evaluation_data',$evaluation_data)
                     ->with('vipDays',$vipDays)
                     ->with('isReadIntro',$isReadIntro)
-                    ->with('auth_check',$auth_check);
+                    ->with('auth_check',$auth_check)
+                    ->with('pr', $pr);
             }
 
     }
@@ -4150,7 +4166,7 @@ class PagesController extends BaseController
             $datetime2 = new \DateTime($user_isBannedOrWarned->banned_expire_date);
             $datetime3 = new \DateTime($user_isBannedOrWarned->banned_created_at);
             $diffDays = $datetime2->diff($datetime3)->days;
-            $isBannedStatus .= '您從 '.substr($user_isBannedOrWarned->banned_created_at,0,10).' 被站方封鎖 '.$diffDays.' 天，預計至 '.substr($user_isBannedOrWarned->banned_expire_date,0,10).' 日解除，原因是 '.$user_isBannedOrWarned->banned_reason.'，如有需要反應請點右下聯絡我們聯絡站長。';
+            $isBannedStatus .= '您從 '.substr($user_isBannedOrWarned->banned_created_at,0,10).' 被站方封鎖 '.$diffDays.' 天，預計至 '.substr($user_isBannedOrWarned->banned_expire_date,0,16).' 日解除，原因是 '.$user_isBannedOrWarned->banned_reason.'，如有需要反應請點右下聯絡我們聯絡站長。';
         }
 
 //        $isBannedImplicitlyStatus = '';
@@ -4168,7 +4184,7 @@ class PagesController extends BaseController
             $datetime2 = new \DateTime($user_isBannedOrWarned->warned_expire_date);
             $datetime3 = new \DateTime($user_isBannedOrWarned->warned_created_at);
             $diffDays = $datetime2->diff($datetime3)->days;
-            $adminWarnedStatus .= '您從 '.substr($user_isBannedOrWarned->warned_created_at,0,10).' 被站方警示 '.$diffDays.' 天，預計至 '.substr($user_isBannedOrWarned->warned_expire_date,0,10).' 日解除，原因是 '.$user_isBannedOrWarned->warned_reason.'，如有需要反應請點右下聯絡我們聯絡站長。';
+            $adminWarnedStatus .= '您從 '.substr($user_isBannedOrWarned->warned_created_at,0,10).' 被站方警示 '.$diffDays.' 天，預計至 '.substr($user_isBannedOrWarned->warned_expire_date,0,16).' 日解除，原因是 '.$user_isBannedOrWarned->warned_reason.'，如有需要反應請點右下聯絡我們聯絡站長。';
         }
 
         $isWarnedStatus = '';

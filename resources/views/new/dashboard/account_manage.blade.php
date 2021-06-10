@@ -56,6 +56,10 @@
                             <font>Line通知設定</font>
                         </a>
 
+                        <a href="/member_auth/" class="gg_zh_li"><span><img src="/new/images/zh09.png"></span>
+                            <font>手機驗證</font>
+                        </a>
+
 
                     </div>
 
