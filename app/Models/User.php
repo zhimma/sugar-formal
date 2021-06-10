@@ -81,6 +81,10 @@ class User extends Authenticatable
         return $this->hasOne(\App\Models\SimpleTables\short_message::class, 'member_id', 'id')->where('mobile','!=','')->where('active', 1);
     }
 
+    public function pr_log() {
+        return $this->hasOne(Pr_log::class, 'user_id', 'id')->where('active', 1);
+    }
+
     //sent messages
     public function sentMessages()
     {
@@ -98,7 +102,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(MemberPic::class, 'member_id', 'id');
     }
-    
+
     /*
     |--------------------------------------------------------------------------
     | Mutators and Accessors
@@ -111,7 +115,7 @@ class User extends Authenticatable
     {
         return User::where('id', $uid)->first();
     }
-    
+
 
     public function meta_($queries = null)
     {

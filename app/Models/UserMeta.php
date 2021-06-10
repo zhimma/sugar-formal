@@ -221,7 +221,6 @@ class UserMeta extends Model
             return $query->where('is_active', 1);
         };
 
-
         /**
          * 為加速效能，此三句功能以 subquery 形式在下方被替換，並以註解形式保留以利後續維護。
          * $bannedUsers = \App\Services\UserService::getBannedId();
@@ -230,13 +229,9 @@ class UserMeta extends Model
          */
         // 效能調整：Eager Loading
         if($engroup==1) {
-            $query = User::with(['user_meta' => $constraint, 'vip', 'vas', 'aw_relation', 'fa_relation'])
-                ->select('users.*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"),'pr_log.pr as pr_v')
+            $query = User::with(['user_meta' => $constraint, 'vip', 'vas', 'aw_relation', 'fa_relation', 'pr_log'])
+                ->select('users.*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))
                 ->whereHas('user_meta', $constraint)
-                ->leftJoin('pr_log', function($query)  {
-                    $query->on('pr_log.user_id', '=', 'users.id')
-                        ->where('pr_log.active',1);
-                })
                 ->where('engroup', $engroup)
                 ->where('accountStatus', 1)
                 ->where('is_hide_online', '<>', 2)
