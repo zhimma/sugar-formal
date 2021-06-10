@@ -385,7 +385,7 @@
                                             <div class="vvipjdt tm_new">
                                                 <div class="progress progress-striped vvipjdt_pre_a">
                                                     <div class="progress-bar progress_info_a" role="progressbar" aria-valuenow="60" aria-valuemin="0"
-                                                         aria-valuemax="100" @if(isset($visitor->pr_log)) style="width:{{$visitor->pr_log->pr_v}}%;" @else style="width: 0%;" @endif>
+                                                         aria-valuemax="100" @if(isset($visitor->pr_log)) style="width:{{ $visitor->pr_log->pr }}%;" @else style="width: 0%;" @endif>
                                                         <span class="prfont_a">PR</span>
                                                     </div>
                                                 </div>
