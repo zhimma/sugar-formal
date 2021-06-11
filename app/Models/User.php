@@ -685,7 +685,7 @@ class User extends Authenticatable
                     $pr_log = $pr_log . '扣除1次單次月繳計算=>' . $pr .'; ';
                 }
             } elseif ($vip->payment != null && substr($vip->payment, 0, 3) == 'cc_' && $vip->expiry != '0000-00-00 00:00:00') {
-                $months = Carbon::parse($vip->created_at)->diffInMonths($vip->expiry);
+                $months = Carbon::parse($vip->created_at)->diffInMonths(Carbon::parse($vip->expiry));
                 $pr = $pr + ($months * 5)+ (($months-1)*2.5);
                 $otherMonths = $months - 1;
                 $pr_log = $pr_log . '當前定期定額VIP累計 ' . $months . ' 個月, 額外連續VIP '.$otherMonths.' 個月=>' . $pr .'; ';
