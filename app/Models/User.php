@@ -669,7 +669,8 @@ class User extends Authenticatable
 //        }
 
         //當前有VIP 連續加分計算
-        if(isset($vip)) {
+        $vip = Vip::where('member_id',$uid)->where('amount','<>',0)->first();
+        if($user->isVIP() && isset($vip)) {
             $months = Carbon::parse($vip->created_at)->diffInMonths(Carbon::now());
             //定期定額累計加分
             if ($vip->payment != null && substr($vip->payment, 0, 3) == 'cc_' && $vip->expiry == '0000-00-00 00:00:00' && $vip->active == 1) {
