@@ -679,7 +679,7 @@ class User extends Authenticatable
                 if(substr($vip->payment, 0, 3) == 'cc_quarterly_payment'){
                     $pr = $pr - 15;
                     $pr_log = $pr_log . '扣除1次單次季繳計算=>' . $pr .'; ';
-                }elseif(substr($vip->payment, 0, 3) == 'cc_month_payment'){
+                }elseif(substr($vip->payment, 0, 3) == 'cc_monthly_payment'){
                     $pr = $pr - 5;
                     $pr_log = $pr_log . '扣除1次單次月繳計算=>' . $pr .'; ';
                 }
@@ -727,7 +727,7 @@ class User extends Authenticatable
                 $pr = $pr + 15;
                 $pr_log = $pr_log . '曾經單次付費季付VIP =>' . $pr . '; ';
             }
-            if (strpos($row->member_name, 'one_month_payment') !== false) {
+            if (strpos($row->member_name, 'one_monthly_payment') !== false) {
                 $pr = $pr + 5;
                 $pr_log = $pr_log . '曾經單次付費月付VIP =>' . $pr . '; ';
             }
@@ -735,7 +735,7 @@ class User extends Authenticatable
                 $pr = $pr + 15;
                 $pr_log = $pr_log . '曾經定期定額季付VIP =>' . $pr . '; ';
             }
-            if (strpos($row->member_name, 'cc_month_payment') !== false) {
+            if (strpos($row->member_name, 'cc_monthly_payment') !== false) {
                 $pr = $pr + 5;
                 $pr_log = $pr_log . '曾經定期定額月付VIP =>' . $pr . '; ';
             }
