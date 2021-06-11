@@ -2913,9 +2913,12 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 .aw_vip{width: 100%; display: table;}
 
 .aw_fftab{width: 100%; display:table;}
-.awlist{width: 90%; margin: 0 auto; display: table; margin-top:50px;}
-.awlist li{width: 33.33%; float: left;}
-.aw_hdtab{width:90%; margin: 0 auto; display: table; background: #fff4f6; border: #fe92a8 1px solid; border-radius: 10px; padding-bottom: 20px;}
+.awlist{width: 80%; margin: 0 auto; display: table; margin-top:50px;}
+.awlist li{width: 50%; float: left;}
+.aw_hdtab{width:80%; margin: 0 auto; display: table; background: #fff4f6; border: #fe92a8 1px solid; border-radius: 10px; padding-bottom: 20px;}
+/*.awlist{width: 90%; margin: 0 auto; display: table; margin-top:50px;}*/
+/*.awlist li{width: 33.33%; float: left;}*/
+/*.aw_hdtab{width:90%; margin: 0 auto; display: table; background: #fff4f6; border: #fe92a8 1px solid; border-radius: 10px; padding-bottom: 20px;}*/
 .aw_hdtab img{width:150px; margin: 0 auto; display: table;}
 .aw_hdtab h2{ font-size: 18px; text-align: center; color: #fe92a8;}
 .aw_hdtab:hover{ background: #ffe5ea; cursor: pointer;}
