@@ -841,25 +841,25 @@
                                         @if($user->isVip())  <font>{{$login_times_per_week }}</font> @else <img src="/new/images/icon_35.png"> @endif
                                         {{--                                        @endif--}}
                                     </dt>
-                                    <dt><span>使用者評價</span>
-                                        @if($user->isVip())
-                                            <font>
-                                                <div class="star_new">
-                                                    @for ($i = 1; $i <= 5; $i++)
-                                                        @if(intval($rating_avg)>=$i)
-                                                            <img src="/new/images/sxx_1.png">
-                                                        @elseif(strstr($rating_avg,'.') && ctype_digit($rating_avg)==false)
-                                                            <img src="/new/images/sxx_2.png">
-                                                            @break
-                                                        @endif
-                                                    @endfor
-                                                    @for ($i = 1; $i <= 5-ceil($rating_avg); $i++)
-                                                        <img src="/new/images/sxx_4.png">
-                                                    @endfor
-                                                </div>
-                                            </font>
-                                        @else <img src="/new/images/icon_35.png"> @endif
-                                    </dt>
+{{--                                    <dt><span>使用者評價</span>--}}
+{{--                                        @if($user->isVip())--}}
+{{--                                            <font>--}}
+{{--                                                <div class="star_new">--}}
+{{--                                                    @for ($i = 1; $i <= 5; $i++)--}}
+{{--                                                        @if(intval($rating_avg)>=$i)--}}
+{{--                                                            <img src="/new/images/sxx_1.png">--}}
+{{--                                                        @elseif(strstr($rating_avg,'.') && ctype_digit($rating_avg)==false)--}}
+{{--                                                            <img src="/new/images/sxx_2.png">--}}
+{{--                                                            @break--}}
+{{--                                                        @endif--}}
+{{--                                                    @endfor--}}
+{{--                                                    @for ($i = 1; $i <= 5-ceil($rating_avg); $i++)--}}
+{{--                                                        <img src="/new/images/sxx_4.png">--}}
+{{--                                                    @endfor--}}
+{{--                                                </div>--}}
+{{--                                            </font>--}}
+{{--                                        @else <img src="/new/images/icon_35.png"> @endif--}}
+{{--                                    </dt>--}}
                                     <dt><span>被收藏次數</span>@if($user->isVip()) <font>{{$be_fav_count}}</font> @else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>收藏會員次數</span>@if($user->isVip())<font>{{$fav_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>車馬費邀請次數</span>@if($user->isVip())<font>{{$tip_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
