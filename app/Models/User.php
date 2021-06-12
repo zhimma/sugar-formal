@@ -725,11 +725,11 @@ class User extends Authenticatable
             ->get();
 
         foreach ($vip_log as $row){
-            if (strpos($row->member_name, 'one_quarterly_payment') !== false) {
+            if (strpos($row->member_name, 'one_quarter_payment') !== false) {
                 $pr = $pr + 15;
                 $pr_log = $pr_log . '曾經單次付費季付VIP =>' . $pr . '; ';
             }
-            if (strpos($row->member_name, 'one_monthly_payment') !== false) {
+            if (strpos($row->member_name, 'one_month_payment') !== false) {
                 $pr = $pr + 5;
                 $pr_log = $pr_log . '曾經單次付費月付VIP =>' . $pr . '; ';
             }
