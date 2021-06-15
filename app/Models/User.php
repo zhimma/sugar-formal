@@ -704,7 +704,7 @@ class User extends Authenticatable
             }
 
             //單次付費加分
-            if ($vip->payment == 'one_quarterly_payment') {
+            if ($vip->payment == 'one_quarter_payment') {
                 $pr = $pr + 2.5 + 2.5;
                 $pr_log = $pr_log . '當前有VIP+額外連續VIP =>' . $pr . '; ';
             }
