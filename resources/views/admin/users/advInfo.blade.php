@@ -401,15 +401,22 @@
 				<input type="hidden" name="user_id" value="{{ $userMeta->user_id }}">
 				@php
 					$showPhone = '暫無手機';
+					$showPhoneDate = '';
 					$phoneAuth = DB::table('short_message')->where('member_id', $user->id)->first();
 					if($user->isPhoneAuth()){
-					    if(empty(trim($phoneAuth->mobile)))
+					    if(empty(trim($phoneAuth->mobile))){
 							$showPhone = '已驗證,尚未填寫手機';
-						else
+					        $showPhoneDate = $phoneAuth->createdate;
+					        }
+						else{
 						    $showPhone = $phoneAuth->mobile;
+						    $showPhoneDate = $phoneAuth->createdate;
+						    }
 					}
 				@endphp
 				<input class="form-control m-input phoneInput" type=text name="phone" value="{{ $showPhone }}" readonly="readonly" >
+				<div>@if($userMeta->isWarnedTime !='')警示用戶時間：{{ $userMeta->isWarnedTime }}@endif</div>
+				<div>@if($showPhoneDate != '')手機驗證時間：{{ $showPhoneDate }}@endif</div>
 				@if(!is_null($phoneAuth))
 					<div>購買手機驗證卡號：{{ $phoneAuth->credit_card }}</div>
 				@endif
@@ -657,6 +664,86 @@
 		</tr>
 	@endforeach
 </table>
+
+
+<h4>曾被警示</h4>
+<table class="table table-hover table-bordered">
+	<tr>
+		<th width="30%">警示時間</th>
+		<th>原因</th>
+	</tr>
+	@if(isset($isEverWarned) && count($isEverWarned)>0)
+	@foreach($isEverWarned as $row)
+		<tr>
+			<td>{{$row->created_at}}</td>
+			<td>{{$row->reason}}</td>
+		</tr>
+	@endforeach
+		{!! $isEverWarned->links() !!}
+	@endif
+</table>
+
+
+
+<h4>曾被封鎖</h4>
+<table class="table table-hover table-bordered">
+	<tr>
+		<th width="30%">封鎖時間</th>
+		<th>原因</th>
+	</tr>
+	@if(isset($isEverBanned) && count($isEverBanned)>0)
+	@foreach($isEverBanned as $row)
+		<tr>
+			<td>{{$row->created_at}}</td>
+			<td>{{$row->reason}}</td>
+		</tr>
+	@endforeach
+		{!! $isEverBanned->links() !!}
+	@endif
+</table>
+
+
+
+<h4>目前正被警示</h4>
+<table class="table table-hover table-bordered">
+	<tr>
+		<th width="30%">警示時間</th>
+		<th>原因</th>
+		<th>到期時間</th>
+	</tr>
+	@if(isset($isWarned) && count($isWarned)>0)
+	@foreach($isWarned as $row)
+		<tr>
+			<td>{{$row->created_at}}</td>
+			<td>{{$row->reason}}</td>
+			<td>{{$row->expire_date}}</td>
+		</tr>
+	@endforeach
+		{!! $isWarned->links() !!}
+	@endif
+</table>
+
+
+
+<h4>目前正被封鎖</h4>
+<table class="table table-hover table-bordered">
+	<tr>
+		<th width="30%">封鎖時間</th>
+		<th>原因</th>
+		<th>到期時間</th>
+	</tr>
+	@if(isset($isBanned) && count($isBanned)>0)
+	@foreach($isBanned as $row)
+		<tr>
+			<td>{{$row->created_at}}</td>
+			<td>{{$row->reason}}</td>
+			<td>{{$row->expire_date}}</td>
+		</tr>
+	@endforeach
+		{!! $isBanned->links() !!}
+	@endif
+</table>
+
 
 <h4>帳號登入紀錄</h4>
 <table id="table_userLogin_log" class="table table-hover table-bordered">

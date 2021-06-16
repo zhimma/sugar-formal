@@ -85,7 +85,7 @@ class SetAutoBan extends Model
                     $userWarned->reason = "系統原因($ban_set->id)";
                     $userWarned->save();
                     //寫入log
-                    DB::table('is_warned_log')->insert(['user_id'=>$uid]);
+                    DB::table('is_warned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
                     // UserMeta::where('user_id', $uid)->update(['isWarned' => 1]);
                 }
                 return;
@@ -130,7 +130,7 @@ class SetAutoBan extends Model
                     $userWarned->reason = "系統原因($ban_set->id)";
                     $userWarned->save();
                     //寫入log
-                    DB::table('is_warned_log')->insert(['user_id'=>$uid]);
+                    DB::table('is_warned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
                     // UserMeta::where('user_id', $uid)->update(['isWarned' => 1]);
                 }
                 return;
@@ -195,7 +195,7 @@ class SetAutoBan extends Model
                 $userWarned->reason = "系統原因($ban_set->id)";
                 $userWarned->save();
                 //寫入log
-                DB::table('is_warned_log')->insert(['user_id'=>$uid]);
+                DB::table('is_warned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
                 // UserMeta::where('user_id', $uid)->update(['isWarned' => 1]);
                 return;
             }
