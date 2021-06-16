@@ -1,2 +1,2 @@
-ALTER TABLE user_meta
-ADD column `isWarnedTime` timestamp NULL DEFAULT NULL AFTER `isWarnedRead`;
+ALTER TABLE is_warned_log
+ADD column `reason` VARCHAR(255) NULL DEFAULT NULL AFTER `user_id`;
