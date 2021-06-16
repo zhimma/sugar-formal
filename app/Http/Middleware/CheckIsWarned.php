@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
 use App\Models\UserMeta;
+use Carbon\Carbon;
 
 class CheckIsWarned
 {
@@ -45,7 +46,7 @@ class CheckIsWarned
         if($user->meta->isWarned == 1){
             if($auth_status==1 && !$user->isAdminWarned()){
                 //取消警示
-                UserMeta::where('user_id',$user->id)->update(['isWarned'=>0,'isWarnedRead'=>0]);
+                UserMeta::where('user_id',$user->id)->update(['isWarned'=>0, 'isWarnedRead'=>0, 'isWarnedTime' => null]);
             }
 //            dd($user->meta_()->isWarned);
             return $next($request);
@@ -53,7 +54,7 @@ class CheckIsWarned
 
         if($user->meta->isWarned == 0 && $user->WarnedScore() >= 10 && $auth_status == 0 && $user->id != 1049){
             //加入警示
-            UserMeta::where('user_id',$user->id)->update(['isWarned'=>1,'isWarnedRead'=>0]);
+            UserMeta::where('user_id',$user->id)->update(['isWarned'=>1, 'isWarnedRead'=>0, 'isWarnedTime' => Carbon::now()]);
 
 //            return $next($request);
         }

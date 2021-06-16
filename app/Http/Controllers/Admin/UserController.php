@@ -353,7 +353,7 @@ class UserController extends \App\Http\Controllers\BaseController
         }
         $userWarned->save();
         //寫入log
-        DB::table('is_warned_log')->insert(['user_id'=>$request->user_id]);
+        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason]);
         //新增Admin操作log
         $this->insertAdminActionLog($request->user_id, '站方警示');
 
@@ -1065,6 +1065,15 @@ class UserController extends \App\Http\Controllers\BaseController
             $tmp['to_auth_status'] = $auth_status;
             array_push($out_evaluation_data_2, $tmp);
         }
+
+        //曾被警示
+        $isEverWarned = DB::table('is_warned_log')->where('user_id',$user->id)->orderBy('created_at','desc')->paginate(10);
+        //曾被封鎖
+        $isEverBanned = banned_users::where('member_id',$user->id)->where('expire_date','<>', null)->where('expire_date','<',Carbon::now() )->orderBy('created_at','desc')->paginate(10);
+        //正被警示
+        $isWarned = warned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->orderBy('created_at','desc')->paginate(10);
+        //正被封鎖
+        $isBanned = banned_users::where('member_id',$user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->orderBy('created_at','desc')->paginate(10);
         
         if (str_contains(url()->current(), 'edit')) {
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
@@ -1096,7 +1105,11 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('out_evaluation_data_2', $out_evaluation_data_2)
                 ->with('pr',$pr)
                 ->with('pr_log',$query_pr)
-                ->with('pr_created_at',$pr_created_at);
+                ->with('pr_created_at',$pr_created_at)
+                ->with('isEverWarned',$isEverWarned)
+                ->with('isEverBanned',$isEverBanned)
+                ->with('isWarned',$isWarned)
+                ->with('isBanned',$isBanned);
         }
     }
 
@@ -2543,14 +2556,19 @@ class UserController extends \App\Http\Controllers\BaseController
 
         $id = $request->post('id');
         $status = $request->post('status');
+        $isWarnedTime = null;
+        if($status==1){
+            $isWarnedTime = Carbon::now();
+        }
 
-        DB::table('user_meta')->where('user_id', $id)->update(['isWarned' => $status, 'isWarnedRead' => 0]);
+        DB::table('user_meta')->where('user_id', $id)->update(['isWarned' => $status, 'isWarnedRead' => 0, 'isWarnedTime' => $isWarnedTime]);
 
         if ($status == 1) {
             //加入警示流程
             //清除認證資料
             //            DB::table('auth_img')->where('user_id',$id)->delete();
-            DB::table('short_message')->where('member_id', $id)->update(['active' =>0]);
+            DB::table('short_message')->where('member_id', $id)->delete();
+//            DB::table('short_message')->where('member_id', $id)->update(['active' =>0]);
         } else if ($status == 0) {
             $user = User::findById($id);
             //取消警示流程
@@ -3605,11 +3623,16 @@ class UserController extends \App\Http\Controllers\BaseController
             return back()->with('error', '已存在資料,手機號碼重複驗證');
         }
 
-        if (DB::table('short_message')->where([['member_id', $request->user_id]])->first() == null) {
-            DB::table('short_message')->insert(['member_id' =>  $request->user_id, 'mobile' => $request->phone, 'active' =>1]);
-        }else{
-            DB::table('short_message')->where('member_id', $request->user_id)->update(['mobile' => $request->phone, 'active' =>1]);
-        }
+//        if (DB::table('short_message')->where([['member_id', $request->user_id]])->first() == null) {
+//            DB::table('short_message')->insert(['member_id' =>  $request->user_id, 'mobile' => $request->phone, 'active' =>1]);
+//        }else{
+//            DB::table('short_message')->where('member_id', $request->user_id)->update(['mobile' => $request->phone, 'active' =>1]);
+//        }
+
+        //先刪後增
+        DB::table('short_message')->where('member_id', $request->user_id)->delete();
+        DB::table('short_message')->insert(['member_id' =>  $request->user_id, 'mobile' => $request->phone, 'active' =>1]);
+
         UserMeta::where('user_id', $request->user_id)->update(['phone' => $request->phone]);
 
         return back()->with('message', $request->pass ? '已通過手機驗證':'手機已更新');
@@ -3617,7 +3640,9 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function deletePhone(Request $request)
     {
-        DB::table('short_message')->where('member_id', $request->user_id)->update(['active' =>0]);
+        //直接刪
+        DB::table('short_message')->where('member_id', $request->user_id)->delete();
+//        DB::table('short_message')->where('member_id', $request->user_id)->update(['active' =>0, ]);
         UserMeta::where('user_id', $request->user_id)->update(['phone' => '']);
 
         return back()->with('message', '手機已刪除');
