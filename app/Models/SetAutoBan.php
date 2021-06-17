@@ -73,6 +73,8 @@ class SetAutoBan extends Model
                     $userBanned->member_id = $uid;
                     $userBanned->reason = "系統原因($ban_set->id)";
                     $userBanned->save();
+                    //寫入log
+                    DB::table('is_banned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
                 }
                 elseif($ban_set->set_ban == 2 && BannedUsersImplicitly::where('target', $uid)->first() == null){
                     //隱性封鎖
@@ -118,6 +120,8 @@ class SetAutoBan extends Model
                     $userBanned->member_id = $uid;
                     $userBanned->reason = "系統原因($ban_set->id)";
                     $userBanned->save();
+                    //寫入log
+                    DB::table('is_banned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
                 }
                 elseif($ban_set->set_ban == 2 && BannedUsersImplicitly::where('target', $uid)->first() == null) {
                     //隱性封鎖

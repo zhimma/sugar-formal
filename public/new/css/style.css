@@ -100,7 +100,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 
 
-.juanzhou{height: 180px; display: block;overflow-y: scroll;-webkit-overflow-scrolling: touch;}
+.juanzhou{/*height: 180px;*/ display: block;/*overflow-y: scroll;*/-webkit-overflow-scrolling: touch;}
 .juanzhou::-webkit-scrollbar{ border-radius: 100PX !important;
     width:6px !important;
     height: 6px !important;
