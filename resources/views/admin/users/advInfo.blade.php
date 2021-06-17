@@ -110,6 +110,10 @@
 	@else
 		<a href="{{ route('activateUser',$userMeta->activation_token) }}" class="btn btn-success"> 通過認證信 </a>
 	@endif
+
+	@if($user->accountStatus == 0)
+		<b style="font-size:18px">已關閉帳號</b>
+	@endif
 </h1>
 <h4>基本資料</h4>
 <table class='table table-hover table-bordered '>
@@ -690,12 +694,14 @@
 	<tr>
 		<th width="30%">封鎖時間</th>
 		<th>原因</th>
+{{--		<th>到期時間</th>--}}
 	</tr>
 	@if(isset($isEverBanned) && count($isEverBanned)>0)
 	@foreach($isEverBanned as $row)
 		<tr>
 			<td>{{$row->created_at}}</td>
 			<td>{{$row->reason}}</td>
+{{--			<td>{{$row->expire_date}}</td>--}}
 		</tr>
 	@endforeach
 		{!! $isEverBanned->links() !!}
@@ -811,73 +817,88 @@
 	</table>
 @endif
 --}}
+{{--<h4>所有訊息</h4>--}}
+{{--<table class="table table-hover table-bordered">--}}
+{{--<form action="{{ route('users/message/modify') }}" method="post">--}}
+{{--    {!! csrf_field() !!}--}}
+{{--	<input type="hidden" name="delete" id="delete" value="1">--}}
+{{--	<tr>--}}
+{{--		<td>發送給</td>--}}
+{{--		<td>內容</td>--}}
+{{--		<td>發送時間</td>--}}
+{{--		<td>回覆收訊者</td>--}}
+{{--		<td>封鎖收訊者</td>--}}
+{{--        <td style="text-align: center; vertical-align: middle"><button type="submit" class="btn btn-danger delete-btn">刪除選取</button></td>--}}
+{{--	</tr>--}}
+{{--	@forelse ($userMessage as $key => $message)--}}
+{{--		@if(isset($to_ids[$message->to_id]['engroup'] ))--}}
+{{--		<tr>--}}
+{{--			<td>--}}
+{{--				<a href="{{ route('admin/showMessagesBetween', [$user->id, $message->to_id]) }}" target="_blank">--}}
+{{--					<p @if($to_ids[$message->to_id]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>--}}
+{{--						{{ $to_ids[$message->to_id]['name'] }}--}}
+{{--						@if($to_ids[$message->to_id]['vip'])--}}
+{{--						    @if($to_ids[$message->to_id]['vip']=='diamond_black')--}}
+{{--						        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">--}}
+{{--						    @else--}}
+{{--						        @for($z = 0; $z < $to_ids[$message->to_id]['vip']; $z++)--}}
+{{--						            <img src="/img/diamond.png" style="height: 16px;width: 16px;">--}}
+{{--						        @endfor--}}
+{{--						    @endif--}}
+{{--						@endif--}}
+{{--						@for($i = 0; $i < $to_ids[$message->to_id]['tipcount']; $i++)--}}
+{{--						    👍--}}
+{{--						@endfor--}}
+{{--						@if(!is_null($to_ids[$message->to_id]['isBlocked']))--}}
+{{--						    @if(!is_null($to_ids[$message->to_id]['isBlocked']['expire_date']))--}}
+{{--						        ({{ round((strtotime($to_ids[$message->to_id]['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)--}}
+{{--						    @else--}}
+{{--						        (永久)--}}
+{{--						    @endif--}}
+{{--						@endif--}}
+{{--					</p>--}}
+{{--				</a>--}}
+{{--			</td>--}}
+{{--			<td>{{ $message->content }}</td>--}}
+{{--			<td>{{ $message->created_at }}</td>--}}
+{{--			<td>--}}
+{{--				<a href="{{ route('AdminMessengerWithMessageId', [$message->to_id, $message->id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>--}}
+{{--			</td>--}}
+{{--			<td>--}}
+{{--				<a class="btn btn-danger ban-user{{ $key }}" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$message->to_id, $message->id]) }}" data-name="{{ $to_ids[$message->to_id]['name']}}">封鎖</a>--}}
+{{--			</td>--}}
+{{--            <td style="text-align: center; vertical-align: middle">--}}
+{{--                <input type="checkbox" name="msg_id[]" value="{{ $message->id }}" class="form-control">--}}
+{{--            </td>--}}
+{{--		</tr>--}}
+{{--		@else--}}
+{{--			<tr>--}}
+{{--				<td colspan="6">--}}
+{{--					會員資料已刪除--}}
+{{--				</td>--}}
+{{--			</tr>--}}
+{{--		@endif--}}
+{{--    @empty--}}
+{{--        沒有訊息--}}
+{{--    @endforelse--}}
+{{--</form>--}}
+{{--</table>--}}
+{{--{!! $userMessage->links() !!}--}}
+
 <h4>所有訊息</h4>
-<table class="table table-hover table-bordered">
-<form action="{{ route('users/message/modify') }}" method="post">
-    {!! csrf_field() !!}
-	<input type="hidden" name="delete" id="delete" value="1">
+<table id="m_log" class="table table-hover table-bordered">
 	<tr>
-		<td>發送給</td>
-		<td>內容</td>
-		<td>發送時間</td>
-		<td>回覆收訊者</td>
-		<td>封鎖收訊者</td>
-        <td style="text-align: center; vertical-align: middle"><button type="submit" class="btn btn-danger delete-btn">刪除選取</button></td>
+		<th>發送給</th>
 	</tr>
-	@forelse ($userMessage as $key => $message)
-		@if(isset($to_ids[$message->to_id]['engroup'] ))
+	@foreach($userMessage_log as $Log)
 		<tr>
-			<td>
-				<a href="{{ route('admin/showMessagesBetween', [$user->id, $message->to_id]) }}" target="_blank">
-					<p @if($to_ids[$message->to_id]['engroup'] == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
-						{{ $to_ids[$message->to_id]['name'] }}
-						@if($to_ids[$message->to_id]['vip'])
-						    @if($to_ids[$message->to_id]['vip']=='diamond_black')
-						        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
-						    @else
-						        @for($z = 0; $z < $to_ids[$message->to_id]['vip']; $z++)
-						            <img src="/img/diamond.png" style="height: 16px;width: 16px;">
-						        @endfor
-						    @endif
-						@endif
-						@for($i = 0; $i < $to_ids[$message->to_id]['tipcount']; $i++)
-						    👍
-						@endfor
-						@if(!is_null($to_ids[$message->to_id]['isBlocked']))
-						    @if(!is_null($to_ids[$message->to_id]['isBlocked']['expire_date']))
-						        ({{ round((strtotime($to_ids[$message->to_id]['isBlocked']['expire_date']) - getdate()[0])/3600/24 ) }}天)
-						    @else
-						        (永久)
-						    @endif
-						@endif
-					</p>
-				</a>
-			</td>
-			<td>{{ $message->content }}</td>
-			<td>{{ $message->created_at }}</td>
-			<td>
-				<a href="{{ route('AdminMessengerWithMessageId', [$message->to_id, $message->id]) }}" target="_blank" class='btn btn-dark'>撰寫</a>
-			</td>
-			<td>
-				<a class="btn btn-danger ban-user{{ $key }}" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ route('banUserWithDayAndMessage', [$message->to_id, $message->id]) }}" data-name="{{ $to_ids[$message->to_id]['name']}}">封鎖</a>
-			</td>
-            <td style="text-align: center; vertical-align: middle">
-                <input type="checkbox" name="msg_id[]" value="{{ $message->id }}" class="form-control">
-            </td>
+			<td>@if(!empty($Log->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $Log->to_id]) }}" target="_blank">{{ $Log->name . ' ['. $Log->toCount .']' }}</a>@else 會員資料已刪除@endif</td>
 		</tr>
-		@else
-			<tr>
-				<td colspan="6">
-					會員資料已刪除
-				</td>
-			</tr>
-		@endif
-    @empty
-        沒有訊息
-    @endforelse
-</form>
+	@endforeach
+
 </table>
-{!! $userMessage->links() !!}
+{!! $userMessage_log->links('pagination::sg-pages') !!}
+
 <h4>現有生活照</h4>
 <?php $pics = \App\Models\MemberPic::getSelf($user->id); ?>
 <table class="table table-hover table-bordered" style="width: 50%;">
