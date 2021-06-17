@@ -265,6 +265,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 $userBanned->reason = $request->reason;
             }
             $userBanned->save();
+            //寫入log
+            DB::table('is_banned_log')->insert(['user_id' => $request->user_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date]);
             //新增Admin操作log
             $this->insertAdminActionLog($request->user_id, '封鎖會員');
 
@@ -297,6 +299,9 @@ class UserController extends \App\Http\Controllers\BaseController
             $userBanned = new banned_users;
             $userBanned->member_id = $id;
             $userBanned->save();
+            //寫入log
+            DB::table('is_banned_log')->insert(['user_id' => $id]);
+
             return view('admin.users.success_only')->with('message', '成功封鎖使用者');
         }
 
@@ -604,6 +609,15 @@ class UserController extends \App\Http\Controllers\BaseController
             $userBanned->reason = $reason;
         }
         $userBanned->save();
+        //寫入log
+        DB::table('is_banned_log')->insert([
+            'user_id' => $user_id,
+            'reason' => $userBanned->reason,
+            'message_content' => $userBanned->message_content,
+            'recipient_name' => $userBanned->recipient_name,
+            'message_time' => $userBanned->message_time,
+            'expire_date' => $userBanned->expire_date
+        ]);
         //$user = User::where('id', $user_id)->get()->first();
         //if($msg_id == 0){
         //    $content = ['hello' => $user->name.'您好，',
@@ -708,6 +722,14 @@ class UserController extends \App\Http\Controllers\BaseController
                 }
             }
         }
+
+        //groupby $userMessage
+        $userMessage_log = Message::selectRaw('m.to_id, count(*) as toCount, u.name, max(m.created_at) as date')->from('message as m')
+            ->leftJoin('users as u','u.id','m.to_id')
+            ->where('m.from_id', $id)
+            ->where(DB::raw("m.created_at"),'>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
+            ->groupBy(DB::raw("m.to_id"))
+            ->orderBy('date','DESC')->paginate(10);
 
         // 給予、取消優選
         $now = \Carbon\Carbon::now();
@@ -1069,7 +1091,7 @@ class UserController extends \App\Http\Controllers\BaseController
         //曾被警示
         $isEverWarned = DB::table('is_warned_log')->where('user_id',$user->id)->orderBy('created_at','desc')->paginate(10);
         //曾被封鎖
-        $isEverBanned = banned_users::where('member_id',$user->id)->where('expire_date','<>', null)->where('expire_date','<',Carbon::now() )->orderBy('created_at','desc')->paginate(10);
+        $isEverBanned = DB::table('is_banned_log')->where('user_id',$user->id)->orderBy('created_at','desc')->paginate(10);
         //正被警示
         $isWarned = warned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->orderBy('created_at','desc')->paginate(10);
         //正被封鎖
@@ -1095,7 +1117,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('warned_info', $warned_banReason)
                 ->with('implicitly_banReason', $implicitly_banReason)
                 ->with('user', $user)
-//                ->with('userMessage_log',$userMessage_log)
+                ->with('userMessage_log',$userMessage_log)
                 ->with('userMessage', $userMessage)
                 ->with('to_ids', $to_ids)
                 ->with('userLogin_log', $userLogin_log)
@@ -1600,6 +1622,40 @@ class UserController extends \App\Http\Controllers\BaseController
         }
     }
 
+    public function deleteMessage(Request $request)
+    {
+//        if ($request->delete == 1 && $request->edit == 0) {
+            $datas = $this->admin->deleteMessage($request);
+            if ($datas == null) {
+                return redirect()->back()->withErrors(['沒有選擇訊息。'])->withInput();
+            }
+            if (!$datas) {
+                return redirect()->back()->withErrors(['出現錯誤，訊息刪除失敗'])->withInput();
+            } else {
+                $admin = $this->admin->checkAdmin();
+                if ($admin) {
+                    return back()->with('message', '刪除成功');
+//                    return view('admin.users.messenger')
+//                        ->with('admin', $datas['admin'])
+//                        ->with('msgs', $datas['msgs'])
+//                        ->with('template', $datas['template']);
+                } else {
+                    return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+                }
+            }
+//        } else if ($request->edit == 1 && $request->delete == 0) {
+//            $admin = $this->admin->checkAdmin();
+//            if ($admin) {
+//                $data = $this->admin->renderMessages($request);
+//                return view('admin.users.editMessage')->with('data', $data);
+//            } else {
+//                return back()->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+//            }
+//        } else {
+//            return redirect()->back()->withErrors(['出現不明錯誤']);
+//        }
+    }
+
     public function editMessage(Request $request)
     {
         $messages = $this->admin->editMessageThenReturnIds($request);
@@ -1855,7 +1911,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function showMessagesBetween($id1, $id2)
     {
-        $messages = Message::allToFromSender($id1, $id2);
+        $messages = Message::allToFromSenderAdmin($id1, $id2);
         $id1 = User::where('id', $id1)->get()->first();
         $id2 = User::where('id', $id2)->get()->first();
 
