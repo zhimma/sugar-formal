@@ -891,17 +891,19 @@
 		<th width="5%"></th>
 		<th width="10%">發送給</th>
 		<th>最新內容</th>
-		<th>發送數</th>
+		<th width="15%">發送時間</th>
+		<th width="5%">發送數</th>
 	</tr>
 	@foreach($userMessage_log as $Log)
 		<tr>
 			<td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$Log->to_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>
 			<td>@if(!empty($Log->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $Log->to_id]) }}" target="_blank">{{ $Log->name }}</a>@else 會員資料已刪除@endif</td>
-			<td id="new{{$Log->to_id}}"></td>
+			<td id="new{{$Log->to_id}}">{{$Log->content}}</td>
+			<td>@if(!empty($Log->name)){{$Log->created_at}}@else 會員資料已刪除@endif</td>
 			<td>@if(!empty($Log->name)){{$Log->toCount}}@else 會員資料已刪除@endif</td>
 		</tr>
 		<tr class="accordian-body collapse" id="msgLog{{$Log->to_id}}">
-			<td class="hiddenRow" colspan="4">
+			<td class="hiddenRow" colspan="5">
 				<table class="table table-bordered">
 					<thead>
 					<tr class="info">
@@ -912,11 +914,11 @@
 					</thead>
 					<tbody>
 					@foreach ($Log->items as $key => $item)
-						@if($key==0)
-							<script>
-								$('#new' + {{$Log->to_id}}).text('{{$item->content}}');
-							</script>
-						@endif
+{{--						@if($key==0)--}}
+{{--							<script>--}}
+{{--								$('#new' + {{$Log->to_id}}).text('{{$item->content}}');--}}
+{{--							</script>--}}
+{{--						@endif--}}
 						<tr>
 							<td @if($item->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
 								<a href="{{ route('admin/showMessagesBetween', [$user->id, $Log->to_id]) }}" target="_blank">
