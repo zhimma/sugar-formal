@@ -56,12 +56,12 @@ class StatController extends \App\Http\Controllers\BaseController
             }
             else{
                 $results[$key]['name'] = $user->name;
-            }
-            if($user->engroup == 1){
-                $results[$key]['engroup'] = '男';
-            }
-            else{
-                $results[$key]['engroup'] = '女';
+                if($user->engroup == 1){
+                    $results[$key]['engroup'] = '男';
+                }
+                else{
+                    $results[$key]['engroup'] = '女';
+                }
             }
             $results[$key]['times'] = date_diff( $start, $end );
         }
