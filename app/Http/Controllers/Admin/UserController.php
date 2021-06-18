@@ -730,6 +730,17 @@ class UserController extends \App\Http\Controllers\BaseController
             ->where(DB::raw("m.created_at"),'>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
             ->groupBy(DB::raw("m.to_id"))
             ->orderBy('date','DESC')->paginate(10);
+        foreach ($userMessage_log as $key => $value) {
+            $userMessage_log[$key]['items'] = Message::select('m.*','m.id as mid','m.created_at as m_time','u.*','b.id as banned_id','b.expire_date as banned_expire_date')
+                ->from('message as m')
+                ->leftJoin('users as u','u.id','m.to_id')
+                ->leftJoin('banned_users as b','m.to_id','b.member_id')
+                ->where('m.from_id', $id)
+                ->where('m.to_id', $value->to_id)
+                ->where('m.created_at','>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
+                ->orderBy('m.created_at', 'desc')
+                ->take(10)->get();
+        }
 
         // 給予、取消優選
         $now = \Carbon\Carbon::now();
