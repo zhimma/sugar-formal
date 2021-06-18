@@ -729,7 +729,8 @@ class UserController extends \App\Http\Controllers\BaseController
             ->where('m.from_id', $id)
             ->where(DB::raw("m.created_at"),'>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
             ->groupBy(DB::raw("m.to_id"))
-            ->orderBy('date','DESC')->paginate(10);
+            ->orderBy('date','DESC')
+            ->paginate(20);
         foreach ($userMessage_log as $key => $value) {
             $userMessage_log[$key]['items'] = Message::select('m.*','m.id as mid','m.created_at as m_time','u.*','b.id as banned_id','b.expire_date as banned_expire_date')
                 ->from('message as m')
