@@ -888,14 +888,73 @@
 <h4>所有訊息</h4>
 <table id="m_log" class="table table-hover table-bordered">
 	<tr>
-		<th>發送給</th>
+		<th width="5%"></th>
+		<th width="10%">發送給</th>
+		<th>最新內容</th>
+		<th>發送數</th>
 	</tr>
 	@foreach($userMessage_log as $Log)
 		<tr>
-			<td>@if(!empty($Log->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $Log->to_id]) }}" target="_blank">{{ $Log->name . ' ['. $Log->toCount .']' }}</a>@else 會員資料已刪除@endif</td>
+			<td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$Log->to_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>
+			<td>@if(!empty($Log->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $Log->to_id]) }}" target="_blank">{{ $Log->name }}</a>@else 會員資料已刪除@endif</td>
+			<td id="new{{$Log->to_id}}"></td>
+			<td>@if(!empty($Log->name)){{$Log->toCount}}@else 會員資料已刪除@endif</td>
 		</tr>
-	@endforeach
-
+		<tr class="accordian-body collapse" id="msgLog{{$Log->to_id}}">
+			<td class="hiddenRow" colspan="4">
+				<table class="table table-bordered">
+					<thead>
+					<tr class="info">
+						<th width="30%">暱稱</th>
+						<th>內容</th>
+						<th width="10%">發送時間</th>
+					</tr>
+					</thead>
+					<tbody>
+					@foreach ($Log->items as $key => $item)
+						@if($key==0)
+							<script>
+								$('#new' + {{$Log->to_id}}).text('{{$item->content}}');
+							</script>
+						@endif
+						<tr>
+							<td @if($item->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
+								<a href="{{ route('admin/showMessagesBetween', [$user->id, $Log->to_id]) }}" target="_blank">
+									{{$item->name}}
+									@php
+										$to_id_tipcount = \App\Models\Tip::TipCount_ChangeGood($item->to_id);
+										$to_id_vip = \App\Models\Vip::vip_diamond($item->to_id);
+									@endphp
+									@if($to_id_vip)
+										@if($to_id_vip=='diamond_black')
+											<img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+										@else
+											@for($z = 0; $z < $to_id_vip; $z++)
+												<img src="/img/diamond.png" style="height: 16px;width: 16px;">
+											@endfor
+										@endif
+									@endif
+									@for($i = 0; $i < $to_id_tipcount; $i++)
+										👍
+									@endfor
+									@if(!is_null($item->banned_id))
+										@if(!is_null($item->banned_expire_date))
+											({{ round((strtotime($item->banned_expire_date) - getdate()[0])/3600/24 ) }}天)
+										@else
+											(永久)
+										@endif
+									@endif
+								</a>
+							</td>
+							<td>{{ $item->content }}</td>
+							<td>{{ $item->m_time }}</td>
+						</tr>
+					@endforeach
+					</tbody>
+				</table>
+			</td>
+		</tr>
+		@endforeach
 </table>
 {!! $userMessage_log->links('pagination::sg-pages') !!}
 
@@ -1108,6 +1167,13 @@
 <script src="/js/vendors.bundle.js" type="text/javascript"></script>
 <script>
 jQuery(document).ready(function(){
+
+	$('.message_toggle').on('click',function(e){
+		$(this).text(function(i,old){
+			return old=='+' ?  '-' : '+';
+		});
+	});
+
     $('.delete-btn').on('click',function(e){
         if(!confirm('確定要刪除選取的訊息?')){
             e.preventDefault();
