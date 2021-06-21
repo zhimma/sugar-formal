@@ -3655,7 +3655,7 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 
 .mohu01{color:white;background:transparent url(http://91jean.oss-cn-hangzhou.aliyuncs.com/18-8-31/16567303.jpg) center center no-repeat;
     filter:blur(5px);background-size:cover;/* height:500px;*/ overflow: hidden;pointer-events: none;margin-bottom: 30px;}
-.mohu_icon{position: absolute;top:55%;left:0;z-index:1;width: 100%;}
+.mohu_icon{position: absolute;top:40%;left:0;z-index:1;width: 100%;}
 .mohu_icon img{ margin: 0 auto; display: table;width:120px;}
 
 .zi_sc{color: #e18bdf !important;}
