@@ -45,31 +45,39 @@
 		</script>
 		@if (isset($user))
 			<script>
-				const user = {
-					id: '{{ $user->id }}',
-					email: '{{ $user->email }}'
-				}
-				let userLocal = window.localStorage.getItem('user');
-				if(!userLocal){
-					window.localStorage.setItem('user', JSON.stringify(user));
+				let cfpLocal = window.localStorage.getItem('cfp');
+				if(!cfpLocal){
+					const cfp = { hash: "{{ str_random(50) }}" };
+					{{-- 若無 CFP，則儲存 CFP，並於資料庫記錄 --}}
+					$.ajax({
+						type: 'POST',
+						url: '{{ route('savecfp') }}',
+						data: {
+							_token:"{{ csrf_token() }}",
+							hash : cfp.hash,
+						},
+						dataType: 'json',
+						success: function(xhr){
+							window.localStorage.setItem('cfp', JSON.stringify(cfp));
+							console.log(xhr.msg);
+						}
+					});
 				}
 				else{
-					userLocal = JSON.parse(userLocal);
-					if(userLocal.id !== user.id){
-						$.ajax({
-							type: 'POST',
-							url: '{{ route('multipleLogin') }}',
-							data: {
-								_token:"{{ csrf_token() }}",
-								original_id : userLocal.id,
-								new_id : user.id
-							},
-							dataType: 'json',
-							success: function(xhr){
-								console.log(xhr.msg);
-							}
-						});
-					}
+					{{-- 若有 CFP，則於背景檢查會員是否有 CFP，若無則於資料庫記錄 --}}
+					cfpLocal = JSON.parse(cfpLocal);
+					$.ajax({
+						type: 'POST',
+						url: '{{ route('checkcfp') }}',
+						data: {
+							_token:"{{ csrf_token() }}",
+							hash : cfpLocal.hash,
+						},
+						dataType: 'json',
+						success: function(xhr){
+							console.log(xhr.msg);
+						}
+					});
 				}
 			</script>
 		@endif

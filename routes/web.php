@@ -267,6 +267,8 @@ Route::group(['middleware' => ['auth', 'global']], function () {
     Route::post('/dashboard/closeAccountReason', 'PagesController@view_closeAccountReason');
     Route::post('/dashboard/updateAccountStatus', 'PagesController@updateAccountStatus');
     Route::post('/multiple-login', 'PagesController@multipleLogin')->name('multipleLogin');
+    Route::post('/save-cfp', 'PagesController@savecfp')->name('savecfp');
+    Route::post('/check-cfp', 'PagesController@checkcfp')->name('checkcfp');
 });
 
 Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipCheck', 'newerManual','CheckIsWarned','CheckAccountStatus']], function () {
