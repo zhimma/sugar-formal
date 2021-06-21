@@ -910,7 +910,7 @@
                                          $blockMidList = array();
                                          $isVip=$user->isVip();
                                     @endphp
-                                    @if((!$isVip && $user->id!=$to->id) && sizeof($evaluation_data) > 0)<div class="mohu_icon" style="top: 78%!important;"><img src="/new/images/icon_36.png"></div>@endif
+                                    @if((!$isVip && $user->id!=$to->id) && sizeof($evaluation_data) > 0)<div class="mohu_icon" id="mohu_icon"><img src="/new/images/icon_36.png"></div>@endif
                                     @if(sizeof($evaluation_data) > 0)
                                     <ul style="width: 100%;" class="showSelfEvaluation_notvip" ></ul>
                                     <ul style="width: 100%;" class="evaluationList {{ !$isVip && $user->id!=$to->id ? 'mohu01':'' }}">
@@ -1446,6 +1446,7 @@
             if($('.evaluationList li').hasClass('showSelfEvaluation_block')){
                 $('.showSelfEvaluation_notvip').append('<li>'+$('.showSelfEvaluation_block').html() +'</li>');
             }
+            $('#mohu_icon').css("top", "78%");
         }
 
         // $('.tagText').on('click', function() {
