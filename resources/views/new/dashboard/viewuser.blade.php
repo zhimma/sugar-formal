@@ -1442,11 +1442,12 @@
             //非VIP會員只顯示自己的評價, 其餘評價模糊處理
             if($('.evaluationList li').hasClass('showSelfEvaluation')){
                 $('.showSelfEvaluation_notvip').html('<li>'+$('.showSelfEvaluation').html() +'</li>');
+                $('#mohu_icon').css("top", "78%");
             }
             if($('.evaluationList li').hasClass('showSelfEvaluation_block')){
                 $('.showSelfEvaluation_notvip').append('<li>'+$('.showSelfEvaluation_block').html() +'</li>');
+                $('#mohu_icon').css("top", "78%");
             }
-            $('#mohu_icon').css("top", "78%");
         }
 
         // $('.tagText').on('click', function() {
