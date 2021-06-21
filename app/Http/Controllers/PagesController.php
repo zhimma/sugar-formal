@@ -8,6 +8,7 @@ use App\Models\AccountStatusLog;
 use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
 use App\Models\BannedUsersImplicitly;
+use App\Models\CustomFingerPrint;
 use App\Models\Evaluation;
 use App\Models\EvaluationPic;
 use App\Models\hideOnlineData;
@@ -4462,6 +4463,37 @@ class PagesController extends BaseController
                       'new_id' => $request->new_id,
                       'created_at' => Carbon::now(),
                       'updated_at' => Carbon::now(),]);
+
+        return response()->json(array(
+            'status' => 1,
+            'msg' => 'success',
+        ), 200);
+    }
+
+    public function savecfp(Request $request){
+        $cfp = new \App\Models\CustomFingerPrint;
+        $cfp->hash = $request->hash;
+        $cfp->save();
+        $cfp_user = new \App\Models\CFP_User;
+        $cfp_user->cfp_id = $cfp->id;
+        $cfp_user->user_id = $request->user()->id;
+        $cfp_user->save();
+
+        return response()->json(array(
+            'status' => 1,
+            'msg' => 'success',
+        ), 200);
+    }
+
+    public function checkcfp(Request $request){
+        $cfp = \App\Models\CustomFingerPrint::where('hash', $request->hash)->first();
+        $exists = \App\Models\CFP_User::where('cfp_id', $cfp->id)->where('user_id', $request->user()->id)->count();
+        if($exists == 0){
+            $cfp_user = new \App\Models\CFP_User;
+            $cfp_user->cfp_id = $cfp->id;
+            $cfp_user->user_id = $request->user()->id;
+            $cfp_user->save();
+        }
 
         return response()->json(array(
             'status' => 1,

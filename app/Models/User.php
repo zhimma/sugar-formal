@@ -176,6 +176,10 @@ class User extends Authenticatable
         return false;
     }
 
+    public function cfp(){
+        return $this->hasMany(CFP_User::class, 'user_id', 'id')->first();
+    }
+
     /**
      * Find by Email
      *
