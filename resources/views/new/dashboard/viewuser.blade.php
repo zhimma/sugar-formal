@@ -318,96 +318,24 @@
                             $introMinDiv = $user->isVip()? '111px' : '85px';
                         @endphp
                         <div class="tubiao" data-step="1" data-position="top" data-highlightClass="yindao2" data-tooltipClass="yindao1" data-intro="<ul>
-{{--                                @if(isset($data['description']) && $to->engroup == 2)--}}
-{{--                                <li><div style='min-width:{{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a1.png @else/new/images/b_1.png @endif'></div> <span>註冊未滿30天的新進會員</span></li>--}}
-{{--                                @endif--}}
-{{--                                @if($to->isVip() && $to->engroup == 1)--}}
-{{--                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='65px'@endif src='@if($user->isVip())/new/images/a4.png @else/new/images/b_4.png @endif'></div> <span>本站付費會員</span></li>--}}
-{{--                                @endif--}}
-{{--                                @if(isset($data['description']) && $to->engroup == 1)--}}
-{{--                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a2.png @else/new/images/b_2.png @endif'></div> <span>長期付費的VIP，或者常用車馬費邀請的男會員</span></li>--}}
-{{--                                @endif--}}
-
-                                @if($to->meta->isWarned == 1 || $to->aw_relation)
-                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a5.png @else/new/images/b_5.png @endif'></div> <span>被多人檢舉或被網站評為可疑的會員</span></li>
-                                @elseif(isset($data['description']) && $to->engroup == 2)
+                                @if(isset($data['description']) && $to->engroup == 2)
                                 <li><div style='min-width:{{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a1.png @else/new/images/b_1.png @endif'></div> <span>註冊未滿30天的新進會員</span></li>
-                                @elseif($to->isVip() && $to->engroup == 1)
+                                @endif
+                        @if($to->isVip() && $to->engroup == 1)
                                 <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='65px'@endif src='@if($user->isVip())/new/images/a4.png @else/new/images/b_4.png @endif'></div> <span>本站付費會員</span></li>
                                 @endif
-
-{{--                                @if($to->isPhoneAuth())--}}
-{{--                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a6.png @else/new/images/b_6.png @endif'></div> <span>通過手機認證的會員</span></li>--}}
-{{--                                @endif--}}
+                        @if(isset($data['description']) && $to->engroup == 1)
+                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a2.png @else/new/images/b_2.png @endif'></div> <span>長期付費的VIP，或者常用車馬費邀請的男會員</span></li>
+                                @endif
+                        @if($to->meta->isWarned == 1 || $to->aw_relation)
+                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a5.png @else/new/images/b_5.png @endif'></div> <span>被多人檢舉或被網站評為可疑的會員</span></li>
+                                @endif
+                        @if($to->isPhoneAuth())
+                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a6.png @else/new/images/b_6.png @endif'></div> <span>通過手機認證的會員</span></li>
+                                @endif
                                 </ul>">
                             <ul @if(!$user->isVip())style="margin-top: -5px;"@endif>
-{{--                                @if(isset($data['description']) && $to->engroup == 2)--}}
-{{--                                    <li>--}}
-{{--                                        <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。" style="width: 100%">--}}
-{{--                                        @if($user->isVip())--}}
-{{--                                        <img src="/new/images/a1.png">--}}
-{{--                                        @else--}}
-{{--                                        <img src="/new/images/b_1.png" style="height: 50px;">--}}
-{{--                                        @endif--}}
-{{--                                        </div>--}}
-{{--                                        <span>{{$new_sweet}}</span>--}}
-{{--                                    </li>--}}
-{{--                                @php--}}
-{{--                                    $user->isReadIntro = 1;--}}
-{{--                                    $introCount++;--}}
-{{--                                @endphp--}}
-{{--                                @endif--}}
-{{--                                @if(isset($data['description']) && $to->engroup == 1)--}}
-{{--                                    <li>--}}
-{{--                                        <div class="tagText" data-toggle="popover" data-content="優質會員是願意長期付費的VIP，或者常用車馬費邀請的男會員，建議女會員優先考慮。" style="width: 100%">--}}
-{{--                                        @if($user->isVip())--}}
-{{--                                        <img src="/new/images/a2.png">--}}
-{{--                                        @else--}}
-{{--                                        <img src="/new/images/b_2.png" style="height: 50px;">--}}
-{{--                                        @endif--}}
-{{--                                        </div>--}}
-{{--                                        <span>{{$well_member}}</span>--}}
-{{--                                    </li>--}}
-{{--                                @php--}}
-{{--                                    $user->isReadIntro = 1;--}}
-{{--                                    $introCount++;--}}
-{{--                                @endphp--}}
-{{--                                @endif--}}
-                                {{--                            <li><img src="/new/images/icon_23.png"><span>{{$money_cert}}</span></li>--}}
-{{--                                @if($to->isVip() && $to->engroup == 1)--}}
-{{--                                    <li>--}}
-{{--                                        <div class="tagText" data-toggle="popover" data-content="本站的付費會員。" style="width: 100%">--}}
-{{--                                        @if($user->isVip())--}}
-{{--                                        <img src="/new/images/a4.png">--}}
-{{--                                        @else--}}
-{{--                                        <img src="/new/images/b_4.png" style="height: 50px;">--}}
-{{--                                        @endif--}}
-{{--                                        </div>--}}
-{{--                                        <span>{{$label_vip}}</span>--}}
-{{--                                    </li>--}}
-{{--                                @php--}}
-{{--                                    $user->isReadIntro = 1;--}}
-{{--                                    $introCount++;--}}
-{{--                                @endphp--}}
-{{--                                    --}}
-{{--                                @endif--}}
-                                {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
-                                @if($to->meta->isWarned == 1 || $to->aw_relation)
-                                    <li>
-
-                                        <div class="tagText" data-toggle="popover" data-content="此人被多人檢舉！與此會員交流務必提高警覺！">
-                                        @if($user->isVip())
-                                        <img src="/new/images/a5.png">
-                                        @else
-                                        <img src="/new/images/b_5.png" style="height: 50px;">
-                                        @endif
-                                        </div>
-                                    </li>
-                                @php
-                                    $user->isReadIntro = 1;
-                                    $introCount++;
-                                @endphp
-                                @elseif(isset($data['description']) && $to->engroup == 2)
+                                @if(isset($data['description']) && $to->engroup == 2)
                                     <li>
                                         <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。" style="width: 100%">
                                             @if($user->isVip())
@@ -422,7 +350,25 @@
                                         $user->isReadIntro = 1;
                                         $introCount++;
                                     @endphp
-                                @elseif($to->isVip() && $to->engroup == 1)
+                                @endif
+                                @if(isset($data['description']) && $to->engroup == 1)
+                                    <li>
+                                        <div class="tagText" data-toggle="popover" data-content="優質會員是願意長期付費的VIP，或者常用車馬費邀請的男會員，建議女會員優先考慮。" style="width: 100%">
+                                            @if($user->isVip())
+                                                <img src="/new/images/a2.png">
+                                            @else
+                                                <img src="/new/images/b_2.png" style="height: 50px;">
+                                            @endif
+                                        </div>
+                                        {{--                                        <span>{{$well_member}}</span>--}}
+                                    </li>
+                                    @php
+                                        $user->isReadIntro = 1;
+                                        $introCount++;
+                                    @endphp
+                                @endif
+                                {{--                            <li><img src="/new/images/icon_23.png"><span>{{$money_cert}}</span></li>--}}
+                                @if($to->isVip() && $to->engroup == 1)
                                     <li>
                                         <div class="tagText" data-toggle="popover" data-content="本站的付費會員。" style="width: 100%">
                                             @if($user->isVip())
@@ -438,25 +384,42 @@
                                         $introCount++;
                                     @endphp
                                 @endif
-{{--                                @if($to->isPhoneAuth())--}}
-{{--                                    <li>--}}
-{{--                                        @if($to->engroup == 1)--}}
-{{--                                            <div class="tagText" data-toggle="popover" data-content="Baby們可通過完成手機驗證的Daddy，加強其身份真實性，提升信賴感55%以上。" style="width: 100%">--}}
-{{--                                        @else--}}
-{{--                                            <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。" style="width: 100%">--}}
-{{--                                        @endif--}}
-{{--                                        @if($user->isVip())--}}
-{{--                                        <img src="/new/images/a6.png" class="">--}}
-{{--                                        @else--}}
-{{--                                        <img src="/new/images/b_6.png" style="height: 50px; margin-bottom: 10px;">--}}
-{{--                                        @endif--}}
-{{--                                        </div>--}}
-{{--                                    </li>--}}
-{{--                                @php--}}
-{{--                                    $user->isReadIntro = 1;--}}
-{{--                                    $introCount++;--}}
-{{--                                @endphp--}}
-{{--                                @endif--}}
+                                {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
+                                @if($to->meta->isWarned == 1 || $to->aw_relation)
+                                    <li>
+
+                                        <div class="tagText" data-toggle="popover" data-content="此人被多人檢舉！與此會員交流務必提高警覺！">
+                                            @if($user->isVip())
+                                                <img src="/new/images/a5.png">
+                                            @else
+                                                <img src="/new/images/b_5.png" style="height: 50px;">
+                                            @endif
+                                        </div>
+                                    </li>
+                                    @php
+                                        $user->isReadIntro = 1;
+                                        $introCount++;
+                                    @endphp
+                                @endif
+                                @if($to->isPhoneAuth())
+                                    <li>
+                                        @if($to->engroup == 1)
+                                            <div class="tagText" data-toggle="popover" data-content="Baby們可通過完成手機驗證的Daddy，加強其身份真實性，提升信賴感55%以上。" style="width: 100%">
+                                                @else
+                                                    <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。" style="width: 100%">
+                                                        @endif
+                                                        @if($user->isVip())
+                                                            <img src="/new/images/a6.png" class="">
+                                                        @else
+                                                            <img src="/new/images/b_6.png" style="height: 50px; margin-bottom: 10px;">
+                                                        @endif
+                                                    </div>
+                                    </li>
+                                    @php
+                                        $user->isReadIntro = 1;
+                                        $introCount++;
+                                    @endphp
+                                @endif
                             </ul>
                         </div>
                         <!--引导弹出层-->
