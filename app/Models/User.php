@@ -177,7 +177,7 @@ class User extends Authenticatable
     }
 
     public function cfp(){
-        return $this->hasMany(CFP_User::class, 'user_id', 'id')->first();
+        return $this->hasMany(CFP_User::class, 'user_id', 'id');
     }
 
     /**
