@@ -1080,6 +1080,11 @@ class UserService
 
     public static function checkcfp($hash, $user_id){
         $cfp = \App\Models\CustomFingerPrint::where('hash', $hash)->first();
+        if(!$cfp){
+            $cfp = new \App\Models\CustomFingerPrint;
+            $cfp->hash = $hash;
+            $cfp->save();
+        }
         $exists = \App\Models\CFP_User::where('cfp_id', $cfp->id)->where('user_id', $user_id)->count();
         if($exists == 0){
             $cfp_user = new \App\Models\CFP_User;
