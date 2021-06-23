@@ -218,36 +218,23 @@ class LoginController extends \App\Http\Controllers\BaseController
             //更新教學<->登入次數
             User::where('id',$user->id)->update(['intro_login_times'=>$user->intro_login_times +1]);
 
-            try {
-                if($request->cfp_hash){
-                    $cfp = \App\Services\UserService::checkcfp($request->cfp_hash, $user->id);
-                    //新增登入紀錄
-                    LogUserLogin::create([
-                            'user_id' => $user->id,
-                            'cfp_id' => $cfp->id,
-                            'userAgent' => $_SERVER['HTTP_USER_AGENT'],
-                            'ip' => $request->ip(),
-                            'created_at' =>  date('Y-m-d H:i:s')]
-                    );
-                }
-                else{
-                    LogUserLogin::create([
-                            'user_id' => $user->id,
-                            'userAgent' => $_SERVER['HTTP_USER_AGENT'],
-                            'ip' => $request->ip(),
-                            'created_at' =>  date('Y-m-d H:i:s')]
-                    );
-                }
-            }
-            catch (\Exception $e){
-                logger($e);
-            }
-            finally {
+            if($request->cfp_hash){
+                $cfp = \App\Services\UserService::checkcfp($request->cfp_hash, $user->id);
+                //新增登入紀錄
                 LogUserLogin::create([
-                    'user_id' => $user->id,
-                    'userAgent' => $_SERVER['HTTP_USER_AGENT'],
-                    'ip' => $request->ip(),
-                    'created_at' =>  date('Y-m-d H:i:s')]
+                        'user_id' => $user->id,
+                        'cfp_id' => $cfp->id,
+                        'userAgent' => $_SERVER['HTTP_USER_AGENT'],
+                        'ip' => $request->ip(),
+                        'created_at' =>  date('Y-m-d H:i:s')]
+                );
+            }
+            else{
+                LogUserLogin::create([
+                        'user_id' => $user->id,
+                        'userAgent' => $_SERVER['HTTP_USER_AGENT'],
+                        'ip' => $request->ip(),
+                        'created_at' =>  date('Y-m-d H:i:s')]
                 );
             }
 
