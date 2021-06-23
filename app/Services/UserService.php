@@ -1079,6 +1079,9 @@ class UserService
     }
 
     public static function checkcfp($hash, $user_id){
+        if(!$hash){
+            return false;
+        }
         $cfp = \App\Models\CustomFingerPrint::where('hash', $hash)->first();
         if(!$cfp){
             $cfp = new \App\Models\CustomFingerPrint;
