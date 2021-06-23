@@ -4486,14 +4486,7 @@ class PagesController extends BaseController
     }
 
     public function checkcfp(Request $request){
-        $cfp = \App\Models\CustomFingerPrint::where('hash', $request->hash)->first();
-        $exists = \App\Models\CFP_User::where('cfp_id', $cfp->id)->where('user_id', $request->user()->id)->count();
-        if($exists == 0){
-            $cfp_user = new \App\Models\CFP_User;
-            $cfp_user->cfp_id = $cfp->id;
-            $cfp_user->user_id = $request->user()->id;
-            $cfp_user->save();
-        }
+        $this->service->checkcfp($request->hash, $request->user()->id);
 
         return response()->json(array(
             'status' => 1,

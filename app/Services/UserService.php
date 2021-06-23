@@ -1077,4 +1077,17 @@ class UserService
 
       return $isBlurLifePhoto;
     }
+
+    public static function checkcfp($hash, $user_id){
+        $cfp = \App\Models\CustomFingerPrint::where('hash', $hash)->first();
+        $exists = \App\Models\CFP_User::where('cfp_id', $cfp->id)->where('user_id', $user_id)->count();
+        if($exists == 0){
+            $cfp_user = new \App\Models\CFP_User;
+            $cfp_user->cfp_id = $cfp->id;
+            $cfp_user->user_id = $user_id;
+            $cfp_user->save();
+        }
+
+        return $cfp;
+    }
 }
