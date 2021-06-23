@@ -111,7 +111,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             let cfpLocal = window.localStorage.getItem('cfp');
             let cfp_hash = null;
             if(!cfpLocal){
-                cfp_hash = "{{ str_random(50) }}";
+                const cfp = { hash: "{{ str_random(50) }}" };
+                cfp_hash = cfp.hash;
                 {{-- 若無 CFP，則建立 CFP --}}
                 window.localStorage.setItem('cfp', JSON.stringify(cfp));
                 $('#new_cfp').attr('value', 1);
