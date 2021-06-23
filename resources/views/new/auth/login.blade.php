@@ -113,14 +113,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 cfp_hash = "{{ str_random(50) }}";
                 {{-- 若無 CFP，則建立 CFP --}}
                 window.localStorage.setItem('cfp', JSON.stringify(cfp));
-                $('#new_cfp').value = 1;
+                $('#new_cfp').attr('value', 1);
             }
             else{
                 {{-- 若有 CFP，則記錄 CFP --}}
                 cfpLocal = JSON.parse(cfpLocal);
                 cfp_hash = cfpLocal.hash;
             }
-            $('#cfp_hash').value = cfp_hash;
+            $('#cfp_hash').attr('value', cfp_hash);
         });
         $('.alert-danger').css('display','none');
 
