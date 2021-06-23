@@ -18,6 +18,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             <div class="col-sm-12 col-xs-12 col-md-12">
                 <form name="login" action="/login" method="POST" class="dengl"  data-parsley-validate novalidate>
                     {!! csrf_field() !!}
+                    <input type="hidden" name="{{ time() }}" value="{{ time() }}">
                     <input type="hidden" name="cfp_hash" id="cfp_hash">
                     <input type="hidden" name="new_cfp" id="new_cfp" value="0">
                     <div class="dengl_h" id="login">登入</div>
