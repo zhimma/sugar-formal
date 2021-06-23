@@ -219,6 +219,11 @@ class LoginController extends \App\Http\Controllers\BaseController
             User::where('id',$user->id)->update(['intro_login_times'=>$user->intro_login_times +1]);
 
             try {
+                if($request->new_cfp){
+                    $cfp = new \App\Models\CustomFingerPrint;
+                    $cfp->hash = $request->cfp_hash;
+                    $cfp->save();
+                }
                 $cfp = \App\Services\UserService::checkcfp($request->cfp_hash, $user->id);
                 //新增登入紀錄
                 LogUserLogin::create([
