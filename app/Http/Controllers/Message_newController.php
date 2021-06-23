@@ -166,15 +166,15 @@ class Message_newController extends BaseController {
 
     public function postChat(Request $request, $randomNo = null)
     {
-        $banned = banned_users::where('member_id', Auth::user()->id)
-            ->whereNotNull('expire_date')
-            ->orderBy('expire_date', 'asc')->get()->first();
-        if(isset($banned)){
-            $date = \Carbon\Carbon::parse($banned->expire_date);
-            return view('errors.User-banned-with-message',
-                ['banned' => $banned,
-                 'days' => $date->diffInDays() + 1]);
-        }
+//        $banned = banned_users::where('member_id', Auth::user()->id)
+//            ->whereNotNull('expire_date')
+//            ->orderBy('expire_date', 'asc')->get()->first();
+//        if(isset($banned)){
+//            $date = \Carbon\Carbon::parse($banned->expire_date);
+//            return view('errors.User-banned-with-message',
+//                ['banned' => $banned,
+//                 'days' => $date->diffInDays() + 1]);
+//        }
         $payload = $request->all();
         if(!isset($payload['msg'])){
             return back()->withErrors(['請勿僅輸入空白！']);
