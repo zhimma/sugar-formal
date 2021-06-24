@@ -104,7 +104,7 @@
                                                             <th width="5%"></th>
                                                             <th width="60%">檢舉紀錄</th>
                                                             <th width="30%">處理情形</th>
-                                                            <th width="5%"><div class="collapse_word">+</div></th>
+                                                            <th width="5%"><div class="collapse_word">-</div></th>
                                                         </tr>
                                                     </thead>
                                                     <tbody id="collapseExample" class="collapse">
@@ -286,10 +286,10 @@
     {{--    });--}}
     {{--});--}}
 
-    $('#collapseExample').collapse('hide');
+    $('#collapseExample').collapse('show');
 
-    $('#collapseExample').collapse('hide',{
-        toggle: false
+    $('#collapseExample').collapse('show',{
+        toggle: true
 
     });
 
@@ -304,7 +304,7 @@
 
     $( document ).ready(function() {
         //
-        $('#collapseExample').collapse('hide');
+        $('#collapseExample').collapse('show');
     });
 
 
