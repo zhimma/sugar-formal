@@ -174,7 +174,7 @@
 			}
 			$getUserInfo=\App\Models\User::findById($user->id);//->isVip? '是':'否';
 			$isVipStatus=$getUserInfo->isVip() ? '是':'否';
-			$showVipInfo =  $upgradeDay .','. $isVipStatus .','. $upgradeWay .','. $upgradeKind;
+			$showVipInfo =  $upgradeDay .' / '. $isVipStatus .' / '. $upgradeWay .' / '. $upgradeKind;
 
 			/*
 			//計算總繳費月數
@@ -234,7 +234,7 @@
         }else{
             $nowStatus = '';
             //還沒有成為過vip
-            $showVipInfo =  '未曾加入,否,無,無';
+            $showVipInfo =  '未曾加入 / 否 / 無 / 無';
         }
 	@endphp
 	<tr>
@@ -246,7 +246,7 @@
 		<th>建立時間</th>
 		<th>更新時間</th>
 {{--		@if($nowStatus =='未持續')<th>VIP起始時間,總繳費月數,現狀</th> @else <th>VIP起始時間,付費方式,種類,現狀</th> @endif--}}
-		<th>VIP起始時間,現狀,付費方式,種類</th>
+		<th>VIP起始時間 / 現狀 / 付費方式 / 種類</th>
 		@if(!is_null($warnedInfo))<th>警示時間</th>@endif
 		<th>上次登入</th>
 		<th>上站次數</th>
@@ -256,7 +256,7 @@
 		<td>{{ $user->name }}</td>
 		<td>{{ $user->title }}</td>
 		<td>@if($user->engroup==1) 男 @else 女 @endif</td>
-		<td>{{ $user->email }}</td>
+		<td><a href="/admin/stats/vip_log/{{ $user->id }}" target="_blank">{{ $user->email }}</a></td>
 		<td>{{ $user->created_at }}</td>
 		<td>{{ $user->updated_at }}</td>
 		<td>{{ $showVipInfo }}</td>
@@ -899,7 +899,7 @@
 			<td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$Log->to_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>
 			<td>@if(!empty($Log->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $Log->to_id]) }}" target="_blank">{{ $Log->name }}</a>@else 會員資料已刪除@endif</td>
 			<td id="new{{$Log->to_id}}">{{$Log->content}}</td>
-			<td>@if(!empty($Log->name)){{$Log->created_at}}@else 會員資料已刪除@endif</td>
+			<td id="new_time{{$Log->to_id}}">@if(!empty($Log->name)){{$Log->created_at}}@else 會員資料已刪除@endif</td>
 			<td>@if(!empty($Log->name)){{$Log->toCount}}@else 會員資料已刪除@endif</td>
 		</tr>
 		<tr class="accordian-body collapse" id="msgLog{{$Log->to_id}}">
@@ -914,11 +914,12 @@
 					</thead>
 					<tbody>
 					@foreach ($Log->items as $key => $item)
-{{--						@if($key==0)--}}
-{{--							<script>--}}
-{{--								$('#new' + {{$Log->to_id}}).text('{{$item->content}}');--}}
-{{--							</script>--}}
-{{--						@endif--}}
+						@if($key==0)
+							<script>
+								$('#new' + {{$Log->to_id}}).text('{{ $item->content }}');
+								$('#new_time' + {{$Log->to_id}}).text('{{ $item->m_time }}');
+							</script>
+						@endif
 						<tr>
 							<td @if($item->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
 								<a href="{{ route('admin/showMessagesBetween', [$user->id, $Log->to_id]) }}" target="_blank">
@@ -958,7 +959,7 @@
 		</tr>
 		@endforeach
 </table>
-{!! $userMessage_log->links('pagination::sg-pages') !!}
+{!! $userMessage_log->links('pagination::sg-pages3') !!}
 
 <h4>現有生活照</h4>
 <?php $pics = \App\Models\MemberPic::getSelf($user->id); ?>

@@ -4294,14 +4294,14 @@ class PagesController extends BaseController
                     }
 
                     if ($reporter_isBannedStatus == 1 /*|| $reporter_isBannedImplicitlyStatus == 1*/) {
-                        $content_2 = '目前該會員被處分為 封鎖 ';
+                        $content_2 .= '目前該會員被處分為 封鎖 ';
                         if (!empty($reporter_isBannedStatus_expire)) {
                             $content_2 .= $reporter_isBannedStatus_expire . ' 日。';
                         }
                     }
 
                     if ($reporter_isAdminWarnedStatus == 1 || $reporter_isWarnedStatus == 1) {
-                        $content_2 = '目前該會員被處分為 警示 ';
+                        $content_2 .= '目前該會員被處分為 警示 ';
                         if (!empty($reporter_isAdminWarnedStatus_expire)) {
                             $content_2 .= $reporter_isAdminWarnedStatus_expire . ' 日。';
                         }
