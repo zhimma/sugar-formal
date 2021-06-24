@@ -175,7 +175,7 @@ class LoginController extends \App\Http\Controllers\BaseController
      */
     public function login(Request $request)
     {
-        $user = User::select('id', 'last_login','login_times','intro_login_times')->withOut(['vip', 'user_meta'])->where('email', $request->email)->get()->first();
+        $user = User::select('id', 'engroup', 'last_login','login_times','intro_login_times')->withOut(['vip', 'user_meta'])->where('email', $request->email)->get()->first();
         if(isset($user) && Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $user->id)->exists()){
             $request->remember = true;
         }
@@ -221,7 +221,7 @@ class LoginController extends \App\Http\Controllers\BaseController
             if($request->cfp_hash){
                 $cfp = \App\Services\UserService::checkcfp($request->cfp_hash, $user->id);
                 //新增登入紀錄
-                LogUserLogin::create([
+                $logUserLogin = LogUserLogin::create([
                         'user_id' => $user->id,
                         'cfp_id' => $cfp->id,
                         'userAgent' => $_SERVER['HTTP_USER_AGENT'],
@@ -230,12 +230,23 @@ class LoginController extends \App\Http\Controllers\BaseController
                 );
             }
             else{
-                LogUserLogin::create([
+                $logUserLogin = LogUserLogin::create([
                         'user_id' => $user->id,
                         'userAgent' => $_SERVER['HTTP_USER_AGENT'],
                         'ip' => $request->ip(),
                         'created_at' =>  date('Y-m-d H:i:s')]
                 );
+            }
+
+            if($user->engroup == 2) {
+                try{
+                    $country = file_get_contents('http://api.hostip.info/country.php?ip=' . $request->ip());
+                    $logUserLogin->country = $country;
+                    $logUserLogin->save();
+                }
+                catch (\Exception $e){
+                    logger($e);
+                }
             }
 
             return $this->sendLoginResponse($request);
