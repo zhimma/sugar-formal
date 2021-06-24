@@ -914,12 +914,12 @@
 					</thead>
 					<tbody>
 					@foreach ($Log->items as $key => $item)
-						@if($key==0)
-							<script>
-								$('#new' + {{$Log->to_id}}).text('{{ $item->content }}');
-								$('#new_time' + {{$Log->to_id}}).text('{{ $item->m_time }}');
-							</script>
-						@endif
+{{--						@if($key==0)--}}
+{{--							<script>--}}
+{{--								$('#new' + {{$Log->to_id}}).text('{{ $item->content }}');--}}
+{{--								$('#new_time' + {{$Log->to_id}}).text('{{ $item->m_time }}');--}}
+{{--							</script>--}}
+{{--						@endif--}}
 						<tr>
 							<td @if($item->engroup == '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>
 								<a href="{{ route('admin/showMessagesBetween', [$user->id, $Log->to_id]) }}" target="_blank">
