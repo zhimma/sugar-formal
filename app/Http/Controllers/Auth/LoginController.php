@@ -244,8 +244,17 @@ class LoginController extends \App\Http\Controllers\BaseController
                     $client = new \GuzzleHttp\Client();
                     $response = $client->get('http://ipinfo.io/' . $request->ip() . '?token=27fc624e833728');
                     $content = json_decode($response->getBody());
-                    $logUserLogin->country = $content->country;
-                    $logUserLogin->save();
+                    if(isset($content->country)){
+                        $logUserLogin->country = $content->country;
+                        $logUserLogin->save();
+                        if($content->country != "TW") {
+                            return false;
+                        }
+                    }
+                    else{
+                        $logUserLogin->country = "??";
+                        $logUserLogin->save();
+                    }
                 }
                 catch (\Exception $e){
                     logger($e);
