@@ -652,7 +652,7 @@ class Message extends Model
                 ->orWhere([['from_id', $uid],['to_id', $sid]])
                 ->where('created_at','>=',self::$date)
                 ->distinct()
-                ->orderBy('created_at', 'desc')
+                ->orderBy('created_at', 'asc')
                 ->paginate(10);
         }
         $block = Blocked::where('member_id',$sid)->where('blocked_id', $uid)->get()->first();
@@ -665,7 +665,7 @@ class Message extends Model
             $query = $query->where('from_id', '<>', $block->member_id);
         }
         $query = $query->where('created_at','>=',self::$date)
-            ->orderBy('created_at', 'desc')
+            ->orderBy('created_at', 'asc')
             ->paginate(10);
         return $query;
     }
