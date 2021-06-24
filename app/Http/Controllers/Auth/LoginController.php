@@ -240,8 +240,11 @@ class LoginController extends \App\Http\Controllers\BaseController
 
             if($user->engroup == 2) {
                 try{
-                    $country = file_get_contents('http://api.hostip.info/country.php?ip=' . $request->ip());
-                    $logUserLogin->country = $country;
+//                    $country = file_get_contents('http://ipinfo.io/' . $request->ip() . '?token=27fc624e833728');
+                    $client = new \GuzzleHttp\Client();
+                    $response = $client->get('http://ipinfo.io/' . $request->ip() . '?token=27fc624e833728');
+                    $content = json_decode($response->getBody());
+                    $logUserLogin->country = $content->country;
                     $logUserLogin->save();
                 }
                 catch (\Exception $e){
