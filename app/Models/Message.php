@@ -646,24 +646,24 @@ class Message extends Model
     {
 
         self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
-        if(Blocked::isBlocked($uid, $sid)) {
-            $blockTime = Blocked::getBlockTime($uid, $sid);
-            return Message::where('created_at','>=',self::$date)->where([['to_id', $uid],['from_id', $sid],['created_at', '<=', $blockTime->created_at]])
-                ->orWhere([['from_id', $uid],['to_id', $sid]])
-                ->where('created_at','>=',self::$date)
-                ->distinct()
-                ->orderBy('created_at', 'asc')
-                ->paginate(10);
-        }
-        $block = Blocked::where('member_id',$sid)->where('blocked_id', $uid)->get()->first();
+//        if(Blocked::isBlocked($uid, $sid)) {
+//            $blockTime = Blocked::getBlockTime($uid, $sid);
+//            return Message::where('created_at','>=',self::$date)->where([['to_id', $uid],['from_id', $sid],['created_at', '<=', $blockTime->created_at]])
+//                ->orWhere([['from_id', $uid],['to_id', $sid]])
+//                ->where('created_at','>=',self::$date)
+//                ->distinct()
+//                ->orderBy('created_at', 'asc')
+//                ->paginate(10);
+//        }
+//        $block = Blocked::where('member_id',$sid)->where('blocked_id', $uid)->get()->first();
         $query = Message::where('created_at','>=',self::$date);
         $query = $query->where(function ($query) use ($uid,$sid) {
             $query->where([['to_id', $uid],['from_id', $sid]])
                 ->orWhere([['from_id', $uid],['to_id', $sid]]);
         });
-        if($block) {
-            $query = $query->where('from_id', '<>', $block->member_id);
-        }
+//        if($block) {
+//            $query = $query->where('from_id', '<>', $block->member_id);
+//        }
         $query = $query->where('created_at','>=',self::$date)
             ->orderBy('created_at', 'asc')
             ->paginate(10);
