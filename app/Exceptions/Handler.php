@@ -5,6 +5,9 @@ namespace App\Exceptions;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
+use Throwable;
 
 class Handler extends ExceptionHandler
 {
@@ -37,10 +40,6 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $exception)
     {
-        info($exception->getMessage(), [
-            'url' => request()->url(),
-            'input' => request()->all()
-        ]);
         parent::report($exception);
     }
 
@@ -60,5 +59,25 @@ class Handler extends ExceptionHandler
         return parent::render($request, $exception);
         //return redirect('/error');
         //return view('errors.exception')->with('exception', $exception->getMessage() == null ? null : $exception->getMessage());
+    }
+
+    /**
+     * Get the default context variables for logging.
+     *
+     * @return array
+     */
+
+    protected function context()
+    {
+        try {
+            return array_filter([
+                'url' => Request::fullUrl(),
+                'input' => Request::except(['password', 'password_confirmation']),
+                'userId' => Auth::id(),
+                'email' => Auth::user() ? Auth::user()->email : null,
+            ]);
+        } catch (Throwable $e) {
+            return [];
+        }
     }
 }
