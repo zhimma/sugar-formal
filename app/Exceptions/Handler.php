@@ -42,6 +42,10 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $exception)
     {
+        info($exception->getMessage(), [
+            'url' => request()->url(),
+            'input' => request()->all()
+        ]);
         parent::report($exception);
     }
 
