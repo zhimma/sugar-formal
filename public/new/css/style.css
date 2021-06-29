@@ -1496,7 +1496,7 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 .n_sepeop li{width:45%; height:320px;border-radius:10px; float:left; position:relative; margin-bottom:20px; margin-left:2%; margin-right:2%}
 
 .n_seicon{width:96%; margin:0 auto;height:40px;/*display:table;*/}
-.n_seicon img{height:30px; float:left; margin-right:4px; float:left; margin-top:8px}
+.n_seicon img{height:33px; float:left; margin-right:4px; float:left; margin-top:4px}
 .n_seicon img:last-child{ margin-right:0 !important}
 
 
@@ -1528,7 +1528,7 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 .n_sepeop li{width:100%; height:280px;border-radius:10px; float:left}
 
 .n_seicon{width:96%; margin:0 auto;height:40px;/*display:table;*/}
-.n_seicon img{height:28px; float:left; margin-right:4px; float:left}
+.n_seicon img{height:35px; float:left; margin-right:4px; float:left}
 .n_seicon img:last-child{ margin-right:0 !important}
 
 .nt_photo{/*width:100%;*/height:240px; border-radius:0 0 10px 10px}
@@ -1559,7 +1559,7 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 .n_sepeop li{width:100%; height:300px;border-radius:10px; float:left}
 
 .n_seicon{width:96%; margin:0 auto;height:40px;/*display:table;*/}
-.n_seicon img{height:22px; float:left; margin-right:2px; float:left}
+.n_seicon img{height:34px; float:left; margin-right:2px; float:left}
 .n_seicon img:last-child{ margin-right:0 !important}
 
 .nt_photo{/*width:100%;*/height:260px; border-radius:0 0 10px 10px}
@@ -3676,4 +3676,13 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 .tixright_a .span{ float: left; border-right: #eee 1px solid; padding-right: 5px; line-height:20px; margin-top:4px; color: #fdc32c; font-size: 12px;}
 .tixright_a .font{ float: right; margin-left: 5px;}
 .tixright_a .font img{ height: 12px; margin-top: 5px;}
+
+.se_nvd{width: 100%; padding-top:5px; display: table; margin-bottom: 10px;}
+.wuziliao{width: 100%;margin: 0 auto;background: rgba(238,238,238,1);border-radius: 5px; display:table; padding:100px 0 100px 0;}
+.wuziliao img{width:240px; margin: 0 auto; display: table;}
+
+
+@media (max-width:450px){
+    .wuziliao img{width:240px; margin: 0 auto; display: table;}
+}
 

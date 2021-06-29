@@ -45,7 +45,7 @@
                     <font>Search</font>
                 </div>
 
-                <form action="{!! url('dashboard/search') !!}" method="post">
+                <form action="{!! url('dashboard/search') !!}" method="post" id="form">
                     <input type="hidden" name="_token" value="{{csrf_token()}}" >
                     <div class="n_search">
                         <div class="n_input">
@@ -56,18 +56,41 @@
                                 <div class="select_xx08 left" data-role="county" data-name="county" data-value="@if(!empty($_POST['county'])){{ $_POST['county'] }}@elseif(!empty($_GET['county'])){{ $_GET['county']  }}@endif" style=""></div>
                                 <div class="sew6" style="width:13%"></div>
                                 <div class="select_xx08 right" data-role="district" data-name="district" data-value="@if(!empty($_POST['district'])){{ $_POST['district'] }}@elseif(!empty($_GET['district'])){{ $_GET['district'] }}@endif" style=""></div>
-                            </span>
-                                
+                                </span>
                             </dt>
+
+                            @if (!$user->isVIP())
+                            <div class="se_nvd">
+                                <div class="wuziliao">
+                                    <img src="/new/images/fengs_icon.png">
+                                </div>
+                            </div>
+                            @endif
+
+                            @if ($user->isVIP())
+                            <div class="jin_search"><span>進階搜尋</span></div>
                             <dt>
                                 <span>年齡範圍</span>
                                 <span style="display: inline-flex;">
-                                <input class="select_xx06" name="agefrom" id="agefrom" type="number" value="@if(!empty($_POST['agefrom'])){{ $_POST['agefrom'] }}@elseif(!empty($_GET['agefrom'])){{$_GET['agefrom']}}@endif">
+                                <input class="select_xx06" name="agefrom" id="agefrom" type="number" min="18" max="80" value="@if(!empty($_POST['agefrom'])){{ $_POST['agefrom'] }}@elseif(!empty($_GET['agefrom'])){{$_GET['agefrom']}}@endif">
                                 <div class="sew6">至</div>
-                                <input class="select_xx06 right" name="ageto" id="ageto" type="number" value="@if(!empty($_POST['ageto'])){{$_POST['ageto'] }}@elseif(!empty($_GET['ageto'])){{$_GET['ageto']}}@endif">
-                            </span>
+                                <input class="select_xx06 right" name="ageto" id="ageto" type="number" min="18" max="80" value="@if(!empty($_POST['ageto'])){{$_POST['ageto'] }}@elseif(!empty($_GET['ageto'])){{$_GET['ageto']}}@endif">
+                                </span>
                             </dt>
-                            <dt>
+
+                            <dt class="matopj15">
+                                <span>身高範圍</span>
+                                <span style="display: inline-flex;">
+{{--                                    150  <input id="heightRange" type="text" class="span2" name="heightRange" value="" data-slider-min="150" data-slider-max="180" data-slider-step="5" data-slider-value="[150,180]"/>  180--}}
+{{--                                    <input type="range" name="percent" min="50" max="100" value=@if(isset($_POST['percent']))"{{$_POST['percent']}}"@else"70"@endif class="form-control-range range" id="myRange">--}}
+                                <input class="select_xx06" name="heightfrom" id="heightfrom" type="number" min="140" max="210" value="@if(!empty($_POST['heightfrom'])){{ $_POST['heightfrom'] }}@elseif(!empty($_GET['heightfrom'])){{$_GET['heightfrom']}}@endif">
+                                <div class="sew6">至</div>
+                                <input class="select_xx06 right" name="heightto" id="heightto" type="number" min="140" max="210" value="@if(!empty($_POST['heightto'])){{$_POST['heightto'] }}@elseif(!empty($_GET['heightto'])){{$_GET['heightto']}}@endif">
+{{--                                    <input id="heightRange" name="heightRange" class="multi-range" type="range" />--}}
+                                </span>
+                            </dt>
+
+                            <dt class="matopj15">
                                 <div class="n_se left">
                                     <span>預算</span>
                                     <select name="budget" id="budget" class="select_xx01">
@@ -79,6 +102,18 @@
                                         <option value="可商議" @if( !empty( $_POST["budget"] ) && $_POST["budget"] == "可商議" ) selected @elseif(!empty( $_GET["budget"] ) && $_GET["budget"] == "可商議") selected @endif>可商議</option>
                                     </select>
                                 </div>
+{{--                                @if ($user->engroup == 2)--}}
+{{--                                <div class="n_se right">--}}
+{{--                                    <span>PR值(大方指數)</span>--}}
+{{--                                    <select name="prRange" class="select_xx01">--}}
+{{--                                        <option value="">請選擇</option>--}}
+{{--                                        <option value="0-100" @if( !empty( $_POST["prRange"] ) && $_POST["prRange"] == "0-100" ) selected @elseif(!empty( $_GET["prRange"] ) && $_GET["prRange"] == "0-100") selected @endif>0~100</option>--}}
+{{--                                        <option value="25-100" @if( !empty( $_POST["prRange"] ) && $_POST["prRange"] == "25-100" ) selected @elseif(!empty( $_GET["prRange"] ) && $_GET["prRange"] == "25-100") selected @endif>25~100</option>--}}
+{{--                                        <option value="50-100" @if( !empty( $_POST["prRange"] ) && $_POST["prRange"] == "50-100" ) selected @elseif(!empty( $_GET["prRange"] ) && $_GET["prRange"] == "50-100") selected @endif>50~100</option>--}}
+{{--                                        <option value="75-100" @if( !empty( $_POST["prRange"] ) && $_POST["prRange"] == "75-100" ) selected @elseif(!empty( $_GET["prRange"] ) && $_GET["prRange"] == "75-100") selected @endif>75~100</option>--}}
+{{--                                    </select>--}}
+{{--                                </div>--}}
+{{--                                @else--}}
                                 <div class="n_se right">
                                     <span>抽菸</span>
                                     <select name="smoking" id="smoking" class="select_xx01">
@@ -88,29 +123,68 @@
                                         <option value="常抽" @if( !empty( $_POST["smoking"] ) && $_POST["smoking"] == "常抽" ) selected @elseif(!empty( $_GET["smoking"] ) && $_GET["smoking"] == "常抽") selected @endif>常抽</option>
                                     </select>
                                 </div>
+{{--                                @endif--}}
                             </dt>
-                            <dt>
-                                <span>體型</span>
-                                <span class="line20">
-                                    <label class="n_tx"><input type="checkbox" name="body[0]" value="瘦" id="radio" @if( !empty( $_POST["body"][0] ) && $_POST["body"][0] == "瘦" ) checked @elseif(!empty( $_GET["body"][0] ) && $_GET["body"][0] == "瘦") checked @endif><i>瘦</i></label>
-                                    <label class="n_tx"><input type="checkbox" name="body[1]" value="標準" id="radio1" @if( !empty( $_POST["body"][1] ) && $_POST["body"][1] == "標準" ) checked @elseif(!empty( $_GET["body"][1] ) && $_GET["body"][1] == "標準") checked @endif><i>標準</i></label>
-                                    <label class="n_tx"><input type="checkbox" name="body[2]" value="微胖" id="radio2" @if( !empty( $_POST["body"][2] ) && $_POST["body"][2] == "微胖" ) checked @elseif(!empty( $_GET["body"][2] ) && $_GET["body"][2] == "微胖") checked @endif><i>微胖</i></label>
-                                    <label class="n_tx"><input type="checkbox" name="body[3]" value="胖" id="radio3" @if( !empty( $_POST["body"][3] ) && $_POST["body"][3] == "胖" ) checked @elseif(!empty( $_GET["body"][3] ) && $_GET["body"][3] == "胖") checked @endif><i>胖</i></label>
-                            </span>
+                            @if ($user->engroup == 2)
+                            <dt class="matopj15">
+{{--                                <div class="n_se left">--}}
+{{--                                    <span>抽菸</span>--}}
+{{--                                    <select name="smoking" id="smoking" class="select_xx01">--}}
+{{--                                        <option value="">請選擇</option>--}}
+{{--                                        <option value="不抽" @if( !empty( $_POST["smoking"] ) && $_POST["smoking"] == "不抽" ) selected @elseif(!empty( $_GET["smoking"] ) && $_GET["smoking"] == "不抽") selected @endif>不抽</option>--}}
+{{--                                        <option value="偶爾抽" @if( !empty( $_POST["smoking"] ) && $_POST["smoking"] == "偶爾抽" ) selected @elseif(!empty( $_GET["smoking"] ) && $_GET["smoking"] == "偶爾抽") selected @endif>偶爾抽</option>--}}
+{{--                                        <option value="常抽" @if( !empty( $_POST["smoking"] ) && $_POST["smoking"] == "常抽" ) selected @elseif(!empty( $_GET["smoking"] ) && $_GET["smoking"] == "常抽") selected @endif>常抽</option>--}}
+{{--                                    </select>--}}
+{{--                                </div>--}}
+                                <div class="n_se left">
+                                    <span>喝酒</span>
+                                    <select name="drinking" id="drinking" class="select_xx01">
+                                        <option value="">請選擇</option>
+                                        <option value="不喝" @if( !empty( $_POST["drinking"] ) && $_POST["drinking"] == "不喝" ) selected @elseif(!empty( $_GET["drinking"] ) && $_GET["drinking"] == "不喝") selected @endif>不喝</option>
+                                        <option value="偶爾喝" @if( !empty( $_POST["drinking"] ) && $_POST["drinking"] == "偶爾喝" ) selected @elseif(!empty( $_GET["drinking"] ) && $_GET["drinking"] == "偶爾喝") selected @endif>偶爾喝</option>
+                                        <option value="常喝" @if( !empty( $_POST["drinking"] ) && $_POST["drinking"] == "常喝" ) selected @elseif(!empty( $_GET["drinking"] ) && $_GET["drinking"] == "常喝") selected @endif>常喝</option>
+                                    </select>
+                                </div>
+                                <div class="n_se right">
+                                    <span>教育</span>
+                                    <select name="education" class="select_xx01">
+                                        <option value="">請選擇</option>
+                                        <option value="國中" @if( !empty( $_POST["education"] ) && $_POST["education"] == "國中" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "國中") selected @endif>國中</option>
+                                        <option value="高中" @if( !empty( $_POST["education"] ) && $_POST["education"] == "高中" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "高中") selected @endif>高中</option>
+                                        <option value="大學" @if( !empty( $_POST["education"] ) && $_POST["education"] == "大學" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "大學") selected @endif>大學</option>
+                                        <option value="研究所" @if( !empty( $_POST["education"] ) && $_POST["education"] == "研究所" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "研究所") selected @endif>研究所</option>
+                                    </select>
+                                </div>
                             </dt>
-                            @if ($user->engroup == 1)
-                                <dt class="matopj15">
-                                    <span>CUP</span>
-                                    <span class="line20">
-                                <label class="n_tx"><input type="checkbox" name="cup[0]" value="A" id="Check" @if( !empty( $_POST["cup"][0] ) && $_POST["cup"][0] == "A" ) checked @elseif(!empty( $_GET["cup"][0] ) && $_GET["cup"][0] == "A") checked @endif><i>A</i></label>
-                                <label class="n_tx"><input type="checkbox" name="cup[1]" value="B" id="Check1" @if( !empty( $_POST["cup"][1] ) && $_POST["cup"][1] == "B" ) checked @elseif(!empty( $_GET["cup"][1] ) && $_GET["cup"][1] == "B") checked @endif><i>B</i></label>
-                                <label class="n_tx"><input type="checkbox" name="cup[2]" value="C" id="Check2" @if( !empty( $_POST["cup"][2] ) && $_POST["cup"][2] == "C" ) checked @elseif(!empty( $_GET["cup"][2] ) && $_GET["cup"][2] == "C") checked @endif><i>C</i></label>
-                                <label class="n_tx"><input type="checkbox" name="cup[3]" value="D" id="Check3" @if( !empty( $_POST["cup"][3] ) && $_POST["cup"][3] == "D" ) checked @elseif(!empty( $_GET["cup"][3] ) && $_GET["cup"][3] == "D") checked @endif><i>D</i></label>
-                                <label class="n_tx"><input type="checkbox" name="cup[4]" value="E" id="Check4" @if( !empty( $_POST["cup"][4] ) && $_POST["cup"][4] == "E" ) checked @elseif(!empty( $_GET["cup"][4] ) && $_GET["cup"][4] == "E") checked @endif><i>E</i></label>
-                                <label class="n_tx"><input type="checkbox" name="cup[5]" value="F" id="Check5" @if( !empty( $_POST["cup"][5] ) && $_POST["cup"][5] == "F" ) checked @elseif(!empty( $_GET["cup"][5] ) && $_GET["cup"][5] == "F") checked @endif><i>F</i></label>
-                            </span>
-                                </dt>
                             @else
+
+                            <dt class="matopj15">
+                                <div class="n_se left">
+                                    <span>現況</span>
+                                    <select name="situation" class="select_xx01">
+                                        <option value="">請選擇</option>
+                                        <option value="學生" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "學生" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "學生") selected @endif>學生</option>
+                                        <option value="待業" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "待業" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "待業") selected @endif>待業</option>
+                                        <option value="休學" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "休學" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "休學") selected @endif>休學</option>
+                                        <option value="打工" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "打工" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "打工") selected @endif>打工</option>
+                                        <option value="上班族" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "上班族" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "上班族") selected @endif>上班族</option>
+                                    </select>
+                                </div>
+                                <div class="n_se right">
+                                    <span>教育</span>
+                                    <select name="education" class="select_xx01">
+                                        <option value="">請選擇</option>
+                                        <option value="國中" @if( !empty( $_POST["education"] ) && $_POST["education"] == "國中" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "國中") selected @endif>國中</option>
+                                        <option value="高中" @if( !empty( $_POST["education"] ) && $_POST["education"] == "高中" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "高中") selected @endif>高中</option>
+                                        <option value="大學" @if( !empty( $_POST["education"] ) && $_POST["education"] == "大學" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "大學") selected @endif>大學</option>
+                                        <option value="研究所" @if( !empty( $_POST["education"] ) && $_POST["education"] == "研究所" ) selected @elseif(!empty( $_GET["education"] ) && $_GET["education"] == "研究所") selected @endif>研究所</option>
+                                    </select>
+                                </div>
+                            </dt>
+                            @endif
+
+
+
                                 <dt class="matopj15">
                                     <div class="n_se left">
                                         <span>婚姻</span>
@@ -127,29 +201,70 @@
                                         </select>
                                     </div>
                                     <div class="n_se right">
-                                        <span>喝酒</span>
-                                        <select name="drinking" id="drinking" class="select_xx01">
-                                            <option value="">請選擇</option>
-                                            <option value="不喝" @if( !empty( $_POST["drinking"] ) && $_POST["drinking"] == "不喝" ) selected @elseif(!empty( $_GET["drinking"] ) && $_GET["drinking"] == "不喝") selected @endif>不喝</option>
-                                            <option value="偶爾喝" @if( !empty( $_POST["drinking"] ) && $_POST["drinking"] == "偶爾喝" ) selected @elseif(!empty( $_GET["drinking"] ) && $_GET["drinking"] == "偶爾喝") selected @endif>偶爾喝</option>
-                                            <option value="常喝" @if( !empty( $_POST["drinking"] ) && $_POST["drinking"] == "常喝" ) selected @elseif(!empty( $_GET["drinking"] ) && $_GET["drinking"] == "常喝") selected @endif>常喝</option>
+                                        <span>順序</span>
+                                        <span>
+                                        <select name="seqtime" id="seqtime" class="select_xx01">
+                                            <option value="1" @if( !empty( $_POST["seqtime"] ) && $_POST["seqtime"] == 1 ) selected @elseif(!empty( $_GET["seqtime"] ) && $_GET["seqtime"] == 1) selected @endif>登入時間</option>
+                                            <option value="2" @if( !empty( $_POST["seqtime"] ) && $_POST["seqtime"] == 2 ) selected @elseif(!empty( $_GET["seqtime"] ) && $_GET["seqtime"] == 2) selected @endif>註冊時間</option>
                                         </select>
+                                        </span>
                                     </div>
+{{--                                    <div class="n_se right">--}}
+{{--                                        <span>喝酒</span>--}}
+{{--                                        <select name="drinking" id="drinking" class="select_xx01">--}}
+{{--                                            <option value="">請選擇</option>--}}
+{{--                                            <option value="不喝" @if( !empty( $_POST["drinking"] ) && $_POST["drinking"] == "不喝" ) selected @elseif(!empty( $_GET["drinking"] ) && $_GET["drinking"] == "不喝") selected @endif>不喝</option>--}}
+{{--                                            <option value="偶爾喝" @if( !empty( $_POST["drinking"] ) && $_POST["drinking"] == "偶爾喝" ) selected @elseif(!empty( $_GET["drinking"] ) && $_GET["drinking"] == "偶爾喝") selected @endif>偶爾喝</option>--}}
+{{--                                            <option value="常喝" @if( !empty( $_POST["drinking"] ) && $_POST["drinking"] == "常喝" ) selected @elseif(!empty( $_GET["drinking"] ) && $_GET["drinking"] == "常喝") selected @endif>常喝</option>--}}
+{{--                                        </select>--}}
+{{--                                    </div>--}}
                                 </dt>
-                            @endif
-                            <dt>
-                                <span>順序</span>
-                                <span>
-                                <select name="seqtime" id="seqtime" class="select_xx01">
-                                    <option value="1" @if( !empty( $_POST["seqtime"] ) && $_POST["seqtime"] == 1 ) selected @elseif(!empty( $_GET["seqtime"] ) && $_GET["seqtime"] == 1) selected @endif>登入時間</option>
-                                    <option value="2" @if( !empty( $_POST["seqtime"] ) && $_POST["seqtime"] == 2 ) selected @elseif(!empty( $_GET["seqtime"] ) && $_GET["seqtime"] == 2) selected @endif>註冊時間</option>
-                                </select>
-                            </span>
+{{--                            <dt>--}}
+{{--                                <span>順序</span>--}}
+{{--                                <span>--}}
+{{--                                <select name="seqtime" id="seqtime" class="select_xx01">--}}
+{{--                                    <option value="1" @if( !empty( $_POST["seqtime"] ) && $_POST["seqtime"] == 1 ) selected @elseif(!empty( $_GET["seqtime"] ) && $_GET["seqtime"] == 1) selected @endif>登入時間</option>--}}
+{{--                                    <option value="2" @if( !empty( $_POST["seqtime"] ) && $_POST["seqtime"] == 2 ) selected @elseif(!empty( $_GET["seqtime"] ) && $_GET["seqtime"] == 2) selected @endif>註冊時間</option>--}}
+{{--                                </select>--}}
+{{--                            </span>--}}
+{{--                            </dt>--}}
+
+
+                            <dt class="">
+                                <span>體型</span>
+                                <span class="line20">
+                                <label class="n_tx"><input type="checkbox" name="body[0]" value="瘦" id="radio" @if( !empty( $_POST["body"][0] ) && $_POST["body"][0] == "瘦" ) checked @elseif(!empty( $_GET["body"][0] ) && $_GET["body"][0] == "瘦") checked @endif><i>瘦</i></label>
+                                <label class="n_tx"><input type="checkbox" name="body[1]" value="標準" id="radio1" @if( !empty( $_POST["body"][1] ) && $_POST["body"][1] == "標準" ) checked @elseif(!empty( $_GET["body"][1] ) && $_GET["body"][1] == "標準") checked @endif><i>標準</i></label>
+                                <label class="n_tx"><input type="checkbox" name="body[2]" value="微胖" id="radio2" @if( !empty( $_POST["body"][2] ) && $_POST["body"][2] == "微胖" ) checked @elseif(!empty( $_GET["body"][2] ) && $_GET["body"][2] == "微胖") checked @endif><i>微胖</i></label>
+                                <label class="n_tx"><input type="checkbox" name="body[3]" value="胖" id="radio3" @if( !empty( $_POST["body"][3] ) && $_POST["body"][3] == "胖" ) checked @elseif(!empty( $_GET["body"][3] ) && $_GET["body"][3] == "胖") checked @endif><i>胖</i></label>
+                                </span>
                             </dt>
+                            @if ($user->engroup == 1)
+                                <dt class="matopj15">
+                                    <span>CUP</span>
+                                    <span class="line20">
+                            <label class="n_tx"><input type="checkbox" name="cup[0]" value="A" id="Check" @if( !empty( $_POST["cup"][0] ) && $_POST["cup"][0] == "A" ) checked @elseif(!empty( $_GET["cup"][0] ) && $_GET["cup"][0] == "A") checked @endif><i>A</i></label>
+                            <label class="n_tx"><input type="checkbox" name="cup[1]" value="B" id="Check1" @if( !empty( $_POST["cup"][1] ) && $_POST["cup"][1] == "B" ) checked @elseif(!empty( $_GET["cup"][1] ) && $_GET["cup"][1] == "B") checked @endif><i>B</i></label>
+                            <label class="n_tx"><input type="checkbox" name="cup[2]" value="C" id="Check2" @if( !empty( $_POST["cup"][2] ) && $_POST["cup"][2] == "C" ) checked @elseif(!empty( $_GET["cup"][2] ) && $_GET["cup"][2] == "C") checked @endif><i>C</i></label>
+                            <label class="n_tx"><input type="checkbox" name="cup[3]" value="D" id="Check3" @if( !empty( $_POST["cup"][3] ) && $_POST["cup"][3] == "D" ) checked @elseif(!empty( $_GET["cup"][3] ) && $_GET["cup"][3] == "D") checked @endif><i>D</i></label>
+                            <label class="n_tx"><input type="checkbox" name="cup[4]" value="E" id="Check4" @if( !empty( $_POST["cup"][4] ) && $_POST["cup"][4] == "E" ) checked @elseif(!empty( $_GET["cup"][4] ) && $_GET["cup"][4] == "E") checked @endif><i>E</i></label>
+                            <label class="n_tx"><input type="checkbox" name="cup[5]" value="F" id="Check5" @if( !empty( $_POST["cup"][5] ) && $_POST["cup"][5] == "F" ) checked @elseif(!empty( $_GET["cup"][5] ) && $_GET["cup"][5] == "F") checked @endif><i>F</i></label>
+                            </span>
+                                </dt>
+                            @else
+                            <dt class="matopj15">
+                                <span>PR值(大方指數)</span>
+                                <span class="line20" id="prRange">
+                                    <label class="n_tx"><input type="checkbox" name="prRange_none" value="無" id="prRange" @if( !empty( $_POST["prRange_none"] ) && $_POST["prRange_none"] == "無" ) checked @elseif(!empty( $_GET["prRange_none"] ) && $_GET["prRange_none"] == "無") checked @endif><i>尚無PR值的新會員</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="prRange" value="25-100" id="prRange1" @if( !empty( $_POST["prRange"] ) && $_POST["prRange"] == "25-100" ) checked @elseif(!empty( $_GET["prRange"] ) && $_GET["prRange"] == "25-100") checked @endif><i>25~100</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="prRange" value="50-100" id="prRange2" @if( !empty( $_POST["prRange"] ) && $_POST["prRange"] == "50-100" ) checked @elseif(!empty( $_GET["prRange"] ) && $_GET["prRange"] == "50-100") checked @endif><i>50~100</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="prRange" value="75-100" id="prRange3" @if( !empty( $_POST["prRange"] ) && $_POST["prRange"] == "75-100" ) checked @elseif(!empty( $_GET["prRange"] ) && $_GET["prRange"] == "75-100") checked @endif><i>75~100</i></label>
+                                </span>
+                            </dt>
+                            @endif
 
                             @if($user->engroup==1)
-                            <div class="jin_search"><span>進階搜尋</span></div>
-                            <dt>
+                            <dt class="matopj15">
                                 <span>包養關係</span>
                                 <span class="line20">
                                     @php
@@ -162,44 +277,61 @@
                                             $temp_id=$temp_id+1;
                                         @endphp
                                     @endforeach
-{{--                                      <label class="n_tx"><input type="checkbox" name="exchange_period" value="長期為主" id="Checkbox"><i>長期為主</i></label>--}}
-{{--                                      <label class="n_tx"><input type="checkbox" name="exchange_period" value="長短皆可" id="Checkbox1"><i>長短皆可</i></label>--}}
-{{--                                      <label class="n_tx"><input type="checkbox" name="exchange_period" value="單次為主" id="Checkbox2"><i>單次為主</i></label>--}}
                                 </span>
                             </dt>
                             @endif
-                            @if ($user->isVIP())
+
+                            <dt class="matopj15">
+                                <span>有無照片</span>
+                                <span class="line20">
+                                    <label class="n_tx"><input type="checkbox" name="pic" value="1" id="Checkbox" @if( !empty( $_POST["pic"] ) && $_POST["pic"] == "1" ) checked @elseif(!empty( $_GET["pic"] ) && $_GET["pic"] == "1") checked @endif><i>有</i></label>
+
+{{--                                    <label class="n_tx j_lr"><input type="radio" name="pic" value="1" id="pic" @if( !empty( $_POST["pic"] ) && $_POST["pic"] == 1 ) checked @elseif(!empty( $_GET["pic"] ) && $_GET["pic"]== 1) checked @endif><i>有</i></label>--}}
+{{--                                    <label class="n_tx j_lr"><input type="radio" name="pic" value="0" id="pic1" @if( !empty( $_POST["pic"] ) && $_POST["pic"] == 0 ) checked @elseif(!empty( $_GET["pic"] ) && $_GET["pic"]== 0) checked @endif><i>無</i></label>--}}
+                                </span>
+                            </dt>
+
                             <dt class="b_nsead matopjf10">
                                 <div class="b_nsead_tit"><i>身份選擇</i></div>
                                 <div class="b_nsba">
-{{--                                    <li>--}}
-{{--                                        <span>是否為VIP</span>--}}
-{{--                                        <font>--}}
-{{--                                            <label class="ba_tx"><input type="radio" name="CheckboxGroup5" value="复选框" id="Checkbox"><i>是</i></label>--}}
-{{--                                            <label class="ba_tx"><input type="radio" name="CheckboxGroup5" value="复选框" id="Checkbox1" checked=""><i>否</i></label>--}}
-{{--                                        </font>--}}
-{{--                                    </li>--}}
+                                    @if($user->engroup==2)
+                                    <li>
+                                        <span>是否為VIP</span>
+                                        <font>
+                                            <label class="n_tx"><input type="checkbox" name="isVip" value="1" id="Checkbox" @if( !empty( $_POST["isVip"] ) && $_POST["isVip"] == "1" ) checked @elseif(!empty( $_GET["isVip"] ) && $_GET["isVip"] == "1") checked @endif><i>是</i></label>
+
+{{--                                            <label class="ba_tx"><input type="radio" name="isVip" value="1" id="isVip" @if( !empty( $_POST["isVip"] ) && $_POST["isVip"] == 1 ) checked @elseif(!empty( $_GET["isVip"] ) && $_GET["isVip"]== 1) checked @endif><i>是</i></label>--}}
+{{--                                            <label class="ba_tx"><input type="radio" name="isVip" value="0" id="isVip1" @if( !empty( $_POST["isVip"] ) && $_POST["isVip"] == 0 ) checked @elseif(!empty( $_GET["isVip"] ) && $_GET["isVip"]== 0) checked @endif><i>否</i></label>--}}
+                                        </font>
+                                    </li>
+                                    @endif
                                     <li>
                                         <span>顯示已封鎖會員</span>
                                         <font>
-                                            <label class="ba_tx"><input type="radio" name="isBlocked" value="2" id="isBlocked" @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == 2 ) checked @elseif(!empty( $_GET["isBlocked"] ) && $_GET["isBlocked"]== 2) checked @endif><i>是</i></label>
-                                            <label class="ba_tx"><input type="radio" name="isBlocked" value="1" id="isBlocked1" @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == 1 ) checked @elseif(!empty( $_GET["isBlocked"]) && $_GET["isBlocked"] == 1) checked @endif><i>否</i></label>
+                                            <label class="n_tx"><input type="checkbox" name="isBlocked" value="1" id="isBlocked" @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == "1" ) checked @elseif(!empty( $_GET["isBlocked"] ) && $_GET["isBlocked"] == "1") checked @endif><i>否</i></label>
+                                            <input type="hidden" name="isBlocked" value="1" id="isBlockedHidden">
+{{--                                            <label class="ba_tx"><input type="radio" name="isBlocked" value="2" id="isBlocked" @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == 2 ) checked @elseif(!empty( $_GET["isBlocked"] ) && $_GET["isBlocked"]== 2) checked @endif><i>是</i></label>--}}
+{{--                                            <label class="ba_tx"><input type="radio" name="isBlocked" value="1" id="isBlocked1" @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == 1 ) checked @elseif(!empty( $_GET["isBlocked"]) && $_GET["isBlocked"] == 1) checked @endif><i>否</i></label>--}}
                                         </font>
                                     </li>
-{{--                                    <li>--}}
-{{--                                        <span>顯示警示帳戶</span>--}}
-{{--                                        <font>--}}
-{{--                                            <label class="ba_tx"><input type="radio" name="CheckboxGroup3" value="复选框" id="Checkbox"><i>是</i></label>--}}
-{{--                                            <label class="ba_tx"><input type="radio" name="CheckboxGroup3" value="复选框" id="Checkbox1" checked=""><i>否</i></label>--}}
-{{--                                        </font>--}}
-{{--                                    </li>--}}
-{{--                                    <li>--}}
-{{--                                        <span>通過手機驗證</span>--}}
-{{--                                        <font>--}}
-{{--                                            <label class="ba_tx"><input type="radio" name="CheckboxGroup4" value="复选框" id="Checkbox"><i>開啟</i></label>--}}
-{{--                                            <label class="ba_tx"><input type="radio" name="CheckboxGroup4" value="复选框" id="Checkbox1" checked=""><i>關閉</i></label>--}}
-{{--                                        </font>--}}
-{{--                                    </li>--}}
+                                    <li>
+                                        <span>顯示警示帳戶</span>
+                                        <font>
+                                            <label class="n_tx"><input type="checkbox" name="isWarned" value="2" id="isWarned" @if( !empty( $_POST["isWarned"] ) && $_POST["isWarned"] == "2" ) checked @elseif(!empty( $_GET["isWarned"] ) && $_GET["isWarned"] == "2") checked @endif><i>是</i></label>
+
+{{--                                            <label class="ba_tx"><input type="radio" name="isWarned" value="2" id="isWarned" @if( !empty( $_POST["isWarned"] ) && $_POST["isWarned"] == 2 ) checked @elseif(!empty( $_GET["isWarned"] ) && $_GET["isWarned"]== 2) checked @endif><i>是</i></label>--}}
+{{--                                            <label class="ba_tx"><input type="radio" name="isWarned" value="1" id="isWarned1" @if( !empty( $_POST["isWarned"] ) && $_POST["isWarned"] == 1 ) checked @elseif(!empty( $_GET["isWarned"] ) && $_GET["isWarned"]== 1) checked @endif><i>否</i></label>--}}
+                                        </font>
+                                    </li>
+                                    <li>
+                                        <span>通過手機驗證</span>
+                                        <font>
+                                            <label class="n_tx"><input type="checkbox" name="isPhoneAuth" value="2" id="Checkbox" @if( !empty( $_POST["isPhoneAuth"] ) && $_POST["isPhoneAuth"] == "2" ) checked @elseif(!empty( $_GET["isPhoneAuth"] ) && $_GET["isPhoneAuth"] == "2") checked @endif><i>是</i></label>
+
+{{--                                            <label class="ba_tx"><input type="radio" name="isPhoneAuth" value="2" id="isPhoneAuth" @if( !empty( $_POST["isPhoneAuth"] ) && $_POST["isPhoneAuth"] == 2 ) checked @elseif(!empty( $_GET["isPhoneAuth"] ) && $_GET["isPhoneAuth"]== 2) checked @endif><i>開啟</i></label>--}}
+{{--                                            <label class="ba_tx"><input type="radio" name="isPhoneAuth" value="1" id="isPhoneAuth1" @if( !empty( $_POST["isPhoneAuth"] ) && $_POST["isPhoneAuth"] == 1 ) checked @elseif(!empty( $_GET["isPhoneAuth"] ) && $_GET["isPhoneAuth"]== 1) checked @endif><i>關閉</i></label>--}}
+                                        </font>
+                                    </li>
                                 </div>
                             </dt>
                             @endif
@@ -207,8 +339,8 @@
 
                         </div>
                         <div class="n_txbut">
-                            <button type="submit" class="n_dlbut se_but1" style="border-style: none;">搜索</button>
-                            <button type="reset" class="n_zcbut se_but2">取消</button>
+                            <button type="submit" class="se_but1" style="border-style: none;">搜索</button>
+                            <button type="reset" class="se_but2 se_but2_hover" id="search_reset">取消</button>
                         </div>
                         <style>
                             .n_dlbut{width:150px;height: 40px;background: #fe92a8;/*border-radius:10px;*/color: #ffffff;text-align: center;line-height: 40px;display: table;
@@ -247,6 +379,15 @@
                             $umeta->city = explode(",",$umeta->city);
                             $umeta->area = explode(",",$umeta->area);
                         }
+                        $heightfrom = "";
+                        $heightto = "";
+                        $prRange_none = "";
+                        $prRange = "";
+                        $situation = "";
+                        $education = "";
+                        $isVip = "";
+                        $isWarned = "";
+                        $isPhoneAuth = "";
                     }
                     catch (\Exception $e){
                         \Illuminate\Support\Facades\Log::info('Search error, $user: ' . $user);
@@ -269,11 +410,53 @@
                     if (isset($_POST['body'])){$body = $_POST['body'];}elseif(isset($_GET['body'])){$body = $_GET['body'];}
                     if (isset($_POST['exchange_period'])){$exchange_period = $_POST['exchange_period'];}elseif(isset($_GET['exchange_period'])){$exchange_period = $_GET['exchange_period'];}
                     if (isset($_POST['isBlocked'])){$isBlocked = $_POST['isBlocked'];}elseif(isset($_GET['isBlocked'])){$isBlocked = $_GET['isBlocked'];}
+                    if (isset($_POST['heightto'])){$heightto = $_POST['heightto'];}elseif(isset($_GET['heightto'])){$heightto = $_GET['heightto'];}
+                    if (isset($_POST['heightfrom'])){$heightfrom = $_POST['heightfrom'];}elseif(isset($_GET['heightfrom'])){ $heightfrom = $_GET['heightfrom'];}
+                    if (isset($_POST['prRange_none'])){$prRange_none = $_POST['prRange_none'];}elseif(isset($_GET['prRange_none'])){ $prRange_none = $_GET['prRange_none'];}
+                    if (isset($_POST['prRange'])){$prRange = $_POST['prRange'];}elseif(isset($_GET['prRange'])){ $prRange = $_GET['prRange'];}
+                    if (isset($_POST['situation'])){$situation = $_POST['situation'];}elseif(isset($_GET['situation'])){ $situation = $_GET['situation'];}
+                    if (isset($_POST['education'])){$education = $_POST['education'];}elseif(isset($_GET['education'])){ $education = $_GET['education'];}
+//                    if (isset($_POST['isPic'])){$isPic = $_POST['isPic'];}elseif(isset($_GET['isPic'])){$isPic = $_GET['isPic'];}
+                    if (isset($_POST['isVip'])){$isVip = $_POST['isVip'];}elseif(isset($_GET['isVip'])){$isVip = $_GET['isVip'];}
+                    if (isset($_POST['isWarned'])){$isWarned = $_POST['isWarned'];}elseif(isset($_GET['isWarned'])){$isWarned = $_GET['isWarned'];}
+                    if (isset($_POST['isPhoneAuth'])){$isPhoneAuth = $_POST['isPhoneAuth'];}elseif(isset($_GET['isPhoneAuth'])){$isPhoneAuth = $_GET['isPhoneAuth'];}
                     ?>
                 @endif
                 <?php $icc = 1;
-                $isVip = $user->isVIP();
-                $vis = \App\Models\UserMeta::search($county, $district, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $user->engroup, $umeta->city, $umeta->area, $umeta->blockdomain, $umeta->blockdomainType, $seqtime, $body, $user->id,$exchange_period,$isBlocked,$isVip);
+                $userIsVip = $user->isVIP();
+                $vis = \App\Models\UserMeta::search(
+                    $county,
+                    $district,
+                    $cup,
+                    $marriage,
+                    $budget,
+                    $income,
+                    $smoking,
+                    $drinking,
+                    $photo,
+                    $agefrom,
+                    $ageto,
+                    $user->engroup,
+                    $umeta->city,
+                    $umeta->area,
+                    $umeta->blockdomain,
+                    $umeta->blockdomainType,
+                    $seqtime,
+                    $body,
+                    $user->id,
+                    $exchange_period,
+                    $isBlocked,
+                    $userIsVip,
+                    $heightfrom,
+                    $heightto,
+                    $prRange_none,
+                    $prRange,
+                    $situation,
+                    $education,
+                    $isVip,
+                    $isWarned,
+                    $isPhoneAuth
+                );
                 // vi vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php
                 // addWhereExistsQuery() remove $operator
                 // https://learnku.com/articles/28283?order_by=vote_count&
@@ -487,20 +670,56 @@
             padding-left: 10px;
 
         }
-     /*
-        option{
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            padding-left: 10px;
-        }*/
-
 
     </style>
     <script>
-        if ( ! $("input[name='isBlocked']").is(':checked') ){
-            $('#isBlocked1').attr('checked', true);
+
+        $('#search_reset').click(function(){
+            window.location.replace("/dashboard/search");
+        });
+
+        $("#prRange label #prRange1, #prRange label #prRange2, #prRange label #prRange3").click(function(){
+            if($(this).prop('checked')){
+                // alert($(this).val());
+                // $('#prRange label input:checkbox').prop('checked',false);
+                $('#prRange label #prRange1, #prRange label #prRange2, #prRange label #prRange3').prop('checked',false);
+                // $('#prRange label #prRange2').prop('checked',false);
+                // $('#prRange label #prRange3').prop('checked',false);
+                $(this).prop('checked',true);
+            }
+        });
+
+        //se_but2_hover
+        if( /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+            $('.se_but2').removeClass('se_but2_hover');
         }
+
+        @if($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_POST['_token']) || isset($_GET['_token']))
+            @else
+            if (!$("input[name='isBlocked']").is(':checked')) {
+                $('#isBlocked').attr('checked', true);
+            }
+
+            if (!$("input[name='isWarned']").is(':checked')) {
+                $('#isWarned').attr('checked', true);
+            }
+        @endif
+
+        $("input[name='isBlocked']").click(function(){
+            if ( ! $("input[name='isBlocked']").is(':checked') ){
+                $('#isBlockedHidden').val(2);
+            }
+        });
+
+        // // if ( ! $("input[name='isVip']").is(':checked') ){
+        // //     $('#isVip1').attr('checked', true);
+        // // }
+        //
+
+        //
+        // if ( ! $("input[name='isPhoneAuth']").is(':checked') ){
+        //     $('#isPhoneAuth1').attr('checked', true);
+        // }
 
         $('.n_zcbut').click(function(){
 
