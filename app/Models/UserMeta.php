@@ -377,8 +377,10 @@ class UserMeta extends Model
                         ->from(with(new Pr_log)->getTable())
                         ->where('active', 1)
                         ->whereBetween(DB::raw("CAST(pr AS INT)"), [$from, $to]);
-                    if($prRange_none != '') {
+                    if($prRange_none != '' && isset($prRange_none)) {
                         $query->orWhere('pr', $prRange_none);
+                    }else{
+                        $query->where('pr', '<>', '無');
                     }
 
                 });
