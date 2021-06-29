@@ -240,20 +240,31 @@ class LoginController extends \App\Http\Controllers\BaseController
 
             if($user->engroup == 2) {
                 try{
-//                    $country = file_get_contents('http://ipinfo.io/' . $request->ip() . '?token=27fc624e833728');
-                    $client = new \GuzzleHttp\Client();
-                    $response = $client->get('http://ipinfo.io/' . $request->ip() . '?token=27fc624e833728');
-                    $content = json_decode($response->getBody());
-                    if(isset($content->country)){
-                        $logUserLogin->country = $content->country;
-                        $logUserLogin->save();
-                        if($content->country != "TW") {
-                            return false;
+                    $country = null;
+                    // 先檢查 IP 是否有記錄
+                    $ip_record = LogUserLogin::where('ip', $request->ip())->first();
+                    if($ip_record && $ip_record->country && $ip_record->country != "??"){
+                        $country = $ip_record->country;
+                    }
+                    // 否則從 API 查詢
+                    else{
+                        $client = new \GuzzleHttp\Client();
+                        $response = $client->get('http://ipinfo.io/' . $request->ip() . '?token=27fc624e833728');
+                        $content = json_decode($response->getBody());
+                        if(isset($content->country)){
+                            $country = $content->country;
+                        }
+                        else{
+                            $country = "??";
                         }
                     }
-                    else{
-                        $logUserLogin->country = "??";
+
+                    if(isset($country)){
+                        $logUserLogin->country = $country;
                         $logUserLogin->save();
+                        if($country != "TW" && $country != "??") {
+                            return false;
+                        }
                     }
                 }
                 catch (\Exception $e){
