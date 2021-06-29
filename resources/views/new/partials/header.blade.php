@@ -15,6 +15,7 @@
 		<link href="/new/css/bootstrap-theme.min.css" rel="stylesheet">
 		<link href="/plugins/sweetalert/sweetalert2.css" rel="stylesheet">
 		<link rel="stylesheet" href="/new/css/style.css">
+		<link rel="stylesheet" href="/new/css/button_new.css">
 		<link rel="stylesheet" href="/new/css/style_zero.css">
 		<link rel="stylesheet" href="/new/css/swiper.min.css">
 		<link rel="stylesheet" href="/plugins/parsleyjs/parsley.css">

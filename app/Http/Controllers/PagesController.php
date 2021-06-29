@@ -2220,7 +2220,7 @@ class PagesController extends BaseController
             if(isset($pr)){
                 $pr = $pr->pr;
             }else{
-                $pr = '無';
+                $pr = '0';
             }
 
             return view('new.dashboard.viewuser', $data)

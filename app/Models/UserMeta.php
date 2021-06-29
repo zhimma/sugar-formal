@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\SimpleTables\warned_users;
 use \Datetime;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
@@ -11,6 +12,8 @@ use App\Models\Blocked as blocked;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Models\Pr_log;
+use App\Models\Vip;
 
 class UserMeta extends Model
 {
@@ -157,13 +160,73 @@ class UserMeta extends Model
     }
 
     // 包養關係預設值為空是為了避免有的使用者在舊的 view 下出現錯誤
-    public static function search($city, $area, $cup, $marriage, $budget, $income, $smoking, $drinking, $photo, $agefrom, $ageto, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid, $exchange_period = '', $isBlocked=1, $isVip)
+    public static function search($city,
+                                  $area,
+                                  $cup,
+                                  $marriage,
+                                  $budget,
+                                  $income,
+                                  $smoking,
+                                  $drinking,
+                                  $photo,
+                                  $agefrom,
+                                  $ageto,
+                                  $engroup,
+                                  $blockcity,
+                                  $blockarea,
+                                  $blockdomain,
+                                  $blockdomainType,
+                                  $seqtime,
+                                  $body,
+                                  $userid,
+                                  $exchange_period = '',
+                                  $isBlocked = 1,
+                                  $userIsVip,
+                                  $heightfrom,
+                                  $heightto,
+                                  $prRange_none = '',
+                                  $prRange = '',
+                                  $situation,
+                                  $education,
+                                  $isVip,
+                                  $isWarned = 2,
+                                  $isPhoneAuth)
     {
         if ($engroup == 1) { $engroup = 2; }
         else if ($engroup == 2) { $engroup = 1; }
         if(isset($seqtime) && $seqtime == 2){ $orderBy = 'users.created_at'; }
         else{ $orderBy = 'last_login'; }
-        $constraint = function ($query) use ($city, $area, $cup, $agefrom, $ageto, $marriage, $budget, $income, $smoking, $drinking, $photo, $engroup, $blockcity, $blockarea, $blockdomain, $blockdomainType, $seqtime, $body, $userid,$exchange_period,$isBlocked, $isVip){
+        $constraint = function ($query) use (
+            $city,
+            $area,
+            $cup,
+            $agefrom,
+            $ageto,
+            $marriage,
+            $budget,
+            $income,
+            $smoking,
+            $drinking,
+            $photo,
+            $engroup,
+            $blockcity,
+            $blockarea,
+            $blockdomain,
+            $blockdomainType,
+            $seqtime, $body,
+            $userid,
+            $exchange_period,
+            $isBlocked,
+            $userIsVip,
+            $heightfrom,
+            $heightto,
+            $prRange_none,
+            $prRange,
+            $situation,
+            $education,
+            $isVip,
+            $isWarned,
+            $isPhoneAuth){
             $query->select('*')->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
             if (isset($city) && strlen($city) != 0) $query->where('city','like', '%'.$city.'%');
             if (isset($area) && strlen($area) != 0) $query->where('area','like', '%'.$area.'%');
@@ -191,7 +254,16 @@ class UserMeta extends Model
                     $query->whereIn('body', $body);
                 }
             }
-            if (isset($photo) && strlen($photo) != 0) $query->whereNotNull('pic')->where('pic', '<>', 'NULL');
+            if (isset($photo) && $photo == 1) $query->whereNotNull('pic')->where('pic', '<>', 'NULL')->where('pic', '<>', '');
+            if (isset($heightfrom) && isset($heightto) && strlen($heightfrom) != 0 && strlen($heightto) != 0) {
+                $query->whereBetween('height', [$heightfrom, $heightto]);
+            }
+            if (isset($situation) && strlen($situation) != 0) $query->where('situation', $situation);
+            if (isset($education) && strlen($education) != 0) $query->where('education', $education);
+
+            if($isWarned != 2 && $userIsVip){
+                $query->where('isWarned', '<>', 1);
+            }
             $meta = UserMeta::select('city', 'area')->where('user_id', $userid)->get()->first();
             $user_city = explode(',', $meta->city);
             $user_area = explode(',', $meta->area);
@@ -218,6 +290,8 @@ class UserMeta extends Model
                     });
             }
 
+
+
             return $query->where('is_active', 1);
         };
 
@@ -230,7 +304,7 @@ class UserMeta extends Model
         // 效能調整：Eager Loading
         if($engroup==1) {
             $query = User::with(['user_meta' => $constraint, 'vip', 'vas', 'aw_relation', 'fa_relation', 'pr_log'])
-                ->select('users.*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))
+                ->select('*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))
                 ->whereHas('user_meta', $constraint)
                 ->where('engroup', $engroup)
                 ->where('accountStatus', 1)
@@ -277,12 +351,138 @@ class UserMeta extends Model
                 $query->whereIn('exchange_period', $exchange_period);
         }
 
-        if($isBlocked==1 && $isVip){
+        if($isBlocked==1 && $userIsVip){
             $query->whereNotIn('users.id', function($query) use ($userid){
                 // $blockedUsers
                 $query->select('blocked_id')
                     ->from(with(new blocked)->getTable())
                     ->where('member_id', $userid);
+            });
+        }
+
+        if($isWarned !=2 && $userIsVip){
+            $query->whereNotIn('users.id', function($query) use ($userid){
+                // $blockedUsers
+                $query->select('member_id')
+                    ->from(with(new warned_users)->getTable());
+            });
+        }
+        if ( $prRange != '' && $userIsVip) {
+            $pieces = explode('-', $prRange);
+            if(is_array($pieces)) {
+                $from = $pieces[0];
+                $to = $pieces[1];
+                $query->whereIn('users.id', function ($query) use ($from, $to, $prRange_none) {
+                    $query->select('user_id')
+                        ->from(with(new Pr_log)->getTable())
+                        ->where('active', 1)
+                        ->whereBetween(DB::raw("CAST(pr AS INT)"), [$from, $to]);
+                    if($prRange_none != '') {
+                        $query->orWhere('pr', $prRange_none);
+                    }
+
+                });
+            }
+
+        }else if($prRange_none != ''){
+            $query->whereIn('users.id', function ($query) {
+                $query->select('user_id')
+                    ->from(with(new Pr_log)->getTable())
+                    ->where('active', 1)
+                    ->where('pr', '無');
+            });
+
+        }
+//        else if ( isset($prRange) /*&& !isset($prRange_none)*/  && $userIsVip) {
+//
+//            $pieces = explode('-', $prRange);
+//            $from = $pieces[0];
+//            $to = $pieces[1];
+//            $query->whereIn('users.id', function ($query) use ($userid, $from, $to) {
+//                $query->select('user_id')
+//                    ->from(with(new Pr_log)->getTable())
+//                    ->where('active', 1)
+//                    ->where('pr', '<>', '無')
+//                    ->whereBetween(DB::raw("CONVERT(pr, INT)"), [$from, $to]);
+//            });
+//        }
+
+//            if($prRange_none=='無' && isset($prRange) ){
+//                $pieces = explode('-', $prRange);
+//                $from = $pieces[0];
+//                $to = $pieces[1];
+//                $query->whereIn('users.id', function ($query) use ($userid, $from, $to) {
+//                    $query->select('user_id')
+//                        ->from(with(new Pr_log)->getTable())
+//                        ->where('active', 1)
+//                        ->where('pr', '無')
+//                        ->where(DB::raw("CONVERT(pr, INT)"), '>=', $from)
+//                        ->where(DB::raw("CONVERT(pr, INT)"), '<=', $to);
+//                });
+//            }else if($prRange_none=='無' && !isset($prRange)){
+//                $query->whereIn('users.id', function ($query) use ($userid) {
+//                    $query->select('user_id')
+//                        ->from(with(new Pr_log)->getTable())
+//                        ->where('active', 1)
+//                        ->where('pr', '無');
+//                });
+//            }else if(isset($prRange) && !isset($prRange_none)){
+//                $pieces = explode('-', $prRange);
+//                $from = $pieces[0];
+//                $to = $pieces[1];
+//                $query->whereIn('users.id', function ($query) use ($userid, $from, $to) {
+//                    $query->select('user_id')
+//                        ->from(with(new Pr_log)->getTable())
+//                        ->where('active', 1)
+//                        ->where('pr', '<>', '無')
+//                        ->where(DB::raw("CONVERT(pr, INT)"), '>=', $from)
+//                        ->where(DB::raw("CONVERT(pr, INT)"), '<=', $to);
+//                });
+//
+//            }
+//            foreach($prRange as $value){
+//                if($value=='無'){
+//
+//                }
+//                if($value != '無') {
+//                    $pieces = explode('-', $value);
+//                    $from = $pieces[0];
+//                    $to = $pieces[1];
+//                    $query->whereIn('users.id', function ($query) use ($userid, $from, $to) {
+//                        $query->select('user_id')
+//                            ->from(with(new Pr_log)->getTable())
+//                            ->where('active', 1)
+//                            ->where('pr', '<>', '無')
+//                            ->where(DB::raw("CONVERT(pr, INT)"), '>=', $from)
+//                            ->where(DB::raw("CONVERT(pr, INT)"), '<=', $to);
+//                    });
+//                }
+//            }
+//            else{
+//                $query->whereNotIn('users.id', function ($query) use ($userid) {
+//                    $query->select('user_id')
+//                        ->from(with(new Pr_log)->getTable())
+//                        ->where('active', 1)
+//                        ->where('pr', '<>', '無');
+//                });
+//            }
+
+//        }
+
+        if(isset($isPhoneAuth) && $isPhoneAuth==2 && $userIsVip){
+            $query->whereIn('users.id', function($query) use ($userid){
+                // $blockedUsers
+                $query->select('member_id')
+                    ->from('short_message')->where('active',1);
+            });
+        }
+
+        if($userIsVip && isset($isVip) && $isVip==1){
+            $query->whereIn('users.id', function($query) use ($userid, $isVip){
+                // $blockedUsers
+                $query->select('member_id')
+                    ->from(with(new Vip)->getTable())
+                    ->where('active', $isVip);
             });
         }
 
