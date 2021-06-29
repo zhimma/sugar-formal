@@ -695,14 +695,15 @@
         }
 
         @if($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_POST['_token']) || isset($_GET['_token']))
-            @else
+
+        @else
             if (!$("input[name='isBlocked']").is(':checked')) {
                 $('#isBlocked').attr('checked', true);
             }
 
-            if (!$("input[name='isWarned']").is(':checked')) {
+            {{-- if (!$("input[name='isWarned']").is(':checked')) {
                 $('#isWarned').attr('checked', true);
-            }
+            } --}}
         @endif
 
         $("input[name='isBlocked']").click(function(){
