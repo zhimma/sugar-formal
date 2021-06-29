@@ -256,6 +256,7 @@
                                 <span>PR值(大方指數)</span>
                                 <span class="line20" id="prRange">
                                     <label class="n_tx"><input type="checkbox" name="prRange_none" value="無" id="prRange" @if( !empty( $_POST["prRange_none"] ) && $_POST["prRange_none"] == "無" ) checked @elseif(!empty( $_GET["prRange_none"] ) && $_GET["prRange_none"] == "無") checked @endif><i>尚無PR值的新會員</i></label>
+                                    <label class="n_tx"><input type="checkbox" name="prRange" value="0-100" id="prRange0" @if( !empty( $_POST["prRange"] ) && $_POST["prRange"] == "0-100" ) checked @elseif(!empty( $_GET["prRange"] ) && $_GET["prRange"] == "0-100") checked @endif><i>0~100</i></label>
                                     <label class="n_tx"><input type="checkbox" name="prRange" value="25-100" id="prRange1" @if( !empty( $_POST["prRange"] ) && $_POST["prRange"] == "25-100" ) checked @elseif(!empty( $_GET["prRange"] ) && $_GET["prRange"] == "25-100") checked @endif><i>25~100</i></label>
                                     <label class="n_tx"><input type="checkbox" name="prRange" value="50-100" id="prRange2" @if( !empty( $_POST["prRange"] ) && $_POST["prRange"] == "50-100" ) checked @elseif(!empty( $_GET["prRange"] ) && $_GET["prRange"] == "50-100") checked @endif><i>50~100</i></label>
                                     <label class="n_tx"><input type="checkbox" name="prRange" value="75-100" id="prRange3" @if( !empty( $_POST["prRange"] ) && $_POST["prRange"] == "75-100" ) checked @elseif(!empty( $_GET["prRange"] ) && $_GET["prRange"] == "75-100") checked @endif><i>75~100</i></label>
@@ -678,11 +679,11 @@
             window.location.replace("/dashboard/search");
         });
 
-        $("#prRange label #prRange1, #prRange label #prRange2, #prRange label #prRange3").click(function(){
+        $("#prRange label #prRange0, #prRange label #prRange1, #prRange label #prRange2, #prRange label #prRange3").click(function(){
             if($(this).prop('checked')){
                 // alert($(this).val());
                 // $('#prRange label input:checkbox').prop('checked',false);
-                $('#prRange label #prRange1, #prRange label #prRange2, #prRange label #prRange3').prop('checked',false);
+                $('#prRange label #prRange0, #prRange label #prRange1, #prRange label #prRange2, #prRange label #prRange3').prop('checked',false);
                 // $('#prRange label #prRange2').prop('checked',false);
                 // $('#prRange label #prRange3').prop('checked',false);
                 $(this).prop('checked',true);
