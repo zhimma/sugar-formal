@@ -37,16 +37,8 @@ class CheckAccountStatus
     {
         $user = $this->auth->user();
         $pass_ary=['/dashboard/new_vip','/dashboard/vip','/dashboard/upgradepay_ec'];
-        try{
-            if($user->engroup == 1){
-                $pass_ary = array_merge(['/dashboard/vipSelect'], $pass_ary);
-            }
-        }
-        catch (\Exception $e){
-            info('null user found in CheckAccountStatus');
-            info('request', ['request' => $request]);
-            info('auth', ['auth' => $this->auth]);
-            // logger($e);
+        if($user->engroup == 1){
+            $pass_ary = array_merge(['/dashboard/vipSelect'], $pass_ary);
         }
         if(!in_array($_SERVER['REQUEST_URI'], $pass_ary)){
             if (!is_null($user)){
