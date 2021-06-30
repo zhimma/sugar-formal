@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\LogUserLogin;
 use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\Message;
@@ -60,6 +61,15 @@ class SetAutoBan extends Model
                             })->first() != null ) ){
                         $violation = true;
                     }
+                    break;
+                case 'cfp_id':
+                    if(LogUserLogin::where('user_id',$uid)->where('cfp_id', $content)->first() != null) $violation = true;
+                    break;
+                case 'ip':
+                    if(LogUserLogin::where('user_id',$uid)->where('ip', $content)->first() != null) $violation = true;
+                    break;
+                case 'userAgent':
+                    if(LogUserLogin::where('user_id',$uid)->where('userAgent', $content)->first() != null) $violation = true;
                     break;
                 default:
                     break;
