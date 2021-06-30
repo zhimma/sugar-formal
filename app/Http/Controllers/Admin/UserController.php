@@ -235,6 +235,40 @@ class UserController extends \App\Http\Controllers\BaseController
             }
         }
 
+        //新增自動封鎖條件
+        //cfp_id
+        if (!empty($request->cfp_id)) {
+            foreach ($request->cfp_id as $value) {
+                if (!empty($value)) {
+                    if (DB::table('set_auto_ban')->where([['type', 'cfp_id'], ['content', $value], ['set_ban', '1']])->first() == null) {
+                        DB::table('set_auto_ban')->insert(['type' => 'cfp_id', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id]);
+                    }
+                }
+            }
+        }
+
+        //ip
+        if (!empty($request->ip)) {
+            foreach ($request->ip as $value) {
+                if (!empty($value)) {
+                    if (DB::table('set_auto_ban')->where([['type', 'ip'], ['content', $value], ['set_ban', '1']])->first() == null) {
+                        DB::table('set_auto_ban')->insert(['type' => 'ip', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id]);
+                    }
+                }
+            }
+        }
+
+        //userAgent
+        if (!empty($request->userAgent)) {
+            foreach ($request->userAgent as $value) {
+                if (!empty($value)) {
+                    if (DB::table('set_auto_ban')->where([['type', 'userAgent'], ['content', $value], ['set_ban', '1']])->first() == null) {
+                        DB::table('set_auto_ban')->insert(['type' => 'userAgent', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id]);
+                    }
+                }
+            }
+        }
+
         if ($userBanned) {
             $userBanned->delete();
             //新增Admin操作log
@@ -1108,7 +1142,18 @@ class UserController extends \App\Http\Controllers\BaseController
         $isWarned = warned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->orderBy('created_at','desc')->paginate(10);
         //正被封鎖
         $isBanned = banned_users::where('member_id',$user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->orderBy('created_at','desc')->paginate(10);
-        
+
+
+        //cfp_id distinct
+        $cfp_id = LogUserLogin::select('cfp_id')->where('user_id',$user->id)->groupBy('cfp_id')->get();
+
+        //ip distinct
+        $ip = LogUserLogin::select('ip')->where('user_id',$user->id)->groupBy('ip')->get();
+
+        //userAgent distinct
+        $userAgent = LogUserLogin::select('userAgent')->where('user_id',$user->id)->groupBy('userAgent')->get();
+
+
         if (str_contains(url()->current(), 'edit')) {
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
             $birthday = explode('-', $birthday);
@@ -1143,7 +1188,11 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('isEverWarned',$isEverWarned)
                 ->with('isEverBanned',$isEverBanned)
                 ->with('isWarned',$isWarned)
-                ->with('isBanned',$isBanned);
+                ->with('isBanned',$isBanned)
+                ->with('cfp_id',$cfp_id)
+                ->with('ip',$ip)
+                ->with('userAgent',$userAgent)
+                ;
         }
     }
 
@@ -2078,7 +2127,7 @@ class UserController extends \App\Http\Controllers\BaseController
         if (AdminCommonText::checkContent2($request->id, $request->content2) AND AdminCommonText::checkContent2($request->id, $request->content)) {
             return back()->withErrors(['請修改後再送出']);
         } elseif ($request->content!=$request->content2) {
-            
+
             $a = AdminCommonText::select('*')->where('id', '=', $request->id)->first();
             
             $a->content = $request->content2;
