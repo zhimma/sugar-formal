@@ -364,7 +364,9 @@ class UserMeta extends Model
             $query->whereNotIn('users.id', function($query) use ($userid){
                 // $blockedUsers
                 $query->select('member_id')
-                    ->from(with(new warned_users)->getTable());
+                    ->from(with(new warned_users)->getTable())
+                    ->where('expire_date','>=',Carbon::now())
+                    ->orWhere('expire_date',null);
             });
         }
         if ( $prRange != '' && $userIsVip) {
