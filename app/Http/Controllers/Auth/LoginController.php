@@ -264,7 +264,7 @@ class LoginController extends \App\Http\Controllers\BaseController
                         $logUserLogin->save();
                         if($country != "TW" && $country != "??") {
                             logger("None TW login, user id: " . $user->id);
-                            return $this->sendFailedLoginResponse($request);
+                            return back()->withErrors('Forbidden.');
                         }
                     }
                 }
