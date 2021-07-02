@@ -897,7 +897,7 @@
                                             @if(!$isBlocked && !isset($hadWarned) && !isset($warned_users))
                                             <li class="{{ ($row_user->id == $user->id)  ? 'showSelfEvaluation':'' }}">
                                                 <div class="piname">
-                                                    <span>
+                                                   {{-- <span>
                                                         @for ($i = 1; $i <= 5; $i++)
                                                             @if($row->rating>=$i)
                                                                 <img src="/new/images/sxx_1.png">
@@ -905,7 +905,7 @@
                                                                 <img src="/new/images/sxx_4.png">
                                                             @endif
                                                         @endfor
-                                                    </span>
+                                                    </span>--}}
                                                     <a href="/dashboard/viewuser/{{ $row_user->id }}?time={{ \Carbon\Carbon::now()->timestamp }}">{{ $row->user->name }}</a>
                                                     {{--                                <font>{{ substr($row->created_at,0,10)}}</font>--}}
                                                     @if($row_user->id == $user->id)
@@ -930,7 +930,7 @@
                                                     @endif
                                                     <h4>
                                                         <span class="btime">{{ substr($row->created_at,0,10)}}</span>
-                                                        <button type="button" class="al_but">[完整評價]</button>
+                                                        <button type="button" class="al_but show_all_evaluation">[完整評價]</button>
                                                     </h4>
                                                 </div>
 {{--                                                || $user->id==697--}}
@@ -1043,7 +1043,7 @@
                                                     @endif
                                                     <h4>
                                                         <span class="btime">{{ substr($row->created_at,0,10)}}</span>
-                                                        <button type="button" class="al_but">[完整評價]</button>
+                                                        <button type="button" class="al_but show_all_evaluation">[完整評價]</button>
                                                     </h4>
                                                 </div>
                                                 </div>
@@ -1186,28 +1186,6 @@
         <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
 
-    <div class="bl bl_tab" id="show_reportPic">
-        <div class="bltitle"><span>檢舉{{$to->name}}</span></div>
-        <div class="n_blnr01 ">
-            <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ route('reportPicNextNew') }}">
-                {!! csrf_field() !!}
-                <input type="hidden" name="aid" value="{{$user->id}}">
-                <input type="hidden" name="uid" value="{{$to->id}}">
-                <input type="hidden" name="picType" value="">
-                <input type="hidden" name="pic_id" value="">
-
-
-                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_avatar}}" required></textarea>
-                <div class="n_bbutton">
-                    <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff;">送出</button>
-                    <button type="reset" class="n_left" style="border-style: none;background: #ffffff; color:#8a9ff0;" onclick="$('#show_reportPic').hide();$('.blbg').hide()">返回</button>
-
-                </div>
-            </form>
-        </div>
-        <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
-    </div>
-
     <div class="bl bl_tab_aa" id="tab_evaluation" style="display: none;">
         <div class="bl_tab_bb">
             <div class="bltitle"><span style="text-align: center; float: none;">評價 {{$to->name}}</span></div>
@@ -1215,7 +1193,7 @@
                 <div class="fpt_pic">
                     <form id="form1" action="{{ route('evaluation')."?n=".time() }}" method="post" enctype="multipart/form-data">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                        <div class="pj_add">
+                        {{--<div class="pj_add">
                             <div class="rating">
                                 <input id="star5" name="rating" type="radio" value="5" class="radio-btn hide" data-title="5"/>
                                 <label for="star5" data-title="5"><img src="/new/images/sxx_4.png" style="transform: scale(.8);"></label>
@@ -1229,7 +1207,7 @@
                                 <label for="star1" data-title="1"><img src="/new/images/sxx_4.png" style="transform: scale(.8);" data-toggle="tooltip" data-placement="top" title="1"></label>
                                 <div class="clear"></div>
                             </div>
-                        </div>
+                        </div>--}}
                         <textarea id="content" name="content" cols="" rows="" class="n_nutext evaluation_content" style="border-style: none;" maxlength="300" placeholder="請輸入內容(至多300個字元)"></textarea>
                         <input type="hidden" name="uid" value={{$user->id}}>
                         <input type="hidden" name="eid" value={{$to->id}}>
@@ -1837,12 +1815,13 @@
     @endif
 
     function form_submit(){
-        if( $("input[name='rating']:checked").val() == undefined) {
-            // c5('請先點擊星等再評價');
-            $('.alert_tip').text();
-            $('.alert_tip').text('請先點擊星等再評價');
-            return false;
-        }else if($.trim($(".evaluation_content").val())=='') {
+        // if( $("input[name='rating']:checked").val() == undefined) {
+        //     // c5('請先點擊星等再評價');
+        //     $('.alert_tip').text();
+        //     $('.alert_tip').text('請先點擊星等再評價');
+        //     return false;
+        // }else
+        if($.trim($(".evaluation_content").val())=='') {
             // c5('請輸入評價內容');
             $('.alert_tip').text();
             $('.alert_tip').text('請輸入評價內容');
@@ -1928,7 +1907,8 @@
         }
     });
 
-    let button = document.getElementsByTagName('button');
+    //let button = document.getElementsByTagName('button');
+    let button = document.getElementsByClassName('show_all_evaluation');
     let p = document.getElementsByTagName('p');
 
     for (let i = 0; i < button.length; i++) {
@@ -2140,13 +2120,7 @@
             dialogs: {
                 alert:function(message) {
                     alert(message);
-                },
-                // confirm:function(message, confirm) {
-                //     popUpTrueOrFalse(message, function () {
-                //         confirm();
-                //         gmBtn2();
-                //     })
-                // }
+                }
             },
             dragDrop: {
                 container: '.fileuploader-thumbnails-input'
@@ -2184,7 +2158,7 @@
                 removeConfirmation: '確認要刪除檔案嗎?',
                 errors: {
                     filesLimit: function(options) {
-                        return '最多上傳 ${limit} 張圖片.'
+                        return '最多上傳 ${limit} 張圖片'
                     },
                     filesType: '檔名: ${name} 不支援此格式, 只允許 ${extensions} 檔案類型上傳.',
                     fileSize: '${name} 檔案太大, 請確認容量需小於 ${fileMaxSize}MB.',
@@ -2193,7 +2167,6 @@
                 }
             }
         });
-
 
         $(".announce_bg").on("click", function() {
             $('.bl_tab_aa').hide();
@@ -2213,6 +2186,11 @@
         $('body').css("overflow", "auto");
     }
 
+    function show_banned_close(){
+        $(".announce_bg").hide();
+        $("#show_banned").hide();
+        $('body').css("overflow", "auto");
+    }
     function tab_evaluation_reply_show(id, eid) {
         $(".announce_bg").show();
         //$("#re_content_reply").val('');

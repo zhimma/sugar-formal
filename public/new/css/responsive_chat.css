@@ -1,10 +1,10 @@
 .message{width:92%; margin:0 auto; display:flow-root; /*max-height:400px; margin-bottom:40px;*/ overflow-y: auto}
-.se_text_bot {
-    margin:0 auto; display:table; position: fixed; bottom: 10px; padding-right: 3%;padding-left: 3%;
-    width: 100%;
-    max-width: 1000px;
-    z-index: 8;
-}
+/*.se_text_bot {*/
+/*    margin:0 auto; display:table; position: fixed; bottom: 10px; padding-right: 3%;padding-left: 3%;*/
+/*    width: 100%;*/
+/*    max-width: 1000px;*/
+/*    z-index: 9;*/
+/*}*/
 
 .se_text_bot_add_bottom{
     bottom: 125px;
@@ -31,10 +31,10 @@
     /*.message{*/
     /*    max-height: 250px;*/
     /*}*/
-    .se_text_bot {
-        width: 100%;
-        max-width: 900px;
-    }
+    /*.se_text_bot {*/
+    /*    width: 100%;*/
+    /*    max-width: 900px;*/
+    /*}*/
 }
 @media (min-height:829px) and (max-width: 1024px){
     /*.message{*/
@@ -75,8 +75,8 @@
 @media (min-height:768px) and (max-width: 1024px){
     .se_text_bot {
         /*width: 80%;*/
-        width: 100%;
-        max-width: 780px;
+        /*width: 100%;*/
+        /*max-width: 780px;*/
     }
 }
 
@@ -116,7 +116,7 @@
     /*    !*right: 25px;*!*/
     /*}*/
     .n_blnr01{
-        /*padding-top: 60px;*/
+        padding-top: 60px;
     }
     .n_fengs {
         /*margin: 0 auto auto -5px;*/
@@ -150,7 +150,7 @@
     /*    right: 25px;*/
     /*}*/
     .n_blnr01{
-        /*padding-top: 60px;*/
+        padding-top: 60px;
     }
     .n_fengs {
         /*margin: 0 auto auto -5px;*/
@@ -180,7 +180,7 @@
     /*    right: 25px;*/
     /*}*/
     .n_blnr01{
-        /*padding-top: 40px !important;*/
+        padding-top: 40px !important;
     }
     .n_fengs {
         /*margin: 0 auto auto -5px;*/
@@ -218,7 +218,7 @@
     /*    right: 25px;*/
     /*}*/
     .n_blnr01{
-        /*padding-top: 60px;*/
+        padding-top: 60px;
     }
     .n_fengs {
         /*margin: 0 auto auto -5px;*/
@@ -246,7 +246,7 @@
     /*    right: 25px;*/
     /*}*/
     .n_blnr01{
-        /*padding-top: 40px !important;*/
+        padding-top: 40px !important;
         position: relative;
         z-index: 0;
     }
@@ -361,7 +361,7 @@
     /*    right: 25px;*/
     /*}*/
     .n_blnr01{
-        /*padding-top: 60px;*/
+        padding-top: 60px;
     }
     .n_fengs {
         margin: 0 auto auto -5px;
@@ -407,7 +407,7 @@
         z-index: 1;
     }
     .n_blnr01{
-        /*padding-top: 60px;*/
+        padding-top: 60px;
     }
     .n_fengs{
         padding-right: 20px;

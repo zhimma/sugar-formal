@@ -590,7 +590,7 @@
 			@else
 				<td>{{ $row['content'] }}</td>
 			@endif
-			<td class="evaluation_zoomIn" style="display: flex;">
+			<td class="evaluation_zoomIn">
 				@foreach($row['evaluation_pic'] as $evaluationPic)
 					<li>
 						<img src="{{ $evaluationPic->pic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
@@ -642,7 +642,7 @@
 			@else
 				<td>{{ $row['content'] }}</td>
 			@endif
-			<td class="evaluation_zoomIn" style="display: flex;">
+			<td class="evaluation_zoomIn">
 				@foreach($row['evaluation_pic'] as $evaluationPic)
 					<li>
 						<img src="{{ $evaluationPic->pic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
@@ -758,7 +758,7 @@
 {{--	</tr>--}}
 	@foreach($userLogin_log as $logInLog)
 		<tr data-toggle="collapse" data-target="#loginTime{{substr($logInLog->loginDate,0,7)}}" class="accordion-toggle">
-			<td colspan="3">{{ substr($logInLog->loginDate,0,7) . ' ['. $logInLog->dataCount .']' }}  </td>
+			<td colspan="6">{{ substr($logInLog->loginDate,0,7) . ' ['. $logInLog->dataCount .']' }}  </td>
 		</tr>
 		<tr class="accordian-body collapse" id="loginTime{{substr($logInLog->loginDate,0,7)}}">
 			<td class="hiddenRow" colspan="">
@@ -768,6 +768,9 @@
 							<th>登入時間</th>
 							<th>IP</th>
 							<th>登入裝置</th>
+							<th>User Agent</th>
+							<th>cfp_id</th>
+							<th>Country</th>
 						</tr>
 						</thead>
 						<tbody>
@@ -786,9 +789,10 @@
 								?>
 								<td>{{$item->created_at}}</td>
 								<td>{{$item->ip}}</td>
-								<td>
-									{{ $device }}
-								</td>
+								<td>{{ $device }}</td>
+								<td>{{ str_replace("Mozilla/5.0","", $item->userAgent) }}</td>
+								<td>{{$item->cfp_id}}</td>
+								<td>{{$item->country}}</td>
 							</tr>
 						@endforeach
 						</tbody>
@@ -891,6 +895,7 @@
 		<th width="5%"></th>
 		<th width="10%">發送給</th>
 		<th>最新內容</th>
+		<th>上傳照片</th>
 		<th width="15%">發送時間</th>
 		<th width="5%">發送數</th>
 	</tr>
@@ -899,6 +904,18 @@
 			<td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$Log->to_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>
 			<td>@if(!empty($Log->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $Log->to_id]) }}" target="_blank">{{ $Log->name }}</a>@else 會員資料已刪除@endif</td>
 			<td id="new{{$Log->to_id}}">{{$Log->content}}</td>
+			<td class="evaluation_zoomIn">
+				@php
+					$messagePics=is_null($Log->pic) ? [] : json_decode($Log->pic,true);
+				@endphp
+				@if(isset($messagePics))
+					@foreach( $messagePics as $messagePic)
+						<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
+							<img src="{{ $messagePic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+						</li>
+					@endforeach
+				@endif
+			</td>
 			<td id="new_time{{$Log->to_id}}">@if(!empty($Log->name)){{$Log->created_at}}@else 會員資料已刪除@endif</td>
 			<td>@if(!empty($Log->name)){{$Log->toCount}}@else 會員資料已刪除@endif</td>
 		</tr>
@@ -907,8 +924,9 @@
 				<table class="table table-bordered">
 					<thead>
 					<tr class="info">
-						<th width="30%">暱稱</th>
+						<th width="15%">暱稱</th>
 						<th>內容</th>
+						<th width="35%">上傳照片</th>
 						<th width="10%">發送時間</th>
 					</tr>
 					</thead>
@@ -950,6 +968,18 @@
 								</a>
 							</td>
 							<td>{{ $item->content }}</td>
+							<td class="evaluation_zoomIn">
+								@php
+									$messagePics=is_null($item->pic) ? [] : json_decode($item->pic,true);
+								@endphp
+								@if(isset($messagePics))
+									@foreach( $messagePics as $messagePic)
+										<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
+											<img src="{{ $messagePic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+										</li>
+									@endforeach
+								@endif
+							</td>
 							<td>{{ $item->m_time }}</td>
 						</tr>
 					@endforeach
@@ -997,8 +1027,8 @@
 </table>
 </body>
 <div class="modal fade" id="blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
+	<div class="modal-dialog" role="document" style="max-width: 60%;">
+		<div class="modal-content" >
 			<div class="modal-header">
 				<h5 class="modal-title" id="exampleModalLabel">封鎖</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -1029,6 +1059,37 @@
                             <input type="checkbox" name="addreason" style="vertical-align:middle;width:20px;height:20px;"/>
                             <sapn style="vertical-align:middle;">加入常用封鎖原因</sapn>
                         </label>
+					    <hr>
+					    新增自動封鎖條件
+						<div class="form-group">
+							<label for="cfp_id">CFP_ID</label>
+							<select multiple class="form-control" id="cfp_id" name="cfp_id[]">
+								@foreach( $cfp_id as $row)
+								<option value="{{$row->cfp_id}}">{{$row->cfp_id}}</option>
+								@endforeach
+							</select>
+						</div>
+						<div class="form-group">
+							<label for="ip">IP</label>
+							<select multiple class="form-control" id="ip" name="ip[]">
+								@foreach( $ip as $row)
+									<option value="{{$row->ip}}">{{$row->ip}}</option>
+								@endforeach
+							</select>
+						</div>
+						<div class="form-group">
+							<label for="user_agent">User Agent</label>
+							<select multiple class="form-control" id="user_agent" name="userAgent[]">
+								@foreach( $userAgent as $row)
+									<option value="{{$row->userAgent}}" title="{{ str_replace("Mozilla/5.0","", $row->userAgent) }}">{{ str_replace("Mozilla/5.0","", $row->userAgent) }}</option>
+								@endforeach
+							</select>
+						</div>
+
+{{--						<div class="form-group">--}}
+{{--					    	<label for="ip">IP</label>--}}
+{{--							<input type="checkbox" name="ip[]" id="ip" value="" class="form-check-input">Check me out--}}
+{{--						</div>--}}
                         <hr>
                         新增自動封鎖關鍵字(永久封鎖)
                         <input placeholder="1.請輸入封鎖關鍵字" onfocus="this.placeholder=''" onblur="this.placeholder='1.請輸入封鎖關鍵字'" class="form-control" type="text" name="addautoban[]" rows="1">

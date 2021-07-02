@@ -30,6 +30,7 @@ class Message extends Model
         'from_id',
         'to_id',
         'content',
+        'pic',
         'read'
     ];
 
