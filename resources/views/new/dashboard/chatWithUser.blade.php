@@ -1,4 +1,9 @@
 @extends('new.layouts.website')
+<link href="https://fonts.googleapis.com/css?family=Roboto:400|700" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css">
+<link rel="stylesheet" href="{{ asset('css/photoswipe/styles.css') }}">
+<link rel="stylesheet" href="{{ asset('css/photoswipe/prittyprint.css') }}">
 <style>
     .chatWith > img {
         width: 40px;
@@ -114,6 +119,21 @@
         filter: blur(2px);
         -webkit-filter: blur(2px);
     }
+    .fileuploader-icon-remove:after {content: none !important;}
+    .xxi{min-height:500px;width:92%; margin:0 auto}
+    @media (max-width:1024px) {
+        .xxi{min-height:920px;}
+    }
+    @media (max-width:992px) {
+        .xxi{min-height:560px;}
+    }
+
+    @media (max-width:760px) {
+        .xxi{min-height:360px;}
+    }
+    img{
+        max-width: 100%;
+    }
 </style>
 @section('app-content')
     <div class="container matop70 chat">
@@ -157,7 +177,7 @@
                 @else
                     {{ logger('Chat with non-existing user: ' . url()->current()) }}
                 @endif
-                <div class="message">
+                <div class="message xxi">
                     @php
                         $date_temp='';
                         $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
@@ -195,22 +215,54 @@
                                         </a>
                                     @endif
                                     <p>
-                                        <i class="msg_input"></i>{!! nl2br($message['content']) !!}
-                                        @if($message['from_id'] != $user->id)
-                                            <a href="javascript:void(0)" class="" onclick="banned('{{$message['id']}}','{{$msgUser->id}}','{{$msgUser->name}}');" title="檢舉">
-                                                <span class="shdel_word"><span>檢舉</span></span>
-{{--                                                 <img src="/new/images/ban.png" class="shdel" alt="檢舉">--}}
-                                            </a>
-                                        @endif
-                                        <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
-                                            <span>{{ substr($message['created_at'],11,5) }}</span>
-                                            @if(!$isVip && $message['from_id'] == $user->id)
-                                                <span style="color:lightgrey;">已讀/未讀</span>
-                                                <img src="/new/images/icon_35.png" style="position: absolute;float: left;left: 10px; top:20px;-moz-transform:rotate(-25deg);-webkit-transform:rotate(-30deg);">
-                                            @else
-                                            <span>@if($message['read'] == "Y" && $message['from_id'] == $user->id) 已讀 @elseif($message['read'] == "N" && $message['from_id'] == $user->id) 未讀 @endif</span>
+                                        @if(!is_null($message['pic']))
+                                            <i class="msg_input"></i>
+                                            <span id="page">
+                                                <span class="justify-content-center">
+                                                    <span class="gutters-10 pswp--loaded" data-pswp="">
+                                                        <span style="width: 150px;">
+                                                            @foreach(json_decode($message['pic'],true) as $key => $pic)
+                                                                <a href="{{$pic }}" target="_blank" data-pswp-index="{{ $key }}" class="pswp--item">
+                                                                    <img src="{{ $pic }}" class="n_pic_lt">
+                                                                </a>
+                                                            @endforeach
+                                                         </span>
+                                                    </span>
+                                                 </span>
+                                                @if($message['from_id'] == $user->id)
+                                                    <a onclick="userDeleteMessage('{{ $message['id'] }}')" style="cursor: pointer"><img src="/new/images/del.png" class="shde2"></a>
+                                                @endif
+                                                <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
+                                                    <span>{{ substr($message['created_at'],11,5) }}</span>
+                                                    @if(!$isVip && $message['from_id'] == $user->id)
+                                                        <span style="color:lightgrey;">已讀/未讀</span>
+                                                        <img src="/new/images/icon_35.png">
+                                                    @else
+                                                        <span>@if($message['read'] == "Y" && $message['from_id'] == $user->id) 已讀 @elseif($message['read'] == "N" && $message['from_id'] == $user->id) 未讀 @endif</span>
+                                                    @endif
+                                                </font>
+                                            </span>
+                                        @else
+                                            <i class="msg_input"></i>{!! nl2br($message['content']) !!}
+                                            @if($message['from_id'] != $user->id)
+                                                <a href="javascript:void(0)" class="" onclick="banned('{{$message['id']}}','{{$msgUser->id}}','{{$msgUser->name}}');" title="檢舉">
+                                                    <span class="shdel_word"><span>檢舉</span></span>
+                                                    {{--                                                 <img src="/new/images/ban.png" class="shdel" alt="檢舉">--}}
+                                                </a>
                                             @endif
-                                        </font>
+                                            @if($message['from_id'] == $user->id)
+                                                <a onclick="userDeleteMessage('{{ $message['id'] }}')" style="cursor: pointer"><img src="/new/images/del.png" class="shde2"></a>
+                                            @endif
+                                            <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
+                                                <span>{{ substr($message['created_at'],11,5) }}</span>
+                                                @if(!$isVip && $message['from_id'] == $user->id)
+                                                    <span style="color:lightgrey;">已讀/未讀</span>
+                                                    <img src="/new/images/icon_35.png">
+                                                @else
+                                                    <span>@if($message['read'] == "Y" && $message['from_id'] == $user->id) 已讀 @elseif($message['read'] == "N" && $message['from_id'] == $user->id) 未讀 @endif</span>
+                                                @endif
+                                            </font>
+                                        @endif
                                     </p>
                                 </div>
                             </div>
@@ -225,7 +277,7 @@
                     </div>
                 </div>
                 @if(isset($to))
-                    <div class="se_text_bot" id="message_input">
+                    {{--<div class="se_text_bot" id="message_input">
                         <form style="margin: 0 auto;" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm">
                             <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                             <input type="hidden" name="userId" value="{{$user->id}}">
@@ -235,6 +287,21 @@
                             <textarea name="msg" cols="" rows="" class="se_text msg" id="msg" placeholder="請輸入" required></textarea>
                             <div class="message_fixed"></div>
                             <input type="submit" id="msgsnd" class="se_tbut matop20 msgsnd" value="回覆">
+                        </form>
+                    </div>--}}
+                    <div class="se_text_bot">
+                        <form style="margin: 0 auto;" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm">
+                            <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                            <input type="hidden" name="userId" value="{{$user->id}}">
+                            <input type="hidden" name="to" value="{{$to->id}}">
+                            <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
+                            <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}" value="{{ \Carbon\Carbon::now()->timestamp }}">
+                            <div class="xin_left">
+                                <a class="xin_nleft" onclick="tab_uploadPic();"><img src="/new/images/moren_pic.png"></a>
+                                <input class="xin_input" name="msg" id="msg" placeholder="請輸入" required>
+                            </div>
+                            <button type="submit" class="xin_right" style="border: none;"><img src="/new/images/fasong.png"></button>
+                            {{--<div class="message_fixed"></div>--}}
                         </form>
                     </div>
                 @else
@@ -283,8 +350,45 @@
         </div>
         <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
+
+    <div class="bl_tab_aa" id="tab_uploadPic" style="display: none;">
+        <form id="form_uploadPic" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+            <input type="hidden" name="userId" value="{{$user->id}}">
+            <input type="hidden" name="to" value="{{$to->id}}">
+            <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
+            <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}" value="{{ \Carbon\Carbon::now()->timestamp }}">
+            <div class="bl_tab_bb">
+                <div class="bltitle"><span style="text-align: center; float: none;">上傳照片</span></div>
+                <div class="new_pot1 new_poptk_nn new_height_mobile">
+                    <div class="fpt_pic1">
+                        <input id="images" type="file" name="images" accept="image/*">
+                        <div class="alert_tip" style="color:red;"></div>
+                        <div class="n_bbutton" style="margin-top:0px;">
+                            <a class="n_bllbut" onclick="form_uploadPic_submit()">送出</a>
+                        </div>
+                    </div>
+                </div>
+                <a onclick="tab_uploadPic_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+            </div>
+        </form>
+    </div>
 @stop
 @section('javascript')
+<link href="{{ asset('css/jquery.fileuploader.min.css') }}" media="all" rel="stylesheet">
+<link href="{{ asset('new/css/fileupload.css') }}" media="all" rel="stylesheet">
+<link href="{{ asset('css/font/font-fileuploader.css') }}" media="all" rel="stylesheet">
+<script src="{{ asset('js/jquery.fileuploader.js') }}" type="text/javascript"></script>
+<script src="https://rawgit.com/google/code-prettify/master/loader/run_prettify.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js" charset="utf-8"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js" charset="utf-8"></script>
+<script src="{{ asset('new/js/photoswipe-simplify.min.js') }}" charset="utf-8"></script>
+<script>
+    photoswipeSimplify.init({
+        history: false,
+        focus: false,
+    });
+</script>
 <script>
     $(".nnn_adbut").click(function(){
         if($(this).hasClass("adbut_on")){
@@ -394,13 +498,33 @@
                     id: id,
                     _token: '{{ csrf_token() }}'
                 }, function (data) {
-                    //window.location.reload();
                     $("#tab04").hide();
-                    c5('刪除成功');
+                    c4('刪除成功');
+                    window.location.reload();
                 });
             });
         });
     @endif
+
+    function userDeleteMessage(msgID) {
+        c4('確定要刪除嗎?');
+        $(".n_left").on('click', function() {
+            $("#tab04").hide();
+            $("#blbg").hide();
+            $.ajax({
+                type: 'POST',
+                url: "/dashboard/chat2/deleteMsgByUser/"+msgID,
+                data:{
+                    _token: '{{csrf_token()}}',
+                },
+                dataType:"json",
+                success: function(res){
+                    c5(res.msg);
+                    location.reload();
+                }
+            });
+        });
+    }
 
     function  checkPay(id){
         $(".blbg").show();
@@ -422,13 +546,13 @@
         message_max_height = message_height - $('.hetop').height() - 50;
     }else{
         message_max_height = message_height - footer_height - $('.hetop').height() - 140;
-        $('.se_text_bot').addClass('se_text_bot_add_bottom');
+        //$('.se_text_bot').addClass('se_text_bot_add_bottom');
     }
 
     $('.message').css('width',$('.shouxq').width()-20);
     $('.se_text').css('width',$('.shouxq').width());
     if(window.matchMedia("(max-width: 823px)").matches && window.matchMedia("(max-height: 823px)").matches){
-        $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+        //$('.se_text_bot').removeClass('se_text_bot_add_bottom');
         $('.bot').hide();
 
         message_max_height = message_height - $('.heicon').height() - 50;
@@ -458,14 +582,14 @@
             message_max_height = message_height - $('.hetop').height() - 50;
         }else{
             message_max_height = message_height - footer_height - $('.hetop').height() - 140;
-            $('.se_text_bot').addClass('se_text_bot_add_bottom');
+            //$('.se_text_bot').addClass('se_text_bot_add_bottom');
 
         }
         $('.message').css('width',$('.shouxq').width()-20);
         $('.se_text').css('width',$('.shouxq').width());
         // if( /Android|iPhone/i.test(navigator.userAgent) ) {
         if(window.matchMedia("(max-width: 767px)").matches && window.matchMedia("(max-height: 823px)").matches){
-            $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+            //$('.se_text_bot').removeClass('se_text_bot_add_bottom');
             $('.bot').hide();
 
             message_max_height = message_height - $('.heicon').height() - 50;
@@ -493,17 +617,17 @@
     });
 
     $(window).scroll(function() {
-        if($(window).scrollTop() + $(window).height() > $(document).height()-50) {
-            if(window.matchMedia("(max-width: 767px)").matches){
-                $('.se_text_bot').removeClass('se_text_bot_add_bottom');
-
-            }else {
-                $('.se_text_bot').addClass('se_text_bot_add_bottom');
-            }
-        }
-        else{
-            $('.se_text_bot').removeClass('se_text_bot_add_bottom');
-        }
+        // if($(window).scrollTop() + $(window).height() > $(document).height()-50) {
+        //     if(window.matchMedia("(max-width: 767px)").matches){
+        //         $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+        //
+        //     }else {
+        //         $('.se_text_bot').addClass('se_text_bot_add_bottom');
+        //     }
+        // }
+        // else{
+        //     $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+        // }
     });
 
     function banned(id,sid,name){
@@ -540,5 +664,169 @@
             }
         }
     }
+
+    function tab_uploadPic() {
+        $(".announce_bg").show();
+        $("#tab_uploadPic").show();
+        $('body').css("overflow", "hidden");
+    }
+    function tab_uploadPic_close() {
+        $(".announce_bg").hide();
+        $("#tab_uploadPic").hide();
+        $('body').css("overflow", "auto");
+    }
+    function form_uploadPic_submit(){
+
+        var num_of_images=$('#images')[0].files.length;
+        if(num_of_images==0) {
+            $('.alert_tip').text();
+            $('.alert_tip').text('請選擇照片');
+        }else{
+            $('#form_uploadPic').submit();
+        }
+    }
+    $(document).ready(function () {
+        $('input[name="images"]').fileuploader({
+            extensions: ['jpg', 'png', 'jpeg', 'bmp'],
+            changeInput: ' ',
+            theme: 'thumbnails',
+            enableApi: true,
+            addMore: true,
+            limit: 5,
+            thumbnails: {
+                box: '<div class="fileuploader-items">' +
+                    '<ul class="fileuploader-items-list">' +
+                    '<li class="fileuploader-thumbnails-input"><div class="fileuploader-thumbnails-input-inner" style="background: url({{ asset("new/images/addpic.png") }}); background-size:100%"></div></li>' +
+                    '</ul>' +
+                    '</div>',
+                item: '<li class="fileuploader-item">' +
+                    '<div class="fileuploader-item-inner">' +
+                    '<div class="type-holder">${extension}</div>' +
+                    '<div class="actions-holder">' +
+                    '<button type="button" class="fileuploader-action fileuploader-action-remove" title="${captions.remove}"><i class="fileuploader-icon-remove"></i></button>' +
+                    '</div>' +
+                    '<div class="thumbnail-holder">' +
+                    '${image}' +
+                    '<span class="fileuploader-action-popup"></span>' +
+                    '</div>' +
+                    '<div class="content-holder"><h5>${name}</h5><span>${size2}</span></div>' +
+                    '<div class="progress-holder">${progressBar}</div>' +
+                    '</div>' +
+                    '</li>',
+                item2: '<li class="fileuploader-item">' +
+                    '<div class="fileuploader-item-inner">' +
+                    '<div class="type-holder">${extension}</div>' +
+                    '<div class="actions-holder">' +
+                    '<a href="${file}" class="fileuploader-action fileuploader-action-download" title="${captions.download}" download><i class="fileuploader-icon-download"></i></a>' +
+                    '<button type="button" class="fileuploader-action fileuploader-action-remove" title="${captions.remove}"><i class="fileuploader-icon-remove"></i></button>' +
+                    '</div>' +
+                    '<div class="thumbnail-holder">' +
+                    '${image}' +
+                    '<span class="fileuploader-action-popup"></span>' +
+                    '</div>' +
+                    '<div class="content-holder"><h5 title="${name}">${name}</h5><span>${size2}</span></div>' +
+                    '<div class="progress-holder">${progressBar}</div>' +
+                    '</div>' +
+                    '</li>',
+                startImageRenderer: true,
+                canvasImage: false,
+                _selectors: {
+                    list: '.fileuploader-items-list',
+                    item: '.fileuploader-item',
+                    start: '.fileuploader-action-start',
+                    retry: '.fileuploader-action-retry',
+                    remove: '.fileuploader-action-remove'
+                },
+                onItemShow: function(item, listEl, parentEl, newInputEl, inputEl) {
+                    var plusInput = listEl.find('.fileuploader-thumbnails-input'),
+                        api = $.fileuploader.getInstance(inputEl.get(0));
+
+                    plusInput.insertAfter(item.html)[api.getOptions().limit && api.getChoosedFiles().length >= api.getOptions().limit ? 'hide' : 'show']();
+
+                    if(item.format == 'image') {
+                        item.html.find('.fileuploader-item-icon').hide();
+                    }
+
+                    if (api.getListEl().length > 0) {
+                        $('.fileuploader-thumbnails-input-inner').css('background-image', 'url({{ asset("new/images/addpic.png") }})');
+                    }
+                },
+                onItemRemove: function(html, listEl, parentEl, newInputEl, inputEl) {
+                    var plusInput = listEl.find('.fileuploader-thumbnails-input'),
+                        api = $.fileuploader.getInstance(inputEl.get(0));
+
+                    html.children().animate({'opacity': 0}, 200, function() {
+                        html.remove();
+
+                        if (api.getOptions().limit && api.getChoosedFiles().length - 1 < api.getOptions().limit)
+                            plusInput.show();
+                    });
+
+                    if (api.getFiles().length == 1) {
+                        $('.fileuploader-thumbnails-input-inner').css('background-image', 'url({{ asset("new/images/addpic.png") }})');
+                    }
+                }
+            },
+            dialogs: {
+                alert:function(message) {
+                    alert(message);
+                },
+                // confirm:function(message, confirm) {
+                //     popUpTrueOrFalse(message, function () {
+                //         confirm();
+                //         gmBtn2();
+                //     })
+                // }
+            },
+            dragDrop: {
+                container: '.fileuploader-thumbnails-input'
+            },
+            afterRender: function(listEl, parentEl, newInputEl, inputEl) {
+                var plusInput = listEl.find('.fileuploader-thumbnails-input'),
+                    api = $.fileuploader.getInstance(inputEl.get(0));
+
+                plusInput.on('click', function() {
+                    api.open();
+                });
+
+                api.getOptions().dragDrop.container = plusInput;
+            },
+            editor: {
+                cropper: {
+                    showGrid: true,
+                },
+            },
+            captions: {
+                confirm: '確認',
+                cancel: '取消',
+                name: '檔案名稱',
+                type: '類型',
+                size: '容量',
+                dimensions: '尺寸',
+                duration: '持續時間',
+                crop: '裁切',
+                rotate: '旋轉',
+                sort: '分類',
+                download: '下載',
+                remove: '刪除',
+                drop: '拖曳至此上傳檔案',
+                open: '打開',
+                removeConfirmation: '確認要刪除檔案嗎?',
+                errors: {
+                    filesLimit: function(options) {
+                        return '最多上傳 ${limit} 張圖片.'
+                    },
+                    filesType: '檔名: ${name} 不支援此格式, 只允許 ${extensions} 檔案類型上傳.',
+                    fileSize: '${name} 檔案太大, 請確認容量需小於 ${fileMaxSize}MB.',
+                    filesSizeAll: '上傳的所有檔案過大, 請確認未超過 ${maxSize} MB.',
+                    fileName: '${name} 已有選取相同名稱的檔案.',
+                }
+            }
+        });
+
+        $(".announce_bg").on("click", function() {
+            $('.bl_tab_aa').hide();
+        });
+    });
 </script>
 @stop

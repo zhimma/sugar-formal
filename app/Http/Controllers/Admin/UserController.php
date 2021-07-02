@@ -758,7 +758,7 @@ class UserController extends \App\Http\Controllers\BaseController
         }
 
         //groupby $userMessage
-        $userMessage_log = Message::selectRaw('m.to_id, count(*) as toCount, u.name, max(m.created_at) as date, m.content, m.created_at')->from('message as m')
+        $userMessage_log = Message::selectRaw('m.to_id, count(*) as toCount, u.name, max(m.created_at) as date, m.content, m.pic, m.created_at')->from('message as m')
             ->leftJoin('users as u','u.id','m.to_id')
             ->where('m.from_id', $id)
             ->where(DB::raw("m.created_at"),'>=', \Carbon\Carbon::parse("180 days ago")->toDateTimeString())
