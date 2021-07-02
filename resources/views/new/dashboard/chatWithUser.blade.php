@@ -229,9 +229,6 @@
                                                          </span>
                                                     </span>
                                                  </span>
-                                                @if($message['from_id'] == $user->id)
-                                                    <a onclick="userDeleteMessage('{{ $message['id'] }}')" style="cursor: pointer"><img src="/new/images/del.png" class="shde2"></a>
-                                                @endif
                                                 <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
                                                     <span>{{ substr($message['created_at'],11,5) }}</span>
                                                     @if(!$isVip && $message['from_id'] == $user->id)
@@ -249,9 +246,6 @@
                                                     <span class="shdel_word"><span>檢舉</span></span>
                                                     {{--                                                 <img src="/new/images/ban.png" class="shdel" alt="檢舉">--}}
                                                 </a>
-                                            @endif
-                                            @if($message['from_id'] == $user->id)
-                                                <a onclick="userDeleteMessage('{{ $message['id'] }}')" style="cursor: pointer"><img src="/new/images/del.png" class="shde2"></a>
                                             @endif
                                             <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
                                                 <span>{{ substr($message['created_at'],11,5) }}</span>
