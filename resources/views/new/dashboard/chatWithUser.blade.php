@@ -233,7 +233,7 @@
                                                     <span>{{ substr($message['created_at'],11,5) }}</span>
                                                     @if(!$isVip && $message['from_id'] == $user->id)
                                                         <span style="color:lightgrey;">已讀/未讀</span>
-                                                        <img src="/new/images/icon_35.png"  style="position: absolute;float: left;left: 10px; top:20px;-moz-transform:rotate(-25deg);-webkit-transform:rotate(-30deg);">
+                                                        <img src="/new/images/icon_35.png" style="position: absolute;float: left;left: 10px; top:20px;-moz-transform:rotate(-25deg);-webkit-transform:rotate(-30deg);">
                                                     @else
                                                         <span>@if($message['read'] == "Y" && $message['from_id'] == $user->id) 已讀 @elseif($message['read'] == "N" && $message['from_id'] == $user->id) 未讀 @endif</span>
                                                     @endif
@@ -251,7 +251,7 @@
                                                 <span>{{ substr($message['created_at'],11,5) }}</span>
                                                 @if(!$isVip && $message['from_id'] == $user->id)
                                                     <span style="color:lightgrey;">已讀/未讀</span>
-                                                    <img src="/new/images/icon_35.png">
+                                                    <img src="/new/images/icon_35.png" style="position: absolute;float: left;left: 10px; top:20px;-moz-transform:rotate(-25deg);-webkit-transform:rotate(-30deg);">
                                                 @else
                                                     <span>@if($message['read'] == "Y" && $message['from_id'] == $user->id) 已讀 @elseif($message['read'] == "N" && $message['from_id'] == $user->id) 未讀 @endif</span>
                                                 @endif
