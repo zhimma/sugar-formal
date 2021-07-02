@@ -24,6 +24,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Intervention\Image\Facades\Image;
 
 //use Shivella\Bitly\Facade\Bitly;
 
@@ -176,7 +178,7 @@ class Message_newController extends BaseController {
 //                 'days' => $date->diffInDays() + 1]);
 //        }
         $payload = $request->all();
-        if(!isset($payload['msg'])){
+        if(!isset($payload['msg']) && count($request->file('images'))==0){
             return back()->withErrors(['請勿僅輸入空白！']);
         }
         $user = Auth::user();
@@ -204,7 +206,20 @@ class Message_newController extends BaseController {
                 }
             }
         }
-        Message::post(auth()->id(), $payload['to'], $payload['msg']);
+
+        if(!is_null($request->file('images')) && count($request->file('images'))){
+            //上傳訊息照片
+            $messageInfo=Message::create([
+                'from_id'=>auth()->id(),
+                'to_id'=>$payload['to'],
+            ]);
+
+            $this->message_pic_save($messageInfo->id, $request->file('images'));
+            return back();
+        }else {
+            Message::post(auth()->id(), $payload['to'], $payload['msg']);
+            return back();
+        }
 
         //line通知訊息
         $to_user = User::findById($payload['to']);
@@ -432,6 +447,71 @@ class Message_newController extends BaseController {
             $a = str_replace(array("\r\n", "\r", "\n"), "<br>", $a);
         }
         return response()->json($announcement);
+    }
+
+    public function message_pic_save($msg_id, $images)
+    {
+        if($files = $images)
+        {
+            $images_ary=array();
+            foreach ($files as $key => $file) {
+                $now = Carbon::now()->format('Ymd');
+                $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
+
+                $rootPath = public_path('/img/Message');
+                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+
+                if(!is_dir($tempPath)) {
+                    File::makeDirectory($tempPath, 0777, true);
+                }
+
+                $destinationPath = '/img/Message/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
+
+                $img = Image::make($file->getRealPath());
+                $img->resize(400, 600, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($tempPath . $input['imagename']);
+
+                //整理images
+                $images_ary[$key]= $destinationPath;
+            }
+            Message::updateOrCreate(['id'=> $msg_id], ['pic'=>json_encode($images_ary)]);
+        }
+    }
+
+    public function message_pic_delete($msg_id)
+    {
+        $messageInfo=Message::find($msg_id);
+        if($messageInfo){
+            $getPicList= json_decode($messageInfo->pic,true);
+            foreach ($getPicList as $key => $pic){
+                if (file_exists(public_path().$pic)) {
+                    unlink(public_path().$pic);
+                }
+            }
+            $messageInfo->delete();
+        }
+    }
+    public function deleteMsgByUser($msgid)
+    {
+        $messageInfo=Message::find($msgid);
+        if($messageInfo){
+            $getPicList= json_decode($messageInfo->pic,true);
+            if(!is_null($getPicList) && count($getPicList)){
+                foreach ($getPicList as $key => $pic){
+                    if (file_exists(public_path().$pic)) {
+                        unlink(public_path().$pic);
+                    }
+                }
+            }
+            $messageInfo->delete();
+            return response()->json(['status' => 'ok','msg'=>'刪除成功']);
+            //return back()->with('message','刪除成功');
+
+        }else{
+            return response()->json(['status' => 'fail','msg'=>'刪除失敗,找不到該訊息']);
+            //return back()->withErrors(['刪除失敗,找不到該訊息']);
+        }
     }
 
 }

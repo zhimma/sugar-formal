@@ -590,7 +590,7 @@
 			@else
 				<td>{{ $row['content'] }}</td>
 			@endif
-			<td class="evaluation_zoomIn" style="display: flex;">
+			<td class="evaluation_zoomIn">
 				@foreach($row['evaluation_pic'] as $evaluationPic)
 					<li>
 						<img src="{{ $evaluationPic->pic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
@@ -642,7 +642,7 @@
 			@else
 				<td>{{ $row['content'] }}</td>
 			@endif
-			<td class="evaluation_zoomIn" style="display: flex;">
+			<td class="evaluation_zoomIn">
 				@foreach($row['evaluation_pic'] as $evaluationPic)
 					<li>
 						<img src="{{ $evaluationPic->pic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
@@ -895,6 +895,7 @@
 		<th width="5%"></th>
 		<th width="10%">發送給</th>
 		<th>最新內容</th>
+		<th>上傳照片</th>
 		<th width="15%">發送時間</th>
 		<th width="5%">發送數</th>
 	</tr>
@@ -903,6 +904,18 @@
 			<td style="text-align: center;"><button data-toggle="collapse" data-target="#msgLog{{$Log->to_id}}" class="accordion-toggle btn btn-primary message_toggle">+</button></td>
 			<td>@if(!empty($Log->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $Log->to_id]) }}" target="_blank">{{ $Log->name }}</a>@else 會員資料已刪除@endif</td>
 			<td id="new{{$Log->to_id}}">{{$Log->content}}</td>
+			<td class="evaluation_zoomIn">
+				@php
+					$messagePics=is_null($Log->pic) ? [] : json_decode($Log->pic,true);
+				@endphp
+				@if(isset($messagePics))
+					@foreach( $messagePics as $messagePic)
+						<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
+							<img src="{{ $messagePic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+						</li>
+					@endforeach
+				@endif
+			</td>
 			<td id="new_time{{$Log->to_id}}">@if(!empty($Log->name)){{$Log->created_at}}@else 會員資料已刪除@endif</td>
 			<td>@if(!empty($Log->name)){{$Log->toCount}}@else 會員資料已刪除@endif</td>
 		</tr>
@@ -911,8 +924,9 @@
 				<table class="table table-bordered">
 					<thead>
 					<tr class="info">
-						<th width="30%">暱稱</th>
+						<th width="15%">暱稱</th>
 						<th>內容</th>
+						<th width="35%">上傳照片</th>
 						<th width="10%">發送時間</th>
 					</tr>
 					</thead>
@@ -954,6 +968,18 @@
 								</a>
 							</td>
 							<td>{{ $item->content }}</td>
+							<td class="evaluation_zoomIn">
+								@php
+									$messagePics=is_null($item->pic) ? [] : json_decode($item->pic,true);
+								@endphp
+								@if(isset($messagePics))
+									@foreach( $messagePics as $messagePic)
+										<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
+											<img src="{{ $messagePic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+										</li>
+									@endforeach
+								@endif
+							</td>
 							<td>{{ $item->m_time }}</td>
 						</tr>
 					@endforeach
