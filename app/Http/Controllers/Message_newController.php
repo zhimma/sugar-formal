@@ -215,10 +215,8 @@ class Message_newController extends BaseController {
             ]);
 
             $this->message_pic_save($messageInfo->id, $request->file('images'));
-            return back();
         }else {
             Message::post(auth()->id(), $payload['to'], $payload['msg']);
-            return back();
         }
 
         //line通知訊息
