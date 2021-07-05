@@ -15,6 +15,9 @@
 	            <option value="about">關於我</option>
 	    		<option value="style">期待的約會模式</option>
 	    		<option value="msg">發送訊息內容</option>
+				<option value="cfp_id">cfp_id</option>
+				<option value="ip">ip</option>
+				<option value="userAgent">userAgent</option>
 	        </select>
 	    </td>
 	    <td>
@@ -43,7 +46,8 @@
 			@elseif($result->type=='about')關於我 
 			@elseif($result->type=='style')期待的約會模式 
 			@elseif($result->type=='msg')發送訊息內容 
-			@elseif($result->type=='allcheck')全欄位封鎖 
+			@elseif($result->type=='allcheck')全欄位封鎖
+				@else {{$result->type}}
 			@endif
 		</td>
 		<td>{{ $result->content }}</td>
