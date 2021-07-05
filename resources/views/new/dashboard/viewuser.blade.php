@@ -1167,23 +1167,51 @@
         <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
 
-    <div class="bl bl_tab" id="show_banned">
-        <div class="bltitle"><span>檢舉{{$to->name}}</span></div>
-        <div class="n_blnr01 ">
-            <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ route('reportPost') }}">
-                {!! csrf_field() !!}
-                <input type="hidden" name="aid" value="{{$user->id}}">
-                <input type="hidden" name="uid" value="{{$to->id}}">
-
-                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_member}}"></textarea>
-                <div class="n_bbutton">
-                    <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff;">送出</button>
-                    <button type="reset" class="n_left" style="border-style: none;background: #ffffff; color:#8a9ff0;" onclick="$('#show_banned').hide();$('.announce_bg').hide()">返回</button>
-
+    <div class="bl_tab_aa" id="show_banned" style="display: none;">
+        <div class="bl_tab_bb">
+            <div class="bltitle"><span style="text-align: center; float: none;">檢舉 {{$to->name}}</span></div>
+            <div class="new_pot new_poptk_nn new_pot001">
+                <div class="fpt_pic new_po000">
+                    <form action="{{ route('reportPost') }}" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="aid" value="{{$user->id}}">
+                        <input type="hidden" name="uid" value="{{$to->id}}">
+                        <textarea name="content" cols="" rows="" class="n_nutext" style="border-style: none;" maxlength="300" placeholder="{{$report_member}}" required></textarea>
+                        <span class="alert_tip" style="color:red;"></span>
+                        <input type="file" name="reportedImages" accept="image/*">
+                        <div class="n_bbutton" style="margin-top:10px;text-align:center;">
+                            <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">送出</button>
+                            <button type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="show_banned_close()">返回</button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
+            <a onclick="show_banned_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
         </div>
-        <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+    </div>
+
+    <div class="bl_tab_aa" id="show_reportPic" style="display: none;">
+        <div class="bl_tab_bb">
+            <div class="bltitle"><span>檢舉{{$to->name}}</span></div>
+            <div class="new_pot new_poptk_nn new_pot001">
+                <div class="fpt_pic new_po000">
+                    <form method="POST" action="{{ route('reportPicNextNew') }}" enctype="multipart/form-data">
+                        {!! csrf_field() !!}
+                        <input type="hidden" name="aid" value="{{$user->id}}">
+                        <input type="hidden" name="uid" value="{{$to->id}}">
+                        <input type="hidden" name="picType" value="">
+                        <input type="hidden" name="pic_id" value="">
+                        <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_avatar}}" required></textarea>
+                        <input type="file" name="images" accept="image/*">
+                        <div class="n_bbutton" style="margin-top:10px;text-align:center;">
+                            <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff;float: unset; margin-left: 0px; margin-right: 20px;">送出</button>
+                            <button type="reset" class="n_left" style="border-style: none;background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="show_reportPic_close()">返回</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <a onclick="show_reportPic_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+        </div>
     </div>
 
     <div class="bl bl_tab_aa" id="tab_evaluation" style="display: none;">
@@ -1634,6 +1662,7 @@
         if(uid != to){
             $(".announce_bg").show();
             $("#show_banned").show();
+            $('body').css("overflow", "hidden");
         }else{
             c5('不可檢舉自己');
         }
@@ -1642,6 +1671,7 @@
     function show_reportPic() {
         $(".blbg").show();
         $("#show_reportPic").show();
+        $('body').css("overflow", "hidden");
         // alert($('.swiper-slide-active').data('type'));
         $('input[name="picType"]').val($('.swiper-slide-active').data('type'));
         $('input[name="pic_id"]').val($('.swiper-slide-active').data('pic_id'));
@@ -2168,8 +2198,141 @@
             }
         });
 
+        $('input[name="reportedImages"]').fileuploader({
+            extensions: ['jpg', 'png', 'jpeg', 'bmp'],
+            changeInput: ' ',
+            theme: 'thumbnails',
+            enableApi: true,
+            addMore: true,
+            limit: 15,
+            thumbnails: {
+                box: '<div class="fileuploader-items">' +
+                    '<ul class="fileuploader-items-list">' +
+                    '<li class="fileuploader-thumbnails-input"><div class="fileuploader-thumbnails-input-inner" style="background: url({{ asset("new/images/addpic.png") }}); background-size:100%"></div></li>' +
+                    '</ul>' +
+                    '</div>',
+                item: '<li class="fileuploader-item">' +
+                    '<div class="fileuploader-item-inner">' +
+                    '<div class="type-holder">${extension}</div>' +
+                    '<div class="actions-holder">' +
+                    '<button type="button" class="fileuploader-action fileuploader-action-remove" title="${captions.remove}"><i class="fileuploader-icon-remove"></i></button>' +
+                    '</div>' +
+                    '<div class="thumbnail-holder">' +
+                    '${image}' +
+                    '<span class="fileuploader-action-popup"></span>' +
+                    '</div>' +
+                    '<div class="content-holder"><h5>${name}</h5><span>${size2}</span></div>' +
+                    '<div class="progress-holder">${progressBar}</div>' +
+                    '</div>' +
+                    '</li>',
+                item2: '<li class="fileuploader-item">' +
+                    '<div class="fileuploader-item-inner">' +
+                    '<div class="type-holder">${extension}</div>' +
+                    '<div class="actions-holder">' +
+                    '<a href="${file}" class="fileuploader-action fileuploader-action-download" title="${captions.download}" download><i class="fileuploader-icon-download"></i></a>' +
+                    '<button type="button" class="fileuploader-action fileuploader-action-remove" title="${captions.remove}"><i class="fileuploader-icon-remove"></i></button>' +
+                    '</div>' +
+                    '<div class="thumbnail-holder">' +
+                    '${image}' +
+                    '<span class="fileuploader-action-popup"></span>' +
+                    '</div>' +
+                    '<div class="content-holder"><h5 title="${name}">${name}</h5><span>${size2}</span></div>' +
+                    '<div class="progress-holder">${progressBar}</div>' +
+                    '</div>' +
+                    '</li>',
+                startImageRenderer: true,
+                canvasImage: false,
+                _selectors: {
+                    list: '.fileuploader-items-list',
+                    item: '.fileuploader-item',
+                    start: '.fileuploader-action-start',
+                    retry: '.fileuploader-action-retry',
+                    remove: '.fileuploader-action-remove'
+                },
+                onItemShow: function(item, listEl, parentEl, newInputEl, inputEl) {
+                    var plusInput = listEl.find('.fileuploader-thumbnails-input'),
+                        api = $.fileuploader.getInstance(inputEl.get(0));
+
+                    plusInput.insertAfter(item.html)[api.getOptions().limit && api.getChoosedFiles().length >= api.getOptions().limit ? 'hide' : 'show']();
+
+                    if(item.format == 'image') {
+                        item.html.find('.fileuploader-item-icon').hide();
+                    }
+
+                    if (api.getListEl().length > 0) {
+                        $('.fileuploader-thumbnails-input-inner').css('background-image', 'url({{ asset("new/images/addpic.png") }})');
+                    }
+                },
+                onItemRemove: function(html, listEl, parentEl, newInputEl, inputEl) {
+                    var plusInput = listEl.find('.fileuploader-thumbnails-input'),
+                        api = $.fileuploader.getInstance(inputEl.get(0));
+
+                    html.children().animate({'opacity': 0}, 200, function() {
+                        html.remove();
+
+                        if (api.getOptions().limit && api.getChoosedFiles().length - 1 < api.getOptions().limit)
+                            plusInput.show();
+                    });
+
+                    if (api.getFiles().length == 1) {
+                        $('.fileuploader-thumbnails-input-inner').css('background-image', 'url({{ asset("new/images/addpic.png") }})');
+                    }
+                }
+            },
+            dialogs: {
+                alert:function(message) {
+                    alert(message);
+                }
+            },
+            dragDrop: {
+                container: '.fileuploader-thumbnails-input'
+            },
+            afterRender: function(listEl, parentEl, newInputEl, inputEl) {
+                var plusInput = listEl.find('.fileuploader-thumbnails-input'),
+                    api = $.fileuploader.getInstance(inputEl.get(0));
+
+                plusInput.on('click', function() {
+                    api.open();
+                });
+
+                api.getOptions().dragDrop.container = plusInput;
+            },
+            editor: {
+                cropper: {
+                    showGrid: true,
+                },
+            },
+            captions: {
+                confirm: '確認',
+                cancel: '取消',
+                name: '檔案名稱',
+                type: '類型',
+                size: '容量',
+                dimensions: '尺寸',
+                duration: '持續時間',
+                crop: '裁切',
+                rotate: '旋轉',
+                sort: '分類',
+                download: '下載',
+                remove: '刪除',
+                drop: '拖曳至此上傳檔案',
+                open: '打開',
+                removeConfirmation: '確認要刪除檔案嗎?',
+                errors: {
+                    filesLimit: function(options) {
+                        return '最多上傳 ${limit} 張圖片'
+                    },
+                    filesType: '檔名: ${name} 不支援此格式, 只允許 ${extensions} 檔案類型上傳.',
+                    fileSize: '${name} 檔案太大, 請確認容量需小於 ${fileMaxSize}MB.',
+                    filesSizeAll: '上傳的所有檔案過大, 請確認未超過 ${maxSize} MB.',
+                    fileName: '${name} 已有選取相同名稱的檔案.',
+                }
+            }
+        });
+
         $(".announce_bg").on("click", function() {
             $('.bl_tab_aa').hide();
+            $('body').css("overflow", "auto");
         });
 
     });
@@ -2191,6 +2354,14 @@
         $("#show_banned").hide();
         $('body').css("overflow", "auto");
     }
+
+    function show_reportPic_close(){
+        $(".announce_bg").hide();
+        $("#show_reportPic").hide();
+        $(".blbg").hide();
+        $('body').css("overflow", "auto");
+    }
+
     function tab_evaluation_reply_show(id, eid) {
         $(".announce_bg").show();
         //$("#re_content_reply").val('');

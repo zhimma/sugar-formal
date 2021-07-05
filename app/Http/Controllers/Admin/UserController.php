@@ -829,7 +829,7 @@ class UserController extends \App\Http\Controllers\BaseController
         }
 
         //個人檢舉紀錄
-        $reported = Reported::select('reported.id','reported.reported_id as rid','reported.content as reason', 'reported.created_at as reporter_time','u.name','u.email','u.engroup','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
+        $reported = Reported::select('reported.id','reported.reported_id as rid','reported.content as reason','reported.pic as pic', 'reported.created_at as reporter_time','u.name','u.email','u.engroup','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
             ->leftJoin('users as u', 'u.id','reported.reported_id')->where('u.id','!=',null)
             ->leftJoin('user_meta as m','u.id','m.user_id')
             ->leftJoin('banned_users as b','u.id','b.member_id')
@@ -886,6 +886,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 array(
                     'reporter_id' => $row->rid,
                     'content' => $row->reason,
+                    'pic' => is_null($row->pic) ? [] : json_decode($row->pic,true),
                     'created_at' => $row->reporter_time,
                     'tipcount' => Tip::TipCount_ChangeGood($row->rid),
                     'vip' => Vip::vip_diamond($row->rid),
@@ -910,8 +911,7 @@ class UserController extends \App\Http\Controllers\BaseController
         //$pic_all_report->unique()->all();
 
         $msg_report = Message::select('to_id', 'id', 'cancel', 'created_at', 'content')->where('from_id', $user->id)->where('isReported', 1)->distinct('to_id')->get();
-        $report = Reported::select('member_id', 'reported_id', 'cancel', 'created_at', 'content')->where('reported_id', $user->id)->where('member_id', '!=', $user->id)->groupBy('member_id')->get();
-
+        $report = Reported::select('member_id', 'reported_id', 'cancel', 'created_at', 'content', 'pic')->where('reported_id', $user->id)->where('member_id', '!=', $user->id)->groupBy('member_id')->get();
         $report_all = array();
 
         foreach ($pic_all_report as $row) {
@@ -1027,6 +1027,7 @@ class UserController extends \App\Http\Controllers\BaseController
                             'reporter_id' => $row->member_id,
                             'cancel' => $row->cancel,
                             'content' => $row->content,
+                            'pic' => is_null($row->pic) ? [] : json_decode($row->pic,true),
                             'created_at' => $row->created_at,
                             'tipcount' => Tip::TipCount_ChangeGood($row->member_id),
                             'vip' => Vip::vip_diamond($row->member_id),
@@ -1054,6 +1055,7 @@ class UserController extends \App\Http\Controllers\BaseController
                         'reporter_id' => $row->member_id,
                         'cancel' => $row->cancel,
                         'content' => $row->content,
+                        'pic' => is_null($row->pic) ? [] : json_decode($row->pic,true),
                         'created_at' => $row->created_at,
                         'tipcount' => Tip::TipCount_ChangeGood($row->member_id),
                         'vip' => Vip::vip_diamond($row->member_id),
