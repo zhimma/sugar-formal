@@ -217,7 +217,7 @@
                                     <p>
                                         @if(!is_null($message['pic']))
                                             <i class="msg_input"></i>
-                                            <span id="page">
+                                            <span id="page" class="marl5">
                                                 <span class="justify-content-center">
                                                     <span class="gutters-10 pswp--loaded" data-pswp="">
                                                         <span style="width: 150px;">
@@ -244,7 +244,6 @@
                                             @if($message['from_id'] != $user->id)
                                                 <a href="javascript:void(0)" class="" onclick="banned('{{$message['id']}}','{{$msgUser->id}}','{{$msgUser->name}}');" title="檢舉">
                                                     <span class="shdel_word"><span>檢舉</span></span>
-                                                    {{--                                                 <img src="/new/images/ban.png" class="shdel" alt="檢舉">--}}
                                                 </a>
                                             @endif
                                             <font class="sent_ri @if($message['from_id'] == $user->id)dr_l @if(!$isVip) novip @endif @else dr_r @endif">
@@ -292,7 +291,7 @@
                             <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}" value="{{ \Carbon\Carbon::now()->timestamp }}">
                             <div class="xin_left">
                                 <a class="xin_nleft" onclick="tab_uploadPic();"><img src="/new/images/moren_pic.png"></a>
-                                <input class="xin_input" name="msg" id="msg" placeholder="請輸入" required>
+                                <textarea id="msg" name="msg" rows="1" class="xin_input" placeholder="請輸入"></textarea>
                             </div>
                             <button type="submit" class="xin_right" style="border: none;"><img src="/new/images/fasong.png"></button>
                             {{--<div class="message_fixed"></div>--}}
@@ -354,8 +353,8 @@
             <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}" value="{{ \Carbon\Carbon::now()->timestamp }}">
             <div class="bl_tab_bb">
                 <div class="bltitle"><span style="text-align: center; float: none;">上傳照片</span></div>
-                <div class="new_pot1 new_poptk_nn new_height_mobile">
-                    <div class="fpt_pic1">
+                <div class="new_pot1 new_poptk_nn new_height_mobile ">
+                    <div class="fpt_pic">
                         <input id="images" type="file" name="images" accept="image/*">
                         <div class="alert_tip" style="color:red;"></div>
                         <div class="n_bbutton" style="margin-top:0px;">
@@ -384,6 +383,21 @@
     });
 </script>
 <script>
+    function readyNumber() {
+
+        $('textarea').each(function () {
+            this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
+        }).on('input', function () {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+            textAreaHeight=38;
+            var textAreaHeight = parseInt(this.scrollHeight)-38;
+            $(".xin_nleft").css('margin-top',textAreaHeight + 'px');
+            $(".xin_right").css('margin-top',textAreaHeight + 'px');
+        })
+    }
+
+    readyNumber();
     $(".nnn_adbut").click(function(){
         if($(this).hasClass("adbut_on")){
             $(this).removeClass("adbut_on");
@@ -658,6 +672,11 @@
             }
         }
     }
+
+
+    $(".announce_bg").click(function(){
+        $('body').css("overflow", "auto");
+    });
 
     function tab_uploadPic() {
         $(".announce_bg").show();

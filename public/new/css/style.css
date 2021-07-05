@@ -25,6 +25,7 @@ a:hover{ color:#e44e71; text-decoration:none}
 .textleft{ text-align:left}
 .textright{ text-align:right}
 .marl10{ margin-left:10px;}
+.marl5{ margin-left:5px;}
 .marlr10{ margin-right:10px;}
 .matop20{ margin-top:20px;}
 .matop10{ margin-top:10px;}
@@ -1571,7 +1572,7 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 .send:after,.show:after,.msg:after{content: "";clear: both;display: table;}
 .msg>img{width:40px; height:40px;float: left; border-radius:100px;}
 
-.msg>p{float: left;margin:0 10px;padding:15px 8px;background: #f7f6fb;font-size:14px;position: relative;border-radius:10px;max-width:560px ;box-sizing: border-box;color:#333;word-break: break-word; /*min-width: 60px !important;*/max-width:467px;}
+.msg>p{float: left;margin:0 10px;padding:15px 8px;background: #f7f6fb;font-size:14px;position: relative;border-radius:10px;max-width:560px ;box-sizing: border-box;color:#333;word-break: break-word; /*min-width: 60px !important;*/max-width:476px;}
 
 .msg1>p {background:#ffcbcb;color:#fff;max-width:467px;}
 
@@ -2475,11 +2476,11 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 }
 
 @media (max-width:450px) {
-    .fpt_pic{height:420px;}
+    .fpt_pic{height:230px;}
 }
-@media (max-width:320px) {
+/*@media (max-width:320px) {
     .fpt_pic{height: 355px;}
-}
+}*/
 .pj_add{ margin: 0 auto; display: table; margin-bottom: 15px;}
 /*.pj_add img{width: 20px; margin: 0 3px;}*/
 
