@@ -3,7 +3,10 @@
 namespace App\Models;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\File;
+use Intervention\Image\Facades\Image;
 
 class Reported extends Model
 {
@@ -21,7 +24,8 @@ class Reported extends Model
      */
     protected $fillable = [
         'member_id',
-        'reported_id'
+        'reported_id',
+        'pic'
     ];
 
     /**
@@ -42,12 +46,40 @@ class Reported extends Model
         return $reported + $reported_pic + $reported_avatar + $reported_message;
     }
 
-    public static function report($member_id, $reported_id, $content = null)
+    public static function report($member_id, $reported_id, $content = null, $images = null)
     {
         $reported = new Reported;
         $reported->member_id = $member_id;
         $reported->reported_id = $reported_id;
         $reported->content = $content;
+
+        //上傳檢舉照片
+        if($files = $images)
+        {
+            $images_ary=array();
+            foreach ($files as $key => $file) {
+                $now = Carbon::now()->format('Ymd');
+                $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
+
+                $rootPath = public_path('/img/Reported');
+                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+
+                if(!is_dir($tempPath)) {
+                    File::makeDirectory($tempPath, 0777, true);
+                }
+
+                $destinationPath = '/img/Reported/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
+
+                $img = Image::make($file->getRealPath());
+                $img->resize(400, 600, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($tempPath . $input['imagename']);
+
+                //整理images
+                $images_ary[$key]= $destinationPath;
+            }
+            $reported->pic = json_encode($images_ary);
+        }
         $reported->save();
     }
 

@@ -1244,7 +1244,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .n_nutext{width:100%; min-height:100px; background:#ffffff; border:none; padding:5px; color:#666666; border-radius:5px;}
 .n_blbut{margin-top:15px;}
 
-.n_bbutton{width:90%; margin:0 auto; display:table;margin-top:15px}
+.n_bbutton{/*width:90%;*/ margin:0 auto; display:table;margin-top:15px}
 .n_bbutton span{width:50%; float:left}
 .n_left{ float:right;width:120px;height: 40px;background: #8a9ff0;border-radius: 200px;color: #ffffff;text-align: center;line-height: 40px;font-size: 16px; margin-right:11px;}
 .n_left:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #4c6ded,inset 0px -10px 10px -20px #4c6ded;}
