@@ -457,6 +457,7 @@
 		<th>VIP</th>
 		<th>會員認證</th>
 		<th>檢舉理由</th>
+		<th>上傳照片</th>
 		<th>檢舉類型</th>
 	</tr>
 	@foreach($reportBySelf as $row)
@@ -483,6 +484,15 @@
 			<td>@if($row['isvip']==1) VIP @endif</td>
 			<td>@if($row['auth_status']==1) 已認證 @else N/A @endif</td>
 			<td>{{ $row['content'] }}</td>
+			<td class="evaluation_zoomIn">
+				@if(isset($row['pic']))
+					@foreach($row['pic'] as $reportedPic)
+						<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
+							<img src="{{ $reportedPic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+						</li>
+					@endforeach
+				@endif
+			</td>
 			<td>{{ $row['report_type'] }}</td>
 
 		</tr>
@@ -499,6 +509,7 @@
 		<th>VIP</th>
 		<th>會員認證</th>
 		<th>檢舉理由</th>
+		<th>上傳照片</th>
 		<th>檢舉類型</th>
 		<th>計分</th>
 	</tr>
@@ -559,6 +570,15 @@
 			<td>@if($row['isvip']==1) VIP @endif</td>
 			<td>@if($row['auth_status']==1) 已認證 @else N/A @endif</td>
 			<td>{{ $row['content'] }}</td>
+			<td class="evaluation_zoomIn">
+				@if(isset($row['pic']))
+					@foreach($row['pic'] as $reportedPic)
+						<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
+							<img src="{{ $reportedPic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+						</li>
+					@endforeach
+				@endif
+			</td>
 			<td>{{ $row['report_type'] }}</td>
 			<td>@if( ($row['engroup']==2 && $row['auth_status']==1) || ($row['engroup']==1 && $row['isvip']==1) ) 5 @else 3.5 @endif</td>
 		</tr>

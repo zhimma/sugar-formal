@@ -239,6 +239,11 @@
                                                     @endif
                                                 </font>
                                             </span>
+                                            @if($message['from_id'] != $user->id)
+                                                <a href="javascript:void(0)" class="" onclick="banned('{{$message['id']}}','{{$msgUser->id}}','{{$msgUser->name}}');" title="檢舉">
+                                                    <span class="shdel" style="border: #fd5678 1px solid; width: auto;"><span>檢舉</span></span>
+                                                </a>
+                                            @endif
                                         @else
                                             <i class="msg_input"></i>{!! nl2br($message['content']) !!}
                                             @if($message['from_id'] != $user->id)
@@ -341,7 +346,7 @@
                 </div>
             </form>
         </div>
-        <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+        <a id="" onclick="show_banned_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
 
     <div class="bl_tab_aa" id="tab_uploadPic" style="display: none;">
@@ -645,6 +650,13 @@
         $(".banned_name").append("<span>檢舉" + name + "</span>")
         $(".announce_bg").show();
         $("#show_banned").show();
+        $('body').css("overflow", "hidden");
+    }
+
+    function show_banned_close(){
+        $(".announce_bg").hide();
+        $("#show_banned").hide();
+        $('body').css("overflow", "auto");
     }
 
     @if (Session::has('message'))

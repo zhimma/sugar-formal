@@ -2444,7 +2444,7 @@ class PagesController extends BaseController
         if(empty($this->customTrim($request->content))){
             return redirect('/dashboard/viewuser/'.$request->uid);
         }
-        Reported::report($request->aid, $request->uid, $request->content);
+        Reported::report($request->aid, $request->uid, $request->content, $request->file('reportedImages'));
         $user = $request->user();
         if($user->isVip()){
             $showMsg = '站務人員會檢視檢舉，可在瀏覽資料/封鎖名單查看被封鎖會員，若有其他狀況將以站內訊息通知檢舉人。';
@@ -2540,7 +2540,7 @@ class PagesController extends BaseController
 
     public function reportPicNextNew(Request $request){
         if($request->picType=='avatar'){
-            ReportedAvatar::report($request->aid, $request->uid, $request->content);
+            ReportedAvatar::report($request->aid, $request->uid, $request->content, $request->file('images'));
         }
         if($request->picType=='pic'){
             ReportedPic::report($request->aid, $request->pic_id, $request->content);

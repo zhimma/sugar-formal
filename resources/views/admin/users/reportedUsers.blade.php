@@ -63,6 +63,7 @@
                     <th>回覆檢舉者(回覆後將會自動移除檢舉記錄)</th>
                     <th>封鎖檢舉者</th>
                     <th>檢舉理由</th>
+                    <th>上傳圖片</th>
                     <th>檢舉時間</th>
                 </tr>
                 @forelse ($results as $result)
@@ -291,6 +292,18 @@
                         </td>
 
                         <td width="45%" style="word-wrap: break-word;">{{ $result['content'] }}</td>
+                        <td class="zoomInPic">
+                            @php
+                                $reportedUserPics=is_null( $result['pic']) ? [] : json_decode($result['pic'],true);
+                            @endphp
+                            @if(isset($reportedUserPics))
+                                @foreach( $reportedUserPics as $reportedUserPic)
+                                    <li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
+                                        <img src="{{ $reportedUserPic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+                                    </li>
+                                @endforeach
+                            @endif
+                        </td>
                         <td>{{ $result['created_at'] }}</td>
                     </tr>
                 @empty
@@ -478,6 +491,19 @@
             </form>
         </div>
     </div>
+</div>
+<!--照片查看-->
+<div class="big_img">
+    <!-- 自定义分页器 -->
+    <div class="swiper-num">
+        <span class="active"></span>/
+        <span class="total"></span>
+    </div>
+    <div class="swiper-container2">
+        <div class="swiper-wrapper">
+        </div>
+    </div>
+    <div class="swiper-pagination2"></div>
 </div>
 
 <script>
@@ -822,5 +848,62 @@
     // }
 
 
+</script>
+
+<link type="text/css" rel="stylesheet" href="/new/css/app.css">
+<link rel="stylesheet" type="text/css" href="/new/css/swiper2.min.css"/>
+<script type="text/javascript" src="/new/js/swiper.min.js"></script>
+<script>
+    $(document).ready(function () {
+        /*调起大图 S*/
+        var mySwiper = new Swiper('.swiper-container2',{
+            pagination : '.swiper-pagination2',
+            paginationClickable:true,
+            onInit: function(swiper){//Swiper初始化了
+                // var total = swiper.bullets.length;
+                var active =swiper.activeIndex;
+                $(".swiper-num .active").text(active);
+                // $(".swiper-num .total").text(total);
+            },
+            onSlideChangeEnd: function(swiper){
+                var active =swiper.realIndex +1;
+                $(".swiper-num .active").text(active);
+            }
+        });
+
+        $(".zoomInPic li").on("click",
+            function () {
+                var imgBox = $(this).parent(".zoomInPic").find("li");
+                var i = $(imgBox).index(this);
+                $(".big_img .swiper-wrapper").html("")
+
+                for (var j = 0, c = imgBox.length; j < c ; j++) {
+                    $(".big_img .swiper-wrapper").append('<div class="swiper-slide"><div class="cell"><img src="' + imgBox.eq(j).find("img").attr("src") + '" / ></div></div>');
+                }
+                mySwiper.updateSlidesSize();
+                mySwiper.updatePagination();
+                $(".big_img").css({
+                    "z-index": 1001,
+                    "opacity": "1"
+                });
+                //分页器
+                var num = $(".swiper-pagination2 span").length;
+                $(".swiper-num .total").text(num);
+                // var active =$(".swiper-pagination2").index(".swiper-pagination-bullet-active");
+                $(".swiper-num .active").text(i + 1);
+                // console.log(active)
+
+                mySwiper.slideTo(i, 0, false);
+                return false;
+            });
+        $(".swiper-container2").click(function(){
+            $(this).parent(".big_img").css({
+                "z-index": "-1",
+                "opacity": "0"
+            });
+        });
+
+    });
+    /*调起大图 E*/
 </script>
 @stop
