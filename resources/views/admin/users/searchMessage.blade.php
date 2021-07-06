@@ -91,6 +91,7 @@
                 <td>內容</td>
                 @if(isset($reported) && $reported == 1)
                 <td>檢舉理由</td>
+                <td>照片上傳</td>
                 @endif
                 <td>發送時間</td>
                 <td>
@@ -307,6 +308,18 @@
                 <td width="45%" style="word-wrap: break-word;">{{ $result['content'] }}</td>
                 @if(isset($reported) && $reported == 1)
                 <td>{{ $result['reportContent'] }}</td>
+                <td class="zoomInPic">
+                    @php
+                        $reportedMsgPics=is_null( $result['reportContentPic']) ? [] : json_decode($result['reportContentPic'],true);
+                    @endphp
+                    @if(isset($reportedMsgPics))
+                        @foreach( $reportedMsgPics as $reportedMsgPic)
+                            <li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
+                                <img src="{{ $reportedMsgPic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+                            </li>
+                        @endforeach
+                    @endif
+                </td>
                 @endif
                 <td>{{ $result['created_at'] }}</td>
                 <td style="text-align: center; vertical-align: middle">
@@ -337,6 +350,7 @@
                 <td>上線時間</td>
                 <td>收訊者</td>
                 <td>內容</td>
+                <td>上傳照片</td>
                 <td>發送時間</td>
                 
                 <td>
@@ -486,6 +500,18 @@
                         </a>
                     </td>
                     <td width="45%">{{ $sender['messages'][0]['content'] }}</td>
+                    <td class="zoomInPic">
+                        @php
+                            $reportedMsgPics=is_null( $sender['messages'][0]['reportContentPic']) ? [] : json_decode($sender['messages'][0]['reportContentPic'],true);
+                        @endphp
+                        @if(isset($reportedMsgPics))
+                            @foreach( $reportedMsgPics as $reportedMsgPic)
+                                <li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
+                                    <img src="{{ $reportedMsgPic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+                                </li>
+                            @endforeach
+                        @endif
+                    </td>
                     <td>{{ $sender['messages'][0]['created_at'] }}</td>
                     <td style="text-align: center; vertical-align: middle">
                         <input type="checkbox" name="msg_id[]" value="{{ $sender['messages'][0]['id'] }}" class="form-control boxes">
@@ -576,6 +602,18 @@
                             </a>
                         </td>
                         <td width="45%">{{ $sender['messages'][$i]['content'] }}</td>
+                        <td class="zoomInPic">
+                            @php
+                                $reportedMsgPics=is_null($sender['messages'][$i]['reportContentPic']) ? [] : json_decode($sender['messages'][$i]['reportContentPic'],true);
+                            @endphp
+                            @if(isset($reportedMsgPics))
+                                @foreach( $reportedMsgPics as $reportedMsgPic)
+                                    <li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
+                                        <img src="{{ $reportedMsgPic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+                                    </li>
+                                @endforeach
+                            @endif
+                        </td>
                         <td>{{ $sender['messages'][$i]['created_at'] }}</td>
                         <td style="text-align: center; vertical-align: middle">
                             <input type="checkbox" name="msg_id[]" value="{{ $sender['messages'][$i]['id'] }}" class="form-control boxes">
@@ -728,6 +766,19 @@
             </form>
         </div>
     </div>
+</div>
+<!--照片查看-->
+<div class="big_img">
+    <!-- 自定义分页器 -->
+    <div class="swiper-num">
+        <span class="active"></span>/
+        <span class="total"></span>
+    </div>
+    <div class="swiper-container2">
+        <div class="swiper-wrapper">
+        </div>
+    </div>
+    <div class="swiper-pagination2"></div>
 </div>
 <script>
     let date = new Date();
@@ -1075,5 +1126,61 @@
     //     }
     //     count++;
     // }
+</script>
+<link type="text/css" rel="stylesheet" href="/new/css/app.css">
+<link rel="stylesheet" type="text/css" href="/new/css/swiper2.min.css"/>
+<script type="text/javascript" src="/new/js/swiper.min.js"></script>
+<script>
+    $(document).ready(function () {
+        /*调起大图 S*/
+        var mySwiper = new Swiper('.swiper-container2',{
+            pagination : '.swiper-pagination2',
+            paginationClickable:true,
+            onInit: function(swiper){//Swiper初始化了
+                // var total = swiper.bullets.length;
+                var active =swiper.activeIndex;
+                $(".swiper-num .active").text(active);
+                // $(".swiper-num .total").text(total);
+            },
+            onSlideChangeEnd: function(swiper){
+                var active =swiper.realIndex +1;
+                $(".swiper-num .active").text(active);
+            }
+        });
+
+        $(".zoomInPic li").on("click",
+            function () {
+                var imgBox = $(this).parent(".zoomInPic").find("li");
+                var i = $(imgBox).index(this);
+                $(".big_img .swiper-wrapper").html("")
+
+                for (var j = 0, c = imgBox.length; j < c ; j++) {
+                    $(".big_img .swiper-wrapper").append('<div class="swiper-slide"><div class="cell"><img src="' + imgBox.eq(j).find("img").attr("src") + '" / ></div></div>');
+                }
+                mySwiper.updateSlidesSize();
+                mySwiper.updatePagination();
+                $(".big_img").css({
+                    "z-index": 1001,
+                    "opacity": "1"
+                });
+                //分页器
+                var num = $(".swiper-pagination2 span").length;
+                $(".swiper-num .total").text(num);
+                // var active =$(".swiper-pagination2").index(".swiper-pagination-bullet-active");
+                $(".swiper-num .active").text(i + 1);
+                // console.log(active)
+
+                mySwiper.slideTo(i, 0, false);
+                return false;
+            });
+        $(".swiper-container2").click(function(){
+            $(this).parent(".big_img").css({
+                "z-index": "-1",
+                "opacity": "0"
+            });
+        });
+
+    });
+    /*调起大图 E*/
 </script>
 @stop
