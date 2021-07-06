@@ -3999,5 +3999,23 @@ class UserController extends \App\Http\Controllers\BaseController
         return back();
     }
 
+    public function getIpUsers($ip){
 
+        $getIpUsersData = LogUserLogin::selectraw('g.*, u.email, u.name, u.title, u.engroup, u.last_login')
+            ->from('log_user_login as g')
+            ->leftJoin('users as u','u.id','g.user_id')
+            ->where('g.ip', $ip)
+            ->whereNotNull('u.id')
+            ->orderBy('u.id')
+            ->orderBy('u.last_login','DESC')
+            ->orderBy('g.created_at','DESC')
+            ->paginate(20)
+        ;
+
+        return view('admin.users.ipUsersList')
+            ->with('ipUsersData', $getIpUsersData)
+            ->with('ip', $ip)
+            ;
+
+    }
 }
