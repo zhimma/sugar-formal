@@ -10,7 +10,9 @@ use App\Notifications\MessageEmail;
 use Illuminate\Support\Facades\Config;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Intervention\Image\Facades\Image;
 
 class Message extends Model
 {
@@ -142,10 +144,40 @@ class Message extends Model
         }
     }
 
-    public static function reportMessage($id, $content) {
+    public static function reportMessage($id, $content, $images) {
         $message = Message::where('id', $id)->first();
         $message->isReported = 1;
         $message->reportContent = $content;
+
+        if(!is_null($images) && count($images)){
+
+            if($files = $images)
+            {
+                $images_ary=array();
+                foreach ($files as $key => $file) {
+                    $now = Carbon::now()->format('Ymd');
+                    $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
+
+                    $rootPath = public_path('/img/Message/Reported');
+                    $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+
+                    if(!is_dir($tempPath)) {
+                        File::makeDirectory($tempPath, 0777, true);
+                    }
+
+                    $destinationPath = '/img/Message/Reported/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
+
+                    $img = Image::make($file->getRealPath());
+                    $img->resize(400, 600, function ($constraint) {
+                        $constraint->aspectRatio();
+                    })->save($tempPath . $input['imagename']);
+
+                    //整理images
+                    $images_ary[$key]= $destinationPath;
+                }
+            }
+            $message->reportContentPic = json_encode($images_ary);
+        }
         $message->save();
     }
 

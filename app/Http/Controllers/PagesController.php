@@ -2460,7 +2460,7 @@ class PagesController extends BaseController
             $user = $request->user();
             return redirect('/dashboard/viewuser/'.$request->uid);
         }
-        Message::reportMessage($request->id, $request->content);
+        Message::reportMessage($request->id, $request->content, $request->file('images'));
         //        return redirect('/dashboard/viewuser/'.$request->uid)->with('message', '檢舉成功');
         return back()->with('message', '檢舉成功');
     }
