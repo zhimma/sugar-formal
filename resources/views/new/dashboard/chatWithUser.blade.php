@@ -328,25 +328,27 @@
 
     </div>
 
-    <div class="bl bl_tab" id="show_banned">
-        <div class="bltitle banned_name"></div>
-        <div class="n_blnr01">
-            <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ route('reportMsg') }}">
-                {!! csrf_field() !!}
-                <input type="hidden" name="aid" value="{{$user->id}}">
-                <input type="hidden" name="uid" value="">
-                <input type="hidden" name="id" value="">
-                <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_reason}}"></textarea>
-{{--                <div class="n_bbutton">--}}
-{{--                    <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>--}}
-{{--                </div>--}}
-                <div class="n_bbutton" style="width: 100%; text-align: center;">
-                    <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">送出</button>
-                    <button type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="$('#show_banned').hide();$('.announce_bg').hide()">返回</button>
+    <div class="bl_tab_aa" id="show_banned">
+        <div class="bl_tab_bb">
+            <div class="bltitle banned_name"></div>
+            <div class="new_pot new_poptk_nn new_pot001 ">
+                <div class="fpt_pic new_po000">
+                    <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ route('reportMsg') }}" enctype="multipart/form-data">
+                        {!! csrf_field() !!}
+                        <input type="hidden" name="aid" value="{{$user->id}}">
+                        <input type="hidden" name="uid" value="">
+                        <input type="hidden" name="id" value="">
+                        <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_reason}}" required></textarea>
+                        <input id="images" type="file" name="images" accept="image/*">
+                        <div class="n_bbutton" style="width: 100%; text-align: center;">
+                            <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">送出</button>
+                            <button type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="show_banned_close()">返回</button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
+            <a onclick="show_banned_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
         </div>
-        <a id="" onclick="show_banned_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
 
     <div class="bl_tab_aa" id="tab_uploadPic" style="display: none;">
