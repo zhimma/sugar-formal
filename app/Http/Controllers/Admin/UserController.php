@@ -4009,7 +4009,7 @@ class UserController extends \App\Http\Controllers\BaseController
             ->orderBy('u.id')
             ->orderBy('u.last_login','DESC')
             ->orderBy('g.created_at','DESC')
-            ->paginate(20)
+            ->paginate(50)
         ;
 
         return view('admin.users.ipUsersList')

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Models\LogUserLogin;
 use DB;
 use Illuminate\Support\Facades\Validator;
 use App\Services\UserService;
@@ -130,6 +131,13 @@ class RegisterController extends \App\Http\Controllers\BaseController
         event(new \Illuminate\Auth\Events\Registered($user = $this->create($request->all())));
 
         $this->guard()->login($user);
+
+        $logUserLogin = LogUserLogin::create([
+                'user_id' => $user->id,
+                'userAgent' => $_SERVER['HTTP_USER_AGENT'],
+                'ip' => $request->ip(),
+                'created_at' =>  date('Y-m-d H:i:s')]
+        );
 
         return $this->registered($request, $user) ? redirect($this->redirectPath()) : redirect($this->redirectPath());
     }
