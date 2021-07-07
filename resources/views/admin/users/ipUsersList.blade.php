@@ -16,30 +16,30 @@
     <table class="table-hover table table-bordered">
         <thead>
         <tr>
-            <th width="%">暱稱</th>
-            <th width="%">Email</th>
             <th width="%">IP</th>
-            <th width="%">CFP_ID</th>
+            <th width="%">Email</th>
             <th width="%">Country</th>
+            <th width="%">CFP_ID</th>
             <th width="%">性別</th>
+            <th width="%">暱稱</th>
             <th width="%">標題</th>
-            <th width="%">最後登入時間</th>
             <th>Log時間</th>
+            <th width="%">最後登入時間</th>
             <th width="%">UserAgent</th>
         </tr>
         </thead>
         <tbody>
             @foreach ($ipUsersData as $row)
                 <tr>
-                    <td>{{$row->name}}</td>
-                    <td><a href="../advInfo/{{ $row->user_id }}" target="_blank">{{$row->email}}</a></td>
                     <td>{{$row->ip}}</td>
-                    <td>{{$row->cfp_id}}</td>
+                    <td><a href="../advInfo/{{ $row->user_id }}" target="_blank">{{$row->email}}</a></td>
                     <td>{{$row->country}}</td>
-                    <td>{{$row->engroup}}</td>
+                    <td>{{$row->cfp_id}}</td>
+                    <td>@if($row->engroup==1)男@else 女@endif</td>
+                    <td>{{$row->name}}</td>
                     <td>{{$row->title}}</td>
-                    <td>{{$row->last_login}}</td>
                     <td>{{$row->created_at}}</td>
+                    <td>{{$row->last_login}}</td>
                     <td>{{ str_replace("Mozilla/5.0","", $row->userAgent) }}</td>
                 </tr>
             @endforeach
