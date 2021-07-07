@@ -134,6 +134,21 @@
     img{
         max-width: 100%;
     }
+    .new_pot1  ::-webkit-scrollbar {
+        /*滚动条整体样式*/
+        width :4px;  /*高宽分别对应横竖滚动条的尺寸*/
+        height: 1px;
+    }
+    .new_pot1  ::-webkit-scrollbar-thumb {
+        /*滚动条里面小方块*/
+        border-radius: 100px;
+        background: #8a9fef;
+    }
+    .new_pot1  ::-webkit-scrollbar-track {
+        /*滚动条里面轨道*/
+        border-radius: 100px;
+        background:rgba(255,255,255,0.6);
+    }
 </style>
 @section('app-content')
     <div class="container matop70 chat">
@@ -356,6 +371,7 @@
             <input type="hidden" name="_token" value="{{ csrf_token() }}" >
             <input type="hidden" name="userId" value="{{$user->id}}">
             <input type="hidden" name="to" value="{{$to->id}}">
+            <input type="hidden" name="msg" value="">
             <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
             <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}" value="{{ \Carbon\Carbon::now()->timestamp }}">
             <div class="bl_tab_bb">
@@ -703,8 +719,7 @@
         $('body').css("overflow", "auto");
     }
     function form_uploadPic_submit(){
-
-        var num_of_images=$('#images')[0].files.length;
+        var num_of_images=$('.fileuploader-items-list .fileuploader-item').length;
         if(num_of_images==0) {
             $('.alert_tip').text();
             $('.alert_tip').text('請選擇照片');
@@ -856,4 +871,12 @@
         });
     });
 </script>
+<style>
+    @media (max-width:450px) {
+        .fpt_pic{height:230px !important;}
+    }
+    @media (max-width:320px) {
+        .fpt_pic{height: 230px !important;}
+    }
+</style>
 @stop

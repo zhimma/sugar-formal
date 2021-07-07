@@ -1793,7 +1793,7 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 @media (max-width:797px) {
     .n_zy{width: 90%;margin: 0 auto;display: table;margin-bottom:40px; border-bottom:#fe92a8 1px solid; margin-top:40px; text-align:center;color: #fd5678;font-size:20px;font-weight: bold;line-height:50px;}
     .n_zytab{width:90%; margin:0 auto; display:table; min-height:485px}
-    .n_zytab li{width:47%; float:left;background: linear-gradient(0deg,#ff6c88 0%,#ffc8d4 100%); border-radius:10px; padding:10px 10px; height:40px; line-height:20px !important;margin-bottom:20px; display:table;box-shadow: 0 0 10px #ffdce3;}
+    .n_zytab li{width:49%; float:left;background: linear-gradient(0deg,#ff6c88 0%,#ffc8d4 100%); border-radius:10px; padding:10px 10px; height:40px; line-height:20px !important;margin-bottom:20px; display:table;box-shadow: 0 0 10px #ffdce3;}
     .n_zytab li img{ height:40px; margin-right:6px !important; margin-left:2px;margin-top:2px;float:left}
     .n_zytab li a{ color:#ffffff; font-size:16px;}
 
