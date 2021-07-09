@@ -1,10 +1,10 @@
 .message{width:92%; margin:0 auto; display:flow-root; /*max-height:400px; margin-bottom:40px;*/ overflow-y: auto}
-/*.se_text_bot {*/
-/*    margin:0 auto; display:table; position: fixed; bottom: 10px; padding-right: 3%;padding-left: 3%;*/
-/*    width: 100%;*/
-/*    max-width: 1000px;*/
-/*    z-index: 9;*/
-/*}*/
+.se_text_bot {
+    margin:0 auto; display:table; position: fixed; bottom: 10px; padding-right: 3%;padding-left: 3%;
+    width: 100%;
+    max-width: 1000px;
+    z-index: 8;
+}
 
 .se_text_bot_add_bottom{
     bottom: 125px;
@@ -31,10 +31,10 @@
     /*.message{*/
     /*    max-height: 250px;*/
     /*}*/
-    /*.se_text_bot {*/
-    /*    width: 100%;*/
-    /*    max-width: 900px;*/
-    /*}*/
+    .se_text_bot {
+        width: 100%;
+        max-width: 900px;
+    }
 }
 @media (min-height:829px) and (max-width: 1024px){
     /*.message{*/
@@ -75,8 +75,8 @@
 @media (min-height:768px) and (max-width: 1024px){
     .se_text_bot {
         /*width: 80%;*/
-        /*width: 100%;*/
-        /*max-width: 780px;*/
+        width: 100%;
+        max-width: 780px;
     }
 }
 

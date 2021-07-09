@@ -281,6 +281,32 @@
         }
 
     </style>
+    <script>
+        function setTextAreaHeight(rowid) {
+            $('#re_content_'+rowid).each(function () {
+                this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
+            }).on('input', function () {
+                var rows =  $('#re_content_'+rowid).val().split("\n").length;
+
+                if((this.scrollHeight)>33){
+                    this.style.height = 'auto';
+                    this.style.height = 33 + 'px';
+                    var textAreaHeight =0;
+                    $("#xin_nleft_qq_"+rowid).css('margin-top',textAreaHeight + 'px');
+                    $("#re_area_"+rowid).css('margin-top',textAreaHeight + 'px');
+                }
+                if( rows==1){
+                    this.style.height = '33 px';
+                }else{
+                    this.style.height = 'auto';
+                    this.style.height = (this.scrollHeight) + 'px';
+                    var textAreaHeight = parseInt(this.scrollHeight)-34;
+                    $("#xin_nleft_qq_"+rowid).css('margin-top',textAreaHeight + 'px');
+                    $("#re_area_"+rowid).css('margin-top',textAreaHeight + 'px');
+                }
+            })
+        }
+    </script>
     @php
         $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
         $isBlurLifePhoto = \App\Services\UserService::isBlurLifePhoto($to, $user);
@@ -916,17 +942,19 @@
                                                     @if($row->is_check==1)
                                                         <p class="many-txt" style="color: red;">***此評價目前由站方審核中***</p>
                                                     @else
-                                                        <p class="many-txt">{!! nl2br($row->content) !!}</p>
+                                                        <p class="many-txt">{!! nl2br($row->content) !!}@if(!is_null($row->admin_comment))<span style="color: red;">{{ ' ('.$row->admin_comment.')' }}</span> @endif</p>
                                                     @endif
                                                     @php
                                                         $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
                                                     @endphp
                                                     @if($row->is_check==0)
-                                                    <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
-                                                        @foreach($evaluationPics as $evaluationPic)
-                                                            <li><img src="{{ $evaluationPic->pic }}"></li>
-                                                        @endforeach
-                                                    </ul>
+                                                        @if($evaluationPics->count()>0)
+                                                        <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                            @foreach($evaluationPics as $evaluationPic)
+                                                                <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                            @endforeach
+                                                        </ul>
+                                                        @endif
                                                     @endif
                                                     <h4>
                                                         <span class="btime">{{ substr($row->created_at,0,10)}}</span>
@@ -939,16 +967,19 @@
                                                         <form id="form_re_content{{$row->id}}" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post" enctype="multipart/form-data">
                                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                                             <span class="huinput">
-                                                                <a class="xin_nleft_qq" onclick="tab_evaluation_reply_show('{{$row->id}}','{{$to->id}}');"><img src="/new/images/moren_pic.png"></a>
-                                                                <textarea name="re_content" type="text" class="hf_i xin_input_qq" placeholder="請輸入回覆（最多120個字元）" maxlength="120"></textarea>
+                                                                <a id="xin_nleft_qq_{{ $row->id }}" class="xin_nleft_qq" onclick="tab_evaluation_reply_show('{{$row->id}}','{{$to->id}}');"><img src="/new/images/moren_pic.png"></a>
+                                                                <textarea id="re_content_{{ $row->id }}"name="re_content" type="text" class="hf_i xin_input_qq" placeholder="請輸入回覆（最多120個字元）" maxlength="120"></textarea>
                                                             </span>
-                                                            <div class="re_area">
-                                                                <a class="hf_but" data-id="{{$row->id}}" onclick="form_re_content_submit()">回覆</a>
+                                                            <div id="re_area_{{ $row->id }}" class="re_area">
+                                                                <a class="hf_but" data-id="{{$row->id}}" {{--onclick="form_re_content_submit()"--}}>回覆</a>
                                                             </div>
                                                             <input type="hidden" name="id" value={{$row->id}}>
                                                             <input type="hidden" name="eid" value={{$to->id}}>
                                                         </form>
                                                     </div>
+                                                    <script>
+                                                        setTextAreaHeight('{{ $row->id }}');
+                                                    </script>
                                                 @elseif(!empty($row->re_content))
                                                     <div class="hu_p">
                                                         <div class="he_b">
@@ -968,11 +999,13 @@
                                                                     $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
                                                                 @endphp
                                                                 @if($row->is_check==0)
-                                                                <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
-                                                                    @foreach($evaluationPics as $evaluationPic)
-                                                                        <li><img src="{{ $evaluationPic->pic }}"></li>
-                                                                    @endforeach
-                                                                </ul>
+                                                                    @if($evaluationPics->count()>0)
+                                                                    <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                                        @foreach($evaluationPics as $evaluationPic)
+                                                                            <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                                        @endforeach
+                                                                    </ul>
+                                                                    @endif
                                                                 @endif
                                                             </div>
                                                         </div>
@@ -1029,17 +1062,19 @@
                                                     @if($row->is_check==1)
                                                         <p class="many-txt" style="color: red;">***此評價目前由站方審核中***</p>
                                                     @else
-                                                        <p class="many-txt">{!! nl2br($row->content) !!}</p>
+                                                        <p class="many-txt">{!! nl2br($row->content) !!}@if(!is_null($row->admin_comment))<span style="color: red;">{{ ' ('.$row->admin_comment.')' }}</span> @endif</p>
                                                     @endif
                                                     @php
                                                         $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
                                                     @endphp
                                                     @if($row->is_check==0)
-                                                    <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
-                                                        @foreach($evaluationPics as $evaluationPic)
-                                                            <li><img src="{{ $evaluationPic->pic }}"></li>
-                                                        @endforeach
-                                                    </ul>
+                                                        @if($evaluationPics->count()>0)
+                                                            <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                                @foreach($evaluationPics as $evaluationPic)
+                                                                    <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                                @endforeach
+                                                            </ul>
+                                                        @endif
                                                     @endif
                                                     <h4>
                                                         <span class="btime">{{ substr($row->created_at,0,10)}}</span>
@@ -1053,16 +1088,19 @@
                                                         <form id="form_re_content{{$row->id}}" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post" method="post" enctype="multipart/form-data">
                                                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                                             <span class="huinput">
-                                                                <a class="xin_nleft_qq" onclick="tab_evaluation_reply_show('{{$row->id}}','{{$to->id}}');"><img src="/new/images/moren_pic.png"></a>
-                                                                <textarea name="re_content" type="text" class="hf_i xin_input_qq" placeholder="請輸入回覆（最多120個字元）" maxlength="120"></textarea>
+                                                                <a id="xin_nleft_qq_{{$row->id}}" class="xin_nleft_qq" onclick="tab_evaluation_reply_show('{{$row->id}}','{{$to->id}}');"><img src="/new/images/moren_pic.png"></a>
+                                                                <textarea id="re_content_{{ $row->id }}" name="re_content" type="text" class="hf_i xin_input_qq" placeholder="請輸入回覆（最多120個字元）" maxlength="120"></textarea>
                                                             </span>
-                                                            <div class="re_area">
-                                                                <a class="hf_but" data-id="{{$row->id}}" onclick="form_re_content_submit()">回覆</a>
+                                                            <div id="re_area_{{$row->id}}" class="re_area">
+                                                                <a class="hf_but" data-id="{{$row->id}}" {{--onclick="form_re_content_submit()"--}}>回覆</a>
                                                             </div>
                                                             <input type="hidden" name="id" value={{$row->id}}>
                                                             <input type="hidden" name="eid" value={{$to->id}}>
                                                         </form>
                                                     </div>
+                                                    <script>
+                                                        setTextAreaHeight('{{ $row->id }}');
+                                                    </script>
                                                 @elseif(!empty($row->re_content))
                                                     <div class="hu_p">
                                                         <div class="he_b">
@@ -1082,11 +1120,13 @@
                                                                     $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
                                                                 @endphp
                                                                 @if($row->is_check==0)
-                                                                <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
-                                                                    @foreach($evaluationPics as $evaluationPic)
-                                                                        <li><img src="{{ $evaluationPic->pic }}"></li>
-                                                                    @endforeach
-                                                                </ul>
+                                                                    @if($evaluationPics->count()>0)
+                                                                        <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                                            @foreach($evaluationPics as $evaluationPic)
+                                                                                <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                                            @endforeach
+                                                                        </ul>
+                                                                    @endif
                                                                 @endif
                                                             </div>
                                                         </div>
@@ -1928,15 +1968,6 @@
         });
     });
 
-    $('textarea.hf_i').on({input: function(){
-            var totalHeight = $(this).prop('scrollHeight') - parseInt($(this).css('padding-top')) - parseInt($(this).css('padding-bottom'));
-            $(this).css({'height':totalHeight});
-            if(totalHeight>40) {
-                $('.re_area').css({'top': totalHeight - 40});
-            }
-        }
-    });
-
     //let button = document.getElementsByTagName('button');
     let button = document.getElementsByClassName('show_all_evaluation');
     let p = document.getElementsByTagName('p');
@@ -1962,72 +1993,72 @@
         $(this).html($(this).text() === '展開' ? '收起' : '展開');
         $(this).parent().prev().find('.context').find(".zap_photo").toggleClass('huiyoic');
     });
-    //
-    // $('div.context-wrap').each(function(i) {
-    //     if (isEllipsisActive(this)) {
-    //         $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
-    //         $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
-    //         $(this).parents('.hu_p').find('span.z_more').addClass('show_more');
-    //     }
-    //     else {
-    //         $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
-    //         $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
-    //         $(this).parents('.hu_p').find('span.z_more').addClass('hide_more');
-    //     }
-    // });
-    //
-    // $(window).resize(function() {
-    //     $('div.context-wrap').each(function(i) {
-    //         if (isEllipsisActive(this)) {
-    //             $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
-    //             $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
-    //
-    //             $(this).parents('.hu_p').find('span.z_more').addClass('show_more');
-    //         }
-    //         else {
-    //             $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
-    //             $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
-    //
-    //             $(this).parents('.hu_p').find('span.z_more').addClass('hide_more');
-    //         }
-    //     });
-    // });
-    //
-    // $('.many-txt').each(function(i) {
-    //     if (isEllipsisActive(this)) {
-    //         $(this).parents('.con').find('.al_but').removeClass('hide_more');
-    //         $(this).parents('.con').find('.al_but').removeClass('show_more');
-    //
-    //         $(this).parents('.con').find('.al_but').addClass('show_more');
-    //     }
-    //     else {
-    //         $(this).parents('.con').find('.al_but').removeClass('hide_more');
-    //         $(this).parents('.con').find('.al_but').removeClass('show_more');
-    //
-    //         $(this).parents('.con').find('.al_but').addClass('hide_more');
-    //     }
-    // });
-    //
-    // $(window).resize(function() {
-    //     $('.many-txt').each(function(i) {
-    //         if (isEllipsisActive(this)) {
-    //             $(this).parents('.con').find('.al_but').removeClass('hide_more');
-    //             $(this).parents('.con').find('.al_but').removeClass('show_more');
-    //
-    //             $(this).parents('.con').find('.al_but').addClass('show_more');
-    //         }
-    //         else {
-    //             $(this).parents('.con').find('.al_but').removeClass('hide_more');
-    //             $(this).parents('.con').find('.al_but').removeClass('show_more');
-    //
-    //             $(this).parents('.con').find('.al_but').addClass('hide_more');
-    //         }
-    //     });
-    // });
-    //
-    // function isEllipsisActive(e) {
-    //     return ($(e).innerHeight() < $(e)[0].scrollHeight);
-    // }
+
+    $('div.context-wrap').each(function(i) {
+        if (isEllipsisActive(this)) {
+            $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
+            $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
+            $(this).parents('.hu_p').find('span.z_more').addClass('show_more');
+        }
+        else {
+            $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
+            $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
+            $(this).parents('.hu_p').find('span.z_more').addClass('hide_more');
+        }
+    });
+
+    $(window).resize(function() {
+        $('div.context-wrap').each(function(i) {
+            if (isEllipsisActive(this)) {
+                $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
+                $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
+
+                $(this).parents('.hu_p').find('span.z_more').addClass('show_more');
+            }
+            else {
+                $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
+                $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
+
+                $(this).parents('.hu_p').find('span.z_more').addClass('hide_more');
+            }
+        });
+    });
+
+    $('.many-txt').each(function(i) {
+        if (isEllipsisActive(this)) {
+            $(this).parents('.con').find('.al_but').removeClass('hide_more');
+            $(this).parents('.con').find('.al_but').removeClass('show_more');
+
+            $(this).parents('.con').find('.al_but').addClass('show_more');
+        }
+        else {
+            $(this).parents('.con').find('.al_but').removeClass('hide_more');
+            $(this).parents('.con').find('.al_but').removeClass('show_more');
+
+            $(this).parents('.con').find('.al_but').addClass('hide_more');
+        }
+    });
+
+    $(window).resize(function() {
+        $('.many-txt').each(function(i) {
+            if (isEllipsisActive(this)) {
+                $(this).parents('.con').find('.al_but').removeClass('hide_more');
+                $(this).parents('.con').find('.al_but').removeClass('show_more');
+
+                $(this).parents('.con').find('.al_but').addClass('show_more');
+            }
+            else {
+                $(this).parents('.con').find('.al_but').removeClass('hide_more');
+                $(this).parents('.con').find('.al_but').removeClass('show_more');
+
+                $(this).parents('.con').find('.al_but').addClass('hide_more');
+            }
+        });
+    });
+
+    function isEllipsisActive(e) {
+        return (Math.ceil($(e).innerHeight()) < $(e)[0].scrollHeight);
+    }
 
     $(".al_but").on("click", function() {
         if ($(this).hasClass("active")) {

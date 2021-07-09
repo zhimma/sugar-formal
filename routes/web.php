@@ -558,6 +558,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::group(['prefix'=>'users/evaluation'], function(){
             Route::post('modify', 'UserController@modifyContent')->name('evaluationModifyContent');
+            Route::post('adminComment', 'UserController@adminComment')->name('evaluationAdminComment');
             Route::post('delete', 'UserController@evaluationDelete')->name('evaluationDelete');
             Route::post('check', 'UserController@evaluationCheck')->name('evaluationCheck');
             Route::get('showPic/{eid}/{uid}', 'UserController@showEvaluationPic')->name('showEvaluationPic');

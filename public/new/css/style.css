@@ -1691,7 +1691,7 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 .nnn_adbut:visited{ color:#FFFFFF !important}
 .nnn_adbut:hover{ color:#FFFFFF !important;background:url(../images/1_03nn_h.png) no-repeat !important;}
 
-@media (max-width:320px) {
+@media (max-width:319px) {
     .nnn_adbut{ background:url(../images/1_03nnn.png) no-repeat;width:55px; height:26px; line-height:24px; text-align:center; float:right; font-size:12px; display:table; margin-top:10px;color:#ffffff}
     .adbut_on{ background:url(../images/1_03nnn_h.png) no-repeat !important;color:#ffffff !important}
 }
@@ -3431,7 +3431,6 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 
 .fbuttop{width: 95%; margin: 0 auto; display: table; margin-top: 10px;}
 .fenye_r{ float: left;}
-.te_ce{ text-align: center;}
 
 
 
@@ -3708,3 +3707,10 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
     .new_pot001 {height: auto; padding-bottom: 20px;}
 
 }
+
+
+.fbuttop{width: 95%; margin: 0 auto; display: table; margin-top: 10px;}
+.te_ce{ text-align: center;}
+.se_rea{ position: relative;}
+.sx_cent {width: 15px;height: 15px;background: #17bb4a;border-radius: 100px;position: absolute; border: #ffffff 2px solid;right:-20px;top:8px;
+    bottom: 0;display: block;z-index: 5;}

@@ -606,11 +606,12 @@
 			<td>@if($row['to_auth_status']==1) 已認證 @else N/A @endif</td>
 			<td>{{ $row['rating'] }}</td>
 			@if($row['is_check']==1)
-				<td style="color: red;">***此評價目前由站方審核中***</td>
+				<td style="color: red;">***此評價目前由站方審核中***@if(!is_null($row['is_delete'])) <br><span style="color: red;">(該評價已刪除)</span> @endif</td>
 			@else
-				<td>{{ $row['content'] }}</td>
+				<td>@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span><br>@endif {{ $row['content'] }}</td>
 			@endif
 			<td class="evaluation_zoomIn">
+				@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span> @endif
 				@foreach($row['evaluation_pic'] as $evaluationPic)
 					<li>
 						<img src="{{ $evaluationPic->pic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
@@ -624,6 +625,13 @@
 					<textarea class="form-control m-input content_{{$row['id']}}" type="textarea" name="evaluation_content" rows="3" maxlength="300" style="display: none;"></textarea>
 					<div class="btn btn-primary modify_content_btn modify_content_btn_{{$row['id']}}" onclick="showTextArea({{ $row['id'] }})">修改評價內容</div>
 					<button type="submit" class="text-white btn btn-primary modify_content_submit evaluation_content_btn_{{ $row['id'] }}" style="display: none;">確認修改</button>
+				</form>
+				<form method="POST" action="{{ route('evaluationAdminComment', $row['id']) }}" style="margin:0px;display:inline;">
+					{!! csrf_field() !!}
+					<input type="hidden" name="id" value="{{$row['id']}}">
+					<textarea class="form-control m-input comment_{{$row['id']}}" type="textarea" name="admin_comment" rows="3" maxlength="300" style="display: none;"></textarea>
+					<div class="btn btn-success admin_comment_btn_{{$row['id']}}" onclick="showAdminCommentText({{ $row['id'] }})">站方附註留言</div>
+					<button type="submit" class="text-white btn btn-success admin_comment_submit evaluation_admin_comment_btn_{{ $row['id'] }}" style="display: none;">確認修改</button>
 				</form>
 				<form method="POST" action="{{ route('evaluationDelete') }}" style="margin:0px;display:inline;">
 					{!! csrf_field() !!}
@@ -658,11 +666,12 @@
 			<td>@if($row['to_auth_status']==1) 已認證 @else N/A @endif</td>
 			<td>{{ $row['rating'] }}</td>
 			@if($row['is_check']==1)
-				<td style="color: red;">***此評價目前由站方審核中***</td>
+				<td style="color: red;">***此評價目前由站方審核中***@if(!is_null($row['is_delete'])) <br><span style="color: red;">(該評價已刪除)</span> @endif</td>
 			@else
-				<td>{{ $row['content'] }}</td>
+				<td>@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span><br>@endif {{ $row['content'] }}</td>
 			@endif
 			<td class="evaluation_zoomIn">
+				@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span> @endif
 				@foreach($row['evaluation_pic'] as $evaluationPic)
 					<li>
 						<img src="{{ $evaluationPic->pic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
@@ -676,6 +685,13 @@
 					<textarea class="form-control m-input content_{{$row['id']}}" type="textarea" name="evaluation_content" rows="3" maxlength="300" style="display: none;"></textarea>
 					<div class="btn btn-primary modify_content_btn modify_content_btn_{{$row['id']}}" onclick="showTextArea({{ $row['id'] }})">修改評價內容</div>
 					<button type="submit" class="text-white btn btn-primary modify_content_submit evaluation_content_btn_{{ $row['id'] }}" style="display: none;">確認修改</button>
+				</form>
+				<form method="POST" action="{{ route('evaluationAdminComment', $row['id']) }}" style="margin:0px;display:inline;">
+					{!! csrf_field() !!}
+					<input type="hidden" name="id" value="{{$row['id']}}">
+					<textarea class="form-control m-input comment_{{$row['id']}}" type="textarea" name="admin_comment" rows="3" maxlength="300" style="display: none;"></textarea>
+					<div class="btn btn-success admin_comment_btn_{{$row['id']}}" onclick="showAdminCommentText({{ $row['id'] }})">站方附註留言</div>
+					<button type="submit" class="text-white btn btn-success admin_comment_submit evaluation_admin_comment_btn_{{ $row['id'] }}" style="display: none;">確認修改</button>
 				</form>
 				<form method="POST" action="{{ route('evaluationDelete') }}" style="margin:0px;display:inline;">
 					{!! csrf_field() !!}
@@ -1436,6 +1452,17 @@ function showTextArea(id){
 $('.modify_content_submit').on('click',function(e){
 
 	if(!confirm('確定要修改該筆評價內容?')){
+		e.preventDefault();
+	}
+});
+function showAdminCommentText(id){
+	$('.admin_comment_btn_'+id).hide();
+	$('.comment_'+id).show();
+	$('.evaluation_admin_comment_btn_'+id).show();
+}
+$('.admin_comment_submit').on('click',function(e){
+
+	if(!confirm('確定要修改站方附註留言?')){
 		e.preventDefault();
 	}
 });

@@ -1090,7 +1090,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $tmp = array();
             $f_user = User::findById($row->to_id);
             $tmp['id'] = $row->id;
-            $tmp['content'] = $row->content;
+            $tmp['content'] = $row->content . (!is_null($row->admin_comment) ? ('  ('.$row->admin_comment.')') : '');
             $tmp['re_content'] = $row->re_content;
             $tmp['rating'] = $row->rating;
             $tmp['re_created_at'] = $row->re_created_at;
@@ -1102,6 +1102,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $tmp['to_isvip'] = $f_user->isVip();
             $tmp['is_check'] = $row->is_check;
             $tmp['evaluation_pic'] = EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
+            $tmp['is_delete'] = $row->deleted_at;
             $auth_status = 0;
             if ($f_user->isPhoneAuth() == 1) {
                 $auth_status = 1;
@@ -1116,7 +1117,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $tmp = array();
             $f_user = User::findById($row->from_id);
             $tmp['id'] = $row->id;
-            $tmp['content'] = $row->content;
+            $tmp['content'] = $row->content . (!is_null($row->admin_comment) ? ('  ('.$row->admin_comment.')') : '');
             $tmp['re_content'] = $row->re_content;
             $tmp['rating'] = $row->rating;
             $tmp['re_created_at'] = $row->re_created_at;
@@ -1128,6 +1129,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $tmp['to_isvip'] = $f_user->isVip();
             $tmp['is_check'] = $row->is_check;
             $tmp['evaluation_pic'] = EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$f_user->id)->get();
+            $tmp['is_delete'] = $row->deleted_at;
             $auth_status = 0;
             if ($f_user->isPhoneAuth() == 1) {
                 $auth_status = 1;
@@ -3714,9 +3716,17 @@ class UserController extends \App\Http\Controllers\BaseController
         return back()->with('message', '評價內容已更新');
     }
 
+    public function adminComment(Request $request)
+    {
+        DB::table('evaluation')->where('id',$request->input('id'))->update(
+            ['admin_comment' => $request->input('admin_comment')]
+        );
+        return back()->with('message', '站方附註留言已更新');
+    }
+
     public function evaluationDelete(Request $request)
     {
-        DB::table('evaluation')->where('id',$request->id)->delete();
+        Evaluation::where('id',$request->id)->delete();
         return back()->with('message', '評價已刪除');
     }
 
