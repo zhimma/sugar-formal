@@ -43,6 +43,7 @@ use App\Http\Requests\ReportRequest;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Http\Requests\FormFilterRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
@@ -2140,28 +2141,28 @@ class PagesController extends BaseController
              *
              * @author LZong <lzong.tw@gmail.com>
              */
-            $query = \App\Models\Evaluation::select('e.*')->from('evaluation as e')->with('user')
-                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'e.from_id')
-                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'e.from_id')
+            $query = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
+                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.from_id')
+                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.from_id')
                 ->leftJoin('blocked as b7', function($join) use($uid) {
-                    $join->on('b7.member_id', '=', 'e.from_id')
+                    $join->on('b7.member_id', '=', 'evaluation.from_id')
                         ->where('b7.blocked_id', $uid); })
 //                ->leftJoin('user_meta as um', function($join) {
-//                    $join->on('um.user_id', '=', 'e.from_id')
+//                    $join->on('um.user_id', '=', 'evaluation.from_id')
 //                        ->where('isWarned', 1); })
                 ->leftJoin('warned_users as wu', function($join) {
-                    $join->on('wu.member_id', '=', 'e.from_id')
+                    $join->on('wu.member_id', '=', 'evaluation.from_id')
                         ->where(function($query){
                             $query->where('wu.expire_date', '>=', Carbon::now())
                                 ->orWhere('wu.expire_date', null); }); })
-                ->leftJoin('is_warned_log as iw', 'iw.user_id', '=', 'e.from_id')
+                ->leftJoin('is_warned_log as iw', 'iw.user_id', '=', 'evaluation.from_id')
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
                 ->whereNull('b7.member_id')
 //                ->whereNull('um.user_id')
                 ->whereNull('wu.member_id')
                 ->whereNull('iw.user_id')
-                ->where('e.to_id', $uid);
+                ->where('evaluation.to_id', $uid);
 
             $rating_avg = $query->avg('rating');
             $rating_avg = floatval($rating_avg);
@@ -2171,14 +2172,14 @@ class PagesController extends BaseController
              *
              * @author LZong <lzong.tw@gmail.com>
              */
-            $query = \App\Models\Evaluation::select('e.*')->from('evaluation as e')->with('user')
-                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'e.from_id')
-                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'e.from_id')
+            $query = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
+                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.from_id')
+                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.from_id')
 //                ->leftJoin('user_meta as um', function($join) {
-//                    $join->on('um.user_id', '=', 'e.from_id')
+//                    $join->on('um.user_id', '=', 'evaluation.from_id')
 //                        ->where('isWarned', 1); })
 //                ->leftJoin('warned_users as wu', function($join) {
-//                    $join->on('wu.member_id', '=', 'e.from_id')
+//                    $join->on('wu.member_id', '=', 'evaluation.from_id')
 //                        ->where(function($query){
 //                            $query->where('wu.expire_date', '>=', Carbon::now())
 //                                ->orWhere('wu.expire_date', null); }); })
@@ -2186,12 +2187,12 @@ class PagesController extends BaseController
                 ->whereNull('b3.target')
 //                ->whereNull('um.user_id')
 //                ->whereNull('wu.member_id')
-                ->orderBy('e.created_at','desc')
-                ->where('e.to_id', $uid);
+                ->orderBy('evaluation.created_at','desc')
+                ->where('evaluation.to_id', $uid);
 
             $evaluation_data = $query->paginate(10);
 
-            $evaluation_self = DB::table('evaluation')->where('to_id',$uid)->where('from_id',$user->id)->first();
+            $evaluation_self = Evaluation::where('to_id',$uid)->where('from_id',$user->id)->first();
             /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
 //            $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
             /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
@@ -2256,15 +2257,14 @@ class PagesController extends BaseController
     public function evaluation_self(Request $request)
     {
         $user = $request->user();
-
-        $evaluation_data = Evaluation::select('e.*')->from('evaluation as e')->with('user')
-            ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'e.to_id')
-            ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'e.to_id')
+        $evaluation_data = Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
+            ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.to_id')
+            ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.to_id')
             ->whereNull('b1.member_id')
             ->whereNull('b3.target')
-            ->orderBy('e.created_at','desc')
-            ->where('e.from_id', $user->id)->paginate(15);
-
+            ->orderBy('evaluation.created_at','desc')
+            ->where('evaluation.from_id', $user->id)
+            ->paginate(15);
         return view('new.dashboard.evaluation_self')
             ->with('user', $user)
             ->with('cur', $user)
@@ -2276,7 +2276,7 @@ class PagesController extends BaseController
 
         $self = $request->from_id;
 
-        DB::table('evaluation')->where('from_id',$self)->delete();
+        Evaluation::where('from_id',$self)->delete();
 
         return response()->json(['save' => 'ok']);
     }
@@ -2325,7 +2325,7 @@ class PagesController extends BaseController
     public function evaluation_save(Request $request)
     {
 
-        $evaluation_self = DB::table('evaluation')->where('to_id',$request->input('eid'))->where('from_id',$request->input('uid'))->first();
+        $evaluation_self = Evaluation::where('to_id',$request->input('eid'))->where('from_id',$request->input('uid'))->first();
 
         if(isset($evaluation_self)){
             DB::table('evaluation')->where('to_id',$request->input('eid'))->where('from_id',$request->input('uid'))->update(
@@ -2378,8 +2378,8 @@ class PagesController extends BaseController
 
     public function evaluation_delete(Request $request)
     {
-        DB::table('evaluation')->where('id',$request->id)->delete();
-        EvaluationPic::where('evaluation_id',$request->id)->delete();
+        Evaluation::where('id',$request->id)->delete();
+        //EvaluationPic::where('evaluation_id',$request->id)->delete();
 
         return response()->json(['save' => 'ok']);
     }
@@ -4358,8 +4358,8 @@ class PagesController extends BaseController
         //msg
         $msgMemberCount = Message_new::allSenders($user->id,$user->isVip(),$d = 'all');
 
-        $queryBE = \App\Models\Evaluation::select('e.*')->from('evaluation as e')->with('user')
-                ->leftJoin('blocked as b1', 'b1.blocked_id', '=', 'e.from_id')
+        $queryBE = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
+                ->leftJoin('blocked as b1', 'b1.blocked_id', '=', 'evaluation.from_id')
 //                ->leftJoin('user_meta as um', function($join) {
 //                    $join->on('um.user_id', '=', 'e.from_id')
 //                        ->where('isWarned', 1); })
@@ -4370,18 +4370,18 @@ class PagesController extends BaseController
 //                                ->orWhere('wu.expire_date', null); }); })
 //                ->whereNull('um.user_id')
 //                ->whereNull('wu.member_id')
-                ->orderBy('e.created_at','desc')
+                ->orderBy('evaluation.created_at','desc')
                 ->where('b1.member_id', $uid)
-                ->where('e.to_id', $uid)
-                ->where('e.read', 1)
+                ->where('evaluation.to_id', $uid)
+                ->where('evaluation.read', 1)
                 ->get();
 
         $isBannedEvaluation = sizeof($queryBE) > 0? true : false;
 
-        $queryHE = \App\Models\Evaluation::select('e.*')->from('evaluation as e')
-                ->orderBy('e.created_at','desc')
-                ->where('e.to_id', $uid)
-                ->where('e.read', 1)
+        $queryHE = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')
+                ->orderBy('evaluation.created_at','desc')
+                ->where('evaluation.to_id', $uid)
+                ->where('evaluation.read', 1)
                 ->get();
         
         $arrayHE = [];

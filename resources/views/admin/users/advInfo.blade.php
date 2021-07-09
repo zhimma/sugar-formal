@@ -606,11 +606,12 @@
 			<td>@if($row['to_auth_status']==1) 已認證 @else N/A @endif</td>
 			<td>{{ $row['rating'] }}</td>
 			@if($row['is_check']==1)
-				<td style="color: red;">***此評價目前由站方審核中***</td>
+				<td style="color: red;">***此評價目前由站方審核中***@if(!is_null($row['is_delete'])) <br><span style="color: red;">(該評價已刪除)</span> @endif</td>
 			@else
-				<td>{{ $row['content'] }}</td>
+				<td>@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span><br>@endif {{ $row['content'] }}</td>
 			@endif
 			<td class="evaluation_zoomIn">
+				@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span> @endif
 				@foreach($row['evaluation_pic'] as $evaluationPic)
 					<li>
 						<img src="{{ $evaluationPic->pic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
@@ -665,11 +666,12 @@
 			<td>@if($row['to_auth_status']==1) 已認證 @else N/A @endif</td>
 			<td>{{ $row['rating'] }}</td>
 			@if($row['is_check']==1)
-				<td style="color: red;">***此評價目前由站方審核中***</td>
+				<td style="color: red;">***此評價目前由站方審核中***@if(!is_null($row['is_delete'])) <br><span style="color: red;">(該評價已刪除)</span> @endif</td>
 			@else
-				<td>{{ $row['content'] }}</td>
+				<td>@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span><br>@endif {{ $row['content'] }}</td>
 			@endif
 			<td class="evaluation_zoomIn">
+				@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span> @endif
 				@foreach($row['evaluation_pic'] as $evaluationPic)
 					<li>
 						<img src="{{ $evaluationPic->pic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
