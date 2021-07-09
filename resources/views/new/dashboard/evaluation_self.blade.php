@@ -415,7 +415,7 @@
     });
 
     function isEllipsisActive(e) {
-        return ($(e).innerHeight() < $(e)[0].scrollHeight);
+        return (Math.ceil($(e).innerHeight()) < $(e)[0].scrollHeight);
     }
 </script>
 <!--照片查看-->
