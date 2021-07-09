@@ -2044,20 +2044,20 @@ class PagesController extends BaseController
                 $hideOnlineData = hideOnlineData::where('user_id',$uid)->where('deleted_at',null)->get()->first();
                 if(isset($hideOnlineData)){
                     $login_times_per_week = $hideOnlineData->login_times_per_week;
-//                    $be_fav_count = $hideOnlineData->login_times_per_week;
-//                    $fav_count = $hideOnlineData->login_times_per_week;
-//                    $tip_count = $hideOnlineData->tip_count;
-//                    $message_count = $hideOnlineData->message_count;
+                    $be_fav_count = $hideOnlineData->login_times_per_week;//new add
+                    $fav_count = $hideOnlineData->login_times_per_week;//new add
+                    $tip_count = $hideOnlineData->tip_count;//new add
+                    $message_count = $hideOnlineData->message_count;//new add
                     $message_count_7 = $hideOnlineData->message_count_7;
-//                    $message_reply_count = $hideOnlineData->message_reply_count;
+                    $message_reply_count = $hideOnlineData->message_reply_count;//new add
                     $message_reply_count_7 = $hideOnlineData->message_reply_count_7;
                     $message_percent_7 = $hideOnlineData->message_percent_7;
-//                    $visit_other_count = $hideOnlineData->visit_other_count;
+                    $visit_other_count = $hideOnlineData->visit_other_count;//new add
                     $visit_other_count_7 = $hideOnlineData->visit_other_count_7;
-//                    $be_visit_other_count = $hideOnlineData->be_visit_other_count;
-//                    $be_visit_other_count_7 = $hideOnlineData->be_visit_other_count_7;
-//                    $blocked_other_count = $hideOnlineData->blocked_other_count;
-//                    $be_blocked_other_count = $hideOnlineData->be_blocked_other_count;
+                    $be_visit_other_count = $hideOnlineData->be_visit_other_count;//new add
+                    $be_visit_other_count_7 = $hideOnlineData->be_visit_other_count_7;//new add
+                    $blocked_other_count = $hideOnlineData->blocked_other_count;//new add
+                    $be_blocked_other_count = $hideOnlineData->be_blocked_other_count;//new add
                 }
             }
 
