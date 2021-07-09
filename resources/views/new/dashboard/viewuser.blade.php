@@ -916,7 +916,7 @@
                                                     @if($row->is_check==1)
                                                         <p class="many-txt" style="color: red;">***此評價目前由站方審核中***</p>
                                                     @else
-                                                        <p class="many-txt">{!! nl2br($row->content) !!}</p>
+                                                        <p class="many-txt">{!! nl2br($row->content) !!}@if(!is_null($row->admin_comment))<span style="color: red;">{{ ' ('.$row->admin_comment.')' }}</span> @endif</p>
                                                     @endif
                                                     @php
                                                         $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
@@ -1029,7 +1029,7 @@
                                                     @if($row->is_check==1)
                                                         <p class="many-txt" style="color: red;">***此評價目前由站方審核中***</p>
                                                     @else
-                                                        <p class="many-txt">{!! nl2br($row->content) !!}</p>
+                                                        <p class="many-txt">{!! nl2br($row->content) !!}@if(!is_null($row->admin_comment))<span style="color: red;">{{ ' ('.$row->admin_comment.')' }}</span> @endif</p>
                                                     @endif
                                                     @php
                                                         $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();

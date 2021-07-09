@@ -1,0 +1,1 @@
+ALTER TABLE `evaluation` ADD `admin_comment` TEXT NULL AFTER `is_check`;

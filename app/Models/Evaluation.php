@@ -14,6 +14,7 @@ class Evaluation extends Model
         'content',
         'rating',
         'read',
+        'admin_comment',
     ];
     public function user(){
         return $this->hasOne(User::class, 'id', 'from_id');
