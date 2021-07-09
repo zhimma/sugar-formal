@@ -149,6 +149,30 @@
         border-radius: 100px;
         background:rgba(255,255,255,0.6);
     }
+
+    .message::-webkit-scrollbar {
+        display: none;
+    }
+    .message {
+        -ms-overflow-style: none;
+    }
+    .message {
+        overflow: -moz-hidden-unscrollable; /*注意！若只打 hidden，chrome 的其它 hidden 會出問題*/
+        height: 100%;
+    }
+
+    .message {
+        height: 100%;
+        width: calc(100vw + 18px); /*瀏覽器滾動條的長度大約是 18px*/
+        overflow: auto;
+    }
+    .se_text_bot_add_bottom {
+        bottom: 143px;
+    }
+    .pad_bot{ padding-bottom: 20px;}
+    @media (max-width: 450px){
+        .pad_bot{ padding-bottom:0px;}
+    }
 </style>
 @section('app-content')
     <div class="container matop70 chat">
@@ -158,8 +182,12 @@
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
                 @if(isset($to))
+                    <div class="fbuttop"></div>
                     <div class="shouxq" style="display: flex;">
-                        <a class="nnn_adbut" href="{{ url()->previous() }}"><img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回</a><span style="flex: 6; text-align: center;"><a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a></span>
+                        <a class="nnn_adbut" href="/dashboard/viewuser/{{ $to->id }}"><img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回</a>
+                        <span style="flex: 6; text-align: center;">
+                            <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;"><span class="se_rea">{{$to->name}}{{--<div class="sx_cent"></div>--}}</span></a>
+                        </span>
                         @if($user->engroup==1)
                             <?php //$orderNumber = \App\Models\Vip::lastid() . $user->id; $code = Config::get('social.payment.code');?>
 {{--                            <form action="{{ Config::get('social.payment.actionURL') }}" style="float: right; position: relative;" method="POST" id="form1">--}}
@@ -192,7 +220,8 @@
                 @else
                     {{ logger('Chat with non-existing user: ' . url()->current()) }}
                 @endif
-                <div class="message xxi">
+{{--                <div class="message xxi">--}}
+                <div class="message pad_bot" >
                     @php
                         $date_temp='';
                         $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
@@ -285,7 +314,7 @@
                             @endphp
                         @endforeach
                     @endif
-                    <div style="text-align: center;">
+                    <div style="text-align: center; padding-bottom: 20px;">
                         {!! $messages->appends(request()->input())->links('pagination::sg-pages2') !!}
                     </div>
                 </div>
@@ -302,7 +331,7 @@
                             <input type="submit" id="msgsnd" class="se_tbut matop20 msgsnd" value="回覆">
                         </form>
                     </div>--}}
-                    <div class="se_text_bot">
+                    <div class="se_text_bot"  id="message_input" style="padding-right: 3%; padding-left:3%;">
                         <form style="margin: 0 auto;" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm">
                             <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                             <input type="hidden" name="userId" value="{{$user->id}}">
@@ -576,14 +605,14 @@
     if($(window).height()<=601){
         message_max_height = message_height - $('.hetop').height() - 50;
     }else{
-        message_max_height = message_height - footer_height - $('.hetop').height() - 140;
+        message_max_height = message_height - footer_height - $('.hetop').height() - 30;
         //$('.se_text_bot').addClass('se_text_bot_add_bottom');
+        $('.se_text_bot').css('bottom',$('.se_text_bot_add_bottom').height() -80);
     }
-
     $('.message').css('width',$('.shouxq').width()-20);
     $('.se_text').css('width',$('.shouxq').width());
     if(window.matchMedia("(max-width: 823px)").matches && window.matchMedia("(max-height: 823px)").matches){
-        //$('.se_text_bot').removeClass('se_text_bot_add_bottom');
+        $('.se_text_bot').removeClass('se_text_bot_add_bottom');
         $('.bot').hide();
 
         message_max_height = message_height - $('.heicon').height() - 50;
@@ -612,15 +641,16 @@
         if($(window).height()<=601){
             message_max_height = message_height - $('.hetop').height() - 50;
         }else{
-            message_max_height = message_height - footer_height - $('.hetop').height() - 140;
+            message_max_height = message_height - footer_height - $('.hetop').height() - 30;
             //$('.se_text_bot').addClass('se_text_bot_add_bottom');
+            $('.se_text_bot').css('bottom',$('.se_text_bot_add_bottom').height() -80);
 
         }
         $('.message').css('width',$('.shouxq').width()-20);
         $('.se_text').css('width',$('.shouxq').width());
         // if( /Android|iPhone/i.test(navigator.userAgent) ) {
         if(window.matchMedia("(max-width: 767px)").matches && window.matchMedia("(max-height: 823px)").matches){
-            //$('.se_text_bot').removeClass('se_text_bot_add_bottom');
+            $('.se_text_bot').removeClass('se_text_bot_add_bottom');
             $('.bot').hide();
 
             message_max_height = message_height - $('.heicon').height() - 50;
@@ -648,17 +678,16 @@
     });
 
     $(window).scroll(function() {
-        // if($(window).scrollTop() + $(window).height() > $(document).height()-50) {
-        //     if(window.matchMedia("(max-width: 767px)").matches){
-        //         $('.se_text_bot').removeClass('se_text_bot_add_bottom');
-        //
-        //     }else {
-        //         $('.se_text_bot').addClass('se_text_bot_add_bottom');
-        //     }
-        // }
-        // else{
-        //     $('.se_text_bot').removeClass('se_text_bot_add_bottom');
-        // }
+        if($(window).scrollTop() + $(window).height() > $(document).height()-80) {
+            if(window.matchMedia("(max-width: 767px)").matches){
+                $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+            }else {
+                $('.se_text_bot').addClass('se_text_bot_add_bottom');
+            }
+        }
+        else{
+            $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+        }
     });
 
     function banned(id,sid,name){
