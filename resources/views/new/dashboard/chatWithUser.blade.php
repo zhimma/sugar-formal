@@ -182,7 +182,7 @@
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
                 @if(isset($to))
-                    <div class="fbuttop"></div>
+{{--                    <div class="fbuttop"></div>--}}
                     <div class="shouxq" style="display: flex;">
                         <a class="nnn_adbut" href="/dashboard/viewuser/{{ $to->id }}"><img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回</a>
                         <span style="flex: 6; text-align: center;">
