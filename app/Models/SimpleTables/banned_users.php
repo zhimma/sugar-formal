@@ -57,11 +57,11 @@ class banned_users extends Model
         // that is done. We will call the "saved" method here to run any actions
         // we need to happen after a model gets successfully saved right here.
         if ($saved) {
-            if(env("APP_ENV", "local") != "local" && ($options["saveAgain"] ?? true)){
-                $this->connection = 'mysql_fp';
-                $this->exists = false;
-                $this->save(["saveAgain" => false]);
-            }
+//            if(env("APP_ENV", "local") != "local" && ($options["saveAgain"] ?? true)){
+//                $this->connection = 'mysql_fp';
+//                $this->exists = false;
+//                $this->save(["saveAgain" => false]);
+//            }
             $this->finishSave($options);
         }
 
@@ -96,13 +96,13 @@ class banned_users extends Model
         // by the timestamp. Then we will go ahead and delete the model instance.
         $this->touchOwners();
         $this->performDeleteOnModel();
-        if(env("APP_ENV", "local") != "local" && ($this->deleteAgain ?? true)){
-            \Illuminate\Support\Facades\Log::info("User successfully unbanned by model, user id: " . $this->member_id);
-            $this->connection = 'mysql_fp';
-            $this->exists = true;
-            $this->deleteAgain = false;
-            $this->delete();
-        }
+//        if(env("APP_ENV", "local") != "local" && ($this->deleteAgain ?? true)){
+//            \Illuminate\Support\Facades\Log::info("User successfully unbanned by model, user id: " . $this->member_id);
+//            $this->connection = 'mysql_fp';
+//            $this->exists = true;
+//            $this->deleteAgain = false;
+//            $this->delete();
+//        }
 
         // Once the model has been deleted, we will fire off the deleted event so that
         // the developers may hook into post-delete operations. We will then return
