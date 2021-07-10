@@ -68,7 +68,7 @@ class PagesController extends BaseController
         $this->service = $userService;
         $this->logService = $logService;
         $this->suspiciousRepo = $suspiciousRepo;
-        $this->middleware('throttle:100,1');
+        $this->middleware('throttle:75,1');
         $this->middleware('pseudoThrottle:40,1');
     }
 
@@ -2224,6 +2224,13 @@ class PagesController extends BaseController
                 $pr = '0';
             }
 
+            //紀錄返回上一頁的url,避免發信後,按返回還在發信頁面
+            if(isset($_SERVER['HTTP_REFERER'])){
+                if(!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow')){
+                    session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
+                }
+            }
+
             return view('new.dashboard.viewuser', $data)
                     ->with('user', $user)
                     ->with('blockadepopup', $blockadepopup)
@@ -2899,6 +2906,17 @@ class PagesController extends BaseController
     }
     public function search2(Request $request)
     {
+        $input = $request->input();
+        $search_page_key=session()->get('search_page_key',[]);
+        foreach ($input as $key =>$value){
+            session()->put('search_page_key.'.$key,array_get($input,$key,null));
+        }
+        foreach ($search_page_key as $key =>$value){
+            if(count($input)){
+                session()->put('search_page_key.'.$key,array_get($input,$key,null));
+            }
+        }
+
         $user = $request->user();
         $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
         //valueAddedService
