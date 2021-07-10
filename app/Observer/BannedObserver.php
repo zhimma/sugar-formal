@@ -27,8 +27,6 @@ class BannedObserver
     public function deleted(banned_users $user)
     {
         //
-        $user->connection = 'mysql_fp';
-        $user->delete();
     }
 
 }

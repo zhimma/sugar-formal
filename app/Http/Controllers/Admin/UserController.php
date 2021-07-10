@@ -2636,7 +2636,6 @@ class UserController extends \App\Http\Controllers\BaseController
         // dd($ban);
         if (empty($ban)) {
             DB::table('banned_users')->insert(['member_id' => $data['id'], 'reason' => '管理者刪除']);
-            DB::connetcion('mysql_fp')->table('banned_users')->insert(['member_id' => $data['id'], 'reason' => '管理者刪除']);
         }
 
         $data = array(
