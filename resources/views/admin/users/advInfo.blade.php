@@ -786,7 +786,28 @@
 	@endif
 </table>
 
+@php
+	$visit_other_count  = \App\Models\Visited::where('member_id', $user->id)->count(); //瀏覽其他會員次數
+  	$date = date('Y-m-d H:m:s', strtotime('-7 days'));
+ 	//$message_count_7 = \App\Models\Message::where('from_id', $user->id)->where('created_at', '>=', $date)->count(); //七天發信數量
 
+ 	$messages_7days = \App\Models\Message::select('id','to_id','from_id','created_at')->whereRaw('(to_id ='. $user->id. ' OR from_id='.$user->id .')')->where('created_at','>=', $date)->orderBy('id')->get();
+	$message_count_7= 0;
+	$send = [];
+	foreach ($messages_7days as $message) {
+		//七天內uid主動第一次發信
+		if($message->from_id ==  $user->id && array_get($send, $message->to_id) < $message->id){
+			$send[$message->to_id][]= $message->id;
+		}
+	}
+	$message_count_7 = count($send);
+    $blocked_other_count = \App\Models\Blocked::where('member_id', $user->id)->count(); //封鎖其他會員次數
+@endphp
+<br>
+<span>瀏覽其他會員數：{{$visit_other_count}}</span>
+<span>七天發信數量： {{$message_count_7}}</span>
+<span>封鎖其他會員數： {{$blocked_other_count}}</span>
+<br>
 <h4>帳號登入紀錄</h4>
 <table id="table_userLogin_log" class="table table-hover table-bordered">
 {{--	<tr>--}}
