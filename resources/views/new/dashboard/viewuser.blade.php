@@ -821,7 +821,8 @@
                                     <dt><span>最後上線時間</span>
                                         {{--                                        @if(view()->shared('valueAddedServices')['hideOnline'] == 1  || $is_block_mid=='是') <img src="/new/images/no_open.png"> @else--}}
                                         @if($user->isVip())
-                                            @if($userHideOnlinePayStatus == 1 && $to->is_hide_online == 1) <font>{{substr($to->hide_online_time,0,10)}}</font> @else <font>{{substr($to->last_login,0,10)}}</font> @endif
+{{--                                            @if($userHideOnlinePayStatus == 1 && $to->is_hide_online == 1) <font>{{substr($to->hide_online_time,0,10)}}</font> @else <font>{{substr($to->last_login,0,10)}}</font> @endif--}}
+                                            <font>{{substr($last_login,0,10)}}</font>
                                         @else <img src="/new/images/icon_35.png"> @endif
                                         {{--                                        @endif--}}
                                     </dt>
