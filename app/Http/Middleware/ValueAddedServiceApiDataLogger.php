@@ -305,6 +305,7 @@ class ValueAddedServiceApiDataLogger{
                                 ->join('users', 'users.id', '=', 'blocked.blocked_id')
                                 ->where('blocked.member_id', $user->id)
                                 ->whereNotIn('blocked.blocked_id',$bannedUsers)
+                                ->whereNotNull('users.id')
                                 ->count();
 
                             /*此會員被多少會員封鎖*/
@@ -312,6 +313,7 @@ class ValueAddedServiceApiDataLogger{
                                 ->join('users', 'users.id', '=', 'blocked.member_id')
                                 ->where('blocked.blocked_id', $user->id)
                                 ->whereNotIn('blocked.member_id',$bannedUsers)
+                                ->whereNotNull('users.id')
                                 ->count();
 
 
