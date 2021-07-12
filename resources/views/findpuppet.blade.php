@@ -1,81 +1,85 @@
-
+<html>
+<body>
 <style>
+	tr td.ignore_msg {text-align: left;vertical-align: top;border-bottom:none;}
+	h3 {color:red;}
+	a, a:visited, a:hover, a:active {
+		/*text-decoration: none;*/
+		color: inherit;
+	}
     .show {margin-top:50px;maring-bottom:10px;}
     table,tr,td,th {border-width:3px; border-style:solid;border-collapse: collapse;border-spacing:0;}
     .error {color:red;font-weight:bolder;}
     td, th{ padding:5px;text-align: center;vertical-align: middle;}
     th {background-color:#c9c8c7}
     th.cfp_id_th {background-color:#a3bec2}
-   
+    table.monlist,table.monlist tr,table.monlist td,table.monlist th {border-width:0px;border-style:none;}
+	table.monlist {margin:auto;width:60%;}
+	.monlist a.current_month,.monlist a.current_month:visited,.monlist a.current_month:hover,.monlist a.current_month:active{text-decoration: none;}
+	.monlist a,.monlist a:visited,.monlist a:hover,.monlist a:active {text-decoration: underline;}
+	.download_file a,.download_file a:visited,.download_file a:hover,.download_file a:active {text-decoration: underline;}
  </style>
- <script>
 
-    function doCheck() {
-        
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", "/checkDuplicate");
-        xhr.send();
-        alert('開始產生數據，結束後將自動重新整理頁面');
-        xhr.onload = function () {
-
-            response = xhr.responseText;
-            
-            if (200 <= xhr.status && xhr.status <= 299) {
-                if(response=='1') {
-                    location.reload();
-                }
-                else {
-                   alter('執行失敗，錯誤訊息:'+response);
-                }
-            }
-            else {
-                alert('執行失敗，錯誤代碼:'+xhr.status);
-            }
-
-        };        
-    }
-     
-</script>
- 
-<!--{{--
-<form method="GET" >
-    <div><label >開始日期：</label><input name="sdate" placeholder="YYYY/MM/DD" value="{{request()->sdate?:'2021/06/23'}}"/></div>
-    
-    <div><label >結束日期：</label><input name="edate"  placeholder="YYYY/MM/DD" value="{{request()->edate?:date('Y/m/d')}}" /></div>
-    <input type="submit" name="submit" value="送出" />
-</form>
-@if ($error_msg)
-<div class="error">{{$error_msg}}</div>
-@endif
---}}-->
 <div>
-    <form method="get" >
-    <input type="button" name="check" value="產出數據" onclick="doCheck();return false;" />
-    <input type="submit" name="clear" value="清空數據" />
-    </form>
+<h2>相同IP帳號分析數據</h2>
 </div>
-
-
 @forelse ($columnSet as $g=>$col)
 <div class="show">
     <h2>第 {{ $g+1 }} 組</h2>
-    <table>
+	@if ($groupInfo[$g]['cutData'])
+	<div>
+		<h3>請注意!!!</h3>
+		<div>
+		本組別( 第{{ $g+1 }}組 )表格數據總數為 {{$groupInfo[$g]['maxColIdx']+1}}*{{$groupInfo[$g]['maxRowIdx']+1}}
+		<br>將造成瀏覽器無法顯示或網頁請求timeout，因此僅顯示其中部分的 {{$colLimit+1}}*{{$rowLimit+1}} 數據。
+		<br>若欲觀看本組別( 第{{ $g+1 }}組 )的全部資料，請改瀏覽簡單直列式版本：
+		<span class="download_file"><a target="_blank" href="{{request()->url()}}?mon={{request()->mon}}&g={{$g}}&start=ipcfpid&show=text">第{{$g+1}}組簡單直列式版本</a></span>
+		<br><br>
+		</div>
+	</div>
+	@endif
+    <table class="{{$groupInfo[$g]['cutData']?'ignore_msg':''}}">
         <tr>
             <th ></th>
     @foreach ($col as $c=> $colName)
-            <th class="{{$columnTypeSet[$g][$c]}}_th"> {{$columnTypeSet[$g][$c]}} ：{{$colName}} </th>
+            <th class="{{$columnTypeSet[$g][$c]}}_th"> 
+				
+					{{$columnTypeSet[$g][$c]}} ：
+				<a target="_blank" href="/showLog?{{$columnTypeSet[$g][$c]}}={{$colName}}{{request()->mon?'&mon='.request()->mon:''}}">{{$colName}}
+				</a>
+			</th>
     @endforeach
+			@if ($groupInfo[$g]['cutData'])
+			<td rowspan="101" class="ignore_msg">略...........</td>
+			@endif
         </tr>
     @foreach ($rowSet[$g] as $r=>$rowName)
         <tr>
-            <th>{{$rowName}}</th>
+            <th>
+			<a target="_blank" href="/showLog?user_id={{$rowName}}{{request()->mon?'&mon='.request()->mon:''}}">
+			{{$rowName}}</a>
+			</th>
         @for ($n=0;$n<count($col);$n++)
-            <td> {{(isset($cellValue[$g][$r][$n]))?$cellValue[$g][$r][$n]->time.' ( '.$cellValue[$g][$r][$n]->num.' 次 ) ':'無'}}</td>
+            <td>
+				@if(isset($cellValue[$g][$r][$n]))
+				{{$cellValue[$g][$r][$n]->time}}
+				<br>( <a target="_blank" href="/showLog?user_id={{$rowName}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">
+					{{$cellValue[$g][$r][$n]->num}}次</a> )
+				@else
+					無
+				@endif
+				</td>
         @endfor
         </tr>
     @endforeach   
+	@if ($groupInfo[$g]['cutData'])
+		<tr class="ignore_msg"><td colspan="101" class="ignore_msg">略...........</td></tr>
+	@endif
     </table>
 </div>
 @empty
     <div>無資料</div>
 @endforelse
+	
+</body>
+</html>
