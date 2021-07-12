@@ -2800,6 +2800,14 @@ class PagesController extends BaseController
             }
 
         }
+
+        //紀錄返回上一頁的url
+        if(isset($_SERVER['HTTP_REFERER'])){
+            if(!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow')){
+                session()->put('goBackPage_chat2',$_SERVER['HTTP_REFERER']);
+            }
+        }
+
         if (isset($user)) {
             $isVip = $user->isVip();
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
@@ -4517,5 +4525,13 @@ class PagesController extends BaseController
             'status' => 1,
             'msg' => 'success',
         ), 200);
+    }
+
+    public function search_key_reset(){
+        $search_page_key=session()->get('search_page_key',[]);
+        foreach ($search_page_key as $key =>$value){
+            session()->put('search_page_key.'.$key,null);
+        }
+        logger(session()->get('search_page_key',[]));
     }
 }
