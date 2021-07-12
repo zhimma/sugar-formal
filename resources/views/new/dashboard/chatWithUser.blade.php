@@ -184,7 +184,7 @@
                 @if(isset($to))
 {{--                    <div class="fbuttop"></div>--}}
                     <div class="shouxq" style="display: flex;">
-                        <a class="nnn_adbut" href="/dashboard/viewuser/{{ $to->id }}"><img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回</a>
+                        <a class="nnn_adbut" href="{{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_test') : \Illuminate\Support\Facades\URL::previous() }}"  {{--href="/dashboard/viewuser/{{ $to->id }}"--}}><img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回</a>
                         <span style="flex: 6; text-align: center;">
                             <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;"><span class="se_rea">{{$to->name}}{{--<div class="sx_cent"></div>--}}</span></a>
                         </span>

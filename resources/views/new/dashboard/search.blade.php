@@ -673,8 +673,16 @@
 
     </style>
     <script>
-
         $('#search_reset').click(function(){
+            $.ajax({
+                type: 'POST',
+                url: "/dashboard/search_key_reset",
+                async:false,
+                data:{
+                    _token: '{{csrf_token()}}'
+                },
+                dataType:"json"
+            });
             window.location.replace("/dashboard/search");
         });
 

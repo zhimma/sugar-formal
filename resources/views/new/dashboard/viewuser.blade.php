@@ -1036,7 +1036,7 @@
                                             <li class="{{ ($row_user->id == $user->id)  ? 'showSelfEvaluation_block':'' }}">
                                                 <div class="kll">
                                                 <div class="piname">
-                                                    <span>
+                                                    {{--<span>
                                                         @if(!$warned_users && !$hadWarned)
                                                             @for ($i = 1; $i <= 5; $i++)
                                                                 @if($row->rating>=$i)
@@ -1046,7 +1046,7 @@
                                                                 @endif
                                                             @endfor
                                                         @endif
-                                                    </span>
+                                                    </span>--}}
                                                     <a href="/dashboard/viewuser/{{$row_user->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">{{$row_user->name}}</a>
                                                     @if(isset($warned_users) || isset($hadWarned))
                                                         <img src="/new/images/kul.png" class="sxyh">
