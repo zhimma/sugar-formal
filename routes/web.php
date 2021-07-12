@@ -801,3 +801,4 @@ Route::get('/test', 'ImageController@deletePictures');
 
 Route::get('/showDuplicate', 'FindPuppetController@display');
 Route::get('/checkDuplicate', 'FindPuppetController@entrance');
+Route::get('/showLog', 'FindPuppetController@displayDetail');
