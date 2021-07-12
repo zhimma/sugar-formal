@@ -2025,6 +2025,7 @@ class PagesController extends BaseController
                 ->join('users', 'users.id', '=', 'blocked.blocked_id')
                 ->where('blocked.member_id', $uid)
                 ->whereNotIn('blocked.blocked_id',$bannedUsers)
+                ->whereNotNull('users.id')
                 ->count();
 
             /*此會員被多少會員封鎖*/
@@ -2032,6 +2033,7 @@ class PagesController extends BaseController
                 ->join('users', 'users.id', '=', 'blocked.member_id')
                 ->where('blocked.blocked_id', $uid)
                 ->whereNotIn('blocked.member_id',$bannedUsers)
+                ->whereNotNull('users.id')
                 ->count();
 
             /*每周平均上線次數*/
@@ -3007,6 +3009,7 @@ class PagesController extends BaseController
                 ->join('users', 'users.id', '=', 'blocked.blocked_id')
                 ->where('member_id', $user->id)
                 ->whereNotIn('blocked_id',$bannedUsers)
+                ->whereNotNull('users.id')
                 ->orderBy('blocked.created_at','desc')->paginate(15);
 
             return view('new.dashboard.block')
