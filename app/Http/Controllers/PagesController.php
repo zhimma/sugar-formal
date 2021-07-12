@@ -2020,10 +2020,19 @@ class PagesController extends BaseController
 
 
             /*此會員封鎖多少其他會員*/
-            $blocked_other_count = Blocked::where('member_id', $uid)->count();
+            $bannedUsers = \App\Services\UserService::getBannedId();
+            $blocked_other_count = Blocked::with(['blocked_user'])
+                ->join('users', 'users.id', '=', 'blocked.blocked_id')
+                ->where('blocked.member_id', $uid)
+                ->whereNotIn('blocked.blocked_id',$bannedUsers)
+                ->count();
 
             /*此會員被多少會員封鎖*/
-            $be_blocked_other_count = Blocked::where('blocked_id', $uid)->count();
+            $be_blocked_other_count = Blocked::with(['blocked_user'])
+                ->join('users', 'users.id', '=', 'blocked.member_id')
+                ->where('blocked.blocked_id', $uid)
+                ->whereNotIn('blocked.member_id',$bannedUsers)
+                ->count();
 
             /*每周平均上線次數*/
             $datetime1 = new \DateTime(now());
@@ -2036,6 +2045,8 @@ class PagesController extends BaseController
             else{
                 $login_times_per_week = round(($targetUser->login_times / $week), 0);
             }
+
+            $last_login = $targetUser->last_login;
 
             $is_banned = null;
 
@@ -2059,6 +2070,8 @@ class PagesController extends BaseController
                     $be_visit_other_count_7 = $hideOnlineData->be_visit_other_count_7;//new add
                     $blocked_other_count = $hideOnlineData->blocked_other_count;//new add
                     $be_blocked_other_count = $hideOnlineData->be_blocked_other_count;//new add
+                    $last_login = $hideOnlineData->updated_at; //new add
+
                 }
             }
 
@@ -2082,7 +2095,8 @@ class PagesController extends BaseController
                 'blocked_other_count' => $blocked_other_count,
                 'be_blocked_other_count' => $be_blocked_other_count,
                 'is_banned' => $is_banned,
-                'userHideOnlinePayStatus' => $userHideOnlinePayStatus
+                'userHideOnlinePayStatus' => $userHideOnlinePayStatus,
+                'last_login' => $last_login
             );
 
             $member_pic = DB::table('member_pic')->where('member_id', $uid)->where('pic', '<>', $targetUser->meta->pic)->get();
