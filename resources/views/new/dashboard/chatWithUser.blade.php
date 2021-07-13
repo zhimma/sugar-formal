@@ -259,15 +259,16 @@
                                         </a>
                                     @endif
                                     <p>
-                                        @if(!is_null($message['pic']))
+                                        @if(!is_null(json_decode($message['pic'],true)))
                                             <i class="msg_input"></i>
                                             <span id="page" class="marl5">
                                                 <span class="justify-content-center">
                                                     <span class="gutters-10 pswp--loaded" data-pswp="">
                                                         <span style="width: 150px;">
                                                             @foreach(json_decode($message['pic'],true) as $key => $pic)
-                                                                <a href="{{$pic }}" target="_blank" data-pswp-index="{{ $key }}" class="pswp--item">
-                                                                    <img src="{{ $pic }}" class="n_pic_lt">
+
+                                                                <a href="{{$pic['file_path'] }}" target="_blank" data-pswp-index="{{ $key }}" class="pswp--item">
+                                                                    <img src="{{ $pic['file_path'] }}" class="n_pic_lt">
                                                                 </a>
                                                             @endforeach
                                                          </span>

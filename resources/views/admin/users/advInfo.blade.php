@@ -968,7 +968,7 @@
 				@if(isset($messagePics))
 					@foreach( $messagePics as $messagePic)
 						<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
-							<img src="{{ $messagePic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+							<img src="{{ $messagePic['file_path'] }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
 						</li>
 					@endforeach
 				@endif
@@ -1032,7 +1032,7 @@
 								@if(isset($messagePics))
 									@foreach( $messagePics as $messagePic)
 										<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
-											<img src="{{ $messagePic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+											<img src="{{ $messagePic['file_path'] }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
 										</li>
 									@endforeach
 								@endif
