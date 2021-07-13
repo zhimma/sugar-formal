@@ -393,33 +393,33 @@
                         \Illuminate\Support\Facades\Log::info('Search error, $user: ' . $user);
                     }
                 ?>
-                @if (isset($_POST['_token']) || isset($_GET['_token']))
+                @if (isset($_POST['_token']) || isset($_GET['_token']) || count(session()->get('search_page_key',[])))
                     <?php
-                    if (isset($_POST['district'])){ $district = $_POST['district'];}elseif(isset($_GET['district'])){$district = $_GET['district'];};
-                    if (isset($_POST['county'])){ $county = $_POST['county'];}elseif(isset($_GET['county'])){$county = $_GET['county'];};
-                    if (isset($_POST['cup'])){ $cup = $_POST['cup'];}elseif(isset($_GET['cup'])){$cup = $_GET['cup'];}
-                    if (isset($_POST['marriage'])){ $marriage = $_POST['marriage'];}elseif(isset($_GET['marriage'])){$marriage = $_GET['marriage'];}
-                    if (isset($_POST['budget'])){ $budget = $_POST['budget'];}elseif(isset($_GET['budget'])){$budget = $_GET['budget'];}
-                    if (isset($_POST['income'])){$income = $_POST['income'];}elseif(isset($_GET['income'])){$income = $_GET['income'];}
-                    if (isset($_POST['smoking'])){$smoking = $_POST['smoking'];}elseif(isset($_GET['smoking'])){$smoking = $_GET['smoking'];}
-                    if (isset($_POST['drinking'])){$drinking = $_POST['drinking'];}elseif(isset($_GET['drinking'])){$drinking = $_GET['drinking'];}
-                    if (isset($_POST['pic'])){$photo = $_POST['pic'];}elseif(isset($_GET['pic'])){$photo = $_GET['pic'];}
-                    if (isset($_POST['ageto'])){$ageto = $_POST['ageto'];}elseif(isset($_GET['ageto'])){$ageto = $_GET['ageto'];}
-                    if (isset($_POST['agefrom'])){$agefrom = $_POST['agefrom'];}elseif(isset($_GET['agefrom'])){ $agefrom = $_GET['agefrom'];}
-                    if (isset($_POST['seqtime'])){$seqtime = $_POST['seqtime'];}elseif(isset($_GET['seqtime'])){ $seqtime = $_GET['seqtime'];}
-                    if (isset($_POST['body'])){$body = $_POST['body'];}elseif(isset($_GET['body'])){$body = $_GET['body'];}
-                    if (isset($_POST['exchange_period'])){$exchange_period = $_POST['exchange_period'];}elseif(isset($_GET['exchange_period'])){$exchange_period = $_GET['exchange_period'];}
-                    if (isset($_POST['isBlocked'])){$isBlocked = $_POST['isBlocked'];}elseif(isset($_GET['isBlocked'])){$isBlocked = $_GET['isBlocked'];}
-                    if (isset($_POST['heightto'])){$heightto = $_POST['heightto'];}elseif(isset($_GET['heightto'])){$heightto = $_GET['heightto'];}
-                    if (isset($_POST['heightfrom'])){$heightfrom = $_POST['heightfrom'];}elseif(isset($_GET['heightfrom'])){ $heightfrom = $_GET['heightfrom'];}
-                    if (isset($_POST['prRange_none'])){$prRange_none = $_POST['prRange_none'];}elseif(isset($_GET['prRange_none'])){ $prRange_none = $_GET['prRange_none'];}
-                    if (isset($_POST['prRange'])){$prRange = $_POST['prRange'];}elseif(isset($_GET['prRange'])){ $prRange = $_GET['prRange'];}
-                    if (isset($_POST['situation'])){$situation = $_POST['situation'];}elseif(isset($_GET['situation'])){ $situation = $_GET['situation'];}
-                    if (isset($_POST['education'])){$education = $_POST['education'];}elseif(isset($_GET['education'])){ $education = $_GET['education'];}
+                    if (isset($_POST['district'])){ $district = $_POST['district'];}elseif(isset($_GET['district'])){$district = $_GET['district'];}elseif(!empty(session()->get('search_page_key.district'))){$district = session()->get('search_page_key.district');}
+                    if (isset($_POST['county'])){ $county = $_POST['county'];}elseif(isset($_GET['county'])){$county = $_GET['county'];}elseif(!empty(session()->get('search_page_key.county'))){$county = session()->get('search_page_key.county');}
+                    if (isset($_POST['cup'])){ $cup = $_POST['cup'];}elseif(isset($_GET['cup'])){$cup = $_GET['cup'];}elseif(!empty(session()->get('search_page_key.cup'))){$cup = session()->get('search_page_key.cup');}
+                    if (isset($_POST['marriage'])){ $marriage = $_POST['marriage'];}elseif(isset($_GET['marriage'])){$marriage = $_GET['marriage'];}elseif(!empty(session()->get('search_page_key.marriage'))){$marriage = session()->get('search_page_key.marriage');}
+                    if (isset($_POST['budget'])){ $budget = $_POST['budget'];}elseif(isset($_GET['budget'])){$budget = $_GET['budget'];}elseif(!empty(session()->get('search_page_key.budget'))){$budget = session()->get('search_page_key.budget');}
+                    if (isset($_POST['income'])){$income = $_POST['income'];}elseif(isset($_GET['income'])){$income = $_GET['income'];}elseif(!empty(session()->get('search_page_key.income'))){$income = session()->get('search_page_key.income');}
+                    if (isset($_POST['smoking'])){$smoking = $_POST['smoking'];}elseif(isset($_GET['smoking'])){$smoking = $_GET['smoking'];}elseif(!empty(session()->get('search_page_key.smoking'))){$smoking = session()->get('search_page_key.smoking');}
+                    if (isset($_POST['drinking'])){$drinking = $_POST['drinking'];}elseif(isset($_GET['drinking'])){$drinking = $_GET['drinking'];}elseif(!empty(session()->get('search_page_key.drinking'))){$drinking = session()->get('search_page_key.drinking');}
+                    if (isset($_POST['pic'])){$photo = $_POST['pic'];}elseif(isset($_GET['pic'])){$photo = $_GET['pic'];}elseif(!empty(session()->get('search_page_key.pic'))){$pic = session()->get('search_page_key.pic');}
+                    if (isset($_POST['ageto'])){$ageto = $_POST['ageto'];}elseif(isset($_GET['ageto'])){$ageto = $_GET['ageto'];}elseif(!empty(session()->get('search_page_key.ageto'))){$ageto = session()->get('search_page_key.ageto');}
+                    if (isset($_POST['agefrom'])){$agefrom = $_POST['agefrom'];}elseif(isset($_GET['agefrom'])){ $agefrom = $_GET['agefrom'];}elseif(!empty(session()->get('search_page_key.agefrom'))){$agefrom = session()->get('search_page_key.agefrom');}
+                    if (isset($_POST['seqtime'])){$seqtime = $_POST['seqtime'];}elseif(isset($_GET['seqtime'])){ $seqtime = $_GET['seqtime'];}elseif(!empty(session()->get('search_page_key.seqtime'))){$seqtime = session()->get('search_page_key.seqtime');}
+                    if (isset($_POST['body'])){$body = $_POST['body'];}elseif(isset($_GET['body'])){$body = $_GET['body'];}elseif(!empty(session()->get('search_page_key.body'))){$body = session()->get('search_page_key.body');}
+                    if (isset($_POST['exchange_period'])){$exchange_period = $_POST['exchange_period'];}elseif(isset($_GET['exchange_period'])){$exchange_period = $_GET['exchange_period'];}elseif(!empty(session()->get('search_page_key.exchange_period'))){$exchange_period = session()->get('search_page_key.exchange_period');}
+                    if (isset($_POST['isBlocked'])){$isBlocked = $_POST['isBlocked'];}elseif(isset($_GET['isBlocked'])){$isBlocked = $_GET['isBlocked'];}elseif(!empty(session()->get('search_page_key.isBlocked'))){$isBlocked = session()->get('search_page_key.isBlocked');}
+                    if (isset($_POST['heightto'])){$heightto = $_POST['heightto'];}elseif(isset($_GET['heightto'])){$heightto = $_GET['heightto'];}elseif(!empty(session()->get('search_page_key.heightto'))){$heightto = session()->get('search_page_key.heightto');}
+                    if (isset($_POST['heightfrom'])){$heightfrom = $_POST['heightfrom'];}elseif(isset($_GET['heightfrom'])){ $heightfrom = $_GET['heightfrom'];}elseif(!empty(session()->get('search_page_key.heightfrom'))){$heightfrom = session()->get('search_page_key.heightfrom');}
+                    if (isset($_POST['prRange_none'])){$prRange_none = $_POST['prRange_none'];}elseif(isset($_GET['prRange_none'])){ $prRange_none = $_GET['prRange_none'];}elseif(!empty(session()->get('search_page_key.prRange_none'))){$prRange_none = session()->get('search_page_key.prRange_none');}
+                    if (isset($_POST['prRange'])){$prRange = $_POST['prRange'];}elseif(isset($_GET['prRange'])){ $prRange = $_GET['prRange'];}elseif(!empty(session()->get('search_page_key.prRange'))){$prRange = session()->get('search_page_key.prRange');}
+                    if (isset($_POST['situation'])){$situation = $_POST['situation'];}elseif(isset($_GET['situation'])){ $situation = $_GET['situation'];}elseif(!empty(session()->get('search_page_key.situation'))){$situation = session()->get('search_page_key.situation');}
+                    if (isset($_POST['education'])){$education = $_POST['education'];}elseif(isset($_GET['education'])){ $education = $_GET['education'];}elseif(!empty(session()->get('search_page_key.education'))){$education = session()->get('search_page_key.education');}
 //                    if (isset($_POST['isPic'])){$isPic = $_POST['isPic'];}elseif(isset($_GET['isPic'])){$isPic = $_GET['isPic'];}
-                    if (isset($_POST['isVip'])){$isVip = $_POST['isVip'];}elseif(isset($_GET['isVip'])){$isVip = $_GET['isVip'];}
-                    if (isset($_POST['isWarned'])){$isWarned = $_POST['isWarned'];}elseif(isset($_GET['isWarned'])){$isWarned = $_GET['isWarned'];}
-                    if (isset($_POST['isPhoneAuth'])){$isPhoneAuth = $_POST['isPhoneAuth'];}elseif(isset($_GET['isPhoneAuth'])){$isPhoneAuth = $_GET['isPhoneAuth'];}
+                    if (isset($_POST['isVip'])){$isVip = $_POST['isVip'];}elseif(isset($_GET['isVip'])){$isVip = $_GET['isVip'];}elseif(!empty(session()->get('search_page_key.isVip'))){$isVip = session()->get('search_page_key.isVip');}
+                    if (isset($_POST['isWarned'])){$isWarned = $_POST['isWarned'];}elseif(isset($_GET['isWarned'])){$isWarned = $_GET['isWarned'];}elseif(!empty(session()->get('search_page_key.isWarned'))){$isWarned = session()->get('search_page_key.isWarned');}
+                    if (isset($_POST['isPhoneAuth'])){$isPhoneAuth = $_POST['isPhoneAuth'];}elseif(isset($_GET['isPhoneAuth'])){$isPhoneAuth = $_GET['isPhoneAuth'];}elseif(!empty(session()->get('search_page_key.isPhoneAuth'))){$isPhoneAuth = session()->get('search_page_key.isPhoneAuth');}
                     ?>
                 @endif
                 <?php $icc = 1;

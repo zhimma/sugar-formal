@@ -2242,7 +2242,7 @@ class PagesController extends BaseController
 
             //紀錄返回上一頁的url,避免發信後,按返回還在發信頁面
             if(isset($_SERVER['HTTP_REFERER'])){
-                if(!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow')){
+                if(!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow') && !str_contains($_SERVER['HTTP_REFERER'],'dashboard/viewuser')){
                     session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
                 }
             }
@@ -2932,12 +2932,14 @@ class PagesController extends BaseController
     {
         $input = $request->input();
         $search_page_key=session()->get('search_page_key',[]);
-        foreach ($input as $key =>$value){
-            session()->put('search_page_key.'.$key,array_get($input,$key,null));
-        }
-        foreach ($search_page_key as $key =>$value){
-            if(count($input)){
+        if(!isset($input['page'])){
+            foreach ($input as $key =>$value){
                 session()->put('search_page_key.'.$key,array_get($input,$key,null));
+            }
+            foreach ($search_page_key as $key =>$value){
+                if(count($input)){
+                    session()->put('search_page_key.'.$key,array_get($input,$key,null));
+                }
             }
         }
 
