@@ -65,11 +65,13 @@
 			</th>
 			@php
 				$user = \App\Models\User::withOut('vip')->with('aw_relation', 'banned', 'implicitlyBanned')->find($rowName);
-				if($user->aw_relation or $user->user_meta->isWarned) {
-                    $bgColor = '#B0FFB1';
-				}
-				if($user->banned or $user->implicitlyBanned){
-				    $bgColor = '#FDFF8C';
+				if($user){
+					if($user->aw_relation or $user->user_meta->isWarned) {
+						$bgColor = '#B0FFB1';
+					}
+					if($user->banned or $user->implicitlyBanned){
+						$bgColor = '#FDFF8C';
+					}
 				}
 			@endphp
 			<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
