@@ -471,7 +471,10 @@ class Message_newController extends BaseController {
                 })->save($tempPath . $input['imagename']);
 
                 //整理images
-                $images_ary[$key]= $destinationPath;
+                //$images_ary[$key]= $destinationPath;
+                $images_ary[$key]['origin_name']= $file->getClientOriginalName();
+                $images_ary[$key]['file_path']= $destinationPath;
+
             }
             Message::updateOrCreate(['id'=> $msg_id], ['pic'=>json_encode($images_ary)]);
         }
@@ -483,8 +486,8 @@ class Message_newController extends BaseController {
         if($messageInfo){
             $getPicList= json_decode($messageInfo->pic,true);
             foreach ($getPicList as $key => $pic){
-                if (file_exists(public_path().$pic)) {
-                    unlink(public_path().$pic);
+                if (file_exists(public_path().$pic['file_path'])) {
+                    unlink(public_path().$pic['file_path']);
                 }
             }
             $messageInfo->delete();
@@ -497,8 +500,8 @@ class Message_newController extends BaseController {
             $getPicList= json_decode($messageInfo->pic,true);
             if(!is_null($getPicList) && count($getPicList)){
                 foreach ($getPicList as $key => $pic){
-                    if (file_exists(public_path().$pic)) {
-                        unlink(public_path().$pic);
+                    if (file_exists(public_path().$pic['file_path'])) {
+                        unlink(public_path().$pic['file_path']);
                     }
                 }
             }
