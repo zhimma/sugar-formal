@@ -64,6 +64,7 @@
 			{{$rowName}}</a>
 			</th>
 			@php
+				$bgColor = null;
 				$user = \App\Models\User::withOut('vip')->with('aw_relation', 'banned', 'implicitlyBanned')->find($rowName);
 				if($user){
 					if($user->aw_relation or $user->user_meta->isWarned) {
