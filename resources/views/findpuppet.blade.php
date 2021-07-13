@@ -64,22 +64,28 @@
 			{{$rowName}}</a>
 			</th>
 			@php
-				$user = \App\Models\User::withOut('vip')->find($rowName);
+				$user = \App\Models\User::withOut('vip')->with('aw_relation', 'banned', 'implicitlyBanned')->find($rowName);
+				if($user->aw_relation or $user->user_meta->isWarned) {
+                    $bgColor = '#B0FFB1';
+				}
+				if($user->banned or $user->implicitlyBanned){
+				    $bgColor = '#FDFF8C';
+				}
 			@endphp
-			<th>
-				{{ $user->email }}
+			<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+				{{ $user->email ?? "" }}
 			</th>
-			<th>
-				{{ $user->name }}
+			<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+				{{ $user->name ?? "" }}
 			</th>
-			<th>
-				{{ $user->about }}
+			<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+				{{ $user->about ?? "" }}
 			</th>
-			<th>
-				{{ $user->user_meta->style }}
+			<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+				{{ $user->user_meta->style ?? "" }}
 			</th>
         @for ($n=0;$n<count($col);$n++)
-            <td>
+            <td style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
 				@if(isset($cellValue[$g][$r][$n]))
 				{{$cellValue[$g][$r][$n]->time}}
 				<br>( <a target="_blank" href="/showLog?user_id={{$rowName}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">
