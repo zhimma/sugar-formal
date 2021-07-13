@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 use App\Http\Requests;
@@ -9,7 +9,7 @@ use App\Models\PuppetAnalysisCell;
 use App\Models\PuppetAnalysisColumn;
 use App\Models\PuppetAnalysisRow;
 
-class FindPuppetController extends Controller
+class FindPuppetController extends \App\Http\Controllers\Controller
 {
     private $_columnIp = array();
     private $_rowUserId = array();
