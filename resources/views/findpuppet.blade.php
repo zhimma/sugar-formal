@@ -74,29 +74,36 @@
 					}
 				}
 			@endphp
-			<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
-				{{ $user->email ?? "" }}
-			</th>
-			<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
-				{{ $user->name ?? "" }}
-			</th>
-			<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
-				{{ $user->about ?? "" }}
-			</th>
-			<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
-				{{ $user->user_meta->style ?? "" }}
-			</th>
-        @for ($n=0;$n<count($col);$n++)
-            <td style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
-				@if(isset($cellValue[$g][$r][$n]))
-				{{$cellValue[$g][$r][$n]->time}}
-				<br>( <a target="_blank" href="/showLog?user_id={{$rowName}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">
-					{{$cellValue[$g][$r][$n]->num}}次</a> )
-				@else
-					無
-				@endif
-				</td>
-        @endfor
+			@if($user)
+				<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+					{{ $user->email }}
+				</th>
+				<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+					{{ $user->name }}
+				</th>
+				<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+					{{ $user->about }}
+				</th>
+				<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+					{{ $user->user_meta->style }}
+				</th>
+			@else
+				<th></th>
+				<th></th>
+				<th></th>
+				<th></th>
+			@endif
+			@for ($n=0;$n<count($col);$n++)
+				<td style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+					@if(isset($cellValue[$g][$r][$n]))
+					{{$cellValue[$g][$r][$n]->time}}
+					<br>( <a target="_blank" href="/showLog?user_id={{$rowName}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">
+						{{$cellValue[$g][$r][$n]->num}}次</a> )
+					@else
+						無
+					@endif
+					</td>
+			@endfor
         </tr>
     @endforeach   
 	@if ($groupInfo[$g]['cutData'])
