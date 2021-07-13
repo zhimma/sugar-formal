@@ -40,7 +40,11 @@
 	@endif
     <table class="{{$groupInfo[$g]['cutData']?'ignore_msg':''}}">
         <tr>
-            <th ></th>
+            <th></th>
+			<th>Email</th>
+			<th>暱稱</th>
+			<th>關於我</th>
+			<th>約會模式</th>
     @foreach ($col as $c=> $colName)
             <th class="{{$columnTypeSet[$g][$c]}}_th"> 
 				
@@ -58,6 +62,21 @@
             <th>
 			<a target="_blank" href="/showLog?user_id={{$rowName}}{{request()->mon?'&mon='.request()->mon:''}}">
 			{{$rowName}}</a>
+			</th>
+			@php
+				$user = \App\Models\User::withOut('vip')->find($rowName);
+			@endphp
+			<th>
+				{{ $user->email }}
+			</th>
+			<th>
+				{{ $user->name }}
+			</th>
+			<th>
+				{{ $user->about }}
+			</th>
+			<th>
+				{{ $user->user_meta->style }}
 			</th>
         @for ($n=0;$n<count($col);$n++)
             <td>

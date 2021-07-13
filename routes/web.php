@@ -749,6 +749,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/getBirthday', 'UserController@getBirthday');
         Route::post('users/unwarned_user', 'UserController@unwarnedUser');/*站方警示*/
         Route::post('users/changeExchangePeriod', 'UserController@changeExchangePeriod')->name('changeExchangePeriod');/*包養關係*/
+        Route::get('users/showDuplicate', 'FindPuppetController@display');
+        Route::get('users/checkDuplicate', 'FindPuppetController@entrance');
+        Route::get('users/showLog', 'FindPuppetController@displayDetail');
         Route::get('too_many_requests', 'PagesController@tooManyRequests')->name('tooMantRequests');
         Route::get("sendFakeMail/{repeat?}/{str?}", function(){
             $str = "";
@@ -802,7 +805,3 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::get('/fruits/product_ferment_more', 'FruitController@product_ferment_more');
 });
 Route::get('/test', 'ImageController@deletePictures');
-
-Route::get('/showDuplicate', 'FindPuppetController@display');
-Route::get('/checkDuplicate', 'FindPuppetController@entrance');
-Route::get('/showLog', 'FindPuppetController@displayDetail');
