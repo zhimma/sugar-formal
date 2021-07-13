@@ -94,7 +94,7 @@
 				<th></th>
 			@endif
 			@for ($n=0;$n<count($col);$n++)
-				<td style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+				<td @if($user) style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif" @endif>
 					@if(isset($cellValue[$g][$r][$n]))
 					{{$cellValue[$g][$r][$n]->time}}
 					<br>( <a target="_blank" href="/showLog?user_id={{$rowName}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">
@@ -102,7 +102,7 @@
 					@else
 						無
 					@endif
-					</td>
+				</td>
 			@endfor
         </tr>
     @endforeach   
