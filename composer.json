@@ -5,19 +5,22 @@
     "license": "MIT",
     "type": "project",
     "require": {
-        "php": ">=7.2",
+        "php": ">=7.3|^8.0",
         "aws/aws-sdk-php": "^3.166",
         "fideloper/proxy": "^4.0",
         "graham-campbell/flysystem": "^7",
-        "guzzlehttp/guzzle": "^6.3",
+        "guzzlehttp/guzzle": "^7.0.1",
         "intervention/image": "^2.4",
         "ixudra/curl": "^6.16",
-        "laravel/framework": "^7.0",
+        "laravel/framework": "^8.0",
         "laravel/helpers": "^1.4",
         "laravel/tinker": ">=1.0",
-        "laravel/ui": "2.0",
+        "facade/ignition": "^2.3.6",
+        "laravel/ui": "3.0",
         "league/flysystem-sftp": "^1.0",
-        "shivella/laravel-bitly": "^1.1"
+        "shivella/laravel-bitly": "^1.1",
+        "nunomaduro/collision": "^5.0",
+        "phpunit/phpunit": "^9.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": ">=3.2",
