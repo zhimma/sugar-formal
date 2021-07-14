@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\VipLog;
 use Gate;
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
@@ -51,15 +52,17 @@ class FemaleVipActive
             return $next($request);
         } 
         //剩下的是符合資格的女會員，如果她已經是免費VIP，則檢查現在是否依舊符合資格(照片、固定上線)
-        if(view()->share('isFreeVip')){
+        if(view()->shared('isFreeVip')){
             //如果取得免費VIP權限的時間點與現在時間的差距，小於系統設定的時間長度(代表他固定上線)，同時也符合照片條件，則將現在時間記錄至vip_record(延長VIP時間)
-            if( ($vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.free-days'))  && $existHeaderImage ) {
+            if( ($vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.free-days'))  && $existHeaderImage && ($vip_record->diffInSeconds(Carbon::now()) >= 86400) ) {
                 $user->vip_record = Carbon::now();
                 $user->save();
             }
             //若無法通過上述條件(沒有固定上線或不符合照片資格)，則取消VIP並記錄下取消的時間點
-            else {
-                Vip::cancel($user->id, 1);
+            else if($vip_record->diffInSeconds(Carbon::now()) >= 1800 && !$existHeaderImage){
+//                Vip::cancel($user->id, 1);
+                Vip::where('member_id', $user->id)->get()->first()->removeVIP();
+                VipLog::addToLog($user->id, 'User free VIP auto cancelled.', 'XXXXXXXXX', 0, 1);
                 $user->vip_record = Carbon::now();
                 $user->save();
             }
@@ -73,9 +76,12 @@ class FemaleVipActive
         }
         //提供免費VIP的主要程式段，若會員非VIP，則提供免費VIP，使用vip_record記錄提供的時間點
         else if(!$isVIP && $existHeaderImage) {
-            $user->vip_record = Carbon::now();
-            $user->save();
-            Vip::upgrade($user->id, '1111000', '0', 0, 'OOOOOOOO', 1, 1);
+            if( (isset($vip_record) && $vip_record->diffInSeconds(Carbon::now()) >= 86400) || ($vip_record=='0000-00-00 00:00:00')){
+                $user->vip_record = Carbon::now();
+                $user->save();
+                Vip::upgrade($user->id, '1111000', '0', 0, 'OOOOOOOO', 1, 1);
+            }
+
             if($request->session()->exists('success')) {
                 $request->session()->put('name', session('name') . "，已獲得免費 VIP");
             }

@@ -259,7 +259,16 @@
     }
     $(document).ready(function(){
         @if(Session::has('message'))
-            c5("{{ Session::get('message') }}");
+            @if(Session::get('message')=='上傳成功' && $user->existHeaderImage() && $user->engroup==2 && !$user->isVip())//防呆
+                @php
+                    $vip_record = \Carbon\Carbon::parse($user->vip_record);
+                @endphp
+                @if($vip_record->diffInSeconds(\Carbon\Carbon::now()) <= 86400)
+                    c5('照片上傳成功，24H後升級為VIP會員');
+                @endif
+            @else
+                c5("{{ Session::get('message') }}");
+            @endif
         @endif
 
         //errors
