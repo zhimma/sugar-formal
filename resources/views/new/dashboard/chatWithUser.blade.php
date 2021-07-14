@@ -266,10 +266,14 @@
                                                     <span class="gutters-10 pswp--loaded" data-pswp="">
                                                         <span style="width: 150px;">
                                                             @foreach(json_decode($message['pic'],true) as $key => $pic)
-
-                                                                <a href="{{$pic['file_path'] }}" target="_blank" data-pswp-index="{{ $key }}" class="pswp--item">
-                                                                    <img src="{{ $pic['file_path'] }}" class="n_pic_lt">
-                                                                </a>
+                                                                @if(isset($pic['file_path']))
+                                                                    <a href="{{$pic['file_path'] }}" target="_blank" data-pswp-index="{{ $key }}" class="pswp--item">
+                                                                        <img src="{{ $pic['file_path'] }}" class="n_pic_lt">
+                                                                    </a>
+                                                                @else
+                                                                    {{ logger("Message pic failed, user id: " . $user->id) }}
+                                                                    {{ logger("to id: " . $to->id) }}
+                                                                @endif
                                                             @endforeach
                                                          </span>
                                                     </span>

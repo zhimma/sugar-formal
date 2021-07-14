@@ -2058,8 +2058,8 @@ class PagesController extends BaseController
                 $hideOnlineData = hideOnlineData::where('user_id',$uid)->where('deleted_at',null)->get()->first();
                 if(isset($hideOnlineData)){
                     $login_times_per_week = $hideOnlineData->login_times_per_week;
-                    $be_fav_count = $hideOnlineData->login_times_per_week;//new add
-                    $fav_count = $hideOnlineData->login_times_per_week;//new add
+                    $be_fav_count = $hideOnlineData->be_fav_count;//new add
+                    $fav_count = $hideOnlineData->fav_count;//new add
                     $tip_count = $hideOnlineData->tip_count;//new add
                     $message_count = $hideOnlineData->message_count;//new add
                     $message_count_7 = $hideOnlineData->message_count_7;
