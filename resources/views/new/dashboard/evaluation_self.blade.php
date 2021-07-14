@@ -76,6 +76,7 @@
                         @endphp
                         @if(!$isBlocked && !isset($hadWarned) && !isset($warned_users))
                         <li>
+                            <div class="{{  \App\Models\Blocked::where('member_id',$user->id)->where('blocked_id',$row->to_id)->first() ? 'kll' : '' }}">
                             <div class="piname">
                                 {{--<span>
                                     @for ($i = 1; $i <= 5; $i++)
@@ -87,7 +88,10 @@
                                     @endfor
                                 </span>--}}
                                 <a href="/dashboard/viewuser/{{$to_user->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">{{$to_user->name}}</a>
-                                @if($to_user->id==$user->id)
+                                @if(  \App\Models\Blocked::where('member_id',$user->id)->where('blocked_id',$row->to_id)->first() )
+                                    <img src="/new/images/kul02.png" class="sxyh">
+                                @endif
+                                @if($row->from_id==$user->id)
                                     <font class="sc content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
                                 @endif
                             </div>
@@ -129,7 +133,7 @@
                                 <div class="hu_p">
                                     <div class="he_b">
                                         <span class="left"><img src="@if(file_exists( public_path().$to_user->meta_()->pic ) && $to_user->meta_()->pic != ""){{$to_user->meta_()->pic}} @elseif($to_user->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to_user->name}}</span>
-                                        @if($row_user->id==$user->id)
+                                        @if($row->to_id==$user->id)
                                             <font class="sc re_content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
                                         @endif
                                     </div>
@@ -153,7 +157,7 @@
                                     <div class="he_twotime">{{ substr($row->re_created_at,0,10)}}<span class="z_more">展開</span></div>
                                 </div>
                             @endif
-
+                            </div>
                         </li>
                         @endif
                     @endforeach
@@ -171,7 +175,7 @@
                                             ->orWhere('expire_date', null); })->first();
                                     $showCount++;
                                 @endphp
-                            @if(!$isBlocked)
+{{--                            @if($isBlocked)--}}
                                 <li>
                                     <div class="kll">
                                         <div class="piname">
@@ -192,7 +196,7 @@
                                             @else
                                                 <img src="/new/images/kul02.png" class="sxyh">
                                             @endif
-                                            @if($to_user->id==$user->id)
+                                            @if($row->from_id==$user->id)
                                                 <font class="sc content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
                                             @endif
                                         </div>
@@ -221,7 +225,7 @@
                                         <div class="hu_p">
                                             <div class="he_b">
                                                 <span class="left"><img src="@if(file_exists( public_path().$row_user->meta_()->pic ) && $row_user->meta_()->pic != ""){{$row_user->meta_()->pic}} @elseif($row_user->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$row_user->name}}</span>
-                                                @if($row_user->id==$user->id)
+                                                @if($row->to_id==$user->id)
                                                     <font class="sc re_content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
                                                 @endif
                                             </div>
@@ -246,7 +250,7 @@
                                         </div>
                                     @endif
                                 </li>
-                                @endif
+{{--                                @endif--}}
                             @endforeach
                         </div>
                     @endif

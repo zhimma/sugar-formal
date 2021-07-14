@@ -83,7 +83,7 @@
 					{{ $user->name }}
 				</th>
 				<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
-					{{ $user->about }}
+					{{ $user->user_meta->about }}
 				</th>
 				<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
 					{{ $user->user_meta->style }}
