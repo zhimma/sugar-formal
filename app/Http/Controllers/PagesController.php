@@ -4200,6 +4200,12 @@ class PagesController extends BaseController
                 }
             }else{
                 $vipStatus = '您目前為免費VIP';
+                if(!$user->existHeaderImage() && $user->engroup==2){
+                    $vip_record = Carbon::parse($user->vip_record);
+                    if($vip_record->diffInMinutes(Carbon::now()) <= 30){
+                        $vipStatus = '您的生活照低於三張，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。';
+                    }
+                }
             }
         }
 

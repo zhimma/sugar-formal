@@ -44,35 +44,37 @@ class VipCheck
         // Check VIP expiry.
         if ($user->isVip()) {
             $userVIP = $user->getVipData(true);
-            $expiry = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $userVIP->expiry);
+            if (isset($userVIP)) {
+                $expiry = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $userVIP->expiry);
 
-            //藍新舊會員通知 過期則通知專屬頁面付費方案轉綠界
-            $send_msg ='';
-            if($userVIP->business_id == '761404'){
-                $send_msg = 1;
-                $msg = AdminCommonText::getCommonTextByAlias('vipForNewebPay');
-                if(!Message::where(['from_id' => 1049, 'to_id' => $user->id])->where('content', 'like', '系統通知: 舊會員專屬優惠通知%')->first()){
-                    Message::post(1049, $user->id, $msg, true, 1);
-                }
-            }
-
-            if($now > $expiry && $userVIP->expiry != '0000-00-00 00:00:00'){
-                \App\Models\VipLog::addToLog($user->id, 'Expired, system auto cancellation.', 'XXXXXXXXX', 0, 0);
-                $userVIP->removeVIP();
-                if($send_msg==1){
-                    //vipForNewebPay msg
+                //藍新舊會員通知 過期則通知專屬頁面付費方案轉綠界
+                $send_msg = '';
+                if ($userVIP->business_id == '761404') {
+                    $send_msg = 1;
                     $msg = AdminCommonText::getCommonTextByAlias('vipForNewebPay');
-                    Message::post(1049, $user->id, $msg, true, 1);
+                    if (!Message::where(['from_id' => 1049, 'to_id' => $user->id])->where('content', 'like', '系統通知: 舊會員專屬優惠通知%')->first()) {
+                        Message::post(1049, $user->id, $msg, true, 1);
+                    }
+                }
+
+                if ($now > $expiry && $userVIP->expiry != '0000-00-00 00:00:00') {
+                    \App\Models\VipLog::addToLog($user->id, 'Expired, system auto cancellation.', 'XXXXXXXXX', 0, 0);
+                    $userVIP->removeVIP();
+                    if ($send_msg == 1) {
+                        //vipForNewebPay msg
+                        $msg = AdminCommonText::getCommonTextByAlias('vipForNewebPay');
+                        Message::post(1049, $user->id, $msg, true, 1);
+                    }
                 }
             }
-        }
 
-        // 轉換性別為男生時取消原女免費 VIP
-        if(view()->share('isFreeVip')){
-            if($user->engroup == 1) {
-                $userVIP = $user->getVipData(true);
-                \App\Models\VipLog::addToLog($user->id, 'Gender changed, free VIP checking and cancellation function triggered.', 'XXXXXXXXX', 0, 0);
-                $userVIP->removeVIP();
+            // 轉換性別為男生時取消原女免費 VIP
+            if (view()->shared('isFreeVip')) {
+                if ($user->engroup == 1) {
+                    $userVIP = $user->getVipData(true);
+                    \App\Models\VipLog::addToLog($user->id, 'Gender changed, free VIP checking and cancellation function triggered.', 'XXXXXXXXX', 0, 0);
+                    $userVIP->removeVIP();
+                }
             }
         }
 
