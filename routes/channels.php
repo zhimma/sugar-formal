@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\User;
+
 /*
 |--------------------------------------------------------------------------
 | Broadcast Channels
@@ -15,6 +17,6 @@ Broadcast::channel('App.User.{id}', function ($user, $id) {
     return (int) $user->id == (int) $id;
 });
 
-Broadcast::channel('Chat.User.{id}', function ($user, $id) {
-    return (int) $user->id == (int) $id;
+Broadcast::channel('Chat.{from_user}.{to_user}', function (User $cur_user, User $to_user, User $from_user) {
+    return $cur_user->id == $from_user->id || $cur_user->id == $to_user->id;
 });

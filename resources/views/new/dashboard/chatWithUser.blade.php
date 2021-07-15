@@ -337,7 +337,7 @@
                         </form>
                     </div>--}}
                     <div class="se_text_bot"  id="message_input" style="padding-right: 3%; padding-left:3%;">
-                        <form style="margin: 0 auto;" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm">
+                        <form style="margin: 0 auto;" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm" name="chatForm">
                             <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                             <input type="hidden" name="userId" value="{{$user->id}}">
                             <input type="hidden" name="to" value="{{$to->id}}">
@@ -904,6 +904,36 @@
             $('.bl_tab_aa').hide();
         });
     });
+</script>
+<script src="{{ asset('js/app.js') }}" type="text/javascript"></script>
+<script>
+    document.getElementById("chatForm").onsubmit = function(event) {
+        submit();
+        event.preventDefault();
+        return false;
+    }
+    function submit(){
+        var formData = new FormData();
+        var xhr = new XMLHttpRequest();
+        formData.append("msg", document.getElementById("msg").value);
+        formData.append("from", "{{ auth()->user()->id }}");
+        formData.append("to", "{{ $to->id }}");
+        formData.append("_token", "{{ csrf_token() }}");
+        xhr.open("post", "{{ route('realTimeChat') }}", true);
+        xhr.onload = function (e) {
+            var response = e.currentTarget.response;
+            console.log(response);
+        }
+        xhr.send(formData);  /* Send to server */
+    }
+    Echo.private('Chat.{{ $to->id }}.{{ auth()->user()->id }}')
+        .listen('Chat', (e) => {
+            console.log('Received: ' + e.content);
+        });
+    Echo.private('Chat.{{ auth()->user()->id }}.{{ $to->id }}')
+        .listen('Chat', (e) => {
+            console.log('Sent: ' + e.content);
+        });
 </script>
 <style>
     @media (max-width:450px) {
