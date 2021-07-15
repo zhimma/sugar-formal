@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Models\LogUserLogin;
 use DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Services\UserService;
 use App\Models\User;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Carbon\Carbon;
 use phpDocumentor\Reflection\Types\Mixed_;
+use Session;
 
 class RegisterController extends \App\Http\Controllers\BaseController
 {
@@ -132,12 +134,56 @@ class RegisterController extends \App\Http\Controllers\BaseController
 
         $this->guard()->login($user);
 
-        $logUserLogin = LogUserLogin::create([
-                'user_id' => $user->id,
-                'userAgent' => $_SERVER['HTTP_USER_AGENT'],
-                'ip' => $request->ip(),
-                'created_at' =>  date('Y-m-d H:i:s')]
-        );
+        if($request->cfp_hash){
+            $cfp = \App\Services\UserService::checkcfp($request->cfp_hash, $user->id);
+            $logUserLogin = LogUserLogin::create([
+                    'user_id' => $user->id,
+                    'cfp_id' => $cfp->id,
+                    'userAgent' => $_SERVER['HTTP_USER_AGENT'],
+                    'ip' => $request->ip(),
+                    'created_at' =>  date('Y-m-d H:i:s')]
+            );
+        }else{
+            $logUserLogin = LogUserLogin::create([
+                    'user_id' => $user->id,
+                    'userAgent' => $_SERVER['HTTP_USER_AGENT'],
+                    'ip' => $request->ip(),
+                    'created_at' =>  date('Y-m-d H:i:s')]
+            );
+        }
+        if($user->engroup == 2) {
+            try{
+                $country = null;
+                // 先檢查 IP 是否有記錄
+                $ip_record = LogUserLogin::where('ip', $request->ip())->first();
+                if($ip_record && $ip_record->country && $ip_record->country != "??"){
+                    $country = $ip_record->country;
+                }
+                // 否則從 API 查詢
+                else{
+                    $client = new \GuzzleHttp\Client();
+                    $response = $client->get('http://ipinfo.io/' . $request->ip() . '?token=27fc624e833728');
+                    $content = json_decode($response->getBody());
+                    if(isset($content->country)){
+                        $country = $content->country;
+                    }
+                    else{
+                        $country = "??";
+                    }
+                }
+
+                if(isset($country)){
+                    $logUserLogin->country = $country;
+                    $logUserLogin->save();
+                    if($country != "TW" && $country != "??") {
+                        logger("None TW register, user id: " . $user->id);
+                    }
+                }
+            }
+            catch (\Exception $e){
+                logger($e);
+            }
+        }
 
         return $this->registered($request, $user) ? redirect($this->redirectPath()) : redirect($this->redirectPath());
     }

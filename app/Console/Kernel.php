@@ -51,6 +51,11 @@ class Kernel extends ConsoleKernel
             $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('5:00');
         $schedule->call(function (){
+            $request = new Illuminate\Http\Request;
+            $findPuppet = resolve(\App\Http\Controllers\Admin\FindPuppetController::class);
+            $findPuppet->entrance($request);
+        })->timezone('Asia/Taipei')->dailyAt('6:00');
+        $schedule->call(function (){
             $this->VIPCheck();
             $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('8:00');
