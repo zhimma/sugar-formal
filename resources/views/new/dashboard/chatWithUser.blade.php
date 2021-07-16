@@ -1,4 +1,4 @@
-@extends('new.layouts.website')
+@extends('new.layouts.websiteChat')
 <link href="https://fonts.googleapis.com/css?family=Roboto:400|700" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css">
@@ -184,28 +184,11 @@
                 @if(isset($to))
 {{--                    <div class="fbuttop"></div>--}}
                     <div class="shouxq" style="display: flex;">
-                        <a class="nnn_adbut" href="{{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }}"  {{--href="/dashboard/viewuser/{{ $to->id }}"--}}><img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回</a>
+                        <a class="nnn_adbut" href="{{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }}"><img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回</a>
                         <span style="flex: 6; text-align: center;">
-                            <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;"><span class="se_rea">{{$to->name}}{{--<div class="sx_cent"></div>--}}</span></a>
+                            <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;"><span class="se_rea">{{$to->name}}</span></a>
                         </span>
                         @if($user->engroup==1)
-                            <?php //$orderNumber = \App\Models\Vip::lastid() . $user->id; $code = Config::get('social.payment.code');?>
-{{--                            <form action="{{ Config::get('social.payment.actionURL') }}" style="float: right; position: relative;" method="POST" id="form1">--}}
-{{--                                <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
-{{--                                <input type="hidden" name="userId" value="{{ $user->id }}">--}}
-{{--                                <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">--}}
-{{--                                <input type=hidden name="MerchantNumber" value="761404">--}}
-{{--                                <input type=hidden name="OrderNumber" value="{{ $orderNumber }}">--}}
-{{--                                <input type=hidden name="OrgOrderNumber" value="SG-車馬費({{ $user->id }})">--}}
-{{--                                <input type=hidden name="ApproveFlag" value="1">--}}
-{{--                                <input type=hidden name="DepositFlag" value="1">--}}
-{{--                                <input type=hidden name="iphonepage" value="0">--}}
-{{--                                <input type=hidden name="Amount" value={{ Config::get('social.payment.tip-amount') }}>--}}
-{{--                                <input type=hidden name="op" value="AcceptPayment">--}}
-{{--                                <input type=hidden name="checksum" value="{{ md5("761404".$orderNumber.$code.Config::get('social.payment.tip-amount')) }}">--}}
-{{--                                <input type=hidden name="ReturnURL" value="{{ route('chatpay') }}">--}}
-{{--                                <button type="button" class="paypay" onclick="checkPay('form1')"><a class="nnn_adbut">車馬費2</a></button>--}}
-{{--                            </form>--}}
                             <form class="" style="float: right; position: relative; text-align: right;" action="{{ route('chatpay_ec') }}" method=post id="ecpay">
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                 <input type="hidden" name="userId" value="{{ $user->id }}">
@@ -213,14 +196,12 @@
                                 <button type="button" class="paypay" onclick="checkPay('ecpay')"><a class="nnn_adbut">車馬費</a></button>
                             </form>
                         @else
-{{--                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c5('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -15px">車馬費2</a></button>--}}
                             <button style="float: right; position: relative;" type="button" class="paypay" onclick="c5('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -15px">車馬費</a></button>
                         @endif
                     </div>
                 @else
                     {{ logger('Chat with non-existing user: ' . url()->current()) }}
                 @endif
-{{--                <div class="message xxi">--}}
                 <div class="message pad_bot" >
                     @php
                         $date_temp='';
@@ -905,7 +886,6 @@
         });
     });
 </script>
-<script src="{{ asset('js/app.js') }}" type="text/javascript"></script>
 <script>
     document.getElementById("chatForm").onsubmit = function(event) {
         submit();
@@ -932,8 +912,9 @@
         });
     Echo.private('Chat.{{ auth()->user()->id }}.{{ $to->id }}')
         .listen('Chat', (e) => {
-            console.log('Sent: ' + e.content);
-        });
+            @include('new.dashboard.chat_to');
+            console.log('Sent: ' + e.message.content);
+       });
 </script>
 <style>
     @media (max-width:450px) {

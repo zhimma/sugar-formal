@@ -852,6 +852,8 @@ class Message extends Model
         {
         // $curUser->notify(new MessageEmail($from_id, $to_id, $msg));
         }
+
+        return $message;
     }
 
     public static function cutLargeString($string) {

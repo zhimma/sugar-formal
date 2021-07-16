@@ -15,7 +15,8 @@ class Chat extends BaseController
     public function __invoke(Request $request)
     {
         //
-        \App\Models\Message_new::post($request->from, $request->to, $request->msg);
-        return event(new \App\Events\Chat($request->msg, $request->from, $request->to));
+        $msgController = resolve(Message_newController::class);
+        $m = $msgController->postChat($request, 1);
+        return event(new \App\Events\Chat($m, $request->from, $request->to));
     }
 }

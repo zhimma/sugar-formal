@@ -166,7 +166,7 @@ class Message_newController extends BaseController {
     }
 
 
-    public function postChat(Request $request, $randomNo = null)
+    public function postChat(Request $request, $isCalledByEvent)
     {
 //        $banned = banned_users::where('member_id', Auth::user()->id)
 //            ->whereNotNull('expire_date')
@@ -178,7 +178,7 @@ class Message_newController extends BaseController {
 //                 'days' => $date->diffInDays() + 1]);
 //        }
         $payload = $request->all();
-        if(!isset($payload['msg']) && count($request->file('images'))==0){
+        if(!$isCalledByEvent && !isset($payload['msg']) && count($request->file('images'))==0){
             return back()->withErrors(['請勿僅輸入空白！']);
         }
         $user = Auth::user();
@@ -209,14 +209,15 @@ class Message_newController extends BaseController {
 
         if(!is_null($request->file('images')) && count($request->file('images'))){
             //上傳訊息照片
-            $messageInfo=Message::create([
+            $messageInfo = Message::create([
                 'from_id'=>auth()->id(),
                 'to_id'=>$payload['to'],
             ]);
 
             $this->message_pic_save($messageInfo->id, $request->file('images'));
+            $messagePosted = $messageInfo;
         }else {
-            Message::post(auth()->id(), $payload['to'], $payload['msg']);
+            $messagePosted = Message::post(auth()->id(), $payload['to'], $payload['msg']);
         }
 
         //line通知訊息
@@ -283,6 +284,9 @@ class Message_newController extends BaseController {
         //發送訊息後後判斷是否需備自動封鎖
         // SetAutoBan::auto_ban(auth()->id());
         SetAutoBan::msg_auto_ban(auth()->id(), $payload['to'], $payload['msg']);
+        if($isCalledByEvent) {
+            return $messagePosted;
+        }
         return back();
     }
 

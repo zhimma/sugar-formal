@@ -15,17 +15,17 @@ class Chat implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $content, $from_id, $to_id, $cur_id;
+    public $message, $from_id, $to_id, $cur_id;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($content, $from_id, $to_id)
+    public function __construct($message, $from_id, $to_id)
     {
         //
-        $this->content = $content;
+        $this->message = $message;
         $this->from_id = $from_id;
         $this->to_id = $to_id;
     }
