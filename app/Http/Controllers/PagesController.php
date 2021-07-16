@@ -1143,6 +1143,9 @@ class PagesController extends BaseController
         }
         else if ($status == 'open')
         {
+            if($user->account_status_admin==0){
+                return back()->with('message', '此帳號已被站方關閉，若有疑問請點選右下方，加站長line@');
+            }
             $dbCloseDay = \App\Models\AccountStatusLog::where('user_id',$user->id)->orderBy('created_at', 'desc')->first();
             $waitDay = 30;
             if(!is_null($dbCloseDay)){

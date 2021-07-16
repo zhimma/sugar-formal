@@ -111,6 +111,17 @@
 		<a href="{{ route('activateUser',$userMeta->activation_token) }}" class="btn btn-success"> 通過認證信 </a>
 	@endif
 
+	<form method="POST" action="/admin/users/accountStatus_admin" style="margin:0px;display:inline;">
+		{!! csrf_field() !!}
+		<input type="hidden" name='uid' value="{{ $user->id }}">
+		<input type="hidden" name='account_status' value="{{ $user->account_status_admin == 0 ? 1 : 0 }}">
+		@if($user->account_status_admin == 1)
+			<button type="submit" class="btn btn-danger"> 站方關閉會員帳號 </button>
+		@else
+			<button type="submit" class="btn btn-success"> 站方開啟會員帳號 </button>
+		@endif
+	</form>
+
 	@if($user->accountStatus == 0)
 		<b style="font-size:18px">已關閉帳號</b>
 	@endif
@@ -462,7 +473,7 @@
 	</tr>
 	@foreach($reportBySelf as $row)
 		<tr>
-			<td>{{$row['name']}}
+			<td><a href="{{ route('admin/showMessagesBetween', [$user->id, $row['reporter_id']]) }}" target="_blank">{{$row['name']}}</a>
 				@if($row['vip'])
 					@if($row['vip']=='diamond_black')
 						<img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
@@ -516,7 +527,7 @@
 	@foreach($report_all as $row)
 		<tr>
 			<td @if(!is_null($row['isBlocked'])) style="color: #F00;" @endif>
-				{{ $row['name'] }}
+				<a href="{{ route('admin/showMessagesBetween', [$user->id, $row['reporter_id']]) }}" target="_blank">{{ $row['name'] }}</a>
 				@if($row['vip'])
 				    @if($row['vip']=='diamond_black')
 				        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
@@ -599,7 +610,7 @@
 	</tr>
 	@foreach($out_evaluation_data_2 as $row)
 		<tr>
-			<td>{{ $row['to_name'] }}</td>
+			<td><a href="{{ route('admin/showMessagesBetween', [$user->id, $row['to_id']]) }}" target="_blank">{{ $row['to_name'] }}</a></td>
 			<td><a href="{{ route('users/advInfo', $row['to_id']) }}" target='_blank'>{{ $row['to_email'] }}</a></td>
 			<td>{{ $row['created_at'] }}</td>
 			<td>@if($row['to_isvip']==1) VIP @endif</td>
@@ -659,7 +670,7 @@
 	</tr>
 	@foreach($out_evaluation_data as $row)
 		<tr>
-			<td>{{ $row['to_name'] }}</td>
+			<td><a href="{{ route('admin/showMessagesBetween', [$user->id, $row['to_id']]) }}" target="_blank">{{ $row['to_name'] }}</a></td>
 			<td><a href="{{ route('users/advInfo', $row['to_id']) }}" target='_blank'>{{ $row['to_email'] }}</a></td>
 			<td>{{ $row['created_at'] }}</td>
 			<td>@if($row['to_isvip']==1) VIP @endif</td>
@@ -789,7 +800,6 @@
 @php
 	$visit_other_count  = \App\Models\Visited::where('member_id', $user->id)->count(); //瀏覽其他會員次數
   	$date = date('Y-m-d H:m:s', strtotime('-7 days'));
- 	//$message_count_7 = \App\Models\Message::where('from_id', $user->id)->where('created_at', '>=', $date)->count(); //七天發信數量
 
  	$messages_7days = \App\Models\Message::select('id','to_id','from_id','created_at')->whereRaw('(to_id ='. $user->id. ' OR from_id='.$user->id .')')->where('created_at','>=', $date)->orderBy('id')->get();
 	$message_count_7= 0;
@@ -801,12 +811,20 @@
 		}
 	}
 	$message_count_7 = count($send);
-    $blocked_other_count = \App\Models\Blocked::where('member_id', $user->id)->count(); //封鎖其他會員次數
+
+	$userAdvInfo=\App\Models\User::userAdvInfo($user->id);
 @endphp
 <br>
-<span>瀏覽其他會員數：{{$visit_other_count}}</span>
 <span>七天發信數量： {{$message_count_7}}</span>
-<span>封鎖其他會員數： {{$blocked_other_count}}</span>
+<span>每周平均上線次數： {{ array_get($userAdvInfo,'login_times_per_week',0) }}</span>
+<span>收藏會員次數： {{ array_get($userAdvInfo,'fav_count',0) }}</span>
+<span>發信次數： {{ array_get($userAdvInfo,'message_count',0) }}</span>
+<span>過去7天發信次數： {{ array_get($userAdvInfo,'message_count_7',0) }}</span>
+<span>過去7天罐頭訊息比例： {{ array_get($userAdvInfo,'message_percent_7',0) }}</span>
+<span>瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count',0) }}</span>
+<span>過去7天瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count_7',0) }}</span>
+<span>封鎖多少會員： {{ array_get($userAdvInfo,'blocked_other_count',0) }}</span>
+<span>被多少會員封鎖： {{ array_get($userAdvInfo,'be_blocked_other_count',0) }}</span>
 <br>
 <h4>帳號登入紀錄</h4>
 <table id="table_userLogin_log" class="table table-hover table-bordered">
