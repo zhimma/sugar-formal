@@ -4027,4 +4027,13 @@ class UserController extends \App\Http\Controllers\BaseController
             ;
 
     }
+    public function accountStatus_admin(Request $request){
+        $uid=$request->input('uid');
+        $account_status=$request->input('account_status');
+        $user=User::findById($uid);
+        $user->account_status_admin=$account_status;
+        $user->save();
+
+        return back();
+    }
 }

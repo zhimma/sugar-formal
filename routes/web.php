@@ -589,6 +589,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/posts/delete/{id}', 'UserController@postsDelete')->name('users/posts/delete');
         Route::post('users/posts/prohibit', 'UserController@toggleUser_prohibit_posts');
         Route::post('users/posts/access', 'UserController@toggleUser_access_posts');
+        Route::post('users/accountStatus_admin', 'UserController@accountStatus_admin');
 
         Route::get('users/memberList', 'UserController@memberList')->name('users/memberList');
         Route::post('users/memberList', 'UserController@searchMemberList')->name('searchMemberList');
