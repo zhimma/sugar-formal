@@ -1,4 +1,10 @@
- <div class="@if($message['from_id'] == $user->id) show @else send @endif">
+<script>
+    function realtime_from(e){
+
+        let ele = '<div class="send">' +
+    }
+</script>
+<div class="@if($message['from_id'] == $user->id) show @else send @endif">
     <div class="msg @if($message['from_id'] == $user->id) msg1 @endif">
         @if($message['from_id'] == $user->id)
             <img src="@if(file_exists( public_path().$user->meta->pic ) && $user->meta->pic != ""){{$user->meta->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">

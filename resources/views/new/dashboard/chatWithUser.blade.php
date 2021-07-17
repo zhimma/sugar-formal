@@ -886,6 +886,7 @@
         });
     });
 </script>
+@include('new.dashboard.chat_to')
 <script>
     document.getElementById("chatForm").onsubmit = function(event) {
         submit();
@@ -912,8 +913,8 @@
         });
     Echo.private('Chat.{{ auth()->user()->id }}.{{ $to->id }}')
         .listen('Chat', (e) => {
-            @include('new.dashboard.chat_to');
             console.log('Sent: ' + e.message.content);
+            realtime_to(e);
        });
 </script>
 <style>

@@ -3,6 +3,7 @@
 /public/storage
 /public/img/thumb
 /public/img/Member
+/public/img/Message
 /storage/*.key
 /vendor
 /.idea
