@@ -917,13 +917,11 @@
         xhr.open("post", "{{ route('realTimeChatRead') }}", true);
         xhr.onload = function (e) {
             var response = e.currentTarget.response;
-            console.log(response);
         }
         xhr.send(formData);  /* Send to server */
     }
     Echo.private('Chat.{{ $to->id }}.{{ auth()->user()->id }}')
         .listen('Chat', (e) => {
-            console.log('Received: ' + e.message.content);
             realtime_from(e);
             sendReadMessage(e.message.id);
         });
@@ -933,12 +931,12 @@
                 c5(e.message.content);
                 return 0;
             }
-            console.log('Sent: ' + e.message.content);
-            realtime_to(e);
+            else{
+                realtime_to(e);
+            }
        });
     Echo.private('ChatRead.{{ auth()->user()->id }}.{{ $to->id }}')
         .listen('ChatRead', (e) => {
-            console.log(e.message_id);
             $('#is_read.' + e.message_id).html("已讀");
         });
 </script>
