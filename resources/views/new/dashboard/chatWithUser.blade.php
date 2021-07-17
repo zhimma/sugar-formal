@@ -923,8 +923,10 @@
     Echo.private('Chat.{{ $to->id }}.{{ auth()->user()->id }}')
         .listen('Chat', (e) => {
             // Received
-            realtime_from(e);
-            sendReadMessage(e.message.id);
+            if(!e.message.error) {
+                realtime_from(e);
+                sendReadMessage(e.message.id);
+            }
         });
     Echo.private('Chat.{{ auth()->user()->id }}.{{ $to->id }}')
         .listen('Chat', (e) => {
