@@ -13,7 +13,18 @@ textarea::-webkit-input-placeholder {color:#999999; }
 ::webkit-scrollbar{display:webkit-box;overflow-y: scroll;overflow-x: hidden;-webkit-overflow-scrolling: touch;width: 8px;}
 ::-webkit-scrollbar-thumb {border-radius: 4px;background-color: rgba(0,0,0,.5);box-shadow: 0 0 1px rgba(255,255,255,.5);}
 
-
+#onlineStatus {
+    width: 15px;
+    height: 15px;
+    border-radius: 100px;
+    position: absolute;
+    border: #ffffff 2px solid;
+    right: -20px;
+    top: 8px;
+    bottom: 0;
+    display: block;
+    z-index: 5;
+}
 
 
 

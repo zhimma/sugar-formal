@@ -279,7 +279,22 @@
         @media (max-width:320px) {
             .fpt_pic1{height: 280px;}
         }
-
+        #onlineStatus2{
+            display: none;
+            width: 55px;
+            height: 22px;
+            background: linear-gradient(to TOP,#8dd882,#abd4a5);
+            color: #fff;
+            line-height: 22px;
+            box-shadow: 2px 2px 2px #6aa763;
+            border-radius: 100px;
+            display: block;
+            float: left;
+            text-align: center;
+            margin-top: 8px;
+            margin-left: 5px;
+            font-size: 12px;
+        }
     </style>
     <script>
         function setTextAreaHeight(rowid) {
@@ -607,7 +622,10 @@
                                     <dt>
                                         <span>暱稱</span>
                                         <span>
-                                            <div class="select_xx01 senhs hy_new">{{$to->name}}</div>
+                                            <div class="select_xx01 senhs hy_new">
+                                                <font class="left">{{$to->name}}</font>
+                                                <font id="onlineStatus2">上線中</font>
+                                            </div>
                                         </span>
                                     </dt>
                                     <dt>

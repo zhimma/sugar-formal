@@ -626,22 +626,32 @@ text-align: center;
             li += `<div class="si_bg">`;
 
             var styBlur = isBlur? "blur_img" : "";
+
             if(show==1) {
                 li += `<a href="${url}" target="_self">
-                        <div class="sjpic ${styBlur}"><img src="${pic}"></div>
+                        <div class="sjpic ${styBlur} shanx" id="${user_id}">
+                            <img src="${pic}">
+                            <div class="onlineStatusChatView"></div>
+                        </div>
                         <div class="sjleftmm">
                             <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }else if(show==0 && engroup==2){
                 li += `<a href="javascript:void(0)" target="_self">
-                        <div class="sjpic ${styBlur}"><img src="${pic}"></div>
+                        <div class="sjpic ${styBlur} shanx" id="${user_id}">
+                            <img src="${pic}">
+                            <div class="onlineStatusChatView"></div>
+                        </div>
                         <div class="sjleft" data-position="bottom" data-highlightClass="yd3a" data-tooltipClass="yd3" data-step="6"
                                      data-intro="普通會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。<em></em><em></em>">
                             <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }else if(show==0){
                 li += `<a href="javascript:void(0)" target="_self">
-                        <div class="sjpic ${styBlur}"><img src="${pic}"></div>
+                        <div class="sjpic ${styBlur} shanx" id="${user_id}">
+                            <img src="${pic}">
+                            <div class="onlineStatusChatView"></div>
+                        </div>
                         <div class="sjleft" data-position="bottom" data-highlightClass="yd3a" data-tooltipClass="yd3" data-step="7"
                                      data-intro="普通會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。<em></em><em></em>">
                             <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
@@ -720,6 +730,11 @@ text-align: center;
 
         var this_7daysBefore = before7days.getFullYear() + '-' + ("0" + (before7days.getMonth()+1)).slice(-2) + '-' + ("0" + (before7days.getDate())).slice(-2);
         var this_30daysBefore = before30days.getFullYear() + '-' + ("0" + (before30days.getMonth()+1)).slice(-2) + '-' + ("0" + (before30days.getDate())).slice(-2);
+
+        let usersList;
+        Echo.join('Online').here(function (users){
+            usersList = users;
+        });
 
         var counter=1;
         //ajax資料
@@ -896,10 +911,14 @@ text-align: center;
                                         }
                                     @endforeach
                                 @endif
-
                             }
-
                         }
+                        $.each(usersList, function(i2, e2){
+                            console.log(e2.id == e.user_id);
+                            if(e2.id == e.user_id){
+                                setUserOnlineStatus(1, e2.id);
+                            }
+                        });
                     });
 
                     setTimeout(function(){
@@ -1584,6 +1603,21 @@ text-align: center;
     }
     .popover.bottom .arrow:after {
         border-bottom-color:#e2e8ff;
+    }
+    .onlineStatusChatView{
+        width: 15px;
+        height: 15px;
+        border-radius: 100px;
+        position: absolute;
+        border: #ffffff 2px solid;
+        right: 0;
+        bottom: 0;
+        display: block;
+        z-index: 5;
+    }
+    .shanx{
+        position: relative;
+        overflow: inherit !important;
     }
 </style>
 

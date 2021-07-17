@@ -10,21 +10,21 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class Chat implements ShouldBroadcastNow
+class ChatRead implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $message, $from_id, $to_id;
+    public $message_id, $from_id, $to_id;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($message, $from_id, $to_id)
+    public function __construct($message_id, $from_id, $to_id)
     {
         //
-        $this->message = $message;
+        $this->message_id = $message_id;
         $this->from_id = $from_id;
         $this->to_id = $to_id;
     }
@@ -36,6 +36,6 @@ class Chat implements ShouldBroadcastNow
      */
     public function broadcastOn()
     {
-        return [new PrivateChannel('Chat.' . $this->from_id . '.' . $this->to_id)];
+        return [new PrivateChannel('ChatRead.' . $this->from_id . '.' . $this->to_id)];
     }
 }

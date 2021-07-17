@@ -1,4 +1,4 @@
-@extends('new.layouts.websiteChat')
+@extends('new.layouts.website')
 <link href="https://fonts.googleapis.com/css?family=Roboto:400|700" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css">
@@ -186,7 +186,7 @@
                     <div class="shouxq" style="display: flex;">
                         <a class="nnn_adbut" href="{{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }}"><img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回</a>
                         <span style="flex: 6; text-align: center;">
-                            <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;"><span class="se_rea">{{$to->name}}</span></a>
+                            <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;"><span class="se_rea">{{$to->name}}<div id="onlineStatus"></div></span></a>
                         </span>
                         @if($user->engroup==1)
                             <form class="" style="float: right; position: relative; text-align: right;" action="{{ route('chatpay_ec') }}" method=post id="ecpay">
@@ -905,6 +905,18 @@
         xhr.open("post", "{{ route('realTimeChat') }}", true);
         xhr.onload = function (e) {
             var response = e.currentTarget.response;
+        }
+        xhr.send(formData);  /* Send to server */
+    }
+
+    function sendReadMessage(messageId){
+        var formData = new FormData();
+        var xhr = new XMLHttpRequest();
+        formData.append("messageId", messageId);
+        formData.append("_token", "{{ csrf_token() }}");
+        xhr.open("post", "{{ route('realTimeChatRead') }}", true);
+        xhr.onload = function (e) {
+            var response = e.currentTarget.response;
             console.log(response);
         }
         xhr.send(formData);  /* Send to server */
@@ -913,12 +925,22 @@
         .listen('Chat', (e) => {
             console.log('Received: ' + e.message.content);
             realtime_from(e);
+            sendReadMessage(e.message.id);
         });
     Echo.private('Chat.{{ auth()->user()->id }}.{{ $to->id }}')
         .listen('Chat', (e) => {
+            if(e.message.error){
+                c5(e.message.content);
+                return 0;
+            }
             console.log('Sent: ' + e.message.content);
             realtime_to(e);
        });
+    Echo.private('ChatRead.{{ auth()->user()->id }}.{{ $to->id }}')
+        .listen('ChatRead', (e) => {
+            console.log(e.message_id);
+            $('#is_read.' + e.message_id).html("已讀");
+        });
 </script>
 <style>
     @media (max-width:450px) {

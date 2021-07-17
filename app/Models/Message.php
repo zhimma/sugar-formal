@@ -768,7 +768,12 @@ class Message extends Model
         {
             $message->read = 'Y';
             $message->save();
+            \App\Events\ChatRead::dispatch($message->id, $message->from_id, $message->to_id);
         }
+    }
+
+    public function compactRead(){
+        $this->read($this, $this->to_id);
     }
 
     public static function allMessage($uid)

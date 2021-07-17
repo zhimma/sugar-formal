@@ -6,7 +6,7 @@
 		<title>甜心花園包養網測試站</title>
 		<meta name="csrf-token" content="{{ csrf_token() }}">
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/webfont/1.6.28/webfontloader.js"></script>
-		<script src="/new/js/jquery-3.2.1.min.js" type="text/javascript"></script>
+		<script src="{{ asset('js/app.js') }}" type="text/javascript"></script>
 		<script src="/new/js/jquery.lazyload.min.js" type="text/javascript"></script>
 		<?php //新樣板css?>
 		<link href="/new/css/bootstrap.min.css" rel="stylesheet">
@@ -19,7 +19,6 @@
 		<link rel="stylesheet" href="/plugins/parsleyjs/parsley.css">
 		<link rel="stylesheet" href="/new/css/responsive_chat.css">
 		<?php //新樣板js?>
-		<script src="/new/js/bootstrap.min.js"></script>
 		<script src="/new/js/main.js" type="text/javascript"></script>
 		<script src="/new/js/loading.js" type="text/javascript"></script>
 		<script src="/plugins/sweetalert/sweetalert2.js" type="text/javascript"></script>
@@ -100,6 +99,74 @@
                         });
                     }
                 }
+				let users = null;
+				let users_leaving = null;
+				let BreakException = [];
+				Echo.join('Online');
+                @if(str_contains(url()->current(), 'search'))
+				@elseif(request()->route()->getName() == 'chat2View')
+					Echo.join('Online').joining((user) => {
+						setUserOnlineStatus(1, user.id);
+					}).leaving((user) => {
+						setUserOnlineStatus(0, user.id);
+					});
+				@else
+					Echo.join('Online')
+						.here((users) => {
+							try {
+								users.forEach(function (user) {
+									@if(isset($to))
+										if(user['id'] == '{{ $to->id }}'){
+											setUserOnlineStatus(1);
+											throw BreakException;
+										}
+									@endif
+								});
+							} catch (e) {
+								if (e !== BreakException) throw e;
+							}
+						})
+						.joining((user) => {
+							@if(isset($to))
+								if(user.id == '{{ $to->id }}'){
+									setUserOnlineStatus(1);
+									return 0;
+								}
+							@endif
+						})
+						.leaving((user) => {
+							@if(isset($to))
+								if(user.id == '{{ $to->id }}'){
+									setUserOnlineStatus(0);
+									return 0;
+								}
+							@endif
+						});
+				@endif
+				function setUserOnlineStatus(status, element_id){
+					if(status){
+						if($('#onlineStatus').length > 0){
+							$('#onlineStatus').css('background', '#17bb4a');
+						}
+						if($('#onlineStatus2').length > 0){
+							$('#onlineStatus2').show();
+						}
+						if(element_id){
+							$("#" + element_id).find('.onlineStatusChatView').css('background', '#17bb4a');
+						}
+					}
+					else{
+						if($('#onlineStatus').length > 0) {
+							$('#onlineStatus').css('background', '');
+						}
+						if($('#onlineStatus2').length > 0){
+							$('#onlineStatus2').hide();
+						}
+						if(element_id){
+							$("#" + element_id).find('.onlineStatusChatView').css('background', '');
+						}
+					}
+				}
 			</script>
 		@endif
 </head>

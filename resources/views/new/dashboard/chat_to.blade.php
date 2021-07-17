@@ -1,10 +1,6 @@
 <script>
     function realtime_to(e){
         let m = e.message;
-        if(m.error){
-            c5(m.content);
-            return 0;
-        }
         let date = new Date(Date.parse(m['created_at']));
         let hours = date.getHours();
         let minutes = date.getMinutes();
@@ -33,8 +29,7 @@
                                     '<span style="color:lightgrey;">已讀/未讀</span>' +
                                     '<img src="/new/images/icon_35.png" style="position: absolute;float: left;left: 10px; top:20px;-moz-transform:rotate(-25deg);-webkit-transform:rotate(-30deg);">' +
                                 @else
-                                    // todo: 待實做
-                                    '<span id="is_read">未讀</span>' +
+                                    '<span id="is_read" class="' + m['id'] + '">未讀</span>' +
                                 @endif
                             '</font>' +
                         '</span>';
@@ -47,8 +42,7 @@
                                 '<span style="color:lightgrey;">已讀/未讀</span>' +
                                 '<img src="/new/images/icon_35.png" style="position: absolute;float: left;left: 10px; top:20px;-moz-transform:rotate(-25deg);-webkit-transform:rotate(-30deg);">' +
                             @else
-                                // todo: 待實做
-                                '<span id="is_read">未讀</span>' +
+                                '<span id="is_read" class="' + m['id'] + '">未讀</span>' +
                             @endif
                         '</font>';
                     }
