@@ -3847,7 +3847,7 @@ window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__.default({
   broadcaster: 'pusher',
   key: "sugar_garden",
   cluster: "",
-  forceTLS: false,
+  forceTLS: true,
   wsHost: window.location.hostname,
   wsPort: 6001 // authEndpoint: '/custom/endpoint/auth',
 
@@ -45449,7 +45449,8 @@ runtime.setup(pusher_Pusher);
 /******/ 				}
 /******/ 				if(fulfilled) {
 /******/ 					deferred.splice(i--, 1)
-/******/ 					result = fn();
+/******/ 					var r = fn();
+/******/ 					if (r !== undefined) result = r;
 /******/ 				}
 /******/ 			}
 /******/ 			return result;
