@@ -922,6 +922,7 @@
     }
     Echo.private('Chat.{{ $to->id }}.{{ auth()->user()->id }}')
         .listen('Chat', (e) => {
+            // Received
             realtime_from(e);
             sendReadMessage(e.message.id);
         });
@@ -929,9 +930,10 @@
         .listen('Chat', (e) => {
             if(e.message.error){
                 c5(e.message.content);
-                return 0;
+                return false;
             }
-            else{
+            else {
+                // Sent
                 realtime_to(e);
             }
        });
