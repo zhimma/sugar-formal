@@ -6,8 +6,8 @@
         let minutes = date.getMinutes();
         let ele = '<div class="send">' +
             '<div class="msg">' +
-            '<a class="chatWith" href="{{ url('/dashboard/viewuser/' . $msgUser->id ) }}">' +
-                '<img class="@if($isBlurAvatar) blur_img @endif" src="@if(file_exists( public_path().$msgUser->meta->pic ) && $msgUser->meta->pic != ""){{$msgUser->meta->pic}} @elseif($msgUser->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">' +
+            '<a class="chatWith" href="{{ url('/dashboard/viewuser/' . $to->id ) }}">' +
+                '<img class="@if($isBlurAvatar) blur_img @endif" src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png  @endif">' +
             '</a>' +
             '<p>';
             if(m['pic']){
