@@ -15,7 +15,7 @@ class Chat implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $message, $from_id, $to_id, $cur_id;
+    public $message, $from_id, $to_id;
 
     /**
      * Create a new event instance.

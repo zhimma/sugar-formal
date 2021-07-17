@@ -1,19 +1,19 @@
 <script>
     function realtime_to(e){
-        e = e.message;
-        if(e.too_many){
-            c5(e.content);
+        let m = e.message;
+        if(m.error){
+            c5(m.content);
             return 0;
         }
-        let date = new Date(Date.parse(e['created_at']));
+        let date = new Date(Date.parse(m['created_at']));
         let hours = date.getHours();
         let minutes = date.getMinutes();
         let ele = '<div class="show">' +
             '<div class="msg msg1">' +
                 '<img src="@if(file_exists( public_path().$user->meta->pic ) && $user->meta->pic != ""){{$user->meta->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">' +
                 '<p>';
-                    if(e['pic']){
-                        let pics = JSON.parse(e['pic']);
+                    if(m['pic']){
+                        let pics = JSON.parse(m['pic']);
                         ele = ele + '<i class="msg_input"></i>' +
                         '<span id="page" class="marl5">' +
                             '<span class="justify-content-center">' +
@@ -40,7 +40,7 @@
                         '</span>';
                     }
                     else{
-                        ele = ele + '<i class="msg_input"></i>' + e['content'] +
+                        ele = ele + '<i class="msg_input"></i>' + m['content'] +
                         '<font class="sent_ri dr_l @if(!$isVip) novip @endif">' +
                             '<span>' + ("0" + hours).slice(-2) + ':' + ("0" + minutes).slice(-2) + '</span>' +
                             @if(!$isVip)

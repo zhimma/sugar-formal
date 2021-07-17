@@ -384,8 +384,9 @@
     <div class="bl_tab_aa" id="tab_uploadPic" style="display: none;">
         <form id="form_uploadPic" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" method="post" enctype="multipart/form-data">
             <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-            <input type="hidden" name="userId" value="{{$user->id}}">
-            <input type="hidden" name="to" value="{{$to->id}}">
+            <input type="hidden" name="userId" value="{{ $user->id }}">
+            <input type="hidden" name="from" value="{{ $user->id }}">
+            <input type="hidden" name="to" value="{{ $to->id }}">
             <input type="hidden" name="msg" value="">
             <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
             <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}" value="{{ \Carbon\Carbon::now()->timestamp }}">
@@ -480,9 +481,9 @@
         }
     });
 
-    setTimeout(function() {
+    {{-- setTimeout(function() {
         window.location.reload();
-    }, 300000);
+    }, 300000); --}}
 
     $('#chatForm').submit(function () {
         let content = $('#msg').val(), msgsnd = $('.msgsnd');
@@ -887,6 +888,7 @@
     });
 </script>
 @include('new.dashboard.chat_to')
+@include('new.dashboard.chat_from')
 <script>
     document.getElementById("chatForm").onsubmit = function(event) {
         submit();
@@ -909,7 +911,8 @@
     }
     Echo.private('Chat.{{ $to->id }}.{{ auth()->user()->id }}')
         .listen('Chat', (e) => {
-            console.log('Received: ' + e.content);
+            console.log('Received: ' + e.message.content);
+            realtime_from(e);
         });
     Echo.private('Chat.{{ auth()->user()->id }}.{{ $to->id }}')
         .listen('Chat', (e) => {

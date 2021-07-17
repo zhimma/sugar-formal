@@ -16,7 +16,7 @@ class Chat extends BaseController
     {
         //
         $msgController = resolve(Message_newController::class);
-        $m = $msgController->postChat($request, 1);
+        $m = $msgController->postChat($request, true);
         return event(new \App\Events\Chat($m, $request->from, $request->to));
     }
 }
