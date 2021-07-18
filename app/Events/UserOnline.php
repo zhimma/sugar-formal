@@ -31,6 +31,12 @@ class UserOnline implements ShouldBroadcastNow
      */
     public function broadcastOn()
     {
-        return new Channel('Online');
+        try {
+            return new Channel('Online');
+        }
+        catch (\Throwable $e){
+            logger($e);
+            return [];
+        }
     }
 }

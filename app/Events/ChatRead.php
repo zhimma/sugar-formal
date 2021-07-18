@@ -36,6 +36,12 @@ class ChatRead implements ShouldBroadcastNow
      */
     public function broadcastOn()
     {
-        return [new PrivateChannel('ChatRead.' . $this->from_id . '.' . $this->to_id)];
+        try {
+            return [new PrivateChannel('ChatRead.' . $this->from_id . '.' . $this->to_id)];
+        }
+        catch (\Throwable $e){
+            logger($e);
+            return [];
+        }
     }
 }
