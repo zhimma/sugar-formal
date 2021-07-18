@@ -111,7 +111,20 @@
 						unread++;
 						unread2++;
 						$('#unreadCount').text(unread);
-						$('#unreadCount2').text(unread2)
+						$('#unreadCount2').text(unread2);
+						@if(request()->route()->getName() == 'chat2View')
+							if($('.sjtable.' + e.from_id).find('.number.' + e.from_id).length === 0){
+								$('.sjtable.' + e.from_id).prepend('<i class="number ' + e.from_id + '">1</i>');
+							}
+							else{
+								let chatUnread = parseInt($('.number.' + e.from_id).text(), 10);
+								chatUnread++;
+								$('.number.' + e.from_id).text(chatUnread);
+							}
+							if(showMsg){
+								$('.ellipsis.' + e.from_id).text(e.content);
+							}
+						@endif
 					});
                 @if(str_contains(url()->current(), 'search'))
 				@elseif(request()->route()->getName() == 'chat2View')

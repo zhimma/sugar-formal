@@ -18,7 +18,7 @@ class Chat extends BaseController
         $msgController = resolve(Message_newController::class);
         $m = $msgController->postChat($request, true);
         if(!isset($m['error'])){
-            \App\Events\NewMessage::dispatch($m->id, $m->to_id);
+            \App\Events\NewMessage::dispatch($m->id, $m->content, $m->from_id, $m->to_id);
         }
         return event(new \App\Events\Chat($m, $request->from, $request->to));
     }
