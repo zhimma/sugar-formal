@@ -3,6 +3,10 @@
 /public/storage
 /public/img/thumb
 /public/img/Member
+/public/img/Message
+/public/img/Evaluation/
+/public/img/Reported/
+/public/img/ReportedAvatar/
 /storage/*.key
 /vendor
 /.idea

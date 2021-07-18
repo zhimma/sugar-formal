@@ -184,28 +184,11 @@
                 @if(isset($to))
 {{--                    <div class="fbuttop"></div>--}}
                     <div class="shouxq" style="display: flex;">
-                        <a class="nnn_adbut" href="{{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }}"  {{--href="/dashboard/viewuser/{{ $to->id }}"--}}><img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回</a>
+                        <a class="nnn_adbut" href="{{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }}"><img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回</a>
                         <span style="flex: 6; text-align: center;">
-                            <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;"><span class="se_rea">{{$to->name}}{{--<div class="sx_cent"></div>--}}</span></a>
+                            <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;"><span class="se_rea">{{$to->name}}<div id="onlineStatus"></div></span></a>
                         </span>
                         @if($user->engroup==1)
-                            <?php //$orderNumber = \App\Models\Vip::lastid() . $user->id; $code = Config::get('social.payment.code');?>
-{{--                            <form action="{{ Config::get('social.payment.actionURL') }}" style="float: right; position: relative;" method="POST" id="form1">--}}
-{{--                                <input type="hidden" name="_token" value="{{ csrf_token() }}" >--}}
-{{--                                <input type="hidden" name="userId" value="{{ $user->id }}">--}}
-{{--                                <input type="hidden" name="to" value="@if(isset($to)) {{ $to->id }} @endif">--}}
-{{--                                <input type=hidden name="MerchantNumber" value="761404">--}}
-{{--                                <input type=hidden name="OrderNumber" value="{{ $orderNumber }}">--}}
-{{--                                <input type=hidden name="OrgOrderNumber" value="SG-車馬費({{ $user->id }})">--}}
-{{--                                <input type=hidden name="ApproveFlag" value="1">--}}
-{{--                                <input type=hidden name="DepositFlag" value="1">--}}
-{{--                                <input type=hidden name="iphonepage" value="0">--}}
-{{--                                <input type=hidden name="Amount" value={{ Config::get('social.payment.tip-amount') }}>--}}
-{{--                                <input type=hidden name="op" value="AcceptPayment">--}}
-{{--                                <input type=hidden name="checksum" value="{{ md5("761404".$orderNumber.$code.Config::get('social.payment.tip-amount')) }}">--}}
-{{--                                <input type=hidden name="ReturnURL" value="{{ route('chatpay') }}">--}}
-{{--                                <button type="button" class="paypay" onclick="checkPay('form1')"><a class="nnn_adbut">車馬費2</a></button>--}}
-{{--                            </form>--}}
                             <form class="" style="float: right; position: relative; text-align: right;" action="{{ route('chatpay_ec') }}" method=post id="ecpay">
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                 <input type="hidden" name="userId" value="{{ $user->id }}">
@@ -213,14 +196,12 @@
                                 <button type="button" class="paypay" onclick="checkPay('ecpay')"><a class="nnn_adbut">車馬費</a></button>
                             </form>
                         @else
-{{--                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c5('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -15px">車馬費2</a></button>--}}
                             <button style="float: right; position: relative;" type="button" class="paypay" onclick="c5('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -15px">車馬費</a></button>
                         @endif
                     </div>
                 @else
                     {{ logger('Chat with non-existing user: ' . url()->current()) }}
                 @endif
-{{--                <div class="message xxi">--}}
                 <div class="message pad_bot" >
                     @php
                         $date_temp='';
@@ -337,7 +318,7 @@
                         </form>
                     </div>--}}
                     <div class="se_text_bot"  id="message_input" style="padding-right: 3%; padding-left:3%;">
-                        <form style="margin: 0 auto;" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm">
+                        <form style="margin: 0 auto;" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm" name="chatForm">
                             <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                             <input type="hidden" name="userId" value="{{$user->id}}">
                             <input type="hidden" name="to" value="{{$to->id}}">
@@ -403,8 +384,9 @@
     <div class="bl_tab_aa" id="tab_uploadPic" style="display: none;">
         <form id="form_uploadPic" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" method="post" enctype="multipart/form-data">
             <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-            <input type="hidden" name="userId" value="{{$user->id}}">
-            <input type="hidden" name="to" value="{{$to->id}}">
+            <input type="hidden" name="userId" value="{{ $user->id }}">
+            <input type="hidden" name="from" value="{{ $user->id }}">
+            <input type="hidden" name="to" value="{{ $to->id }}">
             <input type="hidden" name="msg" value="">
             <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
             <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}" value="{{ \Carbon\Carbon::now()->timestamp }}">
@@ -499,9 +481,9 @@
         }
     });
 
-    setTimeout(function() {
+    {{-- setTimeout(function() {
         window.location.reload();
-    }, 300000);
+    }, 300000); --}}
 
     $('#chatForm').submit(function () {
         let content = $('#msg').val(), msgsnd = $('.msgsnd');
@@ -904,6 +886,63 @@
             $('.bl_tab_aa').hide();
         });
     });
+</script>
+@include('new.dashboard.chat_to')
+@include('new.dashboard.chat_from')
+<script>
+    document.getElementById("chatForm").onsubmit = function(event) {
+        submit();
+        event.preventDefault();
+        return false;
+    }
+    function submit(){
+        var formData = new FormData();
+        var xhr = new XMLHttpRequest();
+        formData.append("msg", document.getElementById("msg").value);
+        formData.append("from", "{{ auth()->user()->id }}");
+        formData.append("to", "{{ $to->id }}");
+        formData.append("_token", "{{ csrf_token() }}");
+        xhr.open("post", "{{ route('realTimeChat') }}", true);
+        xhr.onload = function (e) {
+            var response = e.currentTarget.response;
+        }
+        xhr.send(formData);  /* Send to server */
+    }
+
+    function sendReadMessage(messageId){
+        var formData = new FormData();
+        var xhr = new XMLHttpRequest();
+        formData.append("messageId", messageId);
+        formData.append("_token", "{{ csrf_token() }}");
+        xhr.open("post", "{{ route('realTimeChatRead') }}", true);
+        xhr.onload = function (e) {
+            var response = e.currentTarget.response;
+        }
+        xhr.send(formData);  /* Send to server */
+    }
+    Echo.private('Chat.{{ $to->id }}.{{ auth()->user()->id }}')
+        .listen('Chat', (e) => {
+            // Received
+            if(!e.message.error) {
+                realtime_from(e);
+                sendReadMessage(e.message.id);
+            }
+        });
+    Echo.private('Chat.{{ auth()->user()->id }}.{{ $to->id }}')
+        .listen('Chat', (e) => {
+            if(e.message.error){
+                c5(e.message.content);
+                return false;
+            }
+            else {
+                // Sent
+                realtime_to(e);
+            }
+       });
+    Echo.private('ChatRead.{{ auth()->user()->id }}.{{ $to->id }}')
+        .listen('ChatRead', (e) => {
+            $('#is_read.' + e.message_id).html("已讀");
+        });
 </script>
 <style>
     @media (max-width:450px) {

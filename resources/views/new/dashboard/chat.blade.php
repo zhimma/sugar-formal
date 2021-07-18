@@ -298,6 +298,7 @@ text-align: center;
     </div>
 
     <script>
+        let showMsg = false;
         let isLoading = 1;
         var total = 0;//總筆數
         var no_row_li='';
@@ -589,6 +590,7 @@ text-align: center;
             return new Date(dt.getFullYear(), dt.getMonth(), 1);
         }
         function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned,exchange_period,isBlur=false){
+            showMsg = show;
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
             var username = '{{$user->name}}';
@@ -626,25 +628,35 @@ text-align: center;
             li += `<div class="si_bg">`;
 
             var styBlur = isBlur? "blur_img" : "";
+
             if(show==1) {
                 li += `<a href="${url}" target="_self">
-                        <div class="sjpic ${styBlur}"><img src="${pic}"></div>
+                        <div class="sjpic ${styBlur} shanx" id="${user_id}">
+                            <img src="${pic}">
+                            <div class="onlineStatusChatView"></div>
+                        </div>
                         <div class="sjleftmm">
-                            <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
+                            <div class="sjtable ${user_id}">${(read_n!=0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }else if(show==0 && engroup==2){
                 li += `<a href="javascript:void(0)" target="_self">
-                        <div class="sjpic ${styBlur}"><img src="${pic}"></div>
+                        <div class="sjpic ${styBlur} shanx" id="${user_id}">
+                            <img src="${pic}">
+                            <div class="onlineStatusChatView"></div>
+                        </div>
                         <div class="sjleft" data-position="bottom" data-highlightClass="yd3a" data-tooltipClass="yd3" data-step="6"
                                      data-intro="普通會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。<em></em><em></em>">
-                            <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
+                            <div class="sjtable ${user_id}">${(read_n!=0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }else if(show==0){
                 li += `<a href="javascript:void(0)" target="_self">
-                        <div class="sjpic ${styBlur}"><img src="${pic}"></div>
+                        <div class="sjpic ${styBlur} shanx" id="${user_id}">
+                            <img src="${pic}">
+                            <div class="onlineStatusChatView"></div>
+                        </div>
                         <div class="sjleft" data-position="bottom" data-highlightClass="yd3a" data-tooltipClass="yd3" data-step="7"
                                      data-intro="普通會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。<em></em><em></em>">
-                            <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
+                            <div class="sjtable ${user_id}">${(read_n!=0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }
 
@@ -663,7 +675,7 @@ text-align: center;
             //       `;
             if(show==1) {
                 li += `
-                        <span class="box"><font class="ellipsis">${content}</font></span>
+                        <span class="box"><font class="ellipsis ${user_id}">${content}</font></span>
                         </div>
                         </a>
                    `;
@@ -720,6 +732,11 @@ text-align: center;
 
         var this_7daysBefore = before7days.getFullYear() + '-' + ("0" + (before7days.getMonth()+1)).slice(-2) + '-' + ("0" + (before7days.getDate())).slice(-2);
         var this_30daysBefore = before30days.getFullYear() + '-' + ("0" + (before30days.getMonth()+1)).slice(-2) + '-' + ("0" + (before30days.getDate())).slice(-2);
+
+        let usersList;
+        Echo.join('Online').here(function (users){
+            usersList = users;
+        });
 
         var counter=1;
         //ajax資料
@@ -896,10 +913,18 @@ text-align: center;
                                         }
                                     @endforeach
                                 @endif
-
                             }
-
                         }
+                        @if($isVip)
+                            $.each(usersList, function(i2, e2){
+                                console.log(e2.id == e.user_id);
+                                if(e2.id == e.user_id){
+                                    setUserOnlineStatus(1, e2.id);
+                                }
+                            });
+                        @else
+                            setUserOnlineStatus("Non-VIP", e.user_id);
+                        @endif
                     });
 
                     setTimeout(function(){
@@ -1584,6 +1609,43 @@ text-align: center;
     }
     .popover.bottom .arrow:after {
         border-bottom-color:#e2e8ff;
+    }
+    .online{
+        background: #17bb4a;
+        border: #ffffff 2px solid;
+        width: 15px;
+        height: 15px;
+        border-radius: 100px;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        display: block;
+        z-index: 5;
+    }
+    .nonVip{
+        width: 15px;
+        height: 15px;
+        background: linear-gradient(to TOP,#ff9225,#ffb86e);
+        border-radius: 100px;
+        box-shadow: 2px 2px 0px #ff721d;
+        border-radius: 100px;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        display: block;
+        z-index: 5;
+    }
+    .nonVip img {
+        max-width: 100%;
+        max-height: 100%;
+        height: 7px;
+        margin: 0 auto;
+        display: table;
+        margin-top: 4px;
+    }
+    .shanx{
+        position: relative;
+        overflow: inherit !important;
     }
 </style>
 

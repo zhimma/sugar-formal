@@ -43,7 +43,7 @@ class Handler extends ExceptionHandler
      * @param  \Exception  $exception
      * @return void
      */
-    public function report(Exception $exception)
+    public function report(Throwable $exception)
     {
         parent::report($exception);
     }
@@ -56,16 +56,11 @@ class Handler extends ExceptionHandler
      * @return \Illuminate\Http\Response
      */
     public function render($request, Exception $exception)
-    {   
-        if($exception->getMessage() == 'Too Many Attempts.'){
-            return parent::render($request, $exception);
-        }
-        if(!$exception instanceof ValidationException && !$exception instanceof AuthenticationException) {
-            return response()->view('errors.exception', [ 'exception' => $exception->getMessage() == null ? null : $exception->getMessage()]);
-        }
-    //    $requestStr =  $request->all();
-    //    \Illuminate\Support\Facades\Log::info('Exception: ' . $exception->getMessage() . ', URI: ' . $_SERVER["REQUEST_URI"] . ', request: ' . print_r($requestStr, true));
-
+    {
+//        if(!$exception instanceof ValidationException && !$exception instanceof \Illuminate\Auth\AuthenticationException) {
+//            return response()->view('errors.exception',
+//                [ 'exception' => $exception->getMessage() == null ? null : $exception->getMessage()]);
+//        }
         return parent::render($request, $exception);
     }
 

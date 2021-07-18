@@ -82,7 +82,7 @@
                                 @php
                                     $avatar = isset($avatar->pic) ? $avatar->pic . '?' . \Carbon\Carbon::now() : NULL;
                                 @endphp
-                                <b class="img" style="background:url(' {{ $avatar or '/new/images/ph_12.png' }} '); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
+                                <b class="img" style="background:url(' {{ $avatar ?? '/new/images/ph_12.png' }} '); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
                             </li>
                         @endif
                         @if ($member_pics)
@@ -94,7 +94,7 @@
                                     @php
                                         $pic = isset($member_pics[$i]->pic) ? $member_pics[$i]->pic . '?' . \Carbon\Carbon::now() : NULL;
                                     @endphp
-                                    <b class="img" style="background:url(' {{ $pic  or '/new/images/ph_12.png' }} '); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
+                                    <b class="img" style="background:url(' {{ $pic ?? '/new/images/ph_12.png' }} '); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
                                 </li>
                             @endfor
                         @endif
@@ -112,7 +112,7 @@
                                 // 添加日期參數, 讓圖片不使用快取機制
                                 $avatar = isset($avatar->pic) ? $avatar->pic . '?' . \Carbon\Carbon::now() : null;
                             @endphp
-                            <b class="img" style="background:url('{{ $avatar or $defaultAvatar}}'); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;">
+                            <b class="img" style="background:url('{{ $avatar ?? $defaultAvatar}}'); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;">
                                 
                             </b>
                         </li>
@@ -131,7 +131,7 @@
                                 <div class="n_ulhh">
                                     <img src="/new/images/ph_05.png">
                                 </div>
-                                <b class="img" style="background:url('{{ $pic or $default }}'); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
+                                <b class="img" style="background:url('{{ $pic ?? $default }}'); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
                             </li>
                         @endfor
                     @endif
