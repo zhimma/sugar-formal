@@ -768,7 +768,12 @@ class Message extends Model
         {
             $message->read = 'Y';
             $message->save();
+            \App\Events\ChatRead::dispatch($message->id, $message->from_id, $message->to_id);
         }
+    }
+
+    public function compactRead(){
+        $this->read($this, $this->to_id);
     }
 
     public static function allMessage($uid)
@@ -852,6 +857,8 @@ class Message extends Model
         {
         // $curUser->notify(new MessageEmail($from_id, $to_id, $msg));
         }
+
+        return $message;
     }
 
     public static function cutLargeString($string) {

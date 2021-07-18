@@ -13,7 +13,40 @@ textarea::-webkit-input-placeholder {color:#999999; }
 ::webkit-scrollbar{display:webkit-box;overflow-y: scroll;overflow-x: hidden;-webkit-overflow-scrolling: touch;width: 8px;}
 ::-webkit-scrollbar-thumb {border-radius: 4px;background-color: rgba(0,0,0,.5);box-shadow: 0 0 1px rgba(255,255,255,.5);}
 
+.onlineStatus {
+    width: 15px;
+    height: 15px;
+    background: #17bb4a;
+    border-radius: 100px;
+    position: absolute;
+    border: #ffffff 2px solid;
+    right: -20px;
+    top: 8px;
+    bottom: 0;
+    display: block;
+    z-index: 5;
+}
 
+.onlineStatusNonVip {
+    width: 15px;
+    height: 15px;
+    background: linear-gradient(to TOP,#ff9225,#ffb86e);
+    border-radius: 100px;
+    position: absolute;
+    right: -20px;
+    top: 6px;
+    bottom: 0;
+    display: block;
+    z-index: 5;
+    box-shadow: 2px 2px 0px #ff721d;
+}
+
+.onlineStatusNonVip img {
+    height: 7px;
+    display: table;
+    margin-top: 4px;
+    margin-left: 3px;
+}
 
 
 
@@ -1505,7 +1538,7 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 .nt_photo img{/*width:100%;*/ max-width:100%; height:280px;border-radius:0 0 10px 10px; display: block;margin: 0 auto;object-fit: contain;}
 
 .nt_bot{width:100%;border-radius:0 0 10px 10px;position:absolute; bottom:0; color:#ffffff; padding:5px 0}
-.nt_bot h2{ font-size:16px; font-weight:bold;width:94%; margin:0 auto; line-height:25px}
+.nt_bot h2{ font-size:16px; font-weight:bold;width:94%; margin:0 auto; line-height:25px; display: table;}
 .nt_bot h3{ font-size:14px;width:94%; margin:0 auto; line-height:25px}
 .nt_bot span{ margin-left:10px; position: relative}
 .nt_img{ position: absolute; left:0;height:15px; top:4px}

@@ -677,6 +677,8 @@ class Message_new extends Model
         {
         // $curUser->notify(new MessageEmail($from_id, $to_id, $msg));
         }
+
+        return $message;
     }
 
     public static function betweenMessages($user_ids)

@@ -166,7 +166,7 @@ class Message_newController extends BaseController {
     }
 
 
-    public function postChat(Request $request, $randomNo = null)
+    public function postChat(Request $request, $isCalledByEvent = false)
     {
 //        $banned = banned_users::where('member_id', Auth::user()->id)
 //            ->whereNotNull('expire_date')
@@ -178,7 +178,11 @@ class Message_newController extends BaseController {
 //                 'days' => $date->diffInDays() + 1]);
 //        }
         $payload = $request->all();
-        if(!isset($payload['msg']) && count($request->file('images'))==0){
+        if(!isset($payload['msg']) && !$request->hasFile('images')){
+            if($isCalledByEvent){
+                return array('error' => 1,
+                    'content' => '請勿僅輸入空白！');
+            }
             return back()->withErrors(['請勿僅輸入空白！']);
         }
         $user = Auth::user();
@@ -191,6 +195,10 @@ class Message_newController extends BaseController {
             if(isset($m_time)) {
                 $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
                 if ($diffInSecs < 8) {
+                    if($isCalledByEvent){
+                        return array('error' => 1,
+                                    'content' => '您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。');
+                    }
                     return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
                 }
             }
@@ -202,6 +210,10 @@ class Message_newController extends BaseController {
             if(isset($m_time)) {
                 $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
                 if ($diffInSecs < 8) {
+                    if($isCalledByEvent){
+                        return array('error' => 1,
+                            'content' => '您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。');
+                    }
                     return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
                 }
             }
@@ -209,14 +221,14 @@ class Message_newController extends BaseController {
 
         if(!is_null($request->file('images')) && count($request->file('images'))){
             //上傳訊息照片
-            $messageInfo=Message::create([
+            $messageInfo = Message::create([
                 'from_id'=>auth()->id(),
                 'to_id'=>$payload['to'],
             ]);
 
-            $this->message_pic_save($messageInfo->id, $request->file('images'));
+            $messagePosted = $this->message_pic_save($messageInfo->id, $request->file('images'));
         }else {
-            Message::post(auth()->id(), $payload['to'], $payload['msg']);
+            $messagePosted = Message::post(auth()->id(), $payload['to'], $payload['msg']);
         }
 
         //line通知訊息
@@ -283,6 +295,10 @@ class Message_newController extends BaseController {
         //發送訊息後後判斷是否需備自動封鎖
         // SetAutoBan::auto_ban(auth()->id());
         SetAutoBan::msg_auto_ban(auth()->id(), $payload['to'], $payload['msg']);
+        if($isCalledByEvent && gettype($isCalledByEvent) == "boolean") {
+            return $messagePosted;
+        }
+        \App\Events\Chat::dispatch($messagePosted, $request->from, $request->to);
         return back();
     }
 
@@ -476,7 +492,7 @@ class Message_newController extends BaseController {
                 $images_ary[$key]['file_path']= $destinationPath;
 
             }
-            Message::updateOrCreate(['id'=> $msg_id], ['pic'=>json_encode($images_ary)]);
+            return Message::updateOrCreate(['id'=> $msg_id], ['pic'=>json_encode($images_ary)]);
         }
     }
 

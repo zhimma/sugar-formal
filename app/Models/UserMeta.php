@@ -181,16 +181,16 @@ class UserMeta extends Model
                                   $userid,
                                   $exchange_period = '',
                                   $isBlocked = 1,
-                                  $userIsVip,
-                                  $heightfrom,
-                                  $heightto,
+                                  $userIsVip = '',
+                                  $heightfrom = '',
+                                  $heightto = '',
                                   $prRange_none = '',
                                   $prRange = '',
-                                  $situation,
-                                  $education,
-                                  $isVip,
+                                  $situation = '',
+                                  $education = '',
+                                  $isVip = '',
                                   $isWarned = 2,
-                                  $isPhoneAuth)
+                                  $isPhoneAuth = '')
     {
         if ($engroup == 1) { $engroup = 2; }
         else if ($engroup == 2) { $engroup = 1; }
