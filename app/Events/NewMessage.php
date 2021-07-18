@@ -37,6 +37,12 @@ class NewMessage implements ShouldBroadcastNow
      */
     public function broadcastOn()
     {
-        return [new PrivateChannel('NewMessage.' . $this->to_id)];
+        try {
+            return [new PrivateChannel('NewMessage.' . $this->to_id)];
+        }
+        catch (\Throwable $e){
+            logger($e);
+            return [];
+        }
     }
 }
