@@ -103,6 +103,16 @@
 				let users_leaving = null;
 				let BreakException = [];
 				Echo.join('Online');
+				Echo.private('NewMessage.{{ $user->id }}')
+					.listen('NewMessage', (e) => {
+						console.log(e);
+						let unread = parseInt($('#unreadCount').text(), 10);
+						let unread2 = parseInt($('#unreadCount2').text(), 10);
+						unread++;
+						unread2++;
+						$('#unreadCount').text(unread);
+						$('#unreadCount2').text(unread2)
+					});
                 @if(str_contains(url()->current(), 'search'))
 				@elseif(request()->route()->getName() == 'chat2View')
 					Echo.join('Online').joining((user) => {
@@ -110,7 +120,7 @@
 					}).leaving((user) => {
 						setUserOnlineStatus(0, user.id);
 					});
-				@else
+				@elseif(str_contains(url()->current(), 'viewuser'))
 					Echo.join('Online')
 						.here((users) => {
 							try {
@@ -153,6 +163,7 @@
 						}
 						if(element_id){
 							$("#" + element_id).find('.onlineStatusChatView').css('background', '#17bb4a');
+							$("#" + element_id).find('.onlineStatusChatView').css('border', '#ffffff 2px solid');
 						}
 					}
 					else{
@@ -164,6 +175,7 @@
 						}
 						if(element_id){
 							$("#" + element_id).find('.onlineStatusChatView').css('background', '');
+							$("#" + element_id).find('.onlineStatusChatView').css('border', '');
 						}
 					}
 				}

@@ -1609,7 +1609,6 @@ text-align: center;
         height: 15px;
         border-radius: 100px;
         position: absolute;
-        border: #ffffff 2px solid;
         right: 0;
         bottom: 0;
         display: block;
