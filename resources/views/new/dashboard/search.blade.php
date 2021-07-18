@@ -34,6 +34,41 @@
     .popover{
         position: fixed;
     }
+    .onineStatus{}
+    .onlineStatusNonVipSearch{
+        width: 15px;
+        height: 15px;
+        background: linear-gradient(to TOP,#ff9225,#ffb86e);
+        border-radius: 100px;
+        margin-top: 6px;
+        box-shadow: 2px 2px 0px #ff721d;
+        border-radius: 100px;
+        color: #fff;
+        float: left;
+        display: block;
+        margin-left: 5px;
+    }
+
+    .onlineStatusNonVipSearch img{
+        height: 7px;
+        margin: 0 auto;
+        display: table;
+        margin-top: 4px;
+    }
+
+    .onlineStatusSearch{
+        margin-left: 10px;
+        position: relative;
+        width: 10px;
+        height: 10px;
+        background: linear-gradient(to TOP,#8dd882,#abd4a5);
+        margin-top: 8px;
+        box-shadow: 2px 2px 2px #6aa763;
+        border-radius: 100px;
+        color: #fff;
+        float: left;
+        display: block;
+    }
     </style>
     <div class="container matop70">
         <div class="row">
@@ -583,7 +618,15 @@
                                 <a href="/dashboard/viewuser/{{$visitor->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">
                                     <div class="nt_photo @if($isBlurAvatar) blur_img @endif"><img class="lazy" src="@if($visitor->user_meta->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->user_meta->pic}} @endif" data-original="@if($visitor->user_meta->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->user_meta->pic}} @endif" @if ($visitor->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></div>
                                     <div class="nt_bot nt_bgco">
-                                        <h2>{{ $visitor->name }}<span>{{ $visitor->age() }}歲</span></h2>
+                                        <h2>
+                                            <font class="left">{{ $visitor->name }}<span>{{ $visitor->age() }}歲</span></font>
+                                            @if($user->isVip())
+                                                <span class="searchStatus" id="{{ $visitor->id }}"></span>
+                                            @else
+                                                <div class="onlineStatusNonVipSearch"><img src="/new/images/wsx.png"></div>
+                                            @endif
+
+                                        </h2>
                                         <h3>
                                             @if(!empty($umeta->city))
                                                 @foreach($umeta->city as $key => $cityval)

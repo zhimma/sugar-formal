@@ -109,7 +109,6 @@
 				Echo.join('Online');
 				Echo.private('NewMessage.{{ $user->id }}')
 					.listen('NewMessage', (e) => {
-						console.log(e);
 						let unread = parseInt($('#unreadCount').text(), 10);
 						let unread2 = parseInt($('#unreadCount2').text(), 10);
 						unread++;
@@ -130,69 +129,102 @@
 							}
 						@endif
 					});
-                @if(str_contains(url()->current(), 'search'))
-				@elseif(request()->route()->getName() == 'chat2View')
-					Echo.join('Online').joining((user) => {
-						setUserOnlineStatus(1, user.id);
-					}).leaving((user) => {
-						setUserOnlineStatus(0, user.id);
-					});
-				@elseif(str_contains(url()->current(), 'viewuser'))
-					Echo.join('Online')
-						.here((users) => {
-							try {
-								users.forEach(function (user) {
-									@if(isset($to))
-										if(user['id'] == '{{ $to->id }}'){
+				@if($isVip || $user->isVip())
+					@if(str_contains(url()->current(), 'search') || request()->route()->getName() == 'chat2View')
+						$(document).ready(() => {
+							Echo.join('Online').here((users) => {
+								try {
+									let showedUsers = $(".searchStatus");
+									users.forEach(function (user) {
+										$(showedUsers).each((i, userListed) =>{
+											if (user['id'] == userListed.id) {
+												setUserOnlineStatus(1, user['id']);
+												throw BreakException;
+											}
+										})
+									});
+								} catch (e) {
+									if (e !== BreakException) throw e;
+								}
+							}).joining((user) => {
+								setUserOnlineStatus(1, user.id);
+							}).leaving((user) => {
+								setUserOnlineStatus(0, user.id);
+							});
+						});
+					@elseif(str_contains(url()->current(), 'viewuser') || request()->route()->getName() == 'chat2WithUser')
+						Echo.join('Online')
+							.here((users) => {
+								try {
+									users.forEach(function (user) {
+										@if(isset($to))
+										if (user['id'] == '{{ $to->id }}') {
 											setUserOnlineStatus(1);
 											throw BreakException;
 										}
-									@endif
-								});
-							} catch (e) {
-								if (e !== BreakException) throw e;
-							}
-						})
-						.joining((user) => {
-							@if(isset($to))
-								if(user.id == '{{ $to->id }}'){
+										@endif
+									});
+								} catch (e) {
+									if (e !== BreakException) throw e;
+								}
+							})
+							.joining((user) => {
+								@if(isset($to))
+								if (user.id == '{{ $to->id }}') {
 									setUserOnlineStatus(1);
 									return 0;
 								}
-							@endif
-						})
-						.leaving((user) => {
-							@if(isset($to))
-								if(user.id == '{{ $to->id }}'){
+								@endif
+							})
+							.leaving((user) => {
+								@if(isset($to))
+								if (user.id == '{{ $to->id }}') {
 									setUserOnlineStatus(0);
 									return 0;
 								}
-							@endif
-						});
+								@endif
+							});
+					@endif
+				@else
+					$(document).ready(() => {setUserOnlineStatus('Non-VIP') });
 				@endif
 				function setUserOnlineStatus(status, element_id){
-					if(status){
+					{{-- onlineStatus: chatWithUser, onlineStatus2: viewuser, onlineStatusChatView: chatview --}}
+					if(status === 'Non-VIP'){
 						if($('#onlineStatus').length > 0){
-							$('#onlineStatus').css('background', '#17bb4a');
+							$('#onlineStatus').addClass("onlineStatusNonVip");
+							$('#onlineStatus').prepend($('<img src="/new/images/wsx.png">'));
+						}
+						if($('#onlineStatusNonVip2').length > 0){
+							$('#onlineStatusNonVip2').show();
+						}
+						if(element_id){
+							$("#" + element_id).find('.onlineStatusChatView').addClass('nonVip');
+							$("#" + element_id).find('.onlineStatusChatView').prepend($('<img src="/new/images/wsx.png">'));
+						}
+					}
+					else if(status){
+						if($('#onlineStatus').length > 0){
+							$('#onlineStatus').addClass("onlineStatus");
 						}
 						if($('#onlineStatus2').length > 0){
 							$('#onlineStatus2').show();
 						}
 						if(element_id){
-							$("#" + element_id).find('.onlineStatusChatView').css('background', '#17bb4a');
-							$("#" + element_id).find('.onlineStatusChatView').css('border', '#ffffff 2px solid');
+							$("#" + element_id).find('.onlineStatusChatView').addClass('online');
+							$(".searchStatus#" + element_id).addClass('onlineStatusSearch');
 						}
 					}
 					else{
 						if($('#onlineStatus').length > 0) {
-							$('#onlineStatus').css('background', '');
+							$('#onlineStatus').removeClass('onlineStatus');
 						}
 						if($('#onlineStatus2').length > 0){
 							$('#onlineStatus2').hide();
 						}
 						if(element_id){
-							$("#" + element_id).find('.onlineStatusChatView').css('background', '');
-							$("#" + element_id).find('.onlineStatusChatView').css('border', '');
+							$("#" + element_id).find('.onlineStatusChatView').removeClass('online');
+							$(".searchStatus#" + element_id).removeClass('onlineStatusSearch');
 						}
 					}
 				}

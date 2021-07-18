@@ -915,12 +915,16 @@ text-align: center;
                                 @endif
                             }
                         }
-                        $.each(usersList, function(i2, e2){
-                            console.log(e2.id == e.user_id);
-                            if(e2.id == e.user_id){
-                                setUserOnlineStatus(1, e2.id);
-                            }
-                        });
+                        @if($isVip)
+                            $.each(usersList, function(i2, e2){
+                                console.log(e2.id == e.user_id);
+                                if(e2.id == e.user_id){
+                                    setUserOnlineStatus(1, e2.id);
+                                }
+                            });
+                        @else
+                            setUserOnlineStatus("Non-VIP", e.user_id);
+                        @endif
                     });
 
                     setTimeout(function(){
@@ -1606,7 +1610,9 @@ text-align: center;
     .popover.bottom .arrow:after {
         border-bottom-color:#e2e8ff;
     }
-    .onlineStatusChatView{
+    .online{
+        background: #17bb4a;
+        border: #ffffff 2px solid;
         width: 15px;
         height: 15px;
         border-radius: 100px;
@@ -1615,6 +1621,27 @@ text-align: center;
         bottom: 0;
         display: block;
         z-index: 5;
+    }
+    .nonVip{
+        width: 15px;
+        height: 15px;
+        background: linear-gradient(to TOP,#ff9225,#ffb86e);
+        border-radius: 100px;
+        box-shadow: 2px 2px 0px #ff721d;
+        border-radius: 100px;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        display: block;
+        z-index: 5;
+    }
+    .nonVip img {
+        max-width: 100%;
+        max-height: 100%;
+        height: 7px;
+        margin: 0 auto;
+        display: table;
+        margin-top: 4px;
     }
     .shanx{
         position: relative;

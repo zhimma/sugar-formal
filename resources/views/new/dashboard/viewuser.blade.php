@@ -288,7 +288,23 @@
             line-height: 22px;
             box-shadow: 2px 2px 2px #6aa763;
             border-radius: 100px;
-            display: block;
+            float: left;
+            text-align: center;
+            margin-top: 8px;
+            margin-left: 5px;
+            font-size: 12px;
+        }
+
+        #onlineStatusNonVip2{
+            display: none;
+            width: auto;
+            height: 22px;
+            background: linear-gradient(to TOP,#ff9225,#ffb86e);
+            color: #fff;
+            line-height: 22px;
+            padding-left: 7px;
+            box-shadow: 0px 3px 0px #ff721d;
+            border-radius: 100px;
             float: left;
             text-align: center;
             margin-top: 8px;
@@ -625,6 +641,7 @@
                                             <div class="select_xx01 senhs hy_new">
                                                 <font class="left">{{$to->name}}</font>
                                                 <font id="onlineStatus2">上線中</font>
+                                                <font id="onlineStatusNonVip2">上線狀態？</font>
                                             </div>
                                         </span>
                                     </dt>
