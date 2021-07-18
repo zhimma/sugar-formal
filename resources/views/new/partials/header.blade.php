@@ -137,8 +137,16 @@
 							Echo.join('Online').here((users) => {
 								try {
 									let showedUsers = $(".searchStatus");
+									let chatUsers = $(".sjpic.shanx");
+									let userList;
+									if(showedUsers.length > 0){
+										userList = showedUsers
+									}
+									else{
+										userList = chatUsers;
+									}
 									users.forEach(function (user) {
-										$(showedUsers).each((i, userListed) =>{
+										$(userList).each((i, userListed) =>{
 											if (user['id'] == userListed.id) {
 												setUserOnlineStatus(1, user['id']);
 												throw BreakException;
