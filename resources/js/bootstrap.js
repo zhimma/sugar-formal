@@ -39,4 +39,10 @@ window.Echo = new Echo({
     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
     forceTLS: true,
     // authEndpoint: '/custom/endpoint/auth',
+    /**
+     * 以下三行為自架 websocket 用
+     */
+    // wsPort: 6001,
+    // wsHost: window.location.hostname,
+    // forceTLS: false,
 });
