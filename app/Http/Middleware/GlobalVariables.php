@@ -26,6 +26,8 @@ class GlobalVariables
         $user = $this->auth->user();
         \View::share('user', $user);
         if(isset($user)) {
+            $expiresAt = \Carbon\Carbon::now()->addMinutes(10);
+            \Cache::put('user-is-online-' . \Auth::user()->id, true, $expiresAt);
             $valueAddedServices = array();
 //            $valueAddedServices['hideOnline'] = 0;
             $valueAddedServices['hideOnline'] = $user->valueAddedServiceStatus('hideOnline');

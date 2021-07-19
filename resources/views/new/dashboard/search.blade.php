@@ -621,7 +621,10 @@
                                         <h2>
                                             <font class="left">{{ $visitor->name }}<span>{{ $visitor->age() }}歲</span></font>
                                             @if($user->isVip())
-                                                <span class="searchStatus" id="{{ $visitor->id }}"></span>
+{{--                                                <span class="searchStatus" id="{{ $visitor->id }}"></span>--}}
+                                                @if($visitor->isOnline())
+                                                    <span class="onlineStatusSearch"></span>
+                                                @endif
                                             @else
                                                 <div class="onlineStatusNonVipSearch"><img src="/new/images/wsx.png"></div>
                                             @endif
