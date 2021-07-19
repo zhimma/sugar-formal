@@ -623,7 +623,7 @@
                                             @if($user->isVip())
                                                 <span class="searchStatus" id="{{ $visitor->id }}"></span>
                                             @else
-                                                <div class="onlineStatusNonVipSearch"><img src="/new/images/wsx.png"></div>
+                                                {{-- <div class="onlineStatusNonVipSearch"><img src="/new/images/wsx.png"></div> --}}
                                             @endif
 
                                         </h2>
