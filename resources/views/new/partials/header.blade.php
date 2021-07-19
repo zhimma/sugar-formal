@@ -129,7 +129,7 @@
 							}
 						@endif
 					});
-				@if($isVip || $user->isVip())
+				@if(($isVip ?? false) || $user->isVip())
 					@if(str_contains(url()->current(), 'search') || request()->route()->getName() == 'chat2View')
 						{{-- $(document).ready(() => {
 							Echo.join('Online').here((users) => {
