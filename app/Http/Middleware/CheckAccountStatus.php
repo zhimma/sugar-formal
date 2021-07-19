@@ -43,7 +43,7 @@ class CheckAccountStatus
         if(!in_array($_SERVER['REQUEST_URI'], $pass_ary)){
             if (!is_null($user)){
                 //0:帳號關閉中 1:帳號開啟中(預設)
-                if ($user->accountStatus == 0) {
+                if ($user->accountStatus == 0 || $user->account_status_admin == 0) {
                     if(Session::get('needLogOut') == 'Y'){
                         //logger('middleware=>'.Session::get('needLogOut'));
                         Session::put('needLogOut','N');

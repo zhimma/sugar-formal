@@ -798,24 +798,9 @@
 </table>
 
 @php
-	$visit_other_count  = \App\Models\Visited::where('member_id', $user->id)->count(); //瀏覽其他會員次數
-  	$date = date('Y-m-d H:m:s', strtotime('-7 days'));
-
- 	$messages_7days = \App\Models\Message::select('id','to_id','from_id','created_at')->whereRaw('(to_id ='. $user->id. ' OR from_id='.$user->id .')')->where('created_at','>=', $date)->orderBy('id')->get();
-	$message_count_7= 0;
-	$send = [];
-	foreach ($messages_7days as $message) {
-		//七天內uid主動第一次發信
-		if($message->from_id ==  $user->id && array_get($send, $message->to_id) < $message->id){
-			$send[$message->to_id][]= $message->id;
-		}
-	}
-	$message_count_7 = count($send);
-
 	$userAdvInfo=\App\Models\User::userAdvInfo($user->id);
 @endphp
 <br>
-<span>七天發信數量： {{$message_count_7}}</span>
 <span>每周平均上線次數： {{ array_get($userAdvInfo,'login_times_per_week',0) }}</span>
 <span>收藏會員次數： {{ array_get($userAdvInfo,'fav_count',0) }}</span>
 <span>發信次數： {{ array_get($userAdvInfo,'message_count',0) }}</span>
