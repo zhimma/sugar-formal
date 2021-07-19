@@ -734,9 +734,9 @@ text-align: center;
         var this_30daysBefore = before30days.getFullYear() + '-' + ("0" + (before30days.getMonth()+1)).slice(-2) + '-' + ("0" + (before30days.getDate())).slice(-2);
 
         let usersList;
-        Echo.join('Online').here(function (users){
+        {{-- Echo.join('Online').here(function (users){
             usersList = users;
-        });
+        }); --}}
 
         var counter=1;
         //ajax資料

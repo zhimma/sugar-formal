@@ -106,7 +106,7 @@
 				let users = null;
 				let users_leaving = null;
 				let BreakException = [];
-				Echo.join('Online');
+				{{-- Echo.join('Online'); --}}
 				Echo.private('NewMessage.{{ $user->id }}')
 					.listen('NewMessage', (e) => {
 						let unread = parseInt($('#unreadCount').text(), 10);
@@ -131,7 +131,7 @@
 					});
 				@if($isVip || $user->isVip())
 					@if(str_contains(url()->current(), 'search') || request()->route()->getName() == 'chat2View')
-						$(document).ready(() => {
+						{{-- $(document).ready(() => {
 							Echo.join('Online').here((users) => {
 								try {
 									let showedUsers = $(".searchStatus");
@@ -159,9 +159,9 @@
 							}).leaving((user) => {
 								setUserOnlineStatus(0, user.id);
 							});
-						});
+						}); --}}
 					@elseif(str_contains(url()->current(), 'viewuser') || request()->route()->getName() == 'chat2WithUser')
-						Echo.join('Online')
+						{{-- Echo.join('Online')
 							.here((users) => {
 								try {
 									users.forEach(function (user) {
@@ -191,10 +191,10 @@
 									return 0;
 								}
 								@endif
-							});
+							}); --}}
 					@endif
 				@else
-					$(document).ready(() => {setUserOnlineStatus('Non-VIP') });
+						{{-- $(document).ready(() => {setUserOnlineStatus('Non-VIP') }); --}}
 				@endif
 				function setUserOnlineStatus(status, element_id){
 					{{-- onlineStatus: chatWithUser, onlineStatus2: viewuser, onlineStatusChatView: chatview --}}
