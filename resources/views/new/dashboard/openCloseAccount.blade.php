@@ -16,7 +16,28 @@
                     </div>
                     <div class="gg_zh">
                         <div class="gg_mm"><span><i></i>帳號開啟/關閉</span><img src="/new/images/darkPinkKey.png"></div>
-                        @if($user->accountStatus == 0)
+                        @if($user->account_status_admin == 0)
+                            <div class="sjlist_li">
+                                <div class="leftsidebar_box">
+                                    <form method="POST" action="/dashboard/updateAccountStatus">
+                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="status" value="open">
+                                        <div class="gg_input01">
+                                            <div class="de_input01 dlmarbot">
+                                                <div class="de_img"><img src="/new/images/lo_03.png"></div>
+                                                <input name="email" type="email" autocomplete="off" id="email" class="d_input" placeholder="帳號 (您的Email)" required="" data-parsley-id="4" style="border-radius: 50px;">
+                                            </div>
+                                            <div class="de_input01 dlmarbot">
+                                                <div class="de_img"><img src="/new/images/lo_11.png"></div>
+                                                <input name="password" type="password" class="d_input" id="password" placeholder="密碼" required="" data-parsley-id="6" style="border-radius: 50px;">
+                                            </div>
+                                        </div>
+                                        <br>
+                                        <button id="closeAccount" class="dlbut n_center" style="border-style: none;">帳號開啟</button>
+                                    </form>
+                                </div>
+                            </div>
+                        @elseif($user->accountStatus == 0)
                             @if ($user->isVip())
                                 <div class="n_shtab">
                                     <?php
