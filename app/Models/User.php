@@ -180,6 +180,10 @@ class User extends Authenticatable
         return $this->hasMany(CFP_User::class, 'user_id', 'id');
     }
 
+    public function isOnline() {
+        return \Cache::has('user-is-online-' . $this->id);
+    }
+
     /**
      * Find by Email
      *

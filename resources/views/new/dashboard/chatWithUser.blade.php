@@ -186,7 +186,18 @@
                     <div class="shouxq" style="display: flex;">
                         <a class="nnn_adbut" href="{{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }}"><img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回</a>
                         <span style="flex: 6; text-align: center;">
-                            <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;"><span class="se_rea">{{$to->name}}<div id="onlineStatus"></div></span></a>
+                            <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">
+                                <span class="se_rea">{{$to->name}}
+{{--                                    <div id="onlineStatus"></div>--}}
+                                    @if($isVip)
+                                        @if($to->isOnline())
+                                            <div class="onlineStatus"></div>
+                                        @endif
+                                    @else
+                                        <div class="onlineStatusNonVip"></div>
+                                    @endif
+                                </span>
+                            </a>
                         </span>
                         @if($user->engroup==1)
                             <form class="" style="float: right; position: relative; text-align: right;" action="{{ route('chatpay_ec') }}" method=post id="ecpay">

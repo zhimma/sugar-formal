@@ -640,8 +640,13 @@
                                         <span>
                                             <div class="select_xx01 senhs hy_new">
                                                 <font class="left">{{$to->name}}</font>
-                                                <font id="onlineStatus2">上線中</font>
-                                                <font id="onlineStatusNonVip2">上線狀態？</font>
+                                                @if($user->isVip())
+                                                    @if($to->isOnline())
+                                                        <font id="onlineStatus2" style="display: block;">上線中</font>
+                                                    @endif
+                                                @else
+                                                    <font id="onlineStatusNonVip2" style="display: block;">上線狀態？</font>
+                                                @endif
                                             </div>
                                         </span>
                                     </dt>
