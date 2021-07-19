@@ -918,6 +918,7 @@
             var response = e.currentTarget.response;
         }
         xhr.send(formData);  /* Send to server */
+        document.getElementById("msg").value = '';
     }
 
     function sendReadMessage(messageId){
