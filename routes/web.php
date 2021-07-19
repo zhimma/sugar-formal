@@ -181,7 +181,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('password', 'PasswordController@update');
     });
 
-    Route::get('/user/view/{uid?}', 'PagesController@viewuser');
+    Route::get('/user/view/{uid?}', function ($uid) { return redirect(route('viewuser', [$uid])); });
     //Route::get('/user/view2/{uid?}', 'PagesController@viewuser2'); //new route
 
 
@@ -369,7 +369,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::get('/dashboard/banned', 'PagesController@dashboard_banned');
         Route::get('/dashboard/visited', 'PagesController@visited');
-        Route::get('/dashboard/viewuser/{uid?}', 'PagesController@viewuser2'); //new route
+        Route::get('/dashboard/viewuser/{uid?}', 'PagesController@viewuser2')->name('viewuser'); //new route
         Route::get('/dashboard/personalPage', 'PagesController@personalPage'); //new route
         Route::post('/dashboard/personalPage/reportDelete', 'PagesController@report_delete')->name('report_delete');
 
