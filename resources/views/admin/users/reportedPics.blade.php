@@ -130,10 +130,10 @@
                                 </a>
                             </td>
                             <td>
-                                @if($result->id)
+                                @if($result->reported_user_id)
                                     <a class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" >撰寫</a>
                                 @else
-                                    檢舉資料遺失(1)
+                                    檢舉者資料已不存在(1)
                                 @endif
                             </td>
                             <td>
@@ -239,10 +239,10 @@
                                 </a>
                             </td>
                             <td>
-                                @if($result->id)
+                                @if($result->reported_user_id)
                                     <a class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" >撰寫</a>
                                 @else
-                                    檢舉資料遺失(2)
+                                    檢舉者資料已不存在(2)
                                 @endif
                             </td>
                             <td>
@@ -416,10 +416,10 @@
                                 </a>
                             </td>
                             <td>
-                                @if($result->id)
+                                @if($result->reported_user_id)
                                     <a target="_blank" class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true, 'reported'] ) }}"  >撰寫</a>
                                 @else
-                                    檢舉資料遺失(3)
+                                    檢舉者資料已不存在(3)
                                 @endif
                             </td>
                             <td>
@@ -474,10 +474,10 @@
                                 </a>
                             </td>
                             <td>
-                                @if($result->id)
+                                @if($result->reported_user_id)
                                     <a class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" >撰寫</a>
                                 @else
-                                    檢舉資料遺失(4)
+                                    檢舉者資料已不存在(4)
                                 @endif
                             </td>
                             <td>
