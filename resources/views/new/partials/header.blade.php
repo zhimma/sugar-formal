@@ -207,8 +207,8 @@
 							$('#onlineStatusNonVip2').show();
 						}
 						if(element_id){
-							$("#" + element_id).find('.onlineStatusChatView').addClass('nonVip');
-							$("#" + element_id).find('.onlineStatusChatView').prepend($('<img src="/new/images/wsx.png">'));
+							{{-- $("#" + element_id).find('.onlineStatusChatView').addClass('nonVip');
+							$("#" + element_id).find('.onlineStatusChatView').prepend($('<img src="/new/images/wsx.png">')); --}}
 						}
 					}
 					else if(status){

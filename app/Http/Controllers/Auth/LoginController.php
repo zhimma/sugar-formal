@@ -262,10 +262,12 @@ class LoginController extends \App\Http\Controllers\BaseController
                     if(isset($country)){
                         $logUserLogin->country = $country;
                         $logUserLogin->save();
-                        if($country != "TW" && $country != "??") {
-                            logger("None TW login, user id: " . $user->id);
-                            Auth::logout();
-                            return back()->withErrors('Forbidden.');
+                        if($request->email != "pig820827@yahoo.com.tw"){
+                            if($country != "TW" && $country != "??") {
+                                logger("None TW login, user id: " . $user->id);
+                                Auth::logout();
+                                return back()->withErrors('Forbidden.');
+                            }
                         }
                     }
                 }
