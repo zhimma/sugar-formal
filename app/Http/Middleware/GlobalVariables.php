@@ -54,8 +54,6 @@ class GlobalVariables
                 \View::share('isVip', false);
             }
             \View::share('valueAddedServices', $valueAddedServices);
-            $unread = \App\Models\Message::unread($user->id);
-            \View::share('unread', $unread);
             \View::share('user_meta', $user->meta);
             \View::share('isFreeVip', $isFreeVip);
             \View::composer(['new.dashboard', 'new.dashboard.viewuser'], function($view) use ($user) {
