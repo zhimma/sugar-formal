@@ -16,7 +16,7 @@ class EsafePayment extends BaseController
         try {      
             $obj = new EsafePay_AllInOne();
 
-            if(env('APP_ENV') == 'local'){
+            if(\App::environment('local')){
                 $envStr = '_test';
             }
             else{

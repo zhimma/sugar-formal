@@ -4150,7 +4150,7 @@ class PagesController extends BaseController
                         default:
                             $payment = '';
                     }
-                    if(env('APP_ENV') == 'local'){
+                    if(\App::environment('local')){
                         $envStr = '_test';
                     }
                     else{

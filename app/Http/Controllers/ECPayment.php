@@ -51,7 +51,7 @@ class ECPayment extends BaseController
         try {
             $obj = new ECPay_AllInOne();
 
-            if(env('APP_ENV') == 'local'){
+            if(\App::environment('local')){
                 $envStr = '_test';
             }
             else{
@@ -156,7 +156,7 @@ class ECPayment extends BaseController
         try {
             $obj = new ECPay_AllInOne();
 
-            if (env('APP_ENV') == 'local') {
+            if (\App::environment('local')) {
                 $envStr = '_test';
             } else {
                 $envStr = '';
@@ -229,7 +229,7 @@ class ECPayment extends BaseController
         try {
             $obj = new ECPay_AllInOne();
 
-            if (env('APP_ENV') == 'local') {
+            if (\App::environment('local')) {
                 $envStr = '_test';
             } else {
                 $envStr = '';
@@ -317,7 +317,7 @@ class ECPayment extends BaseController
         try {
             $obj = new ECPay_AllInOne();
 
-            if(env('APP_ENV') == 'local'){
+            if(\App::environment('local')){
                 $envStr = '_test';
             }
             else{
@@ -397,7 +397,7 @@ class ECPayment extends BaseController
         try {
             $obj = new ECPay_AllInOne();
 
-            if (env('APP_ENV') == 'local') {
+            if (\App::environment('local')) {
                 $envStr = '_test';
             } else {
                 $envStr = '';
