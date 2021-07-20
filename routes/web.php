@@ -339,7 +339,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     */
     Route::group(['middleware' => ['CheckDiscussPermissions']], function () {
         Route::post('/dashboard/postAcceptor', 'PagesController@postAcceptor');/*投稿列表功能*/
-        Route::get('/dashboard/posts_list', 'PagesController@posts_list');/*投稿列表功能*/
+        Route::get('/dashboard/posts_list', 'PagesController@posts_list')->name('posts_list');/*投稿列表功能*/
         Route::get('/dashboard/post_detail/{pid}', 'PagesController@post_detail');
         Route::post('/dashboard/getPosts', 'PagesController@getPosts');/*動態取得列表資料*/
         Route::get('/dashboard/posts', 'PagesController@posts');/*投稿功能*/
