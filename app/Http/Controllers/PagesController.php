@@ -3842,6 +3842,7 @@ class PagesController extends BaseController
 
         if(!$postDetail) {
             $request->session()->flash('message', '找不到文章：' . $pid);
+            $request->session()->reflash();
             return redirect()->route('posts_list');
         }
 
