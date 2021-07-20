@@ -3840,6 +3840,11 @@ class PagesController extends BaseController
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->where('posts.id', $pid)->first();
 
+        if(!$postDetail) {
+            $request->session()->flash('message', '找不到文章：' . $pid);
+            return redirect()->route('posts_list');
+        }
+
         $replyDetail = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
             ->LeftJoin('users', 'users.id','=','posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
