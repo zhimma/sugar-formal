@@ -22,11 +22,9 @@
         let xhr = new XMLHttpRequest();
 		xhr.open("get", "{{ route('getUnread', $user->id) }}", true);
 		xhr.onload = function (e) {
-            let response = e.currentTarget.response;
+            let response = parseInt(e.currentTarget.response, 10);
             animateValue('unreadCount', unread, response, 500);
             animateValue('unreadCount2', unread2, response, 500);
-			$('#unreadCount').text(response);
-			$('#unreadCount2').text(response);
 		}
 		xhr.send(formData);  /* Send to server */
 	});
