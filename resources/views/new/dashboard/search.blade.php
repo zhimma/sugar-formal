@@ -626,7 +626,7 @@
                                                     <span class="onlineStatusSearch"></span>
                                                 @endif
                                             @else
-                                                {{-- <div class="onlineStatusNonVipSearch"><img src="/new/images/wsx.png"></div> --}}
+                                                <div class="onlineStatusNonVipSearch"><img src="/new/images/wsx.png"></div>
                                             @endif
 
                                         </h2>
