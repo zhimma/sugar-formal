@@ -957,6 +957,12 @@
             .listen('ChatRead', (e) => {
                 $('#is_read.' + e.message_id).html("已讀");
             });
+        Echo.private('ChatReadSelf.{{ auth()->user()->id }}')
+            .listen('ChatReadSelf', (e) => {
+                let unread = parseInt($('#unreadCount').text(), 10);
+                unread--;
+                $('#unreadCount').text(unread);
+            });
     </script>
 @endif
 <style>

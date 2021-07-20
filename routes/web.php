@@ -141,6 +141,7 @@ Route::group(['middleware' => ['auth', 'global']], function () {
 | Authenticated Routes
 |--------------------------------------------------------------------------
 */
+Route::get('/unread/{user_id}', 'Message_newController@getUnread')->middleware('auth')->name('getUnread');
 Route::group(['middleware' => ['auth', 'global']], function () {
     //新手教學
     Route::get('/dashboard/newer_manual', 'PagesController@newer_manual');

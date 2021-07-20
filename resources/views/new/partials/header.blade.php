@@ -109,15 +109,18 @@
 				let users_leaving = null;
 				let BreakException = [];
 				{{-- Echo.join('Online'); --}}
-				Echo.private('ChatReadSelf.{{ auth()->user()->id }}')
-					.listen('ChatReadSelf', (e) => {
-						let unread = parseInt($('#unreadCount').text(), 10);
-						let unread2 = parseInt($('#unreadCount2').text(), 10);
-						unread--;
-						unread2--;
-						$('#unreadCount').text(unread);
-						$('#unreadCount2').text(unread2);
-					});
+				$(document).ready(() =>{
+					var formData = new FormData();
+					var xhr = new XMLHttpRequest();
+					xhr.open("get", "{{ route('getUnread', $user->id) }}", true);
+					xhr.onload = function (e) {
+						var response = e.currentTarget.response;
+						console.log(response);
+						$('#unreadCount').text(response);
+						$('#unreadCount2').text(response);
+					}
+					xhr.send(formData);  /* Send to server */
+				});
 				Echo.private('NewMessage.{{ $user->id }}')
 					.listen('NewMessage', (e) => {
 						let unread = parseInt($('#unreadCount').text(), 10);

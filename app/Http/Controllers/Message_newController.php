@@ -509,6 +509,7 @@ class Message_newController extends BaseController {
             $messageInfo->delete();
         }
     }
+
     public function deleteMsgByUser($msgid)
     {
         $messageInfo=Message::find($msgid);
@@ -531,4 +532,7 @@ class Message_newController extends BaseController {
         }
     }
 
+    public function getUnread($user_id){
+        return \App\Models\Message::unread($user_id);
+    }
 }
