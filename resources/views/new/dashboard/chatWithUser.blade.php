@@ -391,31 +391,32 @@
             <a onclick="show_banned_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
         </div>
     </div>
-
-    <div class="bl_tab_aa" id="tab_uploadPic" style="display: none;">
-        <form id="form_uploadPic" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-            <input type="hidden" name="userId" value="{{ $user->id }}">
-            <input type="hidden" name="from" value="{{ $user->id }}">
-            <input type="hidden" name="to" value="{{ $to->id }}">
-            <input type="hidden" name="msg" value="">
-            <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
-            <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}" value="{{ \Carbon\Carbon::now()->timestamp }}">
-            <div class="bl_tab_bb">
-                <div class="bltitle"><span style="text-align: center; float: none;">上傳照片</span></div>
-                <div class="new_pot1 new_poptk_nn new_height_mobile ">
-                    <div class="fpt_pic">
-                        <input id="images" type="file" name="images" accept="image/*">
-                        <div class="alert_tip" style="color:red;"></div>
-                        <div class="n_bbutton" style="margin-top:0px;">
-                            <a class="n_bllbut" onclick="form_uploadPic_submit()">送出</a>
+    @if($to)
+        <div class="bl_tab_aa" id="tab_uploadPic" style="display: none;">
+            <form id="form_uploadPic" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                <input type="hidden" name="userId" value="{{ $user->id }}">
+                <input type="hidden" name="from" value="{{ $user->id }}">
+                <input type="hidden" name="to" value="{{ $to->id }}">
+                <input type="hidden" name="msg" value="">
+                <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
+                <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}" value="{{ \Carbon\Carbon::now()->timestamp }}">
+                <div class="bl_tab_bb">
+                    <div class="bltitle"><span style="text-align: center; float: none;">上傳照片</span></div>
+                    <div class="new_pot1 new_poptk_nn new_height_mobile ">
+                        <div class="fpt_pic">
+                            <input id="images" type="file" name="images" accept="image/*">
+                            <div class="alert_tip" style="color:red;"></div>
+                            <div class="n_bbutton" style="margin-top:0px;">
+                                <a class="n_bllbut" onclick="form_uploadPic_submit()">送出</a>
+                            </div>
                         </div>
                     </div>
+                    <a onclick="tab_uploadPic_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
                 </div>
-                <a onclick="tab_uploadPic_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
-            </div>
-        </form>
-    </div>
+            </form>
+        </div>
+    @endif
 @stop
 @section('javascript')
 <link href="{{ asset('css/jquery.fileuploader.min.css') }}" media="all" rel="stylesheet">
@@ -898,64 +899,66 @@
         });
     });
 </script>
-@include('new.dashboard.chat_to')
-@include('new.dashboard.chat_from')
-<script>
-    document.getElementById("chatForm").onsubmit = function(event) {
-        submit();
-        event.preventDefault();
-        return false;
-    }
-    function submit(){
-        var formData = new FormData();
-        var xhr = new XMLHttpRequest();
-        formData.append("msg", document.getElementById("msg").value);
-        formData.append("from", "{{ auth()->user()->id }}");
-        formData.append("to", "{{ $to->id }}");
-        formData.append("_token", "{{ csrf_token() }}");
-        xhr.open("post", "{{ route('realTimeChat') }}", true);
-        xhr.onload = function (e) {
-            var response = e.currentTarget.response;
+@if($to)
+    @include('new.dashboard.chat_to')
+    @include('new.dashboard.chat_from')
+    <script>
+        document.getElementById("chatForm").onsubmit = function(event) {
+            submit();
+            event.preventDefault();
+            return false;
         }
-        xhr.send(formData);  /* Send to server */
-        document.getElementById("msg").value = '';
-    }
+        function submit(){
+            var formData = new FormData();
+            var xhr = new XMLHttpRequest();
+            formData.append("msg", document.getElementById("msg").value);
+            formData.append("from", "{{ auth()->user()->id }}");
+            formData.append("to", "{{ $to->id }}");
+            formData.append("_token", "{{ csrf_token() }}");
+            xhr.open("post", "{{ route('realTimeChat') }}", true);
+            xhr.onload = function (e) {
+                var response = e.currentTarget.response;
+            }
+            xhr.send(formData);  /* Send to server */
+            document.getElementById("msg").value = '';
+        }
 
-    function sendReadMessage(messageId){
-        var formData = new FormData();
-        var xhr = new XMLHttpRequest();
-        formData.append("messageId", messageId);
-        formData.append("_token", "{{ csrf_token() }}");
-        xhr.open("post", "{{ route('realTimeChatRead') }}", true);
-        xhr.onload = function (e) {
-            var response = e.currentTarget.response;
+        function sendReadMessage(messageId){
+            var formData = new FormData();
+            var xhr = new XMLHttpRequest();
+            formData.append("messageId", messageId);
+            formData.append("_token", "{{ csrf_token() }}");
+            xhr.open("post", "{{ route('realTimeChatRead') }}", true);
+            xhr.onload = function (e) {
+                var response = e.currentTarget.response;
+            }
+            xhr.send(formData);  /* Send to server */
         }
-        xhr.send(formData);  /* Send to server */
-    }
-    Echo.private('Chat.{{ $to->id }}.{{ auth()->user()->id }}')
-        .listen('Chat', (e) => {
-            // Received
-            if(!e.message.error) {
-                realtime_from(e);
-                sendReadMessage(e.message.id);
-            }
-        });
-    Echo.private('Chat.{{ auth()->user()->id }}.{{ $to->id }}')
-        .listen('Chat', (e) => {
-            if(e.message.error){
-                c5(e.message.content);
-                return false;
-            }
-            else {
-                // Sent
-                realtime_to(e);
-            }
-       });
-    Echo.private('ChatRead.{{ auth()->user()->id }}.{{ $to->id }}')
-        .listen('ChatRead', (e) => {
-            $('#is_read.' + e.message_id).html("已讀");
-        });
-</script>
+        Echo.private('Chat.{{ $to->id }}.{{ auth()->user()->id }}')
+            .listen('Chat', (e) => {
+                // Received
+                if(!e.message.error) {
+                    realtime_from(e);
+                    sendReadMessage(e.message.id);
+                }
+            });
+        Echo.private('Chat.{{ auth()->user()->id }}.{{ $to->id }}')
+            .listen('Chat', (e) => {
+                if(e.message.error){
+                    c5(e.message.content);
+                    return false;
+                }
+                else {
+                    // Sent
+                    realtime_to(e);
+                }
+           });
+        Echo.private('ChatRead.{{ auth()->user()->id }}.{{ $to->id }}')
+            .listen('ChatRead', (e) => {
+                $('#is_read.' + e.message_id).html("已讀");
+            });
+    </script>
+@endif
 <style>
     @media (max-width:450px) {
         .fpt_pic{height:230px !important;}
