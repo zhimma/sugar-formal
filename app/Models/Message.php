@@ -769,6 +769,7 @@ class Message extends Model
             $message->read = 'Y';
             $message->save();
             \App\Events\ChatRead::dispatch($message->id, $message->from_id, $message->to_id);
+            \App\Events\ChatReadSelf::dispatch($uid);
         }
     }
 
