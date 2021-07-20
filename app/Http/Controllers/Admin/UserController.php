@@ -910,7 +910,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $pic_all_report = $collection->collapse()->unique('uid');
         //$pic_all_report->unique()->all();
 
-        $msg_report = Message::select('to_id', 'id', 'cancel', 'created_at', 'content')->where('from_id', $user->id)->where('isReported', 1)->distinct('to_id')->get();
+        $msg_report = Message::select('to_id', 'id', 'cancel', 'created_at', 'content','from_id')->where('from_id', $user->id)->where('isReported', 1)->distinct('to_id')->get();
         $report = Reported::select('member_id', 'reported_id', 'cancel', 'created_at', 'content', 'pic')->where('reported_id', $user->id)->where('member_id', '!=', $user->id)->groupBy('member_id')->get();
         $report_all = array();
 
@@ -971,6 +971,7 @@ class UserController extends \App\Http\Controllers\BaseController
                     array_push($report_all,
                         array(
                             'report_dbid' => $row->id,
+                            'reported_id' => $row->from_id,
                             'reporter_id' => $row->to_id,
                             'cancel' => $row->cancel,
                             'content' => $row->content,
@@ -998,6 +999,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 array_push($report_all,
                     array(
                         'report_dbid' => $row->id,
+                        'reported_id' => $row->from_id,
                         'reporter_id' => $row->to_id,
                         'cancel' => $row->cancel,
                         'content' => $row->content,
