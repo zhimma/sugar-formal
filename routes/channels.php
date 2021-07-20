@@ -25,6 +25,10 @@ Broadcast::channel('ChatRead.{from_user}.{to_user}', function (User $cur_user, U
     return $cur_user->id == $from_user->id || $cur_user->id == $to_user->id;
 });
 
+Broadcast::channel('ChatReadSelf.{id}', function (User $cur_user, $id) {
+    return $cur_user->id == $id;
+});
+
 Broadcast::channel('NewMessage.{id}', function (User $user, $id) {
     return (int) $user->id == (int) $id;
 });
