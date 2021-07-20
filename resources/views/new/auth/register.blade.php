@@ -63,10 +63,10 @@
             </div>
         </div>
     </div>
-    <script src="https://www.google.com/recaptcha/api.js?render={{ env('RECAPTCHA_SITE_KEY') }}"></script>
+    <script src="https://www.google.com/recaptcha/api.js?render={{ config('recaptcha.RECAPTCHA_SECRET_KEY') }}"></script>
     <script>
         grecaptcha.ready(function() {
-            grecaptcha.execute('{{ env('RECAPTCHA_SITE_KEY') }}', {action: 'register'}).then(function(token) {
+            grecaptcha.execute('{{ config('recaptcha.RECAPTCHA_SECRET_KEY') }}', {action: 'register'}).then(function(token) {
                 document.getElementById('ctl-recaptcha-token').value = token;
             });
         });

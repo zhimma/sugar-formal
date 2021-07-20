@@ -27,7 +27,7 @@ class GoogleRecapchaV3Case implements Rule
      */
     public function passes($attribute, $value): bool
     {
-        if (env('RECAPTCHA_ENABLE') == true) {
+        if (config('recaptcha.RECAPTCHA_ENABLE') == true) {
             return $this->verify($value);
         }
 
@@ -49,11 +49,11 @@ class GoogleRecapchaV3Case implements Rule
      */
     private function verify(string $token = null): bool
     {
-        $url = env('RECAPTCHA_URL', 'https://www.google.com/recaptcha/api/siteverify');
+        $url = config('recaptcha.RECAPTCHA_URL');
 
         $response = (new Client())->request('POST', $url, [
             'form_params' => [
-                'secret' => env('RECAPTCHA_SECRET_KEY'),
+                'secret' => config('recaptcha.RECAPTCHA_SECRET_KEY'),
                 'response' => $token,
             ],
         ]);
