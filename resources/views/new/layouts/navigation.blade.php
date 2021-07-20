@@ -19,7 +19,7 @@
 								<a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}">
 									<img src="/new/images/icon_45.png">
 								</a>
-								<span id="unreadCount">0</span>
+								<span id="unreadCount"></span>
 							</span>
 {{--							@endif--}}
 							<a href="{!! url('dashboard/personalPage') !!}"><img src="/new/images/icon_48.png"></a>
@@ -68,7 +68,7 @@
 												<a href="{!! url('dashboard/search') !!}"><img src="/new/images/icon_38.png">搜索</a>
 											</li>
 											<li>
-												<a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}"><img src="/new/images/icon_45.png">收件夾</a><span id="unreadCount2">0</span>
+												<a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}"><img src="/new/images/icon_45.png">收件夾</a><span id="unreadCount2"></span>
 											</li>
 											@if($user->engroup == 1)
 												@php
