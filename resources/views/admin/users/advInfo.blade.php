@@ -718,32 +718,34 @@
 
 
 <h4>曾被警示</h4>
+@if(isset($isEverWarned) && count($isEverWarned)>0)
 <table class="table table-hover table-bordered">
 	<tr>
 		<th width="30%">警示時間</th>
 		<th>原因</th>
 	</tr>
-	@if(isset($isEverWarned) && count($isEverWarned)>0)
+
 	@foreach($isEverWarned as $row)
 		<tr>
 			<td>{{$row->created_at}}</td>
 			<td>{{$row->reason}}</td>
 		</tr>
 	@endforeach
-		{!! $isEverWarned->links() !!}
-	@endif
-</table>
 
+</table>
+{!! $isEverWarned->links('pagination::sg-pages') !!}
+@endif
 
 
 <h4>曾被封鎖</h4>
+@if(isset($isEverBanned) && count($isEverBanned)>0)
 <table class="table table-hover table-bordered">
 	<tr>
 		<th width="30%">封鎖時間</th>
 		<th>原因</th>
 {{--		<th>到期時間</th>--}}
 	</tr>
-	@if(isset($isEverBanned) && count($isEverBanned)>0)
+
 	@foreach($isEverBanned as $row)
 		<tr>
 			<td>{{$row->created_at}}</td>
@@ -751,20 +753,21 @@
 {{--			<td>{{$row->expire_date}}</td>--}}
 		</tr>
 	@endforeach
-		{!! $isEverBanned->links() !!}
-	@endif
-</table>
 
+</table>
+{!! $isEverBanned->links('pagination::sg-pages') !!}
+@endif
 
 
 <h4>目前正被警示</h4>
+@if(isset($isWarned) && count($isWarned)>0)
 <table class="table table-hover table-bordered">
 	<tr>
 		<th width="30%">警示時間</th>
 		<th>原因</th>
 		<th>到期時間</th>
 	</tr>
-	@if(isset($isWarned) && count($isWarned)>0)
+
 	@foreach($isWarned as $row)
 		<tr>
 			<td>{{$row->created_at}}</td>
@@ -772,20 +775,21 @@
 			<td>{{$row->expire_date}}</td>
 		</tr>
 	@endforeach
-		{!! $isWarned->links() !!}
-	@endif
-</table>
 
+</table>
+{!! $isWarned->links('pagination::sg-pages') !!}
+@endif
 
 
 <h4>目前正被封鎖</h4>
+@if(isset($isBanned) && count($isBanned)>0)
 <table class="table table-hover table-bordered">
 	<tr>
 		<th width="30%">封鎖時間</th>
 		<th>原因</th>
 		<th>到期時間</th>
 	</tr>
-	@if(isset($isBanned) && count($isBanned)>0)
+
 	@foreach($isBanned as $row)
 		<tr>
 			<td>{{$row->created_at}}</td>
@@ -793,9 +797,10 @@
 			<td>{{$row->expire_date}}</td>
 		</tr>
 	@endforeach
-		{!! $isBanned->links() !!}
-	@endif
+
 </table>
+{!! $isBanned->links('pagination::sg-pages') !!}
+@endif
 
 @php
 	$userAdvInfo=\App\Models\User::userAdvInfo($user->id);

@@ -98,26 +98,25 @@
                                         <span>
                                             <div class="select_xx03">
                                                 @if($reportedStatus)
+                                                    <div class="collapse_word" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false">[－]　收起</div>
+                                                <div id="collapseExample" class="collapse">
                                                 <table class="table">
                                                     <thead>
-                                                        <tr data-toggle="collapse" data-target="#collapseExample" aria-expanded="false">
-                                                            <th width="5%"></th>
-                                                            <th width="60%">檢舉紀錄</th>
-                                                            <th width="30%">處理情形</th>
-                                                            <th width="5%"><div class="collapse_word">-</div></th>
-                                                        </tr>
+                                                    <tr>
+                                                        <th style="width: 5%;"></th>
+                                                        <th style="width: 60%;">檢舉紀錄</th>
+                                                        <th style="width: 30%;">處理情形</th>
+                                                    </tr>
                                                     </thead>
-                                                    <tbody id="collapseExample" class="collapse">
                                                         @foreach($reportedStatus as $row)
-                                                            <tr>
-                                                                <td><a href="javascript:void(0)" class="reportDelete" data-rid="{{$row['rid']}}"{{-- data-table="{{$row['table']}}" --}}><img src="/new/images/del_03.png" style="height: 14px;" alt="刪除" title="刪除"></a></td>
-                                                                <td>{!! $row['content'] !!}</td>
-                                                                <td>{!! $row['status'] !!}</td>
-                                                                <td></td>
+                                                            <tr style="font-size: 12pt;">
+                                                                <td style="width: 5%;"><a href="javascript:void(0)" class="reportDelete" data-rid="{{$row['rid']}}"{{-- data-table="{{$row['table']}}" --}}><img src="/new/images/del_03.png" style="height: 14px;" alt="刪除" title="刪除"></a></td>
+                                                                <td style="width: 60%;">{!! $row['content'] !!}</td>
+                                                                <td style="width: 30%;">{!! $row['status'] !!}</td>
                                                             </tr>
                                                         @endforeach
-                                                    </tbody>
                                                 </table>
+                                                </div>
                                                 @else
                                                     無
                                                 @endif
@@ -295,11 +294,11 @@
 
     $('#collapseExample').on('hidden.bs.collapse', function () {
         // do something…
-        $('.collapse_word').html('+');
+        $('.collapse_word').html('[＋]　展開');
     });
     $('#collapseExample').on('shown.bs.collapse', function () {
         // do something…
-        $('.collapse_word').html('-');
+        $('.collapse_word').html('[－]　收起');
     });
 
     $( document ).ready(function() {
