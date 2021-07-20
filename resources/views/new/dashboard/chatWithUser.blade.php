@@ -194,7 +194,7 @@
                                             <div class="onlineStatus"></div>
                                         @endif
                                     @else
-                                        <div class="onlineStatusNonVip"></div>
+                                        <div class="onlineStatusNonVip"><img src="/new/images/wsx.png"></div>
                                     @endif
                                 </span>
                             </a>
