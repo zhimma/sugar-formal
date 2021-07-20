@@ -1,10 +1,30 @@
 <script>
+    let unread = parseInt($('#unreadCount').text(), 10) || 0;
+    let unread2 = parseInt($('#unreadCount2').text(), 10) || 0;
+    function animateValue(id, start, end, duration) {
+        if (start === end) return;
+        let range = end - start;
+        let current = start;
+        let increment = end > start? 1 : -1;
+        let stepTime = Math.abs(Math.floor(duration / range));
+        let obj = document.getElementById(id);
+        let timer = setInterval(function() {
+            current += increment;
+            obj.innerHTML = current;
+            if (current == end) {
+                clearInterval(timer);
+            }
+        }, stepTime);
+    }
+
 	$(document).ready(() =>{
-		var formData = new FormData();
-		var xhr = new XMLHttpRequest();
+		let formData = new FormData();
+        let xhr = new XMLHttpRequest();
 		xhr.open("get", "{{ route('getUnread', $user->id) }}", true);
 		xhr.onload = function (e) {
-			var response = e.currentTarget.response;
+            let response = e.currentTarget.response;
+            animateValue('unreadCount', unread, response, 500);
+            animateValue('unreadCount2', unread2, response, 500);
 			$('#unreadCount').text(response);
 			$('#unreadCount2').text(response);
 		}
@@ -13,8 +33,6 @@
 
 	Echo.private('NewMessage.{{ $user->id }}')
 		.listen('NewMessage', (e) => {
-			let unread = parseInt($('#unreadCount').text(), 10) || 0;
-			let unread2 = parseInt($('#unreadCount2').text(), 10) || 0;
 			unread++;
 			unread2++;
 			$('#unreadCount').text(unread);
