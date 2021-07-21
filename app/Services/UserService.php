@@ -1042,7 +1042,10 @@ class UserService
       if($user->meta->isWarned == 1 || $user->aw_relation){
           $isBlurAvatar = true;
       }else{
-          if(sizeof($blurryAvatar)>1){
+          if($user->engroup == 2){
+              $isBlurAvatar = false;
+          }
+          else if(sizeof($blurryAvatar)>1){
               $nowB = $user->isVip()? 'VIP' : 'general';
               $isBlurAvatar = in_array($nowB, $blurryAvatar);
           }
@@ -1058,16 +1061,19 @@ class UserService
       $isBlurLifePhoto = true;
       $blurryLifePhoto = isset($to->meta->blurryLifePhoto)? $to->meta->blurryLifePhoto : "";
       $blurryLifePhoto = explode(',', $blurryLifePhoto);
-      if($user->meta->isWarned == 1 || $user->aw_relation){
+      if($user->meta->isWarned == 1 || $user->aw_relation ){
           $isBlurLifePhoto = true;
       }else{
-        if(sizeof($blurryLifePhoto)>1){
+          if($user->engroup == 2){
+              $isBlurLifePhoto = false;
+          }
+          else if(sizeof($blurryLifePhoto)>1){
             $nowB = $user->isVip()? 'VIP' : 'general';
             $isBlurLifePhoto = in_array($nowB, $blurryLifePhoto);
-        }
-        else {
+          }
+          else {
             $isBlurLifePhoto = false;
-        }
+          }
       }
 
       return $isBlurLifePhoto;
