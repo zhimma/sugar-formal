@@ -1035,8 +1035,9 @@ class UserService
     }
 
     public static function isBlurAvatar($to, $user) {
-      //if($to->id == $user->id) return false;
-      $isBlurAvatar = true;
+      if($user->engroup == 1 && ($to->id == $user->id)) {
+          return false;
+      }
       $blurryAvatar = isset($to->meta->blurryAvatar)? $to->meta->blurryAvatar : "";
       $blurryAvatar = explode(',', $blurryAvatar);
       if($user->meta->isWarned == 1 || $user->aw_relation){
@@ -1057,26 +1058,27 @@ class UserService
     }
 
     public static function isBlurLifePhoto($to, $user) {
-      //if($to->id == $user->id) return false;
-      $isBlurLifePhoto = true;
-      $blurryLifePhoto = isset($to->meta->blurryLifePhoto)? $to->meta->blurryLifePhoto : "";
-      $blurryLifePhoto = explode(',', $blurryLifePhoto);
-      if($user->meta->isWarned == 1 || $user->aw_relation ){
-          $isBlurLifePhoto = true;
-      }else{
-          if($user->engroup == 2){
-              $isBlurLifePhoto = false;
-          }
-          else if(sizeof($blurryLifePhoto)>1){
-            $nowB = $user->isVip()? 'VIP' : 'general';
-            $isBlurLifePhoto = in_array($nowB, $blurryLifePhoto);
-          }
-          else {
-            $isBlurLifePhoto = false;
-          }
-      }
-
-      return $isBlurLifePhoto;
+        if($user->engroup == 1 && ($to->id == $user->id)) {
+            return false;
+        }
+        $blurryLifePhoto = isset($to->meta->blurryLifePhoto)? $to->meta->blurryLifePhoto : "";
+        $blurryLifePhoto = explode(',', $blurryLifePhoto);
+        if($user->meta->isWarned == 1 || $user->aw_relation ){
+            $isBlurLifePhoto = true;
+        }
+        else{
+            if($user->engroup == 2){
+                $isBlurLifePhoto = false;
+            }
+            else if(sizeof($blurryLifePhoto)>1){
+                $nowB = $user->isVip()? 'VIP' : 'general';
+                $isBlurLifePhoto = in_array($nowB, $blurryLifePhoto);
+            }
+            else {
+                $isBlurLifePhoto = false;
+            }
+        }
+        return $isBlurLifePhoto;
     }
 
     public static function checkcfp($hash, $user_id){
