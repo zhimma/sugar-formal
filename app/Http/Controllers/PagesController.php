@@ -4466,7 +4466,10 @@ class PagesController extends BaseController
 
         //僅顯示30天內的評價
         $evaluation_30days = \App\Models\Evaluation::selectRaw('evaluation.*, b1.blocked_id, b.name')->from('evaluation as evaluation')
-            ->leftJoin('blocked as b1', 'b1.blocked_id', '=', 'evaluation.from_id')
+            ->leftJoin('blocked as b1', function($join) {
+                $join->on('b1.blocked_id', '=', 'evaluation.from_id');
+                $join->on('b1.member_id', '=', 'evaluation.to_id');
+            })
             ->leftJoin('users as b','evaluation.from_id','b.id')
             ->orderBy('evaluation.created_at','desc')
             ->where('evaluation.to_id', $uid)
