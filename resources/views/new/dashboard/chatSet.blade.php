@@ -35,7 +35,7 @@
                         {{ csrf_field() }}
                           <div class="ti_xcheck">
                             @foreach($line_notify_chat as $row)
-                                @if($row->name == '收藏會員')
+                                @if($row->name == '收藏會員' || $row->name == '誰來看我' || $row->name == '收藏我的會員')
                                     @if($user->isVip())
                                         <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>
                                     @else
