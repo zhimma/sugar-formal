@@ -1035,26 +1035,27 @@ class UserService
     }
 
     public static function isBlurAvatar($to, $user) {
-      if($user->engroup == 1 && ($to->id == $user->id)) {
-          return false;
-      }
-      $blurryAvatar = isset($to->meta->blurryAvatar)? $to->meta->blurryAvatar : "";
-      $blurryAvatar = explode(',', $blurryAvatar);
-      if($user->meta->isWarned == 1 || $user->aw_relation){
-          $isBlurAvatar = true;
-      }else{
-          if($user->engroup == 2){
-              $isBlurAvatar = false;
-          }
-          else if(sizeof($blurryAvatar)>1){
-              $nowB = $user->isVip()? 'VIP' : 'general';
-              $isBlurAvatar = in_array($nowB, $blurryAvatar);
-          }
-          else {
-              $isBlurAvatar = false;
-          }
-      }
-      return $isBlurAvatar;
+        if($user->engroup == 1 && ($to->id == $user->id)) {
+            return false;
+        }
+        $blurryAvatar = isset($to->meta->blurryAvatar)? $to->meta->blurryAvatar : "";
+        $blurryAvatar = explode(',', $blurryAvatar);
+        if($user->meta->isWarned == 1 || $user->aw_relation){
+            $isBlurAvatar = true;
+        }
+        else{
+            if($user->engroup == 2){
+                $isBlurAvatar = false;
+            }
+            else if(sizeof($blurryAvatar)>1){
+                $nowB = $user->isVip()? 'VIP' : 'general';
+                $isBlurAvatar = in_array($nowB, $blurryAvatar);
+            }
+            else {
+                $isBlurAvatar = false;
+            }
+        }
+        return $isBlurAvatar;
     }
 
     public static function isBlurLifePhoto($to, $user) {
