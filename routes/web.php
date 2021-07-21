@@ -373,6 +373,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/viewuser/{uid?}', 'PagesController@viewuser2')->name('viewuser'); //new route
         Route::get('/dashboard/personalPage', 'PagesController@personalPage'); //new route
         Route::post('/dashboard/personalPage/reportDelete', 'PagesController@report_delete')->name('report_delete');
+        Route::post('/dashboard/closeNoticeNewEvaluation', 'PagesController@closeNoticeNewEvaluation')->name('closeNoticeNewEvaluation');
+        Route::post('/dashboard/personalPageHideRecordLog', 'PagesController@personalPageHideRecordLog')->name('personalPageHideRecordLog');
 
 
         Route::get('/dashboard/board', 'PagesController@board');
