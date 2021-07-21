@@ -21,7 +21,7 @@
  </style>
 
 <div>
-<h2>相同IP帳號分析數據</h2>
+<h2> {{$start_date}} ～ {{$end_date}} 相同IP帳號分析數據</h2>
 </div>
 @forelse ($columnSet as $g=>$col)
 <div class="show">
@@ -38,7 +38,7 @@
 		</div>
 	</div>
 	@endif
-    <table class="{{$groupInfo[$g]['cutData']?'ignore_msg':''}}">
+    <table class="{{isset($groupInfo[$g]['cutData'])?'ignore_msg':''}}">
         <tr>
             <th></th>
 			<th>Email</th>
@@ -46,14 +46,14 @@
 			<th>關於我</th>
 			<th>約會模式</th>
     @foreach ($col as $c=> $colName)
-            <th class="{{$columnTypeSet[$g][$c]}}_th"> 
+            <th class="{{$columnTypeSet[$g][$c] ?? ''}}_th"> 
 				
-					{{$columnTypeSet[$g][$c]}} ：
+					{{$columnTypeSet[$g][$c] ?? ''}} ：
 				<a target="_blank" href="/showLog?{{$columnTypeSet[$g][$c]}}={{$colName}}{{request()->mon?'&mon='.request()->mon:''}}">{{$colName}}
 				</a>
 			</th>
     @endforeach
-			@if ($groupInfo[$g]['cutData'])
+			@if (isset($groupInfo[$g]['cutData']) && $groupInfo[$g]['cutData'])
 			<td rowspan="101" class="ignore_msg">略...........</td>
 			@endif
         </tr>
@@ -67,10 +67,10 @@
 				$bgColor = null;
 				$user = \App\Models\User::withOut('vip')->with('aw_relation', 'banned', 'implicitlyBanned')->find($rowName);
 				if($user){
-					if($user->aw_relation or $user->user_meta->isWarned) {
+					if($user->aw_relation ?? $user->user_meta->isWarned) {
 						$bgColor = '#B0FFB1';
 					}
-					if($user->banned or $user->implicitlyBanned){
+					if($user->banned ?? $user->implicitlyBanned){
 						$bgColor = '#FDFF8C';
 					}
 				}
@@ -97,9 +97,9 @@
 			@for ($n=0;$n<count($col);$n++)
 				<td @if($user) style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif" @endif>
 					@if(isset($cellValue[$g][$r][$n]))
-					{{$cellValue[$g][$r][$n]->time}}
+					{{$cellValue[$g][$r][$n]->time ?? ''}}
 					<br>( <a target="_blank" href="/showLog?user_id={{$rowName}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">
-						{{$cellValue[$g][$r][$n]->num}}次</a> )
+						{{$cellValue[$g][$r][$n]->num ?? ''}}次</a> )
 					@else
 						無
 					@endif
@@ -107,7 +107,7 @@
 			@endfor
         </tr>
     @endforeach   
-	@if ($groupInfo[$g]['cutData'])
+	@if (isset($groupInfo[$g]['cutData']) && $groupInfo[$g]['cutData'])
 		<tr class="ignore_msg"><td colspan="101" class="ignore_msg">略...........</td></tr>
 	@endif
     </table>
