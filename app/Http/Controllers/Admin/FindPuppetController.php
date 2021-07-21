@@ -98,8 +98,10 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 					}
 					
 					$excludeUserId = array_pluck(User::Select('id')->where('id',1049)
-					->orWhere('email','LIKE','sandyh.dlc+%@gmail.com')
-					->orWhere('email','LIKE','TEST%@test.com')->get()->toArray(),'id');						
+					->orWhere('email', 'LIKE', 'sandyh.dlc%@gmail.com')
+					->orWhere('email', 'LIKE', 'TEST%@test.com')
+					->orWhere('email', 'LIKE', 'lzong.tw%@gmail.com')
+					->get()->toArray(), 'id');						
 					
 	                $model = $this->model;
 					$loginDataEntrys = null;
