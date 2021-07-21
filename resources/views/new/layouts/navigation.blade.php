@@ -58,7 +58,7 @@
 									<div class="helist">
 										<ul>
 											<li>
-												<a href="{!! url('dashboard/personalPage') !!}"><img src="/new/images/icon_48.png">專屬頁面</a>
+												<a href="{!! url('dashboard/personalPage') !!}"><img src="/new/images/zsym.png">專屬頁面</a>
 											</li>
 											<li>
 												<a href="{!! url('dashboard') !!}"><img src="/new/images/icon_48.png">個人資料</a>

@@ -6,7 +6,7 @@
 		<title>甜心花園包養網測試站</title>
 		<meta name="csrf-token" content="{{ csrf_token() }}">
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/webfont/1.6.28/webfontloader.js"></script>
-		@if (\App::environment('local')) {
+		@if (\App::environment('local'))
 			<script src="{{ asset('js/app_local.js') }}" type="text/javascript"></script>
 		@else
 			<script src="{{ asset('js/app.js') }}" type="text/javascript"></script>
