@@ -386,7 +386,7 @@ class Message_new extends Model
         //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
     }
 
-    public static function allSendersAJAX($uid, $isVip, $d = 7)
+    public static function allSendersAJAX($uid, $isVip, $d = 7,$admin_id=1049)
     {
         /**
          * 效能調整：使用左結合取代 where in 以取得更好的效能
@@ -405,26 +405,26 @@ class Message_new extends Model
                     ->where('b5.member_id', $uid); })
             ->leftJoin('blocked as b6', function($join) use($uid) {
                 $join->on('b6.blocked_id', '=', 'm.to_id')
-                    ->where('b6.member_id', $uid); });
-//            ->leftJoin('blocked as b7', function($join) use($uid) {
-//                $join->on('b7.member_id', '=', 'm.from_id')
-//                    ->where('b7.blocked_id', $uid); })
+                    ->where('b6.member_id', $uid); })
+            ->leftJoin('blocked as b7', function($join) use($uid) {
+                $join->on('b7.member_id', '=', 'm.from_id')
+                    ->where('b7.blocked_id', $uid); });
 //            ->leftJoin('blocked as b8', function($join) use($uid) {
 //                $join->on('b8.member_id', '=', 'm.to_id')
 //                    ->where('b8.blocked_id', $uid); });
         $query = $query->whereNotNull('u1.id')
                 ->whereNotNull('u2.id')
-                ->whereNull('b1.member_id')
-                ->whereNull('b2.member_id')
-                ->whereNull('b3.target')
-                ->whereNull('b4.target')
+                //->whereNull('b1.member_id')
+                //->whereNull('b2.member_id')
+                //->whereNull('b3.target')
+                //->whereNull('b4.target')
                 ->whereNull('b5.blocked_id')
                 ->whereNull('b6.blocked_id')
-//                ->whereNull('b7.member_id')
+                ->whereNull('b7.member_id')
 //                ->whereNull('b8.member_id')
-                ->where(function ($query) use ($uid) {
-                    $query->where([['m.to_id', $uid], ['m.from_id', '!=', $uid]])
-                        ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid]]);
+                ->where(function ($query) use ($uid,$admin_id) {
+                    $query->where([['m.to_id', $uid], ['m.from_id', '!=', $uid],['m.from_id','!=',$admin_id]])
+                        ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid],['m.to_id','!=',$admin_id]]);
                 });
 
         if($d==7){
@@ -440,7 +440,12 @@ class Message_new extends Model
         }
 
         $query->where([['m.created_at','>=',self::$date]]);
+        $query->whereRaw('m.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")');
+        $query->whereRaw('m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
+        $query->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
+        $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');        
         $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);$query->orderBy('m.created_at', 'desc');
+
         $messages = $query->get();
 
         $mm = [];
@@ -531,6 +536,13 @@ class Message_new extends Model
                 }else{
                     $messages[$key]['isWarned']=0;
                 }
+                
+                if(($msgUser->banned || $msgUser->implicitlyBanned ) && $msgUser->id != 1049){
+                    $messages[$key]['isBanned']=1;
+                }else{
+                    $messages[$key]['isBanned']=0;
+                }  
+                
                 $messages[$key]['exchange_period']=$msgUser->exchange_period;
             }
             else{
@@ -687,7 +699,7 @@ class Message_new extends Model
             ->get();
     }
 
-    public static function allSenders($uid, $isVip, $d = 7)
+    public static function allSenders($uid, $isVip, $d = 7,$isCount=true)
     {
         /**
          * 效能調整：使用左結合取代 where in 以取得更好的效能
@@ -714,10 +726,10 @@ class Message_new extends Model
                 $join->on('b8.member_id', '=', 'm.to_id')
                     ->where('b8.blocked_id', $uid); });
         $query = $query->whereNotNull('u1.id')->whereNotNull('u2.id')
-            ->whereNull('b1.member_id')
-            ->whereNull('b2.member_id')
-            ->whereNull('b3.target')
-            ->whereNull('b4.target')
+            //->whereNull('b1.member_id')
+            //->whereNull('b2.member_id')
+            //->whereNull('b3.target')
+            //->whereNull('b4.target')
             ->whereNull('b5.blocked_id')
             ->whereNull('b6.blocked_id')
             ->whereNull('b7.member_id')
@@ -731,6 +743,9 @@ class Message_new extends Model
             self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
         }else if($d==30){
             self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
+        }else if($d=='curMon') {
+            self::$date = \Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString();
+            
         }else if($d=='all'){
             if($isVip) {
                 self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
@@ -740,8 +755,14 @@ class Message_new extends Model
         }
         $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);
         $query->where([['m.created_at','>=',self::$date]]);
-        $allSenders = $query->groupBy('temp')->get()->count();
-
+        $query->whereRaw('m.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")');
+        $query->whereRaw('m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
+        $query->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
+        $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');        
+        if($isCount)
+            $allSenders = $query->groupBy('temp')->get()->count();
+        else
+            $allSenders = $query->groupBy('temp')->get();
         return $allSenders;
     }
 

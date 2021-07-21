@@ -19,6 +19,7 @@ use App\Events\UserRegisteredEmail;
 use App\Notifications\ActivateUserEmail;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
+use App\Observer\Banned;
 
 class UserService
 {
@@ -172,12 +173,15 @@ class UserService
             $isExists = \DB::table('banned_users_implicitly')->where('target', $user->id)->exists();
             foreach ($domains as $domain){
                 if(str_contains($user->email, $domain) && !$isExists){
-                    \DB::table('banned_users_implicitly')->insert(
+                    if(\DB::table('banned_users_implicitly')->insert(
                         ['fp' => 'DirectlyBanned',
                             'user_id' => '0',
                             'target' => $user->id,
                             'created_at' => \Carbon\Carbon::now()]
-                    );
+                    ))
+                    {
+                        Banned::addRemindMsgFromBannedId($user->id);
+                    }                            
                 }
             }
             if ($sendEmail) {

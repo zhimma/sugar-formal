@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Fingerprint;
 use App\Models\Fingerprint2;
 use App\Models\User;
+use App\Observer\Banned;
 
 class FingerprintService{
 
@@ -24,12 +25,15 @@ class FingerprintService{
         $isFingerprintBanned = \DB::table('banned_fingerprints')->where('fp', $fingerprint['fp'])->get()->count();
         if($isFingerprintBanned > 0
             && !\DB::table('banned_users_implicitly')->where('target', $userId)->exists()){
-            \DB::table('banned_users_implicitly')->insert(
+             if(\DB::table('banned_users_implicitly')->insert(
                 ['fp' => 'DirectlyBanned',
                     'user_id' => '0',
                     'target' => $userId,
                     'created_at' => \Carbon\Carbon::now()]
-            );
+                )) 
+                {
+                    Banned::addRemindMsgFromBannedId($userId);
+                }
         }
         if(isset($fingerprint['audio'])){ unset($fingerprint['audio']); }
         if(isset($fingerprint['created_at'])){ unset($fingerprint['created_at']); }

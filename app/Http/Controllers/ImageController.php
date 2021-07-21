@@ -11,6 +11,8 @@ use App\Services\ImageService;
 use App\Models\User;
 use App\Models\MemberPic;
 use App\Models\UserMeta;
+use App\Models\AccountPicUpload;
+use App\Models\CommonTextRead;
 use Image;
 use File;
 use Storage;
@@ -43,14 +45,23 @@ class ImageController extends BaseController
     public function deleteImage(Request $request, $admin = false)
     {
         $payload = $request->all();
-        MemberPic::destroy($payload['imgId']);
-        if(!$admin){
-            // return redirect("/dashboard?img");
-            return back()->with('message','照片刪除成功');
+        $msg = '';
+        if(MemberPic::destroy($payload['imgId'])) {
+            AccountPicUpload::where(['member_pic_id'=>$payload['imgId'],'deleted'=>0])->update(['deleted'=>1]);    
+        
+            if(!$admin){
+              
+                $msg = '照片刪除成功';
+            }
+            else{
+                $msg = '成功刪除照片';
+            }                
+                
         }
-        else{
-            return back()->with('message', '成功刪除照片');
-        }
+        else $msg = '資料庫更新失敗';
+            
+        return back()->with('message', $msg);
+
     }
 
     /**
@@ -305,9 +316,16 @@ class ImageController extends BaseController
             $avatar = $fileUploader->getUploadedFiles();
             if($avatar)
             {
+                $accountPicUpload = new AccountPicUpload;
+                $accountPicUpload->user_id = $userId;
+                $accountPicUpload->first = $accountPicUpload->isFirstAvatar();
                 $path = substr($avatar[0]['file'], strlen(public_path()));
                 $path[0] = '/';
                 UserMeta::where('user_id', $userId)->update(['pic' => $path]);
+                CommonTextRead::where(['user_id'=>$request->userId])->delete();
+
+               
+                $accountPicUpload->save();
             }
             $msg="上傳成功";
 
@@ -338,8 +356,15 @@ class ImageController extends BaseController
         if(File::exists($fullPath) and unlink($fullPath))
         {
             $meta->pic = NULL;
-            $meta->save();
-            $msg="刪除成功";
+            if($meta->save()) {
+
+                AccountPicUpload::where(['user_id'=>$request->userId,'member_pic_id'=>0,'deleted'=>0])->update(['deleted'=>1]);
+                CommonTextRead::where(['user_id'=>$request->userId])->delete();
+
+                $msg="刪除成功";
+            }
+            else $msg="檔案刪除成功，但資料庫更新失敗";
+            
             if(!$user->existHeaderImage() && $user->engroup==2 && $user->isFreeVip()){
                 $msg="您已刪除大頭照，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。";
             }
@@ -442,6 +467,7 @@ class ImageController extends BaseController
         if($upload)
         {
             $publicPath = public_path();
+            $isFirstMemberPic = AccountPicUpload::isFirstMemberPicByUserId($userId);
             foreach($fileUploader->getUploadedFiles() as $uploadedFile)
             {
                 $path = substr($uploadedFile['file'], strlen($publicPath));
@@ -450,6 +476,13 @@ class ImageController extends BaseController
                 $addPicture->member_id = $userId;
                 $addPicture->pic = $path;
                 $addPicture->save();
+                
+                $accountPicUpload = new AccountPicUpload;
+                $accountPicUpload->user_id = $userId;
+                $accountPicUpload->member_pic_id = $addPicture->id;
+                $accountPicUpload->first = $isFirstMemberPic;
+                $accountPicUpload->save();
+                
             }
         }
         $msg="上傳成功";
@@ -488,14 +521,19 @@ class ImageController extends BaseController
         foreach($pictures as $picture)
         {
             $fullPath = public_path($picture->pic);
+            $nowPicId = $picture->id;
             
             if(File::exists($fullPath))
                 unlink($fullPath);
 
-            $picture->delete();
+            if($picture->delete()) {
+                AccountPicUpload::where(['member_pic_id'=>$nowPicId,'deleted'=>0])->update(['deleted'=>1]);    
+                $msg="刪除成功";
+            }
+            else $msg="資料庫更新失敗";
         }
         
-        $msg="刪除成功";
+       
         if(!$user->existHeaderImage() && $user->engroup==2 && $user->isFreeVip()){
             $msg="您的生活照低於三張，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。";
         }

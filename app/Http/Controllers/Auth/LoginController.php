@@ -204,12 +204,15 @@ class LoginController extends \App\Http\Controllers\BaseController
             foreach ($domains as $domain){
                 if(str_contains($email, $domain)
                     && !\DB::table('banned_users_implicitly')->where('target', $uid)->exists()){
-                    \DB::table('banned_users_implicitly')->insert(
+                    if(\DB::table('banned_users_implicitly')->insert(
                         ['fp' => 'DirectlyBanned',
                             'user_id' => '0',
                             'target' => $uid,
                             'created_at' => \Carbon\Carbon::now()]
-                    );
+                    ))
+                    {
+                        Banned::addRemindMsgFromBannedId($userId);
+                    }
                 }
             }
 

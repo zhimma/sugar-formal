@@ -804,7 +804,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         }
         if(type=='')$('#domain option:not(:first)').remove();
     }
+    
+    var add_avatar_showing = false;
+   
     $(document).ready(function() {
+        
+    
         var blockarea_selected = '{{ isset($umeta->blockarea[0]) ? ($umeta->blockarea[0] == "" ? "全區" : str_replace($umeta->blockcity[0],'',$umeta->blockarea[0])) : '全區' }}';
         var blockarea1_selected = '{{ isset($umeta->blockarea[1]) ? str_replace($umeta->blockcity[1],'',$umeta->blockarea[1]) :'全區'  }}';
         var blockarea2_selected = '{{ isset($umeta->blockarea[2]) ? str_replace($umeta->blockcity[2],'',$umeta->blockarea[2]) : '全區'  }}';
@@ -894,8 +899,90 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
           //   title:'請寫上基本資料。',
           //   type:'warning'
           // });
-        @elseif (empty($umeta->pic))
-        c5("{{$add_avatar}}");
+        @elseif ((empty($umeta->pic) || (isset($user->checkAvatar) && $user->checkAvatar->status==2)) && (!isset($add_avatar->common_text_read) || $add_avatar->common_text_read->no_more<1))
+        
+            @if(isset($add_avatar))
+        $(window).on( 'beforeunload', noAvatarMsgUnload);
+                @if($add_avatar->common_text_read && $add_avatar->common_text_read->read_num>0)
+
+    
+        c_no_more("{!!$add_avatar->content!!}"); 
+        
+            
+        
+        $('#tab_no_more .n_left').on('click',function(){
+            $(window).off( 'beforeunload', noAvatarMsgUnload );
+       
+            readAddAvatarMsg(1);
+                
+        })   
+        $(document).off('click','.blbg',closeAndReload);
+        $(document).on('click','.blbg',noAvatarMsgClick);         
+        $('#tab_no_more .n_right,#tab_no_more .bl_gb').on('click',function(){
+            readAddAvatarMsg();
+            $(document).off('click','.blbg',noAvatarMsgClick);
+            $(window).off( "beforeunload", noAvatarMsgUnload );  
+            $(document).on('click','.blbg',closeAndReload);
+            $(document).on('click','.blbg',function(){
+                $(window).off( 'beforeunload', noAvatarMsgUnload ); 
+            });
+        }) 
+        
+     
+        
+
+
+
+  
+                @else
+        c5("{!!$add_avatar->content!!}");
+    
+        $('#tab05 a,#announce_bg').on('click',function(){
+            readAddAvatarMsg();
+            $(window).off( 'beforeunload', noAvatarMsgUnload );
+        })    
+   
+                @endif
+                
+        $(document).on('click','.blbg',function(){
+            $(window).off( 'beforeunload', noAvatarMsgUnload );   
+        });                   
+                
+        function noAvatarMsgUnload(e) {
+            readAddAvatarMsg();
+           
+        }
+        
+        function noAvatarMsgClick(e) {
+            $(document).off('click','.blbg',closeAndReload);
+            $('.blbg').hide();
+            $(".bl").hide();
+            $(".gg_tab").hide(); 
+            readAddAvatarMsg();
+            $(document).off('click','.blbg',noAvatarMsgClick);
+            $(document).on('click','.blbg',closeAndReload);
+           
+        }        
+        
+        function readAddAvatarMsg(no_more=0){
+            $.ajax({
+                type: 'POST',
+                url: '{{route('commonTextRead')}}',
+                data: { no_more:no_more,uid: "{{ $user->id }}", aid: {{$add_avatar->id}}, _token: "{{ csrf_token() }}"},
+                success: function(xhr, status, error){
+                    console.log(xhr);
+                    console.log(error);
+                },
+                error: function(xhr, status, error){
+                    console.log(xhr);
+                    console.log(status);
+                    console.log(error);
+                }
+            });		
+        }         
+            @endif
+        
+	        
           // swal({
           //   title:'請加上頭像照。',
           //   type:'warning'

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\CheckECpay;
 use App\Jobs\CheckECpayForValueAddedService;
 use App\Models\AccountStatusLog;
+use App\Models\AccountPicUpload;
 use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
 use App\Models\BannedUsersImplicitly;
@@ -57,6 +58,7 @@ use Session;
 use App\Notifications\AccountConsign;
 use App\Models\ValueAddedService;
 use App\Repositories\SuspiciousRepository;
+use App\Services\AdminService;
 
 class PagesController extends BaseController
 {
@@ -593,7 +595,7 @@ class PagesController extends BaseController
                     ->with('day', $day)
                     ->with('message', $message)
                     ->with('cancel_notice', $cancel_notice)
-                    ->with('no_avatar', $no_avatar->content);
+                    ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'');
             }
             return view('dashboard')
             ->with('user', $user)
@@ -602,7 +604,7 @@ class PagesController extends BaseController
             ->with('year', $year)
             ->with('month', $month)
             ->with('day', $day)
-            ->with('no_avatar', $no_avatar->content);
+            ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'');
         }
     }
 
@@ -645,14 +647,25 @@ class PagesController extends BaseController
         $day = $birthday[2];
 
         /*編輯文案-add avatar-START*/
-        $add_avatar = AdminCommonText::getCommonText(41);//id 41
+        $add_avatar = new adminCommonText;
+        switch($user->engroup) {
+            case 1:
+                $add_avatar = $add_avatar->getByAlias('no_avatar_male');
+            break;
+            case 2:
+                $add_avatar = $add_avatar->getByAlias('no_avatar_female');
+            break;
+        }
+        //$add_avatar = AdminCommonText::getCommonText(41);//id 41
         /*編輯文案-add avatar-END*/
 
 //        $isWarnedReason = AdminCommonText::getCommonText(56);//id 56 警示用戶原因
 
         $isAdminWarnedRead = warned_users::select('isAdminWarnedRead')->where('member_id',$user->id)->first();
 
-        $no_avatar = AdminCommonText::where('alias','no_avatar')->get()->first();
+        //$no_avatar = AdminCommonText::where('alias','no_avatar')->get()->first();
+
+        $no_avatar = $add_avatar;
         if($year=='1970'){
             $year=$month=$day='';
         }
@@ -664,6 +677,7 @@ class PagesController extends BaseController
             }else{
                 $pr = '無';
             }
+            $user->checkAvatar = AccountPicUpload::getNotDelAvatarByUserId($user->id);
             $cancel_notice = $request->session()->get('cancel_notice');
             $message = $request->session()->get('message');
             if(isset($cancel_notice)){
@@ -677,7 +691,7 @@ class PagesController extends BaseController
                     ->with('message', $message)
                     ->with('cancel_notice', $cancel_notice)
                     ->with('add_avatar', $add_avatar)
-                    ->with('no_avatar', $no_avatar->content);
+                    ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'');
             }
             return view('new.dashboard')
                 ->with('user', $user)
@@ -689,7 +703,7 @@ class PagesController extends BaseController
                 ->with('cancel_notice', $cancel_notice)
                 ->with('add_avatar', $add_avatar)
                 ->with('isAdminWarnedRead',$isAdminWarnedRead)
-                ->with('no_avatar', $no_avatar->content)
+                ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'')
                 ->with('pr', $pr);
 //                ->with('isWarnedReason',$isWarnedReason)
         }
@@ -2774,9 +2788,10 @@ class PagesController extends BaseController
         return 'ok';
     }
 
-    public function chat2(Request $request, $cid)
+    public function chat2(Request $request,AdminService $adminSrv, $cid)
     {
         $user = $request->user();
+        $admin = $adminSrv->checkAdmin();
         $m_time = '';
         $report_reason = AdminCommonText::where('alias', 'report_reason')->get()->first();
         $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
@@ -2810,6 +2825,7 @@ class PagesController extends BaseController
                 }
                 return view('new.dashboard.chatWithUser')
                     ->with('user', $user)
+                    ->with('admin', $admin)
                     ->with('cmeta', $c_user_meta)
                     ->with('to', $this->service->find($cid))
                     ->with('m_time', $m_time)
@@ -2821,6 +2837,7 @@ class PagesController extends BaseController
             else {
                 return view('new.dashboard.chatWithUser')
                     ->with('user', $user)
+                    ->with('admin', $admin)
                     ->with('cmeta', $c_user_meta)
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
@@ -4060,7 +4077,8 @@ class PagesController extends BaseController
         return $result;
     }
 
-    public function personalPage(Request $request) {
+    public function personalPage(Request $request,AdminService $adminSrv) {
+        $admin = $adminSrv->checkAdmin();
         $user = \View::shared('user');
 
         $vipStatus = '您目前還不是VIP，<a class="red" href="../dashboard/new_vip">立即成為VIP!</a>';
@@ -4179,7 +4197,7 @@ class PagesController extends BaseController
         //警示
         $adminWarnedStatus = '';
         if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date == null) {
-            $adminWarnedStatus = '您前已被站方警示，原因是 ' . $user_isBannedOrWarned->warned_reason . '，如有需要反應請點右下聯絡我們聯絡站長。';
+            $adminWarnedStatus = '您目前已被站方警示，原因是 ' . $user_isBannedOrWarned->warned_reason . '，如有需要反應請點右下聯絡我們聯絡站長。';
         }else if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date > now() ) {
             $datetime1 = new \DateTime(now());
             $datetime2 = new \DateTime($user_isBannedOrWarned->warned_expire_date);
@@ -4391,6 +4409,8 @@ class PagesController extends BaseController
 
         $isHasEvaluation = sizeof($arrayHE) > 0? true : false;
         
+        $admin_msg_query = Message_new::where([['to_id', $uid],['from_id',$admin->id], ['from_id', '!=', $uid]])->orderByDesc('created_at')->take(3);
+        $admin_msgs = $admin_msg_query->get();
         if (isset($user)) {
 
             $data = array(
@@ -4412,7 +4432,9 @@ class PagesController extends BaseController
 
             return view('new.dashboard.personalPage', $data)
                 ->with('myFav', $myFav)
-                ->with('otherFav',$otherFav);
+                ->with('otherFav',$otherFav)
+                ->with('admin_msgs',$admin_msgs);
+                
         }
 
     }

@@ -144,7 +144,17 @@
             <div class="col-sm-12 col-xs-12 col-md-10">
                 @if(isset($to))
                     <div class="shouxq" style="display: flex;">
-                        <a class="nnn_adbut" href="{{ url()->previous() }}"><img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回</a><span style="flex: 6; text-align: center;"><a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a></span>
+                        <a class="nnn_adbut" href="{{ url()->previous() }}">
+                            <img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回
+                        </a>
+                        <span style="flex: 6; text-align: center;">
+                            @if($to->id!=$admin->id)
+                            <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a>
+                            @else
+                            <span  style="color: #fd5678;">系統來訊通知</span>
+                            @endif
+                        </span>
+                        @if($to->id!=$admin->id)
                         @if($user->engroup==1)
                             <?php //$orderNumber = \App\Models\Vip::lastid() . $user->id; $code = Config::get('social.payment.code');?>
 {{--                            <form action="{{ Config::get('social.payment.actionURL') }}" style="float: right; position: relative;" method="POST" id="form1">--}}
@@ -172,6 +182,7 @@
                         @else
 {{--                            <button style="float: right; position: relative;" type="button" class="paypay" onclick="c5('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -15px">車馬費2</a></button>--}}
                             <button style="float: right; position: relative;" type="button" class="paypay" onclick="c5('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -15px">車馬費</a></button>
+                        @endif
                         @endif
                     </div>
                 @else
@@ -287,6 +298,7 @@
                             <input type="submit" id="msgsnd" class="se_tbut matop20 msgsnd" value="回覆">
                         </form>
                     </div>--}}
+                    @if($to->id!=$admin->id)
                     <div class="se_text_bot">
                         <form style="margin: 0 auto;" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm">
                             <input type="hidden" name="_token" value="{{ csrf_token() }}" >
@@ -302,6 +314,7 @@
                             {{--<div class="message_fixed"></div>--}}
                         </form>
                     </div>
+                    @endif
                 @else
                     <div class="se_text_bot">
                         此會員資料已不存在。

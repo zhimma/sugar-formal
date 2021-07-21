@@ -1,16 +1,15 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Models\LogUserLogin;
-use App\Models\User;
 use App\Models\PuppetAnalysisCell;
 use App\Models\PuppetAnalysisColumn;
 use App\Models\PuppetAnalysisRow;
 
-class FindPuppetController extends Controller
+class FindPuppetController extends \App\Http\Controllers\Controller
 {
     private $_columnIp = array();
     private $_rowUserId = array();
@@ -23,7 +22,6 @@ class FindPuppetController extends Controller
         ini_set("max_execution_time",'0');
         ini_set('memory_limit','-1');
         ini_set("request_terminate_timeout",'0');
-		set_time_limit(0);
 
         $this->model = $logUserLogin;
         $this->model->setReadOnly();
@@ -37,15 +35,12 @@ class FindPuppetController extends Controller
         $this->_columnType = array();
         $this->_groupIdx = 0; 
 		$this->monarr = [];	
-		$this->default_start_date = '2021/06/01';
-
 		
     }    
     
     public function entrance(Request $request) {
         ini_set("max_execution_time",'0');
         ini_set('memory_limit','-1'); 
-		set_time_limit(0);
 
         $error_msg = '';
 		$whereArr = [];
@@ -59,7 +54,7 @@ class FindPuppetController extends Controller
 
         try {
 
-            $sdate = $request->sdate?$request->sdate.'/01':$this->default_start_date;
+            $sdate = $request->sdate?$request->sdate.'/01':'2021/06/01';
             $edate = $request->edate?date('Y/m/d',strtotime($request->edate.'/01+1 month - 1 day')):date('Y/m/d');
 
             $sdate_arr = explode('/',$sdate);
@@ -73,208 +68,201 @@ class FindPuppetController extends Controller
 
 			echo $error_msg;
 
-			if(!$error_msg) {
-				
-				$this->column->truncate();
-				$this->row->truncate();
-				$this->cell->truncate();  					
-				
-				if(isset($edate)) {
-					if($edate) $edate.=' 23:59:59';
-					$whereArr[] = ['created_at','<=',$edate];
-				}
-				
-				if(isset($sdate)) $whereArr[] = ['created_at','>=',$sdate];
-				
-				if($have_mon_limit) {
-					if(isset($mon) && $mon) {
-						$have_mon_limit = true;
-						$mon_date = '2021-'.$mon;
-						$whereArr[] = ['created_at','LIKE',$mon_date.'%'];
-					}
-					else $have_mon_limit = false;
-				
-				}
-				
-				$excludeUserId = array_pluck(User::Select('id')->where('id',1049)
-				->orWhere('email','LIKE','sandyh.dlc+%@gmail.com')
-				->orWhere('email','LIKE','TEST%@test.com')->get()->toArray(),'id');	
-
-				
-				$model = $this->model;
-				$loginDataEntrys = null;
-				$this->_columnIp = [];
-				$this->_rowUserId = [];
-				$this->_cellVal = [];
-				$this->_columnType = [];
-				$this->_groupIdx = 0; 					
-				
-				$loginDataQuery = $model->groupBy('ip','user_id')
-						->select('ip','user_id')->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')->whereNotNull('ip')->where('ip','<>','')
-						->where($whereArr);
-						
-				if($excludeUserId) $loginDataQuery=$loginDataQuery->whereNotIn('user_id',$excludeUserId);
-
-
-				$loginDataEntrys = $loginDataQuery->get();
-				$this->loginDataByIp = [];
-				$this->loginDataByUserId = [];
-				
-				foreach($loginDataEntrys  as $loginDataEntry) {
-					$this->loginDataByIp[$loginDataEntry->ip][$loginDataEntry->user_id] = $loginDataEntry;
-					$this->loginDataByUserId[$loginDataEntry->user_id][$loginDataEntry->ip] = $loginDataEntry;
-				}  
-				
-				$loginDataEntrys = null;
-				
-				$loginDataCfpIdQuery = $model->groupBy('cfp_id','user_id')
-						->select('cfp_id','user_id')->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')->whereNotNull('cfp_id')->where('cfp_id','<>','')
-						->where($whereArr);
-				if($excludeUserId) $loginDataCfpIdQuery=$loginDataCfpIdQuery->whereNotIn('user_id',$excludeUserId);
-				$loginDataEntrys = $loginDataCfpIdQuery->get();
-				$this->loginDataByCfpId = [];
-				$this->loginDataByUserIdCfpId = [];
-
-				foreach($loginDataEntrys  as $loginDataCfpIdEntry) {
-					$this->loginDataByCfpId[$loginDataCfpIdEntry->cfp_id][$loginDataCfpIdEntry->user_id] = $loginDataCfpIdEntry;
-					$this->loginDataByUserIdCfpId[$loginDataCfpIdEntry->user_id][$loginDataCfpIdEntry->cfp_id] = $loginDataCfpIdEntry;
-				}    
-
-						  
-				$puppetFromUsers = null;
-				$ipPuppetFromUserQuery = $model->groupBy('ip')
-						->select('ip')->selectRaw('COUNT(DISTINCT `user_id`) AS num')->whereNotNull('ip')->where('ip','<>','')
-						->where($whereArr);
-				if($excludeUserId) $ipPuppetFromUserQuery=$ipPuppetFromUserQuery->whereNotIn('user_id',$excludeUserId);
-				$puppetFromUsers = $ipPuppetFromUserQuery->get();
-
-				foreach($puppetFromUsers as $ipPuppet) {
-
-					if($ipPuppet->num<2 || $this->_isColumnChecked($ipPuppet->ip))
-						continue;
-					else {
-						if($this->_findMultiUserIdFromIp($ipPuppet->ip)===true) continue;
-
-						$this->_groupIdx++;
-						
-					}
-				}
-				
-				$puppetFromUsers = null;
-			  
-				$cfpidPuppetFromUserQuery = $model->groupBy('cfp_id')
-						->select('cfp_id')->selectRaw('COUNT(DISTINCT `user_id`) AS num')->whereNotNull('cfp_id')->where('cfp_id','<>','')
-						->where($whereArr);
-				if($excludeUserId) $cfpidPuppetFromUserQuery=$cfpidPuppetFromUserQuery->whereNotIn('user_id',$excludeUserId);
-				$puppetFromUsers = $cfpidPuppetFromUserQuery->get();
-
-				foreach($puppetFromUsers as $cfpidPuppet) {
+				if(!$error_msg) {
 					
-					if($cfpidPuppet->num<2 || $this->_isColumnChecked($cfpidPuppet->cfp_id))
-						continue;
-					else {
-						if($this->_findMultiUserIdFromIp($cfpidPuppet->cfp_id,'cfp_id')===true) continue;
-
-						$this->_groupIdx++;
-						
-					}
-				} 
-				$add_num=0;
-				$creatingArr = null;
-				
-				foreach($this->_columnIp  as $groupIdx=>$colSet) {
-					foreach($colSet  as $nowColumnIdx=>$colElt) {
-						
-						$nowAddData = ['column_index'=>$nowColumnIdx,'name'=>$colElt
-								,'group_index'=>$groupIdx
-								,'type'=>$this->_columnType[$groupIdx][$nowColumnIdx]
-								,'created_at'=>date('Y-m-d H:i:s')
-								,'updated_at'=>date('Y-m-d H:i:s')];
-								
-						if($have_mon_limit) $nowAddData['mon']=$mon;
-						
-						$creatingArr[] = $nowAddData;
+					$this->column->truncate();
+					$this->row->truncate();
+					$this->cell->truncate();  					
 					
-						$nowAddData = null;
-								
-						$add_num++;
-					   if($add_num>999) {
-		   
-							$this->column->insert($creatingArr); 
-							$creatingArr = null;
-							$add_num = 0;
-						} 									
+	                if(isset($edate)) {
+						if($edate) $edate.=' 23:59:59';
+						$whereArr[] = ['created_at','<=',$edate];
 					}
 					
-				}
-				if($creatingArr)
-				$this->column->insert($creatingArr);
-				
-				$creatingArr = null;
-				$add_num = 0;
-				
-				foreach($this->_rowUserId  as $groupIdx=>$rowSet) {
-					foreach($rowSet  as $nowRowIdx=>$rowElt) {
-						
-						$nowAddData = ['row_index'=>$nowRowIdx
-							,'name'=>$rowElt,'group_index'=>$groupIdx
-							,'created_at'=>date('Y-m-d H:i:s')
-							,'updated_at'=>date('Y-m-d H:i:s')];
-								
-						if($have_mon_limit) $nowAddData['mon']=$mon;							
-						
-						$creatingArr[] = $nowAddData;
-						$nowAddData = null;
-						$add_num++;
-					   if($add_num>999) {
-		   
-							$this->row->insert($creatingArr); 
-							$creatingArr = null;
-							$add_num = 0;
-						} 						
+					if(isset($sdate)) $whereArr[] = ['created_at','>=',$sdate];
+					
+					if($have_mon_limit) {
+						if(isset($mon) && $mon) {
+							$have_mon_limit = true;
+							$mon_date = '2021-'.$mon;
+							$whereArr[] = ['created_at','LIKE',$mon_date.'%'];
+						}
+						else $have_mon_limit = false;
+					
 					}
 					
-				}
-				if($creatingArr)
-				$this->row->insert($creatingArr);   
-				
-				$creatingArr = null;
-				
-				$add_num = 0;
-				
-				foreach($this->_cellVal  as $groupIdx=>$rowSet) {
-					foreach($rowSet  as $nowRowIdx=>$colSet) {
-						foreach($colSet  as $nowColumnIdx=>$cnt) {
+	                $model = $this->model;
+					$loginDataEntrys = null;
+					$this->_columnIp = [];
+					$this->_rowUserId = [];
+					$this->_cellVal = [];
+					$this->_columnType = [];
+					$this->_groupIdx = 0; 					
+					
+					$loginDataQuery = $model->groupBy('ip','user_id')
+							->select('ip','user_id')->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')->whereNotNull('ip')->where('ip','<>','')
+							->where($whereArr);
+
+
+					$loginDataEntrys = $loginDataQuery->get();
+					$this->loginDataByIp = [];
+					$this->loginDataByUserId = [];
+					
+					foreach($loginDataEntrys  as $loginDataEntry) {
+						$this->loginDataByIp[$loginDataEntry->ip][$loginDataEntry->user_id] = $loginDataEntry;
+						$this->loginDataByUserId[$loginDataEntry->user_id][$loginDataEntry->ip] = $loginDataEntry;
+					}  
+					
+					$loginDataEntrys = null;
+					
+					$loginDataCfpIdQuery = $model->groupBy('cfp_id','user_id')
+							->select('cfp_id','user_id')->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')->whereNotNull('cfp_id')->where('cfp_id','<>','')
+							->where($whereArr);
+
+					$loginDataEntrys = $loginDataCfpIdQuery->get();
+					$this->loginDataByCfpId = [];
+					$this->loginDataByUserIdCfpId = [];
+
+					foreach($loginDataEntrys  as $loginDataCfpIdEntry) {
+						$this->loginDataByCfpId[$loginDataCfpIdEntry->cfp_id][$loginDataCfpIdEntry->user_id] = $loginDataCfpIdEntry;
+						$this->loginDataByUserIdCfpId[$loginDataCfpIdEntry->user_id][$loginDataCfpIdEntry->cfp_id] = $loginDataCfpIdEntry;
+					}    
+
+							  
+					$puppetFromUsers = null;
+					$ipPuppetFromUserQuery = $model->groupBy('ip')
+							->select('ip')->selectRaw('COUNT(DISTINCT `user_id`) AS num')->whereNotNull('ip')->where('ip','<>','')
+							->where($whereArr);
+
+					$puppetFromUsers = $ipPuppetFromUserQuery->get();
+
+					foreach($puppetFromUsers as $ipPuppet) {
+
+						if($ipPuppet->num<2 || $this->_isColumnChecked($ipPuppet->ip))
+							continue;
+						else {
+							if($this->_findMultiUserIdFromIp($ipPuppet->ip)===true) continue;
+
+							$this->_groupIdx++;
 							
-							$nowAddData = ['column_index'=>$nowColumnIdx
-								,'row_index'=>$nowRowIdx
-								,'time'=>$cnt->time
-								,'num'=>$cnt->num
-								,'group_index'=>$groupIdx,'created_at'=>date('Y-m-d H:i:s')
-								,'updated_at'=>date('Y-m-d H:i:s')];
-									
-							if($have_mon_limit) $nowAddData['mon']=$mon;								
-							
-							$creatingArr[] = $nowAddData;
-							
-							$nowAddData = null;
-							
-							$add_num++;
-							
-						   if($add_num>999) {
-			   
-								$this->cell->insert($creatingArr); 
-								$creatingArr = [];
-								$add_num = 0;
-							}                            
 						}
 					}
 					
+					$puppetFromUsers = null;
+				  
+					$cfpidPuppetFromUserQuery = $model->groupBy('cfp_id')
+							->select('cfp_id')->selectRaw('COUNT(DISTINCT `user_id`) AS num')->whereNotNull('cfp_id')->where('cfp_id','<>','')
+							->where($whereArr);
+
+					$puppetFromUsers = $cfpidPuppetFromUserQuery->get();
+
+					foreach($puppetFromUsers as $cfpidPuppet) {
+						
+						if($cfpidPuppet->num<2 || $this->_isColumnChecked($cfpidPuppet->cfp_id))
+							continue;
+						else {
+							if($this->_findMultiUserIdFromIp($cfpidPuppet->cfp_id,'cfp_id')===true) continue;
+
+							$this->_groupIdx++;
+							
+						}
+					} 
+					$add_num=0;
+					$creatingArr = null;
+					
+					foreach($this->_columnIp  as $groupIdx=>$colSet) {
+						foreach($colSet  as $nowColumnIdx=>$colElt) {
+							
+							$nowAddData = ['column_index'=>$nowColumnIdx,'name'=>$colElt
+									,'group_index'=>$groupIdx
+									,'type'=>$this->_columnType[$groupIdx][$nowColumnIdx]
+									,'created_at'=>date('Y-m-d H:i:s')
+									,'updated_at'=>date('Y-m-d H:i:s')];
+									
+							if($have_mon_limit) $nowAddData['mon']=$mon;
+							
+							$creatingArr[] = $nowAddData;
+						
+							$nowAddData = null;
+									
+							$add_num++;
+						   if($add_num>999) {
+			   
+								$this->column->insert($creatingArr); 
+								$creatingArr = null;
+								$add_num = 0;
+							} 									
+						}
+						
+					}
+					if($creatingArr)
+					$this->column->insert($creatingArr);
+					
+					$creatingArr = null;
+					$add_num = 0;
+					
+					foreach($this->_rowUserId  as $groupIdx=>$rowSet) {
+						foreach($rowSet  as $nowRowIdx=>$rowElt) {
+							
+							$nowAddData = ['row_index'=>$nowRowIdx
+								,'name'=>$rowElt,'group_index'=>$groupIdx
+								,'created_at'=>date('Y-m-d H:i:s')
+								,'updated_at'=>date('Y-m-d H:i:s')];
+									
+							if($have_mon_limit) $nowAddData['mon']=$mon;							
+							
+							$creatingArr[] = $nowAddData;
+							$nowAddData = null;
+							$add_num++;
+						   if($add_num>999) {
+			   
+								$this->row->insert($creatingArr); 
+								$creatingArr = null;
+								$add_num = 0;
+							} 						
+						}
+						
+					}
+					if($creatingArr)
+					$this->row->insert($creatingArr);   
+					
+					$creatingArr = null;
+					
+					$add_num = 0;
+					
+					foreach($this->_cellVal  as $groupIdx=>$rowSet) {
+						foreach($rowSet  as $nowRowIdx=>$colSet) {
+							foreach($colSet  as $nowColumnIdx=>$cnt) {
+								
+								$nowAddData = ['column_index'=>$nowColumnIdx
+									,'row_index'=>$nowRowIdx
+									,'time'=>$cnt->time
+									,'num'=>$cnt->num
+									,'group_index'=>$groupIdx,'created_at'=>date('Y-m-d H:i:s')
+									,'updated_at'=>date('Y-m-d H:i:s')];
+										
+								if($have_mon_limit) $nowAddData['mon']=$mon;								
+								
+								$creatingArr[] = $nowAddData;
+								
+								$nowAddData = null;
+								
+								$add_num++;
+								
+							   if($add_num>999) {
+				   
+									$this->cell->insert($creatingArr); 
+									$creatingArr = [];
+									$add_num = 0;
+								}                            
+							}
+						}
+						
+					}
+				   if($creatingArr)
+					$this->cell->insert($creatingArr);  
+				
 				}
-			   if($creatingArr)
-				$this->cell->insert($creatingArr);  
-			
-			}
 			
 			//}
         } catch (Exception $e) {

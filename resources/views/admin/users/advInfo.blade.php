@@ -927,11 +927,12 @@
 			<td class="evaluation_zoomIn">
 				@php
 					$messagePics=is_null($Log->pic) ? [] : json_decode($Log->pic,true);
+
 				@endphp
 				@if(isset($messagePics))
 					@foreach( $messagePics as $messagePic)
 						<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
-							<img src="{{ $messagePic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+							<img src="{{ is_array($messagePic)?var_dump($messagePic):$messagePic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
 						</li>
 					@endforeach
 				@endif
@@ -995,7 +996,7 @@
 								@if(isset($messagePics))
 									@foreach( $messagePics as $messagePic)
 										<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
-											<img src="{{ $messagePic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+											<img src="{{ is_array($messagePic)?var_dump($messagePic):$messagePic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
 										</li>
 									@endforeach
 								@endif

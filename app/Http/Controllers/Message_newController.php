@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
+use App\Services\AdminService;
 
 //use Shivella\Bitly\Facade\Bitly;
 
@@ -324,9 +325,10 @@ class Message_newController extends BaseController {
         }
     }
 
-    public function chatviewMore(Request $request)
+    public function chatviewMore(Request $request,AdminService $adminSrv)
     {
         $user_id = $request->uid;
+        $admin = $adminSrv->checkAdmin();
         /**
          * function Message_new::allSendersAJAX(){
          *      $saveMessage = Message_new::newChatArrayAJAX(){
@@ -342,7 +344,7 @@ class Message_newController extends BaseController {
          *      return Message_new::sortMessages($saveMessages,$mm);
          *  }
          */
-        $data = Message_new::allSendersAJAX($user_id, $request->isVip,$request->date);
+        $data = Message_new::allSendersAJAX($user_id, $request->isVip,$request->date,$admin->id);
         if (isset($data)) {
             if(!empty($data['date'])){
                //$date = $data['date'];

@@ -152,19 +152,29 @@
 		$("#tab02").show();
 		$("#tab02 .gxbut").text(str);
 	}
-
-    $(document).on('click','.blbg',function(event) {
+	
+	function closeAndReload(event) {
     	$(".blbg").hide();
         $(".bl").hide();
 		$(".gg_tab").hide();
 		window.location.reload();
-    });
+    }	
+
+    $(document).on('click','.blbg',closeAndReload);
+
+	
     function c4(str) {
     	// c5(str)
 		 $(".blbg").show();
          $("#tab04").show();
          $("#tab04 .bltext").text(str);
     }
+	
+    function c_no_more(str) {
+		 $(".blbg").show();
+         $("#tab_no_more").show();
+         $("#tab_no_more .bltext").text(str);
+    }	
 
 	function c5(str) {
 		$(".announce_bg").show();
