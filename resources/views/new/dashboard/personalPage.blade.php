@@ -56,6 +56,28 @@
                                         </span>
                                     </dt>
                                     @endif
+                                    <dt>
+                                        <span>系統來訊通知</span>
+                                        <span>
+                                            <div class="select_xx03">
+                                                @if(count($admin_msgs))
+                                                <table class="table">
+                                                    <tbody id="collapseExample" class="collapse">
+                                                        @foreach($admin_msgs as $amsg)
+                                                            <tr>
+                                                                <td >{{ mb_strlen(strip_tags($amsg->content))>30?mb_substr( strip_tags($amsg->content),0,30).'...':strip_tags($amsg->content)}}</td>
+                                                                <td >{{ $amsg->created_at }}</td>
+                                                                <td ><a href="{{route("chat2WithUser",$amsg->from_id)}}">前往查看</a></td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                                @else
+                                                    無
+                                                @endif
+                                            </div>
+                                        </span>
+                                    </dt>                                  
                                     @if($adminWarnedStatus != '' || $isWarnedStatus != '')
                                     <dt>
                                         <span>警示紀錄</span>
