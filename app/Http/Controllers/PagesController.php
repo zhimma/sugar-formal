@@ -4287,37 +4287,41 @@ class PagesController extends BaseController
 
         //個人檢舉紀錄
         $reported = Reported::select('reported.id','reported.reported_id as rid','reported.content as reason', 'reported.created_at as reporter_time','u.name','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
+            ->selectRaw('"reported" as reported_type')
             ->leftJoin('users as u', 'u.id','reported.reported_id')->where('u.id','!=',null)
             ->leftJoin('user_meta as m','u.id','m.user_id')
             ->leftJoin('banned_users as b','u.id','b.member_id')
             ->leftJoin('warned_users as w','u.id','w.member_id');
 //        $reported = $reported->addSelect(DB::raw("'reported' as table_name"));
-        $reported = $reported->where('reported.member_id',$user->id)->get();
+        $reported = $reported->where('reported.member_id',$user->id)->where('reported.hide_reported_log',0)->get();
 
-        $reported_pic = ReportedPic::select('reported_pic.id','member_pic.member_id as rid','reported_pic.content as reason','reported_pic.created_at as reporter_time','u.name','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date');
+        $reported_pic = ReportedPic::select('reported_pic.id','member_pic.member_id as rid','reported_pic.content as reason','reported_pic.created_at as reporter_time','u.name','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
+            ->selectRaw('"reportedPic" as reported_type');
 //        $reported_pic = $reported_pic->addSelect(DB::raw("'reported_pic' as table_name"));
         $reported_pic = $reported_pic->join('member_pic','member_pic.id','=','reported_pic.reported_pic_id')
             ->leftJoin('users as u', 'u.id','member_pic.member_id')->where('u.id','!=',null)
             ->leftJoin('user_meta as m','u.id','m.user_id')
             ->leftJoin('banned_users as b','u.id','b.member_id')
             ->leftJoin('warned_users as w','u.id','w.member_id')
-            ->where('reported_pic.reporter_id',$user->id)->get();
+            ->where('reported_pic.reporter_id',$user->id)->where('reported_pic.hide_reported_log',0)->get();
 
         $reported_avatar = ReportedAvatar::select('reported_avatar.id','reported_avatar.reported_user_id as rid', 'reported_avatar.content as reason', 'reported_avatar.created_at as reporter_time','u.name','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
+            ->selectRaw('"reportedAvatar" as reported_type')
             ->leftJoin('users as u', 'u.id','reported_avatar.reported_user_id')->where('u.id','!=',null)
             ->leftJoin('user_meta as m','u.id','m.user_id')
             ->leftJoin('banned_users as b','u.id','b.member_id')
             ->leftJoin('warned_users as w','u.id','w.member_id');
 //        $reported_avatar = $reported_avatar->addSelect(DB::raw("'reported_avatar' as table_name"));
-        $reported_avatar = $reported_avatar->where('reported_avatar.reporter_id',$user->id)->get();
+        $reported_avatar = $reported_avatar->where('reported_avatar.reporter_id',$user->id)->where('reported_avatar.hide_reported_log',0)->get();
 
         $reported_message = Message::select('message.id','message.from_id as rid', 'message.reportContent as reason', 'message.updated_at as reporter_time','u.name','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
+            ->selectRaw('"reportedMessage" as reported_type')
             ->leftJoin('users as u', 'u.id','message.from_id')->where('u.id','!=',null)
             ->leftJoin('user_meta as m','u.id','m.user_id')
             ->leftJoin('banned_users as b','u.id','b.member_id')
             ->leftJoin('warned_users as w','u.id','w.member_id');
 //        $reported_message = $reported_message->addSelect(DB::raw("'message' as table_name"));
-        $reported_message = $reported_message->where('message.to_id',$user->id)->where('message.isReported',1)->get();
+        $reported_message = $reported_message->where('message.to_id',$user->id)->where('message.isReported',1)->where('message.hide_reported_log',0)->get();
 
         $collection = collect([$reported, $reported_pic, $reported_avatar, $reported_message]);
         $report_all = $collection->collapse()->unique('rid')->sortByDesc('reporter_time');
@@ -4374,14 +4378,14 @@ class PagesController extends BaseController
                         }
                     }
                     if ($reporter_isBannedStatus == 1 || $reporter_isAdminWarnedStatus == 1 || $reporter_isWarnedStatus == 1) {
-                        array_push($reportedStatus, array(/*'table' => $row->table_name, */'id' => $row->id, 'rid' => $row->rid, 'content' => $content_1, 'status' => $content_2, 'name' => $row->name));
+                        array_push($reportedStatus, array(/*'table' => $row->table_name, */'id' => $row->id, 'rid' => $row->rid, 'content' => $content_1, 'status' => $content_2, 'name' => $row->name, 'reported_type' => $row->reported_type));
                     }
                 }
             }
 
         //你收藏的會員上線
         $uid = $user->id;
-        $myFav =  MemberFav::select('a.member_id','a.member_fav_id','b.id','b.name','b.title','b.last_login','v.id as vid','v.created_at as visited_created_at')
+        $myFav =  MemberFav::select('a.id as rowid','a.member_id','a.member_fav_id','b.id','b.name','b.title','b.last_login','v.id as vid','v.created_at as visited_created_at')
             ->where('a.member_id',$user->id)->from('member_fav as a')
             ->leftJoin('users as b','a.member_fav_id','b.id')->where('b.id','!=',null)
             ->leftJoin('visited as v', function ($join) use ($uid){
@@ -4397,12 +4401,13 @@ class PagesController extends BaseController
             ->whereNull('b3.target')
             ->whereNull('b5.blocked_id')
             ->where('b.last_login', '>=', Carbon::now()->subDays(7))
+            ->where('a.hide_member_id_log',0)
             ->groupBy('a.member_fav_id')
             ->get();
 
 
         //收藏你的會員上線
-        $otherFav = MemberFav::select('a.member_id','a.member_fav_id','b.name','b.title','b.last_login')->where('a.member_fav_id',$user->id)->from('member_fav as a')
+        $otherFav = MemberFav::select('a.id as rowid','a.member_id','a.member_fav_id','b.name','b.title','b.last_login')->where('a.member_fav_id',$user->id)->from('member_fav as a')
             ->leftJoin('users as b','a.member_id','b.id')->where('b.id','!=',null)
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'a.member_id')
             ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'a.member_id')
@@ -4413,6 +4418,7 @@ class PagesController extends BaseController
             ->whereNull('b3.target')
             ->whereNull('b5.blocked_id')
             ->where('b.last_login', '>=', Carbon::now()->subDays(7))
+            ->where('a.hide_member_fav_id_log',0)
             ->get();
 
         //msg
@@ -4457,7 +4463,21 @@ class PagesController extends BaseController
         }
 
         $isHasEvaluation = sizeof($arrayHE) > 0? true : false;
-        
+
+        //僅顯示30天內的評價
+        $evaluation_30days = \App\Models\Evaluation::selectRaw('evaluation.*, b1.blocked_id, b.name')->from('evaluation as evaluation')
+            ->leftJoin('blocked as b1', function($join) {
+                $join->on('b1.blocked_id', '=', 'evaluation.from_id');
+                $join->on('b1.member_id', '=', 'evaluation.to_id');
+            })
+            ->leftJoin('users as b','evaluation.from_id','b.id')
+            ->orderBy('evaluation.created_at','desc')
+            ->where('evaluation.to_id', $uid)
+            ->where('evaluation.created_at', '>=', Carbon::now()->subDays(30));
+
+        $evaluation_30days_list=$evaluation_30days->where('evaluation.hide_evaluation_to_id', 0)->get();
+        $evaluation_30days_unread_count=$evaluation_30days->where('evaluation.read', 1)->get()->count();
+
         if (isset($user)) {
 
             $data = array(
@@ -4473,6 +4493,8 @@ class PagesController extends BaseController
                 'msgMemberCount' => $msgMemberCount,
                 'isBannedEvaluation' => $isBannedEvaluation,
                 'isHasEvaluation' => $isHasEvaluation,
+                'evaluation_30days' => $evaluation_30days_list,
+                'evaluation_30days_unread_count' => $evaluation_30days_unread_count,
             );
 
 
@@ -4566,6 +4588,63 @@ class PagesController extends BaseController
         foreach ($search_page_key as $key =>$value){
             session()->put('search_page_key.'.$key,null);
         }
-        logger(session()->get('search_page_key',[]));
+        //logger(session()->get('search_page_key',[]));
+    }
+
+    public function closeNoticeNewEvaluation(Request $request){
+        $user_id = $request->id;
+        $user = User::select('id', 'notice_has_new_evaluation')->where('id', $user_id)->first();
+        $user->notice_has_new_evaluation = 0;
+        if ($user->save()) {
+            return response()->json(array(
+                'status' => 1,
+                'msg' => 'ok',
+            ), 200);
+        } else {
+            return response()->json(array(
+                'status' => 2,
+                'msg' => 'fail',
+            ), 500);
+        }
+    }
+
+    public function personalPageHideRecordLog(Request $request){
+        $updateType = $request->type;
+        $user_id = $request->user_id;
+        $items = $request->deleteItems;
+        switch ($updateType){
+            case 'myFavRecord' : //不顯示我收藏的會員上線
+                MemberFav::where('member_id',$user_id)->whereIn('id', $items)->update(['hide_member_id_log'=>1]);
+                break;
+            case 'myFavRecord2' : //不顯示收藏我的會員上線
+                MemberFav::where('member_fav_id',$user_id)->whereIn('id', $items)->update(['hide_member_fav_id_log'=>1]);
+                break;
+            case 'evaluationRecord' : //不顯示評價我的評價紀錄
+                Evaluation::where('to_id',$user_id)->whereIn('id', $items)->update(['hide_evaluation_to_id'=>1]);
+                break;
+            case 'reportedRecord' : //不顯示檢舉紀錄
+                foreach ($items as $item){
+                    //檢舉類型
+                    $rowid=explode("_", $item)[0];
+                    $reportedType=explode("_", $item)[1];
+                    if($reportedType=='reported'){
+                        //個人檢舉紀錄
+                        Reported::where('member_id',$user_id)->where('id', $rowid)->update(['hide_reported_log'=>1]);
+
+                    }else if ($reportedType=='reportedPic') {
+                        //檢舉照片
+                        ReportedPic::where('reporter_id',$user_id)->where('id', $rowid)->update(['hide_reported_log'=>1]);
+
+                    }else if ($reportedType=='reportedAvatar'){
+                        //檢舉大頭照
+                        ReportedAvatar::where('reporter_id',$user_id)->where('id', $rowid)->update(['hide_reported_log'=>1]);
+
+                    }else if ($reportedType=='reportedMessage'){
+                        //檢舉訊息
+                        Message::where('to_id',$user_id)->where('id', $rowid)->update(['hide_reported_log'=>1]);
+                    }
+                }
+                break;
+        }
     }
 }

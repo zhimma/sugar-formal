@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\SetAutoBan;
 use App\Models\AdminCommonText;
+use App\Models\Visited;
 use App\Services\UserService;
 use App\Services\VipLogService;
 use Carbon\Carbon;
@@ -222,13 +223,13 @@ class Message_newController extends BaseController {
         if(!is_null($request->file('images')) && count($request->file('images'))){
             //上傳訊息照片
             $messageInfo = Message::create([
-                'from_id'=>auth()->id(),
+                'from_id'=>$user->id,
                 'to_id'=>$payload['to'],
             ]);
 
             $messagePosted = $this->message_pic_save($messageInfo->id, $request->file('images'));
         }else {
-            $messagePosted = Message::post(auth()->id(), $payload['to'], $payload['msg']);
+            $messagePosted = Message::post($user->id, $payload['to'], $payload['msg']);
         }
 
         //line通知訊息
@@ -243,7 +244,7 @@ class Message_newController extends BaseController {
             $user_meta_data = UserMeta::select('user_meta.isWarned', 'exchange_period_name.*')
                 ->leftJoin('users', 'users.id', 'user_meta.user_id')
                 ->leftJoin('exchange_period_name', 'exchange_period_name.id', 'users.exchange_period')
-                ->where('user_id', auth()->id())
+                ->where('user_id', $user->id)
                 ->get()->first();
             foreach($line_notify_chat_set_data as $row){
                 if($row->gender==1 && $row->name == $user_meta_data->name){
@@ -261,21 +262,37 @@ class Message_newController extends BaseController {
                 }else if($row->gender==0 && $row->name == '警示會員'){
                     //警示會員
                     //站方警示
-                    $isAdminWarned = warned_users::where('member_id',auth()->id())->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
+                    $isAdminWarned = warned_users::where('member_id',$user->id)->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
                     if($user_meta_data->isWarned==1 || !empty($isAdminWarned)){
                         $line_notify_send = true;
                         break;
                     }
                 }
-                else if($row->gender==0 && $row->name == '收藏會員'){
+                else if($row->gender==0 && $row->name == '收藏會員' && $to_user->isVip()){
                     //收藏者通知
-                    $line_notify_send = memberFav::where('member_id', $to_user->id)->where('member_fav_id', auth()->id())->first();
+                    $line_notify_send = memberFav::where('member_id', $to_user->id)->where('member_fav_id', $user->id)->first();
+                    break;
+                }
+                else if($row->gender==0 && $row->name == '誰來看我' && $to_user->isVip()){
+                    //誰來看我通知
+                    $line_notify_send = Visited::where('visited_id', $user->id)->where('member_id', $to_user->id)->first();
+                    break;
+                }
+                else if($row->gender==0 && $row->name == '收藏我的會員' && $to_user->isVip()){
+                    //收藏我的會員通知
+                    $line_notify_send = memberFav::where('member_id', $user->id)->where('member_fav_id', $to_user->id)->first();
                     break;
                 }
             }
 
+            //站方封鎖
+            $banned = banned_users::where('member_id', $user->id)->get()->first();
+            if( isset($banned) && ( $banned->expire_date==null || $banned->expire_date >= \Carbon\Carbon::now() )){
+                $line_notify_send = false;
+            }
+
             //檢查封鎖
-            $checkIsBlock = Blocked::isBlocked($to_user->id, auth()->id());
+            $checkIsBlock = Blocked::isBlocked($to_user->id, $user->id);
             if($checkIsBlock){
                 $line_notify_send = false;
             }
@@ -283,7 +300,7 @@ class Message_newController extends BaseController {
         }
 
         if($to_user->line_notify_token != null && $line_notify_send){
-            $url = url('/dashboard/chat2/chatShow/'.auth()->id());
+            $url = url('/dashboard/chat2/chatShow/'.$user->id);
 //            $url = app('bitly')->getUrl($url); //新套件用，如無法使用則先隱藏相關class
 
             //send notify
@@ -294,7 +311,7 @@ class Message_newController extends BaseController {
 
         //發送訊息後後判斷是否需備自動封鎖
         // SetAutoBan::auto_ban(auth()->id());
-        SetAutoBan::msg_auto_ban(auth()->id(), $payload['to'], $payload['msg']);
+        SetAutoBan::msg_auto_ban($user->id, $payload['to'], $payload['msg']);
         if($isCalledByEvent && gettype($isCalledByEvent) == "boolean") {
             return $messagePosted;
         }

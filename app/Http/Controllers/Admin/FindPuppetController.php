@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 use App\Http\Requests;
+use App\Models\User;
 use App\Models\LogUserLogin;
 use App\Models\PuppetAnalysisCell;
 use App\Models\PuppetAnalysisColumn;
@@ -22,6 +23,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         ini_set("max_execution_time",'0');
         ini_set('memory_limit','-1');
         ini_set("request_terminate_timeout",'0');
+		set_time_limit(0);
+		error_reporting(0);
 
         $this->model = $logUserLogin;
         $this->model->setReadOnly();
@@ -35,12 +38,15 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $this->_columnType = array();
         $this->_groupIdx = 0; 
 		$this->monarr = [];	
+		$this->default_sdate = '2021/06/01';
 		
     }    
     
     public function entrance(Request $request) {
         ini_set("max_execution_time",'0');
         ini_set('memory_limit','-1'); 
+		set_time_limit(0);
+		error_reporting(0);		
 
         $error_msg = '';
 		$whereArr = [];
@@ -54,7 +60,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 
         try {
 
-            $sdate = $request->sdate?$request->sdate.'/01':'2021/06/01';
+            $sdate = $request->sdate?$request->sdate.'/01':$this->default_sdate;
             $edate = $request->edate?date('Y/m/d',strtotime($request->edate.'/01+1 month - 1 day')):date('Y/m/d');
 
             $sdate_arr = explode('/',$sdate);
@@ -75,8 +81,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 					$this->cell->truncate();  					
 					
 	                if(isset($edate)) {
-						if($edate) $edate.=' 23:59:59';
-						$whereArr[] = ['created_at','<=',$edate];
+						if($edate) $edate.=date(' H:i:s');
+						$whereArr[] = ['created_at','<',$edate];
 					}
 					
 					if(isset($sdate)) $whereArr[] = ['created_at','>=',$sdate];
@@ -91,6 +97,12 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 					
 					}
 					
+					$excludeUserId = array_pluck(User::Select('id')->where('id',1049)
+					->orWhere('email', 'LIKE', 'sandyh.dlc%@gmail.com')
+					->orWhere('email', 'LIKE', 'TEST%@test.com')
+					->orWhere('email', 'LIKE', 'lzong.tw%@gmail.com')
+					->get()->toArray(), 'id');						
+					
 	                $model = $this->model;
 					$loginDataEntrys = null;
 					$this->_columnIp = [];
@@ -103,7 +115,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 							->select('ip','user_id')->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')->whereNotNull('ip')->where('ip','<>','')
 							->where($whereArr);
 
-
+					if($excludeUserId) $loginDataQuery=$loginDataQuery->whereNotIn('user_id',$excludeUserId);
+					
 					$loginDataEntrys = $loginDataQuery->get();
 					$this->loginDataByIp = [];
 					$this->loginDataByUserId = [];
@@ -118,6 +131,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 					$loginDataCfpIdQuery = $model->groupBy('cfp_id','user_id')
 							->select('cfp_id','user_id')->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')->whereNotNull('cfp_id')->where('cfp_id','<>','')
 							->where($whereArr);
+							
+					if($excludeUserId) $loginDataCfpIdQuery=$loginDataCfpIdQuery->whereNotIn('user_id',$excludeUserId);							
 
 					$loginDataEntrys = $loginDataCfpIdQuery->get();
 					$this->loginDataByCfpId = [];
@@ -133,6 +148,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 					$ipPuppetFromUserQuery = $model->groupBy('ip')
 							->select('ip')->selectRaw('COUNT(DISTINCT `user_id`) AS num')->whereNotNull('ip')->where('ip','<>','')
 							->where($whereArr);
+							
+					if($excludeUserId) $ipPuppetFromUserQuery=$ipPuppetFromUserQuery->whereNotIn('user_id',$excludeUserId);							
 
 					$puppetFromUsers = $ipPuppetFromUserQuery->get();
 
@@ -144,7 +161,6 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 							if($this->_findMultiUserIdFromIp($ipPuppet->ip)===true) continue;
 
 							$this->_groupIdx++;
-							
 						}
 					}
 					
@@ -153,6 +169,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 					$cfpidPuppetFromUserQuery = $model->groupBy('cfp_id')
 							->select('cfp_id')->selectRaw('COUNT(DISTINCT `user_id`) AS num')->whereNotNull('cfp_id')->where('cfp_id','<>','')
 							->where($whereArr);
+							
+					if($excludeUserId) $cfpidPuppetFromUserQuery=$cfpidPuppetFromUserQuery->whereNotIn('user_id',$excludeUserId);							
 
 					$puppetFromUsers = $cfpidPuppetFromUserQuery->get();
 
@@ -176,7 +194,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 							$nowAddData = ['column_index'=>$nowColumnIdx,'name'=>$colElt
 									,'group_index'=>$groupIdx
 									,'type'=>$this->_columnType[$groupIdx][$nowColumnIdx]
-									,'created_at'=>date('Y-m-d H:i:s')
+									,'created_at'=>$edate
 									,'updated_at'=>date('Y-m-d H:i:s')];
 									
 							if($have_mon_limit) $nowAddData['mon']=$mon;
@@ -206,7 +224,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 							
 							$nowAddData = ['row_index'=>$nowRowIdx
 								,'name'=>$rowElt,'group_index'=>$groupIdx
-								,'created_at'=>date('Y-m-d H:i:s')
+								,'created_at'=>$edate
 								,'updated_at'=>date('Y-m-d H:i:s')];
 									
 							if($have_mon_limit) $nowAddData['mon']=$mon;							
@@ -238,7 +256,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 									,'row_index'=>$nowRowIdx
 									,'time'=>$cnt->time
 									,'num'=>$cnt->num
-									,'group_index'=>$groupIdx,'created_at'=>date('Y-m-d H:i:s')
+									,'group_index'=>$groupIdx,'created_at'=>$edate
 									,'updated_at'=>date('Y-m-d H:i:s')];
 										
 								if($have_mon_limit) $nowAddData['mon']=$mon;								
@@ -289,7 +307,9 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 
         $model = $this->model;
         
-        $multiUserIds = $loginData[$check_val];
+		if(isset($loginData[$check_val]))
+			$multiUserIds = $loginData[$check_val];
+		else return true;
 
 		if(isset($this->_rowUserId[$groupIdx]))
 			$this->_rowUserId[$groupIdx] = array_merge_recursive($this->_rowUserId[$groupIdx],array_diff(array_keys($multiUserIds),$this->_rowUserId[$groupIdx]));
@@ -379,6 +399,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         ini_set("pm.process_idle_timeout",'10000');
 		ini_set("max_children",'100');
 		ini_set("pm.max_children",'100');
+		set_time_limit(0);
+		error_reporting(0);			
 		
 		$have_mon_limit = false;
 		
@@ -424,6 +446,18 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 				
 				
 				if($have_mon_limit) $whereArr[] = ['mon',$mon];
+				
+				$edate_colentry = $this->column->select('created_at')->distinct()->first();
+				$data['end_date'] = $edate_colentry->created_at;
+				$sdate_from_model = $this->model->min('created_at');
+
+				if($this->default_sdate>=$sdate_from_model) {
+					$data['start_date'] = $this->default_sdate;
+				}
+				else {
+					
+					$data['start_date'] = $sdate_from_model;
+				}
 				
 				$groupChecks = $this->cell->where($whereArr)->groupBy('group_index')->select('group_index')
 					->selectRaw('MAX(column_index) AS maxColIdx,MAX(row_index) AS maxRowIdx')->get();
@@ -509,12 +543,12 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 						if(!isset($queryName2)) $queryName2 = $this->_columnType[$g][$$colIdx];
 						if($i && $i!=$last_i) $text.='<tr><td colspan="4">&nbsp;</td></tr>'."\n\r";
 					
-						$text.="<tr><td><a target=\"_blank\" href=\"/showLog?".$queryName1.'='.$arr1[$g][$i].(isset($mon)?'&mon='.$mon:'')."\">".$arr1[$g][$i]."</a></td>";
+						$text.="<tr><td><a target=\"_blank\" href=\"showLog?".$queryName1.'='.$arr1[$g][$i].(isset($mon)?'&mon='.$mon:'')."\">".$arr1[$g][$i]."</a></td>";
 
-						$text.="<td><a target=\"_blank\" href=\"/showLog?".$queryName2.'='.$arr2[$g][$j].(isset($mon)?'&mon='.$mon:'')."\">".$arr2[$g][$j]."</a></td>\n\r";
+						$text.="<td><a target=\"_blank\" href=\"showLog?".$queryName2.'='.$arr2[$g][$j].(isset($mon)?'&mon='.$mon:'')."\">".$arr2[$g][$j]."</a></td>\n\r";
 						
 						$text.='<td>'.$this->_cellVal[$g][$$rowIdx][$$colIdx]->time
-						.'</td><td><a target="_blank" href="/showLog?'.$queryName1.'='.$arr1[$g][$i].$queryName2.'='.$arr2[$g][$j].(isset($mon)?'&mon='.$mon:'').'">'.$this->_cellVal[$g][$$rowIdx][$$colIdx]->num."</a></td></tr>\n\r";
+						.'</td><td><a target="_blank" href="showLog?'.$queryName1.'='.$arr1[$g][$i].'&'.$queryName2.'='.$arr2[$g][$j].(isset($mon)?'&mon='.$mon:'').'">'.$this->_cellVal[$g][$$rowIdx][$$colIdx]->num."</a></td></tr>\n\r";
 
 						$last_i = $i;
 					}						
@@ -561,7 +595,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 		}	
 		else {
 			if($user_id) {
-				$title.='UserId ：<a target="_blank" href="/showLog?user_id='.$user_id.($mon?'&mon='.$mon:'').'">'.$user_id.'</a>';
+				$title.='UserId ：<a target="_blank" href="showLog?user_id='.$user_id.($mon?'&mon='.$mon:'').'">'.$user_id.'</a>';
 				$query = $query->where('user_id',$user_id);
 				$killColNameIdx =  array_search('user_id',$colnames);
 				$colnames[$killColNameIdx] = null;
@@ -570,7 +604,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 			
 			if($ip) {
 				if($title) $title.='、';
-				$title.='IP ：<a target="_blank" href="/showLog?ip='.$ip.($mon?'&mon='.$mon:'').'">'.$ip.'</a>';
+				$title.='IP ：<a target="_blank" href="showLog?ip='.$ip.($mon?'&mon='.$mon:'').'">'.$ip.'</a>';
 				$query = $query->where('ip',$ip);
 				$killColNameIdx =  array_search('ip',$colnames);
 				$colnames[$killColNameIdx] = null;
@@ -579,7 +613,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 			
 			if($cfp_id) {
 				if($title) $title.='、';
-				$title.='cfp_id ：<a target="_blank" href="/showLog?cfp_id='.$cfp_id.($mon?'&mon='.$mon:'').'">'.$cfp_id.'</a>';	
+				$title.='cfp_id ：<a target="_blank" href="showLog?cfp_id='.$cfp_id.($mon?'&mon='.$mon:'').'">'.$cfp_id.'</a>';	
 				$query = $query->where('cfp_id',$cfp_id);
 				$killColNameIdx =  array_search('cfp_id',$colnames);
 				$colnames[$killColNameIdx] = null;
@@ -590,7 +624,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 				if($showLogQuery) $showLogQuery.='&';
 				$query = $query->where('created_at','LIKE','%-'.$mon.'-%');
 			}	
-			$logEntrys = $query->orderBy('created_at')->get();
+			$logEntrys = $query->orderByDesc('created_at')->get();
 			
 			foreach($logEntrys as $logEntry) {
 				$html.='<tr>';
@@ -606,7 +640,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 			
 			}
 			if($title) $title.='的';
-			if($mon) $title.='<a target="_blank" href="/showLog?mon='.$mon.'">'.$mon.'月</a>';
+			if($mon) $title.='<a target="_blank" href="showLog?mon='.$mon.'">'.$mon.'月</a>';
 			$title.='Log紀錄';
 			$html = ($title?'<h1>'.$title.'</h1>':'').'<table>'.$this->_getSimpleTableHead($colnames).$html.'</table>';
 			
