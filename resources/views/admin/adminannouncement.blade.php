@@ -64,7 +64,7 @@ h3{
             @endif
         @endforeach
     </table>
-    <a href="{{ route('admin/announcement/new') }}" class='new text-white btn btn-success'>新增公告</a>
+    <a href="{{ route('admin/announcement/new/GET') }}" class='new text-white btn btn-success'>新增公告</a>
 </body>
 <script>
     function deleteAnnounce(id) {
