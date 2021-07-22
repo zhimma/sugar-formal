@@ -406,7 +406,7 @@
                     <div class="new_pot1 new_poptk_nn new_height_mobile ">
                         <div class="fpt_pic">
                             <input id="images" type="file" name="images" accept="image/*">
-                            <div class="alert_tip" style="color:red;"></div>
+                            <div class="alert_tip" style="color:red;"><a href="https://www.tech-girlz.com/2020/07/iphone-photo-jpg.html">若 iPhone 上傳失敗，請點此設定</a></div>
                             <div class="n_bbutton" style="margin-top:0px;">
                                 <a class="n_bllbut" onclick="form_uploadPic_submit()">送出</a>
                             </div>

@@ -26,3 +26,5 @@ config/session.php
 config/app.php
 /.vscode
 *.DS_Store
+
+storage/desktop.ini

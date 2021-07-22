@@ -538,8 +538,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/VIPToggler/readOnly', 'UserController@toggleVIP')->name('VIPToggler/readOnly');
         Route::get('users/advInfo/{id}/readOnly', 'UserController@advInfo')->name('users/advInfo/readOnly');
         Route::get('to/{id}/readOnly', 'UserController@showAdminMessenger')->name('AdminMessage/readOnly');
-        Route::post('send/{id}/readOnly', 'UserController@sendAdminMessage')->name('admin/send/readOnly');
-        Route::get('users/pictures', 'UserController@showUserPictures')->name('users/pictures/readOnly');
+        Route::get('users/pictures', 'UserController@showUserPictures')->name('users/pictures/readOnly/GET');
         Route::post('users/pictures', 'UserController@searchUserPictures')->name('users/pictures/readOnly');
         Route::post('users/pictures/modify', 'UserController@modifyUserPictures')->name('users/pictures/modify/readOnly');
         Route::get('users/advInfo/editPic_sendMsg/{id}', 'UserController@editPic_sendMsg')->name('users/pictures/editPic_sendMsg/readOnly');
@@ -565,7 +564,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         //Route::get('querier', 'UserController@querier')->name('querier');
         Route::resource('manager', 'UserController', ['except' => ['create', 'show']]);
         Route::post('users/search', 'UserController@search')->name('users/manager');
-        Route::get('users/search', 'UserController@index')->name('users/manager');
+        Route::get('users/search', 'UserController@index')->name('users/manager/GET');
         Route::post('users/advSearch', 'UserController@advSearch')->name('users/advSearch');
         Route::post('users/advSearchInfo', 'UserController@advSearchInfo')->name('users/advSearchInfo');
         Route::get('users/advSearch', 'UserController@advIndex');
@@ -583,7 +582,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/pictures', 'UserController@showUserPictures')->name('users/pictures');
         Route::get('users/pictures', 'UserController@searchUserPictures')->name('users/pictures');
         Route::post('users/pictures/modify', 'UserController@modifyUserPictures')->name('users/pictures/modify');
-        Route::get('users/reported/count', 'UserController@showReportedCountPage')->name('users/reported/count');
+        Route::get('users/reported/count', 'UserController@showReportedCountPage')->name('users/reported/count/GET');
         Route::post('users/reported/count', 'UserController@showReportedCountList')->name('users/reported/count');
         Route::get('users/board', 'PagesController@board')->name('users/board');
         Route::post('users/board', 'PagesController@board')->name('users/board/search');
@@ -645,22 +644,22 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('statistics', 'UserController@statisticsReply')->name("statistics");
         Route::post('statistics', 'UserController@statisticsReply');
 
-        Route::get('users/pics/reported', 'UserController@showReportedPicsPage')->name('users/pics/reported');
-        Route::get('users/reported', 'UserController@showReportedUsersPage')->name('users/reported');
+        Route::get('users/pics/reported', 'UserController@showReportedPicsPage')->name('users/pics/reported/GET');
+        Route::get('users/reported', 'UserController@showReportedUsersPage')->name('users/reported/GET');
         Route::post('users/reported', 'UserController@showReportedUsersList')->name('users/reported');
         Route::post('users/reported/details/{reported_id}/{users?}/{reportedData?}', 'UserController@showReportedDetails')->name('users/reported/details');
         //曾被檢舉
-        Route::get('users/pics/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@searchReportedPics')->name('users/pics/reported');
-        Route::get('users/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@showReportedUsersList')->name('users/reported');
+        Route::get('users/pics/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@searchReportedPics')->name('users/pics/reported/EXTRA');
+        Route::get('users/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@showReportedUsersList')->name('users/reported/EXTRA');
         Route::get('users/message/search/reported/{date_start?}/{date_end?}/{reported_id?}', 'UserController@showReportedMessages')->name('users/message/search/reported');
 
         Route::post('users/pics/reported', 'UserController@searchReportedPics')->name('users/pics/reported');
-        Route::get('users/basic_setting', 'UserController@basicSetting')->name('users/basic_setting');
+        Route::get('users/basic_setting', 'UserController@basicSetting')->name('users/basic_setting/GET');
         Route::post('users/basic_setting', 'UserController@doBasicSetting')->name('users/basic_setting');
         Route::get('users/bannedList', 'UserController@showBannedList')->name('users/bannedList');
         Route::get('users/switch', 'UserController@showUserSwitch')->name('users/switch');
         Route::post('users/switch', 'UserController@switchSearch')->name('users/switch/search');
-        Route::get('users/changePassword', 'UserController@changePassword')->name('users/changePassword');
+        Route::get('users/changePassword', 'UserController@changePassword')->name('users/changePassword/GET');
         Route::post('users/changePassword', 'UserController@changePassword')->name('users/changePassword');
         Route::get('users/invite', 'UserController@getInvite');
         Route::get('users/switch/{id}', 'UserController@switchToUser')->name('users/switch/to');
@@ -679,16 +678,16 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/deleteFingerprintFromExpectedList/{fingerprint}', 'UserController@deleteFingerprintFromExpectedList')->name('deleteFingerprintFromExpectedList');
         Route::get('users/warning', 'UserController@showWarningUsers')->name('warningUsers');
         Route::get('users/suspectedMultiLogin', 'UserController@showSuspectedMultiLogin')->name('suspectedMultiLogin');
-        Route::get('users/multiple-login', 'UserController@multipleLogin')->name('users/multipleLogin');
+        Route::get('users/multiple-login', 'UserController@multipleLogin')->name('users/multipleLogin/GET');
         Route::post('users/multiple-login', 'UserController@multipleLogin')->name('users/multipleLogin');
-        Route::get('users/customizeMigrationFiles', 'UserController@customizeMigrationFiles')->name('users/customize_migration_files');
+        Route::get('users/customizeMigrationFiles', 'UserController@customizeMigrationFiles')->name('users/customize_migration_files/GET');
         Route::post('users/customizeMigrationFiles', 'UserController@customizeMigrationFiles')->name('users/customize_migration_files');
         Route::match(['get', 'post'], 'users/VIP/ECCancellations', 'PagesController@showECCancellations')->name('users/VIP/ECCancellations');
         Route::get('announcement', 'UserController@showAdminAnnouncement')->name('admin/announcement');
         Route::get('announcement/edit/{id}', 'UserController@showAdminAnnouncementEdit')->name('admin/announcement/edit');
         Route::post('announcement/save', 'UserController@saveAdminAnnouncement')->name('admin/announcement/save');
         Route::get('announcement/delete/{id?}', 'UserController@deleteAdminAnnouncement')->name('admin/announcement/delete');
-        Route::get('announcement/new', 'UserController@showNewAdminAnnouncement')->name('admin/announcement/new');
+        Route::get('announcement/new', 'UserController@showNewAdminAnnouncement')->name('admin/announcement/new/GET');
         Route::post('announcement/new', 'UserController@newAdminAnnouncement')->name('admin/announcement/new');
         Route::get('announcement/read/{id}', 'UserController@showReadAnnouncementUser')->name('admin/announcement/read');
 
@@ -696,7 +695,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('masterwords/edit/{id}', 'UserController@showAdminMasterWordsEdit')->name('admin/masterwords/edit');
         Route::post('masterwords/save', 'UserController@saveAdminMasterWords')->name('admin/masterwords/save');
         Route::get('masterwords/delete/{id?}', 'UserController@deleteAdminMasterWords')->name('admin/masterwords/delete');
-        Route::get('masterwords/new', 'UserController@showNewAdminMasterWords')->name('admin/masterwords/new');
+        Route::get('masterwords/new', 'UserController@showNewAdminMasterWords')->name('admin/masterwords/new/GET');
         Route::post('masterwords/new', 'UserController@newAdminMasterWords')->name('admin/masterwords/new');
         Route::get('masterwords/read/{id}', 'UserController@showReadMasterWords')->name('admin/masterwords/read');
 
@@ -707,11 +706,11 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('commontext', 'UserController@showAdminCommonText')->name('admin/commontext');
         Route::post('commontext/save', 'UserController@saveAdminCommonText')->name('admin/commontext/save');
         Route::get('getAdminActionLog', 'UserController@adminActionLog')->name('admin/getAdminActionLog');
-        Route::get('users/inactive', 'UserController@inactiveUsers')->name('inactive');
+        Route::get('users/inactive', 'UserController@inactiveUsers')->name('inactive/GET');
         Route::post('users/inactive', 'UserController@inactiveUsers')->name('inactive');
         Route::get('users/activate/token/{token}', 'UserController@activateUser')->name('activateUser');
         Route::get('stats/vip', 'StatController@vip')->name('stats/vip');
-        Route::get('stats/other', 'StatController@other')->name('stats/vip/other');
+        Route::get('stats/other', 'StatController@other')->name('stats/vip/other/GET');
         Route::post('stats/other', 'StatController@other')->name('stats/vip/other');
         Route::get('stats/vip/paid', 'StatController@vipPaid')->name('stats/vip/paid');
         Route::get('stats/vip_log/{id}', 'StatController@vipLog')->name('stats/vip_log');
