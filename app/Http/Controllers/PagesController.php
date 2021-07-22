@@ -44,6 +44,7 @@ use App\Http\Requests\ReportRequest;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Http\Requests\FormFilterRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
@@ -69,7 +70,7 @@ class PagesController extends BaseController
         $this->service = $userService;
         $this->logService = $logService;
         $this->suspiciousRepo = $suspiciousRepo;
-        $this->middleware('throttle:100,1');
+        $this->middleware('throttle:75,1');
         $this->middleware('pseudoThrottle:40,1');
     }
 
@@ -1156,6 +1157,9 @@ class PagesController extends BaseController
         }
         else if ($status == 'open')
         {
+            if($user->account_status_admin==0){
+                return back()->with('message', '此帳號已被站方關閉，若有疑問請點選右下方，加站長line@');
+            }
             $dbCloseDay = \App\Models\AccountStatusLog::where('user_id',$user->id)->orderBy('created_at', 'desc')->first();
             $waitDay = 30;
             if(!is_null($dbCloseDay)){
@@ -2033,10 +2037,21 @@ class PagesController extends BaseController
 
 
             /*此會員封鎖多少其他會員*/
-            $blocked_other_count = Blocked::where('member_id', $uid)->count();
+            $bannedUsers = \App\Services\UserService::getBannedId();
+            $blocked_other_count = Blocked::with(['blocked_user'])
+                ->join('users', 'users.id', '=', 'blocked.blocked_id')
+                ->where('blocked.member_id', $uid)
+                ->whereNotIn('blocked.blocked_id',$bannedUsers)
+                ->whereNotNull('users.id')
+                ->count();
 
             /*此會員被多少會員封鎖*/
-            $be_blocked_other_count = Blocked::where('blocked_id', $uid)->count();
+            $be_blocked_other_count = Blocked::with(['blocked_user'])
+                ->join('users', 'users.id', '=', 'blocked.member_id')
+                ->where('blocked.blocked_id', $uid)
+                ->whereNotIn('blocked.member_id',$bannedUsers)
+                ->whereNotNull('users.id')
+                ->count();
 
             /*每周平均上線次數*/
             $datetime1 = new \DateTime(now());
@@ -2050,6 +2065,8 @@ class PagesController extends BaseController
                 $login_times_per_week = round(($targetUser->login_times / $week), 0);
             }
 
+            $last_login = $targetUser->last_login;
+
             $is_banned = null;
 
             //
@@ -2058,20 +2075,22 @@ class PagesController extends BaseController
                 $hideOnlineData = hideOnlineData::where('user_id',$uid)->where('deleted_at',null)->get()->first();
                 if(isset($hideOnlineData)){
                     $login_times_per_week = $hideOnlineData->login_times_per_week;
-//                    $be_fav_count = $hideOnlineData->login_times_per_week;
-//                    $fav_count = $hideOnlineData->login_times_per_week;
-//                    $tip_count = $hideOnlineData->tip_count;
-//                    $message_count = $hideOnlineData->message_count;
+                    $be_fav_count = $hideOnlineData->be_fav_count;//new add
+                    $fav_count = $hideOnlineData->fav_count;//new add
+                    $tip_count = $hideOnlineData->tip_count;//new add
+                    $message_count = $hideOnlineData->message_count;//new add
                     $message_count_7 = $hideOnlineData->message_count_7;
-//                    $message_reply_count = $hideOnlineData->message_reply_count;
+                    $message_reply_count = $hideOnlineData->message_reply_count;//new add
                     $message_reply_count_7 = $hideOnlineData->message_reply_count_7;
                     $message_percent_7 = $hideOnlineData->message_percent_7;
-//                    $visit_other_count = $hideOnlineData->visit_other_count;
+                    $visit_other_count = $hideOnlineData->visit_other_count;//new add
                     $visit_other_count_7 = $hideOnlineData->visit_other_count_7;
-//                    $be_visit_other_count = $hideOnlineData->be_visit_other_count;
-//                    $be_visit_other_count_7 = $hideOnlineData->be_visit_other_count_7;
-//                    $blocked_other_count = $hideOnlineData->blocked_other_count;
-//                    $be_blocked_other_count = $hideOnlineData->be_blocked_other_count;
+                    $be_visit_other_count = $hideOnlineData->be_visit_other_count;//new add
+                    $be_visit_other_count_7 = $hideOnlineData->be_visit_other_count_7;//new add
+                    $blocked_other_count = $hideOnlineData->blocked_other_count;//new add
+                    $be_blocked_other_count = $hideOnlineData->be_blocked_other_count;//new add
+                    $last_login = $hideOnlineData->updated_at; //new add
+
                 }
             }
 
@@ -2095,7 +2114,8 @@ class PagesController extends BaseController
                 'blocked_other_count' => $blocked_other_count,
                 'be_blocked_other_count' => $be_blocked_other_count,
                 'is_banned' => $is_banned,
-                'userHideOnlinePayStatus' => $userHideOnlinePayStatus
+                'userHideOnlinePayStatus' => $userHideOnlinePayStatus,
+                'last_login' => $last_login
             );
 
             $member_pic = DB::table('member_pic')->where('member_id', $uid)->where('pic', '<>', $targetUser->meta->pic)->get();
@@ -2154,28 +2174,28 @@ class PagesController extends BaseController
              *
              * @author LZong <lzong.tw@gmail.com>
              */
-            $query = \App\Models\Evaluation::select('e.*')->from('evaluation as e')->with('user')
-                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'e.from_id')
-                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'e.from_id')
+            $query = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
+                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.from_id')
+                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.from_id')
                 ->leftJoin('blocked as b7', function($join) use($uid) {
-                    $join->on('b7.member_id', '=', 'e.from_id')
+                    $join->on('b7.member_id', '=', 'evaluation.from_id')
                         ->where('b7.blocked_id', $uid); })
 //                ->leftJoin('user_meta as um', function($join) {
-//                    $join->on('um.user_id', '=', 'e.from_id')
+//                    $join->on('um.user_id', '=', 'evaluation.from_id')
 //                        ->where('isWarned', 1); })
                 ->leftJoin('warned_users as wu', function($join) {
-                    $join->on('wu.member_id', '=', 'e.from_id')
+                    $join->on('wu.member_id', '=', 'evaluation.from_id')
                         ->where(function($query){
                             $query->where('wu.expire_date', '>=', Carbon::now())
                                 ->orWhere('wu.expire_date', null); }); })
-                ->leftJoin('is_warned_log as iw', 'iw.user_id', '=', 'e.from_id')
+                ->leftJoin('is_warned_log as iw', 'iw.user_id', '=', 'evaluation.from_id')
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
                 ->whereNull('b7.member_id')
 //                ->whereNull('um.user_id')
                 ->whereNull('wu.member_id')
                 ->whereNull('iw.user_id')
-                ->where('e.to_id', $uid);
+                ->where('evaluation.to_id', $uid);
 
             $rating_avg = $query->avg('rating');
             $rating_avg = floatval($rating_avg);
@@ -2185,14 +2205,14 @@ class PagesController extends BaseController
              *
              * @author LZong <lzong.tw@gmail.com>
              */
-            $query = \App\Models\Evaluation::select('e.*')->from('evaluation as e')->with('user')
-                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'e.from_id')
-                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'e.from_id')
+            $query = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
+                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.from_id')
+                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.from_id')
 //                ->leftJoin('user_meta as um', function($join) {
-//                    $join->on('um.user_id', '=', 'e.from_id')
+//                    $join->on('um.user_id', '=', 'evaluation.from_id')
 //                        ->where('isWarned', 1); })
 //                ->leftJoin('warned_users as wu', function($join) {
-//                    $join->on('wu.member_id', '=', 'e.from_id')
+//                    $join->on('wu.member_id', '=', 'evaluation.from_id')
 //                        ->where(function($query){
 //                            $query->where('wu.expire_date', '>=', Carbon::now())
 //                                ->orWhere('wu.expire_date', null); }); })
@@ -2200,12 +2220,12 @@ class PagesController extends BaseController
                 ->whereNull('b3.target')
 //                ->whereNull('um.user_id')
 //                ->whereNull('wu.member_id')
-                ->orderBy('e.created_at','desc')
-                ->where('e.to_id', $uid);
+                ->orderBy('evaluation.created_at','desc')
+                ->where('evaluation.to_id', $uid);
 
             $evaluation_data = $query->paginate(10);
 
-            $evaluation_self = DB::table('evaluation')->where('to_id',$uid)->where('from_id',$user->id)->first();
+            $evaluation_self = Evaluation::where('to_id',$uid)->where('from_id',$user->id)->first();
             /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
 //            $user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
             /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
@@ -2235,6 +2255,13 @@ class PagesController extends BaseController
                 $pr = $pr->pr;
             }else{
                 $pr = '0';
+            }
+
+            //紀錄返回上一頁的url,避免發信後,按返回還在發信頁面
+            if(isset($_SERVER['HTTP_REFERER'])){
+                if(!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow') && !str_contains($_SERVER['HTTP_REFERER'],'dashboard/viewuser')){
+                    session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
+                }
             }
 
             return view('new.dashboard.viewuser', $data)
@@ -2270,15 +2297,14 @@ class PagesController extends BaseController
     public function evaluation_self(Request $request)
     {
         $user = $request->user();
-
-        $evaluation_data = Evaluation::select('e.*')->from('evaluation as e')->with('user')
-            ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'e.to_id')
-            ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'e.to_id')
+        $evaluation_data = Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
+            ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.to_id')
+            ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.to_id')
             ->whereNull('b1.member_id')
             ->whereNull('b3.target')
-            ->orderBy('e.created_at','desc')
-            ->where('e.from_id', $user->id)->paginate(15);
-
+            ->orderBy('evaluation.created_at','desc')
+            ->where('evaluation.from_id', $user->id)
+            ->paginate(15);
         return view('new.dashboard.evaluation_self')
             ->with('user', $user)
             ->with('cur', $user)
@@ -2290,7 +2316,7 @@ class PagesController extends BaseController
 
         $self = $request->from_id;
 
-        DB::table('evaluation')->where('from_id',$self)->delete();
+        Evaluation::where('from_id',$self)->delete();
 
         return response()->json(['save' => 'ok']);
     }
@@ -2339,7 +2365,7 @@ class PagesController extends BaseController
     public function evaluation_save(Request $request)
     {
 
-        $evaluation_self = DB::table('evaluation')->where('to_id',$request->input('eid'))->where('from_id',$request->input('uid'))->first();
+        $evaluation_self = Evaluation::where('to_id',$request->input('eid'))->where('from_id',$request->input('uid'))->first();
 
         if(isset($evaluation_self)){
             DB::table('evaluation')->where('to_id',$request->input('eid'))->where('from_id',$request->input('uid'))->update(
@@ -2392,8 +2418,8 @@ class PagesController extends BaseController
 
     public function evaluation_delete(Request $request)
     {
-        DB::table('evaluation')->where('id',$request->id)->delete();
-        EvaluationPic::where('evaluation_id',$request->id)->delete();
+        Evaluation::where('id',$request->id)->delete();
+        //EvaluationPic::where('evaluation_id',$request->id)->delete();
 
         return response()->json(['save' => 'ok']);
     }
@@ -2474,7 +2500,7 @@ class PagesController extends BaseController
             $user = $request->user();
             return redirect('/dashboard/viewuser/'.$request->uid);
         }
-        Message::reportMessage($request->id, $request->content);
+        Message::reportMessage($request->id, $request->content, $request->file('images'));
         //        return redirect('/dashboard/viewuser/'.$request->uid)->with('message', '檢舉成功');
         return back()->with('message', '檢舉成功');
     }
@@ -2788,10 +2814,10 @@ class PagesController extends BaseController
         return 'ok';
     }
 
-    public function chat2(Request $request,AdminService $adminSrv, $cid)
+    public function chat2(Request $request, $cid)
     {
         $user = $request->user();
-        $admin = $adminSrv->checkAdmin();
+        $admin = AdminService::checkAdmin();
         $m_time = '';
         $report_reason = AdminCommonText::where('alias', 'report_reason')->get()->first();
         $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
@@ -2808,6 +2834,14 @@ class PagesController extends BaseController
             }
 
         }
+
+        //紀錄返回上一頁的url
+        if(isset($_SERVER['HTTP_REFERER'])){
+            if(!str_contains($_SERVER['HTTP_REFERER'],'dashboard/chat2/chatShow')){
+                session()->put('goBackPage_chat2',$_SERVER['HTTP_REFERER']);
+            }
+        }
+
         if (isset($user)) {
             $isVip = $user->isVip();
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
@@ -2916,6 +2950,19 @@ class PagesController extends BaseController
     }
     public function search2(Request $request)
     {
+        $input = $request->input();
+        $search_page_key=session()->get('search_page_key',[]);
+        if(!isset($input['page'])){
+            foreach ($input as $key =>$value){
+                session()->put('search_page_key.'.$key,array_get($input,$key,null));
+            }
+            foreach ($search_page_key as $key =>$value){
+                if(count($input)){
+                    session()->put('search_page_key.'.$key,array_get($input,$key,null));
+                }
+            }
+        }
+
         $user = $request->user();
         $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
         //valueAddedService
@@ -2984,6 +3031,7 @@ class PagesController extends BaseController
                 ->join('users', 'users.id', '=', 'blocked.blocked_id')
                 ->where('member_id', $user->id)
                 ->whereNotIn('blocked_id',$bannedUsers)
+                ->whereNotNull('users.id')
                 ->orderBy('blocked.created_at','desc')->paginate(15);
 
             return view('new.dashboard.block')
@@ -3747,6 +3795,13 @@ class PagesController extends BaseController
         if ($user && $user->engroup == 2){
             return back();
         }
+
+        $ban = banned_users::where('member_id', $user->id)->first();
+        $banImplicitly = \App\Models\BannedUsersImplicitly::where('target', $user->id)->first();
+        if($ban || $banImplicitly){
+            return back();
+        }
+
         $posts = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at')
             ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid or reply_id in ((select distinct(id) from posts where type="sub" and reply_id=pid) )  order by updated_at desc limit 1) as currentReplyTime')
             ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
@@ -3801,6 +3856,12 @@ class PagesController extends BaseController
             ->LeftJoin('users', 'users.id','=','posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->where('posts.id', $pid)->first();
+
+        if(!$postDetail) {
+            $request->session()->flash('message', '找不到文章：' . $pid);
+            $request->session()->reflash();
+            return redirect()->route('posts_list');
+        }
 
         $replyDetail = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
             ->LeftJoin('users', 'users.id','=','posts.user_id')
@@ -4077,8 +4138,8 @@ class PagesController extends BaseController
         return $result;
     }
 
-    public function personalPage(Request $request,AdminService $adminSrv) {
-        $admin = $adminSrv->checkAdmin();
+    public function personalPage(Request $request) {
+        $admin = AdminService::checkAdmin();
         $user = \View::shared('user');
 
         $vipStatus = '您目前還不是VIP，<a class="red" href="../dashboard/new_vip">立即成為VIP!</a>';
@@ -4107,7 +4168,7 @@ class PagesController extends BaseController
                         default:
                             $payment = '';
                     }
-                    if(env('APP_ENV') == 'local'){
+                    if(\App::environment('local')){
                         $envStr = '_test';
                     }
                     else{
@@ -4166,6 +4227,12 @@ class PagesController extends BaseController
                 }
             }else{
                 $vipStatus = '您目前為免費VIP';
+                if(!$user->existHeaderImage() && $user->engroup==2){
+                    $vip_record = Carbon::parse($user->vip_record);
+                    if($vip_record->diffInMinutes(Carbon::now()) <= 30){
+                        $vipStatus = '您的生活照低於三張，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。';
+                    }
+                }
             }
         }
 
@@ -4238,37 +4305,41 @@ class PagesController extends BaseController
 
         //個人檢舉紀錄
         $reported = Reported::select('reported.id','reported.reported_id as rid','reported.content as reason', 'reported.created_at as reporter_time','u.name','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
+            ->selectRaw('"reported" as reported_type')
             ->leftJoin('users as u', 'u.id','reported.reported_id')->where('u.id','!=',null)
             ->leftJoin('user_meta as m','u.id','m.user_id')
             ->leftJoin('banned_users as b','u.id','b.member_id')
             ->leftJoin('warned_users as w','u.id','w.member_id');
 //        $reported = $reported->addSelect(DB::raw("'reported' as table_name"));
-        $reported = $reported->where('reported.member_id',$user->id)->get();
+        $reported = $reported->where('reported.member_id',$user->id)->where('reported.hide_reported_log',0)->get();
 
-        $reported_pic = ReportedPic::select('reported_pic.id','member_pic.member_id as rid','reported_pic.content as reason','reported_pic.created_at as reporter_time','u.name','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date');
+        $reported_pic = ReportedPic::select('reported_pic.id','member_pic.member_id as rid','reported_pic.content as reason','reported_pic.created_at as reporter_time','u.name','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
+            ->selectRaw('"reportedPic" as reported_type');
 //        $reported_pic = $reported_pic->addSelect(DB::raw("'reported_pic' as table_name"));
         $reported_pic = $reported_pic->join('member_pic','member_pic.id','=','reported_pic.reported_pic_id')
             ->leftJoin('users as u', 'u.id','member_pic.member_id')->where('u.id','!=',null)
             ->leftJoin('user_meta as m','u.id','m.user_id')
             ->leftJoin('banned_users as b','u.id','b.member_id')
             ->leftJoin('warned_users as w','u.id','w.member_id')
-            ->where('reported_pic.reporter_id',$user->id)->get();
+            ->where('reported_pic.reporter_id',$user->id)->where('reported_pic.hide_reported_log',0)->get();
 
         $reported_avatar = ReportedAvatar::select('reported_avatar.id','reported_avatar.reported_user_id as rid', 'reported_avatar.content as reason', 'reported_avatar.created_at as reporter_time','u.name','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
+            ->selectRaw('"reportedAvatar" as reported_type')
             ->leftJoin('users as u', 'u.id','reported_avatar.reported_user_id')->where('u.id','!=',null)
             ->leftJoin('user_meta as m','u.id','m.user_id')
             ->leftJoin('banned_users as b','u.id','b.member_id')
             ->leftJoin('warned_users as w','u.id','w.member_id');
 //        $reported_avatar = $reported_avatar->addSelect(DB::raw("'reported_avatar' as table_name"));
-        $reported_avatar = $reported_avatar->where('reported_avatar.reporter_id',$user->id)->get();
+        $reported_avatar = $reported_avatar->where('reported_avatar.reporter_id',$user->id)->where('reported_avatar.hide_reported_log',0)->get();
 
         $reported_message = Message::select('message.id','message.from_id as rid', 'message.reportContent as reason', 'message.updated_at as reporter_time','u.name','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
+            ->selectRaw('"reportedMessage" as reported_type')
             ->leftJoin('users as u', 'u.id','message.from_id')->where('u.id','!=',null)
             ->leftJoin('user_meta as m','u.id','m.user_id')
             ->leftJoin('banned_users as b','u.id','b.member_id')
             ->leftJoin('warned_users as w','u.id','w.member_id');
 //        $reported_message = $reported_message->addSelect(DB::raw("'message' as table_name"));
-        $reported_message = $reported_message->where('message.to_id',$user->id)->where('message.isReported',1)->get();
+        $reported_message = $reported_message->where('message.to_id',$user->id)->where('message.isReported',1)->where('message.hide_reported_log',0)->get();
 
         $collection = collect([$reported, $reported_pic, $reported_avatar, $reported_message]);
         $report_all = $collection->collapse()->unique('rid')->sortByDesc('reporter_time');
@@ -4325,14 +4396,14 @@ class PagesController extends BaseController
                         }
                     }
                     if ($reporter_isBannedStatus == 1 || $reporter_isAdminWarnedStatus == 1 || $reporter_isWarnedStatus == 1) {
-                        array_push($reportedStatus, array(/*'table' => $row->table_name, */'id' => $row->id, 'rid' => $row->rid, 'content' => $content_1, 'status' => $content_2, 'name' => $row->name));
+                        array_push($reportedStatus, array(/*'table' => $row->table_name, */'id' => $row->id, 'rid' => $row->rid, 'content' => $content_1, 'status' => $content_2, 'name' => $row->name, 'reported_type' => $row->reported_type));
                     }
                 }
             }
 
         //你收藏的會員上線
         $uid = $user->id;
-        $myFav =  MemberFav::select('a.member_id','a.member_fav_id','b.id','b.name','b.title','b.last_login','v.id as vid','v.created_at as visited_created_at')
+        $myFav =  MemberFav::select('a.id as rowid','a.member_id','a.member_fav_id','b.id','b.name','b.title','b.last_login','v.id as vid','v.created_at as visited_created_at')
             ->where('a.member_id',$user->id)->from('member_fav as a')
             ->leftJoin('users as b','a.member_fav_id','b.id')->where('b.id','!=',null)
             ->leftJoin('visited as v', function ($join) use ($uid){
@@ -4348,12 +4419,13 @@ class PagesController extends BaseController
             ->whereNull('b3.target')
             ->whereNull('b5.blocked_id')
             ->where('b.last_login', '>=', Carbon::now()->subDays(7))
+            ->where('a.hide_member_id_log',0)
             ->groupBy('a.member_fav_id')
             ->get();
 
 
         //收藏你的會員上線
-        $otherFav = MemberFav::select('a.member_id','a.member_fav_id','b.name','b.title','b.last_login')->where('a.member_fav_id',$user->id)->from('member_fav as a')
+        $otherFav = MemberFav::select('a.id as rowid','a.member_id','a.member_fav_id','b.name','b.title','b.last_login')->where('a.member_fav_id',$user->id)->from('member_fav as a')
             ->leftJoin('users as b','a.member_id','b.id')->where('b.id','!=',null)
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'a.member_id')
             ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'a.member_id')
@@ -4364,13 +4436,14 @@ class PagesController extends BaseController
             ->whereNull('b3.target')
             ->whereNull('b5.blocked_id')
             ->where('b.last_login', '>=', Carbon::now()->subDays(7))
+            ->where('a.hide_member_fav_id_log',0)
             ->get();
 
         //msg
         $msgMemberCount = Message_new::allSenders($user->id,$user->isVip(),$d = 'all');
 
-        $queryBE = \App\Models\Evaluation::select('e.*')->from('evaluation as e')->with('user')
-                ->leftJoin('blocked as b1', 'b1.blocked_id', '=', 'e.from_id')
+        $queryBE = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
+                ->leftJoin('blocked as b1', 'b1.blocked_id', '=', 'evaluation.from_id')
 //                ->leftJoin('user_meta as um', function($join) {
 //                    $join->on('um.user_id', '=', 'e.from_id')
 //                        ->where('isWarned', 1); })
@@ -4381,18 +4454,18 @@ class PagesController extends BaseController
 //                                ->orWhere('wu.expire_date', null); }); })
 //                ->whereNull('um.user_id')
 //                ->whereNull('wu.member_id')
-                ->orderBy('e.created_at','desc')
+                ->orderBy('evaluation.created_at','desc')
                 ->where('b1.member_id', $uid)
-                ->where('e.to_id', $uid)
-                ->where('e.read', 1)
+                ->where('evaluation.to_id', $uid)
+                ->where('evaluation.read', 1)
                 ->get();
 
         $isBannedEvaluation = sizeof($queryBE) > 0? true : false;
 
-        $queryHE = \App\Models\Evaluation::select('e.*')->from('evaluation as e')
-                ->orderBy('e.created_at','desc')
-                ->where('e.to_id', $uid)
-                ->where('e.read', 1)
+        $queryHE = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')
+                ->orderBy('evaluation.created_at','desc')
+                ->where('evaluation.to_id', $uid)
+                ->where('evaluation.read', 1)
                 ->get();
         
         $arrayHE = [];
@@ -4408,9 +4481,27 @@ class PagesController extends BaseController
         }
 
         $isHasEvaluation = sizeof($arrayHE) > 0? true : false;
+
         
         $admin_msg_query = Message_new::where([['to_id', $uid],['from_id',$admin->id], ['from_id', '!=', $uid]])->orderByDesc('created_at')->take(3);
         $admin_msgs = $admin_msg_query->get();
+
+
+        //僅顯示30天內的評價
+        $evaluation_30days = \App\Models\Evaluation::selectRaw('evaluation.*, b1.blocked_id, b.name')->from('evaluation as evaluation')
+            ->leftJoin('blocked as b1', function($join) {
+                $join->on('b1.blocked_id', '=', 'evaluation.from_id');
+                $join->on('b1.member_id', '=', 'evaluation.to_id');
+            })
+            ->leftJoin('users as b','evaluation.from_id','b.id')
+            ->orderBy('evaluation.created_at','desc')
+            ->where('evaluation.to_id', $uid)
+            ->where('evaluation.created_at', '>=', Carbon::now()->subDays(30));
+
+        $evaluation_30days_list=$evaluation_30days->where('evaluation.hide_evaluation_to_id', 0)->get();
+        $evaluation_30days_unread_count=$evaluation_30days->where('evaluation.read', 1)->get()->count();
+
+
         if (isset($user)) {
 
             $data = array(
@@ -4426,6 +4517,8 @@ class PagesController extends BaseController
                 'msgMemberCount' => $msgMemberCount,
                 'isBannedEvaluation' => $isBannedEvaluation,
                 'isHasEvaluation' => $isHasEvaluation,
+                'evaluation_30days' => $evaluation_30days_list,
+                'evaluation_30days_unread_count' => $evaluation_30days_unread_count,
             );
 
 
@@ -4514,5 +4607,70 @@ class PagesController extends BaseController
             'status' => 1,
             'msg' => 'success',
         ), 200);
+    }
+
+    public function search_key_reset(){
+        $search_page_key=session()->get('search_page_key',[]);
+        foreach ($search_page_key as $key =>$value){
+            session()->put('search_page_key.'.$key,null);
+        }
+        //logger(session()->get('search_page_key',[]));
+    }
+
+    public function closeNoticeNewEvaluation(Request $request){
+        $user_id = $request->id;
+        $user = User::select('id', 'notice_has_new_evaluation')->where('id', $user_id)->first();
+        $user->notice_has_new_evaluation = 0;
+        if ($user->save()) {
+            return response()->json(array(
+                'status' => 1,
+                'msg' => 'ok',
+            ), 200);
+        } else {
+            return response()->json(array(
+                'status' => 2,
+                'msg' => 'fail',
+            ), 500);
+        }
+    }
+
+    public function personalPageHideRecordLog(Request $request){
+        $updateType = $request->type;
+        $user_id = $request->user_id;
+        $items = $request->deleteItems;
+        switch ($updateType){
+            case 'myFavRecord' : //不顯示我收藏的會員上線
+                MemberFav::where('member_id',$user_id)->whereIn('id', $items)->update(['hide_member_id_log'=>1]);
+                break;
+            case 'myFavRecord2' : //不顯示收藏我的會員上線
+                MemberFav::where('member_fav_id',$user_id)->whereIn('id', $items)->update(['hide_member_fav_id_log'=>1]);
+                break;
+            case 'evaluationRecord' : //不顯示評價我的評價紀錄
+                Evaluation::where('to_id',$user_id)->whereIn('id', $items)->update(['hide_evaluation_to_id'=>1]);
+                break;
+            case 'reportedRecord' : //不顯示檢舉紀錄
+                foreach ($items as $item){
+                    //檢舉類型
+                    $rowid=explode("_", $item)[0];
+                    $reportedType=explode("_", $item)[1];
+                    if($reportedType=='reported'){
+                        //個人檢舉紀錄
+                        Reported::where('member_id',$user_id)->where('id', $rowid)->update(['hide_reported_log'=>1]);
+
+                    }else if ($reportedType=='reportedPic') {
+                        //檢舉照片
+                        ReportedPic::where('reporter_id',$user_id)->where('id', $rowid)->update(['hide_reported_log'=>1]);
+
+                    }else if ($reportedType=='reportedAvatar'){
+                        //檢舉大頭照
+                        ReportedAvatar::where('reporter_id',$user_id)->where('id', $rowid)->update(['hide_reported_log'=>1]);
+
+                    }else if ($reportedType=='reportedMessage'){
+                        //檢舉訊息
+                        Message::where('to_id',$user_id)->where('id', $rowid)->update(['hide_reported_log'=>1]);
+                    }
+                }
+                break;
+        }
     }
 }

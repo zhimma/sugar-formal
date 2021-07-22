@@ -912,7 +912,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $pic_all_report = $collection->collapse()->unique('uid');
         //$pic_all_report->unique()->all();
 
-        $msg_report = Message::select('to_id', 'id', 'cancel', 'created_at', 'content')->where('from_id', $user->id)->where('isReported', 1)->distinct('to_id')->get();
+        $msg_report = Message::select('to_id', 'id', 'cancel', 'created_at', 'content','from_id')->where('from_id', $user->id)->where('isReported', 1)->distinct('to_id')->get();
         $report = Reported::select('member_id', 'reported_id', 'cancel', 'created_at', 'content', 'pic')->where('reported_id', $user->id)->where('member_id', '!=', $user->id)->groupBy('member_id')->get();
         $report_all = array();
 
@@ -973,6 +973,7 @@ class UserController extends \App\Http\Controllers\BaseController
                     array_push($report_all,
                         array(
                             'report_dbid' => $row->id,
+                            'reported_id' => $row->from_id,
                             'reporter_id' => $row->to_id,
                             'cancel' => $row->cancel,
                             'content' => $row->content,
@@ -1000,6 +1001,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 array_push($report_all,
                     array(
                         'report_dbid' => $row->id,
+                        'reported_id' => $row->from_id,
                         'reporter_id' => $row->to_id,
                         'cancel' => $row->cancel,
                         'content' => $row->content,
@@ -1092,7 +1094,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $tmp = array();
             $f_user = User::findById($row->to_id);
             $tmp['id'] = $row->id;
-            $tmp['content'] = $row->content;
+            $tmp['content'] = $row->content . (!is_null($row->admin_comment) ? ('  ('.$row->admin_comment.')') : '');
             $tmp['re_content'] = $row->re_content;
             $tmp['rating'] = $row->rating;
             $tmp['re_created_at'] = $row->re_created_at;
@@ -1104,6 +1106,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $tmp['to_isvip'] = $f_user->isVip();
             $tmp['is_check'] = $row->is_check;
             $tmp['evaluation_pic'] = EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
+            $tmp['is_delete'] = $row->deleted_at;
             $auth_status = 0;
             if ($f_user->isPhoneAuth() == 1) {
                 $auth_status = 1;
@@ -1118,7 +1121,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $tmp = array();
             $f_user = User::findById($row->from_id);
             $tmp['id'] = $row->id;
-            $tmp['content'] = $row->content;
+            $tmp['content'] = $row->content . (!is_null($row->admin_comment) ? ('  ('.$row->admin_comment.')') : '');
             $tmp['re_content'] = $row->re_content;
             $tmp['rating'] = $row->rating;
             $tmp['re_created_at'] = $row->re_created_at;
@@ -1130,6 +1133,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $tmp['to_isvip'] = $f_user->isVip();
             $tmp['is_check'] = $row->is_check;
             $tmp['evaluation_pic'] = EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$f_user->id)->get();
+            $tmp['is_delete'] = $row->deleted_at;
             $auth_status = 0;
             if ($f_user->isPhoneAuth() == 1) {
                 $auth_status = 1;
@@ -2635,12 +2639,13 @@ class UserController extends \App\Http\Controllers\BaseController
         $ban = banned_users::where('member_id', $data['id'])->get()->toArray();
         // dd($ban);
         if (empty($ban)) {
+
             if(DB::table('banned_users')->insert(['member_id' => $data['id'], 'reason' => '管理者刪除']))
             {
                 DB::connetcion('mysql_fp')->table('banned_users')->insert(['member_id' => $data['id'], 'reason' => '管理者刪除']);   
                 Banned::addRemindMsgFromBannedId($data['id']);
             }
-            
+
         }
 
         $data = array(
@@ -3769,9 +3774,17 @@ class UserController extends \App\Http\Controllers\BaseController
         return back()->with('message', '評價內容已更新');
     }
 
+    public function adminComment(Request $request)
+    {
+        DB::table('evaluation')->where('id',$request->input('id'))->update(
+            ['admin_comment' => $request->input('admin_comment')]
+        );
+        return back()->with('message', '站方附註留言已更新');
+    }
+
     public function evaluationDelete(Request $request)
     {
-        DB::table('evaluation')->where('id',$request->id)->delete();
+        Evaluation::where('id',$request->id)->delete();
         return back()->with('message', '評價已刪除');
     }
 
@@ -4054,5 +4067,32 @@ class UserController extends \App\Http\Controllers\BaseController
         return back();
     }
 
+    public function getIpUsers($ip){
 
+        $getIpUsersData = LogUserLogin::selectraw('g.*, u.email, u.name, u.title, u.engroup, u.last_login')
+            ->from('log_user_login as g')
+            ->leftJoin('users as u','u.id','g.user_id')
+            ->where('g.ip', $ip)
+            ->whereNotNull('u.id')
+            ->orderBy('u.id')
+            ->orderBy('u.last_login','DESC')
+            ->orderBy('g.created_at','DESC')
+            ->paginate(50)
+        ;
+
+        return view('admin.users.ipUsersList')
+            ->with('ipUsersData', $getIpUsersData)
+            ->with('ip', $ip)
+            ;
+
+    }
+    public function accountStatus_admin(Request $request){
+        $uid=$request->input('uid');
+        $account_status=$request->input('account_status');
+        $user=User::findById($uid);
+        $user->account_status_admin=$account_status;
+        $user->save();
+
+        return back();
+    }
 }
