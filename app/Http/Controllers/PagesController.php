@@ -4422,7 +4422,7 @@ class PagesController extends BaseController
             ->get();
 
         //msg
-        $msgMemberCount = Message_new::allSenders($user->id,$user->isVip(),$d = 'all');
+        $msgMemberCount = Message_new::allSenders($user->id, $user->isVip(), 'all');
 
         $queryBE = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
                 ->leftJoin('blocked as b1', 'b1.blocked_id', '=', 'evaluation.from_id')
