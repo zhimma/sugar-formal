@@ -553,6 +553,10 @@
 {{--                                        </div>--}}
 {{--                                    @endif--}}
                                     {{---------警示帳戶尚未實作-------------- <img src="/new/images/b_05.png">--}}
+                                    @if(!$visitor->user_meta)
+                                        {{ logger("Searched user no meta, id:" . $visitor->id) }}
+                                        @continue
+                                    @endif
                                     @if($visitor->user_meta->isWarned == 1 || $visitor->isAdminWarned())
                                         <div class="hoverTip">
                                             <div class="tagText" data-toggle="popover" data-content="此人被多人檢舉！與此會員交流務必提高警覺！">
