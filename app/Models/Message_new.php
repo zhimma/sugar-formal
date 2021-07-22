@@ -711,10 +711,10 @@ class Message_new extends Model
                     ->where('b6.member_id', $uid); })
             ->leftJoin('blocked as b7', function($join) use($uid) {
                 $join->on('b7.member_id', '=', 'm.from_id')
-                    ->where('b7.blocked_id', $uid); })
-            ->leftJoin('blocked as b8', function($join) use($uid) {
-                $join->on('b8.member_id', '=', 'm.to_id')
-                    ->where('b8.blocked_id', $uid); });
+                    ->where('b7.blocked_id', $uid); });
+//            ->leftJoin('blocked as b8', function($join) use($uid) {
+//                $join->on('b8.member_id', '=', 'm.to_id')
+//                    ->where('b8.blocked_id', $uid); });
         $query = $query->whereNotNull('u1.id')->whereNotNull('u2.id')
             ->whereNull('b1.member_id')
             ->whereNull('b2.member_id')
@@ -723,7 +723,7 @@ class Message_new extends Model
             ->whereNull('b5.blocked_id')
             ->whereNull('b6.blocked_id')
             ->whereNull('b7.member_id')
-            ->whereNull('b8.member_id')
+//            ->whereNull('b8.member_id')
             ->where(function ($query) use ($uid) {
                 $query->where([['m.to_id', $uid], ['m.from_id', '!=', $uid]])
                     ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid]]);
