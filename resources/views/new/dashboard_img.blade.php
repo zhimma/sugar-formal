@@ -95,7 +95,7 @@
                                 @php
                                     $avatar = isset($avatar->pic) ? $avatar->pic . '?' . \Carbon\Carbon::now() : NULL;
                                 @endphp
-                                <b class="img" style="background:url(' {{ $avatar or '/new/images/ph_12.png' }} '); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
+                                <b class="img" style="background:url(' {{ $avatar ?? '/new/images/ph_12.png' }} '); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
                             </li>
                         @endif
                         @if ($member_pics)
@@ -107,7 +107,7 @@
                                     @php
                                         $pic = isset($member_pics[$i]->pic) ? $member_pics[$i]->pic . '?' . \Carbon\Carbon::now() : NULL;
                                     @endphp
-                                    <b class="img" style="background:url(' {{ $pic  or '/new/images/ph_12.png' }} '); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
+                                    <b class="img" style="background:url(' {{ $pic ?? '/new/images/ph_12.png' }} '); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
                                 </li>
                             @endfor
                         @endif
@@ -125,7 +125,7 @@
                                 // 添加日期參數, 讓圖片不使用快取機制
                                 $avatar = isset($avatar->pic) ? $avatar->pic . '?' . \Carbon\Carbon::now() : null;
                             @endphp
-                            <b class="img" style="background:url('{{ $avatar or $defaultAvatar}}'); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;">
+                            <b class="img" style="background:url('{{ $avatar ?? $defaultAvatar}}'); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;">
                                 
                             </b>
                         </li>
@@ -144,11 +144,13 @@
                                 <div class="n_ulhh">
                                     <img src="/new/images/ph_05.png">
                                 </div>
-                                <b class="img" style="background:url('{{ $pic or $default }}'); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
+
+                                <b class="img" style="background:url('{{ $pic ?? $default }}'); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
                                 @if($pic) {{$member_pics[$i]->id}},{{\App\Models\AccountPicUpload::isAllowedMemberPicByMemberPicId($member_pics[$i]->id)}} @endif
                                 @if($pic && !\App\Models\AccountPicUpload::isAllowedMemberPicByMemberPicId($member_pics[$i]->id))
                                 <div class="n_shenhe"><img src="/images/shenhe.png"></div>                                
                                 @endif
+
                             </li>
                         @endfor
                     @endif
@@ -276,7 +278,16 @@
     }
     $(document).ready(function(){
         @if(Session::has('message'))
-            c5("{{ Session::get('message') }}");
+            @if(Session::get('message')=='上傳成功' && $user->existHeaderImage() && $user->engroup==2 && !$user->isVip())//防呆
+                @php
+                    $vip_record = \Carbon\Carbon::parse($user->vip_record);
+                @endphp
+                @if($vip_record->diffInSeconds(\Carbon\Carbon::now()) <= 86400)
+                    c5('照片上傳成功，24H後升級為VIP會員');
+                @endif
+            @else
+                c5("{{ Session::get('message') }}");
+            @endif
         @endif
 
         //errors
