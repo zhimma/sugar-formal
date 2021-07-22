@@ -48,7 +48,7 @@
     @foreach ($col as $c=> $colName)
             <th class="{{$columnTypeSet[$g][$c] ?? ''}}_th"> 
 				
-					{{$columnTypeSet[$g][$c] or ''}} ：
+					{{$columnTypeSet[$g][$c] ?? ''}} ：
 				<a target="_blank" href="showLog?{{$columnTypeSet[$g][$c]}}={{$colName}}{{request()->mon?'&mon='.request()->mon:''}}">{{$colName}}
 				</a>
 			</th>
@@ -97,9 +97,9 @@
 			@for ($n=0;$n<count($col);$n++)
 				<td @if($user) style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif" @endif>
 					@if(isset($cellValue[$g][$r][$n]))
-					{{$cellValue[$g][$r][$n]->time or ''}}
+					{{$cellValue[$g][$r][$n]->time ?? ''}}
 					<br>( <a target="_blank" href="showLog?user_id={{$rowName}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">
-						{{$cellValue[$g][$r][$n]->num or ''}}次</a> )
+						{{$cellValue[$g][$r][$n]->num ?? ''}}次</a> )
 					@else
 						無
 					@endif
