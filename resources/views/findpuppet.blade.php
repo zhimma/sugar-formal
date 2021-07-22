@@ -21,7 +21,7 @@
  </style>
 
 <div>
-<h2> {{$start_date}} ～ {{$end_date}} 相同IP帳號分析數據</h2>
+<h2> @if(isset($columnSet) && $columnSet) {{$start_date}} ～ {{$end_date}} @endif 相同IP帳號分析數據</h2>
 </div>
 @forelse ($columnSet as $g=>$col)
 <div class="show">
@@ -48,8 +48,8 @@
     @foreach ($col as $c=> $colName)
             <th class="{{$columnTypeSet[$g][$c] ?? ''}}_th"> 
 				
-					{{$columnTypeSet[$g][$c] ?? ''}} ：
-				<a target="_blank" href="/showLog?{{$columnTypeSet[$g][$c]}}={{$colName}}{{request()->mon?'&mon='.request()->mon:''}}">{{$colName}}
+					{{$columnTypeSet[$g][$c] or ''}} ：
+				<a target="_blank" href="showLog?{{$columnTypeSet[$g][$c]}}={{$colName}}{{request()->mon?'&mon='.request()->mon:''}}">{{$colName}}
 				</a>
 			</th>
     @endforeach
@@ -60,7 +60,7 @@
     @foreach ($rowSet[$g] as $r=>$rowName)
         <tr>
             <th>
-			<a target="_blank" href="/showLog?user_id={{$rowName}}{{request()->mon?'&mon='.request()->mon:''}}">
+			<a target="_blank" href="showLog?user_id={{$rowName}}{{request()->mon?'&mon='.request()->mon:''}}">
 			{{$rowName}}</a>
 			</th>
 			@php
@@ -97,9 +97,9 @@
 			@for ($n=0;$n<count($col);$n++)
 				<td @if($user) style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif" @endif>
 					@if(isset($cellValue[$g][$r][$n]))
-					{{$cellValue[$g][$r][$n]->time ?? ''}}
-					<br>( <a target="_blank" href="/showLog?user_id={{$rowName}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">
-						{{$cellValue[$g][$r][$n]->num ?? ''}}次</a> )
+					{{$cellValue[$g][$r][$n]->time or ''}}
+					<br>( <a target="_blank" href="showLog?user_id={{$rowName}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">
+						{{$cellValue[$g][$r][$n]->num or ''}}次</a> )
 					@else
 						無
 					@endif
