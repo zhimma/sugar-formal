@@ -82,7 +82,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 					
 	                if(isset($edate)) {
 						if($edate) $edate.=date(' H:i:s');
-						$whereArr[] = ['created_at','<=',$edate];
+						$whereArr[] = ['created_at','<',$edate];
 					}
 					
 					if(isset($sdate)) $whereArr[] = ['created_at','>=',$sdate];
@@ -111,7 +111,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 					
 					$loginDataQuery = $model->groupBy('ip','user_id')
 							->select('ip','user_id')->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')->whereNotNull('ip')->where('ip','<>','')
-							->where($whereArr)->orderByDesc('time');
+							->where($whereArr);
 
 					if($excludeUserId) $loginDataQuery=$loginDataQuery->whereNotIn('user_id',$excludeUserId);
 					
@@ -128,7 +128,9 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 					
 					$loginDataCfpIdQuery = $model->groupBy('cfp_id','user_id')
 							->select('cfp_id','user_id')->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')->whereNotNull('cfp_id')->where('cfp_id','<>','')
-							->where($whereArr)->orderByDesc('time');
+							->where($whereArr);
+							
+					if($excludeUserId) $loginDataCfpIdQuery=$loginDataCfpIdQuery->whereNotIn('user_id',$excludeUserId);							
 
 					$loginDataEntrys = $loginDataCfpIdQuery->get();
 					$this->loginDataByCfpId = [];
@@ -144,6 +146,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 					$ipPuppetFromUserQuery = $model->groupBy('ip')
 							->select('ip')->selectRaw('COUNT(DISTINCT `user_id`) AS num')->whereNotNull('ip')->where('ip','<>','')
 							->where($whereArr);
+							
+					if($excludeUserId) $ipPuppetFromUserQuery=$ipPuppetFromUserQuery->whereNotIn('user_id',$excludeUserId);							
 
 					$puppetFromUsers = $ipPuppetFromUserQuery->get();
 
@@ -163,6 +167,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 					$cfpidPuppetFromUserQuery = $model->groupBy('cfp_id')
 							->select('cfp_id')->selectRaw('COUNT(DISTINCT `user_id`) AS num')->whereNotNull('cfp_id')->where('cfp_id','<>','')
 							->where($whereArr);
+							
+					if($excludeUserId) $cfpidPuppetFromUserQuery=$cfpidPuppetFromUserQuery->whereNotIn('user_id',$excludeUserId);							
 
 					$puppetFromUsers = $cfpidPuppetFromUserQuery->get();
 
@@ -441,14 +447,14 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 				
 				$edate_colentry = $this->column->select('created_at')->distinct()->first();
 				$data['end_date'] = $edate_colentry->created_at;
-				$now_year = date('Y');
-				$default_syear = date('Y',strtotime($this->default_sdate));
-				if($now_year==$default_syear) {
+				$sdate_from_model = $this->model->min('created_at');
+
+				if($this->default_sdate>=$sdate_from_model) {
 					$data['start_date'] = $this->default_sdate;
 				}
-				else if($now_year>$default_syear) {
-					$sdate_entry = $this->model->min('created_at')->first();
-					$data['start_date'] = date('Y/m/d',strtotime($sdate_entry->created_at));
+				else {
+					
+					$data['start_date'] = $sdate_from_model;
 				}
 				
 				$groupChecks = $this->cell->where($whereArr)->groupBy('group_index')->select('group_index')
@@ -535,12 +541,12 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 						if(!isset($queryName2)) $queryName2 = $this->_columnType[$g][$$colIdx];
 						if($i && $i!=$last_i) $text.='<tr><td colspan="4">&nbsp;</td></tr>'."\n\r";
 					
-						$text.="<tr><td><a target=\"_blank\" href=\"/showLog?".$queryName1.'='.$arr1[$g][$i].(isset($mon)?'&mon='.$mon:'')."\">".$arr1[$g][$i]."</a></td>";
+						$text.="<tr><td><a target=\"_blank\" href=\"showLog?".$queryName1.'='.$arr1[$g][$i].(isset($mon)?'&mon='.$mon:'')."\">".$arr1[$g][$i]."</a></td>";
 
-						$text.="<td><a target=\"_blank\" href=\"/showLog?".$queryName2.'='.$arr2[$g][$j].(isset($mon)?'&mon='.$mon:'')."\">".$arr2[$g][$j]."</a></td>\n\r";
+						$text.="<td><a target=\"_blank\" href=\"showLog?".$queryName2.'='.$arr2[$g][$j].(isset($mon)?'&mon='.$mon:'')."\">".$arr2[$g][$j]."</a></td>\n\r";
 						
 						$text.='<td>'.$this->_cellVal[$g][$$rowIdx][$$colIdx]->time
-						.'</td><td><a target="_blank" href="/showLog?'.$queryName1.'='.$arr1[$g][$i].'&'.$queryName2.'='.$arr2[$g][$j].(isset($mon)?'&mon='.$mon:'').'">'.$this->_cellVal[$g][$$rowIdx][$$colIdx]->num."</a></td></tr>\n\r";
+						.'</td><td><a target="_blank" href="showLog?'.$queryName1.'='.$arr1[$g][$i].'&'.$queryName2.'='.$arr2[$g][$j].(isset($mon)?'&mon='.$mon:'').'">'.$this->_cellVal[$g][$$rowIdx][$$colIdx]->num."</a></td></tr>\n\r";
 
 						$last_i = $i;
 					}						
@@ -587,7 +593,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 		}	
 		else {
 			if($user_id) {
-				$title.='UserId ：<a target="_blank" href="/showLog?user_id='.$user_id.($mon?'&mon='.$mon:'').'">'.$user_id.'</a>';
+				$title.='UserId ：<a target="_blank" href="showLog?user_id='.$user_id.($mon?'&mon='.$mon:'').'">'.$user_id.'</a>';
 				$query = $query->where('user_id',$user_id);
 				$killColNameIdx =  array_search('user_id',$colnames);
 				$colnames[$killColNameIdx] = null;
@@ -596,7 +602,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 			
 			if($ip) {
 				if($title) $title.='、';
-				$title.='IP ：<a target="_blank" href="/showLog?ip='.$ip.($mon?'&mon='.$mon:'').'">'.$ip.'</a>';
+				$title.='IP ：<a target="_blank" href="showLog?ip='.$ip.($mon?'&mon='.$mon:'').'">'.$ip.'</a>';
 				$query = $query->where('ip',$ip);
 				$killColNameIdx =  array_search('ip',$colnames);
 				$colnames[$killColNameIdx] = null;
@@ -605,7 +611,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 			
 			if($cfp_id) {
 				if($title) $title.='、';
-				$title.='cfp_id ：<a target="_blank" href="/showLog?cfp_id='.$cfp_id.($mon?'&mon='.$mon:'').'">'.$cfp_id.'</a>';	
+				$title.='cfp_id ：<a target="_blank" href="showLog?cfp_id='.$cfp_id.($mon?'&mon='.$mon:'').'">'.$cfp_id.'</a>';	
 				$query = $query->where('cfp_id',$cfp_id);
 				$killColNameIdx =  array_search('cfp_id',$colnames);
 				$colnames[$killColNameIdx] = null;
@@ -632,7 +638,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 			
 			}
 			if($title) $title.='的';
-			if($mon) $title.='<a target="_blank" href="/showLog?mon='.$mon.'">'.$mon.'月</a>';
+			if($mon) $title.='<a target="_blank" href="showLog?mon='.$mon.'">'.$mon.'月</a>';
 			$title.='Log紀錄';
 			$html = ($title?'<h1>'.$title.'</h1>':'').'<table>'.$this->_getSimpleTableHead($colnames).$html.'</table>';
 			
