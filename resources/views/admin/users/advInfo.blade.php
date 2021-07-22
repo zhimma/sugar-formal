@@ -111,6 +111,17 @@
 		<a href="{{ route('activateUser',$userMeta->activation_token) }}" class="btn btn-success"> 通過認證信 </a>
 	@endif
 
+	<form method="POST" action="/admin/users/accountStatus_admin" style="margin:0px;display:inline;">
+		{!! csrf_field() !!}
+		<input type="hidden" name='uid' value="{{ $user->id }}">
+		<input type="hidden" name='account_status' value="{{ $user->account_status_admin == 0 ? 1 : 0 }}">
+		@if($user->account_status_admin == 1)
+			<button type="submit" class="btn btn-danger"> 站方關閉會員帳號 </button>
+		@else
+			<button type="submit" class="btn btn-success"> 站方開啟會員帳號 </button>
+		@endif
+	</form>
+
 	@if($user->accountStatus == 0)
 		<b style="font-size:18px">已關閉帳號</b>
 	@endif
@@ -462,7 +473,7 @@
 	</tr>
 	@foreach($reportBySelf as $row)
 		<tr>
-			<td>{{$row['name']}}
+			<td><a href="{{ route('admin/showMessagesBetween', [$user->id, $row['reporter_id']]) }}" target="_blank">{{$row['name']}}</a>
 				@if($row['vip'])
 					@if($row['vip']=='diamond_black')
 						<img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
@@ -516,7 +527,7 @@
 	@foreach($report_all as $row)
 		<tr>
 			<td @if(!is_null($row['isBlocked'])) style="color: #F00;" @endif>
-				{{ $row['name'] }}
+				<a href="{{ route('admin/showMessagesBetween', [$user->id, $row['reporter_id']]) }}" target="_blank">{{ $row['name'] }}</a>
 				@if($row['vip'])
 				    @if($row['vip']=='diamond_black')
 				        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
@@ -599,18 +610,19 @@
 	</tr>
 	@foreach($out_evaluation_data_2 as $row)
 		<tr>
-			<td>{{ $row['to_name'] }}</td>
+			<td><a href="{{ route('admin/showMessagesBetween', [$user->id, $row['to_id']]) }}" target="_blank">{{ $row['to_name'] }}</a></td>
 			<td><a href="{{ route('users/advInfo', $row['to_id']) }}" target='_blank'>{{ $row['to_email'] }}</a></td>
 			<td>{{ $row['created_at'] }}</td>
 			<td>@if($row['to_isvip']==1) VIP @endif</td>
 			<td>@if($row['to_auth_status']==1) 已認證 @else N/A @endif</td>
 			<td>{{ $row['rating'] }}</td>
 			@if($row['is_check']==1)
-				<td style="color: red;">***此評價目前由站方審核中***</td>
+				<td style="color: red;">***此評價目前由站方審核中***@if(!is_null($row['is_delete'])) <br><span style="color: red;">(該評價已刪除)</span> @endif</td>
 			@else
-				<td>{{ $row['content'] }}</td>
+				<td>@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span><br>@endif {{ $row['content'] }}</td>
 			@endif
 			<td class="evaluation_zoomIn">
+				@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span> @endif
 				@foreach($row['evaluation_pic'] as $evaluationPic)
 					<li>
 						<img src="{{ $evaluationPic->pic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
@@ -624,6 +636,13 @@
 					<textarea class="form-control m-input content_{{$row['id']}}" type="textarea" name="evaluation_content" rows="3" maxlength="300" style="display: none;"></textarea>
 					<div class="btn btn-primary modify_content_btn modify_content_btn_{{$row['id']}}" onclick="showTextArea({{ $row['id'] }})">修改評價內容</div>
 					<button type="submit" class="text-white btn btn-primary modify_content_submit evaluation_content_btn_{{ $row['id'] }}" style="display: none;">確認修改</button>
+				</form>
+				<form method="POST" action="{{ route('evaluationAdminComment', $row['id']) }}" style="margin:0px;display:inline;">
+					{!! csrf_field() !!}
+					<input type="hidden" name="id" value="{{$row['id']}}">
+					<textarea class="form-control m-input comment_{{$row['id']}}" type="textarea" name="admin_comment" rows="3" maxlength="300" style="display: none;"></textarea>
+					<div class="btn btn-success admin_comment_btn_{{$row['id']}}" onclick="showAdminCommentText({{ $row['id'] }})">站方附註留言</div>
+					<button type="submit" class="text-white btn btn-success admin_comment_submit evaluation_admin_comment_btn_{{ $row['id'] }}" style="display: none;">確認修改</button>
 				</form>
 				<form method="POST" action="{{ route('evaluationDelete') }}" style="margin:0px;display:inline;">
 					{!! csrf_field() !!}
@@ -651,18 +670,19 @@
 	</tr>
 	@foreach($out_evaluation_data as $row)
 		<tr>
-			<td>{{ $row['to_name'] }}</td>
+			<td><a href="{{ route('admin/showMessagesBetween', [$user->id, $row['to_id']]) }}" target="_blank">{{ $row['to_name'] }}</a></td>
 			<td><a href="{{ route('users/advInfo', $row['to_id']) }}" target='_blank'>{{ $row['to_email'] }}</a></td>
 			<td>{{ $row['created_at'] }}</td>
 			<td>@if($row['to_isvip']==1) VIP @endif</td>
 			<td>@if($row['to_auth_status']==1) 已認證 @else N/A @endif</td>
 			<td>{{ $row['rating'] }}</td>
 			@if($row['is_check']==1)
-				<td style="color: red;">***此評價目前由站方審核中***</td>
+				<td style="color: red;">***此評價目前由站方審核中***@if(!is_null($row['is_delete'])) <br><span style="color: red;">(該評價已刪除)</span> @endif</td>
 			@else
-				<td>{{ $row['content'] }}</td>
+				<td>@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span><br>@endif {{ $row['content'] }}</td>
 			@endif
 			<td class="evaluation_zoomIn">
+				@if(!is_null($row['is_delete'])) <span style="color: red;">(該評價已刪除)</span> @endif
 				@foreach($row['evaluation_pic'] as $evaluationPic)
 					<li>
 						<img src="{{ $evaluationPic->pic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
@@ -676,6 +696,13 @@
 					<textarea class="form-control m-input content_{{$row['id']}}" type="textarea" name="evaluation_content" rows="3" maxlength="300" style="display: none;"></textarea>
 					<div class="btn btn-primary modify_content_btn modify_content_btn_{{$row['id']}}" onclick="showTextArea({{ $row['id'] }})">修改評價內容</div>
 					<button type="submit" class="text-white btn btn-primary modify_content_submit evaluation_content_btn_{{ $row['id'] }}" style="display: none;">確認修改</button>
+				</form>
+				<form method="POST" action="{{ route('evaluationAdminComment', $row['id']) }}" style="margin:0px;display:inline;">
+					{!! csrf_field() !!}
+					<input type="hidden" name="id" value="{{$row['id']}}">
+					<textarea class="form-control m-input comment_{{$row['id']}}" type="textarea" name="admin_comment" rows="3" maxlength="300" style="display: none;"></textarea>
+					<div class="btn btn-success admin_comment_btn_{{$row['id']}}" onclick="showAdminCommentText({{ $row['id'] }})">站方附註留言</div>
+					<button type="submit" class="text-white btn btn-success admin_comment_submit evaluation_admin_comment_btn_{{ $row['id'] }}" style="display: none;">確認修改</button>
 				</form>
 				<form method="POST" action="{{ route('evaluationDelete') }}" style="margin:0px;display:inline;">
 					{!! csrf_field() !!}
@@ -691,32 +718,34 @@
 
 
 <h4>曾被警示</h4>
+@if(isset($isEverWarned) && count($isEverWarned)>0)
 <table class="table table-hover table-bordered">
 	<tr>
 		<th width="30%">警示時間</th>
 		<th>原因</th>
 	</tr>
-	@if(isset($isEverWarned) && count($isEverWarned)>0)
+
 	@foreach($isEverWarned as $row)
 		<tr>
 			<td>{{$row->created_at}}</td>
 			<td>{{$row->reason}}</td>
 		</tr>
 	@endforeach
-		{!! $isEverWarned->links() !!}
-	@endif
-</table>
 
+</table>
+{!! $isEverWarned->links('pagination::sg-pages') !!}
+@endif
 
 
 <h4>曾被封鎖</h4>
+@if(isset($isEverBanned) && count($isEverBanned)>0)
 <table class="table table-hover table-bordered">
 	<tr>
 		<th width="30%">封鎖時間</th>
 		<th>原因</th>
 {{--		<th>到期時間</th>--}}
 	</tr>
-	@if(isset($isEverBanned) && count($isEverBanned)>0)
+
 	@foreach($isEverBanned as $row)
 		<tr>
 			<td>{{$row->created_at}}</td>
@@ -724,20 +753,21 @@
 {{--			<td>{{$row->expire_date}}</td>--}}
 		</tr>
 	@endforeach
-		{!! $isEverBanned->links() !!}
-	@endif
-</table>
 
+</table>
+{!! $isEverBanned->links('pagination::sg-pages') !!}
+@endif
 
 
 <h4>目前正被警示</h4>
+@if(isset($isWarned) && count($isWarned)>0)
 <table class="table table-hover table-bordered">
 	<tr>
 		<th width="30%">警示時間</th>
 		<th>原因</th>
 		<th>到期時間</th>
 	</tr>
-	@if(isset($isWarned) && count($isWarned)>0)
+
 	@foreach($isWarned as $row)
 		<tr>
 			<td>{{$row->created_at}}</td>
@@ -745,20 +775,21 @@
 			<td>{{$row->expire_date}}</td>
 		</tr>
 	@endforeach
-		{!! $isWarned->links() !!}
-	@endif
-</table>
 
+</table>
+{!! $isWarned->links('pagination::sg-pages') !!}
+@endif
 
 
 <h4>目前正被封鎖</h4>
+@if(isset($isBanned) && count($isBanned)>0)
 <table class="table table-hover table-bordered">
 	<tr>
 		<th width="30%">封鎖時間</th>
 		<th>原因</th>
 		<th>到期時間</th>
 	</tr>
-	@if(isset($isBanned) && count($isBanned)>0)
+
 	@foreach($isBanned as $row)
 		<tr>
 			<td>{{$row->created_at}}</td>
@@ -766,11 +797,25 @@
 			<td>{{$row->expire_date}}</td>
 		</tr>
 	@endforeach
-		{!! $isBanned->links() !!}
-	@endif
+
 </table>
+{!! $isBanned->links('pagination::sg-pages') !!}
+@endif
 
-
+@php
+	$userAdvInfo=\App\Models\User::userAdvInfo($user->id);
+@endphp
+<br>
+<span>每周平均上線次數： {{ array_get($userAdvInfo,'login_times_per_week',0) }}</span>
+<span>收藏會員次數： {{ array_get($userAdvInfo,'fav_count',0) }}</span>
+<span>發信次數： {{ array_get($userAdvInfo,'message_count',0) }}</span>
+<span>過去7天發信次數： {{ array_get($userAdvInfo,'message_count_7',0) }}</span>
+<span>過去7天罐頭訊息比例： {{ array_get($userAdvInfo,'message_percent_7',0) }}</span>
+<span>瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count',0) }}</span>
+<span>過去7天瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count_7',0) }}</span>
+<span>封鎖多少會員： {{ array_get($userAdvInfo,'blocked_other_count',0) }}</span>
+<span>被多少會員封鎖： {{ array_get($userAdvInfo,'be_blocked_other_count',0) }}</span>
+<br>
 <h4>帳號登入紀錄</h4>
 <table id="table_userLogin_log" class="table table-hover table-bordered">
 {{--	<tr>--}}
@@ -808,7 +853,7 @@
 									$device = '電腦';
 								?>
 								<td>{{$item->created_at}}</td>
-								<td>{{$item->ip}}</td>
+								<td><a href="{{ route('getIpUsers', [$item->ip]) }}" target="_blank">{{$item->ip}}</a></td>
 								<td>{{ $device }}</td>
 								<td>{{ str_replace("Mozilla/5.0","", $item->userAgent) }}</td>
 								<td>{{$item->cfp_id}}</td>
@@ -931,9 +976,15 @@
 				@endphp
 				@if(isset($messagePics))
 					@foreach( $messagePics as $messagePic)
-						<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
-							<img src="{{ is_array($messagePic)?var_dump($messagePic):$messagePic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
-						</li>
+						@if(isset($messagePic['file_path']))
+							<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
+								<img src="{{ $messagePic['file_path'] }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+							</li>
+						@else
+							<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
+								無法找到圖片
+							</li>
+						@endif
 					@endforeach
 				@endif
 			</td>
@@ -995,9 +1046,15 @@
 								@endphp
 								@if(isset($messagePics))
 									@foreach( $messagePics as $messagePic)
-										<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
-											<img src="{{ is_array($messagePic)?var_dump($messagePic):$messagePic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
-										</li>
+										@if(isset($messagePic['file_path']))
+											<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
+												<img src="{{ $messagePic['file_path'] }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
+											</li>
+										@else
+											<li style="float:left;margin:2px 2px;list-style:none;display:block;white-space: nowrap;width: 135px;">
+												無法找到圖片
+											</li>
+										@endif
 									@endforeach
 								@endif
 							</td>
@@ -1437,6 +1494,17 @@ function showTextArea(id){
 $('.modify_content_submit').on('click',function(e){
 
 	if(!confirm('確定要修改該筆評價內容?')){
+		e.preventDefault();
+	}
+});
+function showAdminCommentText(id){
+	$('.admin_comment_btn_'+id).hide();
+	$('.comment_'+id).show();
+	$('.evaluation_admin_comment_btn_'+id).show();
+}
+$('.admin_comment_submit').on('click',function(e){
+
+	if(!confirm('確定要修改站方附註留言?')){
 		e.preventDefault();
 	}
 });
