@@ -407,7 +407,7 @@
                         <div class="fpt_pic">
                             <input id="images" type="file" name="images" accept="image/*">
                             <div class="alert_tip" style="margin: 11px 11px; color:red;">
-                                <a href="https://www.tech-girlz.com/2020/07/iphone-photo-jpg.html" target="_blank" style="color:pink;">若 iPhone 上傳失敗，請點此設定</a>
+                                <a href="https://www.tech-girlz.com/2020/07/iphone-photo-jpg.html" target="_blank" style="color:pink;">若 iPhone 上傳失敗，請點此了解如何設定。或點右下聯絡我們加站長 Line 協助</a>
                             </div>
                             <div class="n_bbutton" style="margin-top:0px;">
                                 <a class="n_bllbut" onclick="form_uploadPic_submit()">送出</a>
