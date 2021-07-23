@@ -820,12 +820,12 @@ class UserController extends \App\Http\Controllers\BaseController
         $implicitly_banReason = DB::table('reason_list')->select('content')->where('type', 'implicitly')->get();
         $warned_banReason = DB::table('reason_list')->select('content')->where('type', 'warned')->get();
         // $userLogin_log = LogUserLogin::selectRaw('DATE(created_at) as loginDate, user_id as userID, count(*) as dataCount, GROUP_CONCAT(DISTINCT created_at SEPARATOR ",&p,") AS loginDates, GROUP_CONCAT(DISTINCT ip SEPARATOR ",&p,") AS ips, GROUP_CONCAT(DISTINCT userAgent SEPARATOR ",&p,") AS userAgents')->where('user_id', $user->id)->groupBy(DB::raw("DATE(created_at)"))->get();
-        $userLogin_log = LogUserLogin::selectRaw('MONTH(created_at) as loginMonth, DATE(created_at) as loginDate, user_id as userID, ip, count(*) as dataCount')
+        $userLogin_log = LogUserLogin::selectRaw('LEFT(created_at,7) as loginMonth, DATE(created_at) as loginDate, user_id as userID, ip, count(*) as dataCount')
             ->where('user_id', $user->id)
-            ->groupBy(DB::raw("MONTH(created_at)"))
+            ->groupBy(DB::raw("LEFT(created_at,7)"))
             ->orderBy('created_at','DESC')->get();
         foreach ($userLogin_log as $key => $value) {
-            $userLogin_log[$key]['items'] = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' .  substr($value->loginDate,0,7) . '%')->orderBy('created_at','DESC')->take(50)->get();
+            $userLogin_log[$key]['items'] = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->orderBy('created_at','DESC')->get();
         }
 
         //個人檢舉紀錄
