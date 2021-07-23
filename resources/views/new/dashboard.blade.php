@@ -1237,15 +1237,18 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     });
 
     $(".line_notify").on('click', function() {
-        var lineClientId = '{{config('line.line_notify.client_id')}}';
-        var callbackUrl = '{{config('line.line_notify.callback_url')}}';
-        var URL = '{{config('line.line_notify.authorize_url')}}?';
-        URL += 'response_type=code';
-        URL += '&client_id='+lineClientId;
-        URL += '&redirect_uri='+callbackUrl;
-        URL += '&scope=notify';
-        URL += '&state={{csrf_token()}}';
-        window.location.href = URL;
+        c5('若使用手機進行綁定，請盡量以Google Chrome為主');
+        $(".n_bllbut").on('click', function() {
+            var lineClientId = '{{config('line.line_notify.client_id')}}';
+            var callbackUrl = '{{config('line.line_notify.callback_url')}}';
+            var URL = '{{config('line.line_notify.authorize_url')}}?';
+            URL += 'response_type=code';
+            URL += '&client_id='+lineClientId;
+            URL += '&redirect_uri='+callbackUrl;
+            URL += '&scope=notify';
+            URL += '&state={{csrf_token()}}';
+            window.location.href = URL;
+        });
     });
 
     $(".line_notify_cancel").on('click', function() {

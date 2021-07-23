@@ -4475,6 +4475,23 @@ class PagesController extends BaseController
         $evaluation_30days_list=$evaluation_30days->where('evaluation.hide_evaluation_to_id', 0)->get();
         $evaluation_30days_unread_count=$evaluation_30days->where('evaluation.read', 1)->get()->count();
 
+
+        //舊會員上線，就在上線第 3,6,10 次 (以此功能上線開始計算)在會員專屬頁通知。
+        //新會員：做完新手教學，填寫完基本資料，於第一次進入專屬頁面時跳通知，之後就在上線第 3,6,10 次在會員專屬頁通知。
+        $showLineNotifyPop=false;
+        if(is_null($user->line_notify_token)){
+            if($user->created_at<='2021-07-23' && in_array($user->line_notify_alert,[3,6,10])){
+                $showLineNotifyPop=true;
+            }
+            if($user->created_at>='2021-07-23' && $user->line_notify_alert==1){
+                $showLineNotifyPop=true;
+            }
+        }
+        $login_times=$user->line_notify_alert;
+        if($showLineNotifyPop){
+            $showLineNotifyPop= session()->get('alreadyPopUp_lineNotify') !== $login_times.'_Y' ? true : false;
+        }
+
         if (isset($user)) {
 
             $data = array(
@@ -4492,6 +4509,7 @@ class PagesController extends BaseController
                 'isHasEvaluation' => $isHasEvaluation,
                 'evaluation_30days' => $evaluation_30days_list,
                 'evaluation_30days_unread_count' => $evaluation_30days_unread_count,
+                'showLineNotifyPop'=>$showLineNotifyPop,
             );
 
 

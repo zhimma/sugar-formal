@@ -11,6 +11,35 @@
         }
         .on {min-height: 24px;}
     </style>
+    <style>
+        .pj_add_a{margin: 0 auto;display: table;margin-bottom: 10px;}
+        .dongt_fb{width: 100%;margin: 0 auto;display: block;margin-top: 0px;padding: 0 5px;}
+        .new_npop{width: 96%; padding-bottom: 0; padding-top: 0; margin-top:15px; margin-bottom: 15px;margin-left: 2%; height: auto;}
+        @media (max-width:823px){
+            .dongt_fb{height:220px;overflow-y: scroll;}
+        }
+        @media (max-width:797px){
+            .dongt_fb{height: auto;overflow-y: hidden;}
+        }
+        @media (max-width:736px){
+            .dongt_fb{height:180px;overflow-y: scroll;}
+        }
+        @media (max-width:450px){
+            .dongt_fb{height:auto;overflow-y: hidden;}
+        }
+        .line_img{width: 80%; margin: 0 auto; display: table;}
+        .li_span{width: 100%; text-align: center; margin-bottom: 15px; display: table; font-size: 15px;}
+        .li_span span{width: 100%; display: table;}
+
+        .sl_bllbut{width:260px;height: 40px;background: #8a9ff0;border-radius:200px;color: #ffffff;text-align: center;line-height: 40px;display: table;
+            margin: 0 auto;font-size:16px; margin-top:15px;cursor: pointer;}
+        .sl_bllbut:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #4c6ded,inset 0px -10px 10px -20px #4c6ded;}
+
+        .sl_bllbut01{width:260px;height: 40px;background: #fff;border-radius:200px;color: #8a9ff0;text-align: center;
+            line-height: 40px;display: table;margin: 0 auto;font-size:16px; margin-top:15px; border: #8a9ff0 1px solid; cursor: pointer;}
+        .sl_bllbut01:hover{color:#fff;background: #8a9ff0;box-shadow:inset 0px 15px 10px -10px #4c6ded,inset 0px -10px 10px -20px #4c6ded;}
+
+    </style>
     <div class="container matop70">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -304,6 +333,30 @@
         </div>
         <a onclick="new_evaluation_popup_close();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
+
+    <div class="bl_tab_aa link" id="lineNotifyPopUp" style="display: none;">
+        <div class="bl_tab_bb">
+            <div class="bltitle"><span style="text-align: center; float: none;">用LINE接收讯息</span></div>
+            <div class="new_poptk new_npop">
+                <div class="dongt_fb mabot20">
+                    <div class="pj_add_a">
+                        <div class="li_span">
+                            <span>透過LINE即時接收聊天與通知訊息，</span>
+                            <span>且對方不會知道您的LINE賬號</span>
+                        </div>
+                        <img src="/new/images/LINE_T.png" class="line_img">
+                    </div>
+                    <div class="n_bbutton" style="margin-top: 0;">
+                        <a class="sl_bllbut" href="/dashboard/chat/chatNotice">好，我想即時接收聊天訊息</a>
+                        <a class="sl_bllbut01" onclick="lineNotifyPopUp_close()">不想即時收到訊息</a>
+                    </div>
+                </div>
+            </div>
+            <a onclick="lineNotifyPopUp_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+        </div>
+    </div>
+    @php session()->put('alreadyPopUp_lineNotify', $user->line_notify_alert.'_Y') @endphp
+
 @stop
 
 @section('javascript')
@@ -506,16 +559,38 @@
         }
     });
 
+    var showLineNotifyPop='{{ $showLineNotifyPop }}';
+    if(showLineNotifyPop){
+        lineNotifyPopUp();
+    }
+
+    $(".announce_bg").on('click', function() {
+        lineNotifyPopUp_close();
+    });
+    function lineNotifyPopUp() {
+        $("#lineNotifyPopUp").show();
+        $(".announce_bg").show();
+        $('body').css("overflow", "hidden");
+    }
+    function lineNotifyPopUp_close() {
+        $('#lineNotifyPopUp').hide();
+        $("#announce_bg").hide();
+        $('body').css("overflow", "auto");
+    }
+
     $(".line_notify").on('click', function() {
-        var lineClientId = '{{config('line.line_notify.client_id')}}';
-        var callbackUrl = '{{config('line.line_notify.callback_url')}}';
-        var URL = '{{config('line.line_notify.authorize_url')}}?';
-        URL += 'response_type=code';
-        URL += '&client_id='+lineClientId;
-        URL += '&redirect_uri='+callbackUrl;
-        URL += '&scope=notify';
-        URL += '&state={{csrf_token()}}';
-        window.location.href = URL;
+        c5('若使用手機進行綁定，請盡量以Google Chrome為主' );
+        $(".n_bllbut").on('click', function() {
+            var lineClientId = '{{config('line.line_notify.client_id')}}';
+            var callbackUrl = '{{config('line.line_notify.callback_url')}}';
+            var URL = '{{config('line.line_notify.authorize_url')}}?';
+            URL += 'response_type=code';
+            URL += '&client_id='+lineClientId;
+            URL += '&redirect_uri='+callbackUrl;
+            URL += '&scope=notify';
+            URL += '&state={{csrf_token()}}';
+            window.location.href = URL;
+        });
     });
 
     $(".line_notify_cancel").on('click', function() {
