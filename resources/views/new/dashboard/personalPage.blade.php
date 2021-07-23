@@ -80,7 +80,7 @@
                                 @if($user->line_notify_token!==null)
                                     <a href="/dashboard/chat/chatNotice"><i style=" color: #fd5678; font-style: normal;">點此可設定</i></a>
                                 @endif
-                                <img src="{{ $pic_status }}" class="right {{ $line_action }}" id="caocao_pic" onClick="change_pic()" style=" height: 30px;cursor: pointer;"/>
+                                <img src="{{ $pic_status }}" class="right {{ $line_action }}" id="caocao_pic" style=" height: 30px;cursor: pointer;"/>
                             </h2>
                         </div>
                     </div>
