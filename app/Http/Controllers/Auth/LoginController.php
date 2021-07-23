@@ -175,7 +175,7 @@ class LoginController extends \App\Http\Controllers\BaseController
      */
     public function login(Request $request)
     {
-        $user = User::select('id', 'engroup', 'last_login','login_times','intro_login_times')->withOut(['vip', 'user_meta'])->where('email', $request->email)->get()->first();
+        $user = User::select('id', 'engroup', 'last_login','login_times','intro_login_times','line_notify_alert')->withOut(['vip', 'user_meta'])->where('email', $request->email)->get()->first();
         if(isset($user) && Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $user->id)->exists()){
             $request->remember = true;
         }
@@ -217,6 +217,8 @@ class LoginController extends \App\Http\Controllers\BaseController
             User::where('id',$user->id)->update(['login_times'=>$user->login_times +1]);
             //更新教學<->登入次數
             User::where('id',$user->id)->update(['intro_login_times'=>$user->intro_login_times +1]);
+            //更新會員專屬頁通知<->登入次數
+            User::where('id',$user->id)->update(['line_notify_alert'=>$user->line_notify_alert +1]);
 
             if($request->cfp_hash){
                 $cfp = \App\Services\UserService::checkcfp($request->cfp_hash, $user->id);
