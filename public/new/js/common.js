@@ -172,6 +172,12 @@
 		$("#tab05 .bltext").text(str);
 	}
 
+	function c5html(str) {
+		$(".announce_bg").show();
+		$("#tab05").show();
+		$("#tab05 .bltext").html(str);
+	}
+
 	function c6(str) {	
 		$(".blbg").show();	
 		$("#tab06").show();	
