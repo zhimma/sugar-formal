@@ -184,6 +184,19 @@
                 @if(isset($to))
 {{--                    <div class="fbuttop"></div>--}}
                     <div class="shouxq" style="display: flex;">
+						@if($to->id==$admin->id)
+                        <a class="nnn_adbut" href="{!! url('dashboard/personalPage') !!}">
+                            <img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回
+                        </a>
+                        <span style="flex: 6; text-align: center;">
+                            @if($to->id!=$admin->id)
+                            <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a>
+                            @else
+                            <span  style="color: #fd5678;">系統來訊通知</span>
+                            @endif
+                        </span>
+                        @else
+
                         <a class="nnn_adbut" href="{{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }}"><img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回</a>
                         <span style="flex: 6; text-align: center;">
                             <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">
@@ -208,6 +221,7 @@
                             </form>
                         @else
                             <button style="float: right; position: relative;" type="button" class="paypay" onclick="c5('這是Daddy主動發起的，請提醒Daddy按此按紐發動車馬費邀請！')"><a class="nnn_adbut" style="margin-top: -15px">車馬費</a></button>
+                        @endif
                         @endif
                     </div>
                 @else
@@ -328,6 +342,9 @@
                             <input type="submit" id="msgsnd" class="se_tbut matop20 msgsnd" value="回覆">
                         </form>
                     </div>--}}
+
+                    @if($to->id!=$admin->id)
+
                     <div class="se_text_bot"  id="message_input" style="padding-right: 3%; padding-left:3%;">
                         <form style="margin: 0 auto;" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm" name="chatForm">
                             <input type="hidden" name="_token" value="{{ csrf_token() }}" >
@@ -343,6 +360,7 @@
                             {{--<div class="message_fixed"></div>--}}
                         </form>
                     </div>
+                    @endif
                 @else
                     <div class="se_text_bot">
                         此會員資料已不存在。

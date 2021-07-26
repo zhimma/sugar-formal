@@ -10,6 +10,57 @@
             border-bottom: 1px solid #ddd;
         }
         .on {min-height: 24px;}
+		
+		.ta_l{ border-bottom: #eee 1px solid; display: table; margin-bottom: 6px; padding-bottom: 6px; line-height: 24px;}
+		.tu_dfont{
+			width: calc(100% - 100px);
+			 float: left;
+			 max-height: 45px;
+			 word-break: break-all;
+			 text-overflow: ellipsis;
+			 display: -webkit-box;
+			 -webkit-box-orient: vertical;
+			 -webkit-line-clamp: 2;
+			 overflow: hidden;
+		}	
+
+		.tabbox_h2 .check{
+			float:left;margin-right:15px;margin-top:5px;
+		}	
+		.fr_nbj{ float: right;}
+		@media (max-width:320px) {
+			.fr_nbj{ float: none;}
+		}	
+		
+    </style>
+    <style>
+        .pj_add_a{margin: 0 auto;display: table;margin-bottom: 10px;}
+        .dongt_fb{width: 100%;margin: 0 auto;display: block;margin-top: 0px;padding: 0 5px;}
+        .new_npop{width: 96%; padding-bottom: 0; padding-top: 0; margin-top:15px; margin-bottom: 15px;margin-left: 2%; height: auto;}
+        @media (max-width:823px){
+            .dongt_fb{height:220px;overflow-y: scroll;}
+        }
+        @media (max-width:797px){
+            .dongt_fb{height: auto;overflow-y: hidden;}
+        }
+        @media (max-width:736px){
+            .dongt_fb{height:180px;overflow-y: scroll;}
+        }
+        @media (max-width:450px){
+            .dongt_fb{height:auto;overflow-y: hidden;}
+        }
+        .line_img{width: 80%; margin: 0 auto; display: table;}
+        .li_span{width: 100%; text-align: center; margin-bottom: 15px; display: table; font-size: 15px;}
+        .li_span span{width: 100%; display: table;}
+
+        .sl_bllbut{width:260px;height: 40px;background: #8a9ff0;border-radius:200px;color: #ffffff;text-align: center;line-height: 40px;display: table;
+            margin: 0 auto;font-size:16px; margin-top:15px;cursor: pointer;}
+        .sl_bllbut:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #4c6ded,inset 0px -10px 10px -20px #4c6ded;}
+
+        .sl_bllbut01{width:260px;height: 40px;background: #fff;border-radius:200px;color: #8a9ff0;text-align: center;
+            line-height: 40px;display: table;margin: 0 auto;font-size:16px; margin-top:15px; border: #8a9ff0 1px solid; cursor: pointer;}
+        .sl_bllbut01:hover{color:#fff;background: #8a9ff0;box-shadow:inset 0px 15px 10px -10px #4c6ded,inset 0px -10px 10px -20px #4c6ded;}
+
     </style>
     <style>
         .pj_add_a{margin: 0 auto;display: table;margin-bottom: 10px;}
@@ -111,12 +162,32 @@
                             <h2 class="tabbox_hsz">{{ $allMessage }}</h2>
                         </div>
                     </div>
-                    {{--<div class="sys_aa">
-                        <div class="tabbox_new_dt"><span>系統來訊通知</span></div>
+                    <div class="sys_aa">
+                        <div class="tabbox_new_dt tabbox_new_ss"><span>系統來訊通知</span>
+						@if(count($admin_msgs))
+						<div class="right btn01 btn_admin_msgs"><span class="zixu_cs"><img src="/new/images/xiugai1.png">編輯</span></div>
+						<div class="btn02 sx_ment fr_nbj">
+							<span class="iconfont icon-wancheng zixu_cs1 dtmr20">完成</span>
+							<span class="iconfont icon-shanchu zixu_cs1">刪除</span>
+							<label class="iconfont icon-kuang zixu_cs2"  style="margin-top: 2px; margin-right: 3px; float:right ;"><input type="checkbox" class="qxuan">全選</label>
+						</div>
+						@endif							
+						</div>
                         <div class="tabbox_new_dd">
-                            <h2 class="tabbox_h2">您有一則系統信尚未讀取<!-- <a class="tab_abut">前往查看</a> --><a class="zs_buttonn1 right"  href="">前往查看</a></h2>
+						@if(count($admin_msgs))
+							@foreach($admin_msgs as $amsg)
+                            <h2 class="tabbox_h2 ta_l"  data-recordtype="admin_msgs" data-rowid="{{$amsg->id}}" >
+								<span class="tu_dfont">
+								{{ strip_tags($amsg->content)}}
+								</span>
+								<a class="zs_buttonn1 right"  href="{{route("chat2WithUser",$amsg->from_id)}}">前往查看</a>
+							</h2>
+							@endforeach
+						@else
+							<h2 class="tabbox_h2 ta_l"><span class="tu_dfont">暫無系統信</span></h2>
+						@endif						
                         </div>
-                    </div>--}}
+                    </div>
 
                     @if($isBannedStatus != '')
                     <div class="sys_aa">
@@ -394,10 +465,15 @@
             $(this).hide();
             $(this).next(".btn02").show();
             var tab = $(this).closest('.sys_aa').find('.tab_jianju');
+			var tu_dfont = $(this).closest('.sys_aa').find('.tu_dfont');
             if(tab.length > 0){
                 $(this).closest('.sys_aa').find('.tab_jianju tr:first').prepend(td_head);
                 $(this).closest('.sys_aa').find('.tab_jianju tr:gt(0)').prepend(td_check);
             }
+            if(tu_dfont.length > 0){
+				$(this).closest('.sys_aa').find('.tabbox_h2').prepend(li_check);
+				$(this).closest('.sys_aa').find('.zs_buttonn1').hide();
+            }			
             var li_one = $(this).closest('.sys_aa').find('.tabbox_h4 li');
             if(li_one.length > 0){
                 li_one.prepend(li_check);
@@ -448,6 +524,7 @@
 
                         tab.find('input[type=checkbox]:checked').each(function(){
                             $(this).closest('tr').remove();
+							$(this).closest('h2').remove();
                         });
                         c5('刪除成功');
                     });
@@ -455,11 +532,14 @@
                 //c5(chk_value.length==0 ?'你还没有选择任何内容！': '即将刪除'+chk_value.length+'条信息' );
             }
             var list =  $(this).closest('.sys_aa').find('.tabbox_h4');
+			if(list.length == 0) list =  $(this).closest('.sys_aa').find('.tabbox_h2');
             if(list.length > 0){
                 list.find('input[type=checkbox]:checked').each(function(){ //遍历，将所有选中的值放到数组中
                     //$(this).parent().parent().addClass('emma');
                     var rowid=$(this).parent().parent().attr('data-rowid');
+					if(rowid.length==0)  rowid=$(this).parent().attr('data-rowid');
                     recordType=$(this).parent().parent().attr('data-recordtype');
+					if(recordType.length==0) recordType=$(this).parent().attr('data-recordtype');
                     chk_value.push(rowid);
                     //$(this).closest('li').remove();
                 });
@@ -476,12 +556,30 @@
                             deleteItems: chk_value,
                             user_id: '{{ $user->id }}',
                             _token: '{{ csrf_token() }}'
-                        });
+                        },function(data) {
+							if(data!='false') {
+								if(recordType=='admin_msgs') {
+									if(typeof(data)=='string') dataArr = $.parseJSON(data);
+									msgs_container = list.parent();
+									msgs_container.find('h2').remove();
+									msgs_dom_st = '';
+									for (var i = 0; i < dataArr.length; i++) {   
+										msgs_dom_st+='<h2 class="tabbox_h2 ta_l"  data-recordtype="admin_msgs" data-rowid="'+dataArr[i]["id"]+'" >'
+												+'<span class="check"><input type="checkbox"></span>'
+												+'<span class="tu_dfont">'
+												+dataArr[i]["content"]
+												+'</span><a class="zs_buttonn1 right" style="display:none;"  href="{{route("chat2WithUser",$admin->id)}}">前往查看</a></h2>';										
+										
+									}  	
+									msgs_container.html(msgs_dom_st);
+								}
+							}	
+						});
                         $("#tab08").hide();
                         $(".announce_bg").hide();
 
                         list.find('input[type=checkbox]:checked').each(function(){
-                            $(this).closest('li').remove();
+                            $(this).closest('li').remove();							
                         });
                         c5('刪除成功');
                     });
@@ -494,10 +592,15 @@
             $(this).parent().hide();
             $(this).parent().prev(".btn01").show();
             var tab = $(this).closest('.sys_aa').find('.tab_jianju');
+			var tu_dfont = $(this).closest('.sys_aa').find('.tu_dfont');
             if(tab.length > 0){
                 $(this).closest('.sys_aa').find('.tab_jianju tr:first .w8').remove();
                 $(this).closest('.sys_aa').find('.tab_jianju tr:gt(0) .cent').remove();
             }
+            if(tu_dfont.length > 0){
+				$(this).closest('.sys_aa').find('.check').remove();
+				$(this).closest('.sys_aa').find('.zs_buttonn1').show();
+            }			
             var li_one = $(this).closest('.sys_aa').find('.tabbox_h4 li');
             if(li_one.length > 0){
                 li_one.find('.check').remove();
@@ -678,6 +781,14 @@
             }
         });
     }
+</script>
+<script type="text/javascript">
+    $(function() {
+		@if(count($admin_msgs))
+		$('.btn_admin_msgs').show();
+		@endif
+	});
+
 </script>
 
 @stop

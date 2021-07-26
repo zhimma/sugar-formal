@@ -58,6 +58,7 @@ use Session;
 use App\Notifications\AccountConsign;
 use App\Models\ValueAddedService;
 use App\Repositories\SuspiciousRepository;
+use App\Services\AdminService;
 
 class PagesController extends BaseController
 {
@@ -594,7 +595,7 @@ class PagesController extends BaseController
                     ->with('day', $day)
                     ->with('message', $message)
                     ->with('cancel_notice', $cancel_notice)
-                    ->with('no_avatar', $no_avatar->content);
+                    ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'');
             }
             return view('dashboard')
             ->with('user', $user)
@@ -603,7 +604,7 @@ class PagesController extends BaseController
             ->with('year', $year)
             ->with('month', $month)
             ->with('day', $day)
-            ->with('no_avatar', $no_avatar->content);
+            ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'');
         }
     }
 
@@ -678,7 +679,7 @@ class PagesController extends BaseController
                     ->with('message', $message)
                     ->with('cancel_notice', $cancel_notice)
                     ->with('add_avatar', $add_avatar)
-                    ->with('no_avatar', $no_avatar->content);
+                    ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'');
             }
             return view('new.dashboard')
                 ->with('user', $user)
@@ -690,7 +691,7 @@ class PagesController extends BaseController
                 ->with('cancel_notice', $cancel_notice)
                 ->with('add_avatar', $add_avatar)
                 ->with('isAdminWarnedRead',$isAdminWarnedRead)
-                ->with('no_avatar', $no_avatar->content)
+                ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'')
                 ->with('pr', $pr);
 //                ->with('isWarnedReason',$isWarnedReason)
         }
@@ -2803,6 +2804,9 @@ class PagesController extends BaseController
     public function chat2(Request $request, $cid)
     {
         $user = $request->user();
+        $admin = AdminService::checkAdmin();
+		$includeDeleted = false;
+		if($admin->id==$cid) $includeDeleted = true;
         $m_time = '';
         $report_reason = AdminCommonText::where('alias', 'report_reason')->get()->first();
         $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
@@ -2830,7 +2834,7 @@ class PagesController extends BaseController
         if (isset($user)) {
             $isVip = $user->isVip();
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
-            $messages = Message::allToFromSender($user->id, $cid);
+            $messages = Message::allToFromSender($user->id, $cid,$includeDeleted);
             $c_user_meta = UserMeta::where('user_id', $cid)->get()->first();
             //$messages = Message::allSenders($user->id, 1);
             if (isset($cid)) {
@@ -2844,6 +2848,7 @@ class PagesController extends BaseController
                 }
                 return view('new.dashboard.chatWithUser')
                     ->with('user', $user)
+                    ->with('admin', $admin)
                     ->with('cmeta', $c_user_meta)
                     ->with('to', $this->service->find($cid))
                     ->with('m_time', $m_time)
@@ -2855,6 +2860,7 @@ class PagesController extends BaseController
             else {
                 return view('new.dashboard.chatWithUser')
                     ->with('user', $user)
+                    ->with('admin', $admin)
                     ->with('cmeta', $c_user_meta)
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
@@ -4122,6 +4128,7 @@ class PagesController extends BaseController
     }
 
     public function personalPage(Request $request) {
+        $admin = AdminService::checkAdmin();
         $user = \View::shared('user');
 
         $vipStatus = '您目前還不是VIP，<a class="red" href="../dashboard/new_vip">立即成為VIP!</a>';
@@ -4246,7 +4253,7 @@ class PagesController extends BaseController
         //警示
         $adminWarnedStatus = '';
         if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date == null) {
-            $adminWarnedStatus = '您前已被站方警示，原因是 ' . $user_isBannedOrWarned->warned_reason . '，如有需要反應請點右下聯絡我們聯絡站長。';
+            $adminWarnedStatus = '您目前已被站方警示，原因是 ' . $user_isBannedOrWarned->warned_reason . '，如有需要反應請點右下聯絡我們聯絡站長。';
         }else if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date > now() ) {
             $datetime1 = new \DateTime(now());
             $datetime2 = new \DateTime($user_isBannedOrWarned->warned_expire_date);
@@ -4464,6 +4471,17 @@ class PagesController extends BaseController
 
         $isHasEvaluation = sizeof($arrayHE) > 0? true : false;
 
+        
+        $admin_msg_entrys = Message::allToFromSender($uid,$admin->id);
+		$admin_msgs = [];
+		$i=0;
+		foreach($admin_msg_entrys as $admin_msg_entry) {
+			$admin_msgs[] = $admin_msg_entry;
+			$i++;
+			if($i>=3) break;
+		}
+
+
         //僅顯示30天內的評價
         $evaluation_30days = \App\Models\Evaluation::selectRaw('evaluation.*, b1.blocked_id, b.name')->from('evaluation as evaluation')
             ->leftJoin('blocked as b1', function($join) {
@@ -4519,7 +4537,10 @@ class PagesController extends BaseController
 
             return view('new.dashboard.personalPage', $data)
                 ->with('myFav', $myFav)
-                ->with('otherFav',$otherFav);
+                ->with('otherFav',$otherFav)
+                ->with('admin_msgs',$admin_msgs)
+							->with('admin',$admin);
+                
         }
 
     }
@@ -4663,6 +4684,23 @@ class PagesController extends BaseController
                     }
                 }
                 break;
+			case 'admin_msgs':
+				$admin_id = AdminService::checkAdmin()->id;
+				$messages = Message::where([['to_id',$user_id],['from_id',$admin_id]])->whereIn('id', $items)->get();
+				foreach($messages  as $message) {
+					Message::deleteSingleMessage($message, $user_id, $admin_id, $message->created_at, $message->content, 0);
+				}
+				
+				$admin_msg_entrys = Message::allToFromSender($user_id,$admin_id);
+				$admin_msgs = [];
+				$i=0;
+				foreach($admin_msg_entrys as $admin_msg_entry) {
+					$admin_msgs[] = $admin_msg_entry;
+					$i++;
+					if($i>=3) break;
+				}	
+				return json_encode($admin_msgs);
+			break;
         }
     }
 }

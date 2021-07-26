@@ -1,11 +1,24 @@
 <?php
 
-namespace App\Observers;
+namespace App\Observer;
 
 use App\Models\SimpleTables\banned_users;
+use App\Observer\BadUser;
 
-class BannedObserver
+class BannedUserObserver
 {
+	public function __construct(BadUserCommon $badUserCommn) {
+		$this->comm = $badUserCommn;
+	} 
+	
+    public function retrieved(banned_users $banned_user)
+    {
+    }
+    
+    public function created(banned_users $banned_user)
+    {
+        $this->comm->addRemindMsgFromBadId($banned_user->member_id);
+    }    
 
     /**
      * Handle the User "saved" event.
@@ -15,7 +28,7 @@ class BannedObserver
      */
     public function saved(banned_users $user)
     {
-        //
+        
     }
 
     /**
@@ -27,6 +40,9 @@ class BannedObserver
     public function deleted(banned_users $user)
     {
         //
+        //$user->connection = 'mysql_fp';
+        //$user->delete();
+
     }
 
 }

@@ -42,6 +42,7 @@ use App\Models\SimpleTables\banned_users;
 use App\Models\SimpleTables\warned_users;
 use App\Models\BannedUsersImplicitly;
 use App\Notifications\BannedNotification;
+use App\Observer\BadUserCommon;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -2637,7 +2638,10 @@ class UserController extends \App\Http\Controllers\BaseController
         $ban = banned_users::where('member_id', $data['id'])->get()->toArray();
         // dd($ban);
         if (empty($ban)) {
-            DB::table('banned_users')->insert(['member_id' => $data['id'], 'reason' => '管理者刪除']);
+            if(DB::table('banned_users')->insert(['member_id' => $data['id'], 'reason' => '管理者刪除']))
+            {
+                BadUserCommon::addRemindMsgFromBadId($data['id']);
+            }
         }
 
         $data = array(

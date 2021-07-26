@@ -44,7 +44,7 @@ class AdminService
      *
      * @return $admin or false
      */
-    public function checkAdmin(){
+    public static function checkAdmin(){
         $banned_users = banned_users::select('member_id')->get();
         $admin = User::where('name', 'like', '%'.'站長'.'%')
                        ->whereNotIn('id', $banned_users)

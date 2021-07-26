@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use App\Services\AdminService;
 use Intervention\Image\Facades\Image;
 
 class Message extends Model
@@ -632,19 +633,21 @@ class Message extends Model
     //     return Message::where('to_id', $uid)->orWhere('from_id', $sid)->distinct()->orderBy('created_at', 'desc')->get();
     // }
 
-    public static function allToFromSender($uid, $sid)
+    public static function allToFromSender($uid, $sid, $includeDeleted = false)
     {
         $user = \View::shared('user');
         if(!$user){
             $user = User::find($uid);
         }
+        $isAdminSender = AdminService::checkAdmin()->id==$sid;
+		if(!$isAdminSender) $includeDeleted = false;
         if($user->isVip()) {
             self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
         }else {
             self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
         }
 
-        if(Blocked::isBlocked($uid, $sid)) {
+        if(Blocked::isBlocked($uid, $sid) && !$isAdminSender) {
             $blockTime = Blocked::getBlockTime($uid, $sid);
             return Message::where('created_at','>=',self::$date)->where([['to_id', $uid],['from_id', $sid],['created_at', '<=', $blockTime->created_at]])
                 ->orWhere([['from_id', $uid],['to_id', $sid]])
@@ -654,11 +657,25 @@ class Message extends Model
                 ->paginate(10);
         }
         $block = Blocked::where('member_id',$sid)->where('blocked_id', $uid)->get()->first();
-        $query = Message::where('created_at','>=',self::$date);
-        $query = $query->where(function ($query) use ($uid,$sid) {
-            $query->where([['to_id', $uid],['from_id', $sid],['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]])
-                ->orWhere([['from_id', $uid],['to_id', $sid],['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]]);
+        if($isAdminSender)
+            $query = Message::whereNotNull('id');
+        else
+            $query = Message::where('created_at','>=',self::$date);
+        $query = $query->where(function ($query) use ($uid,$sid,$isAdminSender,$includeDeleted) {
+			$whereArr1 = [['to_id', $uid],['from_id', $sid]];
+			$whereArr2 = [['from_id', $uid],['to_id', $sid]];
+			if(!$includeDeleted) {
+				array_push($whereArr1,['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]);
+				array_push($whereArr2,['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]);
+			}
+            $query->where($whereArr1);
+			
+			if(!$isAdminSender)
+                $query->orWhere($whereArr2);
         });
+        
+        if($isAdminSender) return $query->orderBy('created_at', 'desc')->paginate(10);
+        
         if($block) {
             $query = $query->where('from_id', '<>', $block->member_id);
         }
@@ -721,6 +738,7 @@ class Message extends Model
          */
         $query = Message::from('message as m')
                         ->leftJoin('users as u', 'u.id', '=', 'm.from_id')
+                        ->leftJoin('users as u2', 'u2.id', '=', 'm.to_id')
                         ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'm.from_id')
                         ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'm.to_id')
                         ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'm.from_id')
@@ -734,25 +752,35 @@ class Message extends Model
                         ->leftJoin('blocked as b7', function($join) use($uid) {
                             $join->on('b7.member_id', '=', 'm.from_id')
                                 ->where('b7.blocked_id', $uid); })
+                                /*
                         ->leftJoin('blocked as b8', function($join) use($uid) {
                             $join->on('b8.member_id', '=', 'm.to_id')
-                                ->where('b8.blocked_id', $uid); });
+                                ->where('b8.blocked_id', $uid); })*/;
         $all_msg = $query->whereNotNull('u.id')
-                        ->whereNull('b1.member_id')
-                        ->whereNull('b2.member_id')
-                        ->whereNull('b3.target')
-                        ->whereNull('b4.target')
+                        ->whereNotNull('u2.id')
+                        //->whereNull('b1.member_id')
+                        //->whereNull('b2.member_id')
+                        //->whereNull('b3.target')
+                        //->whereNull('b4.target')
                         ->whereNull('b5.blocked_id')
                         ->whereNull('b6.blocked_id')
                         ->whereNull('b7.member_id')
-                        ->whereNull('b8.member_id')
+                        //->whereNull('b8.member_id')
                         ->where(function($query)use($uid){
-                            $query->where('m.to_id','=' ,$uid)
-                                ->where('m.from_id','!=',$uid);
+                            $query//->where('m.to_id','=' ,$uid)
+                                    ->where([['m.to_id', $uid], ['m.from_id', '!=', $uid],['m.from_id','!=',AdminService::checkAdmin()->id]])
+                                //->where('m.from_id','!=',$uid);
+                                    ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid],['m.to_id','!=',AdminService::checkAdmin()->id]]);
                         })
-                        ->where([['m.is_row_delete_1', '=' ,0], ['m.is_single_delete_1', '<>', $uid], ['m.temp_id', '=', 0]])
+                        //->where([['m.is_row_delete_1', '=' ,0], ['m.is_single_delete_1', '<>', $uid], ['m.temp_id', '=', 0]])
+                        ->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]])
                         ->where('m.read', 'N')
-                        ->where([['m.created_at','>=',self::$date]]);
+                        ->where([['m.created_at','>=',self::$date]])
+                        ->whereRaw('m.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")')
+                        ->whereRaw('m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")')
+                        ->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")')
+                        ->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');                                 
+                               
         if($user->user_meta->notifhistory == '顯示VIP會員信件') {
             $all_msg = $all_msg->join('member_vip', 'member_vip.member_id', '=', 'm.from_id');
             $all_msg = $all_msg->where('member_vip.active', 1);
