@@ -36,7 +36,23 @@ return [
             'secret' => env('PUSHER_APP_SECRET'),
             'app_id' => env('PUSHER_APP_ID'),
             'options' => [
-                //
+                /**
+                 * 以下兩行為 Pusher 官方服務設定
+                 */
+                'cluster' => env('PUSHER_APP_CLUSTER'),
+		        'useTLS' => true,
+                /**
+                 * 以下三行為自架 websocket 用
+                 * 若自架需 SSL，再將 encrypted 開啟
+                 */
+                //'host' => '127.0.0.1',
+                //'port' => env('LARAVEL_WEBSOCKETS_PORT', 6001),
+                //'scheme' => 'http',
+                //'encrypted' => true,
+                'curl_options' => [
+                    CURLOPT_SSL_VERIFYHOST => 0,
+                    CURLOPT_SSL_VERIFYPEER => 0,
+                ]
             ],
         ],
 
