@@ -6,6 +6,7 @@ use Auth;
 use App\Models\User;
 use App\Models\Blocked;
 use App\Models\SimpleTables\banned_users;
+use App\Services\AdminService;
 use Illuminate\Database\Eloquent\Model;
 use App\Notifications\MessageEmail;
 use Illuminate\Support\Facades\Config;
@@ -388,6 +389,7 @@ class Message_new extends Model
 
     public static function allSendersAJAX($uid, $isVip, $d = 7,$admin_id=1049)
     {
+		$admin_id = AdminService::checkAdmin()->id;
         /**
          * 效能調整：使用左結合取代 where in 以取得更好的效能
          *
@@ -445,7 +447,6 @@ class Message_new extends Model
         $query->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');        
         $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);$query->orderBy('m.created_at', 'desc');
-
         $messages = $query->get();
 
         $mm = [];
@@ -689,6 +690,8 @@ class Message_new extends Model
         {
         // $curUser->notify(new MessageEmail($from_id, $to_id, $msg));
         }
+
+        return $message;
     }
 
     public static function betweenMessages($user_ids)
@@ -721,10 +724,10 @@ class Message_new extends Model
                     ->where('b6.member_id', $uid); })
             ->leftJoin('blocked as b7', function($join) use($uid) {
                 $join->on('b7.member_id', '=', 'm.from_id')
-                    ->where('b7.blocked_id', $uid); })
-            ->leftJoin('blocked as b8', function($join) use($uid) {
-                $join->on('b8.member_id', '=', 'm.to_id')
-                    ->where('b8.blocked_id', $uid); });
+                    ->where('b7.blocked_id', $uid); });
+//            ->leftJoin('blocked as b8', function($join) use($uid) {
+//                $join->on('b8.member_id', '=', 'm.to_id')
+//                    ->where('b8.blocked_id', $uid); });
         $query = $query->whereNotNull('u1.id')->whereNotNull('u2.id')
             //->whereNull('b1.member_id')
             //->whereNull('b2.member_id')
@@ -733,7 +736,7 @@ class Message_new extends Model
             ->whereNull('b5.blocked_id')
             ->whereNull('b6.blocked_id')
             ->whereNull('b7.member_id')
-            ->whereNull('b8.member_id')
+//            ->whereNull('b8.member_id')
             ->where(function ($query) use ($uid) {
                 $query->where([['m.to_id', $uid], ['m.from_id', '!=', $uid]])
                     ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid]]);
