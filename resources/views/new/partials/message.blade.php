@@ -57,18 +57,6 @@
     <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
-<div class="bl bl_tab" id="tab_no_more">
-    <div class="bltitle">提示</div>
-    <div class="n_blnr01">
-        <div class="blnr bltext"></div>
-        <div class="n_bbutton">
-	        <span><a class="n_left" href="javascript:">不再提醒</a></span>
-	        <span><a onclick="gmBtnNoReload();" class="n_right" href="javascript:">關閉</a></span>
-	    </div>
-    </div>
-    <a id="" onclick="gmBtnNoReload();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
-</div>
-
 {{-- 20201019 新增公版 confirm 提示框--}}
 <div class="bl bl_tab " id="common_confirm">
     <div class="bltitle"><font>提示</font></div>
@@ -128,6 +116,7 @@
     </div>
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
+
 <div class="bl bl_tab" id="tabPopM">
     <div class="bltitle">提示</div>
     <div class="n_blnr01 matop10">
