@@ -720,7 +720,7 @@ class Message extends Model
         return $query;
     }
 
-    public static function unread($uid)
+    public static function unread($uid, $tinker = false)
     {
         $user = \View::shared('user');
         if(!$user){
@@ -785,6 +785,11 @@ class Message extends Model
             $all_msg = $all_msg->join('member_vip', 'member_vip.member_id', '=', 'm.from_id');
             $all_msg = $all_msg->where('member_vip.active', 1);
         }
+
+        if($tinker){
+            dd($all_msg->get());
+        }
+
         $unreadCount = $all_msg->count();
 
         return $unreadCount;
