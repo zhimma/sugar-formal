@@ -1947,7 +1947,7 @@ position:relative;line-height:40px;cursor:pointer;text-align: center;}
             }
             else{
                 if($(this).hasClass('on') && $(this).hasClass('lebox5')){
-                    c5('此為被站長封鎖的會員，');
+                    c5('此為被站長封鎖的會員，如果您們已經交換聯絡方式，請多加注意。');
                 }
             }            
         });
