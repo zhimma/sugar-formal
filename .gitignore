@@ -28,3 +28,5 @@ config/app.php
 *.DS_Store
 
 storage/desktop.ini
+
+bootstrap/cache/
