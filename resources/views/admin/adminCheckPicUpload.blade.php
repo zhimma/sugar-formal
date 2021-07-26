@@ -1,7 +1,7 @@
 @extends('admin.main')
 @section('app-content')
 <body style="padding: 15px;">
-    <h1>站長審核 - 修改暱稱申請</h1>
+    <h1>站長審核 - 上傳照片</h1>
     <table class="table-bordered table-hover center-block table" id="table">
         <thead>
             <tr>
@@ -10,22 +10,23 @@
                 <th scope="col">VIP</th>
                 <th scope="col">性別</th>
                 <th scope="col">上傳照片</th>
+                <th scope="col">申請修改原因</th>
                 <th scope="col">不通過原因</th>
                 <th scope="col">審核狀態</th>
-                <th scope="col">申請時間</th>
+                <th scope="col">上傳時間</th>
                 <th scope="col">審核時間</th>
             </tr>
         </thead>
         <tbody>
         @foreach($data as $row)
             @php
-                $Vip = \App\Models\Vip::vip_diamond($row->id);
+                $Vip = \App\Models\Vip::vip_diamond($row->user_id);
             @endphp
             <tr>
-                <td scope="row"><a href="users/advInfo/{{$row->user_id}}" target="_blank">{{$row->email}}</a></td>
-                <td>{{$row->name}}</td>
+                <td scope="row"><a href="users/advInfo/{{$row->user_id}}" target="_blank">{{$row->getUser()->email}}</a></td>
+                <td>{{$row->getUser()->name}}</td>
                 <td>
-                    @if($row->isVip()==1)
+                    @if($row->getUser()->isVip()==1)
                         @if($Vip=='diamond_black')
                             <img src="/img/diamond_black.png" style="height: 1.5rem;">
                         @else
@@ -35,10 +36,8 @@
                         @endif
                     @endif
                 </td>
-                <td>@if($row->engroup==1)男@else女@endif</td>
-                <td>{{$row->WarnedScore()}}</td>
-                <td>{{$row->before_change_name}}</td>
-                <td>{{$row->change_name}}</td>
+                <td>@if($row->getUser()->engroup==1)男@else女@endif </td>
+                <td><img width="auto" height="120" src="{{$row->member_pic?$row->member_pic->pic:$row->user->meta->pic}}" /></td>
                 <td>{{$row->reason}}</td>
                 <td>
                     @if($row->status == 0)
@@ -103,7 +102,7 @@
         function checkAction(id, status){
             $.ajax({
                 type: 'POST',
-                url: "/admin/checkNameChange",
+                url: "/admin/checkPicUpload",
                 data:{
                     _token: '{{csrf_token()}}',
                     id: id,
@@ -136,7 +135,7 @@
             reject_content = $('#reject_content_'+ $(this).data('id')).val();
             $.ajax({
                 type: 'POST',
-                url: "/admin/checkNameChange",
+                url: "/admin/checkPicUpload",
                 data:{
                     _token: '{{csrf_token()}}',
                     id: $(this).data('id'),

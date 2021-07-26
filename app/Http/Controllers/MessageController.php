@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Models\AnnouncementRead;
+use App\Models\CommonTextRead;
 use App\Http\Requests;
 use App\Models\SimpleTables\banned_users;
 use App\Models\User;
@@ -218,6 +219,33 @@ class MessageController extends BaseController {
             'msg' => 'already exists.',
         ), 200);
     }
+    
+    public function commonTextRead(Request $request)
+    {
+        $user_id = $request->uid;
+        $common_text_id = $request->aid;
+        $no_more = $request->no_more;
+        $commonTextRead = CommonTextRead::where('user_id', $user_id)->where('common_text_id', $common_text_id)->get()->first();
+        if(!isset($commonTextRead)){
+            $commonTextRead = new CommonTextRead;
+        }
+        
+        if($no_more)  $commonTextRead->no_more = $no_more;
+        $commonTextRead->user_id = $user_id;
+        $commonTextRead->read_num += 1;
+        $commonTextRead->common_text_id = $common_text_id;
+        if ($commonTextRead->save()) {
+            return response()->json(array(
+                'status' => 1,
+                'msg' => 'ok',
+            ), 200);
+        } else {
+            return response()->json(array(
+                'status' => 2,
+                'msg' => 'fail',
+            ), 500);
+        }
+    }    
 
     public function announceClose(Request $request)
     {

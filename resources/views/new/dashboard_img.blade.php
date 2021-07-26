@@ -45,6 +45,19 @@
     .two_container h4{width: 100%; display: table; font-size: 15px; color: #333; margin-top:5px; font-weight: bold;}
     .two_container h4 span{ margin-right:35px;}
     .two_container h4 span input{ margin-right: 3px;}
+    .n_shenhe img {
+        width: 100%;
+    }
+
+    .n_shenhe {
+        width: 70%;
+        position: absolute;
+        top: 25%;
+        left: 15%;
+        z-index: 3;
+    }
+
+
 
 </style>
 
@@ -131,7 +144,13 @@
                                 <div class="n_ulhh">
                                     <img src="/new/images/ph_05.png">
                                 </div>
+
                                 <b class="img" style="background:url('{{ $pic ?? $default }}'); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
+                                @if($pic) {{$member_pics[$i]->id}},{{\App\Models\AccountPicUpload::isAllowedMemberPicByMemberPicId($member_pics[$i]->id)}} @endif
+                                @if($pic && !\App\Models\AccountPicUpload::isAllowedMemberPicByMemberPicId($member_pics[$i]->id))
+                                <div class="n_shenhe"><img src="/images/shenhe.png"></div>                                
+                                @endif
+
                             </li>
                         @endfor
                     @endif

@@ -283,7 +283,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::post('/message/disableNotice', 'MessageController@disableNotice')->name('disableNotice');
     Route::post('/users/announceRead', 'MessageController@announceRead')->name('announceRead');
     Route::post('/users/announceClose', 'MessageController@announceClose')->name('announceClose');
-
+    Route::post('/users/commonTextRead', 'MessageController@commonTextRead')->name('commonTextRead');
     /*
     |--------------------------------------------------------------------------
     | User
@@ -724,7 +724,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('checkGenderChange', 'UserController@showAdminCheckGenderChange')->name('admin/checkGenderChange');
         Route::post('checkNameChange', 'UserController@AdminCheckNameChangeSave');
         Route::post('checkGenderChange', 'UserController@AdminCheckGenderChangeSave');
+        Route::post('checkPicUpload', 'UserController@AdminCheckPicUploadSave');
         Route::get('checkExchangePeriod', 'UserController@showAdminCheckExchangePeriod')->name('admin/checkExchangePeriod');
+		Route::get('checkPicUpload', 'UserController@showAdminCheckPicUpload')->name('admin/checkPicUpload');
         Route::post('checkExchangePeriod', 'UserController@AdminCheckExchangePeriodSave');
         Route::get('roleManage', 'UserController@adminRole')->name('admin/role');
         Route::post('roleEdit', 'UserController@adminRoleEdit')->name('admin/role/edit');

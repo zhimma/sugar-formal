@@ -972,6 +972,7 @@
 			<td class="evaluation_zoomIn">
 				@php
 					$messagePics=is_null($Log->pic) ? [] : json_decode($Log->pic,true);
+
 				@endphp
 				@if(isset($messagePics))
 					@foreach( $messagePics as $messagePic)

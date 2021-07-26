@@ -16,6 +16,8 @@ class banned_users extends Model
 {
     //
     protected $table = 'banned_users';
+    
+    protected $guarded = ['id'];
 
     /**
      * Save the model to the database.

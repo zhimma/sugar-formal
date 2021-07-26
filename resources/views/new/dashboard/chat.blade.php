@@ -83,6 +83,10 @@ text-align: center;
     .sjleftmm{width:50%;}
  }
 
+.lebox5{background: url({{ asset('/new/images/off.png') }}) no-repeat right #94a5b4; background-position:98%; background-size:22px; padding:0px 20px;color:#fff;font-size:16px;
+position:relative;line-height:40px;cursor:pointer;text-align: center;}
+.lebox5.on{background:  url({{ asset('/new/images/on.png') }}) no-repeat right #94a5b4;background-position:98%;  background-size:22px;position:relative;cursor:pointer;;color:#fff;}
+
 
 </style>
 @extends('new.layouts.website')
@@ -241,7 +245,15 @@ text-align: center;
                                 <ul class="sjlist sjlist_alert">
                                 </ul>
                             </dd>
-
+                            @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
+                            <span class="banned_delete shou_but">全部刪除</span>
+                            @endif
+                            <dt class="lebox5">已被站方封鎖</dt>
+                            <dd>
+                                <div class="loading warning" id="sjlist_banned_warning"><span class="loading_text">loading</span></div>
+                                <ul class="sjlist sjlist_banned">
+                                 </ul>
+                             </dd>
                         </dl>
                     </div>
                 </div>
@@ -561,6 +573,71 @@ text-align: center;
                 });
             }
         };
+        
+        
+       var Page_banned = {
+            page : 1,
+            row  : 10,
+            DrawPage:function(total){
+                var total_page  = Math.ceil(total/Page_banned.row) == 0 ? 1 : Math.ceil(total/Page_banned.row);
+                var span_u      = 0;
+                var str         = '';
+                var i,active,prev_active,last_active;
+
+                if(total_page==1){
+                    str   = '';
+                }else if(Page_banned.page==1){
+                    str =`<a href="javascript:" class="" data-p="next">上一頁</a>
+                    <span class="new_page">${Page_banned.page}/${total_page}</span>
+                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>`;
+                }else if(Page_banned.page==total_page){
+                    str =`<a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                    <span class="new_page">${Page_banned.page}/${total_page}</span>
+                    <a href="javascript:" class="" data-p="last">下一頁</a>`;
+                }else{
+                    str = `
+                    <a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                    <span class="new_page">${Page_banned.page}/${total_page}</span>
+                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>
+                `;
+                }
+
+
+                $('.page_banned').html(str);
+                $('.warning').hide();
+                $('.page_banned a.page-link').click(function(){
+                    $('.warning').show();
+
+                    $('.sjlist_banned').children().css('display', 'none');
+
+                    switch($(this).data('p')) {
+                        case 'next': Page_banned.page = parseInt(Page_banned.page) - 1; break;
+                        case 'last': Page_banned.page = parseInt(Page_banned.page) + 1; break;
+                        default: Page_banned.page = parseInt($(this).data('p'));
+                    }
+                    Page_banned.DrawPage(total);
+                    // date= $('input[name=RadioGroup1]:checked').val();
+                    date= $("#daysSelect option:selected").val();
+
+                    if(date==7) {
+                        $('.sjlist_banned>.date7.novipMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
+                    }else if(date==30){
+                        $('.sjlist_banned>.common30.novipMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
+                    }else{
+                        $('.sjlist_banned>.novipMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
+                    }
+
+                    $('.sjlist_banned>.li_no_data').remove();
+
+                    if($('.sjlist_banned>li:visible').length == 0){
+                        if(!isLoading) {
+                            $('#sjlist_banned_warning').hide();
+                            $('.sjlist_banned').append(no_row_li);
+                        }
+                    }
+                });
+            }
+        };        
 
 
         // var page = 1;//初始資料
@@ -776,6 +853,7 @@ text-align: center;
                     @endif
 
                     $('.sjlist_alert').html('');
+                    $('.sjlist_banned').html('');
                     $('.page_warning').hide();
                     $('.warning').show();
                 },
@@ -846,7 +924,10 @@ text-align: center;
 
                         if (typeof e.created_at !== 'undefined') {
                             if (e.created_at.substr(0, 10) >= this_7daysBefore) {
-                                if(e.isWarned==1) {
+                                if(e.isBanned==1) {
+                                    $('.sjlist_banned').append(li).find('.row_data').addClass('date7 bannedMember common30');
+                                }
+                                else if (e.isWarned==1) {
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('date7 alertMember common30');
                                 }else if (e.isVip == 1 && userGender==2) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('date7 vipMember common30');
@@ -862,14 +943,17 @@ text-align: center;
                                         $exchange_period_name = DB::table('exchange_period_name')->get();
                                     @endphp
                                     @foreach($exchange_period_name as $row)
-                                        if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0){
+                                        if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0 && e.isBanned==0){
                                             $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('date7 exchange_period_member_{{$row->id}} common30');
                                         }
                                     @endforeach
                                 @endif
 
                             }else if (e.created_at != '' && e.created_at.substr(0, 10) >= this_30daysBefore) {
-                                if(e.isWarned==1){
+                                if(e.isBanned==1) {
+                                    $('.sjlist_banned').append(li).find('.row_data').addClass('date30 bannedMember common30');
+                                }
+                                else if (e.isWarned==1){
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('date30 alertMember common30');
                                 }else if (e.isVip == 1 && userGender==2) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('date30 vipMember common30');
@@ -885,14 +969,17 @@ text-align: center;
                                         $exchange_period_name = DB::table('exchange_period_name')->get();
                                     @endphp
                                     @foreach($exchange_period_name as $row)
-                                        if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0){
+                                        if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0 && e.isBanned==0){
                                             $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('date30 exchange_period_member_{{$row->id}} common30');
                                         }
                                     @endforeach
                                 @endif
 
                             } else {
-                                if(e.isWarned==1) {
+                                if(e.isBanned==1) {
+                                    $('.sjlist_banned').append(li).find('.row_data').addClass('dateAll bannedMember');
+                                }
+                                else if (e.isWarned==1) {
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('dateAll alertMember');
                                 }else if (e.isVip == 1 && userGender==2) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('dateAll vipMember');
@@ -908,7 +995,7 @@ text-align: center;
                                         $exchange_period_name = DB::table('exchange_period_name')->get();
                                     @endphp
                                     @foreach($exchange_period_name as $row)
-                                        if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0){
+                                        if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0 && e.isBanned==0){
                                             $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('dateAll exchange_period_member_{{$row->id}}');
                                         }
                                     @endforeach
@@ -986,6 +1073,13 @@ text-align: center;
                                 Page_warned.DrawPage(alert_counts);
                                 $('.sjlist_alert>.date7.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
 
+
+                                let banned_counts = $('.date7.bannedMember').length;
+                                if (banned_counts > 10) {
+                                    $('.page_banned').show();
+                                }
+                                Page_banned.DrawPage(banned_counts);
+                                $('.sjlist_banned>.date7.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
                             }else if(hash==30){
                                 @if($user->engroup==2)
 
@@ -1028,6 +1122,12 @@ text-align: center;
                                 Page_warned.DrawPage(alert_counts);
                                 $('.sjlist_alert>.common30.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
 
+                                let banned_counts = $('.common30.bannedMember').length;
+                                if (banned_counts > 10) {
+                                    $('.page_banned').show();
+                                }
+                                Page_banned.DrawPage(banned_counts);
+                                $('.sjlist_banned>.common30.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
                             }else if(hash=='all'){
                                 @if($user->engroup==2)
                                 let vip_counts = $('.vipMember').length;
@@ -1066,6 +1166,13 @@ text-align: center;
                                 }
                                 Page_warned.DrawPage(alert_counts);
                                 $('.sjlist_alert>.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+                            
+                                let banned_counts = $('.bannedMember').length;
+                                if (banned_counts > 10) {
+                                    $('.page_banned').show();
+                                }
+                                Page_banned.DrawPage(banned_counts);
+                                $('.sjlist_banned>.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');    
                             }
 
                         }else{
@@ -1110,6 +1217,12 @@ text-align: center;
                                 Page_warned.DrawPage(alert_counts);
                                 $('.sjlist_alert>.date7.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
 
+                                let banned_counts = $('.date7.bannedMember').length;
+                                if (banned_counts > 10) {
+                                    $('.page_banned').show();
+                                }
+                                Page_banned.DrawPage(banned_counts);
+                                $('.sjlist_banned>.date7.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
                             } else if (date == 30) {
                                 $('.row_data').hide();
 
@@ -1150,6 +1263,14 @@ text-align: center;
                                 }
                                 Page_warned.DrawPage(alert_counts);
                                 $('.sjlist_alert>.common30.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+                                
+                                
+                                let banned_counts = $('.common30.bannedMember').length;
+                                if (banned_counts > 10) {
+                                    $('.page_banned').show();
+                                }
+                                Page_banned.DrawPage(banned_counts);
+                                $('.sjlist_banned>.common30.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');                                
                             } else {
 
                                 @if($user->engroup==2)
@@ -1189,6 +1310,15 @@ text-align: center;
                                 }
                                 Page_warned.DrawPage(alert_counts);
                                 $('.sjlist_alert>.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+                            
+                            
+                                let banned_counts = $('.bannedMember').length;
+                                if (banned_counts > 10) {
+                                    $('.page_banned').show();
+                                }
+                                Page_banned.DrawPage(banned_counts);
+                                $('.sjlist_banned>.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');    
+    
                             }
                         }
 
@@ -1210,6 +1340,10 @@ text-align: center;
                                 $('#sjlist_alert_warning').hide();
                                 $('.sjlist_alert').append(no_row_li);
                             }
+                            if ($('.sjlist_banned>li:visible').length == 0) {
+                                $('#sjlist_banned_warning').hide();
+                                $('.sjlist_banned').append(no_row_li);
+                            }                            
                         @elseif($user->engroup==1)
                             @php
                                 $exchange_period_name = DB::table('exchange_period_name')->get();
@@ -1225,6 +1359,11 @@ text-align: center;
                                 $('#sjlist_alert_warning').hide();
                                 $('.sjlist_alert').append(no_row_li);
                             }
+                            
+                            if ($('.sjlist_banned>li:visible').length == 0) {
+                                $('#sjlist_banned_warning').hide();
+                                $('.sjlist_banned').append(no_row_li);
+                            }                            
                         @endif
                     }, 300);
 
@@ -1355,6 +1494,13 @@ text-align: center;
                     Page_warned.DrawPage(alert_counts);
                     $('.sjlist_alert>.date7.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
 
+                    let banned_counts = $('.date7.bannedMember').length;
+                    if (banned_counts > 10) {
+                        $('.page_banned').show();
+                    }
+                    Page_banned.DrawPage(banned_counts);
+                    $('.sjlist_banned>.date7.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
+
                  } else if (date == 30) {
                     $('.row_data').hide();
 
@@ -1393,6 +1539,12 @@ text-align: center;
                     Page_warned.DrawPage(alert_counts);
                     $('.sjlist_alert>.common30.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
 
+                    let banned_counts = $('.common30.bannedMember').length;
+                    if (banned_counts > 10) {
+                        $('.page_banned').show();
+                    }
+                    Page_banned.DrawPage(banned_counts);
+                    $('.sjlist_alert>.common30.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
                  }else{
                      @if($user->engroup==2)
                          let vip_counts = $('.vipMember').length;
@@ -1429,6 +1581,12 @@ text-align: center;
                      Page_warned.DrawPage(alert_counts);
                      $('.sjlist_alert>.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
 
+                    let banned_counts = $('.bannedMember').length;
+                     if (banned_counts > 10) {
+                         $('.page_banned').show();
+                     }
+                     Page_banned.DrawPage(alert_counts);
+                     $('.sjlist_banned>.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
                  }
                     $('.warning').hide();
 
@@ -1462,6 +1620,13 @@ text-align: center;
                             }
                         @endforeach
                     @endif
+                    
+                    if ($('.sjlist_banned>li:visible').length == 0) {
+                        if(!isLoading) {
+                            $('#sjlist_banned_warning').hide();
+                            $('.sjlist_banned').append(no_row_li);
+                        }
+                    }                       
             }
 
         });
@@ -1539,6 +1704,19 @@ text-align: center;
                 c5('沒有可刪除資料');
             }
         });
+        
+        $('.banned_delete').on('click', function() {
+            // c4('確定要全部刪除嗎?');
+            var IDs = [];
+            $(".sjlist_banned").find("li").each(function(){ IDs.push(this.id); });
+
+            if($.trim(IDs) !== '') {
+                c8('確定要全部刪除嗎?');
+                deleteRowAll(IDs);
+            }else{
+                c5('沒有可刪除資料');
+            }
+        });        
 
         @php
         $exchange_period_name = DB::table('exchange_period_name')->get();
@@ -1689,10 +1867,10 @@ text-align: center;
         //
         //
 
-                $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');
-                $('.lebox1,.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");
+                $('.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').toggleClass('off');
+                $('.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').next('dd').slideToggle("slow");
 
-        $('.lebox1,.lebox2,.lebox3,.lebox_alert').click(function(e) {
+        $('.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').click(function(e) {
             if ($(this).hasClass('off')) {
                 $(this).removeClass('off');
                 $(this).toggleClass('on');
@@ -1757,6 +1935,21 @@ text-align: center;
                     @endif
                 }
             }
+            
+            
+           $('.sjlist_banned>.li_no_data').remove();
+            if ($('.sjlist_banned>li:visible').length == 0) {
+                console.log(isLoading);  {{-- 此行勿刪，若刪除將導致頁面產生錯誤 --}}
+                if(!isLoading) {
+                    $('#sjlist_banned_warning').hide();
+                    $('.sjlist_banned').append(no_row_li);
+                }
+            }
+            else{
+                if($(this).hasClass('on') && $(this).hasClass('lebox5')){
+                    c5('此為被站長封鎖的會員，');
+                }
+            }            
         });
         $(document).on('DOMNodeInserted', 'img.lazy', function() {
             $(this).lazyload({
