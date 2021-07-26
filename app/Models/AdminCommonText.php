@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Models\User;
-use App\Models\CommonTextRead;
 use App\Notifications\MessageEmail;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Model;
@@ -25,10 +24,6 @@ class AdminCommonText extends Model
      * @var array
      */
     protected $fillable = [];
-    
-    public function common_text_read() {
-        return $this->hasOne(CommonTextRead::class,'common_text_id');
-    }
 
     public static function getCommonText($id){
         $tmp = AdminCommonText::select('content')->where('id', $id)->first();
@@ -39,11 +34,6 @@ class AdminCommonText extends Model
         $tmp = AdminCommonText::select('content')->where('alias', $alias)->first();
         return $tmp->content;
     }
-    
-    public function getByAlias($alias){
-        $tmp = AdminCommonText::where('alias', $alias)->first();
-        return $tmp;
-    }    
     
     public static function checkContent(Request $request) {
         return  AdminCommonText::where([['id', $request->id],['content', $request->content]])->first() !== null;
