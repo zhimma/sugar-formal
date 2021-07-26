@@ -35,3 +35,5 @@ bootstrap/cache/packages.php
 bootstrap/cache/services.php
 
 storage/desktop.ini
+
+bootstrap/cache/
