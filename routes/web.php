@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Single\Chat;
 
 /*
 |--------------------------------------------------------------------------
@@ -254,6 +255,7 @@ Route::group(['middleware' => ['auth', 'global']], function () {
 | Authenticated Routes
 |--------------------------------------------------------------------------
 */
+Route::get('/unread/{user_id}', 'Message_newController@getUnread')->middleware('auth')->name('getUnread');
 Route::group(['middleware' => ['auth', 'global']], function () {
     //新手教學
     Route::get('/dashboard/newer_manual', 'PagesController@newer_manual');
@@ -294,7 +296,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('password', 'PasswordController@update');
     });
 
-    Route::get('/user/view/{uid?}', 'PagesController@viewuser');
+    Route::get('/user/view/{uid?}', function ($uid) { return redirect(route('viewuser', [$uid])); });
     //Route::get('/user/view2/{uid?}', 'PagesController@viewuser2'); //new route
 
 
@@ -338,7 +340,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     */
     Route::group(['middleware' => ['CheckDiscussPermissions']], function () {
         Route::post('/dashboard/postAcceptor', 'PagesController@postAcceptor');/*投稿列表功能*/
-        Route::get('/dashboard/posts_list', 'PagesController@posts_list');/*投稿列表功能*/
+        Route::get('/dashboard/posts_list', 'PagesController@posts_list')->name('posts_list');/*投稿列表功能*/
         Route::get('/dashboard/post_detail/{pid}', 'PagesController@post_detail');
         Route::post('/dashboard/getPosts', 'PagesController@getPosts');/*動態取得列表資料*/
         Route::get('/dashboard/posts', 'PagesController@posts');/*投稿功能*/
@@ -453,6 +455,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/chat2/chatShow/{cid}', 'PagesController@chat2')->name('chat2WithUser');
         Route::post('/dashboard/chat2/deletesingle', 'Message_newController@deleteSingle')->name('delete2Single');
         Route::post('/dashboard/chat2/{randomNo?}', 'Message_newController@postChat');
+        Route::post('postMsg', 'Chat')->name('realTimeChat');
+        Route::post('readMsg', 'ChatRead')->name('realTimeChatRead');
         Route::post('/dashboard/chat2/deleteMsgByUser/{msgid}', 'Message_newController@deleteMsgByUser')->name('deleteMsgByUser');
         Route::get('/dashboard/chat2/deleterow/{uid}/{sid}', 'Message_newController@deleteBetweenGET')->name('delete2BetweenGET');
         Route::get('/dashboard/chat2/deleterowall/{uid}/{sid}', 'Message_newController@deleteBetweenGetAll')->name('deleteBetweenGetAll');
@@ -476,9 +480,11 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::get('/dashboard/banned', 'PagesController@dashboard_banned');
         Route::get('/dashboard/visited', 'PagesController@visited');
-        Route::get('/dashboard/viewuser/{uid?}', 'PagesController@viewuser2'); //new route
+        Route::get('/dashboard/viewuser/{uid?}', 'PagesController@viewuser2')->name('viewuser'); //new route
         Route::get('/dashboard/personalPage', 'PagesController@personalPage'); //new route
         Route::post('/dashboard/personalPage/reportDelete', 'PagesController@report_delete')->name('report_delete');
+        Route::post('/dashboard/closeNoticeNewEvaluation', 'PagesController@closeNoticeNewEvaluation')->name('closeNoticeNewEvaluation');
+        Route::post('/dashboard/personalPageHideRecordLog', 'PagesController@personalPageHideRecordLog')->name('personalPageHideRecordLog');
 
 
         Route::get('/dashboard/board', 'PagesController@board');
@@ -489,6 +495,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/search', 'PagesController@search2')->name('listSeatch2');//new route
         Route::post('/dashboard/search', 'PagesController@search2');//new route
         Route::get('/dashboard/search2', 'PagesController@search');
+        Route::post('/dashboard/search_key_reset', 'PagesController@search_key_reset');
         Route::get('/dashboard/chat/{randomNo?}', 'MessageController@chatview')->name('chatView');
         Route::post('/dashboard/chat/showMoreMessages/{randomNo?}', 'MessageController@chatviewMore')->name('showMoreMessages');
         Route::post('/dashboard/chat/showAllMessages/{randomNo?}', 'MessageController@chatviewAll')->name('showAllMessages');
@@ -585,6 +592,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/posts/delete/{id}', 'UserController@postsDelete')->name('users/posts/delete');
         Route::post('users/posts/prohibit', 'UserController@toggleUser_prohibit_posts');
         Route::post('users/posts/access', 'UserController@toggleUser_access_posts');
+        Route::post('users/accountStatus_admin', 'UserController@accountStatus_admin');
 
         Route::get('users/memberList', 'UserController@memberList')->name('users/memberList');
         Route::post('users/memberList', 'UserController@searchMemberList')->name('searchMemberList');
@@ -592,6 +600,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/toggleUserWarned', 'UserController@toggleUserWarned');
         Route::get('users/closeAccountReason', 'UserController@closeAccountReason')->name('users/closeAccountReasonList');
         Route::get('users/closeAccountDetail', 'UserController@closeAccountDetail');
+
+        Route::get('users/ip/{ip}', 'UserController@getIpUsers')->name('getIpUsers');
 
         Route::group(['prefix'=>'users/message'], function(){
             Route::get('showBetween/{id1}/{id2}', 'UserController@showMessagesBetween')->name('admin/showMessagesBetween');
@@ -619,6 +629,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::group(['prefix'=>'users/evaluation'], function(){
             Route::post('modify', 'UserController@modifyContent')->name('evaluationModifyContent');
+            Route::post('adminComment', 'UserController@adminComment')->name('evaluationAdminComment');
             Route::post('delete', 'UserController@evaluationDelete')->name('evaluationDelete');
             Route::post('check', 'UserController@evaluationCheck')->name('evaluationCheck');
             Route::get('showPic/{eid}/{uid}', 'UserController@showEvaluationPic')->name('showEvaluationPic');
@@ -747,6 +758,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/getBirthday', 'UserController@getBirthday');
         Route::post('users/unwarned_user', 'UserController@unwarnedUser');/*站方警示*/
         Route::post('users/changeExchangePeriod', 'UserController@changeExchangePeriod')->name('changeExchangePeriod');/*包養關係*/
+        Route::get('users/showDuplicate', 'FindPuppetController@display');
+        Route::get('users/checkDuplicate', 'FindPuppetController@entrance');
+        Route::get('users/showLog', 'FindPuppetController@displayDetail');
         Route::get('too_many_requests', 'PagesController@tooManyRequests')->name('tooMantRequests');
         Route::get("sendFakeMail/{repeat?}/{str?}", function(){
             $str = "";
@@ -800,7 +814,3 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::get('/fruits/product_ferment_more', 'FruitController@product_ferment_more');
 });
 Route::get('/test', 'ImageController@deletePictures');
-
-Route::get('/showDuplicate', 'FindPuppetController@display');
-Route::get('/checkDuplicate', 'FindPuppetController@entrance');
-Route::get('/showLog', 'FindPuppetController@displayDetail');
