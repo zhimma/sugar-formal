@@ -26,6 +26,8 @@ class GlobalVariables
         $user = $this->auth->user();
         \View::share('user', $user);
         if(isset($user)) {
+            $expiresAt = \Carbon\Carbon::now()->addMinutes(5);
+            \Cache::put('user-is-online-' . \Auth::user()->id, true, $expiresAt);
             $valueAddedServices = array();
 //            $valueAddedServices['hideOnline'] = 0;
             $valueAddedServices['hideOnline'] = $user->valueAddedServiceStatus('hideOnline');
@@ -52,8 +54,6 @@ class GlobalVariables
                 \View::share('isVip', false);
             }
             \View::share('valueAddedServices', $valueAddedServices);
-            $unread = \App\Models\Message::unread($user->id);
-            \View::share('unread', $unread);
             \View::share('user_meta', $user->meta);
             \View::share('isFreeVip', $isFreeVip);
             \View::composer(['new.dashboard', 'new.dashboard.viewuser'], function($view) use ($user) {

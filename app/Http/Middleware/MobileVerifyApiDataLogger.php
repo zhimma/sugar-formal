@@ -27,7 +27,7 @@ class MobileVerifyApiDataLogger{
     }
 
     public function terminate($request, $response){
-        if(env('APP_ENV') == 'local'){
+        if(\App::environment('local')){
             $envStr = '_test';
         }
         else{

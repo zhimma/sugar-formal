@@ -298,10 +298,25 @@ class ValueAddedServiceApiDataLogger{
                             $visit_other_count_7 = Visited::where('member_id', $user->id)->where('created_at', '>=', $date)->count();
                             /*過去7天被瀏覽次數*/
                             $be_visit_other_count_7 = Visited::where('visited_id', $user->id)->where('created_at', '>=', $date)->count();
+
                             /*此會員封鎖多少其他會員*/
-                            $blocked_other_count = Blocked::where('member_id', $user->id)->count();
+                            $bannedUsers = \App\Services\UserService::getBannedId();
+                            $blocked_other_count = Blocked::with(['blocked_user'])
+                                ->join('users', 'users.id', '=', 'blocked.blocked_id')
+                                ->where('blocked.member_id', $user->id)
+                                ->whereNotIn('blocked.blocked_id',$bannedUsers)
+                                ->whereNotNull('users.id')
+                                ->count();
+
                             /*此會員被多少會員封鎖*/
-                            $be_blocked_other_count = Blocked::where('blocked_id', $user->id)->count();
+                            $be_blocked_other_count = Blocked::with(['blocked_user'])
+                                ->join('users', 'users.id', '=', 'blocked.member_id')
+                                ->where('blocked.blocked_id', $user->id)
+                                ->whereNotIn('blocked.member_id',$bannedUsers)
+                                ->whereNotNull('users.id')
+                                ->count();
+
+
                             //寫入hide_online_data
 
                             //先刪後增 softDelete
