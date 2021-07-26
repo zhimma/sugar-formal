@@ -1399,7 +1399,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 
 .tou_list{width:94%; margin:0 auto; display:table;}
 .tou_list ul{width:100%;margin-top:5px;}
-.tou_list ul li{width:100%; display:table; border-bottom:#eeeeee 1px solid; padding-bottom:10px; margin-bottom:15px;}
+.tou_list ul li{padding: 10px; width:100%; display:table; border-bottom:#eeeeee 1px solid; margin-bottom:15px;}
 .tou_list ul li:last-child{margin-bottom:0px;}
 
 .tou_tx{width:100%; display:table}
