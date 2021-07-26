@@ -18,7 +18,7 @@
 		<script src="/auth/js/bootstrap.min.js"></script>
 		<script src="/auth/js/jquery-2.1.1.min.js" type="text/javascript"></script>
 		<script src="/auth/js/main.js" type="text/javascript"></script>
-
+		@include('new.partials.unread')
 	</head>
 	<body>
 		<div class="head_3">
