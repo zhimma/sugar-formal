@@ -804,12 +804,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         }
         if(type=='')$('#domain option:not(:first)').remove();
     }
-    
-    var add_avatar_showing = false;
-   
     $(document).ready(function() {
-        
-    
         var blockarea_selected = '{{ isset($umeta->blockarea[0]) ? ($umeta->blockarea[0] == "" ? "全區" : str_replace($umeta->blockcity[0],'',$umeta->blockarea[0])) : '全區' }}';
         var blockarea1_selected = '{{ isset($umeta->blockarea[1]) ? str_replace($umeta->blockcity[1],'',$umeta->blockarea[1]) :'全區'  }}';
         var blockarea2_selected = '{{ isset($umeta->blockarea[2]) ? str_replace($umeta->blockcity[2],'',$umeta->blockarea[2]) : '全區'  }}';
@@ -899,90 +894,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
           //   title:'請寫上基本資料。',
           //   type:'warning'
           // });
-        @elseif ((empty($umeta->pic) || (isset($user->checkAvatar) && $user->checkAvatar->status==2)) && (!isset($add_avatar->common_text_read) || $add_avatar->common_text_read->no_more<1))
-        
-            @if(isset($add_avatar))
-        $(window).on( 'beforeunload', noAvatarMsgUnload);
-                @if($add_avatar->common_text_read && $add_avatar->common_text_read->read_num>0)
-
-    
-        c_no_more("{!!$add_avatar->content!!}"); 
-        
-            
-        
-        $('#tab_no_more .n_left').on('click',function(){
-            $(window).off( 'beforeunload', noAvatarMsgUnload );
-       
-            readAddAvatarMsg(1);
-                
-        })   
-        $(document).off('click','.blbg',closeAndReload);
-        $(document).on('click','.blbg',noAvatarMsgClick);         
-        $('#tab_no_more .n_right,#tab_no_more .bl_gb').on('click',function(){
-            readAddAvatarMsg();
-            $(document).off('click','.blbg',noAvatarMsgClick);
-            $(window).off( "beforeunload", noAvatarMsgUnload );  
-            $(document).on('click','.blbg',closeAndReload);
-            $(document).on('click','.blbg',function(){
-                $(window).off( 'beforeunload', noAvatarMsgUnload ); 
-            });
-        }) 
-        
-     
-        
-
-
-
-  
-                @else
-        c5("{!!$add_avatar->content!!}");
-    
-        $('#tab05 a,#announce_bg').on('click',function(){
-            readAddAvatarMsg();
-            $(window).off( 'beforeunload', noAvatarMsgUnload );
-        })    
-   
-                @endif
-                
-        $(document).on('click','.blbg',function(){
-            $(window).off( 'beforeunload', noAvatarMsgUnload );   
-        });                   
-                
-        function noAvatarMsgUnload(e) {
-            readAddAvatarMsg();
-           
-        }
-        
-        function noAvatarMsgClick(e) {
-            $(document).off('click','.blbg',closeAndReload);
-            $('.blbg').hide();
-            $(".bl").hide();
-            $(".gg_tab").hide(); 
-            readAddAvatarMsg();
-            $(document).off('click','.blbg',noAvatarMsgClick);
-            $(document).on('click','.blbg',closeAndReload);
-           
-        }        
-        
-        function readAddAvatarMsg(no_more=0){
-            $.ajax({
-                type: 'POST',
-                url: '{{route('commonTextRead')}}',
-                data: { no_more:no_more,uid: "{{ $user->id }}", aid: {{$add_avatar->id}}, _token: "{{ csrf_token() }}"},
-                success: function(xhr, status, error){
-                    console.log(xhr);
-                    console.log(error);
-                },
-                error: function(xhr, status, error){
-                    console.log(xhr);
-                    console.log(status);
-                    console.log(error);
-                }
-            });		
-        }         
-            @endif
-        
-	        
+        @elseif (empty($umeta->pic))
+        c5("{{$add_avatar}}");
           // swal({
           //   title:'請加上頭像照。',
           //   type:'warning'
@@ -1324,15 +1237,18 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     });
 
     $(".line_notify").on('click', function() {
-        var lineClientId = '{{config('line.line_notify.client_id')}}';
-        var callbackUrl = '{{config('line.line_notify.callback_url')}}';
-        var URL = '{{config('line.line_notify.authorize_url')}}?';
-        URL += 'response_type=code';
-        URL += '&client_id='+lineClientId;
-        URL += '&redirect_uri='+callbackUrl;
-        URL += '&scope=notify';
-        URL += '&state={{csrf_token()}}';
-        window.location.href = URL;
+        c5html('iPhone 的 Safari 在 Line 的綁定容易出問題。如果您在綁定過程中失敗，請改用 Google Chrome 嘗試看看。如果還是出問題，<a href="https://lin.ee/rLqcCns" target="_blank">請點此&nbsp;<img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a>&nbsp;或點右下聯絡我們加站長line。');
+        $(".n_bllbut").on('click', function() {
+            var lineClientId = '{{config('line.line_notify.client_id')}}';
+            var callbackUrl = '{{config('line.line_notify.callback_url')}}';
+            var URL = '{{config('line.line_notify.authorize_url')}}?';
+            URL += 'response_type=code';
+            URL += '&client_id='+lineClientId;
+            URL += '&redirect_uri='+callbackUrl;
+            URL += '&scope=notify';
+            URL += '&state={{csrf_token()}}';
+            window.location.href = URL;
+        });
     });
 
     $(".line_notify_cancel").on('click', function() {
