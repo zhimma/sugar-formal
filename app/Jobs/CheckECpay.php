@@ -44,7 +44,7 @@ class CheckECpay implements ShouldQueue
     public function handle()
     {
         //
-        if(env('APP_ENV') == 'local'){
+        if(\App::environment('local')){
             $envStr = '_test';
         }
         else{
