@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\SetAutoBan;
 use App\Models\AdminCommonText;
+use App\Models\Visited;
 use App\Services\UserService;
 use App\Services\VipLogService;
 use Carbon\Carbon;
@@ -26,7 +27,6 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
-use App\Services\AdminService;
 
 //use Shivella\Bitly\Facade\Bitly;
 
@@ -34,7 +34,7 @@ class Message_newController extends BaseController {
     public function __construct(UserService $userService) {
         parent::__construct();
         $this->service = $userService;
-        $this->middleware('throttle:100,1');
+        $this->middleware('throttle:75,1');
         $this->middleware('pseudoThrottle:40,1');
     }
 
@@ -167,7 +167,7 @@ class Message_newController extends BaseController {
     }
 
 
-    public function postChat(Request $request, $randomNo = null)
+    public function postChat(Request $request, $isCalledByEvent = false)
     {
 //        $banned = banned_users::where('member_id', Auth::user()->id)
 //            ->whereNotNull('expire_date')
@@ -179,7 +179,11 @@ class Message_newController extends BaseController {
 //                 'days' => $date->diffInDays() + 1]);
 //        }
         $payload = $request->all();
-        if(!isset($payload['msg']) && count($request->file('images'))==0){
+        if(!isset($payload['msg']) && !$request->hasFile('images')){
+            if($isCalledByEvent){
+                return array('error' => 1,
+                    'content' => '請勿僅輸入空白！');
+            }
             return back()->withErrors(['請勿僅輸入空白！']);
         }
         $user = Auth::user();
@@ -192,6 +196,10 @@ class Message_newController extends BaseController {
             if(isset($m_time)) {
                 $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
                 if ($diffInSecs < 8) {
+                    if($isCalledByEvent){
+                        return array('error' => 1,
+                                    'content' => '您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。');
+                    }
                     return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
                 }
             }
@@ -203,6 +211,10 @@ class Message_newController extends BaseController {
             if(isset($m_time)) {
                 $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
                 if ($diffInSecs < 8) {
+                    if($isCalledByEvent){
+                        return array('error' => 1,
+                            'content' => '您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。');
+                    }
                     return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
                 }
             }
@@ -210,14 +222,14 @@ class Message_newController extends BaseController {
 
         if(!is_null($request->file('images')) && count($request->file('images'))){
             //上傳訊息照片
-            $messageInfo=Message::create([
-                'from_id'=>auth()->id(),
+            $messageInfo = Message::create([
+                'from_id'=>$user->id,
                 'to_id'=>$payload['to'],
             ]);
 
-            $this->message_pic_save($messageInfo->id, $request->file('images'));
+            $messagePosted = $this->message_pic_save($messageInfo->id, $request->file('images'));
         }else {
-            Message::post(auth()->id(), $payload['to'], $payload['msg']);
+            $messagePosted = Message::post($user->id, $payload['to'], $payload['msg']);
         }
 
         //line通知訊息
@@ -232,7 +244,7 @@ class Message_newController extends BaseController {
             $user_meta_data = UserMeta::select('user_meta.isWarned', 'exchange_period_name.*')
                 ->leftJoin('users', 'users.id', 'user_meta.user_id')
                 ->leftJoin('exchange_period_name', 'exchange_period_name.id', 'users.exchange_period')
-                ->where('user_id', auth()->id())
+                ->where('user_id', $user->id)
                 ->get()->first();
             foreach($line_notify_chat_set_data as $row){
                 if($row->gender==1 && $row->name == $user_meta_data->name){
@@ -250,21 +262,37 @@ class Message_newController extends BaseController {
                 }else if($row->gender==0 && $row->name == '警示會員'){
                     //警示會員
                     //站方警示
-                    $isAdminWarned = warned_users::where('member_id',auth()->id())->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
+                    $isAdminWarned = warned_users::where('member_id',$user->id)->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
                     if($user_meta_data->isWarned==1 || !empty($isAdminWarned)){
                         $line_notify_send = true;
                         break;
                     }
                 }
-                else if($row->gender==0 && $row->name == '收藏會員'){
+                else if($row->gender==0 && $row->name == '收藏會員' && $to_user->isVip()){
                     //收藏者通知
-                    $line_notify_send = memberFav::where('member_id', $to_user->id)->where('member_fav_id', auth()->id())->first();
+                    $line_notify_send = memberFav::where('member_id', $to_user->id)->where('member_fav_id', $user->id)->first();
+                    break;
+                }
+                else if($row->gender==0 && $row->name == '誰來看我' && $to_user->isVip()){
+                    //誰來看我通知
+                    $line_notify_send = Visited::where('visited_id', $user->id)->where('member_id', $to_user->id)->first();
+                    break;
+                }
+                else if($row->gender==0 && $row->name == '收藏我的會員' && $to_user->isVip()){
+                    //收藏我的會員通知
+                    $line_notify_send = memberFav::where('member_id', $user->id)->where('member_fav_id', $to_user->id)->first();
                     break;
                 }
             }
 
+            //站方封鎖
+            $banned = banned_users::where('member_id', $user->id)->get()->first();
+            if( isset($banned) && ( $banned->expire_date==null || $banned->expire_date >= \Carbon\Carbon::now() )){
+                $line_notify_send = false;
+            }
+
             //檢查封鎖
-            $checkIsBlock = Blocked::isBlocked($to_user->id, auth()->id());
+            $checkIsBlock = Blocked::isBlocked($to_user->id, $user->id);
             if($checkIsBlock){
                 $line_notify_send = false;
             }
@@ -272,7 +300,7 @@ class Message_newController extends BaseController {
         }
 
         if($to_user->line_notify_token != null && $line_notify_send){
-            $url = url('/dashboard/chat2/chatShow/'.auth()->id());
+            $url = url('/dashboard/chat2/chatShow/'.$user->id);
 //            $url = app('bitly')->getUrl($url); //新套件用，如無法使用則先隱藏相關class
 
             //send notify
@@ -283,7 +311,11 @@ class Message_newController extends BaseController {
 
         //發送訊息後後判斷是否需備自動封鎖
         // SetAutoBan::auto_ban(auth()->id());
-        SetAutoBan::msg_auto_ban(auth()->id(), $payload['to'], $payload['msg']);
+        SetAutoBan::msg_auto_ban($user->id, $payload['to'], $payload['msg']);
+        if($isCalledByEvent && gettype($isCalledByEvent) == "boolean") {
+            return $messagePosted;
+        }
+        \App\Events\Chat::dispatch($messagePosted, $request->from, $request->to);
         return back();
     }
 
@@ -325,10 +357,9 @@ class Message_newController extends BaseController {
         }
     }
 
-    public function chatviewMore(Request $request,AdminService $adminSrv)
+    public function chatviewMore(Request $request)
     {
         $user_id = $request->uid;
-        $admin = $adminSrv->checkAdmin();
         /**
          * function Message_new::allSendersAJAX(){
          *      $saveMessage = Message_new::newChatArrayAJAX(){
@@ -344,7 +375,7 @@ class Message_newController extends BaseController {
          *      return Message_new::sortMessages($saveMessages,$mm);
          *  }
          */
-        $data = Message_new::allSendersAJAX($user_id, $request->isVip,$request->date,$admin->id);
+        $data = Message_new::allSendersAJAX($user_id, $request->isVip,$request->date);
         if (isset($data)) {
             if(!empty($data['date'])){
                //$date = $data['date'];
@@ -473,9 +504,12 @@ class Message_newController extends BaseController {
                 })->save($tempPath . $input['imagename']);
 
                 //整理images
-                $images_ary[$key]= $destinationPath;
+                //$images_ary[$key]= $destinationPath;
+                $images_ary[$key]['origin_name']= $file->getClientOriginalName();
+                $images_ary[$key]['file_path']= $destinationPath;
+
             }
-            Message::updateOrCreate(['id'=> $msg_id], ['pic'=>json_encode($images_ary)]);
+            return Message::updateOrCreate(['id'=> $msg_id], ['pic'=>json_encode($images_ary)]);
         }
     }
 
@@ -485,13 +519,14 @@ class Message_newController extends BaseController {
         if($messageInfo){
             $getPicList= json_decode($messageInfo->pic,true);
             foreach ($getPicList as $key => $pic){
-                if (file_exists(public_path().$pic)) {
-                    unlink(public_path().$pic);
+                if (file_exists(public_path().$pic['file_path'])) {
+                    unlink(public_path().$pic['file_path']);
                 }
             }
             $messageInfo->delete();
         }
     }
+
     public function deleteMsgByUser($msgid)
     {
         $messageInfo=Message::find($msgid);
@@ -499,8 +534,8 @@ class Message_newController extends BaseController {
             $getPicList= json_decode($messageInfo->pic,true);
             if(!is_null($getPicList) && count($getPicList)){
                 foreach ($getPicList as $key => $pic){
-                    if (file_exists(public_path().$pic)) {
-                        unlink(public_path().$pic);
+                    if (file_exists(public_path().$pic['file_path'])) {
+                        unlink(public_path().$pic['file_path']);
                     }
                 }
             }
@@ -514,4 +549,7 @@ class Message_newController extends BaseController {
         }
     }
 
+    public function getUnread($user_id){
+        return \App\Models\Message::unread($user_id);
+    }
 }
