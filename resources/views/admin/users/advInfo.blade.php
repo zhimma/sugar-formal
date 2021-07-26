@@ -827,7 +827,7 @@
 		</tr>
 		<tr class="accordian-body collapse" id="loginTime{{substr($logInLog->loginDate,0,7)}}">
 			<td class="hiddenRow" colspan="">
-					<table class="table table-bordered">
+					<table class="table table-bordered" style="display: block; max-height: 500px; overflow-x: scroll;">
 						<thead>
 						<tr class="info">
 							<th>登入時間</th>
@@ -972,7 +972,6 @@
 			<td class="evaluation_zoomIn">
 				@php
 					$messagePics=is_null($Log->pic) ? [] : json_decode($Log->pic,true);
-
 				@endphp
 				@if(isset($messagePics))
 					@foreach( $messagePics as $messagePic)

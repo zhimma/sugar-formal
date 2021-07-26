@@ -60,7 +60,7 @@ h3{
             @endif
         @endforeach
     </table>
-    <a href="{{ route('admin/masterwords/new') }}" class='new text-white btn btn-success'>新增公告</a>
+    <a href="{{ route('admin/masterwords/new/GET') }}" class='new text-white btn btn-success'>新增公告</a>
 </body>
 <script>
     function deleteMasterWords(id) {

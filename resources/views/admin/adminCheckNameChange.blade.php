@@ -9,7 +9,10 @@
                 <th scope="col">暱稱</th>
                 <th scope="col">VIP</th>
                 <th scope="col">性別</th>
-                <th scope="col">上傳照片</th>
+                <th scope="col">被檢舉分數</th>
+                <th scope="col">修改原資料</th>
+                <th scope="col">修改後資料</th>
+                <th scope="col">申請修改原因</th>
                 <th scope="col">不通過原因</th>
                 <th scope="col">審核狀態</th>
                 <th scope="col">申請時間</th>
