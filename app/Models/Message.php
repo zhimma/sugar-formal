@@ -10,8 +10,10 @@ use App\Notifications\MessageEmail;
 use Illuminate\Support\Facades\Config;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use App\Services\AdminService;
+use Intervention\Image\Facades\Image;
 
 class Message extends Model
 {
@@ -143,10 +145,40 @@ class Message extends Model
         }
     }
 
-    public static function reportMessage($id, $content) {
+    public static function reportMessage($id, $content, $images) {
         $message = Message::where('id', $id)->first();
         $message->isReported = 1;
         $message->reportContent = $content;
+
+        if(!is_null($images) && count($images)){
+
+            if($files = $images)
+            {
+                $images_ary=array();
+                foreach ($files as $key => $file) {
+                    $now = Carbon::now()->format('Ymd');
+                    $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
+
+                    $rootPath = public_path('/img/Message/Reported');
+                    $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+
+                    if(!is_dir($tempPath)) {
+                        File::makeDirectory($tempPath, 0777, true);
+                    }
+
+                    $destinationPath = '/img/Message/Reported/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
+
+                    $img = Image::make($file->getRealPath());
+                    $img->resize(400, 600, function ($constraint) {
+                        $constraint->aspectRatio();
+                    })->save($tempPath . $input['imagename']);
+
+                    //整理images
+                    $images_ary[$key]= $destinationPath;
+                }
+            }
+            $message->reportContentPic = json_encode($images_ary);
+        }
         $message->save();
     }
 
@@ -601,21 +633,21 @@ class Message extends Model
     //     return Message::where('to_id', $uid)->orWhere('from_id', $sid)->distinct()->orderBy('created_at', 'desc')->get();
     // }
 
-    public static function allToFromSender($uid, $sid)
+    public static function allToFromSender($uid, $sid, $includeDeleted = false)
     {
         $user = \View::shared('user');
-        
         if(!$user){
             $user = User::find($uid);
         }
         $isAdminSender = AdminService::checkAdmin()->id==$sid;
+		if(!$isAdminSender) $includeDeleted = false;
         if($user->isVip()) {
             self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
         }else {
             self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
         }
 
-        if(Blocked::isBlocked($uid, $sid)) {
+        if(Blocked::isBlocked($uid, $sid) && !$isAdminSender) {
             $blockTime = Blocked::getBlockTime($uid, $sid);
             return Message::where('created_at','>=',self::$date)->where([['to_id', $uid],['from_id', $sid],['created_at', '<=', $blockTime->created_at]])
                 ->orWhere([['from_id', $uid],['to_id', $sid]])
@@ -629,12 +661,20 @@ class Message extends Model
             $query = Message::whereNotNull('id');
         else
             $query = Message::where('created_at','>=',self::$date);
-        $query = $query->where(function ($query) use ($uid,$sid) {
-            $query->where([['to_id', $uid],['from_id', $sid],['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]])
-                ->orWhere([['from_id', $uid],['to_id', $sid],['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]]);
+        $query = $query->where(function ($query) use ($uid,$sid,$isAdminSender,$includeDeleted) {
+			$whereArr1 = [['to_id', $uid],['from_id', $sid]];
+			$whereArr2 = [['from_id', $uid],['to_id', $sid]];
+			if(!$includeDeleted) {
+				array_push($whereArr1,['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]);
+				array_push($whereArr2,['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]);
+			}
+            $query->where($whereArr1);
+			
+			if(!$isAdminSender)
+                $query->orWhere($whereArr2);
         });
         
-        if($isAdminSender) return $query->orderBy('created_at', 'desc');
+        if($isAdminSender) return $query->orderBy('created_at', 'desc')->paginate(10);
         
         if($block) {
             $query = $query->where('from_id', '<>', $block->member_id);
@@ -756,7 +796,13 @@ class Message extends Model
         {
             $message->read = 'Y';
             $message->save();
+            \App\Events\ChatRead::dispatch($message->id, $message->from_id, $message->to_id);
+            \App\Events\ChatReadSelf::dispatch($uid);
         }
+    }
+
+    public function compactRead(){
+        $this->read($this, $this->to_id);
     }
 
     public static function allMessage($uid)
@@ -791,10 +837,10 @@ class Message extends Model
                     ->where('b6.member_id', $uid); })
             ->leftJoin('blocked as b7', function($join) use($uid) {
                 $join->on('b7.member_id', '=', 'm.from_id')
-                    ->where('b7.blocked_id', $uid); })
-            ->leftJoin('blocked as b8', function($join) use($uid) {
-                $join->on('b8.member_id', '=', 'm.to_id')
-                    ->where('b8.blocked_id', $uid); });
+                    ->where('b7.blocked_id', $uid); });
+//            ->leftJoin('blocked as b8', function($join) use($uid) {
+//                $join->on('b8.member_id', '=', 'm.to_id')
+//                    ->where('b8.blocked_id', $uid); });
         $all_msg = $query->whereNotNull('u1.id')->whereNotNull('u2.id')
             ->whereNull('b1.member_id')
             ->whereNull('b2.member_id')
@@ -803,7 +849,7 @@ class Message extends Model
             ->whereNull('b5.blocked_id')
             ->whereNull('b6.blocked_id')
             ->whereNull('b7.member_id')
-            ->whereNull('b8.member_id')
+//            ->whereNull('b8.member_id')
             ->where(function($query)use($uid){
                 $query->where([['m.to_id', $uid], ['m.from_id', '!=', $uid]])
                     ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid]]);
@@ -840,6 +886,8 @@ class Message extends Model
         {
         // $curUser->notify(new MessageEmail($from_id, $to_id, $msg));
         }
+
+        return $message;
     }
 
     public static function cutLargeString($string) {
