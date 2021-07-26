@@ -51,6 +51,9 @@
 
                         <div class="decheck"><input data-parsley-required data-parsley-required-message="請勾選同意使用條款和隱私政策" name="agree" type="checkbox" {{old('agree') == 'on'? 'checked' : '' }}><span>我同意甜心花園的使用條款和隱私政策</span></div>
                         <input type="hidden" name="google_recaptcha_token" id="ctl-recaptcha-token">
+                        <input type="hidden" name="{{ time() }}" value="{{ time() }}">
+                        <input type="hidden" name="cfp_hash" id="cfp_hash">
+                        <input type="hidden" name="new_cfp" id="new_cfp" value="0">
                         {{-- <a href="javascript:void(0);" onclick="this.disabled = true" class="dlbut btn-register">註冊</a> --}}
                         <button onclick="this.disabled = true" class="dlbut btn-register" style="border-style: none;">註冊</button>
                         <a href="" class="zcbut matop20">取消</a>
@@ -60,10 +63,10 @@
             </div>
         </div>
     </div>
-    <script src="https://www.google.com/recaptcha/api.js?render={{ env('RECAPTCHA_SITE_KEY') }}"></script>
+    <script src="https://www.google.com/recaptcha/api.js?render={{ config('recaptcha.RECAPTCHA_SITE_KEY') }}"></script>
     <script>
         grecaptcha.ready(function() {
-            grecaptcha.execute('{{ env('RECAPTCHA_SITE_KEY') }}', {action: 'register'}).then(function(token) {
+            grecaptcha.execute('{{ config('recaptcha.RECAPTCHA_SITE_KEY') }}', {action: 'register'}).then(function(token) {
                 document.getElementById('ctl-recaptcha-token').value = token;
             });
         });
@@ -110,6 +113,23 @@
                 // });
                 c5(errormsg);
             @endif
+
+            let cfpLocal = window.localStorage.getItem('cfp');
+            let cfp_hash = null;
+            if(!cfpLocal){
+                const cfp = { hash: "{{ str_random(50) }}" };
+                cfp_hash = cfp.hash;
+                {{-- 若無 CFP，則建立 CFP --}}
+                window.localStorage.setItem('cfp', JSON.stringify(cfp));
+                $('#new_cfp').attr('value', 1);
+            }
+            else{
+                {{-- 若有 CFP，則記錄 CFP --}}
+                    cfpLocal = JSON.parse(cfpLocal);
+                cfp_hash = cfpLocal.hash;
+            }
+            $('#cfp_hash').attr('value', cfp_hash);
+
         });
         $('.alert-danger').css('display','none');
         $(".btn-register").click(function(e){
