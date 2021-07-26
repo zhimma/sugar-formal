@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\AccountStatusLog;
-use App\Models\AccountPicUpload;
 use App\Models\AdminActionLog;
 use App\Models\Board;
 use App\Models\Evaluation;
@@ -43,7 +42,7 @@ use App\Models\SimpleTables\banned_users;
 use App\Models\SimpleTables\warned_users;
 use App\Models\BannedUsersImplicitly;
 use App\Notifications\BannedNotification;
-use App\Observer\Banned;
+use App\Observer\BadUserCommon;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -822,12 +821,12 @@ class UserController extends \App\Http\Controllers\BaseController
         $implicitly_banReason = DB::table('reason_list')->select('content')->where('type', 'implicitly')->get();
         $warned_banReason = DB::table('reason_list')->select('content')->where('type', 'warned')->get();
         // $userLogin_log = LogUserLogin::selectRaw('DATE(created_at) as loginDate, user_id as userID, count(*) as dataCount, GROUP_CONCAT(DISTINCT created_at SEPARATOR ",&p,") AS loginDates, GROUP_CONCAT(DISTINCT ip SEPARATOR ",&p,") AS ips, GROUP_CONCAT(DISTINCT userAgent SEPARATOR ",&p,") AS userAgents')->where('user_id', $user->id)->groupBy(DB::raw("DATE(created_at)"))->get();
-        $userLogin_log = LogUserLogin::selectRaw('MONTH(created_at) as loginMonth, DATE(created_at) as loginDate, user_id as userID, ip, count(*) as dataCount')
+        $userLogin_log = LogUserLogin::selectRaw('LEFT(created_at,7) as loginMonth, DATE(created_at) as loginDate, user_id as userID, ip, count(*) as dataCount')
             ->where('user_id', $user->id)
-            ->groupBy(DB::raw("MONTH(created_at)"))
+            ->groupBy(DB::raw("LEFT(created_at,7)"))
             ->orderBy('created_at','DESC')->get();
         foreach ($userLogin_log as $key => $value) {
-            $userLogin_log[$key]['items'] = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' .  substr($value->loginDate,0,7) . '%')->orderBy('created_at','DESC')->take(50)->get();
+            $userLogin_log[$key]['items'] = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->orderBy('created_at','DESC')->get();
         }
 
         //個人檢舉紀錄
@@ -2639,13 +2638,10 @@ class UserController extends \App\Http\Controllers\BaseController
         $ban = banned_users::where('member_id', $data['id'])->get()->toArray();
         // dd($ban);
         if (empty($ban)) {
-
             if(DB::table('banned_users')->insert(['member_id' => $data['id'], 'reason' => '管理者刪除']))
             {
-                DB::connetcion('mysql_fp')->table('banned_users')->insert(['member_id' => $data['id'], 'reason' => '管理者刪除']);   
-                Banned::addRemindMsgFromBannedId($data['id']);
+                BadUserCommon::addRemindMsgFromBadId($data['id']);
             }
-
         }
 
         $data = array(
@@ -3169,8 +3165,6 @@ class UserController extends \App\Http\Controllers\BaseController
         return view('admin.adminCheckNameChange')
             ->with('data', $data);
     }
-	
-
 
     public function AdminCheckNameChangeSave(Request $request)
     {
@@ -3301,53 +3295,6 @@ class UserController extends \App\Http\Controllers\BaseController
 
         echo json_encode('ok');
     }
-    
-    public function showAdminCheckPicUpload(Request $request)
-    {
-        $whereArr = [];
-        if($request->status) $whereArr[] = ['status'=>$request->status];
-        if($request->first) $whereArr[] = ['first'=>$request->first];
-        $data = AccountPicUpload::orderBy('created_at', 'desc')->where($whereArr)->get();
-
-        return view('admin.adminCheckPicUpload')
-            ->with('data', $data);
-    }
-    
-    public function AdminCheckPicUploadSave(Request $request)
-    {
-        $id = $request->id;
-        $status = $request->status;
-        $reject_content = $request->reject_content;
-        AccountPicUpload::where('user_id', $id)
-            ->update(['status' => $status, 'passed_at' => now(), 'reject_content' => $reject_content]);
-
-        $current_data = AccountPicUpload::where('user_id', $id)->first();
-
-        //notify
-        if ($current_data->reject_content == '') {
-            $text = '無法通過您的申請。';
-        } else {
-            $text = '因 ' . $current_data->reject_content . ' 原因無法通過您的申請。';
-        }
-        $user = User::findById($current_data->user_id);
-        if ($status == 1) {
-            $content = $user->name . ' 您好：<br>您在 ' . $current_data->created_at . ' 申請變更包養關係，經站長審視已通過您的申請';
-            //修改
-            User::where('id', $current_data->user_id)->update(['exchange_period' => $current_data->exchange_period]);
-            UserMeta::where('user_id', $current_data->user_id)->update(['exchange_period_change' => 1]);
-        } else {
-            $content = $user->name . ' 您好：<br>您在 ' . $current_data->created_at . ' 申請變更包養關係，經站長審視，' . $text;
-            UserMeta::where('user_id', $current_data->user_id)->update(['exchange_period_change' => 1]);
-        }
-        //        $user->notify(new AccountConsign('變更帳號類型結果通知',$user->name, $content));
-
-        //站長系統訊息
-        Message::post(1049, $user->id, $content, true, 1);
-
-        Session::flash('message', '審核已完成，系統將自動發信通知該會員');
-
-        echo json_encode('ok');
-    }    
 
     public function showSpamTextMessage()
     {
