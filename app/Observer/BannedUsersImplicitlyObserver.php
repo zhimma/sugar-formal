@@ -3,17 +3,21 @@
 namespace App\Observer;
 
 use App\Models\BannedUsersImplicitly;
-use App\Observer\Banned;
+use App\Observer\BadUser;
 
-class BannedUsersImplicitlyObserver extends Banned
+class BannedUsersImplicitlyObserver
 {
+	public function __construct(BadUserCommon $badUserCommn) {
+		$this->comm = $badUserCommn;
+	} 	
+	
     public function retrieved(BannedUsersImplicitly $banned_user)
     {
     }
     
     public function created(BannedUsersImplicitly $banned_user)
     {
-        $this->addRemindMsgFromBannedId($banned_user->target);
+        $this->comm->addRemindMsgFromBadId($banned_user->target);
     }    
 
     /**

@@ -3,17 +3,21 @@
 namespace App\Observer;
 
 use App\Models\SimpleTables\banned_users;
-use App\Observer\Banned;
+use App\Observer\BadUser;
 
-class BannedUserObserver extends Banned
+class BannedUserObserver
 {
+	public function __construct(BadUserCommon $badUserCommn) {
+		$this->comm = $badUserCommn;
+	} 
+	
     public function retrieved(banned_users $banned_user)
     {
     }
     
     public function created(banned_users $banned_user)
     {
-        $this->addRemindMsgFromBannedId($banned_user->member_id);
+        $this->comm->addRemindMsgFromBadId($banned_user->member_id);
     }    
 
     /**
@@ -38,6 +42,7 @@ class BannedUserObserver extends Banned
         //
         //$user->connection = 'mysql_fp';
         //$user->delete();
+
     }
 
 }
