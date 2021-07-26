@@ -164,7 +164,7 @@
                     </div>
                     <div class="sys_aa">
                         <div class="tabbox_new_dt tabbox_new_ss"><span>系統來訊通知</span>
-						@if(count($admin_msgs))
+						@if(isset($admin_msgs) && count($admin_msgs))
 						<div class="right btn01 btn_admin_msgs"><span class="zixu_cs"><img src="/new/images/xiugai1.png">編輯</span></div>
 						<div class="btn02 sx_ment fr_nbj">
 							<span class="iconfont icon-wancheng zixu_cs1 dtmr20">完成</span>
@@ -174,7 +174,7 @@
 						@endif							
 						</div>
                         <div class="tabbox_new_dd">
-						@if(count($admin_msgs))
+						@if(isset($admin_msgs) && count($admin_msgs))
 							@foreach($admin_msgs as $amsg)
                             <h2 class="tabbox_h2 ta_l"  data-recordtype="admin_msgs" data-rowid="{{$amsg->id}}" >
 								<span class="tu_dfont">
@@ -784,8 +784,8 @@
 </script>
 <script type="text/javascript">
     $(function() {
-		@if(count($admin_msgs))
-		$('.btn_admin_msgs').show();
+		@if(isset($admin_msgs) && count($admin_msgs))
+		    $('.btn_admin_msgs').show();
 		@endif
 	});
 

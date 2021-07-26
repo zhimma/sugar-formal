@@ -184,19 +184,20 @@
                 @if(isset($to))
 {{--                    <div class="fbuttop"></div>--}}
                     <div class="shouxq" style="display: flex;">
-						@if($to->id==$admin->id)
-                        <a class="nnn_adbut" href="{!! url('dashboard/personalPage') !!}">
-                            <img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回
-                        </a>
-                        <span style="flex: 6; text-align: center;">
-                            @if($to->id!=$admin->id)
-                            <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a>
+                        @if(isset($admin))
+                            @if($to->id == $admin->id)
+                                <a class="nnn_adbut" href="{!! url('dashboard/personalPage') !!}">
+                                    <img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回
+                                </a>
+                                <span style="flex: 6; text-align: center;">
+                                    @if($to->id != $admin->id)
+                                        <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">{{$to->name}}</a>
+                                    @else
+                                        <span  style="color: #fd5678;">系統來訊通知</span>
+                                    @endif
+                                </span>
                             @else
-                            <span  style="color: #fd5678;">系統來訊通知</span>
-                            @endif
-                        </span>
-                        @else
-
+                        @endif
                         <a class="nnn_adbut" href="{{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }}"><img class="nnn_adbut_img" src="{{ asset('/new/images/back_icon.png') }}" style="height: 15px;">返回</a>
                         <span style="flex: 6; text-align: center;">
                             <a href="/dashboard/viewuser/{{$to->id}}" style="color: #fd5678;">
@@ -343,23 +344,22 @@
                         </form>
                     </div>--}}
 
-                    @if($to->id!=$admin->id)
-
-                    <div class="se_text_bot"  id="message_input" style="padding-right: 3%; padding-left:3%;">
-                        <form style="margin: 0 auto;" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm" name="chatForm">
-                            <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-                            <input type="hidden" name="userId" value="{{$user->id}}">
-                            <input type="hidden" name="to" value="{{$to->id}}">
-                            <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
-                            <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}" value="{{ \Carbon\Carbon::now()->timestamp }}">
-                            <div class="xin_left">
-                                <a class="xin_nleft" onclick="tab_uploadPic();"><img src="/new/images/moren_pic.png"></a>
-                                <textarea id="msg" name="msg" rows="1" class="xin_input" placeholder="請輸入"></textarea>
-                            </div>
-                            <button type="submit" class="xin_right" style="border: none;"><img src="/new/images/fasong.png"></button>
-                            {{--<div class="message_fixed"></div>--}}
-                        </form>
-                    </div>
+                    @if(!isset($admin) || $to->id != $admin->id)
+                        <div class="se_text_bot"  id="message_input" style="padding-right: 3%; padding-left:3%;">
+                            <form style="margin: 0 auto;" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm" name="chatForm">
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                <input type="hidden" name="userId" value="{{$user->id}}">
+                                <input type="hidden" name="to" value="{{$to->id}}">
+                                <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
+                                <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}" value="{{ \Carbon\Carbon::now()->timestamp }}">
+                                <div class="xin_left">
+                                    <a class="xin_nleft" onclick="tab_uploadPic();"><img src="/new/images/moren_pic.png"></a>
+                                    <textarea id="msg" name="msg" rows="1" class="xin_input" placeholder="請輸入"></textarea>
+                                </div>
+                                <button type="submit" class="xin_right" style="border: none;"><img src="/new/images/fasong.png"></button>
+                                {{--<div class="message_fixed"></div>--}}
+                            </form>
+                        </div>
                     @endif
                 @else
                     <div class="se_text_bot">
