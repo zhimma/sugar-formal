@@ -19,7 +19,7 @@ use App\Events\UserRegisteredEmail;
 use App\Notifications\ActivateUserEmail;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
-use App\Observer\Banned;
+use App\Observer\BadUserCommon;
 
 class UserService
 {
@@ -180,7 +180,7 @@ class UserService
                             'created_at' => \Carbon\Carbon::now()]
                     ))
                     {
-                        Banned::addRemindMsgFromBannedId($user->id);
+                        BadUserCommon::addRemindMsgFromBadId($user->id);
                     }                            
                 }
             }
