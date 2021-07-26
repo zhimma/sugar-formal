@@ -76,8 +76,9 @@
                         @endphp
                         @if(!$isBlocked && !isset($hadWarned) && !isset($warned_users))
                         <li>
+                            <div class="{{  \App\Models\Blocked::where('member_id',$user->id)->where('blocked_id',$row->to_id)->first() ? 'kll' : '' }}">
                             <div class="piname">
-                                <span>
+                                {{--<span>
                                     @for ($i = 1; $i <= 5; $i++)
                                         @if($row->rating>=$i)
                                             <img src="/new/images/sxx_1.png">
@@ -85,9 +86,12 @@
                                             <img src="/new/images/sxx_4.png">
                                         @endif
                                     @endfor
-                                </span>
+                                </span>--}}
                                 <a href="/dashboard/viewuser/{{$to_user->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">{{$to_user->name}}</a>
-                                @if($to_user->id==$user->id)
+                                @if(  \App\Models\Blocked::where('member_id',$user->id)->where('blocked_id',$row->to_id)->first() )
+                                    <img src="/new/images/kul02.png" class="sxyh">
+                                @endif
+                                @if($row->from_id==$user->id)
                                     <font class="sc content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
                                 @endif
                             </div>
@@ -95,7 +99,7 @@
                                 @if($row->is_check==1)
                                     <p class="many-txt" style="color: red;">***此評價目前由站方審核中***</p>
                                 @else
-                                    <p class="many-txt">{!! nl2br($row->content) !!}</p>
+                                    <p class="many-txt">{!! nl2br($row->content) !!}@if(!is_null($row->admin_comment))<span style="color: red;">{{ ' ('.$row->admin_comment.')' }}</span> @endif</p>
                                 @endif
                                 @php
                                     $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
@@ -129,7 +133,7 @@
                                 <div class="hu_p">
                                     <div class="he_b">
                                         <span class="left"><img src="@if(file_exists( public_path().$to_user->meta_()->pic ) && $to_user->meta_()->pic != ""){{$to_user->meta_()->pic}} @elseif($to_user->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$to_user->name}}</span>
-                                        @if($row_user->id==$user->id)
+                                        @if($row->to_id==$user->id)
                                             <font class="sc re_content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
                                         @endif
                                     </div>
@@ -141,7 +145,7 @@
                                                 <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
                                             @endif
                                             @php
-                                                $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
+                                                $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->to_id)->get();
                                             @endphp
                                             <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
                                                 @foreach($evaluationPics as $evaluationPic)
@@ -153,7 +157,7 @@
                                     <div class="he_twotime">{{ substr($row->re_created_at,0,10)}}<span class="z_more">展開</span></div>
                                 </div>
                             @endif
-
+                            </div>
                         </li>
                         @endif
                     @endforeach
@@ -171,11 +175,11 @@
                                             ->orWhere('expire_date', null); })->first();
                                     $showCount++;
                                 @endphp
-                            @if(!$isBlocked)
+{{--                            @if($isBlocked)--}}
                                 <li>
                                     <div class="kll">
                                         <div class="piname">
-                                                    <span>
+                                                    {{--span>
                                                         @if(!$warned_users && !$hadWarned)
                                                             @for ($i = 1; $i <= 5; $i++)
                                                                 @if($row->rating>=$i)
@@ -185,14 +189,14 @@
                                                                 @endif
                                                             @endfor
                                                         @endif
-                                                    </span>
+                                                    </span>--}}
                                             <a href="/dashboard/viewuser/{{$row->to_id}}?time={{ \Carbon\Carbon::now()->timestamp }}">{{$to_user->name}}</a>
                                             @if(isset($warned_users) || isset($hadWarned))
                                                 <img src="/new/images/kul.png" class="sxyh">
                                             @else
                                                 <img src="/new/images/kul02.png" class="sxyh">
                                             @endif
-                                            @if($to_user->id==$user->id)
+                                            @if($row->from_id==$user->id)
                                                 <font class="sc content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
                                             @endif
                                         </div>
@@ -200,7 +204,7 @@
                                             @if($row->is_check==1)
                                                 <p class="many-txt" style="color: red;">***此評價目前由站方審核中***</p>
                                             @else
-                                                <p class="many-txt">{!! nl2br($row->content) !!}</p>
+                                                <p class="many-txt">{!! nl2br($row->content) !!}@if(!is_null($row->admin_comment))<span style="color: red;">{{ ' ('.$row->admin_comment.')' }}</span> @endif</p>
                                             @endif
                                             @php
                                                 $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
@@ -221,7 +225,7 @@
                                         <div class="hu_p">
                                             <div class="he_b">
                                                 <span class="left"><img src="@if(file_exists( public_path().$row_user->meta_()->pic ) && $row_user->meta_()->pic != ""){{$row_user->meta_()->pic}} @elseif($row_user->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="he_zp">{{$row_user->name}}</span>
-                                                @if($row_user->id==$user->id)
+                                                @if($row->to_id==$user->id)
                                                     <font class="sc re_content_delete" data-id="{{$row->id}}"><img src="/new/images/del_03.png">刪除</font>
                                                 @endif
                                             </div>
@@ -233,7 +237,7 @@
                                                         <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
                                                     @endif
                                                     @php
-                                                        $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
+                                                        $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
                                                     @endphp
                                                     <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
                                                         @foreach($evaluationPics as $evaluationPic)
@@ -246,7 +250,7 @@
                                         </div>
                                     @endif
                                 </li>
-                                @endif
+{{--                                @endif--}}
                             @endforeach
                         </div>
                     @endif
@@ -415,7 +419,7 @@
     });
 
     function isEllipsisActive(e) {
-        return ($(e).innerHeight() < $(e)[0].scrollHeight);
+        return (Math.ceil($(e).innerHeight()) < $(e)[0].scrollHeight);
     }
 </script>
 <!--照片查看-->
