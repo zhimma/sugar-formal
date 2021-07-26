@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\Fingerprint;
 use App\Models\Fingerprint2;
 use App\Models\User;
-use App\Observer\Banned;
+use App\Observer\BadUserCommon;
 
 class FingerprintService{
 
@@ -32,7 +32,7 @@ class FingerprintService{
                     'created_at' => \Carbon\Carbon::now()]
                 )) 
                 {
-                    Banned::addRemindMsgFromBannedId($userId);
+                    BadUserCommon::addRemindMsgFromBadId($userId);
                 }
         }
         if(isset($fingerprint['audio'])){ unset($fingerprint['audio']); }
