@@ -35,7 +35,7 @@
                         {{ csrf_field() }}
                           <div class="ti_xcheck">
                             @foreach($line_notify_chat as $row)
-                                @if($row->name == '收藏會員')
+                                @if($row->name == '收藏會員' || $row->name == '誰來看我' || $row->name == '收藏我的會員')
                                     @if($user->isVip())
                                         <span><input type="checkbox" name="group_name[]" id="q4" class="ti_ceckys" value="{{$row->id}}" @if(in_array($row->id, $user_line_notify_chat_set)) checked @endif>{{$row->name}}</span>
                                     @else
@@ -133,15 +133,18 @@
     });
 
     $(".line_notify").on('click', function() {
-        var lineClientId = '{{config('line.line_notify.client_id')}}';
-        var callbackUrl = '{{config('line.line_notify.callback_url')}}';
-        var URL = '{{config('line.line_notify.authorize_url')}}?';
-        URL += 'response_type=code';
-        URL += '&client_id='+lineClientId;
-        URL += '&redirect_uri='+callbackUrl;
-        URL += '&scope=notify';
-        URL += '&state={{csrf_token()}}';
-        window.location.href = URL;
+        c5html('iPhone 的 Safari 在 Line 的綁定容易出問題。如果您在綁定過程中失敗，請改用 Google Chrome 嘗試看看。如果還是出問題，<a href="https://lin.ee/rLqcCns" target="_blank">請點此&nbsp;<img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a>&nbsp;或點右下聯絡我們加站長line。');
+        $(".n_bllbut").on('click', function() {
+            var lineClientId = '{{config('line.line_notify.client_id')}}';
+            var callbackUrl = '{{config('line.line_notify.callback_url')}}';
+            var URL = '{{config('line.line_notify.authorize_url')}}?';
+            URL += 'response_type=code';
+            URL += '&client_id='+lineClientId;
+            URL += '&redirect_uri='+callbackUrl;
+            URL += '&scope=notify';
+            URL += '&state={{csrf_token()}}';
+            window.location.href = URL;
+        });
     });
 
     $(".line_notify_cancel").on('click', function() {
