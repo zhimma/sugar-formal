@@ -19,7 +19,7 @@
 								<a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}">
 									<img src="/new/images/icon_45.png">
 								</a>
-								<span>{{ $unread }}</span>
+								<span id="unreadCount">0</span>
 							</span>
 {{--							@endif--}}
 							<a href="{!! url('dashboard/personalPage') !!}"><img src="/new/images/icon_48.png"></a>
@@ -58,7 +58,7 @@
 									<div class="helist">
 										<ul>
 											<li>
-												<a href="{!! url('dashboard/personalPage') !!}"><img src="/new/images/icon_48.png">專屬頁面</a>
+												<a href="{!! url('dashboard/personalPage') !!}"><img src="/new/images/zsym.png">專屬頁面</a>
 											</li>
 											<li>
 												<a href="{!! url('dashboard') !!}"><img src="/new/images/icon_48.png">個人資料</a>
@@ -68,11 +68,19 @@
 												<a href="{!! url('dashboard/search') !!}"><img src="/new/images/icon_38.png">搜索</a>
 											</li>
 											<li>
-												<a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}"><img src="/new/images/icon_45.png">收件夾</a><span>{{ $unread ?? 0 }}</span>
+												<a href="{!! url('dashboard/chat2/'.csrf_token().\Carbon\Carbon::now()->timestamp) !!}"><img src="/new/images/icon_45.png">收件夾</a><span id="unreadCount2">0</span>
 											</li>
 											@if($user->engroup == 1)
+												@php
+													$ban = \App\Models\SimpleTables\banned_users::where('member_id', $user->id)->first();
+                                                    $banImplicitly = \App\Models\BannedUsersImplicitly::where('target', $user->id)->first();
+												@endphp
 												<li>
-													<a href="/dashboard/posts_list"><img src="/new/images/tlq.png">討論區</a>
+													@if($ban || $banImplicitly)
+														<a onclick="CheckEnterPop()"><img src="/new/images/tlq.png">討論區</a>
+													@else
+														<a href="/dashboard/posts_list"><img src="/new/images/tlq.png">討論區</a>
+													@endif
 												</li>
 											@endif
 		{{--									@endif--}}
@@ -93,4 +101,9 @@
 				</div>
 			</div>
 		</div>
+		<script>
+			function CheckEnterPop() {
+				c5('您好，您目前被站方限制使用討論區，若有疑問請點右下角，聯繫站長Line@');
+			}
+		</script>
 
