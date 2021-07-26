@@ -130,7 +130,11 @@
                                 </a>
                             </td>
                             <td>
-                                <a class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" >撰寫</a>
+                                @if($result->reported_user_id)
+                                    <a class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" >撰寫</a>
+                                @else
+                                    檢舉者資料已不存在(1)
+                                @endif
                             </td>
                             <td>
 {{--                                @if(isset($result['reporter_id']))--}}
@@ -235,7 +239,11 @@
                                 </a>
                             </td>
                             <td>
-                                <a class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" >撰寫</a>
+                                @if($result->reported_user_id)
+                                    <a class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" >撰寫</a>
+                                @else
+                                    檢舉者資料已不存在(2)
+                                @endif
                             </td>
                             <td>
 {{--                                @if(isset($result['reporter_id']))--}}
@@ -408,7 +416,11 @@
                                 </a>
                             </td>
                             <td>
-                                <a target="_blank" class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true, 'reported'] ) }}"  >撰寫</a>
+                                @if($result->reported_user_id)
+                                    <a target="_blank" class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true, 'reported'] ) }}"  >撰寫</a>
+                                @else
+                                    檢舉者資料已不存在(3)
+                                @endif
                             </td>
                             <td>
                                 @if(isset($result['reported_user_id']))
@@ -462,7 +474,11 @@
                                 </a>
                             </td>
                             <td>
-                                <a class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" >撰寫</a>
+                                @if($result->reported_user_id)
+                                    <a class='btn btn-dark' href="{{ route('AdminMessengerWithReportedId', [$result->reporter_id, $result->reported_user_id, $result->id, true]) }}" target="_blank" >撰寫</a>
+                                @else
+                                    檢舉者資料已不存在(4)
+                                @endif
                             </td>
                             <td>
                                 @if(isset($result['reported_user_id']))
