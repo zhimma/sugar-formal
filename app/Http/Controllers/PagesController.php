@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Jobs\CheckECpay;
 use App\Jobs\CheckECpayForValueAddedService;
 use App\Models\AccountStatusLog;
-use App\Models\AccountPicUpload;
 use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
 use App\Models\BannedUsersImplicitly;
@@ -648,25 +647,14 @@ class PagesController extends BaseController
         $day = $birthday[2];
 
         /*編輯文案-add avatar-START*/
-        $add_avatar = new adminCommonText;
-        switch($user->engroup) {
-            case 1:
-                $add_avatar = $add_avatar->getByAlias('no_avatar_male');
-            break;
-            case 2:
-                $add_avatar = $add_avatar->getByAlias('no_avatar_female');
-            break;
-        }
-        //$add_avatar = AdminCommonText::getCommonText(41);//id 41
+        $add_avatar = AdminCommonText::getCommonText(41);//id 41
         /*編輯文案-add avatar-END*/
 
 //        $isWarnedReason = AdminCommonText::getCommonText(56);//id 56 警示用戶原因
 
         $isAdminWarnedRead = warned_users::select('isAdminWarnedRead')->where('member_id',$user->id)->first();
 
-        //$no_avatar = AdminCommonText::where('alias','no_avatar')->get()->first();
-
-        $no_avatar = $add_avatar;
+        $no_avatar = AdminCommonText::where('alias','no_avatar')->get()->first();
         if($year=='1970'){
             $year=$month=$day='';
         }
@@ -678,7 +666,6 @@ class PagesController extends BaseController
             }else{
                 $pr = '無';
             }
-            $user->checkAvatar = AccountPicUpload::getNotDelAvatarByUserId($user->id);
             $cancel_notice = $request->session()->get('cancel_notice');
             $message = $request->session()->get('message');
             if(isset($cancel_notice)){
@@ -2818,6 +2805,8 @@ class PagesController extends BaseController
     {
         $user = $request->user();
         $admin = AdminService::checkAdmin();
+		$includeDeleted = false;
+		if($admin->id==$cid) $includeDeleted = true;
         $m_time = '';
         $report_reason = AdminCommonText::where('alias', 'report_reason')->get()->first();
         $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
@@ -2845,7 +2834,7 @@ class PagesController extends BaseController
         if (isset($user)) {
             $isVip = $user->isVip();
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
-            $messages = Message::allToFromSender($user->id, $cid);
+            $messages = Message::allToFromSender($user->id, $cid,$includeDeleted);
             $c_user_meta = UserMeta::where('user_id', $cid)->get()->first();
             //$messages = Message::allSenders($user->id, 1);
             if (isset($cid)) {
@@ -4440,7 +4429,7 @@ class PagesController extends BaseController
             ->get();
 
         //msg
-        $msgMemberCount = Message_new::allSenders($user->id,$user->isVip(),$d = 'all');
+        $msgMemberCount = Message_new::allSenders($user->id, $user->isVip(), 'all');
 
         $queryBE = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
                 ->leftJoin('blocked as b1', 'b1.blocked_id', '=', 'evaluation.from_id')
@@ -4483,8 +4472,14 @@ class PagesController extends BaseController
         $isHasEvaluation = sizeof($arrayHE) > 0? true : false;
 
         
-        $admin_msg_query = Message_new::where([['to_id', $uid],['from_id',$admin->id], ['from_id', '!=', $uid]])->orderByDesc('created_at')->take(3);
-        $admin_msgs = $admin_msg_query->get();
+        $admin_msg_entrys = Message::allToFromSender($uid,$admin->id);
+		$admin_msgs = [];
+		$i=0;
+		foreach($admin_msg_entrys as $admin_msg_entry) {
+			$admin_msgs[] = $admin_msg_entry;
+			$i++;
+			if($i>=3) break;
+		}
 
 
         //僅顯示30天內的評價
@@ -4501,6 +4496,22 @@ class PagesController extends BaseController
         $evaluation_30days_list=$evaluation_30days->where('evaluation.hide_evaluation_to_id', 0)->get();
         $evaluation_30days_unread_count=$evaluation_30days->where('evaluation.read', 1)->get()->count();
 
+
+        //舊會員上線，就在上線第 3,6,10 次 (以此功能上線開始計算)在會員專屬頁通知。
+        //新會員：做完新手教學，填寫完基本資料，於第一次進入專屬頁面時跳通知，之後就在上線第 3,6,10 次在會員專屬頁通知。
+        $showLineNotifyPop=false;
+        if(is_null($user->line_notify_token)){
+            if($user->created_at<='2021-07-23' && in_array($user->line_notify_alert,[3,6,10])){
+                $showLineNotifyPop=true;
+            }
+            if($user->created_at>='2021-07-23' && $user->line_notify_alert==1){
+                $showLineNotifyPop=true;
+            }
+        }
+        $login_times=$user->line_notify_alert;
+        if($showLineNotifyPop){
+            $showLineNotifyPop= session()->get('alreadyPopUp_lineNotify') !== $login_times.'_Y' ? true : false;
+        }
 
         if (isset($user)) {
 
@@ -4519,6 +4530,7 @@ class PagesController extends BaseController
                 'isHasEvaluation' => $isHasEvaluation,
                 'evaluation_30days' => $evaluation_30days_list,
                 'evaluation_30days_unread_count' => $evaluation_30days_unread_count,
+				'showLineNotifyPop'=>$showLineNotifyPop,
             );
 
 
@@ -4526,7 +4538,8 @@ class PagesController extends BaseController
             return view('new.dashboard.personalPage', $data)
                 ->with('myFav', $myFav)
                 ->with('otherFav',$otherFav)
-                ->with('admin_msgs',$admin_msgs);
+                ->with('admin_msgs',$admin_msgs)
+							->with('admin',$admin);
                 
         }
 
@@ -4671,6 +4684,23 @@ class PagesController extends BaseController
                     }
                 }
                 break;
+			case 'admin_msgs':
+				$admin_id = AdminService::checkAdmin()->id;
+				$messages = Message::where([['to_id',$user_id],['from_id',$admin_id]])->whereIn('id', $items)->get();
+				foreach($messages  as $message) {
+					Message::deleteSingleMessage($message, $user_id, $admin_id, $message->created_at, $message->content, 0);
+				}
+				
+				$admin_msg_entrys = Message::allToFromSender($user_id,$admin_id);
+				$admin_msgs = [];
+				$i=0;
+				foreach($admin_msg_entrys as $admin_msg_entry) {
+					$admin_msgs[] = $admin_msg_entry;
+					$i++;
+					if($i>=3) break;
+				}	
+				return json_encode($admin_msgs);
+			break;
         }
     }
 }
