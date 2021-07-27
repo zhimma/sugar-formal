@@ -662,17 +662,28 @@
         }
     });
 
+    var announcePopUp ='{{$announcePopUp}}';
     var showLineNotifyPop='{{ $showLineNotifyPop }}';
-    if(showLineNotifyPop){
-        lineNotifyPopUp();
+    if(announcePopUp == 'N'){
+        if(showLineNotifyPop){
+            lineNotifyPopUp();
+        }
+    }else{
+        $("#announcement, .gg_butnew, .announce_bg").on('click', function() {
+            if($('#announcement').css('display') == 'none'){
+                if(showLineNotifyPop){
+                   lineNotifyPopUp();
+                }
+            }
+        });
     }
 
-    $(".announce_bg").on('click', function() {
+    $("#announce_bg").on('click', function() {
         lineNotifyPopUp_close();
     });
     function lineNotifyPopUp() {
         $("#lineNotifyPopUp").show();
-        $(".announce_bg").show();
+        $("#announce_bg").show();
         $('body').css("overflow", "hidden");
     }
     function lineNotifyPopUp_close() {
