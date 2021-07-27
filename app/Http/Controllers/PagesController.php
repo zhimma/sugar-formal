@@ -1121,6 +1121,7 @@ class PagesController extends BaseController
                 'created_at' => Carbon::now()
             ]);
             $user->accountStatus = 0;
+            $user->accountStatus_updateTime = Carbon::now();
             $user->save();
 
 
@@ -1160,6 +1161,7 @@ class PagesController extends BaseController
                     if(Auth::attempt(array('email' => $input['email'], 'password' => $input['password'])) ){
                         //驗證成功
                         $user->accountStatus = 1;
+                        $user->accountStatus_updateTime = Carbon::now();
                         $user->save();
                         return redirect('/dashboard')->with('message', '帳號已成功開啟');
                     }else{
