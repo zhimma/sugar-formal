@@ -359,7 +359,7 @@
                                         <ul>
                                             @foreach($otherFav as $row)
                                                 <li data-recordtype="myFavRecord2" data-rowid="{{ $row->rowid }}">
-                                                    <h2><span>會員暱稱</span><font><a href="{{url('/dashboard/viewuser/' . $row->member_fav_id . '?time=' . \Carbon\Carbon::now()->timestamp)}}">{{$row->name}}</a></font></h2>
+                                                    <h2><span>會員暱稱</span><font><a href="{{url('/dashboard/viewuser/' . $row->member_id . '?time=' . \Carbon\Carbon::now()->timestamp)}}">{{$row->name}}</a></font></h2>
                                                     <h2><span>會員標題</span><font class="xss_he">{{$row->title}}</font></h2>
                                                     <h2><span>最後上線時間</span><font>{{ substr($row->last_login,0,16)}}</font></h2>
                                                 </li>
