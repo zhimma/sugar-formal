@@ -95,13 +95,15 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 						}
 						else $have_mon_limit = false;
 					
-					}
+					}									
 					
-					$excludeUserId = array_pluck(User::Select('id')->where('id',1049)
+					$excludeUserId = array_pluck(User::whereHas('roles', function($query){
+						$query->where('name', 'like', '%admin%');
+					})->Select('id')->orwhere('id',1049)
 					->orWhere('email', 'LIKE', 'sandyh.dlc%@gmail.com')
 					->orWhere('email', 'LIKE', 'TEST%@test.com')
 					->orWhere('email', 'LIKE', 'lzong.tw%@gmail.com')
-					->get()->toArray(), 'id');						
+					->get()->toArray(), 'id');		
 					
 	                $model = $this->model;
 					$loginDataEntrys = null;
