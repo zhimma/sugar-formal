@@ -16,7 +16,7 @@
                     <div class="wxsy_k">
                         <div class="wknr">
                             @if(isset($exception))
-                                <h5>很抱歉，網站發生錯誤，請與站長聯繫(右下角聯絡我們)，並提供以下資訊：</h5>
+                                <h5>網站目前正在更新，請半小時後重試。如果還是出現此畫面，請與站長聯繫(右下角聯絡我們)，並提供以下資訊：</h5>
                                 <h4>時間：{{ \Carbon\Carbon::now()->toDateTimeString() }}</h4>
                                 <h4>錯誤類型：{{ substr($exception, 0, strpos($exception, ':')) }}</h4>
                             @else

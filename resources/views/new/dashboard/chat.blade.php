@@ -248,7 +248,7 @@ position:relative;line-height:40px;cursor:pointer;text-align: center;}
                             @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
                             <span class="banned_delete shou_but">全部刪除</span>
                             @endif
-                            <dt class="lebox5">已被站方封鎖</dt>
+                            <dt class="lebox5">已被站方封鎖會員</dt>
                             <dd>
                                 <div class="loading warning" id="sjlist_banned_warning"><span class="loading_text">loading</span></div>
                                 <ul class="sjlist sjlist_banned">
