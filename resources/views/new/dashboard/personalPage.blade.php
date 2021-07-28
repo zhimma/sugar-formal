@@ -153,7 +153,7 @@
                     <div class="sys_aa">
                         <div class="tabbox_new_dt"><span>收件夾通訊人數</span></div>
                         <div class="tabbox_new_dd">
-                            <h2 class="tabbox_hsz">{{$msgMemberCount}}</h2>
+                            <h2 class="tabbox_hsz">@if(empty($msgMemberCount))0 @else{{$msgMemberCount}}@endif</h2>
                         </div>
                     </div>
                     <div class="sys_aa">
