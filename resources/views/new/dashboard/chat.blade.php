@@ -883,7 +883,7 @@ position:relative;line-height:40px;cursor:pointer;text-align: center;}
                     hide_vip_counts = $('#rows').val() - 10;
 
                     $.each(res.msg,function(i,e) {
-                       if(e.user_id==1049) {
+                       if(e.user_id==1049 || e.isBanned==1) {
                            hide_vip_counts = $('#rows').val() - 10 - 1;
                        }
                     });

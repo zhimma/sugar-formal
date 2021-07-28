@@ -773,6 +773,7 @@ class Message extends Model
                         ->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]])
                         ->where('m.read', 'N')
                         ->where([['m.created_at','>=',self::$date]])
+						->whereRaw('u.engroup!=u2.engroup')
                         ->whereRaw('m.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")')
                         ->whereRaw('m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")')
                         ->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")')
