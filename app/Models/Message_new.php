@@ -493,10 +493,12 @@ class Message_new extends Model
                 unset($messages[$key]);
                 continue;
             }
+			/*收信設定  已無用  拿掉 210727
             if(\App\Models\Message::onlyShowVip($user, $msgUser, $isVip)) {
                 unset($messages[$key]);
                 continue;
             }
+			*/
             if(isset($user->id) && isset($msgUser->id)){
                 if(\App\Models\Message::isAdminMessage($message["content"])){
                     $messages[$key]['isAdminMessage'] = 1;
