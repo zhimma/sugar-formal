@@ -811,6 +811,7 @@ class Message extends Model
 
     public static function allMessage($uid)
     {
+        $admin_id = AdminService::checkAdmin()->id;
         $user = \View::shared('user');
         $allMessageCount=0;
         if(!$user){
@@ -854,13 +855,18 @@ class Message extends Model
             ->whereNull('b6.blocked_id')
             ->whereNull('b7.member_id')
 //            ->whereNull('b8.member_id')
-            ->where(function($query)use($uid){
-                $query->where([['m.to_id', $uid], ['m.from_id', '!=', $uid]])
-                    ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid]]);
-            })
-//            ->where([['m.is_row_delete_1','<>', $uid], ['m.is_single_delete_1', '<>', $uid], ['m.temp_id', '=', 0]])
-            ->where([['m.created_at','>=',self::$date]]);
-        $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);
+            ->where(function ($query) use ($uid,$admin_id) {
+                $query->where([['m.to_id', $uid], ['m.from_id', '!=', $uid],['m.from_id','!=',$admin_id]])
+                    ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid],['m.to_id','!=',$admin_id]]);
+            });
+        $query = $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);
+        $query->where([['m.created_at','>=',self::$date]]);
+        $query->whereRaw('m.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")');
+        $query->whereRaw('m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
+        $query->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
+        $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
+        $query->whereRaw('u1.engroup!=u2.engroup');
+
         $allMessageCount = $all_msg->count();
 
         return $allMessageCount;
