@@ -4042,4 +4042,17 @@ class UserController extends \App\Http\Controllers\BaseController
 
         return back();
     }
+
+    public function isEverWarnedOrBannedLog($logType, $user_id){
+        $user=User::findById($user_id);
+        if($logType=='Warned'){
+            //曾被警示
+            $dataLog = DB::table('is_warned_log')->where('user_id',$user_id)->orderBy('created_at','desc')->paginate(10);
+        }else{
+            //曾被封鎖
+            $dataLog = DB::table('is_banned_log')->where('user_id',$user_id)->orderBy('created_at','desc')->paginate(10);
+        }
+
+        return view('admin.users.isEverWarnedOrBannedLog')->with('user',$user)->with('logType', $logType)->with('dataLog', $dataLog);
+    }
 }
