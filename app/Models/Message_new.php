@@ -387,7 +387,7 @@ class Message_new extends Model
         //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
     }
 
-    public static function allSendersAJAX($uid, $isVip, $d = 7,$admin_id=1049)
+    public static function allSendersAJAX($uid, $isVip, $d = 7, $admin_id = 1049)
     {
 		$admin_id = AdminService::checkAdmin()->id;
         /**
