@@ -387,8 +387,14 @@ class Message_new extends Model
         //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
     }
 
-    public static function allSendersAJAX($uid, $isVip, $d = 7,$admin_id=1049)
+    public static function allSendersAJAX($uid, $isVip, $d = 7, $admin_id = 1049)
     {
+        $banned_users = banned_users::where('member_id', $uid)->first();
+        $BannedUsersImplicitly = BannedUsersImplicitly::where('target', $uid)->first();
+        if( (isset($banned_users) && ($banned_users->expire_date == null || $banned_users->expire_date >= Carbon::now())) || isset($BannedUsersImplicitly)){
+            return false;
+        }
+
 		$admin_id = AdminService::checkAdmin()->id;
         /**
          * 效能調整：使用左結合取代 where in 以取得更好的效能
@@ -447,8 +453,9 @@ class Message_new extends Model
         $query->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');        
         $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);$query->orderBy('m.created_at', 'desc');
-        $messages = $query->get();
-
+        $query->whereRaw('u1.engroup!=u2.engroup');
+		$messages = $query->get();
+        $mCount = count($messages);
         $mm = [];
         foreach ($messages as $key => $v) {
             if(!isset($mm[$v->from_id])){
@@ -463,13 +470,13 @@ class Message_new extends Model
         if(count($saveMessages) == 0){
             return array_values(['No data']);
         }else{
-            return Message_new::sortMessages($saveMessages, null, $mm);
+            return Message_new::sortMessages($saveMessages, null, $mm, $mCount);
         }
         //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
     }
 
 
-    public static function sortMessages($messages, $userBlockList = null, $mm = []){
+    public static function sortMessages($messages, $userBlockList = null, $mm = [], $mCount){
         if ($messages instanceof Illuminate\Database\Eloquent\Collection) {
             $messages = $messages->toArray();
         }
@@ -493,10 +500,12 @@ class Message_new extends Model
                 unset($messages[$key]);
                 continue;
             }
+			/*收信設定  已無用  拿掉 210727
             if(\App\Models\Message::onlyShowVip($user, $msgUser, $isVip)) {
                 unset($messages[$key]);
                 continue;
             }
+			*/
             if(isset($user->id) && isset($msgUser->id)){
                 if(\App\Models\Message::isAdminMessage($message["content"])){
                     $messages[$key]['isAdminMessage'] = 1;
@@ -545,6 +554,7 @@ class Message_new extends Model
                 }  
                 
                 $messages[$key]['exchange_period']=$msgUser->exchange_period;
+                $messages[$key]['mCount']=$mCount;
             }
             else{
                 Log::info('Null object found, $user: ' . $user->id);
@@ -704,6 +714,12 @@ class Message_new extends Model
 
     public static function allSenders($uid, $isVip, $d = 7,$isCount=true)
     {
+        $banned_users = banned_users::where('member_id', $uid)->first();
+        $BannedUsersImplicitly = BannedUsersImplicitly::where('target', $uid)->first();
+        if( (isset($banned_users) && ($banned_users->expire_date == null || $banned_users->expire_date >= Carbon::now())) || isset($BannedUsersImplicitly)){
+            return false;
+        }
+        $admin_id = AdminService::checkAdmin()->id;
         /**
          * 效能調整：使用左結合取代 where in 以取得更好的效能
          *
@@ -729,17 +745,17 @@ class Message_new extends Model
 //                $join->on('b8.member_id', '=', 'm.to_id')
 //                    ->where('b8.blocked_id', $uid); });
         $query = $query->whereNotNull('u1.id')->whereNotNull('u2.id')
-            //->whereNull('b1.member_id')
-            //->whereNull('b2.member_id')
-            //->whereNull('b3.target')
-            //->whereNull('b4.target')
+            ->whereNull('b1.member_id')
+            ->whereNull('b2.member_id')
+            ->whereNull('b3.target')
+            ->whereNull('b4.target')
             ->whereNull('b5.blocked_id')
             ->whereNull('b6.blocked_id')
             ->whereNull('b7.member_id')
 //            ->whereNull('b8.member_id')
-            ->where(function ($query) use ($uid) {
-                $query->where([['m.to_id', $uid], ['m.from_id', '!=', $uid]])
-                    ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid]]);
+            ->where(function ($query) use ($uid,$admin_id) {
+                $query->where([['m.to_id', $uid], ['m.from_id', '!=', $uid],['m.from_id','!=',$admin_id]])
+                    ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid],['m.to_id','!=',$admin_id]]);
             });
 
         if($d==7){
@@ -761,7 +777,8 @@ class Message_new extends Model
         $query->whereRaw('m.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
-        $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');        
+        $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
+        $query->whereRaw('u1.engroup!=u2.engroup');
         if($isCount)
             $allSenders = $query->groupBy('temp')->get()->count();
         else

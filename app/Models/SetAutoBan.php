@@ -66,7 +66,8 @@ class SetAutoBan extends Model
                     if(LogUserLogin::where('user_id',$uid)->where('cfp_id', $content)->first() != null) $violation = true;
                     break;
                 case 'ip':
-                    if(LogUserLogin::where('user_id',$uid)->where('ip', $content)->first() != null) $violation = true;
+                    $ip = LogUserLogin::where('user_id',$uid)->orderBy('created_at','desc')->first();
+                    if($ip->ip == $content) $violation = true;
                     break;
                 case 'userAgent':
                     if(LogUserLogin::where('user_id',$uid)->where('userAgent', 'like','%'.$content.'%')->first() != null) $violation = true;
@@ -201,7 +202,8 @@ class SetAutoBan extends Model
                     if(LogUserLogin::where('user_id',$uid)->where('cfp_id', $content)->first() != null) $violation = true;
                     break;
                 case 'ip':
-                    if(LogUserLogin::where('user_id',$uid)->where('ip', $content)->first() != null) $violation = true;
+                    $ip = LogUserLogin::where('user_id',$uid)->orderBy('created_at','desc')->first();
+                    if($ip->ip == $content) $violation = true;
                     break;
                 case 'userAgent':
                     if(LogUserLogin::where('user_id',$uid)->where('userAgent', 'like','%'.$content.'%')->first() != null) $violation = true;

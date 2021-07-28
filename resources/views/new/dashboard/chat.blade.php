@@ -666,7 +666,7 @@ position:relative;line-height:40px;cursor:pointer;text-align: center;}
         {
             return new Date(dt.getFullYear(), dt.getMonth(), 1);
         }
-        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned,exchange_period,isBlur=false){
+        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned,isBanned,exchange_period,isBlur=false){
             showMsg = show;
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
@@ -713,7 +713,7 @@ position:relative;line-height:40px;cursor:pointer;text-align: center;}
                             <div class="onlineStatusChatView"></div>
                         </div>
                         <div class="sjleftmm">
-                            <div class="sjtable ${user_id}">${(read_n!=0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
+                            <div class="sjtable ${user_id}">${(read_n!=0 && isBanned==0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }else if(show==0 && engroup==2){
                 li += `<a href="javascript:void(0)" target="_self">
@@ -723,7 +723,7 @@ position:relative;line-height:40px;cursor:pointer;text-align: center;}
                         </div>
                         <div class="sjleft" data-position="bottom" data-highlightClass="yd3a" data-tooltipClass="yd3" data-step="6"
                                      data-intro="普通會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。<em></em><em></em>">
-                            <div class="sjtable ${user_id}">${(read_n!=0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
+                            <div class="sjtable ${user_id}">${(read_n!=0 && isBanned==0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }else if(show==0){
                 li += `<a href="javascript:void(0)" target="_self">
@@ -733,7 +733,7 @@ position:relative;line-height:40px;cursor:pointer;text-align: center;}
                         </div>
                         <div class="sjleft" data-position="bottom" data-highlightClass="yd3a" data-tooltipClass="yd3" data-step="7"
                                      data-intro="普通會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。<em></em><em></em>">
-                            <div class="sjtable ${user_id}">${(read_n!=0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
+                            <div class="sjtable ${user_id}">${(read_n!=0 && isBanned==0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }
 
@@ -756,12 +756,12 @@ position:relative;line-height:40px;cursor:pointer;text-align: center;}
                         </div>
                         </a>
                    `;
-            }else if(show==0 && engroup==1){
+            }else if(show==0 && engroup==1 && isBanned==0){
                 li += `
                      <font><img src="/new/images/icon_35.png"></font>
                      </div></a>
                    `;
-            }else if(show==0 && engroup==2){
+            }else if(show==0 && engroup==2 && isBanned==0){
                 li += `
                      <font id="yd3"><img src="/new/images/icon_35.png"></font>
                      </div></a>
@@ -883,7 +883,7 @@ position:relative;line-height:40px;cursor:pointer;text-align: center;}
                     hide_vip_counts = $('#rows').val() - 10;
 
                     $.each(res.msg,function(i,e) {
-                       if(e.user_id==1049) {
+                       if(e.user_id==1049 || e.isBanned==1) {
                            hide_vip_counts = $('#rows').val() - 10 - 1;
                        }
                     });
@@ -911,15 +911,16 @@ position:relative;line-height:40px;cursor:pointer;text-align: center;}
                         
                         
                         rr += parseInt(e.read_n);
-                        if (userIsVip != 1 && i < hide_vip_counts && hide_vip_counts > 0 ) {
+                        if (userIsVip != 1 && i < hide_vip_counts && hide_vip_counts > 0 && e.isBanned==0) {
                             if(e.user_id == 1049){
                                 hide_vip_counts = hide_vip_counts+1;
-                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.exchange_period,isBlur);
-                            }else {
-                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.exchange_period,isBlur);
+                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur);
+                            }else {							
+                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.isBanned,e.exchange_period,isBlur);
                             }
                         }else {
-                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.exchange_period,isBlur);
+							if(e.isBanned==1) hide_vip_counts = hide_vip_counts+1;
+                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur);
                         }
 
                         if (typeof e.created_at !== 'undefined') {
