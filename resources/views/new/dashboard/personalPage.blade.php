@@ -164,7 +164,7 @@
                     </div>
                     <div class="sys_aa">
                         <div class="tabbox_new_dt tabbox_new_ss"><span>系統來訊通知</span>
-						@if(count($admin_msgs))
+						@if(isset($admin_msgs) && count($admin_msgs))
 						<div class="right btn01 btn_admin_msgs"><span class="zixu_cs"><img src="/new/images/xiugai1.png">編輯</span></div>
 						<div class="btn02 sx_ment fr_nbj">
 							<span class="iconfont icon-wancheng zixu_cs1 dtmr20">完成</span>
@@ -174,7 +174,7 @@
 						@endif							
 						</div>
                         <div class="tabbox_new_dd">
-						@if(count($admin_msgs))
+						@if(isset($admin_msgs) && count($admin_msgs))
 							@foreach($admin_msgs as $amsg)
                             <h2 class="tabbox_h2 ta_l"  data-recordtype="admin_msgs" data-rowid="{{$amsg->id}}" >
 								<span class="tu_dfont">
@@ -359,7 +359,7 @@
                                         <ul>
                                             @foreach($otherFav as $row)
                                                 <li data-recordtype="myFavRecord2" data-rowid="{{ $row->rowid }}">
-                                                    <h2><span>會員暱稱</span><font><a href="{{url('/dashboard/viewuser/' . $row->member_fav_id . '?time=' . \Carbon\Carbon::now()->timestamp)}}">{{$row->name}}</a></font></h2>
+                                                    <h2><span>會員暱稱</span><font><a href="{{url('/dashboard/viewuser/' . $row->member_id . '?time=' . \Carbon\Carbon::now()->timestamp)}}">{{$row->name}}</a></font></h2>
                                                     <h2><span>會員標題</span><font class="xss_he">{{$row->title}}</font></h2>
                                                     <h2><span>最後上線時間</span><font>{{ substr($row->last_login,0,16)}}</font></h2>
                                                 </li>
@@ -662,17 +662,28 @@
         }
     });
 
+    var announcePopUp ='{{$announcePopUp}}';
     var showLineNotifyPop='{{ $showLineNotifyPop }}';
-    if(showLineNotifyPop){
-        lineNotifyPopUp();
+    if(announcePopUp == 'N'){
+        if(showLineNotifyPop){
+            lineNotifyPopUp();
+        }
+    }else{
+        $("#announcement, .gg_butnew, .announce_bg").on('click', function() {
+            if($('#announcement').css('display') == 'none'){
+                if(showLineNotifyPop){
+                   lineNotifyPopUp();
+                }
+            }
+        });
     }
 
-    $(".announce_bg").on('click', function() {
+    $("#announce_bg").on('click', function() {
         lineNotifyPopUp_close();
     });
     function lineNotifyPopUp() {
         $("#lineNotifyPopUp").show();
-        $(".announce_bg").show();
+        $("#announce_bg").show();
         $('body').css("overflow", "hidden");
     }
     function lineNotifyPopUp_close() {
@@ -784,8 +795,8 @@
 </script>
 <script type="text/javascript">
     $(function() {
-		@if(count($admin_msgs))
-		$('.btn_admin_msgs').show();
+		@if(isset($admin_msgs) && count($admin_msgs))
+		    $('.btn_admin_msgs').show();
 		@endif
 	});
 

@@ -7,6 +7,7 @@ use App\Jobs\CheckECpayForValueAddedService;
 use App\Models\AccountStatusLog;
 use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
+use App\Models\AnnouncementRead;
 use App\Models\BannedUsersImplicitly;
 use App\Models\CustomFingerPrint;
 use App\Models\Evaluation;
@@ -1121,6 +1122,7 @@ class PagesController extends BaseController
                 'created_at' => Carbon::now()
             ]);
             $user->accountStatus = 0;
+            $user->accountStatus_updateTime = Carbon::now();
             $user->save();
 
 
@@ -1160,6 +1162,7 @@ class PagesController extends BaseController
                     if(Auth::attempt(array('email' => $input['email'], 'password' => $input['password'])) ){
                         //驗證成功
                         $user->accountStatus = 1;
+                        $user->accountStatus_updateTime = Carbon::now();
                         $user->save();
                         return redirect('/dashboard')->with('message', '帳號已成功開啟');
                     }else{
@@ -4513,6 +4516,14 @@ class PagesController extends BaseController
             $showLineNotifyPop= session()->get('alreadyPopUp_lineNotify') !== $login_times.'_Y' ? true : false;
         }
 
+        //是否有系統提示訊息
+        $announceRead = AnnouncementRead::select('announcement_id')->where('user_id', $user->id)->get();
+        $announcement = AdminAnnounce::where('en_group', $user->engroup)->whereNotIn('id', $announceRead)->orderBy('sequence', 'asc')->get();
+        $announcePopUp='N';
+        if(isset($announcement) && count($announcement) > 0 ){
+            $announcePopUp='Y';
+        }
+
         if (isset($user)) {
 
             $data = array(
@@ -4531,6 +4542,7 @@ class PagesController extends BaseController
                 'evaluation_30days' => $evaluation_30days_list,
                 'evaluation_30days_unread_count' => $evaluation_30days_unread_count,
                 'showLineNotifyPop'=>$showLineNotifyPop,
+                'announcePopUp'=>$announcePopUp,
             );
 
 

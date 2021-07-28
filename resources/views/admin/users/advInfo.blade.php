@@ -39,7 +39,20 @@
 	@if($userMeta->isWarned==0 AND $user->WarnedScore() >= 10 AND $user['auth_status']==1)
 		<img src="/img/warned_black.png" style="height: 2.5rem;width: 2.5rem;">
 	@endif
+	@if($user->accountStatus == 0 && !is_null($user->accountStatus_updateTime))
+		{{ '關閉('. date('Ymd',strtotime($user->accountStatus_updateTime)).')' }}
+	@endif
 	的所有資料
+	<form method="POST" action="/admin/users/accountStatus_admin" style="margin:0px;display:inline;">
+		{!! csrf_field() !!}
+		<input type="hidden" name='uid' value="{{ $user->id }}">
+		<input type="hidden" name='account_status' value="{{ $user->account_status_admin == 0 ? 1 : 0 }}">
+		@if($user->account_status_admin == 1)
+			<button type="submit" class="btn btn-danger"> 站方關閉會員帳號 </button>
+		@else
+			<button type="submit" class="btn btn-success"> 站方開啟會員帳號 </button>
+		@endif
+	</form>
 	<a href="edit/{{ $user->id }}" class='text-white btn btn-primary'>修改</a>
 	@if($user['isBlocked'])
 		<button type="button" id="unblock_user" class='text-white btn @if($user["isBlocked"]) btn-success @else btn-danger @endif' onclick="Release({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除封鎖 </button>
@@ -111,20 +124,6 @@
 		<a href="{{ route('activateUser',$userMeta->activation_token) }}" class="btn btn-success"> 通過認證信 </a>
 	@endif
 
-	<form method="POST" action="/admin/users/accountStatus_admin" style="margin:0px;display:inline;">
-		{!! csrf_field() !!}
-		<input type="hidden" name='uid' value="{{ $user->id }}">
-		<input type="hidden" name='account_status' value="{{ $user->account_status_admin == 0 ? 1 : 0 }}">
-		@if($user->account_status_admin == 1)
-			<button type="submit" class="btn btn-danger"> 站方關閉會員帳號 </button>
-		@else
-			<button type="submit" class="btn btn-success"> 站方開啟會員帳號 </button>
-		@endif
-	</form>
-
-	@if($user->accountStatus == 0)
-		<b style="font-size:18px">已關閉帳號</b>
-	@endif
 </h1>
 <h4>基本資料</h4>
 <table class='table table-hover table-bordered '>
@@ -462,14 +461,14 @@
 <h4>檢舉紀錄</h4>
 <table class="table table-hover table-bordered">
 	<tr>
-		<th>暱稱</th>
-		<th>帳號</th>
-		<th>檢舉時間</th>
-		<th>VIP</th>
-		<th>會員認證</th>
-		<th>檢舉理由</th>
-		<th>上傳照片</th>
-		<th>檢舉類型</th>
+		<th width="14%">暱稱</th>
+		<th width="15%">帳號</th>
+		<th width="12%">檢舉時間</th>
+		<th width="5%">VIP</th>
+		<th width="6%">檢舉類型</th>
+		<th width="6%">會員認證</th>
+		<th width="20%">檢舉理由</th>
+		<th width="22%">上傳照片</th>
 	</tr>
 	@foreach($reportBySelf as $row)
 		<tr>
@@ -493,6 +492,7 @@
 			</td>
 			<td>{{ $row['created_at'] }}</td>
 			<td>@if($row['isvip']==1) VIP @endif</td>
+			<td>{{ $row['report_type'] }}</td>
 			<td>@if($row['auth_status']==1) 已認證 @else N/A @endif</td>
 			<td>{{ $row['content'] }}</td>
 			<td class="evaluation_zoomIn">
@@ -504,8 +504,6 @@
 					@endforeach
 				@endif
 			</td>
-			<td>{{ $row['report_type'] }}</td>
-
 		</tr>
 	@endforeach
 </table>
@@ -513,16 +511,14 @@
 <h4>被檢舉紀錄</h4>
 <table class="table table-hover table-bordered">
 	<tr>
-		<th>暱稱</th>
-		<th>帳號</th>
-		<th>是否計分</th>
-		<th>檢舉時間</th>
-		<th>VIP</th>
-		<th>會員認證</th>
-		<th>檢舉理由</th>
-		<th>上傳照片</th>
-		<th>檢舉類型</th>
-		<th>計分</th>
+		<th width="14%">暱稱</th>
+		<th width="15%">帳號</th>
+		<th width="12%">檢舉時間</th>
+		<th width="5%">VIP</th>
+		<th width="6%">檢舉類型</th>
+		<th width="6%">會員認證</th>
+		<th width="20%">檢舉理由</th>
+		<th width="22%">上傳照片</th>
 	</tr>
 	@foreach($report_all as $row)
 		<tr>
@@ -554,31 +550,9 @@
 					{{ $row['email'] }}
 				</a>
 			</td>
-			<td>
-				<form action="/admin/users/reportedToggler" method="POST">
-					{{ csrf_field() }}
-					@if(isset($row['report_dbid']))
-						<input type="hidden" value="{{ $row['report_dbid'] }}" name="report_dbid">
-					@endif
-					@if(isset($row['reported_id']))
-						<input type="hidden" value="{{ $row['reported_id'] }}" name="reported_id">
-					@endif
-					@if(isset($row['reporter_id']))
-						<input type="hidden" value="{{ $row['reporter_id'] }}" name="reporter_id">
-					@endif
-					<input type="hidden" value="{{ $row['report_table'] }}" name="report_table">
-					<input type="hidden" value="{{ $row['cancel'] }}" name="cancel">
-					<button type="submit" class='btn btn-outline-success ban-user'>
-						@if($row['cancel']==0)
-							不計算
-						@elseif($row['cancel']==1)
-							計算
-						@endif
-					</button>
-				</form>
-			</td>
 			<td>{{ $row['created_at'] }}</td>
 			<td>@if($row['isvip']==1) VIP @endif</td>
+			<td>{{ $row['report_type'] }}</td>
 			<td>@if($row['auth_status']==1) 已認證 @else N/A @endif</td>
 			<td>{{ $row['content'] }}</td>
 			<td class="evaluation_zoomIn">
@@ -590,23 +564,20 @@
 					@endforeach
 				@endif
 			</td>
-			<td>{{ $row['report_type'] }}</td>
-			<td>@if( ($row['engroup']==2 && $row['auth_status']==1) || ($row['engroup']==1 && $row['isvip']==1) ) 5 @else 3.5 @endif</td>
 		</tr>
 	@endforeach
 </table>
 <h4>被評價紀錄</h4>
 <table class="table table-hover table-bordered">
 	<tr>
-		<th>暱稱</th>
-		<th>帳號</th>
-		<th>評價時間</th>
-		<th>VIP</th>
-		<th>會員認證</th>
-		<th>星等分數</th>
-		<th>評價內容</th>
-		<th>上傳照片</th>
-		<th>動作</th>
+		<th width="14%">暱稱</th>
+		<th width="13%">帳號</th>
+		<th width="12%">評價時間</th>
+		<th width="4%">VIP</th>
+		<th width="4%">會員認證</th>
+		<th width="17%">評價內容</th>
+		<th width="11%">上傳照片</th>
+		<th width="25%">動作</th>
 	</tr>
 	@foreach($out_evaluation_data_2 as $row)
 		<tr>
@@ -615,7 +586,6 @@
 			<td>{{ $row['created_at'] }}</td>
 			<td>@if($row['to_isvip']==1) VIP @endif</td>
 			<td>@if($row['to_auth_status']==1) 已認證 @else N/A @endif</td>
-			<td>{{ $row['rating'] }}</td>
 			@if($row['is_check']==1)
 				<td style="color: red;">***此評價目前由站方審核中***@if(!is_null($row['is_delete'])) <br><span style="color: red;">(該評價已刪除)</span> @endif</td>
 			@else
@@ -658,15 +628,14 @@
 <h4>評價紀錄</h4>
 <table class="table table-hover table-bordered">
 	<tr>
-		<th>暱稱</th>
-		<th>帳號</th>
-		<th>評價時間</th>
-		<th>VIP</th>
-		<th>會員認證</th>
-		<th>星等分數</th>
-		<th>評價內容</th>
-		<th>上傳照片</th>
-		<th>動作</th>
+		<th width="14%">暱稱</th>
+		<th width="13%">帳號</th>
+		<th width="12%">評價時間</th>
+		<th width="4%">VIP</th>
+		<th width="4%">會員認證</th>
+		<th width="17%">評價內容</th>
+		<th width="11%">上傳照片</th>
+		<th width="25%">動作</th>
 	</tr>
 	@foreach($out_evaluation_data as $row)
 		<tr>
@@ -675,7 +644,6 @@
 			<td>{{ $row['created_at'] }}</td>
 			<td>@if($row['to_isvip']==1) VIP @endif</td>
 			<td>@if($row['to_auth_status']==1) 已認證 @else N/A @endif</td>
-			<td>{{ $row['rating'] }}</td>
 			@if($row['is_check']==1)
 				<td style="color: red;">***此評價目前由站方審核中***@if(!is_null($row['is_delete'])) <br><span style="color: red;">(該評價已刪除)</span> @endif</td>
 			@else
@@ -806,15 +774,39 @@
 	$userAdvInfo=\App\Models\User::userAdvInfo($user->id);
 @endphp
 <br>
-<span>每周平均上線次數： {{ array_get($userAdvInfo,'login_times_per_week',0) }}</span>
-<span>收藏會員次數： {{ array_get($userAdvInfo,'fav_count',0) }}</span>
-<span>發信次數： {{ array_get($userAdvInfo,'message_count',0) }}</span>
-<span>過去7天發信次數： {{ array_get($userAdvInfo,'message_count_7',0) }}</span>
-<span>過去7天罐頭訊息比例： {{ array_get($userAdvInfo,'message_percent_7',0) }}</span>
-<span>瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count',0) }}</span>
-<span>過去7天瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count_7',0) }}</span>
-<span>封鎖多少會員： {{ array_get($userAdvInfo,'blocked_other_count',0) }}</span>
-<span>被多少會員封鎖： {{ array_get($userAdvInfo,'be_blocked_other_count',0) }}</span>
+{{--<span>每周平均上線次數： {{ array_get($userAdvInfo,'login_times_per_week',0) }}</span>--}}
+{{--<span>收藏會員次數： {{ array_get($userAdvInfo,'fav_count',0) }}</span>--}}
+{{--<span>發信次數： {{ array_get($userAdvInfo,'message_count',0) }}</span>--}}
+{{--<span>過去7天發信次數： {{ array_get($userAdvInfo,'message_count_7',0) }}</span>--}}
+{{--<span>過去7天罐頭訊息比例： {{ array_get($userAdvInfo,'message_percent_7',0) }}</span>--}}
+{{--<span>瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count',0) }}</span>--}}
+{{--<span>過去7天瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count_7',0) }}</span>--}}
+{{--<span>封鎖多少會員： {{ array_get($userAdvInfo,'blocked_other_count',0) }}</span>--}}
+{{--<span>被多少會員封鎖： {{ array_get($userAdvInfo,'be_blocked_other_count',0) }}</span>--}}
+
+
+<table class="table table-hover table-bordered">
+	<tr>
+		<th width="25%">過去7天瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count_7',0) }}</th>
+		<th width="25%">瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count',0) }}</th>
+		<th width="25%">封鎖多少會員： {{ array_get($userAdvInfo,'blocked_other_count',0) }}</th>
+		<th width="25%">過去7天罐頭訊息比例： {{ array_get($userAdvInfo,'message_percent_7',0) }}</th>
+	</tr>
+	<tr>
+		<th>過去7天發信次數： {{ array_get($userAdvInfo,'message_count_7',0) }}</th>
+		<th>發信次數： {{ array_get($userAdvInfo,'message_count',0) }}</th>
+		<th>被多少會員封鎖： {{ array_get($userAdvInfo,'be_blocked_other_count',0) }}</th>
+		<th>每周平均上線次數： {{ array_get($userAdvInfo,'login_times_per_week',0) }}</th>
+	</tr>
+	<tr>
+		<th></th>
+		<th></th>
+		<th></th>
+		<th>收藏會員次數： {{ array_get($userAdvInfo,'fav_count',0) }}</th>
+	</tr>
+</table>
+
+
 <br>
 <h4>帳號登入紀錄</h4>
 <table id="table_userLogin_log" class="table table-hover table-bordered">
@@ -972,7 +964,6 @@
 			<td class="evaluation_zoomIn">
 				@php
 					$messagePics=is_null($Log->pic) ? [] : json_decode($Log->pic,true);
-
 				@endphp
 				@if(isset($messagePics))
 					@foreach( $messagePics as $messagePic)

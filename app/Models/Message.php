@@ -720,7 +720,7 @@ class Message extends Model
         return $query;
     }
 
-    public static function unread($uid)
+    public static function unread($uid, $tinker = false)
     {
         $user = \View::shared('user');
         if(!$user){
@@ -751,28 +751,19 @@ class Message extends Model
                                 ->where('b6.member_id', $uid); })
                         ->leftJoin('blocked as b7', function($join) use($uid) {
                             $join->on('b7.member_id', '=', 'm.from_id')
-                                ->where('b7.blocked_id', $uid); })
-                                /*
-                        ->leftJoin('blocked as b8', function($join) use($uid) {
-                            $join->on('b8.member_id', '=', 'm.to_id')
-                                ->where('b8.blocked_id', $uid); })*/;
+                                ->where('b7.blocked_id', $uid); });
         $all_msg = $query->whereNotNull('u.id')
                         ->whereNotNull('u2.id')
-                        //->whereNull('b1.member_id')
-                        //->whereNull('b2.member_id')
-                        //->whereNull('b3.target')
-                        //->whereNull('b4.target')
                         ->whereNull('b5.blocked_id')
                         ->whereNull('b6.blocked_id')
                         ->whereNull('b7.member_id')
-                        //->whereNull('b8.member_id')
                         ->where(function($query)use($uid){
-                            $query//->where('m.to_id','=' ,$uid)
-                                    ->where([['m.to_id', $uid], ['m.from_id', '!=', $uid],['m.from_id','!=',AdminService::checkAdmin()->id]])
-                                //->where('m.from_id','!=',$uid);
-                                    ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid],['m.to_id','!=',AdminService::checkAdmin()->id]]);
+                            $query->where([
+                                ['m.to_id', $uid],
+                                ['m.from_id', '!=', $uid],
+                                ['m.from_id','!=',AdminService::checkAdmin()->id]
+                            ]);
                         })
-                        //->where([['m.is_row_delete_1', '=' ,0], ['m.is_single_delete_1', '<>', $uid], ['m.temp_id', '=', 0]])
                         ->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]])
                         ->where('m.read', 'N')
                         ->where([['m.created_at','>=',self::$date]])
@@ -785,6 +776,11 @@ class Message extends Model
             $all_msg = $all_msg->join('member_vip', 'member_vip.member_id', '=', 'm.from_id');
             $all_msg = $all_msg->where('member_vip.active', 1);
         }
+
+        if($tinker){
+            dd($all_msg->get());
+        }
+
         $unreadCount = $all_msg->count();
 
         return $unreadCount;

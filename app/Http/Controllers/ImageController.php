@@ -307,7 +307,7 @@ class ImageController extends BaseController
             {
                 $path = substr($avatar[0]['file'], strlen(public_path()));
                 $path[0] = '/';
-                UserMeta::where('user_id', $userId)->update(['pic' => $path]);
+                UserMeta::where('user_id', $userId)->update(['pic' => $path, 'pic_original_name'=>$avatar[0]['old_name']]);
             }
             $msg="上傳成功";
 
@@ -340,8 +340,8 @@ class ImageController extends BaseController
             $meta->pic = NULL;
             $meta->save();
             $msg="刪除成功";
-            if(!$user->existHeaderImage() && $user->engroup==2 && $user->isFreeVip()){
-                $msg="您已刪除大頭照，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。";
+            if($user->engroup==2 && $user->isFreeVip()){
+                $msg="您大頭照已刪除，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。";
             }
             return response($msg);
         }   
@@ -449,6 +449,7 @@ class ImageController extends BaseController
                 $addPicture = new MemberPic;
                 $addPicture->member_id = $userId;
                 $addPicture->pic = $path;
+                $addPicture->original_name = $uploadedFile['old_name'];
                 $addPicture->save();
             }
         }
@@ -497,7 +498,7 @@ class ImageController extends BaseController
         
         $msg="刪除成功";
         if(!$user->existHeaderImage() && $user->engroup==2 && $user->isFreeVip()){
-            $msg="您的生活照低於三張，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。";
+            $msg="您的照片低於四張，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。";
         }
         return response($msg);
     }
