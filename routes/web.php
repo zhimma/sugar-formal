@@ -671,6 +671,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/picturesSimpleSearch', 'UserController@searchUserPicturesSimple')->name('users/picturesSimpleSearch');
         Route::post('users/suspicious_user_toggle', 'UserController@suspicious_user_toggle')->name('users/suspicious_user_toggle');
         Route::get('users/suspiciousUser', 'UserController@suspiciousUser')->name('users/suspiciousUser');
+        Route::get('users/WarnedOrBannedLog/{logType}/{user_id}', 'UserController@isEverWarnedOrBannedLog');
 
         /*新增、編輯訊息*/
         Route::post('users/getmsglib', 'UserController@getMessageLib');
