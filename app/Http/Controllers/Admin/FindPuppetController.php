@@ -434,6 +434,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 		$g = $request->g;
 		$show = $request->show;
 		$start = $request->start;
+		$groupOrderArr = [];
 		
 		if($have_mon_limit && (!isset($mon) || !$mon) && $show!='text') {
 
@@ -460,10 +461,12 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 				}
 				
 				$groupChecks = $this->cell->where($whereArr)->groupBy('group_index')->select('group_index')
-					->selectRaw('MAX(column_index) AS maxColIdx,MAX(row_index) AS maxRowIdx')->get();
-					
+					->selectRaw('MAX(column_index) AS maxColIdx,MAX(row_index) AS maxRowIdx,MAX(time) AS last_time')
+					->orderByDesc('last_time')
+					->get();
+				
 				foreach($groupChecks as $idx=>$groupCheck) {
-					
+					$groupOrderArr[] = $groupCheck->group_index;
 					$groupInfo[$groupCheck->group_index] = $groupCheck->toArray();
 					$groupInfo[$groupCheck->group_index]['cutData'] = false;
 					if($groupCheck->maxColIdx>$data['colOverload'] && $groupCheck->maxRowIdx>$data['rowOverload']) {
@@ -563,6 +566,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 			}
 			
 		}
+		
+	$data['groupOrderArr'] = $groupOrderArr;
         
 	return view('findpuppet',$data)
             ->with('columnSet', $this->_columnIp)
