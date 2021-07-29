@@ -862,7 +862,7 @@ if($user->user_meta->notifhistory == '顯示VIP會員信件') {
                     ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid],['m.to_id','!=',$admin_id]]);
             });
         $query = $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);
-        $query->where([['m.created_at','>=',self::$date]]);
+//        $query->where([['m.created_at','>=',self::$date]]);
         $query->whereRaw('m.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
