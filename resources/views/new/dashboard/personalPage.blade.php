@@ -162,32 +162,32 @@
                             <h2 class="tabbox_hsz">{{ $allMessage }}</h2>
                         </div>
                     </div>
-{{--                    <div class="sys_aa">--}}
-{{--                        <div class="tabbox_new_dt tabbox_new_ss"><span>系統來訊通知</span>--}}
-{{--						@if(isset($admin_msgs) && count($admin_msgs))--}}
-{{--						<div class="right btn01 btn_admin_msgs"><span class="zixu_cs"><img src="/new/images/xiugai1.png">編輯</span></div>--}}
-{{--						<div class="btn02 sx_ment fr_nbj">--}}
-{{--							<span class="iconfont icon-wancheng zixu_cs1 dtmr20">完成</span>--}}
-{{--							<span class="iconfont icon-shanchu zixu_cs1">刪除</span>--}}
-{{--							<label class="iconfont icon-kuang zixu_cs2"  style="margin-top: 2px; margin-right: 3px; float:right ;"><input type="checkbox" class="qxuan">全選</label>--}}
-{{--						</div>--}}
-{{--						@endif							--}}
-{{--						</div>--}}
-{{--                        <div class="tabbox_new_dd">--}}
-{{--						@if(isset($admin_msgs) && count($admin_msgs))--}}
-{{--							@foreach($admin_msgs as $amsg)--}}
-{{--                            <h2 class="tabbox_h2 ta_l"  data-recordtype="admin_msgs" data-rowid="{{$amsg->id}}" >--}}
-{{--								<span class="tu_dfont">--}}
-{{--								{{ strip_tags($amsg->content)}}--}}
-{{--								</span>--}}
-{{--								<a class="zs_buttonn1 right"  href="{{route("chat2WithUser",$amsg->from_id)}}">前往查看</a>--}}
-{{--							</h2>--}}
-{{--							@endforeach--}}
-{{--						@else--}}
-{{--							<h2 class="tabbox_h2 ta_l"><span class="tu_dfont">暫無系統信</span></h2>--}}
-{{--						@endif						--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
+                    <div class="sys_aa">
+                        <div class="tabbox_new_dt tabbox_new_ss"><span>系統來訊通知</span>
+						@if(isset($admin_msgs) && count($admin_msgs))
+						<div class="right btn01 btn_admin_msgs"><span class="zixu_cs"><img src="/new/images/xiugai1.png">編輯</span></div>
+						<div class="btn02 sx_ment fr_nbj">
+							<span class="iconfont icon-wancheng zixu_cs1 dtmr20">完成</span>
+							<span class="iconfont icon-shanchu zixu_cs1">刪除</span>
+							<label class="iconfont icon-kuang zixu_cs2"  style="margin-top: 2px; margin-right: 3px; float:right ;"><input type="checkbox" class="qxuan">全選</label>
+						</div>
+						@endif
+						</div>
+                        <div class="tabbox_new_dd">
+						@if(isset($admin_msgs) && count($admin_msgs))
+							@foreach($admin_msgs as $amsg)
+                            <h2 class="tabbox_h2 ta_l"  data-recordtype="admin_msgs" data-rowid="{{$amsg->id}}" >
+								<span class="tu_dfont">
+								{{ strip_tags($amsg->content)}}
+								</span>
+								<a class="zs_buttonn1 right"  href="{{route("chat2WithUser",$amsg->from_id)}}">前往查看</a>
+							</h2>
+							@endforeach
+						@else
+							<h2 class="tabbox_h2 ta_l"><span class="tu_dfont">暫無系統信</span></h2>
+						@endif
+                        </div>
+                    </div>
 
                     @if($isBannedStatus != '')
                     <div class="sys_aa">

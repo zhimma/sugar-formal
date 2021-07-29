@@ -457,9 +457,9 @@ class Message_new extends Model
         $query->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');        
         $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);$query->orderBy('m.created_at', 'desc');
-//        if($user->id != 1049){
-//            $query->whereRaw('u1.engroup != ' . $user->engroup);
-//        }
+        if($user->id != 1049){
+            $query->whereRaw('u1.engroup != ' . $user->engroup);
+        }
         $messages = $query->get();
         $mCount = count($messages);
         $mm = [];
@@ -789,9 +789,9 @@ class Message_new extends Model
         $query->whereRaw('m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
-//        if($user->id != 1049){
-//            $query->whereRaw('u1.engroup != ' . $user->engroup);
-//        }
+        if($user->id != 1049){
+            $query->whereRaw('u1.engroup != ' . $user->engroup);
+        }
         if($isCount)
             $allSenders = $query->groupBy('temp')->get()->count();
         else
