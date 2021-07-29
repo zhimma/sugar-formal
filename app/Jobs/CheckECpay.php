@@ -97,6 +97,7 @@ class CheckECpay implements ShouldQueue
                 }
                 catch (\Throwable $e){
                     logger("CheckECpay null payment, user id: " . $this->vipData->member_id);
+                    return;
                 }
                 $now = \Carbon\Carbon::now();
                 // 最後一次付款成功，但已過期
