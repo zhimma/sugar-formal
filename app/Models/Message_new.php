@@ -778,7 +778,7 @@ class Message_new extends Model
         $query->whereRaw('m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
-//        $query->whereRaw('u1.engroup!=u2.engroup');
+        $query->whereRaw('u1.engroup!=u2.engroup');
         if($isCount)
             $allSenders = $query->groupBy('temp')->get()->count();
         else
