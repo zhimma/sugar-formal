@@ -1,8 +1,16 @@
-<html>
-<body>
+@extends('admin.main')
+@section('app-content')
+
 <style>
-	td {white-space: nowrap;}
-	tr td.ignore_msg {text-align: left;vertical-align: top;border-bottom:none;}
+	body table.table-hover tr.banned,table tr.implicitlyBanned {background-color:#FDFF8C;}
+	body table.table-hover tr.isWarned {background-color:#B0FFB1;}
+	body table.table-hover tr.isClosed {background-color:#C9C9C9;}
+	body table.table-hover tr.isClosedByAdmin {background-color:#969696;}
+	td.group_last_time {background-color:#FF9999 !important;}
+	body table tr td,body table tr th {white-space: nowrap;}
+	body table tr td.ignore_msg {text-align: left;vertical-align: top;border-bottom:none;}
+	tr th a.user {cursor:default;text-decoration: none;}
+	tr th a.user:hover {cursor:default;text-decoration: none;}
 	h3 {color:red;}
 	div.attentioninfo,table{clear:both;}
 	a, a:visited, a:hover, a:active {
@@ -10,11 +18,11 @@
 		color: inherit;
 	}
     .show {margin-top:50px;maring-bottom:10px;}
-    table,tr,td,th {border-width:3px; border-style:solid;border-collapse: collapse;border-spacing:0;}
+    /*table,tr,td,th {border-width:3px; border-style:solid;border-collapse: collapse;border-spacing:0;}*/
     .error {color:red;font-weight:bolder;}
     td, th{ padding:5px;text-align: center;vertical-align: middle;}
-    th {background-color:#c9c8c7}
-    th.cfp_id_th {background-color:#a3bec2}
+    /*th {background-color:#c9c8c7}*/
+    /*th.cfp_id_th {background-color:#a3bec2}*/
     table.monlist,table.monlist tr,table.monlist td,table.monlist th {border-width:0px;border-style:none;}
 	table.monlist {margin:auto;width:60%;}
 	.monlist a.current_month,.monlist a.current_month:visited,.monlist a.current_month:hover,.monlist a.current_month:active{text-decoration: none;}
@@ -22,6 +30,15 @@
 	.download_file a,.download_file a:visited,.download_file a:hover,.download_file a:active {text-decoration: underline;}
 	.group_last_time {font-weight:normal;font-size:12px;}
  </style>
+ <style>
+    .table > tbody > tr > td, .table > tbody > tr > th{
+        vertical-align: middle;
+    }
+    .content-table { width:100%; table-layout: fixed; }
+    .content-table td { word-wrap:break-word; }
+</style>
+<body style="padding: 15px;">
+
 
 <div>
 <h2> @if(isset($columnSet) && $columnSet) {{$start_date}} ～ {{$end_date}} @endif 相同IP帳號分析數據</h2>
@@ -43,16 +60,17 @@
 		</div>
 	</div>
 	@endif
-    <table class="{{isset($groupInfo[$g]['cutData'])?'ignore_msg':''}}">
+    <table class="table-hover table table-bordered {{isset($groupInfo[$g]['cutData'])?'ignore_msg':''}}">
         <tr>
             <th></th>
 			<th>Email</th>
-			<th>暱稱</th>
-			<th>關於我</th>
-			<th>約會模式</th>
+			<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;暱稱&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+			<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;一句話&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+			<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;關於我&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+			<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;約會模式&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
     @foreach ($columnSet[$g] as $c=> $colName)
             <th class="{{$columnTypeSet[$g][$c] ?? ''}}_th"> 
-				<a target="_blank" href="showLog?{{$columnTypeSet[$g][$c]}}={{$colName}}{{request()->mon?'&mon='.request()->mon:''}}">{{$colName}}
+				<a target="_blank" href="{{$columnTypeSet[$g][$c]=='ip'?route('get'.ucfirst($columnTypeSet[$g][$c]).'Users',$colName):'#'}}">{{$colName}}
 				</a>
 			</th>
     @endforeach
@@ -60,15 +78,15 @@
 			<td rowspan="101" class="ignore_msg">略...........</td>
 			@endif
         </tr>
-    @foreach ($rowSet[$g] as $r=>$rowName)
-        <tr>
+    @foreach ($rowSet[$g] as $r=>$user)
+        <tr class="{{$user->tag_class}}">
             <th>
-			<a target="_blank" href="showLog?user_id={{$rowName}}{{request()->mon?'&mon='.request()->mon:''}}">
-			{{$rowName}}</a>
+			<a target="_blank" href="showLog?user_id={{$user->id}}{{request()->mon?'&mon='.request()->mon:''}}">
+			{{$user->id ?? ''}}@if($user->engroup == 1 && $user->isVip()) <i class="m-nav__link-icon fa fa-diamond"></i> @endif </a>
 			</th>
 			@php
 				$bgColor = null;
-				$user = \App\Models\User::withOut('vip')->with('aw_relation', 'banned', 'implicitlyBanned')->find($rowName);
+				//$user = \App\Models\User::with('vip','aw_relation', 'banned', 'implicitlyBanned')->find($rowName);
 				if($user){
 					if($user->aw_relation ?? $user->user_meta->isWarned) {
 						$bgColor = '#B0FFB1';
@@ -80,28 +98,32 @@
 			@endphp
 			@if($user)
 				<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
-					<a href="{!!route('users/advInfo',$rowName)!!}"  target="_blank">{{ $user->email }}</a>
+					<a href="{!!route('users/advInfo',$user->id)!!}"  target="_blank">{{ $user->email }}</a>
 				</th>
 				<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
-					{{ $user->name }}
+					<a href="#" class="user user_name" title="{{$user->name}}" onclick="return false;">{{ mb_strlen($user->name)>8?mb_substr($user->name,0,9).'...':$user->name }}</a>
+				</th>				
+				<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+					<a href="#" class="user user_title" title="{{$user->title}}" onclick="return false;">{{ mb_strlen($user->title)>16?mb_substr($user->title,0,17).'...':$user->title }}</a>
 				</th>
 				<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
-					{{ $user->user_meta->about }}
+					<a href="#" class="user user_meta_about" title="{{$user->user_meta->about}}" onclick="return false;">{{ mb_strlen($user->user_meta->about)>16?mb_substr($user->user_meta->about,0,17).'...':$user->user_meta->about }}</a>
 				</th>
 				<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
-					{{ $user->user_meta->style }}
+					<a href="#" class="user user_meta_style" title="{{$user->user_meta->style}}" onclick="return false;">{{ mb_strlen($user->user_meta->style)>16?mb_substr($user->user_meta->style,0,17).'...':$user->user_meta->style }}</a>
 				</th>
 			@else
 				<th></th>
 				<th></th>
 				<th></th>
 				<th></th>
+				<td></td>
 			@endif
 			@for ($n=0;$n<count($columnSet[$g]);$n++)
-				<td @if($user) style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif" @endif>
+				<td @if($user) style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif" @endif class=" @if($groupInfo[$g]['last_time']===$cellValue[$g][$r][$n]->time) group_last_time @endif">
 					@if(isset($cellValue[$g][$r][$n]))
 					{{$cellValue[$g][$r][$n]->time ? date('m/d-H:i',strtotime($cellValue[$g][$r][$n]->time)): ''}}
-					(<a target="_blank" href="showLog?user_id={{$rowName}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">{{$cellValue[$g][$r][$n]->num ?? ''}}次</a>)
+					(<a target="_blank" href="showLog?user_id={{$user->id}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">{{$cellValue[$g][$r][$n]->num ?? ''}}次</a>)
 					@else
 						無
 					@endif
@@ -119,4 +141,4 @@
 @endforelse
 	
 </body>
-</html>
+@stop
