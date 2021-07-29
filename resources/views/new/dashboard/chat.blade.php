@@ -879,12 +879,13 @@ position:relative;line-height:40px;cursor:pointer;text-align: center;}
                         $('#rows').val(msgLength);
                     }
 
-                    var hide_vip_counts = 0;
+                    hide_vip_counts = 0;
                     hide_vip_counts = $('#rows').val() - 10;
 
                     $.each(res.msg,function(i,e) {
                        if(e.user_id==1049 || e.isBanned==1) {
-                           hide_vip_counts = $('#rows').val() - 10 - 1;
+                           //hide_vip_counts = $('#rows').val() - 10 - 1;
+						   if(i>=hide_vip_counts) hide_vip_counts = hide_vip_counts - 1;
                        }
                     });
 
@@ -911,15 +912,15 @@ position:relative;line-height:40px;cursor:pointer;text-align: center;}
                         
                         
                         rr += parseInt(e.read_n);
-                        if (userIsVip != 1 && i < hide_vip_counts && hide_vip_counts > 0 && e.isBanned==0) {
-                            if(e.user_id == 1049){
-                                hide_vip_counts = hide_vip_counts+1;
+                        if (userIsVip != 1 && i < hide_vip_counts && hide_vip_counts > 0 ) {
+                            if(e.user_id == 1049 || e.isBanned==1){
+                                //hide_vip_counts = hide_vip_counts-1;
                                 if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur);
                             }else {							
                                 if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.isBanned,e.exchange_period,isBlur);
                             }
                         }else {
-							if(e.isBanned==1) hide_vip_counts = hide_vip_counts+1;
+							//if(e.isBanned==1) hide_vip_counts = hide_vip_counts+1;
                             if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur);
                         }
 
@@ -1545,7 +1546,7 @@ position:relative;line-height:40px;cursor:pointer;text-align: center;}
                         $('.page_banned').show();
                     }
                     Page_banned.DrawPage(banned_counts);
-                    $('.sjlist_alert>.common30.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+                    $('.sjlist_banned>.common30.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
                  }else{
                      @if($user->engroup==2)
                          let vip_counts = $('.vipMember').length;
