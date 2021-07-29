@@ -4550,8 +4550,8 @@ class PagesController extends BaseController
             return view('new.dashboard.personalPage', $data)
                 ->with('myFav', $myFav)
                 ->with('otherFav',$otherFav)
-                ->with('admin_msgs',$admin_msgs)
-							->with('admin',$admin);
+//                ->with('admin_msgs',$admin_msgs)
+                ->with('admin',$admin);
                 
         }
 
