@@ -148,7 +148,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     $puppetFromUsers = null;
                     $ipPuppetFromUserQuery = $model->groupBy('ip')
                             ->select('ip')->selectRaw('COUNT(DISTINCT `user_id`) AS num')->whereNotNull('ip')->where('ip','<>','')
-                            ->where($whereArr);
+                            ->where($whereArr)->orderByDesc('num');
                             
                     if($excludeUserId) $ipPuppetFromUserQuery=$ipPuppetFromUserQuery->whereNotIn('user_id',$excludeUserId);                            
 
@@ -169,7 +169,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                   
                     $cfpidPuppetFromUserQuery = $model->groupBy('cfp_id')
                             ->select('cfp_id')->selectRaw('COUNT(DISTINCT `user_id`) AS num')->whereNotNull('cfp_id')->where('cfp_id','<>','')
-                            ->where($whereArr);
+                            ->where($whereArr)->orderByDesc('num');
                             
                     if($excludeUserId) $cfpidPuppetFromUserQuery=$cfpidPuppetFromUserQuery->whereNotIn('user_id',$excludeUserId);                            
 
@@ -434,6 +434,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $g = $request->g;
         $show = $request->show;
         $start = $request->start;
+		$groupOrderArr = [];
         
         if($have_mon_limit && (!isset($mon) || !$mon) && $show!='text') {
 
@@ -458,16 +459,18 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     
                     $data['start_date'] = $sdate_from_model;
                 }
-                
-                $groupChecks = $this->cell->where($whereArr)->groupBy('group_index')->select('group_index')
-                    ->selectRaw('MAX(column_index) AS maxColIdx,MAX(row_index) AS maxRowIdx')->get();
-                    
-                foreach($groupChecks as $idx=>$groupCheck) {
-                    
-                    $groupInfo[$groupCheck->group_index] = $groupCheck->toArray();
-                    $groupInfo[$groupCheck->group_index]['cutData'] = false;
-                    if($groupCheck->maxColIdx>$data['colOverload'] && $groupCheck->maxRowIdx>$data['rowOverload']) {
-                        $groupInfo[$groupCheck->group_index]['cutData'] = true;
+				
+				$groupChecks = $this->cell->where($whereArr)->groupBy('group_index')->select('group_index')
+					->selectRaw('MAX(column_index) AS maxColIdx,MAX(row_index) AS maxRowIdx,MAX(time) AS last_time')
+					->orderByDesc('last_time')
+					->get();
+				
+				foreach($groupChecks as $idx=>$groupCheck) {
+					$groupOrderArr[] = $groupCheck->group_index;
+					$groupInfo[$groupCheck->group_index] = $groupCheck->toArray();
+					$groupInfo[$groupCheck->group_index]['cutData'] = false;
+					if($groupCheck->maxColIdx>$data['colOverload'] && $groupCheck->maxRowIdx>$data['rowOverload']) {
+						$groupInfo[$groupCheck->group_index]['cutData'] = true;
                     }
                 }
             }
@@ -495,8 +498,16 @@ class FindPuppetController extends \App\Http\Controllers\Controller
             $rowEntrys = $rowQuery->get();
             foreach($rowEntrys as $rowEntry) {
                 if(isset($groupInfo[$colEntry->group_index]['cutData']) && $groupInfo[$rowEntry->group_index]['cutData'] && $rowEntry->row_index>$data['rowLimit']) continue;
-               $this->_rowUserId[$rowEntry->group_index][$rowEntry->row_index] = $rowEntry->name;
-
+				$cur_user = User::withOut('vip')->with('aw_relation', 'banned', 'implicitlyBanned')->find($rowEntry->name)??new User;
+				$cur_user->tag_class = '';
+				if($cur_user->id==null) $cur_user->id = $rowEntry->name;
+				if($cur_user->banned)  $cur_user->tag_class.= 'banned ';
+				if($cur_user->implicitlyBanned)  $cur_user->tag_class.= 'implicitlyBanned ';
+				if($cur_user->user_meta->isWarned || $cur_user->user_meta->aw_relation)  $cur_user->tag_class.= 'isWarned ';
+				if($cur_user->accountStatus===0) $cur_user->tag_class.= 'isClosed ';
+				if($cur_user->account_status_admin===0) $cur_user->tag_class.= 'isClosedByAdmin ';
+				$this->_rowUserId[$rowEntry->group_index][$rowEntry->row_index] = $cur_user;
+				$cur_user = null;
             }  
             
             $cellQuery = $this->cell->where($whereArr);
@@ -563,6 +574,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
             }
             
         }
+		
+	$data['groupOrderArr'] = $groupOrderArr;
         
     return view('findpuppet',$data)
             ->with('columnSet', $this->_columnIp)
