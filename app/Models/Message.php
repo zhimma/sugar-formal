@@ -773,17 +773,19 @@ class Message extends Model
                         ->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]])
                         ->where('m.read', 'N')
                         ->where([['m.created_at','>=',self::$date]])
-						->where('u.engroup', '<>', $user->engroup)
                         ->whereRaw('m.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")')
                         ->whereRaw('m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")')
                         ->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")')
-                        ->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');                                 
-                 /*              
-        if($user->user_meta->notifhistory == '顯示VIP會員信件') {
-            $all_msg = $all_msg->join('member_vip', 'member_vip.member_id', '=', 'm.from_id');
-            $all_msg = $all_msg->where('member_vip.active', 1);
-        }
-		*/
+                        ->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
+                        if($user->id != 1049){
+                            $all_msg = $all_msg->where('u.engroup', '<>', $user->engroup);
+                        }
+        /*
+if($user->user_meta->notifhistory == '顯示VIP會員信件') {
+   $all_msg = $all_msg->join('member_vip', 'member_vip.member_id', '=', 'm.from_id');
+   $all_msg = $all_msg->where('member_vip.active', 1);
+}
+*/
 
         if($tinker){
             dd($all_msg->get());
@@ -865,7 +867,9 @@ class Message extends Model
         $query->whereRaw('m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
-        $query->whereRaw('u1.engroup != ' . $user->engroup);
+        if($user->id != 1049){
+            $query->whereRaw('u1.engroup != ' . $user->engroup);
+        }
 
         $allMessageCount = $all_msg->count();
 
