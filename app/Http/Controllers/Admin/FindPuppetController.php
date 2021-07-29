@@ -38,7 +38,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $this->_columnType = array();
         $this->_groupIdx = 0; 
         $this->monarr = [];    
-        $this->default_sdate = \Carbon\Carbon::now()->subWeeks(3)->format('Y/m/d');        
+        $this->default_sdate = \Carbon\Carbon::now()->subDays(10)->format('Y/m/d');
     }    
     
     public function entrance(Request $request) {
