@@ -70,7 +70,7 @@
 			<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;約會模式&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
     @foreach ($columnSet[$g] as $c=> $colName)
             <th class="{{$columnTypeSet[$g][$c] ?? ''}}_th"> 
-				<a target="_blank" href="{{$columnTypeSet[$g][$c]=='ip'?route('get'.ucfirst($columnTypeSet[$g][$c]).'Users',$colName):'#'}}">{{$colName}}
+				<a target="_blank" href="{{$columnTypeSet[$g][$c]=='ip'?route('get'.ucfirst($columnTypeSet[$g][$c]).'Users',$colName):'showLog?'.$columnTypeSet[$g][$c].'='.$colName.(request()->mon?'&mon='.request()->mon:'')}}">{{$colName}}
 				</a>
 			</th>
     @endforeach
