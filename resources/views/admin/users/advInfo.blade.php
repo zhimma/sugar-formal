@@ -684,91 +684,99 @@
 	@endforeach
 </table>
 
+@php
+	//曾被警示
+	$isEverWarned_log=array();
+    if(isset($isEverWarned) && count($isEverWarned)>0){
+        foreach($isEverWarned as $key =>$row){
+            $isEverWarned_log[$key]['created_at']=$row->created_at;
+            $isEverWarned_log[$key]['reason']=$row->reason;
+        }
+    }
+    //曾被封鎖
+    $isEverBanned_log=array();
+    if(isset($isEverBanned) && count($isEverBanned)>0){
+        foreach($isEverBanned as $key =>$row){
+            $isEverBanned_log[$key]['created_at']=$row->created_at;
+            $isEverBanned_log[$key]['reason']=$row->reason;
+            $isEverBanned_log[$key]['expire_date']=$row->expire_date;
+        }
+    }
+    //目前正被警示
+     $isWarned_show=array();
+    if(isset($isWarned) && count($isWarned)>0){
+         foreach($isWarned as $row){
+             $isWarned_show['created_at']=$row->created_at;
+             $isWarned_show['reason']=$row->reason;
+             $isWarned_show['expire_date']=$row->expire_date;
+         }
+    }
+    //目前正被封鎖
+    $isBanned_show=array();
+    if(isset($isBanned) && count($isBanned)>0){
+         foreach($isBanned as $row){
+             $isBanned_show['created_at']=$row->created_at;
+             $isBanned_show['reason']=$row->reason;
+             $isBanned_show['expire_date']=$row->expire_date;
+         }
+    }
 
-<h4>曾被警示</h4>
-@if(isset($isEverWarned) && count($isEverWarned)>0)
+@endphp
+<br>
 <table class="table table-hover table-bordered">
 	<tr>
-		<th width="30%">警示時間</th>
-		<th>原因</th>
+		<th width="5%"></th>
+		<th width="5%">是否警示</th>
+		<th width="5%">是否封鎖</th>
+		<th width="5%">曾被警示</th>
+		<th width="5%"></th>
+		<th width="5%"></th>
+		<th width="5%">更多警示</th>
+		<th width="5%">曾被封鎖</th>
+		<th width="5%"></th>
+		<th width="5%"></th>
+		<th width="5%">更多封鎖</th>
 	</tr>
-
-	@foreach($isEverWarned as $row)
-		<tr>
-			<td>{{$row->created_at}}</td>
-			<td>{{$row->reason}}</td>
-		</tr>
-	@endforeach
-
-</table>
-{!! $isEverWarned->links('pagination::sg-pages') !!}
-@endif
-
-
-<h4>曾被封鎖</h4>
-@if(isset($isEverBanned) && count($isEverBanned)>0)
-<table class="table table-hover table-bordered">
 	<tr>
-		<th width="30%">封鎖時間</th>
-		<th>原因</th>
-{{--		<th>到期時間</th>--}}
+		<th>時間</th>
+		<td>{{ array_get($isWarned_show,'created_at') }}</td>
+		<td>{{ array_get($isBanned_show,'created_at') }}</td>
+		<td>{{ array_get($isEverWarned_log,'0.created_at') }}</td>
+		<td>{{ array_get($isEverWarned_log,'1.created_at') }}</td>
+		<td>{{ array_get($isEverWarned_log,'2.created_at') }}</td>
+		<td><a href="/admin/users/WarnedOrBannedLog/Warned/{{ $user->id }}" target="_blank">查看更多</a></td>
+		<td>{{ array_get($isEverBanned_log,'0.created_at') }}</td>
+		<td>{{ array_get($isEverBanned_log,'1.created_at') }}</td>
+		<td>{{ array_get($isEverBanned_log,'2.created_at') }}</td>
+		<td><a href="/admin/users/WarnedOrBannedLog/Banned/{{ $user->id }}" target="_blank">查看更多</a></td>
 	</tr>
-
-	@foreach($isEverBanned as $row)
-		<tr>
-			<td>{{$row->created_at}}</td>
-			<td>{{$row->reason}}</td>
-{{--			<td>{{$row->expire_date}}</td>--}}
-		</tr>
-	@endforeach
-
-</table>
-{!! $isEverBanned->links('pagination::sg-pages') !!}
-@endif
-
-
-<h4>目前正被警示</h4>
-@if(isset($isWarned) && count($isWarned)>0)
-<table class="table table-hover table-bordered">
 	<tr>
-		<th width="30%">警示時間</th>
 		<th>原因</th>
-		<th>到期時間</th>
+		<td>{{ array_get($isWarned_show,'reason') }}</td>
+		<td>{{ array_get($isBanned_show,'reason') }}</td>
+		<td>{{ array_get($isEverWarned_log,'0.reason') }}</td>
+		<td>{{ array_get($isEverWarned_log,'1.reason') }}</td>
+		<td>{{ array_get($isEverWarned_log,'2.reason') }}</td>
+		<td></td>
+		<td>{{ array_get($isEverBanned_log,'0.reason') }}</td>
+		<td>{{ array_get($isEverBanned_log,'1.reason') }}</td>
+		<td>{{ array_get($isEverBanned_log,'2.reason') }}</td>
+		<td></td>
 	</tr>
-
-	@foreach($isWarned as $row)
-		<tr>
-			<td>{{$row->created_at}}</td>
-			<td>{{$row->reason}}</td>
-			<td>{{$row->expire_date}}</td>
-		</tr>
-	@endforeach
-
-</table>
-{!! $isWarned->links('pagination::sg-pages') !!}
-@endif
-
-
-<h4>目前正被封鎖</h4>
-@if(isset($isBanned) && count($isBanned)>0)
-<table class="table table-hover table-bordered">
 	<tr>
-		<th width="30%">封鎖時間</th>
-		<th>原因</th>
-		<th>到期時間</th>
+		<th>到期日</th>
+		<td>{{ array_get($isWarned_show,'expire_date') }}</td>
+		<td>{{ array_get($isBanned_show,'expire_date') }}</td>
+		<td>{{ array_get($isEverWarned_log,'0.expire_date') }}</td>
+		<td>{{ array_get($isEverWarned_log,'1.expire_date') }}</td>
+		<td>{{ array_get($isEverWarned_log,'2.expire_date') }}</td>
+		<td></td>
+		<td>{{ array_get($isEverBanned_log,'0.expire_date') }}</td>
+		<td>{{ array_get($isEverBanned_log,'1.expire_date') }}</td>
+		<td>{{ array_get($isEverBanned_log,'2.expire_date') }}</td>
+		<td></td>
 	</tr>
-
-	@foreach($isBanned as $row)
-		<tr>
-			<td>{{$row->created_at}}</td>
-			<td>{{$row->reason}}</td>
-			<td>{{$row->expire_date}}</td>
-		</tr>
-	@endforeach
-
 </table>
-{!! $isBanned->links('pagination::sg-pages') !!}
-@endif
 
 @php
 	$userAdvInfo=\App\Models\User::userAdvInfo($user->id);
