@@ -819,11 +819,11 @@ if($user->user_meta->notifhistory == '顯示VIP會員信件') {
         if(!$user){
             $user = User::find($uid);
         }
-        if($user->isVip()) {
-            self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
-        }else {
-            self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
-        }
+//        if($user->isVip()) {
+//            self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
+//        }else {
+//            self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
+//        }
         /**
          * 效能調整：使用左結合取代 where in 以取得更好的效能
          *
@@ -850,9 +850,9 @@ if($user->user_meta->notifhistory == '顯示VIP會員信件') {
 //                    ->where('b8.blocked_id', $uid); });
         $all_msg = $query->whereNotNull('u1.id')->whereNotNull('u2.id')
             ->whereNull('b1.member_id')
-//            ->whereNull('b2.member_id')
+            ->whereNull('b2.member_id')
             ->whereNull('b3.target')
-//            ->whereNull('b4.target')
+            ->whereNull('b4.target')
             ->whereNull('b5.blocked_id')
             ->whereNull('b6.blocked_id')
             ->whereNull('b7.member_id')
