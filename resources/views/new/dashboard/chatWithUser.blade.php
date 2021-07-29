@@ -345,7 +345,7 @@
                         </form>
                     </div>--}}
 
-                    @if(!isset($admin) || $to->id != $admin->id)
+                    @if((!isset($admin) || $to->id != $admin->id) && !isset($to->banned )&& !isset($to->implicitlyBanned))
                         <div class="se_text_bot"  id="message_input" style="padding-right: 3%; padding-left:3%;">
                             <form style="margin: 0 auto;" method="POST" action="/dashboard/chat2/{{ \Carbon\Carbon::now()->timestamp }}" id="chatForm" name="chatForm">
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}" >
