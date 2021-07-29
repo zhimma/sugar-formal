@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class LogUserLogin extends Model
@@ -23,5 +24,9 @@ class LogUserLogin extends Model
 
     public function setReadOnly() {
         $this->guarded =  ['*'];
+    }
+	
+    public function users(){
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 }
