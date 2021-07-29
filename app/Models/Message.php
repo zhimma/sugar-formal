@@ -777,9 +777,9 @@ class Message extends Model
                         ->whereRaw('m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")')
                         ->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")')
                         ->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
-//                        if($user->id != 1049){
-//                            $all_msg = $all_msg->where('u.engroup', '<>', $user->engroup);
-//                        }
+                        if($user->id != 1049){
+                            $all_msg = $all_msg->where('u.engroup', '<>', $user->engroup);
+                        }
         /*
 if($user->user_meta->notifhistory == '顯示VIP會員信件') {
    $all_msg = $all_msg->join('member_vip', 'member_vip.member_id', '=', 'm.from_id');
@@ -867,9 +867,9 @@ if($user->user_meta->notifhistory == '顯示VIP會員信件') {
         $query->whereRaw('m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
-//        if($user->id != 1049){
-//            $query->whereRaw('u1.engroup != ' . $user->engroup);
-//        }
+        if($user->id != 1049){
+            $query->whereRaw('u1.engroup != ' . $user->engroup);
+        }
 
         if($tinker){
             dd($all_msg->get());

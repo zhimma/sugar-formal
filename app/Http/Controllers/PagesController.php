@@ -4475,14 +4475,14 @@ class PagesController extends BaseController
         $isHasEvaluation = sizeof($arrayHE) > 0? true : false;
 
         
-//        $admin_msg_entrys = Message::allToFromSender($uid,$admin->id);
-//		$admin_msgs = [];
-//		$i=0;
-//		foreach($admin_msg_entrys as $admin_msg_entry) {
-//			$admin_msgs[] = $admin_msg_entry;
-//			$i++;
-//			if($i>=3) break;
-//		}
+        $admin_msg_entrys = Message::allToFromSender($uid,$admin->id);
+		$admin_msgs = [];
+		$i=0;
+		foreach($admin_msg_entrys as $admin_msg_entry) {
+			$admin_msgs[] = $admin_msg_entry;
+			$i++;
+			if($i>=3) break;
+		}
 
 
         //僅顯示30天內的評價
@@ -4550,7 +4550,7 @@ class PagesController extends BaseController
             return view('new.dashboard.personalPage', $data)
                 ->with('myFav', $myFav)
                 ->with('otherFav',$otherFav)
-//                ->with('admin_msgs',$admin_msgs)
+                ->with('admin_msgs',$admin_msgs)
                 ->with('admin',$admin);
                 
         }
