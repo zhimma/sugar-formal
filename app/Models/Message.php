@@ -811,7 +811,7 @@ if($user->user_meta->notifhistory == '顯示VIP會員信件') {
         $this->read($this, $this->to_id);
     }
 
-    public static function allMessage($uid)
+    public static function allMessage($uid, $tinker = false)
     {
         $admin_id = AdminService::checkAdmin()->id;
         $user = \View::shared('user');
@@ -869,6 +869,10 @@ if($user->user_meta->notifhistory == '顯示VIP會員信件') {
         $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
         if($user->id != 1049){
             $query->whereRaw('u1.engroup != ' . $user->engroup);
+        }
+
+        if($tinker){
+            dd($all_msg->get());
         }
 
         $allMessageCount = $all_msg->count();
