@@ -850,9 +850,9 @@ if($user->user_meta->notifhistory == '顯示VIP會員信件') {
 //                    ->where('b8.blocked_id', $uid); });
         $all_msg = $query->whereNotNull('u1.id')->whereNotNull('u2.id')
             ->whereNull('b1.member_id')
-            ->whereNull('b2.member_id')
+//            ->whereNull('b2.member_id')
             ->whereNull('b3.target')
-            ->whereNull('b4.target')
+//            ->whereNull('b4.target')
             ->whereNull('b5.blocked_id')
             ->whereNull('b6.blocked_id')
             ->whereNull('b7.member_id')
