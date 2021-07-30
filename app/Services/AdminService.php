@@ -45,10 +45,12 @@ class AdminService
      * @return $admin or false
      */
     public static function checkAdmin(){
-        $banned_users = banned_users::select('member_id')->get();
-        $admin = User::where('name', 'like', '%'.'站長'.'%')
-                       ->whereNotIn('id', $banned_users)
-                       ->get()->first();
+//        $banned_users = banned_users::select('member_id')->get();
+//        $admin = User::where('name', 'like', '%'.'站長'.'%')
+//                       ->whereNotIn('id', $banned_users)
+//                       ->get()->first();
+        // todo: 效能問題
+        $admin = User::find(1049);
         if ($admin){
             return $admin;
         }
