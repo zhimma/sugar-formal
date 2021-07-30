@@ -684,91 +684,99 @@
 	@endforeach
 </table>
 
+@php
+	//曾被警示
+	$isEverWarned_log=array();
+    if(isset($isEverWarned) && count($isEverWarned)>0){
+        foreach($isEverWarned as $key =>$row){
+            $isEverWarned_log[$key]['created_at']=$row->created_at;
+            $isEverWarned_log[$key]['reason']=$row->reason;
+        }
+    }
+    //曾被封鎖
+    $isEverBanned_log=array();
+    if(isset($isEverBanned) && count($isEverBanned)>0){
+        foreach($isEverBanned as $key =>$row){
+            $isEverBanned_log[$key]['created_at']=$row->created_at;
+            $isEverBanned_log[$key]['reason']=$row->reason;
+            $isEverBanned_log[$key]['expire_date']=$row->expire_date;
+        }
+    }
+    //目前正被警示
+     $isWarned_show=array();
+    if(isset($isWarned) && count($isWarned)>0){
+         foreach($isWarned as $row){
+             $isWarned_show['created_at']=$row->created_at;
+             $isWarned_show['reason']=$row->reason;
+             $isWarned_show['expire_date']=$row->expire_date;
+         }
+    }
+    //目前正被封鎖
+    $isBanned_show=array();
+    if(isset($isBanned) && count($isBanned)>0){
+         foreach($isBanned as $row){
+             $isBanned_show['created_at']=$row->created_at;
+             $isBanned_show['reason']=$row->reason;
+             $isBanned_show['expire_date']=$row->expire_date;
+         }
+    }
 
-<h4>曾被警示</h4>
-@if(isset($isEverWarned) && count($isEverWarned)>0)
+@endphp
+<br>
 <table class="table table-hover table-bordered">
 	<tr>
-		<th width="30%">警示時間</th>
-		<th>原因</th>
+		<th width="5%"></th>
+		<th width="5%">是否警示</th>
+		<th width="5%">是否封鎖</th>
+		<th width="5%">曾被警示</th>
+		<th width="5%"></th>
+		<th width="5%"></th>
+		<th width="5%">更多警示</th>
+		<th width="5%">曾被封鎖</th>
+		<th width="5%"></th>
+		<th width="5%"></th>
+		<th width="5%">更多封鎖</th>
 	</tr>
-
-	@foreach($isEverWarned as $row)
-		<tr>
-			<td>{{$row->created_at}}</td>
-			<td>{{$row->reason}}</td>
-		</tr>
-	@endforeach
-
-</table>
-{!! $isEverWarned->links('pagination::sg-pages') !!}
-@endif
-
-
-<h4>曾被封鎖</h4>
-@if(isset($isEverBanned) && count($isEverBanned)>0)
-<table class="table table-hover table-bordered">
 	<tr>
-		<th width="30%">封鎖時間</th>
-		<th>原因</th>
-{{--		<th>到期時間</th>--}}
+		<th>時間</th>
+		<td>{{ array_get($isWarned_show,'created_at') }}</td>
+		<td>{{ array_get($isBanned_show,'created_at') }}</td>
+		<td>{{ array_get($isEverWarned_log,'0.created_at') }}</td>
+		<td>{{ array_get($isEverWarned_log,'1.created_at') }}</td>
+		<td>{{ array_get($isEverWarned_log,'2.created_at') }}</td>
+		<td><a href="/admin/users/WarnedOrBannedLog/Warned/{{ $user->id }}" target="_blank">查看更多</a></td>
+		<td>{{ array_get($isEverBanned_log,'0.created_at') }}</td>
+		<td>{{ array_get($isEverBanned_log,'1.created_at') }}</td>
+		<td>{{ array_get($isEverBanned_log,'2.created_at') }}</td>
+		<td><a href="/admin/users/WarnedOrBannedLog/Banned/{{ $user->id }}" target="_blank">查看更多</a></td>
 	</tr>
-
-	@foreach($isEverBanned as $row)
-		<tr>
-			<td>{{$row->created_at}}</td>
-			<td>{{$row->reason}}</td>
-{{--			<td>{{$row->expire_date}}</td>--}}
-		</tr>
-	@endforeach
-
-</table>
-{!! $isEverBanned->links('pagination::sg-pages') !!}
-@endif
-
-
-<h4>目前正被警示</h4>
-@if(isset($isWarned) && count($isWarned)>0)
-<table class="table table-hover table-bordered">
 	<tr>
-		<th width="30%">警示時間</th>
 		<th>原因</th>
-		<th>到期時間</th>
+		<td>{{ array_get($isWarned_show,'reason') }}</td>
+		<td>{{ array_get($isBanned_show,'reason') }}</td>
+		<td>{{ array_get($isEverWarned_log,'0.reason') }}</td>
+		<td>{{ array_get($isEverWarned_log,'1.reason') }}</td>
+		<td>{{ array_get($isEverWarned_log,'2.reason') }}</td>
+		<td></td>
+		<td>{{ array_get($isEverBanned_log,'0.reason') }}</td>
+		<td>{{ array_get($isEverBanned_log,'1.reason') }}</td>
+		<td>{{ array_get($isEverBanned_log,'2.reason') }}</td>
+		<td></td>
 	</tr>
-
-	@foreach($isWarned as $row)
-		<tr>
-			<td>{{$row->created_at}}</td>
-			<td>{{$row->reason}}</td>
-			<td>{{$row->expire_date}}</td>
-		</tr>
-	@endforeach
-
-</table>
-{!! $isWarned->links('pagination::sg-pages') !!}
-@endif
-
-
-<h4>目前正被封鎖</h4>
-@if(isset($isBanned) && count($isBanned)>0)
-<table class="table table-hover table-bordered">
 	<tr>
-		<th width="30%">封鎖時間</th>
-		<th>原因</th>
-		<th>到期時間</th>
+		<th>到期日</th>
+		<td>{{ array_get($isWarned_show,'expire_date') }}</td>
+		<td>{{ array_get($isBanned_show,'expire_date') }}</td>
+		<td>{{ array_get($isEverWarned_log,'0.expire_date') }}</td>
+		<td>{{ array_get($isEverWarned_log,'1.expire_date') }}</td>
+		<td>{{ array_get($isEverWarned_log,'2.expire_date') }}</td>
+		<td></td>
+		<td>{{ array_get($isEverBanned_log,'0.expire_date') }}</td>
+		<td>{{ array_get($isEverBanned_log,'1.expire_date') }}</td>
+		<td>{{ array_get($isEverBanned_log,'2.expire_date') }}</td>
+		<td></td>
 	</tr>
-
-	@foreach($isBanned as $row)
-		<tr>
-			<td>{{$row->created_at}}</td>
-			<td>{{$row->reason}}</td>
-			<td>{{$row->expire_date}}</td>
-		</tr>
-	@endforeach
-
 </table>
-{!! $isBanned->links('pagination::sg-pages') !!}
-@endif
 
 @php
 	$userAdvInfo=\App\Models\User::userAdvInfo($user->id);
@@ -814,11 +822,20 @@
 {{--		<td>登入時間</td>--}}
 {{--	</tr>--}}
 	@foreach($userLogin_log as $logInLog)
-		<tr data-toggle="collapse" data-target="#loginTime{{substr($logInLog->loginDate,0,7)}}" class="accordion-toggle">
-			<td colspan="6">{{ substr($logInLog->loginDate,0,7) . ' ['. $logInLog->dataCount .']' }}  </td>
+		<tr>
+			<td>
+				<span class="loginItem" id="showloginTime{{substr($logInLog->loginDate,0,7)}}" data-sectionName="loginTime{{substr($logInLog->loginDate,0,7)}}">{{ substr($logInLog->loginDate,0,7) . ' ['. $logInLog->dataCount .']' }}</span>
+				@foreach(array_get($logInLog->Ip,'Ip_group',[]) as $gpKey =>$group)
+					<span class="loginItem" id="showIp{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="Ip{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" style="margin-left: 20px;">{{ $group->ip.'('.$group->dataCount .')' }}</span>
+				@endforeach
+				@foreach(array_get($logInLog->CfpID,'CfpID_group',[]) as $gpKey =>$group)
+					<span class="loginItem" id="showcfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="cfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" style="margin-left: 20px;">{{ $group->cfp_id.'('.$group->dataCount .')' }}</span>
+				@endforeach
+			</td>
+
 		</tr>
-		<tr class="accordian-body collapse" id="loginTime{{substr($logInLog->loginDate,0,7)}}">
-			<td class="hiddenRow" colspan="">
+		<tr class="showLog" id="loginTime{{substr($logInLog->loginDate,0,7)}}">
+			<td>
 					<table class="table table-bordered" style="display: block; max-height: 500px; overflow-x: scroll;">
 						<thead>
 						<tr class="info">
@@ -856,6 +873,88 @@
 					</table>
 			</td>
 		</tr>
+		@foreach(array_get($logInLog->Ip,'Ip_group_items',[]) as $gpKey =>$group_items)
+			<tr class="showLog" id="Ip{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}">
+				<td>
+					<table class="table table-bordered" style="display: block; max-height: 500px; overflow-x: scroll;">
+						<thead>
+						<tr class="info">
+							<th>登入時間</th>
+							<th>IP</th>
+							<th>登入裝置</th>
+							<th>User Agent</th>
+							<th>cfp_id</th>
+							<th>Country</th>
+						</tr>
+						</thead>
+						<tbody>
+						@foreach($group_items as $key => $item)
+							<tr>
+								<?php
+								// $sitem = explode("/i#", $item);
+								if(preg_match("/(iPod|iPhone)/", $item->userAgent))
+									$device = '手機';
+								else if(preg_match("/iPad/", $item->userAgent))
+									$device = '平板';
+								else if(preg_match("/android/i", $item->userAgent))
+									$device = '手機';
+								else
+									$device = '電腦';
+								?>
+								<td>{{$item->created_at}}</td>
+								<td><a href="{{ route('getIpUsers', [$item->ip]) }}" target="_blank">{{$item->ip}}</a></td>
+								<td>{{ $device }}</td>
+								<td>{{ str_replace("Mozilla/5.0","", $item->userAgent) }}</td>
+								<td>{{$item->cfp_id}}</td>
+								<td>{{$item->country}}</td>
+							</tr>
+						@endforeach
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		@endforeach
+		@foreach(array_get($logInLog->CfpID,'CfpID_group_items',[]) as $gpKey =>$group_items)
+			<tr class="showLog" id="cfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}">
+				<td>
+					<table class="table table-bordered" style="display: block; max-height: 500px; overflow-x: scroll;">
+						<thead>
+						<tr class="info">
+							<th>登入時間</th>
+							<th>IP</th>
+							<th>登入裝置</th>
+							<th>User Agent</th>
+							<th>cfp_id</th>
+							<th>Country</th>
+						</tr>
+						</thead>
+						<tbody>
+						@foreach($group_items as $key => $item)
+							<tr>
+								<?php
+								// $sitem = explode("/i#", $item);
+								if(preg_match("/(iPod|iPhone)/", $item->userAgent))
+									$device = '手機';
+								else if(preg_match("/iPad/", $item->userAgent))
+									$device = '平板';
+								else if(preg_match("/android/i", $item->userAgent))
+									$device = '手機';
+								else
+									$device = '電腦';
+								?>
+								<td>{{$item->created_at}}</td>
+								<td><a href="{{ route('getIpUsers', [$item->ip]) }}" target="_blank">{{$item->ip}}</a></td>
+								<td>{{ $device }}</td>
+								<td>{{ str_replace("Mozilla/5.0","", $item->userAgent) }}</td>
+								<td>{{$item->cfp_id}}</td>
+								<td>{{$item->country}}</td>
+							</tr>
+						@endforeach
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		@endforeach
 	@endforeach
 </table>
 
@@ -1068,8 +1167,8 @@
 			<td>
 				<input type="hidden" name="userId" value="{{$user->id}}">
 				<input type="hidden" name="imgId" value="{{$pic->id}}">
-				<div style="width:400px">
-					<img src="{{$pic->pic}}" />
+				<div style="width:250px;height:250px;">
+					<img src="{{$pic->pic}}" style="width: 250px;height: 250px;object-fit: contain;">
 				</div>
 			</td>
 		</tr>
@@ -1362,6 +1461,13 @@ jQuery(document).ready(function(){
 		}else{
 			$(this).find('.hidden').show()
 		}
+	});
+
+	$('.showLog').hide();
+	$('.loginItem').click(function(){
+		var sectionName =$(this).attr('data-sectionName');
+		$('.showLog').hide();
+		$('#'+sectionName).show();
 	});
 });
 function Release(id) {

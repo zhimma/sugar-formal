@@ -4504,23 +4504,23 @@ class PagesController extends BaseController
         //新會員：做完新手教學，填寫完基本資料，於第一次進入專屬頁面時跳通知，之後就在上線第 3,6,10 次在會員專屬頁通知。
         $showLineNotifyPop=false;
         if(is_null($user->line_notify_token)){
-            if($user->created_at<='2021-07-23' && in_array($user->line_notify_alert,[3,6,10])){
+            if(in_array($user->line_notify_alert,[3,6,10])){
                 $showLineNotifyPop=true;
             }
-            if($user->created_at>='2021-07-23' && $user->line_notify_alert==1){
+            if($user->created_at>='2021-07-23' && $user->line_notify_alert<=1){
                 $showLineNotifyPop=true;
             }
         }
         $login_times=$user->line_notify_alert;
         if($showLineNotifyPop){
-            $showLineNotifyPop= session()->get('alreadyPopUp_lineNotify') !== $login_times.'_Y' ? true : false;
+            $showLineNotifyPop= session()->get('alreadyPopUp_lineNotify') == $login_times.'_Y' ? false : true;
         }
 
         //是否有系統提示訊息
         $announceRead = AnnouncementRead::select('announcement_id')->where('user_id', $user->id)->get();
         $announcement = AdminAnnounce::where('en_group', $user->engroup)->whereNotIn('id', $announceRead)->orderBy('sequence', 'asc')->get();
         $announcePopUp='N';
-        if(isset($announcement) && count($announcement) > 0 ){
+        if(isset($announcement) && count($announcement) > 0 && !session()->get('announceClose')){
             $announcePopUp='Y';
         }
 
@@ -4551,7 +4551,7 @@ class PagesController extends BaseController
                 ->with('myFav', $myFav)
                 ->with('otherFav',$otherFav)
                 ->with('admin_msgs',$admin_msgs)
-							->with('admin',$admin);
+                ->with('admin',$admin);
                 
         }
 

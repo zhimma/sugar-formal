@@ -153,7 +153,7 @@
                     <div class="sys_aa">
                         <div class="tabbox_new_dt"><span>收件夾通訊人數</span></div>
                         <div class="tabbox_new_dd">
-                            <h2 class="tabbox_hsz">{{$msgMemberCount}}</h2>
+                            <h2 class="tabbox_hsz">@if(empty($msgMemberCount))0 @else{{$msgMemberCount}}@endif</h2>
                         </div>
                     </div>
                     <div class="sys_aa">
@@ -171,7 +171,7 @@
 							<span class="iconfont icon-shanchu zixu_cs1">刪除</span>
 							<label class="iconfont icon-kuang zixu_cs2"  style="margin-top: 2px; margin-right: 3px; float:right ;"><input type="checkbox" class="qxuan">全選</label>
 						</div>
-						@endif							
+						@endif
 						</div>
                         <div class="tabbox_new_dd">
 						@if(isset($admin_msgs) && count($admin_msgs))
@@ -185,7 +185,7 @@
 							@endforeach
 						@else
 							<h2 class="tabbox_h2 ta_l"><span class="tu_dfont">暫無系統信</span></h2>
-						@endif						
+						@endif
                         </div>
                     </div>
 
