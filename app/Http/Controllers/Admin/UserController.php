@@ -826,7 +826,33 @@ class UserController extends \App\Http\Controllers\BaseController
             ->groupBy(DB::raw("LEFT(created_at,7)"))
             ->orderBy('created_at','DESC')->get();
         foreach ($userLogin_log as $key => $value) {
-            $userLogin_log[$key]['items'] = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->orderBy('created_at','DESC')->get();
+            $dataLog=LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->orderBy('created_at','DESC');
+            $userLogin_log[$key]['items'] = $dataLog->get();
+
+            //ip
+            $Ip_group= LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' . $value->loginMonth . '%')
+                ->from('log_user_login as log')
+                ->selectRaw('ip, count(*) as dataCount, (select created_at from log_user_login as s where s.user_id=log.user_id and s.ip=log.ip and s.created_at like "%'.$value->loginMonth.'%" order by created_at desc LIMIT 1 ) as loginTime')
+                ->groupBy(DB::raw("ip"))->orderBy('loginTime','desc')->get();
+            $Ip=array();
+            foreach ($Ip_group as $Ip_key => $group){
+                $Ip['Ip_group'][$Ip_key]=$group;
+                $Ip['Ip_group_items'][$Ip_key] = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('ip',$group->ip)->orderBy('created_at','DESC')->get();
+            }
+            $userLogin_log[$key]['Ip']=$Ip;
+
+            //cfp_id
+            $CfpID_group= LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' . $value->loginMonth . '%')
+                ->from('log_user_login as log')
+                ->selectRaw('cfp_id,count(*) as dataCount, (select created_at from log_user_login as s where s.user_id=log.user_id and s.cfp_id=log.cfp_id and s.created_at like "%'.$value->loginMonth.'%" order by created_at desc LIMIT 1 ) as loginTime')
+                ->whereNotNull('cfp_id')
+                ->groupBy(DB::raw("cfp_id"))->orderBy('loginTime','desc')->get();
+            $CfpID=array();
+            foreach ($CfpID_group as $CfpID_key => $group){
+                $CfpID['CfpID_group'][$CfpID_key]=$group;
+                $CfpID['CfpID_group_items'][$CfpID_key] = LogUserLogin::where('user_id', $user->id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('cfp_id',$group->cfp_id)->orderBy('created_at','DESC')->get();
+            }
+            $userLogin_log[$key]['CfpID']=$CfpID;
         }
 
         //個人檢舉紀錄

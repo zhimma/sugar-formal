@@ -822,11 +822,20 @@
 {{--		<td>登入時間</td>--}}
 {{--	</tr>--}}
 	@foreach($userLogin_log as $logInLog)
-		<tr data-toggle="collapse" data-target="#loginTime{{substr($logInLog->loginDate,0,7)}}" class="accordion-toggle">
-			<td colspan="6">{{ substr($logInLog->loginDate,0,7) . ' ['. $logInLog->dataCount .']' }}  </td>
+		<tr>
+			<td>
+				<span class="loginItem" id="showloginTime{{substr($logInLog->loginDate,0,7)}}" data-sectionName="loginTime{{substr($logInLog->loginDate,0,7)}}">{{ substr($logInLog->loginDate,0,7) . ' ['. $logInLog->dataCount .']' }}</span>
+				@foreach(array_get($logInLog->Ip,'Ip_group',[]) as $gpKey =>$group)
+					<span class="loginItem" id="showIp{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="Ip{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" style="margin-left: 20px;">{{ $group->ip.'('.$group->dataCount .')' }}</span>
+				@endforeach
+				@foreach(array_get($logInLog->CfpID,'CfpID_group',[]) as $gpKey =>$group)
+					<span class="loginItem" id="showcfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="cfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" style="margin-left: 20px;">{{ $group->cfp_id.'('.$group->dataCount .')' }}</span>
+				@endforeach
+			</td>
+
 		</tr>
-		<tr class="accordian-body collapse" id="loginTime{{substr($logInLog->loginDate,0,7)}}">
-			<td class="hiddenRow" colspan="">
+		<tr class="showLog" id="loginTime{{substr($logInLog->loginDate,0,7)}}">
+			<td>
 					<table class="table table-bordered" style="display: block; max-height: 500px; overflow-x: scroll;">
 						<thead>
 						<tr class="info">
@@ -864,6 +873,88 @@
 					</table>
 			</td>
 		</tr>
+		@foreach(array_get($logInLog->Ip,'Ip_group_items',[]) as $gpKey =>$group_items)
+			<tr class="showLog" id="Ip{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}">
+				<td>
+					<table class="table table-bordered" style="display: block; max-height: 500px; overflow-x: scroll;">
+						<thead>
+						<tr class="info">
+							<th>登入時間</th>
+							<th>IP</th>
+							<th>登入裝置</th>
+							<th>User Agent</th>
+							<th>cfp_id</th>
+							<th>Country</th>
+						</tr>
+						</thead>
+						<tbody>
+						@foreach($group_items as $key => $item)
+							<tr>
+								<?php
+								// $sitem = explode("/i#", $item);
+								if(preg_match("/(iPod|iPhone)/", $item->userAgent))
+									$device = '手機';
+								else if(preg_match("/iPad/", $item->userAgent))
+									$device = '平板';
+								else if(preg_match("/android/i", $item->userAgent))
+									$device = '手機';
+								else
+									$device = '電腦';
+								?>
+								<td>{{$item->created_at}}</td>
+								<td><a href="{{ route('getIpUsers', [$item->ip]) }}" target="_blank">{{$item->ip}}</a></td>
+								<td>{{ $device }}</td>
+								<td>{{ str_replace("Mozilla/5.0","", $item->userAgent) }}</td>
+								<td>{{$item->cfp_id}}</td>
+								<td>{{$item->country}}</td>
+							</tr>
+						@endforeach
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		@endforeach
+		@foreach(array_get($logInLog->CfpID,'CfpID_group_items',[]) as $gpKey =>$group_items)
+			<tr class="showLog" id="cfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}">
+				<td>
+					<table class="table table-bordered" style="display: block; max-height: 500px; overflow-x: scroll;">
+						<thead>
+						<tr class="info">
+							<th>登入時間</th>
+							<th>IP</th>
+							<th>登入裝置</th>
+							<th>User Agent</th>
+							<th>cfp_id</th>
+							<th>Country</th>
+						</tr>
+						</thead>
+						<tbody>
+						@foreach($group_items as $key => $item)
+							<tr>
+								<?php
+								// $sitem = explode("/i#", $item);
+								if(preg_match("/(iPod|iPhone)/", $item->userAgent))
+									$device = '手機';
+								else if(preg_match("/iPad/", $item->userAgent))
+									$device = '平板';
+								else if(preg_match("/android/i", $item->userAgent))
+									$device = '手機';
+								else
+									$device = '電腦';
+								?>
+								<td>{{$item->created_at}}</td>
+								<td><a href="{{ route('getIpUsers', [$item->ip]) }}" target="_blank">{{$item->ip}}</a></td>
+								<td>{{ $device }}</td>
+								<td>{{ str_replace("Mozilla/5.0","", $item->userAgent) }}</td>
+								<td>{{$item->cfp_id}}</td>
+								<td>{{$item->country}}</td>
+							</tr>
+						@endforeach
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		@endforeach
 	@endforeach
 </table>
 
@@ -1076,8 +1167,8 @@
 			<td>
 				<input type="hidden" name="userId" value="{{$user->id}}">
 				<input type="hidden" name="imgId" value="{{$pic->id}}">
-				<div style="width:400px">
-					<img src="{{$pic->pic}}" />
+				<div style="width:250px;height:250px;">
+					<img src="{{$pic->pic}}" style="width: 250px;height: 250px;object-fit: contain;">
 				</div>
 			</td>
 		</tr>
@@ -1370,6 +1461,13 @@ jQuery(document).ready(function(){
 		}else{
 			$(this).find('.hidden').show()
 		}
+	});
+
+	$('.showLog').hide();
+	$('.loginItem').click(function(){
+		var sectionName =$(this).attr('data-sectionName');
+		$('.showLog').hide();
+		$('#'+sectionName).show();
 	});
 });
 function Release(id) {
