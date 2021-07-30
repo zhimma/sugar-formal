@@ -759,8 +759,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/unwarned_user', 'UserController@unwarnedUser');/*站方警示*/
         Route::post('users/changeExchangePeriod', 'UserController@changeExchangePeriod')->name('changeExchangePeriod');/*包養關係*/
         Route::get('users/showDuplicate', 'FindPuppetController@display');
+        Route::get('users/showDuplicateTmp', 'FindPuppetControllerTmp@display');		
         Route::get('users/checkDuplicate', 'FindPuppetController@entrance');
-        Route::get('users/showLog', 'FindPuppetController@displayDetail');
+        Route::get('users/showLogBk', 'FindPuppetController@displayDetail');
+		Route::get('users/showLog', 'FindPuppetControllerTmp@displayDetail');
         Route::get('too_many_requests', 'PagesController@tooManyRequests')->name('tooMantRequests');
         Route::get("sendFakeMail/{repeat?}/{str?}", function(){
             $str = "";
