@@ -435,7 +435,6 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $show = $request->show;
         $start = $request->start;
         $groupOrderArr = [];
-		$rowLastLoginArr = [];
         
         if($have_mon_limit && (!isset($mon) || !$mon) && $show!='text') {
 
@@ -479,25 +478,17 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                 $text=null;
             }
 
-            $colQuery = $this->column->where($whereArr)->orderBy('type');
+            $colQuery = $this->column->where($whereArr);
             if($show=='text') {
                  if($g) $colQuery->where('group_index',$g);
             }
             $colEntrys = $colQuery->get();
-			$colIdxOfIp = [];
-			$colIdxOfCfpId = [];
             foreach($colEntrys as $colEntry) {
                 if(isset($groupInfo[$colEntry->group_index]['cutData']) && $groupInfo[$colEntry->group_index]['cutData'] && $colEntry->column_index>$data['colLimit']) continue;
                 
                $this->_columnIp[$colEntry->group_index][$colEntry->column_index] = $colEntry->name;
                $this->_columnType[$colEntry->group_index][$colEntry->column_index] = $colEntry->type;
-				
-				if($colEntry->type=='ip') {
-					$colIdxOfIp[$colEntry->group_index][] = $colEntry->column_index;
-				}
-				else if($colEntry->type=='cfp_id'){
-					$colIdxOfCfpId[$colEntry->group_index][] = $colEntry->column_index;
-				}
+
             }
             
             $rowQuery = $this->row->where($whereArr);
@@ -505,7 +496,6 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                  if($g) $rowQuery->where('group_index',$g);
             }            
             $rowEntrys = $rowQuery->get();
-			$max_email_len = 0;
             foreach($rowEntrys as $rowEntry) {
                 if($show=='text') {
                     $this->_rowUserId[$rowEntry->group_index][$rowEntry->row_index]  = $rowEntry->name;
@@ -520,15 +510,10 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     if($cur_user->user_meta->isWarned || $cur_user->aw_relation)  $cur_user->tag_class.= 'isWarned ';
                     if($cur_user->accountStatus===0) $cur_user->tag_class.= 'isClosed ';
                     if($cur_user->account_status_admin===0) $cur_user->tag_class.= 'isClosedByAdmin ';
-					if(isset($cur_user->email) && strlen($cur_user->email)>$max_email_len) $max_email_len = strlen($cur_user->email);
                     $this->_rowUserId[$rowEntry->group_index][$rowEntry->row_index] = $cur_user;
-					$rowLastLoginArr[$rowEntry->group_index][$rowEntry->row_index] = $cur_user->last_login;
-					arsort($rowLastLoginArr[$rowEntry->group_index]);
                     $cur_user = null;
                 }
             }  
-			if($max_email_len<30) $max_email_len=30;
-			$data['max_email_len'] = $max_email_len;
             
             $cellQuery = $this->cell->where($whereArr);
             if($show=='text') {
@@ -596,10 +581,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         }
         
     $data['groupOrderArr'] = $groupOrderArr;
-	$data['rowLastLoginArr'] = $rowLastLoginArr;
-	$data['colIdxOfCfpId'] = $colIdxOfCfpId;
-	$data['colIdxOfIp'] = $colIdxOfIp;  
-	
+        
     return view('findpuppet',$data)
             ->with('columnSet', $this->_columnIp)
             ->with('columnTypeSet',$this->_columnType)
@@ -621,7 +603,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $title='';
         $showLogQuery = [];
         
-        $colnames = ['user_id','ip','cfp_id','created_at','userAgent'];
+        $colnames = ['user_id','ip','cfp_id','created_at'];
         
         if($time) {
             $usuery = $this->model->where('created_at','<',$time)->take(10)->orderByDesc('created_at');
@@ -665,7 +647,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
             foreach($logEntrys as $logEntry) {
                 $html.='<tr>';
                 foreach($colnames  as $colname) {
-                    if($colname!='created_at' && $colname!='userAgent') {
+                    if($colname!='created_at') {
                         $link_start = '<a target="_blank" href="'.$request->url().'?'.$colname.'='.$logEntry->$colname.(isset($mon)?'&mon='.$mon:'').'">';
                         $link_end = '</a>';
                     }

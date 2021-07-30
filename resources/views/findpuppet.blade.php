@@ -2,12 +2,10 @@
 @section('app-content')
 
 <style>
-	body table.table-hover {width:auto;max-width:none;}
 	body table.table-hover tr.banned,table tr.implicitlyBanned {background-color:#FDFF8C;}
 	body table.table-hover tr.isWarned {background-color:#B0FFB1;}
 	body table.table-hover tr.isClosed {background-color:#C9C9C9;}
 	body table.table-hover tr.isClosedByAdmin {background-color:#969696;}
-	body table.table-hover tr td.col_ip_first ,body table.table-hover tr th.col_ip_first {border-left: 6px solid #000;}
 	td.group_last_time {background-color:#FF9999 !important;}
 	body table tr td,body table tr th {white-space: nowrap;}
 	body table tr td.ignore_msg {text-align: left;vertical-align: top;border-bottom:none;}
@@ -46,10 +44,10 @@
 <h2> @if(isset($columnSet) && $columnSet) {{$start_date}} ～ {{$end_date}} @endif 相同IP帳號分析數據</h2>
 </div>
 @forelse ($groupOrderArr as $gidx=>$g)
-<br><br>
+
 <div class="show">
 	
-    <h2>第 {{ $gidx+1 }} 組</h2>
+    <h2>第 {{ $gidx+1 }} 組<span class="group_last_time">最後登入時間：{{date('m/d-H:i',strtotime($groupInfo[$g]['last_time']))}}</span></h2>
 	@if ($groupInfo[$g]['cutData'])
 	<div class="attentioninfo">
 		<h3>請注意!!!</h3>
@@ -64,39 +62,23 @@
 	@endif
     <table class="table-hover table table-bordered {{isset($groupInfo[$g]['cutData'])?'ignore_msg':''}}">
         <tr>
-            <th>&nbsp;&nbsp;User id&nbsp;&nbsp;</th>
-			<th>{!!str_repeat('&nbsp;',ceil(($max_email_len-5)/2)*2)!!}Email{!!str_repeat('&nbsp;',floor(($max_email_len-5)/2)*2)!!}</th>
+            <th></th>
+			<th>Email</th>
 			<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;暱稱&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 			<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;一句話&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 			<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;關於我&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 			<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;約會模式&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-			<th>最後上線時間</th>
-    @foreach ($colIdxOfCfpId[$g] as $c)
-	{{--  @foreach ($columnSet[$g] as $c=> $colName) --}}
-            <th class="{{$columnTypeSet[$g][$c] ?? ''}}_th">
-				{!!str_repeat('&nbsp;',floor((20-strlen($columnSet[$g][$c]))/2)*2)!!}			
-				<a target="_blank" href="{{'showLog?'.$columnTypeSet[$g][$c].'='.$columnSet[$g][$c].(request()->mon?'&mon='.request()->mon:'')}}">
-				{{$columnSet[$g][$c]}}
+    @foreach ($columnSet[$g] as $c=> $colName)
+            <th class="{{$columnTypeSet[$g][$c] ?? ''}}_th"> 
+				<a target="_blank" href="{{$columnTypeSet[$g][$c]=='ip'?route('get'.ucfirst($columnTypeSet[$g][$c]).'Users',$colName):'showLog?'.$columnTypeSet[$g][$c].'='.$colName.(request()->mon?'&mon='.request()->mon:'')}}">{{$colName}}
 				</a>
-				{!!str_repeat('&nbsp;',floor((20-strlen($columnSet[$g][$c]))/2)*2)!!}		
 			</th>
     @endforeach
-    @foreach ($colIdxOfIp[$g] as $i=>$c)
-            <th class="{{$columnTypeSet[$g][$c] ?? ''}}_th {{$i?'':'col_ip_first'}}">
-				{!!str_repeat('&nbsp;',floor((20-strlen($columnSet[$g][$c]))/2)*2)!!}			
-				<a target="_blank" href="{{route('getIpUsers',$columnSet[$g][$c])}}">
-				{{$columnSet[$g][$c]}}
-				</a>
-				{!!str_repeat('&nbsp;',floor((20-strlen($columnSet[$g][$c]))/2)*2)!!}		
-			</th>
-    @endforeach	
 			@if (isset($groupInfo[$g]['cutData']) && $groupInfo[$g]['cutData'])
 			<td rowspan="101" class="ignore_msg">略...........</td>
 			@endif
         </tr>
-	{{-- @foreach ($rowSet[$g] as $r=>$user) --}}
-		@foreach(array_keys($rowLastLoginArr[$g]) as $r) 
-		@php $user = $rowSet[$g][$r]; @endphp
+    @foreach ($rowSet[$g] as $r=>$user)
         <tr class="{{$user->tag_class}}">
             <th>
 			<a target="_blank" href="showLog?user_id={{$user->id}}{{request()->mon?'&mon='.request()->mon:''}}">
@@ -130,19 +112,14 @@
 				<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
 					<a href="#" class="user user_meta_style" title="{{$user->user_meta->style}}" onclick="return false;">{{ mb_strlen($user->user_meta->style)>16?mb_substr($user->user_meta->style,0,17).'...':$user->user_meta->style }}</a>
 				</th>
-				<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
-					{{isset($user->last_login)?date('m/d-H:i',strtotime($user->last_login)):''}}
-				</th>
 			@else
 				<th></th>
 				<th></th>
 				<th></th>
 				<th></th>
 				<td></td>
-				<td></td>
 			@endif
-			@foreach ($colIdxOfCfpId[$g] as $n)
-			{{-- @for ($n=0;$n<count($columnSet[$g]);$n++) --}}
+			@for ($n=0;$n<count($columnSet[$g]);$n++)
 				<td @if($user) style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif" @endif class=" @if($groupInfo[$g]['last_time']===$cellValue[$g][$r][$n]->time) group_last_time @endif">
 					@if(isset($cellValue[$g][$r][$n]))
 					{{$cellValue[$g][$r][$n]->time ? date('m/d-H:i',strtotime($cellValue[$g][$r][$n]->time)): ''}}
@@ -151,17 +128,7 @@
 						無
 					@endif
 				</td>
-			@endforeach
-			@foreach ($colIdxOfIp[$g] as $i=>$n)
-				<td @if($user) style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif" @endif class=" @if($groupInfo[$g]['last_time']===$cellValue[$g][$r][$n]->time) group_last_time @endif {{$i?'':'col_ip_first'}}">
-					@if(isset($cellValue[$g][$r][$n]))
-					{{$cellValue[$g][$r][$n]->time ? date('m/d-H:i',strtotime($cellValue[$g][$r][$n]->time)): ''}}
-					(<a target="_blank" href="showLog?user_id={{$user->id}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">{{$cellValue[$g][$r][$n]->num ?? ''}}次</a>)
-					@else
-						無
-					@endif
-				</td>
-			@endforeach			
+			@endfor
         </tr>
     @endforeach   
 	@if (isset($groupInfo[$g]['cutData']) && $groupInfo[$g]['cutData'])
