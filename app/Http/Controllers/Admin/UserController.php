@@ -163,7 +163,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $setVip = 0;
             $user = Vip::select('member_id', 'active')
                 ->where('member_id', $request->user_id)
-                ->update(array('active' => $setVip, 'expiry' => '0000-00-00 00:00:00'));
+                ->update(array('active' => $setVip, 'expiry' => '0000-00-00 00:00:00', 'business_id' => '', 'order_id' => ''));
         } else {
             //提供VIP權限
             $setVip = 1;
