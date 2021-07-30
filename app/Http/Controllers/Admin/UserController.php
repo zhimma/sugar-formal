@@ -847,7 +847,7 @@ class UserController extends \App\Http\Controllers\BaseController
             ->leftJoin('warned_users as w','u.id','w.member_id')
             ->where('reported_pic.reporter_id',$user->id)->get();
 
-        $reported_avatar = ReportedAvatar::select('reported_avatar.id','reported_avatar.reported_user_id as rid', 'reported_avatar.content as reason', 'reported_avatar.created_at as reporter_time','u.name','u.email','u.engroup','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
+        $reported_avatar = ReportedAvatar::select('reported_avatar.id','reported_avatar.reported_user_id as rid', 'reported_avatar.content as reason','reported_avatar.pic as pic' , 'reported_avatar.created_at as reporter_time','u.name','u.email','u.engroup','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
             ->leftJoin('users as u', 'u.id','reported_avatar.reported_user_id')->where('u.id','!=',null)
             ->leftJoin('user_meta as m','u.id','m.user_id')
             ->leftJoin('banned_users as b','u.id','b.member_id')
@@ -904,7 +904,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
         //被檢舉紀錄
         //檢舉紀錄 reporter_id檢舉者uid  被檢舉者reported_user_id為此頁面主要會員
-        $pic_report1 = ReportedAvatar::select('reporter_id as uid', 'reported_user_id as edid', 'cancel', 'created_at', 'content')->where('reported_user_id', $user->id)->where('reporter_id', '!=', $user->id)->groupBy('reporter_id')->get();
+        $pic_report1 = ReportedAvatar::select('reporter_id as uid', 'reported_user_id as edid', 'cancel', 'created_at', 'content', 'pic')->where('reported_user_id', $user->id)->where('reporter_id', '!=', $user->id)->groupBy('reporter_id')->get();
         $pic_report2 = ReportedPic::select('reported_pic.reporter_id as uid', 'member_pic.member_id as edid', 'cancel', 'reported_pic.created_at', 'reported_pic.content')->join('member_pic', 'reported_pic.reported_pic_id', '=', 'member_pic.id')->where('member_pic.member_id', $user->id)->where('reported_pic.reporter_id', '!=', $user->id)->groupBy('reported_pic.reporter_id')->get();
         //大頭照與照片合併計算
         $collection = collect([$pic_report1, $pic_report2]);
@@ -950,6 +950,7 @@ class UserController extends \App\Http\Controllers\BaseController
                     'reported_id' => $row->edid,
                     'cancel' => $row->cancel,
                     'content' => $row->content,
+                    'pic' => is_null($row->pic) ? [] : json_decode($row->pic,true),
                     'created_at' => $row->created_at,
                     'tipcount' => Tip::TipCount_ChangeGood($row->uid),
                     'vip' => Vip::vip_diamond($row->uid),
