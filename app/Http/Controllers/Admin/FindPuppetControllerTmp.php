@@ -600,7 +600,7 @@ class FindPuppetControllerTmp extends \App\Http\Controllers\Controller
 	$data['colIdxOfCfpId'] = $colIdxOfCfpId;
 	$data['colIdxOfIp'] = $colIdxOfIp;  
 	
-    return view('findpuppet',$data)
+    return view('findpuppettmp',$data)
             ->with('columnSet', $this->_columnIp)
             ->with('columnTypeSet',$this->_columnType)
             ->with('rowSet', $this->_rowUserId)
