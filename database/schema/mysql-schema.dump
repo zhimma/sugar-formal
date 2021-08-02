@@ -458,52 +458,6 @@ CREATE TABLE `fingerprint2` (
   KEY `User_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `fingerprint2_bak`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fingerprint2_bak` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `fp` varchar(100) COLLATE utf8_unicode_ci NOT NULL COMMENT '指紋',
-  `ip` varchar(32) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `userAgent` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '使用者代理',
-  `webdriver` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'webdriver',
-  `language` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '語言',
-  `colorDepth` int(11) DEFAULT NULL COMMENT '顏色深度',
-  `deviceMemory` int(11) DEFAULT NULL COMMENT '裝置記憶體',
-  `pixelRatio` int(11) DEFAULT NULL COMMENT '像素比率',
-  `hardwareConcurrency` int(11) DEFAULT NULL COMMENT '硬體同時執行',
-  `screenResolution` varchar(1000) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '螢幕解析度',
-  `availableScreenResolution` varchar(1000) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '允許的螢幕解析度',
-  `timezoneOffset` int(11) DEFAULT NULL COMMENT '時區偏移',
-  `timezone` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '時區',
-  `sessionStorage` tinyint(1) DEFAULT NULL COMMENT 'session儲存',
-  `localStorage` tinyint(1) DEFAULT NULL COMMENT 'local儲存',
-  `indexedDb` tinyint(1) DEFAULT NULL COMMENT '索引的資料庫',
-  `addBehavior` tinyint(1) DEFAULT NULL COMMENT '新增行為',
-  `openDatabase` tinyint(1) DEFAULT NULL COMMENT '開啟資料庫',
-  `cpuClass` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'CPU等級',
-  `platform` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '平台',
-  `doNotTrack` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `plugins` varchar(5000) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '外掛',
-  `canvas` mediumtext COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'canvas',
-  `webgl` text COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'webgl',
-  `webglVendorAndRenderer` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'webgl庫&渲染器',
-  `adBlock` tinyint(1) DEFAULT NULL COMMENT '廣告阻擋器',
-  `hasLiedLanguages` tinyint(1) DEFAULT NULL,
-  `hasLiedResolution` tinyint(1) DEFAULT NULL,
-  `hasLiedOs` tinyint(1) DEFAULT NULL,
-  `hasLiedBrowser` tinyint(1) DEFAULT NULL,
-  `touchSupport` varchar(300) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '觸控支援',
-  `fonts` varchar(1500) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '字體',
-  `fontsFlash` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '字體快閃',
-  `audio` float DEFAULT NULL COMMENT '音頻',
-  `enumerateDevices` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '列舉設備',
-  `batterylevel` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp() COMMENT '建立時間',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `hide_online_data`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -877,25 +831,6 @@ CREATE TABLE `member_vip` (
   KEY `member_vip_member_id_index` (`member_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `member_vip_bak_20200322`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `member_vip_bak_20200322` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `member_id` int(10) unsigned NOT NULL,
-  `business_id` int(10) unsigned NOT NULL,
-  `order_id` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
-  `txn_id` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `amount` int(10) unsigned NOT NULL,
-  `expiry` datetime NOT NULL,
-  `active` int(11) NOT NULL,
-  `free` int(11) NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `member_vip_member_id_index` (`member_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `member_vip_log`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -941,10 +876,7 @@ CREATE TABLE `message` (
   KEY `message_from_id` (`from_id`,`to_id`) USING BTREE,
   KEY `created_at` (`created_at`),
   KEY `to_from_created_at` (`to_id`,`from_id`,`created_at`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
- PARTITION BY RANGE (`id`)
-(PARTITION `before2018` VALUES LESS THAN (852756) ENGINE = InnoDB,
- PARTITION `p2019` VALUES LESS THAN MAXVALUE ENGINE = InnoDB);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `message_admin_sent_user_log`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -955,83 +887,6 @@ CREATE TABLE `message_admin_sent_user_log` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `message_bak_20190413`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `message_bak_20190413` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `to_id` int(10) unsigned NOT NULL,
-  `from_id` int(10) unsigned NOT NULL,
-  `content` text COLLATE utf8_unicode_ci NOT NULL,
-  `read` char(1) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'N',
-  `all_delete_count` int(11) NOT NULL,
-  `is_row_delete_1` int(11) NOT NULL,
-  `is_row_delete_2` int(11) NOT NULL,
-  `is_single_delete_1` int(11) NOT NULL,
-  `is_single_delete_2` int(11) NOT NULL,
-  `temp_id` int(11) NOT NULL,
-  `isReported` int(2) NOT NULL DEFAULT 0,
-  `reportContent` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `message_id_index` (`to_id`),
-  KEY `message_from_id` (`from_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci MAX_ROWS=1000000000;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `message_bak_20200503`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `message_bak_20200503` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `to_id` int(10) unsigned NOT NULL,
-  `from_id` int(10) unsigned NOT NULL,
-  `content` text COLLATE utf8_unicode_ci NOT NULL,
-  `read` char(1) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'N',
-  `all_delete_count` int(11) NOT NULL,
-  `is_row_delete_1` int(11) NOT NULL,
-  `is_row_delete_2` int(11) NOT NULL,
-  `is_single_delete_1` int(11) NOT NULL,
-  `is_single_delete_2` int(11) NOT NULL,
-  `temp_id` int(11) NOT NULL,
-  `isReported` int(2) NOT NULL DEFAULT 0,
-  `reportContent` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `sys_notice` int(1) DEFAULT 0,
-  PRIMARY KEY (`id`),
-  KEY `message_id_index` (`to_id`,`from_id`) USING BTREE,
-  KEY `message_from_id` (`from_id`,`to_id`) USING BTREE,
-  KEY `created_at` (`created_at`),
-  KEY `to_from_created_at` (`to_id`,`from_id`,`created_at`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
- PARTITION BY RANGE (`id`)
-(PARTITION `before2018` VALUES LESS THAN (852756) ENGINE = InnoDB,
- PARTITION `p2019` VALUES LESS THAN MAXVALUE ENGINE = InnoDB);
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `message_bak_20200915`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `message_bak_20200915` (
-  `id` int(10) unsigned NOT NULL DEFAULT 0,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `to_id` int(10) unsigned NOT NULL,
-  `from_id` int(10) unsigned NOT NULL,
-  `content` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `read` char(1) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT 'N',
-  `all_delete_count` int(11) NOT NULL,
-  `is_row_delete_1` int(11) NOT NULL,
-  `is_row_delete_2` int(11) NOT NULL,
-  `is_single_delete_1` int(11) NOT NULL,
-  `is_single_delete_2` int(11) NOT NULL,
-  `temp_id` int(11) NOT NULL,
-  `isReported` int(2) NOT NULL DEFAULT 0,
-  `cancel` tinyint(1) NOT NULL DEFAULT 0,
-  `reportContent` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `sys_notice` int(1) DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `migrations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -1295,18 +1150,6 @@ CREATE TABLE `set_auto_ban` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `set_auto_ban_BAK_20200922`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `set_auto_ban_BAK_20200922` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `type` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `content` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
-  `set_ban` int(11) NOT NULL,
-  `cuz_user_set` int(10) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `short_message`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1392,7 +1235,6 @@ CREATE TABLE `user_meta` (
   `blockarea` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `budget` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `birthdate` date DEFAULT NULL,
-  `birthdate_old` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `height` int(11) DEFAULT 0,
   `weight` int(11) DEFAULT 0,
   `cup` char(1) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -1439,63 +1281,6 @@ CREATE TABLE `user_meta` (
   CONSTRAINT `user_meta_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `user_meta_OLD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `user_meta_OLD` (
-  `id` int(10) unsigned NOT NULL DEFAULT 0,
-  `user_id` int(10) unsigned NOT NULL,
-  `phone` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `is_active` tinyint(1) NOT NULL DEFAULT 0,
-  `activation_token` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `marketing` tinyint(1) NOT NULL DEFAULT 0,
-  `terms_and_cond` tinyint(1) NOT NULL DEFAULT 1,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `city` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `blockcity` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `area` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `blockarea` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `budget` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `birthdate` date DEFAULT NULL,
-  `birthdate_old` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `height` int(11) DEFAULT 0,
-  `weight` int(11) DEFAULT 0,
-  `cup` char(1) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `body` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `about` text CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `style` text CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `situation` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `occupation` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `education` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `marriage` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `drinking` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `smoking` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `isHideArea` char(1) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT '0',
-  `isHideCup` char(1) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT '0',
-  `isHideWeight` char(1) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT '0',
-  `isHideOccupation` char(1) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT '0',
-  `country` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `memo` text CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `pic` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `isAvatarHidden` int(2) NOT NULL DEFAULT 0,
-  `domainType` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `blockdomainType` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `domain` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `blockdomain` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `job` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `realName` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `assets` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `income` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `notifmessage` varchar(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `notifhistory` varchar(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `isWarned` int(1) NOT NULL DEFAULT 0,
-  `isWarnedRead` int(1) NOT NULL DEFAULT 0,
-  `isConsign` tinyint(1) DEFAULT 0 COMMENT '0:default; 1:交付中',
-  `consign_expiry_date` timestamp NULL DEFAULT NULL,
-  `name_change` tinyint(1) DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `user_meta_bak`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1515,68 +1300,6 @@ CREATE TABLE `user_meta_bak` (
   `blockarea` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `budget` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `birthdate` date DEFAULT NULL,
-  `birthdate_old` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `height` int(11) DEFAULT 0,
-  `weight` int(11) DEFAULT 0,
-  `cup` char(1) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `body` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `about` text COLLATE utf8_unicode_ci DEFAULT NULL,
-  `style` text COLLATE utf8_unicode_ci DEFAULT NULL,
-  `situation` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `occupation` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `education` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `marriage` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `drinking` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `smoking` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `isHideArea` char(1) COLLATE utf8_unicode_ci DEFAULT '0',
-  `isHideCup` char(1) COLLATE utf8_unicode_ci DEFAULT '0',
-  `isHideWeight` char(1) COLLATE utf8_unicode_ci DEFAULT '0',
-  `isHideOccupation` char(1) COLLATE utf8_unicode_ci DEFAULT '0',
-  `country` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `memo` text COLLATE utf8_unicode_ci DEFAULT NULL,
-  `pic` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `isAvatarHidden` int(2) NOT NULL DEFAULT 0,
-  `domainType` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `blockdomainType` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `domain` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `blockdomain` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `job` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `realName` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `assets` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `income` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `notifmessage` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `notifhistory` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `isWarned` int(1) NOT NULL DEFAULT 0,
-  `isWarnedRead` int(1) NOT NULL DEFAULT 0,
-  `isConsign` tinyint(1) DEFAULT 0 COMMENT '0:default; 1:交付中',
-  `consign_expiry_date` timestamp NULL DEFAULT NULL,
-  `name_change` tinyint(1) DEFAULT 0,
-  `exchange_period_change` tinyint(2) DEFAULT 0,
-  `adminNote` text COLLATE utf8_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `user_meta_user_id_foreign` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `user_meta_bak_20210129`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `user_meta_bak_20210129` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(10) unsigned NOT NULL,
-  `phone` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `is_active` tinyint(1) NOT NULL DEFAULT 0,
-  `activation_token` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `marketing` tinyint(1) NOT NULL DEFAULT 0,
-  `terms_and_cond` tinyint(1) NOT NULL DEFAULT 1,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `city` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `blockcity` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `area` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `blockarea` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `budget` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `birthdate` date DEFAULT NULL,
-  `birthdate_old` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `height` int(11) DEFAULT 0,
   `weight` int(11) DEFAULT 0,
   `cup` char(1) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -1657,59 +1380,10 @@ CREATE TABLE `users` (
   KEY `last_login` (`last_login`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `users_OLD`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `users_OLD` (
-  `id` int(10) unsigned NOT NULL DEFAULT 0,
-  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `title` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `engroup` int(10) unsigned DEFAULT NULL,
-  `engroup_change` int(2) NOT NULL DEFAULT 0,
-  `enstatus` int(10) unsigned DEFAULT NULL,
-  `email` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `password` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `password_updated` int(11) NOT NULL DEFAULT 0,
-  `remember_token` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `last_login` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `vip_record` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `noticeRead` int(2) NOT NULL DEFAULT 0,
-  `isReadManual` int(1) NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `users_bak`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `users_bak` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `title` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `engroup` int(10) unsigned DEFAULT NULL,
-  `engroup_change` int(2) NOT NULL DEFAULT 0,
-  `enstatus` int(10) unsigned DEFAULT NULL,
-  `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `password` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `password_updated` int(11) NOT NULL DEFAULT 0,
-  `remember_token` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `last_login` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `vip_record` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `noticeRead` int(2) NOT NULL DEFAULT 0,
-  `isReadManual` int(1) NOT NULL DEFAULT 0,
-  `exchange_period` tinyint(2) NOT NULL DEFAULT 2,
-  `login_times` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`),
-  KEY `email` (`email`),
-  KEY `last_login` (`last_login`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `users_bak_20201022`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `users_bak_20201022` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `title` varchar(255) COLLATE utf8_unicode_ci NOT NULL,

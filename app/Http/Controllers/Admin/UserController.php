@@ -163,7 +163,12 @@ class UserController extends \App\Http\Controllers\BaseController
             $setVip = 0;
             $user = Vip::select('member_id', 'active')
                 ->where('member_id', $request->user_id)
-                ->update(array('active' => $setVip, 'expiry' => '0000-00-00 00:00:00', 'business_id' => '', 'order_id' => ''));
+                ->update(array(
+                    'active' => $setVip,
+                    'expiry' => '0000-00-00 00:00:00',
+                    'business_id' => '',
+                    'order_id' => ''
+                ));
         } else {
             //提供VIP權限
             $setVip = 1;
@@ -171,7 +176,13 @@ class UserController extends \App\Http\Controllers\BaseController
             if (isset($tmpsql)) {
                 $user = Vip::select('member_id', 'active')
                     ->where('member_id', $request->user_id)
-                    ->update(array('active' => $setVip, 'business_id' => 'BackendFree', 'order_id' => 'BackendFree', 'expiry' => '0000-00-00 00:00:00'));
+                    ->update(array(
+                        'active' => $setVip,
+                        'business_id' => 'BackendFree',
+                        'order_id' => 'BackendFree',
+                        'expiry' => '0000-00-00 00:00:00',
+                        'free' => 1
+                    ));
             } else {
                 //從來都沒VIP資料的
                 $vip_user = new Vip;
