@@ -93,6 +93,7 @@ class Kernel extends ConsoleKernel
             ->whereHas('user_meta', $constraint)
             ->where('created_at', '<',Carbon::now()->subHours(48))->get();
         foreach ($users as $user){
+            \App\Models\LogUserLogin::where('user_id',$user->id)->delete();
             $user->delete();
         }
     }

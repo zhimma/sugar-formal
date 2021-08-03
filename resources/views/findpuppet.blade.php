@@ -2,11 +2,12 @@
 @section('app-content')
 
 <style>
+	body h2 span.dateInfo {font-size:15px;font-weight:normal;display:block;margin-top:10px;}
 	body table.table-hover {width:auto;max-width:none;}
 	body table.table-hover tr.banned,table tr.implicitlyBanned {background-color:#FDFF8C;}
 	body table.table-hover tr.isWarned {background-color:#B0FFB1;}
-	body table.table-hover tr.isClosed {background-color:#C9C9C9;}
-	body table.table-hover tr.isClosedByAdmin {background-color:#969696;}
+	body table.table-hover tr.isClosed {background-color:#C9C9C9 !important;}
+	body table.table-hover tr.isClosedByAdmin {background-color:#969696 !important;}
 	body table.table-hover tr td.col_ip_first ,body table.table-hover tr th.col_ip_first {border-left: 6px solid #000;}
 	td.group_last_time {background-color:#FF9999 !important;}
 	body table tr td,body table tr th {white-space: nowrap;}
@@ -43,7 +44,35 @@
 
 
 <div>
-<h2> @if(isset($columnSet) && $columnSet) {{$start_date}} ～ {{$end_date}} @endif 相同IP帳號分析數據</h2>
+<h2>相同IP帳號分析數據
+@if(isset($columnSet) && $columnSet)
+<span class="dateInfo">	
+	@if($sdateOfIp)
+	{{$sdateOfIp}} ～ 
+	@else
+	全部直到
+	@endif
+	{{$end_date}}
+	@if(!$sdateOfIp)
+	為止
+	@endif
+	的IP
+	以及
+	@if($sdateOfCfpId)
+	{{$sdateOfCfpId}} ～ 
+	@else
+	全部直到
+	@endif
+	{{$end_date}}
+	@if(!$sdateOfCfpId)
+	為止
+	@endif
+	
+	的Cfp Id
+	
+</span>
+@endif 
+</h2>
 </div>
 @forelse ($groupOrderArr as $gidx=>$g)
 <br><br>
