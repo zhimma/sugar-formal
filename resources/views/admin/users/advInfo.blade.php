@@ -266,10 +266,14 @@
 		<td>{{ $user->name }}</td>
 		<td>{{ $user->title }}</td>
 		<td>@if($user->engroup==1) 男 @else 女 @endif</td>
-		<td><a href="/admin/stats/vip_log/{{ $user->id }}" target="_blank">{{ $user->email }}</a></td>
+		<td>
+{{--			<a href="/admin/stats/vip_log/{{ $user->id }}" target="_blank">--}}
+				{{ $user->email }}
+{{--			</a>--}}
+		</td>
 		<td>{{ $user->created_at }}</td>
 		<td>{{ $user->updated_at }}</td>
-		<td>{{ $showVipInfo }}</td>
+		<td><a href="{{ url('admin/order#'.$user->email) }}" target="_blank">{{ $showVipInfo }}</a></td>
 		@if(!is_null($warnedInfo))<td>{{ !is_null($warnedInfo) ? $warnedDay.'('.$diffDays.')' : ''}}</td>@endif
 		<td>{{ $user->last_login }}</td>
 		<td>{{ $user->login_times }}</td>

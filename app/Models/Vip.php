@@ -160,7 +160,7 @@ class Vip extends Model
         else{
             return false;
         }
-        $user = Vip::select('id', 'expiry', 'created_at', 'updated_at','payment','business_id')
+        $user = Vip::select('id', 'expiry', 'created_at', 'updated_at','payment','business_id', 'order_id')
                 ->where('member_id', $member_id)
                 ->orderBy('created_at', 'desc')->get();
         // 取消時，確認沒有設定到期日，才開始動作，否則遇上多次取消，可能會導致到期日被延後的結果
@@ -210,6 +210,15 @@ class Vip extends Model
                 $u->save();
             }
             VipLog::addToLog($member_id, 'User cancel, expiry: ' . $expiryDate, 'XXXXXXXXX', 0, $free);
+
+            //訂單更新到期日
+            $order = Order::where('order_id', $user->order_id)->get();
+            if (strpos($user->order_id, 'SG') !== false && count($order)>0) {
+                Order::where('order_id', $user->order_id)->update(['order_expire_date' => $expiryDate]);
+            }else{
+                Order::addEcPayOrder($user->order_id, $expiryDate);
+            }
+
             return [true, "str"  => $str ?? null];
         }
 //        else if($curUser->engroup == 2 && $free == 0 && $user[0]->expiry == '0000-00-00 00:00:00'){

@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Order;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -111,6 +112,12 @@ class CheckECpay implements ShouldQueue
                     if($vipData){
                         $vipData->removeVIP();
                     }
+
+                    if(!\App::environment('local')) {
+                        //更新訂單 --正式綠界
+                        Order::updateEcPayOrder($this->vipData->order_id);
+                    }
+
                     \App\Models\VipLog::addToLog($user->id, 'Background auto cancel, last process date: ' . $lastProcessDate->format('Y-m-d'), '自動取消', 0, 0);
                     $message = $user->name . "您好，您的 VIP 付費(卡號後四碼 " . $paymentData['card4no'] . ")最後一次付費月份為 " . $lastProcessDate->format('Y 年 m 月') . " ，距今已逾一個月，故停止您的 VIP 權限。優選會員資格一併取消，若有疑問請點右下聯絡我們連絡站長。";
                     \App\Models\Message_new::post($admin->id, $user->id, $message);
@@ -134,6 +141,12 @@ class CheckECpay implements ShouldQueue
                     \App\Models\Vip::select('member_id', 'active')
                         ->where('member_id', $this->vipData->member_id)
                         ->update(array('active' => 1, 'expiry' => '0000-00-00 00:00:00'));
+
+                    if(!\App::environment('local')) {
+                        //更新訂單 --正式綠界
+                        Order::updateEcPayOrder($this->vipData->order_id);
+                    }
+
                     \App\Models\VipLog::addToLog($user->id, 'Background auto upgrade, last process date: ' . $lastProcessDate->format('Y-m-d'), '自動回復', 0, 0);
                     $message = $user->name . "您好，由於您的 VIP 付費(卡號後四碼 " . $paymentData['card4no'] . ")曾因扣款失敗被停止 VIP 權限，但最近一次又再次付費成功，月份為 " . $lastProcessDate->format('Y 年 m 月') . "，故回復您的 VIP 權限。若有疑問請點右下聯絡我們連絡站長。";
                     \App\Models\Message_new::post($admin->id, $user->id, $message);
@@ -155,6 +168,12 @@ class CheckECpay implements ShouldQueue
                     $admin = User::findByEmail(Config::get('social.admin.email'));
                     $user = User::findById($this->vipData->member_id);
                     $user->getVipData(true)->removeVIP();
+
+                    if(!\App::environment('local')) {
+                        //更新訂單 --正式綠界
+                        Order::updateEcPayOrder($this->vipData->order_id);
+                    }
+
                     \App\Models\VipLog::addToLog($user->id, 'Background auto cancel, last process date: ' . $lastProcessDate->format('Y-m-d'), '自動取消', 0, 0);
                     $message = $user->name . "您好，您的 VIP 付費(卡號後四碼 " . $paymentData['card4no'] . ")已於 " . $lastProcessDate->format('Y 年 m 月') . " 扣款失敗，故停止您的 VIP 權限。優選會員資格一併取消，若有疑問請點右下聯絡我們連絡站長。";
                     \App\Models\Message_new::post($admin->id, $user->id, $message);
