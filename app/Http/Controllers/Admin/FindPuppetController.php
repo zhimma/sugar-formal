@@ -38,7 +38,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $this->_columnType = array();
         $this->_groupIdx = 0; 
         $this->monarr = [];    
-        $this->default_sdate = \Carbon\Carbon::now()->subDays(10)->format('Y/m/d');
+        $this->defaultSdateOfIp = \Carbon\Carbon::now()->subDays(10)->format('Y/m/d');
+		$this->defaultSdateOfCfpId = null;
     }    
     
     public function entrance(Request $request) {
@@ -49,6 +50,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 
         $error_msg = '';
         $whereArr = [];
+		$whereArrOfIp = [];
+		$whereArrOfCfpId = [];
         $have_mon_limit = false;
         
         if(isset($this->monarr) && count($this->monarr)>0) {
@@ -58,18 +61,41 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 
 
         try {
+			
+			$curdate = date('Y/m/d');
+			$curtime = date(' H:i:s');
+			
+			$edate = $curdate.$curtime;
 
-            $sdate = $request->sdate?$request->sdate.'/01':$this->default_sdate;
-            $edate = $request->edate?date('Y/m/d',strtotime($request->edate.'/01+1 month - 1 day')):date('Y/m/d');
+            $sdateOfIp = $request->sdate?$request->sdate.'/01':$this->defaultSdateOfIp;
+            $edateOfIp = $request->edate?date('Y/m/d',strtotime($request->edate.'/01+1 month - 1 day')):$curdate;
 
-            $sdate_arr = explode('/',$sdate);
-            $edate_arr = explode('/',$edate);   
-            if(!checkdate($sdate_arr[1],$sdate_arr[2],$sdate_arr[0]) || !checkdate($edate_arr[1],$edate_arr[2],$edate_arr[0])) {
-                $error_msg = '日期格式錯誤或非正確日期';
+            $sdateOfCfpId = $request->sdate?$request->sdate.'/01':$this->defaultSdateOfCfpId;
+            $edateOfCfpId = $request->edate?date('Y/m/d',strtotime($request->edate.'/01+1 month - 1 day')):$curdate;
+
+            if($sdateOfIp) $sdateOfIpArr = explode('/',$sdateOfIp);
+			else $sdateOfIpArr  = null;
+            if($edateOfIp) $edateOfIpArr = explode('/',$edateOfIp);   
+			else $edateOfIpArr  = null;
+			
+            if(($sdateOfIpArr && !checkdate($sdateOfIpArr[1],$sdateOfIpArr[2],$sdateOfIpArr[0])) || ($edateOfIpArr && !checkdate($edateOfIpArr[1],$edateOfIpArr[2],$edateOfIpArr[0]))) {
+                $error_msg = 'IP日期格式錯誤或非正確日期';
             }
-            else if($edate<$sdate) {
-                $error_msg = '錯誤!結束日期小於開始日期';
+            else if($edateOfIp<$sdateOfIp) {
+                $error_msg = '錯誤!IP結束日期小於開始日期';
             }
+			
+            if($sdateOfCfpId) $sdateOfCfpIdArr = explode('/',$sdateOfCfpId);
+			else $sdateOfCfpIdArr  = null;
+            if($edateOfCfpId) $edateOfCfpIdArr = explode('/',$edateOfCfpId);   
+			else $edateOfCfpIdArr  = null;
+			
+            if(($sdateOfCfpIdArr && !checkdate($sdateOfCfpIdArr[1],$sdateOfCfpIdArr[2],$sdateOfCfpIdArr[0])) || ($edateOfCfpIdArr && !checkdate($edateOfCfpIdArr[1],$edateOfCfpIdArr[2],$edateOfCfpIdArr[0]))) {
+                $error_msg = 'CfpId日期格式錯誤或非正確日期';
+            }
+            else if($edateOfCfpId<$sdateOfCfpId) {
+                $error_msg = '錯誤!CfpId結束日期小於開始日期';
+            }			
 
             echo $error_msg;
 
@@ -79,12 +105,19 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     $this->row->truncate();
                     $this->cell->truncate();                      
                     
-                    if(isset($edate)) {
-                        if($edate) $edate.=date(' H:i:s');
-                        $whereArr[] = ['created_at','<',$edate];
+                    if(isset($edateOfIp)) {
+                        if($edateOfIp) $edateOfIp.=$curtime;
+                        $whereArrOfIp[] = ['created_at','<',$edateOfIp];
                     }
                     
-                    if(isset($sdate)) $whereArr[] = ['created_at','>=',$sdate];
+                    if(isset($sdateOfIp)) $whereArrOfIp[] = ['created_at','>=',$sdateOfIp];
+					
+                    if(isset($edateOfCfpId)) {
+                        if($edateOfCfpId) $edateOfCfpId.=$curtime;
+                        $whereArrOfCfpId[] = ['created_at','<',$edateOfCfpId];
+                    }
+                    
+                    if(isset($sdateOfCfpId)) $whereArrOfCfpId[] = ['created_at','>=',$sdateOfCfpId];					
                     
                     if($have_mon_limit) {
                         if(isset($mon) && $mon) {
@@ -113,9 +146,10 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     $this->_groupIdx = 0;  
 
                     $loginDataQuery = $model->has('users')->groupBy('ip','user_id')
-                            ->select('ip','user_id')->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')->whereNotNull('ip')->where('ip','<>','')
-                            ->where($whereArr);
-
+                            ->select('ip','user_id')->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')->whereNotNull('ip')->where('ip','<>','');
+				
+					if($whereArr) $loginDataQuery->where($whereArr);
+					if($whereArrOfIp) $loginDataQuery->where($whereArrOfIp);
                     if($excludeUserId) $loginDataQuery=$loginDataQuery->whereNotIn('user_id',$excludeUserId);
                     
                     $loginDataEntrys = $loginDataQuery->get();
@@ -130,9 +164,10 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     $loginDataEntrys = null;
                     
                     $loginDataCfpIdQuery = $model->has('users')->groupBy('cfp_id','user_id')
-                            ->select('cfp_id','user_id')->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')->whereNotNull('cfp_id')->where('cfp_id','<>','')
-                            ->where($whereArr);
-                            
+                            ->select('cfp_id','user_id')->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')->whereNotNull('cfp_id')->where('cfp_id','<>','');
+                    
+					if($whereArr) $loginDataQuery->where($whereArr);
+					if($whereArrOfCfpId) $loginDataQuery->where($whereArrOfCfpId);					
                     if($excludeUserId) $loginDataCfpIdQuery=$loginDataCfpIdQuery->whereNotIn('user_id',$excludeUserId);                            
 
                     $loginDataEntrys = $loginDataCfpIdQuery->get();
@@ -148,8 +183,10 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     $puppetFromUsers = null;
                     $ipPuppetFromUserQuery = $model->has('users')->groupBy('ip')
                             ->select('ip')->selectRaw('COUNT(DISTINCT `user_id`) AS num')->whereNotNull('ip')->where('ip','<>','')
-                            ->where($whereArr)->orderByDesc('num');
-                            
+                            ->orderByDesc('num');
+							
+					if($whereArr)  $ipPuppetFromUserQuery->where($whereArr);
+                    if($whereArrOfIp) $ipPuppetFromUserQuery->where($whereArrOfIp);        
                     if($excludeUserId) $ipPuppetFromUserQuery=$ipPuppetFromUserQuery->whereNotIn('user_id',$excludeUserId);                            
 
                     $puppetFromUsers = $ipPuppetFromUserQuery->get();
@@ -168,9 +205,12 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     $puppetFromUsers = null;
                   
                     $cfpidPuppetFromUserQuery = $model->has('users')->groupBy('cfp_id')
-                            ->select('cfp_id')->selectRaw('COUNT(DISTINCT `user_id`) AS num')->whereNotNull('cfp_id')->where('cfp_id','<>','')
-                            ->where($whereArr)->orderByDesc('num');
-                            
+                            ->select('cfp_id')->selectRaw('COUNT(DISTINCT `user_id`) AS num')
+							->whereNotNull('cfp_id')->where('cfp_id','<>','')
+                            ->orderByDesc('num');
+                    
+					if($whereArr)  $cfpidPuppetFromUserQuery->where($whereArr);
+					if($whereArrOfCfpId) $cfpidPuppetFromUserQuery->where($whereArrOfCfpId);    					
                     if($excludeUserId) $cfpidPuppetFromUserQuery=$cfpidPuppetFromUserQuery->whereNotIn('user_id',$excludeUserId);                            
 
                     $puppetFromUsers = $cfpidPuppetFromUserQuery->get();
@@ -350,24 +390,30 @@ class FindPuppetController extends \App\Http\Controllers\Controller
             }
             else continue;
 
-            $multiIps = $this->loginDataByUserId[$multiUserId->user_id];
+			if(isset($this->loginDataByUserId[$multiUserId->user_id]))
+				$multiIps = $this->loginDataByUserId[$multiUserId->user_id];
+			else $multiIps = null;
             
             $new_check_column = null;
 
-            if(isset($this->_columnIp[$groupIdx])) {
-                $new_check_column = array_diff(array_keys($multiIps),$this->_columnIp[$groupIdx]);
+			if($multiIps) {
+				if(isset($this->_columnIp[$groupIdx]) && $this->_columnIp[$groupIdx]) {
+					$new_check_column = array_diff(array_keys($multiIps),$this->_columnIp[$groupIdx]);
 
+				}
+				else {$new_check_column = array_keys($multiIps);}
             }
-            else {$new_check_column = array_keys($multiIps);}
-            
-            foreach($new_check_column as $new_check_value) {
-                    if($this->_havePuppetUserId($new_check_value,$this->loginDataByIp)) 
-                        $this->_columnIp[$groupIdx][] = $new_check_value;
-            }
-            
-             foreach($multiIps  as $multiIp) {
-                 if($this->_findMultiUserIdFromIp($multiIp->ip)===true) continue;
-             }
+			
+			if(isset($new_check_column) && $new_check_column)
+				foreach($new_check_column as $new_check_value) {
+						if($this->_havePuppetUserId($new_check_value,$this->loginDataByIp)) 
+							$this->_columnIp[$groupIdx][] = $new_check_value;
+				}
+				
+ 			if(isset($multiIps) && $multiIps)           
+				 foreach($multiIps  as $multiIp) {
+					 if($this->_findMultiUserIdFromIp($multiIp->ip)===true) continue;
+				 }
             
             $multiCfpIds = isset($this->loginDataByUserIdCfpId[$multiUserId->user_id])?$this->loginDataByUserIdCfpId[$multiUserId->user_id]:[];
 
@@ -378,14 +424,16 @@ class FindPuppetController extends \App\Http\Controllers\Controller
             }
             else {$new_check_column = array_keys($multiCfpIds);}
 
-            foreach($new_check_column as $new_check_value) {
-                    if($this->_havePuppetUserId($new_check_value,$this->loginDataByCfpId)) 
-                        $this->_columnIp[$groupIdx][] = $new_check_value;
-            }             
-             
-             foreach($multiCfpIds  as $multiCfpId) {
-                 if($this->_findMultiUserIdFromIp($multiCfpId->cfp_id,'cfp_id')===true) continue;
-             }             
+			if(isset($new_check_column) && $new_check_column)
+				foreach($new_check_column as $new_check_value) {
+						if($this->_havePuppetUserId($new_check_value,$this->loginDataByCfpId)) 
+							$this->_columnIp[$groupIdx][] = $new_check_value;
+				}             
+
+ 			if(isset($multiCfpIds) && $multiCfpIds)                 
+				 foreach($multiCfpIds  as $multiCfpId) {
+					 if($this->_findMultiUserIdFromIp($multiCfpId->cfp_id,'cfp_id')===true) continue;
+				 }             
              
         }   
     }
@@ -449,17 +497,33 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                 
                 if($have_mon_limit) $whereArr[] = ['mon',$mon];
                 
-                $edate_colentry = $this->column->select('created_at')->distinct()->first();
-                $data['end_date'] = $edate_colentry->created_at;
-                $sdate_from_model = $this->model->min('created_at');
+                $edate_colentry_of_ip = $this->column->select('created_at')->distinct()->first();
+                $data['end_date'] = $edate_colentry_of_ip->created_at;
+				$data['sdateOfIp'] = $data['sdateOfCfpId']  = null;
+				if($this->defaultSdateOfIp)  {
+					$sdate_from_model = $this->model->whereNotNull('ip')->min('created_at');
 
-                if($this->default_sdate>=$sdate_from_model) {
-                    $data['start_date'] = $this->default_sdate;
-                }
-                else {
-                    
-                    $data['start_date'] = $sdate_from_model;
-                }
+					if($this->defaultSdateOfIp>=$sdate_from_model) {
+						$data['sdateOfIp'] = $this->defaultSdateOfIp;
+					}
+					else {
+						
+						$data['sdateOfIp'] = $sdate_from_model;
+					}
+				}
+				
+				if($this->defaultSdateOfCfpId)  {
+					$sdate_from_model = null;
+					$sdate_from_model = $this->model->whereNotNull('cfp_id')->min('created_at');
+
+					if($this->defaultSdateOfCfpId>=$sdate_from_model) {
+						$data['sdateOfCfpId'] = $this->defaultSdateOfCfpId;
+					}
+					else {
+						
+						$data['sdateOfCfpId'] = $sdate_from_model;
+					}
+				}				
                 
                 $groupChecks = $this->cell->where($whereArr)->groupBy('group_index')->select('group_index')
                     ->selectRaw('MAX(column_index) AS maxColIdx,MAX(row_index) AS maxRowIdx,MAX(time) AS last_time')
@@ -479,7 +543,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                 $text=null;
             }
 
-            $colQuery = $this->column->where($whereArr)->orderBy('type');
+            $colQuery = $this->column->where($whereArr);
             if($show=='text') {
                  if($g) $colQuery->where('group_index',$g);
             }
