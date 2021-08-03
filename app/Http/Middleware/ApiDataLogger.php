@@ -1,5 +1,6 @@
 <?php
 namespace App\Http\Middleware;
+use App\Models\Order;
 use App\Models\Vip;
 use Carbon\Carbon;
 use Closure;
@@ -185,6 +186,12 @@ class ApiDataLogger{
                         logger('Middleware ApiDataLogger=> userID:'.$user->id.', 種類:' .$payload['CustomField3'].', 付款方式:' .$transactionType);
 
                         Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0,$payload['CustomField3'],$transactionType);
+
+                        if(!\App::environment('local')) {
+                            //產生訂單 --正式綠界
+                            Order::addEcPayOrder($payload['MerchantTradeNo']);
+                        }
+
                         return '1|OK';
                     }
                     elseif ($payload['RtnCode'] == '10100073' && $payload['PaymentType'] == 'BARCODE_BARCODE'){

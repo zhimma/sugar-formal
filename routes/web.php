@@ -673,6 +673,11 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/suspiciousUser', 'UserController@suspiciousUser')->name('users/suspiciousUser');
         Route::get('users/WarnedOrBannedLog/{logType}/{user_id}', 'UserController@isEverWarnedOrBannedLog');
 
+        //訂單
+        Route::get('order', 'OrderController@index')->name('order');
+        Route::get('order/list', 'OrderController@getOrderData')->name('order/list');
+        Route::post('order/orderGeneratorById', 'OrderController@orderGeneratorById')->name('order/orderGeneratorById');
+
         /*新增、編輯訊息*/
         Route::post('users/getmsglib', 'UserController@getMessageLib');
         Route::post('users/updatemsglib', 'UserController@updateMessageLib');

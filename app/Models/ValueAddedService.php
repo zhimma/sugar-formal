@@ -227,6 +227,15 @@ class ValueAddedService extends Model
             }
 
             ValueAddedServiceLog::addToLog($member_id, $service_name,'Cancelled, expiry: ' . $expiryDate, $user[0]->order_id, $user[0]->txn_id,0);
+
+            //訂單更新到期日
+            $order = Order::where('order_id', $user->order_id)->get();
+            if (strpos($user->order_id, 'SG') !== false && count($order)>0) {
+                Order::where('order_id', $user->order_id)->update(['order_expire_date' => $expiryDate]);
+            }else{
+                Order::addEcPayOrder($user->order_id, $expiryDate);
+            }
+
             return [true, "str"  => $str ?? null];
         }
     }

@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Order;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -95,6 +96,10 @@ class CheckECpayForValueAddedService implements ShouldQueue
                     $admin = User::findByEmail(Config::get('social.admin.email'));
                     $user = User::findById($this->valueAddedServiceData->member_id);
                     \App\Models\ValueAddedService::removeValueAddedService($user->id, $this->valueAddedServiceData->service_name);
+
+                    //更新訂單 --正式綠界
+                    Order::updateEcPayOrder($this->valueAddedServiceData->order_id);
+
                     \App\Models\ValueAddedServiceLog::addToLog($user->id, $this->valueAddedServiceData->service_name,'Auto cancel', $this->valueAddedServiceData->order_id, $this->valueAddedServiceData->txn_id,0);
                     if($this->valueAddedServiceData->service_name=='hideOnline'){
                         $service_name_tw = '隱藏付費';
@@ -117,6 +122,10 @@ class CheckECpayForValueAddedService implements ShouldQueue
                     $admin = User::findByEmail(Config::get('social.admin.email'));
                     $user = User::findById($this->valueAddedServiceData->member_id);
                     \App\Models\ValueAddedService::removeValueAddedService($user->id, $this->valueAddedServiceData->service_name);
+
+                    //更新訂單 --正式綠界
+                    Order::updateEcPayOrder($this->valueAddedServiceData->order_id);
+
                     \App\Models\ValueAddedServiceLog::addToLog($user->id, $this->valueAddedServiceData->service_name,'Auto cancel', $this->valueAddedServiceData->order_id, $this->valueAddedServiceData->txn_id,0);
                     if($this->valueAddedServiceData->service_name=='hideOnline'){
                         $service_name_tw = '隱藏付費';

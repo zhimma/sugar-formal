@@ -6,6 +6,7 @@ use App\Models\hideOnlineData;
 use App\Models\MemberFav;
 use App\Models\Message;
 use App\Models\AdminCommonText;
+use App\Models\Order;
 use App\Models\Tip;
 use App\Models\ValueAddedService;
 use App\Models\Visited;
@@ -149,6 +150,12 @@ class ValueAddedServiceApiDataLogger{
                 if (isset($payload['RtnCode'])) {
                     if($payload['RtnCode'] == 1) {
                         ValueAddedService::upgrade($user->id, $payload['CustomField4'], $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, $payload['CustomField3']);
+
+                        if(!\App::environment('local')) {
+                            //產生訂單 --正式綠界
+                            Order::addEcPayOrder($payload['MerchantTradeNo']);
+                        }
+
                         //vvip 申請付款時存入申請表
 //                        if (substr($payload['CustomField4'], 0, 4) == 'VVIP' && strlen($payload['CustomField4']) == 6) {
 //                            $addData = new VvipApplication;
