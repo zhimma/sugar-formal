@@ -9,6 +9,7 @@ use App\Models\LogUserLogin;
 use App\Models\PuppetAnalysisCell;
 use App\Models\PuppetAnalysisColumn;
 use App\Models\PuppetAnalysisRow;
+use App\Models\PuppetAnalysisIgnore;
 
 class FindPuppetController extends \App\Http\Controllers\Controller
 {
@@ -18,7 +19,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
     private $_columnType = array();
     private $_groupIdx =0;
     
-    public function __construct(LogUserLogin $logUserLogin,PuppetAnalysisColumn $column,PuppetAnalysisRow $row, PuppetAnalysisCell $cell)
+    public function __construct(LogUserLogin $logUserLogin,PuppetAnalysisColumn $column,PuppetAnalysisRow $row, PuppetAnalysisCell $cell, PuppetAnalysisIgnore $ignore)
     {
         ini_set("max_execution_time",'0');
         ini_set('memory_limit','-1');
@@ -30,7 +31,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $this->model->setReadOnly();
         $this->column = $column;
         $this->row = $row;
-        $this->cell = $cell;        
+        $this->cell = $cell;
+		$this->ignore = $ignore;        
         
         $this->_columnIp = array();
         $this->_rowUserId = array();
@@ -135,8 +137,10 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     ->orWhere('email', 'LIKE', 'sandyh.dlc%@gmail.com')
                     ->orWhere('email', 'LIKE', 'TEST%@test.com')
                     ->orWhere('email', 'LIKE', 'lzong.tw%@gmail.com')
-                    ->get()->toArray(), 'id');        
-                    
+                    ->get()->toArray(), 'id');
+
+					$ignoreUserId = array_pluck($this->ignore->get()->toArray(),'item');					
+
                     $model = $this->model;
                     $loginDataEntrys = null;
                     $this->_columnIp = [];
@@ -145,12 +149,13 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     $this->_columnType = [];
                     $this->_groupIdx = 0;  
 
-                    $loginDataQuery = $model->has('users')->groupBy('ip','user_id')
+                    $loginDataQuery = $model->has('user')->groupBy('ip','user_id')
                             ->select('ip','user_id')->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')->whereNotNull('ip')->where('ip','<>','');
 				
 					if($whereArr) $loginDataQuery->where($whereArr);
 					if($whereArrOfIp) $loginDataQuery->where($whereArrOfIp);
                     if($excludeUserId) $loginDataQuery=$loginDataQuery->whereNotIn('user_id',$excludeUserId);
+					if($ignoreUserId) $loginDataQuery=$loginDataQuery->whereNotIn('user_id',$ignoreUserId);
                     
                     $loginDataEntrys = $loginDataQuery->get();
                     $this->loginDataByIp = [];
@@ -163,12 +168,13 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     
                     $loginDataEntrys = null;
                     
-                    $loginDataCfpIdQuery = $model->has('users')->groupBy('cfp_id','user_id')
+                    $loginDataCfpIdQuery = $model->has('user')->groupBy('cfp_id','user_id')
                             ->select('cfp_id','user_id')->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')->whereNotNull('cfp_id')->where('cfp_id','<>','');
                     
 					if($whereArr) $loginDataQuery->where($whereArr);
 					if($whereArrOfCfpId) $loginDataQuery->where($whereArrOfCfpId);					
                     if($excludeUserId) $loginDataCfpIdQuery=$loginDataCfpIdQuery->whereNotIn('user_id',$excludeUserId);                            
+					if($ignoreUserId) $loginDataCfpIdQuery=$loginDataCfpIdQuery->whereNotIn('user_id',$ignoreUserId);
 
                     $loginDataEntrys = $loginDataCfpIdQuery->get();
                     $this->loginDataByCfpId = [];
@@ -181,13 +187,14 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 
                               
                     $puppetFromUsers = null;
-                    $ipPuppetFromUserQuery = $model->has('users')->groupBy('ip')
+                    $ipPuppetFromUserQuery = $model->has('user')->groupBy('ip')
                             ->select('ip')->selectRaw('COUNT(DISTINCT `user_id`) AS num')->whereNotNull('ip')->where('ip','<>','')
                             ->orderByDesc('num');
 							
 					if($whereArr)  $ipPuppetFromUserQuery->where($whereArr);
                     if($whereArrOfIp) $ipPuppetFromUserQuery->where($whereArrOfIp);        
                     if($excludeUserId) $ipPuppetFromUserQuery=$ipPuppetFromUserQuery->whereNotIn('user_id',$excludeUserId);                            
+					if($ignoreUserId) $ipPuppetFromUserQuery=$ipPuppetFromUserQuery->whereNotIn('user_id',$ignoreUserId);
 
                     $puppetFromUsers = $ipPuppetFromUserQuery->get();
 
@@ -204,7 +211,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     
                     $puppetFromUsers = null;
                   
-                    $cfpidPuppetFromUserQuery = $model->has('users')->groupBy('cfp_id')
+                    $cfpidPuppetFromUserQuery = $model->has('user')->groupBy('cfp_id')
                             ->select('cfp_id')->selectRaw('COUNT(DISTINCT `user_id`) AS num')
 							->whereNotNull('cfp_id')->where('cfp_id','<>','')
                             ->orderByDesc('num');
@@ -212,6 +219,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 					if($whereArr)  $cfpidPuppetFromUserQuery->where($whereArr);
 					if($whereArrOfCfpId) $cfpidPuppetFromUserQuery->where($whereArrOfCfpId);    					
                     if($excludeUserId) $cfpidPuppetFromUserQuery=$cfpidPuppetFromUserQuery->whereNotIn('user_id',$excludeUserId);                            
+					if($ignoreUserId) $cfpidPuppetFromUserQuery=$cfpidPuppetFromUserQuery->whereNotIn('user_id',$ignoreUserId);
 
                     $puppetFromUsers = $cfpidPuppetFromUserQuery->get();
 
@@ -579,6 +587,9 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     $cur_user = User::with('vip','aw_relation', 'banned', 'implicitlyBanned')->find($rowEntry->name)??new User;
                     $cur_user->tag_class = '';
                     if($cur_user->id==null) $cur_user->id = $rowEntry->name;
+
+					$cur_user->ignoreEntry = $this->ignore->where('item',$cur_user->id)->first();
+
                     if($cur_user->banned)  $cur_user->tag_class.= 'banned ';
                     if($cur_user->implicitlyBanned)  $cur_user->tag_class.= 'implicitlyBanned ';
                     if($cur_user->user_meta->isWarned || $cur_user->aw_relation)  $cur_user->tag_class.= 'isWarned ';
@@ -752,6 +763,33 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $logEntrys = $query->get();
     
     }
+	
+	public function switchIgnore(Request $request) {
+		$value = $request->value;
+		if(!$value) return;
+		$op = $request->op;
+		$ignore = $this->ignore;
+		
+		switch($op) {
+			case '1':
+				$ignore_entry = $ignore->firstOrNew(['item'=>$value]);
+				$ignore_entry->item = $value;
+				$ignore_entry->save() ;
+			break;
+			case '0':
+				$ignore->where('item',$value)->delete();
+			break;
+			default:
+				$ignore_entry = $ignore->firstOrNew(['item'=>$value]);
+
+				if($ignore_entry->id) $ignore_entry->delete();
+				else {
+					$ignore_entry->item = $value;
+					$ignore_entry->save(); 					
+				}
+			break;
+		}
+	}
     
     private function _getSimpleTableHead($colnames) {
         
