@@ -2,12 +2,19 @@
 @section('app-content')
 
 <style>
+	body table.table-hover tr th.col_user_id {padding-left:30px;padding-right:30px;}
+	img.ignore_switch_off {display:none;}
+	img.ignore_switch_on {display:inline-block;}
+	img.ignore_switch_off,img.ignore_switch_on {float:right;}
 	body h2 span.dateInfo {font-size:15px;font-weight:normal;display:block;margin-top:10px;}
 	body table.table-hover {width:auto;max-width:none;}
-	body table.table-hover tr.banned,table tr.implicitlyBanned {background-color:#FDFF8C;}
-	body table.table-hover tr.isWarned {background-color:#B0FFB1;}
-	body table.table-hover tr.isClosed {background-color:#C9C9C9 !important;}
-	body table.table-hover tr.isClosedByAdmin {background-color:#969696 !important;}
+
+	
+	body table.table-hover tr.isClosed {background-color:#C9C9C9}
+	body table.table-hover tr.isClosedByAdmin {background-color:#969696}
+	body table.table-hover tr.isWarned {background-color:#B0FFB1; !important;}
+	body table.table-hover tr.banned,table tr.implicitlyBanned {background-color:#FDFF8C; !important;}
+	
 	body table.table-hover tr td.col_ip_first ,body table.table-hover tr th.col_ip_first {border-left: 6px solid #000;}
 	td.group_last_time {background-color:#FF9999 !important;}
 	body table tr td,body table tr th {white-space: nowrap;}
@@ -40,6 +47,48 @@
     .content-table { width:100%; table-layout: fixed; }
     .content-table td { word-wrap:break-word; }
 </style>
+<script type="text/javascript">
+    $(function() {
+		
+		$('.ignore_switch_off').on('click',function() {
+			
+			$(this).hide();
+			$(this).parent().find('.ignore_switch_on').css("display", "inline-block");
+			var user_id = $(this).parent().find('a').text().replace(' ','');
+			$.ajax({
+				type: 'GET',
+				url: '{{ route('ignoreDuplicate') }}',
+				data: { value : user_id,op:0},
+				success: function(xhr, status, error){
+
+				},
+				error: function(xhr, status, error){
+					alert('User Id：'+user_id+'取消加入略過清單失敗，請重新操作\n錯誤訊息：'+status+' '+error);
+				}
+			});				
+		})
+		
+		$('.ignore_switch_on').on('click',function() {
+			$(this).hide();
+			$(this).parent().find('.ignore_switch_off').css("display", "inline-block");
+			var user_id = $(this).parent().find('a').text().replace(' ','');
+			$.ajax({
+				type: 'GET',
+				url: '{{ route('ignoreDuplicate') }}',
+				data: { value : user_id,op:1},
+				success: function(xhr, status, error){
+
+				},
+				error: function(xhr, status, error){
+					alert('User Id：'+user_id+'加入略過清單失敗，請重新操作\n錯誤訊息：'+status+' '+error);
+					console.log(xhr);
+					console.log(status);
+					console.log(error);
+				}
+			});			
+		})		
+	})	
+</script>
 <body style="padding: 15px;">
 
 
@@ -93,7 +142,7 @@
 	@endif
     <table class="table-hover table table-bordered {{isset($groupInfo[$g]['cutData'])?'ignore_msg':''}}">
         <tr>
-            <th>&nbsp;&nbsp;User id&nbsp;&nbsp;</th>
+            <th class="col_user_id">&nbsp;&nbsp;User id&nbsp;&nbsp;</th>
 			<th>{!!str_repeat('&nbsp;',ceil(($max_email_len-5)/2)*2)!!}Email{!!str_repeat('&nbsp;',floor(($max_email_len-5)/2)*2)!!}</th>
 			<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;暱稱&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 			<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;一句話&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
@@ -104,7 +153,8 @@
 	{{--  @foreach ($columnSet[$g] as $c=> $colName) --}}
             <th class="{{$columnTypeSet[$g][$c] ?? ''}}_th">
 				{!!str_repeat('&nbsp;',floor((20-strlen($columnSet[$g][$c]))/2)*2)!!}			
-				<a target="_blank" href="{{'showLog?'.$columnTypeSet[$g][$c].'='.$columnSet[$g][$c].(request()->mon?'&mon='.request()->mon:'')}}">
+		{{--		<a target="_blank" href="{{'showLog?'.$columnTypeSet[$g][$c].'='.$columnSet[$g][$c].(request()->mon?'&mon='.request()->mon:'')}}">  --}}
+					<a target="_blank" href="{{route('getUsersLog')}}?{{$columnTypeSet[$g][$c]}}={{$columnSet[$g][$c]}}"> 
 				{{$columnSet[$g][$c]}}
 				</a>
 				{!!str_repeat('&nbsp;',floor((20-strlen($columnSet[$g][$c]))/2)*2)!!}		
@@ -113,7 +163,7 @@
     @foreach ($colIdxOfIp[$g] as $i=>$c)
             <th class="{{$columnTypeSet[$g][$c] ?? ''}}_th {{$i?'':'col_ip_first'}}">
 				{!!str_repeat('&nbsp;',floor((20-strlen($columnSet[$g][$c]))/2)*2)!!}			
-				<a target="_blank" href="{{route('getIpUsers',$columnSet[$g][$c])}}">
+				<a target="_blank" href="{{route('getUsersLog')}}?ip={{$columnSet[$g][$c]}}">
 				{{$columnSet[$g][$c]}}
 				</a>
 				{!!str_repeat('&nbsp;',floor((20-strlen($columnSet[$g][$c]))/2)*2)!!}		
@@ -128,8 +178,11 @@
 		@php $user = $rowSet[$g][$r]; @endphp
         <tr class="{{$user->tag_class}}">
             <th>
-			<a target="_blank" href="showLog?user_id={{$user->id}}{{request()->mon?'&mon='.request()->mon:''}}">
-			{{$user->id ?? ''}}@if($user->engroup == 1 && $user->isVip()) <i class="m-nav__link-icon fa fa-diamond"></i> @endif </a>
+	{{--		<a target="_blank" href="showLog?user_id={{$user->id}}{{request()->mon?'&mon='.request()->mon:''}}">   --}}
+				<a target="_blank" href="{{route('getUsersLog')}}?user_id={{$user->id}}">{{$user->id ?? ''}}@if($user->engroup == 1 && $user->isVip()) <i class="m-nav__link-icon fa fa-diamond"></i> @endif </a>
+				<img src="{{asset("new/images/kai.png")}}" class="ignore_switch_on" style=" height: 15px;cursor: pointer;{{$user->ignoreEntry?'display:none;':'display:inline-block;'}}"/>			
+				<img src="{{asset("new/images/guan.png")}}" class="ignore_switch_off"   style=" height: 15px;cursor: pointer;{{!$user->ignoreEntry?'display:none;':'display:inline-block;'}}"/>			
+			
 			</th>
 			@php
 				$bgColor = null;
@@ -175,7 +228,8 @@
 				<td @if($user) style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif" @endif class=" @if($groupInfo[$g]['last_time']===$cellValue[$g][$r][$n]->time) group_last_time @endif">
 					@if(isset($cellValue[$g][$r][$n]))
 					{{$cellValue[$g][$r][$n]->time ? date('m/d-H:i',strtotime($cellValue[$g][$r][$n]->time)): ''}}
-					(<a target="_blank" href="showLog?user_id={{$user->id}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">{{$cellValue[$g][$r][$n]->num ?? ''}}次</a>)
+	{{--			(<a target="_blank" href="showLog?user_id={{$user->id}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">{{$cellValue[$g][$r][$n]->num ?? ''}}次</a>)  --}}
+					(<a target="_blank" href="{{route('getUsersLog')}}?user_id={{$user->id}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}">{{$cellValue[$g][$r][$n]->num ?? ''}}次</a>)
 					@else
 						無
 					@endif
@@ -185,7 +239,8 @@
 				<td @if($user) style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif" @endif class=" @if($groupInfo[$g]['last_time']===$cellValue[$g][$r][$n]->time) group_last_time @endif {{$i?'':'col_ip_first'}}">
 					@if(isset($cellValue[$g][$r][$n]))
 					{{$cellValue[$g][$r][$n]->time ? date('m/d-H:i',strtotime($cellValue[$g][$r][$n]->time)): ''}}
-					(<a target="_blank" href="showLog?user_id={{$user->id}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">{{$cellValue[$g][$r][$n]->num ?? ''}}次</a>)
+	{{--			(<a target="_blank" href="showLog?user_id={{$user->id}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">{{$cellValue[$g][$r][$n]->num ?? ''}}次</a>)  --}}
+					(<a target="_blank" href="{{route('getUsersLog')}}?user_id={{$user->id}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">{{$cellValue[$g][$r][$n]->num ?? ''}}次</a>)
 					@else
 						無
 					@endif
