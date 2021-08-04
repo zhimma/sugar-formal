@@ -9,14 +9,14 @@
 }
 </style>
 <body style="padding: 15px;">
-<div class="col col-12 col-sm-12 col-md-8 col-lg-6">
+<div class="col col-12 col-sm-12">
     <form action="{{ route('order/orderGeneratorById') }}" method='post'>
         {!! csrf_field() !!}
         <div class="form-row align-items-center">
             <div class="col-auto">產生會員訂單</div>
             <div class="col-auto">
                 <label class="sr-only" for="uid">會員ID或email</label>
-                <input type="text" class="form-control mb-2" name="uid" id="uid" placeholder="輸入會員ID或email, 例如：12345或abc@gmail.com" style="width: 350px;">
+                <input type="text" class="form-control mb-2" name="uid" id="uid" placeholder="輸入會員ID或email, 例如12345或abc@gmail.com" style="width: 350px;">
             </div>
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary mb-2">送出</button>
