@@ -538,7 +538,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/closeAccountDetail', 'UserController@closeAccountDetail');
 
         Route::get('users/ip/{ip}', 'UserController@getIpUsers')->name('getIpUsers');
-
+		Route::get('users/getLog', 'UserController@getUsersLog')->name('getUsersLog');
         Route::group(['prefix'=>'users/message'], function(){
             Route::get('showBetween/{id1}/{id2}', 'UserController@showMessagesBetween')->name('admin/showMessagesBetween');
             Route::get('to/{id}', 'UserController@showAdminMessenger')->name('AdminMessage');
@@ -700,7 +700,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/getBirthday', 'UserController@getBirthday');
         Route::post('users/unwarned_user', 'UserController@unwarnedUser');/*站方警示*/
         Route::post('users/changeExchangePeriod', 'UserController@changeExchangePeriod')->name('changeExchangePeriod');/*包養關係*/
-        Route::get('users/showDuplicate', 'FindPuppetController@display');
+        Route::get('users/ignoreDuplicate', 'FindPuppetController@switchIgnore')->name('ignoreDuplicate');
+		Route::get('users/showDuplicate', 'FindPuppetController@display');
         Route::get('users/checkDuplicate', 'FindPuppetController@entrance');
         Route::get('users/showLogBk', 'FindPuppetController@displayDetail');
         Route::get('too_many_requests', 'PagesController@tooManyRequests')->name('tooMantRequests');

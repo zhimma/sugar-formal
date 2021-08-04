@@ -1190,13 +1190,13 @@ class UserController extends \App\Http\Controllers\BaseController
 
 
         //cfp_id distinct
-        $cfp_id = LogUserLogin::select('cfp_id')->where('user_id',$user->id)->groupBy('cfp_id')->get();
+        $cfp_id = LogUserLogin::select('cfp_id')->selectRaw('MAX(created_at) AS last_tiime')->orderByDesc('last_tiime')->where('user_id',$user->id)->groupBy('cfp_id')->get();
 
         //ip distinct
-        $ip = LogUserLogin::select('ip')->where('user_id',$user->id)->groupBy('ip')->get();
+        $ip = LogUserLogin::select('ip')->selectRaw('MAX(created_at) AS last_tiime')->orderByDesc('last_tiime')->where('user_id',$user->id)->groupBy('ip')->get();
 
         //userAgent distinct
-        $userAgent = LogUserLogin::select('userAgent')->where('user_id',$user->id)->groupBy('userAgent')->get();
+        $userAgent = LogUserLogin::select('userAgent')->selectRaw('MAX(created_at) AS last_tiime')->orderByDesc('last_tiime')->where('user_id',$user->id)->groupBy('userAgent')->get();
 
 
         if (str_contains(url()->current(), 'edit')) {
@@ -4071,6 +4071,47 @@ class UserController extends \App\Http\Controllers\BaseController
             ;
 
     }
+	
+    public function getUsersLog(Request $request){
+		$whereArr = [];
+        $user_id = $request->user_id;
+        $ip = $request->ip;
+        $cfp_id = $request->cfp_id;
+		$qstrArr = [];
+
+        $showLogQuery = [];
+		$curLogUser = null;
+		
+		if($user_id) {
+			$qstrArr['user_id'] = $user_id;
+			$whereArr[] = ['user_id',$user_id];
+			$curLogUser = User::find($user_id);
+		}
+		
+		if($ip) {
+			$qstrArr['ip'] = $ip;
+			$whereArr[] = ['ip',$ip];
+		}
+		
+		if($cfp_id) {
+			$qstrArr['cfp_id'] = $cfp_id;
+			$whereArr[] = ['cfp_id',$cfp_id];
+		}   		
+		
+		if(!$whereArr) $getUsersLogData = null;
+		else
+			$getUsersLogData = LogUserLogin::with('user')->where($whereArr)
+				->orderBy('created_at','DESC')
+				->paginate(50)
+			;
+		$getUsersLogData->appends($qstrArr);
+        return view('admin.users.getUsersLogList')
+            ->with('getUsersLogData', $getUsersLogData)
+			->with('curLogUser',$curLogUser)
+            ;
+
+    }		
+	
     public function accountStatus_admin(Request $request){
         $uid=$request->input('uid');
         $account_status=$request->input('account_status');

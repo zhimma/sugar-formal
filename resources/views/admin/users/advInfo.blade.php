@@ -1243,7 +1243,7 @@
 						</div>
 						<div class="form-group">
 							<label for="ip">IP</label>
-							<select multiple class="form-control" id="ip" name="ip[]">
+							<select multiple class="form-control" id="ip" name="ip[]" style="height:300px;">
 								@foreach( $ip as $row)
 									<option value="{{$row->ip}}">{{$row->ip}}</option>
 								@endforeach
