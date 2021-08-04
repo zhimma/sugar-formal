@@ -273,7 +273,7 @@
 		</td>
 		<td>{{ $user->created_at }}</td>
 		<td>{{ $user->updated_at }}</td>
-		<td><a href="{{ url('admin/order#'.$user->email) }}" target="_blank">{{ $showVipInfo }}</a></td>
+		<td><a href="{{ route('stats/vip_log', $user->id) }}" target="_blank">{{ $showVipInfo }}</a></td>
 		@if(!is_null($warnedInfo))<td>{{ !is_null($warnedInfo) ? $warnedDay.'('.$diffDays.')' : ''}}</td>@endif
 		<td>{{ $user->last_login }}</td>
 		<td>{{ $user->login_times }}</td>

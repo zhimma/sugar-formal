@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests;
 use App\Models\MemberPic;
 use App\Models\Message;
+use App\Models\Order;
 use App\Models\Reported;
 use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
@@ -101,10 +102,13 @@ class StatController extends \App\Http\Controllers\BaseController
         $results = VipLog::where('member_id', $id)->get();
         $name = User::where('id', $id)->get()->first()->name;
         $expiry = Vip::where('member_id', $id)->orderBy('created_at', 'asc')->get()->first()->expiry;
+        $order = order::where('user_id', $id)->orderBy('order_date','desc')->get();
         return view('admin.stats.vipLog', [
             'results' => $results,
             'name' => $name,
-            'expiry' => substr($expiry, 0, 10)]);
+            'expiry' => substr($expiry, 0, 10),
+            'order' => $order
+        ]);
     }
     public function cronLog(){
         $data = \DB::table('log_vip_crontab')->orderBy('id', 'desc')->paginate(20);
