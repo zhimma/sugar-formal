@@ -66,7 +66,7 @@ class OrderGenerator extends Command
                     $checkOrder = Order::where('order_id', $order_id)->first();
                     if(!isset($checkOrder)) {
                         if (strpos($order_id, 'SG') !== false) {
-                            Order::addEcPayOrder($order_id);
+                            Order::addEcPayOrder($order_id, null);
                         } else if(strpos($order_id, 'SG') === false && strlen($order_id)>=10) {
                             Order::addOtherOrder($order_id, $row->member_id, $row->created_at);
                         }
@@ -130,7 +130,7 @@ class OrderGenerator extends Command
             //加值服務訂單
             $ValueAddedServiceLog = ValueAddedServiceLog::distinct('order_id')->get();
             foreach($ValueAddedServiceLog as $row){
-                Order::addEcPayOrder($row->order_id);
+                Order::addEcPayOrder($row->order_id, null);
             }
 
             //檢查藍新未取消的訂單紀錄 取消最終日統一為2020-12.31
