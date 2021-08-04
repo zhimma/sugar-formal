@@ -9,21 +9,36 @@
 }
 </style>
 <body style="padding: 15px;">
-<div class="col col-12 col-sm-12 col-md-8 col-lg-6">
+<div class="col col-12 col-sm-12">
     <form action="{{ route('order/orderGeneratorById') }}" method='post'>
         {!! csrf_field() !!}
         <div class="form-row align-items-center">
             <div class="col-auto">產生會員訂單</div>
             <div class="col-auto">
-                <label class="sr-only" for="uid">會員ID</label>
-{{--                <input type="text" class="form-control mb-2" id="inlineFormInput" placeholder="Jane Doe">--}}
-                <input type="text" class="form-control mb-2" name="uid" id="uid" placeholder="輸入會員ID, 例如：12345">
+                <label class="sr-only" for="uid">會員ID或email</label>
+                <input type="text" class="form-control mb-2" name="uid" id="uid" placeholder="輸入會員ID或email, 例如12345或abc@gmail.com" style="width: 350px;">
             </div>
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary mb-2">送出</button>
             </div>
             <div class="col-auto">
                 此功能會依據會員過去訂購紀錄來產生訂單資料
+            </div>
+        </div>
+    </form>
+    <form action="{{ route('order/orderEcPayCheck') }}" method='post' target="_blank">
+        {!! csrf_field() !!}
+        <div class="form-row align-items-center">
+            <div class="col-auto">綠界訂單反查</div>
+            <div class="col-auto">
+                <label class="sr-only" for="order_id">綠界訂單編號</label>
+                <input type="text" class="form-control mb-2" name="order_id" id="order_id" placeholder="輸入綠界訂單，例如SG123456" style="width: 220px;">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary mb-2">送出</button>
+            </div>
+            <div class="col-auto">
+                此功能用來反查綠界訂單資料是否有效
             </div>
         </div>
     </form>
@@ -76,8 +91,6 @@
 <script src="https://legacy.datatables.net/extras/thirdparty/ColReorderWithResize/ColReorderWithResize.js"></script>
 <style>
     thead th {
-        /*border-top: 1px solid #dddddd;*/
-        /*border-bottom: 1px solid #dddddd;*/
         border-right: 1px;
         border-style: double;
         border-color: #dddddd;
@@ -99,6 +112,7 @@
             responsive: true,
             autoWidth: true,
             sDom: "Rlfrtip",
+            pageLength: 100,
             ajax: '{!! route('order/list') !!}',
             columns: [
                 { data: 'order_id', name: 'order.order_id' },

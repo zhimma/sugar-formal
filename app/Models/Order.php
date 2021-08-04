@@ -29,7 +29,7 @@ class Order extends Model
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-    public static function addEcPayOrder($order_id, $order_expire_date = ''){
+    public static function addEcPayOrder($order_id, $order_expire_date = null){
 
         if($order_id != '' && substr($order_id,0,2) == 'SG') {
             //正式綠界訂單查詢
@@ -49,7 +49,7 @@ class Order extends Model
 
             //check order exist
             $checkOrder = Order::where('order_id', $order_id)->first();
-            if(!$checkOrder && isset($paymentData)) {
+            if(!$checkOrder && isset($paymentData) && $paymentData['TradeStatus']==1) {
                 if($paymentData['CustomField4']==''){
                     $service_name = 'VIP';
                 }else{
@@ -77,9 +77,11 @@ class Order extends Model
                     array_push($dateArray, array($dd));
                 }else{
                     foreach($paymentPeriodInfo['ExecLog'] as $data){
-                        $dd = str_replace('%20', ' ', $data['process_date']);
-                        $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
-                        array_push($dateArray, array($dd));
+                        if($data['RtnCode']==1) {
+                            $dd = str_replace('%20', ' ', $data['process_date']);
+                            $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
+                            array_push($dateArray, array($dd));
+                        }
                     }
 
                     $last = last($paymentPeriodInfo['ExecLog']);
@@ -167,7 +169,7 @@ class Order extends Model
 
             //check order exist
             $checkOrder = Order::where('order_id', $order_id)->first();
-            if($checkOrder){
+            if($checkOrder && $paymentData['TradeStatus']==1){
                 if($paymentData['CustomField3']==''){
                     $payment = 'cc_monthly_payment';//舊訂單歸類定期定額月付
                 }else{
@@ -183,9 +185,11 @@ class Order extends Model
                     array_push($dateArray, array($dd));
                 }else{
                     foreach($paymentPeriodInfo['ExecLog'] as $data){
-                        $dd = str_replace('%20', ' ', $data['process_date']);
-                        $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
-                        array_push($dateArray, array($dd));
+                        if($data['RtnCode']==1) {
+                            $dd = str_replace('%20', ' ', $data['process_date']);
+                            $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
+                            array_push($dateArray, array($dd));
+                        }
                     }
 
                     $last = last($paymentPeriodInfo['ExecLog']);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Order;
+use App\Models\User;
 use App\Models\ValueAddedServiceLog;
 use App\Models\VipLog;
 use Illuminate\Http\Request;
@@ -31,16 +32,20 @@ class OrderController extends \App\Http\Controllers\BaseController
     public function orderGeneratorById(Request $request){
         //VIP
         $uid = $request->input('uid');
-        $member_vip_log = VipLog::select('member_vip_log.*','users.email')->from('member_vip_log')
-            ->leftJoin('users','users.id','member_vip_log.member_id')
-            ->whereNotNull('users.id')
-            ->where('member_vip_log.member_id', $uid)
-//            ->OrderBy('member_vip_log.member_id')
-            ->OrderBy('member_vip_log.created_at','ASC')
-            ->get();
+        $user = User::select('id')->where(function($query) use ($uid) {
+            $query->where('id', $uid)
+                ->orWhere('email', $uid);
+        })->first();
+            $member_vip_log = VipLog::select('member_vip_log.*', 'users.email')->from('member_vip_log')
+                ->leftJoin('users', 'users.id', 'member_vip_log.member_id')
+                ->whereNotNull('users.id')
+                ->where('member_vip_log.member_id', $user->id)
+                ->OrderBy('member_vip_log.created_at', 'ASC')
+                ->get();
 
+            order::addEcPayOrder('SG1613810631', null);
         $email = '';
-        if(count($member_vip_log)==0){
+        if(count($member_vip_log)==0 && $user){
             return back()->with('message', '查無此用戶紀錄');
         }else{
             foreach ($member_vip_log as $row) {
@@ -54,7 +59,7 @@ class OrderController extends \App\Http\Controllers\BaseController
                     $checkOrder = Order::where('order_id', $order_id)->first();
                     if (!isset($checkOrder)) {
                         if (strpos($order_id, 'SG') !== false) {
-                            Order::addEcPayOrder($order_id);
+                            Order::addEcPayOrder($order_id, null);
                         } else if (strpos($order_id, 'SG') === false && strlen($order_id) >= 10) {
                             Order::addOtherOrder($order_id, $row->member_id, $row->created_at);
                         }
@@ -117,10 +122,10 @@ class OrderController extends \App\Http\Controllers\BaseController
         }
 
         //加值服務訂單
-        $ValueAddedServiceLog = ValueAddedServiceLog::where('member_id', $uid)->distinct('order_id')->get();
+        $ValueAddedServiceLog = ValueAddedServiceLog::where('member_id', $user->id)->distinct('order_id')->get();
         if($ValueAddedServiceLog){
             foreach($ValueAddedServiceLog as $row){
-                Order::addEcPayOrder($row->order_id);
+                Order::addEcPayOrder($row->order_id, null);
             }
         }
 
@@ -164,5 +169,25 @@ class OrderController extends \App\Http\Controllers\BaseController
             }
         }
         return redirect('admin/order#'.$email)->with('message', '完成');
+    }
+
+    public function orderEcPayCheck(Request $request){
+        $order_id = $request->input('order_id');
+        //正式綠界訂單查詢
+        $ecpay = new \App\Services\ECPay_AllInOne();
+        $ecpay->MerchantID = '3137610';
+        $ecpay->ServiceURL = 'https://payment.ecpay.com.tw/Cashier/QueryTradeInfo/V5';
+        $ecpay->HashIV = 'KOBKiDuvxIvjCSBz';
+        $ecpay->HashKey = 'BOerb1FcOOjccN8o';
+        $ecpay->Query = [
+            'MerchantTradeNo' => $order_id,
+            'TimeStamp' => time()
+        ];
+        $paymentData = $ecpay->QueryTradeInfo();
+
+        $ecpay->ServiceURL = 'https://payment.ecpay.com.tw/Cashier/QueryCreditCardPeriodInfo';//定期定額查詢
+        $paymentPeriodInfo = $ecpay->QueryPeriodCreditCardTradeInfo();
+
+        return view('admin.stats.test')->with('paymentData', $paymentData)->with('paymentPeriodInfo', $paymentPeriodInfo);
     }
 }
