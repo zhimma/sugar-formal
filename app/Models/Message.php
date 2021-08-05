@@ -793,6 +793,38 @@ class Message extends Model
 		}
 		
         if($tinker){
+            /* 除錯用 SQL 
+             * select u1.engroup AS u1_engroup,u2.engroup AS u2_engroup from `message` as `m`
+            left join `users` as `u1` on `u1`.`id` = `m`.`from_id`
+            left join `users` as `u2` on `u2`.`id` = `m`.`to_id`
+            left join `banned_users` as `b1` on `b1`.`member_id` = `m`.`from_id`
+            left join `banned_users` as `b2` on `b2`.`member_id` = `m`.`to_id`
+            left join `banned_users_implicitly` as `b3` on `b3`.`target` = `m`.`from_id`
+            left join `banned_users_implicitly` as `b4` on `b4`.`target` = `m`.`to_id`
+            left join `blocked` as `b5` on `b5`.`blocked_id` = `m`.`from_id` and `b5`.`member_id` = ?
+            left join `blocked` as `b6` on `b6`.`blocked_id` = `m`.`to_id` and `b6`.`member_id` = ?
+            left join `blocked` as `b7` on `b7`.`member_id` = `m`.`from_id` and `b7`.`blocked_id` = ?
+            where `u1`.`id` is not null
+            and `u2`.`id` is not null
+            and `b1`.`member_id` is null
+            and `b3`.`target` is null
+            and `b5`.`blocked_id` is null
+            and `b6`.`blocked_id` is null
+            and `b7`.`member_id` is null
+            and (
+                (`m`.`to_id` = ? and `m`.`from_id` != ? and `m`.`from_id` != ?)
+                or (`m`.`from_id` = ? and `m`.`to_id` != ? and `m`.`to_id` != ?)
+            )
+            and (
+                `m`.`is_row_delete_1` <> ? and `m`.`is_single_delete_1` <> ?
+                and `m`.`all_delete_count` <> ? and `m`.`is_row_delete_2` <> ?
+                and `m`.`is_single_delete_2` <> ? and `m`.`temp_id` = ?
+            )
+            and m.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")
+            and m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")
+            and m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")
+            and m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")
+            */
             dd($all_msg);
         }
 
