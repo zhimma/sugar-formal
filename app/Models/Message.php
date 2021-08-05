@@ -786,10 +786,16 @@ if($user->user_meta->notifhistory == '顯示VIP會員信件') {
    $all_msg = $all_msg->where('member_vip.active', 1);
 }
 */
-
+		$all_msg = $all_msg->selectRaw('u.engroup AS u_engroup,u2.engroup AS u2_engroup')->get();
+		
+		
+		foreach($all_msg  as $k=>$msg) {
+			if($msg->u_engroup==$msg->u2_engroup)  $all_msg->forget($k);
+		}
+		
         if($tinker){
-            dd($all_msg->get());
-        }
+            dd($all_msg);
+        } 
 
         $unreadCount = $all_msg->count();
 
@@ -870,9 +876,14 @@ if($user->user_meta->notifhistory == '顯示VIP會員信件') {
 //        if($user->id != 1049){
 //            $query->whereRaw('u1.engroup != ' . $user->engroup);
 //        }
-
+		$all_msg = $all_msg->selectRaw('u1.engroup AS u1_engroup,u2.engroup AS u2_engroup')->get();
+		
+		foreach($all_msg  as $k=>$msg) {
+			if($msg->u1_engroup==$msg->u2_engroup)  $all_msg->forget($k);
+		}
+		
         if($tinker){
-            dd($all_msg->get());
+            dd($all_msg);
         }
 
         $allMessageCount = $all_msg->count();
