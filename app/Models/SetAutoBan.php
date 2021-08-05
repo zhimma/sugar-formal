@@ -207,7 +207,7 @@ class SetAutoBan extends Model
                         if($ip->ip == $content) $violation = true;
                     }
                     catch (\Throwable $e){
-                        logger('SetAutoBan $ip not found, $uid: ' . $uid);
+                        logger('SetAutoBan $ip not found, referer: ' . \Request::server('HTTP_REFERER'));
                     }
                     break;
                 case 'userAgent':
