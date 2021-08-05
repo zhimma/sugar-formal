@@ -167,6 +167,7 @@ class SetAutoBan extends Model
         }
         if(!$user || !$uid) {
             logger('SetAutoBan logout_warned() user not set, referer: ' . \Request::server('HTTP_REFERER'));
+            return;
         }
         $auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content')->orderBy('id', 'desc')->get();
         foreach ($auto_ban as $ban_set) {
