@@ -165,6 +165,9 @@ class SetAutoBan extends Model
         catch (\Exception $e){
 
         }
+        if(!$user || !$uid) {
+            logger('SetAutoBan logout_warned() user not set, referer: ' . \Request::server('HTTP_REFERER'));
+        }
         $auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content')->orderBy('id', 'desc')->get();
         foreach ($auto_ban as $ban_set) {
             $content = $ban_set->content;
@@ -203,12 +206,7 @@ class SetAutoBan extends Model
                     break;
                 case 'ip':
                     $ip = LogUserLogin::where('user_id',$uid)->orderBy('created_at','desc')->first();
-                    try{
-                        if($ip->ip == $content) $violation = true;
-                    }
-                    catch (\Throwable $e){
-                        logger('SetAutoBan $ip not found, referer: ' . \Request::server('HTTP_REFERER'));
-                    }
+                    if($ip->ip == $content) $violation = true;
                     break;
                 case 'userAgent':
                     if(LogUserLogin::where('user_id',$uid)->where('userAgent', 'like','%'.$content.'%')->first() != null) $violation = true;

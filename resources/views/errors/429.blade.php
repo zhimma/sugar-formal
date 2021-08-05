@@ -22,7 +22,7 @@
                                         'mins' => 1,
                                         "created_at" =>  \Carbon\Carbon::now(),
                                         "updated_at" => \Carbon\Carbon::now(),]);
-                                    \App\Models\SetAutoBan::logout_warned(Auth::id());
+                                    \App\Models\SetAutoBan::logout_warned($user->id);
                                     \Session::flush();
                                     \Session::forget('announceClose');
                                     \Auth::logout();
