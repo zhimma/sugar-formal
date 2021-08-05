@@ -165,6 +165,42 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         $this->loginDataByIp[$loginDataEntry->ip][$loginDataEntry->user_id] = $loginDataEntry;
                         $this->loginDataByUserId[$loginDataEntry->user_id][$loginDataEntry->ip] = $loginDataEntry;
                     }  
+					
+					$middleIpUserIdArr = $this->loginDataByIp;
+					
+					foreach($middleIpUserIdArr  as $middleIp=>$middleUserIds) {
+						$nowUserIdArr = $middleUserIds;
+						
+						foreach($middleUserIds as $middleUserId=>$entry) {
+							$check_rs = false;
+							
+							foreach($nowUserIdArr  as $checkUserId=>$compare_entry) {
+								if($checkUserId==$middleUserId) continue;
+								if($entry->stime>$compare_entry->time) {
+									if(strtotime($entry->stime)-strtotime($compare_entry->time)<72*3600) {
+										$check_rs = true;
+										break;
+									}
+								} 
+								else if($entry->time< $compare_entry->stime) {
+									if(strtotime($compare_entry->stime)-strtotime($entry->time)<72*3600) {
+										$check_rs = true;
+										break;
+									}									
+								}
+								else {$check_rs = true;break;}
+							}
+							
+							if(!$check_rs) {
+								$this->loginDataByIp[$middleIp][$middleUserId] = null;
+								unset($this->loginDataByIp[$middleIp][$middleUserId]);
+							}
+						}
+						$check_rs = null;
+						$nowUserIdArr = null;
+					}
+					
+					$middleIpUserIdArr = null;
                     
                     $loginDataEntrys = null;
                     
