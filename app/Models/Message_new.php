@@ -387,7 +387,7 @@ class Message_new extends Model
         //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
     }
 
-    public static function allSendersAJAX($uid, $isVip, $d = 7, $admin_id = 1049)
+    public static function allSendersAJAX($uid, $isVip, $d = 7)
     {
         $user = \View::shared('user');
         if(!$user){
@@ -490,7 +490,14 @@ class Message_new extends Model
         $block_people =  Config::get('social.block.block-people');
         $isVip = $user->isVip();
         $aa=[];
+		$admin_id = AdminService::checkAdmin()->id;
         foreach ($messages as $key => &$message){
+			
+            if($message['sender']->engroup==$message['receiver']->engroup){
+                unset($messages[$key]);
+                continue;
+            }			
+			
             $to_id = isset($message["to_id"]) ? $message["to_id"] : null;
             $from_id = isset($message["from_id"]) ? $message["from_id"] : null;
 
@@ -736,7 +743,8 @@ class Message_new extends Model
          * @author LZong <lzong.tw@gmail.com>
          */
         $query = Message::select( 'm.*',DB::raw('(m.to_id + m.from_id) as temp'))->from('message as m')
-            ->leftJoin('users as u1', 'u1.id', '=', 'm.from_id')
+            ->selectRaw('u1.engroup As u1_engroup,u2.engroup As u2_engroup')
+			->leftJoin('users as u1', 'u1.id', '=', 'm.from_id')
             ->leftJoin('users as u2', 'u2.id', '=', 'm.to_id')
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'm.from_id')
             ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'm.to_id')
@@ -792,10 +800,17 @@ class Message_new extends Model
 //        if($user->id != 1049){
 //            $query->whereRaw('u1.engroup != ' . $user->engroup);
 //        }
+		$allSenders = $query->groupBy('temp')->get();
+		
+		foreach($allSenders  as $k=>$sender) {
+			if($sender->u1_engroup==$sender->u2_engroup)  $allSenders->forget($k);
+		}
+		
         if($isCount)
-            $allSenders = $query->groupBy('temp')->get()->count();
-        else
-            $allSenders = $query->groupBy('temp')->get();
+           // $allSenders = $query->groupBy('temp')->get()->count();
+			$allSenders = $allSenders->count();
+        //else
+            //$allSenders = $query->groupBy('temp')->get();
         return $allSenders;
     }
 
