@@ -24,9 +24,15 @@
                             continue;
                         }
                         $umeta = $blockedUser->meta;
-                        if(isset($umeta->city)){
-                            $umeta->city = explode(",",$umeta->city);
-                            $umeta->area = explode(",",$umeta->area);
+                        try{
+                            if(isset($umeta->city)){
+                                $umeta->city = explode(",",$umeta->city);
+                                $umeta->area = explode(",",$umeta->area);
+                            }
+                        }
+                        catch (\Throwable $e){
+                            logger('Blocked page bug, $umeta->user_id: ' . $umeta->user_id);
+                            continue;
                         }
                         ?>
                         @php

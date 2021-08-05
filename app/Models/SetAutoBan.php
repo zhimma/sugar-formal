@@ -203,7 +203,12 @@ class SetAutoBan extends Model
                     break;
                 case 'ip':
                     $ip = LogUserLogin::where('user_id',$uid)->orderBy('created_at','desc')->first();
-                    if($ip->ip == $content) $violation = true;
+                    try{
+                        if($ip->ip == $content) $violation = true;
+                    }
+                    catch (\Throwable $e){
+                        logger('SetAutoBan $ip not found, $uid: ' . $uid);
+                    }
                     break;
                 case 'userAgent':
                     if(LogUserLogin::where('user_id',$uid)->where('userAgent', 'like','%'.$content.'%')->first() != null) $violation = true;

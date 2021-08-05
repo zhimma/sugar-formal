@@ -108,6 +108,10 @@ class CheckECpay implements ShouldQueue
 
                     $admin = User::findByEmail(Config::get('social.admin.email'));
                     $user = User::findById($this->vipData->member_id);
+                    if(!$user){
+                        logger("Null user found, vip data id: " . $this->vipData->id);
+                        return;
+                    }
                     $vipData = $user->getVipData(true);
                     if($vipData){
                         $vipData->removeVIP();

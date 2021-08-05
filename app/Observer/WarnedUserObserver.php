@@ -23,7 +23,7 @@ class WarnedUserObserver
     /**
      * Handle the User "saved" event.
      *
-     * @param  \App\Models\SimpleTables\banned_users  $user
+     * @param  \App\Models\SimpleTables\warned_users  $user
      * @return void
      */
     public function saved(warned_users $warned_user)
@@ -34,10 +34,10 @@ class WarnedUserObserver
     /**
      * Handle the User "deleted" event.
      *
-     * @param  \App\Models\SimpleTables\banned_users  $user
+     * @param  \App\Models\SimpleTables\warned_users  $user
      * @return void
      */
-    public function deleted(banned_users $user)
+    public function deleted(warned_users $user)
     {
         //
         //$user->connection = 'mysql_fp';

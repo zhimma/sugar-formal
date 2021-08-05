@@ -189,7 +189,7 @@ class ApiDataLogger{
 
                         if(!\App::environment('local')) {
                             //產生訂單 --正式綠界
-                            Order::addEcPayOrder($payload['MerchantTradeNo']);
+                            Order::addEcPayOrder($payload['MerchantTradeNo'], null);
                         }
 
                         return '1|OK';
