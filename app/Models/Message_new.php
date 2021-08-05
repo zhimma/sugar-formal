@@ -482,7 +482,7 @@ class Message_new extends Model
     }
 
 
-    public static function sortMessages($messages, $userBlockList = null, $mm = [], $mCount){
+    public static function sortMessages($messages, $userBlockList = null, $mm = [], $mCount = 10){
         if ($messages instanceof Illuminate\Database\Eloquent\Collection) {
             $messages = $messages->toArray();
         }
