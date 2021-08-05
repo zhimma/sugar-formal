@@ -475,7 +475,7 @@ class PagesController extends BaseController
      */
     public function home(Request $request)
     {
-        $imgUserM = User::select('users.name', 'users.title', 'user_meta.pic')
+        $imgUserM = User::select('users.name', 'users.title', 'user_meta.pic', 'users.last_login')
             ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'users.id')
             ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'users.id')
@@ -487,8 +487,8 @@ class PagesController extends BaseController
             ->whereNull('b3.target')
             ->whereNull('b4.target')
             ->whereNotNull('user_meta.pic')
-            ->where('engroup', 1)->inRandomorder()->take(3)->get();
-        $imgUserF = User::select('users.name', 'users.title', 'user_meta.pic')
+            ->where('engroup', 1)->orderBy('last_login', 'desc')->take(3)->get();
+        $imgUserF = User::select('users.name', 'users.title', 'user_meta.pic', 'users.last_login')
             ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'users.id')
             ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'users.id')
@@ -500,7 +500,7 @@ class PagesController extends BaseController
             ->whereNull('b3.target')
             ->whereNull('b4.target')
             ->whereNotNull('user_meta.pic')
-            ->where('engroup', 2)->inRandomorder()->take(3)->get();
+            ->where('engroup', 2)->orderBy('last_login', 'desc')->take(3)->get();
         return view('new.welcome')
             ->with('cur', view()->shared('user'))
             ->with('imgUserM', $imgUserM)
