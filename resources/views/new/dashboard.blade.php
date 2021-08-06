@@ -712,7 +712,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
   <div class="bl bl_tab" id="isGetBarCodeNotVIP" style="display: none;">
       <div class="bltitle">提示</div>
-      <div class="blnr bltext">超商條碼或超商代碼付款，會在七天內待綠界回傳資料就直接給 VIP</div>
+      <div class="blnr bltext">超商條碼或超商代碼付款，會在七天內待綠界回傳資料就<span id="vip_pass">直接給 VIP</span>
+      </div>
 
       <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
   </div>
@@ -763,6 +764,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         <?php session()->forget('message');?>
         @endif
     });
+
 </script>
   <script src="/new/js/birthday.js" type="text/javascript"></script>
   <script src="/js/jquery.twzipcode.min.js" type="text/javascript"></script>
@@ -882,6 +884,20 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         @endphp
 
       @if(!$user->isAdmin())
+        if(window.location.hash) {
+            // alert(window.location.hash)
+            if(window.location.hash.substring(1)=='banned_vip_pass') {
+                $('#vip_pass').html('會直接升級VIP並解除封鎖');
+                @if($ckBarCodeLog==0)
+                c5('您已成功解除封鎖');
+                @endif
+            }else if(window.location.hash.substring(1)=='warned_vip_pass') {
+                $('#vip_pass').html('會直接升級VIP並解除警示');
+                @if($ckBarCodeLog==0)
+                c5('您已成功解除警示');
+                @endif
+            }
+        }
         @if($ckBarCodeLog>0 && !$user->isVip())
         $('#isGetBarCodeNotVIP').show();
         $('#announce_bg').show();

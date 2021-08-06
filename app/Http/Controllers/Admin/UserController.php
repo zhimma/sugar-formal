@@ -302,6 +302,7 @@ class UserController extends \App\Http\Controllers\BaseController
         } else {
             $userBanned = new banned_users;
             $userBanned->member_id = $request->user_id;
+            $userBanned->vip_pass = $request->vip_pass;
             if ($request->days != 'X') {
                 $userBanned->expire_date = Carbon::now()->addDays($request->days);
             }
@@ -394,6 +395,7 @@ class UserController extends \App\Http\Controllers\BaseController
         //        else{
         $userWarned = new warned_users;
         $userWarned->member_id = $request->user_id;
+        $userWarned->vip_pass = $request->vip_pass;
         if ($request->days != 'X') {
             $userWarned->expire_date = Carbon::now()->addDays($request->days);
         }
@@ -802,9 +804,11 @@ class UserController extends \App\Http\Controllers\BaseController
             $user['Recommended'] = 1;
         }
         $isVip = $user->isVip();
+        $isFreeVip = $user->isFreeVip();
         $user['auth_status'] = 0;
         if ($user->isPhoneAuth() == 1) $user['auth_status'] = 1;
         $user['isvip'] = $isVip;
+        $user['isfreevip'] = $isFreeVip;
         $user['tipcount'] = Tip::TipCount_ChangeGood($user->id);
         $user['vip'] = Vip::vip_diamond($user->id);
         $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first();

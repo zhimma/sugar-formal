@@ -2,6 +2,8 @@
 namespace App\Http\Controllers;
 
 //載入SDK(路徑可依系統規劃自行調整)
+use App\Models\SimpleTables\banned_users;
+use App\Models\SimpleTables\warned_users;
 use App\Services\ECPay_AllInOne;
 use App\Services\ECPay_PaymentMethod;
 use Illuminate\Http\Request;
@@ -68,8 +70,19 @@ class ECPayment extends BaseController
 
             //基本參數(請依系統規劃自行調整)
             $MerchantTradeNo = "SG".time() ;
-            $obj->Send['ReturnURL']         = Config::get('ecpay.payment'.$envStr.'.ReturnURL') ;    //付款完成通知回傳的網址
-            $obj->Send['ClientBackURL']     = Config::get('ecpay.payment'.$envStr.'.ClientBackURL') ;
+            $ClientBackURL = Config::get('ecpay.payment'.$envStr.'.ClientBackURL'); //付款完成通知回傳的網址
+
+            $banned_users = banned_users::where('vip_pass', 1)->where('member_id', $request->userId)->first();
+            $warned_users = warned_users::where('vip_pass', 1)->where('member_id', $request->userId)->first();
+            if($banned_users){
+                $ClientBackURL .= '#banned_vip_pass';
+            }
+            if($warned_users){
+                $ClientBackURL .= '#warned_vip_pass';
+            }
+
+            $obj->Send['ReturnURL']         = Config::get('ecpay.payment'.$envStr.'.ReturnURL');    //付款完成通知回傳的網址
+            $obj->Send['ClientBackURL']     = $ClientBackURL;
             $obj->Send['MerchantTradeNo']   = $MerchantTradeNo;                        //訂單編號
             $obj->Send['MerchantTradeDate'] = date('Y/m/d H:i:s');                     //交易時間
             $obj->Send['TotalAmount']       = $amount;                                     //交易金額

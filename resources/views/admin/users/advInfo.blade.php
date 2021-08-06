@@ -57,13 +57,15 @@
 	@if($user['isBlocked'])
 		<button type="button" id="unblock_user" class='text-white btn @if($user["isBlocked"]) btn-success @else btn-danger @endif' onclick="Release({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除封鎖 </button>
 	@else 
-		<a class="btn btn-danger ban-user" id="block_user" href="#" data-toggle="modal" data-target="#blockade" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">封鎖會員</a>
+		<a class="btn btn-danger ban-user block_vip_pass" id="block_user" href="#" data-toggle="modal" data-target="#blockade" data-vip_pass="0" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">封鎖會員</a>
 		<a class="btn btn-danger ban-user" id="implicitly_block_user" href="#" data-toggle="modal" data-target="#implicitly_blockade" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">隱性封鎖</a>
+		<a class="btn btn-danger ban-user block_vip_pass" id="block_user" href="#" data-toggle="modal" data-target="#blockade" data-vip_pass="1" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">付費封鎖</a>
 	@endif
 	@if($user['isAdminWarned']==1)
 		<button type="button" title="{{'於'.$user['adminWarned_createdAt'].'被警示，將於'.(isset($user['adminWarned_expireDate'])? $user['adminWarned_expireDate'] : '永久').'解除站方警示' }}" id="unwarned_user" class='text-white btn @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除站方警示 </button>
 	@else
-		<a class="btn btn-danger warned-user" title="站方警示與自動封鎖的警示，只能經後台解除" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">站方警示</a>
+		<a class="btn btn-danger warned-user warned_vip_pass" title="站方警示與自動封鎖的警示，只能經後台解除" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-vip_pass="0" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">站方警示</a>
+		<a class="btn btn-danger warned-user warned_vip_pass" title="站方警示與自動封鎖的警示，只能經後台解除" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-vip_pass="1" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">付費警示</a>
 	@endif
 	@if($userMeta->isWarned==0)
 		<button class="btn btn-info" title="自動計算檢舉分數達10分者警示，可經手機驗證解除警示(被檢舉總分)" onclick="WarnedToggler({{$user['id']}},1)"
@@ -1202,7 +1204,7 @@
 	<div class="modal-dialog" role="document" style="max-width: 60%;">
 		<div class="modal-content" >
 			<div class="modal-header">
-				<h5 class="modal-title" id="exampleModalLabel">封鎖</h5>
+				<h5 class="modal-title" id="exampleModalLabel">封鎖 </h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -1211,6 +1213,7 @@
 				{!! csrf_field() !!}
 				<input type="hidden" value="" name="user_id" id="blockUserID">
 				<input type="hidden" value="advInfo" name="page">
+				<input type="hidden" name="vip_pass" value="">
                 <div class="modal-body">
                         封鎖時間
                         <select name="days" class="days">
@@ -1289,6 +1292,7 @@
 				{!! csrf_field() !!}
 				<input type="hidden" value="" name="user_id" id="warnedUserID">
 				<input type="hidden" value="advInfo" name="page">
+				<input type="hidden" name="vip_pass">
 				<div class="modal-body">
 					 警示時間
 					<select name="days" class="days">
@@ -1422,12 +1426,41 @@ jQuery(document).ready(function(){
 			$("#blockUserID").val($(this).data('id'))
 		}
 	});
-	$('#warned_user').click(function(){
+	$('.warned-user').click(function(){
 		if (typeof $(this).data('id') !== 'undefined') {
 			$("#warnedModalLabel").html('站方警示 '+ $(this).data('name'))
 			$("#warnedUserID").val($(this).data('id'))
 		}
 	});
+
+	$('.block_vip_pass').on('click', function () {
+		let vipPass;
+		vipPass = $(this).data('vip_pass');
+
+		@if( $user['isvip']==1 && $user['isfreevip']==0 )
+				vipPass = 0;
+		@endif
+
+		$("#clickToggleUserBlock input[name='vip_pass']").val(vipPass);
+
+		if($(this).data('vip_pass')==1){
+			$("#exampleModalLabel").append(' (付費封鎖)');
+		}
+	})
+
+	$('.warned_vip_pass').on('click', function () {
+		let vipPass;
+		vipPass = $(this).data('vip_pass');
+
+		@if( $user['isvip']==1 && $user['isfreevip']==0 )
+				vipPass = 0;
+		@endif
+
+		$("#clickToggleUserWarned input[name='vip_pass']").val(vipPass);
+		if($(this).data('vip_pass')==1){
+			$("#warnedModalLabel").append(' (付費警示)');
+		}
+	})
 
 	// $('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
 	// 	var data_id = '';
