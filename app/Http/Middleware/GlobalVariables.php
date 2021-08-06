@@ -59,9 +59,6 @@ class GlobalVariables
             \View::composer(['new.dashboard', 'new.dashboard.viewuser'], function($view) use ($user) {
                 $view->with('isAdminWarned', $user->isAdminWarned());
              });
-
-            $allMessage = \App\Models\Message::allMessage($user->id);
-            \View::share('allMessage', $allMessage);
         }
         return $next($request);
     }
