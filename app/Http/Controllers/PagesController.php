@@ -4547,7 +4547,6 @@ class PagesController extends BaseController
         }
 
         if (isset($user)) {
-
             $data = array(
                 'vipStatus' => $vipStatus,
                 'isBannedStatus' => $isBannedStatus,
@@ -4566,17 +4565,14 @@ class PagesController extends BaseController
                 'showLineNotifyPop'=>$showLineNotifyPop,
                 'announcePopUp'=>$announcePopUp,
             );
-
-
-
+            $allMessage = \App\Models\Message::allMessage($user->id);
             return view('new.dashboard.personalPage', $data)
                 ->with('myFav', $myFav)
                 ->with('otherFav',$otherFav)
                 ->with('admin_msgs',$admin_msgs)
-                ->with('admin',$admin);
-                
+                ->with('admin',$admin)
+                ->with('allMessage', $allMessage);
         }
-
     }
 
     public function report_delete(Request $request)
