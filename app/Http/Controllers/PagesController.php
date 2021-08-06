@@ -4235,7 +4235,18 @@ class PagesController extends BaseController
             }
         }
 
-        $user_isBannedOrWarned = User::select('m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','b.reason as banned_reason','b.created_at as banned_created_at','w.id as warned_id','w.expire_date as warned_expire_date','w.reason as warned_reason','w.created_at as warned_created_at')
+        $user_isBannedOrWarned = User::select(
+            'm.isWarned',
+            'b.id as banned_id',
+            'b.expire_date as banned_expire_date',
+            'b.reason as banned_reason',
+            'b.created_at as banned_created_at',
+            'b.vip_pass as banned_vip_pass',
+            'w.id as warned_id',
+            'w.expire_date as warned_expire_date',
+            'w.reason as warned_reason',
+            'w.created_at as warned_created_at',
+            'w.vip_pass as warned_vip_pass')
             ->from('users as u')
             ->leftJoin('user_meta as m','u.id','m.user_id')
             ->leftJoin('banned_users as b','u.id','b.member_id')
@@ -4244,7 +4255,9 @@ class PagesController extends BaseController
             ->get()->first();
         //封鎖
         $isBannedStatus = '';
-        if(!empty($user_isBannedOrWarned->banned_id) && $user_isBannedOrWarned->banned_expire_date == null) {
+        if($user_isBannedOrWarned->banned_vip_pass == 1){
+            $isBannedStatus = '您目前因為違反'. $user_isBannedOrWarned->banned_reason .'被封鎖，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久封鎖。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
+        }else if(!empty($user_isBannedOrWarned->banned_id) && $user_isBannedOrWarned->banned_expire_date == null) {
             $isBannedStatus = '您目前已被站方封鎖，原因是 ' . $user_isBannedOrWarned->banned_reason . '，如有需要反應請點右下聯絡我們聯絡站長。';
         }else if(!empty($user_isBannedOrWarned->banned_id) && $user_isBannedOrWarned->banned_expire_date > now() ) {
             $datetime1 = new \DateTime(now());
@@ -4262,7 +4275,9 @@ class PagesController extends BaseController
 
         //警示
         $adminWarnedStatus = '';
-        if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date == null) {
+        if($user_isBannedOrWarned->warned_vip_pass == 1) {
+            $adminWarnedStatus = '您目前因為違反'. $user_isBannedOrWarned->warned_reason .'被警示，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
+        }else if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date == null) {
             $adminWarnedStatus = '您目前已被站方警示，原因是 ' . $user_isBannedOrWarned->warned_reason . '，如有需要反應請點右下聯絡我們聯絡站長。';
         }else if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date > now() ) {
             $datetime1 = new \DateTime(now());

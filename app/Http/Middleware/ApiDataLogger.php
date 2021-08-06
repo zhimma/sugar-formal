@@ -1,6 +1,8 @@
 <?php
 namespace App\Http\Middleware;
 use App\Models\Order;
+use App\Models\SimpleTables\banned_users;
+use App\Models\SimpleTables\warned_users;
 use App\Models\Vip;
 use Carbon\Carbon;
 use Closure;
@@ -186,6 +188,10 @@ class ApiDataLogger{
                         logger('Middleware ApiDataLogger=> userID:'.$user->id.', 種類:' .$payload['CustomField3'].', 付款方式:' .$transactionType);
 
                         Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0,$payload['CustomField3'],$transactionType);
+
+                        //解除vip_pass紀錄 banned_users warned_users
+                        banned_users::where('vip_pass', 1)->where('member_id', $user->id)->delete();
+                        warned_users::where('vip_pass', 1)->where('member_id', $user->id)->delete();
 
                         if(!\App::environment('local')) {
                             //產生訂單 --正式綠界
