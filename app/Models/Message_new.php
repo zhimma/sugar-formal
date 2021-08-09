@@ -742,7 +742,7 @@ class Message_new extends Model
          *
          * @author LZong <lzong.tw@gmail.com>
          */
-        $query = Message::select( 'm.*',DB::raw('(m.to_id + m.from_id) as temp'))->from('message as m')
+        $query = Message::select( 'm.*',DB::raw('(m.to_id + m.from_id) as to_from_pair'))->from('message as m')
             ->selectRaw('u1.engroup As u1_engroup,u2.engroup As u2_engroup')
 			->leftJoin('users as u1', 'u1.id', '=', 'm.from_id')
             ->leftJoin('users as u2', 'u2.id', '=', 'm.to_id')
@@ -800,7 +800,7 @@ class Message_new extends Model
 		}
 
 		/*
-		 * 除錯用 SQL: select `m`.*, (m.to_id + m.from_id) as temp, u1.engroup As u1_engroup,u2.engroup As u2_engroup from `message` as `m`
+		 * 除錯用 SQL: select `m`.*, (m.to_id + m.from_id) as to_from_pair, u1.engroup As u1_engroup,u2.engroup As u2_engroup from `message` as `m`
             left join `users` as `u1` on `u1`.`id` = `m`.`from_id`
             left join `users` as `u2` on `u2`.`id` = `m`.`to_id`
             left join `banned_users` as `b1` on `b1`.`member_id` = `m`.`from_id`
@@ -835,11 +835,9 @@ class Message_new extends Model
             and m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")
 		 * */
 
-        if($isCount)
-           // $allSenders = $query->groupBy('temp')->get()->count();
-			$allSenders = $allSenders->count();
-        //else
-            //$allSenders = $query->groupBy('temp')->get();
+        if($isCount) {
+            $allSenders = $query->groupBy('to_from_pair')->get()->count();
+        }
         return $allSenders;
     }
 
