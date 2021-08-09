@@ -772,7 +772,9 @@ class Message extends Model
 
         $all_msg = $query->whereNotNull('u1.id')->whereNotNull('u2.id')
             ->whereNull('b1.member_id')
+            ->whereNull('b2.member_id')
             ->whereNull('b3.target')
+            ->whereNull('b4.target')
             ->whereNull('b5.blocked_id')
             ->whereNull('b6.blocked_id')
             ->whereNull('b7.member_id')
@@ -807,7 +809,9 @@ class Message extends Model
             where `u1`.`id` is not null
             and `u2`.`id` is not null
             and `b1`.`member_id` is null
+            and `b2`.`member_id` is null
             and `b3`.`target` is null
+            and `b4`.`target` is null
             and `b5`.`blocked_id` is null
             and `b6`.`blocked_id` is null
             and `b7`.`member_id` is null
