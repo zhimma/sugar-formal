@@ -891,12 +891,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 @if($ckBarCodeLog==0)
                 c5('您已成功解除封鎖');
                 @endif
+
             }else if(window.location.hash.substring(1)=='warned_vip_pass') {
                 $('#vip_pass').html('會直接升級VIP並解除警示');
                 @if($ckBarCodeLog==0)
                 c5('您已成功解除警示');
                 @endif
             }
+
+            history.replaceState(null, null, ' ');
         }
         @if($ckBarCodeLog>0 && !$user->isVip())
         $('#isGetBarCodeNotVIP').show();
