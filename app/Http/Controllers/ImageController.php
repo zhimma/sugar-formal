@@ -95,6 +95,7 @@ class ImageController extends BaseController
 
         $umeta = User::id_($userId)->meta_();
         $umeta->pic = $destinationPath;
+        $umeta->pic_original_name = $image->getClientOriginalName();
         $umeta->save();
 
         if(!$admin){
