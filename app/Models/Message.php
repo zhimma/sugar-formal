@@ -768,31 +768,23 @@ class Message extends Model
                     ->where('b6.member_id', $uid); })
             ->leftJoin('blocked as b7', function($join) use($uid) {
                 $join->on('b7.member_id', '=', 'm.from_id')
-                    ->where('b7.blocked_id', $uid); });
-
-        $all_msg = $query->whereNotNull('u1.id')->whereNotNull('u2.id')
-            ->whereNull('b1.member_id')
-            ->whereNull('b2.member_id')
-            ->whereNull('b3.target')
-            ->whereNull('b4.target')
-            ->whereNull('b5.blocked_id')
-            ->whereNull('b6.blocked_id')
-            ->whereNull('b7.member_id')
-            ->where(function ($query) use ($uid,$admin_id) {
-                $query->where([['m.to_id', $uid], ['m.from_id', '!=', $uid],['m.from_id','!=',$admin_id]])
+                    ->where('b7.blocked_id', $uid); })
+            ->where(function ($innerQuery) use ($uid, $admin_id) {
+                $innerQuery->where([['m.to_id', $uid], ['m.from_id', '!=', $uid],['m.from_id','!=',$admin_id]])
                     ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid],['m.to_id','!=',$admin_id]]);
-            });
-        $query = $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);
+            })
+            ->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);
         $query->whereRaw('m.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
-        
-		$all_msg = $all_msg->selectRaw('u1.engroup AS u1_engroup,u2.engroup AS u2_engroup')->get();
 
 		if($uid != 1049) {
-            foreach($all_msg  as $k=>$msg) {
-                if($msg->u1_engroup==$msg->u2_engroup)  $all_msg->forget($k);
+            $query = $query->selectRaw('u1.engroup AS u1_engroup,u2.engroup AS u2_engroup')->get();
+            foreach($query as $k=>$msg) {
+                if($msg->u1_engroup==$msg->u2_engroup) {
+                    $query->forget($k);
+                }
             }
         }
 		
@@ -831,12 +823,10 @@ class Message extends Model
             and m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")
             and m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")
             */
-            dd($all_msg);
+            dd($query);
         }
 
-        $allMessageCount = $all_msg->count();
-
-        return $allMessageCount;
+        return $query->count();
     }
 
     public static function post($from_id, $to_id, $msg, $tip_action = true, $sys_notice = 0)
