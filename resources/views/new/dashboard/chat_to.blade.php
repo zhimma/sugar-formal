@@ -49,7 +49,9 @@
                 ele = ele + '</p>' +
             '</div>' +
         '</div>';
-
+        if($(".sebg.matopj10").length == 0){
+            $(".message.pad_bot").prepend('<div class="sebg matopj10">' + date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + (date.getDate())).slice(-2) + '</div>');
+        }
         $(ele).insertAfter($(".matopj10")[0]);
     }
 </script>
