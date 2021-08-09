@@ -725,7 +725,7 @@ class Message_new extends Model
             ->get();
     }
 
-    public static function allSenders($uid, $isVip, $d = 7,$isCount=true)
+    public static function allSenders($uid, $isVip, $d = 7, $isCount = true)
     {
         $user = \View::shared('user');
         if(!$user){
