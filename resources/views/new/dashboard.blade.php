@@ -812,101 +812,104 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         var blockarea2_selected = '{{ isset($umeta->blockarea[2]) ? str_replace($umeta->blockcity[2],'',$umeta->blockarea[2]) : '全區'  }}';
 
 
-        if($("select[name='blockarea'] option:eq(0)").text()!=='全區'){
+        if ($("select[name='blockarea'] option:eq(0)").text() !== '全區') {
             //$("select[name='blockarea']").prepend('<option value="">全區</option>');
-            if(blockarea_selected == '全區'){
-                if($("select[name='blockcity']").val() !== ''){
+            if (blockarea_selected == '全區') {
+                if ($("select[name='blockcity']").val() !== '') {
                     $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
                 }
-            }else{
-                $("select[name='blockarea'] option[value="+ blockarea_selected +"]").attr('selected', true);
+            } else {
+                $("select[name='blockarea'] option[value=" + blockarea_selected + "]").attr('selected', true);
             }
         }
-        if($("select[name='blockarea1'] option:eq(0)").text()!=='全區'){
+        if ($("select[name='blockarea1'] option:eq(0)").text() !== '全區') {
             //$("select[name='blockarea1']").prepend('<option value="">全區</option>');
-            if(blockarea1_selected == '全區'){
+            if (blockarea1_selected == '全區') {
                 $("select[name='blockarea1']").prepend('<option selected value="">全區</option>');
-            }else{
-                $("select[name='blockarea1'] option[value="+ blockarea1_selected +"]").attr('selected', true);
+            } else {
+                $("select[name='blockarea1'] option[value=" + blockarea1_selected + "]").attr('selected', true);
             }
         }
-        if($("select[name='blockarea2'] option:eq(0)").text()!=='全區'){
+        if ($("select[name='blockarea2'] option:eq(0)").text() !== '全區') {
             //$("select[name='blockarea2']").prepend('<option value="">全區</option>');
-            if(blockarea2_selected == '全區'){
+            if (blockarea2_selected == '全區') {
                 $("select[name='blockarea2']").prepend('<option selected value="">全區</option>');
-            }else{
-                $("select[name='blockarea2'] option[value="+ blockarea2_selected +"]").attr('selected', true);
+            } else {
+                $("select[name='blockarea2'] option[value=" + blockarea2_selected + "]").attr('selected', true);
             }
         }
 
-        $("select[name='blockcity']").on('change', function() {
-            if($("select[name='blockcity'] option:selected" ).text() == '縣市'){
-                if($("select[name='blockarea'] option:eq(0)").text()!=='鄉鎮市區')
+        $("select[name='blockcity']").on('change', function () {
+            if ($("select[name='blockcity'] option:selected").text() == '縣市') {
+                if ($("select[name='blockarea'] option:eq(0)").text() !== '鄉鎮市區')
                     $("select[name='blockarea']").prepend('<option selected value="">鄉鎮市區</option>');
-            }
-            else{
-                if($("select[name='blockarea'] option:eq(0)").text()!=='全區')
+            } else {
+                if ($("select[name='blockarea'] option:eq(0)").text() !== '全區')
                     $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
             }
         });
-        $("select[name='blockcity1']").on('change', function() {
-            if($("select[name='blockcity1'] option:selected" ).text() == '縣市'){
-                if($("select[name='blockarea1'] option:eq(0)").text()!=='鄉鎮市區')
+        $("select[name='blockcity1']").on('change', function () {
+            if ($("select[name='blockcity1'] option:selected").text() == '縣市') {
+                if ($("select[name='blockarea1'] option:eq(0)").text() !== '鄉鎮市區')
                     $("select[name='blockarea1']").prepend('<option selected value="">鄉鎮市區</option>');
-            }
-            else{
-                if($("select[name='blockarea1'] option:eq(0)").text()!=='全區')
+            } else {
+                if ($("select[name='blockarea1'] option:eq(0)").text() !== '全區')
                     $("select[name='blockarea1']").prepend('<option selected value="">全區</option>');
             }
         });
-        $("select[name='blockcity2']").on('change', function() {
-            if($("select[name='blockcity2'] option:selected" ).text() == '縣市'){
-                if($("select[name='blockarea2'] option:eq(0)").text()!=='鄉鎮市區')
+        $("select[name='blockcity2']").on('change', function () {
+            if ($("select[name='blockcity2'] option:selected").text() == '縣市') {
+                if ($("select[name='blockarea2'] option:eq(0)").text() !== '鄉鎮市區')
                     $("select[name='blockarea2']").prepend('<option selected value="">鄉鎮市區</option>');
-            }
-            else{
-                if($("select[name='blockarea2'] option:eq(0)").text()!=='全區')
+            } else {
+                if ($("select[name='blockarea2'] option:eq(0)").text() !== '全區')
                     $("select[name='blockarea2']").prepend('<option selected value="">全區</option>');
             }
         });
 
         function getAge(birth) {
-        birth = Date.parse(birth.replace('/-/g', "/"));
-        var year = 1000 * 60 * 60 * 24 * 365;
-        var now = new Date();
-        var birthday = new Date(birth);
-        var age = parseInt((now - birthday) / year);
-        return age;
-      }
+            birth = Date.parse(birth.replace('/-/g', "/"));
+            var year = 1000 * 60 * 60 * 24 * 365;
+            var now = new Date();
+            var birthday = new Date(birth);
+            var age = parseInt((now - birthday) / year);
+            return age;
+        }
 
         @php
             $ckBarCodeLog = DB::table('payment_get_barcode_log')->where('user_id',$user->id)->where('ExpireDate','>=',now())->where('isRead',0)->count();
         @endphp
 
-      @if(!$user->isAdmin())
-        if(window.location.hash) {
-            // alert(window.location.hash)
-            if(window.location.hash.substring(1)=='banned_vip_pass') {
-                $('#vip_pass').html('會直接升級VIP並解除封鎖');
-                @if($ckBarCodeLog==0)
-                c5('您已成功解除封鎖');
-                @endif
+        @if(!$user->isAdmin())
+            let banned_vip_pass=false, warned_vip_pass=false;
+            if (window.location.hash) {
+                // alert(window.location.hash)
+                if (window.location.hash.substring(1) == 'banned_vip_pass') {
+                    banned_vip_pass = true;
+                    $('#vip_pass').html('會直接升級VIP並解除封鎖');
+                } else if (window.location.hash.substring(1) == 'warned_vip_pass') {
+                    warned_vip_pass = true;
+                    $('#vip_pass').html('會直接升級VIP並解除警示');
+                }
 
-            }else if(window.location.hash.substring(1)=='warned_vip_pass') {
-                $('#vip_pass').html('會直接升級VIP並解除警示');
-                @if($ckBarCodeLog==0)
-                c5('您已成功解除警示');
-                @endif
+                history.replaceState(null, null, ' ');
             }
 
-            history.replaceState(null, null, ' ');
-        }else {
-            @if($ckBarCodeLog>0 && !$user->isVip())
+            @if($ckBarCodeLog==0)
+
+                if(banned_vip_pass){
+                    c5('您已成功解除封鎖');
+                }
+                if(warned_vip_pass){
+                    c5('您已成功解除警示');
+                }
+
+            @elseif($ckBarCodeLog>0 && !$user->isVip())
             $('#isGetBarCodeNotVIP').show();
             $('#announce_bg').show();
-            @php
-                DB::table('payment_get_barcode_log')->where('user_id',$user->id)->where('ExpireDate','>=',now())->where('isRead',0)->update(['isRead' => 1]);
-            @endphp
+                @php
+                    DB::table('payment_get_barcode_log')->where('user_id',$user->id)->where('ExpireDate','>=',now())->where('isRead',0)->update(['isRead' => 1]);
+                @endphp
             @elseif (!$umeta->isAllSet( $user->engroup ))
             c5('請寫上基本資料。');
             // swal({
@@ -939,7 +942,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             {{--        $('#isWarned').show();--}}
             {{--        $('#announce_bg').show();--}}
             @endif
-        }
       @endif
 
         @php
