@@ -282,108 +282,7 @@
 	</tr>
 </table>
 <h4>詳細資料</h4>
-<table class='table table-hover table-bordered'>	
-	<tr>
-		<th>會員ID</th>
-		<td>{{ $userMeta->user_id }}</td>
-		<th>手機</th>
-		<td>{{ $userMeta->phone }}</td>
-		<th>是否已啟動</th>
-		<td>@if($userMeta->is_active == 1) 是 @else 否 @endif</td>
-		<th rowspan='3'>照片 <br><a href="editPic_sendMsg/{{ $user->id }}" class='text-white btn btn-primary'>照片&發訊息</a></th>
-		<td rowspan='3'>@if($userMeta->pic) <img src="{{$userMeta->pic}}" width='150px'> @else 無 @endif</td>
-	</tr>
-	<tr>
-		<th>縣市</th>
-		<td>@if($userMeta->city=='0') 無 @else {{ $userMeta->city }} {{ $userMeta->area }} @endif</td>
-		<th>拒絕查詢的縣市</th>
-		<td>@if($userMeta->blockcity=='0') 無 @else {{ $userMeta->blockcity }} {{ $userMeta->blockarea }} @endif</td>
-		<th>預算</th>
-		<td>{{ $userMeta->budget }}</td>
-	</tr>
-	<tr>
-		<th>生日</th>
-		<td>{{ date('Y-m-d', strtotime($userMeta->birthdate)) }}</td>
-		<th>身高</th>
-		<td>{{ $userMeta->height }}</td>
-		<th>職業</th>
-		<td>{{ $userMeta->occupation }}</td>
-	</tr>
-	<tr>
-		<th>體重</th>
-		<td>{{ $userMeta->weight }}</td>
-		<th>罩杯</th>
-		<td>{{ $userMeta->cup }}</td>
-		<th>體型</th>
-		<td>{{ $userMeta->body }}</td>
-		<th>現況</th>
-		<td>{{ $userMeta->situation }}</td>
-	</tr>
-	<tr>
-		<th>關於我</th>
-		<td colspan='3'>{{ $userMeta->about }}</td>
-		<th>期待的約會模式</th>
-		<td colspan='3'>{{ $userMeta->style }}</td>
-	</tr>
-	<tr>
-		<th>教育</th>
-		<td>{{ $userMeta->education }}</td>
-		<th>婚姻</th>
-		<td>{{ $userMeta->marriage }}</td>
-		<th>喝酒</th>
-		<td>{{ $userMeta->drinking }}</td>
-		<th>抽菸</th>
-		<td>{{ $userMeta->smoking }}</td>
-	</tr>
-	<tr>	
-		<th>產業1</th>
-		<td>{{ $userMeta->domainType }}</td>
-		<th>封鎖的產業1</th>
-		<td>{{ $userMeta->blockdomainType }}</td>
-		<th>產業2</th>
-		<td>{{ $userMeta->domain }}</td>
-		<th>封鎖的產業2</th>
-		<td>{{ $userMeta->blockdomain }}</td>
-	</tr>
-	<tr>
-		<th>職業</th>
-		<td>{{ $userMeta->job }}</td>
-		<th>資產</th>
-		<td>{{ $userMeta->domain }}</td>
-		<th>年收</th>
-		<td>{{ $userMeta->income }}</td>
-		<th>信息通知</th>
-		<td>{{ $userMeta->notifmessage }}</td>
-	</tr>
-	<tr>
-		<th>隱藏地區</th>
-		<td>@if($userMeta->isHideArea==1) 是 @else 否 @endif</td>
-		<th>隱藏罩杯</th>
-		<td>@if($userMeta->isHideCup==1) 是 @else 否 @endif</td>
-		<th>隱藏體重</th>
-		<td>@if($userMeta->isHideWeight==1) 是 @else 否 @endif</td>
-		<th>隱藏職業</th>
-		<td>@if($userMeta->isHideOccupation==1) 是 @else 否 @endif</td>	
-	</tr>
-	<tr>
-		@if($user->engroup==2)
-		<th>包養關係</th>
-		<td>
-			@php
-				$exchange_period_name = DB::table('exchange_period_name')->where('id',$user->exchange_period)->first();
-			@endphp
-			{{$exchange_period_name->name}}
-		</td>
-
-
-		@endif
-		<th>收件夾顯示方式</th>
-		<td>{{ $userMeta->notifhistory }}</td>
-		<th>建立時間</th>
-		<td>{{ $userMeta->created_at }}</td>
-		<th>更新時間</th>
-		<td>{{ $userMeta->updated_at }}</td>
-	</tr>
+<table class='table table-hover table-bordered'>
 	<tr>
 		<form action="{{ route('users/save', $user->id) }}" method='POST'>
 			{!! csrf_field() !!}
@@ -446,6 +345,57 @@
 				@endif
 			</form>
 		</td>
+		<th rowspan='3'>照片 <br><a href="editPic_sendMsg/{{ $user->id }}" class='text-white btn btn-primary'>照片&發訊息</a></th>
+		<td rowspan='3'>
+			@if($userMeta->pic)
+			<div  style="width: 250px;height: 250px;">
+				<img src="{{$userMeta->pic}}" style="width: 250px;height: 250px;object-fit: contain;">
+			</div>
+			<div>照片原始檔名：{{$userMeta->pic_original_name}}</div>
+			@else
+				無
+			@endif
+		</td>
+	</tr>
+	<tr>
+		<th>會員ID</th>
+		<td>{{ $userMeta->user_id }}</td>
+		<th>手機</th>
+		<td>{{ $userMeta->phone }}</td>
+		<th>是否已啟動</th>
+		<td>@if($userMeta->is_active == 1) 是 @else 否 @endif</td>
+	</tr>
+	<tr>
+		<th>縣市</th>
+		<td>@if($userMeta->city=='0') 無 @else {{ $userMeta->city }} {{ $userMeta->area }} @endif</td>
+		<th>拒絕查詢的縣市</th>
+		<td>@if($userMeta->blockcity=='0') 無 @else {{ $userMeta->blockcity }} {{ $userMeta->blockarea }} @endif</td>
+		<th>預算</th>
+		<td>{{ $userMeta->budget }}</td>
+	</tr>
+	<tr>
+		<th>生日</th>
+		<td>{{ date('Y-m-d', strtotime($userMeta->birthdate)) }}</td>
+		<th>身高</th>
+		<td>{{ $userMeta->height }}</td>
+		<th>職業</th>
+		<td>{{ $userMeta->occupation }}</td>
+	</tr>
+	<tr>
+		<th>體重</th>
+		<td>{{ $userMeta->weight }}</td>
+		<th>罩杯</th>
+		<td>{{ $userMeta->cup }}</td>
+		<th>體型</th>
+		<td>{{ $userMeta->body }}</td>
+		<th>現況</th>
+		<td>{{ $userMeta->situation }}</td>
+	</tr>
+	<tr>
+		<th>關於我</th>
+		<td colspan='3'>{{ $userMeta->about }}</td>
+		<th>期待的約會模式</th>
+		<td colspan='3'>{{ $userMeta->style }}</td>
 	</tr>
 </table>
 @if($user->engroup==1)
@@ -1164,6 +1114,174 @@
 		@endforeach
 </table>
 {!! $userMessage_log->links('pagination::sg-pages3') !!}
+
+<h4>詳細資料</h4>
+<table class='table table-hover table-bordered'>
+	<tr>
+		<th>會員ID</th>
+		<td>{{ $userMeta->user_id }}</td>
+		<th>手機</th>
+		<td>{{ $userMeta->phone }}</td>
+		<th>是否已啟動</th>
+		<td>@if($userMeta->is_active == 1) 是 @else 否 @endif</td>
+		<th rowspan='3'>照片 <br><a href="editPic_sendMsg/{{ $user->id }}" class='text-white btn btn-primary'>照片&發訊息</a></th>
+		<td rowspan='3'>@if($userMeta->pic) <img src="{{$userMeta->pic}}" width='150px'> @else 無 @endif</td>
+	</tr>
+	<tr>
+		<th>縣市</th>
+		<td>@if($userMeta->city=='0') 無 @else {{ $userMeta->city }} {{ $userMeta->area }} @endif</td>
+		<th>拒絕查詢的縣市</th>
+		<td>@if($userMeta->blockcity=='0') 無 @else {{ $userMeta->blockcity }} {{ $userMeta->blockarea }} @endif</td>
+		<th>預算</th>
+		<td>{{ $userMeta->budget }}</td>
+	</tr>
+	<tr>
+		<th>生日</th>
+		<td>{{ date('Y-m-d', strtotime($userMeta->birthdate)) }}</td>
+		<th>身高</th>
+		<td>{{ $userMeta->height }}</td>
+		<th>職業</th>
+		<td>{{ $userMeta->occupation }}</td>
+	</tr>
+	<tr>
+		<th>體重</th>
+		<td>{{ $userMeta->weight }}</td>
+		<th>罩杯</th>
+		<td>{{ $userMeta->cup }}</td>
+		<th>體型</th>
+		<td>{{ $userMeta->body }}</td>
+		<th>現況</th>
+		<td>{{ $userMeta->situation }}</td>
+	</tr>
+	<tr>
+		<th>關於我</th>
+		<td colspan='3'>{{ $userMeta->about }}</td>
+		<th>期待的約會模式</th>
+		<td colspan='3'>{{ $userMeta->style }}</td>
+	</tr>
+	<tr>
+		<th>教育</th>
+		<td>{{ $userMeta->education }}</td>
+		<th>婚姻</th>
+		<td>{{ $userMeta->marriage }}</td>
+		<th>喝酒</th>
+		<td>{{ $userMeta->drinking }}</td>
+		<th>抽菸</th>
+		<td>{{ $userMeta->smoking }}</td>
+	</tr>
+	<tr>
+		<th>產業1</th>
+		<td>{{ $userMeta->domainType }}</td>
+		<th>封鎖的產業1</th>
+		<td>{{ $userMeta->blockdomainType }}</td>
+		<th>產業2</th>
+		<td>{{ $userMeta->domain }}</td>
+		<th>封鎖的產業2</th>
+		<td>{{ $userMeta->blockdomain }}</td>
+	</tr>
+	<tr>
+		<th>職業</th>
+		<td>{{ $userMeta->job }}</td>
+		<th>資產</th>
+		<td>{{ $userMeta->domain }}</td>
+		<th>年收</th>
+		<td>{{ $userMeta->income }}</td>
+		<th>信息通知</th>
+		<td>{{ $userMeta->notifmessage }}</td>
+	</tr>
+	<tr>
+		<th>隱藏地區</th>
+		<td>@if($userMeta->isHideArea==1) 是 @else 否 @endif</td>
+		<th>隱藏罩杯</th>
+		<td>@if($userMeta->isHideCup==1) 是 @else 否 @endif</td>
+		<th>隱藏體重</th>
+		<td>@if($userMeta->isHideWeight==1) 是 @else 否 @endif</td>
+		<th>隱藏職業</th>
+		<td>@if($userMeta->isHideOccupation==1) 是 @else 否 @endif</td>
+	</tr>
+	<tr>
+		@if($user->engroup==2)
+			<th>包養關係</th>
+			<td>
+				@php
+					$exchange_period_name = DB::table('exchange_period_name')->where('id',$user->exchange_period)->first();
+				@endphp
+				{{$exchange_period_name->name}}
+			</td>
+
+
+		@endif
+		<th>收件夾顯示方式</th>
+		<td>{{ $userMeta->notifhistory }}</td>
+		<th>建立時間</th>
+		<td>{{ $userMeta->created_at }}</td>
+		<th>更新時間</th>
+		<td>{{ $userMeta->updated_at }}</td>
+	</tr>
+	<tr>
+		<form action="{{ route('users/save', $user->id) }}" method='POST'>
+			{!! csrf_field() !!}
+			<th>站長註解<div><button type="submit" class="text-white btn btn-primary">修改</button></div></th>
+			<td colspan='3'><textarea class="form-control m-input" type="textarea" name="adminNote" rows="3" maxlength="300">{{ $userMeta->adminNote }}</textarea></td>
+		</form>
+
+		<th>手機驗證
+			<div style="display: flex;">
+				<form action="{{ route('phoneDelete') }}" method='POST'>
+					{!! csrf_field() !!}
+					<input type="hidden" name="user_id" value="{{ $userMeta->user_id }}">
+					<button type="submit" class="text-white btn btn-danger delete_phone_submit" style="float: right;">刪除</button>
+				</form>
+				@if ($user->isPhoneAuth() == false)
+					<form action="{{ route('phoneModify') }}" method='POST'>
+						{!! csrf_field() !!}
+						<input type="hidden" name="user_id" value="{{ $userMeta->user_id }}">
+						<input type="hidden" name="phone" value="">
+						<input type="hidden" name="pass" value="1">
+						<button type="submit" class="text-white btn btn btn-success" style="float: right;">通過</button>
+					</form>
+				@else
+					<form action="{{ route('phoneDelete') }}" method='POST'>
+						{!! csrf_field() !!}
+						<input type="hidden" name="user_id" value="{{ $userMeta->user_id }}">
+						<button type="submit" class="text-white btn btn btn-success" style="float: right;">不通過</button>
+					</form>
+				@endif
+			</div>
+		</th>
+		<td>
+			<form action="{{ route('phoneModify') }}" method='POST'>
+				{!! csrf_field() !!}
+				<input type="hidden" name="user_id" value="{{ $userMeta->user_id }}">
+				@php
+					$showPhone = '暫無手機';
+					$showPhoneDate = '';
+					$phoneAuth = DB::table('short_message')->where('member_id', $user->id)->first();
+					if($user->isPhoneAuth()){
+					    if(empty(trim($phoneAuth->mobile))){
+							$showPhone = '已驗證,尚未填寫手機';
+					        $showPhoneDate = $phoneAuth->createdate;
+					        }
+						else{
+						    $showPhone = $phoneAuth->mobile;
+						    $showPhoneDate = $phoneAuth->createdate;
+						    }
+					}
+				@endphp
+				<input class="form-control m-input phoneInput" type=text name="phone" value="{{ $showPhone }}" readonly="readonly" >
+				<div>@if($userMeta->isWarnedTime !='')警示用戶時間：{{ $userMeta->isWarnedTime }}@endif</div>
+				<div>@if($showPhoneDate != '')手機驗證時間：{{ $showPhoneDate }}@endif</div>
+				@if(!is_null($phoneAuth))
+					<div>購買手機驗證卡號：{{ $phoneAuth->credit_card }}</div>
+				@endif
+				@if ($user->isPhoneAuth())
+					<div class="text-white btn btn-primary test" onclick="showPhoneInput()">修改</div>
+					<button type="submit" class="text-white btn btn-primary modify_phone_submit" style="display: none;">確認修改</button>
+				@endif
+			</form>
+		</td>
+	</tr>
+</table>
 
 <h4>現有生活照</h4>
 <?php $pics = \App\Models\MemberPic::getSelf($user->id); ?>
