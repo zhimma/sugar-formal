@@ -789,10 +789,12 @@ class Message extends Model
         $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
         
 		$all_msg = $all_msg->selectRaw('u1.engroup AS u1_engroup,u2.engroup AS u2_engroup')->get();
-		
-		foreach($all_msg  as $k=>$msg) {
-			if($msg->u1_engroup==$msg->u2_engroup)  $all_msg->forget($k);
-		}
+
+		if($uid != 1049) {
+            foreach($all_msg  as $k=>$msg) {
+                if($msg->u1_engroup==$msg->u2_engroup)  $all_msg->forget($k);
+            }
+        }
 		
         if($tinker){
             /* 除錯用 SQL 
