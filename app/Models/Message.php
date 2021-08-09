@@ -780,11 +780,18 @@ class Message extends Model
         $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
 
 		if($uid != 1049) {
-            $query = $query->selectRaw('u1.engroup AS u1_engroup,u2.engroup AS u2_engroup')->get();
-            foreach($query as $k=>$msg) {
-                if($msg->u1_engroup==$msg->u2_engroup) {
-                    $query->forget($k);
+            $count = clone $query;
+            $count = $count->count();
+            if($count < 5000){
+                $query = $query->selectRaw('u1.engroup AS u1_engroup,u2.engroup AS u2_engroup')->get();
+                foreach($query as $k=>$msg) {
+                    if($msg->u1_engroup==$msg->u2_engroup) {
+                        $query->forget($k);
+                    }
                 }
+            }
+            else{
+                return $count;
             }
         }
 		
