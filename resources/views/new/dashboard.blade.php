@@ -900,45 +900,46 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             }
 
             history.replaceState(null, null, ' ');
+        }else {
+            @if($ckBarCodeLog>0 && !$user->isVip())
+            $('#isGetBarCodeNotVIP').show();
+            $('#announce_bg').show();
+            @php
+                DB::table('payment_get_barcode_log')->where('user_id',$user->id)->where('ExpireDate','>=',now())->where('isRead',0)->update(['isRead' => 1]);
+            @endphp
+            @elseif (!$umeta->isAllSet( $user->engroup ))
+            c5('請寫上基本資料。');
+            // swal({
+            //   title:'請寫上基本資料。',
+            //   type:'warning'
+            // });
+            @elseif (empty($umeta->pic))
+            c5("{{$add_avatar}}");
+            // swal({
+            //   title:'請加上頭像照。',
+            //   type:'warning'
+            // });
+            @elseif ($umeta->age()<18)
+            c5('您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。');
+            // swal({
+            //   title:'您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。',
+            //   type:'warning'
+            // });
+            {{--        @elseif (($umeta->isWarned==1 && $umeta->isWarnedRead==0 ) || ( $isAdminWarned && $isAdminWarnedRead->isAdminWarnedRead==0 ) )--}}
+            {{--                @php--}}
+            {{--                 if($isAdminWarned){--}}
+            {{--                    //標記已讀--}}
+            {{--                    \App\Models\User::isAdminWarnedRead($user->id);--}}
+            {{--                  }--}}
+            {{--                  if($umeta->isWarned==1){--}}
+            {{--                    //標記已讀--}}
+            {{--                    \App\Models\User::isWarnedRead($user->id);--}}
+            {{--                  }--}}
+            {{--                @endphp--}}
+            {{--        $('#isWarned').show();--}}
+            {{--        $('#announce_bg').show();--}}
+            @endif
         }
-        @if($ckBarCodeLog>0 && !$user->isVip())
-        $('#isGetBarCodeNotVIP').show();
-        $('#announce_bg').show();
-        @php
-            DB::table('payment_get_barcode_log')->where('user_id',$user->id)->where('ExpireDate','>=',now())->where('isRead',0)->update(['isRead' => 1]);
-        @endphp
-        @elseif (!$umeta->isAllSet( $user->engroup ))
-        c5('請寫上基本資料。');
-          // swal({
-          //   title:'請寫上基本資料。',
-          //   type:'warning'
-          // });
-        @elseif (empty($umeta->pic))
-        c5("{{$add_avatar}}");
-          // swal({
-          //   title:'請加上頭像照。',
-          //   type:'warning'
-          // });
-        @elseif ($umeta->age()<18)
-        c5('您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。');
-          // swal({
-          //   title:'您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。',
-          //   type:'warning'
-          // });
-{{--        @elseif (($umeta->isWarned==1 && $umeta->isWarnedRead==0 ) || ( $isAdminWarned && $isAdminWarnedRead->isAdminWarnedRead==0 ) )--}}
-{{--                @php--}}
-{{--                 if($isAdminWarned){--}}
-{{--                    //標記已讀--}}
-{{--                    \App\Models\User::isAdminWarnedRead($user->id);--}}
-{{--                  }--}}
-{{--                  if($umeta->isWarned==1){--}}
-{{--                    //標記已讀--}}
-{{--                    \App\Models\User::isWarnedRead($user->id);--}}
-{{--                  }--}}
-{{--                @endphp--}}
-{{--        $('#isWarned').show();--}}
-{{--        $('#announce_bg').show();--}}
-        @endif
       @endif
 
         @php
