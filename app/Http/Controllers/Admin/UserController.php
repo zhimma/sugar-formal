@@ -4138,4 +4138,205 @@ class UserController extends \App\Http\Controllers\BaseController
 
         return view('admin.users.isEverWarnedOrBannedLog')->with('user',$user)->with('logType', $logType)->with('dataLog', $dataLog);
     }
+	
+    public function showFilterByInfoPage()
+    {
+        $admin = $this->admin->checkAdmin();
+
+        if ($admin) {
+            return view('admin.users.filterByInfo');
+        } else {
+            return view('admin.users.filterByInfo')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
+    }
+
+    public function showFilterByInfoList(Request $request)
+    {
+        $admin = $this->admin->checkAdmin();
+		
+        if ($admin) {
+			$error_msg = [];
+			$en_group = $request->en_group;
+			$msg_gt_visit_7days = $request->msg_gt_visit_7days;
+			$msg_gt_visit = $request->msg_gt_visit;
+			
+			$reported_gt_num = $request->reported_gt_num;
+			$blocked_gt_num = $request->blocked_gt_num;
+			$block_other_gt_num = $request->block_other_gt_num;
+			
+			$reportedGtNum = $request->reportedGtNum;
+			$blockedGtNum = $request->blockedGtNum;
+			$blockOtherGtNum = $request->blockOtherGtNum;
+			
+			$date_start = $request->date_start;
+			$date_end = $request->date_end;
+			$time_start = $request->time_start;
+			$time_end = $request->time_end;
+
+			if(!$date_start) $error_msg['date_start'] = '請輸入開始日期';
+			if(!$date_end) $error_msg['date_end'] = '請輸入結束日期';
+			if(!$msg_gt_visit_7days 
+				&& !$msg_gt_visit 
+				&& !$reported_gt_num
+				&& !$blocked_gt_num
+				&& !$block_other_gt_num
+			) {
+				$error_msg['info_filter'] = '請至少選擇一個條件';
+			}
+			
+			if($error_msg) {
+				return view('admin.users.filterByInfo')->withErrors($error_msg);
+			}
+			else {
+				ini_set("max_execution_time",'1200');
+				ini_set('memory_limit','-1');
+				ini_set("request_terminate_timeout",'1200');
+				set_time_limit(1200);
+
+				$date_now = date('Y-m-d');
+				$time_now = date('H:i:s');
+
+				if($time_start) $date_start.=' '.$time_start;
+				
+				if($time_end) $date_end.=' '.$time_end;
+				else {
+					if($date_end==$date_now) $date_end.=' '.$time_now;
+					else {
+						$date_end.=' 23:59:59';
+					}
+				}
+
+				$wantIndexArr = [];
+				$orFilterArr = [];
+				$andFilterArr = [];
+				
+				if($msg_gt_visit_7days) {
+					$wantIdexArr = array('message_count_7','visit_other_count_7');
+					if($msg_gt_visit_7days=='or') $orFilterArr[] = 'msg_gt_visit_7days';
+					else $andFilterArr[] = 'msg_gt_visit_7days';
+				}
+				if($msg_gt_visit) {
+					$wantIdexArr[] = 'message_count';
+					$wantIdexArr[] = 'visit_other_count';
+					if($msg_gt_visit=='or') $orFilterArr[] = 'msg_gt_visit';
+					else $andFilterArr[] = 'msg_gt_visit';					
+				}	
+				if($blocked_gt_num) {
+					$wantIdexArr[] = 'be_blocked_other_count';
+					if($blocked_gt_num=='or') $orFilterArr[] = 'blocked_gt_num';
+					else $andFilterArr[] = 'blocked_gt_num';					
+				}	
+				if($block_other_gt_num) {
+					$wantIdexArr[] = 'blocked_other_count';
+					if($block_other_gt_num=='or') $orFilterArr[] = 'block_other_gt_num';
+					else $andFilterArr[] = 'block_other_gt_num';					
+				}
+				
+				if($reported_gt_num) {
+					$wantIdexArr[] = 'reported_gt_num';
+					if($reported_gt_num=='or') $orFilterArr[] = 'reported_gt_num';
+					else $andFilterArr[] = 'reported_gt_num';					
+				}
+				
+				if(count($orFilterArr)==1 && !$andFilterArr) {
+					$andFilterArr = $orFilterArr;
+					$orFilterArr = [];
+				}
+				
+				$result=LogUserLogin::where('created_at', '>=', $date_start)->where('created_at', '<=', $date_end)->select('user_id');
+
+				$resultSet = array_unique($result->get()->pluck('user_id')->toArray());
+
+				$data = [];
+				foreach($resultSet  as $k=>$user_id) {
+					$andPassNum = 0;
+					if(isset($data[$user_id])) continue;
+					$gUser = User::find($user_id);
+					if($gUser) {
+						if(isset($en_group) && $gUser->engroup!=$en_group) continue;
+						$gUser->tag_class = 'engroup'.$gUser->engroup.' ';
+						if($gUser->banned)  $gUser->tag_class.= 'banned ';
+						if($gUser->implicitlyBanned)  $gUser->tag_class.= 'implicitlyBanned ';
+						if($gUser->user_meta->isWarned || $gUser->aw_relation)  $gUser->tag_class.= 'isWarned ';
+						if($gUser->accountStatus===0) $gUser->tag_class.= 'isClosed ';
+						if($gUser->account_status_admin===0) $gUser->tag_class.= 'isClosedByAdmin ';						
+					}
+					else {echo $user_id.' user id not exist<br>'."\n\r";
+						continue;
+					}
+
+					$cur_advInfo = User::userAdvInfo($user_id,$wantIndexArr);
+					if($reported_gt_num) {
+						$cur_advInfo['be_reported_other_count'] = Reported::cntr($user_id);
+					}
+					$gUser->advInfo= $cur_advInfo;
+					if($msg_gt_visit_7days)
+					{ 
+						if(($gUser->advInfo['message_count_7'] ?? 0)>($gUser->advInfo['visit_other_count_7'] ?? 0)) {
+							if(in_array('msg_gt_visit_7days',$orFilterArr)) {
+								$data[$user_id] = $gUser;
+								continue;
+							}
+							else $andPassNum++;
+						}
+					}
+					
+					if($msg_gt_visit)  {
+						if(($gUser->advInfo['message_count'] ?? 0)>($gUser->advInfo['visit_other_count'] ?? 0)) 
+						{
+							if(in_array('msg_gt_visit',$orFilterArr)){
+								$data[$user_id] = $gUser;
+								continue;
+							}
+							else $andPassNum++;							
+						}
+					}
+
+					if($blocked_gt_num)  {
+						if(($gUser->advInfo['be_blocked_other_count'] ?? 0)>($blockedGtNum ?? 0)) 
+						{
+							if(in_array('blocked_gt_num',$orFilterArr)){
+								$data[$user_id] = $gUser;
+								continue;
+							}	
+							else $andPassNum++;
+						}
+					}	
+
+					if($block_other_gt_num) {
+						 if(($gUser->advInfo['blocked_other_count'] ?? 0)>($blockOtherGtNum ?? 0)) 
+						{
+							if(in_array('block_other_gt_num',$orFilterArr)){
+								$data[$user_id] = $gUser;
+								continue;
+							}	
+							else $andPassNum++;
+						}
+					}
+					
+					if($reported_gt_num) {
+						 if(($gUser->advInfo['be_reported_other_count'] ?? 0)>($reportedGtNum ?? 0)) 
+						{
+							if(in_array('reported_gt_num',$orFilterArr)){
+								$data[$user_id] = $gUser;
+								continue;
+							}	
+							else $andPassNum++;
+						}
+					}
+
+					if(count($andFilterArr)==$andPassNum) {
+						$data[$user_id] = $gUser;
+						continue;						
+					}
+				}
+				
+				return view('admin.users.filterByInfo')
+					->with('data', $data)
+					;
+			}
+        } else {
+            return view('admin.users.filterByInfo')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
+    }	
 }

@@ -47,6 +47,7 @@
 		<a href="{{ route('admin/commontext') }}">編輯文案</a>
 		<a href="{{ route('admin/check') }}">站長審核</a>
 		<a href="{{ route('admin/getAdminActionLog') }}">Admin後台操作記錄</a>
+		<a href="{{ route('users/filterByInfo') }}">發信_檢舉_封鎖異常查詢</a>
 
 	@elseif (Auth::user()->can('readonly'))
 		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
