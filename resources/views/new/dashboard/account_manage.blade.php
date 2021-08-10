@@ -61,6 +61,10 @@
                             <font>手機驗證</font>
                         </a>
 
+                        <a href="/advance_auth/" class="gg_zh_li"><span><img src="/new/images/zh10.png"></span>
+                            <font>進階驗證</font>
+                        </a>
+
 
                     </div>
 
