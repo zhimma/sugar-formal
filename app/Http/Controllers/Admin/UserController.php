@@ -4261,7 +4261,7 @@ class UserController extends \App\Http\Controllers\BaseController
 						if($gUser->accountStatus===0) $gUser->tag_class.= 'isClosed ';
 						if($gUser->account_status_admin===0) $gUser->tag_class.= 'isClosedByAdmin ';						
 					}
-					else {echo $user_id.' user id not exist<br>'."\n\r";
+					else {
 						continue;
 					}
 
