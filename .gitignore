@@ -3,6 +3,10 @@
 /public/storage
 /public/img/thumb
 /public/img/Member
+/public/img/Message
+/public/img/Evaluation/
+/public/img/Reported/
+/public/img/ReportedAvatar/
 /storage/*.key
 /vendor
 /.idea
@@ -22,3 +26,7 @@ config/session.php
 config/app.php
 /.vscode
 *.DS_Store
+
+storage/desktop.ini
+
+bootstrap/cache/

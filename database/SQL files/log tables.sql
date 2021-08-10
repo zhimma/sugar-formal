@@ -149,6 +149,20 @@ CREATE TABLE `log_vip_crontab` (
   `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+-- --------------------------------------------------------
+
+--
+-- 資料表結構 `log_mobilepay_infos`
+--
+
+CREATE TABLE `log_mobilepay_infos` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `content` varchar(1000) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 --
 -- 已傾印資料表的索引
 --
@@ -205,6 +219,12 @@ ALTER TABLE `log_upgrade_click`
 -- 資料表索引 `log_vip_crontab`
 --
 ALTER TABLE `log_vip_crontab`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- 資料表索引 `log_mobilepay_infos`
+--
+ALTER TABLE `log_mobilepay_infos`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -265,6 +285,12 @@ ALTER TABLE `log_upgrade_click`
 ALTER TABLE `log_vip_crontab`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
+
+--
+-- 使用資料表自動遞增(AUTO_INCREMENT) `log_mobilepay_infos`
+--
+ALTER TABLE `log_mobilepay_infos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

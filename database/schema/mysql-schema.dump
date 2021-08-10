@@ -1,0 +1,1512 @@
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+DROP TABLE IF EXISTS `account_consign`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `account_consign` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `a_user_id` int(11) NOT NULL,
+  `a_to_id` int(11) NOT NULL,
+  `b_user_id` int(11) DEFAULT NULL,
+  `b_to_id` int(11) DEFAULT NULL,
+  `a_created_at` timestamp NULL DEFAULT NULL,
+  `b_created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `cancel_id` int(11) DEFAULT NULL,
+  `canceled_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `account_exchange_period`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `account_exchange_period` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `exchange_period` tinyint(2) NOT NULL,
+  `before_exchange_period` tinyint(2) DEFAULT 0,
+  `reason` varchar(255) DEFAULT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1:pass;2:reject',
+  `reject_content` varchar(255) DEFAULT NULL,
+  `passed_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `account_gender_change`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `account_gender_change` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `change_gender` tinyint(1) NOT NULL,
+  `before_change_gender` tinyint(1) DEFAULT 0,
+  `reason` varchar(255) DEFAULT NULL,
+  `status` tinyint(1) NOT NULL COMMENT '1:pass; 2:reject',
+  `reject_content` varchar(255) DEFAULT NULL,
+  `passed_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `account_name_change`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `account_name_change` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `change_name` varchar(255) NOT NULL,
+  `before_change_name` varchar(255) DEFAULT NULL,
+  `reason` varchar(255) DEFAULT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1:pass; 2:reject',
+  `reject_content` varchar(255) DEFAULT NULL,
+  `passed_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `account_status_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `account_status_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) NOT NULL,
+  `reasonType` int(2) NOT NULL,
+  `reported_id` varchar(30) DEFAULT NULL,
+  `content` text DEFAULT NULL,
+  `remark1` text DEFAULT NULL,
+  `remark2` text DEFAULT NULL,
+  `image` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `activities`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `activities` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `description` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `request` text COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `admin_action_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `admin_action_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `operator` int(11) NOT NULL,
+  `target_id` int(11) NOT NULL,
+  `act` varchar(20) NOT NULL,
+  `ip` varchar(20) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `admin_announcement`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `admin_announcement` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `content` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `sequence` int(3) NOT NULL DEFAULT 1,
+  `en_group` int(2) DEFAULT NULL,
+  `isVip` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `admin_common_text`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `admin_common_text` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `status` int(3) NOT NULL DEFAULT 1,
+  `category` varchar(15) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `category_alias` varchar(30) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `alias` varchar(60) NOT NULL,
+  `title` varchar(100) CHARACTER SET utf8 NOT NULL,
+  `content` varchar(500) CHARACTER SET utf8 NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `admin_masterwords`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `admin_masterwords` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `content` varchar(500) CHARACTER SET utf8 DEFAULT NULL,
+  `sequence` int(3) NOT NULL DEFAULT 1,
+  `en_group` int(2) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `admin_menu_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `admin_menu_items` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(50) NOT NULL,
+  `route_path` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `announcement_read`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `announcement_read` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `announcement_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`),
+  KEY `user_anncouncements` (`user_id`,`announcement_id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `auth_img`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `auth_img` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `path` varchar(2000) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `status` int(11) NOT NULL DEFAULT 0,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `banned_fingerprints`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `banned_fingerprints` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `fp` varchar(100) NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `banned_users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `banned_users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `member_id` int(11) NOT NULL,
+  `reason` varchar(255) DEFAULT NULL,
+  `message_content` text DEFAULT NULL,
+  `recipient_name` varchar(255) DEFAULT NULL,
+  `message_time` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `expire_date` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`member_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `banned_users_implicitly`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `banned_users_implicitly` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `fp` varchar(100) NOT NULL,
+  `reason` varchar(500) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `target` int(11) NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`target`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `basic_setting`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `basic_setting` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `vipLevel` int(11) NOT NULL,
+  `gender` int(11) NOT NULL,
+  `timeSet` int(11) NOT NULL,
+  `countSet` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `blocked`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `blocked` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `member_id` int(10) unsigned NOT NULL,
+  `blocked_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`member_id`),
+  KEY `user_blocked_id` (`member_id`,`blocked_id`),
+  KEY `blocked_id` (`blocked_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `board`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `board` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `member_id` int(11) NOT NULL,
+  `post` text COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `cfp_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `cfp_user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `cfp_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `custom_fingerprint`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `custom_fingerprint` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `hash` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `evaluation`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `evaluation` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `to_id` int(11) NOT NULL,
+  `from_id` int(11) NOT NULL,
+  `rating` int(1) DEFAULT NULL,
+  `content` text DEFAULT NULL,
+  `re_content` varchar(255) DEFAULT NULL,
+  `read` tinyint(1) DEFAULT 0,
+  `is_check` tinyint(1) NOT NULL DEFAULT 0,
+  `admin_comment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `re_created_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `evaluation_pic`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `evaluation_pic` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `evaluation_id` int(10) DEFAULT NULL,
+  `member_id` int(10) unsigned NOT NULL,
+  `pic` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `exchange_period_name`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `exchange_period_name` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `exchange_period_temp`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `exchange_period_temp` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `expected_banning_users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `expected_banning_users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `fp` varchar(100) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `target` int(11) NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `failed_jobs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `failed_jobs` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `connection` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `queue` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `exception` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `failed_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `features`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `features` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `key` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `fingerprint`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `fingerprint` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) DEFAULT NULL,
+  `ip` varchar(50) DEFAULT NULL,
+  `fingerprintValue` varchar(32) NOT NULL,
+  `ipAddress` varchar(40) NOT NULL,
+  `browser_name` varchar(30) NOT NULL DEFAULT 'undefind',
+  `browser_version` varchar(30) DEFAULT NULL,
+  `os_name` varchar(30) NOT NULL DEFAULT 'undefind',
+  `os_version` varchar(30) DEFAULT NULL,
+  `timezone` varchar(100) DEFAULT NULL,
+  `plugins` text DEFAULT NULL,
+  `language` varchar(8) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `fingerprint2`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `fingerprint2` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `fp` varchar(200) NOT NULL COMMENT '指紋',
+  `ip` varchar(32) DEFAULT NULL,
+  `userAgent` varchar(200) DEFAULT NULL COMMENT '使用者代理',
+  `webdriver` varchar(50) DEFAULT NULL COMMENT 'webdriver',
+  `language` varchar(30) DEFAULT NULL COMMENT '語言',
+  `colorDepth` int(11) DEFAULT NULL COMMENT '顏色深度',
+  `deviceMemory` int(11) DEFAULT NULL COMMENT '裝置記憶體',
+  `pixelRatio` int(11) DEFAULT NULL COMMENT '像素比率',
+  `hardwareConcurrency` int(11) DEFAULT NULL COMMENT '硬體同時執行',
+  `screenResolution` varchar(1000) DEFAULT NULL COMMENT '螢幕解析度',
+  `availableScreenResolution` varchar(1000) DEFAULT NULL COMMENT '允許的螢幕解析度',
+  `timezoneOffset` int(11) DEFAULT NULL COMMENT '時區偏移',
+  `timezone` varchar(50) DEFAULT NULL COMMENT '時區',
+  `sessionStorage` tinyint(1) DEFAULT NULL COMMENT 'session儲存',
+  `localStorage` tinyint(1) DEFAULT NULL COMMENT 'local儲存',
+  `indexedDb` tinyint(1) DEFAULT NULL COMMENT '索引的資料庫',
+  `addBehavior` tinyint(1) DEFAULT NULL COMMENT '新增行為',
+  `openDatabase` tinyint(1) DEFAULT NULL COMMENT '開啟資料庫',
+  `cpuClass` varchar(100) DEFAULT NULL COMMENT 'CPU等級',
+  `platform` varchar(50) DEFAULT NULL COMMENT '平台',
+  `doNotTrack` varchar(100) DEFAULT NULL,
+  `plugins` varchar(5000) DEFAULT NULL COMMENT '外掛',
+  `canvas` mediumtext NOT NULL COMMENT 'canvas',
+  `webgl` text NOT NULL COMMENT 'webgl',
+  `webglVendorAndRenderer` varchar(200) DEFAULT NULL COMMENT 'webgl庫&渲染器',
+  `adBlock` tinyint(1) DEFAULT NULL COMMENT '廣告阻擋器',
+  `hasLiedLanguages` tinyint(1) DEFAULT NULL,
+  `hasLiedResolution` tinyint(1) DEFAULT NULL,
+  `hasLiedOs` tinyint(1) DEFAULT NULL,
+  `hasLiedBrowser` tinyint(1) DEFAULT NULL,
+  `touchSupport` varchar(300) DEFAULT NULL COMMENT '觸控支援',
+  `fonts` varchar(1500) DEFAULT NULL COMMENT '字體',
+  `fontsFlash` varchar(100) DEFAULT NULL COMMENT '字體快閃',
+  `audio` float DEFAULT NULL COMMENT '音頻',
+  `enumerateDevices` varchar(100) DEFAULT NULL COMMENT '列舉設備',
+  `batterylevel` varchar(100) DEFAULT NULL,
+  `mac_address` varchar(20) NOT NULL DEFAULT '' COMMENT 'MAC ADDRESS',
+  `uniqueVisitorId` varchar(20) NOT NULL DEFAULT '' COMMENT 'COOKIE UUID',
+  `created_at` datetime NOT NULL DEFAULT current_timestamp() COMMENT '建立時間',
+  PRIMARY KEY (`id`,`user_id`),
+  KEY `Index` (`fp`),
+  KEY `User_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `hide_online_data`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `hide_online_data` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `register_time` datetime NOT NULL,
+  `login_time` datetime NOT NULL,
+  `login_times_per_week` smallint(6) NOT NULL DEFAULT 0,
+  `be_fav_count` smallint(6) NOT NULL DEFAULT 0,
+  `fav_count` smallint(6) NOT NULL DEFAULT 0,
+  `tip_count` smallint(6) NOT NULL DEFAULT 0,
+  `message_count` smallint(6) NOT NULL DEFAULT 0,
+  `message_count_7` smallint(6) NOT NULL DEFAULT 0,
+  `message_reply_count` smallint(6) NOT NULL DEFAULT 0,
+  `message_reply_count_7` smallint(6) NOT NULL DEFAULT 0,
+  `message_percent_7` varchar(6) DEFAULT NULL,
+  `visit_other_count` smallint(6) NOT NULL DEFAULT 0,
+  `visit_other_count_7` smallint(6) NOT NULL DEFAULT 0,
+  `be_visit_other_count` smallint(6) NOT NULL DEFAULT 0,
+  `be_visit_other_count_7` smallint(6) NOT NULL DEFAULT 0,
+  `blocked_other_count` smallint(6) NOT NULL DEFAULT 0,
+  `be_blocked_other_count` smallint(6) NOT NULL DEFAULT 0,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT current_timestamp(),
+  `deleted_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `is_banned_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `is_banned_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `reason` varchar(255) DEFAULT NULL,
+  `message_content` text DEFAULT NULL,
+  `recipient_name` varchar(255) DEFAULT NULL,
+  `message_time` timestamp NULL DEFAULT NULL,
+  `expire_date` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `is_warned_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `is_warned_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `reason` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `jobs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `jobs` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `queue` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `attempts` tinyint(3) unsigned NOT NULL,
+  `reserved_at` int(10) unsigned DEFAULT NULL,
+  `available_at` int(10) unsigned NOT NULL,
+  `created_at` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `jobs_queue_index` (`queue`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `line_notify_chat`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `line_notify_chat` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `gender` tinyint(4) NOT NULL,
+  `active` tinyint(4) NOT NULL DEFAULT 1,
+  `order` tinyint(4) DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `line_notify_chat_set`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `line_notify_chat_set` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `line_notify_chat_id` int(11) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `log_cancel_value_added_service`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `log_cancel_value_added_service` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `service_name` varchar(100) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `log_cancel_vip`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `log_cancel_vip` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `log_cancel_vip_failed`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `log_cancel_vip_failed` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `reason` varchar(50) CHARACTER SET utf8mb4 DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `log_chat_pay`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `log_chat_pay` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `to_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `log_chatpay_infos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `log_chatpay_infos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `content` varchar(1000) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `log_dat_file`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `log_dat_file` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `upload_check` int(2) NOT NULL,
+  `local_file` varchar(100) CHARACTER SET utf8mb4 DEFAULT NULL,
+  `remote_file` varchar(100) CHARACTER SET utf8mb4 DEFAULT NULL,
+  `content` varchar(500) CHARACTER SET utf8mb4 DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `log_mobilepay_infos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `log_mobilepay_infos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `content` varchar(1000) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `log_too_many_requests`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `log_too_many_requests` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `ip` varchar(60) DEFAULT NULL,
+  `is_pseudo` tinyint(1) NOT NULL DEFAULT 0,
+  `requests` int(11) NOT NULL,
+  `mins` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `log_upgrade_click`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `log_upgrade_click` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `log_upgraded_infos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `log_upgraded_infos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `content` varchar(1000) CHARACTER SET utf8mb4 NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `log_upgraded_infos_when_giving_permission`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `log_upgraded_infos_when_giving_permission` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `content` varchar(1000) CHARACTER SET utf8mb4 NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `log_user_login`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `log_user_login` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `cfp_id` int(11) DEFAULT NULL,
+  `userAgent` varchar(200) NOT NULL,
+  `ip` varchar(32) NOT NULL,
+  `country` varchar(20) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  UNIQUE KEY `id` (`id`),
+  KEY `idx_log_user_login_user_id` (`user_id`),
+  KEY `ip_index` (`ip`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `log_value_added_service_infos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `log_value_added_service_infos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `service_name` varchar(100) DEFAULT NULL,
+  `content` varchar(1000) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `log_vip_crontab`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `log_vip_crontab` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `date` datetime NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `content` varchar(1000) CHARACTER SET utf8mb4 NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `member_fav`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `member_fav` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `member_id` int(10) unsigned NOT NULL,
+  `member_fav_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `member_fav_id` (`member_fav_id`),
+  KEY `member_id` (`member_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `member_pic`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `member_pic` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `member_id` int(10) unsigned NOT NULL,
+  `pic` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `isHidden` int(2) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `member_id` (`member_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `member_tip`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `member_tip` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `member_id` int(10) unsigned NOT NULL,
+  `to_id` int(10) unsigned NOT NULL,
+  `txn_id` int(10) unsigned NOT NULL,
+  `message` text COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `member_tip_member_id_index` (`member_id`),
+  KEY `member_tip_to_id_index` (`to_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `member_value_added_service`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `member_value_added_service` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `member_id` int(11) NOT NULL,
+  `service_name` varchar(60) NOT NULL,
+  `business_id` varchar(50) NOT NULL,
+  `order_id` varchar(50) NOT NULL,
+  `txn_id` varchar(100) DEFAULT NULL,
+  `amount` int(10) unsigned NOT NULL,
+  `expiry` datetime NOT NULL,
+  `active` tinyint(1) NOT NULL,
+  `payment` varchar(60) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `member_value_added_service_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `member_value_added_service_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `member_id` int(11) NOT NULL,
+  `service_name` varchar(128) NOT NULL,
+  `content` varchar(255) NOT NULL,
+  `order_id` varchar(15) DEFAULT NULL,
+  `txn_id` varchar(128) DEFAULT NULL,
+  `action` tinyint(1) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `member_vip`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `member_vip` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `member_id` int(10) unsigned NOT NULL,
+  `business_id` int(10) unsigned NOT NULL,
+  `order_id` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
+  `txn_id` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `amount` int(10) unsigned NOT NULL,
+  `expiry` datetime NOT NULL,
+  `active` int(11) NOT NULL,
+  `free` int(11) NOT NULL,
+  `payment` varchar(60) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `payment_method` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `member_vip_member_id_index` (`member_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `member_vip_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `member_vip_log` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `member_id` int(11) NOT NULL,
+  `member_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `txn_id` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  `action` int(11) NOT NULL,
+  `free` int(11) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `member_id` (`member_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `message`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `message` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `to_id` int(10) unsigned NOT NULL,
+  `from_id` int(10) unsigned NOT NULL,
+  `content` text CHARACTER SET utf8mb4 NOT NULL,
+  `pic` text COLLATE utf8_unicode_ci DEFAULT NULL,
+  `pic_bak` text COLLATE utf8_unicode_ci DEFAULT NULL,
+  `read` char(1) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'N',
+  `all_delete_count` int(11) NOT NULL,
+  `is_row_delete_1` int(11) NOT NULL,
+  `is_row_delete_2` int(11) NOT NULL,
+  `is_single_delete_1` int(11) NOT NULL,
+  `is_single_delete_2` int(11) NOT NULL,
+  `temp_id` int(11) NOT NULL,
+  `isReported` int(2) NOT NULL DEFAULT 0,
+  `cancel` tinyint(1) NOT NULL DEFAULT 0,
+  `reportContent` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `reportContentPic` text COLLATE utf8_unicode_ci DEFAULT NULL,
+  `sys_notice` int(1) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `message_id_index` (`to_id`,`from_id`) USING BTREE,
+  KEY `message_from_id` (`from_id`,`to_id`) USING BTREE,
+  KEY `created_at` (`created_at`),
+  KEY `to_from_created_at` (`to_id`,`from_id`,`created_at`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `message_admin_sent_user_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `message_admin_sent_user_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `message_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `migrations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `migrations` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `migration` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `batch` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `msglib`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `msglib` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `msg` varchar(1000) COLLATE utf8_unicode_ci NOT NULL,
+  `kind` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `id` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `multiple_logins`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `multiple_logins` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `original_id` int(11) NOT NULL,
+  `new_id` int(11) NOT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `notifications`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `notifications` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `flag` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `uuid` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `details` text COLLATE utf8_unicode_ci DEFAULT NULL,
+  `is_read` tinyint(1) NOT NULL DEFAULT 0,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `password_resets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `password_resets` (
+  `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `token` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  KEY `password_resets_email_index` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `payment_get_barcode_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `payment_get_barcode_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `ExpireDate` timestamp NULL DEFAULT NULL,
+  `order_id` varchar(50) NOT NULL,
+  `TradeDate` timestamp NULL DEFAULT NULL,
+  `isRead` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `posts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `posts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `reply_id` int(11) DEFAULT NULL,
+  `user_id` int(11) NOT NULL,
+  `tag_user_id` int(11) DEFAULT NULL,
+  `title` varchar(100) CHARACTER SET utf8mb4 NOT NULL,
+  `contents` varchar(2000) CHARACTER SET utf8mb4 NOT NULL,
+  `is_anonymous` varchar(11) COLLATE utf8_unicode_ci NOT NULL,
+  `anonymous` int(11) NOT NULL,
+  `combine` int(11) NOT NULL,
+  `agreement` int(11) NOT NULL,
+  `views` int(11) NOT NULL,
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `pr_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pr_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `pr` varchar(30) DEFAULT NULL,
+  `pr_log` text DEFAULT NULL,
+  `active` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `puppet_analysis_cells`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `puppet_analysis_cells` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `group_index` int(11) NOT NULL,
+  `column_index` int(11) NOT NULL,
+  `row_index` int(11) NOT NULL,
+  `val` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `time` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `num` int(11) NOT NULL,
+  `type` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `puppet_analysis_columns`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `puppet_analysis_columns` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `group_index` int(11) NOT NULL,
+  `column_index` int(11) NOT NULL,
+  `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `type` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `puppet_analysis_rows`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `puppet_analysis_rows` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `group_index` int(11) NOT NULL,
+  `row_index` int(11) NOT NULL,
+  `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `type` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `reason_list`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `reason_list` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `status` int(3) NOT NULL DEFAULT 1,
+  `type` varchar(100) CHARACTER SET utf8 NOT NULL,
+  `content` varchar(500) CHARACTER SET utf8 NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `reported`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `reported` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `member_id` int(10) unsigned NOT NULL,
+  `reported_id` int(10) unsigned NOT NULL,
+  `content` varchar(500) CHARACTER SET utf8mb4 NOT NULL,
+  `pic` text COLLATE utf8_unicode_ci DEFAULT NULL,
+  `cancel` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `reported_avatar`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `reported_avatar` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `reporter_id` int(10) NOT NULL,
+  `reported_user_id` int(10) NOT NULL,
+  `content` varchar(500) CHARACTER SET utf8mb4 NOT NULL,
+  `pic` text COLLATE utf8_unicode_ci DEFAULT NULL,
+  `cancel` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `reported_pic`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `reported_pic` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `reporter_id` int(10) NOT NULL,
+  `reported_pic_id` int(10) NOT NULL,
+  `content` varchar(500) CHARACTER SET utf8mb4 NOT NULL,
+  `cancel` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `role_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `role_user` (
+  `user_id` int(10) unsigned NOT NULL,
+  `role_id` int(10) unsigned NOT NULL,
+  `item_permission` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  KEY `role_user_user_id_index` (`user_id`),
+  KEY `role_user_role_id_index` (`role_id`),
+  CONSTRAINT `role_user_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `role_user_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `roles` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `label` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `permissions` text COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `sessions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sessions` (
+  `id` varchar(255) NOT NULL,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` text DEFAULT NULL,
+  `payload` text NOT NULL,
+  `last_activity` int(11) NOT NULL,
+  UNIQUE KEY `sessions_id_unique` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `set_auto_ban`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `set_auto_ban` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `content` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `set_ban` int(11) NOT NULL,
+  `cuz_user_set` int(10) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `short_message`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `short_message` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `mobile` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `checkcode` int(11) DEFAULT NULL,
+  `active` int(1) NOT NULL DEFAULT 0,
+  `credit_card` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `member_id` int(11) DEFAULT NULL,
+  `createdate` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `member_id` (`member_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `suspected_multi_login`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `suspected_multi_login` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `target` varchar(2500) NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `suspicious`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `suspicious` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `account_text` varchar(255) DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `suspicious_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `suspicious_user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `admin_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `reason` varchar(255) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT current_timestamp(),
+  `deleted_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `tour_read`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tour_read` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `page` varchar(30) NOT NULL,
+  `step` tinyint(4) NOT NULL,
+  `isRead` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `user_meta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_meta` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `phone` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 0,
+  `activation_token` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `marketing` tinyint(1) NOT NULL DEFAULT 0,
+  `terms_and_cond` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `city` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `blockcity` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `area` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `blockarea` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `budget` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `birthdate` date DEFAULT NULL,
+  `height` int(11) DEFAULT 0,
+  `weight` int(11) DEFAULT 0,
+  `cup` char(1) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `body` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `about` text DEFAULT NULL,
+  `style` text DEFAULT NULL,
+  `situation` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `occupation` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `education` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `marriage` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `drinking` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `smoking` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `isHideArea` char(1) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT '0',
+  `isHideCup` char(1) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT '0',
+  `isHideWeight` char(1) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT '0',
+  `isHideOccupation` char(1) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT '0',
+  `country` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `memo` text CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `pic` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `isAvatarHidden` int(2) NOT NULL DEFAULT 0,
+  `blurryLifePhoto` char(20) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `blurryAvatar` char(20) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `domainType` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `blockdomainType` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `domain` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `blockdomain` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `job` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `realName` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `assets` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `income` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `notifmessage` varchar(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `notifhistory` varchar(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `isWarned` int(1) NOT NULL DEFAULT 0,
+  `isWarnedRead` int(1) NOT NULL DEFAULT 0,
+  `isWarnedTime` timestamp NULL DEFAULT NULL,
+  `isConsign` tinyint(1) DEFAULT 0 COMMENT '0:default; 1:交付中',
+  `consign_expiry_date` timestamp NULL DEFAULT NULL,
+  `name_change` tinyint(1) DEFAULT 0,
+  `exchange_period_change` tinyint(2) DEFAULT 0,
+  `adminNote` text CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_meta_user_id_foreign` (`user_id`),
+  KEY `isWarned` (`isWarned`),
+  CONSTRAINT `user_meta_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `user_meta_bak`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user_meta_bak` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `phone` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 0,
+  `activation_token` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `marketing` tinyint(1) NOT NULL DEFAULT 0,
+  `terms_and_cond` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `city` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `blockcity` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `area` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `blockarea` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `budget` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `birthdate` date DEFAULT NULL,
+  `height` int(11) DEFAULT 0,
+  `weight` int(11) DEFAULT 0,
+  `cup` char(1) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `body` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `about` text COLLATE utf8_unicode_ci DEFAULT NULL,
+  `style` text COLLATE utf8_unicode_ci DEFAULT NULL,
+  `situation` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `occupation` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `education` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `marriage` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `drinking` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `smoking` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `isHideArea` char(1) COLLATE utf8_unicode_ci DEFAULT '0',
+  `isHideCup` char(1) COLLATE utf8_unicode_ci DEFAULT '0',
+  `isHideWeight` char(1) COLLATE utf8_unicode_ci DEFAULT '0',
+  `isHideOccupation` char(1) COLLATE utf8_unicode_ci DEFAULT '0',
+  `country` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `memo` text COLLATE utf8_unicode_ci DEFAULT NULL,
+  `pic` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `isAvatarHidden` int(2) NOT NULL DEFAULT 0,
+  `domainType` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `blockdomainType` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `domain` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `blockdomain` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `job` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `realName` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `assets` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `income` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `notifmessage` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `notifhistory` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `isWarned` int(1) NOT NULL DEFAULT 0,
+  `isWarnedRead` int(1) NOT NULL DEFAULT 0,
+  `isConsign` tinyint(1) DEFAULT 0 COMMENT '0:default; 1:交付中',
+  `consign_expiry_date` timestamp NULL DEFAULT NULL,
+  `name_change` tinyint(1) DEFAULT 0,
+  `exchange_period_change` tinyint(2) DEFAULT 0,
+  `adminNote` text COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_meta_user_id_foreign` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `users` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) CHARACTER SET utf8mb4 NOT NULL,
+  `title` varchar(255) CHARACTER SET utf8mb4 NOT NULL,
+  `engroup` int(10) unsigned DEFAULT NULL,
+  `engroup_change` int(2) NOT NULL DEFAULT 0,
+  `enstatus` int(10) unsigned DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `password` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `password_updated` int(11) NOT NULL DEFAULT 0,
+  `remember_token` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `last_login` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `vip_record` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `noticeRead` int(2) NOT NULL DEFAULT 0,
+  `isReadManual` int(1) NOT NULL DEFAULT 0,
+  `isReadIntro` int(1) NOT NULL DEFAULT 0,
+  `exchange_period` tinyint(2) NOT NULL DEFAULT 2,
+  `login_times` int(11) NOT NULL DEFAULT 0,
+  `intro_login_times` int(11) NOT NULL DEFAULT 0,
+  `accountStatus` int(1) NOT NULL DEFAULT 1 COMMENT '0:關閉 1:開啟(預設) ',
+  `account_status_admin` tinyint(1) NOT NULL DEFAULT 1 COMMENT '站方關閉帳號 0:關閉 1:開啟(預設)',
+  `prohibit_posts` tinyint(1) NOT NULL DEFAULT 0 COMMENT '禁止發言',
+  `access_posts` tinyint(1) NOT NULL DEFAULT 0 COMMENT '封鎖進入討論區',
+  `is_hide_online` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0:關; 1:開',
+  `hide_online_time` timestamp NULL DEFAULT NULL,
+  `hide_online_hide_time` timestamp NULL DEFAULT NULL,
+  `line_notify_auth_code` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `line_notify_token` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `line_notify_switch` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  KEY `email` (`email`),
+  KEY `last_login` (`last_login`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `users_bak`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `users_bak` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `engroup` int(10) unsigned DEFAULT NULL,
+  `engroup_change` int(2) NOT NULL DEFAULT 0,
+  `enstatus` int(10) unsigned DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `password` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `password_updated` int(11) NOT NULL DEFAULT 0,
+  `remember_token` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `last_login` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `vip_record` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `noticeRead` int(2) NOT NULL DEFAULT 0,
+  `isReadManual` int(1) NOT NULL DEFAULT 0,
+  `exchange_period` tinyint(2) NOT NULL DEFAULT 2,
+  `login_times` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `email` (`email`),
+  KEY `last_login` (`last_login`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `viplogs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `viplogs` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `filename` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `content` varchar(500) COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `visited`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `visited` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `member_id` int(10) unsigned NOT NULL,
+  `visited_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `member_id` (`member_id`),
+  KEY `visited_id` (`visited_id`),
+  KEY `created_at` (`created_at`) USING BTREE,
+  KEY `idx_visited_created_at` (`visited_id`,`created_at`),
+  KEY `visited_id_member_id` (`visited_id`,`member_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `warned_users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `warned_users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `member_id` int(11) NOT NULL,
+  `reason` varchar(255) DEFAULT NULL,
+  `expire_date` timestamp NULL DEFAULT NULL,
+  `isAdminWarnedRead` int(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `warning_users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `warning_users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `target` int(11) NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `websockets_statistics_entries`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `websockets_statistics_entries` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `app_id` varchar(255) NOT NULL,
+  `peak_connection_count` int(11) NOT NULL,
+  `websocket_message_count` int(11) NOT NULL,
+  `api_message_count` int(11) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+INSERT INTO `migrations` VALUES (1,'2014_10_12_000000_create_users_table',1);
+INSERT INTO `migrations` VALUES (2,'2014_10_12_100000_create_password_resets_table',1);
+INSERT INTO `migrations` VALUES (3,'2015_11_30_191713_create_user_meta_table',1);
+INSERT INTO `migrations` VALUES (4,'2015_11_30_215038_create_roles_table',1);
+INSERT INTO `migrations` VALUES (5,'2015_11_30_215040_create_role_user_table',1);
+INSERT INTO `migrations` VALUES (6,'2016_04_14_180036_create_notifications_table',1);
+INSERT INTO `migrations` VALUES (7,'2016_04_14_210036_create_features_table',1);
+INSERT INTO `migrations` VALUES (8,'2017_04_07_210036_create_activity_table',1);
+INSERT INTO `migrations` VALUES (9,'2017_10_02_064229_user_meta_table',1);
+INSERT INTO `migrations` VALUES (10,'2017_10_02_065806_create_message_table',1);
+INSERT INTO `migrations` VALUES (11,'2017_10_02_073835_create_visited_table',1);
+INSERT INTO `migrations` VALUES (12,'2017_10_02_073855_create_member_fav_table',1);
+INSERT INTO `migrations` VALUES (13,'2017_10_02_082841_create_board_table',1);
+INSERT INTO `migrations` VALUES (14,'2017_10_02_083227_create_blocked_table',1);
+INSERT INTO `migrations` VALUES (15,'2017_10_02_084338_create_reported_table',1);
+INSERT INTO `migrations` VALUES (16,'2017_10_02_095706_extend_user_meta_table',1);
+INSERT INTO `migrations` VALUES (17,'2017_10_02_100130_extend_users_table',1);
+INSERT INTO `migrations` VALUES (18,'2017_10_02_105202_extend_user_meta_table',1);
+INSERT INTO `migrations` VALUES (19,'2017_10_02_132941_extend_board_table',1);
+INSERT INTO `migrations` VALUES (20,'2017_10_02_143611_extend_message_table',1);
+INSERT INTO `migrations` VALUES (21,'2017_10_03_074523_extend_user_meta_table',1);
+INSERT INTO `migrations` VALUES (22,'2017_10_03_075229_create_member_pic_table',1);
+INSERT INTO `migrations` VALUES (23,'2017_10_03_080355_extend_users_table',1);
+INSERT INTO `migrations` VALUES (24,'2017_10_03_081331_create_member_vip_table',1);
+INSERT INTO `migrations` VALUES (25,'2017_10_03_085906_create_member_tip_table',1);
+INSERT INTO `migrations` VALUES (26,'2017_12_21_014825_create_member_vip_log_table',1);
+INSERT INTO `migrations` VALUES (27,'0000_00_00_000000_create_websockets_statistics_entries_table',2);
+INSERT INTO `migrations` VALUES (28,'2018_12_30_003027_create_sessions_table',2);

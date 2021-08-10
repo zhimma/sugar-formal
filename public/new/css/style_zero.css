@@ -22,7 +22,7 @@ body{ display: flex;flex-direction: column;}
 @media (max-width:400px) {
 	.chat{width: 100%;}
 	/*.sjright {clear: both;margin-right: 10px;}*/
-	.fenye a {margin: 0 10px;}
+	.fenye a {margin: 0 8px;}
 	.wk_lx span {width: 200px;margin-bottom: 4px;}
 	.wk_lx {font-size: 16px;}
 	.wk_lx font {padding-left: 25px;}

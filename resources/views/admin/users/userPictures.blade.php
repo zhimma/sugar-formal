@@ -14,7 +14,7 @@
 @if (Auth::user()->can('readonly'))
     <form action="{{ route('users/pictures/readOnly') }}" method="POST">
 @else
-    <form action="{{ route('users/pictures') }}" method="POST">
+    <form action="{{ route('users/pictures') }}" method="GET">
 @endif
     {!! csrf_field() !!}
     <table class="table-hover table table-bordered" style="width: 50%;">
@@ -43,15 +43,31 @@
         <tr>
             <th>性別</th>
             <td>
-                <input type="radio" name="en_group" value="1" @if(isset($en_group) && $en_group == 1) checked @endif>男</input>
-                <input type="radio" name="en_group" value="2" @if(isset($en_group) && $en_group == 2) checked @endif>女</input>
+                <input type="radio" name="en_group" value="1">男</input>
+                <input type="radio" name="en_group" value="2">女</input>
             </td>
         </tr>
         <tr>
             <th>地區</th>
             <td class="twzipcode">
-                <div class="twzip" data-role="county" data-name="city" data-value="@if(isset($city)) $city @endif"></div>
-                <div class="twzip" data-role="district" data-name="area" data-value="@if(isset($area)) $area @endif"></div>
+{{--                <div class="twzip" data-role="county" data-name="city" data-value="@if(isset($city)) {{$city}} @endif"></div>--}}
+{{--                <div class="twzip" data-role="district" data-name="area" data-value="@if(isset($area)) {{$area}} @endif"></div>--}}
+                <div class="twzip" data-role="county" data-name="city" ></div>
+                <div class="twzip" data-role="district" data-name="area"></div>
+
+            </td>
+        </tr>
+        <tr>
+            <th>排序方式</th>
+            <td>
+                <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" name="order_by" value="updated_at" @if(!isset($order_by) || $order_by == 'updated_at') checked @endif style="margin-left: unset;">
+                    <label class="form-check-label" for="inlineRadio4">更新時間</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" name="order_by" value="last_login" @if(isset($order_by) && $order_by == 'last_login') checked @endif style="margin-left: unset;">
+                    <label class="form-check-label" for="inlineRadio5">上線時間</label>
+                </div>
             </td>
         </tr>
         <tr>
@@ -62,56 +78,84 @@
         </tr>
     </table>
 </form>
-@if(isset($pics) || isset($avatars))
+@if(isset($pics))
 <form action="{{ route('users/pictures/modify') }}" id="modify" method="post">
     {!! csrf_field() !!}
     <table class="table-hover table table-bordered">
         <tr>
-            <td>會員名稱</td>
-            <td>照片</td>
-            <td>更新時間</td>
+            <td width="12%">會員名稱</td>
+            <td width="12%">Email</td>
+            <td width="12%">照片</td>
+            <td width="12%">更新時間</td>
+            <td width="12%">標題(一句話形容自己）</td>
+            <td width="14%">關於我</td>
+            <td width="12%">期待的約會模式</td>
+            <td width="12%">上線時間</td>
             {{-- <td>
                 <button class="btn btn-warning" onclick="$('#modify').submit()" @if($hiddenSearch) name="dehide" @else name="hide" @endif  value="1">@if($hiddenSearch) 解除@endif隱藏</button>
                 <button class="btn btn-danger" onclick="$('#modify').submit()" name='delete' value="1">刪除</button>
             </td> --}}
         </tr>
         @if(isset($pics))
-            @foreach ($pics as $pic)
+            @foreach ($pics as $key =>$pic)
                 <tr>
-                    {{-- <td>{{ $userNames[$pic->member_id] }}</td> --}}
-                    <td>
-                        <a href="advInfo/editPic_sendMsg/{{ $pic->member_id }}">{{ $userNames[$pic->member_id] }}</a>
+                    <td @if( $account[$key]['isBlocked']) style="background-color:#FFFF00" @endif>
+                        @if (Auth::user()->can('readonly'))
+                        <a href="{{ route('users/pictures/editPic_sendMsg/readOnly', $pic->member_id) }}">
+                        @else
+                        <a href="advInfo/editPic_sendMsg/{{ $pic->member_id }}">
+                        @endif
+                            <p @if( $account[$key]['engroup']== '2') style="color: #F00;" @else  style="color: #5867DD;"  @endif>{{ $pic->name }}
+                                @if($account[$key]['vip'])
+                                    @if( $account[$key]['vip']=='diamond_black')
+                                        <img src="/img/diamond_black.png" style="height: 16px;width: 16px;">
+                                    @else
+                                        @for($z = 0; $z < $account[$key]['vip']; $z++)
+                                            <img src="/img/diamond.png" style="height: 16px;width: 16px;">
+                                        @endfor
+                                    @endif
+                                @endif
+                                @for($i = 0; $i < $account[$key]['tipcount']; $i++)
+                                    👍
+                                @endfor
+                                @if(!is_null($account[$key]['isBlocked']))
+                                    @if(!is_null($account[$key]['isBlocked']->expire_date))
+                                        @if(round((strtotime($account[$key]['isBlocked']->expire_date) - getdate()[0])/3600/24)>0)
+                                            {{ round((strtotime($account[$key]['isBlocked']->expire_date) - getdate()[0])/3600/24 ) }}天
+                                        @else
+                                            此會員登入後將自動解除封鎖
+                                        @endif
+                                    @elseif(isset($account[$key]['isBlocked_implicitly']))
+                                        (隱性)
+                                    @else
+                                        (永久)
+                                    @endif
+                                @endif
+                                @if($account[$key]['isAdminWarned']==1 OR $account[$key]['userMeta']->isWarned==1)
+                                    <img src="/img/warned_red.png" style="height: 16px;width: 16px;">
+                                @endif
+                                @if($account[$key]['userMeta']->isWarned==0 AND $account[$key]['user']->WarnedScore() >= 10 AND $account[$key]['auth_status']==1)
+                                    <img src="/img/warned_black.png" style="height: 16px;width: 16px;">
+                                @endif
+                            </p>
+                        </a>
                     </td>
+                    <td><a href="/admin/users/advInfo/{{ $pic->member_id }}" target="_blank">{{ $pic->email }}</a></td>
                     <td><img src="{{ url($pic->pic) }}" width="150px"></td>
                     <td>{{ $pic->updated_at }}</td>
-                    {{-- <td>
-                        <input type="hidden" name="type" value="pic">
-                        <input type="checkbox" name="pic_id[]" value="{{ $pic->id }}">
-                    </td> --}}
-                </tr>
-            @endforeach
-        @endif
-        @if(isset($avatars))
-            @foreach ($avatars as $avatar)
-                <tr>
-                    {{-- <td>{{ $userNames[$avatar->user_id] }}</td> --}}
-                    <td>
-                        @if (Auth::user()->can('readonly'))
-                            <a href="{{ route('users/pictures/editPic_sendMsg/readOnly', $avatar->user_id) }}">{{ $userNames[$avatar->user_id] }}</a>
-                        @else
-                            <a href="advInfo/editPic_sendMsg/{{ $avatar->user_id }}">{{ $userNames[$avatar->user_id] }}</a>
-                        @endif
-                    </td>
-                    <td><img src="{{ url($avatar->pic) }}" width="150px"></td>
-                    <td>{{ $avatar->updated_at }}</td>
                     {{-- <td>
                         <input type="hidden" name="type" value="avatar">
                         <input type="checkbox" name="avatar_id[]" value="{{ $avatar->user_id }}">
                     </td> --}}
+                    <td>{{ $pic->title }}</td>
+                    <td>{{ $pic->about }}</td>
+                    <td>{{ $pic->style }}</td>
+                    <td>{{ $pic->last_login }}</td>
                 </tr>
             @endforeach
         @endif
     </table>
+    {!! $pics->appends(request()->input())->links('pagination::sg-pages') !!}
 </form>
 @endif
 </body>
@@ -180,11 +224,10 @@
             });
         $('.last30days').click(
             function () {
-                minus_date.setDate(minus_date.getDate() - 29);
-                $('#datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
-                $('.datepicker_1').val(minus_date.getFullYear() + '-' + str_pad(minus_date.getMonth()) + '-' + str_pad(minus_date.getDate()));
+                var start_date = new Date(new Date().setDate(date.getDate() - 30));
+                $('#datepicker_1').val(start_date.getFullYear() + '-' + parseInt(start_date.getMonth()+1) + '-' + start_date.getDate());
+                $('.datepicker_1').val(start_date.getFullYear() + '-' + parseInt(start_date.getMonth()+1) + '-' + start_date.getDate());
                 set_end_date();
-                minus_date.setDate(minus_date.getDate() + 29);
             });
     });
     function set_end_date() {

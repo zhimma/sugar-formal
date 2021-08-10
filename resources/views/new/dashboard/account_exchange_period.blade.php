@@ -14,16 +14,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             <div class="col-sm-12 col-xs-12 col-md-10">
                 <div class="g_password g_pnr">
                     <div class="g_pwicon">
+                        <li><a href="/dashboard/viewuser/{{$user->id}}" class="g_pwicon_t5 "><span>自我預覽</span></a></li>
                         <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t "><span>基本資料</span></a></li>
                         <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2"><span>照片管理</span></a></li>
-                        <li><a href="{!! url('/dashboard/account_manage') !!}" class="g_pwicon_t3 g_hicon3"><span>更改帳號</span></a></li>
-                        <li><a href="{!! url('/dashboard/vip') !!}" class="g_pwicon_t4"><span>VIP</span></a></li>
+                        <li><a href="{!! url('/dashboard/account_manage') !!}" class="g_pwicon_t3 g_hicon3"><span>帳號設定</span></a></li>
+{{--                        <li><a href="{!! url('dashboard/vipSelect') !!}" class="g_pwicon_t4"><span>升級付費</span></a></li>--}}
                     </div>
                     <div class="gg_zh">
                         <div class="gg_mm"><span><i></i>包養關係</span><img src="/new/images/rzh06.png"></div>
                         <div class="gg_nr01">
 
-                            <form method="POST" id="exchange_period_modify" action="/dashboard/exchangePeriodModify">
+                            <form method="POST" id="exchange_period_modify" action="/dashboard/exchangePeriodModify?n={{ time() }}">
                                 {!! csrf_field() !!}
                                 <input type="hidden" name="{{ time() }}" value="{{ time() }}">
                                 <div class="baoy">
@@ -46,9 +47,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 </div>
                                 <br>
                                 <div class="blxg">只能申請改一次，並且要通過站長同意</div>
-                                <a class="dlbut g_inputt40" onclick="submit()">確定</a>
                             </form>
-
+                            <a class="dlbut g_inputt40" onclick="submit()">確定</a>
                         </div>
 
                     </div>
@@ -71,13 +71,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
         function submit(){
             if($('#reason').val()==''){
-                c2('請輸入欲修改的原因');
+                c5('請輸入欲修改的原因');
                 return false;
             }else if($('#password').val()==''){
-                c2('請輸入您的密碼');
+                c5('請輸入您的密碼');
                 return false;
             }else if($('input[name=exchange_period]:checked', '#exchange_period_modify').val() == '{{$user->exchange_period}}') {
-                c2('您當前所選項目無需變更');
+                c5('您當前所選項目無需變更');
                 return false;
             }else{
                 c4('確定要變更包養關係嗎？');
@@ -88,7 +88,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         }
 
         @if(Session::has('message'))
-        c3('{{Session::get('message')}}');
+        c5('{{Session::get('message')}}');
         @endif
 
     </script>

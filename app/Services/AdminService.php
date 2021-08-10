@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\BannedUsersImplicitly;
 use App\Models\Reported;
 use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
@@ -43,11 +44,13 @@ class AdminService
      *
      * @return $admin or false
      */
-    public function checkAdmin(){
-        $banned_users = banned_users::select('member_id')->get();
-        $admin = User::where('name', 'like', '%'.'站長'.'%')
-                       ->whereNotIn('id', $banned_users)
-                       ->get()->first();
+    public static function checkAdmin(){
+//        $banned_users = banned_users::select('member_id')->get();
+//        $admin = User::where('name', 'like', '%'.'站長'.'%')
+//                       ->whereNotIn('id', $banned_users)
+//                       ->get()->first();
+        // todo: 效能問題
+        $admin = User::find(1049);
         if ($admin){
             return $admin;
         }
@@ -66,21 +69,23 @@ class AdminService
         $name = $request->name ? $request->name : "";
         $email = $request->email ? $request->email : "";
         $keyword = $request->keyword ? $request->keyword : "";
-        $users = User::where('email', 'like', '%' . $email . '%')
-                ->where('name', 'like', '%' . $name . '%');
+        $user['isBlocked']=0;
+        $users = User::select('m.about','m.style','u.*')->from('users as u')
+            ->leftJoin('user_meta as m','u.id','m.user_id')
+            ->where('u.email', 'like', '%' . $email . '%')
+            ->where('u.name', 'like', '%' . $name . '%');
         if($keyword){
-            $users = $users->leftjoin('user_meta', 'users.id', '=', 'user_meta.user_id')
-                            ->where(function($query) use ($keyword){
-                                $query->orWhere('user_meta.about', 'like', '%'.$keyword.'%')
-                                        ->orWhere('user_meta.style', 'like', '%'.$keyword.'%');
-                            });
+            $users = $users->where(function($query) use ($keyword){
+                $query->orWhere('m.about', 'like', '%'.$keyword.'%')
+                    ->orWhere('m.style', 'like', '%'.$keyword.'%');
+            });
         }
 
         if($request->time){
             $users = $users->orderBy($request->time, 'desc');
         }
         else{
-            $users = $users->orderBY('users.id', 'asc');
+            $users = $users->orderBy('u.last_login', 'desc');
         }
         
         if( empty($email) && empty($name) && empty($keyword)){
@@ -92,10 +97,13 @@ class AdminService
         foreach ($users as $user){
             $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first() == true  ? true : false;
             if($user['isBlocked'] == false){
-                $user['isBlocked'] = \App\Models\BannedUsersImplicitly::select(\DB::raw('id, "隱性" as type'))->where('target', 'like', $user->id)->get()->first() == true ? true : false;
+                $user['isBlocked'] = BannedUsersImplicitly::select(\DB::raw('id, "隱性" as type'))->where('target', 'like', $user->id)->get()->first() == true ? true : false;
             }
-            $user['vip'] = $user->isVip() ? '是' : '否';
-            if($user['vip'] == '是'){
+            if($user['isBlocked']==true){
+                $user['isBlocked']=1;
+            }
+            $user['vip'] = $user->isVip() ? 1 : 0;
+            if($user['vip'] == 1){
                 $user['vip_data'] = Vip::select('id', 'expiry')
                     ->where('member_id', $user->id)
                     ->orderBy('created_at', 'asc')
@@ -103,10 +111,12 @@ class AdminService
             }
         }
         if($request->member_type =='vip'){
-            $users = collect($users)->sortBy('vip', true, true)->reverse()->toArray();
+//            $users = collect($users)->sortBy('vip', true, true)->reverse()->toArray();
+            $users = $users->sortByDesc('vip');
         }
         if($request->member_type =='banned'){
-            $users = collect($users)->sortBy('isBlocked')->reverse()->toArray();
+//            $users = collect($users)->sortBy('isBlocked')->reverse()->toArray();
+            $users = $users->sortByDesc('isBlocked');
         }
         return $users;
     }
@@ -273,7 +283,7 @@ class AdminService
             }
         }
         foreach ($users as $id => &$user){
-            $info = User::select('name', 'engroup', 'last_login')
+            $info = User::select('name', 'engroup', 'last_login','exchange_period')
                 ->where('id', '=', $id)
                 ->get()->first();
             if($info != null){
@@ -282,6 +292,7 @@ class AdminService
                 $user['last_login'] = $info->last_login;
                 $user['vip'] = Vip::vip_diamond($id);
                 $user['tipcount'] = Tip::TipCount_ChangeGood($id);
+                $user['exchange_period'] = $info->exchange_period;
             }
             else{
                 $user = array();

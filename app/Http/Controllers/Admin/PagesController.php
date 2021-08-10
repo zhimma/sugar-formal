@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\SimpleTables\banned_users;
 use Carbon\Carbon;
 
-class PagesController extends Controller
+class PagesController extends \App\Http\Controllers\BaseController
 {
     public function __construct(UserService $userService, VipLogService $logService)
     {
@@ -96,5 +96,24 @@ class PagesController extends Controller
             ->with('date_start', $request->date_start)
             ->with('date_end', $request->date_end)
             ->with('keyword', $request->keyword);
+    }
+
+    public function tooManyRequests(Request $request){
+        if($request->pseudo){
+            $results = \DB::table('log_too_many_requests')
+                ->select('log_too_many_requests.*', 'users.name')
+                ->leftJoin('users', 'users.id', '=', 'log_too_many_requests.user_id')
+                ->where('is_pseudo', 1)
+                ->groupBy('user_id')
+                ->orderBy('created_at', 'desc')->get();
+            return view('admin.stats.tooManyRequests', compact('results'));
+        }
+        $results = \DB::table('log_too_many_requests')
+            ->select('log_too_many_requests.*', 'users.name')
+            ->leftJoin('users', 'users.id', '=', 'log_too_many_requests.user_id')
+            ->where('is_pseudo', 0)
+            ->groupBy('user_id')
+            ->orderBy('created_at', 'desc')->get();
+        return view('admin.stats.tooManyRequests', compact('results'));
     }
 }

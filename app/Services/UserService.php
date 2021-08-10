@@ -19,6 +19,7 @@ use App\Events\UserRegisteredEmail;
 use App\Notifications\ActivateUserEmail;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
+use App\Observer\BadUserCommon;
 
 class UserService
 {
@@ -154,33 +155,76 @@ class UserService
     {
         try {
             DB::transaction(function () use ($user, $password, $sendEmail) {
-                $this->userMeta->firstOrCreate([
-                    'user_id' => $user->id
-                ]);
-
-                //$this->assignRole($role, $user->id);
-
                 if ($sendEmail) {
+                    $this->userMeta->firstOrCreate([
+                        'user_id' => $user->id
+                    ]);
                     event(new UserRegisteredEmail($user, $password));
                 }
-
+                else{
+                    $this->userMeta->firstOrCreate([
+                        'user_id' => $user->id,
+                        'is_active' => 1
+                    ]);
+                }
+                //$this->assignRole($role, $user->id);
             });
             $domains = config('banned.domains');
             $isExists = \DB::table('banned_users_implicitly')->where('target', $user->id)->exists();
             foreach ($domains as $domain){
                 if(str_contains($user->email, $domain) && !$isExists){
-                    \DB::table('banned_users_implicitly')->insert(
+                    if(\DB::table('banned_users_implicitly')->insert(
                         ['fp' => 'DirectlyBanned',
                             'user_id' => '0',
                             'target' => $user->id,
                             'created_at' => \Carbon\Carbon::now()]
-                    );
+                    ))
+                    {
+                        BadUserCommon::addRemindMsgFromBadId($user->id);
+                    }                            
                 }
             }
-            $this->setAndSendUserActivationToken($user);
+            if ($sendEmail) {
+                $this->setAndSendUserActivationToken($user);
+            }
 
             return $user;
         } catch (Exception $e) {
+            $mobile = config('social.admin.mobile');
+            // \Artisan::call('send:sms', ['mobile' => "{$mobile}", 'email' => "{$user->email}"]);
+            $username = '54666024';
+            $password = 'zxcvbnm';
+            $smbody = config('app.name') . '使用者註冊失敗，Email:' . $user->email;
+            $smbody = mb_convert_encoding($smbody, "BIG5", "UTF-8");
+            $Data = array(
+                "username" => $username, //三竹帳號
+                "password" => $password, //三竹密碼
+                "dstaddr" => $mobile, //客戶手機
+                "DestName" => '系統回報', //對客戶的稱謂 於三竹後台看的時候用的
+                "smbody" => $smbody, //簡訊內容
+                // "response" =>$ReturnResultUrl, //回傳網址
+                // "ClientID" => $ClientID //使用者代號
+            );
+            $dataString = http_build_query($Data);
+            $url = "http://smexpress.mitake.com.tw:9600/SmSendGet.asp?$dataString";
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            $output = curl_exec($ch);
+            curl_close($ch);
+            $Data['dstaddr'] = config('social.admin.mobile2');
+            $dataString = http_build_query($Data);
+            $url = "http://smexpress.mitake.com.tw:9600/SmSendGet.asp?$dataString";
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            $output = curl_exec($ch);
+            curl_close($ch);
+            logger($e);
             throw new Exception("We were unable to generate your profile, please try again later. " . $e, 1);
         }
     }
@@ -203,7 +247,8 @@ class UserService
                 if($key!='blockcity'&&$key!='blockarea'&&preg_match("/$setBlockKeys/i", $key)){
                     if($key != $setBlockKeys){
                         if(is_null($payload[$key])){
-                            unset($payload[$key]);
+                            //unset($payload[$key]);
+                            $payload[$setBlockKeys] = $payload[$setBlockKeys]. ",";
                         }else{
                             if(isset($notLikeBlockKeys[$setBlockKeys])){
                                 if(!in_array($key, $notLikeBlockKeys)){
@@ -219,6 +264,29 @@ class UserService
                 }
             }
         }
+
+        if(isset($payload['blockcity'])){
+
+            //移除空白blockcity
+            $blockcityCheck = explode(',',$payload['blockcity']);
+            $blockareaCheck = explode(',',$payload['blockarea']);
+            foreach ($blockcityCheck as $key => $value){
+                if(empty($value)){
+                    unset($blockcityCheck[$key]);
+                    unset($blockareaCheck[$key]);
+                }
+            }
+
+            //整理blockarea欄位,寫入格式為city+area (ex: 臺北市中正區, 臺北市全區)
+            foreach ($blockcityCheck as $citykey => $cityval){
+                $area_str = empty($blockareaCheck[$citykey]) ? '全區' : $blockareaCheck[$citykey];
+                $blockareaCheck[$citykey] = $cityval.$area_str;
+            }
+            $payload['blockcity'] = implode(",", $blockcityCheck);
+            $payload['blockarea'] = implode(",", $blockareaCheck);
+        }
+
+        //logger('city=>'.json_encode($payload));
         $setKeys = ['city','area'];
         $notLikeKeys = ['area' => 'isHideArea'];
         foreach($setKeys as $setKey){
@@ -364,11 +432,17 @@ class UserService
                   {
                     $payload['meta']['blockcity'] = $payload['blockcity'];
                     unset($payload['blockcity']);
+                  }else{
+                      $payload['meta']['blockcity'] = null;
+                      unset($payload['blockcity']);
                   }
                   if (isset($payload['blockarea']))
                   {
                     $payload['meta']['blockarea'] = $payload['blockarea'];
                     unset($payload['blockarea']);
+                  }else{
+                      $payload['meta']['blockarea'] = null;
+                      unset($payload['blockarea']);
                   }
                   if (isset($payload['body']))
                   {
@@ -602,7 +676,7 @@ class UserService
                 'password' => bcrypt($password)
             ]);
 
-            return $this->create($user, $password, $info['roles'], true);
+            return $this->create($user, $password, $info['roles'], config('social.send-email'));
         });
     }
 
@@ -951,5 +1025,85 @@ class UserService
         $groupingReplied = $replied->pluck('from_id');
         $groupingReplied = $this->groupingMale($groupingReplied);
         return ['messages' => $groupingMsg, 'replied' => $groupingReplied];
+    }
+
+    public function dispatchCheckECPay($userIsVip, $userIsFreeVip, $vipData){
+        if($userIsVip && !$userIsFreeVip){
+            if(is_object($vipData)){
+                \App\Jobs\CheckECpay::dispatch($vipData, $userIsVip);
+            }
+            else{
+                Log::info('VIP data null, user id: ' . \Auth::user()->id);
+            }
+        }
+    }
+
+    public static function isBlurAvatar($to, $user) {
+        if($user->engroup == 1 && ($to->id == $user->id)) {
+            return false;
+        }
+        $blurryAvatar = isset($to->meta->blurryAvatar)? $to->meta->blurryAvatar : "";
+        $blurryAvatar = explode(',', $blurryAvatar);
+        if($user->meta->isWarned == 1 || $user->aw_relation){
+            $isBlurAvatar = true;
+        }
+        else{
+            if($user->engroup == 2){
+                $isBlurAvatar = false;
+            }
+            else if(sizeof($blurryAvatar)>1){
+                $nowB = $user->isVip()? 'VIP' : 'general';
+                $isBlurAvatar = in_array($nowB, $blurryAvatar);
+            }
+            else {
+                $isBlurAvatar = false;
+            }
+        }
+        return $isBlurAvatar;
+    }
+
+    public static function isBlurLifePhoto($to, $user) {
+        if($user->engroup == 1 && ($to->id == $user->id)) {
+            return false;
+        }
+        $blurryLifePhoto = isset($to->meta->blurryLifePhoto)? $to->meta->blurryLifePhoto : "";
+        $blurryLifePhoto = explode(',', $blurryLifePhoto);
+        if($user->meta->isWarned == 1 || $user->aw_relation ){
+            $isBlurLifePhoto = true;
+        }
+        else{
+            if($user->engroup == 2){
+                $isBlurLifePhoto = false;
+            }
+            else if(sizeof($blurryLifePhoto)>1){
+                $nowB = $user->isVip()? 'VIP' : 'general';
+                $isBlurLifePhoto = in_array($nowB, $blurryLifePhoto);
+            }
+            else {
+                $isBlurLifePhoto = false;
+            }
+        }
+        return $isBlurLifePhoto;
+    }
+
+    public static function checkcfp($hash, $user_id){
+        if(!$hash){
+            return false;
+        }
+        $cfp = \App\Models\CustomFingerPrint::where('hash', $hash)->first();
+        if(!$cfp){
+            $cfp = new \App\Models\CustomFingerPrint;
+            $cfp->hash = $hash;
+            $cfp->save();
+        }
+        $exists = \App\Models\CFP_User::where('cfp_id', $cfp->id)->where('user_id', $user_id)->count();
+        if($exists == 0){
+            $cfp_user = new \App\Models\CFP_User;
+            $cfp_user->cfp_id = $cfp->id;
+            $cfp_user->user_id = $user_id;
+            $cfp_user->save();
+        }
+
+        return $cfp;
     }
 }

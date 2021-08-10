@@ -30,6 +30,12 @@
     </div>
 </div>
 
+<style type="text/css">
+    .blur_img {
+        filter: blur(1px);
+        -webkit-filter: blur(1px);
+    }
+</style>
 <script>
 
     var Page = {
@@ -77,26 +83,33 @@
     var total = 0;//總筆數
     var date=7;
 
-    function liContent(e,i){
+    function liContent(e,i,isBlur=false){
         var li='',k;
         var ss =((i+1)>Page.row)?'display:none;':'display:none;';
         var c = (e.vip)?'hy_bg01':'';
         var area_string='';
         if( typeof e.city !== 'undefined' && e.city.length>1){
             for(k=0 ; k < e.city.length;k++){
-                area_string += e.city[k]+' '+e.area[k]+' ';
+                if(typeof e.area[k] !== 'undefined' && e.area[k].length>1)
+                    area_string += e.city[k]+' '+e.area[k]+' '; 
+                else
+                    area_string += e.city[k]+' '
             }
         }else{
-            area_string = e.city+' '+e.area;
+            if(typeof e.area !== 'undefined')
+                area_string = e.city+' '+e.area;
+            else
+                area_string = e.city+' '
         }
 
+        var styBlur = isBlur? "blur_img" : "";
         var url = '{!! url("/dashboard/viewuser/:uid") !!}';
         url = url.replace(':uid', e.member_fav_id);
 
         li +=`
             <li  style="${ss}" class="${c}">
                 <div class="si_bg">
-                    <div class="sjpic"><a href="${url}"><img src="${e.pic}"></a></div>
+                    <div class="sjpic ${styBlur}"><a href="${url}"><img src="${e.pic}"></a></div>
                     <div class="sjleft">
                         <div class="sjtable"><span><a href="${url}">${e.name}<i class="cicd">●</i>${e.age}</a></span></div>
                         <font>${area_string}</font>
@@ -131,10 +144,40 @@
             complete: function () {
             },
             success:function(res){
+                console.log(res);
                 var li = '';//樣板容器
                 $.each(res.msg,function(i,e){
+                    var isBlur = true;
+                    if('{{$user->meta->isWarned == 1 || $user->aw_relation}}' == true){
+                        // console.log("1")
+                        isBlur = true;
+                    }else if ('{{$user->engroup == 2}}' == true){
+                        // console.log("2")
+                        isBlur = false;
+                    }else{
+                        console.log(e.blurry_avatar)
+                        if(e.blurry_avatar){
+                            var blurryAvatar = e.blurry_avatar.split(',');
+                            if(blurryAvatar.length > 1){
+                                var nowB = '{{$user->isVip()? "VIP" : "general"}}';
+                                console.log(e)
+                                console.log(nowB);
+                                if( blurryAvatar.indexOf(nowB) != -1){
+                                    isBlur = true;
+                                } else {
+                                    isBlur = false;
+                                }
+                            } else {
+                                isBlur = false;
+                            }
+                        }else{
+                            isBlur = false;
+                        }
+                    }
+                    
+
                     nn++;
-                    li = liContent(e,i);
+                    li = liContent(e,i,isBlur);
                     if(typeof e.name !== 'undefined')
                     $('.sjlist>ul').append(li)
                 });
@@ -216,7 +259,7 @@
                 dataType: 'JSON',
                 success: function (result) {
                     $("#tab04").hide();
-                    show_message('移除成功');
+                    show_pop_message('移除成功');
                     // ResultData(result);
                     // if (result.status) {
                     //     LoadTable();
@@ -274,7 +317,7 @@
                 dataType: 'JSON',
                 success: function (result) {
                     $("#tab04").hide();
-                    show_message('移除成功');
+                    c5('移除成功');
                     ResultData(result);
                     if (result.status) {
                         LoadTable();

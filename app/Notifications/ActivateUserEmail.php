@@ -49,6 +49,6 @@ class ActivateUserEmail extends Notification
         return (new MailMessage)
             ->subject('用戶驗證')
             ->line('您收到此電子郵件是因為希望開通您的帳戶')
-            ->action('開通帳號', url('activate/token', $this->token));
+            ->action('開通帳號', url('activate/token', $this->token) . "?utm_source=email_confirmation&utm_medium=email&utm_campaign=sugar_garden");
     }
 }

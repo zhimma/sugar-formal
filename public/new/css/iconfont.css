@@ -35,3 +35,23 @@
   content: "\e604";
 }
 
+.icon-xiugai_nn:before {
+  content: "\e60";
+}
+
+@font-face {
+  font-family: "iconfont"; /* Project id 2547590 */
+  src: url('iconfont.woff2?t=1622824369446') format('woff2'),
+  url('iconfont.woff?t=1622824369446') format('woff'),
+  url('iconfont.ttf?t=1622824369446') format('truetype');
+}
+.icon-shanchu:before {
+  content: "\e618";
+}
+
+.icon-kuang:before {
+  content: "\e64a";
+}
+.icon-wancheng:before {
+  content: "\e643";
+}

@@ -11,7 +11,7 @@
                     </div>
                     <div class="wxsy_k">
                         <div class="wknr">
-                            <p>系統中沒有符合的資料，若您確定問題出在本站，敬請聯擊站長，並協助我們解決問題，謝謝。</p>
+                            <p>使用者已關閉帳號使用，不再開放查詢。</p>
                             <a class="btn btn-success" href="{!! url('contact') !!}" role="button">聯繫站長</a>
                         </div>
                     </div>

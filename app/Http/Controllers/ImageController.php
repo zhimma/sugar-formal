@@ -21,7 +21,7 @@ use App\Models\Vip;
 use App\Models\AdminCommonText;
 use Illuminate\Support\Facades\Log;
 
-class ImageController extends Controller
+class ImageController extends BaseController
 {
     private $imageBasePath;
     private $uploadDir;
@@ -95,6 +95,7 @@ class ImageController extends Controller
 
         $umeta = User::id_($userId)->meta_();
         $umeta->pic = $destinationPath;
+        $umeta->pic_original_name = $image->getClientOriginalName();
         $umeta->save();
 
         if(!$admin){
@@ -262,7 +263,7 @@ class ImageController extends Controller
     public function uploadAvatar(Request $request)
     {
         $userId = $request->userId;
-        $user=$request->user();
+        $user = $request->user();
         $preloadedFiles = $this->getAvatar($request)->content();
         $preloadedFiles = json_decode($preloadedFiles, true);
 
@@ -307,17 +308,17 @@ class ImageController extends Controller
             {
                 $path = substr($avatar[0]['file'], strlen(public_path()));
                 $path[0] = '/';
-                UserMeta::where('user_id', $userId)->update(['pic' => $path]);
+                UserMeta::where('user_id', $userId)->update(['pic' => $path, 'pic_original_name'=>$avatar[0]['old_name']]);
             }
             $msg="上傳成功";
 
-            $image_upload_success = AdminCommonText::where('alias','girl_to_vip')->get()->first();
+//            $image_upload_success = AdminCommonText::where('alias','girl_to_vip')->get()->first();
             //計算已上傳的照片照判斷VIP提示用
             $girl_to_vip = AdminCommonText::where('alias', 'girl_to_vip')->get()->first();
 
-            if($user->existHeaderImage() && $user->engroup==2 && $user->isVip() != 1){
+            if($user->existHeaderImage() && $user->engroup==2 && !$user->isVip()){
                 $vip_record = Carbon::parse($user->vip_record);
-                if(isset($vip_record) && $vip_record->diffInSeconds(Carbon::now()) <= 86400 && $vip_record->diffInSeconds(Carbon::now())>1800){
+                if(isset($vip_record) && $vip_record->diffInSeconds(Carbon::now()) <= 86400){
                     $msg = "照片上傳成功，24H後升級為VIP會員";
                 }else{
                     $msg = $girl_to_vip->content;
@@ -340,8 +341,8 @@ class ImageController extends Controller
             $meta->pic = NULL;
             $meta->save();
             $msg="刪除成功";
-            if(!$user->existHeaderImage() && $user->engroup==2 && $user->isFreeVip()){
-                $msg="您已刪除大頭照，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。";
+            if($user->engroup==2 && $user->isFreeVip()){
+                $msg="您大頭照已刪除，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。";
             }
             return response($msg);
         }   
@@ -449,6 +450,7 @@ class ImageController extends Controller
                 $addPicture = new MemberPic;
                 $addPicture->member_id = $userId;
                 $addPicture->pic = $path;
+                $addPicture->original_name = $uploadedFile['old_name'];
                 $addPicture->save();
             }
         }
@@ -456,9 +458,9 @@ class ImageController extends Controller
 
         $girl_to_vip = AdminCommonText::where('alias', 'girl_to_vip')->get()->first();
 
-        if($user->existHeaderImage() && $user->engroup==2 && $user->isVip() != 1){
+        if($user->existHeaderImage() && $user->engroup==2 && !$user->isVip()){
             $vip_record = Carbon::parse($user->vip_record);
-            if(isset($vip_record) && $vip_record->diffInSeconds(Carbon::now()) <= 86400 && $vip_record->diffInSeconds(Carbon::now())>1800){
+            if(isset($vip_record) && $vip_record->diffInSeconds(Carbon::now()) <= 86400){
                 $msg = "照片上傳成功，24H後升級為VIP會員";
             }else{
                 $msg = $girl_to_vip->content;
@@ -497,7 +499,7 @@ class ImageController extends Controller
         
         $msg="刪除成功";
         if(!$user->existHeaderImage() && $user->engroup==2 && $user->isFreeVip()){
-            $msg="您的生活照低於三張，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。";
+            $msg="您的照片低於四張，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。";
         }
         return response($msg);
     }

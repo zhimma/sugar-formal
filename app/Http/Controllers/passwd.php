@@ -23,7 +23,7 @@ use App\Models\SimpleTables\banned_users;
 use App\Notifications\BannedNotification;
 use Carbon\Carbon;
 
-class passwd extends Controller
+class passwd extends BaseController
 {
     public function __construct(UserService $userService, AdminService $adminService)
     {

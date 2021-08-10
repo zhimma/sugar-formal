@@ -7,7 +7,7 @@ use App\Services\VipLogService;
 use Illuminate\Http\Request;
 use DB;
 
-class FruitController extends Controller {
+class FruitController extends BaseController {
     public function index(Request $request){
         return view('fruit.index');
     }

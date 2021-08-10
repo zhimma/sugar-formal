@@ -9,7 +9,7 @@ use App\Models\SetAutoBan;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
 
-class ActivateController extends Controller
+class ActivateController extends \App\Http\Controllers\BaseController
 {
     /**
      * Create a new controller instance.
@@ -45,7 +45,9 @@ class ActivateController extends Controller
      */
     public function sendToken()
     {
-        $this->service->sendActivationToken();
+        if(config('social.send-email')){
+            $this->service->sendActivationToken();
+        }
         $user = auth()->user();
 
         return view('new.auth.activate.token', compact('user'));
@@ -60,6 +62,7 @@ class ActivateController extends Controller
     {
         // activateUser() returns boolean.
         $user = $this->service->activateUser($token);
+
         if ($user) {
             // 目前程式碼並不會在驗證完成後正確判斷，
             // 若要正確判斷，需啟用以下程式碼，啟用前需報備並測試。

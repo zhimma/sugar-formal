@@ -9,10 +9,11 @@
             <div class="col-sm-12 col-xs-12 col-md-10">
                 <div class="g_password g_pnr">
                     <div class="g_pwicon">
+                        <li><a href="/dashboard/viewuser/{{$user->id}}" class="g_pwicon_t5 "><span>自我預覽</span></a></li>
                         <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t "><span>基本資料</span></a></li>
                         <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2"><span>照片管理</span></a></li>
-                        <li><a href="{!! url('/dashboard/account_manage') !!}" class="g_pwicon_t3 g_hicon3"><span>更改帳號</span></a></li>
-                        <li><a href="{!! url('/dashboard/vip') !!}" class="g_pwicon_t4"><span>VIP</span></a></li>
+                        <li><a href="{!! url('/dashboard/account_manage') !!}" class="g_pwicon_t3 g_hicon3"><span>帳號設定</span></a></li>
+{{--                        <li><a href="{!! url('dashboard/vipSelect') !!}" class="g_pwicon_t4"><span>升級付費</span></a></li>--}}
                     </div>
                     <div class="gg_zh">
                         <div class="gg_mm"><span><i></i>交付帳號</span><img src="/new/images/rzh04.png"></div>
@@ -46,14 +47,14 @@
 
             @if($user->meta_()->isConaign==0 && $user->meta_()->consign_expiry_date > \Carbon\Carbon::now() )
             let expiry_time = '{{$user->meta_()->consign_expiry_date}}';
-            c2('您的帳號將於 ' + expiry_time + ' 後啟用，請於啟用後再提出申請。');
+            c5('您的帳號將於 ' + expiry_time + ' 後啟用，請於啟用後再提出申請。');
             return false;
             @endif
 
             if($('#account').val()==''){
-                c2('請輸入對方的帳號');
+                c5('請輸入對方的帳號');
             }else if($('#password').val()=='') {
-                c2('請輸入您的密碼');
+                c5('請輸入您的密碼');
             }else{
                 c4('確定關閉帳號嗎？');
                 $('.n_left').on('click', function(event) {
@@ -64,7 +65,7 @@
         }
 
         @if(Session::has('message'))
-        c3('{{Session::get('message')}}');
+        c5('{{Session::get('message')}}');
         @endif
 
     </script>

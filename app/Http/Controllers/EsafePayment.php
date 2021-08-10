@@ -7,7 +7,7 @@ use App\Services\EsafePay_PaymentMethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 
-class EsafePayment extends Controller
+class EsafePayment extends BaseController
 {
     public function performPayment(Request $request){
         /**
@@ -16,7 +16,7 @@ class EsafePayment extends Controller
         try {      
             $obj = new EsafePay_AllInOne();
 
-            if(env('APP_ENV') == 'local'){
+            if(\App::environment('local')){
                 $envStr = '_test';
             }
             else{

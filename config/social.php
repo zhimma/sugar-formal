@@ -37,6 +37,9 @@ return [
     ],
     'admin' => [
         'email' => 'mmmaya111@gmail.com',
-        'showMessageCount' => 50
-    ]
+        'showMessageCount' => 50,
+        'mobile' => '0911020102',
+        'mobile2' => '0972531383'
+    ],
+    'send-email' => env("SEND_EMAIL", true),
 ];

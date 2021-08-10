@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Models\Role;
 use App\Models\Blocked;
+use App\Models\ValueAddedService;
 use App\Models\Vip;
+use App\Models\Tip;
 use App\Models\UserMeta;
 use App\Models\MemberPic;
 use App\Models\SimpleTables\banned_users;
@@ -18,6 +20,7 @@ use Ixudra\Curl\Facades\Curl;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use \App\Services\UserService;
 
 class User extends Authenticatable
 {
@@ -34,7 +37,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $fillable = ['name', 'email', 'password', 'title', 'enstatus', 'engroup', 'last_login', 'isReadManual','exchange_period'];
+    protected $fillable = ['name', 'email', 'password', 'title', 'enstatus', 'engroup', 'last_login', 'login_times', 'intro_login_times', 'isReadManual', 'exchange_period', 'line_notify_switch'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -43,7 +46,7 @@ class User extends Authenticatable
      */
     protected $hidden = ['password', 'remember_token'];
 
-    protected $append = ['isVip'];
+    protected $with = ['user_meta', 'vip'];
 
     /*
     |--------------------------------------------------------------------------
@@ -60,7 +63,26 @@ class User extends Authenticatable
     //Vip
     public function vip()
     {
-        return $this->hasMany(Vip::class, 'member_id', 'id');
+        return $this->hasMany(Vip::class, 'member_id', 'id')->where('active', 1)->orderBy('created_at', 'desc');
+    }
+
+    public function vas()
+    {
+        return $this->hasMany(ValueAddedService::class, 'member_id', 'id')->where('active', 1)->orderBy('created_at', 'desc');
+    }
+
+    public function aw_relation() {
+        return $this->hasOne(\App\Models\SimpleTables\warned_users::class, 'member_id', 'id')->where(function ($query){
+            $query->whereNull('expire_date')->orWhere('expire_date', '>=', Carbon::now());
+        });
+    }
+
+    public function fa_relation() {
+        return $this->hasOne(\App\Models\SimpleTables\short_message::class, 'member_id', 'id')->where('mobile','!=','')->where('active', 1);
+    }
+
+    public function pr_log() {
+        return $this->hasOne(Pr_log::class, 'user_id', 'id')->where('active', 1);
     }
 
     //sent messages
@@ -80,7 +102,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(MemberPic::class, 'member_id', 'id');
     }
-    
+
     /*
     |--------------------------------------------------------------------------
     | Mutators and Accessors
@@ -89,28 +111,11 @@ class User extends Authenticatable
     |
     */
 
-    /**
-    * Whether the user is VIP
-    * 此函式用途未明，故先註解。
-    * @param int id
-    *
-    * @return boolean
-    */
-    // public function getIsVipAttribute()
-    // {
-    //     foreach($this->vip as $vip){
-    //         if($vip->active == 1){
-    //             return true;
-    //         }
-    //     }
-    //     return false;
-    // }
-
     public static function id_($uid)
     {
         return User::where('id', $uid)->first();
     }
-    
+
 
     public function meta_($queries = null)
     {
@@ -128,6 +133,18 @@ class User extends Authenticatable
     public function roles()
     {
         return $this->belongsToMany(Role::class);
+    }
+
+    public function user_meta(){
+        return $this->hasOne('App\Models\UserMeta');
+    }
+
+    public function banned(){
+        return $this->hasOne(banned_users::class, 'member_id', 'id');
+    }
+
+    public function implicitlyBanned(){
+        return $this->hasOne(BannedUsersImplicitly::class, 'target', 'id');
     }
 
     /**
@@ -157,6 +174,14 @@ class User extends Authenticatable
         });
 
         return false;
+    }
+
+    public function cfp(){
+        return $this->hasMany(CFP_User::class, 'user_id', 'id');
+    }
+
+    public function isOnline() {
+        return \Cache::has('user-is-online-' . $this->id);
     }
 
     /**
@@ -229,6 +254,34 @@ class User extends Authenticatable
      }
 
     /**
+     * Send the given notification.
+     *
+     * @param  mixed  $instance
+     * @return void
+     */
+
+    public function notify($instance){
+        $blocked = false;
+        $bannedPatterns = config('banned.patterns');
+        foreach ($bannedPatterns as $pattern){
+            if(preg_match($pattern, $this->email)){
+                $blocked = true;
+            }
+        }
+        if(in_array($this->email, config('banned.emails'))){
+            $blocked = true;
+        }
+        if($blocked){
+            logger("Email blocked: " . $this->email);
+            logger("IP: " . \Request::ip());
+            return;
+        }
+        if(config('social.send-email')){
+            app(\Illuminate\Contracts\Notifications\Dispatcher::class)->send($this, $instance);
+        }
+    }
+
+    /**
      * Send the password reset notification.
      *
      * @param  string  $token
@@ -244,7 +297,7 @@ class User extends Authenticatable
         // Middleware 下的 VipCheck 會將「是 VIP」但「過期」的會員取消權限，
         // 如果這邊就先針對到期日過濾掉的話，後續會導致問題，如下次重新付費升級
         // 會依舊顯示非 VIP
-        return Vip::select('active')->where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first() !== null;
+        return $this->vip->first() !== null;
         // return Vip::select('active')->where('member_id', $this->id)->where('active', 1)->where(function($query)
         //             {$query->where('expiry', '0000-00-00 00:00:00')->orwhere('expiry', '>=', Carbon::now());}
         //            )->orderBy('created_at', 'desc')->first() !== null;
@@ -271,11 +324,28 @@ class User extends Authenticatable
         return Vip::where('member_id', $this->id)->where('active', 1)->where('free', 1)->orderBy('created_at', 'desc')->first() !== null;
     }
 
-    public function isVipNotCanceledORCanceledButNotExpire()
+    public function isVipNotCanceledNotOnePayment()
     {
         //return true: VIP未取消
         //return false: VIP已取消，但權限還沒過期
-        return Vip::where('member_id', $this->id)->where('active', 1)->where('expiry', '=', '0000-00-00 00:00:00')->orderBy('created_at', 'desc')->first() !== null;
+        $vip = Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first();
+        return isset($vip) && $vip->expiry=='0000-00-00 00:00:00';
+    }
+
+    public function isVipOnePaymentNotExpire()
+    {
+        //return true: VIP未取消
+        //return false: VIP已取消，但權限還沒過期
+        $vip = Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first();
+        return isset($vip) && $vip->expiry >= now() && substr($vip->payment,0,4)=='one_';
+    }
+
+    public function isVipNotOnePaymentNotExpiry()
+    {
+        //return true: VIP未取消
+        //return false: VIP已取消，但權限還沒過期
+        $vip = Vip::where('member_id', $this->id)->where('active', 1)->orderBy('created_at', 'desc')->first();
+        return isset($vip) && $vip->expiry >= now() && ($vip->payment==null || substr($vip->payment,0,3)=='cc_');
     }
 
     public function isVipBoolean()
@@ -288,7 +358,8 @@ class User extends Authenticatable
     public function existHeaderImage() {
         $pics = MemberPic::where('member_id', $this->id)->count();
         //echo $pics;
-        return isset($this->meta_()->pic) && ($pics >= 3);
+        $user_meta = view()->shared('user_meta');
+        return isset($user_meta->pic) && ($pics >= 3);
     }
 
     public function isActive() {
@@ -339,10 +410,10 @@ class User extends Authenticatable
     public function isSent3Msg($tid)
     {
         $msg_count = Message::where('from_id', $tid)->where('to_id', $this->id)
-            ->where('is_row_delete_1','!=',$tid)
-            ->where('is_row_delete_2','!=',$tid)
-            ->where('is_single_delete_1','!=',$tid)
-            ->where('is_single_delete_2','!=',$tid)
+//            ->where('is_row_delete_1','<>',$this->id)
+//            ->where('is_row_delete_2','<>',$this->id)
+//            ->where('is_single_delete_1','<>',$this->id)
+//            ->where('is_single_delete_2','<>',$this->id)
             ->count();
         return $msg_count>=3;
     }
@@ -437,7 +508,7 @@ class User extends Authenticatable
 
     public function isPhoneAuth()
     {
-        $auth_phone = DB::table('short_message')->where('member_id',$this->id)->where('active',1)->count();
+        $auth_phone = DB::table('short_message')->where('member_id',$this->id)->where('active',1)->count(); //->where('mobile','!=','')
         return isset($auth_phone) && $auth_phone>0;
     }
     public function isImgAuth()
@@ -463,6 +534,358 @@ class User extends Authenticatable
     public static function isAdminWarnedRead($uid)
     {
         DB::table('warned_users')->where('member_id',$uid)->update(['isAdminWarnedRead'=>1]);
+    }
+
+//    public function isReportedByUser($uid)
+//    {
+//        $AvatarCount = ReportedAvatar::select('reported_user_id')->where('reported_user_id',$this->id)->where('cancel','0')->where('reporter_id',$uid)->count();
+//        $PicCount = ReportedPic::select('reported_pic.reporter_id')
+//            ->join('member_pic','reported_pic.reported_pic_id','=','member_pic.id')
+//            ->where('member_pic.member_id',$this->id)
+//            ->where('reported_pic.reporter_id',$uid)
+//            ->where('reported_pic.cancel','0')->count();
+//        $msgCount = Message::select('from_id')->where('from_id',$this->id)->where('isReported',1)->where('cancel','0')->where('to_id',$uid)->count();
+//        $memberCount = Reported::select('reported_id')->where('reported_id',$this->id)->where('cancel','0')->where('member_id',$uid)->count();
+//
+//        return $AvatarCount>0 || $PicCount>0 || $msgCount>0 || $memberCount>0;
+//    }
+
+    public static function PR($uid)
+    {
+        $user = User::findById($uid);
+        //車馬費次數
+        $tip_count = Tip::where('member_id',$uid)->count();
+        //註冊天數
+//        $days = Carbon::parse($user->created_at)->diffInDays(Carbon::now());
+//        if( /*(!$user->isVip() && $tip_count==0) || */ (!$user->isVip() && $days<=30) || $user->engroup==2){
+//            return false;//普通會員需註冊滿1個月後，其餘不列計
+//        }
+
+        //註冊後如無任何傳訊紀錄 + 不是 vip 則顯示 無
+        $checkMessages = Message::where('from_id', $uid)->get()->count();
+        if($checkMessages==0 && !$user->isVip()){
+            $pr = '無';
+            $pr_log = '註冊後如無任何傳訊紀錄+不是vip';
+            //舊紀錄刪除
+            Pr_log::where('user_id',$uid)->delete();
+            return Pr_log::insert([ 'user_id' => $uid, 'pr' => $pr, 'pr_log' => $pr_log, 'active' => 1 ]);
+        }
+
+        //default
+        $pr = 50;
+        $pr_log = '';
+
+        //車馬費計分 次數上限5
+//        if($tip_count>0){
+//            if($tip_count>5){
+//                $tip_count = 5;
+//            }
+//            $pr = $pr + ($tip_count*2);
+//            $pr_log = $pr_log.'車馬費計分+'.$tip_count*2 .'分=>'.$pr.'; ';
+//        }
+
+        $pr = $pr + ($tip_count * 1.004);
+        $pr_log = $pr_log.'車馬費 '.$tip_count.' 次計分 +'.$tip_count*1.004 .' 分=>'.$pr.'; ';
+
+
+//        $userBlockList = Blocked::select('blocked_id')->where('member_id', $uid)->get();
+//        $isBlockList = Blocked::select('member_id')->where('blocked_id', $uid)->get();
+//        $bannedUsers = UserService::getBannedId();
+//        $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
+//        $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
+//
+//        //評價計分
+//        $evaluation = DB::table('evaluation')->select('rating')->where('to_id',$uid)
+//            ->whereNotIn('from_id',$userBlockList)
+//            ->whereNotIn('from_id',$isBlockList)
+//            ->whereNotIn('from_id',$bannedUsers)
+//            ->whereNotIn('from_id',$isAdminWarnedList)
+//            ->whereNotIn('from_id',$isWarnedList)
+//            ->get();
+//
+//        $r5=0;
+//        $r4=0;
+//        $r3=0;
+//        $r2=0;
+//        $r1=0;
+//        if(isset($evaluation)){
+//            foreach ($evaluation as $row){
+//                if($row->rating==5 && $r5 <= 5){
+//                    $pr = $pr + 2;
+//                    $pr_log = $pr_log.'評價計分5星+2分=>'.$pr.'; ';
+//                    $r5 = $r5 + 1;
+//                }elseif($row->rating==4 && $r4 <= 5){
+//                    $pr = $pr + 1;
+//                    $pr_log = $pr_log.'評價計分4星+1分=>'.$pr.'; ';
+//                    $r4 = $r4 + 1;
+//                }elseif($row->rating==3 && $r3 <= 5){
+//                    $pr = $pr + 0.3;
+//                    $pr_log = $pr_log.'評價計分3星+0.3分=>'.$pr.'; ';
+//                    $r3 = $r3 + 1;
+//                }elseif($row->rating==2 && $r2 <= 5){
+//                    $pr = $pr - 2;
+//                    $pr_log = $pr_log.'評價計分2星-2分=>'.$pr.'; ';
+//                    $r2 = $r2 + 1;
+//                }elseif($row->rating==1 && $r1 <= 5){
+//                    $pr = $pr - 5;
+//                    $pr_log = $pr_log.'評價計分1星-5分=>'.$pr.'; ';
+//                    $r1 = $r1 + 1;
+//                }
+//            }
+//        }
+
+        //連續VIP
+//        $vip = Vip::where('member_id',$uid)->where('expiry','0000-00-00 00:00:00')->where('active',1)->where('free',0)->first();
+//        if(isset($vip)){
+//            $months = Carbon::parse($vip->created_at)->diffInMonths(Carbon::now());
+//            //$pr_log = $pr_log.'VIPMonths=>'.$months.'; ';
+//            if($months>=6){
+//                $pr = $pr + 50;
+//                $pr_log = $pr_log.'連續VIP六個月+50分=>'.$pr.'; ';
+//            }elseif($months>=5){
+//                $pr = $pr + 40;
+//                $pr_log = $pr_log.'連續VIP五個月+40分=>'.$pr.'; ';
+//            }elseif($months>=4){
+//                $pr = $pr + 30;
+//                $pr_log = $pr_log.'連續VIP四個月+30分=>'.$pr.'; ';
+//            }elseif($months>=3){
+//                $pr = $pr + 20;
+//                $pr_log = $pr_log.'連續VIP三個月+20分=>'.$pr.'; ';
+//            }elseif($months>=2){
+//                $pr = $pr + 10;
+//                $pr_log = $pr_log.'連續VIP二個月+10分=>'.$pr.'; ';
+//            }elseif($months>=1){
+//                $pr = $pr + 10;
+//                $pr_log = $pr_log.'連續VIP一個月+10分=>'.$pr.'; ';
+//            }
+//        }
+
+
+        //註冊後沒有VIP扣分計算
+        //$vip = Vip::where('member_id',$uid)->where('active',1)->where('free',0)->where('amount','<>',0)->first();
+//        $vip = Vip::where('member_id',$uid)->where('amount','<>',0)->first();
+//        if(isset($vip)){
+//            //曾有VIP 計算VIP前未刷扣分
+//            $months = Carbon::parse($user->created_at)->diffInMonths($vip->created_at);
+//            $pr = $pr - ($months * 2.5);
+//            $pr_log = $pr_log.'註冊後未刷VIP '.$months.' 個月=>'.$pr.'; ';
+//        }else{
+//            //未曾有付費VIP紀錄 計算扣分
+//            $months = Carbon::parse($user->created_at)->diffInMonths(Carbon::now());
+//            $pr = $pr - ($months * 2.5);
+//            $pr_log = $pr_log . '註冊後未刷VIP ' . $months . ' 個月=>' . $pr . '; ';
+//        }
+
+        //當前有VIP 連續加分計算
+        $vip = Vip::where('member_id',$uid)->where('amount','<>',0)->first();
+        if(isset($vip) && $vip->active == 1) {
+            $months = Carbon::parse($vip->created_at)->diffInMonths(Carbon::now());
+            //定期定額累計加分
+            if ($vip->payment != null && substr($vip->payment, 0, 3) == 'cc_') {
+
+                if($vip->expiry != '0000-00-00 00:00:00'){
+                    $months = Carbon::parse($vip->created_at)->diffInMonths(Carbon::parse($vip->expiry));
+                }
+
+                $pr = $pr + ($months * 5)+ (($months-1)*2.5);
+                $otherMonths = $months - 1;
+                $pr_log = $pr_log . '當前定期定額VIP累計 ' .$months. ' 個月, 額外連續VIP '.$otherMonths.' 個月=>' . $pr .'; ';
+                if($vip->payment == 'cc_quarterly_payment'){
+                    $pr = $pr - 15;
+                    $pr_log = $pr_log . '扣除1次單次季繳計算=>' . $pr .'; ';
+                }elseif($vip->payment == 'cc_monthly_payment'){
+                    $pr = $pr - 5;
+                    $pr_log = $pr_log . '扣除1次單次月繳計算=>' . $pr .'; ';
+                }
+            }
+            
+            //舊的定期定額付費紀錄
+            if ($vip->payment == null && $vip->expiry == '0000-00-00 00:00:00') {
+                $pr = $pr + ($months * 5) + (($months-1)*2.5);
+                $otherMonths = $months - 1;
+                $pr_log = $pr_log . '當前定期定額VIP累計 ' .$months. ' 個月, 額外連續VIP '.$otherMonths.' 個月=>' . $pr .'; ';
+            } elseif ($vip->payment == null && $vip->expiry != '0000-00-00 00:00:00') {
+                $months = Carbon::parse($vip->created_at)->diffInMonths(Carbon::parse($vip->expiry));
+                $pr = $pr + ($months * 5) + (($months-1)*2.5);
+                $otherMonths = $months - 1;
+                $pr_log = $pr_log . '當前定期定額VIP累計 ' . $months . ' 個月, 額外連續VIP '.$otherMonths.' 個月=>' . $pr .'; ';
+            }
+
+            //單次付費加分
+            if ($vip->payment == 'one_quarter_payment') {
+                $pr = $pr + 2.5 + 2.5;
+                $pr_log = $pr_log . '當前有VIP+額外連續VIP =>' . $pr . '; ';
+            }
+//            elseif ($vip->payment != null && $vip->payment == 'one_month_payment') {
+//                $pr = $pr + 5;
+//                $pr_log = $pr_log . '單次付費月付VIP =>' . $pr . '; ';
+//            }
+        }
+
+        //從 log 取得
+        $vip_log = DB::table('member_vip_log')
+            ->where('member_id', $uid)
+            ->where('action', 1)
+            ->where('free', 0)
+            ->where('txn_id', '')
+            ->where('member_name','like','%SG%')
+            ->where('member_name','like','%order id%')
+            ->get();
+
+        foreach ($vip_log as $row){
+            if (strpos($row->member_name, 'one_quarter_payment') !== false) {
+                $pr = $pr + 15;
+                $pr_log = $pr_log . '曾經單次付費季付VIP =>' . $pr . '; ';
+            }
+            if (strpos($row->member_name, 'one_month_payment') !== false) {
+                $pr = $pr + 5;
+                $pr_log = $pr_log . '曾經單次付費月付VIP =>' . $pr . '; ';
+            }
+            if (strpos($row->member_name, 'cc_quarterly_payment') !== false) {
+                $pr = $pr + 15;
+                $pr_log = $pr_log . '曾經定期定額季付VIP =>' . $pr . '; ';
+            }
+            if (strpos($row->member_name, 'cc_monthly_payment') !== false) {
+                $pr = $pr + 5;
+                $pr_log = $pr_log . '曾經定期定額月付VIP =>' . $pr . '; ';
+            }
+        }
+
+
+
+        //vip 一個月內
+//        if(isset($vip)){
+//            $days = Carbon::parse($vip->created_at)->diffInDays(Carbon::now());
+//            //$pr_log = $pr_log.'VIPdays=>'.$days.'; ';
+//            if($days<30){
+//                $pr = $pr + 5;
+//                $pr_log = $pr_log.'VIP一個月內+5分=>'.$pr.'; ';
+//            }
+//
+//            //不連續VIP
+//            if($vip->payment=='one_month_payment'){
+//                $pr = $pr + 5;
+//                $pr_log = $pr_log.'不連續VIP一個月+5分=>'.$pr.'; ';
+//            }elseif($vip->payment=='one_quarter_payment'){
+//                $pr = $pr + 15;
+//                $pr_log = $pr_log.'不連續VIP三個月+15分=>'.$pr.'; ';
+//            }
+//        }
+
+        //罐頭訊息計分
+//        $msg = array();
+//        $from_content = array();
+//        $user_similar_msg = array();
+//        $message = Message::where('from_id',$uid)->orderBy('created_at','desc')->where('sys_notice',0)->take(100)->get();
+//        foreach($message as $row){
+//            array_push($msg,array('id'=>$row->id,'content'=>$row->content,'created_at'=>$row->created_at));
+//        }
+//        array_push($from_content,  array('msg'=>$msg));
+//        //比對訊息
+//        foreach($from_content as $data) {
+//            foreach ($data['msg'] as $word1) {
+//                foreach ($data['msg'] as $word2) {
+//                    if ($word1['created_at'] != $word2['created_at']) {
+//                        similar_text($word1['content'], $word2['content'], $percent);
+//                        if ($percent >= 70) {
+//                                array_push($user_similar_msg, array($word1['id'], $word1['content'], $word1['created_at'], $percent));
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        $spam_percent = round(count($user_similar_msg) / count($message))*100;
+//        if($spam_percent>70){
+//            $pr = $pr - 30;
+//            $pr_log = $pr_log.'罐頭訊息比例70%-30分=>'.$pr.'; ';
+//        }elseif($spam_percent>60){
+//            $pr = $pr - 20;
+//            $pr_log = $pr_log.'罐頭訊息比例60%-20分=>'.$pr.'; ';
+//        }elseif($spam_percent>50){
+//            $pr = $pr - 10;
+//            $pr_log = $pr_log.'罐頭訊息比例50%-10分=>'.$pr.'; ';
+//        }
+
+        //沒有VIP計分
+//        if(!$user->isVip() && $pr>=40){
+//            $o_pr = $pr;
+//            $pr = ($pr-40)/2 + 40;
+//            $pr_log = $pr_log.'沒有VIP('.$o_pr.'-40)/2+40=>'.$pr.'; ';
+//        }
+
+        //VVIP直接100計算 待VVIP實作後加入
+
+        //非VIP 扣分 每位通訊人數扣0.2
+        if(!$user->isVip()) {
+            $checkMessageUsers = Message::select('to_id')->where('from_id', $uid)->distinct()->get()->count();
+            if($checkMessageUsers>0){
+                $pr = $pr - ($checkMessageUsers * 0.2);
+                $pr_log = $pr_log.'非VIP通訊人數 '.$checkMessageUsers.' 人扣分 =>'.$pr.'; ';
+            }
+        }
+
+        $pr = round($pr,0);
+        //分數上限
+        if($pr>100){
+            $pr=100;
+            $pr_log = $pr_log.'PR超過100以100計算=>'.$pr.'; ';
+        }
+
+        //分數下限
+        if($pr<1){
+            $pr=0;
+            $pr_log = $pr_log.'PR低於或等於0以0計算=>'.$pr.'; ';
+        }
+
+
+        //舊紀錄刪除
+        Pr_log::where('user_id',$uid)->delete();
+        //存LOG
+        return Pr_log::insert([ 'user_id' => $uid, 'pr' => $pr, 'pr_log' => $pr_log, 'active' => 1]);
+//        $query_pr = DB::table('pr_log')->where('user_id',$uid)->orderBy('created_at','desc')->first();
+//        if( (isset($query_pr) && $query_pr->pr_log != $pr_log) || !isset($query_pr)) {
+//            DB::table('pr_log')->insert([
+//                'user_id' => $uid,
+//                'pr_log' => $pr_log
+//            ]);
+//        }
+//
+//        return $pr;
+    }
+
+    public function age(){
+        if (isset($this->user_meta->birthdate) && $this->user_meta->birthdate !== null && $this->user_meta->birthdate != 'NULL')
+        {
+            $userDob = $this->user_meta->birthdate;
+            $dob = new \DateTime($userDob);
+
+            $now = new \DateTime();
+
+            $difference = $now->diff($dob);
+
+            $age = $difference->y;
+            return $age;
+        }
+    }
+
+    public static function rating($uid)
+    {
+        $userBlockList = Blocked::select('blocked_id')->where('member_id', $uid)->get();
+        $isBlockList = Blocked::select('member_id')->where('blocked_id', $uid)->get();
+        $bannedUsers = UserService::getBannedId();
+        $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
+        $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
+
+        $rating_avg = DB::table('evaluation')->where('to_id',$uid)
+            ->whereNotIn('from_id',$userBlockList)
+            ->whereNotIn('from_id',$isBlockList)
+            ->whereNotIn('from_id',$bannedUsers)
+            ->whereNotIn('from_id',$isAdminWarnedList)
+            ->whereNotIn('from_id',$isWarnedList)
+            ->avg('rating');
+
+        $rating_avg = floatval($rating_avg);
+        return $rating_avg;
     }
 
     public function msgCount()
@@ -504,4 +927,247 @@ class User extends Authenticatable
     {
         return Visited::where('visited_id', $this->id)->whereBetween('created_at',  [Carbon::now()->subSeconds(Config::get('social.user.viewed-seconds')), Carbon::now()])->count();
     }
+
+    public function checkTourRead($page,$step)
+    {
+        $checkData = DB::table('tour_read')->where('user_id',$this->id)->where('page',$page)->where('step',$step)->where('isRead',1)->first();
+        $login_times = User::select('login_times')->withOut(['user_meta', 'vip'])->where('id',$this->id)->first();
+        if(isset($checkData) && $login_times->login_times >= 2){
+            $isRead =1;
+        }else{
+            $isRead =0;
+        }
+        return $isRead;
+    }
+
+    public function valueAddedServiceStatus($service_name = null)
+    {
+        return ValueAddedService::status($this->id,$service_name);
+    }
+
+    public static function sendLineNotify($access_token, $message) {
+
+        if (is_array($message)) {
+            $message = chr(13).chr(10) . implode(chr(13).chr(10), $message);
+        }
+
+        $apiUrl = config('line.line_notify.notify_url');
+
+        $params = [
+            'message' => $message/*,
+            'stickerPackageId' => $stickerPackageId,
+            'stickerId' => $stickerId*/
+        ];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $access_token
+        ]);
+        curl_setopt($ch, CURLOPT_URL, $apiUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
+        $output = curl_exec($ch);
+        curl_close($ch);
+    }
+
+    public static function warned_icondata($id)
+    {
+        $userMeta = UserMeta::where('user_id', $id)->get()->first();
+        $warned_users = warned_users::where('member_id', $id)->first();
+        $f_user = User::findById($id);
+        if (isset($warned_users) && ($warned_users->expire_date == null || $warned_users->expire_date >= Carbon::now())) {
+            $data['isAdminWarned'] = 1;
+        } else {
+            $data['isAdminWarned'] = 0;
+        }
+        $data['auth_status'] = 0;
+        if (isset($userMeta)) {
+            $data['isWarned'] = $userMeta->isWarned;
+        } else {
+            $data['isWarned'] = null;
+        }
+        if (isset($f_user)) {
+            $data['WarnedScore'] = $f_user->WarnedScore();
+            $data['auth_status'] = $f_user->isPhoneAuth();
+        } else {
+            $data['WarnedScore'] = null;
+            $data['auth_status'] = null;
+        }
+        return $data;
+    }
+
+    public static function userAdvInfo($user_id,$wantIndexArr=[]){
+        $user=User::findById($user_id);
+        $date = date('Y-m-d H:m:s', strtotime('-7 days'));
+		
+        /*發信＆回信次數統計*/
+		$countInfo['message_count'] = 0;
+		$countInfo['message_reply_count'] = 0;
+		$countInfo['message_reply_count_7'] = 0;
+		$send = [];
+		$receive = [];
+		
+		if(!$wantIndexArr 
+			|| in_array('message_count',$wantIndexArr) 
+			|| in_array('message_reply_count',$wantIndexArr)
+			|| in_array('message_reply_count_7',$wantIndexArr)
+		) {
+			$messages_all = Message::select('id','to_id','from_id','created_at')->where('to_id', $user->id)->orwhere('from_id', $user->id)->orderBy('id')->get();
+			foreach ($messages_all as $message) {
+				//uid主動第一次發信
+				if($message->from_id == $user->id && array_get($send, $message->to_id) < $message->id){
+					$send[$message->to_id][]= $message->id;
+				}
+				//紀錄每個帳號第一次發信給uid
+				if ($message->to_id == $user->id && array_get($receive, $message->from_id) < $message->id) {
+					$receive[$message->from_id][] = $message->id;
+				}
+				if(!is_null(array_get($receive, $message->to_id))){
+					$countInfo['message_reply_count'] += 1;
+					if($message->created_at >= $date){
+						//計算七天內回信次數
+						$countInfo['message_reply_count_7'] += 1;
+					}
+				}
+			}
+			$countInfo['message_count'] = count($send);
+		}
+		
+		if(!$wantIndexArr || in_array('message_count_7',$wantIndexArr)) {
+			$messages_7days = Message::select('id','to_id','from_id','created_at')->whereRaw('(to_id ='. $user->id. ' OR from_id='.$user->id .')')->where('created_at','>=', $date)->orderBy('id')->get();
+			$countInfo['message_count_7'] = 0;
+			$send = [];
+			foreach ($messages_7days as $message) {
+				//七天內uid主動第一次發信
+				if($message->from_id == $user->id && array_get($send, $message->to_id) < $message->id){
+					$send[$message->to_id][]= $message->id;
+				}
+			}
+			$countInfo['message_count_7'] = count($send);
+		}
+        /*發信次數*/
+        $advInfo['message_count'] = $countInfo['message_count'];
+        /*過去7天發信次數*/
+        $advInfo['message_count_7'] = $countInfo['message_count_7'];
+        /*回信次數*/
+        $advInfo['message_reply_count'] = $countInfo['message_reply_count'];
+        /*過去7天回信次數*/
+        $advInfo['message_reply_count_7'] = $countInfo['message_reply_count_7'];
+        /*過去7天罐頭訊息比例*/
+        $date_start = date("Y-m-d",strtotime("-6 days", strtotime(date('Y-m-d'))));
+        $date_end = date('Y-m-d');
+		
+		if(!$wantIndexArr || in_array('message_percent_7',$wantIndexArr)) {
+			/**
+			 * 效能調整：使用左結合以大幅降低處理時間
+			 *
+			 * @author LZong <lzong.tw@gmail.com>
+			 */
+			$query = Message::select('users.email','users.name','users.title','users.engroup','users.created_at','users.last_login','message.id','message.from_id','message.content','user_meta.about')
+				->join('users', 'message.from_id', '=', 'users.id')
+				->join('user_meta', 'message.from_id', '=', 'user_meta.user_id')
+				->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
+				->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
+				->leftJoin('warned_users as wu', function($join) {
+					$join->on('wu.member_id', '=', 'message.from_id')
+						->where('wu.expire_date', '>=', Carbon::now())
+						->orWhere('wu.expire_date', null); })
+				->whereNull('b1.member_id')
+				->whereNull('b3.target')
+				->whereNull('wu.member_id')
+				->where(function($query)use($date_start,$date_end) {
+					$query->where('message.from_id','<>',1049)
+						->where('message.sys_notice',0)
+						->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
+				});
+			$query->where('users.email',$user->email);
+			$results_a = $query->distinct('message.from_id')->get();
+
+			if ($results_a != null) {
+				$msg = array();
+				$from_content = array();
+				$user_similar_msg = array();
+
+				$messages = Message::select('id','content','created_at')
+					->where('from_id', $user->id)
+					->where('sys_notice',0)
+					->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
+					->orderBy('created_at','desc')
+					->take(100)
+					->get();
+
+				foreach($messages as $row){
+					array_push($msg,array('id'=>$row->id,'content'=>$row->content,'created_at'=>$row->created_at));
+				}
+
+				array_push($from_content,  array('msg'=>$msg));
+
+				$unique_id = array(); //過濾重複ID用
+				//比對訊息
+				foreach($from_content as $data) {
+					foreach ($data['msg'] as $word1) {
+						foreach ($data['msg'] as $word2) {
+							if ($word1['created_at'] != $word2['created_at']) {
+								similar_text($word1['content'], $word2['content'], $percent);
+								if ($percent >= 70) {
+									if(!in_array($word1['id'],$unique_id)) {
+										array_push($unique_id,$word1['id']);
+										array_push($user_similar_msg, array($word1['id'], $word1['content'], $word1['created_at'], $percent));
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			$advInfo['message_percent_7'] = count($user_similar_msg) > 0 ? round( (count($user_similar_msg) / count($messages))*100 ).'%'  : '0%';
+		}
+
+        /*每周平均上線次數*/
+		if(!$wantIndexArr || in_array('login_times_per_week',$wantIndexArr)) {
+			$datetime1 = new \DateTime(now());
+			$datetime2 = new \DateTime($user->created_at);
+			$diffDays = $datetime1->diff($datetime2)->days;
+			$week = ceil($diffDays / 7);
+			if($week == 0){
+				$advInfo['login_times_per_week'] = 0;
+			}
+			else{
+				$advInfo['login_times_per_week'] = round(($user->login_times / $week), 0);
+			}
+		}
+        /*收藏會員次數*/
+		if(!$wantIndexArr || in_array('fav_count',$wantIndexArr)) 
+			$advInfo['fav_count'] = MemberFav::where('member_id', $user->id)->get()->count();
+
+        /*瀏覽其他會員次數*/
+		if(!$wantIndexArr || in_array('visit_other_count',$wantIndexArr)) 
+			$advInfo['visit_other_count']  = Visited::where('member_id', $user->id)->count();
+
+        /*過去7天瀏覽其他會員次數*/
+		if(!$wantIndexArr || in_array('visit_other_count_7',$wantIndexArr)) 
+			$advInfo['visit_other_count_7'] = Visited::where('member_id', $user->id)->where('created_at', '>=', $date)->count();
+
+        /*此會員封鎖多少其他會員*/
+		if(!$wantIndexArr || in_array('blocked_other_count',$wantIndexArr)) {
+			$bannedUsers = \App\Services\UserService::getBannedId();
+			$advInfo['blocked_other_count']= \App\Models\Blocked::with(['blocked_user'])
+				->join('users', 'users.id', '=', 'blocked.blocked_id')
+				->where('blocked.member_id', $user->id)
+				->whereNotIn('blocked.blocked_id',$bannedUsers)
+				->whereNotNull('users.id')
+				->count();
+		}
+        /*此會員被多少會員封鎖*/
+		if(!$wantIndexArr || in_array('be_blocked_other_count',$wantIndexArr)) {
+			$advInfo['be_blocked_other_count'] = \App\Models\Blocked::with(['blocked_user'])
+				->join('users', 'users.id', '=', 'blocked.member_id')
+				->where('blocked.blocked_id', $user->id)
+				->whereNotIn('blocked.member_id',$bannedUsers)
+				->whereNotNull('users.id')
+				->count();
+		}
+        return $advInfo;
+    }
+
 }

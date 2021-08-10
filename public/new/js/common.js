@@ -104,7 +104,7 @@
 	function ResultData(result){
 		if(result.status){
 			if(result.msg){
-				c2(result.msg);
+				c5(result.msg);
 				if(result.redirect){
 					$(document).on('click','.blbg',function(event) {
 				    	location.href=result.redirect;
@@ -120,7 +120,11 @@
 			}else{
 				error	=	result.msg;
 			}
-			c2(error);
+			if (typeof(result.showLink) != "undefined"){
+				c7(error,result.showLink);
+			}else{
+				c2(error);
+			}
 			// swal({
 			// 	title:error,
 			// 	text:(result.text)?result.text:'',
@@ -130,39 +134,58 @@
 	}
 
 	function cl(str) {
-     	$(".blbg").show();
-        $("#tab01").show();
-        $("#tab01 .bltext").text(str);
+     	// $(".blbg").show();
+      //   $("#tab01").show();
+      //   $("#tab01 .bltext").text(str);
     }
 
     function c2(str) {
+    	// c5(str)
 		 $(".blbg").show();
          $("#tab02").show();
          $("#tab02 .gxbut").text(str);
     }
 
 	function c3(str) {
+		// c5(str)
 		$(".announce_bg").show();
 		$("#tab02").show();
 		$("#tab02 .gxbut").text(str);
 	}
-
-    $(document).on('click','.blbg',function(event) {
+	
+	function closeAndReload(event) {
     	$(".blbg").hide();
         $(".bl").hide();
 		$(".gg_tab").hide();
 		window.location.reload();
-    });
+    }	
+
+    $(document).on('click','.blbg',closeAndReload);
+
+	
     function c4(str) {
+    	// c5(str)
 		 $(".blbg").show();
          $("#tab04").show();
          $("#tab04 .bltext").text(str);
     }
+	
+    function c_no_more(str) {
+		 $(".blbg").show();
+         $("#tab_no_more").show();
+         $("#tab_no_more .bltext").text(str);
+    }	
 
 	function c5(str) {
 		$(".announce_bg").show();
 		$("#tab05").show();
 		$("#tab05 .bltext").text(str);
+	}
+
+	function c5html(str) {
+		$(".announce_bg").show();
+		$("#tab05").show();
+		$("#tab05 .bltext").html(str);
 	}
 
 	function c6(str) {	
@@ -171,10 +194,30 @@
 		$("#tab06 .bltext").text(str);	
    }
 
+	function c7(str, link) {
+		$(".announce_bg").show();
+		$("#tab07").show();
+		$("#tab07 .bltext").text(str);
+		$("#tab07 .linktext").html(link);
+	}
+
+	function c8(str) {
+		$(".announce_bg").show();
+		$("#tab08").show();
+		$("#tab08 .bltext").text(str);
+	}
+
+	function show_pop_message(str) {
+		$(".blbg").show();
+		$("#tabPopM").show();
+		$("#tabPopM .bltext").text(str);
+	}
+
 	function show_message(str) {
 		$(".blbg").show();
 		$("#tab_message").show();
 		$("#tab_message .gxbut").text(str);
+		// c5(str);
 	}
 
 	function show_block() {
@@ -194,15 +237,35 @@
 		$("#tab_other .bltext").text(str);
 	}
 
-	function loading() {
+	function popSus(str) {
 		$(".blbg").show();
+		$("#popSus").show();
+	}
+
+	function popSusNew() {
+		$(".blbg").show();
+		$("#popSusNew").show();
+	}
+
+	function popEvaluation() {
+		$(".blbg").show();
+		$("#popEvaluation").show();
+	}
+
+	function loading() {
+		$(".announce_bg").show();
 		$("#tab_loading").show();
 		// $("#tab02 .gxbut").text(str);
 	}
-	// $(document).on('click','.announce_bg',function(event) {
-	// 	$(".announce_bg").hide();
-	// 	$(".blbg").hide();
-	// 	$(".bl").hide();
-	// 	$(".gg_tab").hide();
-	// });
+
+	function common_confirm(str,str2=null) {
+
+		$(".blbg").show();
+		$("#common_confirm").show();
+		$("#common_confirm p").text(str);
+		if(str2 != null) {
+			var redStr = str2.fontcolor('red');
+			$("#common_confirm p").append('\n'+redStr);
+		}
+	}
 

@@ -1,6 +1,6 @@
 .message{width:92%; margin:0 auto; display:flow-root; /*max-height:400px; margin-bottom:40px;*/ overflow-y: auto}
 .se_text_bot {
-    margin:0 auto; display:table; position: fixed; bottom: 10px; padding-right: 3%;padding-left: 3%;
+    margin:0 auto; display:table; /*position: fixed;*/ bottom: 20px; padding-right: 3%;padding-left: 3%;
     width: 100%;
     max-width: 1000px;
     z-index: 8;
@@ -116,7 +116,7 @@
     /*    !*right: 25px;*!*/
     /*}*/
     .n_blnr01{
-        /*padding-top: 60px;*/
+       /* padding-top: 60px;*/
     }
     .n_fengs {
         /*margin: 0 auto auto -5px;*/
@@ -468,4 +468,11 @@
         z-index: 1;
     }
     .matop20{margin-top:40px !important;}
+}
+
+@media (min-width: 767px) {
+
+    .se_text_bot {
+        width: 96%;
+    }
 }

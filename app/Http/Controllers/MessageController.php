@@ -13,8 +13,9 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Session;
 
-class MessageController extends Controller {
+class MessageController extends BaseController {
 
     // handle delete message
     public function deleteBetween(Request $request) {
@@ -81,16 +82,16 @@ class MessageController extends Controller {
             return back()->withErrors(['請勿僅輸入空白！']);
         }
         $user = Auth::user();
-        // 非 VIP: 一律限 60 秒發一次。
-        // 女會員: 無論是否 VIP，一律限 60 秒發一次。
+        // 非 VIP: 一律限 8 秒發一次。
+        // 女會員: 無論是否 VIP，一律限 8 秒發一次。
         if(!$user->isVIP()){
             $m_time = Message::select('created_at')->
                 where('from_id', $user->id)->
                 orderBy('created_at', 'desc')->first();
             if(isset($m_time)) {
                 $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
-                if ($diffInSecs < 60) {
-                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每分鐘限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
+                if ($diffInSecs < 8) {
+                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
                 }
             }
         }
@@ -100,8 +101,8 @@ class MessageController extends Controller {
                 orderBy('created_at', 'desc')->first();
             if(isset($m_time)) {
                 $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
-                if ($diffInSecs < 60) {
-                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每分鐘限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
+                if ($diffInSecs < 8) {
+                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
                 }
             }
         }
@@ -116,6 +117,7 @@ class MessageController extends Controller {
 
     public function chatview(Request $request)
     {
+        return redirect(route('chat2View'));
         $user = $request->user();
         $m_time = '';
         if (isset($user)) {
@@ -214,6 +216,15 @@ class MessageController extends Controller {
         return response()->json(array(
             'status' => 1,
             'msg' => 'already exists.',
+        ), 200);
+    }
+
+    public function announceClose(Request $request)
+    {
+        $request->session()->put('announceClose', 1);
+        return response()->json(array(
+            'status' => 1,
+            'msg' => 'announce close.',
         ), 200);
     }
 

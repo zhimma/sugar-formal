@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Models\LogUserLogin;
 use DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Services\UserService;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Carbon\Carbon;
+use phpDocumentor\Reflection\Types\Mixed_;
+use Session;
 
-class RegisterController extends Controller
+class RegisterController extends \App\Http\Controllers\BaseController
 {
     /*
     |--------------------------------------------------------------------------
@@ -53,6 +57,7 @@ class RegisterController extends Controller
     {
         return view('new.adult');
     }
+
     /**
      * Get a validator for an incoming registration request.
      *
@@ -89,9 +94,10 @@ class RegisterController extends Controller
             'name'     => ['required', 'max:255', 'not_contains'],
             'title'    => ['required', 'max:255', 'not_contains'],
             'engroup'  => ['required'],
-            'email'    => 'required|email|max:255|unique:users',
+            'email'    => 'required|email|max:255|unique:users|unique:users_bak',
             'password' => 'required|min:6|confirmed',
             'agree'    => 'required',
+            'google_recaptcha_token' => ['required', 'string', new \App\Rules\GoogleRecapchaV3Case()]
         ];
         $messages = [
             'not_contains'  => '請勿使用包含「站長」或「管理員」的字眼做為暱稱！',
@@ -100,7 +106,8 @@ class RegisterController extends Controller
             'email.email'   => 'E-mail格式錯誤',
             'email.unique'  => '此 E-mail 已被註冊',
             'min:6' =>'密碼欄位需6個字元以上',
-            'password.confirmed' => '密碼確認錯誤'
+            'password.confirmed' => '密碼確認錯誤',
+            ':attribute.failed' => '您無法通過 Google reCAPTCHA 驗證，請再試一次，如依舊有問題請洽詢站長。'
         ];
         $attributes = [
             'name'      => '暱稱',
@@ -112,18 +119,73 @@ class RegisterController extends Controller
         ];
         $validator = \Validator::make($data, $rules, $messages, $attributes);
         return $validator;
-        // return Validator::make($data, [
-        //     'name' => 'required|max:255',
-        //     'email' => 'required|email|max:255|unique:users',
-        //     'password' => 'required|min:6|confirmed',
-        // ], [
-        //     'name.required' => '暱稱不可為空',
-        //     'email.required' => 'E-mail信箱不可為空',
-        //     'email.email' => 'E-mail格式錯誤',
-        //     'email.unique' => '此 E-mail 已被註冊',
-        //     'password.required' => '密碼不可為空',
-        //     'password.confirmed' => '密碼確認錯誤'
-        // ]);
+    }
+
+    /**
+     * Handle a registration request for the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function register(\Illuminate\Http\Request $request) {
+        $this->validator($request->all())->validate();
+
+        event(new \Illuminate\Auth\Events\Registered($user = $this->create($request->all())));
+
+        $this->guard()->login($user);
+
+        if($request->cfp_hash){
+            $cfp = \App\Services\UserService::checkcfp($request->cfp_hash, $user->id);
+            $logUserLogin = LogUserLogin::create([
+                    'user_id' => $user->id,
+                    'cfp_id' => $cfp->id,
+                    'userAgent' => $_SERVER['HTTP_USER_AGENT'],
+                    'ip' => $request->ip(),
+                    'created_at' =>  date('Y-m-d H:i:s')]
+            );
+        }else{
+            $logUserLogin = LogUserLogin::create([
+                    'user_id' => $user->id,
+                    'userAgent' => $_SERVER['HTTP_USER_AGENT'],
+                    'ip' => $request->ip(),
+                    'created_at' =>  date('Y-m-d H:i:s')]
+            );
+        }
+        if($user->engroup == 2) {
+            try{
+                $country = null;
+                // 先檢查 IP 是否有記錄
+                $ip_record = LogUserLogin::where('ip', $request->ip())->first();
+                if($ip_record && $ip_record->country && $ip_record->country != "??"){
+                    $country = $ip_record->country;
+                }
+                // 否則從 API 查詢
+                else{
+                    $client = new \GuzzleHttp\Client();
+                    $response = $client->get('http://ipinfo.io/' . $request->ip() . '?token=27fc624e833728');
+                    $content = json_decode($response->getBody());
+                    if(isset($content->country)){
+                        $country = $content->country;
+                    }
+                    else{
+                        $country = "??";
+                    }
+                }
+
+                if(isset($country)){
+                    $logUserLogin->country = $country;
+                    $logUserLogin->save();
+                    if($country != "TW" && $country != "??") {
+                        logger("None TW register, user id: " . $user->id);
+                    }
+                }
+            }
+            catch (\Exception $e){
+                logger($e);
+            }
+        }
+
+        return $this->registered($request, $user) ? redirect($this->redirectPath()) : redirect($this->redirectPath());
     }
 
     /**
@@ -152,7 +214,7 @@ class RegisterController extends Controller
             //新註冊不須顯示修改提示，故須先將註記資料存入
             DB::table('exchange_period_temp')->insert(['user_id'=>$user->id,'created_at'=> now()]);
 
-            return $this->service->create($user, $data['password']);
+            return $this->service->create($user, $data['password'], config('social.send-email'));
         });
     }
 }

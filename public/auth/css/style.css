@@ -43,6 +43,9 @@ a:hover{ color:#e44e71; text-decoration:none}
 
 .matop70{ margin-top:90px;}
 
+.getNum span{ position:absolute; right:44px; top:-5px; background:#F00; border-radius:100px; color:#ffffff; height:15px; width:15px; line-height:14px; font-size:8px;text-align:center}
+
+
 @media (max-width:767px) {
 .matop70{ margin-top:70px;}
 
@@ -1252,8 +1255,17 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 
 }
 
-@media (max-width:992px) {
+.new_wyz{width:400px;}
+.newtishi{font-style: normal;display: -webkit-box;-webkit-box-orient: vertical; float: right;}
+@media (max-width:1920px){
+.newtishi{width: calc(100% - 23px);}
+}
+@media (max-width:1366x){
+.newtishi{width: calc(100% - 23px);font-style: normal;display: -webkit-box;-webkit-box-orient: vertical; float: right;}
+}
 
+@media (max-width:992px) {
+.new_wyz{width:80%;}
 }
 
 @media (max-width:370px) {
@@ -1361,7 +1373,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 .yx_butco{ background:#dcdcdc; color:#ffffff}
 
 
-.yzheight{ min-height:500px;}
+.yzheight{ height: calc(100vh - 180px); min-height:500px;}
 
 @media (max-width:1024px) {
 
@@ -1369,6 +1381,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 
 @media (max-width:797px) {
 .yzheight{ min-height:820px;}
+.new_wyz{width:80%;}
 }
 
 @media (max-width:700px) {
@@ -1420,5 +1433,18 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 
 
 
+.pink{text-align: center;
+    color: #999;
+    font-size:15px; line-height: 26px;
+}
+.pink a{ color: #e44e71;}
+.pink a:hover{text-decoration: underline;}
+.pink span{display: block; text-align: center;}
 
+@media (max-width:360px){
+    .pink{font-size:14px;}
+}
+@media (max-width:320px){
+    .pink{font-size:12px;}
+}
 

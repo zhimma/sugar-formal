@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 
 	<head>
@@ -7,7 +7,7 @@
 		<meta name="format-detection" content="telephone=no" />
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-		<title>會員驗證</title>
+		<title>手機驗證</title>
 		<!-- Bootstrap -->
 		<link href="/auth/css/bootstrap.min.css" rel="stylesheet">
 		<link href="/auth/css/bootstrap-theme.min.css" rel="stylesheet">
@@ -18,6 +18,7 @@
 		<script src="/auth/js/jquery-2.1.1.min.js" type="text/javascript"></script>
 		<script src="/auth/js/bootstrap.min.js"></script>
 		<script src="/auth/js/main.js" type="text/javascript"></script>
+        @include('new.partials.unread')
 		<style>
 			
 			.upload_width{
@@ -29,7 +30,7 @@
 				right:10%;
 
 			}
-            .chbottom{ position:fixed;bottom:0;}
+            .chbottom{ position:relative;bottom:0;}
 
 		</style>
 		<style>
@@ -64,62 +65,74 @@
 		</style>
 	</head>
 	<body>
-		<div class="head_3">
-			<div class="container">
-				<div class="col-sm-12 col-xs-12 col-md-12">
-					<div class="commonMenu">
-						<div class="menuTop">
-                            <a href="{!! url('') !!}" >
-							<img src="/auth/images/icon_41.png" class="logo" />
-                            </a>
-                            <!-- <div class="ndlrfont"><a href="">註冊</a>丨<a href="">登入</a></div> -->
-						</div>
-						<!--<ul id="menuList" class="change marg30">
-                            <div class="comt"><img src="images/t.png"></div>
-                            <div class="coheight">
-							<div class="heyctop">測試系統賬號</div>
-							<div class="helist">
-								<ul>
-									<li><a href=""><img src="images/icon_38.png">搜索</a></li>
-									<li><a href=""><img src="images/icon_45.png">訊息</a><span>10</span></li>
-									<li><a href=""><img src="images/icon_46.png">名單</a></li>
-									<li><a href=""><img src="images/icon_48.png">我的</a></li>
-								</ul>
-							</div>
-							<a href="" class="tcbut">LOGOUT</a>
-                            </div>
-						</ul>-->
-					</div>
-				</div>
-			</div>
-		</div>
-
+    @include('new.layouts.navigation')
 		<!---->
 		<div class="container matop120 yzheight">
 			<div class="row">
-				<div class="col-sm-12 col-xs-12 col-md-12">
-					    <div class="dengl matbot140">
-                                   <div class="zhuce"><h2>會員驗證</h2>
-                                       <h3 style="line-height:1.2;">請用您的智慧型手機<br>進行本人的身份驗證</h3>
-                                   </div>
-                                   <div class="de_input">
-                                         <div class="yanzheng_1">驗證1</div>
-                                       @if($user->isPhoneAuth())
-                                           <div>已完成驗證</div>
-                                           @else
-                                         <div class="zybg_new_bg">
-                                               <div class="zybg_new">
-                                                   <select name="" class="zy_select"><option>台灣</option><option>大陸</option></select>
-                                                   <input name="" type="text" id="mobile" class="xy_input" placeholder="手機號碼">
-                                               </div>
-                                               <a id="get_auth_code" class="zybg_right" style="cursor:pointer">獲取驗證碼</a>
-                                         </div>
-                                         <div class="zybg_new02">
-                                               <input name="" type="text" id="checkcode" class="xy_input xy_left" placeholder="請輸入驗證碼">
-                                               <a id="auth_phone1" class="xy_yanx"><div style="text-align:center">驗證</div></a>
-                                         </div>
-                                           @endif
+                <div class="col-sm-2 col-xs-2 col-md-2 dinone" style="margin-top: 40px !important;">
+                    @include('new.dashboard.panel')
+                </div>
+				<div class="col-sm-12 col-xs-12 col-md-10">
+                    <div class="dengl matbot140">
+                        <div class="zhuce"><h2>手機驗證</h2>
+{{--                           <h3 style="line-height:1.2;">請用您的智慧型手機<br>進行本人的身份驗證</h3>--}}
+                        </div>
+                            <div class="de_input">
+{{--                                 <div class="yanzheng_1">驗證1</div>--}}
+{{--                               @php--}}
+{{--                                   $data = \App\Models\SimpleTables\warned_users::where('member_id', $user->id)->where(function ($query){--}}
+{{--                                        $query->whereNull('expire_date')->orWhere('expire_date', '>=', \Carbon\Carbon::now());--}}
+{{--}                                   )->first();--}}
+{{--                                    if ($data) {--}}
+{{--                                        $isAdminWarned = 1;--}}
+{{--                                    } else {--}}
+{{--                                        $isAdminWarned = 0;--}}
+{{--                                    }--}}
+{{--                               @endphp--}}
+                                @if($user->isPhoneAuth() /*or $isAdminWarned*/)
+                                    <div>已完成驗證，<a href="{!! url('dashboard') !!}" class="red">按此開始使用網站</a></div>
+                                @else
+                                    <div class="zybg_new_bg">
+                                        <div class="zybg_new">
+                                            <select name="" class="zy_select"><option>台灣</option><option>大陸</option></select>
+                                            <input name="" type="text" id="mobile" class="xy_input" placeholder="手機號碼">
+                                       </div>
+                                       <a id="get_auth_code" class="zybg_right" style="cursor:pointer">獲取驗證碼</a>
+                                    </div>
+                                    <div class="zybg_new02">
+                                        <input name="" type="text" id="checkcode" class="xy_input xy_left" placeholder="請輸入驗證碼">
+                                        <a id="auth_phone1" class="xy_yanx"><div style="text-align:center">驗證</div></a>
+                                    </div>
+                                    @if($user->engroup == 1)
+                                        <div class="de_input pink">
+                                            <span>如果不願意採用手機認證，可以選擇透過信用卡付費 30 元認證，此費用單純做為本站註冊認證使用，並非 VIP 帳號付費，所享有權利與手機驗證相同。不同意請勿採用此方式認證，</span>
+                                            <a href="#" onclick="beforeSwipeCardAlert()">請按我，進行信用卡付費。</a>
+                                            <form id="mobile_verify_paymentForm" class="m-form m-form--fit" action="{{ route('mobileAutoVerify_ec') }}" method=post style="display: none;">
+                                                <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+                                                <input type="hidden" name="userId" value="{{$user->id}}">
+                                                <button type="submit" class="new_gvip_input paySubmit" style="border-style: none; outline: none;">請按我，進行信用卡付費。</button>
+                                            </form>
                                         </div>
+                                    @endif
+                                @endif
+                            </div>
+                        <div class="vipbongn new_wyz">
+                                <h2>驗證說明</h2>
+                                @if($user->engroup == 1)
+                                <h3><span class="left">●</span><var class="newtishi">手機驗證後，能加強帳號及身份的真實性。</var></h3>
+                                <h3><span class="left">●</span><var class="newtishi">手機驗證能夠解除警示紀錄，假若無法解除，請點右下方站長line@詢問。</var></h3>
+                                <h3><span class="left">●</span><var class="newtishi">您所提供的手機門號不會用在本站手機驗證以外的用途。</var></h3>
+                                <h3><span class="left">●</span><var class="newtishi">您所提供的資料於驗證完成後會嚴加保管，方便您日後快速地重新驗證。</var></h3>
+                                <h3><span class="left">●</span><var class="newtishi">請放心，驗證過程所有資料，僅用於驗證，驗證完成後刪除。</var></h3>
+                                @else
+                                <h3><span class="left">●</span><var class="newtishi">手機驗證後，能加強帳號及身份的真實性。</var></h3>
+                                <h3><span class="left">●</span><var class="newtishi">手機驗證能夠解除警示紀錄，假若無法解除，請點右下方站長line@詢問。</var></h3>
+                                <h3><span class="left">●</span><var class="newtishi">根據本站統計，daddy們對於有通過手機驗證的baby，會更主動聯絡。</var></h3>
+                                <h3><span class="left">●</span><var class="newtishi">您所提供的手機門號不會用在本站手機驗證以外的用途。</var></h3>
+                                <h3><span class="left">●</span><var class="newtishi">您所提供的資料於驗證完成後會嚴加保管，方便您日後快速地重新驗證。</var></h3>
+                                <h3><span class="left">●</span><var class="newtishi">請放心，驗證過程所有資料，僅用於驗證，驗證完成後刪除。</var></h3>
+                                @endif
+                              </div>
                                       
 {{--                                      <div class="zy_line"></div>--}}
 {{--									  <form id="auth_all" enctype="multipart/form-data">--}}
@@ -167,7 +180,7 @@
 
 
 
-        <div class="blbg" onclick="gmBtn1()" style="display: none;"></div>
+<div class="blbg" onclick="gmBtn1()" style="display: none;"></div>
 {{--		<div class="blbg tab_phone" onclick="gmBtn1()" style="display: none;"></div>--}}
 <div class="bl bl_tab " id="tab01" style="display: none;">
     <div class="bltitle"><span>提示</span></div>
@@ -182,6 +195,24 @@
     <a id="" onclick="gmBtn1()" class="bl_gb"><img src="/auth/images/gb_icon.png"></a>
 </div>
 
+<div class="blbg" onclick="gmBtn1()" ></div>
+<div class="bl bl_tab " id="beforeSwipeCard" >
+    <div class="bltitle"><span>提示</span></div>
+    <div class="n_blnr01 matop10">
+        <div class="n_fengs" >
+            <p>● 您選擇的是一次性支付。金額是30 元。</p>
+            <p>● 您申請 完成繳費後，經確認繳費程序完成，則將通過本站身分認證，開啟本站相關服務設定，即視同您已經開始使用所購買之本站服務。</p>
+            <p>● 刷卡後將不予退費。</p>
+            <p>如同意以上所有條款請點確認，不同意點取消</p>
+        </div>
+
+        <div class="n_bbutton">
+            <span><a class="n_left" onclick="sendSwipeCardSummit()">確定</a></span>
+            <span><a class="n_right" onclick="gmBtn1()">取消</a></span>
+        </div>
+    </div>
+    <a  onclick="gmBtn1()" class="bl_gb"><img src="/auth/images/gb_icon.png"></a>
+</div>
 
 
 
@@ -203,7 +234,7 @@
     <div class="bltitle_a"><span>提示</span></div>
     <div class="n_blnr02 matop10">
          <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
-         <div class="n_fengs" style="text-align:center;width:100%;">請輸入手機號碼及獲取驗證碼取得驗證碼</div>
+         <div class="n_fengs" style="text-align:center;width:100%;">請輸入手機號碼以獲取驗證碼</div>
     </div>
     <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
 </div>
@@ -288,6 +319,15 @@
     <div class="n_blnr02 matop10">
          <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
          <div class="n_fengs tab_has_send_error_msg" style="text-align:center;width:100%;"></div>
+    </div>
+    <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
+</div>
+
+<div class="bl bl_tab bl_tab_male_alert" id="tab04" style="display: none;">
+    <div class="bltitle_a"><span>提示</span></div>
+    <div class="n_blnr02 matop10">
+        <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
+        <div class="n_fengs" style="text-align:center;width:100%;">請先完成手機驗證，加強身分真實性；或請直接<a href="{!! url('dashboard/vipSelect') !!}" class="red">點此升級 VIP</a>，開始使用網站喔！</div>
     </div>
     <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
 </div>
@@ -497,9 +537,25 @@
                 location.reload();
             });
             $(document).ready(function(){
-                $(".bot").addClass('chbottom');
+                // $(".bot").addClass('chbottom');
             });
 
+
+            @if(Session::has('message'))
+                @if(Session::get('message')=='male_alert')
+                    $(".blbg").show();
+                    $(".bl_tab_male_alert").css('display','block');
+                @endif
+            <?php session()->forget('message');?>
+            @endif
+
+            function beforeSwipeCardAlert() {
+                $(".blbg").show();
+                $("#beforeSwipeCard").show();
+            }
+            function sendSwipeCardSummit() {
+                $("#mobile_verify_paymentForm").submit();
+            }
         </script>
 
 	</body>

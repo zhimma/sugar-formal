@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\LogUserLogin;
 use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\Message;
@@ -61,29 +62,43 @@ class SetAutoBan extends Model
                         $violation = true;
                     }
                     break;
+                case 'cfp_id':
+                    if(LogUserLogin::where('user_id',$uid)->where('cfp_id', $content)->first() != null) $violation = true;
+                    break;
+                case 'ip':
+                    $ip = LogUserLogin::where('user_id',$uid)->orderBy('created_at','desc')->first();
+                    if($ip->ip == $content) $violation = true;
+                    break;
+                case 'userAgent':
+                    if(LogUserLogin::where('user_id',$uid)->where('userAgent', 'like','%'.$content.'%')->first() != null) $violation = true;
+                    break;
                 default:
                     break;
             }
 
             if($violation){
                 Log::info('ban_set type='.$ban_set->set_ban.' id='.$ban_set->id);
-                if($ban_set->set_ban==1){
+                if($ban_set->set_ban == 1 && banned_users::where('member_id', $uid)->first() == null){
                     //直接封鎖
                     $userBanned = new banned_users;
                     $userBanned->member_id = $uid;
                     $userBanned->reason = "系統原因($ban_set->id)";
                     $userBanned->save();
-                }elseif($ban_set->set_ban==2){
-                    //隱性封鎖 新增測試
-                    if(BannedUsersImplicitly::where('target', $uid)->first() == null){
-                        BannedUsersImplicitly::insert(['fp' => 'BannedInUserInfo','user_id' => 0,'target' => $uid]);
-                    }
-                }elseif($ban_set->set_ban==3){
+                    //寫入log
+                    DB::table('is_banned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
+                }
+                elseif($ban_set->set_ban == 2 && BannedUsersImplicitly::where('target', $uid)->first() == null){
+                    //隱性封鎖
+                    BannedUsersImplicitly::insert(['fp' => 'Line 79, BannedInUserInfo, ban_set ID: ' . $ban_set->id . ', content: ' . $content, 'user_id' => 0, 'target' => $uid]);
+                }
+                elseif($ban_set->set_ban == 3 && warned_users::where('member_id', $uid)->first() == null){
                     //警示會員
                     $userWarned = new warned_users;
                     $userWarned->member_id = $uid;
                     $userWarned->reason = "系統原因($ban_set->id)";
                     $userWarned->save();
+                    //寫入log
+                    DB::table('is_warned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
                     // UserMeta::where('user_id', $uid)->update(['isWarned' => 1]);
                 }
                 return;
@@ -110,24 +125,27 @@ class SetAutoBan extends Model
                 $violation = true;
             }
             if ($violation) {
-                if ($ban_set->set_ban == 1) {
+                if($ban_set->set_ban == 1 && banned_users::where('member_id', $uid)->first() == null) {
                     //直接封鎖
                     $userBanned = new banned_users;
                     $userBanned->member_id = $uid;
                     $userBanned->reason = "系統原因($ban_set->id)";
                     $userBanned->save();
-                } elseif ($ban_set->set_ban == 2) {
-                    //隱性封鎖 新增測試
-                    $idch = BannedUsersImplicitly::where('target', $uid)->first();
-                    if (empty($idch)) {
-                        BannedUsersImplicitly::insert(['fp' => 'BannedInUserInfo', 'user_id' => 0, 'target' => $uid]);
-                    }
-                } elseif ($ban_set->set_ban == 3) {
+                    //寫入log
+                    DB::table('is_banned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
+                }
+                elseif($ban_set->set_ban == 2 && BannedUsersImplicitly::where('target', $uid)->first() == null) {
+                    //隱性封鎖
+                    BannedUsersImplicitly::insert(['fp' => 'Line 124, BannedInUserInfo, ban_set ID: ' . $ban_set->id . ', content: ' . $ban_set->content, 'user_id' => 0, 'target' => $uid]);
+                }
+                elseif($ban_set->set_ban == 3 && warned_users::where('member_id', $uid)->first() == null) {
                     //警示會員
                     $userWarned = new warned_users;
                     $userWarned->member_id = $uid;
                     $userWarned->reason = "系統原因($ban_set->id)";
                     $userWarned->save();
+                    //寫入log
+                    DB::table('is_warned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
                     // UserMeta::where('user_id', $uid)->update(['isWarned' => 1]);
                 }
                 return;
@@ -147,7 +165,11 @@ class SetAutoBan extends Model
         catch (\Exception $e){
 
         }
-        $auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content')->where('set_ban', '3')->orderBy('id', 'desc')->get();
+        if(!$user || !$uid) {
+            logger('SetAutoBan logout_warned() user not set, referer: ' . \Request::server('HTTP_REFERER'));
+            return;
+        }
+        $auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content')->orderBy('id', 'desc')->get();
         foreach ($auto_ban as $ban_set) {
             $content = $ban_set->content;
             $violation = false;
@@ -180,19 +202,41 @@ class SetAutoBan extends Model
                         $violation = true;
                     }
                     break;
+                case 'cfp_id':
+                    if(LogUserLogin::where('user_id',$uid)->where('cfp_id', $content)->first() != null) $violation = true;
+                    break;
+                case 'ip':
+                    $ip = LogUserLogin::where('user_id',$uid)->orderBy('created_at','desc')->first();
+                    if($ip->ip == $content) $violation = true;
+                    break;
+                case 'userAgent':
+                    if(LogUserLogin::where('user_id',$uid)->where('userAgent', 'like','%'.$content.'%')->first() != null) $violation = true;
+                    break;
                 default:
                     break;
             }
 
             if ($violation) {
                 // Log::info('ban_set->set_ban ' . $ban_set->set_ban);
-                //警示會員
-                $userWarned = new warned_users;
-                $userWarned->member_id = $uid;
-                $userWarned->reason = "系統原因($ban_set->id)";
-                $userWarned->save();
-                // UserMeta::where('user_id', $uid)->update(['isWarned' => 1]);
-                return;
+                if($ban_set->set_ban == 1 && banned_users::where('member_id', $uid)->first() == null && ($ban_set->type=='cfp_id'||$ban_set->type=='ip'||$ban_set->type=='userAgent')) {
+                    //直接封鎖
+                    $userBanned = new banned_users;
+                    $userBanned->member_id = $uid;
+                    $userBanned->reason = "系統原因($ban_set->id)";
+                    $userBanned->save();
+                    //寫入log
+                    DB::table('is_banned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
+                }elseif($ban_set->set_ban == 3) {
+                    //警示會員
+                    $userWarned = new warned_users;
+                    $userWarned->member_id = $uid;
+                    $userWarned->reason = "系統原因($ban_set->id)";
+                    $userWarned->save();
+                    //寫入log
+                    DB::table('is_warned_log')->insert(['user_id' => $uid, 'reason' => "系統原因($ban_set->id)"]);
+                    // UserMeta::where('user_id', $uid)->update(['isWarned' => 1]);
+                    return;
+                }
             }
         }
     }

@@ -34,6 +34,17 @@
             width: 154px !important;
         }
     }
+    /* 2-24 */
+    .two_container{width: 100%; border: #fe92a9 dashed 1px; padding: 10px; background: #fff; box-shadow: #ffdfe6 0 0 10px;}
+    .two_container h2{ background: #fff4f6; padding:5px; color: #db5b7a; font-weight: bold; font-size: 18px;}
+    .two_container ul{width: 100%; padding: 8px 0; border-bottom: #eee 1px solid;}
+    .two_container ul li{color: #333; line-height: 30px; font-size: 15px;}
+    .two_container ul li span{ color: #999; padding-right: 5px;line-height: 30px;font-size:18px; vertical-align: middle;}
+
+    .two_container h3{width: 100%; display: table; font-size: 15px; color: #666; margin-top: 10px;}
+    .two_container h4{width: 100%; display: table; font-size: 15px; color: #333; margin-top:5px; font-weight: bold;}
+    .two_container h4 span{ margin-right:35px;}
+    .two_container h4 span input{ margin-right: 3px;}
 
 </style>
 
@@ -45,10 +56,11 @@
         <div class="col-sm-12 col-xs-12 col-md-10">
             <div class="g_password">
                 <div class="g_pwicon">
+                    <li><a href="/dashboard/viewuser/{{$user->id}}" class="g_pwicon_t5 "><span>自我預覽</span></a></li>
                     <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t "><span>基本資料</span></a></li>
                     <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2 g_hicon2"><span>照片管理</span></a></li>
-                    <li><a href="{!! url('/dashboard/account_manage') !!}" class="g_pwicon_t3"><span>更改帳號</span></a></li>
-                    <li><a href="{!! url('/dashboard/vip') !!}" class="g_pwicon_t4"><span>VIP</span></a></li>
+                    <li><a href="{!! url('/dashboard/account_manage') !!}" class="g_pwicon_t3"><span>帳號設定</span></a></li>
+{{--                    <li><a href="{!! url('/dashboard/new_vip') !!}" class="g_pwicon_t4"><span>升級付費</span></a></li>--}}
                 </div>
                 <div class="addpic g_inputt">
                     <!--div class="n_adbut">
@@ -70,7 +82,7 @@
                                 @php
                                     $avatar = isset($avatar->pic) ? $avatar->pic . '?' . \Carbon\Carbon::now() : NULL;
                                 @endphp
-                                <b class="img" style="background:url(' {{ $avatar or '/new/images/ph_12.png' }} '); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
+                                <b class="img" style="background:url(' {{ $avatar ?? '/new/images/ph_12.png' }} '); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
                             </li>
                         @endif
                         @if ($member_pics)
@@ -82,7 +94,7 @@
                                     @php
                                         $pic = isset($member_pics[$i]->pic) ? $member_pics[$i]->pic . '?' . \Carbon\Carbon::now() : NULL;
                                     @endphp
-                                    <b class="img" style="background:url(' {{ $pic  or '/new/images/ph_12.png' }} '); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
+                                    <b class="img" style="background:url(' {{ $pic ?? '/new/images/ph_12.png' }} '); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
                                 </li>
                             @endfor
                         @endif
@@ -100,7 +112,7 @@
                                 // 添加日期參數, 讓圖片不使用快取機制
                                 $avatar = isset($avatar->pic) ? $avatar->pic . '?' . \Carbon\Carbon::now() : null;
                             @endphp
-                            <b class="img" style="background:url('{{ $avatar or $defaultAvatar}}'); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;">
+                            <b class="img" style="background:url('{{ $avatar ?? $defaultAvatar}}'); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;">
                                 
                             </b>
                         </li>
@@ -119,7 +131,7 @@
                                 <div class="n_ulhh">
                                     <img src="/new/images/ph_05.png">
                                 </div>
-                                <b class="img" style="background:url('{{ $pic or $default }}'); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
+                                <b class="img" style="background:url('{{ $pic ?? $default }}'); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
                             </li>
                         @endfor
                     @endif
@@ -127,7 +139,36 @@
                     <h2 class="h5" id="fileuploader-ajax">上傳照片 (點擊圖片可以裁切)<a href="javascript:;"  onclick="tour(fileuploader_ajax_tour)"><i class="ion ion-md-help-circle"></i></a></h2>
                     <h4>如未更新上傳後照片, 請嘗試重新整理<br>
                     如照片無法順利上傳，請點擊頁面最下方聯絡我們加站長 line 洽詢。</h4>
-
+                    @if($user->engroup==2)
+                    <div class="two_container">
+                        @php
+                            $blurryAvatar = isset($blurry_avatar)? $blurry_avatar : '';
+                            $blurryAvatar = explode(',', $blurryAvatar);
+                            $isVVIP = true;$isVIP = true;$isGeneral = true;
+                            foreach($blurryAvatar as $row){
+                                if($row == 'V_VIP'){
+                                    $isVVIP = false;
+                                } elseif($row == 'VIP') {
+                                    $isVIP = false;
+                                } elseif($row == 'general') {
+                                    $isGeneral = false;
+                                }
+                            }
+                        @endphp
+                         <h2>為保護會員隱私，網站可以設定照片自動模糊化</h2>
+                          <ul>
+                              <li><span>◎</span>預設為只給 VIP 看清楚的照片</li>
+                              <li><span>◎</span>如果你想要開放給所有人看照片</li>
+                              <li><span>◎</span>請自行勾選下方的 "普通會員"</li>
+                          </ul>
+                          <h3>清晰照片開放給</h3>
+                          <h4>
+                              <span><input name="picBlurryAvatar" type="checkbox" value="VIP" @if($isVIP) checked @endif>VIP</span>
+                              <span><input name="picBlurryAvatar" type="checkbox" value="general" @if($isGeneral) checked @endif>普通會員</span>
+                          </h4>
+                    </div>
+                    @endif
+                    
                     <div class="row mb-4 ">
                         <div class="col-sm-12 col-lg-12">
                             <form action="{{ url('/dashboard/avatar/upload') }}" method="post" enctype="multipart/form-data">
@@ -138,6 +179,36 @@
                             </form>
                         </div>
                     </div>
+
+                    @if($user->engroup==2)
+                    <div class="two_container" style="margin-top: 3%;">
+                        @php
+                            $blurryLifePhoto = isset($blurry_life_photo)? $blurry_life_photo : '';
+                            $blurryLifePhoto = explode(',', $blurryLifePhoto);
+                            $isVVIP = true;$isVIP = true;$isGeneral = true;
+                            foreach($blurryLifePhoto as $row){
+                                if($row == 'V_VIP'){
+                                    $isVVIP = false;
+                                } elseif($row == 'VIP') {
+                                    $isVIP = false;
+                                } elseif($row == 'general') {
+                                    $isGeneral = false;
+                                }
+                            }
+                        @endphp
+                         <h2>為保護會員隱私，網站可以設定照片自動模糊化</h2>
+                          <ul>
+                              <li><span>◎</span>預設為只給 VIP 看清楚的照片</li>
+                              <li><span>◎</span>如果你想要開放給所有人看照片</li>
+                              <li><span>◎</span>請自行勾選下方的 "普通會員"</li>
+                          </ul>
+                          <h3>清晰照片開放給</h3>
+                          <h4>
+                              <span><input name="picBlurryLifePhoto" type="checkbox" value="VIP" @if($isVIP) checked @endif>VIP</span>
+                              <span><input name="picBlurryLifePhoto" type="checkbox" value="general" @if($isGeneral) checked @endif>普通會員</span>
+                          </h4>
+                    </div>
+                    @endif
 
                     <div class="row mb-4 ">
                         <div class="col-sm-12 col-lg-12">
@@ -188,12 +259,21 @@
     }
     $(document).ready(function(){
         @if(Session::has('message'))
-            c3("{{ Session::get('message') }}");
+            @if(Session::get('message')=='上傳成功' && $user->existHeaderImage() && $user->engroup==2 && !$user->isVip())//防呆
+                @php
+                    $vip_record = \Carbon\Carbon::parse($user->vip_record);
+                @endphp
+                @if($vip_record->diffInSeconds(\Carbon\Carbon::now()) <= 86400)
+                    c5('照片上傳成功，24H後升級為VIP會員');
+                @endif
+            @else
+                c5("{{ Session::get('message') }}");
+            @endif
         @endif
 
         //errors
         @foreach ($errors->all() as $error)
-            c3('{{$error}}');
+            c5('{{$error}}');
         @endforeach
 
         let userId = $("input[name='userId']").val()
@@ -228,7 +308,7 @@
                                 //c2("刪除成功")
                                 $(".announce_bg").hide();
                                 $("#tab02").hide();
-                                c3(data);
+                                show_pop_message(data);
                                 // if(data.length>4){
                                 //     c2(data);
                                 // }else {
@@ -237,7 +317,7 @@
                                 isRemovable = true
                             },
                             error: function(xhr, status, msg){
-                                c2("刪除失敗")
+                                c5("刪除失敗")
                                 isRemovable = false
                             }
                         })
@@ -260,7 +340,7 @@
 
                     // confirm dialog
                     confirm: function(text, callback) {
-                        c2(text) ? callback() : null;
+                        c5(text) ? callback() : null;
                     }
                 }
             })
@@ -299,7 +379,7 @@
                             success: function(data){
                                 $(".announce_bg").hide();
                                 $("#tab02").hide();
-                                c3(data);
+                                show_pop_message(data);
                                 // if(data.length>4){
                                 //     c1(data);
                                 // }else {
@@ -309,7 +389,7 @@
 
                             },
                             error: function(xhr, status, msg){
-                                c2("刪除失敗")
+                                c5("刪除失敗")
                                 isRemovable = false
                             }
                         })
@@ -332,7 +412,7 @@
 
                     // confirm dialog
                     confirm: function(text, callback) {
-                        c2(text) ? callback() : null;
+                        c5(text) ? callback() : null;
                     }
                 }
             })
@@ -343,6 +423,50 @@
             console.log(msg)
         }
     })
+
+    $("input:checkbox[name='picBlurryAvatar']").on('click', function() {
+        var values = "";
+        $.each($("input[name='picBlurryAvatar']"), function() {
+            if(!$(this).is(':checked')){
+                values = values + $(this).val() +',';
+            }
+        });
+        $.ajax({
+            url: '/dashboard/avatar/blurry/' + userId,
+            method: 'POST',
+            data: {
+                _token: "{{ csrf_token() }}",
+                'blurrys': values
+            },
+            dataType: 'json',
+
+            success: function(data) {
+            }
+        });
+    });
+
+    $("input:checkbox[name='picBlurryLifePhoto']").on('click', function() {
+        var values = "";
+        $.each($("input[name='picBlurryLifePhoto']"), function() {
+            if(!$(this).is(':checked')){
+                values = values + $(this).val() +',';
+            }
+        });
+        $.ajax({
+            url: '/dashboard/lifephoto/blurry/' + userId,
+            method: 'POST',
+            data: {
+                _token: "{{ csrf_token() }}",
+                'blurrys': values
+            },
+            dataType: 'json',
+
+            success: function(data) {
+            }
+        });
+    });
+    //preload avatar
+
 })
 
     var fileuploader_ajax_tour = {

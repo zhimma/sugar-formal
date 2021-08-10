@@ -1,12 +1,17 @@
+<?
+header("Cache-Control: no-cache, no-store, must-revalidate, post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
+?>
 @extends('new.layouts.website')
-
 @section('app-content')
 
   <?php
     if (!isset($user)) {
         $umeta = null;
     } else {
-        $umeta = $user->meta_();
+        $umeta = $user->meta;
         $umeta_block = [];
         // dd($umeta);
         if(isset($umeta->city)){
@@ -19,7 +24,7 @@
           $umeta->blockarea = explode(",",$umeta->blockarea);
       }
     }
-    
+
   ?>
   <style type="text/css">
     .abtn{cursor: pointer;}
@@ -41,21 +46,52 @@
       <div class="col-sm-12 col-xs-12 col-md-10">
         <div class="g_password">
           <div class="g_pwicon">
+              <li><a href="/dashboard/viewuser/{{$user->id}}" class="g_pwicon_t5 "><span>自我預覽</span></a></li>
               <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t g_hicon1"><span>基本資料</span></a></li>
               <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2"><span>照片管理</span></a></li>
-              <li><a href="{!! url('/dashboard/account_manage') !!}" class="g_pwicon_t3"><span>更改帳號</span></a></li>
-              <li><a href="{!! url('/dashboard/vip') !!}" class="g_pwicon_t4"><span>VIP</span></a></li>
+              <li><a href="{!! url('dashboard/account_manage') !!}" class="g_pwicon_t3"><span>帳號設定</span></a></li>
+{{--              <li><a href="{!! url('dashboard/vipSelect') !!}" class="g_pwicon_t4"><span>升級付費</span></a></li>--}}
           </div>
           <div class="addpic g_inputt">
 
-            <div class="n_adbut">
-                <a href="/dashboard/viewuser/{{$user->id}}"><img src="/new/images/1_06.png">預覽</a></div>
-               <div class="n_adbut"><a href="/member_auth/" style="padding-left: 10px;">手機驗證</a></div>
+{{--              <div class="n_adbut"><a href="/dashboard/viewuser/{{$user->id}}"><img src="/new/images/1_06.png">預覽</a></div>--}}
+{{--              <div class="n_adbut"><a href="/member_auth/" style="padding-left: 10px;">手機驗證</a></div>--}}
+              @if($user->engroup==1)
+              <div style="float:right; padding-right: 5px;">
+                  <div class="vvipjdt_aa" onclick="pr()" style="cursor: pointer;">
+{{--                      @if($pr != false && $pr >= 1)--}}
+{{--                          @php--}}
+{{--                          if($pr==1){$pr = 0;}--}}
+{{--                          @endphp--}}
+                          <div class="progress progress-striped vvipjdt_pre" title="大方指數">
+                              <div class="progress-bar progress_info" role="progressbar" aria-valuenow="{{$pr}}" aria-valuemin="0" aria-valuemax="100"
+                                   style="width:{{$pr}}%;">
+                                  <span class="prfont pr_text">PR: {{$pr}}</span>
+                              </div>
+                          </div>
+{{--                      @elseif($pr == false)--}}
+{{--                          <div class="progress progress-striped vvipjdt_pre" title="大方指數">--}}
+{{--                              <div class="progress-bar progress_info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"--}}
+{{--                                   style="width:0%;">--}}
+{{--                                  <span class="prfont pr_text">PR: 無</span>--}}
+{{--                              </div>--}}
+{{--                          </div>--}}
+{{--                      @endif--}}
+                  </div>
+                  <img src="/new/images/tx_new.png" style="position: absolute; width:40px; margin-top:-44px; margin-left:-25px;">
+              </div>
+              @endif
             <div class="xiliao_input">
                <form class="m-form m-form--fit m-form--label-align-right" method="POST" name="user_data" action="" id="information" data-parsley-validate novalidate>
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="userId" value="{{$user->id}}">
                 <div class="n_input">
+                    <dt>
+                        <span>LINE 通知</span>
+                        <span>
+                            <div class="select_xx03">@if($user->line_notify_token == null) 尚未綁定<a class="btn btn-success line_notify">立即綁定</a> @else 已綁定 <a class="btn btn-secondary line_notify_cancel">取消綁定</a>&nbsp;<a href="{{route('viewChatNotice')}}">請點我設定</a>@endif</div>
+                        </span>
+                    </dt>
                   <dt>
                     <span>暱稱<i>(必填)</i></span>
                     <span>
@@ -66,7 +102,7 @@
                   </dt>
                   <dt>
                     <span>一句話形容自己<i>(必填)</i></span>
-                    <span><input name="title" type="text" class="select_xx01"  placeholder="請輸入" value="{{$user->title}}" required data-parsley-errors-messages-disabled></span>
+                    <span><input name="title" type="text" class="select_xx01"  placeholder="請輸入" value="{{$user->title}}" data-parsley-errors-messages-disabled></span>
                   </dt>
 
                   <dt>
@@ -154,12 +190,21 @@
                           @foreach($umeta->blockcity as $key => $cityval)
                               <div class="twzipcode">
                                 <div class="twzip " data-role="county"
-                                    data-name="blockcity"
+                                    data-name="blockcity{{$key == 0 ? '' : $key}}"
                                     data-value="{{$umeta->blockcity[$key]}}">
                                 </div>
                                 <div class="twzip right" data-role="district"
-                                    data-name="blockarea"
+                                    data-name="blockarea{{$key == 0 ? '' : $key}}"
                                     data-value="{{$umeta->blockarea[$key]}}">
+                                    <?php
+                                        if ($key ==0)
+                                            $blockarea_selected = $umeta->blockarea[0];
+                                        else if ($key ==1){
+                                            $blockarea1_selected = $umeta->blockarea[1];
+                                        }else if ($key ==2){
+                                            $blockarea2_selected = $umeta->blockarea[2];
+                                        }
+                                    ?>
                                 </div>
                               </div>
                           @endforeach
@@ -190,7 +235,7 @@
                   <dt class="">
                       <span>預算<i>(必填)</i></span>
                       <span>
-                        <select required data-parsley-errors-messages-disabled name="budget"  class="select_xx01">
+                        <select data-parsley-errors-messages-disabled name="budget"  class="select_xx01">
                           <option value="">請選擇</option>
                           <option value="基礎" {{($umeta->budget == '基礎')?"selected":""  }}>基礎</option>
                           <option value="進階"
@@ -211,12 +256,12 @@
                       <span>
                         <input type="hidden" name="day" value="01">
                         <div class="se_zlman left">
-                          <select required data-parsley-errors-messages-disabled name="year"  class="select_xx04 sel_year" data-value="{{ $year }}">
+                          <select data-parsley-errors-messages-disabled name="year"  class="select_xx04 sel_year" data-value="{{ $year }}">
                           </select>
                           <i class="right">年</i>
                         </div>
                         <div class="se_zlman right">
-                          <select required data-parsley-errors-messages-disabled name="month"  class="select_xx04 sel_month" data-value="{{ $month }}">
+                          <select data-parsley-errors-messages-disabled name="month"  class="select_xx04 sel_month" data-value="{{ $month }}">
                           </select>
                           <i class="right">月</i>
                         </div>
@@ -224,7 +269,7 @@
                   </dt>
                   <dt>
                       <span>身高（cm）<i>(必填)</i></span>
-                      <span><input minlength="3" data-parsley-minlength="3" name="height" id="height" type="number" class="select_xx01"  placeholder="請輸入數字範圍140～210" value="{{$umeta->height}}" title="請輸入140~210範圍"></span>
+                      <span><input name="height" id="height" type="number" class="select_xx01"  placeholder="請輸入數字範圍140～210" value="{{$umeta->height}}" title="請輸入140~210範圍"></span>
                   </dt>
                   @if($user->engroup==2)
 {{--                  <dt>--}}
@@ -240,7 +285,7 @@
                       <span>CUP</span>
                       <span>
                         <select name="cup"  class="select_xx01" >
-                          <option value="">請選擇</option>
+                          <option value=null>請選擇</option>
                           <option value="A"
                                   @if($umeta->cup == 'A') selected @endif>A
                           </option>
@@ -291,17 +336,17 @@
                   </dt>
                   <dt>
                       <span>關於我<i>(必填)</i></span>
-                      <span><textarea minlength="4"  data-parsley-minlength="4" required data-parsley-errors-messages-disabled name="about" cols="" rows="3" class="select_xx05">{{$umeta->about}}</textarea></span>
+                      <span><textarea data-parsley-errors-messages-disabled name="about" cols="" rows="3" class="select_xx05">{{$umeta->about}}</textarea></span>
                   </dt>
                   <dt class="matopj15">
                       <span>期待的約會模式<i>(必填)</i></span>
-                      <span><textarea minlength="4"  data-parsley-minlength="4" required data-parsley-errors-messages-disabled name="style" cols="" rows="3" class="select_xx05">{{$umeta->style}}</textarea></span>
+                      <span><textarea data-parsley-errors-messages-disabled name="style" cols="" rows="3" class="select_xx05">{{$umeta->style}}</textarea></span>
                   </dt>
                   @if($user->engroup==2)
                   <dt class="matopj15">
                       <span>現況<i>(必填)</i></span>
                       <span>
-                        <select required data-parsley-errors-messages-disabled name="situation"  class="select_xx01">
+                        <select data-parsley-errors-messages-disabled name="situation"  class="select_xx01">
                           <option value="">請選擇</option>
                           <option value="學生"
                                   @if($umeta->situation == '學生') selected @endif>
@@ -489,7 +534,7 @@
                   <dt>
                       <span>教育<i>(必填)</i></span>
                       <span>
-                        <select required data-parsley-errors-messages-disabled name="education"  class="select_xx01">
+                        <select data-parsley-errors-messages-disabled name="education"  class="select_xx01">
                           <option value="">請選擇</option>
                           <option value="國中"
                                   @if($umeta->education == '國中') selected @endif>
@@ -513,7 +558,7 @@
                   <dt>
                       <span>婚姻<i>(必填)</i></span>
                       <span>
-                        <select required data-parsley-errors-messages-disabled name="marriage"  class="select_xx01">
+                        <select data-parsley-errors-messages-disabled name="marriage"  class="select_xx01">
                           <option value="">請選擇</option>
                           <option value="已婚"
                                   @if($umeta->marriage == '已婚') selected @endif>已婚
@@ -541,7 +586,7 @@
                   <dt>
                       <span>喝酒<i>(必填)</i></span>
                       <span>
-                        <select required data-parsley-errors-messages-disabled name="drinking"  class="select_xx01">
+                        <select data-parsley-errors-messages-disabled name="drinking"  class="select_xx01">
                           <option value="">請選擇</option>
                           <option value="不喝"
                                   @if($umeta->drinking == '不喝') selected @endif>不喝
@@ -559,7 +604,7 @@
                   <dt>
                       <span>抽煙<i>(必填)</i></span>
                       <span>
-                        <select required data-parsley-errors-messages-disabled name="smoking"  class="select_xx01">
+                        <select data-parsley-errors-messages-disabled name="smoking"  class="select_xx01">
                           <option value="">請選擇</option>
                           <option value="不抽"
                                   @if($umeta->smoking == '不抽') selected @endif>不抽
@@ -578,7 +623,7 @@
                   <dt>
                       <span>年收<i>(必填)</i></span>
                       <span>
-                        <select required data-parsley-errors-messages-disabled name="income"  class="select_xx01">
+                        <select data-parsley-errors-messages-disabled name="income"  class="select_xx01">
                           <option value="">請選擇</option>
                           <option value="50萬以下"
                                   @if($umeta->income == '50萬以下') selected @endif>
@@ -605,11 +650,11 @@
                   </dt>
                   <dt>
                       <span>資產<i>(必填)</i></span>
-                      <span><input required data-parsley-errors-messages-disabled name="assets" id="assets" value="{{$umeta->assets}}" type="number" class="select_xx01"  placeholder="請輸入數字範圍0～10000000000"></span>
+                      <span><input data-parsley-errors-messages-disabled name="assets" id="assets" value="{{$umeta->assets}}" type="number" class="select_xx01"  placeholder="請輸入數字範圍0～10000000000"></span>
                   </dt>
                   @endif
                 </div>
-                <a class="dlbut g_inputt20 abtn" onclick="$('form[name=user_data]').submit();">更新資料</a>
+                <a class="dlbut g_inputt20 abtn" onclick="$('form[name=user_data]').submit();">確定更新</a>
                 <a href="" class="zcbut matop20">取消</a>
               </form>
             </div>
@@ -623,7 +668,7 @@
   <div class="bl bl_tab" id="isWarned" style="display: none;">
       <div class="bltitle">提示</div>
       <div class="blnr bltext">
-          @if($user->isAdminWarned())
+          @if($isAdminWarned)
               @php
                   $warned_users = \App\Models\SimpleTables\warned_users::where('member_id', $user->id)->where(
                       function ($query) {
@@ -665,13 +710,61 @@
       <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
   </div>
 
+  <div class="bl bl_tab" id="isGetBarCodeNotVIP" style="display: none;">
+      <div class="bltitle">提示</div>
+      <div class="blnr bltext">超商條碼或超商代碼付款，會在七天內待綠界回傳資料就<span id="vip_pass">直接給 VIP</span>
+      </div>
+
+      <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+  </div>
+
+  <div class="bl bl_tab_cc prz" id="prz" style="display: none;">
+      <div class=" bl_tab_bb">
+          <div class="bltitle"><span style="text-align: center; float: none;">PR值說明</span></div>
+          <div class="new_poptk_aa new_poptk_nn">
+              <div class="fpt_z_cc">
+                  <div class="pj_add">
+                      <p class="yidy_font">此數字為daddy的大方指數，您目前指數為 {{$pr}}</p>
+                      <img src="/new/images/ziliao.png" class="yiimg">
+                      <div class="ytext_img">
+                          <div class="ye_title"><img src="/new/images/zhe_dd.png">提升方式</div>
+                          <h2 class="ye_h2">[連續型 vip 會員]</h2>
+                          <h3 class="ye_h3">◎保持您的 vip 不中斷</h3>
+                          <h3 class="ye_h3">◎多使用車馬費邀請</h3>
+                          <h2 class="ye_h2">[單月繳會員]</h2>
+                          <h3 class="ye_h3">◎改為連續繳款/季繳</h3>
+                          <h3 class="ye_h3">◎保持您的 vip 不中斷</h3>
+                          <h3 class="ye_h3">◎多使用車馬費邀請</h3>
+                          <h2 class="ye_h2">[非 vip]</h2>
+                          <h3 class="ye_h3">◎升級 vip </h3>
+
+                      </div>
+                  </div>
+                  <div class="n_bbutton">
+                      <span><a class="n_left" onclick="$('.blbg').click();">確定</a></span>
+                      <span><a class="n_right" onclick="$('.blbg').click();">取消</a></span>
+                  </div>
+
+              </div>
+
+          </div>
+          <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+      </div>
+  </div>
+
 <script>
+    function pr() {
+        $(".blbg").show();
+        $(".prz").show();
+    }
+
     $(document).ready(function() {
         @if(Session::has('message'))
         c5('{{Session::get('message')}}');
         <?php session()->forget('message');?>
         @endif
     });
+
 </script>
   <script src="/new/js/birthday.js" type="text/javascript"></script>
   <script src="/js/jquery.twzipcode.min.js" type="text/javascript"></script>
@@ -682,7 +775,7 @@
     });
     $('.twzipcode').twzipcode({
       'detect': true, 'css':['select_xx2', 'select_xx2', 'd-none'], onCountySelect: function() {
-          $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
+       //   $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
       }
     });
     var domainJson = ({
@@ -714,48 +807,141 @@
         if(type=='')$('#domain option:not(:first)').remove();
     }
     $(document).ready(function() {
-      function getAge(birth) {
-        birth = Date.parse(birth.replace('/-/g', "/"));
-        var year = 1000 * 60 * 60 * 24 * 365;
-        var now = new Date();
-        var birthday = new Date(birth);
-        var age = parseInt((now - birthday) / year);
-        return age;
-      }
+        var blockarea_selected = '{{ isset($umeta->blockarea[0]) ? ($umeta->blockarea[0] == "" ? "全區" : str_replace($umeta->blockcity[0],'',$umeta->blockarea[0])) : '全區' }}';
+        var blockarea1_selected = '{{ isset($umeta->blockarea[1]) ? str_replace($umeta->blockcity[1],'',$umeta->blockarea[1]) :'全區'  }}';
+        var blockarea2_selected = '{{ isset($umeta->blockarea[2]) ? str_replace($umeta->blockcity[2],'',$umeta->blockarea[2]) : '全區'  }}';
 
-      @if(!$user->isAdmin())
-        @if (!$umeta->isAllSet())
-        c5('請寫上基本資料。');
-          // swal({
-          //   title:'請寫上基本資料。',
-          //   type:'warning'
-          // });
-        @elseif (empty($umeta->pic))
-        c5("{{$add_avatar}}");
-          // swal({
-          //   title:'請加上頭像照。',
-          //   type:'warning'
-          // });
-        @elseif ($umeta->age()<18)
-        c5('您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。');
-          // swal({
-          //   title:'您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。',
-          //   type:'warning'
-          // });
-        @elseif (($umeta->isWarned==1 && $umeta->isWarnedRead==0 ) || ( $user->isAdminWarned() && $isAdminWarnedRead->isAdminWarnedRead==0 ) )
+
+        if ($("select[name='blockarea'] option:eq(0)").text() !== '全區') {
+            //$("select[name='blockarea']").prepend('<option value="">全區</option>');
+            if (blockarea_selected == '全區') {
+                if ($("select[name='blockcity']").val() !== '') {
+                    $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
+                }
+            } else {
+                $("select[name='blockarea'] option[value=" + blockarea_selected + "]").attr('selected', true);
+            }
+        }
+        if ($("select[name='blockarea1'] option:eq(0)").text() !== '全區') {
+            //$("select[name='blockarea1']").prepend('<option value="">全區</option>');
+            if (blockarea1_selected == '全區') {
+                $("select[name='blockarea1']").prepend('<option selected value="">全區</option>');
+            } else {
+                $("select[name='blockarea1'] option[value=" + blockarea1_selected + "]").attr('selected', true);
+            }
+        }
+        if ($("select[name='blockarea2'] option:eq(0)").text() !== '全區') {
+            //$("select[name='blockarea2']").prepend('<option value="">全區</option>');
+            if (blockarea2_selected == '全區') {
+                $("select[name='blockarea2']").prepend('<option selected value="">全區</option>');
+            } else {
+                $("select[name='blockarea2'] option[value=" + blockarea2_selected + "]").attr('selected', true);
+            }
+        }
+
+        $("select[name='blockcity']").on('change', function () {
+            if ($("select[name='blockcity'] option:selected").text() == '縣市') {
+                if ($("select[name='blockarea'] option:eq(0)").text() !== '鄉鎮市區')
+                    $("select[name='blockarea']").prepend('<option selected value="">鄉鎮市區</option>');
+            } else {
+                if ($("select[name='blockarea'] option:eq(0)").text() !== '全區')
+                    $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
+            }
+        });
+        $("select[name='blockcity1']").on('change', function () {
+            if ($("select[name='blockcity1'] option:selected").text() == '縣市') {
+                if ($("select[name='blockarea1'] option:eq(0)").text() !== '鄉鎮市區')
+                    $("select[name='blockarea1']").prepend('<option selected value="">鄉鎮市區</option>');
+            } else {
+                if ($("select[name='blockarea1'] option:eq(0)").text() !== '全區')
+                    $("select[name='blockarea1']").prepend('<option selected value="">全區</option>');
+            }
+        });
+        $("select[name='blockcity2']").on('change', function () {
+            if ($("select[name='blockcity2'] option:selected").text() == '縣市') {
+                if ($("select[name='blockarea2'] option:eq(0)").text() !== '鄉鎮市區')
+                    $("select[name='blockarea2']").prepend('<option selected value="">鄉鎮市區</option>');
+            } else {
+                if ($("select[name='blockarea2'] option:eq(0)").text() !== '全區')
+                    $("select[name='blockarea2']").prepend('<option selected value="">全區</option>');
+            }
+        });
+
+        function getAge(birth) {
+            birth = Date.parse(birth.replace('/-/g', "/"));
+            var year = 1000 * 60 * 60 * 24 * 365;
+            var now = new Date();
+            var birthday = new Date(birth);
+            var age = parseInt((now - birthday) / year);
+            return age;
+        }
+
+        @php
+            $ckBarCodeLog = DB::table('payment_get_barcode_log')->where('user_id',$user->id)->where('ExpireDate','>=',now())->where('isRead',0)->count();
+        @endphp
+
+        @if(!$user->isAdmin())
+            let banned_vip_pass=false, warned_vip_pass=false;
+            if (window.location.hash) {
+                // alert(window.location.hash)
+                if (window.location.hash.substring(1) == 'banned_vip_pass') {
+                    banned_vip_pass = true;
+                    $('#vip_pass').html('會直接升級VIP並解除封鎖');
+                } else if (window.location.hash.substring(1) == 'warned_vip_pass') {
+                    warned_vip_pass = true;
+                    $('#vip_pass').html('會直接升級VIP並解除警示');
+                }
+
+                history.replaceState(null, null, ' ');
+            }
+
+            @if($ckBarCodeLog==0)
+
+                if(banned_vip_pass){
+                    c5('您已成功解除封鎖');
+                }
+                if(warned_vip_pass){
+                    c5('您已成功解除警示');
+                }
+
+            @elseif($ckBarCodeLog>0 && !$user->isVip())
+            $('#isGetBarCodeNotVIP').show();
+            $('#announce_bg').show();
                 @php
-                 if($user->isAdminWarned()){
-                    //標記已讀
-                    \App\Models\User::isAdminWarnedRead($user->id);
-                  }
-                  if($umeta->isWarned==1){
-                    //標記已讀
-                    \App\Models\User::isWarnedRead($user->id);
-                  }
+                    DB::table('payment_get_barcode_log')->where('user_id',$user->id)->where('ExpireDate','>=',now())->where('isRead',0)->update(['isRead' => 1]);
                 @endphp
-        $('#isWarned').show();
-        $('#announce_bg').show();
-        @endif
+            @elseif (!$umeta->isAllSet( $user->engroup ))
+            c5('請寫上基本資料。');
+            // swal({
+            //   title:'請寫上基本資料。',
+            //   type:'warning'
+            // });
+            @elseif (empty($umeta->pic))
+            c5("{{$add_avatar}}");
+            // swal({
+            //   title:'請加上頭像照。',
+            //   type:'warning'
+            // });
+            @elseif ($umeta->age()<18)
+            c5('您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。');
+            // swal({
+            //   title:'您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。',
+            //   type:'warning'
+            // });
+            {{--        @elseif (($umeta->isWarned==1 && $umeta->isWarnedRead==0 ) || ( $isAdminWarned && $isAdminWarnedRead->isAdminWarnedRead==0 ) )--}}
+            {{--                @php--}}
+            {{--                 if($isAdminWarned){--}}
+            {{--                    //標記已讀--}}
+            {{--                    \App\Models\User::isAdminWarnedRead($user->id);--}}
+            {{--                  }--}}
+            {{--                  if($umeta->isWarned==1){--}}
+            {{--                    //標記已讀--}}
+            {{--                    \App\Models\User::isWarnedRead($user->id);--}}
+            {{--                  }--}}
+            {{--                @endphp--}}
+            {{--        $('#isWarned').show();--}}
+            {{--        $('#announce_bg').show();--}}
+            @endif
       @endif
 
         @php
@@ -766,21 +952,115 @@
         $('#announce_bg').show();
         @endif
 
+
+
       //ajax_表單送出
       $('form[name=user_data]').submit(function(e){
         e.preventDefault();
         if($(this).parsley().isValid()){
           let birth = $('select[name=year]').val()+'/'+$('select[name=month]').val()+'/'+$('input[name=day]').val();
-          console.log(birth);
           let age = getAge(birth);
-          if(age < 18){
-          c5('您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。');
+          let title = $('input[name=title]');
+          let about = $('textarea[name=about]');
+          let style = $('textarea[name=style]');
+          let budget = $('select[name=budget]');
+          let assets = $('#assets');
+          let height = $('#height');
+          let income = $('select[name=income]');
+          let marriage = $('select[name=marriage]');
+          let education = $('select[name=education]');
+          let drinking = $('select[name=drinking]');
+          let smoking = $('select[name=smoking]');
+          let county = $("#county");
+          let situation = $('select[name=situation]');
+          if(title.val() === "") {
+            title.focus();
+            c5('請輸入一句話形容自己');
+            return false;
+          }
+          if($(county).find('.twzipcode').length == 0) {
+            c5('請選擇地區');
+            return false;
+          } else {
+            $(county).find('.twzipcode').each(function(index, element) {
+                if(index == 0 && $(element).find('select').val() === ""){
+                  c5('請選擇地區');
+                  return false;
+                }
+            })
+          }
+          
+          
+          if(budget.val() === "") {
+            budget.focus();
+            c5('請選擇預算');
+            return false;
+          }
+          if($('select[name=year]').val() == "" || $('select[name=month]').val() == "" || age < 18){
+            c5('您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。');
             // swal({
             //     title:'您的年齡低於法定18歲，請於基本資料設定修改，否則您的資料將會被限制搜尋。',
             //     type:'warning'
             // });
             return false;
           }
+          if(height.val() == '' || height.val() < 140 || height.val() > 210) {
+            height.focus();
+            c5('身高不在140~210數字範圍：請輸入數字範圍140~210');
+            return false;
+          }
+          if(about.val().length < 4 || about.val().length > 300) {
+            about.focus();
+            c5('關於我低於4個字：請輸入4～300個字');
+            return false;
+          }
+          if(style.val().length < 4 || style.val().length > 300) {
+            style.focus();
+            c5('期待約會模式低於4個字：請輸入4～300個字');
+            return false;
+          }
+          if('{{$user->engroup}}' == '2'){
+            if(situation.val() === "") {
+              situation.focus();
+              c5('請選擇現況');
+              return false;
+            };
+          }
+          if(education.val() === "") {
+            education.focus();
+            c5('請選擇教育');
+            return false;
+          }
+          if(marriage.val() === "") {
+            marriage.focus();
+            c5('請選擇婚姻');
+            return false;
+          }
+          if(drinking.val() === "") {
+            drinking.focus();
+            c5('請選擇喝酒');
+            return false;
+          }
+          if(smoking.val() === "") {
+            smoking.focus();
+            c5('請選擇抽煙');
+            return false;
+          }
+          if('{{$user->engroup}}' == '1'){
+            console.log(income.val())
+            if(income.val() === "") {
+              income.focus();
+              c5('請選擇年收');
+              return false;
+            }
+            if(assets.val() == '' || assets.val() < 0 || assets.val() > 10000000000) {
+              assets.focus();
+              c5('請輸入資產數字範圍0～10000000000');
+              return false;
+            }
+          }
+          
+          
           var form_dump = $(this);
           c4('確定要變更會員資料嗎?');
           // swal({
@@ -811,7 +1091,7 @@
         }
         return false;
       });
-      let county = $("#county");
+      
       let add_county = $("#add_county");
       $(add_county).click(function(){
           if($(county).find('.twzipcode').length < 3) {
@@ -841,6 +1121,28 @@
         let block_county = $("#block_county");
         let add_block_county = $("#add_block_county");
         $(add_block_county).click(function(){
+            $("select[name='blockcity1']").on('change', function() {
+                if($("select[name='blockcity1'] option:selected" ).text() == '縣市'){
+                    if($("select[name='blockarea1'] option:eq(0)").text()!=='鄉鎮市區')
+                        $("select[name='blockarea1']").prepend('<option selected value="">鄉鎮市區</option>');
+                }
+                else{
+                   if($("select[name='blockarea1'] option:eq(0)").text()!=='全區')
+                    $("select[name='blockarea1']").prepend('<option selected value="">全區</option>');
+                }
+
+                $("select[name='blockcity2']").on('change', function() {
+                    if($("select[name='blockcity2'] option:selected" ).text() == '縣市'){
+                        if($("select[name='blockarea2'] option:eq(0)").text()!=='鄉鎮市區')
+                            $("select[name='blockarea2']").prepend('<option selected value="">鄉鎮市區</option>');
+                    }
+                    else{
+                       if($("select[name='blockarea2'] option:eq(0)").text()!=='全區')
+                            $("select[name='blockarea2']").prepend('<option selected value="">全區</option>');
+                    }
+                });
+            });
+
           console.log($(block_county).find('.twzipcode').length)
             if($(block_county).find('.twzipcode').length < 3) {
                 let county_div=`
@@ -854,7 +1156,12 @@
                 $(block_county).append(county_div)
                 $('.twzipcode').twzipcode({
                     'detect': true, 'css':['select_xx2', 'select_xx2', 'd-none'], onCountySelect: function() {
-                        // $("select[name='blockarea']").prepend('<option selected value="">全區</option>');
+                        if($("select[name='blockcity1'] option:eq(0)").text()!=='縣市'){
+                            $("select[name='blockarea1']").prepend('<option selected value="">全區</option>');
+                        }
+                        if($("select[name='blockcity2'] option:eq(0)").text()!=='縣市'){
+                            $("select[name='blockarea2']").prepend('<option selected value="">全區</option>');
+                        }
                     }
                 });
             }else{
@@ -909,13 +1216,13 @@
               $("input[name=engroup][value=2]").prop('checked',true);
               $("input[name=engroup][value=1]").prop('checked',false);
             }
-                  c4('您已經改變過帳號類型(甜心大哥/大姐、甜心寶貝)，每個帳號只能變更一次');
+                  c5('您已經改變過帳號類型(甜心大哥/大姐、甜心寶貝)，每個帳號只能變更一次');
             // swal({
             //   title:'您已經改變過帳號類型(甜心大哥/大姐、甜心寶貝)，每個帳號只能變更一次',
             //   type:'warning'
             // });
           @else
-                  c4('確定要改變帳號類型(甜心大哥/大姐、甜心寶貝)嗎?，每個帳號只能變更一次');
+                  c5('確定要改變帳號類型(甜心大哥/大姐、甜心寶貝)嗎?，每個帳號只能變更一次');
             // swal(
             //   '確定要改變帳號類型(甜心大哥/大姐、甜心寶貝)嗎?，每個帳號只能變更一次',
             //   '',
@@ -931,26 +1238,50 @@
       //validation
         $("#name").keyup(function() {
             if(this.value.length>=8){
-                c3('至多八個字');
+                c5('至多八個字');
             }
         });
 
         $("#height").on("change", function() {
             var val = Math.abs(parseInt(this.value, 10) || 1);
             if(this.value>210 || this.value<140) {
-                c3('請輸入數字範圍140～210');
+                c5('請輸入數字範圍140～210');
                 this.value = val > 210 ? 210 : val < 140 ? 140 : val ;
             }
         });
 
         $("#assets").keyup(function() {
             if($.isNumeric(this.value) == false){
-                c3('請輸入數字範圍0～10000000000');
+                c5('請輸入數字範圍0～10000000000');
             }
         });
 
     });
 
+    $(".line_notify").on('click', function() {
+        c5html('iPhone 的 Safari 在 Line 的綁定容易出問題。如果您在綁定過程中失敗，請改用 Google Chrome 嘗試看看。如果還是出問題，<a href="https://lin.ee/rLqcCns" target="_blank">請點此&nbsp;<img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a>&nbsp;或點右下聯絡我們加站長line。');
+        $(".n_bllbut").on('click', function() {
+            var lineClientId = '{{config('line.line_notify.client_id')}}';
+            var callbackUrl = '{{config('line.line_notify.callback_url')}}';
+            var URL = '{{config('line.line_notify.authorize_url')}}?';
+            URL += 'response_type=code';
+            URL += '&client_id='+lineClientId;
+            URL += '&redirect_uri='+callbackUrl;
+            URL += '&scope=notify';
+            URL += '&state={{csrf_token()}}';
+            window.location.href = URL;
+        });
+    });
+
+    $(".line_notify_cancel").on('click', function() {
+        c4('確定要解除LINE綁定通知嗎?');
+        var URL = '{{route('lineNotifyCancel')}}';
+        $(".n_left").on('click', function() {
+            $("#tab04").hide();
+            $(".blbg").hide();
+            window.location.href = URL;
+        });
+    });
 
   </script>
 

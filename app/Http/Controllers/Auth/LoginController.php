@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Fingerprint;
+use App\Models\LogUserLogin;
 use App\Models\SimpleTables\member_vip;
 use App\Models\Vip;
 use Carbon\Carbon;
@@ -16,10 +16,11 @@ use App\Models\SetAutoBan;
 use Auth;
 use App\Models\SimpleTables\banned_users;
 use Illuminate\Support\Facades\Config;
-use App\Services\FingerprintService;
+use Illuminate\Support\Facades\DB;
 use Session;
+use App\Observer\BadUserCommon;
 
-class LoginController extends Controller
+class LoginController extends \App\Http\Controllers\BaseController
 {
     /*
     |--------------------------------------------------------------------------
@@ -39,18 +40,16 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = 'dashboard';
+    protected $redirectTo = 'dashboard/personalPage';
 
-    protected $fingerprint;
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(FingerprintService $fingerprint)
+    public function __construct()
     {
         $this->middleware('guest', ['except' => 'logout']);
-        $this->fingerprint = $fingerprint;
     }
     //新樣板
     public function showLoginForm2()
@@ -168,7 +167,7 @@ class LoginController extends Controller
             $request->session()->flash('banned_reason', $reason);
         }
 
-        return redirect('/dashboard');
+        return redirect('/dashboard/personalPage');
     }
 
     /**
@@ -177,12 +176,12 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        $uid = User::select('id', 'last_login')->where('email', $request->email)->get()->first();
-        if(isset($uid) && Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $uid->id)->exists()){
+        $user = User::select('id', 'engroup', 'last_login','login_times','intro_login_times','line_notify_alert')->withOut(['vip', 'user_meta'])->where('email', $request->email)->get()->first();
+        if(isset($user) && Role::join('role_user', 'role_user.role_id', '=', 'roles.id')->where('roles.name', 'admin')->where('role_user.user_id', $user->id)->exists()){
             $request->remember = true;
         }
-        if(isset($uid)){
-            $request->session()->put('last_login', $uid->last_login);
+        if(isset($user)){
+            $request->session()->put('last_login', $user->last_login);
         }
         $this->validateLogin($request);
 
@@ -193,23 +192,6 @@ class LoginController extends Controller
             $this->fireLockoutEvent($request);
 
             return $this->sendLockoutResponse($request);
-        }
-
-        // check if account logging in for first time
-        // check against old md5 password, if correct, create bcrypted updated pw
-        //dd($request->input('email'));
-        $user = User::findByEmail($request->input('email'));
-        //dd($user->password_updated);
-        if (isset($user) && !$user->password_updated) {
-            //if (md5($request->input('password')) == $user->password) {
-            if($user->isLoginSuccess($request->input('email'), $request->input('password'))) {
-                $user->password = bcrypt($request->input('password'));
-                $user->password_updated = 1;
-                $user->save();
-            } else {
-                //return $this->sendLoginResponse($request);
-            }
-            //dd($user->password_updated);
         }
 
         // if ($this->attemptLogin($request)) {
@@ -223,52 +205,88 @@ class LoginController extends Controller
             foreach ($domains as $domain){
                 if(str_contains($email, $domain)
                     && !\DB::table('banned_users_implicitly')->where('target', $uid)->exists()){
-                    \DB::table('banned_users_implicitly')->insert(
+                    if(\DB::table('banned_users_implicitly')->insert(
                         ['fp' => 'DirectlyBanned',
                             'user_id' => '0',
                             'target' => $uid,
                             'created_at' => \Carbon\Carbon::now()]
-                    );
-                }
-            }
-            if(isset($payload['fp'])){
-                $db = null;
-                if(env("APP_ENV", "local") != "local"){
-                    $db = \DB::connection('mysql_fp')->table('fingerprint2');
-                }
-                else{
-                    $db = \DB::table('fingerprint2');
-                }
-                $ip = $request->ip();
-                $isFp = $db;
-                $isFp = $isFp->where('fp', $payload['fp'])
-                    ->where('user_id', $uid)
-                    ->where('ip', $ip)
-                    ->get()->count();
-                if($isFp <= 0){
-                    unset($payload['_token']);
-                    unset($payload['email']);
-                    unset($payload['password']);
-                    $payload['user_id'] = $uid;
-                    $payload['ip'] = $ip;
-                    $payload['mac_address'] = $this->get_mac_address();
-                    $result = $db;
-                    $result = $result->insert($payload);
-                }
-                try{
-                    $this->fingerprint->judgeUserFingerprintAll($uid, $payload);
-                    $this->fingerprint->judgeUserFingerprintCanvasOnly($uid, $payload);
-                }
-                catch (\Exception $e){
-                    \Illuminate\Support\Facades\Log::info($e);
+                    ))
+                    {
+                        BadUserCommon::addRemindMsgFromBadId($userId);
+                    }
                 }
             }
 
             //更新login_times
             User::where('id',$user->id)->update(['login_times'=>$user->login_times +1]);
+            //更新教學<->登入次數
+            User::where('id',$user->id)->update(['intro_login_times'=>$user->intro_login_times +1]);
+            //更新會員專屬頁通知<->登入次數
+            User::where('id',$user->id)->update(['line_notify_alert'=>$user->line_notify_alert +1]);
+
+            if($request->cfp_hash){
+                $cfp = \App\Services\UserService::checkcfp($request->cfp_hash, $user->id);
+                //新增登入紀錄
+                $logUserLogin = LogUserLogin::create([
+                        'user_id' => $user->id,
+                        'cfp_id' => $cfp->id,
+                        'userAgent' => $_SERVER['HTTP_USER_AGENT'],
+                        'ip' => $request->ip(),
+                        'created_at' =>  date('Y-m-d H:i:s')]
+                );
+            }
+            else{
+                $logUserLogin = LogUserLogin::create([
+                        'user_id' => $user->id,
+                        'userAgent' => $_SERVER['HTTP_USER_AGENT'],
+                        'ip' => $request->ip(),
+                        'created_at' =>  date('Y-m-d H:i:s')]
+                );
+            }
+
+            if($user->engroup == 2) {
+                try{
+                    $country = null;
+                    // 先檢查 IP 是否有記錄
+                    $ip_record = LogUserLogin::where('ip', $request->ip())->first();
+                    if($ip_record && $ip_record->country && $ip_record->country != "??"){
+                        $country = $ip_record->country;
+                    }
+                    // 否則從 API 查詢
+                    else{
+                        $client = new \GuzzleHttp\Client();
+                        $response = $client->get('http://ipinfo.io/' . $request->ip() . '?token=27fc624e833728');
+                        $content = json_decode($response->getBody());
+                        if(isset($content->country)){
+                            $country = $content->country;
+                        }
+                        else{
+                            $country = "??";
+                        }
+                    }
+
+                    if(isset($country)){
+                        $logUserLogin->country = $country;
+                        $logUserLogin->save();
+                        if($request->email != "pig820827@yahoo.com.tw"){
+                            if($country != "TW" && $country != "??") {
+                                logger("None TW login, user id: " . $user->id);
+                                Auth::logout();
+                                return back()->withErrors('Forbidden.');
+                            }
+                        }
+                    }
+                }
+                catch (\Exception $e){
+                    logger($e);
+                }
+            }
 
             return $this->sendLoginResponse($request);
         }
+
+        //一年以上未登入帳號,需從users_bak 找是否有符合帳號
+        $this->findAccountAndRollbackToUsers($request);
 
         // If the login attempt was unsuccessful we will increment the number of attempts
         // to login and redirect the user back to the login form. Of course, when this
@@ -287,9 +305,42 @@ class LoginController extends Controller
     public function logout(Request $request) {
         //登出自動警示
         SetAutoBan::logout_warned(Auth::id());
-//        Session::flush();
+        Session::flush();
+        $request->session()->forget('announceClose');
         Auth::logout();
         return redirect('/login');
     }
 
+    public function findAccountAndRollbackToUsers($request){
+
+        $findUser = DB::table('users_bak')->where('email', $request->email);
+
+        if(!is_null($findUser->first())) {
+            DB::beginTransaction();
+            try {
+                //rollback users
+                $data = (array)$findUser->first();
+                DB::table('users')->updateOrInsert(['id'=> array_get($data,'id')], $data);
+                $findUser->delete();
+
+                //rollback user_meta
+                $findUserMeta = DB::table('user_meta_bak')->where('user_id', array_get($data,'id'));
+                $data = (array)$findUserMeta->first();
+                DB::table('user_meta')->updateOrInsert([
+                    'id'=>array_get($data, 'id'),
+                    'user_id' => array_get($data, 'user_id')], $data);
+                $findUserMeta->delete();
+
+                DB::commit();
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::info($e);
+                DB::rollBack();
+            }
+
+            //重新驗證帳號密碼
+            if (\Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+                return redirect('/dashboard/personalPage');
+            }
+        }
+    }
 }

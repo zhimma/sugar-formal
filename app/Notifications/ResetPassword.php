@@ -48,7 +48,7 @@ class ResetPassword extends Notification
     {
         return (new MailMessage)
             ->line('更改密碼申請.')
-            ->action('更改密碼', url('password/reset', $this->token))
+            ->action('更改密碼', url('password/reset', $this->token) . "?utm_source=password_reset&utm_medium=email&utm_campaign=sugar_garden")
             ->line('如果你沒有申請密碼更換請忽視');
     }
 }

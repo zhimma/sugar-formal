@@ -1,3 +1,9 @@
+<?
+header("Cache-Control: no-cache, no-store, must-revalidate, post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
+?>
 @extends('new.layouts.website')
 
 @section('app-content')
@@ -162,21 +168,21 @@
                         </div>
 {{--                        <a class="pj_but">確定</a>--}}
                         @elseif(!isset($evaluation_self))
-                        <form id="form1" action="{{ route('evaluation') }}" method="post">
+                        <form id="form1" action="{{ route('evaluation')."?n=".time() }}" method="post">
                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                            <div class="rating">
-                                <input id="star5" name="rating" type="radio" value="5" class="radio-btn hide" data-title="5"/>
-                                <label for="star5" data-title="5"><img src="/new/images/sxx_4.png" style="transform: scale(.8);"></label>
-                                <input id="star4" name="rating" type="radio" value="4" class="radio-btn hide"/>
-                                <label for="star4" data-title="4"><img src="/new/images/sxx_4.png" style="transform: scale(.8);"></label>
-                                <input id="star3" name="rating" type="radio" value="3" class="radio-btn hide"/>
-                                <label for="star3" data-title="3"><img src="/new/images/sxx_4.png" style="transform: scale(.8);" ></label>
-                                <input id="star2" name="rating" type="radio" value="2" class="radio-btn hide"/>
-                                <label for="star2" data-title="2"><img src="/new/images/sxx_4.png" style="transform: scale(.8);" alt="2"></label>
-                                <input id="star1" name="rating" type="radio" value="1" class="radio-btn hide"/>
-                                <label for="star1" data-title="1"><img src="/new/images/sxx_4.png" style="transform: scale(.8);" data-toggle="tooltip" data-placement="top" title="1"></label>
-                                <div class="clear"></div>
-                            </div>
+{{--                            <div class="rating">--}}
+{{--                                <input id="star5" name="rating" type="radio" value="5" class="radio-btn hide" data-title="5"/>--}}
+{{--                                <label for="star5" data-title="5"><img src="/new/images/sxx_4.png" style="transform: scale(.8);"></label>--}}
+{{--                                <input id="star4" name="rating" type="radio" value="4" class="radio-btn hide"/>--}}
+{{--                                <label for="star4" data-title="4"><img src="/new/images/sxx_4.png" style="transform: scale(.8);"></label>--}}
+{{--                                <input id="star3" name="rating" type="radio" value="3" class="radio-btn hide"/>--}}
+{{--                                <label for="star3" data-title="3"><img src="/new/images/sxx_4.png" style="transform: scale(.8);" ></label>--}}
+{{--                                <input id="star2" name="rating" type="radio" value="2" class="radio-btn hide"/>--}}
+{{--                                <label for="star2" data-title="2"><img src="/new/images/sxx_4.png" style="transform: scale(.8);" alt="2"></label>--}}
+{{--                                <input id="star1" name="rating" type="radio" value="1" class="radio-btn hide"/>--}}
+{{--                                <label for="star1" data-title="1"><img src="/new/images/sxx_4.png" style="transform: scale(.8);" data-toggle="tooltip" data-placement="top" title="1"></label>--}}
+{{--                                <div class="clear"></div>--}}
+{{--                            </div>--}}
                             <textarea id="content" name="content" cols="" rows="" class="tw_textinput" placeholder="請輸入您對{{$to->name}}的評價" maxlength="300">@if(isset($evaluation_self)){{$evaluation_self->content}}@endif</textarea>
                             <input type="hidden" name="uid" value={{$user->id}}>
                             <input type="hidden" name="eid" value={{$to->id}}>
@@ -212,15 +218,15 @@
                             @endphp
                         <li>
                             <div class="piname">
-                                <span>
-                                    @for ($i = 1; $i <= 5; $i++)
-                                        @if($row->rating>=$i)
-                                        <img src="/new/images/sxx_1.png">
-                                        @else
-                                        <img src="/new/images/sxx_4.png">
-                                        @endif
-                                    @endfor
-                                </span>
+{{--                                <span>--}}
+{{--                                    @for ($i = 1; $i <= 5; $i++)--}}
+{{--                                        @if($row->rating>=$i)--}}
+{{--                                        <img src="/new/images/sxx_1.png">--}}
+{{--                                        @else--}}
+{{--                                        <img src="/new/images/sxx_4.png">--}}
+{{--                                        @endif--}}
+{{--                                    @endfor--}}
+{{--                                </span>--}}
                                 <a href="/dashboard/viewuser/{{$row_user->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">{{$row_user->name}}</a>
 {{--                                <font>{{ substr($row->created_at,0,10)}}</font>--}}
                                 @if($row_user->id==$user->id)
@@ -237,10 +243,10 @@
 
                             @if(empty($row->re_content) && $to->id == $user->id)
                             <div class="huf">
-                                <form id="form_re_content" action="{{ route('evaluation_re_content') }}" method="post">
+                                <form id="form_re_content" action="{{ route('evaluation_re_content')."?n=".time() }}" method="post">
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                     <span class="huinput">
-                                        <textarea name="re_content" type="text" class="hf_i" placeholder="請輸入回覆（最多120個字符）" maxlength="120"></textarea>
+                                        <textarea name="re_content" type="text" class="hf_i" placeholder="請輸入回覆（最多120個字元）" maxlength="120"></textarea>
                                     </span>
                                     <div class="re_area">
                                     <a class="hf_but" onclick="form_re_content_submit()">回覆</a>
@@ -259,7 +265,7 @@
                                 </div>
                                 <div class="he_two">
                                     <div class="context">
-                                        <div id="test" class="context-wrap">{!! nl2br($row->re_content) !!}</div>
+                                        <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
                                     </div>
                                 </div>
                                 <div class="he_twotime">{{ substr($row->re_created_at,0,10)}}<span class="z_more">展開</span></div>
@@ -288,7 +294,7 @@
         $('.radio-btn').tooltip();
 
         @if (Session::has('message'))
-        c3('{{Session::get('message')}}');
+        c5('{{Session::get('message')}}');
         @endif
 
         let button = document.getElementsByTagName('button');
@@ -315,9 +321,10 @@
         });
 
         function form_submit(){
-            if( $("input[name='rating']:checked").val() == undefined) {
+            {{-- if( $("input[name='rating']:checked").val() == undefined) {
                 c5('請先點擊星等再評價');
-            }else if($.trim($(".tw_textinput").val())=='') {
+            }else --}}
+            if($.trim($(".tw_textinput").val())=='') {
                 c5('請輸入評價內容');
             }else{
                 $('#form1').submit();

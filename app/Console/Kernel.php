@@ -16,7 +16,9 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        \App\Console\Commands\UsersToBakArea::class,
+        \App\Console\Commands\SendSMS::class,
+        \App\Console\Commands\BlockAreaUpdate::class,
     ];
 
     /**
@@ -34,25 +36,40 @@ class Kernel extends ConsoleKernel
             $this->checkDatFile();
         })->timezone('Asia/Taipei')->dailyAt('3:00');
         $schedule->call(function (){
+            $this->checkECPayVip();
+            $this->checkEmailVailUser();
+        })->timezone('Asia/Taipei')->dailyAt('3:00');
+        $schedule->call(function (){
+            $this->checkVipExpired();
+        })->timezone('Asia/Taipei')->dailyAt('3:10');
+        $schedule->call(function (){
             $this->VIPCheck();
+            $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('4:00');
         $schedule->call(function (){
             $this->checkDatFile();
+            $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('5:00');
+        $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->everySixHours();
         $schedule->call(function (){
             $this->VIPCheck();
+            $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('8:00');
         $schedule->call(function (){
             $this->VIPCheck();
+            $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('12:00');
         $schedule->call(function (){
             $this->VIPCheck();
+            $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('16:00');
         $schedule->call(function (){
             $this->VIPCheck();
+            $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('20:00');
         $schedule->call(function (){
             $this->VIPCheck();
+            $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('23:59');
     }
 
@@ -66,6 +83,40 @@ class Kernel extends ConsoleKernel
         $this->load(__DIR__.'/Commands');
 
         require base_path('routes/console.php');
+    }
+
+    protected function checkEmailVailUser(){
+        $constraint = function ($query){
+            return $query->where('is_active', 0);
+        };
+        $users = \App\Models\User::with(['user_meta'=>$constraint])
+            ->whereHas('user_meta', $constraint)
+            ->where('created_at', '<',Carbon::now()->subHours(48))->get();
+        foreach ($users as $user){
+            \App\Models\LogUserLogin::where('user_id',$user->id)->delete();
+            $user->delete();
+        }
+    }
+
+    protected function checkECPayVip(){
+        $vipDatas = \App\Models\Vip::where(['business_id' => '3137610', 'active' => 1])->get();
+        foreach ($vipDatas as $vipData){
+            \App\Jobs\CheckECpay::dispatch($vipData);
+        }
+    }
+
+    protected function checkVipExpired(){
+        $vipDatas = \App\Models\Vip::where(['active' => 1])->get();
+        foreach ($vipDatas as $vipData){
+            if($vipData->expiry != "0000-00-00 00:00:00"){
+                $date = \Carbon\Carbon::createFromFormat("Y-m-d H:i:s", $vipData->expiry);
+                $now = \Carbon\Carbon::now();
+                if($now > $date){
+                    $vipData->addToLog(0, 'Background auto cancellation, with expiry: ' . $vipData->expiry);
+                    $vipData->removeVIP();
+                }
+            }
+        }
     }
 
     protected function VIPCheck($date_set = null){

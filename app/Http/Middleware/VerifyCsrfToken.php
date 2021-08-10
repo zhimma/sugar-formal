@@ -16,8 +16,15 @@ class VerifyCsrfToken extends Middleware
         '/dashboard/repaid_esafe',
         '/dashboard/upgradepay',
         '/dashboard/chatpay',
-        'dashboard/upgradepayEC',
+        '/dashboard/upgradepayEC',
+        '/dashboard/paymentInfoEC',
         '/dashboard/chatpay_ec',
-        '/dashboard/postChatpayEC'
+        '/dashboard/postChatpayEC',
+        '/dashboard/valueAddedService_ec',
+        '/dashboard/postValueAddedService',
+        '/dashboard/mobileVerifyPay_ec',
+        '/dashboard/postMobileVerifyPayEC',
+        '/admin/api/aws-sns/ses',
+        '/dashboard/line/callback'
     ];
 }

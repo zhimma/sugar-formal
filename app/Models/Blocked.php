@@ -24,6 +24,10 @@ class Blocked extends Model
         'blocked_id'
     ];
 
+    public function blocked_user(){
+        return $this->hasOne(User::class, 'id', 'blocked_id');
+    }
+
     public static function getAllBlock($uid) {
         return Blocked::where('member_id', $uid)->get();
     }
@@ -48,6 +52,12 @@ class Blocked extends Model
         return Visited::where('visited_id', $uid)->orderBy('created_at', 'desc')->get();
     }
 
+    /**
+     * $uid 會員 ID, $bid 被封鎖 ID
+     *
+     * @param  string $uid
+     * @param  string $bid
+     */
     public static function isBlocked($uid, $bid) {
         $isBlocked = Blocked::where([['member_id', $uid],['blocked_id', $bid]])->count();
 
@@ -69,5 +79,10 @@ class Blocked extends Model
         $blocked->member_id = $member_id;
         $blocked->blocked_id = $blocked_id;
         $blocked->save();
+    }
+
+    public static function countBlocked($uid) {
+        $countBlocked = Blocked::where('blocked_id', $uid)->count();
+        return $countBlocked;
     }
 }

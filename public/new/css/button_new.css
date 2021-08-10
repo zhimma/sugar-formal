@@ -1,0 +1,47 @@
+@charset "UTF-8";
+
+.se_but1{width:150px;height: 40px;background: #fe92a8;border-radius:100px;color: #ffffff;text-align: center;line-height: 40px;display: table;
+font-size:16px; float:left; cursor: pointer; box-shadow: 0 0 20px #ffb6c5;}
+.se_but1:hover{color:#ffffff;box-shadow:inset 0px 13px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;}
+
+.se_but2{width: 150px;height: 40px;background: #ffffff; border:#e44e71 1px solid;border-radius: 100px;color: #e44e71;text-align: center;line-height: 40px;
+display: table; float:right;font-size:16px;box-shadow: 0 0 20px #ffb6c5;}
+.se_but2_hover:hover, .se_but2:active{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;
+background:#fe92a8; border:#fe92a8 1px solid;}
+/*.se_but2:focus{*/
+/*    color:#fe92a8;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;*/
+/*    background:#ffffff; border:#fe92a8 1px solid;*/
+/*}*/
+/*@media(hover: hover) !*and (pointer: fine)*!{*/
+/*    !*nav a:hover {*!*/
+/*    !*    background: yellow;*!*/
+/*    !*}*!*/
+/*    .se_but2:hover!*,.se_but2:active,.se_but2:focus*!{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;*/
+/*        background:#fe92a8; border:#fe92a8 1px solid;}*/
+
+/*}*/
+/*@media (max-width:797px) {*/
+/*    .se_but2:active{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;*/
+/*        background:#fe92a8; border:#fe92a8 1px solid; !important;}*/
+/*}*/
+
+
+@media (max-width:797px) {
+.se_but1{width:140px;}
+.se_but2{width: 140px;}
+}
+
+@media (max-width:370px) {
+.se_but1{width:120px !important;}
+.se_but2{width: 120px !important;}
+}
+
+.dengl_but{width: 250px;height: 40px;background: #fe92a8;border-radius: 200px;color: #ffffff;text-align: center;line-height: 40px;display: table;margin: 0 auto;
+font-size:16px; cursor: pointer;box-shadow: 0 0 20px #ffb6c5;}
+.dengl_but:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;}
+
+
+
+
+
+

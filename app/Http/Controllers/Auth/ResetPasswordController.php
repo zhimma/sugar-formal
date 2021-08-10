@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 
-class ResetPasswordController extends Controller
+class ResetPasswordController extends \App\Http\Controllers\BaseController
 {
     /*
     |--------------------------------------------------------------------------
@@ -25,7 +25,7 @@ class ResetPasswordController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = 'dashboard';
+    protected $redirectTo = 'dashboard/personalPage';
 
     /**
      * Create a new controller instance.

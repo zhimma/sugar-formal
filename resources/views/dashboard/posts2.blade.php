@@ -51,7 +51,7 @@
           <h1>投稿</h1>
           <input type="text" name="title">
           <div>
-            <textarea name="contents" id="contents"></textarea>
+            <textarea name="contents" id="contents" required></textarea>
           </div>
           <input type="checkbox" name="anonymous">匿名於站內發布</br>
           <input type="checkbox" name="combine">站內發布並與本站帳號連結</br>

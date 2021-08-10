@@ -15,8 +15,8 @@
 CREATE TABLE IF NOT EXISTS `posts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
-  `title` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `contents` varchar(2000) COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(100) COLLATE 'utf8mb4_general_ci' NOT NULL,
+  `contents` varchar(2000) COLLATE 'utf8mb4_general_ci' NOT NULL,
   `anonymous` int(11) NOT NULL,
   `combine` int(11) NOT NULL,
   `agreement` int(11) NOT NULL,
@@ -33,3 +33,8 @@ CREATE TABLE IF NOT EXISTS `posts` (
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+
+
+ALTER TABLE `posts` ADD `type` VARCHAR(10) NULL AFTER `id`, ADD `reply_id` INT(11) NULL AFTER `type`;
+ALTER TABLE `posts` ADD `tag_user_id` INT(11) NULL AFTER `user_id`;
+ALTER TABLE `posts` ADD `is_anonymous` varchar(11) NOT NULL AFTER `contents`;

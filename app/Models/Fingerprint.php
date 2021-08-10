@@ -16,9 +16,6 @@ class Fingerprint extends Model
         $this->bootIfNotBooted();
         $this->syncOriginal();
         $this->fill($attributes);
-        if(env("APP_ENV", "local") != "local"){
-            $this->connection = 'mysql_fp';
-        }
     }
     public static function isExist($data)
     {

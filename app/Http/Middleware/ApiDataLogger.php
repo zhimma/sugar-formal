@@ -1,10 +1,14 @@
 <?php
 namespace App\Http\Middleware;
+use App\Models\Order;
+use App\Models\SimpleTables\banned_users;
+use App\Models\SimpleTables\warned_users;
 use App\Models\Vip;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Support\Facades\Log;
 use App\Services\VipLogService;
+use Illuminate\Support\Facades\DB;
 
 class ApiDataLogger{
     private $startTime;
@@ -90,14 +94,21 @@ class ApiDataLogger{
                 unset($payload['CheckMacValue']);
                 uksort($payload, array('\App\Http\Middleware\ApiDataLogger','merchantSort'));
 
+                if(\App::environment('local')){
+                    $envStr = '_test';
+                }
+                else{
+                    $envStr = '';
+                }
+
                 // 組合字串
-                $sMacValue = 'HashKey=' . config('ecpay.payment.HashKey') ;
+                $sMacValue = 'HashKey=' . config('ecpay.payment'.$envStr.'.HashKey') ;
                 foreach($payload as $key => $value)
                 {
                     $sMacValue .= '&' . $key . '=' . $value ;
                 }
 
-                $sMacValue .= '&HashIV=' . config('ecpay.payment.HashIV') ;
+                $sMacValue .= '&HashIV=' . config('ecpay.payment'.$envStr.'.HashIV') ;
 
                 // URL Encode編碼
                 $sMacValue = urlencode($sMacValue);
@@ -121,12 +132,26 @@ class ApiDataLogger{
 
                 if ($CheckMacValue != $payloadCheckMacValue) {
                     Log::info('CheckMacValue verify fail.');
+                    logger($CheckMacValue);
+                    logger($payloadCheckMacValue);
                     return '0|Error';
                 }
 
                 if (sizeof($arErrors) > 0) {
                     Log::info($arErrors);
                     return '0|Error';
+                }
+
+                //存入超商條碼取號紀錄
+                if(isset($payload['RtnCode']) && $payload['RtnCode'] == '10100073' && ($payload['PaymentType'] == 'BARCODE_BARCODE' || $payload['PaymentType'] == 'CVS_CVS')) {
+
+                    DB::table('payment_get_barcode_log')->insert([
+                        'user_id' => $payload['CustomField1'],
+                        'ExpireDate' => $payload['ExpireDate'],
+                        'order_id' => $payload['MerchantTradeNo'],
+                        'TradeDate' => $payload['TradeDate'],
+                        ]);
+
                 }
 
                 $pool = '';
@@ -156,8 +181,39 @@ class ApiDataLogger{
                         $this->logService->upgradeLogEC($payload, $user->id);
                         $this->logService->writeLogToDB();
                         $this->logService->writeLogToFile();
-                        Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0);
+
+                        $transactionType='';
+                        if($payload['PaymentType'] == 'Credit_CreditCard')
+                            $transactionType='CREDIT'; //信用卡
+                        elseif(str_contains($payload['PaymentType'], 'ATM'))
+                            $transactionType='ATM'; //ATM
+                        elseif($payload['PaymentType'] == 'BARCODE_BARCODE')
+                            $transactionType='BARCODE'; //超商條碼
+                        elseif ($payload['PaymentType'] == 'CVS_CVS')
+                            $transactionType='CVS'; //超商代號
+                        else
+                            $transactionType=$payload['PaymentType']; //寫入回傳的PaymentType
+
+                        logger('Middleware ApiDataLogger=> userID:'.$user->id.', 種類:' .$payload['CustomField3'].', 付款方式:' .$transactionType);
+
+                        Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0,$payload['CustomField3'],$transactionType);
+
+                        //解除vip_pass紀錄 banned_users warned_users
+                        banned_users::where('vip_pass', 1)->where('member_id', $user->id)->delete();
+                        warned_users::where('vip_pass', 1)->where('member_id', $user->id)->delete();
+
+                        if(!\App::environment('local')) {
+                            //產生訂單 --正式綠界
+                            Order::addEcPayOrder($payload['MerchantTradeNo'], null);
+                        }
+
                         return '1|OK';
+                    }
+                    elseif ($payload['RtnCode'] == '10100073' && $payload['PaymentType'] == 'BARCODE_BARCODE'){
+                        Log::info("Barcode info.");
+                    }
+                    elseif ($payload['RtnCode'] == '2' && str_contains($payload['PaymentType'], 'ATM')){
+                        Log::info("ATM info.");
                     }
                     else{
                         Log::info("Error: RtnCode didn't set.");

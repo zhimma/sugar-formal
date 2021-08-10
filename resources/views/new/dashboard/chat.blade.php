@@ -5,6 +5,10 @@ header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 ?>
 <style>
+    .blur_img {
+        filter: blur(1px);
+        -webkit-filter: blur(1px);
+    }
     .page>li{
         display: none !important;
     }
@@ -25,7 +29,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     }
     .shou_but{
          margin-top: 8px !important;
-         right: 80px;
+         /*right: 80px;*/
+         left: 80px;
          position: absolute;
          z-index: 1;
      }
@@ -35,105 +40,233 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         }
         .shou_but{
             margin-top: 8px !important;
-            right: 40px !important;
+            /*right: 40px !important;*/
+            left: 10px !important;
             position: absolute;
         }
     }
+
+    .select_cont {
+width: 94%;
+margin: 20px auto;
+}
+.select_cont select {
+border-radius: 6px;
+border: 1px solid #ddd;
+cursor: pointer;
+padding: 5px 35px 5px 10px;
+appearance: none;
+-moz-appearance: none;
+-webkit-appearance: none;
+background: url(../../new/images/sjx_down.png)no-repeat right center #f5f5f5;
+background-size: auto 100%;
+}
+.send:after, .show:after, .msg:after, .select_cont:after {
+content: "";
+clear: both;
+display: table;
+}
+.select_cont option {
+text-align: center;
+}
+
+.sjleftmm{width:64%; height:50px; float:left; line-height:25px; margin-left:10px;text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;}
+.sjleftmm span{ font-size:14px;text-align:left !important; height:25px; float:left;  -webkit-line-clamp:3;white-space:nowrap;display: -webkit-box;-webkit-box-orient: vertical;overflow: hidden !important; }
+.sjleftmm font{ font-size:14px;height:25px; overflow:hidden; text-align:left; color:#999999; display:block; text-overflow:ellipsis;/*white-space: nowrap*/}
+.sjleftmm font img{ height:20px}
+ @media (max-width:360px) {
+    .sjleftmm{width:57%;}
+ }
+ @media (max-width:320px) {
+    .sjleftmm{width:50%;}
+ }
+
+.lebox5{background: url({{ asset('/new/images/off.png') }}) no-repeat right #94a5b4; background-position:98%; background-size:22px; padding:0px 20px;color:#fff;font-size:16px;
+position:relative;line-height:40px;cursor:pointer;text-align: center;}
+.lebox5.on{background:  url({{ asset('/new/images/on.png') }}) no-repeat right #94a5b4;background-position:98%;  background-size:22px;position:relative;cursor:pointer;;color:#fff;}
+
 
 </style>
 @extends('new.layouts.website')
 
 @section('app-content')
-
+    <!--引导弹出层-->
+    <script type="text/javascript" src="/new/intro/intro.js"></script>
+    <link href="/new/intro/introjs.css" rel="stylesheet">
+    <link rel="stylesheet" href="/new/intro/cover.css">
     <div class="container matop70 chat">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
                 @include('new.dashboard.panel')
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
-                <div class="shou"><span>收件夾</span>
+                <div class="shou" style="text-align: center;">
+                    <div class="sj_iconleft"><a href="{{route('viewChatNotice')}}"><img src="/new/images/ncion_03.png"></a></div>
+                    <span style="border-bottom: unset;">收件夾</span>
                     <font>Inbox</font>
 {{--                    <a href="" class="shou_but">全部刪除</a>--}}
-                    <a href="javascript:void(0);" onclick="showChatSet()"><img src="/new/images/ncion_03.png" class="whoicon02 marlr10"></a>
+{{--                    <a href="javascript:void(0);" onclick="showChatSet()"><img src="/new/images/ncion_03.png" class="whoicon02 marlr10"></a>--}}
+                    <div class="sj_iconright"><img src="/new/images/sj_icon2.png"></div>
                 </div>
+{{--                <div class="shou_j">--}}
+{{--                    <div class="sj_iconleft"><a href="{{route('viewChatNotice')}}"><img src="/new/images/ncion_03.png"></a></div>--}}
+{{--                    <span>收件夾</span>--}}
+{{--                    <div class="sj_iconright"><img src="/new/images/sj_icon2.png"></div>--}}
+{{--                </div>--}}
                 <div class="n_shtab">
 
 {{--                    <h2><span>您目前為高級會員</span>訊息可保存天數：30，可通訊人數:無限</h2>--}}
-                    @if($user->isVip())
-                        <h2><span>{{$letter_vip}}</span>訊息可保存天數：180，可通訊人數:無限</h2>
+{{--                    @if($user->isVip())--}}
+{{--                        <h2><span>{{$letter_vip}}</span>訊息可保存天數：180，可通訊人數:無限</h2>--}}
+{{--                        @else--}}
+{{--                        <h2><span>{{$letter_normal_member}}</span>訊息可保存天數：7，可通訊人數:10</h2>--}}
+{{--                    @endif--}}
+                    <h2 data-step="1" data-highlightClass="yd1a" data-tooltipClass="yd1" data-intro="<p>不同等級會員可以有不同的信件讀取權限。</p>
+                        <p>普通會員：信件可保存30天，通訊人數限制10人。</p>
+                        <p>VIP 會員：信件可保存180天，無限制通訊人數。</p>
+                        <h2>@if($user->isVip())您目前是 {{$letter_vip}}，所以不限制通訊人數，且信件可保存180天。@else您目前是 {{$letter_normal_member}}，所以限制通訊人數10，且信件保存30天。 @endif</h2><em></em><em></em>">
+                        @if($user->isVip())
+                            <span>您目前為{{$letter_vip}}</span>訊息可保存天數：180，可通訊人數:無限數
                         @else
-                        <h2><span>{{$letter_normal_member}}</span>訊息可保存天數：7，可通訊人數:10</h2>
-                    @endif
+                            <span>您目前為{{$letter_normal_member}}</span>訊息可保存天數：30，可通訊人數:10
+                        @endif
+                    </h2>
+                </div>
+                <div class=" select_cont">
+                    <select id="daysSelect" class="right">
+{{--                        <option value="7">訊息</option>--}}
+                        <option value="7">7天内</option>
+                        <option value="30">30天内</option>
+                        <option value="all">全部</option>
+                    </select>
                 </div>
                 <div class="sjlist_li">
                     <div class="leftsidebar_box">
                         <dl class="system_log">
                             @if($user->engroup==1)
-                            @php
-                                $exchange_period_name = DB::table('exchange_period_name')->get();
-                            @endphp
-                            <!--男性介面-->
-                            @foreach($exchange_period_name as $row)
-                            @if($user->isVip())
-                                <span class="exchange_period_delete_{{$row->id}} shou_but">全部刪除</span>
-                            @endif
-                            <dt class="lebox{{$row->id}} lebox_exchange_period_{{$row->id}}">{{$row->name}}</dt>
-                            <dd>
-                                <div class="loading warning" id="sjlist_exchange_period_warning_{{$row->id}}"><span class="loading_text">loading</span></div>
-                                <ul class="sjlist sjlist_exchange_period_{{$row->id}}">
-                                </ul>
-                                <div class="page page_exchange_period_{{$row->id}} fenye" style="text-align: center;"></div>
-                            </dd>
-                            @endforeach
-                            <!--男性介面-->
+                                @php
+                                    $exchange_period_name = DB::table('exchange_period_name')->get();
+                                @endphp
+                                <!--男性介面-->
+                                @foreach($exchange_period_name as $row)
+                                        @if($user->isVip())
+                                            <span class="exchange_period_delete_{{$row->id}} shou_but">全部刪除</span>
+                                        @endif
+                                <dt class="lebox{{$row->id}} lebox_exchange_period_{{$row->id}}" data-step="{{2+$row->id}}" data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
+                                    data-intro="<p>
+                                        @if($row->id==1)此區會員找尋長期包養關係，如若發現短期或是直接外約+line的，請直接檢舉。
+                                        @elseif($row->id==2)此區會員可接受長期或短期的包養關係。如果有發現直接要 line的狀況，請向站方檢舉。
+                                        @elseif($row->id==3)本區會員主要希望單次約會為主。如果是找尋長期包養關係建議避開此區會員。@endif</p><em></em><em></em>">
+
+                                        {{$row->name}}
+                                </dt>
+                                <dd>
+                                    <div class="loading warning" id="sjlist_exchange_period_warning_{{$row->id}}"><span class="loading_text">loading</span></div>
+                                    <ul class="sjlist sjlist_exchange_period_{{$row->id}}">
+                                    </ul>
+                                    <div class="page page_exchange_period_{{$row->id}} fenye" style="text-align: center;"></div>
+                                </dd>
+                                @endforeach
+                                <!--男性介面-->
+
+{{--                                    @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))--}}
+{{--                                        <span class="alert_delete shou_but">全部刪除</span>--}}
+{{--                                    @endif--}}
+{{--                                    <dt class="lebox4 lebox_alert" data-position="top" data-highlightClass="yd5a" data-tooltipClass="yd5" data-step="6"--}}
+{{--                                        data-intro="警示原因會有多種，也許是被檢舉也許是站長設定為警示。站方強烈不建議與此區會員互動，若一定要跟此區會員互動請務必提高十二萬分警覺。<em></em><em></em>">--}}
+{{--                                        警示會員</dt>--}}
+{{--                                    <dd>--}}
+{{--                                        <div class="loading warning" id="sjlist_alert_warning"><span class="loading_text">loading</span></div>--}}
+{{--                                        <ul class="sjlist sjlist_alert">--}}
+{{--                                        </ul>--}}
+{{--                                    </dd>--}}
+
                             @endif
 
                             @if($user->engroup==2)
-                            <!--女性介面-->
-                            @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
-                            <span class="vip_delete shou_but">全部刪除</span>
-                            @endif
-                            <dt class="lebox1">VIP會員</dt>
-                            <dd>
-                                <div class="loading warning" id="sjlist_vip_warning"><span class="loading_text">loading</span></div>
-                                <ul class="sjlist sjlist_vip">
-                                </ul>
-                                <div class="page page_vip fenye" style="text-align: center;"></div>
-                            </dd>
-                            @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
-                            <span class="novip_delete shou_but">全部刪除</span>
-                            @endif
-                            <dt class="lebox2">普通會員</dt>
-                            <dd>
-                                <div class="loading warning" id="sjlist_novip_warning"><span class="loading_text">loading</span></div>
-                                <ul class="sjlist sjlist_novip">
-                                </ul>
-                                <div class="page page_novip fenye" style="text-align: center;"></div>
-                            </dd>
-                            <!--女性介面 END -->
+                                <!--女性介面-->
+                                    @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
+                                        <span class="vip_delete shou_but">全部刪除</span>
+                                    @endif
+                                <dt class="lebox1" data-step="3" data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4" data-intro="<p>站方建議盡量多與
+                                VIP 會員互動。本區會員的素質最佳，投訴率低於 0.1%。</p>
+                                        <em></em><em></em>">
+
+                                        VIP會員
+                                </dt>
+                                <dd>
+                                    <div class="loading warning" id="sjlist_vip_warning"><span class="loading_text">loading</span></div>
+                                    <ul class="sjlist sjlist_vip">
+                                    </ul>
+                                    <div class="page page_vip fenye" style="text-align: center;"></div>
+                                </dd>
+                                    @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
+                                        <span class="novip_delete shou_but">全部刪除</span>
+                                    @endif
+                                <dt class="lebox2" data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4" data-step="4"
+                                    data-intro="未付費的會員賴帳機率高於VIP 50倍<em></em><em></em>">
+
+                                        普通會員
+                                </dt>
+                                <dd>
+                                    <div class="loading warning" id="sjlist_novip_warning"><span class="loading_text">loading</span></div>
+                                    <ul class="sjlist sjlist_novip">
+                                    </ul>
+                                    <div class="page page_novip fenye" style="text-align: center;"></div>
+                                </dd>
+                                <!--女性介面 END -->
+
+{{--                                    @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))--}}
+{{--                                        <span class="alert_delete shou_but">全部刪除</span>--}}
+{{--                                    @endif--}}
+{{--                                    <dt class="lebox3 lebox_alert" data-position="top" data-highlightClass="yd5a" data-tooltipClass="yd5" data-step="5"--}}
+{{--                                        data-intro="警示原因會有多種，也許是被檢舉也許是站長設定為警示。站方強烈不建議與此區會員互動，若一定要跟此區會員互動請務必提高十二萬分警覺。<em></em><em></em>">--}}
+{{--                                        警示會員</dt>--}}
+{{--                                    <dd>--}}
+{{--                                        <div class="loading warning" id="sjlist_alert_warning"><span class="loading_text">loading</span></div>--}}
+{{--                                        <ul class="sjlist sjlist_alert">--}}
+{{--                                        </ul>--}}
+{{--                                    </dd>--}}
+
                             @endif
 
 
-                            @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
-                            <span class="alert_delete shou_but">全部刪除</span>
-                            @endif
-                            <dt class="lebox_alert">警示會員</dt>
+                                @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
+                                    <span class="alert_delete shou_but">全部刪除</span>
+                                @endif
+                            <dt class="@if($user->engroup==2)lebox3 @else lebox4 @endif lebox_alert" data-position="top" data-highlightClass="yd5a" data-tooltipClass="yd5" @if($user->engroup==2)data-step="5" @else data-step="6" @endif
+                                data-intro="被多人或站方檢舉，互動過程請提高十二萬分警覺。<em></em><em></em>">
+
+                                    警示會員</dt>
                             <dd>
                                 <div class="loading warning" id="sjlist_alert_warning"><span class="loading_text">loading</span></div>
                                 <ul class="sjlist sjlist_alert">
                                 </ul>
                             </dd>
-
+                            @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
+                            <span class="banned_delete shou_but">全部刪除</span>
+                            @endif
+                            <dt class="lebox5">已被站方封鎖會員</dt>
+                            <dd>
+                                <div class="loading warning" id="sjlist_banned_warning"><span class="loading_text">loading</span></div>
+                                <ul class="sjlist sjlist_banned">
+                                 </ul>
+                             </dd>
                         </dl>
                     </div>
                 </div>
 
                 <input name="rows" type="hidden" id="rows" value="">
 
-                <div class="zixun">
+                <div class="zixun" style="display: none;">
+                    <div class="yd2a" data-position="top" data-highlightClass="yd2b" data-tooltipClass="yd2" data-step="2"
+                         data-intro="信件顯示時間為：7天內，30天內， 以及全部<em></em><em></em>">
                     <span><input type="radio" name="RadioGroup1" value="7" id="RadioGroup1_0" checked>7天內訊息</span>
                     <span><input type="radio" name="RadioGroup1" value="30" id="RadioGroup1_1">30天內訊息</span>
                     <span><input type="radio" name="RadioGroup1" value="all" id="RadioGroup1_2">全部訊息</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -177,6 +310,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     </div>
 
     <script>
+        let showMsg = false;
         let isLoading = 1;
         var total = 0;//總筆數
         var no_row_li='';
@@ -226,7 +360,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     }
                     Page.DrawPage(total);
 
-                    date= $('input[name=RadioGroup1]:checked').val();
+                    // date= $('input[name=RadioGroup1]:checked').val();
+                    date= $("#daysSelect option:selected").val();
 
                     if(date==7){
                         $('.sjlist_vip>.date7.vipMember').slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
@@ -286,7 +421,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         default: Page_noVip.page = parseInt($(this).data('p'));
                     }
                     Page_noVip.DrawPage(total);
-                    date= $('input[name=RadioGroup1]:checked').val();
+                    // date= $('input[name=RadioGroup1]:checked').val();
+                    date= $("#daysSelect option:selected").val();
 
                     if(date==7) {
                         $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
@@ -352,7 +488,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         default: Page_exchange_period_{{$row->id}}.page = parseInt($(this).data('p'));
                     }
                     Page_exchange_period_{{$row->id}}.DrawPage(total);
-                    date= $('input[name=RadioGroup1]:checked').val();
+                    // date= $('input[name=RadioGroup1]:checked').val();
+                    date= $("#daysSelect option:selected").val();
 
                     if(date==7) {
                         $('.sjlist_exchange_period_{{$row->id}}>.date7.exchange_period_member_{{$row->id}}').slice((Page_exchange_period_{{$row->id}}.page - 1) * Page_exchange_period_{{$row->id}}.row, Page_exchange_period_{{$row->id}}.page * Page_exchange_period_{{$row->id}}.row).css('display', '');
@@ -414,7 +551,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         default: Page_warned.page = parseInt($(this).data('p'));
                     }
                     Page_warned.DrawPage(total);
-                    date= $('input[name=RadioGroup1]:checked').val();
+                    // date= $('input[name=RadioGroup1]:checked').val();
+                    date= $("#daysSelect option:selected").val();
 
                     if(date==7) {
                         $('.sjlist_alert>.date7.novipMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
@@ -435,6 +573,71 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 });
             }
         };
+        
+        
+       var Page_banned = {
+            page : 1,
+            row  : 10,
+            DrawPage:function(total){
+                var total_page  = Math.ceil(total/Page_banned.row) == 0 ? 1 : Math.ceil(total/Page_banned.row);
+                var span_u      = 0;
+                var str         = '';
+                var i,active,prev_active,last_active;
+
+                if(total_page==1){
+                    str   = '';
+                }else if(Page_banned.page==1){
+                    str =`<a href="javascript:" class="" data-p="next">上一頁</a>
+                    <span class="new_page">${Page_banned.page}/${total_page}</span>
+                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>`;
+                }else if(Page_banned.page==total_page){
+                    str =`<a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                    <span class="new_page">${Page_banned.page}/${total_page}</span>
+                    <a href="javascript:" class="" data-p="last">下一頁</a>`;
+                }else{
+                    str = `
+                    <a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                    <span class="new_page">${Page_banned.page}/${total_page}</span>
+                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>
+                `;
+                }
+
+
+                $('.page_banned').html(str);
+                $('.warning').hide();
+                $('.page_banned a.page-link').click(function(){
+                    $('.warning').show();
+
+                    $('.sjlist_banned').children().css('display', 'none');
+
+                    switch($(this).data('p')) {
+                        case 'next': Page_banned.page = parseInt(Page_banned.page) - 1; break;
+                        case 'last': Page_banned.page = parseInt(Page_banned.page) + 1; break;
+                        default: Page_banned.page = parseInt($(this).data('p'));
+                    }
+                    Page_banned.DrawPage(total);
+                    // date= $('input[name=RadioGroup1]:checked').val();
+                    date= $("#daysSelect option:selected").val();
+
+                    if(date==7) {
+                        $('.sjlist_banned>.date7.novipMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
+                    }else if(date==30){
+                        $('.sjlist_banned>.common30.novipMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
+                    }else{
+                        $('.sjlist_banned>.novipMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
+                    }
+
+                    $('.sjlist_banned>.li_no_data').remove();
+
+                    if($('.sjlist_banned>li:visible').length == 0){
+                        if(!isLoading) {
+                            $('#sjlist_banned_warning').hide();
+                            $('.sjlist_banned').append(no_row_li);
+                        }
+                    }
+                });
+            }
+        };        
 
 
         // var page = 1;//初始資料
@@ -447,10 +650,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             // Fragment exists
             var hash = window.location.hash.substring(1);
             date = hash;
-            // alert(hash);
+            //alert(hash);
         }
         // VIP資訊量較大顧預設為撈取七天
-        if(userIsVip == 1){
+        if(userIsVip == 1 && !hash){
             date=7;
         }
 
@@ -463,7 +666,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         {
             return new Date(dt.getFullYear(), dt.getMonth(), 1);
         }
-        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned,exchange_period){
+        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned,isBanned,exchange_period,isBlur=false){
+            showMsg = show;
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
             var username = '{{$user->name}}';
@@ -490,47 +694,76 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
             if(show==0 && engroup==1){
                 li += `
-                     <div class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位女會員，請至「全部訊息」確認通訊人數是否已超過10人，即可發訊息給${user_name}" style="width: 100%">
+                     <div onclick="yd3()" class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位女會員，請至「全部訊息」確認通訊人數是否已超過10人，即可發訊息給${user_name}" style="width: 100%">
                    `;
             }else if(show==0 && engroup==2){
                 li += `
-                     <div class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位男會員，請上傳大頭貼＋三張生活照就可以取得　ＶＩＰ　權限或是到「全部訊息」確認通訊人數是否已超過10人，即可發訊息給${user_name}" style="width: 100%">
+                     <div onclick="yd3()" class="vipOnlyAlert" data-toggle="popover" data-content="${username}您好，普通會員只能看到最先通訊的十位男會員，請上傳大頭貼＋三張生活照就可以取得　ＶＩＰ　權限或是到「全部訊息」確認通訊人數是否已超過10人，即可發訊息給${user_name}" style="width: 100%">
                   `;
             }
 
             li += `<div class="si_bg">`;
 
+            var styBlur = isBlur? "blur_img" : "";
+
             if(show==1) {
                 li += `<a href="${url}" target="_self">
+                        <div class="sjpic ${styBlur} shanx" id="${user_id}">
+                            <img src="${pic}">
+                            <div class="onlineStatusChatView"></div>
+                        </div>
+                        <div class="sjleftmm">
+                            <div class="sjtable ${user_id}">${(read_n!=0 && isBanned==0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
+                  `;
+            }else if(show==0 && engroup==2){
+                li += `<a href="javascript:void(0)" target="_self">
+                        <div class="sjpic ${styBlur} shanx" id="${user_id}">
+                            <img src="${pic}">
+                            <div class="onlineStatusChatView"></div>
+                        </div>
+                        <div class="sjleft" data-position="bottom" data-highlightClass="yd3a" data-tooltipClass="yd3" data-step="6"
+                                     data-intro="普通會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。<em></em><em></em>">
+                            <div class="sjtable ${user_id}">${(read_n!=0 && isBanned==0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }else if(show==0){
                 li += `<a href="javascript:void(0)" target="_self">
+                        <div class="sjpic ${styBlur} shanx" id="${user_id}">
+                            <img src="${pic}">
+                            <div class="onlineStatusChatView"></div>
+                        </div>
+                        <div class="sjleft" data-position="bottom" data-highlightClass="yd3a" data-tooltipClass="yd3" data-step="7"
+                                     data-intro="普通會員只能看到舊的十筆訊息，如果想要看新的訊息請刪除舊的通訊紀錄。<em></em><em></em>">
+                            <div class="sjtable ${user_id}">${(read_n!=0 && isBanned==0?`<i class="number ${user_id}">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
                   `;
             }
-            li +=`
-                        <div class="sjpic"><img src="${pic}"></div>
-                        <div class="sjleft">
-                            <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
 
-                  `;
+            // if(show==1) {
+            //     li += `<a href="${url}" target="_self">
+            //       `;
+            // }else if(show==0){
+            //     li += `<a href="javascript:void(0)" target="_self">
+            //       `;
+            // }
+            // li +=`
+            //             <div class="sjpic"><img class="lazy" src="${pic}" data-original="${pic}"></div>
+            //             <div class="sjleft">
+            //                 <div class="sjtable">${(read_n!=0?`<i class="number">${read_n}</i>`:'')}<span class="ellipsis" style="width: 60%;">${user_name}</span></div>
+            //
+            //       `;
             if(show==1) {
                 li += `
-                            <span class="box"><font class="ellipsis">${content}</font></span>
+                        <span class="box"><font class="ellipsis ${user_id}">${content}</font></span>
                         </div>
                         </a>
                    `;
-            }else if(show==0 && engroup==1){
+            }else if(show==0 && engroup==1 && isBanned==0){
                 li += `
-
-
                      <font><img src="/new/images/icon_35.png"></font>
                      </div></a>
                    `;
-            }else if(show==0 && engroup==2){
+            }else if(show==0 && engroup==2 && isBanned==0){
                 li += `
-
-
-                     <font><img src="/new/images/icon_35.png"></font>
+                     <font id="yd3"><img src="/new/images/icon_35.png"></font>
                      </div></a>
                    `;
             }
@@ -577,6 +810,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         var this_7daysBefore = before7days.getFullYear() + '-' + ("0" + (before7days.getMonth()+1)).slice(-2) + '-' + ("0" + (before7days.getDate())).slice(-2);
         var this_30daysBefore = before30days.getFullYear() + '-' + ("0" + (before30days.getMonth()+1)).slice(-2) + '-' + ("0" + (before30days.getDate())).slice(-2);
 
+        let usersList;
+        {{-- Echo.join('Online').here(function (users){
+            usersList = users;
+        }); --}}
+
         var counter=1;
         //ajax資料
         function LoadTable(){
@@ -615,6 +853,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     @endif
 
                     $('.sjlist_alert').html('');
+                    $('.sjlist_banned').html('');
                     $('.page_warning').hide();
                     $('.warning').show();
                 },
@@ -640,31 +879,57 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $('#rows').val(msgLength);
                     }
 
-                    var hide_vip_counts = 0;
+                    hide_vip_counts = 0;
                     hide_vip_counts = $('#rows').val() - 10;
 
                     $.each(res.msg,function(i,e) {
-                       if(e.user_id==1049) {
-                           hide_vip_counts = $('#rows').val() - 10 - 1;
+                       if(e.user_id==1049 || e.isBanned==1) {
+                           //hide_vip_counts = $('#rows').val() - 10 - 1;
+						   if(i>=hide_vip_counts) hide_vip_counts = hide_vip_counts - 1;
                        }
                     });
 
                     $.each(res.msg,function(i,e) {
+                        var isBlur = true;
+                        if('{{$user->meta_()->isWarned == 1 || $user->aw_relation}}' == true){
+                            isBlur = true;
+                        }else if ('{{$user->engroup == 2}}' == true){
+                            isBlur = false;
+                        }else{
+                            var blurryAvatar = e.blurry_avatar? e.blurry_avatar.split(',') : '';
+                            if(blurryAvatar.length > 1){
+                                var nowB = '{{$user->isVip()? "VIP" : "general"}}';
+                                if( blurryAvatar.indexOf(nowB) != -1){
+                                    // console.log(blurryAvatar);
+                                    isBlur = true;
+                                } else {
+                                    isBlur = false;
+                                }
+                            } else {
+                                isBlur = false;
+                            }
+                        }
+                        
+                        
                         rr += parseInt(e.read_n);
                         if (userIsVip != 1 && i < hide_vip_counts && hide_vip_counts > 0 ) {
-                            if(e.user_id == 1049){
-                                hide_vip_counts = hide_vip_counts+1;
-                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.exchange_period);
-                            }else {
-                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.exchange_period);
+                            if(e.user_id == 1049 || e.isBanned==1){
+                                //hide_vip_counts = hide_vip_counts-1;
+                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur);
+                            }else {							
+                                if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.isBanned,e.exchange_period,isBlur);
                             }
                         }else {
-                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.exchange_period);
+							//if(e.isBanned==1) hide_vip_counts = hide_vip_counts+1;
+                            if (e && e.user_id) li = liContent(e.pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,isBlur);
                         }
 
                         if (typeof e.created_at !== 'undefined') {
                             if (e.created_at.substr(0, 10) >= this_7daysBefore) {
-                                if(e.isWarned==1) {
+                                if(e.isBanned==1) {
+                                    $('.sjlist_banned').append(li).find('.row_data').addClass('date7 bannedMember common30');
+                                }
+                                else if (e.isWarned==1) {
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('date7 alertMember common30');
                                 }else if (e.isVip == 1 && userGender==2) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('date7 vipMember common30');
@@ -680,14 +945,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         $exchange_period_name = DB::table('exchange_period_name')->get();
                                     @endphp
                                     @foreach($exchange_period_name as $row)
-                                        if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0){
+                                        if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0 && e.isBanned==0){
                                             $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('date7 exchange_period_member_{{$row->id}} common30');
                                         }
                                     @endforeach
                                 @endif
 
                             }else if (e.created_at != '' && e.created_at.substr(0, 10) >= this_30daysBefore) {
-                                if(e.isWarned==1){
+                                if(e.isBanned==1) {
+                                    $('.sjlist_banned').append(li).find('.row_data').addClass('date30 bannedMember common30');
+                                }
+                                else if (e.isWarned==1){
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('date30 alertMember common30');
                                 }else if (e.isVip == 1 && userGender==2) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('date30 vipMember common30');
@@ -703,14 +971,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         $exchange_period_name = DB::table('exchange_period_name')->get();
                                     @endphp
                                     @foreach($exchange_period_name as $row)
-                                        if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0){
+                                        if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0 && e.isBanned==0){
                                             $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('date30 exchange_period_member_{{$row->id}} common30');
                                         }
                                     @endforeach
                                 @endif
 
                             } else {
-                                if(e.isWarned==1) {
+                                if(e.isBanned==1) {
+                                    $('.sjlist_banned').append(li).find('.row_data').addClass('dateAll bannedMember');
+                                }
+                                else if (e.isWarned==1) {
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('dateAll alertMember');
                                 }else if (e.isVip == 1 && userGender==2) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('dateAll vipMember');
@@ -726,15 +997,23 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         $exchange_period_name = DB::table('exchange_period_name')->get();
                                     @endphp
                                     @foreach($exchange_period_name as $row)
-                                        if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0){
+                                        if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0 && e.isBanned==0){
                                             $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('dateAll exchange_period_member_{{$row->id}}');
                                         }
                                     @endforeach
                                 @endif
-
                             }
-
                         }
+                        @if($isVip)
+                            $.each(usersList, function(i2, e2){
+                                console.log(e2.id == e.user_id);
+                                if(e2.id == e.user_id){
+                                    setUserOnlineStatus(1, e2.id);
+                                }
+                            });
+                        @else
+                            setUserOnlineStatus("Non-VIP", e.user_id);
+                        @endif
                     });
 
                     setTimeout(function(){
@@ -796,6 +1075,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 Page_warned.DrawPage(alert_counts);
                                 $('.sjlist_alert>.date7.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
 
+
+                                let banned_counts = $('.date7.bannedMember').length;
+                                if (banned_counts > 10) {
+                                    $('.page_banned').show();
+                                }
+                                Page_banned.DrawPage(banned_counts);
+                                $('.sjlist_banned>.date7.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
                             }else if(hash==30){
                                 @if($user->engroup==2)
 
@@ -838,6 +1124,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 Page_warned.DrawPage(alert_counts);
                                 $('.sjlist_alert>.common30.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
 
+                                let banned_counts = $('.common30.bannedMember').length;
+                                if (banned_counts > 10) {
+                                    $('.page_banned').show();
+                                }
+                                Page_banned.DrawPage(banned_counts);
+                                $('.sjlist_banned>.common30.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
                             }else if(hash=='all'){
                                 @if($user->engroup==2)
                                 let vip_counts = $('.vipMember').length;
@@ -876,6 +1168,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 }
                                 Page_warned.DrawPage(alert_counts);
                                 $('.sjlist_alert>.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+                            
+                                let banned_counts = $('.bannedMember').length;
+                                if (banned_counts > 10) {
+                                    $('.page_banned').show();
+                                }
+                                Page_banned.DrawPage(banned_counts);
+                                $('.sjlist_banned>.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');    
                             }
 
                         }else{
@@ -920,6 +1219,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 Page_warned.DrawPage(alert_counts);
                                 $('.sjlist_alert>.date7.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
 
+                                let banned_counts = $('.date7.bannedMember').length;
+                                if (banned_counts > 10) {
+                                    $('.page_banned').show();
+                                }
+                                Page_banned.DrawPage(banned_counts);
+                                $('.sjlist_banned>.date7.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
                             } else if (date == 30) {
                                 $('.row_data').hide();
 
@@ -960,6 +1265,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 }
                                 Page_warned.DrawPage(alert_counts);
                                 $('.sjlist_alert>.common30.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+                                
+                                
+                                let banned_counts = $('.common30.bannedMember').length;
+                                if (banned_counts > 10) {
+                                    $('.page_banned').show();
+                                }
+                                Page_banned.DrawPage(banned_counts);
+                                $('.sjlist_banned>.common30.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');                                
                             } else {
 
                                 @if($user->engroup==2)
@@ -999,6 +1312,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 }
                                 Page_warned.DrawPage(alert_counts);
                                 $('.sjlist_alert>.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
+                            
+                            
+                                let banned_counts = $('.bannedMember').length;
+                                if (banned_counts > 10) {
+                                    $('.page_banned').show();
+                                }
+                                Page_banned.DrawPage(banned_counts);
+                                $('.sjlist_banned>.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');    
+    
                             }
                         }
 
@@ -1020,6 +1342,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 $('#sjlist_alert_warning').hide();
                                 $('.sjlist_alert').append(no_row_li);
                             }
+                            if ($('.sjlist_banned>li:visible').length == 0) {
+                                $('#sjlist_banned_warning').hide();
+                                $('.sjlist_banned').append(no_row_li);
+                            }                            
                         @elseif($user->engroup==1)
                             @php
                                 $exchange_period_name = DB::table('exchange_period_name')->get();
@@ -1035,6 +1361,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 $('#sjlist_alert_warning').hide();
                                 $('.sjlist_alert').append(no_row_li);
                             }
+                            
+                            if ($('.sjlist_banned>li:visible').length == 0) {
+                                $('#sjlist_banned_warning').hide();
+                                $('.sjlist_banned').append(no_row_li);
+                            }                            
                         @endif
                     }, 300);
 
@@ -1046,6 +1377,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         content: function () { return '<h4' + $(this).data('content') + '</h4>'; }
                     });
 
+                    @if($user->checkTourRead('chat',6) == 0)
+                        $('div[data-toggle="popover"]').popover('disable');
+                    @endif
                 }
             })
                 .done(function() {
@@ -1062,7 +1396,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
         LoadTable();
 
-        $('input[name=RadioGroup1]').on('click', function(event) {
+        // $('#daysSelect').on('change', function() {
+        //   alert( this.value );
+        //   console.log($("#daysSelect option:selected").val())
+        // });
+
+        $('#daysSelect').on('change', function() {
+        // $('input[name=RadioGroup1]').on('click', function(event) {
 
             // $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('off');
             // $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on');
@@ -1081,19 +1421,20 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             {{--$('.lebox2,.lebox3,.lebox_alert').next('dd').show();--}}
             {{--$('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle();--}}
 
-            @if($user->engroup==2)
-            $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on off');
-            $('.lebox1').toggleClass('on');
-            $('.lebox2,.lebox3,.lebox_alert').toggleClass('off');
-            // $('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");
-            @elseif($user->engroup==1)
-            $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on off');
-            $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');
-            // $('.lebox1,.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");
-            @endif
+{{--            @if($user->engroup==2)--}}
+{{--            $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on off');--}}
+{{--            $('.lebox1').toggleClass('on');--}}
+{{--            $('.lebox2,.lebox3,.lebox_alert').toggleClass('off');--}}
+{{--            // $('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");--}}
+{{--            @elseif($user->engroup==1)--}}
+{{--            $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on off');--}}
+{{--            $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');--}}
+{{--            // $('.lebox1,.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");--}}
+{{--            @endif--}}
 
 
-            date= $('input[name=RadioGroup1]:checked').val();
+            // date= $('input[name=RadioGroup1]:checked').val();
+            date= $("#daysSelect option:selected").val();
             window.location.hash = '#'+ date;
             @if($user->engroup==1)
                     @php
@@ -1155,6 +1496,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     Page_warned.DrawPage(alert_counts);
                     $('.sjlist_alert>.date7.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
 
+                    let banned_counts = $('.date7.bannedMember').length;
+                    if (banned_counts > 10) {
+                        $('.page_banned').show();
+                    }
+                    Page_banned.DrawPage(banned_counts);
+                    $('.sjlist_banned>.date7.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
+
                  } else if (date == 30) {
                     $('.row_data').hide();
 
@@ -1193,6 +1541,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     Page_warned.DrawPage(alert_counts);
                     $('.sjlist_alert>.common30.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
 
+                    let banned_counts = $('.common30.bannedMember').length;
+                    if (banned_counts > 10) {
+                        $('.page_banned').show();
+                    }
+                    Page_banned.DrawPage(banned_counts);
+                    $('.sjlist_banned>.common30.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
                  }else{
                      @if($user->engroup==2)
                          let vip_counts = $('.vipMember').length;
@@ -1229,6 +1583,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                      Page_warned.DrawPage(alert_counts);
                      $('.sjlist_alert>.alertMember').slice((Page_warned.page - 1) * Page_warned.row, Page_warned.page * Page_warned.row).css('display', '');
 
+                    let banned_counts = $('.bannedMember').length;
+                     if (banned_counts > 10) {
+                         $('.page_banned').show();
+                     }
+                     Page_banned.DrawPage(alert_counts);
+                     $('.sjlist_banned>.bannedMember').slice((Page_banned.page - 1) * Page_banned.row, Page_banned.page * Page_banned.row).css('display', '');
                  }
                     $('.warning').hide();
 
@@ -1262,6 +1622,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             }
                         @endforeach
                     @endif
+                    
+                    if ($('.sjlist_banned>li:visible').length == 0) {
+                        if(!isLoading) {
+                            $('#sjlist_banned_warning').hide();
+                            $('.sjlist_banned').append(no_row_li);
+                        }
+                    }                       
             }
 
         });
@@ -1270,7 +1637,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             c4('確定要刪除嗎?');
             $(".n_left").on('click', function () {
                 $("#tab04").hide();
-                show_message('刪除成功');
+                c5('刪除成功');
                 window.location=url;
             });
             return false;
@@ -1287,7 +1654,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     _token: '{{ csrf_token() }}'
                 }, function (data) {
                     $("#tab04").hide();
-                    show_message('封鎖成功');
+                    c5('封鎖成功');
                     window.location.reload();
                 });
             });
@@ -1308,10 +1675,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             // alert(IDs);
             // alert($('.sjlist_vip.row_data>li:visible').length);
             if($.trim(IDs) !== '') {
-                c4('確定要全部刪除嗎?');
+                c8('確定要全部刪除嗎?');
                 deleteRowAll(IDs);
             }else{
-                c2('沒有可刪除資料');
+                c5('沒有可刪除資料');
             }
         });
         $('.novip_delete').on('click', function() {
@@ -1321,10 +1688,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
             // alert(IDs);
             if($.trim(IDs) !== '') {
-                c4('確定要全部刪除嗎?');
+                c8('確定要全部刪除嗎?');
                 deleteRowAll(IDs);
             }else{
-                c2('沒有可刪除資料');
+                c5('沒有可刪除資料');
             }
         });
         $('.alert_delete').on('click', function() {
@@ -1333,12 +1700,25 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             $(".sjlist_alert").find("li").each(function(){ IDs.push(this.id); });
 
             if($.trim(IDs) !== '') {
-                c4('確定要全部刪除嗎?');
+                c8('確定要全部刪除嗎?');
                 deleteRowAll(IDs);
             }else{
-                c2('沒有可刪除資料');
+                c5('沒有可刪除資料');
             }
         });
+        
+        $('.banned_delete').on('click', function() {
+            // c4('確定要全部刪除嗎?');
+            var IDs = [];
+            $(".sjlist_banned").find("li").each(function(){ IDs.push(this.id); });
+
+            if($.trim(IDs) !== '') {
+                c8('確定要全部刪除嗎?');
+                deleteRowAll(IDs);
+            }else{
+                c5('沒有可刪除資料');
+            }
+        });        
 
         @php
         $exchange_period_name = DB::table('exchange_period_name')->get();
@@ -1351,10 +1731,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                 // alert(IDs);
                 if($.trim(IDs) !== '') {
-                    c4('確定要全部刪除嗎?');
+                    c8('確定要全部刪除嗎?');
                     deleteRowAll(IDs);
                 }else{
-                    c2('沒有可刪除資料');
+                    c5('沒有可刪除資料');
                 }
             });
         @endforeach
@@ -1367,8 +1747,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             del_url = del_url.replace(':sid', sid);
             $(".n_left").on('click', function() {
 
-                $("#tab04").hide();
-                show_message('刪除成功');
+                $("#tab08").hide();
+                c5('刪除成功');
                 window.location=del_url;
             });
             return false;
@@ -1410,9 +1790,49 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     .popover.bottom .arrow:after {
         border-bottom-color:#e2e8ff;
     }
+    .online{
+        background: #17bb4a;
+        border: #ffffff 2px solid;
+        width: 15px;
+        height: 15px;
+        border-radius: 100px;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        display: block;
+        z-index: 5;
+    }
+    .nonVip{
+        width: 15px;
+        height: 15px;
+        background: linear-gradient(to TOP,#ff9225,#ffb86e);
+        border-radius: 100px;
+        box-shadow: 2px 2px 0px #ff721d;
+        border-radius: 100px;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        display: block;
+        z-index: 5;
+    }
+    .nonVip img {
+        max-width: 100%;
+        max-height: 100%;
+        height: 7px;
+        margin: 0 auto;
+        display: table;
+        margin-top: 4px;
+    }
+    .shanx{
+        position: relative;
+        overflow: inherit !important;
+    }
 </style>
 
     <script>
+
+        var step1,step3,step4,step5,step6,step7,step8,step9,step10;
+
         $('.blbut').on('click', function() {
             $("#tab03").hide();
             $.post('{{ route('chatSet') }}', {
@@ -1432,23 +1852,27 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         // $('.lebox1').removeClass('off');
         // $('.lebox1').removeClass('on');
 
-        $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('off');
-        $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on');
+        // $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('off');
+        // $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on');
 
-        @if($user->engroup==2)
-        $('.lebox1').toggleClass('on');
-        $('.lebox2,.lebox3,.lebox_alert').toggleClass('off');
-        $('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");
-        @elseif($user->engroup==1)
-        $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');
-        $('.lebox1,.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");
-        @endif
+{{--        @if($user->engroup==2)--}}
+{{--        $('.lebox1').toggleClass('on');--}}
+{{--        $('.lebox2,.lebox3,.lebox_alert').toggleClass('off');--}}
+{{--        $('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");--}}
+{{--        @elseif($user->engroup==1)--}}
+{{--        $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');--}}
+{{--        $('.lebox1,.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");--}}
+{{--        @endif--}}
         // $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');
         // $(".leftsidebar_box dd").show();
         // $('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");
         //
         //
-        $('.lebox1,.lebox2,.lebox3,.lebox_alert').click(function(e) {
+
+                $('.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').toggleClass('off');
+                $('.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').next('dd').slideToggle("slow");
+
+        $('.lebox1,.lebox2,.lebox3,.lebox_alert,.lebox5').click(function(e) {
             if ($(this).hasClass('off')) {
                 $(this).removeClass('off');
                 $(this).toggleClass('on');
@@ -1495,10 +1919,155 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             }
             else{
                 if($(this).hasClass('on') && $(this).hasClass('lebox_alert')){
-                    c3('此為警示會員，要與此區會員交流請務必小心。');
+                    c5('此為警示會員，要與此區會員交流請務必小心。');
+                    @if($user->engroup==1)
+                        @if($user->checkTourRead('chat',6))
+                            //c5('此為警示會員，要與此區會員交流請務必小心。');
+                        @endif
+                        if(step6==1){
+                            //c5('此為警示會員，要與此區會員交流請務必小心。');
+                        }
+                    @elseif($user->engroup==2)
+                        @if($user->checkTourRead('chat',5))
+                            //c5('此為警示會員，要與此區會員交流請務必小心。');
+                        @endif
+                        if(step5==1){
+                            //c5('此為警示會員，要與此區會員交流請務必小心。');
+                        }
+                    @endif
                 }
             }
+            
+            
+           $('.sjlist_banned>.li_no_data').remove();
+            if ($('.sjlist_banned>li:visible').length == 0) {
+                console.log(isLoading);  {{-- 此行勿刪，若刪除將導致頁面產生錯誤 --}}
+                if(!isLoading) {
+                    $('#sjlist_banned_warning').hide();
+                    $('.sjlist_banned').append(no_row_li);
+                }
+            }
+            else{
+                if($(this).hasClass('on') && $(this).hasClass('lebox5')){
+                    c5('此為被站長封鎖的會員，如果您們已經交換聯絡方式，請多加注意。');
+                }
+            }            
         });
+        $(document).on('DOMNodeInserted', 'img.lazy', function() {
+            $(this).lazyload({
+                effect: 'fadeIn'
+            });
+        });
+
+        function letTourRead(page,step){
+            $.post('{{ route('letTourRead') }}', {
+                uid: '{{ $user->id }}',
+                page: page,
+                step: step,
+                _token: '{{ csrf_token() }}'
+            }, function (data) {
+
+            });
+        }
+
+
+
+        @if($user->login_times >= 3)
+            $(function(){
+                
+                @if($user->checkTourRead('chat',1)==0)
+                if(step1 != 1) {
+                    // $('#announcement').hide();
+                    // $('.announce_bg').hide();
+                    // introJs().setOption('showButtons', true).start();
+                    // step1=1;
+                    // letTourRead('chat',1);
+                }
+
+                @endif
+            });
+
+            $('.lebox1').click(function(){
+                @if($user->checkTourRead('chat',3)==0)
+                if(step3 != 1) {
+                    $('#announcement').hide();
+                    $('.announce_bg').hide();
+                    introJs().goToStep(2).start();
+                    step3 = 1;
+                    letTourRead('chat',3);
+                }
+                @endif
+            });
+
+            $('.lebox2').click(function(){
+                @if($user->checkTourRead('chat',4)==0)
+                if(step4 != 1) {
+                    $('#announcement').hide();
+                    $('.announce_bg').hide();
+                    introJs().goToStep(3).start();
+                    step4 = 1;
+                    letTourRead('chat',4);
+                }
+                @endif
+            });
+
+            $('.lebox3').click(function(){
+                @if($user->checkTourRead('chat',5)==0)
+                if(step5 != 1) {
+                    $('#announcement').hide();
+                    $('.announce_bg').hide();
+                    introJs().goToStep(4).start();
+                    step5 = 1;
+                    letTourRead('chat',5);
+                }
+                @endif
+            });
+
+            @if($user->engroup==1)
+                $('.lebox4').click(function(){
+                    @if($user->checkTourRead('chat',6)==0)
+                    if(step6 != 1) {
+                        $('#announcement').hide();
+                        $('.announce_bg').hide();
+                        introJs().goToStep(5).start();
+                        step6 = 1;
+                        letTourRead('chat',6);
+                    }
+                    @endif
+                });
+
+                function yd3() {
+                    @if($user->checkTourRead('chat',7)==0)
+                    if (step7 != 1) {
+                        $('#announcement').hide();
+                        $('.announce_bg').hide();
+                        introJs().goToStep(6).start();
+                        $('div[data-toggle="popover"]').popover('disable');
+                        step7 = 1;
+                        letTourRead('chat',7);
+                    }
+                    @endif
+                }
+
+            @else
+                function yd3() {
+                    @if($user->checkTourRead('chat',6)==0)
+                    if (step6 != 1) {
+                        $('#announcement').hide();
+                        $('.announce_bg').hide();
+                        introJs().goToStep(5).start();
+                        $('div[data-toggle="popover"]').popover('disable');
+                        step6 = 1;
+                        letTourRead('chat',6);
+                    }
+                    @endif
+                }
+            @endif
+
+
+        @endif
+
+
 
     </script>
 @stop

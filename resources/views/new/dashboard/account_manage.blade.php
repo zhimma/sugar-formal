@@ -9,22 +9,26 @@
             <div class="col-sm-12 col-xs-12 col-md-10">
                 <div class="g_password">
                     <div class="g_pwicon">
+                        <li><a href="/dashboard/viewuser/{{$user->id}}" class="g_pwicon_t5 "><span>自我預覽</span></a></li>
                         <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t "><span>基本資料</span></a></li>
                         <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2"><span>照片管理</span></a></li>
-                        <li><a href="{!! url('/dashboard/account_manage') !!}" class="g_pwicon_t3 g_hicon3"><span>更改帳號</span></a></li>
-                        <li><a href="{!! url('/dashboard/vip') !!}" class="g_pwicon_t4"><span>VIP</span></a></li>
+                        <li><a href="{!! url('/dashboard/account_manage') !!}" class="g_pwicon_t3 g_hicon3"><span>帳號設定</span></a></li>
+{{--                        <li><a href="{!! url('dashboard/vipSelect') !!}" class="g_pwicon_t4"><span>升級付費</span></a></li>--}}
                     </div>
                     <div class="gg_zh01 matop-50">
-                        <a class="gg_zh_li" onclick="checkChangeName();"><span><img src="/new/images/zh01.png"></span>
+                        <a href="javascript:void(0)" class="gg_zh_li" onclick="checkChangeName();"><span><img src="/new/images/zh01.png"></span>
                             <font>修改暱稱申請</font>
                         </a>
-                        <a class="gg_zh_li" onclick="checkChangeGender();"><span><img src="/new/images/zh02.png"></span>
+                        <a href="javascript:void(0)" class="gg_zh_li" onclick="checkChangeGender();"><span><img src="/new/images/zh02.png"></span>
                             <font>變更帳號類型</font>
                         </a>
                         <a href="{!! url('/dashboard/password') !!}" class="gg_zh_li"><span><img src="/new/images/zh03.png"></span>
                             <font>更改密碼</font>
                         </a>
-{{--                        @php--}}
+                        <a href="{!! url('/dashboard/openCloseAccount') !!}" class="gg_zh_li"><span><img src="/new/images/lightPinkKey.png"></span>
+                            <font>帳號開啟/關閉</font>
+                        </a>
+                        {{--                        @php--}}
 {{--                        //檢查是否有申請交付--}}
 {{--                        $check_user = DB::table('account_consign')->whereNull('cancel_id')->where('a_user_id',$user->id)->orWhere('b_user_id',$user->id)->first();--}}
 {{--                        @endphp--}}
@@ -39,12 +43,23 @@
 {{--                        @endif--}}
 
                         @if($user->engroup==2)
-                        <a class="gg_zh_li" onclick="checkExchangePeriod();">
+                        <a href="javascript:void(0)" class="gg_zh_li" onclick="checkExchangePeriod();">
                             <span><img src="/new/images/zh06.png"></span>
                             <font>包養關係</font>
                         </a>
                         @endif
 
+                        <a href="javascript:void(0)" class="gg_zh_li" onclick="checkHideOnline();"><span><img src="/new/images/zh07.png"></span>
+                            <font>搜索隱藏設定</font>
+                        </a>
+
+                        <a href="{{route('viewChatNotice')}}" class="gg_zh_li"><span><img src="/new/images/zh08.png"></span>
+                            <font>Line通知設定</font>
+                        </a>
+
+                        <a href="/member_auth/" class="gg_zh_li"><span><img src="/new/images/zh09.png"></span>
+                            <font>手機驗證</font>
+                        </a>
 
 
                     </div>
@@ -60,7 +75,7 @@
         function checkChangeName() {
 
             @if($user->meta_()->name_change==1)
-                c2('您已申請過，無法再修改喔！');
+                c5('您已申請過，無法再修改喔！');
                 return false;
             @endif
 
@@ -71,7 +86,7 @@
         function checkChangeGender() {
 
             @if($user->engroup_change >= 1)
-            c2('您已申請過，無法再修改喔！');
+            c5('您已申請過，無法再修改喔！');
             return false;
             @endif
 
@@ -82,11 +97,22 @@
         function checkExchangePeriod() {
 
             @if($user->meta_()->exchange_period_change >= 1)
-            c2('您已申請過，無法再修改喔！');
+            c5('您已申請過，無法再修改喔！');
             return false;
             @endif
 
             window.location.replace("/dashboard/account_exchange_period");
+            return true;
+        }
+
+        function checkHideOnline() {
+
+            @if($user->valueAddedServiceStatus('hideOnline') != 1)
+            c5('您尚未購買隱藏付費功能');
+            return false;
+            @endif
+
+            window.location.replace("/dashboard/account_hide_online");
             return true;
         }
     </script>
