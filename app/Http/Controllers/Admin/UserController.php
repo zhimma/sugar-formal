@@ -4243,15 +4243,15 @@ class UserController extends \App\Http\Controllers\BaseController
 					$orFilterArr = [];
 				}
 				
-				$result=LogUserLogin::where('created_at', '>=', $date_start)->where('created_at', '<=', $date_end)->select('user_id');
+				$user_set = LogUserLogin::where('created_at', '>=', $date_start)->where('created_at', '<=', $date_end)->select('user_id')->groupBy('user_id')->with('user')->get();
 
-				$resultSet = array_unique($result->get()->pluck('user_id')->toArray());
+				$user_id_set = $user_set->pluck('user_id')->toArray();
 
 				$data = [];
-				foreach($resultSet  as $k=>$user_id) {
+				foreach($user_set  as $k => $user) {
 					$andPassNum = 0;
-					if(isset($data[$user_id])) continue;
-					$gUser = User::find($user_id);
+					if(isset($data[$user->id])) continue;
+					$gUser = $user;
 					if($gUser) {
 						if(isset($en_group) && $gUser->engroup!=$en_group) continue;
 						$gUser->tag_class = 'engroup'.$gUser->engroup.' ';
@@ -4261,20 +4261,20 @@ class UserController extends \App\Http\Controllers\BaseController
 						if($gUser->accountStatus===0) $gUser->tag_class.= 'isClosed ';
 						if($gUser->account_status_admin===0) $gUser->tag_class.= 'isClosedByAdmin ';						
 					}
-					else {echo $user_id.' user id not exist<br>'."\n\r";
+					else {
 						continue;
 					}
 
-					$cur_advInfo = User::userAdvInfo($user_id,$wantIndexArr);
+					$cur_advInfo = $user->getAdvInfo($wantIndexArr);
 					if($reported_gt_num) {
-						$cur_advInfo['be_reported_other_count'] = Reported::cntr($user_id);
+						$cur_advInfo['be_reported_other_count'] = Reported::cntr($user->id);
 					}
 					$gUser->advInfo= $cur_advInfo;
 					if($msg_gt_visit_7days)
 					{ 
 						if(($gUser->advInfo['message_count_7'] ?? 0)>($gUser->advInfo['visit_other_count_7'] ?? 0)) {
 							if(in_array('msg_gt_visit_7days',$orFilterArr)) {
-								$data[$user_id] = $gUser;
+								$data[$user->id] = $gUser;
 								continue;
 							}
 							else $andPassNum++;
@@ -4285,7 +4285,7 @@ class UserController extends \App\Http\Controllers\BaseController
 						if(($gUser->advInfo['message_count'] ?? 0)>($gUser->advInfo['visit_other_count'] ?? 0)) 
 						{
 							if(in_array('msg_gt_visit',$orFilterArr)){
-								$data[$user_id] = $gUser;
+								$data[$user->id] = $gUser;
 								continue;
 							}
 							else $andPassNum++;							
@@ -4296,7 +4296,7 @@ class UserController extends \App\Http\Controllers\BaseController
 						if(($gUser->advInfo['be_blocked_other_count'] ?? 0)>($blockedGtNum ?? 0)) 
 						{
 							if(in_array('blocked_gt_num',$orFilterArr)){
-								$data[$user_id] = $gUser;
+								$data[$user->id] = $gUser;
 								continue;
 							}	
 							else $andPassNum++;
@@ -4307,7 +4307,7 @@ class UserController extends \App\Http\Controllers\BaseController
 						 if(($gUser->advInfo['blocked_other_count'] ?? 0)>($blockOtherGtNum ?? 0)) 
 						{
 							if(in_array('block_other_gt_num',$orFilterArr)){
-								$data[$user_id] = $gUser;
+								$data[$user->id] = $gUser;
 								continue;
 							}	
 							else $andPassNum++;
@@ -4318,7 +4318,7 @@ class UserController extends \App\Http\Controllers\BaseController
 						 if(($gUser->advInfo['be_reported_other_count'] ?? 0)>($reportedGtNum ?? 0)) 
 						{
 							if(in_array('reported_gt_num',$orFilterArr)){
-								$data[$user_id] = $gUser;
+								$data[$user->id] = $gUser;
 								continue;
 							}	
 							else $andPassNum++;
@@ -4326,7 +4326,7 @@ class UserController extends \App\Http\Controllers\BaseController
 					}
 
 					if(count($andFilterArr)==$andPassNum) {
-						$data[$user_id] = $gUser;
+						$data[$user->id] = $gUser;
 						continue;						
 					}
 				}
