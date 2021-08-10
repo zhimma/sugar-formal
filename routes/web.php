@@ -521,6 +521,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/pictures/modify', 'UserController@modifyUserPictures')->name('users/pictures/modify');
         Route::get('users/reported/count', 'UserController@showReportedCountPage')->name('users/reported/count/GET');
         Route::post('users/reported/count', 'UserController@showReportedCountList')->name('users/reported/count');
+        Route::get('users/filterByInfo', 'UserController@showFilterByInfoPage')->name('users/filterByInfo');;
+        Route::post('users/filterByInfo', 'UserController@showFilterByInfoList');
         Route::get('users/board', 'PagesController@board')->name('users/board');
         Route::post('users/board', 'PagesController@board')->name('users/board/search');
         Route::get('users/board/delete/{id}', 'UserController@deleteBoard')->name('users/board/delete');
