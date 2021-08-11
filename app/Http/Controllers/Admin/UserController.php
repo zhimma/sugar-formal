@@ -4246,10 +4246,11 @@ class UserController extends \App\Http\Controllers\BaseController
 				$user_set = LogUserLogin::where('created_at', '>=', $date_start)->where('created_at', '<=', $date_end)->select('user_id')->groupBy('user_id')->with('user')->get();
 
 				$data = [];
-				foreach($user_set  as $k => $user) {
+				foreach($user_set  as $k => $row) {
+                    $user = $row->user;
 					$andPassNum = 0;
 					if(isset($data[$user->id])) continue;
-					$gUser = $user->user;
+					$gUser = $user;
 					if($gUser) {
 						if(isset($en_group) && $gUser->engroup!=$en_group) continue;
 						$gUser->tag_class = 'engroup'.$gUser->engroup.' ';
