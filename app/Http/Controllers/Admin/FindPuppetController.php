@@ -137,6 +137,9 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     ->orWhere('email', 'LIKE', 'sandyh.dlc%@gmail.com')
                     ->orWhere('email', 'LIKE', 'TEST%@test.com')
                     ->orWhere('email', 'LIKE', 'lzong.tw%@gmail.com')
+					->orwhereHas('meta', function($query){
+                        $query->where('is_active', '0');
+                    })
                     ->get()->toArray(), 'id');
 
 					$ignoreUserId = array_pluck($this->ignore->get()->toArray(),'item');					
@@ -528,6 +531,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $start = $request->start;
         $groupOrderArr = [];
 		$rowLastLoginArr = [];
+		$rowLatestLastLoginArr = [];
         
         if($have_mon_limit && (!isset($mon) || !$mon) && $show!='text') {
 
@@ -575,7 +579,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     ->get();
                 
                 foreach($groupChecks as $idx=>$groupCheck) {
-                    $groupOrderArr[] = $groupCheck->group_index;
+                    //$groupOrderArr[] = $groupCheck->group_index;
                     $groupInfo[$groupCheck->group_index] = $groupCheck->toArray();
                     $groupInfo[$groupCheck->group_index]['cutData'] = false;
                     if($groupCheck->maxColIdx>$data['colOverload'] && $groupCheck->maxRowIdx>$data['rowOverload']) {
@@ -586,15 +590,106 @@ class FindPuppetController extends \App\Http\Controllers\Controller
             else {
                 $text=null;
             }
+			
+			
+            $rowQuery = $this->row->where($whereArr);
+            if($show=='text') {
+                 if($g) $rowQuery->where('group_index',$g);
+            }  
+			else {
+				$rowQuery->orderBy('group_index');
+			}
+            $rowEntrys = $rowQuery->get();
+			$max_email_len = 0;
+			$ignore_group_index_arr = [];
+
+            foreach($rowEntrys as $rowEntry) {
+                if($show=='text') {
+                    $this->_rowUserId[$rowEntry->group_index][$rowEntry->row_index]  = $rowEntry->name;
+                }
+                else {
+					$now_group = $rowEntry->group_index;
+					if(isset($last_group)) {
+						if($now_group!=$last_group) {
+							$last_group_row_count = count($this->_rowUserId[$last_group]);
+							$last_group_adminclosed_count = $now_group_adminclosed_count;
+							$last_group_banned_count = $now_group_banned_count;
+							$last_group_implicitlyBanned_count = $now_group_implicitlyBanned_count;
+							if(($last_group_row_count-$last_group_adminclosed_count-$last_group_banned_count-$last_group_implicitlyBanned_count)<=0
+								|| ($last_group_row_count-$last_group_adminclosed_count)<=1
+							) 
+							{
+								$this->_rowUserId[$last_group] = $rowLatestLastLoginArr[$last_group] =  null;
+								unset($this->_rowUserId[$last_group],$rowLatestLastLoginArr[$last_group]);
+								$ignore_group_index_arr[] = $last_group;
+							}
+							$now_group_adminclosed_count 
+							= $now_group_banned_count 
+							= $now_group_implicitlyBanned_count 	
+							= $last_group_adminclosed_count 
+							= $last_group_banned_count 
+							= $last_group_implicitlyBanned_count 							
+							= 0;
+						}
+					}
+					else {
+						$now_group_adminclosed_count 
+						= $now_group_banned_count 
+						= $now_group_implicitlyBanned_count 
+						= $last_group_row_count 
+						= $last_group_adminclosed_count 
+						= $last_group_banned_count 
+						= $last_group_implicitlyBanned_count 						
+						= 0;
+					}
+
+                    if(isset($groupInfo[$rowEntry->group_index]['cutData']) && $groupInfo[$rowEntry->group_index]['cutData'] && $rowEntry->row_index>$data['rowLimit']) continue;
+                    $cur_user = User::with('vip','aw_relation', 'banned', 'implicitlyBanned')->find($rowEntry->name)??new User;
+                    $cur_user->tag_class = '';
+                    if($cur_user->id==null) $cur_user->id = $rowEntry->name;
+
+					$cur_user->ignoreEntry = $this->ignore->where('item',$cur_user->id)->first();
+
+                    if($cur_user->banned)  {
+						$cur_user->tag_class.= 'banned ';
+						$now_group_banned_count++;
+					}
+                    if($cur_user->implicitlyBanned) {
+						$cur_user->tag_class.= 'implicitlyBanned ';
+						$now_group_implicitlyBanned_count++;
+					} 
+                    if((isset($cur_user->user_meta->isWarned) && $cur_user->user_meta->isWarned) || $cur_user->aw_relation)  $cur_user->tag_class.= 'isWarned ';
+                    if($cur_user->accountStatus===0) $cur_user->tag_class.= 'isClosed ';
+                    if($cur_user->account_status_admin===0) {
+						$cur_user->tag_class.= 'isClosedByAdmin ';
+						$now_group_adminclosed_count++;
+					}
+					if(isset($cur_user->email) && strlen($cur_user->email)>$max_email_len) $max_email_len = strlen($cur_user->email);
+                    $this->_rowUserId[$rowEntry->group_index][$rowEntry->row_index] = $cur_user;
+					$rowLastLoginArr[$rowEntry->group_index][$rowEntry->row_index] = $cur_user->last_login;
+					arsort($rowLastLoginArr[$rowEntry->group_index]);
+					$groupLastLoginValus = array_values($rowLastLoginArr[$rowEntry->group_index]);
+                    $rowLatestLastLoginArr[$rowEntry->group_index] = $groupLastLoginValus[0];
+					$cur_user = null;
+					$last_group = $now_group;
+                }
+            }  
+			if($max_email_len<30) $max_email_len=30;
+			$data['max_email_len'] = $max_email_len;			
+			
+			
 
             $colQuery = $this->column->where($whereArr);
             if($show=='text') {
                  if($g) $colQuery->where('group_index',$g);
             }
+			
             $colEntrys = $colQuery->get();
 			$colIdxOfIp = [];
 			$colIdxOfCfpId = [];
             foreach($colEntrys as $colEntry) {
+				if(in_array($colEntry->group_index,$ignore_group_index_arr)) continue;
+				
                 if(isset($groupInfo[$colEntry->group_index]['cutData']) && $groupInfo[$colEntry->group_index]['cutData'] && $colEntry->column_index>$data['colLimit']) continue;
                 
                $this->_columnIp[$colEntry->group_index][$colEntry->column_index] = $colEntry->name;
@@ -608,45 +703,16 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 				}
             }
             
-            $rowQuery = $this->row->where($whereArr);
-            if($show=='text') {
-                 if($g) $rowQuery->where('group_index',$g);
-            }            
-            $rowEntrys = $rowQuery->get();
-			$max_email_len = 0;
-            foreach($rowEntrys as $rowEntry) {
-                if($show=='text') {
-                    $this->_rowUserId[$rowEntry->group_index][$rowEntry->row_index]  = $rowEntry->name;
-                }
-                else {
-                    if(isset($groupInfo[$colEntry->group_index]['cutData']) && $groupInfo[$rowEntry->group_index]['cutData'] && $rowEntry->row_index>$data['rowLimit']) continue;
-                    $cur_user = User::with('vip','aw_relation', 'banned', 'implicitlyBanned')->find($rowEntry->name)??new User;
-                    $cur_user->tag_class = '';
-                    if($cur_user->id==null) $cur_user->id = $rowEntry->name;
 
-					$cur_user->ignoreEntry = $this->ignore->where('item',$cur_user->id)->first();
-
-                    if($cur_user->banned)  $cur_user->tag_class.= 'banned ';
-                    if($cur_user->implicitlyBanned)  $cur_user->tag_class.= 'implicitlyBanned ';
-                    if($cur_user->user_meta->isWarned || $cur_user->aw_relation)  $cur_user->tag_class.= 'isWarned ';
-                    if($cur_user->accountStatus===0) $cur_user->tag_class.= 'isClosed ';
-                    if($cur_user->account_status_admin===0) $cur_user->tag_class.= 'isClosedByAdmin ';
-					if(isset($cur_user->email) && strlen($cur_user->email)>$max_email_len) $max_email_len = strlen($cur_user->email);
-                    $this->_rowUserId[$rowEntry->group_index][$rowEntry->row_index] = $cur_user;
-					$rowLastLoginArr[$rowEntry->group_index][$rowEntry->row_index] = $cur_user->last_login;
-					arsort($rowLastLoginArr[$rowEntry->group_index]);
-                    $cur_user = null;
-                }
-            }  
-			if($max_email_len<30) $max_email_len=30;
-			$data['max_email_len'] = $max_email_len;
             
             $cellQuery = $this->cell->where($whereArr);
             if($show=='text') {
                  if($g) $cellQuery->where('group_index',$g);
-            }                    
+            }  
+
             $cellEntrys = $cellQuery->get();
             foreach($cellEntrys as $cellEntry) {
+				if(in_array($cellEntry->group_index,$ignore_group_index_arr)) continue;				
                 if(isset($groupInfo[$colEntry->group_index]['cutData']) && $groupInfo[$cellEntry->group_index]['cutData'] && ($cellEntry->row_index>$data['rowLimit'] || $cellEntry->column_index>$data['colLimit'])) continue;
                $this->_cellVal[$cellEntry->group_index][$cellEntry->row_index][$cellEntry->column_index] = $cellEntry;
             }  
@@ -705,7 +771,9 @@ class FindPuppetController extends \App\Http\Controllers\Controller
             }
             
         }
-        
+     
+	arsort($rowLatestLastLoginArr);	 
+	$groupOrderArr = array_keys($rowLatestLastLoginArr);
     $data['groupOrderArr'] = $groupOrderArr;
 	$data['rowLastLoginArr'] = $rowLastLoginArr;
 	$data['colIdxOfCfpId'] = $colIdxOfCfpId;

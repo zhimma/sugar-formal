@@ -10,10 +10,31 @@
 	body table.table-hover {width:auto;max-width:none;}
 
 	
-	body table.table-hover tr.isClosed {background-color:#C9C9C9}
-	body table.table-hover tr.isClosedByAdmin {background-color:#969696}
-	body table.table-hover tr.isWarned {background-color:#B0FFB1; !important;}
-	body table.table-hover tr.banned,table tr.implicitlyBanned {background-color:#FDFF8C; !important;}
+	body table.table-hover.table tr.isClosed {background-color:#C9C9C9}
+	tr.isClosed th.col-most, tr.isClosed td.col-most {background-color:#C9C9C9 !important;}
+
+	body table.table-hover tr.isWarned {background-color:#B0FFB1;}
+	tr.isWarned th.col-most,tr.isWarned td.col-most {background-color:#B0FFB1 !important;}
+	
+	table.table-hover tr.banned {background-color:#FDFF8C;} 
+	table.table-hover tr.implicitlyBanned {background-color:#FDFF8C;}
+	tr.banned th.col-most,tr.implicitlyBanned th.col-most,tr.banned td.col-most,tr.implicitlyBanned td.col-most {background-color:#FDFF8C !important;}
+	
+	tr.isClosedByAdmin {background-color:#969696}
+	tr.isClosedByAdmin th.col-1st,tr.isClosedByAdmin th.col-2nd,tr.isClosedByAdmin th.col-3rd,tr.isClosedByAdmin th.col-most,tr.isClosedByAdmin td.col-most {background-color:#969696 !important;}	
+	
+	tr.banned th.col-1st,tr.implicitlyBanned th.col-1st,tr.banned th.col-2nd,tr.implicitlyBanned th.col-2nd,tr.banned th.col-3rd,tr.implicitlyBanned th.col-3rd {background-color:#FDFF8C !important;}
+	
+	tr.isClosedByAdmin:not(.banned):not(.implicitlyBanned) th.col-3rd,tr.isClosedByAdmin:not(.isClosed) th.col-3rd,tr.isClosedByAdmin:not(.isWarned) th.col-3rd {background-color:#969696 !important;}
+	tr.isWarned:not(.isClosedByAdmin):not(.banned):not(.implicitlyBanned) th.col-3rd {background-color:#B0FFB1 !important;}
+	
+	tr.isWarned th.col-1st ,tr.isWarned th.col-2nd {background-color:#B0FFB1 !important;}
+	
+	tr.banned.isWarned:not(.isClosed) th.col-2nd,tr.implicitlyBanned.isWarned:not(.isClosed) th.col-2nd{background-color:#FDFF8C !important;}
+	tr.isClosedByAdmin.isWarned:not(.isClosed):not(.banned):not(.implicitlyBanned) th.col-2nd {background-color:#969696 !important;}
+	tr.isClosedByAdmin.banned:not(.isClosed):not(.isWarned) th.col-2nd,tr.isClosedByAdmin.implicitlyBanned:not(.isClosed):not(.isWarned) th.col-2nd {background-color:#969696 !important;}
+	
+	tr.isClosed th.col-1st {background-color:#C9C9C9 !important;}	
 	
 	body table.table-hover tr td.col_ip_first ,body table.table-hover tr th.col_ip_first {border-left: 6px solid #000;}
 	td.group_last_time {background-color:#FF9999 !important;}
@@ -123,6 +144,7 @@
 @endif 
 </h2>
 </div>
+
 @forelse ($groupOrderArr as $gidx=>$g)
 <br><br>
 <div class="show">
@@ -177,7 +199,7 @@
 		@foreach(array_keys($rowLastLoginArr[$g]) as $r) 
 		@php $user = $rowSet[$g][$r]; @endphp
         <tr class="{{$user->tag_class}}">
-            <th>
+            <th class="col-1st">
 	{{--		<a target="_blank" href="showLog?user_id={{$user->id}}{{request()->mon?'&mon='.request()->mon:''}}">   --}}
 				<a target="_blank" href="{{route('getUsersLog')}}?user_id={{$user->id}}">{{$user->id ?? ''}}@if($user->engroup == 1 && $user->isVip()) <i class="m-nav__link-icon fa fa-diamond"></i> @endif </a>
 				<img src="{{asset("new/images/kai.png")}}" class="ignore_switch_on" style=" height: 15px;cursor: pointer;{{$user->ignoreEntry?'display:none;':'display:inline-block;'}}"/>			
@@ -189,43 +211,43 @@
 				//$user = \App\Models\User::with('vip','aw_relation', 'banned', 'implicitlyBanned')->find($rowName);
 				if($user){
 					if($user->aw_relation ?? $user->user_meta->isWarned) {
-						$bgColor = '#B0FFB1';
+						//$bgColor = '#B0FFB1';
 					}
 					if($user->banned ?? $user->implicitlyBanned){
-						$bgColor = '#FDFF8C';
+						//$bgColor = '#FDFF8C';
 					}
 				}
 			@endphp
 			@if($user)
-				<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+				<th  class="col-2nd"  style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
 					<a href="{!!route('users/advInfo',$user->id)!!}"  target="_blank">{{ $user->email }}</a>
 				</th>
-				<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+				<th  class="col-3rd" style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
 					<a href="#" class="user user_name" title="{{$user->name}}" onclick="return false;">{{ mb_strlen($user->name)>8?mb_substr($user->name,0,9).'...':$user->name }}</a>
 				</th>				
-				<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+				<th class="col-most" style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
 					<a href="#" class="user user_title" title="{{$user->title}}" onclick="return false;">{{ mb_strlen($user->title)>16?mb_substr($user->title,0,17).'...':$user->title }}</a>
 				</th>
-				<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+				<th class="col-most"  style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
 					<a href="#" class="user user_meta_about" title="{{$user->user_meta->about}}" onclick="return false;">{{ mb_strlen($user->user_meta->about)>16?mb_substr($user->user_meta->about,0,17).'...':$user->user_meta->about }}</a>
 				</th>
-				<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+				<th class="col-most"  style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
 					<a href="#" class="user user_meta_style" title="{{$user->user_meta->style}}" onclick="return false;">{{ mb_strlen($user->user_meta->style)>16?mb_substr($user->user_meta->style,0,17).'...':$user->user_meta->style }}</a>
 				</th>
-				<th style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
+				<th class="col-most"  style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif">
 					{{isset($user->last_login)?date('m/d-H:i',strtotime($user->last_login)):''}}
 				</th>
 			@else
-				<th></th>
-				<th></th>
-				<th></th>
-				<th></th>
-				<td></td>
-				<td></td>
+				<th class="col-2nd"  ></th>
+				<th class="col-3rd"></th>
+				<th class="col-most" ></th>
+				<th class="col-most" ></th>
+				<td class="col-most" ></td>
+				<td class="col-most" td>
 			@endif
 			@foreach ($colIdxOfCfpId[$g] as $n)
 			{{-- @for ($n=0;$n<count($columnSet[$g]);$n++) --}}
-				<td @if($user) style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif" @endif class=" @if($groupInfo[$g]['last_time']===$cellValue[$g][$r][$n]->time) group_last_time @endif">
+				<td @if($user) style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif" @endif class=" @if($groupInfo[$g]['last_time']===$cellValue[$g][$r][$n]->time) group_last_time @endif col-most">
 					@if(isset($cellValue[$g][$r][$n]))
 					{{$cellValue[$g][$r][$n]->time ? date('m/d-H:i',strtotime($cellValue[$g][$r][$n]->time)): ''}}
 	{{--			(<a target="_blank" href="showLog?user_id={{$user->id}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">{{$cellValue[$g][$r][$n]->num ?? ''}}次</a>)  --}}
@@ -236,7 +258,7 @@
 				</td>
 			@endforeach
 			@foreach ($colIdxOfIp[$g] as $i=>$n)
-				<td @if($user) style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif" @endif class=" @if($groupInfo[$g]['last_time']===$cellValue[$g][$r][$n]->time) group_last_time @endif {{$i?'':'col_ip_first'}}">
+				<td @if($user) style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif" @endif class=" @if($groupInfo[$g]['last_time']===$cellValue[$g][$r][$n]->time) group_last_time @endif {{$i?'':'col_ip_first'}} col-most">
 					@if(isset($cellValue[$g][$r][$n]))
 					{{$cellValue[$g][$r][$n]->time ? date('m/d-H:i',strtotime($cellValue[$g][$r][$n]->time)): ''}}
 	{{--			(<a target="_blank" href="showLog?user_id={{$user->id}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">{{$cellValue[$g][$r][$n]->num ?? ''}}次</a>)  --}}
