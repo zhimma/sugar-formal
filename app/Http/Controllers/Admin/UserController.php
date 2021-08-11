@@ -4257,7 +4257,7 @@ class UserController extends \App\Http\Controllers\BaseController
 						$gUser->tag_class = 'engroup'.$gUser->engroup.' ';
 						if($gUser->banned)  $gUser->tag_class.= 'banned ';
 						if($gUser->implicitlyBanned)  $gUser->tag_class.= 'implicitlyBanned ';
-						if($gUser->user_meta->isWarned || $gUser->aw_relation)  $gUser->tag_class.= 'isWarned ';
+						if((isset($gUser->user_meta->isWarned) && $gUser->user_meta->isWarned) || $gUser->aw_relation)  $gUser->tag_class.= 'isWarned ';
 						if($gUser->accountStatus===0) $gUser->tag_class.= 'isClosed ';
 						if($gUser->account_status_admin===0) $gUser->tag_class.= 'isClosedByAdmin ';						
 					}
