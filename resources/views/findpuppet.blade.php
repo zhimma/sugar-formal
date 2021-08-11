@@ -144,7 +144,6 @@
 @endif 
 </h2>
 </div>
-
 @forelse ($groupOrderArr as $gidx=>$g)
 <br><br>
 <div class="show">
