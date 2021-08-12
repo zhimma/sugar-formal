@@ -615,7 +615,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 							$last_group_adminclosed_count = $now_group_adminclosed_count;
 							$last_group_banned_count = $now_group_banned_count;
 							$last_group_implicitlyBanned_count = $now_group_implicitlyBanned_count;
-							if(($last_group_row_count-$last_group_adminclosed_count-$last_group_banned_count-$last_group_implicitlyBanned_count)<=0
+							if(($last_group_row_count-$last_group_banned_count-$last_group_implicitlyBanned_count)<=0
 								|| ($last_group_row_count-$last_group_adminclosed_count)<=1
 							) 
 							{
