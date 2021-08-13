@@ -41,6 +41,7 @@ use App\Models\SimpleTables\member_vip;
 use App\Models\SimpleTables\banned_users;
 use App\Models\SimpleTables\warned_users;
 use App\Models\BannedUsersImplicitly;
+use App\Models\DataForFilterByInfo;
 use App\Notifications\BannedNotification;
 use App\Observer\BadUserCommon;
 use Carbon\Carbon;
@@ -4139,16 +4140,6 @@ class UserController extends \App\Http\Controllers\BaseController
         return view('admin.users.isEverWarnedOrBannedLog')->with('user',$user)->with('logType', $logType)->with('dataLog', $dataLog);
     }
 	
-    public function showFilterByInfoPage()
-    {
-        $admin = $this->admin->checkAdmin();
-
-        if ($admin) {
-            return view('admin.users.filterByInfo');
-        } else {
-            return view('admin.users.filterByInfo')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
-        }
-    }
 
     public function showFilterByInfoList(Request $request)
     {
@@ -4167,171 +4158,114 @@ class UserController extends \App\Http\Controllers\BaseController
 			$reportedGtNum = $request->reportedGtNum;
 			$blockedGtNum = $request->blockedGtNum;
 			$blockOtherGtNum = $request->blockOtherGtNum;
-			
-			$date_start = $request->date_start;
-			$date_end = $request->date_end;
-			$time_start = $request->time_start;
-			$time_end = $request->time_end;
 
-			if(!$date_start) $error_msg['date_start'] = '請輸入開始日期';
-			if(!$date_end) $error_msg['date_end'] = '請輸入結束日期';
-			if(!$msg_gt_visit_7days 
-				&& !$msg_gt_visit 
-				&& !$reported_gt_num
-				&& !$blocked_gt_num
-				&& !$block_other_gt_num
-			) {
-				$error_msg['info_filter'] = '請至少選擇一個條件';
-			}
-			
 			if($error_msg) {
 				return view('admin.users.filterByInfo')->withErrors($error_msg);
 			}
 			else {
-				ini_set("max_execution_time",'1200');
-				ini_set('memory_limit','-1');
-				ini_set("request_terminate_timeout",'1200');
-				set_time_limit(1200);
 
-				$date_now = date('Y-m-d');
-				$time_now = date('H:i:s');
-
-				if($time_start) $date_start.=' '.$time_start;
-				
-				if($time_end) $date_end.=' '.$time_end;
-				else {
-					if($date_end==$date_now) $date_end.=' '.$time_now;
-					else {
-						$date_end.=' 23:59:59';
-					}
+				$whereArr = [];
+				$whereRawArr = [];
+				$orwhereArr = [];
+				$orwhereRawArr = [];
+				$qstrArr[] = [];
+				if(isset($en_group)) $qstrArr['en_group'] = $en_group;
+				$dateEntry = DataForFilterByInfo::select('created_at','updated_at')->first();
+				if($dateEntry) {
+					$start_date = Carbon::createFromFormat('Y-m-d H:i:s', $dateEntry->created_at)->subDays(1)->format('Y-m-d H:i:s');
+					$end_date = $dateEntry->created_at;
 				}
 
-				$wantIndexArr = [];
-				$orFilterArr = [];
-				$andFilterArr = [];
-				
+				$infoSet = DataForFilterByInfo::join('users', 'users.id', '=', 'data_for_filter_by_info.user_id')	
+					->where('engroup',($en_group ?? 2));
 				if($msg_gt_visit_7days) {
-					$wantIdexArr = array('message_count_7','visit_other_count_7');
-					if($msg_gt_visit_7days=='or') $orFilterArr[] = 'msg_gt_visit_7days';
-					else $andFilterArr[] = 'msg_gt_visit_7days';
+					$qstrArr['msg_gt_visit_7days'] = $msg_gt_visit_7days;
+					switch($msg_gt_visit_7days) {
+						case 'and':
+							$whereRawArr[] = 'message_count_7 > visit_other_count_7';
+						break;
+						case 'or':
+							$orwhereRawArr[] = 'message_count_7 > visit_other_count_7';
+						break;						
+					}
 				}
 				if($msg_gt_visit) {
-					$wantIdexArr[] = 'message_count';
-					$wantIdexArr[] = 'visit_other_count';
-					if($msg_gt_visit=='or') $orFilterArr[] = 'msg_gt_visit';
-					else $andFilterArr[] = 'msg_gt_visit';					
-				}	
+					$qstrArr['msg_gt_visit'] = $msg_gt_visit;
+					switch($msg_gt_visit) {
+						case 'and':
+							$whereRawArr[] = 'message_count > visit_other_count';
+						break;
+						case 'or':
+							$orwhereRawArr[] = 'message_count > visit_other_count';
+						break;						
+					}					
+				}
 				if($blocked_gt_num) {
-					$wantIdexArr[] = 'be_blocked_other_count';
-					if($blocked_gt_num=='or') $orFilterArr[] = 'blocked_gt_num';
-					else $andFilterArr[] = 'blocked_gt_num';					
-				}	
+					$qstrArr['blocked_gt_num'] = $blocked_gt_num;
+					$qstrArr['blockedGtNum'] = $blockedGtNum;
+					switch($blocked_gt_num) {
+						case 'and':
+							$whereArr[] = ['be_blocked_other_count','>',($blockedGtNum ?? 0)];
+						break;
+						case 'or':
+							$orwhereArr[] = ['be_blocked_other_count','>',($blockedGtNum ?? 0)];
+						break;						
+					}						
+				}
 				if($block_other_gt_num) {
-					$wantIdexArr[] = 'blocked_other_count';
-					if($block_other_gt_num=='or') $orFilterArr[] = 'block_other_gt_num';
-					else $andFilterArr[] = 'block_other_gt_num';					
+					$qstrArr['block_other_gt_num'] = $block_other_gt_num;
+					$qstrArr['blockOtherGtNum'] = $blockOtherGtNum;
+					switch($block_other_gt_num) {
+						case 'and':
+							$whereArr[] = ['blocked_other_count','>',($blockOtherGtNum ?? 0)];
+						break;
+						case 'or':
+							$orwhereArr[] = ['blocked_other_count','>',($blockOtherGtNum ?? 0)];
+						break;						
+					}						
 				}
-				
 				if($reported_gt_num) {
-					$wantIdexArr[] = 'reported_gt_num';
-					if($reported_gt_num=='or') $orFilterArr[] = 'reported_gt_num';
-					else $andFilterArr[] = 'reported_gt_num';					
+					$qstrArr['reported_gt_num'] = $reported_gt_num;
+					$qstrArr['reportedGtNum'] = $reportedGtNum;
+					switch($reported_gt_num) {
+						case 'and':
+							$whereArr[] = ['be_reported_other_count','>',($reportedGtNum ?? 0)];
+						break;
+						case 'or':
+							$orwhereArr[] = ['be_reported_other_count','>',($reportedGtNum ?? 0)];
+						break;						
+					}						
 				}
 				
-				if(count($orFilterArr)==1 && !$andFilterArr) {
-					$andFilterArr = $orFilterArr;
-					$orFilterArr = [];
-				}
-				
-				$user_set = LogUserLogin::where('created_at', '>=', $date_start)->where('created_at', '<=', $date_end)->select('user_id')->groupBy('user_id')->with('user')->get();
+				$infoSet->where(function($query) use($whereArr,$whereRawArr,$orwhereArr,$orwhereRawArr) {
+					if($whereRawArr) {
+						foreach($whereRawArr  as $whereRaw)
+							$query->whereRaw($whereRaw);
+					}
+					if($whereArr) $query->where($whereArr);
+					if($orwhereArr) {
 
-				$data = [];
-				foreach($user_set  as $k => $row) {
-                    $user = $row->user;
-					$andPassNum = 0;
-					if(isset($data[$user->id])) continue;
-					$gUser = $user;
-					if($gUser) {
-						if(isset($en_group) && $gUser->engroup!=$en_group) continue;
-						$gUser->tag_class = 'engroup'.$gUser->engroup.' ';
-						if($gUser->banned)  $gUser->tag_class.= 'banned ';
-						if($gUser->implicitlyBanned)  $gUser->tag_class.= 'implicitlyBanned ';
-						if((isset($gUser->user_meta->isWarned) && $gUser->user_meta->isWarned) || $gUser->aw_relation)  $gUser->tag_class.= 'isWarned ';
-						if($gUser->accountStatus===0) $gUser->tag_class.= 'isClosed ';
-						if($gUser->account_status_admin===0) $gUser->tag_class.= 'isClosedByAdmin ';						
-					}
-					else {
-						continue;
-					}
-
-					$cur_advInfo = $user->getAdvInfo($wantIndexArr);
-					if($reported_gt_num) {
-						$cur_advInfo['be_reported_other_count'] = Reported::cntr($user->id);
-					}
-					$gUser->advInfo= $cur_advInfo;
-					if($msg_gt_visit_7days)
-					{ 
-						if(($gUser->advInfo['message_count_7'] ?? 0)>($gUser->advInfo['visit_other_count_7'] ?? 0)) {
-							if(in_array('msg_gt_visit_7days',$orFilterArr)) {
-								$data[$user->id] = $gUser;
-								continue;
-							}
-							else $andPassNum++;
-						}
-					}
-					
-					if($msg_gt_visit)  {
-						if(($gUser->advInfo['message_count'] ?? 0)>($gUser->advInfo['visit_other_count'] ?? 0)) 
-						{
-							if(in_array('msg_gt_visit',$orFilterArr)){
-								$data[$user->id] = $gUser;
-								continue;
-							}
-							else $andPassNum++;							
-						}
-					}
-
-					if($blocked_gt_num)  {
-						if(($gUser->advInfo['be_blocked_other_count'] ?? 0)>($blockedGtNum ?? 0)) 
-						{
-							if(in_array('blocked_gt_num',$orFilterArr)){
-								$data[$user->id] = $gUser;
-								continue;
-							}	
-							else $andPassNum++;
-						}
+						foreach($orwhereArr as $orArr)
+							$query->orwhere($orArr[0],$orArr[1],$orArr[2]);
+							
 					}	
 
-					if($block_other_gt_num) {
-						 if(($gUser->advInfo['blocked_other_count'] ?? 0)>($blockOtherGtNum ?? 0)) 
-						{
-							if(in_array('block_other_gt_num',$orFilterArr)){
-								$data[$user->id] = $gUser;
-								continue;
-							}	
-							else $andPassNum++;
-						}
-					}
-					
-					if($reported_gt_num) {
-						 if(($gUser->advInfo['be_reported_other_count'] ?? 0)>($reportedGtNum ?? 0)) 
-						{
-							if(in_array('reported_gt_num',$orFilterArr)){
-								$data[$user->id] = $gUser;
-								continue;
-							}	
-							else $andPassNum++;
-						}
-					}
+					if($orwhereRawArr) {							
+						foreach($orwhereRawArr as $orwhereRaw)
+							$query->orwhereRaw($orwhereRaw);							
+					}						
+				});				
+				
 
-					if(count($andFilterArr)==$andPassNum) {
-						$data[$user->id] = $gUser;
-						continue;						
-					}
-				}
+				$infoSet->orderByDesc('last_login');
+
+				$data = $infoSet->paginate(50);
+				$data->appends($qstrArr);					
 				
 				return view('admin.users.filterByInfo')
-					->with('data', $data)
+					->with('data', $data ?? null)
+					->with('start_date',$start_date ?? null)
+					->with('end_date',$end_date ?? null)
 					;
 			}
         } else {
