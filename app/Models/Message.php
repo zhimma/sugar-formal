@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\BannedUsersImplicitly;
 use Auth;
 use App\Models\User;
 use App\Models\Blocked;
@@ -15,7 +16,6 @@ use Illuminate\Support\Facades\Log;
 use App\Services\AdminService;
 use Intervention\Image\Facades\Image;
 use App\Models\SimpleTables\banned_users;
-use App\Models\BannedUsersImplicitly;
 
 class Message extends Model
 {
@@ -690,6 +690,7 @@ class Message extends Model
                                 ->where('b7.blocked_id', $uid); });
         $all_msg = $query->whereNotNull('u.id')
                         ->whereNotNull('u2.id')
+                        ->whereRaw('u.engroup <> u2.engroup')
                         ->whereNull('b1.member_id')
                         ->whereNull('b3.target')
                         ->whereNull('b5.blocked_id')
@@ -710,11 +711,13 @@ class Message extends Model
                         ->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")')
                         ->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
 
-		$all_msg = $all_msg->selectRaw('u.engroup AS u_engroup,u2.engroup AS u2_engroup')->get();
+		$all_msg = $all_msg
+//            ->selectRaw('u.engroup AS u_engroup,u2.engroup AS u2_engroup')
+            ->get();
 		
-		foreach($all_msg  as $k=>$msg) {
-			if($msg->u_engroup==$msg->u2_engroup)  $all_msg->forget($k);
-		}
+//		foreach($all_msg  as $k=>$msg) {
+//			if($msg->u_engroup==$msg->u2_engroup)  $all_msg->forget($k);
+//		}
 		
         if($tinker){
             dd($all_msg);
@@ -748,12 +751,25 @@ class Message extends Model
             $user = User::find($uid);
         }
 
+        $banned_users = banned_users::where('member_id', $uid)->first();
+        $BannedUsersImplicitly = BannedUsersImplicitly::where('target', $uid)->first();
+        if( (isset($banned_users) && ($banned_users->expire_date == null || $banned_users->expire_date >= Carbon::now())) || isset($BannedUsersImplicitly)){
+            return false;
+        }
+
+        if($user->isVip()) {
+            self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
+        }else {
+            self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
+        }
         /**
          * 效能調整：使用左結合取代 where in 以取得更好的效能
          *
          * @author LZong <lzong.tw@gmail.com>
          */
-        $query = Message::from('message as m')
+        $query = Message::with(['sender', 'receiver', 'sender.aw_relation', 'receiver.aw_relation'])
+            ->select("m.*")
+            ->from('message as m')
             ->leftJoin('users as u1', 'u1.id', '=', 'm.from_id')
             ->leftJoin('users as u2', 'u2.id', '=', 'm.to_id')
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'm.from_id')
@@ -769,31 +785,42 @@ class Message extends Model
             ->leftJoin('blocked as b7', function($join) use($uid) {
                 $join->on('b7.member_id', '=', 'm.from_id')
                     ->where('b7.blocked_id', $uid); })
+            ->whereNotNull('u1.id')
+            ->whereNotNull('u2.id')
+            ->whereNull('b1.member_id')
+            ->whereNull('b2.member_id')
+            ->whereNull('b3.target')
+            ->whereNull('b4.target')
+            ->whereNull('b5.blocked_id')
+            ->whereNull('b6.blocked_id')
+            ->whereNull('b7.member_id')
             ->where(function ($innerQuery) use ($uid, $admin_id) {
                 $innerQuery->where([['m.to_id', $uid], ['m.from_id', '!=', $uid],['m.from_id','!=',$admin_id]])
                     ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid],['m.to_id','!=',$admin_id]]);
-            })
-            ->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);
+            });
+        $query->where([['m.created_at','>=',self::$date]]);
+        $query->whereRaw('u1.engroup <> u2.engroup');
         $query->whereRaw('m.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
+        $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);
 
-		if($uid != 1049) {
-            $count = clone $query;
-            $count = $count->count();
-            if($count < 5000){
-                $query = $query->selectRaw('u1.engroup AS u1_engroup,u2.engroup AS u2_engroup')->get();
-                foreach($query as $k=>$msg) {
-                    if($msg->u1_engroup==$msg->u2_engroup) {
-                        $query->forget($k);
-                    }
-                }
-            }
-            else{
-                return $count;
-            }
-        }
+//		if($uid != 1049) {
+//            $count = clone $query;
+//            $count = $count->count();
+//            if($count < 5000){
+//                $query = $query->selectRaw('u1.engroup AS u1_engroup,u2.engroup AS u2_engroup')->get();
+//                foreach($query as $k=>$msg) {
+//                    if($msg->u1_engroup==$msg->u2_engroup) {
+//                        $query->forget($k);
+//                    }
+//                }
+//            }
+//            else{
+//                return $count;
+//            }
+//        }
 		
         if($tinker){
             /* 除錯用 SQL 

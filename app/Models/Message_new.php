@@ -452,11 +452,13 @@ class Message_new extends Model
         }
 
         $query->where([['m.created_at','>=',self::$date]]);
+        $query->whereRaw('u1.engroup <> u2.engroup');
         $query->whereRaw('m.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');        
-        $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);$query->orderBy('m.created_at', 'desc');
+        $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);
+        $query->orderBy('m.created_at', 'desc');
 //        if($user->id != 1049){
 //            $query->whereRaw('u1.engroup != ' . $user->engroup);
 //        }
@@ -742,8 +744,12 @@ class Message_new extends Model
          *
          * @author LZong <lzong.tw@gmail.com>
          */
-        $query = Message::select( 'm.*',DB::raw('(m.to_id + m.from_id) as to_from_pair'))->from('message as m')
-            ->selectRaw('u1.engroup As u1_engroup,u2.engroup As u2_engroup')
+        $query = Message::with(['sender', 'receiver', 'sender.aw_relation', 'receiver.aw_relation'])->select(
+//            'm.*',
+            DB::raw('(m.to_id + m.from_id) as to_from_pair')
+        )
+            ->from('message as m')
+//            ->selectRaw('u1.engroup As u1_engroup,u2.engroup As u2_engroup')
 			->leftJoin('users as u1', 'u1.id', '=', 'm.from_id')
             ->leftJoin('users as u2', 'u2.id', '=', 'm.to_id')
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'm.from_id')
@@ -761,6 +767,7 @@ class Message_new extends Model
                     ->where('b7.blocked_id', $uid); });
         $query = $query->whereNotNull('u1.id')
             ->whereNotNull('u2.id')
+            ->whereRaw('u1.engroup <> u2.engroup')
             ->whereNull('b1.member_id')
             ->whereNull('b2.member_id')
             ->whereNull('b3.target')
@@ -795,9 +802,11 @@ class Message_new extends Model
         $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
 		$allSenders = $query->get();
 		
-		foreach($allSenders  as $k=>$sender) {
-			if($sender->u1_engroup==$sender->u2_engroup)  $allSenders->forget($k);
-		}
+//		foreach($allSenders  as $k=>$sender) {
+//			if($sender->u1_engroup==$sender->u2_engroup) {
+//                $allSenders->forget($k);
+//            }
+//		}
 
 		/*
 		 * 除錯用 SQL: select `m`.*, (m.to_id + m.from_id) as to_from_pair, u1.engroup As u1_engroup,u2.engroup As u2_engroup from `message` as `m`
