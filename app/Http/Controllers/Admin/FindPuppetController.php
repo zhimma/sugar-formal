@@ -32,7 +32,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $this->column = $column;
         $this->row = $row;
         $this->cell = $cell;
-		$this->ignore = $ignore;        
+        $this->ignore = $ignore;        
         
         $this->_columnIp = array();
         $this->_rowUserId = array();
@@ -41,7 +41,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $this->_groupIdx = 0; 
         $this->monarr = [];    
         $this->defaultSdateOfIp = \Carbon\Carbon::now()->subDays(10)->format('Y/m/d');
-		$this->defaultSdateOfCfpId = null;
+        $this->defaultSdateOfCfpId = null;
     }    
     
     public function entrance(Request $request) {
@@ -52,8 +52,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 
         $error_msg = '';
         $whereArr = [];
-		$whereArrOfIp = [];
-		$whereArrOfCfpId = [];
+        $whereArrOfIp = [];
+        $whereArrOfCfpId = [];
         $have_mon_limit = false;
         
         if(isset($this->monarr) && count($this->monarr)>0) {
@@ -63,11 +63,11 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 
 
         try {
-			
-			$curdate = date('Y/m/d');
-			$curtime = date(' H:i:s');
-			
-			$edate = $curdate.$curtime;
+            
+            $curdate = date('Y/m/d');
+            $curtime = date(' H:i:s');
+            
+            $edate = $curdate.$curtime;
 
             $sdateOfIp = $request->sdate?$request->sdate.'/01':$this->defaultSdateOfIp;
             $edateOfIp = $request->edate?date('Y/m/d',strtotime($request->edate.'/01+1 month - 1 day')):$curdate;
@@ -76,28 +76,28 @@ class FindPuppetController extends \App\Http\Controllers\Controller
             $edateOfCfpId = $request->edate?date('Y/m/d',strtotime($request->edate.'/01+1 month - 1 day')):$curdate;
 
             if($sdateOfIp) $sdateOfIpArr = explode('/',$sdateOfIp);
-			else $sdateOfIpArr  = null;
+            else $sdateOfIpArr  = null;
             if($edateOfIp) $edateOfIpArr = explode('/',$edateOfIp);   
-			else $edateOfIpArr  = null;
-			
+            else $edateOfIpArr  = null;
+            
             if(($sdateOfIpArr && !checkdate($sdateOfIpArr[1],$sdateOfIpArr[2],$sdateOfIpArr[0])) || ($edateOfIpArr && !checkdate($edateOfIpArr[1],$edateOfIpArr[2],$edateOfIpArr[0]))) {
                 $error_msg = 'IP日期格式錯誤或非正確日期';
             }
             else if($edateOfIp<$sdateOfIp) {
                 $error_msg = '錯誤!IP結束日期小於開始日期';
             }
-			
+            
             if($sdateOfCfpId) $sdateOfCfpIdArr = explode('/',$sdateOfCfpId);
-			else $sdateOfCfpIdArr  = null;
+            else $sdateOfCfpIdArr  = null;
             if($edateOfCfpId) $edateOfCfpIdArr = explode('/',$edateOfCfpId);   
-			else $edateOfCfpIdArr  = null;
-			
+            else $edateOfCfpIdArr  = null;
+            
             if(($sdateOfCfpIdArr && !checkdate($sdateOfCfpIdArr[1],$sdateOfCfpIdArr[2],$sdateOfCfpIdArr[0])) || ($edateOfCfpIdArr && !checkdate($edateOfCfpIdArr[1],$edateOfCfpIdArr[2],$edateOfCfpIdArr[0]))) {
                 $error_msg = 'CfpId日期格式錯誤或非正確日期';
             }
             else if($edateOfCfpId<$sdateOfCfpId) {
                 $error_msg = '錯誤!CfpId結束日期小於開始日期';
-            }			
+            }           
 
             echo $error_msg;
 
@@ -113,13 +113,13 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     }
                     
                     if(isset($sdateOfIp)) $whereArrOfIp[] = ['created_at','>=',$sdateOfIp];
-					
+                    
                     if(isset($edateOfCfpId)) {
                         if($edateOfCfpId) $edateOfCfpId.=$curtime;
                         $whereArrOfCfpId[] = ['created_at','<',$edateOfCfpId];
                     }
                     
-                    if(isset($sdateOfCfpId)) $whereArrOfCfpId[] = ['created_at','>=',$sdateOfCfpId];					
+                    if(isset($sdateOfCfpId)) $whereArrOfCfpId[] = ['created_at','>=',$sdateOfCfpId];                    
                     
                     if($have_mon_limit) {
                         if(isset($mon) && $mon) {
@@ -137,13 +137,17 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     ->orWhere('email', 'LIKE', 'sandyh.dlc%@gmail.com')
                     ->orWhere('email', 'LIKE', 'TEST%@test.com')
                     ->orWhere('email', 'LIKE', 'lzong.tw%@gmail.com')
-					->orwhereHas('meta', function($query){
+                    ->orwhereHas('meta', function($query){
                         $query->where('is_active', '0');
                     })
                     ->get()->toArray(), 'id');
 
-					$ignoreUserId = array_pluck($this->ignore->get()->toArray(),'item');					
-
+                    $ignoreUserId = array_pluck($this->ignore->whereNull('ip')->orwhere('ip','')->get()->toArray(),'item');                    
+                    $ignoreUserIdIpCollect = $this->ignore->whereNotNull('ip')->where('ip','<>','')->get();         
+                    $ignoreUserIdIpArr = [];
+                    foreach($ignoreUserIdIpCollect  as $userIdIpEntry) {
+                        $ignoreUserIdIpArr[$userIdIpEntry->item][$userIdIpEntry->ip] = $userIdIpEntry;
+                    }
                     $model = $this->model;
                     $loginDataEntrys = null;
                     $this->_columnIp = [];
@@ -153,67 +157,78 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     $this->_groupIdx = 0;  
 
                     $loginDataQuery = $model->has('user')->groupBy('ip','user_id')
-                            ->select('ip','user_id')->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')->whereNotNull('ip')->where('ip','<>','');
-				
-					if($whereArr) $loginDataQuery->where($whereArr);
-					if($whereArrOfIp) $loginDataQuery->where($whereArrOfIp);
+                            ->select('ip','user_id')
+                            ->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')
+                            ->whereNotNull('ip')->where('ip','<>','');
+                
+                    if($whereArr) $loginDataQuery->where($whereArr);
+                    if($whereArrOfIp) $loginDataQuery->where($whereArrOfIp);
                     if($excludeUserId) $loginDataQuery=$loginDataQuery->whereNotIn('user_id',$excludeUserId);
-					if($ignoreUserId) $loginDataQuery=$loginDataQuery->whereNotIn('user_id',$ignoreUserId);
+                    if($ignoreUserId) $loginDataQuery=$loginDataQuery->whereNotIn('user_id',$ignoreUserId);
                     
                     $loginDataEntrys = $loginDataQuery->get();
                     $this->loginDataByIp = [];
                     $this->loginDataByUserId = [];
                     
                     foreach($loginDataEntrys  as $loginDataEntry) {
+                        
+                        if(isset($ignoreUserIdIpArr[$loginDataEntry->user_id][$loginDataEntry->ip])) {
+							$nowIgnoreUserIdIp = $ignoreUserIdIpArr[$loginDataEntry->user_id][$loginDataEntry->ip];
+							if($nowIgnoreUserIdIp->created_at> $loginDataEntry->time)  
+								continue;
+							else {
+								$nowIgnoreUserIdIp->delete();
+							}
+						}
                         $this->loginDataByIp[$loginDataEntry->ip][$loginDataEntry->user_id] = $loginDataEntry;
                         $this->loginDataByUserId[$loginDataEntry->user_id][$loginDataEntry->ip] = $loginDataEntry;
                     }  
-					
-					$middleIpUserIdArr = $this->loginDataByIp;
-					
-					foreach($middleIpUserIdArr  as $middleIp=>$middleUserIds) {
-						$nowUserIdArr = $middleUserIds;
-						
-						foreach($middleUserIds as $middleUserId=>$entry) {
-							$check_rs = false;
-							
-							foreach($nowUserIdArr  as $checkUserId=>$compare_entry) {
-								if($checkUserId==$middleUserId) continue;
-								if($entry->stime>$compare_entry->time) {
-									if(strtotime($entry->stime)-strtotime($compare_entry->time)<72*3600) {
-										$check_rs = true;
-										break;
-									}
-								} 
-								else if($entry->time< $compare_entry->stime) {
-									if(strtotime($compare_entry->stime)-strtotime($entry->time)<72*3600) {
-										$check_rs = true;
-										break;
-									}									
-								}
-								else {$check_rs = true;break;}
-							}
-							
-							if(!$check_rs) {
-								$this->loginDataByIp[$middleIp][$middleUserId] = null;
-								unset($this->loginDataByIp[$middleIp][$middleUserId]);
-							}
-						}
-						$check_rs = null;
-						$nowUserIdArr = null;
-					}
-					
-					$middleIpUserIdArr = null;
+                    
+                    $middleIpUserIdArr = $this->loginDataByIp;
+                    
+                    foreach($middleIpUserIdArr  as $middleIp=>$middleUserIds) {
+                        $nowUserIdArr = $middleUserIds;
+                        
+                        foreach($middleUserIds as $middleUserId=>$entry) {
+                            $check_rs = false;
+                            
+                            foreach($nowUserIdArr  as $checkUserId=>$compare_entry) {
+                                if($checkUserId==$middleUserId) continue;
+                                if($entry->stime>$compare_entry->time) {
+                                    if(strtotime($entry->stime)-strtotime($compare_entry->time)<72*3600) {
+                                        $check_rs = true;
+                                        break;
+                                    }
+                                } 
+                                else if($entry->time< $compare_entry->stime) {
+                                    if(strtotime($compare_entry->stime)-strtotime($entry->time)<72*3600) {
+                                        $check_rs = true;
+                                        break;
+                                    }                                   
+                                }
+                                else {$check_rs = true;break;}
+                            }
+                            
+                            if(!$check_rs) {
+                                $this->loginDataByIp[$middleIp][$middleUserId] = null;
+                                unset($this->loginDataByIp[$middleIp][$middleUserId]);
+                            }
+                        }
+                        $check_rs = null;
+                        $nowUserIdArr = null;
+                    }
+                    
+                    $middleIpUserIdArr = null;
                     
                     $loginDataEntrys = null;
                     
                     $loginDataCfpIdQuery = $model->has('user')->groupBy('cfp_id','user_id')
                             ->select('cfp_id','user_id')->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')->whereNotNull('cfp_id')->where('cfp_id','<>','');
                     
-					if($whereArr) $loginDataQuery->where($whereArr);
-					if($whereArrOfCfpId) $loginDataQuery->where($whereArrOfCfpId);					
+                    if($whereArr) $loginDataQuery->where($whereArr);
+                    if($whereArrOfCfpId) $loginDataQuery->where($whereArrOfCfpId);                  
                     if($excludeUserId) $loginDataCfpIdQuery=$loginDataCfpIdQuery->whereNotIn('user_id',$excludeUserId);                            
-					if($ignoreUserId) $loginDataCfpIdQuery=$loginDataCfpIdQuery->whereNotIn('user_id',$ignoreUserId);
+                    if($ignoreUserId) $loginDataCfpIdQuery=$loginDataCfpIdQuery->whereNotIn('user_id',$ignoreUserId);
 
                     $loginDataEntrys = $loginDataCfpIdQuery->get();
                     $this->loginDataByCfpId = [];
@@ -229,11 +244,11 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     $ipPuppetFromUserQuery = $model->has('user')->groupBy('ip')
                             ->select('ip')->selectRaw('COUNT(DISTINCT `user_id`) AS num')->whereNotNull('ip')->where('ip','<>','')
                             ->orderByDesc('num');
-							
-					if($whereArr)  $ipPuppetFromUserQuery->where($whereArr);
+                            
+                    if($whereArr)  $ipPuppetFromUserQuery->where($whereArr);
                     if($whereArrOfIp) $ipPuppetFromUserQuery->where($whereArrOfIp);        
                     if($excludeUserId) $ipPuppetFromUserQuery=$ipPuppetFromUserQuery->whereNotIn('user_id',$excludeUserId);                            
-					if($ignoreUserId) $ipPuppetFromUserQuery=$ipPuppetFromUserQuery->whereNotIn('user_id',$ignoreUserId);
+                    if($ignoreUserId) $ipPuppetFromUserQuery=$ipPuppetFromUserQuery->whereNotIn('user_id',$ignoreUserId);
 
                     $puppetFromUsers = $ipPuppetFromUserQuery->get();
 
@@ -252,13 +267,13 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                   
                     $cfpidPuppetFromUserQuery = $model->has('user')->groupBy('cfp_id')
                             ->select('cfp_id')->selectRaw('COUNT(DISTINCT `user_id`) AS num')
-							->whereNotNull('cfp_id')->where('cfp_id','<>','')
+                            ->whereNotNull('cfp_id')->where('cfp_id','<>','')
                             ->orderByDesc('num');
                     
-					if($whereArr)  $cfpidPuppetFromUserQuery->where($whereArr);
-					if($whereArrOfCfpId) $cfpidPuppetFromUserQuery->where($whereArrOfCfpId);    					
+                    if($whereArr)  $cfpidPuppetFromUserQuery->where($whereArr);
+                    if($whereArrOfCfpId) $cfpidPuppetFromUserQuery->where($whereArrOfCfpId);                        
                     if($excludeUserId) $cfpidPuppetFromUserQuery=$cfpidPuppetFromUserQuery->whereNotIn('user_id',$excludeUserId);                            
-					if($ignoreUserId) $cfpidPuppetFromUserQuery=$cfpidPuppetFromUserQuery->whereNotIn('user_id',$ignoreUserId);
+                    if($ignoreUserId) $cfpidPuppetFromUserQuery=$cfpidPuppetFromUserQuery->whereNotIn('user_id',$ignoreUserId);
 
                     $puppetFromUsers = $cfpidPuppetFromUserQuery->get();
 
@@ -437,30 +452,30 @@ class FindPuppetController extends \App\Http\Controllers\Controller
             }
             else continue;
 
-			if(isset($this->loginDataByUserId[$multiUserId->user_id]))
-				$multiIps = $this->loginDataByUserId[$multiUserId->user_id];
-			else $multiIps = null;
+            if(isset($this->loginDataByUserId[$multiUserId->user_id]))
+                $multiIps = $this->loginDataByUserId[$multiUserId->user_id];
+            else $multiIps = null;
             
             $new_check_column = null;
 
-			if($multiIps) {
-				if(isset($this->_columnIp[$groupIdx]) && $this->_columnIp[$groupIdx]) {
-					$new_check_column = array_diff(array_keys($multiIps),$this->_columnIp[$groupIdx]);
+            if($multiIps) {
+                if(isset($this->_columnIp[$groupIdx]) && $this->_columnIp[$groupIdx]) {
+                    $new_check_column = array_diff(array_keys($multiIps),$this->_columnIp[$groupIdx]);
 
-				}
-				else {$new_check_column = array_keys($multiIps);}
+                }
+                else {$new_check_column = array_keys($multiIps);}
             }
-			
-			if(isset($new_check_column) && $new_check_column)
-				foreach($new_check_column as $new_check_value) {
-						if($this->_havePuppetUserId($new_check_value,$this->loginDataByIp)) 
-							$this->_columnIp[$groupIdx][] = $new_check_value;
-				}
-				
- 			if(isset($multiIps) && $multiIps)           
-				 foreach($multiIps  as $multiIp) {
-					 if($this->_findMultiUserIdFromIp($multiIp->ip)===true) continue;
-				 }
+            
+            if(isset($new_check_column) && $new_check_column)
+                foreach($new_check_column as $new_check_value) {
+                        if($this->_havePuppetUserId($new_check_value,$this->loginDataByIp)) 
+                            $this->_columnIp[$groupIdx][] = $new_check_value;
+                }
+                
+            if(isset($multiIps) && $multiIps)           
+                 foreach($multiIps  as $multiIp) {
+                     if($this->_findMultiUserIdFromIp($multiIp->ip)===true) continue;
+                 }
             
             $multiCfpIds = isset($this->loginDataByUserIdCfpId[$multiUserId->user_id])?$this->loginDataByUserIdCfpId[$multiUserId->user_id]:[];
 
@@ -471,16 +486,16 @@ class FindPuppetController extends \App\Http\Controllers\Controller
             }
             else {$new_check_column = array_keys($multiCfpIds);}
 
-			if(isset($new_check_column) && $new_check_column)
-				foreach($new_check_column as $new_check_value) {
-						if($this->_havePuppetUserId($new_check_value,$this->loginDataByCfpId)) 
-							$this->_columnIp[$groupIdx][] = $new_check_value;
-				}             
+            if(isset($new_check_column) && $new_check_column)
+                foreach($new_check_column as $new_check_value) {
+                        if($this->_havePuppetUserId($new_check_value,$this->loginDataByCfpId)) 
+                            $this->_columnIp[$groupIdx][] = $new_check_value;
+                }             
 
- 			if(isset($multiCfpIds) && $multiCfpIds)                 
-				 foreach($multiCfpIds  as $multiCfpId) {
-					 if($this->_findMultiUserIdFromIp($multiCfpId->cfp_id,'cfp_id')===true) continue;
-				 }             
+            if(isset($multiCfpIds) && $multiCfpIds)                 
+                 foreach($multiCfpIds  as $multiCfpId) {
+                     if($this->_findMultiUserIdFromIp($multiCfpId->cfp_id,'cfp_id')===true) continue;
+                 }             
              
         }   
     }
@@ -530,8 +545,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $show = $request->show;
         $start = $request->start;
         $groupOrderArr = [];
-		$rowLastLoginArr = [];
-		$rowLatestLastLoginArr = [];
+        $rowLastLoginArr = [];
+        $rowLatestLastLoginArr = [];
         
         if($have_mon_limit && (!isset($mon) || !$mon) && $show!='text') {
 
@@ -547,31 +562,31 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                 
                 $edate_colentry_of_ip = $this->column->select('created_at')->distinct()->first();
                 $data['end_date'] = $edate_colentry_of_ip->created_at;
-				$data['sdateOfIp'] = $data['sdateOfCfpId']  = null;
-				if($this->defaultSdateOfIp)  {
-					$sdate_from_model = $this->model->whereNotNull('ip')->min('created_at');
+                $data['sdateOfIp'] = $data['sdateOfCfpId']  = null;
+                if($this->defaultSdateOfIp)  {
+                    $sdate_from_model = $this->model->whereNotNull('ip')->min('created_at');
 
-					if($this->defaultSdateOfIp>=$sdate_from_model) {
-						$data['sdateOfIp'] = $this->defaultSdateOfIp;
-					}
-					else {
-						
-						$data['sdateOfIp'] = $sdate_from_model;
-					}
-				}
-				
-				if($this->defaultSdateOfCfpId)  {
-					$sdate_from_model = null;
-					$sdate_from_model = $this->model->whereNotNull('cfp_id')->min('created_at');
+                    if($this->defaultSdateOfIp>=$sdate_from_model) {
+                        $data['sdateOfIp'] = $this->defaultSdateOfIp;
+                    }
+                    else {
+                        
+                        $data['sdateOfIp'] = $sdate_from_model;
+                    }
+                }
+                
+                if($this->defaultSdateOfCfpId)  {
+                    $sdate_from_model = null;
+                    $sdate_from_model = $this->model->whereNotNull('cfp_id')->min('created_at');
 
-					if($this->defaultSdateOfCfpId>=$sdate_from_model) {
-						$data['sdateOfCfpId'] = $this->defaultSdateOfCfpId;
-					}
-					else {
-						
-						$data['sdateOfCfpId'] = $sdate_from_model;
-					}
-				}				
+                    if($this->defaultSdateOfCfpId>=$sdate_from_model) {
+                        $data['sdateOfCfpId'] = $this->defaultSdateOfCfpId;
+                    }
+                    else {
+                        
+                        $data['sdateOfCfpId'] = $sdate_from_model;
+                    }
+                }               
                 
                 $groupChecks = $this->cell->where($whereArr)->groupBy('group_index')->select('group_index')
                     ->selectRaw('MAX(column_index) AS maxColIdx,MAX(row_index) AS maxRowIdx,MAX(time) AS last_time')
@@ -590,117 +605,120 @@ class FindPuppetController extends \App\Http\Controllers\Controller
             else {
                 $text=null;
             }
-			
-			
+            
+            
             $rowQuery = $this->row->where($whereArr);
             if($show=='text') {
                  if($g) $rowQuery->where('group_index',$g);
             }  
-			else {
-				$rowQuery->orderBy('group_index');
-			}
+            else {
+                $rowQuery->orderBy('group_index');
+            }
             $rowEntrys = $rowQuery->get();
-			$max_email_len = 0;
-			$ignore_group_index_arr = [];
+            $max_email_len = 0;
+            $ignore_group_index_arr = [];
 
             foreach($rowEntrys as $rowEntry) {
                 if($show=='text') {
                     $this->_rowUserId[$rowEntry->group_index][$rowEntry->row_index]  = $rowEntry->name;
                 }
                 else {
-					$now_group = $rowEntry->group_index;
-					if(isset($last_group)) {
-						if($now_group!=$last_group) {
-							$last_group_row_count = count($this->_rowUserId[$last_group]);
-							$last_group_adminclosed_count = $now_group_adminclosed_count;
-							$last_group_banned_count = $now_group_banned_count;
-							$last_group_implicitlyBanned_count = $now_group_implicitlyBanned_count;
-							if(($last_group_row_count-$last_group_banned_count-$last_group_implicitlyBanned_count)<=0
-								|| ($last_group_row_count-$last_group_adminclosed_count)<=1
-							) 
-							{
-								$this->_rowUserId[$last_group] = $rowLatestLastLoginArr[$last_group] =  null;
-								unset($this->_rowUserId[$last_group],$rowLatestLastLoginArr[$last_group]);
-								$ignore_group_index_arr[] = $last_group;
-							}
-							$now_group_adminclosed_count 
-							= $now_group_banned_count 
-							= $now_group_implicitlyBanned_count 	
-							= $last_group_adminclosed_count 
-							= $last_group_banned_count 
-							= $last_group_implicitlyBanned_count 							
-							= 0;
-						}
-					}
-					else {
-						$now_group_adminclosed_count 
-						= $now_group_banned_count 
-						= $now_group_implicitlyBanned_count 
-						= $last_group_row_count 
-						= $last_group_adminclosed_count 
-						= $last_group_banned_count 
-						= $last_group_implicitlyBanned_count 						
-						= 0;
-					}
+                    $now_group = $rowEntry->group_index;
+                    if(isset($last_group)) {
+                        if($now_group!=$last_group) {
+                            $last_group_row_count = count($this->_rowUserId[$last_group]);
+                            $last_group_adminclosed_count = $now_group_adminclosed_count;
+                            $last_group_banned_count = $now_group_banned_count;
+                            $last_group_implicitlyBanned_count = $now_group_implicitlyBanned_count;
+                            if(($last_group_row_count-$last_group_banned_count-$last_group_implicitlyBanned_count)<=0
+                                || ($last_group_row_count-$last_group_adminclosed_count)<=1
+                            ) 
+                            {
+                                $this->_rowUserId[$last_group] = $rowLatestLastLoginArr[$last_group] =  null;
+                                unset($this->_rowUserId[$last_group],$rowLatestLastLoginArr[$last_group]);
+                                $ignore_group_index_arr[] = $last_group;
+                            }
+                            $now_group_adminclosed_count 
+                            = $now_group_banned_count 
+                            = $now_group_implicitlyBanned_count     
+                            = $last_group_adminclosed_count 
+                            = $last_group_banned_count 
+                            = $last_group_implicitlyBanned_count                            
+                            = 0;
+                        }
+                    }
+                    else {
+                        $now_group_adminclosed_count 
+                        = $now_group_banned_count 
+                        = $now_group_implicitlyBanned_count 
+                        = $last_group_row_count 
+                        = $last_group_adminclosed_count 
+                        = $last_group_banned_count 
+                        = $last_group_implicitlyBanned_count                        
+                        = 0;
+                    }
 
                     if(isset($groupInfo[$rowEntry->group_index]['cutData']) && $groupInfo[$rowEntry->group_index]['cutData'] && $rowEntry->row_index>$data['rowLimit']) continue;
                     $cur_user = User::with('vip','aw_relation', 'banned', 'implicitlyBanned')->find($rowEntry->name)??new User;
                     $cur_user->tag_class = '';
                     if($cur_user->id==null) $cur_user->id = $rowEntry->name;
 
-					$cur_user->ignoreEntry = $this->ignore->where('item',$cur_user->id)->first();
+                    $cur_user->ignoreEntry = $this->ignore->where('item',$cur_user->id)
+						->where(function($q){
+							$q->whereNull('ip')->orwhere('ip','');
+						})->first();
 
                     if($cur_user->banned)  {
-						$cur_user->tag_class.= 'banned ';
-						$now_group_banned_count++;
-					}
+                        $cur_user->tag_class.= 'banned ';
+                        $now_group_banned_count++;
+                    }
                     if($cur_user->implicitlyBanned) {
-						$cur_user->tag_class.= 'implicitlyBanned ';
-						$now_group_implicitlyBanned_count++;
-					} 
+                        $cur_user->tag_class.= 'implicitlyBanned ';
+                        $now_group_implicitlyBanned_count++;
+                    } 
                     if((isset($cur_user->user_meta->isWarned) && $cur_user->user_meta->isWarned) || $cur_user->aw_relation)  $cur_user->tag_class.= 'isWarned ';
                     if($cur_user->accountStatus===0) $cur_user->tag_class.= 'isClosed ';
                     if($cur_user->account_status_admin===0) {
-						$cur_user->tag_class.= 'isClosedByAdmin ';
-						$now_group_adminclosed_count++;
-					}
-					if(isset($cur_user->email) && strlen($cur_user->email)>$max_email_len) $max_email_len = strlen($cur_user->email);
+                        $cur_user->tag_class.= 'isClosedByAdmin ';
+                        $now_group_adminclosed_count++;
+                    }
+                    if(isset($cur_user->email) && strlen($cur_user->email)>$max_email_len) $max_email_len = strlen($cur_user->email);
                     $this->_rowUserId[$rowEntry->group_index][$rowEntry->row_index] = $cur_user;
-					$rowLastLoginArr[$rowEntry->group_index][$rowEntry->row_index] = $cur_user->last_login;
-					arsort($rowLastLoginArr[$rowEntry->group_index]);
-					$groupLastLoginValus = array_values($rowLastLoginArr[$rowEntry->group_index]);
+                    $rowLastLoginArr[$rowEntry->group_index][$rowEntry->row_index] = $cur_user->last_login;
+                    arsort($rowLastLoginArr[$rowEntry->group_index]);
+                    $groupLastLoginValus = array_values($rowLastLoginArr[$rowEntry->group_index]);
                     $rowLatestLastLoginArr[$rowEntry->group_index] = $groupLastLoginValus[0];
-					$cur_user = null;
-					$last_group = $now_group;
+                    $cur_user = null;
+                    $last_group = $now_group;
                 }
             }  
-			if($max_email_len<30) $max_email_len=30;
-			$data['max_email_len'] = $max_email_len;			
-			
-			
+            if($max_email_len<30) $max_email_len=30;
+            $data['max_email_len'] = $max_email_len;            
+            
+            
 
             $colQuery = $this->column->where($whereArr);
             if($show=='text') {
                  if($g) $colQuery->where('group_index',$g);
             }
-			
+            
             $colEntrys = $colQuery->get();
-			$colIdxOfIp = [];
-			$colIdxOfCfpId = [];
+            $colIdxOfIp = [];
+            $colIdxOfCfpId = [];
             foreach($colEntrys as $colEntry) {
-				if(in_array($colEntry->group_index,$ignore_group_index_arr)) continue;
-				
+                if(in_array($colEntry->group_index,$ignore_group_index_arr)) continue;
+                
                 if(isset($groupInfo[$colEntry->group_index]['cutData']) && $groupInfo[$colEntry->group_index]['cutData'] && $colEntry->column_index>$data['colLimit']) continue;
                 
                $this->_columnIp[$colEntry->group_index][$colEntry->column_index] = $colEntry->name;
                $this->_columnType[$colEntry->group_index][$colEntry->column_index] = $colEntry->type;
-				
-				if($colEntry->type=='ip') {
-					$colIdxOfIp[$colEntry->group_index][] = $colEntry->column_index;
-				}
-				else if($colEntry->type=='cfp_id'){
-					$colIdxOfCfpId[$colEntry->group_index][] = $colEntry->column_index;
-				}
+                
+                if($colEntry->type=='ip') {
+                    $colIdxOfIp[$colEntry->group_index][] = $colEntry->column_index;
+                }
+                else if($colEntry->type=='cfp_id'){
+                    $colIdxOfCfpId[$colEntry->group_index][] = $colEntry->column_index;
+                }
             }
             
 
@@ -712,9 +730,12 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 
             $cellEntrys = $cellQuery->get();
             foreach($cellEntrys as $cellEntry) {
-				if(in_array($cellEntry->group_index,$ignore_group_index_arr)) continue;				
-                if(isset($groupInfo[$colEntry->group_index]['cutData']) && $groupInfo[$cellEntry->group_index]['cutData'] && ($cellEntry->row_index>$data['rowLimit'] || $cellEntry->column_index>$data['colLimit'])) continue;
-               $this->_cellVal[$cellEntry->group_index][$cellEntry->row_index][$cellEntry->column_index] = $cellEntry;
+                if(in_array($cellEntry->group_index,$ignore_group_index_arr)) continue;             
+                if(isset($groupInfo[$cellEntry->group_index]['cutData']) && $groupInfo[$cellEntry->group_index]['cutData'] && ($cellEntry->row_index>$data['rowLimit'] || $cellEntry->column_index>$data['colLimit'])) continue;
+				if($this->_columnType[$cellEntry->group_index][$cellEntry->column_index]=='ip')
+					$cellEntry->ignoreEntry = $this->ignore->where('item',$this->_rowUserId[$cellEntry->group_index][$cellEntry->row_index]->id)
+							->where('ip',$this->_columnIp[$cellEntry->group_index][$cellEntry->column_index])->first();
+			   $this->_cellVal[$cellEntry->group_index][$cellEntry->row_index][$cellEntry->column_index] = $cellEntry;
             }  
             
             if($show!='text') {
@@ -772,13 +793,13 @@ class FindPuppetController extends \App\Http\Controllers\Controller
             
         }
      
-	arsort($rowLatestLastLoginArr);	 
-	$groupOrderArr = array_keys($rowLatestLastLoginArr);
+    arsort($rowLatestLastLoginArr);  
+    $groupOrderArr = array_keys($rowLatestLastLoginArr);
     $data['groupOrderArr'] = $groupOrderArr;
-	$data['rowLastLoginArr'] = $rowLastLoginArr;
-	$data['colIdxOfCfpId'] = $colIdxOfCfpId;
-	$data['colIdxOfIp'] = $colIdxOfIp;  
-	
+    $data['rowLastLoginArr'] = $rowLastLoginArr;
+    $data['colIdxOfCfpId'] = $colIdxOfCfpId;
+    $data['colIdxOfIp'] = $colIdxOfIp;  
+    
     return view('findpuppet',$data)
             ->with('columnSet', $this->_columnIp)
             ->with('columnTypeSet',$this->_columnType)
@@ -867,33 +888,36 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $logEntrys = $query->get();
     
     }
-	
-	public function switchIgnore(Request $request) {
-		$value = $request->value;
-		if(!$value) return;
-		$op = $request->op;
-		$ignore = $this->ignore;
-		
-		switch($op) {
-			case '1':
-				$ignore_entry = $ignore->firstOrNew(['item'=>$value]);
-				$ignore_entry->item = $value;
-				$ignore_entry->save() ;
-			break;
-			case '0':
-				$ignore->where('item',$value)->delete();
-			break;
-			default:
-				$ignore_entry = $ignore->firstOrNew(['item'=>$value]);
+    
+    public function switchIgnore(Request $request) {
+        $value = $request->value;
+		$ip = $request->ip ?? '';
+        if(!$value) return;
+        $op = $request->op;
+        $ignore = $this->ignore;
+        
+        switch($op) {
+            case '1':
+                $ignore_entry = $ignore->firstOrNew(['item'=>$value,'ip'=>$ip]);
+				$ignore_entry->ip = $ip;
+                $ignore_entry->item = $value;
+                $ignore_entry->save() ;
+            break;
+            case '0':
+                $ignore->where('item',$value)->where('ip',$ip)->delete();
+            break;
+            default:
+                $ignore_entry = $ignore->firstOrNew(['item'=>$value,'ip'=>$ip]);
 
-				if($ignore_entry->id) $ignore_entry->delete();
-				else {
-					$ignore_entry->item = $value;
-					$ignore_entry->save(); 					
-				}
-			break;
-		}
-	}
+                if($ignore_entry->id) $ignore_entry->delete();
+                else {
+                    $ignore_entry->item = $value;
+					$ignore_entry->ip = $ip;
+                    $ignore_entry->save();                  
+                }
+            break;
+        }
+    }
     
     private function _getSimpleTableHead($colnames) {
         
