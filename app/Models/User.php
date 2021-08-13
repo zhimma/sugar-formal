@@ -1178,6 +1178,7 @@ class User extends Authenticatable
         $countInfo['message_count'] = 0;
         $countInfo['message_reply_count'] = 0;
         $countInfo['message_reply_count_7'] = 0;
+		$countInfo['message_count_7'] = 0;
         $send = [];
         $receive = [];
 
