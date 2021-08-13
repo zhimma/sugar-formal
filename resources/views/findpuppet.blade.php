@@ -60,6 +60,8 @@
 	.monlist a,.monlist a:visited,.monlist a:hover,.monlist a:active {text-decoration: underline;}
 	.download_file a,.download_file a:visited,.download_file a:hover,.download_file a:active {text-decoration: underline;}
 	.group_last_time {font-weight:normal;font-size:12px;}
+	.ignore_switch_on,.ignore_switch_off,.ignore_cell_on,.ignore_cell_off {height:15px;cursor: pointer;}
+	body table tr td.ignore_cell,body table tr td.ignore_cell a,body table tr td.ignore_cell a:visited,body table tr td.ignore_cell a:hover {color:#D0D0D0 !important;}
  </style>
  <style>
     .table > tbody > tr > td, .table > tbody > tr > th{
@@ -107,6 +109,59 @@
 					console.log(error);
 				}
 			});			
+		})	
+
+
+		$('.ignore_cell_off').on('click',function() {
+			
+			$(this).hide();
+			$(this).parent().find('.ignore_cell_on').show();
+			var nowelt = $(this);
+			var id = $(this).attr('id');
+			var userid_ip_string = id.replace('ignore_cell_off_','');
+			var userid_ip_arr = userid_ip_string.split('_');
+			var user_id = userid_ip_arr[0];
+			var ip = userid_ip_arr[1];
+			$.ajax({
+				type: 'GET',
+				url: '{{ route('ignoreDuplicate') }}',
+				data: { value : user_id,op:0,ip:ip},
+				success: function(xhr, status, error){
+					nowelt.parent().removeClass('ignore_cell');
+				},
+				error: function(xhr, status, error){
+					alert('User Id：'+user_id+' Ip：'+ip+'取消加入略過清單失敗，請重新操作\n錯誤訊息：'+status+' '+error);
+					nowelt.show();
+					$(this).parent().find('.ignore_cell_on').hide();					
+				}
+			});				
+		})
+		
+		$('.ignore_cell_on').on('click',function() {
+			var nowelt = $(this);
+			$(this).hide();
+			$(this).parent().find('.ignore_cell_off').show();
+			var id = $(this).attr('id');
+			var userid_ip_string = id.replace('ignore_cell_on_','');
+			var userid_ip_arr = userid_ip_string.split('_');
+			var user_id = userid_ip_arr[0];
+			var ip = userid_ip_arr[1];
+			$.ajax({
+				type: 'GET',
+				url: '{{ route('ignoreDuplicate') }}',
+				data: { value : user_id,op:1,ip:ip},
+				success: function(xhr, status, error){
+					nowelt.parent().addClass('ignore_cell');
+				},
+				error: function(xhr, status, error){
+					alert('User Id：'+user_id+' Ip：'+ip+'加入略過清單失敗，請重新操作\n錯誤訊息：'+status+' '+error);
+					nowelt.show();
+					nowelt.parent().find('.ignore_cell_off').hide();
+					console.log(xhr);
+					console.log(status);
+					console.log(error);
+				}
+			});			
 		})		
 	})	
 </script>
@@ -144,6 +199,54 @@
 @endif 
 </h2>
 </div>
+@if(request()->getHttpHost()=='chen.test-tw.icu')
+<div>
+<input type="button" name="check" value="手動產出數據(僅測試用)" id="checkBtn"  onclick="doCheck();return false;" />
+ <script>
+	checkBtn = document.getElementById('checkBtn');
+    function doCheck() {
+         var sendurl = "./checkDuplicate";
+		 var qstr = '';
+        var xhr = new XMLHttpRequest();
+		
+		xhr.onloadstart = function () {
+			checkBtn.value='數據產生中，請稍待';
+			checkBtn.disabled = true;
+			alert('開始產生數據，結束後將自動重新整理頁面');
+        };  
+        xhr.onload = function () {
+
+            response = xhr.responseText;
+
+            if (200 <= xhr.status && xhr.status <= 299) {
+		
+                if(response=='1') {
+                    //location.reload();
+					location.href=location.pathname+qstr;
+                }
+                else {
+                   alert('執行失敗，錯誤訊息:'+response);
+					checkBtn.value='手動產出數據(僅測試用)';
+					checkBtn.disabled = false;
+                }
+            }
+            else {
+                alert('執行失敗，錯誤代碼:'+xhr.status);
+				checkBtn.value='手動產出數據(僅測試用)';
+				checkBtn.disabled = false;				
+            }
+
+        };  		
+        xhr.open("GET", sendurl+qstr);
+        xhr.send();
+		//alert('開始產生數據，結束後將自動重新整理頁面');
+        
+      
+    }
+     
+</script>
+</div>
+@endif
 @forelse ($groupOrderArr as $gidx=>$g)
 <br><br>
 <div class="show">
@@ -201,8 +304,8 @@
             <th class="col-1st">
 	{{--		<a target="_blank" href="showLog?user_id={{$user->id}}{{request()->mon?'&mon='.request()->mon:''}}">   --}}
 				<a target="_blank" href="{{route('getUsersLog')}}?user_id={{$user->id}}">{{$user->id ?? ''}}@if($user->engroup == 1 && $user->isVip()) <i class="m-nav__link-icon fa fa-diamond"></i> @endif </a>
-				<img src="{{asset("new/images/kai.png")}}" class="ignore_switch_on" style=" height: 15px;cursor: pointer;{{$user->ignoreEntry?'display:none;':'display:inline-block;'}}"/>			
-				<img src="{{asset("new/images/guan.png")}}" class="ignore_switch_off"   style=" height: 15px;cursor: pointer;{{!$user->ignoreEntry?'display:none;':'display:inline-block;'}}"/>			
+				<img src="{{asset("new/images/kai.png")}}" class="ignore_switch_on" style=" {{$user->ignoreEntry?'display:none;':'display:inline-block;'}}"/>			
+				<img src="{{asset("new/images/guan.png")}}" class="ignore_switch_off"   style=" {{!$user->ignoreEntry?'display:none;':'display:inline-block;'}}"/>			
 			
 			</th>
 			@php
@@ -257,11 +360,13 @@
 				</td>
 			@endforeach
 			@foreach ($colIdxOfIp[$g] as $i=>$n)
-				<td @if($user) style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif" @endif class=" @if($groupInfo[$g]['last_time']===$cellValue[$g][$r][$n]->time) group_last_time @endif {{$i?'':'col_ip_first'}} col-most">
+				<td @if($user) style="color: {{ $user->engroup == 1 ? 'blue' : 'red' }}; @if($bgColor) background-color: {{ $bgColor }} @endif" @endif  class=" @if($groupInfo[$g]['last_time']===$cellValue[$g][$r][$n]->time) group_last_time @endif {{$i?'':'col_ip_first'}} @if($cellValue[$g][$r][$n]->ignoreEntry) ignore_cell  @endif col-most">
 					@if(isset($cellValue[$g][$r][$n]))
 					{{$cellValue[$g][$r][$n]->time ? date('m/d-H:i',strtotime($cellValue[$g][$r][$n]->time)): ''}}
 	{{--			(<a target="_blank" href="showLog?user_id={{$user->id}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">{{$cellValue[$g][$r][$n]->num ?? ''}}次</a>)  --}}
 					(<a target="_blank" href="{{route('getUsersLog')}}?user_id={{$user->id}}&{{$columnTypeSet[$g][$n]}}={{$columnSet[$g][$n]}}{{request()->mon?'&mon='.request()->mon:''}}">{{$cellValue[$g][$r][$n]->num ?? ''}}次</a>)
+					<img src="{{asset('new/images/menu.png')}}" id="ignore_cell_on_{{$user->id}}_{{$columnSet[$g][$n]}}" class="ignore_cell_on" style=" {{$cellValue[$g][$r][$n]->ignoreEntry?'display:none;':''}}"/>
+					<img src="{{asset('new/images/ticon_01.png')}}" id="ignore_cell_off_{{$user->id}}_{{$columnSet[$g][$n]}}"  class="ignore_cell_off" style=" {{!$cellValue[$g][$r][$n]->ignoreEntry?'display:none;':''}}"//>
 					@else
 						無
 					@endif
