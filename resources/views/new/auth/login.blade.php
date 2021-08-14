@@ -47,7 +47,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             "                            <input name=\"password\" type=\"password\"  class=\"d_input\" id=\"password\" placeholder=\"密碼\" required >\n" +
             "                        </div>\n" +
             "                        <div class='wknr'>" +
-            "                            <h4>若有開啟 AdBlock，請使用無痕模式登入。</h4>" +
             "                            <a href=\"{!! url('password/reset') !!}\" class=\"dlpassword\">忘記密碼 ?</a>\n" +
             "                        </div>" +
             "                        <a href=\"javascript:void(0);\" onclick=\"backendProcess()\" class=\"dlbut btn-login\" id=\"btn-login\">登入</a>\n" +
