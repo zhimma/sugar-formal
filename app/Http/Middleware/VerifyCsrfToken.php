@@ -25,6 +25,7 @@ class VerifyCsrfToken extends Middleware
         '/dashboard/mobileVerifyPay_ec',
         '/dashboard/postMobileVerifyPayEC',
         '/admin/api/aws-sns/ses',
-        '/dashboard/line/callback'
+        '/dashboard/line/callback',
+        '/advance_auth_result'
     ];
 }

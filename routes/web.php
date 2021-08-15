@@ -327,9 +327,18 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
     Route::get('hint_auth1', 'PagesController@hint_auth1');
     Route::get('hint_auth2', 'PagesController@hint_auth2');
-
-
     /*會員驗證END*/
+
+    /*進階驗證*/
+    Route::get('advance_auth', 'PagesController@advance_auth');
+    Route::post('advance_auth_process', 'PagesController@advance_auth_process');
+
+    Route::get('advance_auth_return_url', 'PagesController@advance_auth_return_url');
+    Route::get('query_verify_result', 'PagesController@query_verify_result');
+    Route::get('advance_auth_result', 'PagesController@advance_auth_result');
+    Route::post('advance_auth_result', 'PagesController@advance_auth_result');
+    Route::get('data_test', 'PagesController@data_test');
+    /*進階驗證END*/
 
 
     

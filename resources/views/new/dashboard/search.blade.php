@@ -367,6 +367,15 @@
 {{--                                            <label class="ba_tx"><input type="radio" name="isPhoneAuth" value="1" id="isPhoneAuth1" @if( !empty( $_POST["isPhoneAuth"] ) && $_POST["isPhoneAuth"] == 1 ) checked @elseif(!empty( $_GET["isPhoneAuth"] ) && $_GET["isPhoneAuth"]== 1) checked @endif><i>關閉</i></label>--}}
                                         </font>
                                     </li>
+                                    <li>
+                                        <span>通過進階驗證</span>
+                                        <font>
+                                            <label class="n_tx"><input type="checkbox" name="isAdvanceAuth" value="2" id="Checkbox" @if( !empty( $_POST["isAdvanceAuth"] ) && $_POST["isAdvanceAuth"] == "2" ) checked @elseif(!empty( $_GET["isAdvanceAuth"] ) && $_GET["isAdvanceAuth"] == "2") checked  @elseif(!empty( session()->get('search_page_key.isAdvanceAuth') ) && session()->get('search_page_key.isAdvanceAuth') == "2") checked @endif><i>是</i></label>
+
+{{--                                            <label class="ba_tx"><input type="radio" name="isAdvanceAuth" value="2" id="isAdvanceAuth" @if( !empty( $_POST["isAdvanceAuth"] ) && $_POST["isAdvanceAuth"] == 2 ) checked @elseif(!empty( $_GET["isAdvanceAuth"] ) && $_GET["isAdvanceAuth"]== 2) checked @endif><i>開啟</i></label>--}}
+{{--                                            <label class="ba_tx"><input type="radio" name="isAdvanceAuth" value="1" id="isAdvanceAuth1" @if( !empty( $_POST["isAdvanceAuth"] ) && $_POST["isAdvanceAuth"] == 1 ) checked @elseif(!empty( $_GET["isAdvanceAuth"] ) && $_GET["isAdvanceAuth"]== 1) checked @endif><i>關閉</i></label>--}}
+                                        </font>
+                                    </li>
                                 </div>
                             </dt>
                             @endif
@@ -584,6 +593,18 @@
                                                     <img src="/new/images/a4.png">
                                                 @else
                                                     <img src="/new/images/b_4.png">
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    @if($visitor->isPhoneAuth())
+                                        <div class="hoverTip">
+                                            <div class="tagText" data-toggle="popover" data-content="本站的進階認證會員。">
+                                                @if($user->isVip())
+                                                    <img src="/new/images/a7.png">
+                                                @else
+                                                    <img src="/new/images/b_7.png">
                                                 @endif
                                             </div>
                                         </div>

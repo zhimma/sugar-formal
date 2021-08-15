@@ -390,6 +390,9 @@
                         @if($to->isPhoneAuth())
                                 <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a6.png @else/new/images/b_6.png @endif'></div> <span>通過手機認證的會員</span></li>
                                 @endif
+                        @if($to->isAdvanceAuth())
+                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a7.png @else/new/images/b_7.png @endif'></div> <span>通過進階認證的會員</span></li>
+                                @endif
                                 </ul>">
                             <ul @if(!$user->isVip())style="margin-top: -5px;"@endif>
                                 @if(isset($data['description']) && $to->engroup == 2)
@@ -458,7 +461,7 @@
                                         $introCount++;
                                     @endphp
                                 @endif
-                                @if($to->isPhoneAuth())
+                                @if($to->isAdvanceAuth())
                                     <li>
                                         @if($to->engroup == 1)
                                             <div class="tagText" data-toggle="popover" data-content="Baby們可通過完成手機驗證的Daddy，加強其身份真實性，提升信賴感55%以上。" style="width: 100%">
@@ -469,6 +472,26 @@
                                                             <img src="/new/images/a6.png" class="">
                                                         @else
                                                             <img src="/new/images/b_6.png" style="height: 50px; margin-bottom: 10px;">
+                                                        @endif
+                                                    </div>
+                                    </li>
+                                    @php
+                                        $user->isReadIntro = 1;
+                                        $introCount++;
+                                    @endphp
+                                @endif
+
+                                @if(1)
+                                    <li>
+                                        @if($to->engroup == 1)
+                                            <div class="tagText" data-toggle="popover" data-content="Baby們可通過完成手機驗證的Daddy，加強其身份真實性，提升信賴感55%以上。" style="width: 100%">
+                                                @else
+                                                    <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。" style="width: 100%">
+                                                        @endif
+                                                        @if($user->isVip())
+                                                            <img src="/new/images/a7.png" class="">
+                                                        @else
+                                                            <img src="/new/images/b_7.png" style="height: 50px; margin-bottom: 10px;">
                                                         @endif
                                                     </div>
                                     </li>
