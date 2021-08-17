@@ -707,12 +707,19 @@
 
 @endphp
 <br>
+@if($isEverWarned_log || $isEverBanned_log || $isWarned_show || $isBanned_show)
 <table class="table table-hover table-bordered">
 	<tr>
 		<th width="5%"></th>
-		<th width="5%">是否警示</th>
-		<th width="5%">是否封鎖</th>
-		<th width="5%">曾被警示</th>
+		@if(count($isWarned_show)>0)
+			<th width="5%">是否警示</th>
+		@endif
+		@if(count($isBanned_show)>0)
+			<th width="5%">是否封鎖</th>
+		@endif
+		@if(!is_null(array_get($isEverWarned_log,'0')))
+			<th width="5%">曾被警示</th>
+		@endif
 		@if(!is_null(array_get($isEverWarned_log,'1')))
 			<th width="5%"></th>
 		@endif
@@ -735,9 +742,15 @@
 	</tr>
 	<tr>
 		<th>時間</th>
-		<td>{{ array_get($isWarned_show,'created_at') }}</td>
-		<td>{{ array_get($isBanned_show,'created_at') }}</td>
-		<td>{{ array_get($isEverWarned_log,'0.created_at') }}</td>
+		@if(count($isWarned_show)>0)
+			<td>{{ array_get($isWarned_show,'created_at') }}</td>
+		@endif
+		@if(count($isBanned_show)>0)
+			<td>{{ array_get($isBanned_show,'created_at') }}</td>
+		@endif
+		@if(!is_null(array_get($isEverWarned_log,'0')))
+			<td>{{ array_get($isEverWarned_log,'0.created_at') }}</td>
+		@endif
 		@if(!is_null(array_get($isEverWarned_log,'1')))
 			<td>{{ array_get($isEverWarned_log,'1.created_at') }}</td>
 		@endif
@@ -760,9 +773,15 @@
 	</tr>
 	<tr>
 		<th>原因</th>
-		<td>{{ array_get($isWarned_show,'reason') }}</td>
-		<td>{{ array_get($isBanned_show,'reason') }}</td>
-		<td>{{ array_get($isEverWarned_log,'0.reason') }}</td>
+		@if(count($isWarned_show)>0)
+			<td>{{ array_get($isWarned_show,'reason') }}</td>
+		@endif
+		@if(count($isBanned_show)>0)
+			<td>{{ array_get($isBanned_show,'reason') }}</td>
+		@endif
+		@if(!is_null(array_get($isEverWarned_log,'0')))
+			<td>{{ array_get($isEverWarned_log,'0.reason') }}</td>
+		@endif
 		@if(!is_null(array_get($isEverWarned_log,'1')))
 			<td>{{ array_get($isEverWarned_log,'1.reason') }}</td>
 		@endif
@@ -785,8 +804,12 @@
 	</tr>
 	<tr>
 		<th>到期日</th>
-		<td>{{ array_get($isWarned_show,'expire_date') }}</td>
-		<td>{{ array_get($isBanned_show,'expire_date') }}</td>
+		@if(count($isWarned_show)>0)
+			<td>{{ !empty(array_get($isWarned_show,'expire_date')) ? array_get($isWarned_show,'expire_date') : '永久' }}</td>
+		@endif
+		@if(count($isBanned_show)>0)
+			<td>{{ !empty(array_get($isBanned_show,'expire_date')) ? array_get($isBanned_show,'expire_date') : '永久' }}</td>
+		@endif
 		@if(!is_null(array_get($isEverWarned_log,'0')))
 			<td>{{ !empty(array_get($isEverWarned_log,'0.expire_date')) ? array_get($isEverWarned_log,'0.expire_date') : '永久' }}</td>
 		@endif
@@ -813,6 +836,7 @@
 		@endif
 	</tr>
 </table>
+@endif
 
 @php
 	$userAdvInfo=\App\Models\User::userAdvInfo($user->id);
@@ -1225,48 +1249,6 @@
 <h4>詳細資料</h4>
 <table class='table table-hover table-bordered'>
 	<tr>
-		<th>會員ID</th>
-		<td>{{ $userMeta->user_id }}</td>
-		<th>手機</th>
-		<td>{{ $userMeta->phone }}</td>
-		<th>是否已啟動</th>
-		<td>@if($userMeta->is_active == 1) 是 @else 否 @endif</td>
-		<th rowspan='3'>照片 <br><a href="editPic_sendMsg/{{ $user->id }}" class='text-white btn btn-primary'>照片&發訊息</a></th>
-		<td rowspan='3'>@if($userMeta->pic) <img src="{{$userMeta->pic}}" width='150px'> @else 無 @endif</td>
-	</tr>
-	<tr>
-		<th>縣市</th>
-		<td>@if($userMeta->city=='0') 無 @else {{ $userMeta->city }} {{ $userMeta->area }} @endif</td>
-		<th>拒絕查詢的縣市</th>
-		<td>@if($userMeta->blockcity=='0') 無 @else {{ $userMeta->blockcity }} {{ $userMeta->blockarea }} @endif</td>
-		<th>預算</th>
-		<td>{{ $userMeta->budget }}</td>
-	</tr>
-	<tr>
-		<th>生日</th>
-		<td>{{ date('Y-m-d', strtotime($userMeta->birthdate)) }}</td>
-		<th>身高</th>
-		<td>{{ $userMeta->height }}</td>
-		<th>職業</th>
-		<td>{{ $userMeta->occupation }}</td>
-	</tr>
-	<tr>
-		<th>體重</th>
-		<td>{{ $userMeta->weight }}</td>
-		<th>罩杯</th>
-		<td>{{ $userMeta->cup }}</td>
-		<th>體型</th>
-		<td>{{ $userMeta->body }}</td>
-		<th>現況</th>
-		<td>{{ $userMeta->situation }}</td>
-	</tr>
-	<tr>
-		<th>關於我</th>
-		<td colspan='3'>{{ $userMeta->about }}</td>
-		<th>期待的約會模式</th>
-		<td colspan='3'>{{ $userMeta->style }}</td>
-	</tr>
-	<tr>
 		<th>教育</th>
 		<td>{{ $userMeta->education }}</td>
 		<th>婚姻</th>
@@ -1324,69 +1306,6 @@
 		<td>{{ $userMeta->created_at }}</td>
 		<th>更新時間</th>
 		<td>{{ $userMeta->updated_at }}</td>
-	</tr>
-	<tr>
-		<form action="{{ route('users/save', $user->id) }}" method='POST'>
-			{!! csrf_field() !!}
-			<th>站長註解<div><button type="submit" class="text-white btn btn-primary">修改</button></div></th>
-			<td colspan='3'><textarea class="form-control m-input" type="textarea" name="adminNote" rows="3" maxlength="300">{{ $userMeta->adminNote }}</textarea></td>
-		</form>
-
-		<th>手機驗證
-			<div style="display: flex;">
-				<form action="{{ route('phoneDelete') }}" method='POST'>
-					{!! csrf_field() !!}
-					<input type="hidden" name="user_id" value="{{ $userMeta->user_id }}">
-					<button type="submit" class="text-white btn btn-danger delete_phone_submit" style="float: right;">刪除</button>
-				</form>
-				@if ($user->isPhoneAuth() == false)
-					<form action="{{ route('phoneModify') }}" method='POST'>
-						{!! csrf_field() !!}
-						<input type="hidden" name="user_id" value="{{ $userMeta->user_id }}">
-						<input type="hidden" name="phone" value="">
-						<input type="hidden" name="pass" value="1">
-						<button type="submit" class="text-white btn btn btn-success" style="float: right;">通過</button>
-					</form>
-				@else
-					<form action="{{ route('phoneDelete') }}" method='POST'>
-						{!! csrf_field() !!}
-						<input type="hidden" name="user_id" value="{{ $userMeta->user_id }}">
-						<button type="submit" class="text-white btn btn btn-success" style="float: right;">不通過</button>
-					</form>
-				@endif
-			</div>
-		</th>
-		<td>
-			<form action="{{ route('phoneModify') }}" method='POST'>
-				{!! csrf_field() !!}
-				<input type="hidden" name="user_id" value="{{ $userMeta->user_id }}">
-				@php
-					$showPhone = '暫無手機';
-					$showPhoneDate = '';
-					$phoneAuth = DB::table('short_message')->where('member_id', $user->id)->first();
-					if($user->isPhoneAuth()){
-					    if(empty(trim($phoneAuth->mobile))){
-							$showPhone = '已驗證,尚未填寫手機';
-					        $showPhoneDate = $phoneAuth->createdate;
-					        }
-						else{
-						    $showPhone = $phoneAuth->mobile;
-						    $showPhoneDate = $phoneAuth->createdate;
-						    }
-					}
-				@endphp
-				<input class="form-control m-input phoneInput" type=text name="phone" value="{{ $showPhone }}" readonly="readonly" >
-				<div>@if($userMeta->isWarnedTime !='')警示用戶時間：{{ $userMeta->isWarnedTime }}@endif</div>
-				<div>@if($showPhoneDate != '')手機驗證時間：{{ $showPhoneDate }}@endif</div>
-				@if(!is_null($phoneAuth))
-					<div>購買手機驗證卡號：{{ $phoneAuth->credit_card }}</div>
-				@endif
-				@if ($user->isPhoneAuth())
-					<div class="text-white btn btn-primary test" onclick="showPhoneInput()">修改</div>
-					<button type="submit" class="text-white btn btn-primary modify_phone_submit" style="display: none;">確認修改</button>
-				@endif
-			</form>
-		</td>
 	</tr>
 </table>
 
