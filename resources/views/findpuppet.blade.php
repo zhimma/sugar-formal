@@ -65,7 +65,7 @@
 	body table tr th .btn {width:60px;padding:4px;border-radius:5px;font-size:5px;}
 	body table tr th .btn:visited {color:#fff;}
 	body table tr th .btn.handling {background-color:#BEBEBE;color:block;cursor:default;}
- 	td.group_last_time {background-color:#FF9999 !important;}
+ 	body table tr td.group_last_time,body table tr.banned td.group_last_time,body table tr.implicitlyBanned td.group_last_time,body table tr.isWarned td.group_last_time,body table tr.isClosed td.group_last_time,body table tr.isClosedByAdmin td.group_last_time {background-color:#FF9999 !important;}
  </style>
  <style>
     .table > tbody > tr > td, .table > tbody > tr > th{
