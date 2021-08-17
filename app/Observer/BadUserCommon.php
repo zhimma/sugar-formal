@@ -23,8 +23,8 @@ class BadUserCommon
         $msgOfBannedUser = Message_new::allSendersAJAX($bad_user->id,$bad_user->isVip(),'curMon',true);
         if($msgOfBannedUser){
             foreach($msgOfBannedUser  as $msg) {
-                if($msg['to_id']==$bad_user_id && !in_array($msg['from_id'],$relateUserIds) && !$msg['isBanned']) $relateUserIds[] = $msg['from_id'];
-                if($msg['from_id']==$bad_user_id && !in_array($msg['to_id'],$relateUserIds) && !$msg['isBanned']) $relateUserIds[] = $msg['to_id'];
+                if(($msg['to_id'] ?? null)==$bad_user_id && !in_array(($msg['from_id'] ?? null),$relateUserIds) && !($msg['isBanned'] ?? null)) $relateUserIds[] = $msg['from_id'];
+                if(($msg['from_id'] ?? null)==$bad_user_id && !in_array(($msg['to_id'] ?? null),$relateUserIds) && !($msg['isBanned'] ?? null)) $relateUserIds[] = $msg['to_id'];
             }
 
             foreach($relateUserIds as $relateUserId) {
@@ -38,8 +38,8 @@ class BadUserCommon
                 }
                 $msgOfRelateUser = Message_new::allSendersAJAX($relate_user->id,$relate_user->isVip(),'curMon',true);
                 foreach($msgOfRelateUser  as $rmsg) {
-                    if($rmsg['to_id']==$relateUserId && !in_array($rmsg['from_id'],$relateRUserIds)) $relateRUserIds[] = $rmsg['from_id'];
-                    if($rmsg['from_id']==$relateUserId && !in_array($rmsg['to_id'],$relateRUserIds)) $relateRUserIds[] = $rmsg['to_id'];
+                    if(($rmsg['to_id'] ?? null)==$relateUserId && !in_array(($rmsg['from_id'] ?? null),$relateRUserIds)) $relateRUserIds[] = $rmsg['from_id'];
+                    if(($rmsg['from_id'] ?? null)==$relateUserId && !in_array(($rmsg['to_id'] ?? null),$relateRUserIds)) $relateRUserIds[] = $rmsg['to_id'];
                 }
 
                 $bannedIdsOfRelateUser =array_pluck( banned_users::whereIn('member_id',$relateRUserIds)->where('created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->select('member_id')->distinct()->get()->toArray(),'member_id');
