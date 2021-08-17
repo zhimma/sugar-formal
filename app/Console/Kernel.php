@@ -44,7 +44,7 @@ class Kernel extends ConsoleKernel
         $schedule->call(function (){
             $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('5:00');
-		$puppetReq = new Illuminate\Http\Request;
+		$puppetReq = new \Illuminate\Http\Request;
 		$puppetReq->only = 'cfpid';
         $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->everySixHours();
 		$schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->everySixHours();
