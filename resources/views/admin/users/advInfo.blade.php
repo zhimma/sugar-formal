@@ -42,7 +42,7 @@
 	@if($user->accountStatus == 0 && !is_null($user->accountStatus_updateTime))
 		{{ '關閉('. date('Ymd',strtotime($user->accountStatus_updateTime)).')' }}
 	@endif
-	的所有資料
+{{--	的所有資料--}}
 	<form method="POST" action="/admin/users/accountStatus_admin" style="margin:0px;display:inline;">
 		{!! csrf_field() !!}
 		<input type="hidden" name='uid' value="{{ $user->id }}">
@@ -284,10 +284,39 @@
 <h4>詳細資料</h4>
 <table class='table table-hover table-bordered'>
 	<tr>
+		<th width="15%">照片 <br><a href="editPic_sendMsg/{{ $user->id }}" class='text-white btn btn-primary'>照片&發訊息</a></th>
+		<td width="85%">
+			<div style="display: inline-flex;">
+			@if($userMeta->pic)
+				<div style="width: 250px;">
+					<img src="{{$userMeta->pic}}" style="width: 250px;height: 250px;object-fit: contain;">
+					<span>照片原始檔名：{{$userMeta->pic_original_name}}</span>
+				</div>
+			@else
+				無
+			@endif
+
+			<?php $pics = \App\Models\MemberPic::getSelf($user->id); ?>
+			@forelse ($pics as $pic)
+				<div  style="width: 250px; margin-left: 10px;">
+					<input type="hidden" name="userId" value="{{$user->id}}">
+					<input type="hidden" name="imgId" value="{{$pic->id}}">
+					<img src="{{$pic->pic}}" style="width: 250px;height: 250px;object-fit: contain;">
+					<span>照片原始檔名：{{$pic->original_name}}</span>
+				</div>
+			@empty
+				此會員目前沒有生活照
+			@endforelse
+			</div>
+		</td>
+	</tr>
+</table>
+<table class='table table-hover table-bordered'>
+	<tr>
 		<form action="{{ route('users/save', $user->id) }}" method='POST'>
 			{!! csrf_field() !!}
 			<th>站長註解<div><button type="submit" class="text-white btn btn-primary">修改</button></div></th>
-			<td colspan='3'><textarea class="form-control m-input" type="textarea" name="adminNote" rows="3" maxlength="300">{{ $userMeta->adminNote }}</textarea></td>
+			<td><textarea class="form-control m-input" type="textarea" name="adminNote" rows="3" maxlength="300">{{ $userMeta->adminNote }}</textarea></td>
 		</form>
 
 		<th>手機驗證
@@ -345,17 +374,6 @@
 				@endif
 			</form>
 		</td>
-		<th rowspan='3'>照片 <br><a href="editPic_sendMsg/{{ $user->id }}" class='text-white btn btn-primary'>照片&發訊息</a></th>
-		<td rowspan='3'>
-			@if($userMeta->pic)
-			<div  style="width: 250px;height: 250px;">
-				<img src="{{$userMeta->pic}}" style="width: 250px;height: 250px;object-fit: contain;">
-			</div>
-			<div>照片原始檔名：{{$userMeta->pic_original_name}}</div>
-			@else
-				無
-			@endif
-		</td>
 	</tr>
 	<tr>
 		<th>會員ID</th>
@@ -388,14 +406,14 @@
 		<td>{{ $userMeta->cup }}</td>
 		<th>體型</th>
 		<td>{{ $userMeta->body }}</td>
-		<th>現況</th>
-		<td>{{ $userMeta->situation }}</td>
 	</tr>
 	<tr>
+		<th>現況</th>
+		<td>{{ $userMeta->situation }}</td>
 		<th>關於我</th>
-		<td colspan='3'>{{ $userMeta->about }}</td>
+		<td>{{ $userMeta->about }}</td>
 		<th>期待的約會模式</th>
-		<td colspan='3'>{{ $userMeta->style }}</td>
+		<td>{{ $userMeta->style }}</td>
 	</tr>
 </table>
 @if($user->engroup==1)
@@ -414,6 +432,7 @@
 </table>
 @endif
 
+@if(count($reportBySelf)>0)
 <h4>檢舉紀錄</h4>
 <table class="table table-hover table-bordered">
 	<tr>
@@ -463,7 +482,9 @@
 		</tr>
 	@endforeach
 </table>
+@endif
 
+@if(count($report_all)>0)
 <h4>被檢舉紀錄</h4>
 <table class="table table-hover table-bordered">
 	<tr>
@@ -523,6 +544,9 @@
 		</tr>
 	@endforeach
 </table>
+@endif
+
+@if(count($out_evaluation_data_2)>0)
 <h4>被評價紀錄</h4>
 <table class="table table-hover table-bordered">
 	<tr>
@@ -581,6 +605,9 @@
 		</tr>
 	@endforeach
 </table>
+@endif
+
+@if(count($out_evaluation_data)>0)
 <h4>評價紀錄</h4>
 <table class="table table-hover table-bordered">
 	<tr>
@@ -639,6 +666,7 @@
 		</tr>
 	@endforeach
 </table>
+@endif
 
 @php
 	//曾被警示
@@ -685,52 +713,104 @@
 		<th width="5%">是否警示</th>
 		<th width="5%">是否封鎖</th>
 		<th width="5%">曾被警示</th>
-		<th width="5%"></th>
-		<th width="5%"></th>
+		@if(!is_null(array_get($isEverWarned_log,'1')))
+			<th width="5%"></th>
+		@endif
+		@if(!is_null(array_get($isEverWarned_log,'2')))
+			<th width="5%"></th>
+		@endif
+		@if( count($isEverWarned)>3)
 		<th width="5%">更多警示</th>
+		@endif
 		<th width="5%">曾被封鎖</th>
-		<th width="5%"></th>
-		<th width="5%"></th>
-		<th width="5%">更多封鎖</th>
+		@if(!is_null(array_get($isEverBanned_log,'1')))
+			<th width="5%"></th>
+		@endif
+		@if(!is_null(array_get($isEverBanned_log,'2')))
+			<th width="5%"></th>
+		@endif
+		@if(count($isEverBanned)>3)
+			<th width="5%">更多封鎖</th>
+		@endif
 	</tr>
 	<tr>
 		<th>時間</th>
 		<td>{{ array_get($isWarned_show,'created_at') }}</td>
 		<td>{{ array_get($isBanned_show,'created_at') }}</td>
 		<td>{{ array_get($isEverWarned_log,'0.created_at') }}</td>
-		<td>{{ array_get($isEverWarned_log,'1.created_at') }}</td>
-		<td>{{ array_get($isEverWarned_log,'2.created_at') }}</td>
-		<td><a href="/admin/users/WarnedOrBannedLog/Warned/{{ $user->id }}" target="_blank">查看更多</a></td>
+		@if(!is_null(array_get($isEverWarned_log,'1')))
+			<td>{{ array_get($isEverWarned_log,'1.created_at') }}</td>
+		@endif
+		@if(!is_null(array_get($isEverWarned_log,'2')))
+			<td>{{ array_get($isEverWarned_log,'2.created_at') }}</td>
+		@endif
+		@if( count($isEverWarned)>3)
+			<td><a href="/admin/users/WarnedOrBannedLog/Warned/{{ $user->id }}" target="_blank">查看更多</a></td>
+		@endif
 		<td>{{ array_get($isEverBanned_log,'0.created_at') }}</td>
-		<td>{{ array_get($isEverBanned_log,'1.created_at') }}</td>
-		<td>{{ array_get($isEverBanned_log,'2.created_at') }}</td>
-		<td><a href="/admin/users/WarnedOrBannedLog/Banned/{{ $user->id }}" target="_blank">查看更多</a></td>
+		@if(!is_null(array_get($isEverBanned_log,'1')))
+			<td>{{ array_get($isEverBanned_log,'1.created_at') }}</td>
+		@endif
+		@if(!is_null(array_get($isEverBanned_log,'2')))
+			<td>{{ array_get($isEverBanned_log,'2.created_at') }}</td>
+		@endif
+		@if(count($isEverBanned)>3)
+			<td><a href="/admin/users/WarnedOrBannedLog/Banned/{{ $user->id }}" target="_blank">查看更多</a></td>
+		@endif
 	</tr>
 	<tr>
 		<th>原因</th>
 		<td>{{ array_get($isWarned_show,'reason') }}</td>
 		<td>{{ array_get($isBanned_show,'reason') }}</td>
 		<td>{{ array_get($isEverWarned_log,'0.reason') }}</td>
-		<td>{{ array_get($isEverWarned_log,'1.reason') }}</td>
-		<td>{{ array_get($isEverWarned_log,'2.reason') }}</td>
-		<td></td>
+		@if(!is_null(array_get($isEverWarned_log,'1')))
+			<td>{{ array_get($isEverWarned_log,'1.reason') }}</td>
+		@endif
+		@if(!is_null(array_get($isEverWarned_log,'2')))
+			<td>{{ array_get($isEverWarned_log,'2.reason') }}</td>
+		@endif
+		@if( count($isEverWarned)>3)
+			<td></td>
+		@endif
 		<td>{{ array_get($isEverBanned_log,'0.reason') }}</td>
-		<td>{{ array_get($isEverBanned_log,'1.reason') }}</td>
-		<td>{{ array_get($isEverBanned_log,'2.reason') }}</td>
-		<td></td>
+		@if(!is_null(array_get($isEverBanned_log,'1')))
+			<td>{{ array_get($isEverBanned_log,'1.reason') }}</td>
+		@endif
+		@if(!is_null(array_get($isEverBanned_log,'2')))
+			<td>{{ array_get($isEverBanned_log,'2.reason') }}</td>
+		@endif
+		@if(count($isEverBanned)>3)
+			<td></td>
+		@endif
 	</tr>
 	<tr>
 		<th>到期日</th>
 		<td>{{ array_get($isWarned_show,'expire_date') }}</td>
 		<td>{{ array_get($isBanned_show,'expire_date') }}</td>
-		<td>{{ array_get($isEverWarned_log,'0.expire_date') }}</td>
-		<td>{{ array_get($isEverWarned_log,'1.expire_date') }}</td>
-		<td>{{ array_get($isEverWarned_log,'2.expire_date') }}</td>
-		<td></td>
-		<td>{{ array_get($isEverBanned_log,'0.expire_date') }}</td>
-		<td>{{ array_get($isEverBanned_log,'1.expire_date') }}</td>
-		<td>{{ array_get($isEverBanned_log,'2.expire_date') }}</td>
-		<td></td>
+		@if(!is_null(array_get($isEverWarned_log,'0')))
+			<td>{{ !empty(array_get($isEverWarned_log,'0.expire_date')) ? array_get($isEverWarned_log,'0.expire_date') : '永久' }}</td>
+		@endif
+		@if(!is_null(array_get($isEverWarned_log,'1')))
+			<td>{{ !empty(array_get($isEverWarned_log,'1.expire_date')) ? array_get($isEverWarned_log,'1.expire_date') : '永久' }}</td>
+		@endif
+		@if(!is_null(array_get($isEverWarned_log,'2')))
+			<td>{{ !empty(array_get($isEverWarned_log,'2.expire_date')) ? array_get($isEverWarned_log,'2.expire_date') : '永久' }}</td>
+		@endif
+		@if( count($isEverWarned)>3)
+			<td></td>
+		@endif
+		@if(!is_null(array_get($isEverBanned_log,'0')))
+			<td>{{ !empty(array_get($isEverBanned_log,'0.expire_date')) ? array_get($isEverBanned_log,'0.expire_date') : '永久' }}</td>
+		@endif
+		@if(!is_null(array_get($isEverBanned_log,'1')))
+			<td>{{ !empty(array_get($isEverBanned_log,'1.expire_date')) ? array_get($isEverBanned_log,'1.expire_date') : '永久' }}</td>
+		@endif
+		@if(!is_null(array_get($isEverBanned_log,'2')))
+			<td>{{ !empty(array_get($isEverBanned_log,'2.expire_date')) ? array_get($isEverBanned_log,'2.expire_date') : '永久' }}</td>
+		@endif
+		@if(count($isEverBanned)>3)
+			<td></td>
+		@endif
 	</tr>
 </table>
 
@@ -774,21 +854,48 @@
 <br>
 <h4>帳號登入紀錄</h4>
 <table id="table_userLogin_log" class="table table-hover table-bordered">
-{{--	<tr>--}}
-{{--		<td>登入時間</td>--}}
-{{--	</tr>--}}
 	@foreach($userLogin_log as $logInLog)
 		<tr>
 			<td>
 				<span class="loginItem" id="showloginTime{{substr($logInLog->loginDate,0,7)}}" data-sectionName="loginTime{{substr($logInLog->loginDate,0,7)}}">{{ substr($logInLog->loginDate,0,7) . ' ['. $logInLog->dataCount .']' }}</span>
-				@foreach(array_get($logInLog->Ip,'Ip_group',[]) as $gpKey =>$group)
-					<span class="loginItem" id="showIp{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="Ip{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" style="margin-left: 20px;">{{ $group->ip.'('.$group->dataCount .')' }}</span>
-				@endforeach
-				@foreach(array_get($logInLog->CfpID,'CfpID_group',[]) as $gpKey =>$group)
-					<span class="loginItem" id="showcfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="cfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" style="margin-left: 20px;">{{ $group->cfp_id.'('.$group->dataCount .')' }}</span>
-				@endforeach
-			</td>
+				<table>
+					@php
+						$CFP_count=count(array_get($logInLog->CfpID,'CfpID_group',[]));
+						$IP_count=count(array_get($logInLog->Ip,'Ip_group',[]));
+					@endphp
+					@if($CFP_count>0)
+						@foreach(array_get($logInLog->CfpID,'CfpID_group',[]) as $gpKey =>$group)
+							@if($gpKey<5)
+								<td class="loginItem" id="showcfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="cfpID{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" style="margin-left: 20px;min-width: 100px;">{{ $group->cfp_id.'('.$group->dataCount .')' }}</td>
+							@endif
+						@endforeach
+					@endif
+					@for($i=0; $i< 5-$CFP_count; $i++)
+						<th style="min-width: 100px"></th>
+					@endfor
+					@if($CFP_count>=6)
+						<th style="min-width: 100px">...</th>
+					@else
+						<th style="min-width: 100px"></th>
+					@endif
 
+					@if($IP_count>0)
+						@foreach(array_get($logInLog->Ip,'Ip_group',[]) as $gpKey =>$group)
+							@if($gpKey<10)
+								<td class="loginItem" id="showIp{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="Ip{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" style="margin-left: 20px;min-width: 150px;">{{ $group->ip.'('.$group->dataCount .')' }}</td>
+							@endif
+						@endforeach
+					@endif
+					@for($i=0; $i<10- $IP_count; $i++)
+						<th style="min-width: 150px"></th>
+					@endfor
+					@if($IP_count>=11)
+						<th style="min-width: 150px">...</th>
+					@else
+						<th style="min-width: 150px"></th>
+					@endif
+				</table>
+			</td>
 		</tr>
 		<tr class="showLog" id="loginTime{{substr($logInLog->loginDate,0,7)}}">
 			<td>
@@ -1364,11 +1471,42 @@
 						</div>
 						<div class="form-group">
 							<label for="ip">IP</label>
-							<select multiple class="form-control" id="ip" name="ip[]" style="height:300px;">
-								@foreach( $ip as $row)
-									<option value="{{$row->ip}}">{{$row->ip}}</option>
+							<table id="table_userLogin_log" class="table table-hover table-bordered">
+								@foreach($userLogin_log as $logInLog)
+									<tr class="loginItem" id="showloginTimeIP{{substr($logInLog->loginDate,0,7)}}" data-sectionName="loginTimeIP{{substr($logInLog->loginDate,0,7)}}">
+										<td>
+											<span>{{ substr($logInLog->loginDate,0,7) . ' ['. count(array_get($logInLog->Ip,'Ip_group',[])) .']' }}</span>
+										</td>
+									</tr>
+									<tr class="showLog" id="loginTimeIP{{substr($logInLog->loginDate,0,7)}}">
+										<td>
+											<table class="table table-bordered" style="display: block; max-height: 500px; overflow-x: scroll;">
+												<thead>
+												<tr class="info">
+													<th></th>
+													<th>登入時間</th>
+													<th>IP</th>
+												</tr>
+												</thead>
+												<tbody>
+												@foreach(array_get($logInLog->Ip,'Ip_group',[]) as $key => $item)
+													<tr>
+														<td> <input type="checkbox" value="{{$item->ip}}" name="ip[]"></td>
+														<td>{{$item->loginTime}}</td>
+														<td><a href="{{ route('getIpUsers', [$item->ip]) }}" target="_blank">{{$item->ip}}</a></td>
+													</tr>
+												@endforeach
+												</tbody>
+											</table>
+										</td>
+									</tr>
 								@endforeach
-							</select>
+							</table>
+							{{--<select multiple class="form-control" id="ip" name="ip[]" style="height:300px;">
+								@foreach( $ip as $row)
+									<option value="{{$row->ip}}">{{substr($row->last_tiime,0,10) .'  ['.$row->ip.']'}}</option>
+								@endforeach
+							</select>--}}
 						</div>
 						<div class="form-group">
 							<label for="user_agent">User Agent</label>

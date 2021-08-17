@@ -210,6 +210,7 @@ class ImageController extends BaseController
                 $memberPic = new MemberPic;
                 $memberPic->member_id = $userId;
                 $memberPic->pic = $destinationPath;
+                $memberPic->original_name = $file->getClientOriginalName();
                 $memberPic->save();
             }
         }
