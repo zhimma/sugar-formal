@@ -387,18 +387,21 @@ class Message_new extends Model
         //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
     }
 
-    public static function allSendersAJAX($uid, $isVip, $d = 7)
+    public static function allSendersAJAX($uid, $isVip, $d = 7,$forEventSenders=false)
     {
-        $user = \View::shared('user');
+		if($forEventSenders) $user = null;
+        else 
+			$user = \View::shared('user');
         if(!$user){
             $user = User::find($uid);
         }
-        $banned_users = banned_users::where('member_id', $uid)->first();
-        $BannedUsersImplicitly = BannedUsersImplicitly::where('target', $uid)->first();
-        if( (isset($banned_users) && ($banned_users->expire_date == null || $banned_users->expire_date >= Carbon::now())) || isset($BannedUsersImplicitly)){
-            return false;
-        }
-
+		if(!$forEventSenders) {
+			$banned_users = banned_users::where('member_id', $uid)->first();
+			$BannedUsersImplicitly = BannedUsersImplicitly::where('target', $uid)->first();
+			if( (isset($banned_users) && ($banned_users->expire_date == null || $banned_users->expire_date >= Carbon::now())) || isset($BannedUsersImplicitly)){
+				return false;
+			}
+		}
 		$admin_id = AdminService::checkAdmin()->id;
         /**
          * 效能調整：使用左結合取代 where in 以取得更好的效能
@@ -438,8 +441,11 @@ class Message_new extends Model
                     $query->where([['m.to_id', $uid], ['m.from_id', '!=', $uid],['m.from_id','!=',$admin_id]])
                         ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid],['m.to_id','!=',$admin_id]]);
                 });
-
-        if($d==7){
+		if($forEventSenders) 
+		{
+			self::$date = \Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString();
+		}
+        else if($d==7){
             self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
         }else if($d==30){
             self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
@@ -478,17 +484,21 @@ class Message_new extends Model
         if(count($saveMessages) == 0){
             return array_values(['No data']);
         }else{
-            return Message_new::sortMessages($saveMessages, null, $mm, $mCount);
+            return Message_new::sortMessages($saveMessages, null, $mm, $mCount,$forEventSenders?$uid:null);
         }
         //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
     }
 
 
-    public static function sortMessages($messages, $userBlockList = null, $mm = [], $mCount = 10){
+    public static function sortMessages($messages, $userBlockList = null, $mm = [], $mCount = 10,$uid=null){
         if ($messages instanceof Illuminate\Database\Eloquent\Collection) {
             $messages = $messages->toArray();
         }
-        $user = Auth::user();
+	
+		if($uid)
+			$user=User::find($uid);
+        else
+			$user = Auth::user();
         $block_people =  Config::get('social.block.block-people');
         $isVip = $user->isVip();
         $aa=[];

@@ -20,26 +20,26 @@ class BadUserCommon
         $relateUserIds = [];
         $admin_id = AdminService::checkAdmin()->id;
         $bad_user = User::findById($bad_user_id);
-        $msgOfBannedUser = Message_new::allSenders($bad_user->id,$bad_user->isVip(),'curMon',false);
+        $msgOfBannedUser = Message_new::allSendersAJAX($bad_user->id,$bad_user->isVip(),'curMon',true);
         if($msgOfBannedUser){
             foreach($msgOfBannedUser  as $msg) {
-                if($msg->to_id==$bad_user_id && !in_array($msg->from_id,$relateUserIds)) $relateUserIds[] = $msg->from_id;
-                if($msg->from_id==$bad_user_id && !in_array($msg->to_id,$relateUserIds)) $relateUserIds[] = $msg->to_id;
+                if($msg['to_id']==$bad_user_id && !in_array($msg['from_id'],$relateUserIds) && !$msg['isBanned']) $relateUserIds[] = $msg['from_id'];
+                if($msg['from_id']==$bad_user_id && !in_array($msg['to_id'],$relateUserIds) && !$msg['isBanned']) $relateUserIds[] = $msg['to_id'];
             }
 
             foreach($relateUserIds as $relateUserId) {
                 $relateRUserIds = [];
                 $relate_user = User::findById($relateUserId);
-                if(banned_users::where('member_id',$relateUserId)->first()
-                    || BannedUsersImplicitly::where('target',$relateUserId)->first()
+                if($relate_user->banned || $relate_user->implicitlyBanned
+                    || $relate_user->accountStatus===0 || $relate_user->account_status_admin===0
                     || $relateUserId==$admin_id)
                 {
                     continue;
                 }
-                $msgOfRelateUser = Message_new::allSenders($relate_user->id,$relate_user->isVip(),'curMon',false);
+                $msgOfRelateUser = Message_new::allSendersAJAX($relate_user->id,$relate_user->isVip(),'curMon',true);
                 foreach($msgOfRelateUser  as $rmsg) {
-                    if($rmsg->to_id==$relateUserId && !in_array($rmsg->from_id,$relateRUserIds)) $relateRUserIds[] = $rmsg->from_id;
-                    if($rmsg->from_id==$relateUserId && !in_array($rmsg->to_id,$relateRUserIds)) $relateRUserIds[] = $rmsg->to_id;
+                    if($rmsg['to_id']==$relateUserId && !in_array($rmsg['from_id'],$relateRUserIds)) $relateRUserIds[] = $rmsg['from_id'];
+                    if($rmsg['from_id']==$relateUserId && !in_array($rmsg['to_id'],$relateRUserIds)) $relateRUserIds[] = $rmsg['to_id'];
                 }
 
                 $bannedIdsOfRelateUser =array_pluck( banned_users::whereIn('member_id',$relateRUserIds)->where('created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->select('member_id')->distinct()->get()->toArray(),'member_id');
