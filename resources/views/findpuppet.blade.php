@@ -2,10 +2,10 @@
 @section('app-content')
 
 <style>
-	body table.table-hover tr th.col_user_id {padding-left:30px;padding-right:30px;}
+	body table.table-hover tr th.col_user_id {padding-left:106px;padding-right:106px;}
 	img.ignore_switch_off {display:none;}
 	img.ignore_switch_on {display:inline-block;}
-	img.ignore_switch_off,img.ignore_switch_on {float:right;}
+	/*img.ignore_switch_off,img.ignore_switch_on {float:right;}*/
 	body h2 span.dateInfo {font-size:15px;font-weight:normal;display:block;margin-top:10px;}
 	body table.table-hover {width:auto;max-width:none;}
 
@@ -37,7 +37,7 @@
 	tr.isClosed th.col-1st {background-color:#C9C9C9 !important;}	
 	
 	body table.table-hover tr td.col_ip_first ,body table.table-hover tr th.col_ip_first {border-left: 6px solid #000;}
-	td.group_last_time {background-color:#FF9999 !important;}
+
 	body table tr td,body table tr th {white-space: nowrap;}
 	body table tr td.ignore_msg {text-align: left;vertical-align: top;border-bottom:none;}
 	tr th a.user {cursor:default;text-decoration: none;}
@@ -62,6 +62,10 @@
 	.group_last_time {font-weight:normal;font-size:12px;}
 	.ignore_switch_on,.ignore_switch_off,.ignore_cell_on,.ignore_cell_off {height:15px;cursor: pointer;}
 	body table tr td.ignore_cell,body table tr td.ignore_cell a,body table tr td.ignore_cell a:visited,body table tr td.ignore_cell a:hover {color:#D0D0D0 !important;}
+	body table tr th .btn {width:60px;padding:4px;border-radius:5px;font-size:5px;}
+	body table tr th .btn:visited {color:#fff;}
+	body table tr th .btn.handling {background-color:#BEBEBE;color:block;cursor:default;}
+ 	body table tr td.group_last_time,body table tr.banned td.group_last_time,body table tr.implicitlyBanned td.group_last_time,body table tr.isWarned td.group_last_time,body table tr.isClosed td.group_last_time,body table tr.isClosedByAdmin td.group_last_time {background-color:#FF9999 !important;}
  </style>
  <style>
     .table > tbody > tr > td, .table > tbody > tr > th{
@@ -73,11 +77,71 @@
 <script type="text/javascript">
     $(function() {
 		
+		
+		$('.btn_admin_close').on('click',function() {
+			
+			var nowElt = $(this);
+			var org_text = nowElt.text();
+			if(org_text=='處理中') return false;
+			if(nowElt.hasClass('btn-danger')) {
+				var org_class = 'btn-danger';
+				var next_class = 'btn-success';
+				var next_text = '站方開啟';
+				var parent_next = 'add';
+				
+				account_status = 0;
+			}
+			else if(nowElt.hasClass('btn-success')) {
+				var org_class = 'btn-success';
+				var next_class = 'btn-danger';
+				var next_text = '站方關閉';	
+				var parent_next = 'remove';
+				account_status = 1;				
+			}
+			
+			if(parent_next=='add') {
+				nowElt.parent().parent().addClass('isClosedByAdmin');
+			}
+			else if(parent_next=='remove') {
+				nowElt.parent().parent().removeClass('isClosedByAdmin');
+			}
+			
+			nowElt.removeClass(org_class);
+			nowElt.addClass('handling');
+			nowElt.text('處理中');				
+
+			var user_id = nowElt.parent().find('a.user_id').text().replace(' ','');
+			$.ajax({
+				type: 'POST',
+				url: '/admin/users/accountStatus_admin',
+				data: { uid : user_id,account_status:account_status,_token: '{{csrf_token()}}'},
+				success: function(xhr, status, error){
+					nowElt.text(next_text);				
+					nowElt.removeClass('handling');
+					nowElt.addClass(next_class);
+				},
+				error: function(xhr, status, error){
+					alert('User Id：'+user_id+org_text+'失敗，請重新操作\n錯誤訊息：'+status+' '+error);
+					nowElt.text(org_text);
+					nowElt.removeClass('handling');
+					nowElt.removeClass(next_class);
+					nowElt.addClass(org_class);	
+
+					if(parent_next=='add') {
+						nowElt.parent().parent().removeClass('isClosedByAdmin');
+					}
+					else if(parent_next=='remove') {
+						nowElt.parent().parent().addClass('isClosedByAdmin');
+					}					
+				}
+			});				
+		})		
+		
 		$('.ignore_switch_off').on('click',function() {
 			
 			$(this).hide();
 			$(this).parent().find('.ignore_switch_on').css("display", "inline-block");
-			var user_id = $(this).parent().find('a').text().replace(' ','');
+			var user_id = $(this).parent().find('a.user_id').text().replace(' ','');
 			$.ajax({
 				type: 'GET',
 				url: '{{ route('ignoreDuplicate') }}',
@@ -94,7 +158,7 @@
 		$('.ignore_switch_on').on('click',function() {
 			$(this).hide();
 			$(this).parent().find('.ignore_switch_off').css("display", "inline-block");
-			var user_id = $(this).parent().find('a').text().replace(' ','');
+			var user_id = $(this).parent().find('a.user_id').text().replace(' ','');
 			$.ajax({
 				type: 'GET',
 				url: '{{ route('ignoreDuplicate') }}',
@@ -169,9 +233,10 @@
 
 
 <div>
-<h2>相同IP帳號分析數據
+<h2>多重登入帳號@if(!request()->only)交叉比對@else{{strtoupper(request()->only)}}分析@endif數據
 @if(isset($columnSet) && $columnSet)
-<span class="dateInfo">	
+<span class="dateInfo">
+	@if (request()->only!='cfpid')	
 	@if($sdateOfIp)
 	{{$sdateOfIp}} ～ 
 	@else
@@ -182,7 +247,9 @@
 	為止
 	@endif
 	的IP
-	以及
+	@endif
+	@if (!request()->only)以及@endif
+	@if (request()->only!='ip')	
 	@if($sdateOfCfpId)
 	{{$sdateOfCfpId}} ～ 
 	@else
@@ -194,7 +261,7 @@
 	@endif
 	
 	的Cfp Id
-	
+	@endif
 </span>
 @endif 
 </h2>
@@ -204,9 +271,12 @@
 <input type="button" name="check" value="手動產出數據(僅測試用)" id="checkBtn"  onclick="doCheck();return false;" />
  <script>
 	checkBtn = document.getElementById('checkBtn');
+	onlyQStr = '{{request()->only}}';
     function doCheck() {
          var sendurl = "./checkDuplicate";
+		 
 		 var qstr = '';
+		 if(onlyQStr) qstr+='?only='+onlyQStr;
         var xhr = new XMLHttpRequest();
 		
 		xhr.onloadstart = function () {
@@ -247,11 +317,15 @@
 </script>
 </div>
 @endif
-@forelse ($groupOrderArr as $gidx=>$g)
+@php $group_count=0;  @endphp
+@forelse ($groupOrderArr as $seg_idx=>$grp_seg)
+@foreach ($grp_seg as $gidx=>$g)
+@php $group_count++;  @endphp
+@php //if($group_count>10) break; @endphp
 <br><br>
 <div class="show">
 	
-    <h2>第 {{ $gidx+1 }} 組</h2>
+    <h2>第 {{ $group_count }} 組</h2>
 	@if ($groupInfo[$g]['cutData'])
 	<div class="attentioninfo">
 		<h3>請注意!!!</h3>
@@ -303,7 +377,15 @@
         <tr class="{{$user->tag_class}}">
             <th class="col-1st">
 	{{--		<a target="_blank" href="showLog?user_id={{$user->id}}{{request()->mon?'&mon='.request()->mon:''}}">   --}}
-				<a target="_blank" href="{{route('getUsersLog')}}?user_id={{$user->id}}">{{$user->id ?? ''}}@if($user->engroup == 1 && $user->isVip()) <i class="m-nav__link-icon fa fa-diamond"></i> @endif </a>
+				<a target="_blank" class="user_id"  href="{{route('getUsersLog')}}?user_id={{$user->id}}">{{$user->id ?? ''}}@if($user->engroup == 1 && $user->isVip()) <i class="m-nav__link-icon fa fa-diamond"></i> @endif </a>
+				@if ($user->email)
+				<button type="button" class="btn btn_admin_close  @if($user->account_status_admin==1) btn-danger @else btn-success @endif">站方@if($user->account_status_admin==1)關閉@else開啟@endif</button>
+				@if (Auth::user()->can('admin') || Auth::user()->can('juniorAdmin'))
+					<a href="{{ route('AdminMessage', $user->id) }}" target="_blank" class='btn btn-dark'>站長訊息</a>
+				@elseif (Auth::user()->can('readonly'))
+					<a href="{{ route('AdminMessage/readOnly', $user->id) }}" target="_blank" class='btn btn-dark'>站長訊息</a>
+				@endif	
+				@endif				
 				<img src="{{asset("new/images/kai.png")}}" class="ignore_switch_on" style=" {{$user->ignoreEntry?'display:none;':'display:inline-block;'}}"/>			
 				<img src="{{asset("new/images/guan.png")}}" class="ignore_switch_off"   style=" {{!$user->ignoreEntry?'display:none;':'display:inline-block;'}}"/>			
 			
@@ -379,6 +461,7 @@
 	@endif
     </table>
 </div>
+@endforeach
 @empty
     <div>無資料</div>
 @endforelse
