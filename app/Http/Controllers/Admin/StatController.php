@@ -137,6 +137,12 @@ class StatController extends \App\Http\Controllers\BaseController
     }
 
     public function set_autoBan(){
+        if(request()->ip_expire=='1' && request()->ip) {
+            $uq = DB::table('set_auto_ban')->where('type', 'ip');
+            if(request()->ip) $uq->where('content', request()->ip);
+            $uq->update(['expiry'=>date('Y-m-d H:i:s')]);
+            return redirect()->route('stats/set_autoBan');
+        }
 		DB::table('set_auto_ban')->where('type', 'ip')->where('expiry', '0000-00-00 00:00:00')
 			->update(['expiry'=>\Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s')]);
         $data = DB::table('set_auto_ban')->orderBy('id', 'desc')->get();
