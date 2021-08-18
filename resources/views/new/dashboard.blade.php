@@ -807,11 +807,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         if(type=='')$('#domain option:not(:first)').remove();
     }
     $(document).ready(function() {
-        @if (isset($errors) && $errors->count() > 0)
-            @foreach ($errors->all() as $error)
-                c5('{{ $error }}');
-            @endforeach
-        @endif
         var blockarea_selected = '{{ isset($umeta->blockarea[0]) ? ($umeta->blockarea[0] == "" ? "全區" : str_replace($umeta->blockcity[0],'',$umeta->blockarea[0])) : '全區' }}';
         var blockarea1_selected = '{{ isset($umeta->blockarea[1]) ? str_replace($umeta->blockcity[1],'',$umeta->blockarea[1]) :'全區'  }}';
         var blockarea2_selected = '{{ isset($umeta->blockarea[2]) ? str_replace($umeta->blockcity[2],'',$umeta->blockarea[2]) : '全區'  }}';
@@ -901,60 +896,34 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             }
 
             @if($ckBarCodeLog==0)
-
                 if(banned_vip_pass){
                     c5('您已成功解除封鎖');
                 }
                 if(warned_vip_pass){
                     c5('您已成功解除警示');
                 }
-
             @elseif($ckBarCodeLog>0 && !$user->isVip())
-            $('#isGetBarCodeNotVIP').show();
-            $('#announce_bg').show();
+                $('#isGetBarCodeNotVIP').show();
+                $('#announce_bg').show();
                 @php
                     DB::table('payment_get_barcode_log')->where('user_id',$user->id)->where('ExpireDate','>=',now())->where('isRead',0)->update(['isRead' => 1]);
                 @endphp
-            @elseif (!$umeta->isAllSet( $user->engroup ))
-            c5('請寫上基本資料。');
-            // swal({
-            //   title:'請寫上基本資料。',
-            //   type:'warning'
-            // });
-            @elseif (empty($umeta->pic))
-            c5("{{$add_avatar}}");
-            // swal({
-            //   title:'請加上頭像照。',
-            //   type:'warning'
-            // });
-            @elseif ($umeta->age()<18)
-            c5('您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。');
-            // swal({
-            //   title:'您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。',
-            //   type:'warning'
-            // });
-            {{--        @elseif (($umeta->isWarned==1 && $umeta->isWarnedRead==0 ) || ( $isAdminWarned && $isAdminWarnedRead->isAdminWarnedRead==0 ) )--}}
-            {{--                @php--}}
-            {{--                 if($isAdminWarned){--}}
-            {{--                    //標記已讀--}}
-            {{--                    \App\Models\User::isAdminWarnedRead($user->id);--}}
-            {{--                  }--}}
-            {{--                  if($umeta->isWarned==1){--}}
-            {{--                    //標記已讀--}}
-            {{--                    \App\Models\User::isWarnedRead($user->id);--}}
-            {{--                  }--}}
-            {{--                @endphp--}}
-            {{--        $('#isWarned').show();--}}
-            {{--        $('#announce_bg').show();--}}
             @endif
-      @endif
+            @if (!$umeta->isAllSet( $user->engroup ))
+                c5('請寫上基本資料。');
+            @elseif (empty($umeta->pic))
+                c5("{{$add_avatar}}");
+            @elseif ($umeta->age()<18)
+                c5('您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。');
+            @endif
+        @endif
 
         @php
             $exchange_period_read = DB::table('exchange_period_temp')->where('user_id',$user->id)->count();
         @endphp
         @if($exchange_period_read==0 && $user->engroup==2)
-        $('#isExchangePeriod').show();
-        $('#announce_bg').show();
+            $('#isExchangePeriod').show();
+            $('#announce_bg').show();
         @endif
 
 
