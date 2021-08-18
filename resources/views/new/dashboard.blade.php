@@ -807,9 +807,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         if(type=='')$('#domain option:not(:first)').remove();
     }
     $(document).ready(function() {
-        @if ($errors->any())
+        @if (isset($errors) && $errors->count() > 0)
             @foreach ($errors->all() as $error)
-            c5('{{ $error }}');
+                c5('{{ $error }}');
             @endforeach
         @endif
         var blockarea_selected = '{{ isset($umeta->blockarea[0]) ? ($umeta->blockarea[0] == "" ? "全區" : str_replace($umeta->blockcity[0],'',$umeta->blockarea[0])) : '全區' }}';
