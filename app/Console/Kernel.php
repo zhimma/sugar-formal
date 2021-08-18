@@ -7,6 +7,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Http\Request;
 
 class Kernel extends ConsoleKernel
 {
@@ -50,7 +51,7 @@ class Kernel extends ConsoleKernel
             $this->checkDatFile();
             $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('5:00');
-		$puppetReq = new Illuminate\Http\Request;
+		$puppetReq = new Request();
 		$puppetReq->only = 'cfpid';
         $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->everySixHours();
 		$schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->everySixHours();
