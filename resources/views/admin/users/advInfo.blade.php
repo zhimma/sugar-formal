@@ -711,10 +711,10 @@
 <table class="table table-hover table-bordered">
 	<tr>
 		<th width="5%"></th>
-		@if(count($isWarned_show)>0)
+		@if(count($isEverWarned_log)>0)
 			<th width="5%">是否警示</th>
 		@endif
-		@if(count($isBanned_show)>0)
+		@if(count($isEverBanned_log)>0)
 			<th width="5%">是否封鎖</th>
 		@endif
 		@if(!is_null(array_get($isEverWarned_log,'0')))
@@ -742,10 +742,10 @@
 	</tr>
 	<tr>
 		<th>時間</th>
-		@if(count($isWarned_show)>0)
+		@if(count($isEverWarned_log)>0)
 			<td>{{ array_get($isWarned_show,'created_at') }}</td>
 		@endif
-		@if(count($isBanned_show)>0)
+		@if(count($isEverBanned_log)>0)
 			<td>{{ array_get($isBanned_show,'created_at') }}</td>
 		@endif
 		@if(!is_null(array_get($isEverWarned_log,'0')))
@@ -773,10 +773,10 @@
 	</tr>
 	<tr>
 		<th>原因</th>
-		@if(count($isWarned_show)>0)
+		@if(count($isEverWarned_log)>0)
 			<td>{{ array_get($isWarned_show,'reason') }}</td>
 		@endif
-		@if(count($isBanned_show)>0)
+		@if(count($isEverBanned_log)>0)
 			<td>{{ array_get($isBanned_show,'reason') }}</td>
 		@endif
 		@if(!is_null(array_get($isEverWarned_log,'0')))
@@ -804,11 +804,11 @@
 	</tr>
 	<tr>
 		<th>到期日</th>
-		@if(count($isWarned_show)>0)
-			<td>{{ !empty(array_get($isWarned_show,'expire_date')) ? array_get($isWarned_show,'expire_date') : '永久' }}</td>
+		@if(count($isEverWarned_log)>0)
+			<td>{{ !is_null(array_get($isWarned_show,'created_at')) && !is_null(array_get($isWarned_show,'expire_date')) ? array_get($isWarned_show,'expire_date') : (count($isWarned_show)>0 ? '永久' : '') }}</td>
 		@endif
-		@if(count($isBanned_show)>0)
-			<td>{{ !empty(array_get($isBanned_show,'expire_date')) ? array_get($isBanned_show,'expire_date') : '永久' }}</td>
+		@if(count($isEverBanned_log)>0)
+			<td>{{ !is_null(array_get($isBanned_show,'created_at')) && !is_null(array_get($isBanned_show,'expire_date')) ? array_get($isBanned_show,'expire_date') : (count($isBanned_show)>0 ? '永久' : '') }}</td>
 		@endif
 		@if(!is_null(array_get($isEverWarned_log,'0')))
 			<td>{{ !empty(array_get($isEverWarned_log,'0.expire_date')) ? array_get($isEverWarned_log,'0.expire_date') : '永久' }}</td>
