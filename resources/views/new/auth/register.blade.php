@@ -71,7 +71,36 @@
             });
         });
         $(document).ready(function() {
-
+			@if(\Session::get('is_remind_puppet')=='1')
+			c4('您好，本站禁止註冊多重帳號。[br][br]若偵測到多重帳號註冊，將會影響您所有帳號，可能遭受警示或者封鎖的處分。[br][br]若您想看看自己的帳戶狀況，可以到個人資料->自我預覽{{--或者可以 個人區->模擬男/女會員 即可用男/女會員的角度--}}瀏覽{{--網站--}}。[br][br]是否繼續註冊？');
+			$("#tab04 .bltext").html($("#tab04 .bltext").text().replace(/\[br\]/gi,'<br>'));
+			$('#tab04 .bl_gb img').hide();
+			$('#tab04 .n_bbutton .n_left').html('是');
+			$('#tab04 .n_bbutton .n_right').html('否');
+			$(document).off('click','.blbg',closeAndReload);
+			$(document).on('click','#tab04 .n_bbutton .n_left',function() {
+				var rebuild_form = document.createElement('form');
+				rebuild_form.method = $('.de_input').attr('method');
+				rebuild_form.action =$('.de_input').attr('action');	
+				var rebuild_elt = document.createElement('input');
+				rebuild_elt.type = 'hidden';
+				rebuild_elt.name = '_token';
+				rebuild_elt.value = '{{ csrf_token() }}';
+				rebuild_form.appendChild(rebuild_elt);
+				var rebuild_elt = document.createElement('input');
+				rebuild_elt.type = 'hidden';
+				rebuild_elt.name = 'is_remind_puppet';
+				rebuild_elt.value = '{{ \Session::get('is_remind_puppet') }}';				
+				rebuild_form.appendChild(rebuild_elt);
+				document.body.appendChild(rebuild_form);				
+				rebuild_form.submit();
+				rebuild_elt = null;
+			});
+			
+			$(document).on('click','#tab04 .n_bbutton .n_right',function() {
+				location.href='{!! url('') !!}';
+			});
+			@endif
             $("input[name='engroup']").change(function(){
                 if ($(this).val() === '1') {
                     $('.exchange_period').hide();
