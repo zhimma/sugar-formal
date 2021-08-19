@@ -711,128 +711,144 @@
 <table class="table table-hover table-bordered">
 	<tr>
 		<th width="5%"></th>
-		@if(count($isEverWarned_log)>0)
+		@if(count($isWarned_show)>0 || count($isEverWarned_log)>0)
 			<th width="5%">是否警示</th>
 		@endif
-		@if(count($isEverBanned_log)>0)
+		@if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
 			<th width="5%">是否封鎖</th>
 		@endif
-		@if(!is_null(array_get($isEverWarned_log,'0')))
-			<th width="5%">曾被警示</th>
+		@if(count($isEverWarned_log)>0)
+			@if(!is_null(array_get($isEverWarned_log,'0')))
+				<th width="5%">曾被警示</th>
+			@endif
+			@if(!is_null(array_get($isEverWarned_log,'1')))
+				<th width="5%"></th>
+			@endif
+			@if(!is_null(array_get($isEverWarned_log,'2')))
+				<th width="5%"></th>
+			@endif
+			@if( count($isEverWarned)>3)
+			<th width="5%">更多警示</th>
+			@endif
 		@endif
-		@if(!is_null(array_get($isEverWarned_log,'1')))
-			<th width="5%"></th>
-		@endif
-		@if(!is_null(array_get($isEverWarned_log,'2')))
-			<th width="5%"></th>
-		@endif
-		@if( count($isEverWarned)>3)
-		<th width="5%">更多警示</th>
-		@endif
-		<th width="5%">曾被封鎖</th>
-		@if(!is_null(array_get($isEverBanned_log,'1')))
-			<th width="5%"></th>
-		@endif
-		@if(!is_null(array_get($isEverBanned_log,'2')))
-			<th width="5%"></th>
-		@endif
-		@if(count($isEverBanned)>3)
-			<th width="5%">更多封鎖</th>
+		@if(count($isEverBanned_log)>0)
+			<th width="5%">曾被封鎖</th>
+			@if(!is_null(array_get($isEverBanned_log,'1')))
+				<th width="5%"></th>
+			@endif
+			@if(!is_null(array_get($isEverBanned_log,'2')))
+				<th width="5%"></th>
+			@endif
+			@if(count($isEverBanned)>3)
+				<th width="5%">更多封鎖</th>
+			@endif
 		@endif
 	</tr>
 	<tr>
 		<th>時間</th>
-		@if(count($isEverWarned_log)>0)
+		@if(count($isWarned_show)>0 || count($isEverWarned_log)>0)
 			<td>{{ array_get($isWarned_show,'created_at') }}</td>
 		@endif
-		@if(count($isEverBanned_log)>0)
+		@if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
 			<td>{{ array_get($isBanned_show,'created_at') }}</td>
 		@endif
-		@if(!is_null(array_get($isEverWarned_log,'0')))
-			<td>{{ array_get($isEverWarned_log,'0.created_at') }}</td>
+		@if(count($isEverWarned_log)>0)
+			@if(!is_null(array_get($isEverWarned_log,'0')))
+				<td>{{ array_get($isEverWarned_log,'0.created_at') }}</td>
+			@endif
+			@if(!is_null(array_get($isEverWarned_log,'1')))
+				<td>{{ array_get($isEverWarned_log,'1.created_at') }}</td>
+			@endif
+			@if(!is_null(array_get($isEverWarned_log,'2')))
+				<td>{{ array_get($isEverWarned_log,'2.created_at') }}</td>
+			@endif
+			@if( count($isEverWarned)>3)
+				<td><a href="/admin/users/WarnedOrBannedLog/Warned/{{ $user->id }}" target="_blank">查看更多</a></td>
+			@endif
 		@endif
-		@if(!is_null(array_get($isEverWarned_log,'1')))
-			<td>{{ array_get($isEverWarned_log,'1.created_at') }}</td>
-		@endif
-		@if(!is_null(array_get($isEverWarned_log,'2')))
-			<td>{{ array_get($isEverWarned_log,'2.created_at') }}</td>
-		@endif
-		@if( count($isEverWarned)>3)
-			<td><a href="/admin/users/WarnedOrBannedLog/Warned/{{ $user->id }}" target="_blank">查看更多</a></td>
-		@endif
-		<td>{{ array_get($isEverBanned_log,'0.created_at') }}</td>
-		@if(!is_null(array_get($isEverBanned_log,'1')))
-			<td>{{ array_get($isEverBanned_log,'1.created_at') }}</td>
-		@endif
-		@if(!is_null(array_get($isEverBanned_log,'2')))
-			<td>{{ array_get($isEverBanned_log,'2.created_at') }}</td>
-		@endif
-		@if(count($isEverBanned)>3)
-			<td><a href="/admin/users/WarnedOrBannedLog/Banned/{{ $user->id }}" target="_blank">查看更多</a></td>
+		@if(count($isEverBanned_log)>0)
+			<td>{{ array_get($isEverBanned_log,'0.created_at') }}</td>
+			@if(!is_null(array_get($isEverBanned_log,'1')))
+				<td>{{ array_get($isEverBanned_log,'1.created_at') }}</td>
+			@endif
+			@if(!is_null(array_get($isEverBanned_log,'2')))
+				<td>{{ array_get($isEverBanned_log,'2.created_at') }}</td>
+			@endif
+			@if(count($isEverBanned)>3)
+				<td><a href="/admin/users/WarnedOrBannedLog/Banned/{{ $user->id }}" target="_blank">查看更多</a></td>
+			@endif
 		@endif
 	</tr>
 	<tr>
 		<th>原因</th>
-		@if(count($isEverWarned_log)>0)
+		@if(count($isWarned_show)>0 || count($isEverWarned_log)>0)
 			<td>{{ array_get($isWarned_show,'reason') }}</td>
 		@endif
-		@if(count($isEverBanned_log)>0)
+		@if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
 			<td>{{ array_get($isBanned_show,'reason') }}</td>
 		@endif
-		@if(!is_null(array_get($isEverWarned_log,'0')))
-			<td>{{ array_get($isEverWarned_log,'0.reason') }}</td>
+		@if(count($isEverWarned_log)>0)
+			@if(!is_null(array_get($isEverWarned_log,'0')))
+				<td>{{ array_get($isEverWarned_log,'0.reason') }}</td>
+			@endif
+			@if(!is_null(array_get($isEverWarned_log,'1')))
+				<td>{{ array_get($isEverWarned_log,'1.reason') }}</td>
+			@endif
+			@if(!is_null(array_get($isEverWarned_log,'2')))
+				<td>{{ array_get($isEverWarned_log,'2.reason') }}</td>
+			@endif
+			@if( count($isEverWarned)>3)
+				<td></td>
+			@endif
 		@endif
-		@if(!is_null(array_get($isEverWarned_log,'1')))
-			<td>{{ array_get($isEverWarned_log,'1.reason') }}</td>
-		@endif
-		@if(!is_null(array_get($isEverWarned_log,'2')))
-			<td>{{ array_get($isEverWarned_log,'2.reason') }}</td>
-		@endif
-		@if( count($isEverWarned)>3)
-			<td></td>
-		@endif
-		<td>{{ array_get($isEverBanned_log,'0.reason') }}</td>
-		@if(!is_null(array_get($isEverBanned_log,'1')))
-			<td>{{ array_get($isEverBanned_log,'1.reason') }}</td>
-		@endif
-		@if(!is_null(array_get($isEverBanned_log,'2')))
-			<td>{{ array_get($isEverBanned_log,'2.reason') }}</td>
-		@endif
-		@if(count($isEverBanned)>3)
-			<td></td>
+		@if(count($isEverBanned_log)>0)
+			<td>{{ array_get($isEverBanned_log,'0.reason') }}</td>
+			@if(!is_null(array_get($isEverBanned_log,'1')))
+				<td>{{ array_get($isEverBanned_log,'1.reason') }}</td>
+			@endif
+			@if(!is_null(array_get($isEverBanned_log,'2')))
+				<td>{{ array_get($isEverBanned_log,'2.reason') }}</td>
+			@endif
+			@if(count($isEverBanned)>3)
+				<td></td>
+			@endif
 		@endif
 	</tr>
 	<tr>
 		<th>到期日</th>
-		@if(count($isEverWarned_log)>0)
+		@if(count($isWarned_show)>0 || count($isEverWarned_log)>0)
 			<td>{{ !is_null(array_get($isWarned_show,'created_at')) && !is_null(array_get($isWarned_show,'expire_date')) ? array_get($isWarned_show,'expire_date') : (count($isWarned_show)>0 ? '永久' : '') }}</td>
 		@endif
-		@if(count($isEverBanned_log)>0)
+		@if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
 			<td>{{ !is_null(array_get($isBanned_show,'created_at')) && !is_null(array_get($isBanned_show,'expire_date')) ? array_get($isBanned_show,'expire_date') : (count($isBanned_show)>0 ? '永久' : '') }}</td>
 		@endif
-		@if(!is_null(array_get($isEverWarned_log,'0')))
-			<td>{{ !empty(array_get($isEverWarned_log,'0.expire_date')) ? array_get($isEverWarned_log,'0.expire_date') : '永久' }}</td>
+		@if(count($isEverWarned_log)>0)
+			@if(!is_null(array_get($isEverWarned_log,'0')))
+				<td>{{ !empty(array_get($isEverWarned_log,'0.expire_date')) ? array_get($isEverWarned_log,'0.expire_date') : '永久' }}</td>
+			@endif
+			@if(!is_null(array_get($isEverWarned_log,'1')))
+				<td>{{ !empty(array_get($isEverWarned_log,'1.expire_date')) ? array_get($isEverWarned_log,'1.expire_date') : '永久' }}</td>
+			@endif
+			@if(!is_null(array_get($isEverWarned_log,'2')))
+				<td>{{ !empty(array_get($isEverWarned_log,'2.expire_date')) ? array_get($isEverWarned_log,'2.expire_date') : '永久' }}</td>
+			@endif
+			@if( count($isEverWarned)>3)
+				<td></td>
+			@endif
 		@endif
-		@if(!is_null(array_get($isEverWarned_log,'1')))
-			<td>{{ !empty(array_get($isEverWarned_log,'1.expire_date')) ? array_get($isEverWarned_log,'1.expire_date') : '永久' }}</td>
-		@endif
-		@if(!is_null(array_get($isEverWarned_log,'2')))
-			<td>{{ !empty(array_get($isEverWarned_log,'2.expire_date')) ? array_get($isEverWarned_log,'2.expire_date') : '永久' }}</td>
-		@endif
-		@if( count($isEverWarned)>3)
-			<td></td>
-		@endif
-		@if(!is_null(array_get($isEverBanned_log,'0')))
-			<td>{{ !empty(array_get($isEverBanned_log,'0.expire_date')) ? array_get($isEverBanned_log,'0.expire_date') : '永久' }}</td>
-		@endif
-		@if(!is_null(array_get($isEverBanned_log,'1')))
-			<td>{{ !empty(array_get($isEverBanned_log,'1.expire_date')) ? array_get($isEverBanned_log,'1.expire_date') : '永久' }}</td>
-		@endif
-		@if(!is_null(array_get($isEverBanned_log,'2')))
-			<td>{{ !empty(array_get($isEverBanned_log,'2.expire_date')) ? array_get($isEverBanned_log,'2.expire_date') : '永久' }}</td>
-		@endif
-		@if(count($isEverBanned)>3)
-			<td></td>
+		@if(count($isEverBanned_log)>0)
+			@if(!is_null(array_get($isEverBanned_log,'0')))
+				<td>{{ !empty(array_get($isEverBanned_log,'0.expire_date')) ? array_get($isEverBanned_log,'0.expire_date') : '永久' }}</td>
+			@endif
+			@if(!is_null(array_get($isEverBanned_log,'1')))
+				<td>{{ !empty(array_get($isEverBanned_log,'1.expire_date')) ? array_get($isEverBanned_log,'1.expire_date') : '永久' }}</td>
+			@endif
+			@if(!is_null(array_get($isEverBanned_log,'2')))
+				<td>{{ !empty(array_get($isEverBanned_log,'2.expire_date')) ? array_get($isEverBanned_log,'2.expire_date') : '永久' }}</td>
+			@endif
+			@if(count($isEverBanned)>3)
+				<td></td>
+			@endif
 		@endif
 	</tr>
 </table>
