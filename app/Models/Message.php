@@ -947,16 +947,17 @@ class Message extends Model
 	public static function getNotShowBadUserDate($uid, $sid) {
 		$banned_sender_date = $banned_curuser_date = $bannedim_sender_date = $bannedim_curuser_date = $blockDate = '9999-12-31';
 		$banned_sender = banned_users::where('member_id',$sid)->get()->first();
-		if($banned_sender) $banned_sender_date = $banned_sender->created_at->toDateTimeString();
+		if($banned_sender->created_at ?? false) $banned_sender_date = $banned_sender->created_at->toDateTimeString();
 		$banned_curuser = banned_users::where('member_id',$uid)->get()->first();
-		if($banned_curuser) $banned_curuser_date = $banned_curuser->created_at->toDateTimeString();	
+		if($banned_curuser->created_at ?? false) $banned_curuser_date = $banned_curuser->created_at->toDateTimeString();	
 		$bannedim_sender = BannedUsersImplicitly::where('target',$sid)->get()->first();
-		if($bannedim_sender) $bannedim_sender_date = $bannedim_sender->created_at->toDateTimeString();
+		if($bannedim_sender->created_at ?? false) $bannedim_sender_date = $bannedim_sender->created_at->toDateTimeString();
 		$bannedim_curuser = BannedUsersImplicitly::where('target',$uid)->get()->first();
-		if($bannedim_curuser) $bannedim_curuser_date = $bannedim_curuser->created_at->toDateTimeString();
+		if($bannedim_curuser->created_at ?? false) $bannedim_curuser_date = $bannedim_curuser->created_at->toDateTimeString();
 
         if(Blocked::isBlocked($uid, $sid)) {
             $blockTime = Blocked::getBlockTime($uid, $sid);
+			if($blockTime->created_at ?? false)
 			$blockDate = $blockTime->created_at->toDateTimeString();
         }
 		
