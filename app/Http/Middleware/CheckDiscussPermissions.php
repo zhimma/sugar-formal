@@ -39,6 +39,9 @@ class CheckDiscussPermissions
         if ($this->auth->user()->engroup!==1) {
             return redirect('/dashboard');
         }
+        if (!$this->auth->user()->meta->isAllSet( $this->auth->user()->engroup )){
+            return redirect('/dashboard')->with('message', '請寫上基本資料。');
+        }
         if($this->auth->user()->access_posts==1){
             return redirect('/dashboard')->with('message', '您好，您目前被站方限制使用討論區，若有疑問請點右下角，聯繫站長Line@');
         }
