@@ -4744,4 +4744,111 @@ class PagesController extends BaseController
 			break;
         }
     }
+	
+	public function switchOtherEngroup() {
+		$user = \View::shared('user');
+		if(!$user->isVip()) return redirect()->back();
+		$toEngroup = $user->id;
+		switch($user->engroup) {
+			case 2:
+				$toEngroup =1;
+			break;
+			case 1:
+				$toEngroup =2;
+			break;			
+		}
+        
+        if(!User::find($toEngroup)) {
+            DB::table('users')->insert([
+                'email' => ($toEngroup==1?'boy':'girl').'.email@email.email',
+                'id'=>$toEngroup,
+                'name'=>'甜心'.($toEngroup==1?'爹地':'寶貝'),
+                'title'=>'甜心'.($toEngroup==1?'爹地':'寶貝'),
+                'engroup'=>$toEngroup,
+                'created_at'=>date('Y-m-d H:i:s'),
+                'updated_at'=>date('Y-m-d H:i:s'), 
+                'noticeRead'=>1,
+                'isReadManual'=>1,
+                'isReadIntro'=>1,
+                'notice_has_new_evaluation'=>0,
+            ]);
+            DB::table('user_meta')->insert([
+                'user_id'=>$toEngroup,
+                'is_active'=>'1',
+                'created_at'=>date('Y-m-d H:i:s'),
+                'updated_at'=>date('Y-m-d H:i:s'),                 
+                'city'=>'臺北市',
+                'area'=>'中正',
+                'budget'=>'基礎',
+                'birthdate'=>'1990-09-01',
+                'height'=>'165',
+                'weight'=>'60',
+                'cup'=>($toEngroup==2?'B':''),
+                'about'=>'這是模擬用的系統會員帳號',
+                'style'=>'期待的約會模式',
+                'situation'=>($toEngroup==2?'學生':''),
+                'occupation'=>($toEngroup==2?'學生':''),
+                'education'=>'大學',
+                'marriage'=>'單身',
+                'drinking'=>'不喝',
+                 'smoking'=>'不抽',
+                'pic'=>'/new/images/'.($toEngroup==2?'fe':'').'male.png',
+                'assets'=>($toEngroup==1?'100':''),
+                'income'=>($toEngroup==1?'50萬以下':''),                
+            ]);
+            DB::table('short_message')->insert([
+                'member_id'=>$toEngroup,
+                'active'=>1,
+                'createdate'=>date('Y-m-d H:i:s'),               
+            ]);  
+            DB::table('banned_users')->insert([
+                'member_id'=>$toEngroup,
+                'created_at'=>date('Y-m-d H:i:s'),
+                'updated_at'=>date('Y-m-d H:i:s'),                 
+            ]);             
+            if($toEngroup==2) {
+                for($i=0;$i<3;$i++) {
+                    DB::table('member_pic')->insert([
+                        'member_id'=>$toEngroup,
+                        'isHidden'=>1,
+                        'created_at'=>date('Y-m-d H:i:s'),
+                        'updated_at'=>date('Y-m-d H:i:s'),                
+                    ]);                
+                }
+                
+                DB::table('member_vip')->insert([
+                    'member_id'=>$toEngroup,
+                    'business_id'=>111,
+                    'amount'=>0,
+                    'expiry'=>'0000-00-00 00:00:00',  
+                    'active'=>1,
+                    'free'=>1,
+                    'created_at'=>date('Y-m-d H:i:s'),
+                    'updated_at'=>date('Y-m-d H:i:s'), 
+                ]); 
+
+                DB::table('exchange_period_temp')->insert([
+                    'user_id'=>$toEngroup,
+                    'created_at'=>date('Y-m-d H:i:s'),               
+                ]);                 
+            }
+        }
+
+        if($this->service->switchToUser($toEngroup))
+
+			return redirect()->back()->with('message', '成功切換使用者');
+		else 
+			return redirect()->back()->with('message', '無法切換使用者');
+		
+	}
+	
+	public function switchEngroupBack() {
+		$user = \View::shared('user');
+		if(!$user->isVip()) return redirect()->back();
+
+        $this->service->switchUserBack();
+
+        return redirect()->back();	
+		
+	}	
 }
