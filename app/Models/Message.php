@@ -713,8 +713,8 @@ class Message extends Model
 
         if($user->id != 1049){
             $all_msg = $all_msg->where(function($query){
-                $query->where('engroup_pair', '2');
-                $query->orWhere('engroup_pair', '4');
+                $query->where('engroup_pair', '<>', '2');
+                $query->orWhere('engroup_pair', '<>', '4');
             });
         }
 
@@ -808,8 +808,8 @@ class Message extends Model
 
         if($user->id != 1049){
             $query->where(function($query){
-                $query->where('engroup_pair', '2');
-                $query->orWhere('engroup_pair', '4');
+                $query->where('engroup_pair', '<>', '2');
+                $query->orWhere('engroup_pair', '<>', '4');
             });
         }
 

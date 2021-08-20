@@ -460,8 +460,8 @@ class Message_new extends Model
         $query->orderBy('m.created_at', 'desc');
         if($user->id != 1049){
             $query->where(function($query){
-                $query->where('engroup_pair', '2');
-                $query->orWhere('engroup_pair', '4');
+                $query->where('engroup_pair', '<>', '2');
+                $query->orWhere('engroup_pair', '<>', '4');
             });
         }
         $messages = $query->get();
@@ -786,8 +786,8 @@ class Message_new extends Model
 
         if($user->id != 1049){
             $query = $query->where(function($query){
-                $query->where('engroup_pair', '2');
-                $query->orWhere('engroup_pair', '4');
+                $query->where('engroup_pair', '<>', '2');
+                $query->orWhere('engroup_pair', '<>', '4');
             });
         }
 
