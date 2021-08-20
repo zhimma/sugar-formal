@@ -458,16 +458,15 @@ class Message_new extends Model
         }
 
         $query->where([['m.created_at','>=',self::$date]]);
-        $query->whereRaw('u1.engroup <> u2.engroup');
         $query->whereRaw('m.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');        
         $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);
         $query->orderBy('m.created_at', 'desc');
-//        if($user->id != 1049){
-//            $query->whereRaw('u1.engroup != ' . $user->engroup);
-//        }
+        if($user->id != 1049){
+            $query->whereRaw('u1.engroup <> u2.engroup');
+        }
         $messages = $query->get();
         $mCount = count($messages);
         $mm = [];
@@ -777,7 +776,6 @@ class Message_new extends Model
                     ->where('b7.blocked_id', $uid); });
         $query = $query->whereNotNull('u1.id')
             ->whereNotNull('u2.id')
-            ->whereRaw('u1.engroup <> u2.engroup')
             ->whereNull('b1.member_id')
             ->whereNull('b2.member_id')
             ->whereNull('b3.target')
@@ -789,6 +787,10 @@ class Message_new extends Model
                 $query->where([['m.to_id', $uid], ['m.from_id', '!=', $uid],['m.from_id','!=',$admin_id]])
                     ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid],['m.to_id','!=',$admin_id]]);
             });
+
+        if($user->id != 1049){
+            $query = $query->whereRaw('u1.engroup <> u2.engroup');
+        }
 
         if($d==7){
             self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
@@ -811,48 +813,6 @@ class Message_new extends Model
         $query->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
 		$allSenders = $query->get();
-		
-//		foreach($allSenders  as $k=>$sender) {
-//			if($sender->u1_engroup==$sender->u2_engroup) {
-//                $allSenders->forget($k);
-//            }
-//		}
-
-		/*
-		 * 除錯用 SQL: select `m`.*, (m.to_id + m.from_id) as to_from_pair, u1.engroup As u1_engroup,u2.engroup As u2_engroup from `message` as `m`
-            left join `users` as `u1` on `u1`.`id` = `m`.`from_id`
-            left join `users` as `u2` on `u2`.`id` = `m`.`to_id`
-            left join `banned_users` as `b1` on `b1`.`member_id` = `m`.`from_id`
-            left join `banned_users` as `b2` on `b2`.`member_id` = `m`.`to_id`
-            left join `banned_users_implicitly` as `b3` on `b3`.`target` = `m`.`from_id`
-            left join `banned_users_implicitly` as `b4` on `b4`.`target` = `m`.`to_id`
-            left join `blocked` as `b5` on `b5`.`blocked_id` = `m`.`from_id` and `b5`.`member_id` = ?
-            left join `blocked` as `b6` on `b6`.`blocked_id` = `m`.`to_id` and `b6`.`member_id` = ?
-            left join `blocked` as `b7` on `b7`.`member_id` = `m`.`from_id` and `b7`.`blocked_id` = ?
-            where `u1`.`id` is not null
-            and `u2`.`id` is not null
-            and `b1`.`member_id` is null
-            and `b2`.`member_id` is null
-            and `b3`.`target` is null
-            and `b4`.`target` is null
-            and `b5`.`blocked_id` is null
-            and `b6`.`blocked_id` is null
-            and `b7`.`member_id` is null
-            and (
-                (`m`.`to_id` = ? and `m`.`from_id` != ? and `m`.`from_id` != ?)
-                or (`m`.`from_id` = ? and `m`.`to_id` != ? and `m`.`to_id` != ?)
-            )
-		    and (
-                `m`.`is_row_delete_1` <> ? and `m`.`is_single_delete_1` <> ?
-                and `m`.`all_delete_count` <> ? and `m`.`is_row_delete_2` <> ?
-                and `m`.`is_single_delete_2` <> ? and `m`.`temp_id` = ?
-		    )
-            and (`m`.`created_at` >= ?)
-            and m.created_at < IFNULL(b1.created_at, "2999-12-31 23:59:59")
-            and m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")
-            and m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")
-            and m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")
-		 * */
 
         if($isCount) {
             $allSenders = $query->groupBy('to_from_pair')->get()->count();
