@@ -674,7 +674,7 @@ class Message extends Model
          */
         $query = Message::from('message as m')
                         ->select(DB::raw('(u1.engroup + u2.engroup) as engroup_pair'))
-                        ->leftJoin('users as u', 'u1.id', '=', 'm.from_id')
+                        ->leftJoin('users as u1', 'u1.id', '=', 'm.from_id')
                         ->leftJoin('users as u2', 'u2.id', '=', 'm.to_id')
                         ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'm.from_id')
                         ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'm.to_id')
