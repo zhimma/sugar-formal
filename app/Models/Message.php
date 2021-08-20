@@ -690,7 +690,6 @@ class Message extends Model
                                 ->where('b7.blocked_id', $uid); });
         $all_msg = $query->whereNotNull('u.id')
                         ->whereNotNull('u2.id')
-                        ->whereRaw('u.engroup <> u2.engroup')
                         ->whereNull('b1.member_id')
                         ->whereNull('b3.target')
                         ->whereNull('b5.blocked_id')
@@ -711,14 +710,12 @@ class Message extends Model
                         ->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")')
                         ->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
 
-		$all_msg = $all_msg
-//            ->selectRaw('u.engroup AS u_engroup,u2.engroup AS u2_engroup')
-            ->get();
-		
-//		foreach($all_msg  as $k=>$msg) {
-//			if($msg->u_engroup==$msg->u2_engroup)  $all_msg->forget($k);
-//		}
-		
+        if($user->id != 1049){
+            $all_msg = $all_msg->whereRaw('u.engroup <> u2.engroup');
+        }
+
+		$all_msg = $all_msg->get();
+
         if($tinker){
             dd($all_msg);
         } 
@@ -799,29 +796,16 @@ class Message extends Model
                     ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid],['m.to_id','!=',$admin_id]]);
             });
         $query->where([['m.created_at','>=',self::$date]]);
-        $query->whereRaw('u1.engroup <> u2.engroup');
         $query->whereRaw('m.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
         $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);
 
-//		if($uid != 1049) {
-//            $count = clone $query;
-//            $count = $count->count();
-//            if($count < 5000){
-//                $query = $query->selectRaw('u1.engroup AS u1_engroup,u2.engroup AS u2_engroup')->get();
-//                foreach($query as $k=>$msg) {
-//                    if($msg->u1_engroup==$msg->u2_engroup) {
-//                        $query->forget($k);
-//                    }
-//                }
-//            }
-//            else{
-//                return $count;
-//            }
-//        }
-		
+        if($user->id != 1049){
+            $query->whereRaw('u1.engroup <> u2.engroup');
+        }
+
         if($tinker){
             /* 除錯用 SQL 
              * select u1.engroup AS u1_engroup,u2.engroup AS u2_engroup from `message` as `m`
