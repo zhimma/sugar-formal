@@ -784,7 +784,7 @@ class Message_new extends Model
             });
 
         if($user->id != 1049){
-            $query = $query->where(function($query){
+            $query->where(function($query){
                 $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
                 $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
             });
