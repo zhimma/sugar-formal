@@ -665,7 +665,7 @@ class Message extends Model
         $banned_users = banned_users::where('member_id', $uid)->first();
         $BannedUsersImplicitly = BannedUsersImplicitly::where('target', $uid)->first();
         if((isset($banned_users) && ($banned_users->expire_date == null || $banned_users->expire_date >= Carbon::now())) || isset($BannedUsersImplicitly)){
-            return false;
+            return 0;
         }
         if($user->isVip()) {
             self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
