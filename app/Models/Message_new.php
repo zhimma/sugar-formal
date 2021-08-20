@@ -409,7 +409,7 @@ class Message_new extends Model
          * @author LZong <lzong.tw@gmail.com>
          */
         $query = Message::with(['sender', 'receiver', 'sender.aw_relation', 'receiver.aw_relation'])
-            ->select("m.*", DB::raw('(u1.engroup + u2.engroup) as engroup_pair'))
+            ->select("m.*")
             ->from('message as m')
             ->leftJoin('users as u1', 'u1.id', '=', 'm.from_id')
             ->leftJoin('users as u2', 'u2.id', '=', 'm.to_id')
@@ -460,8 +460,8 @@ class Message_new extends Model
         $query->orderBy('m.created_at', 'desc');
         if($user->id != 1049){
             $query->where(function($query){
-                $query->where('engroup_pair', '<>', '2');
-                $query->orWhere('engroup_pair', '<>', '4');
+                $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
+                $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
             });
         }
         $messages = $query->get();
@@ -751,8 +751,7 @@ class Message_new extends Model
          * @author LZong <lzong.tw@gmail.com>
          */
         $query = Message::with(['sender', 'receiver', 'sender.aw_relation', 'receiver.aw_relation'])->select(
-            DB::raw('(m.to_id + m.from_id) as to_from_pair'),
-            DB::raw('(u1.engroup + u2.engroup) as engroup_pair'),
+            DB::raw('(m.to_id + m.from_id) as to_from_pair')
         )
             ->from('message as m')
 			->leftJoin('users as u1', 'u1.id', '=', 'm.from_id')
@@ -786,8 +785,8 @@ class Message_new extends Model
 
         if($user->id != 1049){
             $query = $query->where(function($query){
-                $query->where('engroup_pair', '<>', '2');
-                $query->orWhere('engroup_pair', '<>', '4');
+                $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
+                $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
             });
         }
 
