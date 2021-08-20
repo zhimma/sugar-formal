@@ -408,7 +408,9 @@ class Message_new extends Model
          *
          * @author LZong <lzong.tw@gmail.com>
          */
-        $query = Message::with(['sender', 'receiver', 'sender.aw_relation', 'receiver.aw_relation'])->select("m.*")->from('message as m')
+        $query = Message::with(['sender', 'receiver', 'sender.aw_relation', 'receiver.aw_relation'])
+            ->select("m.*", DB::raw('(u1.engroup + u2.engroup) as engroup_pair'))
+            ->from('message as m')
             ->leftJoin('users as u1', 'u1.id', '=', 'm.from_id')
             ->leftJoin('users as u2', 'u2.id', '=', 'm.to_id')
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'm.from_id')
@@ -424,19 +426,11 @@ class Message_new extends Model
             ->leftJoin('blocked as b7', function($join) use($uid) {
                 $join->on('b7.member_id', '=', 'm.from_id')
                     ->where('b7.blocked_id', $uid); });
-//            ->leftJoin('blocked as b8', function($join) use($uid) {
-//                $join->on('b8.member_id', '=', 'm.to_id')
-//                    ->where('b8.blocked_id', $uid); });
         $query = $query->whereNotNull('u1.id')
                 ->whereNotNull('u2.id')
-                //->whereNull('b1.member_id')
-                //->whereNull('b2.member_id')
-                //->whereNull('b3.target')
-                //->whereNull('b4.target')
                 ->whereNull('b5.blocked_id')
                 ->whereNull('b6.blocked_id')
                 ->whereNull('b7.member_id')
-//                ->whereNull('b8.member_id')
                 ->where(function ($query) use ($uid,$admin_id) {
                     $query->where([['m.to_id', $uid], ['m.from_id', '!=', $uid],['m.from_id','!=',$admin_id]])
                         ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid],['m.to_id','!=',$admin_id]]);
@@ -465,7 +459,10 @@ class Message_new extends Model
         $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);
         $query->orderBy('m.created_at', 'desc');
         if($user->id != 1049){
-            $query->whereRaw('u1.engroup <> u2.engroup');
+            $query->where(function($query){
+                $query->where('engroup_pair', '2');
+                $query->orWhere('engroup_pair', '4');
+            });
         }
         $messages = $query->get();
         $mCount = count($messages);
@@ -754,8 +751,8 @@ class Message_new extends Model
          * @author LZong <lzong.tw@gmail.com>
          */
         $query = Message::with(['sender', 'receiver', 'sender.aw_relation', 'receiver.aw_relation'])->select(
-//            'm.*',
-            DB::raw('(m.to_id + m.from_id) as to_from_pair')
+            DB::raw('(m.to_id + m.from_id) as to_from_pair'),
+            DB::raw('(u1.engroup + u2.engroup) as engroup_pair'),
         )
             ->from('message as m')
 //            ->selectRaw('u1.engroup As u1_engroup,u2.engroup As u2_engroup')
@@ -789,7 +786,10 @@ class Message_new extends Model
             });
 
         if($user->id != 1049){
-            $query = $query->whereRaw('u1.engroup <> u2.engroup');
+            $query = $query->where(function($query){
+                $query->where('engroup_pair', '2');
+                $query->orWhere('engroup_pair', '4');
+            });
         }
 
         if($d==7){
