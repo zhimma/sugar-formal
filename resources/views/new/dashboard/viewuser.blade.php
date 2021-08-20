@@ -347,7 +347,7 @@
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
                 @include('new.dashboard.panel')
             </div>
-            <div class="col-sm-12 col-xs-12 col-md-10">
+            <div class="col-sm-12 col-xs-12 col-md-10">				
                 @if(isset($to))
                 <div class="rightbg">
                     <div class="metx">
@@ -632,7 +632,9 @@
                 <div class="mintop">
                     <div class="">
                         <div class="ziliao">
-                            <div class="ztitle"><span>基本資料</span>Basic information</div>
+                            <div class="ztitle">
+								<span>基本資料</span>Basic information								
+							</div>
                             <div class="xiliao_input">
                                 <div class="xl_input">
                                     <dt>
