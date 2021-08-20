@@ -755,7 +755,6 @@ class Message_new extends Model
             DB::raw('(u1.engroup + u2.engroup) as engroup_pair'),
         )
             ->from('message as m')
-//            ->selectRaw('u1.engroup As u1_engroup,u2.engroup As u2_engroup')
 			->leftJoin('users as u1', 'u1.id', '=', 'm.from_id')
             ->leftJoin('users as u2', 'u2.id', '=', 'm.to_id')
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'm.from_id')
