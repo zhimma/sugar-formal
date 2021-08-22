@@ -4,14 +4,6 @@ namespace App\Models\SimpleTables;
 
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * ！！！！！！注意！！！！！！
- * 因為使用了兩個資料庫的緣故，故 banned_users 在刪除資料時，
- * 需使用 get(), first(), find() 函式確實取得 model 後，才可
- * 執行 delete()，否則將會使資料資的資料不一致！
- *
- * @author     LZong <lzong.tw@gmail.com>
- */
 class banned_users extends Model
 {
     //
