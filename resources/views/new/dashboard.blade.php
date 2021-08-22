@@ -63,7 +63,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
           </div>
           <div class="addpic g_inputt">
                     @if($user->isVip() && !Session::has('original_user'))
-                    <a onClick="popSwitchOtherEngroup()" class="zw_dw zw_dw_left">模擬{{$user->engroup == 1?'女':'男'}}會員</a>
+{{--                    <a onClick="popSwitchOtherEngroup()" class="zw_dw zw_dw_left">模擬{{$user->engroup == 1?'女':'男'}}會員</a>--}}
                     @endif  
                     @if(Session::has('original_user'))  
                     <a class="zw_dw zw_dw_left" href="{{ route('escape') }}">回到原使用者</a>     
@@ -122,7 +122,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                   <dt>
                       <span class="engroup_type_title">帳號類型</span>
                         @if($user->isVip() && !Session::has('original_user'))
-                        <a onClick="popSwitchOtherEngroup()"class="zw_dw">模擬{{$user->engroup == 1?'女':'男'}}會員</a>
+{{--                        <a onClick="popSwitchOtherEngroup()"class="zw_dw">模擬{{$user->engroup == 1?'女':'男'}}會員</a>--}}
                         @endif 
                         @if(Session::has('original_user'))  
                         <a class="zw_dw" href="{{ route('escape') }}">回到原使用者</a>     
