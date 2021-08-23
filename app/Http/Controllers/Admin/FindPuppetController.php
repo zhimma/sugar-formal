@@ -139,7 +139,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     
                     $excludeUserId = array_pluck(User::whereHas('roles', function($query){
                         $query->where('name', 'like', '%admin%');
-                    })->Select('id')->orwhere('id',1049)
+                    })->Select('id')->orwhere('id',1049)->orwhere('id',1)->orwhere('id',2)
                     ->orWhere('email', 'LIKE', 'sandyh.dlc%@gmail.com')
                     ->orWhere('email', 'LIKE', 'TEST%@test.com')
                     ->orWhere('email', 'LIKE', 'lzong.tw%@gmail.com')

@@ -1,7 +1,130 @@
 @extends('new.layouts.website')
 
 @section('app-content')
+<style>
+.new_poptk{width:96%;height:auto;margin: 0 auto;margin-bottom:15px; margin-top:15px; display: block; padding: 0 8px;}
+@media (max-width:824px){
+.new_poptk{height:175px;overflow-y: scroll;}
+.new_poptk::-webkit-scrollbar {
+  /*滚动条整体样式*/
+  width :4px;  /*高宽分别对应横竖滚动条的尺寸*/
+  height: 1px;
+  }
+.new_poptk::-webkit-scrollbar-thumb {
+  /*滚动条里面小方块*/
+  border-radius: 100px;
+ background: #8a9fef;
+  }
+.new_poptk::-webkit-scrollbar-track {
+  /*滚动条里面轨道*/
+  border-radius: 100px;
+  background:rgba(255,255,255,0.6);
+  }
+}
+@media (max-width:450px){
+.new_poptk{height:300px;}
+}
 
+
+.bl_tab_cc{width: 100%;position: fixed;top:8%;z-index: 10;display:none;}
+.new_poptk_aa{width:90%;height:50vh;margin: 0 auto;padding-bottom: 20px; padding-top:15px;overflow-y: scroll; display: block;}
+.fpt_z_cc{width: 100%;margin: 0 auto;display: block;overflow-y: scroll;margin-top: 0px;height:50vh;padding: 0 5px;}
+
+@media (max-width:1024px){
+.new_poptk_aa{height:600px;}
+.fpt_z_cc{height:600px;}
+}
+
+@media (max-width:824px){
+.new_poptk_aa{height:240px;}
+.fpt_z_cc{height:240px;}
+}
+@media (max-width:768px){
+.new_poptk_aa{height:700px;}
+.fpt_z_cc{height:700px;}
+}
+@media (max-width:736px){
+.new_poptk_aa{height:200px;}
+.fpt_z_cc{height:200px;}
+}
+@media (max-width:450px){
+.new_poptk_aa{height:540px;}
+.fpt_z_cc{height:540px;}
+}
+
+@media (max-width:375px){
+.new_poptk_aa{height:500px;}
+.fpt_z_cc{height:500px;}
+}
+@media (max-width:320px){
+.new_poptk_aa{height:420px;}
+.fpt_z_cc{height:420px;}
+}
+
+
+.new_poptk_aa  ::-webkit-scrollbar {
+  /*滚动条整体样式*/
+  width :4px;  /*高宽分别对应横竖滚动条的尺寸*/
+  height: 1px;
+  }
+.new_poptk_aa  ::-webkit-scrollbar-thumb {
+  /*滚动条里面小方块*/
+  border-radius: 100px;
+ background: #8a9fef;
+  }
+.new_poptk_aa  ::-webkit-scrollbar-track {
+  /*滚动条里面轨道*/
+  border-radius: 100px;
+  background:rgba(255,255,255,0.6);
+  }
+
+.new_poptk_nn{width: 96%; padding-bottom: 0; padding-top: 0; margin-top:15px; margin-bottom: 15px;}
+.new_poptk  ::-webkit-scrollbar {
+  /*滚动条整体样式*/
+  width :4px;  /*高宽分别对应横竖滚动条的尺寸*/
+  height: 1px;
+  }
+.new_poptk  ::-webkit-scrollbar-thumb {
+  /*滚动条里面小方块*/
+  border-radius: 100px;
+ background: #8a9fef;
+  }
+.new_poptk  ::-webkit-scrollbar-track {
+  /*滚动条里面轨道*/
+  border-radius: 100px;
+  background:rgba(255,255,255,0.6);
+  }
+  
+  @media (max-width:824px) {
+  .fpt_z_aa{height:170px;overflow-y: scroll;}
+  }
+  
+  @media (max-width:450px) {
+  .fpt_z_aa{height:300px;}
+  }
+
+.nn_yzheight{ min-height:500px;}
+
+
+@media (max-width:1024px) {
+.nn_yzheight{ min-height:1175px;}
+}
+@media (max-width:824px) {
+.nn_yzheight{ min-height:auto;}
+}
+
+@media (max-width:797px) {
+.nn_yzheight{ min-height:830px;}
+}
+
+@media (max-width:736px) {
+.nn_yzheight{ min-height:auto;}
+}
+
+
+
+div.new_poptk{color:#6783c7;} 
+</style>
 	<div class="container matop120">
         <div class="row">
             <div class="col-sm-12 col-xs-12 col-md-12">
@@ -73,8 +196,10 @@
         $(document).ready(function() {
 			@if(\Session::get('is_remind_puppet')=='1')
 			c4('您好，本站禁止註冊多重帳號。[br][br]若偵測到多重帳號註冊，將會影響您所有帳號，可能遭受警示或者封鎖的處分。[br][br]若您想看看自己的帳戶狀況，可以到個人資料->自我預覽或者可以 個人區->模擬男/女會員 即可用男/女會員的角度瀏覽網站。[br][br]是否繼續註冊？');
+            $('#tab04 .n_blnr01').addClass('new_poptk');
+            $('#tab04 .n_blnr01').removeClass('n_blnr01');
 			$("#tab04 .bltext").html($("#tab04 .bltext").text().replace(/\[br\]/gi,'<br>'));
-			$('#tab04 .bl_gb img').hide();
+            $('#tab04 .bl_gb img').hide();
 			$('#tab04 .n_bbutton .n_left').html('是');
 			$('#tab04 .n_bbutton .n_right').html('否');
 			$(document).off('click','.blbg',closeAndReload);
