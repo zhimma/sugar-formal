@@ -4540,7 +4540,7 @@ class PagesController extends BaseController
             if(in_array($user->line_notify_alert,[3,6,10])){
                 $showLineNotifyPop=true;
             }
-            if($user->created_at>='2021-07-23' && $user->line_notify_alert<=1){
+            if($user->created_at>='2021-07-23' && $user->line_notify_alert<=2){
                 $showLineNotifyPop=true;
             }
         }
