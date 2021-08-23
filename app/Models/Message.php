@@ -662,6 +662,11 @@ class Message extends Model
         if(!$user){
             $user = User::find($uid);
         }
+        $banned_users = banned_users::where('member_id', $uid)->first();
+        $BannedUsersImplicitly = BannedUsersImplicitly::where('target', $uid)->first();
+        if((isset($banned_users) && ($banned_users->expire_date == null || $banned_users->expire_date >= Carbon::now())) || isset($BannedUsersImplicitly)){
+            return 0;
+        }
         if($user->isVip()) {
             self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
         }else {
@@ -673,7 +678,7 @@ class Message extends Model
          * @author LZong <lzong.tw@gmail.com>
          */
         $query = Message::from('message as m')
-                        ->leftJoin('users as u', 'u.id', '=', 'm.from_id')
+                        ->leftJoin('users as u1', 'u1.id', '=', 'm.from_id')
                         ->leftJoin('users as u2', 'u2.id', '=', 'm.to_id')
                         ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'm.from_id')
                         ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'm.to_id')
@@ -688,7 +693,7 @@ class Message extends Model
                         ->leftJoin('blocked as b7', function($join) use($uid) {
                             $join->on('b7.member_id', '=', 'm.from_id')
                                 ->where('b7.blocked_id', $uid); });
-        $all_msg = $query->whereNotNull('u.id')
+        $all_msg = $query->whereNotNull('u1.id')
                         ->whereNotNull('u2.id')
                         ->whereNull('b1.member_id')
                         ->whereNull('b3.target')
@@ -711,7 +716,10 @@ class Message extends Model
                         ->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
 
         if($user->id != 1049){
-            $all_msg = $all_msg->whereRaw('u.engroup <> u2.engroup');
+            $all_msg = $all_msg->where(function($query){
+                $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
+                $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
+            });
         }
 
 		$all_msg = $all_msg->get();
@@ -803,7 +811,10 @@ class Message extends Model
         $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);
 
         if($user->id != 1049){
-            $query->whereRaw('u1.engroup <> u2.engroup');
+            $query->where(function($query){
+                $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
+                $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
+            });
         }
 
         if($tinker){
