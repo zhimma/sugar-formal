@@ -327,9 +327,9 @@
                             @endphp
                         @endforeach
                     @endif
-                    {{--<div style="text-align: center; padding-bottom: 20px;">
+                    <div style="text-align: center; padding-bottom: 20px;">
                         {!! $messages->appends(request()->input())->links('pagination::sg-pages2') !!}
-                    </div>--}}
+                    </div>
                 </div>
                 @if(isset($to))
                     {{--<div class="se_text_bot" id="message_input">

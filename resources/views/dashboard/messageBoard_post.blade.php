@@ -148,12 +148,9 @@
 				alert:function(message) {
 					c5(message);
 				},
-				// confirm:function(message, confirm) {
-				//     popUpTrueOrFalse(message, function () {
-				//         confirm();
-				//         gmBtn2();
-				//     })
-				// }
+				confirm: function(message, callback) {
+					c6(message) ? callback() : null;
+				}
 			},
 			dragDrop: {
 				container: '.fileuploader-thumbnails-input'

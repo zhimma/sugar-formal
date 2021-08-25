@@ -557,7 +557,11 @@
                         <ul>
 {{--                            @if(!$isBlocked)--}}
                                 <li>
-                                    <a href="/dashboard/chat2/chatShow/{{ $to->id }}"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
+                                    @if($to->id==$user->id)
+                                        <a onclick="show_chat()"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
+                                    @else
+                                        <a href="/dashboard/chat2/chatShow/{{ $to->id }}"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
+                                    @endif
                                 </li>
 {{--                            @endif--}}
                             @if($user->isVip())

@@ -79,7 +79,9 @@
 						</div>
 					</a>
 					<div class="liuyan_text"><a href="/dashboard/viewuser/{{$postDetail->uid}}">{{ $postDetail->uname }}</a> , {{ $userMeta ? $userMeta->age() : '' }}<span>{{ $postDetail->city.$postDetail->area }}</span></div>
-					<a href="/dashboard/chat2/chatShow/{{ $postDetail->uid }}" class="liuyicon"></a>
+					@if($postDetail->uid!==$user->id)
+						<a href="/dashboard/chat2/chatShow/{{ $postDetail->uid }}" class="liuyicon"></a>
+					@endif
 				</div>
 				<div class="liuy_nr">
 					<div class="liuy_font">

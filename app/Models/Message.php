@@ -626,7 +626,7 @@ class Message extends Model
                 $query->orWhere($whereArr2);
         });
         
-        if($isAdminSender) return $query->orderBy('created_at', 'desc')->get();//->paginate(10);
+        if($isAdminSender) return $query->orderBy('created_at', 'desc')->paginate(10);//->get();
         
         if($block) {
             $query = $query->where('from_id', '<>', $block->member_id);
@@ -638,7 +638,7 @@ class Message extends Model
 
         $query = $query->where('created_at','>=',self::$date)
             ->orderBy('created_at', 'desc')
-            ->get();//->paginate(10);
+            ->paginate(10);//->get();
         return $query;
     }
 
