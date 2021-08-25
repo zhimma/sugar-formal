@@ -4916,6 +4916,17 @@ class PagesController extends BaseController
             ->LeftJoin('users', 'users.id','=','message_board.user_id')
             ->LeftJoin('user_meta', 'users.id','=','user_meta.user_id')
             ->where('message_board.id', $id)->first();
+
+        if(!$editInfo) {
+            session()->flash('message', '找不到該留言：' . $id);
+            session()->reflash();
+            return redirect()->route('messageBoard_list');
+        }
+
+        if ($user->id != $editInfo->uid){
+            return back();
+        }
+
         $images=MessageBoardPic::where('msg_board_id',$id)->get();
         $imagesGroup=array();
         foreach ($images as $key => $value) {
@@ -4932,12 +4943,6 @@ class PagesController extends BaseController
             ];
         }
         $images=$imagesGroup;
-
-        if(!$editInfo) {
-            session()->flash('message', '找不到該留言：' . $id);
-            session()->reflash();
-            return redirect()->route('posts_list');
-        }
 
         return view('/dashboard/messageBoard_edit',compact('editInfo','images'))->with('user', $user);
     }

@@ -93,10 +93,10 @@
 				                        $isBlurAvatar = \App\Services\UserService::isBlurAvatar($msgUser, $user);
 									@endphp
 									<li>
+										<a href="/dashboard/viewuser/{{$list->uid}}">
+											<div class="liuyan_img"><img class="hycov @if($isBlurAvatar) blur_img @endif" src="@if(file_exists( public_path().$list->umpic ) && $list->umpic != ""){{$list->umpic}} @elseif($list->uengroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>
+										</a>
 										<a href="/MessageBoard/post_detail/{{ $list->mid }}">
-											<a href="/dashboard/viewuser/{{$list->uid}}">
-												<div class="liuyan_img"><img class="hycov @if($isBlurAvatar) blur_img @endif" src="@if(file_exists( public_path().$list->umpic ) && $list->umpic != ""){{$list->umpic}} @elseif($list->uengroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>
-											</a>
 											<div class="liuyan_prilist">
 												<div class="liuyfont">
 													<div class="liu_name">{{ $list->uname }} , {{ $userMeta ? $userMeta->age() : '' }}<span>{{ substr($list->mcreated_at,0,10) }}</span></div>
