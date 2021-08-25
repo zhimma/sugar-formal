@@ -13,7 +13,10 @@ use App\Models\CustomFingerPrint;
 use App\Models\Evaluation;
 use App\Models\EvaluationPic;
 use App\Models\hideOnlineData;
+use App\Models\LogUserLogin;
 use App\Models\Message_new;
+use App\Models\MessageBoard;
+use App\Models\MessageBoardPic;
 use App\Models\SimpleTables\warned_users;
 use App\Notifications\BannedUserImplicitly;
 use Auth;
@@ -4851,4 +4854,190 @@ class PagesController extends BaseController
         return redirect()->back();	
 		
 	}	
+
+    public function messageBoard_showList(Request $request)
+    {
+        $user = $this->user;
+        $getLists_others = MessageBoard::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
+            ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
+            ->LeftJoin('users', 'users.id','=','message_board.user_id')
+            ->LeftJoin('user_meta', 'users.id','=','user_meta.user_id')
+            ->where('users.engroup',$user->engroup==1 ? 2 :1)
+            ->orderBy('message_board.created_at','desc')
+            ->paginate(10, ['*'], 'othersDataPage')
+            ->appends(array_merge(request()->except(['othersDataPage','msgBoardType']),['msgBoardType'=>'others_page']));
+
+        $getLists_myself = MessageBoard::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
+            ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
+            ->LeftJoin('users', 'users.id','=','message_board.user_id')
+            ->LeftJoin('user_meta', 'users.id','=','user_meta.user_id')
+            ->where('users.id',$user->id)
+            ->orderBy('message_board.created_at','desc')
+            ->paginate(10, ['*'], 'myselfDataPage')
+            ->appends(array_merge(request()->except(['myselfDataPage','msgBoardType']),['msgBoardType'=>'my_page']));
+
+        return view('/dashboard/messageBoard_list', compact('getLists_others', 'getLists_myself'))
+            ->with('user', $user);
+    }
+
+    public function messageBoard_post_detail(Request $request)
+    {
+        $user = $request->user();
+        $pid = $request->pid;
+
+        $postDetail =MessageBoard::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
+            ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
+            ->LeftJoin('users', 'users.id','=','message_board.user_id')
+            ->LeftJoin('user_meta', 'users.id','=','user_meta.user_id')
+            ->where('message_board.id', $pid)->first();
+
+        $images=MessageBoardPic::where('msg_board_id',$pid)->get();
+
+        if(!$postDetail) {
+            $request->session()->flash('message', '找不到該留言：' . $pid);
+            $request->session()->reflash();
+            return  redirect('/MessageBoard/showList');
+        }
+
+        return view('/dashboard/messageBoard_detail', compact('postDetail', 'images'))->with('user', $user);
+    }
+
+    public function messageBoard_posts(Request $request)
+    {
+        $user = $this->user;
+        return view('/dashboard/messageBoard_post')->with('user', $user);
+    }
+
+    public function messageBoard_edit($id)
+    {
+        $user=auth()->user();
+        $editInfo =MessageBoard::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
+            ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
+            ->LeftJoin('users', 'users.id','=','message_board.user_id')
+            ->LeftJoin('user_meta', 'users.id','=','user_meta.user_id')
+            ->where('message_board.id', $id)->first();
+        $images=MessageBoardPic::where('msg_board_id',$id)->get();
+        $imagesGroup=array();
+        foreach ($images as $key => $value) {
+            $imagePath = $value->pic;
+            $imagesGroup['type'][$key] = \App\Helpers\fileUploader_helper::mime_content_type(ltrim($imagePath, '/'));
+            $imagesGroup['name'][$key] = Arr::last(explode('/', $value->pic));
+            $imagesGroup['size'][$key] = str_starts_with($value->pic, 'http') ? null :filesize(ltrim($imagePath, '/'));
+            $imagesGroup['local'][$key] = $imagePath;
+            $imagesGroup['file'][$key] = $imagePath;
+            $imagesGroup['data'][$key] = [
+                'url' => $imagePath,
+                'thumbnail' =>$imagePath,
+                'renderForce' => true
+            ];
+        }
+        $images=$imagesGroup;
+
+        if(!$editInfo) {
+            session()->flash('message', '找不到該留言：' . $id);
+            session()->reflash();
+            return redirect()->route('posts_list');
+        }
+
+        return view('/dashboard/messageBoard_edit',compact('editInfo','images'))->with('user', $user);
+    }
+
+    public function messageBoard_doPosts(Request $request)
+    {
+        $user=$request->user();
+        $fileuploaderListImages = $request->get('fileuploader-list-images');
+
+        if($request->get('action') == 'edit'){
+            MessageBoard::find($request->get('mid'))->update(['title'=>$request->get('title'),'contents'=>$request->get('contents')]);
+            //儲存留言板照片
+            $this->msg_board_pic_save($request->get('mid'), $user->id, $fileuploaderListImages, $request->file('images'));
+            return redirect('/MessageBoard/post_detail/'.$request->get('mid'))->with('message','修改成功');
+        }else{
+            $posts = new MessageBoard();
+            $posts->user_id = $user->id;
+            $posts->title = $request->get('title');
+            $posts->contents=$request->get('contents');
+            $posts->save();
+
+            //儲存留言板照片
+            $this->msg_board_pic_save($posts->id, $user->id, null, $request->file('images'));
+            return redirect('/MessageBoard/post_detail/'.$posts->id)->with('message','新增成功');
+        }
+    }
+
+    public function messageBoard_delete($mid)
+    {
+        $posts = MessageBoard::where('id',$mid)->first();
+        if($posts->user_id!== auth()->user()->id){
+            return response()->json(['msg'=>'刪除失敗,不可刪除別人的留言!']);
+        }
+        if($posts){
+            $messageBoardImages=MessageBoardPic::selectRaw('id,pic')->where('msg_board_id',$posts->id)->get();
+            foreach ($messageBoardImages as $key => $dbImage) {
+                if (file_exists(public_path().$dbImage->pic)) {
+                    unlink(public_path().$dbImage->pic);
+                }
+                $dbImage->delete();
+            }
+            $posts->delete();
+        }
+
+        return redirect('/MessageBoard/showList')->with('message','留言刪除成功');
+    }
+
+
+    public function msg_board_pic_save($msg_board_id, $uid, $images, $newImages)
+    {
+        $messageBoardImages=MessageBoardPic::selectRaw('id,pic')->where('msg_board_id',$msg_board_id)->get();
+        $nowImageList=array();
+        $images=json_decode($images, true);
+        if($images){
+            foreach ($images as $imageList){
+                $nowImageList[]=array_get($imageList,'file');
+            }
+        }
+
+        foreach ($messageBoardImages as $key => $dbImage){
+            if(in_array(array_get($dbImage,'pic'), $nowImageList)){
+                continue;
+            }else{
+                //移除照片
+                if(file_exists($dbImage->file)){
+                    unlink($dbImage->file);
+                }
+                $dbImage->delete();
+            }
+        }
+
+        //新增新加入照片
+        if($files = $newImages)
+        {
+            foreach ($files as $file) {
+                $now = Carbon::now()->format('Ymd');
+                $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
+
+                $rootPath = public_path('/img/MessageBoard');
+                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+
+                if(!is_dir($tempPath)) {
+                    File::makeDirectory($tempPath, 0777, true);
+                }
+
+                $destinationPath = '/img/MessageBoard/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
+
+                $img = Image::make($file->getRealPath());
+                $img->resize(400, 600, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($tempPath . $input['imagename']);
+
+                //新增images到db
+                $evaluationPic = new MessageBoardPic();
+                $evaluationPic->msg_board_id = $msg_board_id;
+                $evaluationPic->member_id = $uid;
+                $evaluationPic->pic = $destinationPath;
+                $evaluationPic->pic_origin_name = $file->getClientOriginalName();
+                $evaluationPic->save();
+            }
+        }
+    }
 }

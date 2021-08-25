@@ -237,6 +237,16 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/post_views', 'PagesController@post_views');
     });
 
+    //留言板
+    Route::group(['prefix' => 'MessageBoard'], function () {
+        Route::get('/showList', 'PagesController@messageBoard_showList');
+        Route::get('/posts', 'PagesController@messageBoard_posts');
+        Route::get('/edit/{id}', 'PagesController@messageBoard_edit');
+        Route::get('/post_detail/{pid}', 'PagesController@messageBoard_post_detail');
+        Route::post('/doPosts', 'PagesController@messageBoard_doPosts');
+        Route::post('/delete/{mid}', 'PagesController@messageBoard_delete');
+    });
+
     Route::post('/dashboard', 'PagesController@profileUpdate');
     Route::post('/dashboard2', 'PagesController@profileUpdate_ajax')->name('dashboard2');
     Route::post('dashboard/settings', 'PagesController@settingsUpdate');
