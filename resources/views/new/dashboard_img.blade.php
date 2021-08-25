@@ -171,7 +171,7 @@
                     
                     <div class="row mb-4 ">
                         <div class="col-sm-12 col-lg-12">
-                            <form action="{{ url('/dashboard/avatar/upload') }}" method="post" enctype="multipart/form-data">
+                            <form id="avatar_upload_form"  action="{{ url('/dashboard/avatar/upload') }}" method="post" enctype="multipart/form-data">
                                 <input type="file" name="avatar" data-fileuploader-files=''>
                                 <input type="hidden" name="userId" value="{{ $user->id }}">
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -257,7 +257,90 @@
         'length': 5,
         'name': 330
     }
+ 
     $(document).ready(function(){
+        var compressRatio = 1,
+        checkHeight = 300,
+        checkWidth =1000,
+        imgNewHeight = 300, 
+        imgNewWidth =1000, 
+        canvas = document.createElement("canvas"),
+        context = canvas.getContext("2d"),
+        file, fileReader, dataUrl;
+        blobElt = []; 
+
+        $('form').on('change','input[type=file]',function() {
+            console.log(this.name);
+            var nowEltName = this.name;
+            canvas = document.createElement("canvas"),context = canvas.getContext("2d");
+
+            fileSelected = this.files;
+            console.log(fileSelected);
+            for(i=0;i<fileSelected.length;i++) {
+                canvas = document.createElement("canvas"),context = canvas.getContext("2d");
+                
+                let curFileEntry = fileSelected[i];
+                if (curFileEntry && curFileEntry.type.indexOf("image") == 0) {
+                    fileReader = new FileReader();
+
+                    fileReader.onload = function(evt) {
+                       var img = new Image();
+                       dataUrl = evt.target.result,
+                       img.src = dataUrl;
+
+                       img.onload = function() {
+                           var width = this.width, 
+                           height = this.height, 
+                           html = "",
+                           newImg;
+                           if(height>checkHeight) {
+                               if(width<=checkWidth || height>=width) {
+                                   imgNewWidth = checkHeight * width / height; 
+                                   imgNewHeight = checkHeight;
+                               }
+                               else {
+                                   imgNewHeight=checkWidth * height / width; 
+                                   imgNewWidth = checkWidth;
+                               }
+                           }
+                           else if(width>checkWidth) {
+                               imgNewHeight=checkWidth * height / width; 
+                               imgNewWidth = checkWidth;
+                           }
+                           else {imgNewHeight=height;imgNewWidth=width;}    
+
+                           canvas.width = imgNewWidth;
+                           canvas.height = imgNewHeight;
+                           context.clearRect(0, 0, imgNewWidth, imgNewHeight);
+
+                           context.drawImage(img, 0, 0, imgNewWidth, imgNewHeight);
+                           console.log('curFileEntry.type='+curFileEntry.type);
+
+                           newImg = canvas.toDataURL(curFileEntry.type, compressRatio);
+
+                           canvas.toBlob(function(blob) {
+                               if(typeof(blobElt[nowEltName])=='undefined') blobElt[nowEltName] = [];
+                               blobElt[nowEltName].push(blob);
+                               console.log('curFileEntry.type='+curFileEntry.type);
+                           // 輸入上傳程式碼
+                           }, curFileEntry.type, compressRatio);
+                           context.clearRect(0, 0, canvas.width, canvas.height);
+                       };                        
+                    };
+                    
+                    fileReader.readAsDataURL(curFileEntry);
+
+
+                   
+                }
+            }
+        });     
+
+        $('.g_inputt').on('submit','form',function(){
+            return false;
+        });    
+
+        
         @if(Session::has('message'))
             @if(Session::get('message')=='上傳成功' && $user->existHeaderImage() && $user->engroup==2 && !$user->isVip())//防呆
                 @php
@@ -495,8 +578,6 @@
         ],
     }
 
-
-
     $(document).ready(function() {
         if(window.matchMedia("(max-width: 775px)").matches){
             $('.column-title div').css('width', $( window ).width() - 90 - 36 - 56);
@@ -506,9 +587,69 @@
         }
     });
 
-    $('.upload_btn').click(function() {
+   $(document).on('click','.upload_btn',function() {
         loading();
-        return true;
+        nowElt = $(this);
+        nowFormElt = nowElt.parent();
+        nowElt.off( "click", "**" );
+        fdata = new FormData();
+ 
+        $.each(nowFormElt.serializeArray(), function( index, value ) {
+            fdata.append(value.name, value.value);
+        });
+        realBlobIndex = 0;
+        fileElt = nowFormElt.find('input[type=file]');
+        for(f=0;f<fileElt.length;f++) {
+            let curFileElt = fileElt.eq(f);
+            fileEltFiles = curFileElt.prop('files');
+            fileEltName = curFileElt.prop('name');
+            fileEltNameSplit = fileEltName.split('[');
+            if(fileEltNameSplit[fileEltNameSplit.length-1]==']') {
+                fileEltNameSplit.splice(fileEltNameSplit.length-1,1);
+                postFileName = fileEltNameSplit.join('[');
+                postFileName_s = postFileName+'_s[]';
+                postFileName+='[]';
+            }
+            else {
+                postFileName=fileEltName;
+                postFileName_s=fileEltName+'_s';
+            }
+            for(i=0;i<fileEltFiles.length;i++) {
+                fileInputed = fileEltFiles[i];
+                filenamesplit = fileInputed.name.split('.');
+                file_ext_name = filenamesplit[filenamesplit.length-1];
+                filenamesplit.splice(filenamesplit.length-1,1);
+                filename_s = filenamesplit.join('.')+'_s.'+file_ext_name; 
+                fdata.append(postFileName, blobElt[fileEltName][realBlobIndex],fileInputed.name);
+                 console.log(blobElt[fileEltName][realBlobIndex]);
+                realBlobIndex++;
+            }
+        }
+
+        $.ajax({
+            type: nowFormElt.prop('method'),
+            url: nowFormElt.prop('action'),
+            data: fdata,
+            'contentType': false, //required
+            'processData': false, // required
+            'mimeType': nowFormElt.prop('enctype'),        
+            error: function(xhr, status, error){
+                show_pop_message('上傳失敗：'+error+'('+xhr.status+')');
+                console.log(xhr);
+                console.log(status);
+                console.log(error);
+            },   
+        }).done(function(data) {
+            if(data==1) {
+                show_pop_message('上傳成功');
+            }
+            else {
+                show_pop_message(data);
+            }
+            console.log(data);
+        }); 
+
+        return false;
 
     });
     
