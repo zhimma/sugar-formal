@@ -83,6 +83,9 @@
 													@endif
 												</li>
 											@endif
+											<li>
+												<a href="/MessageBoard/showList"><img src="/new/images/icon_new45.png">留言板</a>
+											</li>
 		{{--									@endif--}}
 											<li>
 											   <a href="{!! url('dashboard/browse') !!}"><img src="/new/images/icon_46.png">瀏覽資料</a>

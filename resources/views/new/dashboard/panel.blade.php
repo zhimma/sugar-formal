@@ -3,7 +3,7 @@
     <div class="leftbg">
         <div class="leftimg">
             <img src="@if(file_exists( public_path().$user->meta->pic ) && $user->meta->pic != ""){{$user->meta->pic}} @elseif($user->engroup==2)/new/images/female.png @else/new/images/male.png @endif">
-            <h2 style="word-break: break-word;">@if (str_contains(url()->current(), 'dashboard')) {{ $user->name }} @elseif (isset($cur)) {{ $cur->name }} @endif
+            <h2 style="word-break: break-word;">@if (str_contains(url()->current(), 'dashboard') || str_contains(url()->current(), 'MessageBoard')) {{ $user->name }} @elseif (isset($cur)) {{ $cur->name }} @endif
                 @if (((isset($cur) && $cur->isVip() && $cur->engroup == '1')) || isset($user) && ($user->isVip() && str_contains(url()->current(), 'dashboard'))) (VIP) @endif @if((view()->shared('valueAddedServices')['hideOnline'] ?? 0) == 1)<br>(隱藏) @endif</h2>
         </div>
         <div class="leul">
@@ -34,6 +34,9 @@
                         @endif
                     </li>
                 @endif
+                <li>
+                    <a href="/MessageBoard/showList"><img src="/new/images/icon_new45.png">留言板</a>
+                </li>
 {{--                @endif--}}
                 <li>
                    <a href="{!! url('dashboard/browse') !!}"><img src="/new/images/icon_46.png">瀏覽資料</a>
