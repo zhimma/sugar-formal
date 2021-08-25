@@ -353,7 +353,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
     //留言板
     Route::group(['prefix' => 'MessageBoard'], function () {
-        Route::get('/showList', 'PagesController@messageBoard_showList');
+        Route::get('/showList', 'PagesController@messageBoard_showList')->name('messageBoard_list');
         Route::get('/posts', 'PagesController@messageBoard_posts');
         Route::get('/edit/{id}', 'PagesController@messageBoard_edit');
         Route::get('/post_detail/{pid}', 'PagesController@messageBoard_post_detail');
