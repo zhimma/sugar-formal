@@ -4924,7 +4924,7 @@ class PagesController extends BaseController
         }
 
         if ($user->id != $editInfo->uid){
-            return back();
+            return redirect()->route('messageBoard_list');
         }
 
         $images=MessageBoardPic::where('msg_board_id',$id)->get();
