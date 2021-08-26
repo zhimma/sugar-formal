@@ -72,13 +72,20 @@
 						$userMeta=\App\Models\UserMeta::findByMemberId($postDetail->uid);
 						$msgUser=\App\Models\User::findById($postDetail->uid);
 						$isBlurAvatar = \App\Services\UserService::isBlurAvatar($msgUser, $user);
+
+					 	$cityList=explode(',',$postDetail->city);
+						$areaList=explode(',',$postDetail->area);
+						$cityAndArea='';
+						foreach ($cityList as $key => $city){
+							$cityAndArea.= $cityList[$key].$areaList[$key] . ((count($cityList)-1)==$key ? '':', ');
+						}
 					@endphp
 					<a href="/dashboard/viewuser/{{$postDetail->uid}}">
 						<div class="liuyan_img01">
 							<img class="hycov @if($isBlurAvatar) blur_img @endif" src="@if(file_exists( public_path().$postDetail->umpic ) && $postDetail->umpic != ""){{$postDetail->umpic}} @elseif($postDetail->uengroup==2)/new/images/female.png @else/new/images/male.png @endif">
 						</div>
 					</a>
-					<div class="liuyan_text"><a href="/dashboard/viewuser/{{$postDetail->uid}}">{{ $postDetail->uname }}</a> , {{ $userMeta ? $userMeta->age() : '' }}<span>{{ $postDetail->city.$postDetail->area }}</span></div>
+					<div class="liuyan_text"><a href="/dashboard/viewuser/{{$postDetail->uid}}">{{ $postDetail->uname }}</a> , {{ $userMeta ? $userMeta->age() : '' }}<span class="liu_dq">{{ $cityAndArea }}</span></div>
 					@if($postDetail->uid!==$user->id)
 						<a href="/dashboard/chat2/chatShow/{{ $postDetail->uid }}" class="liuyicon"></a>
 					@endif
