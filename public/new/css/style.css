@@ -3900,13 +3900,17 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
 .liuyan_nlist ul li:last-child{margin-bottom:0px;}
 
 .liuyan_img{width:50px;height: 50px;display: flex; border-radius: 100px; overflow: hidden; position: absolute; left: 0;
-    justify-content: center;align-items: center;background: #ffffff;box-shadow:10px 10px 10px #ccc; float: left; margin-top: 10px; top:6px;}
+    justify-content: center;align-items: center;background: #ffffff;box-shadow:10px 10px 10px #ccc;.liuyan_text span float: left; margin-top: 10px; top:6px;}
 
 .liuyan_prilist{width:calc(100% - 30px); box-shadow: 0 0 20px #eee; border-radius: 10px;padding: 10px 0; float: right;}
 .liuyfont{width:calc(100% - 40px); float: right; display: table; padding-bottom: 10px; padding-top: 5px;}
 .liu_name{display: table; font-size: 16px;width: 100%; line-height:25px;}
 .liu_name span{ float: right; color: #999; margin-right:3%; font-size: 13px;}
-.liu_dq{display: table; font-size: 13px; color: #999; line-height:25px;}
+.liu_dq{display: table; font-size: 13px; color: #999; line-height:25px;width: 100%;overflow: hidden;
+    height: 25px;
+    -webkit-box-orient: vertical;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;}
 
 .liu_text{width: 94%; margin: 0 auto; display: table; border-top: #eee 1px solid;}
 .liu_text_1{width: 100%;background:linear-gradient(to right,#ffe9e8,#fffcfc); color: #fd5a7b; margin-top: 10px; padding: 5px 5px;}
@@ -3919,6 +3923,31 @@ border-radius:100px;margin-top:5px;font-weight:normal;font-size:18px;padding:15p
     justify-content: center;align-items: center;background: #ffffff;float: left;}
 .liuyan_text{ font-size:14px; float: left; margin-left:10px; font-size: 16px; line-height:23px; margin-top:2px;}
 .liuyan_text span{ display: block; font-size: 13px; color: #999;}
+.liuyan_text{ font-size:14px; float: left; margin-left:10px; font-size: 16px; line-height:23px; margin-top:2px;}
+.liuyan_text span{ display: block; font-size: 13px; color: #999;display: block; overflow: hidden;display: -webkit-box;-webkit-line-clamp: 1;-webkit-box-orient: vertical;width:500px;}
+@media (max-width:823px) {
+    .liuyan_text span{width:400px;}
+}
+
+@media (max-width:736px) {
+    .liuyan_text span{width:350px;}
+}
+@media (max-width:569px) {
+    .liuyan_text span{width:300px;}
+}
+@media (max-width:450px) {
+    .liuyan_text span{width:210px;}
+}
+@media (max-width:375px) {
+    .liuyan_text span{width: 180px;}
+}
+@media (max-width:360px) {
+    .liuyan_text span{width: 160px;}
+}
+@media (max-width:330px) {
+    .liuyan_text span{width: 140px;}
+}
+
 
 .liuyicon{ float: right;width: 50px; height: 50px;background:url(../images/faxun01.png) no-repeat; background-size: 100%;}
 .liuyicon:hover{ float: right;width: 50px; height: 50px;background:url(../images/faxun02.png) no-repeat; background-size: 100%;}

@@ -91,6 +91,13 @@
 										$userMeta=\App\Models\UserMeta::findByMemberId($list->uid);
 										$msgUser=\App\Models\User::findById($list->uid);
 				                        $isBlurAvatar = \App\Services\UserService::isBlurAvatar($msgUser, $user);
+
+				                        $cityList=explode(',',$list->city);
+									   	$areaList=explode(',',$list->area);
+									   	$cityAndArea='';
+									   	foreach ($cityList as $key => $city){
+									   	    $cityAndArea.= $cityList[$key].$areaList[$key] . ((count($cityList)-1)==$key ? '':', ');
+									   	}
 									@endphp
 									<li>
 										<a href="/dashboard/viewuser/{{$list->uid}}">
@@ -100,7 +107,7 @@
 											<div class="liuyan_prilist">
 												<div class="liuyfont">
 													<div class="liu_name">{{ $list->uname }} , {{ $userMeta ? $userMeta->age() : '' }}<span>{{ substr($list->mcreated_at,0,10) }}</span></div>
-													<div class="liu_dq">{{ $list->city.$list->area }}</div>
+													<div class="liu_dq">{{ $cityAndArea }}</div>
 												</div>
 												<div class="liu_text">
 													<div class="liu_text_1">{{ $list->mtitle }}</div>
@@ -135,6 +142,13 @@
 										$userMeta=\App\Models\UserMeta::findByMemberId($list->uid);
 										$msgUser=\App\Models\User::findById($list->uid);
 				                        $isBlurAvatar = \App\Services\UserService::isBlurAvatar($msgUser, $user);
+
+				                        $cityList=explode(',',$list->city);
+									   	$areaList=explode(',',$list->area);
+									   	$cityAndArea='';
+									   	foreach ($cityList as $key => $city){
+									   	    $cityAndArea.= $cityList[$key].$areaList[$key] . ((count($cityList)-1)==$key ? '':', ');
+									   	}
 									@endphp
 									<li>
 										<a href="/dashboard/viewuser/{{$list->uid}}">
@@ -145,7 +159,7 @@
 											<div class="liuyan_prilist">
 												<div class="liuyfont">
 													<div class="liu_name">{{ $list->uname }} , {{ $userMeta ? $userMeta->age() : '' }}<span>{{ substr($list->mcreated_at,0,10) }}</span></div>
-													<div class="liu_dq">{{ $list->city.$list->area }}</div>
+													<div class="liu_dq">{{ $cityAndArea }}</div>
 												</div>
 												<div class="liu_text">
 													<div class="liu_text_1">{{ $list->mtitle }}</div>
