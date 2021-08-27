@@ -1397,6 +1397,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 }
 
 
+/*
 @media (min-width:769px){
     .zybg_new{width:75%; height:40px; background:#f8f8f8; border-radius:50px; display:table; border:none;outline:none; margin-bottom:15px; float:left}
     .zybg_right{width:25%;height:40px; line-height:40px; color:#ffffff; text-align:center; background:#fe92a8; border-radius:50px; float:right}
@@ -1429,6 +1430,7 @@ background-position: 50% 50%;-webkit-background-size: cover;background-size: cov
 	.zybg_new{width:60%; height:40px; background:#f8f8f8; border-radius:50px; display:table; border:none;outline:none; margin-bottom:15px; float:left}
 	.zybg_right{width:40%;height:40px; line-height:40px; color:#ffffff; text-align:center; background:#fe92a8; border-radius:50px; float:right}
 }
+*/
 
 
 
