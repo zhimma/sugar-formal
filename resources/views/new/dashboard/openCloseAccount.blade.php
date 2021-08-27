@@ -9,10 +9,11 @@
             <div class="col-sm-12 col-xs-12 col-md-10">
                 <div class="g_password g_pnr">
                     <div class="g_pwicon">
+                        <li><a href="/dashboard/viewuser/{{$user->id}}" class="g_pwicon_t5 "><span>自我預覽</span></a></li>
                         <li><a href="{!! url('dashboard') !!}" class="g_pwicon_t "><span>基本資料</span></a></li>
                         <li><a href="{!! url('dashboard_img') !!}" class="g_pwicon_t2"><span>照片管理</span></a></li>
                         <li><a href="{!! url('/dashboard/account_manage') !!}" class="g_pwicon_t3 g_hicon3"><span>帳號設定</span></a></li>
-                        <li><a href="{!! url('/dashboard/vipSelect') !!}" class="g_pwicon_t4"><span>升級付費</span></a></li>
+{{--                        <li><a href="{!! url('/dashboard/vipSelect') !!}" class="g_pwicon_t4"><span>升級付費</span></a></li>--}}
                     </div>
                     <div class="gg_zh">
                         <div class="gg_mm"><span><i></i>帳號開啟/關閉</span><img src="/new/images/darkPinkKey.png"></div>

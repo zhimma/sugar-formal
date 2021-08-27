@@ -7,6 +7,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Http\Request;
 
 class Kernel extends ConsoleKernel
 {
@@ -29,12 +30,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->call(function (){
-            $this->uploadDatFile();
-        })->timezone('Asia/Taipei')->dailyAt('1:00');
-        $schedule->call(function (){
-            $this->checkDatFile();
-        })->timezone('Asia/Taipei')->dailyAt('3:00');
+        $schedule->command('FillDataForFilterByInfo')->timezone('Asia/Taipei')->dailyAt('01:00');
         $schedule->call(function (){
             $this->checkECPayVip();
             $this->checkEmailVailUser();
@@ -47,18 +43,23 @@ class Kernel extends ConsoleKernel
             $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('4:00');
         $schedule->call(function (){
-            $this->checkDatFile();
             $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('5:00');
+		$puppetReq = new Request();
+		$puppetReq->only = 'cfpid';
         $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->everySixHours();
+		$schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('6:30');
+		$schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('12:30');
+		$schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('18:30');
+		$schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('0:30');
         $schedule->call(function (){
-            $this->VIPCheck();
             $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('8:00');
         $schedule->call(function (){
             $this->VIPCheck();
             $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('12:00');
+        $schedule->command('FillDataForFilterByInfo')->timezone('Asia/Taipei')->dailyAt('13:00');
         $schedule->call(function (){
             $this->VIPCheck();
             $this->checkEmailVailUser();

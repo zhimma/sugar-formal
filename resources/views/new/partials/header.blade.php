@@ -31,6 +31,7 @@
         <link href="/plugins/fileuploader2.2/css/jquery.fileuploader-theme-thumbnails.css" rel="stylesheet" type="text/css">
         <link href="/plugins/hopscotch/css/hopscotch.min.css" rel="stylesheet" type="text/css" />
         <link href="https://unpkg.com/ionicons@4.5.10-0/dist/css/ionicons.min.css" rel="stylesheet">
+		<link href="/new/css/cover_bootstrap.css" rel="stylesheet"> <!--fix bootstrap.css for bootstrap4.js-->
 		<link rel="shortcut icon" href="/img/favicon.jpg" />
 		<!-- Global site tag (gtag.js) - Google Analytics -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-151409328-1"></script>

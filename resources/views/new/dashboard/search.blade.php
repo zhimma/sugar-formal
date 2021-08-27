@@ -31,9 +31,6 @@
         width: auto;
         /*position: absolute;*/
     }
-    .popover{
-        position: fixed;
-    }
     .onineStatus{}
     .onlineStatusNonVipSearch{
         width: 15px;

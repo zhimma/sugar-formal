@@ -159,7 +159,7 @@
                     <div class="sys_aa">
                         <div class="tabbox_new_dt"><span>收件夾總訊息數</span></div>
                         <div class="tabbox_new_dd">
-                            <h2 class="tabbox_hsz">{{ $allMessage }}</h2>
+                            <h2 class="tabbox_hsz">@if(empty($allMessage))0 @else{{$allMessage}}@endif</h2>
                         </div>
                     </div>
                     <div class="sys_aa">

@@ -1177,7 +1177,7 @@ class User extends Authenticatable
         return $advInfo;
     }
 
-    public function getAdvInfo($wantIndexArr=[]) : User{
+    public function getAdvInfo($wantIndexArr=[]) : array{
         $user = $this;
         $date = date('Y-m-d H:m:s', strtotime('-7 days'));
 
@@ -1185,6 +1185,7 @@ class User extends Authenticatable
         $countInfo['message_count'] = 0;
         $countInfo['message_reply_count'] = 0;
         $countInfo['message_reply_count_7'] = 0;
+		$countInfo['message_count_7'] = 0;
         $send = [];
         $receive = [];
 

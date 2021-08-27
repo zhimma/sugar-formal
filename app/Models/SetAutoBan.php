@@ -16,6 +16,8 @@ class SetAutoBan extends Model
 {
     //
     protected $table = 'set_auto_ban';
+	
+	public $timestamps = false;
 
     //自動封鎖 用後台設定的關鍵字查詢
     public static function auto_ban($uid)
@@ -66,8 +68,24 @@ class SetAutoBan extends Model
                     if(LogUserLogin::where('user_id',$uid)->where('cfp_id', $content)->first() != null) $violation = true;
                     break;
                 case 'ip':
+				
+					if($ban_set->expiry=='0000-00-00 00:00:00') {
+						$ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
+						$ban_set->save();						
+					}
+				
+					if($ban_set->expiry<=\Carbon\Carbon::now()->format('Y-m-d H:i:s')) {
+						$ban_set->delete();
+						return;
+					}				
+				
                     $ip = LogUserLogin::where('user_id',$uid)->orderBy('created_at','desc')->first();
-                    if($ip->ip == $content) $violation = true;
+
+                    if($ip->ip == $content) {
+						$violation = true;
+						$ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
+						$ban_set->save();
+					}
                     break;
                 case 'userAgent':
                     if(LogUserLogin::where('user_id',$uid)->where('userAgent', 'like','%'.$content.'%')->first() != null) $violation = true;
@@ -169,7 +187,7 @@ class SetAutoBan extends Model
             logger('SetAutoBan logout_warned() user not set, referer: ' . \Request::server('HTTP_REFERER'));
             return;
         }
-        $auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content')->orderBy('id', 'desc')->get();
+        $auto_ban = SetAutoBan::select('type', 'set_ban', 'id', 'content','expiry')->orderBy('id', 'desc')->get();
         foreach ($auto_ban as $ban_set) {
             $content = $ban_set->content;
             $violation = false;
@@ -206,8 +224,21 @@ class SetAutoBan extends Model
                     if(LogUserLogin::where('user_id',$uid)->where('cfp_id', $content)->first() != null) $violation = true;
                     break;
                 case 'ip':
+					if($ban_set->expiry=='0000-00-00 00:00:00') {
+						$ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
+						$ban_set->save();						
+					}				
+				
+					if($ban_set->expiry<=\Carbon\Carbon::now()->format('Y-m-d H:i:s')) {
+						$ban_set->delete();
+						return;
+					}					
                     $ip = LogUserLogin::where('user_id',$uid)->orderBy('created_at','desc')->first();
-                    if($ip->ip == $content) $violation = true;
+                    if($ip->ip == $content) {
+						$violation = true;
+						$ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
+						$ban_set->save();						
+					}
                     break;
                 case 'userAgent':
                     if(LogUserLogin::where('user_id',$uid)->where('userAgent', 'like','%'.$content.'%')->first() != null) $violation = true;

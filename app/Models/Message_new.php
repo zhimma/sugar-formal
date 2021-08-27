@@ -387,25 +387,30 @@ class Message_new extends Model
         //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
     }
 
-    public static function allSendersAJAX($uid, $isVip, $d = 7)
+    public static function allSendersAJAX($uid, $isVip, $d = 7,$forEventSenders=false)
     {
-        $user = \View::shared('user');
+		if($forEventSenders) $user = null;
+        else 
+			$user = \View::shared('user');
         if(!$user){
             $user = User::find($uid);
         }
-        $banned_users = banned_users::where('member_id', $uid)->first();
-        $BannedUsersImplicitly = BannedUsersImplicitly::where('target', $uid)->first();
-        if( (isset($banned_users) && ($banned_users->expire_date == null || $banned_users->expire_date >= Carbon::now())) || isset($BannedUsersImplicitly)){
-            return false;
-        }
-
+		if(!$forEventSenders) {
+			$banned_users = banned_users::where('member_id', $uid)->first();
+			$BannedUsersImplicitly = BannedUsersImplicitly::where('target', $uid)->first();
+			if( (isset($banned_users) && ($banned_users->expire_date == null || $banned_users->expire_date >= Carbon::now())) || isset($BannedUsersImplicitly)){
+				return false;
+			}
+		}
 		$admin_id = AdminService::checkAdmin()->id;
         /**
          * 效能調整：使用左結合取代 where in 以取得更好的效能
          *
          * @author LZong <lzong.tw@gmail.com>
          */
-        $query = Message::with(['sender', 'receiver', 'sender.aw_relation', 'receiver.aw_relation'])->select("m.*")->from('message as m')
+        $query = Message::with(['sender', 'receiver', 'sender.aw_relation', 'receiver.aw_relation'])
+            ->select("m.*")
+            ->from('message as m')
             ->leftJoin('users as u1', 'u1.id', '=', 'm.from_id')
             ->leftJoin('users as u2', 'u2.id', '=', 'm.to_id')
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'm.from_id')
@@ -421,25 +426,20 @@ class Message_new extends Model
             ->leftJoin('blocked as b7', function($join) use($uid) {
                 $join->on('b7.member_id', '=', 'm.from_id')
                     ->where('b7.blocked_id', $uid); });
-//            ->leftJoin('blocked as b8', function($join) use($uid) {
-//                $join->on('b8.member_id', '=', 'm.to_id')
-//                    ->where('b8.blocked_id', $uid); });
         $query = $query->whereNotNull('u1.id')
                 ->whereNotNull('u2.id')
-                //->whereNull('b1.member_id')
-                //->whereNull('b2.member_id')
-                //->whereNull('b3.target')
-                //->whereNull('b4.target')
                 ->whereNull('b5.blocked_id')
                 ->whereNull('b6.blocked_id')
                 ->whereNull('b7.member_id')
-//                ->whereNull('b8.member_id')
                 ->where(function ($query) use ($uid,$admin_id) {
                     $query->where([['m.to_id', $uid], ['m.from_id', '!=', $uid],['m.from_id','!=',$admin_id]])
                         ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid],['m.to_id','!=',$admin_id]]);
                 });
-
-        if($d==7){
+		if($forEventSenders) 
+		{
+			self::$date = \Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString();
+		}
+        else if($d==7){
             self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
         }else if($d==30){
             self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
@@ -456,10 +456,14 @@ class Message_new extends Model
         $query->whereRaw('m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');        
-        $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);$query->orderBy('m.created_at', 'desc');
-//        if($user->id != 1049){
-//            $query->whereRaw('u1.engroup != ' . $user->engroup);
-//        }
+        $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);
+        $query->orderBy('m.created_at', 'desc');
+        if($user->id != 1049){
+            $query->where(function($query){
+                $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
+                $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
+            });
+        }
         $messages = $query->get();
         $mCount = count($messages);
         $mm = [];
@@ -476,17 +480,21 @@ class Message_new extends Model
         if(count($saveMessages) == 0){
             return array_values(['No data']);
         }else{
-            return Message_new::sortMessages($saveMessages, null, $mm, $mCount);
+            return Message_new::sortMessages($saveMessages, null, $mm, $mCount,$forEventSenders?$uid:null);
         }
         //return Message::where([['to_id', $uid],['from_id', '!=' ,$uid]])->whereRaw('id IN (select MAX(id) FROM message GROUP BY from_id)')->orderBy('created_at', 'desc')->take(Config::get('social.limit.show-chat'))->get();
     }
 
 
-    public static function sortMessages($messages, $userBlockList = null, $mm = [], $mCount = 10){
+    public static function sortMessages($messages, $userBlockList = null, $mm = [], $mCount = 10,$uid=null){
         if ($messages instanceof Illuminate\Database\Eloquent\Collection) {
             $messages = $messages->toArray();
         }
-        $user = Auth::user();
+	
+		if($uid)
+			$user=User::find($uid);
+        else
+			$user = Auth::user();
         $block_people =  Config::get('social.block.block-people');
         $isVip = $user->isVip();
         $aa=[];
@@ -742,8 +750,10 @@ class Message_new extends Model
          *
          * @author LZong <lzong.tw@gmail.com>
          */
-        $query = Message::select( 'm.*',DB::raw('(m.to_id + m.from_id) as to_from_pair'))->from('message as m')
-            ->selectRaw('u1.engroup As u1_engroup,u2.engroup As u2_engroup')
+        $query = Message::with(['sender', 'receiver', 'sender.aw_relation', 'receiver.aw_relation'])->select(
+            DB::raw('(m.to_id + m.from_id) as to_from_pair')
+        )
+            ->from('message as m')
 			->leftJoin('users as u1', 'u1.id', '=', 'm.from_id')
             ->leftJoin('users as u2', 'u2.id', '=', 'm.to_id')
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'm.from_id')
@@ -773,6 +783,13 @@ class Message_new extends Model
                     ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid],['m.to_id','!=',$admin_id]]);
             });
 
+        if($user->id != 1049){
+            $query->where(function($query){
+                $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
+                $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
+            });
+        }
+
         if($d==7){
             self::$date = \Carbon\Carbon::parse("7 days ago")->toDateTimeString();
         }else if($d==30){
@@ -794,46 +811,6 @@ class Message_new extends Model
         $query->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
 		$allSenders = $query->get();
-		
-		foreach($allSenders  as $k=>$sender) {
-			if($sender->u1_engroup==$sender->u2_engroup)  $allSenders->forget($k);
-		}
-
-		/*
-		 * 除錯用 SQL: select `m`.*, (m.to_id + m.from_id) as to_from_pair, u1.engroup As u1_engroup,u2.engroup As u2_engroup from `message` as `m`
-            left join `users` as `u1` on `u1`.`id` = `m`.`from_id`
-            left join `users` as `u2` on `u2`.`id` = `m`.`to_id`
-            left join `banned_users` as `b1` on `b1`.`member_id` = `m`.`from_id`
-            left join `banned_users` as `b2` on `b2`.`member_id` = `m`.`to_id`
-            left join `banned_users_implicitly` as `b3` on `b3`.`target` = `m`.`from_id`
-            left join `banned_users_implicitly` as `b4` on `b4`.`target` = `m`.`to_id`
-            left join `blocked` as `b5` on `b5`.`blocked_id` = `m`.`from_id` and `b5`.`member_id` = ?
-            left join `blocked` as `b6` on `b6`.`blocked_id` = `m`.`to_id` and `b6`.`member_id` = ?
-            left join `blocked` as `b7` on `b7`.`member_id` = `m`.`from_id` and `b7`.`blocked_id` = ?
-            where `u1`.`id` is not null
-            and `u2`.`id` is not null
-            and `b1`.`member_id` is null
-            and `b2`.`member_id` is null
-            and `b3`.`target` is null
-            and `b4`.`target` is null
-            and `b5`.`blocked_id` is null
-            and `b6`.`blocked_id` is null
-            and `b7`.`member_id` is null
-            and (
-                (`m`.`to_id` = ? and `m`.`from_id` != ? and `m`.`from_id` != ?)
-                or (`m`.`from_id` = ? and `m`.`to_id` != ? and `m`.`to_id` != ?)
-            )
-		    and (
-                `m`.`is_row_delete_1` <> ? and `m`.`is_single_delete_1` <> ?
-                and `m`.`all_delete_count` <> ? and `m`.`is_row_delete_2` <> ?
-                and `m`.`is_single_delete_2` <> ? and `m`.`temp_id` = ?
-		    )
-            and (`m`.`created_at` >= ?)
-            and m.created_at < IFNULL(b1.created_at, "2999-12-31 23:59:59")
-            and m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")
-            and m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")
-            and m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")
-		 * */
 
         if($isCount) {
             $allSenders = $query->groupBy('to_from_pair')->get()->count();

@@ -137,6 +137,14 @@ class StatController extends \App\Http\Controllers\BaseController
     }
 
     public function set_autoBan(){
+        if(request()->ip_expire=='1' && request()->ip) {
+            $uq = DB::table('set_auto_ban')->where('type', 'ip');
+            if(request()->ip) $uq->where('content', request()->ip);
+            $uq->update(['expiry'=>date('Y-m-d H:i:s')]);
+            return redirect()->route('stats/set_autoBan');
+        }
+		DB::table('set_auto_ban')->where('type', 'ip')->where('expiry', '0000-00-00 00:00:00')
+			->update(['expiry'=>\Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s')]);
         $data = DB::table('set_auto_ban')->orderBy('id', 'desc')->get();
         return view('admin.stats.set_autoBan')->with('data', $data);
     }
@@ -144,10 +152,13 @@ class StatController extends \App\Http\Controllers\BaseController
     public function set_autoBan_add(Request $request){
         if(isset($request->content)){
             $user = User::findByEmail($request->cuz_email_set);
+			if($request->type=='ip') 
+				$expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
+			else $expiry = '';
             if($user){
-                DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban, 'cuz_user_set' => $user->id]);
+                DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban, 'cuz_user_set' => $user->id,'expiry'=>$expiry]);
             }else{
-                DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban]);
+                DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban,'expiry'=>$expiry]);
             }
         }
         $data = DB::table('set_auto_ban')->orderBy('id', 'desc')->get();

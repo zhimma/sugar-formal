@@ -2,6 +2,7 @@
 @section('app-content')
 <body style="padding: 15px;">
 <h1>自動封鎖警示設定</h1>
+<span></span>
 <table class='table table-bordered table-hover'>
     <th>設定封鎖項目</th>
     <form action="{{ route('stats/set_autoBan_add') }}" method="post">
@@ -50,7 +51,7 @@
 				@else {{$result->type}}
 			@endif
 		</td>
-		<td>{{ $result->content }}</td>
+		<td>{{ $result->content }}@if(($result->type ?? null)=='ip') (到{{$result->expiry}}止)@endif</td>
 		<td>@if(isset($result->cuz_user_set))
 			<a href="{{ route('users/advInfo', $result->cuz_user_set) }}" target='_blank'>
 				@php

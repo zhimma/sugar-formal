@@ -37,8 +37,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         padding: 20 20 20 20;
     }
   </style>
+  <style>
+.switch_left{ float:right;width:120px;height: 40px;background: #8a9ff0;border-radius: 200px;color: #ffffff;text-align: center;line-height: 40px;font-size: 16px; margin-right:11px;}
+.switch_left:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #4c6ded,inset 0px -10px 10px -20px #4c6ded;}
+.switch_right{ float:left;width:120px;height: 40px;background: #ffffff; border: #8a9ff0 1px solid;border-radius: 200px;color: #8a9ff0;text-align: center;line-height: 40px;font-size: 16px; margin-left:11px;}
+.switch_right:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #516cd4,inset 0px -10px 10px -20px #516cd4; background:#8a9ff0}
+body div .g_inputt a.zw_dw_left {float:left;}
+.zw_dw {margin-bottom:5px;}
+dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
+  </style>
 
-	<div class="container matop70 chat">
+    <div class="container matop70 chat">
     <div class="row">
       <div class="col-sm-2 col-xs-2 col-md-2 dinone">
           @include('new.dashboard.panel')
@@ -53,7 +62,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 {{--              <li><a href="{!! url('dashboard/vipSelect') !!}" class="g_pwicon_t4"><span>升級付費</span></a></li>--}}
           </div>
           <div class="addpic g_inputt">
-
+                    @if($user->isVip() && !Session::has('original_user'))
+{{--                    <a onClick="popSwitchOtherEngroup()" class="zw_dw zw_dw_left">模擬{{$user->engroup == 1?'女':'男'}}會員</a>--}}
+                    @endif  
+                    @if(Session::has('original_user'))  
+                    <a class="zw_dw zw_dw_left" href="{{ route('escape') }}">回到原使用者</a>     
+                    @endif
 {{--              <div class="n_adbut"><a href="/dashboard/viewuser/{{$user->id}}"><img src="/new/images/1_06.png">預覽</a></div>--}}
 {{--              <div class="n_adbut"><a href="/member_auth/" style="padding-left: 10px;">手機驗證</a></div>--}}
               @if($user->engroup==1)
@@ -106,10 +120,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                   </dt>
 
                   <dt>
-                      <span>帳號類型</span>
+                      <span class="engroup_type_title">帳號類型</span>
+                        @if($user->isVip() && !Session::has('original_user'))
+{{--                        <a onClick="popSwitchOtherEngroup()"class="zw_dw">模擬{{$user->engroup == 1?'女':'男'}}會員</a>--}}
+                        @endif 
+                        @if(Session::has('original_user'))  
+                        <a class="zw_dw" href="{{ route('escape') }}">回到原使用者</a>     
+                        @endif                        
                       <span>
 {{--                          <input name="" id="" type="text" class="select_xx01" value="@if($user->engroup==1)甜心大哥@else甜心寶貝@endif" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">--}}
                           <div class="select_xx01 senhs hy_new" style="background: #d2d2d2;">@if($user->engroup==1)甜心大哥@else甜心寶貝@endif</div>
+
                       </span>
 
                       <input name="engroup" id="" type="hidden" class="select_xx01" value="{{$user->engroup}}" data-parsley-errors-messages-disabled disabled style="background-color: #d2d2d2;">
@@ -896,60 +917,34 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             }
 
             @if($ckBarCodeLog==0)
-
                 if(banned_vip_pass){
                     c5('您已成功解除封鎖');
                 }
                 if(warned_vip_pass){
                     c5('您已成功解除警示');
                 }
-
             @elseif($ckBarCodeLog>0 && !$user->isVip())
-            $('#isGetBarCodeNotVIP').show();
-            $('#announce_bg').show();
+                $('#isGetBarCodeNotVIP').show();
+                $('#announce_bg').show();
                 @php
                     DB::table('payment_get_barcode_log')->where('user_id',$user->id)->where('ExpireDate','>=',now())->where('isRead',0)->update(['isRead' => 1]);
                 @endphp
-            @elseif (!$umeta->isAllSet( $user->engroup ))
-            c5('請寫上基本資料。');
-            // swal({
-            //   title:'請寫上基本資料。',
-            //   type:'warning'
-            // });
-            @elseif (empty($umeta->pic))
-            c5("{{$add_avatar}}");
-            // swal({
-            //   title:'請加上頭像照。',
-            //   type:'warning'
-            // });
-            @elseif ($umeta->age()<18)
-            c5('您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。');
-            // swal({
-            //   title:'您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。',
-            //   type:'warning'
-            // });
-            {{--        @elseif (($umeta->isWarned==1 && $umeta->isWarnedRead==0 ) || ( $isAdminWarned && $isAdminWarnedRead->isAdminWarnedRead==0 ) )--}}
-            {{--                @php--}}
-            {{--                 if($isAdminWarned){--}}
-            {{--                    //標記已讀--}}
-            {{--                    \App\Models\User::isAdminWarnedRead($user->id);--}}
-            {{--                  }--}}
-            {{--                  if($umeta->isWarned==1){--}}
-            {{--                    //標記已讀--}}
-            {{--                    \App\Models\User::isWarnedRead($user->id);--}}
-            {{--                  }--}}
-            {{--                @endphp--}}
-            {{--        $('#isWarned').show();--}}
-            {{--        $('#announce_bg').show();--}}
             @endif
-      @endif
+            @if (!$umeta->isAllSet( $user->engroup ))
+                c5('請寫上基本資料。');
+            @elseif (empty($umeta->pic))
+                c5("{{$add_avatar}}");
+            @elseif ($umeta->age()<18)
+                c5('您好，您的年齡低於法定18歲，請至個人基本資料設定修改，否則您的資料將會被限制搜尋。');
+            @endif
+        @endif
 
         @php
             $exchange_period_read = DB::table('exchange_period_temp')->where('user_id',$user->id)->count();
         @endphp
         @if($exchange_period_read==0 && $user->engroup==2)
-        $('#isExchangePeriod').show();
-        $('#announce_bg').show();
+            $('#isExchangePeriod').show();
+            $('#announce_bg').show();
         @endif
 
 
@@ -1282,7 +1277,32 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             window.location.href = URL;
         });
     });
-
+    @if($user->isVip() && !Session::has('original_user'))
+    function popSwitchOtherEngroup() {
+        c4('此功能可切換成{{$user->engroup == 1?'女':'男'}}會員的角度瀏覽網站。是否要切換成{{$user->engroup == 1?'女':'男'}}會員的角度?');
+        $('#tab04 .n_bbutton .n_left').html('是');
+        $('#tab04 .n_bbutton .n_right').html('否');
+        $('#tab04 .n_bbutton .n_left').removeClass('n_left').addClass('switch_left');
+        $('#tab04 .n_bbutton .n_right').removeClass('n_right').addClass('switch_right');
+        $(document).off('click','.blbg',closeAndReload);
+        $(document).on('click','#tab04 .n_bbutton .switch_right',function() {
+            $('#tab04').hide();
+            $('.blbg').hide();
+        $('#tab04 .n_bbutton .switch_left').removeClass('switch_left').addClass('n_left');
+        $('#tab04 .n_bbutton .switch_right').removeClass('switch_right').addClass('n_right');            
+        }); 
+        $(document).on('click','#tab04 .n_bbutton .switch_left',function() {
+            location.href="{{route('switch_other_engroup')}}";
+        });         
+        
+        $(document).on('click','.blbg',function() {
+            $('#tab04').hide();
+            $('.blbg').hide();
+        $('#tab04 .n_bbutton .switch_left').removeClass('switch_left').addClass('n_left');
+        $('#tab04 .n_bbutton .switch_right').removeClass('switch_right').addClass('n_right');             
+        });     
+    }   
+    @endif
   </script>
 
 @stop

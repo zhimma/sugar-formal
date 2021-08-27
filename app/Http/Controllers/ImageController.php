@@ -210,6 +210,7 @@ class ImageController extends BaseController
                 $memberPic = new MemberPic;
                 $memberPic->member_id = $userId;
                 $memberPic->pic = $destinationPath;
+                $memberPic->original_name = $file->getClientOriginalName();
                 $memberPic->save();
             }
         }
@@ -264,9 +265,14 @@ class ImageController extends BaseController
     {
         $userId = $request->userId;
         $user = $request->user();
-        $preloadedFiles = $this->getAvatar($request)->content();
+        $preloadedFiles = $this->getAvatar($request)->content();        
         $preloadedFiles = json_decode($preloadedFiles, true);
 
+        if($request->file('avatar')->getClientMimeType()=='application/octet-stream') {
+            $nowUpload = $request->file('avatar');
+            echo $nowUpload->getPathname();
+        }
+            
         $fileUploader = new FileUploader('avatar', array(
             'fileMaxSize' => 8,
             'extensions' => ['jpg', 'jpeg', 'png', 'gif'],
@@ -281,12 +287,13 @@ class ImageController extends BaseController
             'files' => $preloadedFiles
         ));
 
-        /*$file = public_path($meta->pic);
-        if(is_file($file) and file_exists($file))
-            unlink($file);*/
-
         $upload = $fileUploader->upload();
-        if($upload['hasWarnings']) {
+
+        if($upload['hasWarnings']??false) {
+            if($request->ajax()) {
+                echo is_array($upload['warnings'])?implode("\r\r",$upload['warnings']):$upload['warnings'];
+                exit;
+            }            
             return redirect()->back()->withErrors($upload['warnings']);
         }else{
             //remove origin avator
@@ -304,9 +311,10 @@ class ImageController extends BaseController
             }
             //upload new avator
             $avatar = $fileUploader->getUploadedFiles();
+
             if($avatar)
             {
-                $path = substr($avatar[0]['file'], strlen(public_path()));
+                $path = substr($avatar[0]['file'], strlen(public_path()));                 
                 $path[0] = '/';
                 UserMeta::where('user_id', $userId)->update(['pic' => $path, 'pic_original_name'=>$avatar[0]['old_name']]);
             }
@@ -324,7 +332,13 @@ class ImageController extends BaseController
                     $msg = $girl_to_vip->content;
                 }
             }
-
+            if($request->ajax()) {
+                if( $msg) {
+                    echo $msg;
+                }
+                else echo '1';
+                exit;
+            }
             return redirect()->back()->with('message', $msg);
         }
     }
@@ -421,7 +435,6 @@ class ImageController extends BaseController
             'editor' => true,
             'files' => $preloadedFiles
         ));
-
         //選擇移除的照片
 //        try{
 //            foreach($fileUploader->getRemovedFiles() as $key => $value)
@@ -443,9 +456,11 @@ class ImageController extends BaseController
         if($upload)
         {
             $publicPath = public_path();
-            foreach($fileUploader->getUploadedFiles() as $uploadedFile)
+
+            foreach($fileUploader->getUploadedFiles() as  $uploadIndex=>$uploadedFile)
             {
                 $path = substr($uploadedFile['file'], strlen($publicPath));
+
                 $path[0] = "/";
                 $addPicture = new MemberPic;
                 $addPicture->member_id = $userId;
@@ -465,6 +480,22 @@ class ImageController extends BaseController
             }else{
                 $msg = $girl_to_vip->content;
             }
+        }
+        if($request->ajax()) {
+            $no_react = true;
+            if( $msg) {
+                echo $msg;
+                $no_react=false;
+            }
+            
+            if(!($upload['isSuccess']??false) ) {
+                if($upload['warnings']??false) {
+                    echo $upload['warnings'];
+                    $no_react=false;
+                }
+            }
+            if($no_react) echo '1';
+            exit;
         }
         $previous = redirect()->back()->with('message', $msg);
         return $upload['isSuccess'] ? $previous : $previous->withErrors($upload['warnings']);

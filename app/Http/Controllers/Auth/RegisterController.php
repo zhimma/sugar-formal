@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Models\LogUserLogin;
+use App\Models\CustomFingerPrint;
 use DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -49,12 +50,17 @@ class RegisterController extends \App\Http\Controllers\BaseController
     //新樣板
     public function showRegistrationForm2()
     {
+		if(\Session::get('is_remind_puppet')=='1') {
+			Session::reflash();
+		}
+		
         return view('new.auth.register');
     }
 
     //新樣板
     public function checkAdult()
     {
+		
         return view('new.adult');
     }
 
@@ -128,12 +134,20 @@ class RegisterController extends \App\Http\Controllers\BaseController
      * @return \Illuminate\Http\Response
      */
     public function register(\Illuminate\Http\Request $request) {
-        $this->validator($request->all())->validate();
+		if(\Session::get('is_remind_puppet')!='1') {
+			$this->validator($request->all())->validate();
+			if(LogUserLogin::isCfpIdExistByNotUserId(((CustomFingerPrint::where('hash', $request->cfp_hash)->first())->id ?? '')) 
+				|| LogUserLogin::isIpUsedByNotUserId($request->ip())
+			) {
+				return redirect()->route('register')->with('is_remind_puppet', '1')->with('filled_data',$request->all()); 
+			}
+		}
+		else if(\Session::get('filled_data')){
+			$request->request->add(\Session::get('filled_data')); 
+		}
 
         event(new \Illuminate\Auth\Events\Registered($user = $this->create($request->all())));
-
-        $this->guard()->login($user);
-
+		$this->guard()->login($user);
         if($request->cfp_hash){
             $cfp = \App\Services\UserService::checkcfp($request->cfp_hash, $user->id);
             $logUserLogin = LogUserLogin::create([
@@ -184,6 +198,8 @@ class RegisterController extends \App\Http\Controllers\BaseController
                 logger($e);
             }
         }
+
+
 
         return $this->registered($request, $user) ? redirect($this->redirectPath()) : redirect($this->redirectPath());
     }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\BannedUsersImplicitly;
 use Auth;
 use App\Models\User;
 use App\Models\Blocked;
@@ -15,7 +16,6 @@ use Illuminate\Support\Facades\Log;
 use App\Services\AdminService;
 use Intervention\Image\Facades\Image;
 use App\Models\SimpleTables\banned_users;
-use App\Models\BannedUsersImplicitly;
 
 class Message extends Model
 {
@@ -626,7 +626,7 @@ class Message extends Model
                 $query->orWhere($whereArr2);
         });
         
-        if($isAdminSender) return $query->orderBy('created_at', 'desc')->paginate(10);
+        if($isAdminSender) return $query->orderBy('created_at', 'desc')->paginate(10);//->get();
         
         if($block) {
             $query = $query->where('from_id', '<>', $block->member_id);
@@ -638,7 +638,7 @@ class Message extends Model
 
         $query = $query->where('created_at','>=',self::$date)
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->paginate(10);//->get();
         return $query;
     }
 
@@ -662,6 +662,11 @@ class Message extends Model
         if(!$user){
             $user = User::find($uid);
         }
+        $banned_users = banned_users::where('member_id', $uid)->first();
+        $BannedUsersImplicitly = BannedUsersImplicitly::where('target', $uid)->first();
+        if((isset($banned_users) && ($banned_users->expire_date == null || $banned_users->expire_date >= Carbon::now())) || isset($BannedUsersImplicitly)){
+            return 0;
+        }
         if($user->isVip()) {
             self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
         }else {
@@ -673,7 +678,7 @@ class Message extends Model
          * @author LZong <lzong.tw@gmail.com>
          */
         $query = Message::from('message as m')
-                        ->leftJoin('users as u', 'u.id', '=', 'm.from_id')
+                        ->leftJoin('users as u1', 'u1.id', '=', 'm.from_id')
                         ->leftJoin('users as u2', 'u2.id', '=', 'm.to_id')
                         ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'm.from_id')
                         ->leftJoin('banned_users as b2', 'b2.member_id', '=', 'm.to_id')
@@ -688,7 +693,7 @@ class Message extends Model
                         ->leftJoin('blocked as b7', function($join) use($uid) {
                             $join->on('b7.member_id', '=', 'm.from_id')
                                 ->where('b7.blocked_id', $uid); });
-        $all_msg = $query->whereNotNull('u.id')
+        $all_msg = $query->whereNotNull('u1.id')
                         ->whereNotNull('u2.id')
                         ->whereNull('b1.member_id')
                         ->whereNull('b3.target')
@@ -710,12 +715,15 @@ class Message extends Model
                         ->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")')
                         ->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
 
-		$all_msg = $all_msg->selectRaw('u.engroup AS u_engroup,u2.engroup AS u2_engroup')->get();
-		
-		foreach($all_msg  as $k=>$msg) {
-			if($msg->u_engroup==$msg->u2_engroup)  $all_msg->forget($k);
-		}
-		
+        if($user->id != 1049){
+            $all_msg = $all_msg->where(function($query){
+                $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
+                $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
+            });
+        }
+
+		$all_msg = $all_msg->get();
+
         if($tinker){
             dd($all_msg);
         } 
@@ -748,12 +756,25 @@ class Message extends Model
             $user = User::find($uid);
         }
 
+        $banned_users = banned_users::where('member_id', $uid)->first();
+        $BannedUsersImplicitly = BannedUsersImplicitly::where('target', $uid)->first();
+        if( (isset($banned_users) && ($banned_users->expire_date == null || $banned_users->expire_date >= Carbon::now())) || isset($BannedUsersImplicitly)){
+            return false;
+        }
+
+        if($user->isVip()) {
+            self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
+        }else {
+            self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
+        }
         /**
          * 效能調整：使用左結合取代 where in 以取得更好的效能
          *
          * @author LZong <lzong.tw@gmail.com>
          */
-        $query = Message::from('message as m')
+        $query = Message::with(['sender', 'receiver', 'sender.aw_relation', 'receiver.aw_relation'])
+            ->select("m.*")
+            ->from('message as m')
             ->leftJoin('users as u1', 'u1.id', '=', 'm.from_id')
             ->leftJoin('users as u2', 'u2.id', '=', 'm.to_id')
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'm.from_id')
@@ -769,32 +790,33 @@ class Message extends Model
             ->leftJoin('blocked as b7', function($join) use($uid) {
                 $join->on('b7.member_id', '=', 'm.from_id')
                     ->where('b7.blocked_id', $uid); })
+            ->whereNotNull('u1.id')
+            ->whereNotNull('u2.id')
+            ->whereNull('b1.member_id')
+            ->whereNull('b2.member_id')
+            ->whereNull('b3.target')
+            ->whereNull('b4.target')
+            ->whereNull('b5.blocked_id')
+            ->whereNull('b6.blocked_id')
+            ->whereNull('b7.member_id')
             ->where(function ($innerQuery) use ($uid, $admin_id) {
                 $innerQuery->where([['m.to_id', $uid], ['m.from_id', '!=', $uid],['m.from_id','!=',$admin_id]])
                     ->orWhere([['m.from_id', $uid], ['m.to_id', '!=',$uid],['m.to_id','!=',$admin_id]]);
-            })
-            ->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);
+            });
+        $query->where([['m.created_at','>=',self::$date]]);
         $query->whereRaw('m.created_at < IFNULL(b1.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b2.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b3.created_at,"2999-12-31 23:59:59")');
         $query->whereRaw('m.created_at < IFNULL(b4.created_at,"2999-12-31 23:59:59")');
+        $query->where([['m.is_row_delete_1','<>',$uid],['m.is_single_delete_1', '<>' ,$uid], ['m.all_delete_count', '<>' ,$uid],['m.is_row_delete_2', '<>' ,$uid],['m.is_single_delete_2', '<>' ,$uid],['m.temp_id', '=', 0]]);
 
-		if($uid != 1049) {
-            $count = clone $query;
-            $count = $count->count();
-            if($count < 5000){
-                $query = $query->selectRaw('u1.engroup AS u1_engroup,u2.engroup AS u2_engroup')->get();
-                foreach($query as $k=>$msg) {
-                    if($msg->u1_engroup==$msg->u2_engroup) {
-                        $query->forget($k);
-                    }
-                }
-            }
-            else{
-                return $count;
-            }
+        if($user->id != 1049){
+            $query->where(function($query){
+                $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
+                $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
+            });
         }
-		
+
         if($tinker){
             /* 除錯用 SQL 
              * select u1.engroup AS u1_engroup,u2.engroup AS u2_engroup from `message` as `m`
@@ -920,16 +942,17 @@ class Message extends Model
 	public static function getNotShowBadUserDate($uid, $sid) {
 		$banned_sender_date = $banned_curuser_date = $bannedim_sender_date = $bannedim_curuser_date = $blockDate = '9999-12-31';
 		$banned_sender = banned_users::where('member_id',$sid)->get()->first();
-		if($banned_sender) $banned_sender_date = $banned_sender->created_at->toDateTimeString();
+		if($banned_sender->created_at ?? false) $banned_sender_date = $banned_sender->created_at->toDateTimeString();
 		$banned_curuser = banned_users::where('member_id',$uid)->get()->first();
-		if($banned_curuser) $banned_curuser_date = $banned_curuser->created_at->toDateTimeString();	
+		if($banned_curuser->created_at ?? false) $banned_curuser_date = $banned_curuser->created_at->toDateTimeString();	
 		$bannedim_sender = BannedUsersImplicitly::where('target',$sid)->get()->first();
-		if($bannedim_sender) $bannedim_sender_date = $bannedim_sender->created_at->toDateTimeString();
+		if($bannedim_sender->created_at ?? false) $bannedim_sender_date = $bannedim_sender->created_at->toDateTimeString();
 		$bannedim_curuser = BannedUsersImplicitly::where('target',$uid)->get()->first();
-		if($bannedim_curuser) $bannedim_curuser_date = $bannedim_curuser->created_at->toDateTimeString();
+		if($bannedim_curuser->created_at ?? false) $bannedim_curuser_date = $bannedim_curuser->created_at->toDateTimeString();
 
         if(Blocked::isBlocked($uid, $sid)) {
             $blockTime = Blocked::getBlockTime($uid, $sid);
+			if($blockTime->created_at ?? false)
 			$blockDate = $blockTime->created_at->toDateTimeString();
         }
 		
