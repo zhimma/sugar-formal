@@ -11,6 +11,7 @@ use App\Services\ImageService;
 use App\Models\User;
 use App\Models\MemberPic;
 use App\Models\UserMeta;
+use App\Models\LogFreeVipPicAct;
 use Image;
 use File;
 use Storage;
@@ -267,11 +268,6 @@ class ImageController extends BaseController
         $user = $request->user();
         $preloadedFiles = $this->getAvatar($request)->content();        
         $preloadedFiles = json_decode($preloadedFiles, true);
-
-        if($request->file('avatar')->getClientMimeType()=='application/octet-stream') {
-            $nowUpload = $request->file('avatar');
-            echo $nowUpload->getPathname();
-        }
             
         $fileUploader = new FileUploader('avatar', array(
             'fileMaxSize' => 8,
@@ -324,13 +320,79 @@ class ImageController extends BaseController
             //計算已上傳的照片照判斷VIP提示用
             $girl_to_vip = AdminCommonText::where('alias', 'girl_to_vip')->get()->first();
 
-            if($user->existHeaderImage() && $user->engroup==2 && !$user->isVip()){
-                $vip_record = Carbon::parse($user->vip_record);
-                if(isset($vip_record) && $vip_record->diffInSeconds(Carbon::now()) <= 86400){
-                    $msg = "照片上傳成功，24H後升級為VIP會員";
-                }else{
-                    $msg = $girl_to_vip->content;
+            //if($user->existHeaderImage() && $user->engroup==2 && !$user->isVip()){
+             $user->load('meta','pic');
+             
+            if($user->meta->pic && $user->pic->count()>=3 && $user->engroup==2 ){               
+                if(!$user->isVip()) {
+                    $vip_record = Carbon::parse($user->vip_record);
+                    if(isset($vip_record) && $vip_record->diffInSeconds(Carbon::now()) <= 86400){
+                        $msg = "照片上傳成功，24H後升級為VIP會員";
+                        LogFreeVipPicAct::create(['user_id'=> $user->id
+                            ,'user_operate'=>'upload'
+                            ,'img_remain_num'=>isset($user->meta->pic)
+                            ,'pic_type'=>'avatar','sys_react'=>'recovering'
+                            ,'shot_vip_record'=>$vip_record
+                             ,'shot_is_free_vip'=>$user->isFreeVip()    
+                                ]);                    
+                    }else{
+                        $msg = $girl_to_vip->content;
+
+                        $shot_vip_record = '';
+                        if(!isset($vip_record)) {
+                            $sys_react = 'upgrade';
+                        }
+                        else {
+                            $sys_react = 'recovered';
+                            $shot_vip_record = $vip_record;
+                        }
+
+                        LogFreeVipPicAct::create(['user_id'=> $user->id
+                            ,'user_operate'=>'upload'
+                            ,'img_remain_num'=>isset($user->meta->pic)
+                            ,'pic_type'=>'avatar'
+                            ,'sys_react'=>$sys_react
+                            ,'shot_vip_record'=>$shot_vip_record
+                             ,'shot_is_free_vip'=>$user->isFreeVip()    
+                                ]);                     
+                    }
+                
                 }
+                else {  //is still in free vip
+                    $checkFreeVipLog = LogFreeVipPicAct::where([['user_id',$user->id],['pic_type','avatar']])->orderBy('created_at', 'DESC')->first();
+
+                    if($checkFreeVipLog) {
+                        if($checkFreeVipLog->user_operate=='delete') {
+                            $last_del_time = Carbon::parse($checkFreeVipLog->created_at);
+                            if($last_del_time->diffInSeconds(Carbon::now()) <= 1800) {
+                                $sys_react = 'remain';
+                            }  
+                            else {
+                                $sys_react = 'error：delete pics but still free vip after 30 min ';
+                            }
+                            
+                            LogFreeVipPicAct::create(['user_id'=> $user->id
+                                      ,'user_operate'=>'upload'
+                                      ,'img_remain_num'=>isset($user->meta->pic)
+                                      ,'pic_type'=>'avatar'
+                                      ,'sys_react'=>$sys_react
+                                      ,'shot_vip_record'=>$user->vip_record
+                                     ,'shot_is_free_vip'=>$user->isFreeVip()
+                                    ]);                              
+                        }
+
+                    }                   
+                }
+            }
+            else if($user->meta->pic && $user->pic->count()<3  && $user->engroup==2) {
+                LogFreeVipPicAct::create(['user_id'=> $user->id
+                           ,'user_operate'=>'upload'
+                           ,'img_remain_num'=>isset($user->meta->pic)
+                           ,'pic_type'=>'avatar'
+                           ,'sys_react'=>'avatar_ok'
+                           ,'shot_vip_record'=>$user->vip_record
+                           ,'shot_is_free_vip'=>$user->isFreeVip()
+                        ]);              
             }
             if($request->ajax()) {
                 if( $msg) {
@@ -355,8 +417,24 @@ class ImageController extends BaseController
             $meta->pic = NULL;
             $meta->save();
             $msg="刪除成功";
-            if($user->engroup==2 && $user->isFreeVip()){
-                $msg="您大頭照已刪除，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。";
+            if($user->engroup==2 ){
+                $user->load('meta');
+                if($user->isFreeVip()){
+                    $msg="您大頭照已刪除，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。";
+                    $log_sys_react = 'reminding';
+                }
+                else {
+                    $log_sys_react = 'not_vip_not_ok';
+                }
+                
+                LogFreeVipPicAct::create(['user_id'=> $user->id
+                    ,'user_operate'=>'delete'
+                    ,'img_remain_num'=>isset($user->meta->pic)
+                    ,'pic_type'=>'avatar'
+                    ,'sys_react'=>$log_sys_react
+                    ,'shot_vip_record'=>$user->vip_record
+                    ,'shot_is_free_vip'=>$user->isFreeVip()    
+                        ]);                
             }
             return response($msg);
         }   
@@ -473,14 +551,79 @@ class ImageController extends BaseController
 
         $girl_to_vip = AdminCommonText::where('alias', 'girl_to_vip')->get()->first();
 
-        if($user->existHeaderImage() && $user->engroup==2 && !$user->isVip()){
-            $vip_record = Carbon::parse($user->vip_record);
-            if(isset($vip_record) && $vip_record->diffInSeconds(Carbon::now()) <= 86400){
-                $msg = "照片上傳成功，24H後升級為VIP會員";
-            }else{
-                $msg = $girl_to_vip->content;
+        //if($user->existHeaderImage() && $user->engroup==2 ){
+        $user->load('pic','meta');        
+        if($user->meta->pic && $user->pic->count()>=3  && $user->engroup==2 ){
+
+            if(!$user->isVip()) {
+                $vip_record = Carbon::parse($user->vip_record);
+                if(isset($vip_record) && $vip_record->diffInSeconds(Carbon::now()) <= 86400){
+                    $msg = "照片上傳成功，24H後升級為VIP會員";
+                    LogFreeVipPicAct::create(['user_id'=> $user->id
+                        ,'user_operate'=>'upload'
+                        ,'img_remain_num'=>$user->pic->count()
+                        ,'pic_type'=>'member_pic'
+                        ,'sys_react'=>'recovering'
+                        ,'shot_vip_record'=>$vip_record
+                         ,'shot_is_free_vip'=>$user->isFreeVip()    
+                            ]);                 
+                }else{
+                    $msg = $girl_to_vip->content;                    
+                    $shot_vip_record = '';
+                    if(!isset($vip_record)) {
+                        $sys_react = 'upgrade';
+
+                    }
+                    else {
+                        $sys_react = 'recovered';
+                        $shot_vip_record = $vip_recor;
+                    }
+                    LogFreeVipPicAct::create(['user_id'=> $user->id
+                        ,'user_operate'=>'upload'
+                        ,'img_remain_num'=>$user->pic->count()
+                        ,'pic_type'=>'member_pic'
+                        ,'sys_react'=>$sys_react
+                        ,'shot_vip_record'=>$shot_vip_record
+                         ,'shot_is_free_vip'=>$user->isFreeVip()    
+                            ]);                 
+                }
             }
+            else {  //is still in free vip
+                $checkFreeVipLog = LogFreeVipPicAct::where([['user_id',$user->id],['pic_type','member_pic']])->orderBy('created_at', 'DESC')->first();
+                if($checkFreeVipLog) {
+                    if($checkFreeVipLog->user_operate=='delete') {
+                        $last_del_time = Carbon::parse($checkFreeVipLog->created_at);
+                        if($last_del_time->diffInSeconds(Carbon::now()) <= 1800) {
+                            $sys_react = 'remain';
+                        }  
+                        else {
+                            $sys_react = 'error：delete pics but still free vip after 30 min ';
+                        }
+
+                        LogFreeVipPicAct::create(['user_id'=> $user->id
+                                  ,'user_operate'=>'upload'
+                                  ,'img_remain_num'=>$user->pic->count()
+                                  ,'pic_type'=>'member_pic'
+                                  ,'sys_react'=>$sys_react
+                                  ,'shot_vip_record'=>$user->vip_record
+                                 ,'shot_is_free_vip'=>$user->isFreeVip()
+                                ]);                              
+                    }
+
+                }                   
+            }            
         }
+        else if(!$user->meta->pic && $user->pic->count()>=3 && $user->engroup==2) {
+            LogFreeVipPicAct::create(['user_id'=> $user->id
+                      ,'user_operate'=>'upload'
+                      ,'img_remain_num'=>$user->pic->count()
+                      ,'pic_type'=>'member_pic'
+                      ,'sys_react'=>'member_pic_ok'
+                      ,'shot_vip_record'=>$user->vip_record
+                     ,'shot_is_free_vip'=>$user->isFreeVip()
+                    ]);              
+        }
+        
         if($request->ajax()) {
             $no_react = true;
             if( $msg) {
@@ -529,9 +672,29 @@ class ImageController extends BaseController
         }
         
         $msg="刪除成功";
-        if(!$user->existHeaderImage() && $user->engroup==2 && $user->isFreeVip()){
-            $msg="您的照片低於四張，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。";
+        //if(!$user->existHeaderImage() && $user->engroup==2 && $user->isFreeVip()){
+        $user->load('pic','meta');
+
+        if(!($user->meta->pic && $user->pic->count()>=3 ) && $user->engroup==2){
+            if( $user->isFreeVip()) {
+                $msg="您的照片低於四張，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。";
+                $log_sys_react = 'reminding';
+            }
+            else {
+                $log_sys_react = 'not_vip_not_ok';
+            }
+
+            LogFreeVipPicAct::create(['user_id'=> $user->id
+                ,'user_operate'=>'delete'
+                ,'img_remain_num'=>$user->pic->count()
+                ,'pic_type'=>'member_pic'
+                ,'sys_react'=>$log_sys_react 
+                ,'shot_vip_record'=>$user->vip_record
+                ,'shot_is_free_vip'=>$user->isFreeVip()
+                    ]);            
         }
+        
+        
         return response($msg);
     }
 }

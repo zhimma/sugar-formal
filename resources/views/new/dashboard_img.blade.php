@@ -275,15 +275,16 @@
             canvas = document.createElement("canvas"),context = canvas.getContext("2d");
 
             fileSelected = this.files;
+            fileReaderSet = [];
             console.log(fileSelected);
             for(i=0;i<fileSelected.length;i++) {
                 canvas = document.createElement("canvas"),context = canvas.getContext("2d");
                 
                 let curFileEntry = fileSelected[i];
                 if (curFileEntry && curFileEntry.type.indexOf("image") == 0) {
-                    fileReader = new FileReader();
+                    fileReaderSet[curFileEntry.name+curFileEntry.size.toString()] = new FileReader();
 
-                    fileReader.onload = function(evt) {
+                    fileReaderSet[curFileEntry.name+curFileEntry.size.toString()].onload = function(evt) {
                        var img = new Image();
                        dataUrl = evt.target.result,
                        img.src = dataUrl;
@@ -320,7 +321,9 @@
 
                            canvas.toBlob(function(blob) {
                                if(typeof(blobElt[nowEltName])=='undefined') blobElt[nowEltName] = [];
-                               blobElt[nowEltName].push(blob);
+                               //blobElt[nowEltName].push(blob);
+                               //blobElt[nowEltName].push(blob);
+                               blobElt[nowEltName][curFileEntry.name+curFileEntry.size.toString()]=blob;
                                console.log('curFileEntry.type='+curFileEntry.type);
                            // 輸入上傳程式碼
                            }, curFileEntry.type, compressRatio);
@@ -328,7 +331,7 @@
                        };                        
                     };
                     
-                    fileReader.readAsDataURL(curFileEntry);
+                    fileReaderSet[curFileEntry.name+curFileEntry.size.toString()].readAsDataURL(curFileEntry);
 
 
                    
@@ -620,7 +623,8 @@
                 file_ext_name = filenamesplit[filenamesplit.length-1];
                 filenamesplit.splice(filenamesplit.length-1,1);
                 filename_s = filenamesplit.join('.')+'_s.'+file_ext_name; 
-                fdata.append(postFileName, blobElt[fileEltName][realBlobIndex],fileInputed.name);
+                //fdata.append(postFileName, blobElt[fileEltName][realBlobIndex],fileInputed.name);
+                fdata.append(postFileName, blobElt[fileEltName][fileInputed.name+fileInputed.size.toString()],fileInputed.name);
                  console.log(blobElt[fileEltName][realBlobIndex]);
                 realBlobIndex++;
             }

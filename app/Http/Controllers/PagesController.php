@@ -63,6 +63,7 @@ use App\Notifications\AccountConsign;
 use App\Models\ValueAddedService;
 use App\Repositories\SuspiciousRepository;
 use App\Services\AdminService;
+use App\Models\LogFreeVipPicAct;
 
 class PagesController extends BaseController
 {
@@ -4145,7 +4146,10 @@ class PagesController extends BaseController
         $user = \View::shared('user');
 
         $vipStatus = '您目前還不是VIP，<a class="red" href="../dashboard/new_vip">立即成為VIP!</a>';
-
+        $avatarNameStr = '大頭照';
+        $mempicNameStr = '生活照';
+        $avatarRuleStr = $avatarNameStr.'一張';
+        $mempicRuleStr = $mempicNameStr.'三張';
         if($user->isVip()) {
             $vipStatus='您已是 VIP';
             $vip_record = Carbon::parse($user->vip_record);
@@ -4229,13 +4233,195 @@ class PagesController extends BaseController
                 }
             }else{
                 $vipStatus = '您目前為免費VIP';
+                /*
                 if(!$user->existHeaderImage() && $user->engroup==2){
                     $vip_record = Carbon::parse($user->vip_record);
                     if($vip_record->diffInMinutes(Carbon::now()) <= 30){
                         $vipStatus = '您的生活照低於三張，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。';
                     }
                 }
+                 * */
+                $checkFreeVipAvatarLog = LogFreeVipPicAct::where([['user_id',$user->id],['pic_type','avatar']])->orderBy('created_at', 'DESC')->firstOrNew();
+                $checkFreeVipMemPicLog = LogFreeVipPicAct::where([['user_id',$user->id],['pic_type','member_pic']])->orderBy('created_at', 'DESC')->firstOrNew();
+                if($checkFreeVipMemPicLog->user_operate=='delete') {
+                    $check2ndLog = LogFreeVipPicAct::where([['user_id',$user->id],['pic_type','member_pic'],['id','<>',$checkFreeVipMemPicLog->id]])->orderBy('created_at', 'DESC')->firstOrNew();
+                    if($check2ndLog->user_operate=='delete') {
+                        $check3rdLog = LogFreeVipPicAct::where([['user_id',$user->id],['pic_type','member_pic'],['id','<>',$checkFreeVipMemPicLog->id],['id','<>',$check2ndLog->id]])->orderBy('created_at', 'DESC')->firstOrNew();
+                        
+                        if($check3rdLog->user_operate=='delete') {
+                            $checkFreeVipMemPicLog = $check3rdLog;
+                        }
+                        else {
+                            $checkFreeVipMemPicLog = $check2ndLog;
+                        }
+                    }
+                }
+
+                 $avatarLogReact = $checkFreeVipAvatarLog->sys_react;
+                 $avatarLogOp = $checkFreeVipAvatarLog->user_operate;
+                 $avatarLogTime =  Carbon::parse($checkFreeVipAvatarLog->created_at);
+                 
+                 $mempicLogReact = $checkFreeVipMemPicLog->sys_react;
+                 $mempicLogOp = $checkFreeVipMemPicLog->user_operate;
+                 $mempicLogTime = Carbon::parse($checkFreeVipMemPicLog->created_at);
+                 $vipStatusMsgType = '';
+
+                if($avatarLogReact=='reminding') {
+                    $vipStatusPicType = 'avatar';
+                    $vipStatusPicStr = $avatarNameStr;
+                    $vipStatusPicTime =  $avatarLogTime;                           
+                   $vipStatusMsgType = $avatarLogReact;
+                }                     
+                    
+                 if($avatarLogTime->diffInSeconds(Carbon::now()) <= 86400 ) {
+                  
+                    if($avatarLogReact=='remain') {
+                        $vipStatusPicType = 'avatar';
+                        $vipStatusPicStr = $avatarNameStr;
+                        $vipStatusPicTime =  $avatarLogTime;                           
+                       $vipStatusMsgType = $avatarLogReact;
+                    }                     
+                 }                 
+
+                if($vipStatusMsgType) {
+                   if($mempicLogReact=='reminding' && $vipStatusMsgType=='reminding') {
+                       if($mempicLogTime->min($avatarLogTime)->eq($mempicLogTime)) {
+                           $vipStatusPicType = 'member_pic';
+                           $vipStatusPicStr = $mempicNameStr;
+                           $vipStatusPicTime =  $mempicLogTime;                                
+                           $vipStatusMsgType = $mempicLogReact;        
+                       }
+                   }
+
+  
+                   if($mempicLogReact=='reminding' && $vipStatusMsgType=='remain') {
+                       if($mempicLogTime->max($avatarLogTime)->eq($mempicLogTime)) {
+                           $vipStatusPicType = 'member_pic';
+                           $vipStatusPicStr = $mempicNameStr;
+                           $vipStatusPicTime =  $mempicLogTime;                                
+                           $vipStatusMsgType = $mempicLogReact;
+                       }
+                   } 
+                    if($avatarLogTime->diffInSeconds(Carbon::now()) <= 86400 ) {
+                        if($mempicLogReact=='remain') {
+                            if($mempicLogTime->max($avatarLogTime)->eq($mempicLogTime)) {
+                                $vipStatusPicType = 'member_pic';
+                                $vipStatusPicStr = $mempicNameStr;
+                                $vipStatusPicTime =  $mempicLogTime;                                
+                                $vipStatusMsgType = $mempicLogReact;        
+                            }
+                        }  
+                    }
+
+                }
+                else {
+                   $vipStatusPicType = 'member_pic';
+                   $vipStatusPicStr = $mempicNameStr;
+                   $vipStatusPicTime =  $mempicLogTime;                         
+                    $vipStatusMsgType = $mempicLogReact;
+
+                }
+
+                 if($vipStatusMsgType) {
+                     switch($vipStatusMsgType) {
+                         case 'reminding':
+                             $vipStatus = '您於 '.$vipStatusPicTime->format('Y/m/d H:i').' 分刪除'.$vipStatusPicStr.'。請於 '.$vipStatusPicTime->addSeconds(1800)->format('Y/m/d H:i').' 前補足大頭照+生活照三張。否則您的 vip 權限會被取消。';
+                         break;
+                         case 'remain':
+                             $vipStatus = '您於  '.$vipStatusPicTime->format('Y/m/d H:i').' 上傳大頭照+生活照三張， vip 權限不受影響。';
+                         break;                     
+                     }
+                    
+            
+                 }   
             }
+        }
+        else if($user->engroup==2) //不是VIP的女性會員 
+        {
+            $checkFreeVipAvatarLog = LogFreeVipPicAct::where([['user_id',$user->id],['pic_type','avatar']])->orderBy('created_at', 'DESC')->firstOrNew();
+            $checkFreeVipMemPicLog = LogFreeVipPicAct::where([['user_id',$user->id],['pic_type','member_pic']])->orderBy('created_at', 'DESC')->firstOrNew();                
+            if($checkFreeVipMemPicLog->user_operate=='delete') {
+                $check2ndLog = LogFreeVipPicAct::where([['user_id',$user->id],['pic_type','member_pic'],['id','<>',$checkFreeVipMemPicLog->id]])->orderBy('created_at', 'DESC')->firstOrNew();
+                if($check2ndLog->user_operate=='delete') {
+                    $check3rdLog = LogFreeVipPicAct::where([['user_id',$user->id],['pic_type','member_pic'],['id','<>',$checkFreeVipMemPicLog->id],['id','<>',$check2ndLog->id]])->orderBy('created_at', 'DESC')->firstOrNew();
+
+                    if($check3rdLog->user_operate=='delete') {
+                        $checkFreeVipMemPicLog = $check3rdLog;
+                    }
+                    else {
+                        $checkFreeVipMemPicLog = $check2ndLog;
+                    }
+                }
+            }
+            
+             $avatarLogReact = $checkFreeVipAvatarLog->sys_react;
+             $avatarLogOp = $checkFreeVipAvatarLog->user_operate;
+             $avatarLogTime =  Carbon::parse($checkFreeVipAvatarLog->created_at);
+
+             $mempicLogReact = $checkFreeVipMemPicLog->sys_react;
+             $mempicLogOp = $checkFreeVipMemPicLog->user_operate;
+             $mempicLogTime = Carbon::parse($checkFreeVipMemPicLog->created_at);
+             $vipStatusMsgType = '';
+             if($avatarLogReact=='not_vip_not_ok') $avatarLogReact='reminding';
+             if($mempicLogReact=='not_vip_not_ok') $mempicLogReact='reminding';
+             if( $avatarLogReact=='reminding' || $avatarLogReact=='recovering') {
+                   $vipStatusPicType = 'avatar';
+                   $vipStatusPicStr = $avatarNameStr;
+                   $vipStatusPicTime =  $avatarLogTime;
+                   $vipStatusMsgType = $avatarLogReact;
+
+             }
+
+             if($mempicLogReact=='reminding') {
+                if($vipStatusMsgType ) {
+                    if($vipStatusMsgType=='reminding' && $mempicLogTime->min($avatarLogTime)->eq($mempicLogTime)) {
+                        $vipStatusPicType = 'member_pic';
+                        $vipStatusPicStr = $mempicNameStr;
+                        $vipStatusPicTime =  $mempicLogTime;
+                        $vipStatusMsgType = $mempicLogReact;
+                    }
+
+                    if($vipStatusMsgType=='recovering' && $mempicLogTime->max($avatarLogTime)->eq($mempicLogTime)) {
+                       $vipStatusPicType = 'member_pic';
+                        $vipStatusPicStr = $mempicNameStr;
+                        $vipStatusPicTime =  $mempicLogTime;
+                        $vipStatusMsgType = $mempicLogReact;
+                    }                         
+                }
+                else {$vipStatusPicType = 'member_pic';$vipStatusPicStr = $mempicNameStr;$vipStatusPicTime =  $mempicLogTime;$vipStatusMsgType = $mempicLogReact;}
+            } 
+            else if($mempicLogReact=='recovering') {
+
+               if($vipStatusMsgType) {
+                   if($mempicLogTime->max($avatarLogTime)->eq($mempicLogTime)) {
+                           $vipStatusPicType = 'member_pic';
+                           $vipStatusPicStr = $mempicNameStr;
+                           $vipStatusPicTime =  $mempicLogTime;
+                           $vipStatusMsgType = $mempicLogReact;  
+
+                   }                      
+               }
+               else {
+                   $vipStatusPicType = 'member_pic';
+                   $vipStatusPicStr = $mempicNameStr;
+                   $vipStatusPicTime =  $mempicLogTime;
+                   $vipStatusMsgType = $mempicLogReact;                        
+               }
+            }
+             if($vipStatusMsgType) {
+                 switch($vipStatusMsgType) {
+                     case 'reminding':
+                         $vipStatus = '您於 '.$vipStatusPicTime->format('Y/m/d H:i').' 分刪除'.$vipStatusPicStr.'。且未於 '.$vipStatusPicTime->addSeconds(1800)->format('Y/m/d H:i').' 前補足大頭照+生活照三張。故將暫停您的 vip 權限。'."若欲取回 vip 權限，請補足大頭照+生活照三張，系統通過審核後會回復。";            
+                     break;
+                     case 'recovering':
+                         $delPicLog = LogFreeVipPicAct::where([['user_id',$user->id],['pic_type',$vipStatusPicType],['user_operate','delete']])->orderBy('created_at', 'DESC')->firstOrNew();
+                         $delPicLogTime =  Carbon::parse($delPicLog->created_at);
+                         $vipStatus = '您於 '.$delPicLogTime->format('Y/m/d H:i').' 分刪除'.$vipStatusPicStr.'。於 '.$vipStatusPicTime->format('Y/m/d H:i').' 補足大頭照+生活照三張。須通過系統審核，預計於'.$vipStatusPicTime->addSeconds(86400)->format('Y/m/d H:i').'獲得 vip 權限。';            
+                         
+                     break;                     
+                 }
+
+             }
         }
 
         $user_isBannedOrWarned = User::select(
