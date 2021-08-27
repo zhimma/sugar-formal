@@ -514,7 +514,7 @@ class User extends Authenticatable
 
     public function isAdvanceAuth()
     {
-        $auth_advance = DB::table('user')->where('member_id',$this->id)->where('advance_auth_active',1)->count(); //->where('mobile','!=','')
+        $auth_advance = DB::table('user')->where('member_id',$this->id)->where('advance_auth_active',1)->count();
         return isset($auth_advance) && $auth_advance>0;
     }
 

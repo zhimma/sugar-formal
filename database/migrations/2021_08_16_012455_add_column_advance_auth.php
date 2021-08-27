@@ -19,9 +19,25 @@ class AddColumnAdvanceAuth extends Migration
             });
         }
 
-        if (!Schema::hasColumn('users', 'vip_pass')) {
+        if (!Schema::hasColumn('users', 'advance_auth_timestamp')) {
             Schema::table('users', function (Blueprint $table) {
-                $table->smallInteger('advance_auth_status')->nullable()->default(0);
+                $table->timestamp('advance_auth_timestamp', $precision = 0);
+            });
+        }
+
+        if (!Schema::hasColumn('users', 'advance_auth_identitiy_no')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->char('advance_auth_identitiy_no', 20);
+            });
+        }
+        if (!Schema::hasColumn('users', 'advance_auth_birth')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->date('advance_auth_identitiy_no');
+            });
+        }
+        if (!Schema::hasColumn('users', 'advance_auth_phone')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->char('advance_auth_phone', 20);
             });
         }
     }
@@ -38,7 +54,19 @@ class AddColumnAdvanceAuth extends Migration
         });
 
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('advance_auth_status');
+            $table->dropColumn('advance_auth_timestamp');
+        });
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('advance_auth_identitiy_no');
+        });
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('advance_auth_birth');
+        });
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('advance_auth_phone');
         });
     }
 }

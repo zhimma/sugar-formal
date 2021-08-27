@@ -44,9 +44,12 @@
 						</div>
 						<div class="de_input">
 							
-							@if($user->isAdvanceAuth())
+							@if(0)
 								<div>已完成驗證，<a href="{!! url('dashboard') !!}" class="red">按此開始使用網站</a></div>
 							@else
+								@if(isset($_GET['status']) && $_GET['status']=='false')
+									<span style="color:red">資料輸入錯誤，請重新驗證</span>
+								@endif
 								<form id="advance_auth_form" class="m-form m-form--fit" method="POST" action="/advance_auth_process">
 									<input type="hidden" name="_token" value="{{ csrf_token() }}" >
 									<input type="hidden" name="userId" value="{{$user->id}}">

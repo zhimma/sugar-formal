@@ -390,9 +390,7 @@
                         @if($to->isPhoneAuth())
                                 <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a6.png @else/new/images/b_6.png @endif'></div> <span>通過手機認證的會員</span></li>
                                 @endif
-                        @if($to->isAdvanceAuth())
-                                <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a7.png @else/new/images/b_7.png @endif'></div> <span>通過進階認證的會員</span></li>
-                                @endif
+                      
                                 </ul>">
                             <ul @if(!$user->isVip())style="margin-top: -5px;"@endif>
                                 @if(isset($data['description']) && $to->engroup == 2)

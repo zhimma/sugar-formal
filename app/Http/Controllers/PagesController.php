@@ -1869,8 +1869,10 @@ class PagesController extends BaseController
         if($user->isPhoneAuth()==1){
             $auth_check=1;
         }
+        
         if (isset($user) && isset($uid)) {
             $targetUser = User::where('id', $uid)->where('accountStatus',1)->get()->first();
+            // var_dump($targetUser->isAdvanceAuth());die();
             if (!isset($targetUser)) {
                 return view('errors.nodata');
             }
@@ -2260,7 +2262,6 @@ class PagesController extends BaseController
                     session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
                 }
             }
-
             return view('new.dashboard.viewuser', $data)
                     ->with('user', $user)
                     ->with('blockadepopup', $blockadepopup)
@@ -2950,6 +2951,7 @@ class PagesController extends BaseController
     public function search2(Request $request)
     {
         $input = $request->input();
+      
         $search_page_key=session()->get('search_page_key',[]);
         if(!isset($input['page'])){
             foreach ($input as $key =>$value){
@@ -2977,6 +2979,13 @@ class PagesController extends BaseController
             }
 
         }
+        // echo $user->count();
+        // echo '-----------------------------------';
+        if(isset($input['isAdvanceAuth'])){
+            $user = $user->where('advance_auth_status', '=',$input['isAdvanceAuth']);
+            // echo $user->count();
+        }
+        
         return view('new.dashboard.search')->with('user', $user);
     }
 
@@ -3779,111 +3788,259 @@ class PagesController extends BaseController
     
     public function advance_auth(Request $request){
         $user = $request->user();
+        // var_dump($user);die();
         return view('/auth/advance_auth')
                 ->with('user',$user)
                 ->with('cur', $user);
     }
 
     public function advance_auth_process(Request $request){
+        //fix information
+        $api_url = 'https://midonline.twca.com.tw/';
+        $api_url_mid = $api_url.'IDPortal/MIDClause';
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL,$api_url_mid);
+        curl_setopt($ch, CURLOPT_POST, 0);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $return_output = curl_exec ($ch);
+
+        curl_close ($ch);
+        $output = json_decode($return_output);
+
         //float information
-        $data['id_serial'] = $request->id_serial;
-        $data['phone_number'] = $request->phone_number;
-        $data['birth'] = date('Ymd', strtotime($request->birth));;
+        $id_serial = $data['id_serial'] = $request->id_serial;
+        $phone_number = $data['phone_number'] = $request->phone_number;
+        $birth = $data['birth'] = date('Ymd', strtotime($request->birth));;
 
         //fix information
-        $data['BusinessNo'] = '54666024';
-        $data['ApiVersion'] = '1.0';
-        $data['HashKeyNo'] = '12';
-        $data['HashKey'] = '4341dcdf-0b14-475e-9b2a-3eb69650a12d';
-        $data['VerifyNo'] = time();
-        $data['ReturnURL'] = url('/advance_auth_result');
-
+        $BusinessNo = $data['BusinessNo'] = '54666024';
+        $ApiVersion = $data['ApiVersion'] = '1.0';
+        $HashKeyNo = $data['HashKeyNo'] = '12';
+        $HashKey = $data['HashKey'] = '4341dcdf-0b14-475e-9b2a-3eb69650a12d';
+        $VerifyNo = $data['VerifyNo'] = time();
+        // $ReturnURL = $data['ReturnURL'] = url('/advance_auth_result');
         $data['ReturnParams'] = '';
 
         $InputParams_arr = array(
-            'MemberNo'=>$data['id_serial'],
-            'Action'=>'SIGN',
-            'AssignCertPassword'=>'',
-            'CAType'=>'9',
+            'MemberNo'=>$id_serial,
+            'Action'=>'ValidateMSISDNAdvance',
             'MIDInputParams'=>array(
-                'Platform'=>'2',
-                'MIDwInputParams'=>array(
-                    'Operator'=>'',
-                    'Msisdn'=>$data['phone_number'],
-                    'Birthday'=>$data['birth']
-                )
+                'Msisdn'=>$data['phone_number'],
+                'Birthday'=>$data['birth'],
+                'ClauseVer'=>$output->clausever,
+                'ClauseTime'=> $output->lastUpdate
             )
         );
-
+        
+        
         $data['InputParams'] = json_encode($InputParams_arr, JSON_UNESCAPED_SLASHES);
-        $data['IdentifyNo'] = $this->get_identify_no_token($data);
+        $InputParams = $data['InputParams'];
 
-        $OutputParams = $this->get_login_token($data);
-        $data['Token'] = $OutputParams->Token;
+        $MemberNo = $data['MemberNo'] = $request->id_serial;
 
-        $this->advance_auth_do($data);
+        $IdentifyNo = $this->get_identify_no_do($data);
+        
+        // var_dump('傳入API : https://midonlinetest.twca.com.tw/IDPortal/ServerSideTransaction');
+        // echo '<pre>';
+        // var_dump('Business: '.$BusinessNo);
+        // var_dump('ApiVersion: '.$ApiVersion);
+        // var_dump('HashKeyNo: '.$HashKeyNo);
+        // var_dump('VerifyNo: '.$VerifyNo);
+        // // var_dump('MemberNo:'.$MemberNo);
+        // var_dump('IdentifyNo: '.$IdentifyNo);
+        // var_dump('InputParams: '.$data['InputParams']);
+        // // var_dump('HashKey',$data['HashKey']);
+        // echo '</pre>';
+
+        $api_url_transaction = $api_url.'IDPortal/ServerSideTransaction';
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL,$api_url_transaction);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS,
+                    "BusinessNo=$BusinessNo&ApiVersion=$ApiVersion&HashKeyNo=$HashKeyNo&VerifyNo=$VerifyNo&IdentifyNo=$IdentifyNo&InputParams=$InputParams");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $return_data = curl_exec ($ch);
+
+        curl_close ($ch);
+
+        $return = json_decode($return_data, JSON_UNESCAPED_UNICODE);
+        // var_dump('ServerSideTransaction回傳結果');
+        // echo '<pre>';print_r($return);echo '</pre>';
+        
+        // var_dump('傳入API : https://midonlinetest.twca.com.tw/IDPortal/ServerSideVerifyResult');
+        // echo '<pre>';
+        // var_dump('Business: '.$BusinessNo);
+        // var_dump('ApiVersion: '.$ApiVersion);
+        // var_dump('HashKeyNo: '.$HashKeyNo);
+        // var_dump('VerifyNo: '.$VerifyNo);
+        // var_dump('MemberNo: '.$MemberNo);
+        
+        
+
+        // $api_url = 'https://midonlinetest.twca.com.tw/IDPortal/QueryVerifyResult';
+        $api_url_verify = $api_url.'IDPortal/ServerSideVerifyResult';
+        $Token = $data['Token']= json_decode($return['OutputParams'], JSON_UNESCAPED_UNICODE)["Token"];
+        // var_dump('Token: '.$Token);
+        // var_dump('IdentifyNo: '.$IdentifyNo);
+        // var_dump('Idenntify Params(經過Identify前Params)');
+        // var_dump('Business: '.$BusinessNo);
+        // var_dump('ApiVersion: '.$ApiVersion);
+        // var_dump('HashKeyNo: '.$HashKeyNo);
+        // var_dump('VerifyNo: '.$VerifyNo);
+        // var_dump('MemberNo: '.$MemberNo);
+        // var_dump('Token: '.$Token);
+        // var_dump('HashKey: '.$HashKey);
+        // echo '</pre>';
+        $IdentifyNo_query = $this->get_identify_no_query($data);
+       
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $api_url_verify);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS,
+                    "BusinessNo=$BusinessNo&ApiVersion=$ApiVersion&HashKeyNo=$HashKeyNo&VerifyNo=$VerifyNo&MemberNo=$MemberNo&Token=$Token&IdentifyNo=$IdentifyNo_query");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $return_output = curl_exec ($ch);
+        curl_close ($ch);
+
+        $output = json_decode($return_output, JSON_UNESCAPED_UNICODE);
+        $OutputParams = json_decode($output["OutputParams"], JSON_UNESCAPED_UNICODE);
+        $MIDOutputParams = json_decode($OutputParams["MIDOutputParams"]["MIDResp"], JSON_UNESCAPED_UNICODE);
+        //驗證成功
+        if($MIDOutputParams["code"]=="0000"){
+            $user =Auth::user();
+            $user->advance_auth_status = 1;
+            // $user->advance_auth_identity_no = "";
+            // $user->advance_auth_birth = "";
+            // $user->advance_auth_phone = "";
+            $user->save();
+
+            var_dump('1');die();
+            // return redirect('/advance_auth');
+            
+        }else{
+            var_dump('2');die();
+            // return redirect('/advance_auth?status=false');
+        }
+
     }
 
     public function advance_auth_result(Request $request){
+        $data['BusinessNo'] = $request->BusinessNo;
+        $data['ApiVersion'] = $request->ApiVersion;
+        $data['HashKeyNo'] = $request->HashKeyNo;
+        $data['VerifyNo'] = $request->VerifyNo;
+        $data['MemberNoMapping'] = $request->MemberNoMapping;
+        $data['Token'] = $request->Token;
+
+        $res = $this->advance_auth_query($data);
         $auth_status = $request->ReturnCode;
         return view('/auth/advance_auth_result')
                     ->with('auth_status', $auth_status);
     }
 
-    // public function query_verify_result(Request $request){
+    public function advance_auth_query($data){
         
-    //     $api_url = 'https://midonlinetest.twca.com.tw/IDPortal/QueryVerifyResult';
-    //     $data['BusinessNo'] = $BusinessNo = '54666024';
-    //     $data['ApiVersion'] = $ApiVersion ='1.0';
-    //     $data['HashKeyNo'] = $HashKeyNo ='12';
-    //     $data['VerifyNo'] = $VerifyNo = 'test3';
-    //     $data['MemberNo'] = $MemberNo = 'A123456789';
-    //     $data['Token'] = $Token = '54df114997f84ce2a2be1bf29af1d7159760d435';
-    //     $data['HashKey'] = $HashKey = '4341dcdf-0b14-475e-9b2a-3eb69650a12d';
-    //     $data['IdentifyNo'] = $IdentifyNo = $this->get_identify_no_result($data);
+        $api_url = 'https://midonlinetest.twca.com.tw/IDPortal/QueryVerifyResult';
+        $data['BusinessNo'] = $BusinessNo = $data["BusinessNo"];
+        $data['ApiVersion'] = $ApiVersion = $data["ApiVersion"];
+        $data['HashKeyNo'] = $HashKeyNo = $data["HashKeyNo"];
+        $data['VerifyNo'] = $VerifyNo = $data["VerifyNo"];
+        $data['Token'] = $Token = $data["Token"];
+        $data['MemberNo'] = $MemberNo = 'A123456789';
+        $data['HashKey'] = "4341dcdf-0b14-475e-9b2a-3eb69650a12d";
+        $data['IdentifyNo'] = $IdentifyNo = $this->get_identify_no_query($data);
         
 
-    //     echo "
-    //     <form action='$api_url' method='post' id='advance_auth_return_process_form' style='display:none'>
-    //         <input name='Action' type='hidden' value='SIGN'>
-    //         <input name='BusinessNo' type='hidden' value='$BusinessNo'>
-    //         <input name='ApiVersion' type='hidden' value='$ApiVersion'>
-    //         <input name='HashKeyNo' type='hidden' value='$HashKeyNo'>
-    //         <input name='VerifyNo' type='hidden' value='$VerifyNo'>
-    //         <input name='MemberNo' type='hidden' value='$MemberNo'>
-    //         <input name='Token' type='hidden' value='$Token'>
-    //         <input name='IdentifyNo' type='hidden' value='$IdentifyNo'>
-    //         <input type='submit'>
-    //     </form>
+        // echo "
+        // <form action='$api_url' method='post' id='advance_auth_return_process_form' style='display:none'>
+        //     <input name='BusinessNo' type='hidden' value='$BusinessNo'>
+        //     <input name='ApiVersion' type='hidden' value='$ApiVersion'>
+        //     <input name='HashKeyNo' type='hidden' value='$HashKeyNo'>
+        //     <input name='VerifyNo' type='hidden' value='$VerifyNo'>
+        //     <input name='MemberNo' type='hidden' value='$MemberNo'>
+        //     <input name='Token' type='hidden' value='$Token'>
+        //     <input name='IdentifyNo' type='hidden' value='$IdentifyNo'>
+        //     <input type='submit'>
+        // </form>
 
-    //     <script type='text/javascript'>
-    //         document.getElementById('advance_auth_return_process_form').submit();
-    //     </script>
-    //     ";
+        // <script type='text/javascript'>
+        //     document.getElementById('advance_auth_return_process_form').submit();
+        // </script>
+        // ";
 
-    // }
+        
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $api_url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS,
+                    "BusinessNo=$BusinessNo&ApiVersion=$ApiVersion&HashKeyNo=$HashKeyNo&VerifyNo=$VerifyNo&MemberNo=$MemberNo&Token=$Token&IdentifyNo=$IdentifyNo");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $return_output = curl_exec ($ch);
+
+        curl_close ($ch);
+
+        $output = json_decode($return_output);
+        // var_dump($output);die();
+        $OutputParams = json_decode($output->OutputParams);
+        $result = $OutputParams->MIDParams->VerifyCode;
+
+        if($result=='0000'){
+            var_dump('success');
+        }else{
+            var_dump('failed');
+        }
+
+    }
 
     public function advance_auth_do($data){
         //fix information
-        $api_url = 'https://midonlinetest.twca.com.tw/IDPortal/DO'; //https://ServerIP:ServerPort/IDPortal/Login
-        $Action = 'SIGN';
+        $api_url = 'https://midonlinetest.twca.com.tw/IDPortal/MIDClause';
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL,$api_url);
+        curl_setopt($ch, CURLOPT_POST, 0);
+        // curl_setopt($ch, CURLOPT_POSTFIELDS,
+        //             "BusinessNo=$BusinessNo&ApiVersion=$ApiVersion&HashKeyNo=$HashKeyNo&VerifyNo=$VerifyNo&ReturnURL=$ReturnURL&ReturnParams=$ReturnParams&IdentifyNo=$IdentifyNo&InputParams=$InputParams");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $return_output = curl_exec ($ch);
+
+        curl_close ($ch);
+        $output = json_decode($return_output);
+        // var_dump($output->srvCode);die();
+
+        $api_url = 'https://midonlinetest.twca.com.tw/IDPortal/ServerSideTransaction'; //https://ServerIP:ServerPort/IDPortal/Login
         $BusinessNo = $data['BusinessNo'];
         $ApiVersion = $data['ApiVersion'];
         $HashKeyNo = $data['HashKeyNo'];
         $VerifyNo = $data['VerifyNo'];
-        $Token = $data['Token'];
-        $HashKey = $data['HashKey'];
+        // $Token = $data['Token'];
+        // $HashKey = $data['HashKey'];
         $IdentifyNo = $this->get_identify_no_do($data);
-
+        $InputParams = $data['InputParams'];
         echo "
         <form action='$api_url' method='post' id='advance_auth_return_process_form' style='display:none'>
-            <input name='Action' type='hidden' value='$Action'>
             <input name='BusinessNo' type='hidden' value='$BusinessNo'>
             <input name='ApiVersion' type='hidden' value='$ApiVersion'>
             <input name='HashKeyNo' type='hidden' value='$HashKeyNo'>
             <input name='VerifyNo' type='hidden' value='$VerifyNo'>
-            <input name='Token' type='hidden' value='$Token'>
             <input name='IdentifyNo' type='hidden' value='$IdentifyNo'>
+            <input name='InputParams' type='hidden' value='$InputParams'>
             <input type='submit'>
         </form>
 
@@ -3923,7 +4080,7 @@ class PagesController extends BaseController
     // }
 
     public function get_login_token($data){
-        $api_url = 'https://midonlinetest.twca.com.tw/IDPortal/Login'; //https://ServerIP:ServerPort/IDPortal/Login
+        $api_url = 'https://midonlinetest.twca.com.tw/IDPortal/MIDClause'; //https://ServerIP:ServerPort/IDPortal/Login
         $BusinessNo = $data['BusinessNo'];
         $ApiVersion = $data['ApiVersion'];
         $HashKeyNo = $data['HashKeyNo'];
@@ -3960,13 +4117,13 @@ class PagesController extends BaseController
         }
     }
 
-    // public function data_test(){
-    //     $data = '{"BusinessNo":"54666024","ApiVersion":"1.0","HashKeyNo":"12","VerifyNo":"test17","ResultCode":"S","ReturnCode":"0","ReturnCodeDesc":"成功","IdentifyNo":"21cd3f03d3428acc01f2f49bd95a3ce338717972c9deee6afb7e887dd98cb245","OutputParams":"{\"MemberNo\":\"A123456789\",\"Token\":\"ff0ae73a074940c1805fb694c99e6c07013c9883\",\"TimeStamp\":\"2021-08-12T10:25:48.6590000Z\",\"MIDOutputParams\":{\"Platform\":\"2\"}}"}';
+    public function data_test(){
+        $data = '{"Action":"SIGN","SelectType":"8","VerifyTime":"2021/08/23 01:40:30","Plaintext":"","MIDParams":{"MIDResp":"{\"code\":\"0000\",\"fullcode\":\"0\",\"message\":\"success\",\"msisdn\":\"0971632551\",\"reqSeq\":\"0116296540064980670000\",\"rspSeq\":\"1361829\",\"rspTime\":\"2021-08-22T17:40:30Z\",\"srvCode\":\"364\",\"tokenId\":\"3f316fa3419b4ea2b53eca4521021ac63305a813\"}","VerifyCode":"0000","VerifyMsg":"成功,(0000)success"}}';
 
-    //     $data_res = json_decode($data);
-    //     $test = json_decode($data_res->OutputParams);
-    //     echo '<pre>';var_dump($test->Token);echo '</pre>';
-    // }
+        $data_res = json_decode($data);
+        // $test = json_decode($data_res->OutputParams);
+        echo '<pre>';var_dump($data_res->MIDParams->VerifyCode);echo '</pre>';
+    }
     // public function get_login_token_ver0($data){
     //     //fix information
     //     $api_url = 'https://midonlinetest.twca.com.tw/IDPortal/Login'; //https://ServerIP:ServerPort/IDPortal/Login
@@ -4010,7 +4167,9 @@ class PagesController extends BaseController
 
     public function get_identify_no_do($data){
         //串聯資料
-        $concat = $data['BusinessNo'].$data['ApiVersion'].$data['HashKeyNo'].$data['VerifyNo'].$data['Token'].$data['HashKey'];
+        // var_dump('do');
+        // var_dump($data);
+        $concat = $data['BusinessNo'].$data['ApiVersion'].$data['HashKeyNo'].$data['VerifyNo'].$data['InputParams'].$data['HashKey'];
         //調整編碼(還不確定原本編碼是否UTF8)
         $concat_utf16le = mb_convert_encoding($concat, "UTF-16LE", "UTF-8");
         //剩hex還未實作
@@ -4018,7 +4177,9 @@ class PagesController extends BaseController
         return $result;
     }
 
-    public function get_identify_no_result($data){
+    public function get_identify_no_query($data){
+        // var_dump('query');
+        // var_dump($data);
         //串聯資料
         $concat = $data['BusinessNo'].$data['ApiVersion'].$data['HashKeyNo'].$data['VerifyNo'].$data['MemberNo'].$data['Token'].$data['HashKey'];
         //調整編碼(還不確定原本編碼是否UTF8)
