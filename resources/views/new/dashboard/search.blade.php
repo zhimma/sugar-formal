@@ -31,6 +31,9 @@
         width: auto;
         /*position: absolute;*/
     }
+    .popover{
+        position: fixed;
+    }
     .onineStatus{}
     .onlineStatusNonVipSearch{
         width: 15px;
@@ -367,7 +370,7 @@
                                     <li>
                                         <span>通過進階驗證</span>
                                         <font>
-                                            <label class="n_tx"><input type="checkbox" name="isAdvanceAuth" value="1" id="Checkbox" @if( !empty( $_POST["isAdvanceAuth"] ) && $_POST["isAdvanceAuth"] == "1" ) checked @elseif(!empty( $_GET["isAdvanceAuth"] ) && $_GET["isAdvanceAuth"] == "1") checked  @elseif(!empty( session()->get('search_page_key.isAdvanceAuth') ) && session()->get('search_page_key.isAdvanceAuth') == "1") checked @endif><i>是</i></label>
+                                            <label class="n_tx"><input type="checkbox" name="isAdvanceAuth" value="1" id="isAdvanceAuth" @if( !empty( $_POST["isAdvanceAuth"] ) && $_POST["isAdvanceAuth"] == "1" ) checked @elseif(!empty( $_GET["isAdvanceAuth"] ) && $_GET["isAdvanceAuth"] == "1") checked  @elseif(!empty( session()->get('search_page_key.isAdvanceAuth') ) && session()->get('search_page_key.isAdvanceAuth') == "1") checked @endif><i>是</i></label>
                                         </font>
                                     </li>
                                 </div>
@@ -460,8 +463,11 @@
                     if (isset($_POST['isPhoneAuth'])){$isPhoneAuth = $_POST['isPhoneAuth'];}elseif(isset($_GET['isPhoneAuth'])){$isPhoneAuth = $_GET['isPhoneAuth'];}elseif(!empty(session()->get('search_page_key.isPhoneAuth'))){$isPhoneAuth = session()->get('search_page_key.isPhoneAuth');}
                     ?>
                 @endif
+
                 <?php $icc = 1;
                 $userIsVip = $user->isVIP();
+                $userIsAdvanceAuth = isset($_POST['isAdvanceAuth'])?1:0;
+                // dd($userIsVip, $userIsAdvanceAuth);
                 $vis = \App\Models\UserMeta::search(
                     $county,
                     $district,
@@ -493,7 +499,8 @@
                     $education,
                     $isVip,
                     $isWarned,
-                    $isPhoneAuth
+                    $isPhoneAuth,
+                    $userIsAdvanceAuth
                 );
                 // vi vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php
                 // addWhereExistsQuery() remove $operator
@@ -592,7 +599,7 @@
                                         </div>
                                     @endif
 
-                                    @if($visitor->isPhoneAuth())
+                                    @if($visitor->isAdvanceAuth())
                                         <div class="hoverTip">
                                             <div class="tagText" data-toggle="popover" data-content="本站的進階認證會員。">
                                                 @if($user->isVip())
