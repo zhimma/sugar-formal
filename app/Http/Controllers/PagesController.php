@@ -3795,6 +3795,21 @@ class PagesController extends BaseController
                 ->with('cur', $user);
     }
 
+    public function advance_auth_back(Request $request){
+        $create = array(
+            'member_id'=>$request->id,
+            'reason'=>'進階驗證封鎖',
+            'message_content'=>'1',
+            'updated_at'=>now(),
+            'created_at'=>now()
+        );
+        $status = banned_users::create($create);
+        $data = array(
+            'status'=>'success',
+            'code'=>200
+        );
+        echo json_encode($data, JSON_UNESCAPED_UNICODE);
+    }
     public function advance_auth_process(Request $request){
         //fix information
         $api_url = 'https://midonlinetest.twca.com.tw/';
@@ -3925,11 +3940,16 @@ class PagesController extends BaseController
             $user->save();
 
             // var_dump('1');die();
-            // return redirect('/advance_auth');
             
+            $update = array(
+                'message_content'=>'0',
+                'updated_at'=>now()
+            );
+            $status = banned_users::where('member_id',$user->id)->where('reason','進階驗證封鎖')->update($update);
+            return redirect('/advance_auth');
         }else{
             // var_dump('2');die();
-            // return redirect('/advance_auth?status=false');
+            return redirect('/advance_auth?status=false');
         }
 
     }

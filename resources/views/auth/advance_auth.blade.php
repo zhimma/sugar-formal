@@ -44,7 +44,7 @@
 						</div>
 						<div class="de_input">
 							
-							@if(0)
+							@if($user->isAdvanceAuth())
 								<div>已完成驗證，<a href="{!! url('dashboard') !!}" class="red">按此開始使用網站</a></div>
 							@else
 								@if(isset($_GET['status']) && $_GET['status']=='false')
