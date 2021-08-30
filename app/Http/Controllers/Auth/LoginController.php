@@ -268,7 +268,11 @@ class LoginController extends \App\Http\Controllers\BaseController
                     if(isset($country)){
                         $logUserLogin->country = $country;
                         $logUserLogin->save();
-                        if($request->email != "pig820827@yahoo.com.tw"){
+                        $whiteList = [
+                            "pig820827@yahoo.com.tw",
+                            "henyanyilily@gmail.com"
+                        ];
+                        if(!in_array($request->email, $whiteList)){
                             if($country != "TW" && $country != "??") {
                                 logger("None TW login, user id: " . $user->id);
                                 Auth::logout();
