@@ -298,13 +298,13 @@ class ValueAddedServiceApiDataLogger{
                             }
                             $message_percent_7 = count($user_similar_msg) > 0 ? round((count($user_similar_msg) / count($messages)) * 100) . '%' : '0%';
                             /*瀏覽其他會員次數*/
-                            $visit_other_count = Visited::where('member_id', $user->id)->count();
+                            $visit_other_count = Visited::where('member_id', $user->id)->dictinct('visited_id')->count();
                             /*被瀏覽次數*/
-                            $be_visit_other_count = Visited::where('visited_id', $user->id)->count();
+                            $be_visit_other_count = Visited::where('visited_id', $user->id)->dictinct('member_id')->count();
                             /*過去7天瀏覽其他會員次數*/
-                            $visit_other_count_7 = Visited::where('member_id', $user->id)->where('created_at', '>=', $date)->count();
+                            $visit_other_count_7 = Visited::where('member_id', $user->id)->where('created_at', '>=', $date)->dictinct('visited_id')->count();
                             /*過去7天被瀏覽次數*/
-                            $be_visit_other_count_7 = Visited::where('visited_id', $user->id)->where('created_at', '>=', $date)->count();
+                            $be_visit_other_count_7 = Visited::where('visited_id', $user->id)->where('created_at', '>=', $date)->dictinct('member_id')->count();
 
                             /*此會員封鎖多少其他會員*/
                             $bannedUsers = \App\Services\UserService::getBannedId();

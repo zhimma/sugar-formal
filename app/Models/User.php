@@ -1142,11 +1142,11 @@ class User extends Authenticatable
 
         /*瀏覽其他會員次數*/
 		if(!$wantIndexArr || in_array('visit_other_count',$wantIndexArr)) 
-			$advInfo['visit_other_count']  = Visited::where('member_id', $user->id)->count();
+			$advInfo['visit_other_count']  = Visited::where('member_id', $user->id)->dictinct('visited_id')->count();
 
         /*過去7天瀏覽其他會員次數*/
 		if(!$wantIndexArr || in_array('visit_other_count_7',$wantIndexArr)) 
-			$advInfo['visit_other_count_7'] = Visited::where('member_id', $user->id)->where('created_at', '>=', $date)->count();
+			$advInfo['visit_other_count_7'] = Visited::where('member_id', $user->id)->where('created_at', '>=', $date)->dictinct('visited_id')->count();
 
         /*此會員封鎖多少其他會員*/
 		if(!$wantIndexArr || in_array('blocked_other_count',$wantIndexArr)) {
@@ -1317,11 +1317,11 @@ class User extends Authenticatable
 
         /*瀏覽其他會員次數*/
         if(!$wantIndexArr || in_array('visit_other_count',$wantIndexArr))
-            $advInfo['visit_other_count']  = Visited::where('member_id', $user->id)->count();
+            $advInfo['visit_other_count']  = Visited::where('member_id', $user->id)->dictinct('visited_id')->count();
 
         /*過去7天瀏覽其他會員次數*/
         if(!$wantIndexArr || in_array('visit_other_count_7',$wantIndexArr))
-            $advInfo['visit_other_count_7'] = Visited::where('member_id', $user->id)->where('created_at', '>=', $date)->count();
+            $advInfo['visit_other_count_7'] = Visited::where('member_id', $user->id)->where('created_at', '>=', $date)->dictinct('visited_id')->count();
 
         /*此會員封鎖多少其他會員*/
         if(!$wantIndexArr || in_array('blocked_other_count',$wantIndexArr)) {
