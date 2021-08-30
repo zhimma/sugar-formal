@@ -127,6 +127,10 @@
 					if (api.getListEl().length > 0) {
 						$('.fileuploader-thumbnails-input-inner').css('background-image', 'url({{ asset("new/images/addpic.png") }})');
 					}
+
+					if (api.getOptions().limit && api.getChoosedFiles().length - 1 < api.getOptions().limit){
+						plusInput.hide();
+					}
 				},
 				onItemRemove: function(html, listEl, parentEl, newInputEl, inputEl) {
 					var plusInput = listEl.find('.fileuploader-thumbnails-input'),

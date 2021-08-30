@@ -192,6 +192,9 @@
 				});
 
 				api.getOptions().dragDrop.container = plusInput;
+				if (api.getOptions().limit && api.getChoosedFiles().length - 1 < api.getOptions().limit){
+					plusInput.hide();
+				}
 			},
 			editor: {
 				cropper: {

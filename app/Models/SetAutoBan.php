@@ -76,7 +76,7 @@ class SetAutoBan extends Model
 				
 					if($ban_set->expiry<=\Carbon\Carbon::now()->format('Y-m-d H:i:s')) {
 						$ban_set->delete();
-						return;
+                        break;
 					}				
 				
                     $ip = LogUserLogin::where('user_id',$uid)->orderBy('created_at','desc')->first();
