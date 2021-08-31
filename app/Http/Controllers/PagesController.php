@@ -1911,16 +1911,16 @@ class PagesController extends BaseController
             $is_visit_mid = Visited::where('visited_id', $user->id)->where('member_id', $uid)->count() >= 1 ? '是' : '否';
 
             /*瀏覽其他會員次數*/
-            $visit_other_count = Visited::where('member_id', $uid)->count();
+            $visit_other_count = Visited::where('member_id', $uid)->distinct('visited_id')->count();
 
             /*被瀏覽次數*/
-            $be_visit_other_count = Visited::where('visited_id', $uid)->count();
+            $be_visit_other_count = Visited::where('visited_id', $uid)->distinct('member_id')->count();
 
             /*過去7天瀏覽其他會員次數*/
-            $visit_other_count_7 = Visited::where('member_id', $uid)->where('created_at', '>=', $date)->count();
+            $visit_other_count_7 = Visited::where('member_id', $uid)->where('created_at', '>=', $date)->distinct('visited_id')->count();
 
             /*過去7天被瀏覽次數*/
-            $be_visit_other_count_7 = Visited::where('visited_id', $uid)->where('created_at', '>=', $date)->count();
+            $be_visit_other_count_7 = Visited::where('visited_id', $uid)->where('created_at', '>=', $date)->distinct('member_id')->count();
 
 
             /*發信＆回信次數統計*/
@@ -3450,11 +3450,11 @@ class PagesController extends BaseController
         $is_visit_mid = Visited::where('visited_id', $mid)->where('member_id', $user_id)->count()==1?'是':'否';
 
         /*瀏覽其他會員次數*/
-        $visit_other_count  = Visited::where('member_id', $user_id)->count();
+        $visit_other_count  = Visited::where('member_id', $user_id)->distinct('visited_id')->count();
         /*被瀏覽次數*/
-        $be_visit_other_count  = Visited::where('visited_id', $user_id)->count();
+        $be_visit_other_count  = Visited::where('visited_id', $user_id)->distinct('member_id')->count();
         /*過去7天被瀏覽次數*/
-        $be_visit_other_count_7  = Visited::where('visited_id', $user_id)->where('created_at', '>=', $date)->count();
+        $be_visit_other_count_7  = Visited::where('visited_id', $user_id)->where('created_at', '>=', $date)->distinct('member_id')->count();
 
         /*發信次數*/
         $message_count = Message::where('from_id', $user_id)->count();
