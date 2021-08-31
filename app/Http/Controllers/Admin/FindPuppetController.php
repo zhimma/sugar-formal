@@ -148,8 +148,11 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     })
                     ->get()->toArray(), 'id');
 
-                    $ignoreUserId = array_pluck($this->ignore->whereNull('ip')->orwhere('ip','')->get()->toArray(),'item');                    
-
+                    //$ignoreUserId = array_pluck($this->ignore->whereNull('ip')->orwhere('ip','')->get()->toArray(),'item');                    
+                    $ignoreUserIdEntrys = $this->ignore->whereNull('ip')->orwhere('ip','')->get();                    
+                    foreach($ignoreUserIdEntrys  as $ignoreUserIdEntry) {
+                        $ignoreUserIdArr[$ignoreUserIdEntry->item] = $ignoreUserIdEntry;
+                    }  
                     $model = $this->model;
                     $loginDataEntrys = null;
                     $this->_columnIp = [];
@@ -174,14 +177,25 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         if($whereArr) $loginDataQuery->where($whereArr);
                         if($whereArrOfIp) $loginDataQuery->where($whereArrOfIp);
                         if($excludeUserId) $loginDataQuery=$loginDataQuery->whereNotIn('user_id',$excludeUserId);
-                        if($ignoreUserId) $loginDataQuery=$loginDataQuery->whereNotIn('user_id',$ignoreUserId);
+                        //if($ignoreUserId) $loginDataQuery=$loginDataQuery->whereNotIn('user_id',$ignoreUserId);
                         
-                        $loginDataEntrys = $loginDataQuery->get();
+                        $loginDataEntrys = $loginDataQuery->orderBy('time','desc')->get();
                         $this->loginDataByIp = [];
                         $this->loginDataByUserId = [];
                         
                         foreach($loginDataEntrys  as $loginDataEntry) {
                             
+                            if(isset($ignoreUserIdArr[$loginDataEntry->user_id])) {
+                                $nowIgnoreUserId = $ignoreUserIdArr[$loginDataEntry->user_id];
+                                if($nowIgnoreUserId->created_at> $loginDataEntry->time)  
+                                    continue;
+                                else {
+                                    $nowIgnoreUserId->delete();
+                                    $ignoreUserIdArr[$loginDataEntry->user_id] = null;
+                                    unset($ignoreUserIdArr[$loginDataEntry->user_id]);
+                                }                                
+                            }
+
                             if(isset($ignoreUserIdIpArr[$loginDataEntry->user_id][$loginDataEntry->ip])) {
                                 $nowIgnoreUserIdIp = $ignoreUserIdIpArr[$loginDataEntry->user_id][$loginDataEntry->ip];
                                 if($nowIgnoreUserIdIp->created_at> $loginDataEntry->time)  
@@ -193,7 +207,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                             $this->loginDataByIp[$loginDataEntry->ip][$loginDataEntry->user_id] = $loginDataEntry;
                             $this->loginDataByUserId[$loginDataEntry->user_id][$loginDataEntry->ip] = $loginDataEntry;
                         }  
-                        
+
                         $middleIpUserIdArr = $this->loginDataByIp;
                         
                         foreach($middleIpUserIdArr  as $middleIp=>$middleUserIds) {
@@ -240,17 +254,31 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         if($whereArr) $loginDataCfpIdQuery->where($whereArr);
                         if($whereArrOfCfpId) $loginDataCfpIdQuery->where($whereArrOfCfpId);                  
                         if($excludeUserId) $loginDataCfpIdQuery=$loginDataCfpIdQuery->whereNotIn('user_id',$excludeUserId);                            
-                        if($ignoreUserId) $loginDataCfpIdQuery=$loginDataCfpIdQuery->whereNotIn('user_id',$ignoreUserId);
+                        //if($ignoreUserId) $loginDataCfpIdQuery=$loginDataCfpIdQuery->whereNotIn('user_id',$ignoreUserId);
 
-                        $loginDataEntrys = $loginDataCfpIdQuery->get();
+                        $loginDataEntrys = $loginDataCfpIdQuery->orderBy('time','desc')->get();
                         $this->loginDataByCfpId = [];
                         $this->loginDataByUserIdCfpId = [];
 
                         foreach($loginDataEntrys  as $loginDataCfpIdEntry) {
+                            
+                            if(isset($ignoreUserIdArr[$loginDataCfpIdEntry->user_id])) {
+                                $nowIgnoreUserId = $ignoreUserIdArr[$loginDataCfpIdEntry->user_id];
+                                if($nowIgnoreUserId->created_at> $loginDataCfpIdEntry->time)  
+                                    continue;
+                                else {
+                                    $nowIgnoreUserId->delete();
+                                    $ignoreUserIdArr[$loginDataCfpIdEntry->user_id] = null;
+                                    unset($ignoreUserIdArr[$loginDataCfpIdEntry->user_id]);                                    
+                                }                                
+                            }                            
+                            
                             $this->loginDataByCfpId[$loginDataCfpIdEntry->cfp_id][$loginDataCfpIdEntry->user_id] = $loginDataCfpIdEntry;
                             $this->loginDataByUserIdCfpId[$loginDataCfpIdEntry->user_id][$loginDataCfpIdEntry->cfp_id] = $loginDataCfpIdEntry;
                         }    
                     }
+                    
+                    $ignoreUserId = array_pluck($this->ignore->whereNull('ip')->orwhere('ip','')->get()->toArray(),'item');                                        
                               
                     $puppetFromUsers = null;
                     
@@ -275,6 +303,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 
                                 $this->_groupIdx++;
                             }
+                            
+                            if($this->_groupIdx>20) break;
                         }
                     }
                     $puppetFromUsers = null;
@@ -302,6 +332,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                                 $this->_groupIdx++;
                                 
                             }
+                            
+                            if($this->_groupIdx>20) break;
                         } 
                     }
                     $add_num=0;
