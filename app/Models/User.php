@@ -21,6 +21,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use \App\Services\UserService;
+use App\Models\LogFreeVipPicAct;
 
 class User extends Authenticatable
 {
@@ -102,6 +103,22 @@ class User extends Authenticatable
     {
         return $this->hasMany(MemberPic::class, 'member_id', 'id');
     }
+    
+    //免費VIP照片管理log
+    public function log_free_vip_pic_acts()
+    {
+        return $this->hasMany(LogFreeVipPicAct::class, 'user_id', 'id')->orderBy('created_at', 'desc');
+    } 
+    
+    public function log_free_vip_avatar_acts()
+    {
+        return $this->hasMany(LogFreeVipPicAct::class, 'user_id', 'id')->orderBy('created_at', 'desc')->where('pic_type','avatar')->orderBy('created_at', 'desc');
+    }  
+    
+    public function log_free_vip_member_pic_acts()
+    {
+        return $this->hasMany(LogFreeVipPicAct::class, 'user_id', 'id')->orderBy('created_at', 'desc')->where('pic_type','member_pic')->orderBy('created_at', 'desc');
+    }     
 
     /*
     |--------------------------------------------------------------------------
@@ -358,7 +375,8 @@ class User extends Authenticatable
     public function existHeaderImage() {
         $pics = MemberPic::where('member_id', $this->id)->count();
         //echo $pics;
-        $user_meta = view()->shared('user_meta');
+        //$user_meta = view()->shared('user_meta');
+        $user_meta = $this->meta;
         return isset($user_meta->pic) && ($pics >= 3);
     }
 

@@ -589,7 +589,7 @@
             });
         }
     });
-
+//按下上傳按鈕
    $(document).on('click','.upload_btn',function() {
         loading();
         nowElt = $(this);
