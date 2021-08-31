@@ -4905,11 +4905,20 @@ class PagesController extends BaseController
     public function messageBoard_showList(Request $request)
     {
         $user = $this->user;
+
+        $record_pre=MessageBoard::where('user_id', $user->id)->orderBy('created_at','desc')->first();
+        $data=[];
+        if($record_pre && (date("Y-m-d H:i:s") <= date("Y-m-d H:i:s",strtotime("+3 hours", strtotime($record_pre->created_at)))) ){
+            $data['post_too_frequently']= true;
+        }
+
+        $bannedUsers = \App\Services\UserService::getBannedId();
         $getLists_others = MessageBoard::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
             ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
             ->LeftJoin('users', 'users.id','=','message_board.user_id')
             ->LeftJoin('user_meta', 'users.id','=','user_meta.user_id')
             ->where('users.engroup',$user->engroup==1 ? 2 :1)
+            ->whereNotIn('message_board.user_id',$bannedUsers)
             ->orderBy('message_board.created_at','desc')
             ->paginate(10, ['*'], 'othersDataPage')
             ->appends(array_merge(request()->except(['othersDataPage','msgBoardType']),['msgBoardType'=>'others_page']));
@@ -4923,7 +4932,7 @@ class PagesController extends BaseController
             ->paginate(10, ['*'], 'myselfDataPage')
             ->appends(array_merge(request()->except(['myselfDataPage','msgBoardType']),['msgBoardType'=>'my_page']));
 
-        return view('/dashboard/messageBoard_list', compact('getLists_others', 'getLists_myself'))
+        return view('/dashboard/messageBoard_list', compact('getLists_others', 'getLists_myself', 'data'))
             ->with('user', $user);
     }
 
