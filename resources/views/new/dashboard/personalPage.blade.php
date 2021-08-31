@@ -188,7 +188,7 @@
 								<span class="tu_dfont">
 								{{ strip_tags($amsg->content)}}
 								</span>
-								<a class="zs_buttonn1 right"  href="{{route("chat2WithUser",$amsg->from_id)}}">前往查看</a>
+								<a class="zs_buttonn1 right"  href="{{route("adminMsgPage",$user->id)}}">前往查看</a>
 							</h2>
 							@endforeach
 						@else
