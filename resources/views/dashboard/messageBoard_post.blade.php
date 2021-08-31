@@ -63,6 +63,11 @@
 	}
 
 	$(document).ready(function () {
+		@if(Session::has('message'))
+		c5("{{Session::get('message')}}");
+		<?php session()->forget('message');?>
+		@endif
+
 		$('input[name="images"]').fileuploader({
 			extensions: ['jpg', 'png', 'jpeg', 'bmp'],
 			changeInput: ' ',

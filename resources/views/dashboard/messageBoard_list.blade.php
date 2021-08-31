@@ -227,9 +227,14 @@
 		$("#posts").submit();
 	}
 
+	var isAdminWarned ='{{ isset($data['isAdminWarned']) && $data['isAdminWarned'] }}';
+	var isBanned ='{{ isset($data['isBanned']) && $data['isBanned'] }}';
 	var post_too_frequently ='{{ isset($data['post_too_frequently']) && $data['post_too_frequently'] }}';
+
 	function checkPosts() {
-		if(post_too_frequently) {
+		if(isAdminWarned){
+			c5('您目前為警示狀態，無法新增留言');
+		}else if(post_too_frequently) {
 			c5('您好，由於系統偵測到您的留言頻率太高(每封留言最低間隔 3hr)，為維護系統運作效率，請降低留言頻率。');
 		}else{
 			location.href= "/MessageBoard/posts";
