@@ -4140,6 +4140,53 @@ class PagesController extends BaseController
         return $result;
     }
 
+    public function adminMsgRead(Request $request, $id)
+    {
+        $user = $request->user();
+        $message=Message::find($id);
+        Message::read($message, $user->id);
+        return response()->json(array(
+            'status' => 1,
+            'msg' => 'success',
+        ), 200);
+    }
+    public function adminMsgPage(Request $request) {
+        $user = $request->user();
+        $admin = AdminService::checkAdmin();
+        $uid=$user->id;
+        $sid=$admin->id;
+
+        $includeDeleted=false;
+        $query = Message::whereNotNull('id');
+        $query = $query->where(function ($query) use ($uid,$sid,$includeDeleted) {
+            $whereArr1 = [['to_id', $uid],['from_id', $sid]];
+            $whereArr2 = [['from_id', $uid],['to_id', $sid]];
+            if(!$includeDeleted) {
+                array_push($whereArr1,['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]);
+                array_push($whereArr2,['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]);
+            }
+            $query->where($whereArr1);
+        });
+
+        $query = $query->orderBy('created_at', 'desc')->orderBy('read')->paginate(10);
+        $admin_msgData=$query;
+
+        $unreadCount=0;
+        $readCount=0;
+        foreach($admin_msgData as $msg) {
+            if($msg->read=='Y'){
+                $readCount++;
+            }else{
+                $unreadCount++;
+            }
+        }
+
+        return view('/new/dashboard/adminMsgPage',compact('admin_msgData','readCount', 'unreadCount'))
+            ->with('user', $user)
+            ->with('admin', $admin);
+
+    }
+
     public function personalPage(Request $request) {
         $admin = AdminService::checkAdmin();
         $user = \View::shared('user');
