@@ -350,7 +350,7 @@ class ImageController extends BaseController
                 }
                 else {  //is still in free vip
                     $checkFreeVipLog = LogFreeVipPicAct::where([['user_id',$user->id],['pic_type','avatar']])->orderBy('created_at', 'DESC')->first();
-
+                    $sys_react = "";
                     if($checkFreeVipLog) {
                         if($checkFreeVipLog->user_operate=='delete') {
                             $last_del_time = Carbon::parse($checkFreeVipLog->created_at);
@@ -360,18 +360,20 @@ class ImageController extends BaseController
                             else {
                                 $sys_react = 'error：delete pics but still free vip after 30 min ';
                             }
-                            
-                            LogFreeVipPicAct::create(['user_id'=> $user->id
-                                      ,'user_operate'=>'upload'
-                                      ,'img_remain_num'=>isset($user->meta->pic)
-                                      ,'pic_type'=>'avatar'
-                                      ,'sys_react'=>$sys_react
-                                      ,'shot_vip_record'=>$user->vip_record
-                                     ,'shot_is_free_vip'=>$user->isFreeVip()
-                                    ]);                              
                         }
-
-                    }                   
+                    }
+                    else{
+                        $sys_react = 'remain_init';
+                    }
+                    LogFreeVipPicAct::create([
+                        'user_id'=> $user->id,
+                        'user_operate' => 'upload',
+                        'img_remain_num' => isset($user->meta->pic),
+                        'pic_type' => 'avatar',
+                        'sys_react' => $sys_react,
+                        'shot_vip_record' => $user->vip_record,
+                        'shot_is_free_vip' => $user->isFreeVip()
+                    ]);
                 }
             }
             else if($user->meta->pic && $user->pic->count()<3  && $user->engroup==2) {
@@ -576,18 +578,20 @@ class ImageController extends BaseController
 
                     $sys_react = 'upgrade';
 
-                    LogFreeVipPicAct::create(['user_id'=> $user->id
+                    LogFreeVipPicAct::create([
+                        'user_id'=> $user->id
                         ,'user_operate'=>'upload'
                         ,'img_remain_num'=>$user->pic->count()
                         ,'pic_type'=>'member_pic'
                         ,'sys_react'=>$sys_react
                         ,'shot_vip_record'=>$shot_vip_record
                          ,'shot_is_free_vip'=>$user->isFreeVip()    
-                            ]);                 
+                    ]);
                 }
             } 
             else {  //is still in free vip
                 $checkFreeVipLog = LogFreeVipPicAct::where([['user_id',$user->id],['pic_type','member_pic']])->orderBy('created_at', 'DESC')->first();
+                $sys_react = '';
                 if($checkFreeVipLog) {
                     if($checkFreeVipLog->user_operate=='delete') {
                         $last_del_time = Carbon::parse($checkFreeVipLog->created_at);
@@ -597,18 +601,19 @@ class ImageController extends BaseController
                         else {
                             $sys_react = 'error：delete pics under rule but still free vip after 30 min ';
                         }
-
-                        LogFreeVipPicAct::create(['user_id'=> $user->id
-                                  ,'user_operate'=>'upload'
-                                  ,'img_remain_num'=>$user->pic->count()
-                                  ,'pic_type'=>'member_pic'
-                                  ,'sys_react'=>$sys_react
-                                  ,'shot_vip_record'=>$user->vip_record
-                                 ,'shot_is_free_vip'=>$user->isFreeVip()
-                                ]);                              
                     }
-
-                }                   
+                }
+                else{
+                    $sys_react = 'remain_init';
+                }
+                LogFreeVipPicAct::create(['user_id'=> $user->id,
+                    'user_operate' => 'upload',
+                    'img_remain_num' => $user->pic->count(),
+                    'pic_type' => 'member_pic',
+                    'sys_react' => $sys_react,
+                    'shot_vip_record' => $user->vip_record,
+                    'shot_is_free_vip' => $user->isFreeVip()
+                ]);
             }            
         }
         else if(!$user->meta->pic && $user->pic->count()>=3 && $user->engroup==2) {
