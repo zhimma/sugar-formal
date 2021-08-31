@@ -63,7 +63,7 @@
 			<div class="col-sm-12 col-xs-12 col-md-10">
 				<div class="shou"><span>留言板</span>
 					<font>Wishing Board</font>
-					<a href="/MessageBoard/posts" class="xinzeng_but"><img src="/new/images/liuyan_03.png">新增留言</a>
+					<a onclick="checkPosts()" class="xinzeng_but"><img src="/new/images/liuyan_03.png">新增留言</a>
 				</div>
 				<div class="liuy_qh">
 					<ul>
@@ -225,6 +225,15 @@
 			return false;
 		}
 		$("#posts").submit();
+	}
+
+	var post_too_frequently ='{{ isset($data['post_too_frequently']) && $data['post_too_frequently'] }}';
+	function checkPosts() {
+		if(post_too_frequently) {
+			c5('您好，由於系統偵測到您的留言頻率太高(每封留言最低間隔 3hr)，為維護系統運作效率，請降低留言頻率。');
+		}else{
+			location.href= "/MessageBoard/posts";
+		}
 	}
 </script>
 <style>
