@@ -5091,19 +5091,44 @@ class PagesController extends BaseController
     public function messageBoard_showList(Request $request)
     {
         $user = $this->user;
+        $entrance=true;
+        if($user->engroup==2 && ( !$user->isVip() || !$user->isPhoneAuth() )){
+            $entrance=false;
+        }elseif($user->engroup==1 && !$user->isVip()){
+            $entrance=false;
+        }
 
+        if($entrance==false){
+            return redirect('/dashboard')->with('messageBoard_enter_limit', $entrance);
+        }
+
+        $data['isAdminWarned']=$user->isAdminWarned();
+        $data['isBanned']= User::isBanned($user->id);
         $record_pre=MessageBoard::where('user_id', $user->id)->orderBy('created_at','desc')->first();
-        $data=[];
         if($record_pre && (date("Y-m-d H:i:s") <= date("Y-m-d H:i:s",strtotime("+3 hours", strtotime($record_pre->created_at)))) ){
             $data['post_too_frequently']= true;
         }
 
+        $userMeta=UserMeta::findByMemberId($user->id);
+        $type='';
+        if($data['isAdminWarned'] || $data['isBanned'] || $userMeta->isWarned==1){
+            if($data['isAdminWarned'] && $data['isBanned'])
+                $type='警示/封鎖';
+            elseif ($data['isAdminWarned'] || $userMeta->isWarned==1)
+                $type='警示';
+            elseif ($data['isBanned'])
+                $type='封鎖';
+            return redirect('/dashboard')->with('messageBoard_msg', '您目前為'.$type.'狀態，無法使用留言板功能');
+        }
+
+        $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
         $bannedUsers = \App\Services\UserService::getBannedId();
         $getLists_others = MessageBoard::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
             ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
             ->LeftJoin('users', 'users.id','=','message_board.user_id')
             ->LeftJoin('user_meta', 'users.id','=','user_meta.user_id')
             ->where('users.engroup',$user->engroup==1 ? 2 :1)
+            ->whereNotIn('message_board.user_id',$userBlockList)
             ->whereNotIn('message_board.user_id',$bannedUsers)
             ->orderBy('message_board.created_at','desc')
             ->paginate(10, ['*'], 'othersDataPage')
@@ -5200,6 +5225,15 @@ class PagesController extends BaseController
             $this->msg_board_pic_save($request->get('mid'), $user->id, $fileuploaderListImages, $request->file('images'));
             return redirect('/MessageBoard/post_detail/'.$request->get('mid'))->with('message','修改成功');
         }else{
+
+            if($user->isAdminWarned() || User::isBanned($user->id)){
+                return back()->with('message','您目前為警示/封鎖狀態，無法新增留言');
+            }
+            $record_pre=MessageBoard::where('user_id', $user->id)->orderBy('created_at','desc')->first();
+            if($record_pre && (date("Y-m-d H:i:s") <= date("Y-m-d H:i:s",strtotime("+3 hours", strtotime($record_pre->created_at)))) ){
+                return back()->with('message','您好，由於系統偵測到您的留言頻率太高(每封留言最低間隔 3hr)，為維護系統運作效率，請降低留言頻率。');
+            }
+
             $posts = new MessageBoard();
             $posts->user_id = $user->id;
             $posts->title = $request->get('title');
