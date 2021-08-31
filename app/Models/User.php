@@ -21,6 +21,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use \App\Services\UserService;
+use App\Models\LogFreeVipPicAct;
 
 class User extends Authenticatable
 {
@@ -102,6 +103,22 @@ class User extends Authenticatable
     {
         return $this->hasMany(MemberPic::class, 'member_id', 'id');
     }
+    
+    //免費VIP照片管理log
+    public function log_free_vip_pic_acts()
+    {
+        return $this->hasMany(LogFreeVipPicAct::class, 'user_id', 'id')->orderBy('created_at', 'desc');
+    } 
+    
+    public function log_free_vip_avatar_acts()
+    {
+        return $this->hasMany(LogFreeVipPicAct::class, 'user_id', 'id')->orderBy('created_at', 'desc')->where('pic_type','avatar')->orderBy('created_at', 'desc');
+    }  
+    
+    public function log_free_vip_member_pic_acts()
+    {
+        return $this->hasMany(LogFreeVipPicAct::class, 'user_id', 'id')->orderBy('created_at', 'desc')->where('pic_type','member_pic')->orderBy('created_at', 'desc');
+    }     
 
     /*
     |--------------------------------------------------------------------------
@@ -358,7 +375,8 @@ class User extends Authenticatable
     public function existHeaderImage() {
         $pics = MemberPic::where('member_id', $this->id)->count();
         //echo $pics;
-        $user_meta = view()->shared('user_meta');
+        //$user_meta = view()->shared('user_meta');
+        $user_meta = $this->meta;
         return isset($user_meta->pic) && ($pics >= 3);
     }
 
@@ -1142,11 +1160,11 @@ class User extends Authenticatable
 
         /*瀏覽其他會員次數*/
 		if(!$wantIndexArr || in_array('visit_other_count',$wantIndexArr)) 
-			$advInfo['visit_other_count']  = Visited::where('member_id', $user->id)->dictinct('visited_id')->count();
+			$advInfo['visit_other_count']  = Visited::where('member_id', $user->id)->distinct('visited_id')->count();
 
         /*過去7天瀏覽其他會員次數*/
 		if(!$wantIndexArr || in_array('visit_other_count_7',$wantIndexArr)) 
-			$advInfo['visit_other_count_7'] = Visited::where('member_id', $user->id)->where('created_at', '>=', $date)->dictinct('visited_id')->count();
+			$advInfo['visit_other_count_7'] = Visited::where('member_id', $user->id)->where('created_at', '>=', $date)->distinct('visited_id')->count();
 
         /*此會員封鎖多少其他會員*/
 		if(!$wantIndexArr || in_array('blocked_other_count',$wantIndexArr)) {
@@ -1317,11 +1335,11 @@ class User extends Authenticatable
 
         /*瀏覽其他會員次數*/
         if(!$wantIndexArr || in_array('visit_other_count',$wantIndexArr))
-            $advInfo['visit_other_count']  = Visited::where('member_id', $user->id)->dictinct('visited_id')->count();
+            $advInfo['visit_other_count']  = Visited::where('member_id', $user->id)->distinct('visited_id')->count();
 
         /*過去7天瀏覽其他會員次數*/
         if(!$wantIndexArr || in_array('visit_other_count_7',$wantIndexArr))
-            $advInfo['visit_other_count_7'] = Visited::where('member_id', $user->id)->where('created_at', '>=', $date)->dictinct('visited_id')->count();
+            $advInfo['visit_other_count_7'] = Visited::where('member_id', $user->id)->where('created_at', '>=', $date)->distinct('visited_id')->count();
 
         /*此會員封鎖多少其他會員*/
         if(!$wantIndexArr || in_array('blocked_other_count',$wantIndexArr)) {
