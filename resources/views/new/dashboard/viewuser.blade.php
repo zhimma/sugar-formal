@@ -1259,7 +1259,7 @@
             <div class="bltitle"><span style="text-align: center; float: none;">檢舉 {{$to->name}}</span></div>
             <div class="new_pot new_poptk_nn new_pot001">
                 <div class="fpt_pic new_po000">
-                    <form action="{{ route('reportPost') }}" method="post" enctype="multipart/form-data">
+                    <form id="reportPostForm" action="{{ route('reportPost') }}" method="post" enctype="multipart/form-data">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="aid" value="{{$user->id}}">
                         <input type="hidden" name="uid" value="{{$to->id}}">
@@ -1282,7 +1282,7 @@
             <div class="bltitle"><span>檢舉{{$to->name}}</span></div>
             <div class="new_pot new_poptk_nn new_pot001">
                 <div class="fpt_pic new_po000">
-                    <form method="POST" action="{{ route('reportPicNextNew') }}" enctype="multipart/form-data">
+                    <form id="reportPicNextNewForm"  method="POST" action="{{ route('reportPicNextNew') }}" enctype="multipart/form-data">
                         {!! csrf_field() !!}
                         <input type="hidden" name="aid" value="{{$user->id}}">
                         <input type="hidden" name="uid" value="{{$to->id}}">
@@ -2141,9 +2141,14 @@
 <link href="{{ asset('new/css/fileupload.css') }}" media="all" rel="stylesheet">
 <link href="{{ asset('css/font/font-fileuploader.css') }}" media="all" rel="stylesheet">
 <script src="{{ asset('js/jquery.fileuploader.js') }}" type="text/javascript"></script>
+<script src="{{ asset('new/js/resize_before_upload.js') }}" type="text/javascript"></script>
 <script>
 
     $(document).ready(function () {
+        resize_before_upload(400,600,'#reportPostForm' ,'.fileuploader input[type=file]','input[name=fileuploader-list-reportedImages]','.n_bbutton .n_right','#show_banned');
+        resize_before_upload(400,600,'#reportPicNextNewForm' ,'.fileuploader input[type=file]','input[name=fileuploader-list-images]','.n_bbutton .n_right','#show_reportPic');
+        resize_before_upload(400,600,'#form1' ,'.fileuploader input[type=file]','input[name=fileuploader-list-images]','.n_bbutton .n_bllbut','#tab_evaluation');
+        
         $('input[name="images"]').fileuploader({
             extensions: ['jpg', 'png', 'jpeg', 'bmp'],
             changeInput: ' ',

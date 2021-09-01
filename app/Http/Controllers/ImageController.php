@@ -523,6 +523,15 @@ class ImageController extends BaseController
 //        }
 
         $upload = $fileUploader->upload();
+        
+        if($upload['hasWarnings']??false) {
+            if($request->ajax()) {
+                echo is_array($upload['warnings'])?implode("\r\r",$upload['warnings']):$upload['warnings'];
+                exit;
+            }            
+            return redirect()->back()->withErrors($upload['warnings']);
+        }        
+        
         if($upload)
         {
             $publicPath = public_path();
