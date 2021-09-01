@@ -102,6 +102,11 @@
 									<a class="sc_cc" onclick="send_delete_submit()"><img src="/new/images/del_03n.png">刪除</a>
 									<a href="/MessageBoard/edit/{{ $postDetail->mid }}" class="sc_cc"  style="margin-right: 5px;"><img src="/new/images/xiugai.png">修改</a>
 								</div>
+							@else
+								<div class="right">
+									<a onclick="block_user();"class="sc_cc"><img src="/new/images/ncion_09.png">封鎖</a>
+									<a onclick="messageBoard_reported('{{ $postDetail->mid }}');" class="sc_cc" style="margin-right: 5px;"><img src="/new/images/jianju_aa.png">檢舉</a>
+								</div>
 							@endif
 						</div>
 						<p>{!! \App\Models\Posts::showContent($postDetail->mcontents) !!}</p>
@@ -269,6 +274,41 @@
 			c4('確定要刪除嗎?');
 			$(".n_left").on('click', function() {
 				$("#delete_form").submit();
+			});
+		}
+
+		function messageBoard_reported() {
+			c4('確定要檢舉該留言訊息嗎?');
+			$(".n_left").on('click', function() {
+				let msg_id='{{$postDetail->mid}}';
+				$.post('{{ route('reportMessageBoardAJAX') }}', {
+					msg_id: msg_id,
+					_token: '{{ csrf_token() }}'
+				}, function (result) {
+					$("#tab04").hide();
+					show_pop_message(result.msg);
+				});
+			});
+		}
+
+		function block_user() {
+			c4('確定要封鎖嗎?');
+			$(".n_left").on('click', function() {
+				let uid='{{ $user->id }}';
+				let to='{{$postDetail->uid}}';
+				if(uid != to){
+					$.post('{{ route('postBlockAJAX') }}', {
+						uid: uid,
+						sid: to,
+						_token: '{{ csrf_token() }}'
+					}, function () {
+						$("#tab04").hide();
+						show_pop_message('封鎖成功');
+					});
+				}else{
+					$("#tab04").hide();
+					show_pop_message('不可封鎖自己');
+				}
 			});
 		}
 	</script>
