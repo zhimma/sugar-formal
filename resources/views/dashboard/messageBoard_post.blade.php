@@ -46,6 +46,7 @@
 <link href="{{ asset('new/css/fileupload.css') }}" media="all" rel="stylesheet">
 <link href="{{ asset('css/font/font-fileuploader.css') }}" media="all" rel="stylesheet">
 <script src="{{ asset('js/jquery.fileuploader.js') }}" type="text/javascript"></script>
+<script src="{{ asset('new/js/resize_before_upload.js') }}" type="text/javascript"></script>
 <script>
 	function send_posts_submit() {
 
@@ -68,6 +69,7 @@
 		<?php session()->forget('message');?>
 		@endif
 
+        resize_before_upload(400,600,'#posts' ,'.fileuploader input[type=file]','input[name=fileuploader-list-images]','.dengl_but',null,'json');
 		$('input[name="images"]').fileuploader({
 			extensions: ['jpg', 'png', 'jpeg', 'bmp'],
 			changeInput: ' ',

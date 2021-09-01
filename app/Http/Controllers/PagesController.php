@@ -2381,7 +2381,10 @@ class PagesController extends BaseController
             //儲存評論照片
             $this->evaluation_pic_save($evaluation->id, $request->input('uid'), $request->file('images'));
         }
-
+        if($request->ajax()) {
+            echo '評價已完成';
+            exit;
+        }
         //return redirect('/dashboard/evaluation/'.$request->input('eid'))->with('message', '評價已完成');
         return back()->with('message', '評價已完成');
     }
@@ -2435,7 +2438,10 @@ class PagesController extends BaseController
         DB::table('evaluation')->where('id',$request->input('id'))->update(
             ['re_content' => $request->input('re_content'), 're_created_at' => now()]
         );
-
+        if($request->ajax()) {
+            echo '評價回覆已完成';
+            exit;
+        }
 //        return redirect('/dashboard/evaluation/'.$request->input('eid'))->with('message', '評價回覆已完成');
         return back()->with('message', '評價回覆已完成');
     }
@@ -2484,6 +2490,9 @@ class PagesController extends BaseController
 
     public function reportPost(Request $request){
         if(empty($this->customTrim($request->content))){
+            if($request->ajax()) {
+                exit;
+            }
             return redirect('/dashboard/viewuser/'.$request->uid);
         }
         Reported::report($request->aid, $request->uid, $request->content, $request->file('reportedImages'));
@@ -2493,17 +2502,25 @@ class PagesController extends BaseController
         }else{
             $showMsg = '站務人員會檢視檢舉，可在瀏覽資料/封鎖名單查看被封鎖會員。';
         }
-
+        if($request->ajax()) {
+            echo $showMsg ;
+            exit;
+        }
         return back()->with('message', $showMsg); //'檢舉成功'
     }
 
     public function reportMsg(Request $request){
         if(empty($this->customTrim($request->content))){
             $user = $request->user();
+            if($request->ajax()) exit;
             return redirect('/dashboard/viewuser/'.$request->uid);
         }
         Message::reportMessage($request->id, $request->content, $request->file('images'));
         //        return redirect('/dashboard/viewuser/'.$request->uid)->with('message', '檢舉成功');
+        if($request->ajax()) {
+            echo '檢舉成功';
+            exit;
+        }
         return back()->with('message', '檢舉成功');
     }
 
@@ -2587,6 +2604,11 @@ class PagesController extends BaseController
         if($request->picType=='pic'){
             ReportedPic::report($request->aid, $request->pic_id, $request->content);
         }
+        if($request->ajax()) {
+            echo '檢舉成功';
+            exit;
+        }
+        
         return back()->with('message', '檢舉成功');
     }
 
@@ -5225,6 +5247,12 @@ class PagesController extends BaseController
             MessageBoard::find($request->get('mid'))->update(['title'=>$request->get('title'),'contents'=>$request->get('contents')]);
             //儲存留言板照片
             $this->msg_board_pic_save($request->get('mid'), $user->id, $fileuploaderListImages, $request->file('images'));
+            if($request->ajax()) {
+                return response()->json([
+                    'message' => '修改成功',
+                    'return_url' => '/MessageBoard/post_detail/'.$request->get('mid')
+                ]);                
+            }
             return redirect('/MessageBoard/post_detail/'.$request->get('mid'))->with('message','修改成功');
         }else{
 
@@ -5244,6 +5272,12 @@ class PagesController extends BaseController
 
             //儲存留言板照片
             $this->msg_board_pic_save($posts->id, $user->id, null, $request->file('images'));
+            if($request->ajax()) {
+                return response()->json([
+                    'message' => '新增成功',
+                    'return_url' => '/MessageBoard/post_detail/'.$posts->id
+                ]);
+            }            
             return redirect('/MessageBoard/post_detail/'.$posts->id)->with('message','新增成功');
         }
     }
