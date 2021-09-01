@@ -5221,17 +5221,20 @@ class PagesController extends BaseController
         $images=MessageBoardPic::where('msg_board_id',$id)->get();
         $imagesGroup=array();
         foreach ($images as $key => $value) {
-            $imagePath = $value->pic;
-            $imagesGroup['type'][$key] = \App\Helpers\fileUploader_helper::mime_content_type(ltrim($imagePath, '/'));
-            $imagesGroup['name'][$key] = Arr::last(explode('/', $value->pic));
-            $imagesGroup['size'][$key] = str_starts_with($value->pic, 'http') ? null :filesize(ltrim($imagePath, '/'));
-            $imagesGroup['local'][$key] = $imagePath;
-            $imagesGroup['file'][$key] = $imagePath;
-            $imagesGroup['data'][$key] = [
-                'url' => $imagePath,
-                'thumbnail' =>$imagePath,
-                'renderForce' => true
-            ];
+            if(file_exists(public_path($value->pic))){
+                $imagePath = $value->pic;
+                $imagesGroup['type'][$key] = \App\Helpers\fileUploader_helper::mime_content_type(ltrim($imagePath, '/'));
+                $imagesGroup['name'][$key] = Arr::last(explode('/', $value->pic));
+                $imagesGroup['size'][$key] = str_starts_with($value->pic, 'http') ? null :filesize(ltrim($imagePath, '/'));
+                $imagesGroup['local'][$key] = $imagePath;
+                $imagesGroup['file'][$key] = $imagePath;
+                $imagesGroup['data'][$key] = [
+                    'url' => $imagePath,
+                    'thumbnail' =>$imagePath,
+                    'renderForce' => true
+                ];
+            }
+            continue;
         }
         $images=$imagesGroup;
 
