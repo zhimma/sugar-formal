@@ -73,6 +73,7 @@ class FemaleVipActive
             else if(($last_pic_sys_react=='reminding'
                         && $last_pic_act_time->diffInSeconds(Carbon::now()) >= 1800
                         || $last_pic_sys_react=='not_vip_not_ok'  //不可能發生但為以防萬一仍加入判斷
+                        || !$log_pic_acts_count
                      )                   
                     && !$existHeaderImage){    
 //                Vip::cancel($user->id, 1);
@@ -88,12 +89,13 @@ class FemaleVipActive
         //如果一般會員(!$user->isVip())失去免費VIP的時間(vip_record)與現在時間的差距小於系統設定的時間長度，則不做任何動作
         //這句是為了避免會員失去免費VIP後，馬上就又可以拿到免費VIP而設的條件
         //if($vip_record->diffInMinutes(Carbon::now()) > 30 && $vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.start') && !$isVIP) {
-        if($last_pic_sys_react=='reminding' && $last_pic_act_time->diffInMinutes(Carbon::now()) > 30 && $vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.start') && !$isVIP) {
+        if(($log_pic_acts_count>0 && $last_pic_sys_react=='reminding' && $last_pic_act_time->diffInMinutes(Carbon::now()) > 30 ) && $vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.start') && !$isVIP) {
         }
         //提供免費VIP的主要程式段，若會員非VIP，則提供免費VIP，使用vip_record記錄提供的時間點
         else if(!$isVIP && $existHeaderImage) {
             //if( (isset($vip_record) && $vip_record->diffInSeconds(Carbon::now()) >= 86400) || ($vip_record=='0000-00-00 00:00:00')){
-            if( ($log_pic_acts_count>0 && ($last_pic_sys_react=='recovering') && $last_pic_act_time->diffInSeconds(Carbon::now()) >= 86400) || !$log_pic_acts_count
+            if( ($log_pic_acts_count>0 && ($last_pic_sys_react=='recovering') && $last_pic_act_time->diffInSeconds(Carbon::now()) >= 86400) 
+                    || !$log_pic_acts_count
                     || $last_pic_sys_react=='upgrade' //不可能發生的情形但為以防萬一 仍加入判斷
                     ){
                 $user->vip_record = Carbon::now();

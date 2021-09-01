@@ -68,9 +68,10 @@
 <link href="{{ asset('css/font/font-fileuploader.css') }}" media="all" rel="stylesheet">
 <script src="{{ asset('js/jquery.fileuploader.js') }}" type="text/javascript"></script>
 <script src="/plugins/fileuploader2.2/src/jquery.fileuploader.js"></script>
+<script src="{{ asset('new/js/resize_before_upload.js') }}" type="text/javascript"></script>
 <script>
 	$(document).ready(function () {
-
+        resize_before_upload(400,600,'#posts' ,'.fileuploader input[type=file]','input[name=fileuploader-list-images]','.dengl_but',null,'json');
 		@if(Session::has('message'))
 			c5("{{Session::get('message')}}");
 			<?php session()->forget('message');?>
