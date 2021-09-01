@@ -773,6 +773,25 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
       </div>
   </div>
 
+  <div class="bl bl_tab" id="messageBoard_enter_limit">
+      <div class="bltitle">提示</div>
+      <div class="n_blnr01 matop10">
+          @if($user->engroup==2)
+              <div class="blnr bltext">目前僅開放給有通過手機驗證<a href="/member_auth" style="color: red;">(點此進行驗證)</a>的：VIP會員<a href="/dashboard_img" style="color: red;">(點此上傳照片取得VIP)</a>使用。</div>
+          @else
+              <div class="blnr bltext">目前僅開放給VIP會員使用，<a href="/dashboard/new_vip" style="color: red;">點此升級VIP</a>。</div>
+          @endif
+          <a class="n_bllbut matop30" onclick="gmBtnNoReload()">確定</a>
+      </div>
+  </div>
+  <div class="bl bl_tab" id="messageBoard_msg">
+      <div class="bltitle">提示</div>
+      <div class="n_blnr01 matop10">
+          <div class="blnr bltext">{{  Session::get('messageBoard_msg')  }}</div>
+          <a class="n_bllbut matop30" onclick="gmBtnNoReload()">確定</a>
+      </div>
+      <a onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+  </div>
 <script>
     function pr() {
         $(".blbg").show();
@@ -1250,6 +1269,21 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 c5('請輸入數字範圍0～10000000000');
             }
         });
+
+
+        @if( Session::get('messageBoard_enter_limit',true) ==false || Session::get('messageBoard_msg')!='')
+            $('#tab05').hide();
+        @endif
+
+        @if( Session::get('messageBoard_enter_limit',true) ==false)
+            $('#messageBoard_enter_limit').show();
+            $('#announce_bg').show();
+        @endif
+
+        @if( Session::get('messageBoard_msg'))
+            $('#messageBoard_msg').show();
+            $('#announce_bg').show();
+        @endif
 
     });
 

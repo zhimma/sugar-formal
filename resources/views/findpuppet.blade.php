@@ -2,6 +2,9 @@
 @section('app-content')
 
 <style>
+    body div.top_head_title_info {text-align:center;}
+    body div.top_head_title_info div.group_cat_info {margin-top:20px;}
+    body div.top_head_title_info div.group_cat_info  a.jump_to_all_handled_group{text-decoration: underline;}
 	body table.table-hover tr th.col_user_id {padding-left:106px;padding-right:106px;}
 	img.ignore_switch_off {display:none;}
 	img.ignore_switch_on {display:inline-block;}
@@ -232,7 +235,7 @@
 <body style="padding: 15px;">
 
 
-<div>
+<div class="top_head_title_info">
 <h2>多重登入帳號@if(!request()->only)交叉比對@else{{strtoupper(request()->only)}}分析@endif數據
 @if(isset($columnSet) && $columnSet)
 <span class="dateInfo">
@@ -265,6 +268,13 @@
 </span>
 @endif 
 </h2>
+<div class="group_cat_info">
+@if(count($groupOrderArr)>1)
+從 
+<a href="#g{{count($groupOrderArr[0])+1}}" class="jump_to_all_handled_group">第{{count($groupOrderArr[0])+1}}組</a> 
+開始為全部被封鎖或帳號被關閉到只剩一個以下的組別
+@endif
+</div>
 </div>
 @if(request()->getHttpHost()=='chen.test-tw.icu')
 <div>
@@ -323,7 +333,7 @@
 @php $group_count++;  @endphp
 @php //if($group_count>10) break; @endphp
 <br><br>
-<div class="show">
+<div class="show"  @if($group_count>=count($groupOrderArr[0]) && !$gidx)id="g{{ $group_count }}"@endif>
 	
     <h2>第 {{ $group_count }} 組</h2>
 	@if ($groupInfo[$g]['cutData'])

@@ -91,6 +91,10 @@
         .sl_bllbut01:hover{color:#fff;background: #8a9ff0;box-shadow:inset 0px 15px 10px -10px #4c6ded,inset 0px -10px 10px -20px #4c6ded;}
 
     </style>
+    <style>
+    #vip_state_block .tu_dfont {width:auto;max-height:unset; -webkit-box-orient: vertical; -webkit-line-clamp:none; -webkit-line-clamp:unset;}
+    #vip_state_block .tabbox_new_dt a.zs_buttonn{font-size: 15px; line-height: 30px;font-weight:normal;margin-right:2%; }
+    </style>
     <div class="container matop70">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -102,13 +106,17 @@
                 </div>
 
                 <div class="n_search tabbox_new g_pnr">
-                    <div class="sys_aa">
-                        <div class="tabbox_new_dt"><span>VIP狀態</span></div>
+                    <div class="sys_aa" id="vip_state_block">
+                        <div class="tabbox_new_dt"><span>VIP狀態</span>
+                            @if(!$user->isVip())
+                                <a class="zs_buttonn" href="{{url('/dashboard/new_vip')}}">立即成為VIP</a>
+                            @endif
+                        </div>
                         <div class="tabbox_new_dd">
                             @if($user->isVip())
                                 <h2 class="tabbox_h2">{!! $vipStatus !!}</h2>
                             @else
-                                <h2 class="tabbox_h2">您目前還不是VIP<a class="zs_buttonn" href="{{url('/dashboard/new_vip')}}">立即成為VIP</a></h2>
+                            <h2 class="tabbox_h2"><span class="tu_dfont">{!! $vipStatus??'您目前還不是VIP' !!}</span></h2>
                             @endif
                         </div>
                     </div>
@@ -180,7 +188,7 @@
 								<span class="tu_dfont">
 								{{ strip_tags($amsg->content)}}
 								</span>
-								<a class="zs_buttonn1 right"  href="{{route("chat2WithUser",$amsg->from_id)}}">前往查看</a>
+								<a class="zs_buttonn1 right"  href="{{route("adminMsgPage",$user->id)}}">前往查看</a>
 							</h2>
 							@endforeach
 						@else
