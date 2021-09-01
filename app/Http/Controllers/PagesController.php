@@ -5234,7 +5234,6 @@ class PagesController extends BaseController
                     'renderForce' => true
                 ];
             }
-            continue;
         }
         $images=$imagesGroup;
 
