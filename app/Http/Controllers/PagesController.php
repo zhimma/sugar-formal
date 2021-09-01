@@ -17,6 +17,7 @@ use App\Models\LogUserLogin;
 use App\Models\Message_new;
 use App\Models\MessageBoard;
 use App\Models\MessageBoardPic;
+use App\Models\ReportedMessageBoard;
 use App\Models\SimpleTables\warned_users;
 use App\Notifications\BannedUserImplicitly;
 use Auth;
@@ -5130,6 +5131,7 @@ class PagesController extends BaseController
             ->where('users.engroup',$user->engroup==1 ? 2 :1)
             ->whereNotIn('message_board.user_id',$userBlockList)
             ->whereNotIn('message_board.user_id',$bannedUsers)
+            ->where('message_board.hide_by_admin',0)
             ->orderBy('message_board.created_at','desc')
             ->paginate(10, ['*'], 'othersDataPage')
             ->appends(array_merge(request()->except(['othersDataPage','msgBoardType']),['msgBoardType'=>'others_page']));
@@ -5319,6 +5321,17 @@ class PagesController extends BaseController
                 $evaluationPic->pic_origin_name = $file->getClientOriginalName();
                 $evaluationPic->save();
             }
+        }
+    }
+
+    public function reportMessageBoardAJAX(Request $request){
+        $msg_id=$request->msg_id;
+        $isReported = ReportedMessageBoard::where('user_id', auth()->user()->id)->where('message_board_id',$msg_id)->first();
+        if(!$isReported) {
+            ReportedMessageBoard::create(['user_id'=>auth()->user()->id, 'message_board_id'=>$msg_id]);
+            return response()->json(['msg' => '檢舉留言成功']);
+        }else{
+            return response()->json(['msg' => '該留言已經檢舉過了']);
         }
     }
 }
