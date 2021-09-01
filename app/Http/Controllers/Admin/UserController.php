@@ -183,7 +183,7 @@ class UserController extends \App\Http\Controllers\BaseController
                         'business_id' => 'BackendFree',
                         'order_id' => 'BackendFree',
                         'expiry' => '0000-00-00 00:00:00',
-                        'free' => 1
+                        'free' => 0
                     ));
             } else {
                 //從來都沒VIP資料的
@@ -198,7 +198,7 @@ class UserController extends \App\Http\Controllers\BaseController
         //新增Admin操作log
         $this->insertAdminActionLog($request->user_id, $request->isVip ==1 ? '取消VIP' : '升級VIP');
 
-        VipLog::addToLog($request->user_id, $setVip == 0 ? 'manual_cancel' : 'manual_upgrade', 'Manual Setting', $setVip, 1);
+        VipLog::addToLog($request->user_id, $setVip == 0 ? 'manual_cancel' : 'manual_upgrade', 'Manual Setting', $setVip, 0);
         $user = User::select('id', 'email', 'name')
             ->where('id', $request->user_id)
             ->get()->first();
