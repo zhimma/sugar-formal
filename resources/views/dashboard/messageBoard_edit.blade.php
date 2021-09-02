@@ -36,6 +36,13 @@
 						<input type="hidden" name="mid" value="{{ $editInfo->mid }}">
 						<input name="title" id="title" type="text" class="tw_input" placeholder="#標題" value="{{ $editInfo->mtitle }}">
 						<textarea name="contents" id="contents" cols="" rows="" class="tw_textinput" placeholder="#内容">{{ $editInfo->mcontents }}</textarea>
+						<label class="col-lg-2 col-md-3 col-form-label">設定留言存在時間</label>
+						<select name="set_period">
+							<option value="">請選擇</option>
+							@foreach(\App\Models\MessageBoard::SET_PERIOD as $key =>$value)
+								<option value="{{ $key }}" @if($key==$editInfo->mperiod) selected @endif>{{ $value }}</option>
+							@endforeach
+						</select>
 						<input type="file" name="images" data-fileuploader-files='[
 						@if(count($images))
 							@for($i = 0; $i < count($images['name']); $i++)
