@@ -193,7 +193,8 @@
 				});
 
 				api.getOptions().dragDrop.container = plusInput;
-				if (api.getOptions().limit && api.getChoosedFiles().length - 1 < api.getOptions().limit){
+				var imagesCount='{{ isset($images['name']) ? count($images['name']) :0 }}';
+				if (api.getOptions().limit && (parseInt(imagesCount) + api.getChoosedFiles().length) >= api.getOptions().limit){
 					plusInput.hide();
 				}
 			},
