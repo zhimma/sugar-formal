@@ -5146,6 +5146,8 @@ class PagesController extends BaseController
 
         $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
         $bannedUsers = \App\Services\UserService::getBannedId();
+
+        $nowTime= date("Y-m-d H:i:s");
         $getLists_others = MessageBoard::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
             ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
             ->LeftJoin('users', 'users.id','=','message_board.user_id')
@@ -5153,6 +5155,7 @@ class PagesController extends BaseController
             ->where('users.engroup',$user->engroup==1 ? 2 :1)
             ->whereNotIn('message_board.user_id',$userBlockList)
             ->whereNotIn('message_board.user_id',$bannedUsers)
+            ->whereRaw('(message_board.message_expiry_time >="'.$nowTime.'" OR message_board.message_expiry_time is NULL)')
             ->where('message_board.hide_by_admin',0)
             ->orderBy('message_board.created_at','desc')
             ->paginate(10, ['*'], 'othersDataPage')
@@ -5203,7 +5206,7 @@ class PagesController extends BaseController
     {
         $user=auth()->user();
         $editInfo =MessageBoard::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
-            ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
+            ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.set_period as mperiod, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
             ->LeftJoin('users', 'users.id','=','message_board.user_id')
             ->LeftJoin('user_meta', 'users.id','=','user_meta.user_id')
             ->where('message_board.id', $id)->first();
@@ -5247,6 +5250,7 @@ class PagesController extends BaseController
 
         if($request->get('action') == 'edit'){
             MessageBoard::find($request->get('mid'))->update(['title'=>$request->get('title'),'contents'=>$request->get('contents')]);
+            MessageBoard::setMessageTime($request->get('mid'), $request->get('set_period'));
             //儲存留言板照片
             $this->msg_board_pic_save($request->get('mid'), $user->id, $fileuploaderListImages, $request->file('images'));
             if($request->ajax()) {
@@ -5271,6 +5275,7 @@ class PagesController extends BaseController
             $posts->title = $request->get('title');
             $posts->contents=$request->get('contents');
             $posts->save();
+            MessageBoard::setMessageTime($posts->id, $request->get('set_period'));
 
             //儲存留言板照片
             $this->msg_board_pic_save($posts->id, $user->id, null, $request->file('images'));
