@@ -307,7 +307,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::post('town_ajax', 'PagesController@town_ajax');
     Route::post('searchData', 'PagesController@searchData');
     Route::post('updateMemberData', 'PagesController@updateMemberData');
-    
+
     Route::get('new/mem_updatevip', 'PagesController@mem_updatevip');
     Route::post('cancelVip', 'PagesController@cancelVip');
     Route::get('new/women_updatevip', 'PagesController@women_updatevip');
@@ -332,7 +332,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     /*會員驗證END*/
 
 
-    
+
     /*
     |--------------------------------------------------------------------------
     | Dashboard
@@ -761,7 +761,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         /*新增、編輯訊息*/
         Route::post('users/getmsglib', 'UserController@getMessageLib');
         Route::post('users/updatemsglib', 'UserController@updateMessageLib');
-        
+
         Route::post('users/delmsglib', 'UserController@delMessageLib');
         Route::get('users/message/msglib/create', 'UserController@addMessageLibPage');
         Route::get('users/message/msglib/create/editPic_sendMsg', 'UserController@addMessageLibPageReporter');
@@ -837,3 +837,4 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::get('/fruits/product_ferment_more', 'FruitController@product_ferment_more');
 });
 Route::get('/test', 'ImageController@deletePictures');
+Route::get('/test_w', 'SmsController@test');
