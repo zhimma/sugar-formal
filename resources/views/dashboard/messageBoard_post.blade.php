@@ -33,6 +33,13 @@
 						<input type="hidden" name="_token" value="{{ csrf_token() }}">
 						<input name="title" id="title" type="text" class="tw_input" placeholder="#標題">
 						<textarea name="contents" id="contents" cols="" rows="" class="tw_textinput" placeholder="#内容"></textarea>
+						<label class="col-lg-2 col-md-3 col-form-label">設定留言存在時間</label>
+						<select name="set_period">
+							<option value="">請選擇</option>
+							@foreach(\App\Models\MessageBoard::SET_PERIOD as $key =>$value)
+								<option value="{{ $key }}">{{ $value }}</option>
+							@endforeach
+						</select>
 						<input id="images" type="file" name="images" accept="image/*" >
 						<div class="dengl_but matop20" onclick="send_posts_submit()">確定</div>
 					</form>
@@ -46,6 +53,7 @@
 <link href="{{ asset('new/css/fileupload.css') }}" media="all" rel="stylesheet">
 <link href="{{ asset('css/font/font-fileuploader.css') }}" media="all" rel="stylesheet">
 <script src="{{ asset('js/jquery.fileuploader.js') }}" type="text/javascript"></script>
+<script src="{{ asset('new/js/resize_before_upload.js') }}" type="text/javascript"></script>
 <script>
 	function send_posts_submit() {
 
@@ -68,6 +76,7 @@
 		<?php session()->forget('message');?>
 		@endif
 
+        resize_before_upload(400,600,'#posts' ,'.fileuploader input[type=file]','input[name=fileuploader-list-images]','.dengl_but',null,'json');
 		$('input[name="images"]').fileuploader({
 			extensions: ['jpg', 'png', 'jpeg', 'bmp'],
 			changeInput: ' ',

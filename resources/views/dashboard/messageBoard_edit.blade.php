@@ -36,6 +36,13 @@
 						<input type="hidden" name="mid" value="{{ $editInfo->mid }}">
 						<input name="title" id="title" type="text" class="tw_input" placeholder="#標題" value="{{ $editInfo->mtitle }}">
 						<textarea name="contents" id="contents" cols="" rows="" class="tw_textinput" placeholder="#内容">{{ $editInfo->mcontents }}</textarea>
+						<label class="col-lg-2 col-md-3 col-form-label">設定留言存在時間</label>
+						<select name="set_period">
+							<option value="">請選擇</option>
+							@foreach(\App\Models\MessageBoard::SET_PERIOD as $key =>$value)
+								<option value="{{ $key }}" @if($key==$editInfo->mperiod) selected @endif>{{ $value }}</option>
+							@endforeach
+						</select>
 						<input type="file" name="images" data-fileuploader-files='[
 						@if(count($images))
 							@for($i = 0; $i < count($images['name']); $i++)
@@ -68,9 +75,10 @@
 <link href="{{ asset('css/font/font-fileuploader.css') }}" media="all" rel="stylesheet">
 <script src="{{ asset('js/jquery.fileuploader.js') }}" type="text/javascript"></script>
 <script src="/plugins/fileuploader2.2/src/jquery.fileuploader.js"></script>
+<script src="{{ asset('new/js/resize_before_upload.js') }}" type="text/javascript"></script>
 <script>
 	$(document).ready(function () {
-
+        resize_before_upload(400,600,'#posts' ,'.fileuploader input[type=file]','input[name=fileuploader-list-images]','.dengl_but',null,'json');
 		@if(Session::has('message'))
 			c5("{{Session::get('message')}}");
 			<?php session()->forget('message');?>
@@ -192,7 +200,8 @@
 				});
 
 				api.getOptions().dragDrop.container = plusInput;
-				if (api.getOptions().limit && api.getChoosedFiles().length - 1 < api.getOptions().limit){
+				var imagesCount='{{ isset($images['name']) ? count($images['name']) :0 }}';
+				if (api.getOptions().limit && (parseInt(imagesCount) + api.getChoosedFiles().length) >= api.getOptions().limit){
 					plusInput.hide();
 				}
 			},

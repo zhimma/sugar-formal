@@ -178,6 +178,9 @@ class Message_newController extends BaseController {
 //                ['banned' => $banned,
 //                 'days' => $date->diffInDays() + 1]);
 //        }
+        $justEchoAndExit = false;
+        if($request->ajax() && $request->file()) $justEchoAndExit = true;
+        
         $payload = $request->all();
         if(!isset($payload['msg']) && !$request->hasFile('images')){
             if($isCalledByEvent){
@@ -200,6 +203,10 @@ class Message_newController extends BaseController {
                         return array('error' => 1,
                                     'content' => '您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。');
                     }
+                    if($justEchoAndExit) {
+                        echo '您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。';
+                        exit;
+                    }
                     return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
                 }
             }
@@ -215,6 +222,10 @@ class Message_newController extends BaseController {
                         return array('error' => 1,
                             'content' => '您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。');
                     }
+                    if($justEchoAndExit) {
+                        echo '您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。';
+                        exit;
+                    }                    
                     return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
                 }
             }
@@ -316,6 +327,10 @@ class Message_newController extends BaseController {
             return $messagePosted;
         }
         \App\Events\Chat::dispatch($messagePosted, $request->from, $request->to);
+        if($justEchoAndExit) {
+            echo '1';
+            exit;
+        }        
         return back();
     }
 

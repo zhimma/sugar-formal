@@ -303,8 +303,6 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 
                                 $this->_groupIdx++;
                             }
-                            
-                            if($this->_groupIdx>20) break;
                         }
                     }
                     $puppetFromUsers = null;
@@ -332,8 +330,6 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                                 $this->_groupIdx++;
                                 
                             }
-                            
-                            if($this->_groupIdx>20) break;
                         } 
                     }
                     $add_num=0;
