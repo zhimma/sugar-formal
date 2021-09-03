@@ -17,6 +17,7 @@ use App\Models\LogUserLogin;
 use App\Models\Message_new;
 use App\Models\MessageBoard;
 use App\Models\MessageBoardPic;
+use App\Models\ReportedMessageBoard;
 use App\Models\SimpleTables\warned_users;
 use App\Notifications\BannedUserImplicitly;
 use Auth;
@@ -2380,7 +2381,10 @@ class PagesController extends BaseController
             //儲存評論照片
             $this->evaluation_pic_save($evaluation->id, $request->input('uid'), $request->file('images'));
         }
-
+        if($request->ajax()) {
+            echo '評價已完成';
+            exit;
+        }
         //return redirect('/dashboard/evaluation/'.$request->input('eid'))->with('message', '評價已完成');
         return back()->with('message', '評價已完成');
     }
@@ -2434,7 +2438,10 @@ class PagesController extends BaseController
         DB::table('evaluation')->where('id',$request->input('id'))->update(
             ['re_content' => $request->input('re_content'), 're_created_at' => now()]
         );
-
+        if($request->ajax()) {
+            echo '評價回覆已完成';
+            exit;
+        }
 //        return redirect('/dashboard/evaluation/'.$request->input('eid'))->with('message', '評價回覆已完成');
         return back()->with('message', '評價回覆已完成');
     }
@@ -2482,7 +2489,26 @@ class PagesController extends BaseController
     }
 
     public function reportPost(Request $request){
+
+        //先判定是否在站方封鎖名單裡面
+        $aid = $request->input('aid');
+        $uid = $request->input('uid');
+        $today = Carbon::today();
+        $c = banned_users::where('member_id', $aid)
+            ->where(function ($q) use ($aid, $today) {
+                //就算有被封，只要 解封時間 不是null 以及大於今日就放過
+                $q->where("expire_date", null)->orWhere("expire_date", ">", $today);
+            })->get()->count();
+        if($c>0){
+            return  redirect(route("viewuser" , ['uid'=>$uid]))->withErrors([
+                '您目前被站方封鎖，無檢舉權限'
+            ]);
+        }
+
         if(empty($this->customTrim($request->content))){
+            if($request->ajax()) {
+                exit;
+            }
             return redirect('/dashboard/viewuser/'.$request->uid);
         }
         Reported::report($request->aid, $request->uid, $request->content, $request->file('reportedImages'));
@@ -2492,17 +2518,25 @@ class PagesController extends BaseController
         }else{
             $showMsg = '站務人員會檢視檢舉，可在瀏覽資料/封鎖名單查看被封鎖會員。';
         }
-
+        if($request->ajax()) {
+            echo $showMsg ;
+            exit;
+        }
         return back()->with('message', $showMsg); //'檢舉成功'
     }
 
     public function reportMsg(Request $request){
         if(empty($this->customTrim($request->content))){
             $user = $request->user();
+            if($request->ajax()) exit;
             return redirect('/dashboard/viewuser/'.$request->uid);
         }
         Message::reportMessage($request->id, $request->content, $request->file('images'));
         //        return redirect('/dashboard/viewuser/'.$request->uid)->with('message', '檢舉成功');
+        if($request->ajax()) {
+            echo '檢舉成功';
+            exit;
+        }
         return back()->with('message', '檢舉成功');
     }
 
@@ -2586,6 +2620,11 @@ class PagesController extends BaseController
         if($request->picType=='pic'){
             ReportedPic::report($request->aid, $request->pic_id, $request->content);
         }
+        if($request->ajax()) {
+            echo '檢舉成功';
+            exit;
+        }
+        
         return back()->with('message', '檢舉成功');
     }
 
@@ -3318,7 +3357,7 @@ class PagesController extends BaseController
         }
     }
 
-
+    //本月封鎖名單
     public function dashboard_banned(Request $request)
     {
         $user = $request->user();
@@ -5123,6 +5162,8 @@ class PagesController extends BaseController
 
         $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
         $bannedUsers = \App\Services\UserService::getBannedId();
+
+        $nowTime= date("Y-m-d H:i:s");
         $getLists_others = MessageBoard::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
             ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
             ->LeftJoin('users', 'users.id','=','message_board.user_id')
@@ -5130,6 +5171,8 @@ class PagesController extends BaseController
             ->where('users.engroup',$user->engroup==1 ? 2 :1)
             ->whereNotIn('message_board.user_id',$userBlockList)
             ->whereNotIn('message_board.user_id',$bannedUsers)
+            ->whereRaw('(message_board.message_expiry_time >="'.$nowTime.'" OR message_board.message_expiry_time is NULL)')
+            ->where('message_board.hide_by_admin',0)
             ->orderBy('message_board.created_at','desc')
             ->paginate(10, ['*'], 'othersDataPage')
             ->appends(array_merge(request()->except(['othersDataPage','msgBoardType']),['msgBoardType'=>'others_page']));
@@ -5179,7 +5222,7 @@ class PagesController extends BaseController
     {
         $user=auth()->user();
         $editInfo =MessageBoard::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
-            ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
+            ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.set_period as mperiod, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
             ->LeftJoin('users', 'users.id','=','message_board.user_id')
             ->LeftJoin('user_meta', 'users.id','=','user_meta.user_id')
             ->where('message_board.id', $id)->first();
@@ -5197,17 +5240,19 @@ class PagesController extends BaseController
         $images=MessageBoardPic::where('msg_board_id',$id)->get();
         $imagesGroup=array();
         foreach ($images as $key => $value) {
-            $imagePath = $value->pic;
-            $imagesGroup['type'][$key] = \App\Helpers\fileUploader_helper::mime_content_type(ltrim($imagePath, '/'));
-            $imagesGroup['name'][$key] = Arr::last(explode('/', $value->pic));
-            $imagesGroup['size'][$key] = str_starts_with($value->pic, 'http') ? null :filesize(ltrim($imagePath, '/'));
-            $imagesGroup['local'][$key] = $imagePath;
-            $imagesGroup['file'][$key] = $imagePath;
-            $imagesGroup['data'][$key] = [
-                'url' => $imagePath,
-                'thumbnail' =>$imagePath,
-                'renderForce' => true
-            ];
+            if(file_exists(public_path($value->pic))){
+                $imagePath = $value->pic;
+                $imagesGroup['type'][$key] = \App\Helpers\fileUploader_helper::mime_content_type(ltrim($imagePath, '/'));
+                $imagesGroup['name'][$key] = Arr::last(explode('/', $value->pic));
+                $imagesGroup['size'][$key] = str_starts_with($value->pic, 'http') ? null :filesize(ltrim($imagePath, '/'));
+                $imagesGroup['local'][$key] = $imagePath;
+                $imagesGroup['file'][$key] = $imagePath;
+                $imagesGroup['data'][$key] = [
+                    'url' => $imagePath,
+                    'thumbnail' =>$imagePath,
+                    'renderForce' => true
+                ];
+            }
         }
         $images=$imagesGroup;
 
@@ -5221,8 +5266,15 @@ class PagesController extends BaseController
 
         if($request->get('action') == 'edit'){
             MessageBoard::find($request->get('mid'))->update(['title'=>$request->get('title'),'contents'=>$request->get('contents')]);
+            MessageBoard::setMessageTime($request->get('mid'), $request->get('set_period'));
             //儲存留言板照片
             $this->msg_board_pic_save($request->get('mid'), $user->id, $fileuploaderListImages, $request->file('images'));
+            if($request->ajax()) {
+                return response()->json([
+                    'message' => '修改成功',
+                    'return_url' => '/MessageBoard/post_detail/'.$request->get('mid')
+                ]);                
+            }
             return redirect('/MessageBoard/post_detail/'.$request->get('mid'))->with('message','修改成功');
         }else{
 
@@ -5239,9 +5291,16 @@ class PagesController extends BaseController
             $posts->title = $request->get('title');
             $posts->contents=$request->get('contents');
             $posts->save();
+            MessageBoard::setMessageTime($posts->id, $request->get('set_period'));
 
             //儲存留言板照片
             $this->msg_board_pic_save($posts->id, $user->id, null, $request->file('images'));
+            if($request->ajax()) {
+                return response()->json([
+                    'message' => '新增成功',
+                    'return_url' => '/MessageBoard/post_detail/'.$posts->id
+                ]);
+            }            
             return redirect('/MessageBoard/post_detail/'.$posts->id)->with('message','新增成功');
         }
     }
@@ -5319,6 +5378,17 @@ class PagesController extends BaseController
                 $evaluationPic->pic_origin_name = $file->getClientOriginalName();
                 $evaluationPic->save();
             }
+        }
+    }
+
+    public function reportMessageBoardAJAX(Request $request){
+        $msg_id=$request->msg_id;
+        $isReported = ReportedMessageBoard::where('user_id', auth()->user()->id)->where('message_board_id',$msg_id)->first();
+        if(!$isReported) {
+            ReportedMessageBoard::create(['user_id'=>auth()->user()->id, 'message_board_id'=>$msg_id]);
+            return response()->json(['msg' => '檢舉留言成功']);
+        }else{
+            return response()->json(['msg' => '該留言已經檢舉過了']);
         }
     }
 }

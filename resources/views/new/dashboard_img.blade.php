@@ -212,7 +212,7 @@
 
                     <div class="row mb-4 ">
                         <div class="col-sm-12 col-lg-12">
-                            <form action="{{ url('/dashboard/pictures/upload') }}" method="post" enctype="multipart/form-data">
+                            <form id="mempic_upload_form" action="{{ url('/dashboard/pictures/upload') }}" method="post" enctype="multipart/form-data">
                                 <!-- name 要與 FileUploader 相同 -->
                                 <input type="file" name="pictures" data-fileuploader-files=''>
                                 <input type="hidden" name="userId" value="{{ $user->id }}">
@@ -230,7 +230,7 @@
   
 <script src="/plugins/hopscotch/js/hopscotch.min.js"></script>
 <script src="/plugins/fileuploader2.2/src/jquery.fileuploader.js"></script>
-
+<script src="{{ asset('new/js/resize_before_upload.js') }}" type="text/javascript"></script>
 <script type="text/javascript">
     /* 說明 */
     function tour(which) {
@@ -259,90 +259,8 @@
     }
  
     $(document).ready(function(){
-        var compressRatio = 1,
-        checkHeight = 300,
-        checkWidth =1000,
-        imgNewHeight = 300, 
-        imgNewWidth =1000, 
-        canvas = document.createElement("canvas"),
-        context = canvas.getContext("2d"),
-        file, fileReader, dataUrl;
-        blobElt = []; 
-
-        $('form').on('change','input[type=file]',function() {
-            console.log(this.name);
-            var nowEltName = this.name;
-            canvas = document.createElement("canvas"),context = canvas.getContext("2d");
-
-            fileSelected = this.files;
-            fileReaderSet = [];
-            console.log(fileSelected);
-            for(i=0;i<fileSelected.length;i++) {
-                canvas = document.createElement("canvas"),context = canvas.getContext("2d");
-                
-                let curFileEntry = fileSelected[i];
-                if (curFileEntry && curFileEntry.type.indexOf("image") == 0) {
-                    fileReaderSet[curFileEntry.name+curFileEntry.size.toString()] = new FileReader();
-
-                    fileReaderSet[curFileEntry.name+curFileEntry.size.toString()].onload = function(evt) {
-                       var img = new Image();
-                       dataUrl = evt.target.result,
-                       img.src = dataUrl;
-
-                       img.onload = function() {
-                           var width = this.width, 
-                           height = this.height, 
-                           html = "",
-                           newImg;
-                           if(height>checkHeight) {
-                               if(width<=checkWidth || height>=width) {
-                                   imgNewWidth = checkHeight * width / height; 
-                                   imgNewHeight = checkHeight;
-                               }
-                               else {
-                                   imgNewHeight=checkWidth * height / width; 
-                                   imgNewWidth = checkWidth;
-                               }
-                           }
-                           else if(width>checkWidth) {
-                               imgNewHeight=checkWidth * height / width; 
-                               imgNewWidth = checkWidth;
-                           }
-                           else {imgNewHeight=height;imgNewWidth=width;}    
-
-                           canvas.width = imgNewWidth;
-                           canvas.height = imgNewHeight;
-                           context.clearRect(0, 0, imgNewWidth, imgNewHeight);
-
-                           context.drawImage(img, 0, 0, imgNewWidth, imgNewHeight);
-                           console.log('curFileEntry.type='+curFileEntry.type);
-
-                           newImg = canvas.toDataURL(curFileEntry.type, compressRatio);
-
-                           canvas.toBlob(function(blob) {
-                               if(typeof(blobElt[nowEltName])=='undefined') blobElt[nowEltName] = [];
-                               //blobElt[nowEltName].push(blob);
-                               //blobElt[nowEltName].push(blob);
-                               blobElt[nowEltName][curFileEntry.name+curFileEntry.size.toString()]=blob;
-                               console.log('curFileEntry.type='+curFileEntry.type);
-                           // 輸入上傳程式碼
-                           }, curFileEntry.type, compressRatio);
-                           context.clearRect(0, 0, canvas.width, canvas.height);
-                       };                        
-                    };
-                    
-                    fileReaderSet[curFileEntry.name+curFileEntry.size.toString()].readAsDataURL(curFileEntry);
-
-
-                   
-                }
-            }
-        });     
-
-        $('.g_inputt').on('submit','form',function(){
-            return false;
-        });    
-
+        resize_before_upload(1000,300,'#avatar_upload_form' ,'.fileuploader input[type=file]','input[name=fileuploader-list-avatar]','.upload_btn');
+        resize_before_upload(1000,300,'#mempic_upload_form' ,'.fileuploader input[type=file]','input[name=fileuploader-list-pictures]','.upload_btn');
         
         @if(Session::has('message'))
             @if(Session::get('message')=='上傳成功' && $user->existHeaderImage() && $user->engroup==2 && !$user->isVip())//防呆
@@ -432,7 +350,7 @@
             })
         },
         error: function(xhr, status, msg) {
-            console.log(xhr.reponseText)
+            console.log(xhr.reponseText);
         }
     })
 
@@ -504,9 +422,9 @@
             })
         },
         error: function(xhr, status, msg) {
-            console.log(xhr)
-            console.log(status)
-            console.log(msg)
+            console.log(xhr);
+            console.log(status);
+            console.log(msg);
         }
     })
 
@@ -589,74 +507,6 @@
             });
         }
     });
-//按下上傳按鈕
-   $(document).on('click','.upload_btn',function() {
-        loading();
-        nowElt = $(this);
-        nowFormElt = nowElt.parent();
-        nowElt.off( "click", "**" );
-        fdata = new FormData();
- 
-        $.each(nowFormElt.serializeArray(), function( index, value ) {
-            fdata.append(value.name, value.value);
-        });
-        realBlobIndex = 0;
-        fileElt = nowFormElt.find('input[type=file]');
-        for(f=0;f<fileElt.length;f++) {
-            let curFileElt = fileElt.eq(f);
-            fileEltFiles = curFileElt.prop('files');
-            fileEltName = curFileElt.prop('name');
-            fileEltNameSplit = fileEltName.split('[');
-            if(fileEltNameSplit[fileEltNameSplit.length-1]==']') {
-                fileEltNameSplit.splice(fileEltNameSplit.length-1,1);
-                postFileName = fileEltNameSplit.join('[');
-                postFileName_s = postFileName+'_s[]';
-                postFileName+='[]';
-            }
-            else {
-                postFileName=fileEltName;
-                postFileName_s=fileEltName+'_s';
-            }
-            for(i=0;i<fileEltFiles.length;i++) {
-                fileInputed = fileEltFiles[i];
-                filenamesplit = fileInputed.name.split('.');
-                file_ext_name = filenamesplit[filenamesplit.length-1];
-                filenamesplit.splice(filenamesplit.length-1,1);
-                filename_s = filenamesplit.join('.')+'_s.'+file_ext_name; 
-                //fdata.append(postFileName, blobElt[fileEltName][realBlobIndex],fileInputed.name);
-                fdata.append(postFileName, blobElt[fileEltName][fileInputed.name+fileInputed.size.toString()],fileInputed.name);
-                 console.log(blobElt[fileEltName][realBlobIndex]);
-                realBlobIndex++;
-            }
-        }
-
-        $.ajax({
-            type: nowFormElt.prop('method'),
-            url: nowFormElt.prop('action'),
-            data: fdata,
-            'contentType': false, //required
-            'processData': false, // required
-            'mimeType': nowFormElt.prop('enctype'),        
-            error: function(xhr, status, error){
-                show_pop_message('上傳失敗：'+error+'('+xhr.status+')');
-                console.log(xhr);
-                console.log(status);
-                console.log(error);
-            },   
-        }).done(function(data) {
-            if(data==1) {
-                show_pop_message('上傳成功');
-            }
-            else {
-                show_pop_message(data);
-            }
-            console.log(data);
-        }); 
-
-        return false;
-
-    });
-    
 </script>
 
 @stop

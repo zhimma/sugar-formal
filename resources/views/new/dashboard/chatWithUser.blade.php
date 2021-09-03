@@ -393,7 +393,7 @@
             <div class="bltitle banned_name"></div>
             <div class="new_pot new_poptk_nn new_pot001 ">
                 <div class="fpt_pic new_po000">
-                    <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ route('reportMsg') }}" enctype="multipart/form-data">
+                    <form id="reportMsgForm" class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ route('reportMsg') }}" enctype="multipart/form-data">
                         {!! csrf_field() !!}
                         <input type="hidden" name="aid" value="{{$user->id}}">
                         <input type="hidden" name="uid" value="">
@@ -448,6 +448,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js" charset="utf-8"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js" charset="utf-8"></script>
 <script src="{{ asset('new/js/photoswipe-simplify.min.js') }}" charset="utf-8"></script>
+<script src="{{ asset('new/js/resize_before_upload.js') }}" type="text/javascript"></script>
 <script>
     photoswipeSimplify.init({
         history: false,
@@ -455,6 +456,7 @@
     });
 </script>
 <script>
+    
     function readyNumber() {
 
         $('textarea').each(function () {
@@ -478,13 +480,16 @@
         }
 
     });
-    $.ajaxSetup({ cache: false });
+    
+    $.ajaxSetup({ cache: false, contentType: false,processData: false});
     $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
         // you can use originalOptions.type || options.type to restrict specific type of requests
+       if(options.data instanceof FormData==true) return;
         options.data = jQuery.param($.extend(originalOptions.data||{}, {
             timeStamp: new Date().getTime()
         }));
     });
+    
     d = new Date('{{ \App\Models\Message::$date }}');
             @if(isset($m_time))
     let m_time = '{{ $m_time }}';
@@ -778,6 +783,9 @@
         }
     }
     $(document).ready(function () {
+        resize_before_upload(400,600,'#form_uploadPic' ,'.fpt_pic input[type=file]','input[name=fileuploader-list-images]','.fpt_pic .n_bllbut','#tab_uploadPic');
+        resize_before_upload(400,600,'#reportMsgForm' ,'.fileuploader input[type=file]','input[name=fileuploader-list-images]','.n_bbutton .n_right','#show_banned');
+
         $('input[name="images"]').fileuploader({
             extensions: ['jpg', 'png', 'jpeg', 'bmp'],
             changeInput: ' ',

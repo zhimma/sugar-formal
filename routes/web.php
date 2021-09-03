@@ -307,7 +307,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::post('town_ajax', 'PagesController@town_ajax');
     Route::post('searchData', 'PagesController@searchData');
     Route::post('updateMemberData', 'PagesController@updateMemberData');
-    
+
     Route::get('new/mem_updatevip', 'PagesController@mem_updatevip');
     Route::post('cancelVip', 'PagesController@cancelVip');
     Route::get('new/women_updatevip', 'PagesController@women_updatevip');
@@ -332,7 +332,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     /*會員驗證END*/
 
 
-    
+
     /*
     |--------------------------------------------------------------------------
     | Dashboard
@@ -429,6 +429,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::post('/dashboard/reportNext', 'PagesController@reportNext')->name('reportNext');
     Route::post('/dashboard/reportPost', 'PagesController@reportPost')->name('reportPost');
     Route::post('/dashboard/reportMsg', 'PagesController@reportMsg')->name('reportMsg');
+    Route::post('/dashboard/reportMessageBoardAJAX', 'PagesController@reportMessageBoardAJAX')->name('reportMessageBoardAJAX');
+
     Route::get('/dashboard/reportPic/{user}/{id}/{uid?}', 'PagesController@reportPic')->name('reportPic');
     Route::post('/dashboard/reportPicNext', 'PagesController@reportPicNext')->name('reportPicNext');
     Route::post('/dashboard/reportPicNextNew', 'PagesController@reportPicNextNew')->name('reportPicNextNew'); //new route
@@ -608,7 +610,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/posts/prohibit', 'UserController@toggleUser_prohibit_posts');
         Route::post('users/posts/access', 'UserController@toggleUser_access_posts');
         Route::post('users/accountStatus_admin', 'UserController@accountStatus_admin');
-
+        Route::get('users/messageBoard', 'UserController@messageBoardList')->name('users/messageBoardList');
+        Route::post('users/messageBoard/delete/{id}', 'UserController@deleteMessageBoard');
+        Route::post('users/messageBoard/hideMsg/{id}', 'UserController@hideMessageBoard');
+        Route::post('users/messageBoard/edit/{id}', 'UserController@editMessageBoard');
         Route::get('users/memberList', 'UserController@memberList')->name('users/memberList');
         Route::post('users/memberList', 'UserController@searchMemberList')->name('searchMemberList');
 
@@ -761,7 +766,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         /*新增、編輯訊息*/
         Route::post('users/getmsglib', 'UserController@getMessageLib');
         Route::post('users/updatemsglib', 'UserController@updateMessageLib');
-        
+
         Route::post('users/delmsglib', 'UserController@delMessageLib');
         Route::get('users/message/msglib/create', 'UserController@addMessageLibPage');
         Route::get('users/message/msglib/create/editPic_sendMsg', 'UserController@addMessageLibPageReporter');
@@ -837,3 +842,4 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::get('/fruits/product_ferment_more', 'FruitController@product_ferment_more');
 });
 Route::get('/test', 'ImageController@deletePictures');
+Route::get('/test_w', 'SmsController@test');

@@ -12,6 +12,7 @@ use App\Models\Fingerprint2;
 use App\Models\LogUserLogin;
 use App\Models\MemberPic;
 use App\Models\Message;
+use App\Models\MessageBoard;
 use App\Models\Posts;
 use App\Models\Reported;
 use App\Models\ReportedAvatar;
@@ -182,7 +183,7 @@ class UserController extends \App\Http\Controllers\BaseController
                         'business_id' => 'BackendFree',
                         'order_id' => 'BackendFree',
                         'expiry' => '0000-00-00 00:00:00',
-                        'free' => 1
+                        'free' => 0
                     ));
             } else {
                 //從來都沒VIP資料的
@@ -197,7 +198,7 @@ class UserController extends \App\Http\Controllers\BaseController
         //新增Admin操作log
         $this->insertAdminActionLog($request->user_id, $request->isVip ==1 ? '取消VIP' : '升級VIP');
 
-        VipLog::addToLog($request->user_id, $setVip == 0 ? 'manual_cancel' : 'manual_upgrade', 'Manual Setting', $setVip, 1);
+        VipLog::addToLog($request->user_id, $setVip == 0 ? 'manual_cancel' : 'manual_upgrade', 'Manual Setting', $setVip, 0);
         $user = User::select('id', 'email', 'name')
             ->where('id', $request->user_id)
             ->get()->first();
@@ -4025,6 +4026,50 @@ class UserController extends \App\Http\Controllers\BaseController
         }
     }
 
+    public function messageBoardList(Request $request){
+        $messages = MessageBoard::select('message_board.*', 'users.name', 'users.engroup')
+            ->join('reported_message_board', 'reported_message_board.message_board_id', '=', 'message_board.id')
+            ->join('users', 'users.id', '=', 'message_board.user_id');
+        $messages = $messages->whereRaw('reported_message_board.id is not null');
+        if(isset($request->date_start) || isset($request->date_end) || isset($request->keyword)){
+            $start = isset($request->date_start) ? $request->date_start : '';
+            $end = isset($request->date_end) ? $request->date_end : '';
+            $messages = $messages->whereDate('message_board.created_at', '>=', $start)
+                ->whereDate('message_board.created_at', '<=', $end);
+        }
+        $messages = $messages->orderBy('created_at', 'desc')->paginate(50);
+        return view('admin.users.messageBoardManage')->with('messages', $messages)
+            ->with('date_start', $request->date_start)
+            ->with('date_end', $request->date_end);
+    }
+
+    public function deleteMessageBoard($id){
+        $message = MessageBoard::where('id', $id)->first();
+        if ($message->delete()) {
+            return back()->with('message', '刪除留言成功！');
+        } else {
+            return back()->withErrors(['發生不明錯誤，刪除留言失敗！']);
+        }
+    }
+
+    public function hideMessageBoard(Request $request, $id){
+        $message = MessageBoard::where('id', $id)->first();
+        $message->hide_by_admin=$request->hide_by_admin;
+        $message->save();
+
+        return back()->with('message', $request->hide_by_admin==1 ? '隱藏留言成功！' : '解除隱藏留言成功！');
+    }
+
+    public function editMessageBoard(Request $request, $id){
+        $contents=$request->contents;
+
+        $message = MessageBoard::where('id', $id)->first();
+        $message->contents=$contents;
+        $message->save();
+
+        return back()->with('message', '修改留言成功！');
+    }
+        
     public function toggleUser_prohibit_posts(Request $request)
     {
         $user= User::findById($request->uid);
