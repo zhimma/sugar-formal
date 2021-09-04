@@ -271,7 +271,8 @@ class LoginController extends \App\Http\Controllers\BaseController
                         $whiteList = [
                             "pig820827@yahoo.com.tw",
                             "henyanyilily@gmail.com",
-                            "chenyanyilily@gmail.com"
+                            "chenyanyilily@gmail.com",
+                            "sa83109@gmail.com"
                         ];
                         if(!in_array($request->email, $whiteList)){
                             if($country != "TW" && $country != "??") {
