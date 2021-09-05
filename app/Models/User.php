@@ -529,6 +529,14 @@ class User extends Authenticatable
         $auth_phone = DB::table('short_message')->where('member_id',$this->id)->where('active',1)->count(); //->where('mobile','!=','')
         return isset($auth_phone) && $auth_phone>0;
     }
+
+    public function isAdvanceAuth()
+    {
+        $count = $this->where('id',$this->id)->where('advance_auth_status',1)->count();
+        $res = $count >0 ? 1:0;
+        return $res;
+    }
+    
     public function isImgAuth()
     {
         $auth_img = DB::table('auth_img')->where('user_id',$this->id)->where('status',1)->count();
