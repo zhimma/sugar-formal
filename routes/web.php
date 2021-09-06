@@ -336,16 +336,12 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::get('advance_auth', 'PagesController@advance_auth');
     Route::post('advance_auth_process', 'PagesController@advance_auth_process');
 
-    Route::get('advance_auth_return_url', 'PagesController@advance_auth_return_url');
-    Route::get('query_verify_result', 'PagesController@query_verify_result');
+    Route::get('is_advance_auth', 'PagesController@is_advance_auth');
+    Route::post('is_advance_auth', 'PagesController@is_advance_auth');
+
     Route::get('advance_auth_result', 'PagesController@advance_auth_result');
     Route::post('advance_auth_result', 'PagesController@advance_auth_result');
 
-    Route::get('advance_auth_query', 'PagesController@advance_auth_query');
-    Route::post('advance_auth_query', 'PagesController@advance_auth_query');
-
-    Route::post('advance_auth_ban_back', 'PagesController@advance_auth_ban_back');
-    Route::post('advance_auth_warn_back', 'PagesController@advance_auth_warn_back');
     /*進階驗證END*/
     
     /*

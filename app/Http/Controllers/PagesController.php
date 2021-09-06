@@ -3893,6 +3893,7 @@ class PagesController extends BaseController
 
     }
 
+    
     public function advance_auth_result(Request $request){
         $data['BusinessNo'] = $request->BusinessNo;
         $data['ApiVersion'] = $request->ApiVersion;
@@ -3905,6 +3906,13 @@ class PagesController extends BaseController
         $auth_status = $request->ReturnCode;
         return view('/auth/advance_auth_result')
                     ->with('auth_status', $auth_status);
+    }
+
+    public function is_advance_auth(Request $request)
+    {
+        $count = User::where('id',$request->id)->where('advance_auth_status',1)->count();
+        $res = $count >0 ? 1:0;
+        return $res;
     }
 
     public function get_identify_no_do($data){
