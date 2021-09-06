@@ -930,7 +930,7 @@
 	@foreach($userLogin_log as $logInLog)
 		<tr>
 			<td>
-				<span class="loginItem" id="showloginTime{{substr($logInLog->loginDate,0,7)}}" data-sectionName="loginTime{{substr($logInLog->loginDate,0,7)}}">{{ substr($logInLog->loginDate,0,7) . ' ['. $logInLog->dataCount .']' }}</span>
+				<span class="loginItem showRecord" id="showloginTime{{substr($logInLog->loginDate,0,7)}}" data-sectionName="loginTime{{substr($logInLog->loginDate,0,7)}}" data-ip="不指定">{{ substr($logInLog->loginDate,0,7) . ' ['. $logInLog->dataCount .']' }}</span>
 				<table>
 					@php
 						$CFP_count=count(array_get($logInLog->CfpID,'CfpID_group',[]));
@@ -1736,7 +1736,7 @@ jQuery(document).ready(function(){
 		$('#'+sectionName).show();
 	});
 
-	$('.ipItem').click(function(){
+	$('.ipItem , .showRecord').click(function(){
 		var getIP =$(this).attr('data-ip');
 		var user_id='{{ $user->id }}';
 		$('#ip10days').attr("href",'/admin/users/ip/' + getIP + '?user_id=' + user_id +'&period=10days');
