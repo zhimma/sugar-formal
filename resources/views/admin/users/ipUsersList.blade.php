@@ -45,7 +45,7 @@
             @endforeach
         </tbody>
     </table>
-    {!! $ipUsersData->links('pagination::sg-pages') !!}
+    {!! $ipUsersData->appends(request()->input())->links('pagination::sg-pages') !!}
 </div>
 @endif
 
