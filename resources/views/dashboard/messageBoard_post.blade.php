@@ -33,7 +33,7 @@
 						<input type="hidden" name="_token" value="{{ csrf_token() }}">
 						<input name="title" id="title" type="text" class="tw_input" placeholder="#標題">
 						<textarea name="contents" id="contents" cols="" rows="" class="tw_textinput" placeholder="#内容"></textarea>
-						<input id="images" type="file" name="images" accept="image/*" >
+						<input id="images" type="file" name="images">
 						<div class="dengl_but matop20" onclick="send_posts_submit()">確定</div>
 					</form>
 				</div>
@@ -46,6 +46,7 @@
 <link href="{{ asset('new/css/fileupload.css') }}" media="all" rel="stylesheet">
 <link href="{{ asset('css/font/font-fileuploader.css') }}" media="all" rel="stylesheet">
 <script src="{{ asset('js/jquery.fileuploader.js') }}" type="text/javascript"></script>
+<script src="{{ asset('new/js/heic2any.min.js') }}" type="text/javascript"></script>
 <script src="{{ asset('new/js/resize_before_upload.js') }}" type="text/javascript"></script>
 <script>
 	function send_posts_submit() {
@@ -63,10 +64,9 @@
 		$("#posts").submit();
 	}
 
-	$(document).ready(function () {
-        resize_before_upload(400,600,'#posts' ,'.fileuploader input[type=file]','input[name=fileuploader-list-images]','.dengl_but',null,'json');
-		$('input[name="images"]').fileuploader({
-			extensions: ['jpg', 'png', 'jpeg', 'bmp'],
+	$(document).ready(function () {        
+		var images_uploader = $('input[name="images"]').fileuploader({
+			//extensions: ['jpg', 'png', 'jpeg', 'bmp'],
 			changeInput: ' ',
 			theme: 'thumbnails',
 			enableApi: true,
@@ -203,7 +203,7 @@
 				}
 			}
 		});
-
+        resize_before_upload(images_uploader,400,600,null,'json');
 		$(".announce_bg").on("click", function() {
 			$('.bl_tab_aa').hide();
 		});
