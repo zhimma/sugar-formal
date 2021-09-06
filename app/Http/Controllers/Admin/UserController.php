@@ -4164,11 +4164,13 @@ class UserController extends \App\Http\Controllers\BaseController
         $getIpUsersData = LogUserLogin::selectraw('g.*, u.email, u.name, u.title, u.engroup, u.last_login')
             ->from('log_user_login as g')
             ->leftJoin('users as u','u.id','g.user_id')
-            ->where('g.ip', $ip)
             ->whereNotNull('u.id')
             ->orderBy('u.id')
             ->orderBy('u.last_login','DESC')
             ->orderBy('g.created_at','DESC');
+        if($ip!=='不指定'){
+            $getIpUsersData=$getIpUsersData->where('g.ip', $ip);
+        }
 
         $period=$request->period;
         if($period){
