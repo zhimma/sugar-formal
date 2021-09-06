@@ -399,7 +399,7 @@
                         <input type="hidden" name="uid" value="">
                         <input type="hidden" name="id" value="">
                         <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_reason}}" required></textarea>
-                        <input id="images" type="file" name="images" accept="image/*">
+                        <input id="images" type="file" name="images">
                         <div class="n_bbutton" style="width: 100%; text-align: center;">
                             <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">送出</button>
                             <button type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="show_banned_close()">返回</button>
@@ -424,7 +424,7 @@
                     <div class="bltitle"><span style="text-align: center; float: none;">上傳照片</span></div>
                     <div class="new_pot1 new_poptk_nn new_height_mobile ">
                         <div class="fpt_pic">
-                            <input id="images" type="file" name="images" accept="image/*">
+                            <input id="images" type="file" name="images" >
                             <div class="alert_tip" style="margin: 11px 11px; color:red;">
                                 <a href="https://www.tech-girlz.com/2020/07/iphone-photo-jpg.html" target="_blank" style="color:pink;">若 iPhone 上傳失敗，請點此了解如何設定。或點右下聯絡我們加站長 Line 協助</a>
                             </div>
@@ -448,6 +448,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js" charset="utf-8"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js" charset="utf-8"></script>
 <script src="{{ asset('new/js/photoswipe-simplify.min.js') }}" charset="utf-8"></script>
+<script src="{{ asset('new/js/heic2any.min.js') }}" type="text/javascript"></script>
 <script src="{{ asset('new/js/resize_before_upload.js') }}" type="text/javascript"></script>
 <script>
     photoswipeSimplify.init({
@@ -783,11 +784,8 @@
         }
     }
     $(document).ready(function () {
-        resize_before_upload(400,600,'#form_uploadPic' ,'.fpt_pic input[type=file]','input[name=fileuploader-list-images]','.fpt_pic .n_bllbut','#tab_uploadPic');
-        resize_before_upload(400,600,'#reportMsgForm' ,'.fileuploader input[type=file]','input[name=fileuploader-list-images]','.n_bbutton .n_right','#show_banned');
-
-        $('input[name="images"]').fileuploader({
-            extensions: ['jpg', 'png', 'jpeg', 'bmp'],
+        images_uploader = $('input[name="images"]').fileuploader({
+            //extensions: ['jpg', 'png', 'jpeg', 'bmp'],
             changeInput: ' ',
             theme: 'thumbnails',
             enableApi: true,
@@ -923,7 +921,7 @@
                 }
             }
         });
-
+        resize_before_upload(images_uploader,400,600,'#show_banned,#tab_uploadPic');
         $(".announce_bg").on("click", function() {
             $('.bl_tab_aa').hide();
         });

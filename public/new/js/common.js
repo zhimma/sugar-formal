@@ -154,10 +154,11 @@
 	}
 	
 	function closeAndReload(event) {
+        window.location.reload();
     	$(".blbg").hide();
         $(".bl").hide();
 		$(".gg_tab").hide();
-		window.location.reload();
+		
     }	
 
     $(document).on('click','.blbg',closeAndReload);
