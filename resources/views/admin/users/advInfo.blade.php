@@ -4,7 +4,11 @@
 	.hiddenRow {
 		padding: 0 !important;
 	}
+	.popover{
+		max-width: 600px; /* Max Width of the popover (depending on the container!) */
+	}
 </style>
+
 <body style="padding: 15px;">
 <h1>
 	{{ $user->name }}
@@ -456,44 +460,44 @@
 
 @endphp
 <br>
-<h4>封鎖與警示紀錄</h4>
 @if($isEverWarned_log || $isEverBanned_log || $isWarned_show || $isBanned_show)
-	<table class="table table-hover table-bordered" style="width: 80%;">
+	<h4>封鎖與警示紀錄</h4>
+	<table class="table table-hover table-bordered" style="width: 60%;">
 		<tr>
-			<th style="width: 20px;"></th>
+			<th width="20%"></th>
 			@if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
-				<th style="width: 20px;">是否封鎖</th>
+				<th width="20%">是否封鎖</th>
 			@endif
 			@if(count($isWarned_show)>0 || count($isEverWarned_log)>0 || $userMeta->isWarned==1)
-				<th style="width: 20px;">是否警示</th>
+				<th width="20%">是否警示</th>
 			@endif
 			@if(count($isEverBanned_log)>0)
 				@if(!is_null(array_get($isEverBanned_log,'0')))
-					<th style="width: 20px;" @if(count($isEverBanned)>1) title="多筆" @endif>過往封鎖紀錄</th>
+					<th id="showMore_banned" width="20%" @if(count($isEverBanned)>1) title="封鎖紀錄" @endif>過往封鎖紀錄</th>
 				@endif
 			@endif
 			@if(count($isEverWarned_log)>0)
 				@if(!is_null(array_get($isEverWarned_log,'0')))
-					<th id="showMore_warned"  style="width: 20px;" @if(count($isEverWarned)>1) title="多筆" @endif>過往警示紀錄</th>
+					<th id="showMore_warned" width="20%" @if(count($isEverWarned)>1) title="警示紀錄" @endif>過往警示紀錄</th>
 				@endif
 			@endif
 		</tr>
 		<tr>
 			<th >時間</th>
 			@if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
-				<td  style="width: 20px;">{{ array_get($isBanned_show,'created_at') }}</td>
+				<td>{{ array_get($isBanned_show,'created_at') }}</td>
 			@endif
 			@if($userMeta->isWarned==1)
-				<td style="width: 20px;">{{ $userMeta->isWarnedTime }}</td>
+				<td>{{ $userMeta->isWarnedTime }}</td>
 			@elseif(count($isWarned_show)>0 || count($isEverWarned_log)>0)
-				<td  style="width: 20px;">{{ array_get($isWarned_show,'created_at') }}</td>
+				<td>{{ array_get($isWarned_show,'created_at') }}</td>
 			@endif
 			@if(count($isEverBanned_log)>0)
-				<td  style="width: 20px;">{{ array_get($isEverBanned_log,'0.created_at') }}</td>
+				<td>{{ array_get($isEverBanned_log,'0.created_at') }}</td>
 			@endif
 			@if(count($isEverWarned_log)>0)
 				@if(!is_null(array_get($isEverWarned_log,'0')))
-					<td  style="width: 20px;">{{ array_get($isEverWarned_log,'0.created_at') }}</td>
+					<td>{{ array_get($isEverWarned_log,'0.created_at') }}</td>
 				@endif
 			@endif
 		</tr>
@@ -503,7 +507,7 @@
 				<td>{{ array_get($isBanned_show,'reason') }}</td>
 			@endif
 			@if($userMeta->isWarned==1)
-				<td style="width: 20px;">檢舉警示</td>
+				<td>檢舉警示</td>
 			@elseif(count($isWarned_show)>0 || count($isEverWarned_log)>0)
 				<td>{{ array_get($isWarned_show,'reason') }}</td>
 			@endif
@@ -522,7 +526,7 @@
 				<td>{{ !is_null(array_get($isBanned_show,'created_at')) && !is_null(array_get($isBanned_show,'expire_date')) ? array_get($isBanned_show,'expire_date') : (count($isBanned_show)>0 ? '永久' : '') }}</td>
 			@endif
 			@if($userMeta->isWarned==1)
-				<td style="width: 20px;">永久</td>
+				<td>永久</td>
 			@elseif(count($isWarned_show)>0 || count($isEverWarned_log)>0)
 				<td>{{ !is_null(array_get($isWarned_show,'created_at')) && !is_null(array_get($isWarned_show,'expire_date')) ? array_get($isWarned_show,'expire_date') : (count($isWarned_show)>0 ? '永久' : '') }}</td>
 			@endif
@@ -538,9 +542,85 @@
 			@endif
 		</tr>
 	</table>
+
+	<div id="showMore_banned_log" class="mouseOverPop" style="width: 80%;display: none;">
+		<table class="table table-hover table-bordered">
+			<tr>
+				<th>時間</th>
+				@if(count($isEverBanned_log)>0)
+					@if(!is_null(array_get($isEverBanned_log,'1')))
+						<td>{{ array_get($isEverBanned_log,'1.created_at') }}</td>
+					@endif
+					@if(!is_null(array_get($isEverBanned_log,'2')))
+						<td>{{ array_get($isEverBanned_log,'2.created_at') }}</td>
+					@endif
+				@endif
+			</tr>
+			<tr>
+				<th>原因</th>
+				@if(count($isEverBanned_log)>0)
+					@if(!is_null(array_get($isEverBanned_log,'1')))
+						<td>{{ array_get($isEverBanned_log,'1.reason') }}</td>
+					@endif
+					@if(!is_null(array_get($isEverBanned_log,'2')))
+						<td>{{ array_get($isEverBanned_log,'2.reason') }}</td>
+					@endif
+				@endif
+			</tr>
+			<tr>
+				<th>到期日</th>
+				@if(count($isEverBanned_log)>0)
+					@if(!is_null(array_get($isEverBanned_log,'1')))
+						<td>{{ !empty(array_get($isEverBanned_log,'1.expire_date')) ? array_get($isEverBanned_log,'1.expire_date') : '永久' }}</td>
+					@endif
+					@if(!is_null(array_get($isEverBanned_log,'2')))
+						<td>{{ !empty(array_get($isEverBanned_log,'2.expire_date')) ? array_get($isEverBanned_log,'2.expire_date') : '永久' }}</td>
+					@endif
+				@endif
+			</tr>
+		</table>
+	</div>
+	<div id="showMore_warned_log" style="width: 80%;display: none;">
+		<table class="table table-hover table-bordered">
+			<tr>
+				<th>時間</th>
+				@if(count($isEverWarned_log)>0)
+					@if(!is_null(array_get($isEverWarned_log,'1')))
+						<td>{{ array_get($isEverWarned_log,'1.created_at') }}</td>
+					@endif
+					@if(!is_null(array_get($isEverWarned_log,'2')))
+						<td>{{ array_get($isEverWarned_log,'2.created_at') }}</td>
+					@endif
+				@endif
+			</tr>
+			<tr>
+				<th>原因</th>
+				@if(count($isEverWarned_log)>0)
+					@if(!is_null(array_get($isEverWarned_log,'1')))
+						<td>{{ array_get($isEverWarned_log,'1.reason') }}</td>
+					@endif
+					@if(!is_null(array_get($isEverWarned_log,'2')))
+						<td>{{ array_get($isEverWarned_log,'2.reason') }}</td>
+					@endif
+				@endif
+			</tr>
+			<tr>
+				<th>到期日</th>
+				@if(count($isEverWarned_log)>0)
+					@if(!is_null(array_get($isEverWarned_log,'1')))
+						<td>{{ !empty(array_get($isEverWarned_log,'1.expire_date')) ? array_get($isEverWarned_log,'1.expire_date') : '永久' }}</td>
+					@endif
+					@if(!is_null(array_get($isEverWarned_log,'2')))
+						<td>{{ !empty(array_get($isEverWarned_log,'2.expire_date')) ? array_get($isEverWarned_log,'2.expire_date') : '永久' }}</td>
+					@endif
+				@endif
+			</tr>
+		</table>
+	</div>
+
 @endif
 
-@if($user->engroup==1)
+{{--@if($user->engroup==1)
 <h4>PR值</h4>
 <table class="table table-hover table-bordered">
 	<tr>
@@ -554,7 +634,7 @@
 		<td>{{$pr_created_at}}</td>
 	</tr>
 </table>
-@endif
+@endif--}}
 
 @if(count($reportBySelf)>0)
 <br>
@@ -807,31 +887,45 @@
 {{--<span>封鎖多少會員： {{ array_get($userAdvInfo,'blocked_other_count',0) }}</span>--}}
 {{--<span>被多少會員封鎖： {{ array_get($userAdvInfo,'be_blocked_other_count',0) }}</span>--}}
 
-
-<table class="table table-hover table-bordered">
+<h4>進階資料</h4>
+<table class="table table-hover table-bordered" style="width: 60%;">
 	<tr>
-		<th width="25%">過去7天瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count_7',0) }}</th>
-		<th width="25%">瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count',0) }}</th>
-		<th width="25%">封鎖多少會員： {{ array_get($userAdvInfo,'blocked_other_count',0) }}</th>
-		<th width="25%">過去7天罐頭訊息比例： {{ array_get($userAdvInfo,'message_percent_7',0) }}</th>
+		<th width="20%">過去7天瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count_7',0) }}</th>
+		<th width="20%">瀏覽其他會員次數： {{ array_get($userAdvInfo,'visit_other_count',0) }}</th>
+		<th width="20%">封鎖多少會員： {{ array_get($userAdvInfo,'blocked_other_count',0) }}</th>
+		<th width="20%">過去7天罐頭訊息比例： {{ array_get($userAdvInfo,'message_percent_7',0) }}</th>
+		@if($user->engroup==1)
+			<th width="20%">PR：{{$pr}}</th>
+		@endif
 	</tr>
 	<tr>
 		<th>過去7天發信次數： {{ array_get($userAdvInfo,'message_count_7',0) }}</th>
 		<th>發信次數： {{ array_get($userAdvInfo,'message_count',0) }}</th>
 		<th>被多少會員封鎖： {{ array_get($userAdvInfo,'be_blocked_other_count',0) }}</th>
 		<th>每周平均上線次數： {{ array_get($userAdvInfo,'login_times_per_week',0) }}</th>
+		@if($user->engroup==1)
+			<th>時間：{{$pr_created_at}}</th>
+		@endif
 	</tr>
 	<tr>
 		<th></th>
 		<th></th>
 		<th></th>
 		<th>收藏會員次數： {{ array_get($userAdvInfo,'fav_count',0) }}</th>
+		@if($user->engroup==1)
+			<th>{{$pr_log}}</th>
+		@endif
 	</tr>
 </table>
 
 
 <br>
 <h4>帳號登入紀錄</h4>
+<div>
+	<a id="ip10days" href="/admin/users/ip/尚未指定/?10days" target="_blank" class="btn btn-success" style="margin-left: 10px;">10天</a>
+	<a id="ip20days" href="/admin/users/ip/尚未指定/?20days" target="_blank" class="btn btn-primary">20天</a>
+	<a id="ip30days" href="/admin/users/ip/尚未指定/?30days" target="_blank" class="btn btn-warning">30天</a>
+</div>
 <table id="table_userLogin_log" class="table table-hover table-bordered">
 	@foreach($userLogin_log as $logInLog)
 		<tr>
@@ -861,7 +955,7 @@
 					@if($IP_count>0)
 						@foreach(array_get($logInLog->Ip,'Ip_group',[]) as $gpKey =>$group)
 							@if($gpKey<10)
-								<td class="loginItem" id="showIp{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="Ip{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" style="margin-left: 20px;min-width: 150px;">{{ $group->ip.'('.$group->dataCount .')' }}</td>
+								<td class="loginItem ipItem" id="showIp{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-sectionName="Ip{{substr($logInLog->loginDate,0,7)}}_group{{$gpKey}}" data-ip="{{ $group->ip }}" style="margin-left: 20px;min-width: 150px;">{{ $group->ip.'('.$group->dataCount .')' }}</td>
 							@endif
 						@endforeach
 					@endif
@@ -1641,6 +1735,16 @@ jQuery(document).ready(function(){
 		$('.showLog').hide();
 		$('#'+sectionName).show();
 	});
+
+	$('.ipItem').click(function(){
+		var getIP =$(this).attr('data-ip');
+		var user_id='{{ $user->id }}';
+		$('#ip10days').attr("href",'/admin/users/ip/' + getIP + '?user_id=' + user_id +'&period=10days');
+		$('#ip20days').attr("href",'/admin/users/ip/' + getIP + '?user_id=' + user_id +'&period=20days');
+		$('#ip30days').attr("href",'/admin/users/ip/' + getIP + '?user_id=' + user_id +'&period=30days');
+	});
+
+
 });
 function Release(id) {
 	$("#blockUserID").val(id);
@@ -1882,6 +1986,27 @@ $('.delete_phone_submit').on('click',function(e){
 			});
 		});
 
+		@if(count($isEverBanned_log)>1)
+			$('#showMore_banned').popover({
+				animated: 'fade',
+				placement: 'top',
+				//trigger: 'click',
+				trigger: 'hover',
+				html: true,
+				content: function () { return $('#showMore_banned_log').html(); }
+			});
+		@endif
+
+		@if(count($isEverWarned_log)>1)
+			$('#showMore_warned').popover({
+				animated: 'fade',
+				placement: 'top',
+				//trigger: 'click',
+				trigger: 'hover',
+				html: true,
+				content: function () { return $('#showMore_warned_log').html(); }
+			});
+		@endif
 	});
 	/*调起大图 E*/
 </script>
