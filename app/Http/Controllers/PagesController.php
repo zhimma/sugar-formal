@@ -1885,7 +1885,13 @@ class PagesController extends BaseController
                 // return view('new.dashboard.viewuser', compact('user'));
             // }
             if ($user->id != $uid) {
-                if($user->engroup == $targetUser->engroup){
+
+                if(
+                    //檢查性別
+                    $user->engroup == $targetUser->engroup
+                    //檢查是否被封鎖
+                    || User::isBanned($user->id)
+                ){
                     return redirect()->route('listSeatch2');
                 }
                 Visited::visit($user->id, $targetUser);
@@ -2493,13 +2499,8 @@ class PagesController extends BaseController
         //先判定是否在站方封鎖名單裡面
         $aid = $request->input('aid');
         $uid = $request->input('uid');
-        $today = Carbon::today();
-        $c = banned_users::where('member_id', $aid)
-            ->where(function ($q) use ($aid, $today) {
-                //就算有被封，只要 解封時間 不是null 以及大於今日就放過
-                $q->where("expire_date", null)->orWhere("expire_date", ">", $today);
-            })->get()->count();
-        if($c>0){
+
+        if(User::isBanned($aid)){
             return  redirect(route("viewuser" , ['uid'=>$uid]))->withErrors([
                 '您目前被站方封鎖，無檢舉權限'
             ]);

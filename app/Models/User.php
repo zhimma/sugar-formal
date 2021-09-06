@@ -247,6 +247,16 @@ class User extends Authenticatable
         return false;
     }
 
+    /**
+     * 判定是否被封鎖
+     *
+     * 在 banned_users 跟 banned_users_implicitly 只要有任一被封鎖就回傳 true
+     * banned_users_implicitly 是隱性封鎖，和一般的封鎖一樣，只差在隱性封鎖的會員不會有任何通知
+     *
+     * @param int|string $id 使用者編號
+     *
+     * @return boolean
+     */
     public static function isBanned($id){
         if(banned_users::where('member_id', $id)->get()->count() > 0){
             return true;
@@ -257,6 +267,26 @@ class User extends Authenticatable
         else{
             return false;
         }
+    }
+
+    /**
+     * 判定是否有在 封鎖名單裡面 第二版
+     *
+     *
+     * @param string|int $id 對象id
+     *
+     * @return boolean
+    */
+    public static function isBanned_v2($id)
+    {
+        $c = banned_users::where('member_id', $id)
+            ->where(function ($q) use ($id) {
+                $today = Carbon::today();
+                //就算有被封，只要 解封時間 不是null 以及大於今日就放過
+                $q->where("expire_date", null)->orWhere("expire_date", ">", $today);
+            })->get()->count();
+
+        return $c > 0;
     }
 
     /**
