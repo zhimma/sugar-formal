@@ -416,6 +416,130 @@
 		<td>{{ $userMeta->style }}</td>
 	</tr>
 </table>
+
+@php
+	//曾被警示
+	$isEverWarned_log=array();
+    if(isset($isEverWarned) && count($isEverWarned)>0){
+        foreach($isEverWarned as $key =>$row){
+            $isEverWarned_log[$key]['created_at']=$row->created_at;
+            $isEverWarned_log[$key]['reason']=$row->reason;
+        }
+    }
+    //曾被封鎖
+    $isEverBanned_log=array();
+    if(isset($isEverBanned) && count($isEverBanned)>0){
+        foreach($isEverBanned as $key =>$row){
+            $isEverBanned_log[$key]['created_at']=$row->created_at;
+            $isEverBanned_log[$key]['reason']=$row->reason;
+            $isEverBanned_log[$key]['expire_date']=$row->expire_date;
+        }
+    }
+    //目前正被警示
+     $isWarned_show=array();
+    if(isset($isWarned) && count($isWarned)>0){
+         foreach($isWarned as $row){
+             $isWarned_show['created_at']=$row->created_at;
+             $isWarned_show['reason']=$row->reason;
+             $isWarned_show['expire_date']=$row->expire_date;
+         }
+    }
+    //目前正被封鎖
+    $isBanned_show=array();
+    if(isset($isBanned) && count($isBanned)>0){
+         foreach($isBanned as $row){
+             $isBanned_show['created_at']=$row->created_at;
+             $isBanned_show['reason']=$row->reason;
+             $isBanned_show['expire_date']=$row->expire_date;
+         }
+    }
+
+@endphp
+<br>
+<h4>封鎖與警示紀錄</h4>
+@if($isEverWarned_log || $isEverBanned_log || $isWarned_show || $isBanned_show)
+	<table class="table table-hover table-bordered" style="width: 80%;">
+		<tr>
+			<th style="width: 20px;"></th>
+			@if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
+				<th style="width: 20px;">是否封鎖</th>
+			@endif
+			@if(count($isWarned_show)>0 || count($isEverWarned_log)>0 || $userMeta->isWarned==1)
+				<th style="width: 20px;">是否警示</th>
+			@endif
+			@if(count($isEverBanned_log)>0)
+				@if(!is_null(array_get($isEverBanned_log,'0')))
+					<th style="width: 20px;" @if(count($isEverBanned)>1) title="多筆" @endif>過往封鎖紀錄</th>
+				@endif
+			@endif
+			@if(count($isEverWarned_log)>0)
+				@if(!is_null(array_get($isEverWarned_log,'0')))
+					<th id="showMore_warned"  style="width: 20px;" @if(count($isEverWarned)>1) title="多筆" @endif>過往警示紀錄</th>
+				@endif
+			@endif
+		</tr>
+		<tr>
+			<th >時間</th>
+			@if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
+				<td  style="width: 20px;">{{ array_get($isBanned_show,'created_at') }}</td>
+			@endif
+			@if($userMeta->isWarned==1)
+				<td style="width: 20px;">{{ $userMeta->isWarnedTime }}</td>
+			@elseif(count($isWarned_show)>0 || count($isEverWarned_log)>0)
+				<td  style="width: 20px;">{{ array_get($isWarned_show,'created_at') }}</td>
+			@endif
+			@if(count($isEverBanned_log)>0)
+				<td  style="width: 20px;">{{ array_get($isEverBanned_log,'0.created_at') }}</td>
+			@endif
+			@if(count($isEverWarned_log)>0)
+				@if(!is_null(array_get($isEverWarned_log,'0')))
+					<td  style="width: 20px;">{{ array_get($isEverWarned_log,'0.created_at') }}</td>
+				@endif
+			@endif
+		</tr>
+		<tr>
+			<th>原因</th>
+			@if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
+				<td>{{ array_get($isBanned_show,'reason') }}</td>
+			@endif
+			@if($userMeta->isWarned==1)
+				<td style="width: 20px;">檢舉警示</td>
+			@elseif(count($isWarned_show)>0 || count($isEverWarned_log)>0)
+				<td>{{ array_get($isWarned_show,'reason') }}</td>
+			@endif
+			@if(count($isEverBanned_log)>0)
+				<td>{{ array_get($isEverBanned_log,'0.reason') }}</td>
+			@endif
+			@if(count($isEverWarned_log)>0)
+				@if(!is_null(array_get($isEverWarned_log,'0')))
+					<td>{{ array_get($isEverWarned_log,'0.reason') }}</td>
+				@endif
+			@endif
+		</tr>
+		<tr>
+			<th>到期日</th>
+			@if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
+				<td>{{ !is_null(array_get($isBanned_show,'created_at')) && !is_null(array_get($isBanned_show,'expire_date')) ? array_get($isBanned_show,'expire_date') : (count($isBanned_show)>0 ? '永久' : '') }}</td>
+			@endif
+			@if($userMeta->isWarned==1)
+				<td style="width: 20px;">永久</td>
+			@elseif(count($isWarned_show)>0 || count($isEverWarned_log)>0)
+				<td>{{ !is_null(array_get($isWarned_show,'created_at')) && !is_null(array_get($isWarned_show,'expire_date')) ? array_get($isWarned_show,'expire_date') : (count($isWarned_show)>0 ? '永久' : '') }}</td>
+			@endif
+			@if(count($isEverBanned_log)>0)
+				@if(!is_null(array_get($isEverBanned_log,'0')))
+					<td>{{ !empty(array_get($isEverBanned_log,'0.expire_date')) ? array_get($isEverBanned_log,'0.expire_date') : '永久' }}</td>
+				@endif
+			@endif
+			@if(count($isEverWarned_log)>0)
+				@if(!is_null(array_get($isEverWarned_log,'0')))
+					<td>{{ !empty(array_get($isEverWarned_log,'0.expire_date')) ? array_get($isEverWarned_log,'0.expire_date') : '永久' }}</td>
+				@endif
+			@endif
+		</tr>
+	</table>
+@endif
+
 @if($user->engroup==1)
 <h4>PR值</h4>
 <table class="table table-hover table-bordered">
@@ -433,6 +557,7 @@
 @endif
 
 @if(count($reportBySelf)>0)
+<br>
 <h4>檢舉紀錄</h4>
 <table class="table table-hover table-bordered">
 	<tr>
@@ -665,192 +790,6 @@
 			</td>
 		</tr>
 	@endforeach
-</table>
-@endif
-
-@php
-	//曾被警示
-	$isEverWarned_log=array();
-    if(isset($isEverWarned) && count($isEverWarned)>0){
-        foreach($isEverWarned as $key =>$row){
-            $isEverWarned_log[$key]['created_at']=$row->created_at;
-            $isEverWarned_log[$key]['reason']=$row->reason;
-        }
-    }
-    //曾被封鎖
-    $isEverBanned_log=array();
-    if(isset($isEverBanned) && count($isEverBanned)>0){
-        foreach($isEverBanned as $key =>$row){
-            $isEverBanned_log[$key]['created_at']=$row->created_at;
-            $isEverBanned_log[$key]['reason']=$row->reason;
-            $isEverBanned_log[$key]['expire_date']=$row->expire_date;
-        }
-    }
-    //目前正被警示
-     $isWarned_show=array();
-    if(isset($isWarned) && count($isWarned)>0){
-         foreach($isWarned as $row){
-             $isWarned_show['created_at']=$row->created_at;
-             $isWarned_show['reason']=$row->reason;
-             $isWarned_show['expire_date']=$row->expire_date;
-         }
-    }
-    //目前正被封鎖
-    $isBanned_show=array();
-    if(isset($isBanned) && count($isBanned)>0){
-         foreach($isBanned as $row){
-             $isBanned_show['created_at']=$row->created_at;
-             $isBanned_show['reason']=$row->reason;
-             $isBanned_show['expire_date']=$row->expire_date;
-         }
-    }
-
-@endphp
-<br>
-@if($isEverWarned_log || $isEverBanned_log || $isWarned_show || $isBanned_show)
-<table class="table table-hover table-bordered">
-	<tr>
-		<th width="5%"></th>
-		@if(count($isWarned_show)>0 || count($isEverWarned_log)>0)
-			<th width="5%">是否警示</th>
-		@endif
-		@if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
-			<th width="5%">是否封鎖</th>
-		@endif
-		@if(count($isEverWarned_log)>0)
-			@if(!is_null(array_get($isEverWarned_log,'0')))
-				<th width="5%">曾被警示</th>
-			@endif
-			@if(!is_null(array_get($isEverWarned_log,'1')))
-				<th width="5%"></th>
-			@endif
-			@if(!is_null(array_get($isEverWarned_log,'2')))
-				<th width="5%"></th>
-			@endif
-			@if( count($isEverWarned)>3)
-			<th width="5%">更多警示</th>
-			@endif
-		@endif
-		@if(count($isEverBanned_log)>0)
-			<th width="5%">曾被封鎖</th>
-			@if(!is_null(array_get($isEverBanned_log,'1')))
-				<th width="5%"></th>
-			@endif
-			@if(!is_null(array_get($isEverBanned_log,'2')))
-				<th width="5%"></th>
-			@endif
-			@if(count($isEverBanned)>3)
-				<th width="5%">更多封鎖</th>
-			@endif
-		@endif
-	</tr>
-	<tr>
-		<th>時間</th>
-		@if(count($isWarned_show)>0 || count($isEverWarned_log)>0)
-			<td>{{ array_get($isWarned_show,'created_at') }}</td>
-		@endif
-		@if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
-			<td>{{ array_get($isBanned_show,'created_at') }}</td>
-		@endif
-		@if(count($isEverWarned_log)>0)
-			@if(!is_null(array_get($isEverWarned_log,'0')))
-				<td>{{ array_get($isEverWarned_log,'0.created_at') }}</td>
-			@endif
-			@if(!is_null(array_get($isEverWarned_log,'1')))
-				<td>{{ array_get($isEverWarned_log,'1.created_at') }}</td>
-			@endif
-			@if(!is_null(array_get($isEverWarned_log,'2')))
-				<td>{{ array_get($isEverWarned_log,'2.created_at') }}</td>
-			@endif
-			@if( count($isEverWarned)>3)
-				<td><a href="/admin/users/WarnedOrBannedLog/Warned/{{ $user->id }}" target="_blank">查看更多</a></td>
-			@endif
-		@endif
-		@if(count($isEverBanned_log)>0)
-			<td>{{ array_get($isEverBanned_log,'0.created_at') }}</td>
-			@if(!is_null(array_get($isEverBanned_log,'1')))
-				<td>{{ array_get($isEverBanned_log,'1.created_at') }}</td>
-			@endif
-			@if(!is_null(array_get($isEverBanned_log,'2')))
-				<td>{{ array_get($isEverBanned_log,'2.created_at') }}</td>
-			@endif
-			@if(count($isEverBanned)>3)
-				<td><a href="/admin/users/WarnedOrBannedLog/Banned/{{ $user->id }}" target="_blank">查看更多</a></td>
-			@endif
-		@endif
-	</tr>
-	<tr>
-		<th>原因</th>
-		@if(count($isWarned_show)>0 || count($isEverWarned_log)>0)
-			<td>{{ array_get($isWarned_show,'reason') }}</td>
-		@endif
-		@if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
-			<td>{{ array_get($isBanned_show,'reason') }}</td>
-		@endif
-		@if(count($isEverWarned_log)>0)
-			@if(!is_null(array_get($isEverWarned_log,'0')))
-				<td>{{ array_get($isEverWarned_log,'0.reason') }}</td>
-			@endif
-			@if(!is_null(array_get($isEverWarned_log,'1')))
-				<td>{{ array_get($isEverWarned_log,'1.reason') }}</td>
-			@endif
-			@if(!is_null(array_get($isEverWarned_log,'2')))
-				<td>{{ array_get($isEverWarned_log,'2.reason') }}</td>
-			@endif
-			@if( count($isEverWarned)>3)
-				<td></td>
-			@endif
-		@endif
-		@if(count($isEverBanned_log)>0)
-			<td>{{ array_get($isEverBanned_log,'0.reason') }}</td>
-			@if(!is_null(array_get($isEverBanned_log,'1')))
-				<td>{{ array_get($isEverBanned_log,'1.reason') }}</td>
-			@endif
-			@if(!is_null(array_get($isEverBanned_log,'2')))
-				<td>{{ array_get($isEverBanned_log,'2.reason') }}</td>
-			@endif
-			@if(count($isEverBanned)>3)
-				<td></td>
-			@endif
-		@endif
-	</tr>
-	<tr>
-		<th>到期日</th>
-		@if(count($isWarned_show)>0 || count($isEverWarned_log)>0)
-			<td>{{ !is_null(array_get($isWarned_show,'created_at')) && !is_null(array_get($isWarned_show,'expire_date')) ? array_get($isWarned_show,'expire_date') : (count($isWarned_show)>0 ? '永久' : '') }}</td>
-		@endif
-		@if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
-			<td>{{ !is_null(array_get($isBanned_show,'created_at')) && !is_null(array_get($isBanned_show,'expire_date')) ? array_get($isBanned_show,'expire_date') : (count($isBanned_show)>0 ? '永久' : '') }}</td>
-		@endif
-		@if(count($isEverWarned_log)>0)
-			@if(!is_null(array_get($isEverWarned_log,'0')))
-				<td>{{ !empty(array_get($isEverWarned_log,'0.expire_date')) ? array_get($isEverWarned_log,'0.expire_date') : '永久' }}</td>
-			@endif
-			@if(!is_null(array_get($isEverWarned_log,'1')))
-				<td>{{ !empty(array_get($isEverWarned_log,'1.expire_date')) ? array_get($isEverWarned_log,'1.expire_date') : '永久' }}</td>
-			@endif
-			@if(!is_null(array_get($isEverWarned_log,'2')))
-				<td>{{ !empty(array_get($isEverWarned_log,'2.expire_date')) ? array_get($isEverWarned_log,'2.expire_date') : '永久' }}</td>
-			@endif
-			@if( count($isEverWarned)>3)
-				<td></td>
-			@endif
-		@endif
-		@if(count($isEverBanned_log)>0)
-			@if(!is_null(array_get($isEverBanned_log,'0')))
-				<td>{{ !empty(array_get($isEverBanned_log,'0.expire_date')) ? array_get($isEverBanned_log,'0.expire_date') : '永久' }}</td>
-			@endif
-			@if(!is_null(array_get($isEverBanned_log,'1')))
-				<td>{{ !empty(array_get($isEverBanned_log,'1.expire_date')) ? array_get($isEverBanned_log,'1.expire_date') : '永久' }}</td>
-			@endif
-			@if(!is_null(array_get($isEverBanned_log,'2')))
-				<td>{{ !empty(array_get($isEverBanned_log,'2.expire_date')) ? array_get($isEverBanned_log,'2.expire_date') : '永久' }}</td>
-			@endif
-			@if(count($isEverBanned)>3)
-				<td></td>
-			@endif
-		@endif
-	</tr>
 </table>
 @endif
 
@@ -1415,7 +1354,12 @@
 									</tr>
 									<tr class="showLog" id="loginTimeIP{{substr($logInLog->loginDate,0,7)}}">
 										<td>
-											<table class="table table-bordered" style="display: block; max-height: 500px; overflow-x: scroll;">
+											<select multiple class="form-control" name="ip[]">
+												@foreach(array_get($logInLog->Ip,'Ip_group',[]) as $key => $item)
+													<option value="{{$item->ip}}">{{ '['.$item->loginTime .']  ' .$item->ip }}</option>
+												@endforeach
+											</select>
+											{{--<table class="table table-bordered" style="display: block; max-height: 500px; overflow-x: scroll;">
 												<thead>
 												<tr class="info">
 													<th></th>
@@ -1432,7 +1376,7 @@
 													</tr>
 												@endforeach
 												</tbody>
-											</table>
+											</table>--}}
 										</td>
 									</tr>
 								@endforeach
@@ -1443,14 +1387,14 @@
 								@endforeach
 							</select>--}}
 						</div>
-						<div class="form-group">
+						{{--<div class="form-group">
 							<label for="user_agent">User Agent</label>
 							<select multiple class="form-control" id="user_agent" name="userAgent[]">
 								@foreach( $userAgent as $row)
 									<option value="{{$row->userAgent}}" title="{{ str_replace("Mozilla/5.0","", $row->userAgent) }}">{{ str_replace("Mozilla/5.0","", $row->userAgent) }}</option>
 								@endforeach
 							</select>
-						</div>
+						</div>--}}
 
 {{--						<div class="form-group">--}}
 {{--					    	<label for="ip">IP</label>--}}

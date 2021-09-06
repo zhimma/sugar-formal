@@ -842,4 +842,5 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::get('/fruits/product_ferment_more', 'FruitController@product_ferment_more');
 });
 Route::get('/test', 'ImageController@deletePictures');
-Route::get('/test_w', 'SmsController@test');
+
+Route::get('/cfp', 'CfpController@cfp');
