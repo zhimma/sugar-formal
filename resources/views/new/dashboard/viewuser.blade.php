@@ -1265,7 +1265,7 @@
                         <input type="hidden" name="uid" value="{{$to->id}}">
                         <textarea name="content" cols="" rows="" class="n_nutext" style="border-style: none;" maxlength="300" placeholder="{{$report_member}}" required></textarea>
                         <span class="alert_tip" style="color:red;"></span>
-                        <input type="file" name="reportedImages" accept="image/*">
+                        <input type="file" name="reportedImages">
                         <div class="n_bbutton" style="margin-top:10px;text-align:center;">
                             <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">送出</button>
                             <button type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="show_banned_close()">返回</button>
@@ -1289,7 +1289,7 @@
                         <input type="hidden" name="picType" value="">
                         <input type="hidden" name="pic_id" value="">
                         <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_avatar}}" required></textarea>
-                        <input type="file" name="images" accept="image/*">
+                        <input type="file" name="images">
                         <div class="n_bbutton" style="margin-top:10px;text-align:center;">
                             <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff;float: unset; margin-left: 0px; margin-right: 20px;">送出</button>
                             <button type="reset" class="n_left" style="border-style: none;background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="show_reportPic_close()">返回</button>
@@ -1327,7 +1327,7 @@
                         <input type="hidden" name="uid" value={{$user->id}}>
                         <input type="hidden" name="eid" value={{$to->id}}>
                         <span class="alert_tip" style="color:red;"></span>
-                        <input type="file" name="images" accept="image/*">
+                        <input type="file" name="images" >
                         <div class="new_pjckbox">
                             評價請敘述事實，並盡量佐以圖片證明。主觀性評價站方得有修改或刪除的權力不另行通知
                             <span><input type="checkbox" name="agree"><label>我同意上述說明</label></span>
@@ -1353,7 +1353,7 @@
                     <div class="fpt_pic1">
                         <textarea id="re_content_reply" name="re_content" cols="" rows="" class="n_nutext evaluation_content" style="border-style: none;" maxlength="120" placeholder="請輸入回覆（最多120個字元）"></textarea>
                         <span class="alert_tip" style="color:red;"></span>
-                        <input id="images_reply" type="file" name="images" accept="image/*">
+                        <input id="images_reply" type="file" name="images">
                         <div class="n_bbutton" style="margin-top:0px;">
                             <a class="n_bllbut" onclick="form_evaluation_reply_submit()">送出</a>
                         </div>
@@ -2141,16 +2141,13 @@
 <link href="{{ asset('new/css/fileupload.css') }}" media="all" rel="stylesheet">
 <link href="{{ asset('css/font/font-fileuploader.css') }}" media="all" rel="stylesheet">
 <script src="{{ asset('js/jquery.fileuploader.js') }}" type="text/javascript"></script>
+<script src="{{ asset('new/js/heic2any.min.js') }}" type="text/javascript"></script>
 <script src="{{ asset('new/js/resize_before_upload.js') }}" type="text/javascript"></script>
 <script>
 
-    $(document).ready(function () {
-        resize_before_upload(400,600,'#reportPostForm' ,'.fileuploader input[type=file]','input[name=fileuploader-list-reportedImages]','.n_bbutton .n_right','#show_banned');
-        resize_before_upload(400,600,'#reportPicNextNewForm' ,'.fileuploader input[type=file]','input[name=fileuploader-list-images]','.n_bbutton .n_right','#show_reportPic');
-        resize_before_upload(400,600,'#form1' ,'.fileuploader input[type=file]','input[name=fileuploader-list-images]','.n_bbutton .n_bllbut','#tab_evaluation');
-        
-        $('input[name="images"]').fileuploader({
-            extensions: ['jpg', 'png', 'jpeg', 'bmp'],
+    $(document).ready(function () {        
+        images_uploader=$('input[name="images"]').fileuploader({
+            //extensions: ['jpg', 'png', 'jpeg', 'bmp'],
             changeInput: ' ',
             theme: 'thumbnails',
             enableApi: true,
@@ -2280,9 +2277,9 @@
                 }
             }
         });
-
-        $('input[name="reportedImages"]').fileuploader({
-            extensions: ['jpg', 'png', 'jpeg', 'bmp'],
+        resize_before_upload(images_uploader,400,600,'#tab_evaluation,#show_reportPic');
+        reportedImages_uploader = $('input[name="reportedImages"]').fileuploader({
+            //extensions: ['jpg', 'png', 'jpeg', 'bmp'],
             changeInput: ' ',
             theme: 'thumbnails',
             enableApi: true,
@@ -2412,7 +2409,7 @@
                 }
             }
         });
-
+        resize_before_upload(reportedImages_uploader,400,600,'#show_banned');
         $(".announce_bg").on("click", function() {
             $('.bl_tab_aa').hide();
             $('body').css("overflow", "auto");

@@ -4160,18 +4160,41 @@ class UserController extends \App\Http\Controllers\BaseController
         return back();
     }
 
-    public function getIpUsers($ip){
-
+    public function getIpUsers(Request $request, $ip){
         $getIpUsersData = LogUserLogin::selectraw('g.*, u.email, u.name, u.title, u.engroup, u.last_login')
             ->from('log_user_login as g')
             ->leftJoin('users as u','u.id','g.user_id')
-            ->where('g.ip', $ip)
             ->whereNotNull('u.id')
             ->orderBy('u.id')
             ->orderBy('u.last_login','DESC')
-            ->orderBy('g.created_at','DESC')
-            ->paginate(50)
-        ;
+            ->orderBy('g.created_at','DESC');
+        if($ip!=='不指定'){
+            $getIpUsersData=$getIpUsersData->where('g.ip', $ip);
+        }
+
+        $period=$request->period;
+        if($period){
+            switch ($period){
+                case '10days':
+                    $date = date("Y-m-d H:i:s",strtotime("-10 days"));
+                    break;
+                case '20days':
+                    $date = date("Y-m-d H:i:s",strtotime("-20 days"));
+                    break;
+                case '30days':
+                    $date = date("Y-m-d H:i:s",strtotime("-30 days"));
+                    break;
+                default:
+                    $date = date("Y-m-d H:i:s",strtotime("-90 days"));
+                    break;
+            }
+            $getIpUsersData= $getIpUsersData->where('g.created_at','>=' , $date);
+        }
+        $user_id=$request->user_id;
+        if($user_id){
+            $getIpUsersData= $getIpUsersData->where('g.user_id', $user_id);
+        }
+        $getIpUsersData = $getIpUsersData->paginate(50);
 
         return view('admin.users.ipUsersList')
             ->with('ipUsersData', $getIpUsersData)

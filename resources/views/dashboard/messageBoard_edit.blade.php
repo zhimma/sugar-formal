@@ -75,10 +75,11 @@
 <link href="{{ asset('css/font/font-fileuploader.css') }}" media="all" rel="stylesheet">
 <script src="{{ asset('js/jquery.fileuploader.js') }}" type="text/javascript"></script>
 <script src="/plugins/fileuploader2.2/src/jquery.fileuploader.js"></script>
+<script src="{{ asset('new/js/heic2any.min.js') }}" type="text/javascript"></script>
 <script src="{{ asset('new/js/resize_before_upload.js') }}" type="text/javascript"></script>
 <script>
 	$(document).ready(function () {
-        resize_before_upload(400,600,'#posts' ,'.fileuploader input[type=file]','input[name=fileuploader-list-images]','.dengl_but',null,'json');
+        
 		@if(Session::has('message'))
 			c5("{{Session::get('message')}}");
 			<?php session()->forget('message');?>
@@ -99,8 +100,8 @@
 			$('#popUpTrueCallBackFunc').click(callback)
 			$("#popUpTrueOrFalse").show();
 		}
-		$('input[name="images"]').fileuploader({
-			extensions: ['jpg', 'png', 'jpeg', 'bmp'],
+		var images_uploader = $('input[name="images"]').fileuploader({
+			//extensions: ['jpg', 'png', 'jpeg', 'bmp'],
 			changeInput: ' ',
 			theme: 'thumbnails',
 			enableApi: true,
@@ -237,7 +238,7 @@
 				}
 			}
 		});
-
+        resize_before_upload(images_uploader,400,600,null,'json');
 		$(".announce_bg").on("click", function() {
 			$('.bl_tab_aa').hide();
 		});

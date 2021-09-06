@@ -47,7 +47,8 @@
     .two_container h4 span input{ margin-right: 3px;}
 
 </style>
-
+<script src="/plugins/hopscotch/js/hopscotch.min.js"></script>
+<script src="/plugins/fileuploader2.2/src/jquery.fileuploader.js"></script>
 <div class="container matop70 chat">
     <div class="row">
         <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -228,8 +229,8 @@
     </div>
 </div>
   
-<script src="/plugins/hopscotch/js/hopscotch.min.js"></script>
-<script src="/plugins/fileuploader2.2/src/jquery.fileuploader.js"></script>
+
+<script src="{{ asset('new/js/heic2any.min.js') }}" type="text/javascript"></script>
 <script src="{{ asset('new/js/resize_before_upload.js') }}" type="text/javascript"></script>
 <script type="text/javascript">
     /* 說明 */
@@ -259,8 +260,7 @@
     }
  
     $(document).ready(function(){
-        resize_before_upload(1000,300,'#avatar_upload_form' ,'.fileuploader input[type=file]','input[name=fileuploader-list-avatar]','.upload_btn');
-        resize_before_upload(1000,300,'#mempic_upload_form' ,'.fileuploader input[type=file]','input[name=fileuploader-list-pictures]','.upload_btn');
+
         
         @if(Session::has('message'))
             @if(Session::get('message')=='上傳成功' && $user->existHeaderImage() && $user->engroup==2 && !$user->isVip())//防呆
@@ -292,8 +292,9 @@
             data = JSON.stringify(data,null,2)
             $("input[name='avatar']").attr('data-fileuploader-files', data)
             //uploader 一定要在 data-fileuploader-files 設定之後才能 preload
-            $("input[name='avatar']").fileuploader({
+            uploaderOfAvatar = $("input[name='avatar']").fileuploader({
                 addMore: true,
+                enableApi: true,
                 limit: 1,
                 editor: {
                     ratio: "1:1",
@@ -348,6 +349,8 @@
                     }
                 }
             })
+            resize_before_upload(uploaderOfAvatar,1000,300);
+            
         },
         error: function(xhr, status, msg) {
             console.log(xhr.reponseText);
@@ -363,8 +366,9 @@
         success: function(data){
             data = data === null ? "" : JSON.stringify(data,null,2)
             $("input[name='pictures']").attr('data-fileuploader-files', data)
-            $("input[name='pictures']").fileuploader({
+            uploaderOfMemberPic = $("input[name='pictures']").fileuploader({
                 addMore: true,
+                enableApi: true,
                 limit: 6,
                 editor: {
                     showGrid: true
@@ -420,6 +424,8 @@
                     }
                 }
             })
+            
+            resize_before_upload(uploaderOfMemberPic,1000,300);
         },
         error: function(xhr, status, msg) {
             console.log(xhr);
