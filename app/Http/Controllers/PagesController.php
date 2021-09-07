@@ -2500,8 +2500,12 @@ class PagesController extends BaseController
         $aid = $request->input('aid');
         $uid = $request->input('uid');
 
-        if(User::isBanned($aid)){
-            return  redirect(route("viewuser" , ['uid'=>$uid]))->withErrors([
+        if (User::isBanned($aid)) {
+            if ($request->ajax()) {
+                echo '您目前被站方封鎖，無檢舉權限';
+                exit;
+            }
+            return redirect(route("viewuser", ['uid' => $uid]))->withErrors([
                 '您目前被站方封鎖，無檢舉權限'
             ]);
         }
