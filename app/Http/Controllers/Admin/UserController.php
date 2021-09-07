@@ -4253,6 +4253,16 @@ class UserController extends \App\Http\Controllers\BaseController
         return back();
     }
 
+    public function accountStatus_user(Request $request){
+        $uid=$request->input('uid');
+        $account_status=$request->input('account_status');
+        $user=User::findById($uid);
+        $user->accountStatus=$account_status;
+        $user->save();
+
+        return back();
+    }
+
     public function isEverWarnedOrBannedLog($logType, $user_id){
         $user=User::findById($user_id);
         if($logType=='Warned'){
