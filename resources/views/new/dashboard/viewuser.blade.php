@@ -1420,65 +1420,7 @@
             </div>
         </div>
         <div class="swiper-pagination2"></div>
-
     </div>
-    <link type="text/css" rel="stylesheet" href="/new/css/app.css">
-    <link rel="stylesheet" type="text/css" href="/new/css/swiper2.min.css"/>
-    <script type="text/javascript" src="/new/js/swiper.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            /*调起大图 S*/
-            var mySwiper = new Swiper('.swiper-container2',{
-                pagination : '.swiper-pagination2',
-                paginationClickable:true,
-                onInit: function(swiper){//Swiper初始化了
-                    // var total = swiper.bullets.length;
-                    var active =swiper.activeIndex;
-                    $(".swiper-num .active").text(active);
-                    // $(".swiper-num .total").text(total);
-                },
-                onSlideChangeEnd: function(swiper){
-                    var active =swiper.realIndex +1;
-                    $(".swiper-num .active").text(active);
-                }
-            });
-
-            $(".zap_photo li").on("click",
-                function () {
-                    var imgBox = $(this).parent(".zap_photo").find("li");
-                    var i = $(imgBox).index(this);
-                    $(".big_img .swiper-wrapper").html("")
-
-                    for (var j = 0, c = imgBox.length; j < c ; j++) {
-                        $(".big_img .swiper-wrapper").append('<div class="swiper-slide"><div class="cell"><img src="' + imgBox.eq(j).find("img").attr("src") + '" / ></div></div>');
-                    }
-                    mySwiper.updateSlidesSize();
-                    mySwiper.updatePagination();
-                    $(".big_img").css({
-                        "z-index": 1001,
-                        "opacity": "1"
-                    });
-                    //分页器
-                    var num = $(".swiper-pagination2 span").length;
-                    $(".swiper-num .total").text(num);
-                    // var active =$(".swiper-pagination2").index(".swiper-pagination-bullet-active");
-                    $(".swiper-num .active").text(i + 1);
-                    // console.log(active)
-
-                    mySwiper.slideTo(i, 0, false);
-                    return false;
-                });
-            $(".swiper-container2").click(function(){
-                $(this).parent(".big_img").css({
-                    "z-index": "-1",
-                    "opacity": "0"
-                });
-            });
-
-        });
-        /*调起大图 E*/
-    </script>
-    <!--照片查看end-->
 @stop
 
 @section('javascript')
@@ -1588,6 +1530,86 @@
         if( /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
             // $('.metx').css('position','unset');
         }
+
+        $('.content_delete').on( "click", function() {
+            c4('確定要刪除嗎?');
+            var id = $(this).data('id');
+            $(".n_left").on('click', function() {
+                $.post('{{ route('evaluation_delete') }}', {
+                    id: id,
+                    _token: '{{ csrf_token() }}'
+                }, function (data) {
+                    $("#tab04").hide();
+                    show_pop_message('評價已刪除');
+
+                });
+            });
+        });
+
+        $('.re_content_delete').on( "click", function() {
+            c4('確定要刪除嗎?');
+            var id = $(this).data('id');
+            var userid = $(this).data('userid');
+            $(".n_left").on('click', function() {
+                $.post('{{ route('evaluation_re_content_delete') }}', {
+                    id: id,
+                    userid:userid,
+                    _token: '{{ csrf_token() }}'
+                }, function (data) {
+                    $("#tab04").hide();
+                    show_pop_message('回覆已刪除');
+                });
+            });
+        });
+
+        $('.hf_but').on( "click", function() {
+
+            if($('#form_re_content'+ $(this).data('id')).find('.hf_i').val() == ''){
+                c5('請輸入內容');
+            }else{
+                $('#form_re_content'+ $(this).data('id')).submit();
+            }
+
+        });
+
+        //let button = document.getElementsByTagName('button');
+        let button = document.getElementsByClassName('show_all_evaluation');
+        let p = document.getElementsByTagName('p');
+
+        for (let i = 0; i < button.length; i++) {
+            button[i].onclick = function() {
+                if (this.innerHTML == "[完整評價]") {
+                    p[i].classList.remove("many-txt");
+                    p[i].classList.add("all-txt");
+                    this.innerHTML = "[點擊收起]";
+                    $(this).parent().siblings('.zap_photo').removeClass('huiyoic');
+                } else {
+                    p[i].classList.remove("all-txt");
+                    p[i].classList.add("many-txt");
+                    this.innerHTML = "[完整評價]";
+                    $(this).parent().siblings('.zap_photo').addClass('huiyoic');
+                }
+            }
+        }
+
+        $(".z_more").on( "click", function() {
+            $(this).parent().prev().find('.context').find("div").first().toggleClass('on context-wrap')
+            $(this).html($(this).text() === '展開' ? '收起' : '展開');
+            $(this).parent().prev().find('.context').find(".zap_photo").toggleClass('huiyoic');
+        });
+
+        $('div.context-wrap').each(function(i) {
+            if (isEllipsisActive(this)) {
+                $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
+                $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
+                $(this).parents('.hu_p').find('span.z_more').addClass('show_more');
+            }
+            else {
+                $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
+                $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
+                $(this).parents('.hu_p').find('span.z_more').addClass('hide_more');
+            }
+        });
     });
     // $( document ).ready(function() {
         @if(isset($to))
@@ -1900,7 +1922,7 @@
     });
 
     // $.noConflict();
-    
+
     function show_Warned() {
         c5('無法檢舉');
     }
@@ -1959,20 +1981,6 @@
         return false;
     }
 
-    $('.content_delete').on( "click", function() {
-        c4('確定要刪除嗎?');
-        var id = $(this).data('id');
-        $(".n_left").on('click', function() {
-            $.post('{{ route('evaluation_delete') }}', {
-                id: id,
-                _token: '{{ csrf_token() }}'
-            }, function (data) {
-                $("#tab04").hide();
-                show_pop_message('評價已刪除');
-                
-            });
-        });
-    });
     // function form_re_content_submit(){
     //     if($.trim($(".hf_i").val())=='') {
     //         c5('請輸入內容');
@@ -1989,70 +1997,6 @@
             $('#form_evaluation_reply').submit();
         }
     }
-    $('.hf_but').on( "click", function() {
-
-        if($('#form_re_content'+ $(this).data('id')).find('.hf_i').val() == ''){
-            c5('請輸入內容');
-        }else{
-            $('#form_re_content'+ $(this).data('id')).submit();
-        }
-
-    });
-
-    $('.re_content_delete').on( "click", function() {
-        c4('確定要刪除嗎?');
-        var id = $(this).data('id');
-        var userid = $(this).data('userid');
-        $(".n_left").on('click', function() {
-            $.post('{{ route('evaluation_re_content_delete') }}', {
-                id: id,
-                userid:userid,
-                _token: '{{ csrf_token() }}'
-            }, function (data) {
-                $("#tab04").hide();
-                show_pop_message('回覆已刪除');
-            });
-        });
-    });
-
-    //let button = document.getElementsByTagName('button');
-    let button = document.getElementsByClassName('show_all_evaluation');
-    let p = document.getElementsByTagName('p');
-
-    for (let i = 0; i < button.length; i++) {
-        button[i].onclick = function() {
-            if (this.innerHTML == "[完整評價]") {
-                p[i].classList.remove("many-txt");
-                p[i].classList.add("all-txt");
-                this.innerHTML = "[點擊收起]";
-                $(this).parent().siblings('.zap_photo').removeClass('huiyoic');
-            } else {
-                p[i].classList.remove("all-txt");
-                p[i].classList.add("many-txt");
-                this.innerHTML = "[完整評價]";
-                $(this).parent().siblings('.zap_photo').addClass('huiyoic');
-            }
-        }
-    }
-
-    $(".z_more").on( "click", function() {
-        $(this).parent().prev().find('.context').find("div").first().toggleClass('on context-wrap')
-        $(this).html($(this).text() === '展開' ? '收起' : '展開');
-        $(this).parent().prev().find('.context').find(".zap_photo").toggleClass('huiyoic');
-    });
-
-    $('div.context-wrap').each(function(i) {
-        if (isEllipsisActive(this)) {
-            $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
-            $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
-            $(this).parents('.hu_p').find('span.z_more').addClass('show_more');
-        }
-        else {
-            $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
-            $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
-            $(this).parents('.hu_p').find('span.z_more').addClass('hide_more');
-        }
-    });
 
     $(window).resize(function() {
         $('div.context-wrap').each(function(i) {
@@ -2452,6 +2396,63 @@
         $('body').css("overflow", "hidden");
     }
 
+</script>
+
+<link type="text/css" rel="stylesheet" href="/new/css/app.css">
+<link rel="stylesheet" type="text/css" href="/new/css/swiper2.min.css"/>
+<script type="text/javascript" src="/new/js/swiper.min.js"></script>
+<script>
+    $(document).ready(function () {
+        /*调起大图 S*/
+        var mySwiper = new Swiper('.swiper-container2',{
+            pagination : '.swiper-pagination2',
+            paginationClickable:true,
+            onInit: function(swiper){//Swiper初始化了
+                // var total = swiper.bullets.length;
+                var active =swiper.activeIndex;
+                $(".swiper-num .active").text(active);
+                // $(".swiper-num .total").text(total);
+            },
+            onSlideChangeEnd: function(swiper){
+                var active =swiper.realIndex +1;
+                $(".swiper-num .active").text(active);
+            }
+        });
+
+        $(".zap_photo li").on("click",
+            function () {
+                var imgBox = $(this).parent(".zap_photo").find("li");
+                var i = $(imgBox).index(this);
+                $(".big_img .swiper-wrapper").html("")
+
+                for (var j = 0, c = imgBox.length; j < c ; j++) {
+                    $(".big_img .swiper-wrapper").append('<div class="swiper-slide"><div class="cell"><img src="' + imgBox.eq(j).find("img").attr("src") + '" / ></div></div>');
+                }
+                mySwiper.updateSlidesSize();
+                mySwiper.updatePagination();
+                $(".big_img").css({
+                    "z-index": 1001,
+                    "opacity": "1"
+                });
+                //分页器
+                var num = $(".swiper-pagination2 span").length;
+                $(".swiper-num .total").text(num);
+                // var active =$(".swiper-pagination2").index(".swiper-pagination-bullet-active");
+                $(".swiper-num .active").text(i + 1);
+                // console.log(active)
+
+                mySwiper.slideTo(i, 0, false);
+                return false;
+            });
+        $(".swiper-container2").click(function(){
+            $(this).parent(".big_img").css({
+                "z-index": "-1",
+                "opacity": "0"
+            });
+        });
+
+    });
+    /*调起大图 E*/
 </script>
 
 @stop
