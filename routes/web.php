@@ -610,6 +610,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/posts/prohibit', 'UserController@toggleUser_prohibit_posts');
         Route::post('users/posts/access', 'UserController@toggleUser_access_posts');
         Route::post('users/accountStatus_admin', 'UserController@accountStatus_admin');
+        Route::post('users/accountStatus_user', 'UserController@accountStatus_user');
         Route::get('users/messageBoard', 'UserController@messageBoardList')->name('users/messageBoardList');
         Route::post('users/messageBoard/delete/{id}', 'UserController@deleteMessageBoard');
         Route::post('users/messageBoard/hideMsg/{id}', 'UserController@hideMessageBoard');
