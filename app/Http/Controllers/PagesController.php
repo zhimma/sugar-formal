@@ -1890,7 +1890,7 @@ class PagesController extends BaseController
                     //檢查性別
                     $user->engroup == $targetUser->engroup
                     //檢查是否被封鎖
-                    || User::isBanned($user->id)
+//                    || User::isBanned($user->id)
                 ){
                     return redirect()->route('listSeatch2');
                 }
