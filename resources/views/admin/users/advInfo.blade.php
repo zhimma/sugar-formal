@@ -57,6 +57,18 @@
 			<button type="submit" class="btn btn-success"> 站方開啟會員帳號 </button>
 		@endif
 	</form>
+
+	<form method="POST" action="/admin/users/accountStatus_user" style="margin:0px;display:inline;">
+		{!! csrf_field() !!}
+		<input type="hidden" name='uid' value="{{ $user->id }}">
+		<input type="hidden" name='account_status' value="{{ $user->accountStatus == 0 ? 1 : 0 }}">
+		@if($user->accountStatus == 1)
+			<button type="submit" class="btn btn-danger">解除使用者關閉帳號</button>
+		@else
+			<button type="submit" class="btn btn-success">開啟使用者關閉帳號</button>
+		@endif
+	</form>
+
 	<a href="edit/{{ $user->id }}" class='text-white btn btn-primary'>修改</a>
 	@if($user['isBlocked'])
 		<button type="button" id="unblock_user" class='text-white btn @if($user["isBlocked"]) btn-success @else btn-danger @endif' onclick="Release({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除封鎖 </button>
