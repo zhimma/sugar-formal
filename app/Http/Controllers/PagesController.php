@@ -2532,6 +2532,12 @@ class PagesController extends BaseController
     }
 
     public function reportMsg(Request $request){
+        $is_banned = User::isBanned($request->aid);
+        if($is_banned && $request->ajax()){
+            echo '您目前被站方封鎖，無檢舉權限';
+            exit;
+        }
+
         if(empty($this->customTrim($request->content))){
             $user = $request->user();
             if($request->ajax()) exit;
@@ -2901,6 +2907,7 @@ class PagesController extends BaseController
         }
 
         if (isset($user)) {
+            $is_banned = User::isBanned($user->id);
             $isVip = $user->isVip();
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
             $messages = Message::allToFromSender($user->id, $cid,$includeDeleted);
@@ -2918,6 +2925,7 @@ class PagesController extends BaseController
                 return view('new.dashboard.chatWithUser')
                     ->with('user', $user)
                     ->with('admin', $admin)
+                    ->with('is_banned', $is_banned)
                     ->with('cmeta', $c_user_meta)
                     ->with('to', $this->service->find($cid))
                     ->with('m_time', $m_time)
@@ -2930,6 +2938,7 @@ class PagesController extends BaseController
                 return view('new.dashboard.chatWithUser')
                     ->with('user', $user)
                     ->with('admin', $admin)
+                    ->with('is_banned', $is_banned)
                     ->with('cmeta', $c_user_meta)
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)

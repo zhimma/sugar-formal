@@ -583,6 +583,7 @@
                             @endif
                             <li>
                                 @if($isAdminWarned)
+                                    {{--                警告跟banned有差別嗎？               --}}
                                     <a onclick="show_Warned()"><img src="/new/images/icon_10.png" class="tubiao_i"><span>檢舉</span></a>
                                 @else
                                     <a onclick="show_banned()"><img src="/new/images/icon_10.png" class="tubiao_i"><span>檢舉</span></a>
@@ -1934,7 +1935,8 @@
     // $.noConflict();
 
     function show_Warned() {
-        c5('無法檢舉');
+        // c5('無法檢舉');
+        return  c5('您目前被站方封鎖，無檢舉權限');
     }
 
     @if(isset($to))
