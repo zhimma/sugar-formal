@@ -583,6 +583,7 @@
                             @endif
                             <li>
                                 @if($isAdminWarned)
+                                    {{--                警告跟banned有差別嗎？               --}}
                                     <a onclick="show_Warned()"><img src="/new/images/icon_10.png" class="tubiao_i"><span>檢舉</span></a>
                                 @else
                                     <a onclick="show_banned()"><img src="/new/images/icon_10.png" class="tubiao_i"><span>檢舉</span></a>
@@ -1426,7 +1427,7 @@
 @section('javascript')
 
 <script>
-
+    let is_banned = {{ $is_banned ? 1 : 0 }};
     function jidutiao() {
         c5('此會員使用紀錄不足，無法判斷');
     }
@@ -1765,6 +1766,11 @@
     }
 
     function show_banned() {
+
+        if(is_banned){
+            return  c5('您目前被站方封鎖，無檢舉權限');
+        }
+
         //$(".blbg").show();
         var uid='{{ $user->id }}';
         var to='{{$to->id}}';
@@ -1778,6 +1784,11 @@
     }
 
     function show_reportPic() {
+
+        if(is_banned){
+            return  c5('您目前被站方封鎖，無檢舉權限');
+        }
+
         $(".blbg").show();
         $("#show_reportPic").show();
         $('body').css("overflow", "hidden");
@@ -1924,7 +1935,8 @@
     // $.noConflict();
 
     function show_Warned() {
-        c5('無法檢舉');
+        // c5('無法檢舉');
+        return  c5('您目前被站方封鎖，無檢舉權限');
     }
 
     @if(isset($to))

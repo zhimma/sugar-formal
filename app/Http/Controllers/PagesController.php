@@ -1885,7 +1885,13 @@ class PagesController extends BaseController
                 // return view('new.dashboard.viewuser', compact('user'));
             // }
             if ($user->id != $uid) {
-                if($user->engroup == $targetUser->engroup){
+
+                if(
+                    //檢查性別
+                    $user->engroup == $targetUser->engroup
+                    //檢查是否被封鎖
+//                    || User::isBanned($user->id)
+                ){
                     return redirect()->route('listSeatch2');
                 }
                 Visited::visit($user->id, $targetUser);
@@ -2291,6 +2297,7 @@ class PagesController extends BaseController
                     ->with('vipDays',$vipDays)
                     ->with('isReadIntro',$isReadIntro)
                     ->with('auth_check',$auth_check)
+                    ->with('is_banned',User::isBanned($user->id))
                     ->with('pr', $pr);
             }
 
@@ -2489,6 +2496,21 @@ class PagesController extends BaseController
     }
 
     public function reportPost(Request $request){
+
+        //先判定是否在站方封鎖名單裡面
+        $aid = $request->input('aid');
+        $uid = $request->input('uid');
+
+        if (User::isBanned($aid)) {
+            if ($request->ajax()) {
+                echo '您目前被站方封鎖，無檢舉權限';
+                exit;
+            }
+            return redirect(route("viewuser", ['uid' => $uid]))->withErrors([
+                '您目前被站方封鎖，無檢舉權限'
+            ]);
+        }
+
         if(empty($this->customTrim($request->content))){
             if($request->ajax()) {
                 exit;
@@ -2510,6 +2532,12 @@ class PagesController extends BaseController
     }
 
     public function reportMsg(Request $request){
+        $is_banned = User::isBanned($request->aid);
+        if($is_banned && $request->ajax()){
+            echo '您目前被站方封鎖，無檢舉權限';
+            exit;
+        }
+
         if(empty($this->customTrim($request->content))){
             $user = $request->user();
             if($request->ajax()) exit;
@@ -2598,6 +2626,16 @@ class PagesController extends BaseController
     }
 
     public function reportPicNextNew(Request $request){
+        if (User::isBanned($aid)) {
+            if ($request->ajax()) {
+                echo '您目前被站方封鎖，無檢舉權限';
+                exit;
+            }
+            return redirect(route("viewuser", ['uid' => $uid]))->withErrors([
+                '您目前被站方封鎖，無檢舉權限'
+            ]);
+        }
+
         if($request->picType=='avatar'){
             ReportedAvatar::report($request->aid, $request->uid, $request->content, $request->file('images'));
         }
@@ -2869,6 +2907,7 @@ class PagesController extends BaseController
         }
 
         if (isset($user)) {
+            $is_banned = User::isBanned($user->id);
             $isVip = $user->isVip();
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
             $messages = Message::allToFromSender($user->id, $cid,$includeDeleted);
@@ -2886,6 +2925,7 @@ class PagesController extends BaseController
                 return view('new.dashboard.chatWithUser')
                     ->with('user', $user)
                     ->with('admin', $admin)
+                    ->with('is_banned', $is_banned)
                     ->with('cmeta', $c_user_meta)
                     ->with('to', $this->service->find($cid))
                     ->with('m_time', $m_time)
@@ -2898,6 +2938,7 @@ class PagesController extends BaseController
                 return view('new.dashboard.chatWithUser')
                     ->with('user', $user)
                     ->with('admin', $admin)
+                    ->with('is_banned', $is_banned)
                     ->with('cmeta', $c_user_meta)
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
@@ -3341,7 +3382,7 @@ class PagesController extends BaseController
         }
     }
 
-
+    //本月封鎖名單
     public function dashboard_banned(Request $request)
     {
         $user = $request->user();
