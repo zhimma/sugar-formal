@@ -661,6 +661,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::group(['prefix'=>'users/phone'], function(){
             Route::post('modify', 'UserController@modifyPhone')->name('phoneModify');
             Route::post('delete', 'UserController@deletePhone')->name('phoneDelete');
+            Route::post('search', 'UserController@searchPhone');
         });
 
         Route::get('statistics', 'UserController@statisticsReply')->name("statistics");
