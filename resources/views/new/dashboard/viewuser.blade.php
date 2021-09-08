@@ -1426,7 +1426,7 @@
 @section('javascript')
 
 <script>
-
+    let is_banned = {{ $is_banned ? 1 : 0 }};
     function jidutiao() {
         c5('此會員使用紀錄不足，無法判斷');
     }
@@ -1765,6 +1765,11 @@
     }
 
     function show_banned() {
+
+        if(is_banned){
+            return  c5('不可檢舉自己');
+        }
+
         //$(".blbg").show();
         var uid='{{ $user->id }}';
         var to='{{$to->id}}';
@@ -1778,6 +1783,11 @@
     }
 
     function show_reportPic() {
+
+        if(is_banned){
+            return  c5('不可檢舉自己');
+        }
+
         $(".blbg").show();
         $("#show_reportPic").show();
         $('body').css("overflow", "hidden");

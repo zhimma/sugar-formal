@@ -2297,6 +2297,7 @@ class PagesController extends BaseController
                     ->with('vipDays',$vipDays)
                     ->with('isReadIntro',$isReadIntro)
                     ->with('auth_check',$auth_check)
+                    ->with('is_banned',User::isBanned($user->id))
                     ->with('pr', $pr);
             }
 
