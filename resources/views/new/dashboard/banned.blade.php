@@ -15,6 +15,7 @@
 </style>
 @section('app-content')
     <div class="container matop70">
+        <input type="hidden" value="{{ \App\Models\User::isBanned($user->id) ?1:2 }}">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
                 @include('new.dashboard.panel')

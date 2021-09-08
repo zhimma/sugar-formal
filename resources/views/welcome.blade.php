@@ -105,7 +105,7 @@
 						<div class="m-portlet m-portlet--mobile m-portlet-idx">
 							<div class="m-portlet__body">
 								<p><img class="img-idx" src="img/sugar_0926-23.png" style="margin-left: -9%; margin-top: -7%; z-index: 2; position: absolute; margin-bottom: 0px; width: 45%"><img class="img-idx" src="img/sugar_0926-21.png"></p>
-								<h3>安全</h3>
+								<h3 id="ww">安全</h3>
 								<p>本站不會與任何其他網站交換資料。
 									事實上，您只需要一個電子郵箱註冊，其他不需要任何留下私人資料。</p>
 							</div>
