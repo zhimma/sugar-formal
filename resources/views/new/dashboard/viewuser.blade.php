@@ -1767,7 +1767,7 @@
     function show_banned() {
 
         if(is_banned){
-            return  c5('不可檢舉自己');
+            return  c5('您目前被站方封鎖，無檢舉權限');
         }
 
         //$(".blbg").show();
@@ -1785,7 +1785,7 @@
     function show_reportPic() {
 
         if(is_banned){
-            return  c5('不可檢舉自己');
+            return  c5('您目前被站方封鎖，無檢舉權限');
         }
 
         $(".blbg").show();

@@ -2620,6 +2620,16 @@ class PagesController extends BaseController
     }
 
     public function reportPicNextNew(Request $request){
+        if (User::isBanned($aid)) {
+            if ($request->ajax()) {
+                echo '您目前被站方封鎖，無檢舉權限';
+                exit;
+            }
+            return redirect(route("viewuser", ['uid' => $uid]))->withErrors([
+                '您目前被站方封鎖，無檢舉權限'
+            ]);
+        }
+
         if($request->picType=='avatar'){
             ReportedAvatar::report($request->aid, $request->uid, $request->content, $request->file('images'));
         }
