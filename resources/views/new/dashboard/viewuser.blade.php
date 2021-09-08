@@ -2086,7 +2086,9 @@
 <link href="{{ asset('css/font/font-fileuploader.css') }}" media="all" rel="stylesheet">
 <script src="{{ asset('js/jquery.fileuploader.js') }}" type="text/javascript"></script>
 <script src="{{ asset('new/js/heic2any.min.js') }}" type="text/javascript"></script>
+<!--
 <script src="{{ asset('new/js/resize_before_upload.js') }}" type="text/javascript"></script>
+-->
 <script>
 
     $(document).ready(function () {        
@@ -2221,7 +2223,7 @@
                 }
             }
         });
-        resize_before_upload(images_uploader,400,600,'#tab_evaluation,#show_reportPic');
+        //resize_before_upload(images_uploader,400,600,'#tab_evaluation,#show_reportPic');
         reportedImages_uploader = $('input[name="reportedImages"]').fileuploader({
             //extensions: ['jpg', 'png', 'jpeg', 'bmp'],
             changeInput: ' ',
@@ -2353,7 +2355,7 @@
                 }
             }
         });
-        resize_before_upload(reportedImages_uploader,400,600,'#show_banned');
+        //resize_before_upload(reportedImages_uploader,400,600,'#show_banned');
         $(".announce_bg").on("click", function() {
             $('.bl_tab_aa').hide();
             $('body').css("overflow", "auto");

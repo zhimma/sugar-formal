@@ -918,7 +918,8 @@
                 }
             }
         });
-        resize_before_upload(images_uploader,400,600,'#show_banned,#tab_uploadPic');
+        //resize_before_upload(images_uploader,400,600,'#show_banned,#tab_uploadPic');
+        resize_before_upload($(images_uploader.eq(1)),400,600,'#show_banned,#tab_uploadPic');
         $(".announce_bg").on("click", function() {
             $('.bl_tab_aa').hide();
         });
