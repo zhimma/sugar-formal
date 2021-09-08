@@ -378,7 +378,8 @@
 						    }
 					}
 				@endphp
-				<input class="form-control m-input phoneInput" type=text name="phone" value="{{ $showPhone }}" readonly="readonly" >
+				<input class="form-control m-input phoneInput" type=text name="phone" value="{{ $showPhone }}" readonly="readonly" autocomplete="off">
+				<div id="phoneKeyInAlert"></div>
 				<div>@if($userMeta->isWarnedTime !='')警示用戶時間：{{ $userMeta->isWarnedTime }}@endif</div>
 				<div>@if($showPhoneDate != '')手機驗證時間：{{ $showPhoneDate }}@endif</div>
 				@if(!is_null($phoneAuth))
@@ -1940,6 +1941,30 @@ $('.delete_phone_submit').on('click',function(e){
 	if(!confirm('確定要刪除手機?')){
 		e.preventDefault();
 	}
+});
+
+$("input[name='phone']").keyup(function(){
+	$.ajax({
+		type: 'POST',
+		url: "/admin/users/phone/search",
+		data: {
+			_token: '{{csrf_token()}}',
+			phone: $(this).val(),
+		},
+		dataType: "json",
+		success: function (res) {
+			console.log(res.hasData);
+			if(res.hasData==1){
+				//console.log(res.data.user_email);
+				//console.log(res.data.user_info_page);
+				//門號如果已經註冊過，顯示註冊的email並可以連結到基本資料頁面
+				$('#phoneKeyInAlert').html('<span>該門號已經註冊過</span><br><span>帳號：<a href="'+ res.data.user_info_page +'" target="_blank">' + res.data.user_email + '</a></span>');
+				$('#phoneKeyInAlert').show();
+			}else{
+				$('#phoneKeyInAlert').hide();
+			}
+		}
+	});
 });
 
 

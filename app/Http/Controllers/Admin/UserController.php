@@ -3884,6 +3884,20 @@ class UserController extends \App\Http\Controllers\BaseController
         return back()->with('message', '手機已刪除');
     }
 
+    public function searchPhone(Request $request)
+    {
+        $result=DB::table('short_message')->where('mobile', $request->phone)->first();
+        $data=array();
+        if($result){
+            $userInfo=User::findById($result->member_id);
+            if($userInfo){
+                $data['user_email']=$userInfo->email;
+                $data['user_info_page']='/admin/users/advInfo/'.$userInfo->id;
+            }
+        }
+        return response()->json(['hasData'=>$result && $request->phone? 1 :0, 'data'=>$data]);
+    }
+
     public function multipleLogin(Request $request) {
         if($request->old_version){
             $original_users = \App\Models\MultipleLogin::with(['original_user', 'original_user.user_meta', 'original_user.banned', 'original_user.implicitlyBanned', 'original_user.aw_relation'])
@@ -4192,7 +4206,7 @@ class UserController extends \App\Http\Controllers\BaseController
         }
         $user_id=$request->user_id;
         if($user_id){
-            $getIpUsersData= $getIpUsersData->where('g.user_id', $user_id);
+            //$getIpUsersData= $getIpUsersData->where('g.user_id', $user_id);
         }
         $getIpUsersData = $getIpUsersData->paginate(50);
 
