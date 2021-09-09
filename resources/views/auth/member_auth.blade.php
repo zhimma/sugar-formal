@@ -107,11 +107,11 @@
                                             <select name="" class="zy_select"><option>台灣</option><option>大陸</option></select>
                                             <input name="" type="text" id="mobile" class="xy_input" placeholder="請輸入手機號碼">
                                        </div>
-                                       <a id="get_auth_code" class="n_zybg_right" style="cursor:pointer">送出</a>
+                                       <a id="get_auth_code" class="n_zybg_right" style="cursor:pointer">取得驗證碼</a>
                                     </div>
                                     <div class="zybg_new02">
                                         <input name="" type="text" id="checkcode" class="xy_input xy_left" placeholder="請輸入驗證碼">
-                                        <a id="auth_phone1" class="xy_yanx">完成驗證</a>
+                                        <a id="auth_phone1" class="xy_yanx">送出驗證碼</a>
                                     </div>
                                 @endif
                             </div>
