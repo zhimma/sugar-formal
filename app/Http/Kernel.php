@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\HasReferer;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -89,5 +90,8 @@ class Kernel extends HttpKernel
         'CheckIsWarned' => \App\Http\Middleware\CheckIsWarned::class,
         'CheckAccountStatus' => \App\Http\Middleware\CheckAccountStatus::class,
         'CheckDiscussPermissions' => \App\Http\Middleware\CheckDiscussPermissions::class,
+
+        //檢查是否是連結訪問
+        "HasReferer"=>HasReferer::class
     ];
 }
