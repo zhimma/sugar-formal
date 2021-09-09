@@ -20,7 +20,7 @@
                                 <h4>時間：{{ \Carbon\Carbon::now()->toDateTimeString() }}</h4>
                                 <h4>錯誤類型：{{ substr($exception, 0, strpos($exception, ':')) }}</h4>
                                 {{ logger('??? error occurred, url: ' . url()->current()) }}
-                                @if(\Auth()::user())
+                                @if(auth()->user())
                                     {{ logger('user id: ' . \Auth()::user()->id) }}
                                 @endif
                             @else
