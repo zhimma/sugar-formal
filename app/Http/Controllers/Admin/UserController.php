@@ -43,6 +43,7 @@ use App\Models\SimpleTables\banned_users;
 use App\Models\SimpleTables\warned_users;
 use App\Models\BannedUsersImplicitly;
 use App\Models\DataForFilterByInfo;
+use App\Models\DataForFilterByInfoIgnores;
 use App\Notifications\BannedNotification;
 use App\Observer\BadUserCommon;
 use Carbon\Carbon;
@@ -4347,8 +4348,11 @@ class UserController extends \App\Http\Controllers\BaseController
 					$end_date = $dateEntry->created_at;
 				}
 
-				$infoSet = DataForFilterByInfo::join('users', 'users.id', '=', 'data_for_filter_by_info.user_id')	
+				$infoSet = DataForFilterByInfo::select('data_for_filter_by_info.*')
+                    ->join('users', 'users.id', '=', 'data_for_filter_by_info.user_id')	
+                    ->leftJoin('data_for_filter_by_info_ignores', 'data_for_filter_by_info_ignores.user_id', '=', 'data_for_filter_by_info.user_id')	                  
 					->where('engroup',($en_group ?? 2));
+
 				if($msg_gt_visit_7days) {
 					$qstrArr['msg_gt_visit_7days'] = $msg_gt_visit_7days;
 					switch($msg_gt_visit_7days) {
@@ -4426,11 +4430,12 @@ class UserController extends \App\Http\Controllers\BaseController
 							$query->orwhereRaw($orwhereRaw);							
 					}						
 				});				
-				
+			
+				$infoSet
+                ->orderBy('data_for_filter_by_info_ignores.level')
+                ->orderByDesc('last_login');
 
-				$infoSet->orderByDesc('last_login');
-
-				$data = $infoSet->paginate(50);
+				$data = $infoSet->paginate(200);              
 				$data->appends($qstrArr);					
 				
 				return view('admin.users.filterByInfo')
@@ -4443,4 +4448,36 @@ class UserController extends \App\Http\Controllers\BaseController
             return view('admin.users.filterByInfo')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
         }
     }	
+    
+    public function switchFilterByInfoIgnore(Request $request) {
+        $user_id = $request->user_id;
+        $level = $request->level ?? 0;
+        if(!$user_id) return redirect()->back();
+        $op = $request->op;
+        $ignore = DataForFilterByInfoIgnores::select('*');
+        
+        switch($op) {
+            case '1':
+                $ignore_entry = $ignore->firstOrNew(['user_id'=>$user_id]);
+                $ignore_entry->level = $level;
+                $ignore_entry->user_id = $user_id;
+                $ignore_entry->save() ;
+            break;
+            case '0':
+                $ignore->where('user_id',$user_id)->delete();
+            break;
+            default:
+                $ignore_entry = $ignore->firstOrNew(['user_id'=>$user_id]);
+
+                if($ignore_entry->id) $ignore_entry->delete();
+                else {
+                    $ignore_entry->user_id = $user_id;
+                    $ignore_entry->level = $level;
+                    $ignore_entry->save();                  
+                }
+            break;
+        }
+        
+        return redirect()->back();
+    }    
 }
