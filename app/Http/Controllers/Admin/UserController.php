@@ -730,8 +730,22 @@ class UserController extends \App\Http\Controllers\BaseController
         }
     }
 
-    public function advIndex()
+    public function advIndex(Request $request)
     {
+        $users = $this->admin->advSearch($request);
+        return view('admin.users.advIndex')
+            ->with('users', $users)
+            ->with('name', isset($request->name) ? $request->name : null)
+            ->with('title', isset($request->title) ? $request->title : null)
+            ->with('style', isset($request->style) ? $request->style : null)
+            ->with('about', isset($request->about) ? $request->about : null)
+            ->with('email', isset($request->email) ? $request->email : null)
+            ->with('phone', isset($request->phone) ? $request->phone : null)
+            ->with('order_no', isset($request->order_no) ? $request->order_no : null)
+            ->with('keyword', isset($request->keyword) ? $request->keyword : null)
+            ->with('login_time', isset($request->login_time) ? $request->login_time : null)
+            ->with('member_type', isset($request->member_type) ? $request->member_type : null)
+            ->with('time', isset($request->time) ? $request->time : null);
         return view('admin.users.advIndex');
     }
 
@@ -752,6 +766,8 @@ class UserController extends \App\Http\Controllers\BaseController
             ->with('style', isset($request->style) ? $request->style : null)
             ->with('about', isset($request->about) ? $request->about : null)
             ->with('email', isset($request->email) ? $request->email : null)
+            ->with('phone', isset($request->phone) ? $request->phone : null)
+            ->with('order_no', isset($request->order_no) ? $request->order_no : null)
             ->with('keyword', isset($request->keyword) ? $request->keyword : null)
             ->with('member_type', isset($request->member_type) ? $request->member_type : null)
             ->with('time', isset($request->time) ? $request->time : null);
@@ -4176,12 +4192,21 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function getIpUsers(Request $request, $ip){
         $getIpUsersData = LogUserLogin::selectraw('g.*, u.email, u.name, u.title, u.engroup, u.last_login')
+            ->selectRaw('(select count(*) from log_user_login where  log_user_login.user_id=g.user_id and log_user_login.cfp_id=g.cfp_id and LEFT(log_user_login.created_at,10)=LEFT(g.created_at,10)) as groupCount')
             ->from('log_user_login as g')
             ->leftJoin('users as u','u.id','g.user_id')
             ->whereNotNull('u.id')
             ->orderBy('u.id')
             ->orderBy('u.last_login','DESC')
             ->orderBy('g.created_at','DESC');
+
+        $user_id=$request->user_id;
+        if($request->type=='detail' && $user_id && $request->date){
+            $getIpUsersData= $getIpUsersData->where('g.user_id', $user_id)->where('g.cfp_id',$request->cfp_id)->where('g.created_at', 'like', '%' . $request->date . '%');
+        }else{
+            $getIpUsersData=$getIpUsersData->groupBy('g.user_id','g.cfp_id',DB::raw("LEFT(g.created_at,10)"));
+        }
+
         if($ip!=='不指定'){
             $getIpUsersData=$getIpUsersData->where('g.ip', $ip);
         }
@@ -4204,11 +4229,7 @@ class UserController extends \App\Http\Controllers\BaseController
             }
             $getIpUsersData= $getIpUsersData->where('g.created_at','>=' , $date);
         }
-        $user_id=$request->user_id;
-        if($user_id){
-            //$getIpUsersData= $getIpUsersData->where('g.user_id', $user_id);
-        }
-        $getIpUsersData = $getIpUsersData->paginate(50);
+        $getIpUsersData = $getIpUsersData->get();//->paginate(50);
 
         return view('admin.users.ipUsersList')
             ->with('ipUsersData', $getIpUsersData)
