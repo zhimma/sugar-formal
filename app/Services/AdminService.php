@@ -97,7 +97,7 @@ class AdminService
         }
 
         if($phone){
-            $users = $users->leftJoin('short_message','short_message.member_id','u.id')->where('short_message.mobile', 'like', '%' . $phone . '%');
+            $users = $users->leftJoin('short_message','short_message.member_id','u.id')->where('short_message.mobile', 'like', '%' . $phone . '%')->where('short_message.active',1);
         }
 
         if($title){
