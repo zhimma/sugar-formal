@@ -20,8 +20,8 @@
                                 <h4>時間：{{ \Carbon\Carbon::now()->toDateTimeString() }}</h4>
                                 <h4>錯誤類型：{{ substr($exception, 0, strpos($exception, ':')) }}</h4>
                                 {{ logger('??? error occurred, url: ' . url()->current()) }}
-                                @if(auth()->user())
-                                    {{ logger('user id: ' . \Auth()::user()->id) }}
+                                @if(isset($user))
+                                    {{ logger('user id: ' . $user->id) }}
                                 @endif
                             @else
                                 <h4>這是系統錯誤頁面</h4>

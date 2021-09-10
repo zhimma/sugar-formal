@@ -10,8 +10,8 @@
                         419
                     </div>
                     {{ logger('419 occurred, url: ' . url()->current()) }}
-                    @if(auth()->user())
-                        {{ logger('user id: ' . \Auth()::user()->id) }}
+                    @if(isset($user))
+                        {{ logger('user id: ' . $user->id) }}
                     @endif
                     <div class="wxsy_k">
                         <div class="wknr">
