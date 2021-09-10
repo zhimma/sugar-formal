@@ -366,7 +366,7 @@
 				@php
 					$showPhone = '暫無手機';
 					$showPhoneDate = '';
-					$phoneAuth = DB::table('short_message')->where('member_id', $user->id)->first();
+					$phoneAuth = DB::table('short_message')->where('member_id', $user->id)->where('active',1)->first();
 					if($user->isPhoneAuth()){
 					    if(empty(trim($phoneAuth->mobile))){
 							$showPhone = '已驗證,尚未填寫手機';
