@@ -30,7 +30,12 @@
         </thead>
         <tbody>
             @foreach ($ipUsersData as $row)
-                <tr>
+                @php
+                    $user= \App\Models\User::find($row->user_id);
+                    $isAdminWarned=$user->isAdminWarned();
+                    $isBanned= \App\Models\User::isBanned($user->id);
+                @endphp
+                <tr @if($isBanned) style="background: yellow;" @elseif($isAdminWarned) style="background: palegreen;" @endif>
                     <td>{{$row->ip}}</td>
                     <td><a href="../advInfo/{{ $row->user_id }}" target="_blank">{{$row->email}}</a></td>
                     <td>{{$row->country}}</td>
@@ -38,14 +43,18 @@
                     <td>@if($row->engroup==1)男@else 女@endif</td>
                     <td>{{$row->name}}</td>
                     <td>{{$row->title}}</td>
-                    <td>{{$row->created_at}}</td>
+                    <td>{{$row->created_at}}
+                        @if($row->groupCount>1 && request()->type!=='detail')
+                            <a href="/admin/users/ip/{{$row->ip}}?type=detail&user_id={{ $row->user_id }}&cfp_id={{ $row->cfp_id }}&date={{ substr($row->created_at,0,10) }}" target="_blank">{{ '(' .$row->groupCount .')' }}</a>
+                        @endif
+                    </td>
                     <td>{{$row->last_login}}</td>
                     <td>{{ str_replace("Mozilla/5.0","", $row->userAgent) }}</td>
                 </tr>
             @endforeach
         </tbody>
     </table>
-    {!! $ipUsersData->appends(request()->input())->links('pagination::sg-pages') !!}
+{{--    {!! $ipUsersData->appends(request()->input())->links('pagination::sg-pages') !!}--}}
 </div>
 @endif
 

@@ -16,13 +16,15 @@
 		<a href="{{ route('users/manager/GET') }}">會員搜尋(變更男女、VIP資料)</a>
 		<a href="{{ route('users/advSearch') }}">進階會員搜尋</a>
 		<a href="{{ route('users/bannedList') }}">會員封鎖清單</a>
-		<a href="{{ route('implicitlyBanned') }}">指紋比對清單</a>
+		{{--<a href="{{ route('implicitlyBanned') }}">指紋比對清單</a>--}}
 		<a href="{{ route('warningUsers') }}">警示名單</a>
-		<a href="{{ route('users/multipleLogin/GET') }}">多重登入名單</a>
-		<a href="{{ route('users/multipleLogin/GET') }}?old_version=1">多重登入名單(舊版)</a>
+		{{--<a href="{{ route('users/multipleLogin/GET') }}">多重登入名單</a>--}}
+		{{--<a href="{{ route('users/multipleLogin/GET') }}?old_version=1">多重登入名單(舊版)</a>--}}
+		<a href="/admin/users/showDuplicate?only=cfpid">多重登入_CFP</a>
+		<a href="/admin/users/showDuplicate">多重登入_完整版</a>
 		<a href="{{ route('tooMantRequests') }}">異常連線記錄</a>
 		<a href="{{ route('tooMantRequests') }}?pseudo=1">異常連線記錄(純記錄)</a>
-		<a href="{{ route('suspectedMultiLogin') }}">疑似多重登入名單</a>
+		{{--<a href="{{ route('suspectedMultiLogin') }}">疑似多重登入名單</a>--}}
 		<a href="{{ route('users/suspiciousUser') }}">可疑名單列表</a>
 		<a href="{{ route('users/pictures') }}">會員照片管理</a>
 		<a href="{{ route('users/picturesSimple') }}">會員照片管理簡化版</a>
