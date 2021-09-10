@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use \App\Services\UserService;
 use App\Models\LogFreeVipPicAct;
+use App\Models\LogUserLogin;
 
 class User extends Authenticatable
 {
@@ -118,7 +119,12 @@ class User extends Authenticatable
     public function log_free_vip_member_pic_acts()
     {
         return $this->hasMany(LogFreeVipPicAct::class, 'user_id', 'id')->orderBy('created_at', 'desc')->where('pic_type','member_pic')->orderBy('created_at', 'desc');
-    }     
+    } 
+
+    public function log_user_login()
+    {
+        return $this->hasMany(LogUserLogin::class, 'user_id', 'id');
+    }    
 
     /*
     |--------------------------------------------------------------------------
@@ -1390,6 +1396,7 @@ class User extends Authenticatable
                 ->whereNotNull('users.id')
                 ->count();
         }
+
         return $advInfo;
     }
 }
