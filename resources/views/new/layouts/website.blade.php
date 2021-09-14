@@ -14,8 +14,9 @@
             <?php
             $user = \Auth::user();
             if(isset($user)){
+                //login_times_alert假設設定10次,會員目前登入次數>=10 的話就跳通知提示
                 $announceRead = \App\Models\AnnouncementRead::select('announcement_id')->where('user_id', $user->id)->get();
-                $announcement = \App\Models\AdminAnnounce::where('en_group', $user->engroup)->whereNotIn('id', $announceRead)->orderBy('sequence', 'asc')->get();
+                $announcement = \App\Models\AdminAnnounce::where('en_group', $user->engroup)->whereNotIn('id', $announceRead)->whereRaw('(login_times_alert is NULL OR login_times_alert <= '.$user->login_times.')')->orderBy('sequence', 'asc')->get();
                 foreach ($announcement as &$a){
                     $a = str_replace(array("\r\n", "\r", "\n"), "<br>", $a);
                 }
