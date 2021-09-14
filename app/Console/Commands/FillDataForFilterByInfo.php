@@ -148,7 +148,7 @@ class FillDataForFilterByInfo extends Command
                         $pic_name_empty_count++;
                     }
                     else {
-                        if(preg_match('/[0-9A-Z]{5,}-[0-9A-Z]{4}-[0-9A-Z]{4}-[0-9A-Z]{4}-[0-9A-Z]{5,}\.[a-zA-Z0-9]{2.6}/',$pval->original_name)) {
+                        if(preg_match('/[0-9A-Z]{5,}-[0-9A-Z]{4}-[0-9A-Z]{4}-[0-9A-Z]{4}-[0-9A-Z]{5,}\.[a-zA-Z0-9]{2,6}/',$pval->original_name)) {
                             $pic_name_regular_count++;
                         }
                         else $pic_name_notregular_count++;
@@ -159,7 +159,7 @@ class FillDataForFilterByInfo extends Command
                     $pic_name_empty_count++;
                 }
                 else {
-                    if(preg_match('/[0-9A-Z]{5,}-[0-9A-Z]{4}-[0-9A-Z]{4}-[0-9A-Z]{4}-[0-9A-Z]{5,}\.[a-zA-Z0-9]{2.6}/',$gUser->meta->pic_original_name)) {
+                    if(preg_match('/[0-9A-Z]{5,}-[0-9A-Z]{4}-[0-9A-Z]{4}-[0-9A-Z]{4}-[0-9A-Z]{5,}\.[a-zA-Z0-9]{2,6}/',$gUser->meta->pic_original_name)) {
                         $pic_name_regular_count++;
                     }
                     else $pic_name_notregular_count++;                   
