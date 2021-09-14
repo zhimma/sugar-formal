@@ -16,7 +16,9 @@
             <tr>
                 <th class="text-center">內容</th>
                 <th class="text-center">性別</th>
+                <th class="text-center">普通會員/VIP</th>
                 <th class="text-center">排序(預設為1)</th>
+                <th class="text-center">在第幾次login時才跳出此公告</th>
                 <th class="text-center">操作</th>
             </tr>
             <tr class="template">
@@ -37,6 +39,9 @@
                 </td>
                 <td>
                     <input type="number" name="sequence" min="1" value="1">
+                </td>
+                <td>
+                    <input type="number" name="login_times_alert" min="1" value="10">
                 </td>
                 <td>
                     <input type="submit" class='text-white btn btn-success' value="送出">

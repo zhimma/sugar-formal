@@ -16,7 +16,9 @@
             <tr>
                 <th class="text-center">內容</th>
                 <th class="text-center">性別</th>
+                <th class="text-center">普通會員/VIP</th>
                 <th class="text-center">排序(預設為1)</th>
+                <th class="text-center">在第幾次login時才跳出此公告</th>
                 <th class="text-center">建立時間</th>
                 <th class="text-center">更新時間</th>
                 <th class="text-center">操作</th>
@@ -39,6 +41,9 @@
                 </td>
                 <td>
                     <input type="number" name="sequence" min="1" value="{{ $announce->sequence }}">
+                </td>
+                <td>
+                    <input type="number" name="login_times_alert" min="1" value="{{ $announce->login_times_alert }}">
                 </td>
                 <td class="created_at">{{ $announce->created_at }}</td>
                 <td class="updated_at">{{ $announce->updated_at }}</td>

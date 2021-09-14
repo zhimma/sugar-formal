@@ -39,6 +39,7 @@ class AdminAnnounce extends Model
         $a->isVip = $request->isVip;
         $a->content = $request->content_word;
         $a->sequence = $request->sequence;
+        $a->login_times_alert = $request->login_times_alert;
         $a->save();
         return true;
     }
@@ -49,6 +50,7 @@ class AdminAnnounce extends Model
         $a->isVip = $request->isVip;
         $a->content = $request->content_word;
         $a->sequence = $request->sequence;
+        $a->login_times_alert = $request->login_times_alert;
         $a->save();
         return true;
     }
