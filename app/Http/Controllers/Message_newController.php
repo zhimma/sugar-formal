@@ -182,6 +182,21 @@ class Message_newController extends BaseController {
         if($request->ajax() && $request->file()) $justEchoAndExit = true;
         
         $payload = $request->all();
+        
+        $user = Auth::user();
+        $to_user = User::findById($payload['to']);
+        $forbid_msg_data = UserService::checkNewSugarForbidMsg($to_user,$user);
+
+        if($forbid_msg_data) {
+            $new_sugar_error_msg='新進甜心只接收 vip 信件，'.$forbid_msg_data['user_type_str'].'會員要於 '.$forbid_msg_data['end_date'].' 後方可發信給這位女會員';
+            if($isCalledByEvent){
+                return array('error' => 1,
+                    'content' => $new_sugar_error_msg);
+            }  
+          
+            return back()->withErrors([$new_sugar_error_msg]);           
+        }
+        
         if(!isset($payload['msg']) && !$request->hasFile('images')){
             if($isCalledByEvent){
                 return array('error' => 1,
@@ -189,7 +204,7 @@ class Message_newController extends BaseController {
             }
             return back()->withErrors(['請勿僅輸入空白！']);
         }
-        $user = Auth::user();
+        //$user = Auth::user();
         // 非 VIP: 一律限 8 秒發一次。
         // 女會員: 無論是否 VIP，一律限 8 秒發一次。
         if(!$user->isVIP()){
@@ -202,10 +217,6 @@ class Message_newController extends BaseController {
                     if($isCalledByEvent){
                         return array('error' => 1,
                                     'content' => '您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。');
-                    }
-                    if($justEchoAndExit) {
-                        echo '您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。';
-                        exit;
                     }
                     return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
                 }
@@ -221,11 +232,7 @@ class Message_newController extends BaseController {
                     if($isCalledByEvent){
                         return array('error' => 1,
                             'content' => '您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。');
-                    }
-                    if($justEchoAndExit) {
-                        echo '您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。';
-                        exit;
-                    }                    
+                    }                
                     return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
                 }
             }
@@ -244,7 +251,7 @@ class Message_newController extends BaseController {
         }
 
         //line通知訊息
-        $to_user = User::findById($payload['to']);
+        //$to_user = User::findById($payload['to']);
         $line_notify_send = false;
         //收件夾設定通知
         $line_notify_chat_set_data = lineNotifyChatSet::select('line_notify_chat_set.*', 'line_notify_chat.name','line_notify_chat.gender')

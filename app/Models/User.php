@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 use \App\Services\UserService;
 use App\Models\LogFreeVipPicAct;
 use App\Models\LogUserLogin;
+use App\Models\UserTinySetting;
 
 class User extends Authenticatable
 {
@@ -125,6 +126,11 @@ class User extends Authenticatable
     {
         return $this->hasMany(LogUserLogin::class, 'user_id', 'id');
     }    
+
+    //簡易設定 用在檢易量少的設定上
+    public function tiny_setting() {
+        return $this->hasMany(UserTinySetting::class, 'user_id', 'id');
+    }
 
     /*
     |--------------------------------------------------------------------------

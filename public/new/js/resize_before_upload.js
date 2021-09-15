@@ -183,8 +183,12 @@ function resize_before_upload(uploader,checkWidth
                     if(form_showed_container!=null && form_showed_container!=undefined )
                         form_showed_container.hide();                
 
+                    if(data==1) {
+                        pop_message = '上傳成功';
+                    }
+
                     if(returnDataType=='text') {
-                        if(data==1 || data.length>250) {
+                        if(data.length>2500) {
                             pop_message = '上傳成功';
                         }
                         else {
@@ -194,6 +198,9 @@ function resize_before_upload(uploader,checkWidth
                     else if(returnDataType=='json') {
                         if(data.message!=undefined)
                             pop_message = data.message;
+                        else if(data.content!=undefined) {
+                            pop_message = data.content;
+                        }
                         if(data.return_url!=undefined) {
                             return_url = data.return_url;
                         }

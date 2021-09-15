@@ -7,6 +7,8 @@
         h3{
             text-align: left;
         }
+        
+        .is_new_block {position:relative;top:20px;color:black;font-weight:normal;}
     </style>
     <body style="padding: 15px;">
     <h1>修改站長公告</h1>
@@ -38,6 +40,9 @@
                         <option value="0" @if($announce->isVip == 0) selected @endif>普通會員</option>
                         <option value="1" @if($announce->isVip == 1) selected @endif>VIP</option>
                     </select>
+                    <div class="is_new_block">
+                        <input type="checkbox" name="is_new_7" value="1" @if($announce->is_new_7 == 1) checked @endif /> 未滿7天
+                    </div>
                 </td>
                 <td>
                     <input type="number" name="sequence" min="1" value="{{ $announce->sequence }}">

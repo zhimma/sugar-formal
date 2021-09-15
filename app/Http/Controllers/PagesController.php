@@ -65,6 +65,7 @@ use App\Models\ValueAddedService;
 use App\Repositories\SuspiciousRepository;
 use App\Services\AdminService;
 use App\Models\LogFreeVipPicAct;
+use App\Models\UserTinySetting;
 
 class PagesController extends BaseController
 {
@@ -2914,6 +2915,10 @@ class PagesController extends BaseController
             $c_user_meta = UserMeta::where('user_id', $cid)->get()->first();
             //$messages = Message::allSenders($user->id, 1);
             if (isset($cid)) {
+                $cid_user = $this->service->find($cid);
+                $cid_recommend_data = [];
+                $forbid_msg_data = UserService::checkNewSugarForbidMsg($cid_user,$user);
+                
                 if(!$user->isVip() && $user->engroup == 1){
                     $m_time = Message::select('created_at')->
                     where('from_id', $user->id)->
@@ -2927,7 +2932,9 @@ class PagesController extends BaseController
                     ->with('admin', $admin)
                     ->with('is_banned', $is_banned)
                     ->with('cmeta', $c_user_meta)
-                    ->with('to', $this->service->find($cid))
+                    //->with('to', $this->service->find($cid))
+                    ->with('to', $cid_user)
+                    ->with('to_forbid_msg_data',$forbid_msg_data)                    
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
                     ->with('tippopup', $tippopup)
@@ -4856,6 +4863,13 @@ class PagesController extends BaseController
         if(isset($announcement) && count($announcement) > 0 && !session()->get('announceClose')){
             $announcePopUp='Y';
         }
+        /*
+        //在新進甜心第4次登入顯示只接受VIP會員傳訊的提醒
+        $showNewSugarForbidMsgNotify=false ;
+        if($user->log_user_login()->count()==4) {
+            $showNewSugarForbidMsgNotify = true;
+        }
+        */
 
         if (isset($user)) {
             $data = array(
@@ -4875,6 +4889,7 @@ class PagesController extends BaseController
                 'evaluation_30days_unread_count' => $evaluation_30days_unread_count,
                 'showLineNotifyPop'=>$showLineNotifyPop,
                 'announcePopUp'=>$announcePopUp,
+                //'showNewSugarForbidMsgNotify'=>$showNewSugarForbidMsgNotify,
             );
             $allMessage = \App\Models\Message::allMessage($user->id);
             return view('new.dashboard.personalPage', $data)
@@ -5415,5 +5430,49 @@ class PagesController extends BaseController
         }else{
             return response()->json(['msg' => '該留言已經檢舉過了']);
         }
+    }
+    
+    public function setTinySetting(Request $request) {
+        $user=$request->user();
+        $cat = $request->catalog;
+        $value = $request->value;
+        $is_ajax = $request->ajax();
+        
+        if(!$user || !$cat) {
+            if($is_ajax) {
+                return response()->json(['msg' => '儲存失敗']);
+            }
+            else {
+                return redirect()->back()->with('message','儲存失敗');
+            }             
+        }
+        
+        if(UserTinySetting::updateOrInsert(['user_id'=>$user->id,'cat'=>$cat],['value'=>$value,'created_at'=>date('Y-m-d H:i:s'),'updated_at'=>date('Y-m-d H:i:s')]))
+        {
+            if($is_ajax) {
+                return response()->json(['msg' => '儲存成功']);
+            }
+            else {
+                return redirect()->back()->with('message','儲存成功');
+            }
+        }
+        else {
+            if($is_ajax) {
+                return response()->json(['msg' => '儲存失敗']);
+            }
+            else {
+                return redirect()->back()->with('message','儲存失敗');
+            }            
+        }
+        
+    }
+    
+    public function getTinySetting(Request $request) {
+        $user=$request->user();
+        $cat = $request->catalog;
+        if(!$cat) return null;
+
+        $setting = UserTinySetting::where([['user_id',$user->id],['cat',$cat]])->orderByDesc('id')->first();
+        if($setting) return $setting->value;
     }
 }

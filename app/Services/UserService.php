@@ -20,6 +20,7 @@ use App\Notifications\ActivateUserEmail;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
 use App\Observer\BadUserCommon;
+use Carbon\Carbon;
 
 class UserService
 {
@@ -635,7 +636,9 @@ class UserService
                 $button = "../../img/member_tags/rcmd_daddy.png";
             }
         }
-        elseif ($targetUser->engroup == 2 && $targetUser->isVip() && isset($targetUser->created_at)){
+        //elseif ($targetUser->engroup == 2 && $targetUser->isVip() && isset($targetUser->created_at)){
+        //210914 新進甜心移除VIP條件 改成「30天內註冊的女會員」
+        elseif ($targetUser->engroup == 2 && isset($targetUser->created_at)){
             $registration_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $targetUser->created_at);
             $diff_in_months = $registration_date->diffInMonths($now);
             if($diff_in_months == 0){
@@ -1105,5 +1108,30 @@ class UserService
         }
 
         return $cfp;
+    }
+    
+    public static function checkNewSugarForbidMsg($femaleUser,$maleUser) {
+        
+        $new_sugar_no_msg_days = 7;
+        $new_sugar_error_user_type = '普通';
+
+        if(($maleUser->user_meta->isWarned??false) || ($maleUser->aw_relation??false)) {
+            $new_sugar_no_msg_days = 20;
+            $new_sugar_error_user_type = '警示';            
+        }        
+
+        $recommend_data = UserService::checkRecommendedUser($femaleUser);
+        $femaleUser_cdate = Carbon::parse($femaleUser->created_at);
+
+        if($femaleUser->engroup==1) return false;
+        if(!($recommend_data['description']??null)) return false;
+        if($maleUser->isVip() && $new_sugar_no_msg_days == 7) return false;
+        if($femaleUser_cdate->diffInDays(Carbon::now())>=$new_sugar_no_msg_days ) return false;
+        if($femaleUser->sentMessages()->where('to_id',$maleUser->id)->count()>0) return false;
+        if($new_sugar_no_msg_days == 7 && (($femaleUser->tiny_setting()->where('cat','new_sugar_chat_with_notvip')->first()->value)??null))  return false;
+       
+        return ['days'=>$new_sugar_no_msg_days
+                ,'user_type_str'=>$new_sugar_error_user_type
+                ,'end_date'=>$femaleUser_cdate->addDays($new_sugar_no_msg_days )->format('Y/m/d H:i')];
     }
 }

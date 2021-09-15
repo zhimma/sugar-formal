@@ -7,6 +7,7 @@
         h3{
             text-align: left;
         }
+        .is_new_block {position:relative;top:20px;color:black;font-weight:normal;}
     </style>
     <body style="padding: 15px;">
     <h1>新增站長公告</h1>
@@ -36,6 +37,9 @@
                         <option value="0">普通會員</option>
                         <option value="1">VIP</option>
                     </select>
+                    <div class="is_new_7_block">
+                        <input type="checkbox" name="is_new_7" value="1"/> 新進
+                    </div>                    
                 </td>
                 <td>
                     <input type="number" name="sequence" min="1" value="1">

@@ -925,7 +925,7 @@
             }
         });
         //resize_before_upload(images_uploader,400,600,'#show_banned,#tab_uploadPic');
-        resize_before_upload($(images_uploader.eq(1)),400,600,'#show_banned,#tab_uploadPic');
+        resize_before_upload($(images_uploader.eq(1)),400,600,'#show_banned,#tab_uploadPic','json');
         $(".announce_bg").on("click", function() {
             $('.bl_tab_aa').hide();
         });
@@ -995,6 +995,17 @@
                 unread--;
                 $('#unreadCount').text(unread);
             });
+            
+        @if($to_forbid_msg_data)
+            $(document).on('click','#chatForm button[type=submit],#chatForm .xin_nleft',function(){
+                if($('.send').length==0) {
+                    event.preventDefault();                    
+                    tab_uploadPic_close();                                   
+                    show_pop_message('新進甜心只接收 vip 信件，{{$to_forbid_msg_data["user_type_str"]}}會員要於 {{$to_forbid_msg_data["end_date"]}}後方可發信給這位女會員');
+                    return false;
+                }
+            });
+        @endif
     </script>
 @endif
 <style>
