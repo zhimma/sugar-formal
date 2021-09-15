@@ -18,6 +18,13 @@
                 $announceRead = \App\Models\AnnouncementRead::select('announcement_id')->where('user_id', $user->id)->get();
                 $announcement = \App\Models\AdminAnnounce::where('en_group', $user->engroup)->whereNotIn('id', $announceRead)->whereRaw('(login_times_alert is NULL OR login_times_alert <= '.$user->login_times.')')->orderBy('sequence', 'asc')->get();
                 foreach ($announcement as &$a){
+                    if($a->login_times_alert){
+                        $announceRead = new \App\Models\AnnouncementRead();
+                        $announceRead->user_id = $user->id;
+                        $announceRead->announcement_id = $a->id;
+                        $announceRead->save();
+                    }
+
                     $a = str_replace(array("\r\n", "\r", "\n"), "<br>", $a);
                 }
                 $cc=0;
