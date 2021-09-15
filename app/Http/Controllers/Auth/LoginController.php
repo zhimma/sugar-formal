@@ -73,8 +73,15 @@ class LoginController extends \App\Http\Controllers\BaseController
             $banned_users->delete();
         }
         $userMeta = UserMeta::where('user_id', \Auth::user()->id)->get()->first();
+        $is_new_7 = false;
+        if( Carbon::parse(\Auth::user()->created_at)->diffInDays(Carbon::now())<7) {
+            $is_new_7 = true;
+        }
         $announceRead = \App\Models\AnnouncementRead::select('announcement_id')->where('user_id', \Auth::user()->id)->get();
-        $announcement = \App\Models\AdminAnnounce::where('en_group', \Auth::user()->engroup)->whereNotIn('id', $announceRead)->orderBy('sequence', 'desc')->get();
+        $aq = \App\Models\AdminAnnounce::where('en_group', \Auth::user()->engroup)->whereNotIn('id', $announceRead)->orderBy('sequence', 'desc');
+        if(!$is_new_7) $aq = $aq->where('is_new_7','<>',1);
+        $announcement = $aq->get();
+        //$announcement = \App\Models\AdminAnnounce::where('en_group', \Auth::user()->engroup)->whereNotIn('id', $announceRead)->orderBy('sequence', 'desc')->get();
         //$announcement = $announcement->content;
         //$announcement = str_replace(PHP_EOL, '\n', $announcement);
         foreach ($announcement as &$a){

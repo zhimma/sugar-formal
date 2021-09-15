@@ -546,7 +546,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/line/callback', 'LineNotify@lineNotifyCallback')->name('lineNotifyCallback');
         Route::get('/dashboard/line/notifyCancel', 'LineNotify@lineNotifyCancel')->name('lineNotifyCancel');
 
-
+        Route::get('/dashboard/setTinySetting','PagesController@setTinySetting')->name('setTinySetting');
+        Route::get('/dashboard/getTinySetting','PagesController@getTinySetting')->name('getTinySetting');
     });
 
     /*

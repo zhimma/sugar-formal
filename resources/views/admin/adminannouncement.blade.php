@@ -26,7 +26,9 @@ h3{
                 <tr class="template">
                     <td style="word-break: break-all; width: 50%;">{!! nl2br($a->content) !!}</td>
                     <td>{{ $a->sequence }}</td>
-                    <td>@if($a->isVip==0)普通會員 @elseif($a->isVip==1)VIP @endif</td>
+                    <td>@if($a->isVip==0)普通會員 @elseif($a->isVip==1)VIP @endif
+                        @if($a->is_new_7==1) <div> (未滿7天) </div> @endif
+                    </td>
                     <td>{{ $a->login_times_alert }}</td>
                     <td class="created_at">{{ $a->created_at }}</td>
                     <td class="updated_at">{{ $a->updated_at }}</td>
@@ -55,7 +57,9 @@ h3{
                 <tr class="template">
                     <td style="word-break: break-all; width: 50%;">{!! nl2br($a->content) !!}</td>
                     <td>{{ $a->sequence }}</td>
-                    <td>@if($a->isVip==0)普通會員 @elseif($a->isVip==1)VIP @endif</td>
+                    <td>@if($a->isVip==0)普通會員 @elseif($a->isVip==1)VIP @endif
+                    @if($a->is_new_7==1) <div> (未滿7天) </div> @endif
+                    </td>
                     <td>{{ $a->login_times_alert }}</td>
                     <td class="created_at">{{ $a->created_at }}</td>
                     <td class="updated_at">{{ $a->updated_at }}</td>

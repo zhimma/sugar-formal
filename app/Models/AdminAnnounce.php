@@ -37,6 +37,7 @@ class AdminAnnounce extends Model
         $a = AdminAnnounce::select('*')->where('id', '=', $request->id)->first();
         $a->en_group = $request->en_group;
         $a->isVip = $request->isVip;
+        $a->is_new_7 = $request->is_new_7??0;
         $a->content = $request->content_word;
         $a->sequence = $request->sequence;
         $a->login_times_alert = $request->login_times_alert;
@@ -48,6 +49,7 @@ class AdminAnnounce extends Model
         $a = new AdminAnnounce;
         $a->en_group = $request->en_group;
         $a->isVip = $request->isVip;
+        $a->is_new_7 = $request->is_new_7??0;
         $a->content = $request->content_word;
         $a->sequence = $request->sequence;
         $a->login_times_alert = $request->login_times_alert;
