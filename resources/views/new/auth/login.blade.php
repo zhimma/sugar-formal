@@ -17,7 +17,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         <div class="row">
             <div class="col-sm-12 col-xs-12 col-md-12">
                 <form name="login" action="/login" method="POST" class="dengl"  data-parsley-validate novalidate>
-                    {!! csrf_field() !!}
+                    <input type="hidden" name="_token" id="token" value="{{ csrf_token() }}">
                     <input type="hidden" name="{{ time() }}" value="{{ time() }}">
                     <input type="hidden" name="cfp_hash" id="cfp_hash">
                     <input type="hidden" name="new_cfp" id="new_cfp" value="0">
@@ -33,6 +33,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             var parts = value.split("; " + name + "=");
             if (parts.length == 2) return parts.pop().split(";").shift();
         }
+        $(document).ready(function (){
+            $.get('refresh-csrf').done(function(data){
+                csrfToken = data;
+                $('#token').val(csrfToken);
+            });
+        });
     </script>
     <script>
         let form = "<div class=\"de_input\">\n" +
