@@ -83,6 +83,10 @@ Route::get('/banned', 'PagesController@banned')->name('banned');
 Route::get('/sms_add_view', 'PagesController@sms_add_view');
 Route::get('/sms_add_list', 'PagesController@sms_add_list');
 Route::post('/sms_add', 'PagesController@sms_add');
+
+Route::get('/refresh-csrf', function(){
+    return csrf_token();
+});
 /*
 |--------------------------------------------------------------------------
 | Login/ Logout/ Password
