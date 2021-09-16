@@ -25,8 +25,16 @@
                 $aq = \App\Models\AdminAnnounce::where('en_group', $user->engroup)->whereNotIn('id', $announceRead)->whereRaw('(login_times_alert is NULL OR login_times_alert <= '.$user->login_times.')')->orderBy('sequence', 'asc');
                 if(!$is_new_7) $aq = $aq->where('is_new_7','<>',1);
                 $announcement = $aq->get(); 
-                
-                foreach ($announcement as &$a){ 
+                foreach ($announcement as &$a){
+                    if($a->login_times_alert){
+                        $read = \App\Models\AnnouncementRead::where('user_id', $user->id)->where('announcement_id', $a->id)->first();
+                        if(!$read){
+                            $announceRead = new \App\Models\AnnouncementRead();
+                            $announceRead->user_id = $user->id;
+                            $announceRead->announcement_id = $a->id;
+                            $announceRead->save();
+                        }
+                    }
                     $a = str_replace(array("\r\n", "\r", "\n"), "<br>", $a);
                 }
                 $cc=0;

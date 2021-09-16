@@ -41,6 +41,9 @@ class AdminAnnounce extends Model
         $a->content = $request->content_word;
         $a->sequence = $request->sequence;
         $a->login_times_alert = $request->login_times_alert;
+        if(is_null($request->login_times_alert) || $request->login_times_alert==0){
+            AnnouncementRead::where('announcement_id', $request->id)->delete();
+        }
         $a->save();
         return true;
     }
