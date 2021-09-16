@@ -390,7 +390,7 @@
 
         </div>
     </div>
-
+    <div class="evaluation_bg" onclick="gmBtnNoReload()" style="display:none;"></div>
     <div class="bl bl_tab" id="see_evaluation_tab" style="display: none;">
         <div class="bltitle">提示</div>
         <div class="n_blnr01 matop10">
@@ -677,6 +677,22 @@
             lineNotifyPopUp();
         }
     }else{
+
+        //popup評價通知優先高於公告
+        @if($evaluation_30days_unread_count && $user->notice_has_new_evaluation)
+            $('#announcement').hide();
+            $('.announce_bg').hide();
+            $('#show_new_evalucation_popup').show();
+            $(".evaluation_bg").show();
+            $("#show_new_evalucation_popup, .evaluation_bg").on('click', function() {
+
+                if($('#show_new_evalucation_popup').css('display') == 'none'){
+                    $('#announcement').show();
+                    $('.announce_bg').show();
+                    $(".evaluation_bg").hide();
+                }
+            });
+        @endif
         $("#announcement, .gg_butnew, .announce_bg").on('click', function() {
             if($('#announcement').css('display') == 'none'){
                 if(showLineNotifyPop){
@@ -760,14 +776,9 @@
         c5('{{Session::get('message')}}');
     @endif
 
-    @if($evaluation_30days_unread_count && $user->notice_has_new_evaluation)
-        $('#show_new_evalucation_popup').show();
-        $(".blbg").show()
-    @endif
-
     function new_evaluation_popup_close() {
         $('#show_new_evalucation_popup').hide();
-        $("#blbg").hide();
+        $("#evaluation_bg").hide();
     }
 
     function see_evaluation_popup() {
@@ -788,8 +799,6 @@
             url: '{{ route('closeNoticeNewEvaluation') }}',
             data: { id : "{{ $user->id }}", _token:"{{ csrf_token() }}"},
             success: function(xhr, status, error){
-                $('#show_new_evalucation_popup').hide();
-                $("#blbg").hide();
                 console.log(xhr);
                 console.log(error);
             },
@@ -799,6 +808,8 @@
                 console.log(error);
             }
         });
+        $('#show_new_evalucation_popup').hide();
+        $("#evaluation_bg").hide();
     }
 </script>
 <script type="text/javascript">
