@@ -271,4 +271,13 @@ class SetAutoBan extends Model
             }
         }
     }
+
+    public static function setAutoBanAdd($type, $content, $set_ban, $cuz_user_set = null, $expiry = '0000-00-00 00:00:00', $host = null)
+    {
+        if($type == 'ip'){
+            $expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
+        }
+        SetAutoBan::insert(['type' => $type, 'content' => $content, 'set_ban' => $set_ban, 'cuz_user_set' => $cuz_user_set, 'expiry' => $expiry, 'host' => $host]);
+        return;
+    }
 }

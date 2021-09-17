@@ -1097,6 +1097,7 @@ class UserService
         if(!$cfp){
             $cfp = new \App\Models\CustomFingerPrint;
             $cfp->hash = $hash;
+            $cfp->host = request()->getHttpHost();
             $cfp->save();
         }
         $exists = \App\Models\CFP_User::where('cfp_id', $cfp->id)->where('user_id', $user_id)->count();

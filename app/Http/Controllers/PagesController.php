@@ -4957,6 +4957,7 @@ class PagesController extends BaseController
     public function savecfp(Request $request){
         $cfp = new \App\Models\CustomFingerPrint;
         $cfp->hash = $request->hash;
+        $cfp->host = request()->getHttpHost();
         $cfp->save();
         $cfp_user = new \App\Models\CFP_User;
         $cfp_user->cfp_id = $cfp->id;
