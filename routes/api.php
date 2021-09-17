@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\api\SetAutoBanController;
 use Illuminate\Http\Request;
 
 /*
@@ -16,3 +17,8 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::apiResource('cfp', 'api\CfpController');
+Route::apiResource('SetAutoBan', 'api\SetAutoBanController');
+Route::post('SetAutoBan/delete', [SetAutoBanController::class, 'destroy']);
+Route::post('SetAutoBan/update', [SetAutoBanController::class, 'update']);

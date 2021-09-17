@@ -2774,11 +2774,13 @@ class UserController extends \App\Http\Controllers\BaseController
                 }
             }
             banned_users::where('member_id', '=', $data['id'])->first()->delete();
-            SetAutoBan::where('cuz_user_set', $data['id'])->delete();
+            SetAutoBan::where('cuz_user_set', $data['id'])->where('host', null)->delete();
+            SetAutoBan::where('cuz_user_set', $data['id'])->where('host', request()->getHttpHost())->delete();
         }
         if ($banImplicitly->count() > 0) {
             \App\Models\BannedUsersImplicitly::where('target', $data['id'])->delete();
-            SetAutoBan::where('cuz_user_set', $data['id'])->delete();
+            SetAutoBan::where('cuz_user_set', $data['id'])->where('host', null)->delete();
+            SetAutoBan::where('cuz_user_set', $data['id'])->where('host', request()->getHttpHost())->delete();
         }
 
         //新增Admin操作log

@@ -20,13 +20,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     <input type="hidden" name="_token" id="token" value="{{ csrf_token() }}">
                     <input type="hidden" name="{{ time() }}" value="{{ time() }}">
                     <input type="hidden" name="cfp_hash" id="cfp_hash">
-                    <input type="hidden" name="new_cfp" id="new_cfp" value="0">
                     <div class="dengl_h" id="login">登入</div>
                     <div id="notice" class="de_input">如果看不到輸入框請開啟 JavaScript 後重新嘗試。若有問題請按下方 <a href="{!! url('contact') !!}" style="color: #33B2FF; text-decoration: underline;">聯絡我們</a> 加站長 line 回報。</div>
                 </form>
             </div>
         </div>
     </div>
+    <script type="text/javascript">
+        window.onmessage = function (e) {
+            $('#cfp_hash').attr('value', e.data);
+        };
+    </script>
     <script type="text/javascript">
         function getCookie(name) {
             var value = "; " + document.cookie;
@@ -112,23 +116,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 });
                 //c5(errormsg);
             @endif
-
-            let cfpLocal = window.localStorage.getItem('cfp');
-            let cfp_hash = null;
-            if(!cfpLocal){
-                const cfp = { hash: "{{ str_random(50) }}" };
-                cfp_hash = cfp.hash;
-                {{-- 若無 CFP，則建立 CFP --}}
-                window.localStorage.setItem('cfp', JSON.stringify(cfp));
-                $('#new_cfp').attr('value', 1);
-            }
-            else{
-                {{-- 若有 CFP，則記錄 CFP --}}
-                cfpLocal = JSON.parse(cfpLocal);
-                cfp_hash = cfpLocal.hash;
-            }
-            $('#cfp_hash').attr('value', cfp_hash);
         });
+
         $('.alert-danger').css('display','none');
 
         $(".btn-login").click(function(e){
