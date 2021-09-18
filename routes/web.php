@@ -853,4 +853,4 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 });
 Route::get('/test', 'ImageController@deletePictures');
 
-Route::get('/cfp', 'api/CfpController@cfp');
+Route::get('/cfp', 'api\CfpController@cfp');
