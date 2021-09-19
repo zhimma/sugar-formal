@@ -57,7 +57,6 @@ class Handler extends ExceptionHandler
 //        }
         if($exception instanceof \Illuminate\Session\TokenMismatchException){
             logger('TokenMismatchException occurred, url: ' . url()->current());
-            logger('is $exception instanceof TokenMismatchException' . $exception instanceof \Illuminate\Session\TokenMismatchException);
             return redirect()
                     ->back()
                     ->withInput($request->except('password', '_token'))
