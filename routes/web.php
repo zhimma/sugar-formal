@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Single\Chat;
+use App\Http\Controllers\Api\CfpController;
 
 /*
 |--------------------------------------------------------------------------
@@ -790,4 +791,4 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 });
 Route::get('/test', 'ImageController@deletePictures');
 
-Route::get('/cfp', 'api\CfpController@cfp');
+Route::get('/cfp', [CfpController::class, 'cfp']);
