@@ -55,7 +55,7 @@ class Handler extends ExceptionHandler
 //            return response()->view('errors.exception',
 //                [ 'exception' => $exception->getMessage() == null ? null : $exception->getMessage()]);
 //        }
-        if($exception instanceof \Illuminate\Session\TokenMismatchException || $exception == 'CSRF token mismatch.'){
+        if($exception instanceof \Illuminate\Session\TokenMismatchException){
             logger('TokenMismatchException occurred, url: ' . url()->current());
             logger('is $exception instanceof TokenMismatchException' . $exception instanceof \Illuminate\Session\TokenMismatchException);
             return redirect()
