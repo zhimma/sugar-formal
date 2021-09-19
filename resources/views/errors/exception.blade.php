@@ -20,8 +20,8 @@
                                 <h4>時間：{{ \Carbon\Carbon::now()->toDateTimeString() }}</h4>
                                 <h4>錯誤類型：{{ substr($exception, 0, strpos($exception, ':')) }}</h4>
                                 {{ logger('??? error occurred, url: ' . url()->current()) }}
-                                {{ logger(get_class($exception)) }}
-                                {{ logger($exception->getTrace()) }}
+                                {{ logger($exception) }}
+                                {{ logger('Status: ' . app('Illuminate\Http\Response')->status()) }}
                                 @if(isset($user))
                                     {{ logger('user id: ' . $user->id) }}
                                 @endif
