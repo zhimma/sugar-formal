@@ -57,15 +57,21 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        if($exception instanceof \Illuminate\Session\TokenMismatchException){
+            logger('TokenMismatchException occurred, url: ' . url()->current());
+            logger('is $exception instanceof TokenMismatchException' . $exception instanceof \Illuminate\Session\TokenMismatchException);
+            return redirect()
+                    ->back()
+                    ->withInput($request->except('password', '_token'))
+                    ->withError('驗證已過期，請再試一次');
+        }
         if($exception->getMessage() == 'Too Many Attempts.'){
             return parent::render($request, $exception);
         }
         if(!$exception instanceof ValidationException && !$exception instanceof AuthenticationException) {
             return response()->view('errors.exception', [ 'exception' => $exception->getMessage() == null ? null : $exception->getMessage()]);
-        }
-        // $requestStr =  $request->all();
-        // \Illuminate\Support\Facades\Log::info('Exception: ' . $exception->getMessage() . ', URI: ' . $_SERVER["REQUEST_URI"] . ', request: ' . print_r($requestStr, true));
-
+        }        
+        
         return parent::render($request, $exception);
     }
 
