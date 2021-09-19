@@ -2916,6 +2916,9 @@ class PagesController extends BaseController
             //$messages = Message::allSenders($user->id, 1);
             if (isset($cid)) {
                 $cid_user = $this->service->find($cid);
+                if(!$cid_user){
+                    return '<h1>該會員不存在。</h1>';
+                }
                 $cid_recommend_data = [];
                 $forbid_msg_data = UserService::checkNewSugarForbidMsg($cid_user,$user);
                 
