@@ -37,12 +37,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             var parts = value.split("; " + name + "=");
             if (parts.length == 2) return parts.pop().split(";").shift();
         }
-        $(document).ready(function (){
+        {{-- $(document).ready(function (){
             $.get('refresh-csrf').done(function(data){
                 csrfToken = data;
                 $('#token').val(csrfToken);
             });
-        });
+        }); --}}
     </script>
     <script>
         let form = "<div class=\"de_input\">\n" +
