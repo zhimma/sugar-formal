@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\api\SetAutoBanController;
+use App\Http\Controllers\Api\SetAutoBanController;
 use Illuminate\Http\Request;
 
 /*
