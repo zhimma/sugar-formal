@@ -18,7 +18,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::apiResource('cfp', 'api\CfpController');
-Route::apiResource('SetAutoBan', 'api\SetAutoBanController');
+Route::apiResource('cfp', 'Api\CfpController');
+Route::apiResource('SetAutoBan', 'Api\SetAutoBanController');
 Route::post('SetAutoBan/delete', [SetAutoBanController::class, 'destroy']);
 Route::post('SetAutoBan/update', [SetAutoBanController::class, 'update']);
