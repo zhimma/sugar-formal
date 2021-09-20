@@ -23,6 +23,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     <div class="dengl_h" id="login">登入</div>
                     <div id="notice" class="de_input">如果看不到輸入框請開啟 JavaScript 後重新嘗試。若有問題請按下方 <a href="{!! url('contact') !!}" style="color: #33B2FF; text-decoration: underline;">聯絡我們</a> 加站長 line 回報。</div>
                 </form>
+                <iframe id="childFrame" src="https://www.sugar-garden.org/cfp" style="border:none;" ></iframe>
             </div>
         </div>
     </div>
