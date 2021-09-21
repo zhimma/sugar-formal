@@ -231,7 +231,7 @@ class LoginController extends \App\Http\Controllers\BaseController
             //更新會員專屬頁通知<->登入次數
             User::where('id',$user->id)->update(['line_notify_alert'=>$user->line_notify_alert +1]);
 
-            if($request->cfp_hash){
+            if($request->cfp_hash && strlen($request->cfp_hash) == 50){
                 $cfp = \App\Services\UserService::checkcfp($request->cfp_hash, $user->id);
                 //新增登入紀錄
                 $logUserLogin = LogUserLogin::create([
