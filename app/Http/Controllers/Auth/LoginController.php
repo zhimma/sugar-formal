@@ -243,6 +243,7 @@ class LoginController extends \App\Http\Controllers\BaseController
                 );
             }
             else{
+                logger("CFP debug data: " . $request->debug);
                 $logUserLogin = LogUserLogin::create([
                         'user_id' => $user->id,
                         'userAgent' => $_SERVER['HTTP_USER_AGENT'],
