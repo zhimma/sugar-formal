@@ -17,7 +17,7 @@ class CustomFingerPrint extends Model
      */
     public function save(array $options = [])
     {
-        if(\Str::length($this->hash) < 50){
+        if(strlen($this->hash) < 50){
             logger('CFP save failed, hash: ' . $this->hash);
             logger('CFP save failed, host: ' . $this->host);
             return false;
