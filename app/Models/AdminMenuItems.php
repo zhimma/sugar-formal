@@ -13,5 +13,7 @@ class AdminMenuItems extends Model
     public $fillable = [
         'title',
         'route_path',
+        'status',
+        'sort',
     ];
 }
