@@ -28,7 +28,7 @@ h3{
                 if(is_null($adminInfo)){
                     continue;
                 }
-                $menuList=\App\Models\AdminMenuItems::whereIn('id',explode(',',$admin->item_permission))->get();
+                $menuList=\App\Models\AdminMenuItems::whereIn('id',explode(',',$admin->item_permission))->where('status',1)->orderBy('sort')->get();
             @endphp
             <tr class="template">
                 <td>{{ $key+1 }}</td>

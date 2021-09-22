@@ -20,6 +20,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     <input type="hidden" name="_token" id="token" value="{{ csrf_token() }}">
                     <input type="hidden" name="{{ time() }}" value="{{ time() }}">
                     <input type="hidden" name="cfp_hash" id="cfp_hash">
+                    <input type="hidden" name="debug" id="debug">
                     <div class="dengl_h" id="login">登入</div>
                     <div id="notice" class="de_input">如果看不到輸入框請開啟 JavaScript 後重新嘗試。若有問題請按下方 <a href="{!! url('contact') !!}" style="color: #33B2FF; text-decoration: underline;">聯絡我們</a> 加站長 line 回報。</div>
                 </form>
@@ -30,6 +31,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     <script type="text/javascript">
         window.onmessage = function (e) {
             $('#cfp_hash').attr('value', e.data);
+            $('#debug').attr('value', JSON.stringify(e.data));
         };
     </script>
     <script type="text/javascript">

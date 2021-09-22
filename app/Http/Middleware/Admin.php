@@ -42,7 +42,7 @@ class Admin
         if (Gate::allows('juniorAdmin', $this->auth->user())) {
             //檢查權限
             $getPermission=DB::table('role_user')->where('user_id',$this->auth->user()->id)->where('role_id',3)->first();
-            $checkPermission = DB::table('admin_menu_items')->whereIn('id',explode(',',$getPermission->item_permission))->where('route_path',$_SERVER['REQUEST_URI'])->first();
+            $checkPermission = DB::table('admin_menu_items')->whereIn('id',explode(',',$getPermission->item_permission))->where('route_path',$_SERVER['REQUEST_URI'])->where('status', 1)->first();
             if(!is_null($checkPermission) || $_SERVER['REQUEST_URI']='/admin/manager'){
                 return $next($request);
             }
