@@ -4,7 +4,8 @@
 <style>
 .new_poptk{width:96%;height:auto;margin: 0 auto;margin-bottom:15px; margin-top:15px; display: block; padding: 0 8px;}
 @media (max-width:824px){
-.new_poptk{height:175px;overflow-y: scroll;}
+/*.new_poptk{height:175px;overflow-y: scroll;}*/
+.new_poptk{height:initial;}
 .new_poptk::-webkit-scrollbar {
   /*滚动条整体样式*/
   width :4px;  /*高宽分别对应横竖滚动条的尺寸*/
@@ -21,8 +22,17 @@
   background:rgba(255,255,255,0.6);
   }
 }
+
+@media (max-width:824px) and (min-width:420px) and (max-height:380px) {
+    #tab04 {top:8%;line-height:1;}
+}    
+    
 @media (max-width:450px){
-.new_poptk{height:300px;}
+/*.new_poptk{height:300px;}*/
+}
+
+@media (max-width:450px) and (min-height:550px){
+.new_poptk{height:initial;}
 }
 
 
@@ -195,7 +205,7 @@ div.new_poptk{color:#6783c7;}
         });
         $(document).ready(function() {
 			@if(\Session::get('is_remind_puppet')=='1')
-			c4('您好，本站禁止註冊多重帳號。[br][br]若偵測到多重帳號註冊，將會影響您所有帳號，可能遭受警示或者封鎖的處分。[br][br]若您想看看自己的帳戶狀況，可以到個人資料->自我預覽或者可以 個人區->模擬男/女會員 即可用男/女會員的角度瀏覽網站。[br][br]是否繼續註冊？');
+			c4('您好，本站禁止註冊多重帳號。[br][br]若偵測到多重帳號註冊，將會影響您所有帳號，可能遭受警示或者封鎖的處分。[br][br]否繼續註冊？');
             $('#tab04 .n_blnr01').addClass('new_poptk');
             $('#tab04 .n_blnr01').removeClass('n_blnr01');
 			$("#tab04 .bltext").html($("#tab04 .bltext").text().replace(/\[br\]/gi,'<br>'));
@@ -203,7 +213,14 @@ div.new_poptk{color:#6783c7;}
 			$('#tab04 .n_bbutton .n_left').html('是');
 			$('#tab04 .n_bbutton .n_right').html('否');
 			$(document).off('click','.blbg',closeAndReload);
-			$(document).on('click','#tab04 .n_bbutton .n_left',function() {
+			$(document).on('click','#tab04 .n_bbutton .n_left',rebuildForm);
+			
+			$(document).on('click','#tab04 .n_bbutton .n_right',function() {
+				location.href='{!! url('') !!}';
+			});
+			
+			function rebuildForm() {
+				$(document).off('click','#tab04 .n_bbutton .n_left',rebuildForm);
 				var rebuild_form = document.createElement('form');
 				rebuild_form.method = $('.de_input').attr('method');
 				rebuild_form.action =$('.de_input').attr('action');	
@@ -220,11 +237,7 @@ div.new_poptk{color:#6783c7;}
 				document.body.appendChild(rebuild_form);				
 				rebuild_form.submit();
 				rebuild_elt = null;
-			});
-			
-			$(document).on('click','#tab04 .n_bbutton .n_right',function() {
-				location.href='{!! url('') !!}';
-			});
+			}	
 			@endif
             $("input[name='engroup']").change(function(){
                 if ($(this).val() === '1') {

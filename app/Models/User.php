@@ -24,6 +24,8 @@ use \App\Services\UserService;
 use App\Models\LogFreeVipPicAct;
 use App\Models\LogUserLogin;
 use App\Models\UserTinySetting;
+use App\Models\IsWarnedLog;
+use App\Models\IsBannedLog;
 
 class User extends Authenticatable
 {
@@ -131,6 +133,14 @@ class User extends Authenticatable
     public function tiny_setting() {
         return $this->hasMany(UserTinySetting::class, 'user_id', 'id');
     }
+	
+    public function is_banned_log() {
+        return $this->hasMany(IsBannedLog::class, 'user_id', 'id');
+    }	
+	
+    public function is_warned_log() {
+        return $this->hasMany(IsWarnedLog::class, 'user_id', 'id');
+    }	
 
     /*
     |--------------------------------------------------------------------------

@@ -50,8 +50,17 @@ class RegisterController extends \App\Http\Controllers\BaseController
     //新樣板
     public function showRegistrationForm2()
     {
-		if(\Session::get('is_remind_puppet')=='1') {
-			Session::reflash();
+		if(\Session::get('is_remind_puppet')=='1' ) {
+            
+            if(!(\Session::get('is_remind_count',false))) {
+                \Session::put('is_remind_count', '1');
+                \Session::reflash();
+            }
+            else {
+                \Session::reflash();
+                \Session::forget('is_remind_count');
+                \Session::forget('is_remind_puppet');
+            }
 		}
 		
         return view('new.auth.register');
@@ -105,6 +114,7 @@ class RegisterController extends \App\Http\Controllers\BaseController
             'agree'    => 'required',
             'google_recaptcha_token' => ['required', 'string', new \App\Rules\GoogleRecapchaV3Case()]
         ];
+		if(\Session::get('is_remind_puppet')=='1') unset($rules['google_recaptcha_token']);
         $messages = [
             'not_contains'  => '請勿使用包含「站長」或「管理員」的字眼做為暱稱！',
             'agree.required'=> '您必須同意本站的使用條款和隱私政策，才可完成註冊。',
@@ -136,11 +146,16 @@ class RegisterController extends \App\Http\Controllers\BaseController
     public function register(\Illuminate\Http\Request $request) {
 		if(\Session::get('is_remind_puppet')!='1') {
 			$this->validator($request->all())->validate();
-			if(LogUserLogin::isCfpIdExistByNotUserId(((CustomFingerPrint::where('hash', $request->cfp_hash)->first())->id ?? '')) 
-				|| LogUserLogin::isIpUsedByNotUserId($request->ip())
-			) {
+
+			if(UserService::isShowMultiUserForbidHintUserId(((CustomFingerPrint::where('hash', $request->cfp_hash)->first())->id ?? ''),'cfp_id') 
+				|| UserService::isShowMultiUserForbidHintUserId($request->ip(),'ip')
+			) {				
 				return redirect()->route('register')->with('is_remind_puppet', '1')->with('filled_data',$request->all()); 
 			}
+		}
+		else if(\Session::get('is_remind_puppet')=='1' && \Session::get('filled_data')) {
+			$request->request->add(\Session::get('filled_data')); 
+			$this->validator($request->all())->validate();
 		}
 		else if(\Session::get('filled_data')){
 			$request->request->add(\Session::get('filled_data')); 
