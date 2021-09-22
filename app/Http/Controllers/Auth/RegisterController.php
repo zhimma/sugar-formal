@@ -149,8 +149,9 @@ class RegisterController extends \App\Http\Controllers\BaseController
 
 			if(UserService::isShowMultiUserForbidHintUserId(((CustomFingerPrint::where('hash', $request->cfp_hash)->first())->id ?? ''),'cfp_id') 
 				|| UserService::isShowMultiUserForbidHintUserId($request->ip(),'ip')
-			) {				
-				return redirect()->route('register')->with('is_remind_puppet', '1')->with('filled_data',$request->all()); 
+			) {
+			    \Session::set('filled_data', $request->all());
+				return redirect()->route('register')->with('is_remind_puppet', '1')->with('filled_data', $request->all());
 			}
 		}
 		else if(\Session::get('is_remind_puppet')=='1' && \Session::get('filled_data')) {
