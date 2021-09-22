@@ -226,15 +226,8 @@
                     
                 $('#tab06_new_sugar_chat_set .n_left').on('click',new_sugar_chat_set_yes);
                 $('#tab06_new_sugar_chat_set .n_right').on('click',new_sugar_chat_set_no);
-                //$(".announce_bg").hide();
                 $("#tab02").hide();
-                $(".gg_tab").hide();
-/*
-                if($('#tab05').is(":visible")){
-                    is_show_tab05 = true;
-                    $('#tab05').hide();
-                }
-*/                
+                $(".gg_tab").hide();          
                 $("#tab06_new_sugar_chat_set").show();	
                
                 return false;
@@ -262,14 +255,6 @@
                     }
                  });
                  
-
-
-                //$("#tab06 .bltext").text('');  
-                //if(org_tab06_left_onclick.length>0) $('#tab06 .n_lef').attr('onclick',org_tab06_left_onclick)                
- 
-                //if(is_show_tab05) $('#tab05_new_sugar_chat_set_rs').show();
-                //$('#tab06 .n_right').off('click',new_sugar_chat_set_no);
-                //$('#tab06 .n_left').off('click',new_sugar_chat_set_yes);
             }
             
             function new_sugar_chat_set_close() {
@@ -297,42 +282,26 @@
                     data: { catalog: "new_sugar_chat_with_notvip", value: value},
                     dataType:'json',
                     success: function(data){
-                        //var org_tab05_text = '';
                          if(data.msg!=undefined) {
-                             /*
-                            if(is_show_tab05) {
-                                //org_tab05_text=$('#tab05_new_sugar_chat_set_rs').text();
-                                $('#tab05_new_sugar_chat_set_rs').text(data.msg).show();
-                            }
-                            else {
-                                //c5(data.msg);
-                            } 
-                            */  
                             $('#tab06_new_sugar_chat_set').hide();
                             $('#tab05_new_sugar_chat_set_rs').show().find('.bltext').text(data.msg);                            
                             
                             if(data.msg.indexOf('成功')>=0) {
-                                //$('#tab05_new_sugar_chat_set_rs ,n_bllbut,#tab05 .bl_gb').on('click',function(){
+
                                 $('#tab05_new_sugar_chat_set_rs .n_bllbut,#tab05_new_sugar_chat_set_rs .bl_gb').on('click',function(){
-                                    //$('#tab05').text(org_tab05_text);
                                     new_sugar_chat_set_close();
                                 });                                 
                             }
                             else if(data.msg.indexOf('失敗')>=0){
                                  $('#tab05_new_sugar_chat_set_rs .n_bllbut,#tab05_new_sugar_chat_set_rs .bl_gb').on('click',function(){
-                                    //$('#tab05').text(org_tab05_text).hide();
                                     $('#tab05_new_sugar_chat_set_rs').hide();
                                 });                                
                             }
-
-                            //$('#tab05_new_sugar_chat_set_rs').text(data.msg).show();
                          }
                          else {
-                            //c5('發生異常，請重新操作'+data);
                             $('#tab05_new_sugar_chat_set_rs').text('發生異常，請重新操作'+data).show();
                             
                              $('#tab05_new_sugar_chat_set_rs ,n_bllbut,#tab05_new_sugar_chat_set_rs .bl_gb').on('click',function(){
-                                //$('#tab05').text(org_tab05_text).hide();
                                 $('#tab05_new_sugar_chat_set_rs').hide();
                             });                               
                          }
@@ -342,16 +311,8 @@
                          
                     },
                     error: function(xhr, status, error){
-                        //var org_tab05_text = '';
-                        //if(is_show_tab05) org_tab05_text=$('#tab05').text();
-                        /*
-                        c5('發生錯誤，請重新操作'+error);
-                         $('#tab05 ,n_bllbut,#tab05 .bl_gb').on('click',function(){
-                            $('#tab05').text(org_tab05_text).hide();
-                        }); 
-*/                      $('#tab05_new_sugar_chat_set_rs').text('發生錯誤，請重新操作'+error).show();
+                      $('#tab05_new_sugar_chat_set_rs').text('發生錯誤，請重新操作'+error).show();
                          $('#tab05_new_sugar_chat_set_rs .n_bllbut,#tab05_new_sugar_chat_set_rs .bl_gb').on('click',function(){
-                            //$('#tab05_new_sugar_chat_set_rs').text(org_tab05_text).hide();
                             $('#tab05_new_sugar_chat_set_rs').hide();
                         });                         
                         console.log(xhr);
