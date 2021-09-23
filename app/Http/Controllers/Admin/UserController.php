@@ -4192,6 +4192,10 @@ class UserController extends \App\Http\Controllers\BaseController
     }
 
     public function getIpUsers(Request $request, $ip){
+
+        ini_set("max_execution_time",'0');
+        ini_set('memory_limit','-1');
+
         $getIpUsersData = LogUserLogin::selectraw('g.*, u.email, u.name, u.title, u.engroup, u.last_login')
             ->selectRaw('(select count(*) from log_user_login where  log_user_login.user_id=g.user_id and log_user_login.cfp_id=g.cfp_id and LEFT(log_user_login.created_at,10)=LEFT(g.created_at,10)) as groupCount')
             ->from('log_user_login as g')
