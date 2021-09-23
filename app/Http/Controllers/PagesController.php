@@ -481,6 +481,8 @@ class PagesController extends BaseController
      */
     public function home(Request $request)
     {
+        \Session::forget('is_remind_puppet');
+        \Session::forget('filled_data');        
         // (SELECT CEIL(RAND() * (SELECT MAX(id) FROM random)) AS id) as u2
         $imgUserM = User::select('users.name', 'users.title', 'user_meta.pic')
             ->join(\DB::raw("(SELECT CEIL(RAND() * (SELECT MAX(id) FROM users)) AS id) as u2"), function($join){

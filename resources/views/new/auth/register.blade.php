@@ -212,7 +212,7 @@ div.new_poptk{color:#6783c7;}
         });
         $(document).ready(function() {
 			@if(\Session::get('is_remind_puppet')=='1')
-			c4('您好，本站禁止註冊多重帳號。[br][br]若偵測到多重帳號註冊，將會影響您所有帳號，可能遭受警示或者封鎖的處分。[br][br]否繼續註冊？');
+			c4('您好，本站禁止註冊多重帳號。[br][br]若偵測到多重帳號註冊，將會影響您所有帳號，可能遭受警示或者封鎖的處分。[br][br]是否繼續註冊？');
             $('#tab04 .n_blnr01').addClass('new_poptk');
             $('#tab04 .n_blnr01').removeClass('n_blnr01');
 			$("#tab04 .bltext").html($("#tab04 .bltext").text().replace(/\[br\]/gi,'<br>'));

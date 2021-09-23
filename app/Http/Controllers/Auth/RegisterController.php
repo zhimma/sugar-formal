@@ -50,6 +50,7 @@ class RegisterController extends \App\Http\Controllers\BaseController
     //新樣板
     public function showRegistrationForm2()
     {
+        /*
 		if(\Session::get('is_remind_puppet')=='1' ) {
             
             if(!(\Session::get('is_remind_count',false))) {
@@ -62,6 +63,7 @@ class RegisterController extends \App\Http\Controllers\BaseController
                 \Session::forget('is_remind_puppet');
             }
 		}
+        */
 		
         return view('new.auth.register');
     }
@@ -148,9 +150,12 @@ class RegisterController extends \App\Http\Controllers\BaseController
 			$this->validator($request->all())->validate();
 
 			if(UserService::isShowMultiUserForbidHintUserId(((CustomFingerPrint::where('hash', $request->cfp_hash)->first())->id ?? ''),'cfp_id') 
-				|| UserService::isShowMultiUserForbidHintUserId($request->ip(),'ip')
+				&& UserService::isShowMultiUserForbidHintUserId($request->ip(),'ip')
 			) {
-				return redirect()->route('register')->with('is_remind_puppet', '1')->with('filled_data', $request->all());
+                \Session::put('is_remind_puppet', '1');
+                \Session::put('filled_data', $request->all());
+				//return redirect()->route('register')->with('is_remind_puppet', '1')->with('filled_data', $request->all());
+                return redirect()->route('register');
 			}
 		}
 		else if(\Session::get('is_remind_puppet')=='1' && \Session::get('filled_data')) {
@@ -160,6 +165,9 @@ class RegisterController extends \App\Http\Controllers\BaseController
 		else if(\Session::get('filled_data')){
 			$request->request->add(\Session::get('filled_data')); 
 		}
+        
+        \Session::forget('is_remind_puppet');
+        \Session::forget('filled_data');
 
         event(new \Illuminate\Auth\Events\Registered($user = $this->create($request->all())));
 		$this->guard()->login($user);
