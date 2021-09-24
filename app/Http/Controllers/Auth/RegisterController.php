@@ -42,36 +42,17 @@ class RegisterController extends \App\Http\Controllers\BaseController
      *
      * @return void
      */
-    public function __construct(UserService $userService)
-    {
+    public function __construct(UserService $userService) {
         $this->middleware('guest');
         $this->service = $userService;
     }
     //新樣板
-    public function showRegistrationForm2()
-    {
-        /*
-		if(\Session::get('is_remind_puppet')=='1' ) {
-            
-            if(!(\Session::get('is_remind_count',false))) {
-                \Session::put('is_remind_count', '1');
-                \Session::reflash();
-            }
-            else {
-                \Session::reflash();
-                \Session::forget('is_remind_count');
-                \Session::forget('is_remind_puppet');
-            }
-		}
-        */
-		
+    public function showRegistrationForm2() {
         return view('new.auth.register');
     }
 
     //新樣板
-    public function checkAdult()
-    {
-		
+    public function checkAdult() {
         return view('new.adult');
     }
 
@@ -148,13 +129,11 @@ class RegisterController extends \App\Http\Controllers\BaseController
     public function register(\Illuminate\Http\Request $request) {
 		if(\Session::get('is_remind_puppet')!='1') {
 			$this->validator($request->all())->validate();
-
-			if(UserService::isShowMultiUserForbidHintUserId(((CustomFingerPrint::where('hash', $request->cfp_hash)->first())->id ?? ''),'cfp_id') 
+			if(UserService::isShowMultiUserForbidHintUserId((CustomFingerPrint::where('hash', $request->cfp_hash)->first())->id ?? '','cfp_id') 
 				&& UserService::isShowMultiUserForbidHintUserId($request->ip(),'ip')
 			) {
                 \Session::put('is_remind_puppet', '1');
                 \Session::put('filled_data', $request->all());
-				//return redirect()->route('register')->with('is_remind_puppet', '1')->with('filled_data', $request->all());
                 return redirect()->route('register');
 			}
 		}
