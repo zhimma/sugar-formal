@@ -556,7 +556,7 @@
                                     @endif
                                     @if($visitor->user_meta->isWarned == 1 || $visitor->isAdminWarned())
                                         <div class="hoverTip">
-                                            <div class="tagText" data-toggle="popover" data-content="此人被多人檢舉！與此會員交流務必提高警覺！">
+                                            <div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">
                                             @if($user->isVip())
                                             <img src="/new/images/a5.png">
                                             @else
