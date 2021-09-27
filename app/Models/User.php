@@ -631,9 +631,11 @@ class User extends Authenticatable
 //            return false;//普通會員需註冊滿1個月後，其餘不列計
 //        }
 
+        $order = Order::where('user_id', $uid)->where('service_name','VIP')->get();
+
         //註冊後如無任何傳訊紀錄 + 不是 vip 則顯示 無
         $checkMessages = Message::where('from_id', $uid)->get()->count();
-        if($checkMessages==0 && !$user->isVip()){
+        if($checkMessages==0 && !$user->isVip() && count($order)==0){
             $pr = '無';
             $pr_log = '註冊後如無任何傳訊紀錄+不是vip';
             //舊紀錄刪除
@@ -697,7 +699,7 @@ class User extends Authenticatable
 //        }
 
         //vip計分
-        $order = Order::where('user_id', $uid)->get();
+
         if(count($order)>0){
             foreach ( $order as $row){
                 if($row->order_expire_date == '' || $row->order_expire_date > Carbon::now()){
@@ -712,8 +714,8 @@ class User extends Authenticatable
                     }else{
                         //單次付費加分
                         if ($row->payment == 'one_quarter_payment') {
-                            $pr = $pr + 2.5 + 2.5;
-                            $pr_log = $pr_log . '當前單次季付有VIP+額外連續VIP =>' . $pr . '; ';
+                            $pr = $pr + (3 * 5) + 2.5 + 2.5;
+                            $pr_log = $pr_log . '當前單次季付有VIP 3 個月+額外連續VIP 2 個月 =>' . $pr . '; ';
                         }
                     }
 
