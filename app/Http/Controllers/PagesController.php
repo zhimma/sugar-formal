@@ -1912,10 +1912,6 @@ class PagesController extends BaseController
             }
 
             /*收藏會員次數*/
-//            $fav_count = MemberFav::where('member_id', $uid)->get()->count();
-//            /*被收藏次數*/
-//            $be_fav_count = MemberFav::where('member_fav_id', $uid)->get()->count();
-            /*收藏會員次數*/
             $fav_count = MemberFav::select('member_fav.*')
                 ->join('users', 'users.id', '=', 'member_fav.member_fav_id')
                 ->whereNotNull('users.id')
