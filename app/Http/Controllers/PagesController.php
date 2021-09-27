@@ -1866,6 +1866,7 @@ class PagesController extends BaseController
 
     public function viewuser2(Request $request, $uid = -1) {
         $user = $request->user();
+        $bannedUsers = \App\Services\UserService::getBannedId();
 
         $vipDays=0;
         if($user->isVip()) {
@@ -1911,9 +1912,25 @@ class PagesController extends BaseController
             }
 
             /*收藏會員次數*/
-            $fav_count = MemberFav::where('member_id', $uid)->get()->count();
+//            $fav_count = MemberFav::where('member_id', $uid)->get()->count();
+//            /*被收藏次數*/
+//            $be_fav_count = MemberFav::where('member_fav_id', $uid)->get()->count();
+            /*收藏會員次數*/
+            $fav_count = MemberFav::select('member_fav.*')
+                ->join('users', 'users.id', '=', 'member_fav.member_fav_id')
+                ->whereNotNull('users.id')
+                ->where('member_fav.member_id', $uid)
+                ->whereNotIn('member_fav.member_fav_id',$bannedUsers)
+                ->get()->count();
+
             /*被收藏次數*/
-            $be_fav_count = MemberFav::where('member_fav_id', $uid)->get()->count();
+            $be_fav_count = MemberFav::select('member_fav.*')
+                ->join('users', 'users.id', '=', 'member_fav.member_id')
+                ->whereNotNull('users.id')
+                ->where('member_fav.member_fav_id', $uid)
+                ->whereNotIn('member_fav.member_id',$bannedUsers)
+                ->get()->count();
+
 
             /*是否封鎖我*/
             $is_block_mid = Blocked::where('blocked_id', $user->id)->where('member_id', $uid)->count() >= 1 ? '是' : '否';
@@ -2048,7 +2065,6 @@ class PagesController extends BaseController
 
 
             /*此會員封鎖多少其他會員*/
-            $bannedUsers = \App\Services\UserService::getBannedId();
             $blocked_other_count = Blocked::with(['blocked_user'])
                 ->join('users', 'users.id', '=', 'blocked.blocked_id')
                 ->where('blocked.member_id', $uid)
