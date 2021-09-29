@@ -935,9 +935,9 @@
 <br>
 <h4>帳號登入紀錄</h4>
 <div>
-	<a id="ip10days" href="/admin/users/ip/尚未指定/?10days" target="_blank" class="btn btn-success" style="margin-left: 10px;">10天</a>
-	<a id="ip20days" href="/admin/users/ip/尚未指定/?20days" target="_blank" class="btn btn-primary">20天</a>
-	<a id="ip30days" href="/admin/users/ip/尚未指定/?30days" target="_blank" class="btn btn-warning">30天</a>
+	<a id="ip10days" href="/admin/users/ip/不指定/?type=detail&user_id={{$user->id}}&period=10days" target="_blank" class="btn btn-success" style="margin-left: 10px;">10天</a>
+	<a id="ip20days" href="/admin/users/ip/不指定/?type=detail&user_id={{$user->id}}&period=20days" target="_blank" class="btn btn-primary">20天</a>
+	<a id="ip30days" href="/admin/users/ip/不指定/?type=detail&user_id={{$user->id}}&period=30days" target="_blank" class="btn btn-warning">30天</a>
 </div>
 <table id="table_userLogin_log" class="table table-hover table-bordered">
 	@foreach($userLogin_log as $logInLog)
@@ -1749,12 +1749,20 @@ jQuery(document).ready(function(){
 		$('#'+sectionName).show();
 	});
 
-	$('.ipItem , .showRecord').click(function(){
+	$('.showRecord').click(function(){
 		var getIP =$(this).attr('data-ip');
 		var user_id='{{ $user->id }}';
 		$('#ip10days').attr("href",'/admin/users/ip/' + getIP + '?user_id=' + user_id +'&period=10days');
 		$('#ip20days').attr("href",'/admin/users/ip/' + getIP + '?user_id=' + user_id +'&period=20days');
 		$('#ip30days').attr("href",'/admin/users/ip/' + getIP + '?user_id=' + user_id +'&period=30days');
+	});
+
+	$('.ipItem').click(function(){
+		var getIP =$(this).attr('data-ip');
+		var user_id='{{ $user->id }}';
+		$('#ip10days').attr("href",'/admin/users/ip/' + getIP + '?period=10days');
+		$('#ip20days').attr("href",'/admin/users/ip/' + getIP + '?period=20days');
+		$('#ip30days').attr("href",'/admin/users/ip/' + getIP + '?period=30days');
 	});
 
 

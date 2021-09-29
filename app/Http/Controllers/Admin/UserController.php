@@ -4198,20 +4198,22 @@ class UserController extends \App\Http\Controllers\BaseController
         ini_set("max_execution_time",'0');
         ini_set('memory_limit','-1');
 
-        $getIpUsersData = LogUserLogin::selectraw('g.*, u.email, u.name, u.title, u.engroup, u.last_login')
-            ->selectRaw('(select count(*) from log_user_login where  log_user_login.user_id=g.user_id and log_user_login.cfp_id=g.cfp_id and LEFT(log_user_login.created_at,10)=LEFT(g.created_at,10)) as groupCount')
+        $getIpUsersData = LogUserLogin::selectRaw('g.user_id,g.cfp_id,g.created_date,count(*) as groupCount')
             ->from('log_user_login as g')
             ->leftJoin('users as u','u.id','g.user_id')
             ->whereNotNull('u.id')
             ->orderBy('u.id')
             ->orderBy('u.last_login','DESC')
-            ->orderBy('g.created_at','DESC');
+            ->orderBy('g.created_date','DESC');
 
         $user_id=$request->user_id;
         if($request->type=='detail' && $user_id && $request->date){
-            $getIpUsersData= $getIpUsersData->where('g.user_id', $user_id)->where('g.cfp_id',$request->cfp_id)->where('g.created_at', 'like', '%' . $request->date . '%');
+            $getIpUsersData= $getIpUsersData->where('g.user_id', $user_id)->where('g.cfp_id',$request->cfp_id)->where('g.created_date', $request->date);
         }else{
-            $getIpUsersData=$getIpUsersData->groupBy('g.user_id','g.cfp_id',DB::raw("LEFT(g.created_at,10)"));
+            if($user_id){
+                $getIpUsersData= $getIpUsersData->where('g.user_id', $user_id);
+            }
+            $getIpUsersData=$getIpUsersData->groupBy('g.user_id','g.cfp_id','g.created_date');
         }
 
         if($ip!=='不指定'){
@@ -4222,26 +4224,26 @@ class UserController extends \App\Http\Controllers\BaseController
         if($period){
             switch ($period){
                 case '10days':
-                    $date = date("Y-m-d H:i:s",strtotime("-10 days"));
+                    $date = date("Y-m-d",strtotime("-10 days"));
                     break;
                 case '20days':
-                    $date = date("Y-m-d H:i:s",strtotime("-20 days"));
+                    $date = date("Y-m-d",strtotime("-20 days"));
                     break;
                 case '30days':
-                    $date = date("Y-m-d H:i:s",strtotime("-30 days"));
+                    $date = date("Y-m-d",strtotime("-30 days"));
                     break;
                 default:
-                    $date = date("Y-m-d H:i:s",strtotime("-90 days"));
+                    $date = date("Y-m-d",strtotime("-90 days"));
                     break;
             }
-            $getIpUsersData= $getIpUsersData->where('g.created_at','>=' , $date);
+            $getIpUsersData= $getIpUsersData->where('g.created_date','>=' , $date);
         }
-        $getIpUsersData = $getIpUsersData->get();//->paginate(50);
+        $getIpUsersData = $getIpUsersData->paginate(200);
 
         return view('admin.users.ipUsersList')
             ->with('ipUsersData', $getIpUsersData)
             ->with('ip', $ip)
-            ;
+            ->with('recordType', $request->type);
 
     }
 	
