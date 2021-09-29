@@ -239,6 +239,7 @@ class LoginController extends \App\Http\Controllers\BaseController
                         'cfp_id' => $cfp->id,
                         'userAgent' => $_SERVER['HTTP_USER_AGENT'],
                         'ip' => $request->ip(),
+                        'created_date' =>  date('Y-m-d'),
                         'created_at' =>  date('Y-m-d H:i:s')]
                 );
             }
@@ -247,6 +248,7 @@ class LoginController extends \App\Http\Controllers\BaseController
                         'user_id' => $user->id,
                         'userAgent' => $_SERVER['HTTP_USER_AGENT'],
                         'ip' => $request->ip(),
+                        'created_date' =>  date('Y-m-d'),
                         'created_at' =>  date('Y-m-d H:i:s')]
                 );
             }
