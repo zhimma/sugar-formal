@@ -42,7 +42,6 @@ use App\Models\SimpleTables\member_vip;
 use App\Models\SimpleTables\banned_users;
 use App\Models\SimpleTables\warned_users;
 use App\Models\BannedUsersImplicitly;
-use App\Models\DataForFilterByInfo;
 use App\Notifications\BannedNotification;
 use App\Observer\BadUserCommon;
 use Carbon\Carbon;
@@ -266,7 +265,7 @@ class UserController extends \App\Http\Controllers\BaseController
             foreach ($request->ip as $value) {
                 if (!empty($value)) {
                     if (DB::table('set_auto_ban')->where([['type', 'ip'], ['content', $value], ['set_ban', '1']])->first() == null) {
-                        DB::table('set_auto_ban')->insert(['type' => 'ip', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id,'expiry'=> \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s')]);
+                        DB::table('set_auto_ban')->insert(['type' => 'ip', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id]);
                     }
                 }
             }
@@ -284,11 +283,6 @@ class UserController extends \App\Http\Controllers\BaseController
         }
 
         if ($userBanned) {
-            $checkLog = DB::table('is_banned_log')->where('user_id', $userBanned->member_id)->where('created_at', $userBanned->created_at)->first();
-            if(!$checkLog) {
-                //寫入log
-                DB::table('is_banned_log')->insert(['user_id' => $userBanned->member_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'created_at' => $userBanned->created_at]);
-            }
             $userBanned->delete();
             //新增Admin操作log
             $this->insertAdminActionLog($request->user_id, '解除封鎖');
@@ -320,7 +314,7 @@ class UserController extends \App\Http\Controllers\BaseController
             }
             $userBanned->save();
             //寫入log
-            DB::table('is_banned_log')->insert(['user_id' => $request->user_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'created_at' => Carbon::now()]);
+            DB::table('is_banned_log')->insert(['user_id' => $request->user_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date]);
             //新增Admin操作log
             $this->insertAdminActionLog($request->user_id, '封鎖會員');
 
@@ -347,20 +341,14 @@ class UserController extends \App\Http\Controllers\BaseController
         $userBanned = banned_users::where('member_id', $id)
             ->get()->first();
         if ($userBanned) {
-            $checkLog = DB::table('is_banned_log')->where('user_id', $userBanned->member_id)->where('created_at', $userBanned->created_at)->first();
-            if(!$checkLog) {
-                //寫入log
-                DB::table('is_banned_log')->insert(['user_id' => $userBanned->member_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'created_at' => $userBanned->created_at]);
-            }
             $userBanned->delete();
-
             return view('admin.users.success_only')->with('message', '成功解除封鎖使用者');
         } else {
             $userBanned = new banned_users;
             $userBanned->member_id = $id;
             $userBanned->save();
             //寫入log
-            DB::table('is_banned_log')->insert(['user_id' => $id, 'created_at' => Carbon::now()]);
+            DB::table('is_banned_log')->insert(['user_id' => $id]);
 
             return view('admin.users.success_only')->with('message', '成功封鎖使用者');
         }
@@ -391,11 +379,6 @@ class UserController extends \App\Http\Controllers\BaseController
         }
 
         if ($userWarned) {
-            $checkLog = DB::table('is_warned_log')->where('user_id', $userWarned->member_id)->where('created_at', $userWarned->created_at)->get()->first();
-            if(!$checkLog) {
-                //寫入log
-                DB::table('is_warned_log')->insert(['user_id' => $userWarned->member_id, 'reason' => $userWarned->reason, 'created_at' => $userWarned->created_at]);
-            }
             $userWarned->delete();
         }
         //            if(isset($request->page)){
@@ -424,7 +407,7 @@ class UserController extends \App\Http\Controllers\BaseController
         }
         $userWarned->save();
         //寫入log
-        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason, 'created_at' => Carbon::now()]);
+        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason]);
         //新增Admin操作log
         $this->insertAdminActionLog($request->user_id, '站方警示');
 
@@ -530,16 +513,9 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         $data = $request->post('data');
 
-        $warned = warned_users::where('member_id', $data['id'])->get();
+        $warned = warned_users::where('member_id', $data['id'])->get()->toArray();
 
-        if ($warned->count() > 0) {
-            foreach($warned as $r) {
-                $checkLog = DB::table('is_warned_log')->where('user_id', $r->member_id)->where('created_at', $r->created_at)->first();
-                if (!$checkLog) {
-                    //寫入log
-                    DB::table('is_warned_log')->insert(['user_id' => $r->member_id, 'reason' => $r->reason, 'created_at' => $r->created_at]);
-                }
-            }
+        if (count($warned) > 0) {
             warned_users::where('member_id', '=', $data['id'])->delete();
         }
 
@@ -689,8 +665,7 @@ class UserController extends \App\Http\Controllers\BaseController
             'message_content' => $userBanned->message_content,
             'recipient_name' => $userBanned->recipient_name,
             'message_time' => $userBanned->message_time,
-            'expire_date' => $userBanned->expire_date,
-            'created_at' => Carbon::now()
+            'expire_date' => $userBanned->expire_date
         ]);
         //$user = User::where('id', $user_id)->get()->first();
         //if($msg_id == 0){
@@ -718,11 +693,6 @@ class UserController extends \App\Http\Controllers\BaseController
         $userBanned = banned_users::where('member_id', $request->user_id)
             ->get()->first();
         if ($userBanned) {
-            $checkLog = DB::table('is_banned_log')->where('user_id', $userBanned->member_id)->where('created_at', $userBanned->created_at)->get()->first();
-            if(!$checkLog) {
-                //寫入log
-                DB::table('is_banned_log')->insert(['user_id' => $userBanned->member_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'created_at' => $userBanned->created_at]);
-            }
             $userBanned->delete();
             return redirect()->back()->with('message', '成功解除封鎖使用者');
         } else {
@@ -1213,28 +1183,11 @@ class UserController extends \App\Http\Controllers\BaseController
             $tmp['to_auth_status'] = $auth_status;
             array_push($out_evaluation_data_2, $tmp);
         }
-        
-        $uid = $user->id;
+
         //曾被警示
-        $isEverWarned = DB::table('is_warned_log')
-            ->where('user_id', $user->id)
-            ->whereNotIn('created_at', function($query) use ($uid){
-                $query->select('created_at')
-                    ->from(with(new warned_users())->getTable())
-                    ->where('member_id', $uid);
-            })
-            ->orderBy('created_at','desc')->paginate(10);
-
+        $isEverWarned = DB::table('is_warned_log')->where('user_id',$user->id)->orderBy('created_at','desc')->paginate(10);
         //曾被封鎖
-        $isEverBanned = DB::table('is_banned_log')
-            ->where('user_id',$user->id)
-            ->whereNotIn('created_at', function($query) use ($uid){
-                $query->select('created_at')
-                    ->from(with(new banned_users())->getTable())
-                    ->where('member_id', $uid);
-            })
-            ->orderBy('created_at','desc')->paginate(10);
-
+        $isEverBanned = DB::table('is_banned_log')->where('user_id',$user->id)->orderBy('created_at','desc')->paginate(10);
         //正被警示
         $isWarned = warned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->orderBy('created_at','desc')->paginate(10);
         //正被封鎖
@@ -1250,6 +1203,9 @@ class UserController extends \App\Http\Controllers\BaseController
         //userAgent distinct
         $userAgent = LogUserLogin::select('userAgent')->selectRaw('MAX(created_at) AS last_tiime')->orderByDesc('last_tiime')->where('user_id',$user->id)->groupBy('userAgent')->get();
 
+   
+        $banned_advance_auth_status = DB::table('banned_users')->where('member_id', $id)->where('reason','進階驗證封鎖')->where('message_content','1')->count() > 0 ? 1:0;
+        // var_dump($banned_advance_auth_count);die();
 
         if (str_contains(url()->current(), 'edit')) {
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
@@ -1289,6 +1245,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('cfp_id',$cfp_id)
                 ->with('ip',$ip)
                 ->with('userAgent',$userAgent)
+                ->with('banned_advance_auth_status', $banned_advance_auth_status)
                 ;
         }
     }
@@ -2745,17 +2702,10 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         $data = $request->post('data');
         // dd($data);
-        $ban = banned_users::where('member_id', $data['id'])->get();
+        $ban = banned_users::where('member_id', $data['id'])->get()->toArray();
         $banImplicitly = \App\Models\BannedUsersImplicitly::where('target', $data['id'])->get();
         // dd($ban);
-        if ($ban->count() > 0) {
-            foreach( $ban as $r){
-                $checkLog = DB::table('is_banned_log')->where('user_id', $r->member_id)->where('created_at', $r->created_at)->first();
-                if(!$checkLog) {
-                    //寫入log
-                    DB::table('is_banned_log')->insert(['user_id' => $r->member_id, 'reason' => $r->reason, 'expire_date' => $r->expire_date, 'created_at' => $r->created_at]);
-                }
-            }
+        if (count($ban) > 0) {
             banned_users::where('member_id', '=', $data['id'])->first()->delete();
             SetAutoBan::where('cuz_user_set', $data['id'])->delete();
         }
@@ -3065,11 +3015,6 @@ class UserController extends \App\Http\Controllers\BaseController
             $implicitly->delete();
         }
         if ($banned) {
-            $checkLog = DB::table('is_banned_log')->where('user_id', $banned->member_id)->where('created_at', $banned->created_at)->first();
-            if(!$checkLog) {
-                //寫入log
-                DB::table('is_banned_log')->insert(['user_id' => $banned->member_id, 'reason' => $banned->reason, 'expire_date' => $banned->expire_date, 'created_at' => $banned->created_at]);
-            }
             $banned->delete();
         }
 
@@ -4243,6 +4188,16 @@ class UserController extends \App\Http\Controllers\BaseController
         return view('admin.users.isEverWarnedOrBannedLog')->with('user',$user)->with('logType', $logType)->with('dataLog', $dataLog);
     }
 	
+    public function showFilterByInfoPage()
+    {
+        $admin = $this->admin->checkAdmin();
+
+        if ($admin) {
+            return view('admin.users.filterByInfo');
+        } else {
+            return view('admin.users.filterByInfo')->withErrors(['找不到暱稱含有「站長」的使用者！請先新增再執行此步驟']);
+        }
+    }
 
     public function showFilterByInfoList(Request $request)
     {
@@ -4261,114 +4216,172 @@ class UserController extends \App\Http\Controllers\BaseController
 			$reportedGtNum = $request->reportedGtNum;
 			$blockedGtNum = $request->blockedGtNum;
 			$blockOtherGtNum = $request->blockOtherGtNum;
+			
+			$date_start = $request->date_start;
+			$date_end = $request->date_end;
+			$time_start = $request->time_start;
+			$time_end = $request->time_end;
 
+			if(!$date_start) $error_msg['date_start'] = '請輸入開始日期';
+			if(!$date_end) $error_msg['date_end'] = '請輸入結束日期';
+			if(!$msg_gt_visit_7days 
+				&& !$msg_gt_visit 
+				&& !$reported_gt_num
+				&& !$blocked_gt_num
+				&& !$block_other_gt_num
+			) {
+				$error_msg['info_filter'] = '請至少選擇一個條件';
+			}
+			
 			if($error_msg) {
 				return view('admin.users.filterByInfo')->withErrors($error_msg);
 			}
 			else {
+				ini_set("max_execution_time",'1200');
+				ini_set('memory_limit','-1');
+				ini_set("request_terminate_timeout",'1200');
+				set_time_limit(1200);
 
-				$whereArr = [];
-				$whereRawArr = [];
-				$orwhereArr = [];
-				$orwhereRawArr = [];
-				$qstrArr[] = [];
-				if(isset($en_group)) $qstrArr['en_group'] = $en_group;
-				$dateEntry = DataForFilterByInfo::select('created_at','updated_at')->first();
-				if($dateEntry) {
-					$start_date = Carbon::createFromFormat('Y-m-d H:i:s', $dateEntry->created_at)->subDays(1)->format('Y-m-d H:i:s');
-					$end_date = $dateEntry->created_at;
+				$date_now = date('Y-m-d');
+				$time_now = date('H:i:s');
+
+				if($time_start) $date_start.=' '.$time_start;
+				
+				if($time_end) $date_end.=' '.$time_end;
+				else {
+					if($date_end==$date_now) $date_end.=' '.$time_now;
+					else {
+						$date_end.=' 23:59:59';
+					}
 				}
 
-				$infoSet = DataForFilterByInfo::join('users', 'users.id', '=', 'data_for_filter_by_info.user_id')	
-					->where('engroup',($en_group ?? 2));
+				$wantIndexArr = [];
+				$orFilterArr = [];
+				$andFilterArr = [];
+				
 				if($msg_gt_visit_7days) {
-					$qstrArr['msg_gt_visit_7days'] = $msg_gt_visit_7days;
-					switch($msg_gt_visit_7days) {
-						case 'and':
-							$whereRawArr[] = 'message_count_7 > visit_other_count_7';
-						break;
-						case 'or':
-							$orwhereRawArr[] = 'message_count_7 > visit_other_count_7';
-						break;						
-					}
+					$wantIdexArr = array('message_count_7','visit_other_count_7');
+					if($msg_gt_visit_7days=='or') $orFilterArr[] = 'msg_gt_visit_7days';
+					else $andFilterArr[] = 'msg_gt_visit_7days';
 				}
 				if($msg_gt_visit) {
-					$qstrArr['msg_gt_visit'] = $msg_gt_visit;
-					switch($msg_gt_visit) {
-						case 'and':
-							$whereRawArr[] = 'message_count > visit_other_count';
-						break;
-						case 'or':
-							$orwhereRawArr[] = 'message_count > visit_other_count';
-						break;						
-					}					
-				}
+					$wantIdexArr[] = 'message_count';
+					$wantIdexArr[] = 'visit_other_count';
+					if($msg_gt_visit=='or') $orFilterArr[] = 'msg_gt_visit';
+					else $andFilterArr[] = 'msg_gt_visit';					
+				}	
 				if($blocked_gt_num) {
-					$qstrArr['blocked_gt_num'] = $blocked_gt_num;
-					$qstrArr['blockedGtNum'] = $blockedGtNum;
-					switch($blocked_gt_num) {
-						case 'and':
-							$whereArr[] = ['be_blocked_other_count','>',($blockedGtNum ?? 0)];
-						break;
-						case 'or':
-							$orwhereArr[] = ['be_blocked_other_count','>',($blockedGtNum ?? 0)];
-						break;						
-					}						
-				}
+					$wantIdexArr[] = 'be_blocked_other_count';
+					if($blocked_gt_num=='or') $orFilterArr[] = 'blocked_gt_num';
+					else $andFilterArr[] = 'blocked_gt_num';					
+				}	
 				if($block_other_gt_num) {
-					$qstrArr['block_other_gt_num'] = $block_other_gt_num;
-					$qstrArr['blockOtherGtNum'] = $blockOtherGtNum;
-					switch($block_other_gt_num) {
-						case 'and':
-							$whereArr[] = ['blocked_other_count','>',($blockOtherGtNum ?? 0)];
-						break;
-						case 'or':
-							$orwhereArr[] = ['blocked_other_count','>',($blockOtherGtNum ?? 0)];
-						break;						
-					}						
-				}
-				if($reported_gt_num) {
-					$qstrArr['reported_gt_num'] = $reported_gt_num;
-					$qstrArr['reportedGtNum'] = $reportedGtNum;
-					switch($reported_gt_num) {
-						case 'and':
-							$whereArr[] = ['be_reported_other_count','>',($reportedGtNum ?? 0)];
-						break;
-						case 'or':
-							$orwhereArr[] = ['be_reported_other_count','>',($reportedGtNum ?? 0)];
-						break;						
-					}						
+					$wantIdexArr[] = 'blocked_other_count';
+					if($block_other_gt_num=='or') $orFilterArr[] = 'block_other_gt_num';
+					else $andFilterArr[] = 'block_other_gt_num';					
 				}
 				
-				$infoSet->where(function($query) use($whereArr,$whereRawArr,$orwhereArr,$orwhereRawArr) {
-					if($whereRawArr) {
-						foreach($whereRawArr  as $whereRaw)
-							$query->whereRaw($whereRaw);
-					}
-					if($whereArr) $query->where($whereArr);
-					if($orwhereArr) {
+				if($reported_gt_num) {
+					$wantIdexArr[] = 'reported_gt_num';
+					if($reported_gt_num=='or') $orFilterArr[] = 'reported_gt_num';
+					else $andFilterArr[] = 'reported_gt_num';					
+				}
+				
+				if(count($orFilterArr)==1 && !$andFilterArr) {
+					$andFilterArr = $orFilterArr;
+					$orFilterArr = [];
+				}
+				
+				$user_set = LogUserLogin::where('created_at', '>=', $date_start)->where('created_at', '<=', $date_end)->select('user_id')->groupBy('user_id')->with('user')->get();
 
-						foreach($orwhereArr as $orArr)
-							$query->orwhere($orArr[0],$orArr[1],$orArr[2]);
-							
+				$user_id_set = $user_set->pluck('user_id')->toArray();
+
+				$data = [];
+				foreach($user_set  as $k => $user) {
+					$andPassNum = 0;
+					if(isset($data[$user->id])) continue;
+					$gUser = $user;
+					if($gUser) {
+						if(isset($en_group) && $gUser->engroup!=$en_group) continue;
+						$gUser->tag_class = 'engroup'.$gUser->engroup.' ';
+						if($gUser->banned)  $gUser->tag_class.= 'banned ';
+						if($gUser->implicitlyBanned)  $gUser->tag_class.= 'implicitlyBanned ';
+						if($gUser->user_meta->isWarned || $gUser->aw_relation)  $gUser->tag_class.= 'isWarned ';
+						if($gUser->accountStatus===0) $gUser->tag_class.= 'isClosed ';
+						if($gUser->account_status_admin===0) $gUser->tag_class.= 'isClosedByAdmin ';						
+					}
+					else {
+						continue;
+					}
+
+					$cur_advInfo = $user->getAdvInfo($wantIndexArr);
+					if($reported_gt_num) {
+						$cur_advInfo['be_reported_other_count'] = Reported::cntr($user->id);
+					}
+					$gUser->advInfo= $cur_advInfo;
+					if($msg_gt_visit_7days)
+					{ 
+						if(($gUser->advInfo['message_count_7'] ?? 0)>($gUser->advInfo['visit_other_count_7'] ?? 0)) {
+							if(in_array('msg_gt_visit_7days',$orFilterArr)) {
+								$data[$user->id] = $gUser;
+								continue;
+							}
+							else $andPassNum++;
+						}
+					}
+					
+					if($msg_gt_visit)  {
+						if(($gUser->advInfo['message_count'] ?? 0)>($gUser->advInfo['visit_other_count'] ?? 0)) 
+						{
+							if(in_array('msg_gt_visit',$orFilterArr)){
+								$data[$user->id] = $gUser;
+								continue;
+							}
+							else $andPassNum++;							
+						}
+					}
+
+					if($blocked_gt_num)  {
+						if(($gUser->advInfo['be_blocked_other_count'] ?? 0)>($blockedGtNum ?? 0)) 
+						{
+							if(in_array('blocked_gt_num',$orFilterArr)){
+								$data[$user->id] = $gUser;
+								continue;
+							}	
+							else $andPassNum++;
+						}
 					}	
 
-					if($orwhereRawArr) {							
-						foreach($orwhereRawArr as $orwhereRaw)
-							$query->orwhereRaw($orwhereRaw);							
-					}						
-				});				
-				
+					if($block_other_gt_num) {
+						 if(($gUser->advInfo['blocked_other_count'] ?? 0)>($blockOtherGtNum ?? 0)) 
+						{
+							if(in_array('block_other_gt_num',$orFilterArr)){
+								$data[$user->id] = $gUser;
+								continue;
+							}	
+							else $andPassNum++;
+						}
+					}
+					
+					if($reported_gt_num) {
+						 if(($gUser->advInfo['be_reported_other_count'] ?? 0)>($reportedGtNum ?? 0)) 
+						{
+							if(in_array('reported_gt_num',$orFilterArr)){
+								$data[$user->id] = $gUser;
+								continue;
+							}	
+							else $andPassNum++;
+						}
+					}
 
-				$infoSet->orderByDesc('last_login');
-
-				$data = $infoSet->paginate(50);
-				$data->appends($qstrArr);					
+					if(count($andFilterArr)==$andPassNum) {
+						$data[$user->id] = $gUser;
+						continue;						
+					}
+				}
 				
 				return view('admin.users.filterByInfo')
-					->with('data', $data ?? null)
-					->with('start_date',$start_date ?? null)
-					->with('end_date',$end_date ?? null)
+					->with('data', $data)
 					;
 			}
         } else {

@@ -190,7 +190,8 @@ class UserMeta extends Model
                                   $education = '',
                                   $isVip = '',
                                   $isWarned = 2,
-                                  $isPhoneAuth = '')
+                                  $isPhoneAuth = '',
+                                  $isAdvanceAuth = '')
     {
         if ($engroup == 1) { $engroup = 2; }
         else if ($engroup == 2) { $engroup = 1; }
@@ -226,7 +227,8 @@ class UserMeta extends Model
             $education,
             $isVip,
             $isWarned,
-            $isPhoneAuth){
+            $isPhoneAuth,
+            $isAdvanceAuth){
             $query->select('*')->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
             if (isset($city) && strlen($city) != 0) $query->where('city','like', '%'.$city.'%');
             if (isset($area) && strlen($area) != 0) $query->where('area','like', '%'.$area.'%');
@@ -397,13 +399,17 @@ class UserMeta extends Model
             });
 
         }
-
         if(isset($isPhoneAuth) && $isPhoneAuth==2 && $userIsVip){
             $query->whereIn('users.id', function($query) use ($userid){
                 // $blockedUsers
                 $query->select('member_id')
                     ->from('short_message')->where('active',1);
             });
+        }
+        if($isAdvanceAuth && isset($isAdvanceAuth) && $isAdvanceAuth==1){
+            // $query->whereIn('users.id', function($query) use ($isAdvanceAuth){
+                $query->where('users.advance_auth_status',$isAdvanceAuth);
+            // });
         }
 
         if($userIsVip && isset($isVip) && $isVip==1){

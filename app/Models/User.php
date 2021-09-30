@@ -320,6 +320,12 @@ class User extends Authenticatable
         //            )->orderBy('created_at', 'desc')->first() !== null;
     }
 
+    // public function isAdvanceAuth(){
+    //     $count =  $this->where('advance_auth_status', 1)->count();
+    //     var_dumP($count);
+    //     $res = $count >0 ? 1:0;
+    //     return $res;
+    // }
     /**
      * 取得 VIP 資料，預設回傳所有記錄，使用參數決定是否回傳單筆記錄
      *
@@ -1196,7 +1202,7 @@ class User extends Authenticatable
         return $advInfo;
     }
 
-    public function getAdvInfo($wantIndexArr=[]) : array{
+    public function getAdvInfo($wantIndexArr=[]) : User{
         $user = $this;
         $date = date('Y-m-d H:m:s', strtotime('-7 days'));
 
@@ -1204,7 +1210,6 @@ class User extends Authenticatable
         $countInfo['message_count'] = 0;
         $countInfo['message_reply_count'] = 0;
         $countInfo['message_reply_count_7'] = 0;
-		$countInfo['message_count_7'] = 0;
         $send = [];
         $receive = [];
 
