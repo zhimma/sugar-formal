@@ -7,6 +7,8 @@
         h3{
             text-align: left;
         }
+        
+        .is_new_block {position:relative;top:20px;color:black;font-weight:normal;}
     </style>
     <body style="padding: 15px;">
     <h1>修改站長公告</h1>
@@ -16,7 +18,9 @@
             <tr>
                 <th class="text-center">內容</th>
                 <th class="text-center">性別</th>
+                <th class="text-center">普通會員/VIP</th>
                 <th class="text-center">排序(預設為1)</th>
+                <th class="text-center">在第幾次login時才跳出此公告</th>
                 <th class="text-center">建立時間</th>
                 <th class="text-center">更新時間</th>
                 <th class="text-center">操作</th>
@@ -36,9 +40,15 @@
                         <option value="0" @if($announce->isVip == 0) selected @endif>普通會員</option>
                         <option value="1" @if($announce->isVip == 1) selected @endif>VIP</option>
                     </select>
+                    <div class="is_new_block">
+                        <input type="checkbox" name="is_new_7" value="1" @if($announce->is_new_7 == 1) checked @endif /> 未滿7天
+                    </div>
                 </td>
                 <td>
                     <input type="number" name="sequence" min="1" value="{{ $announce->sequence }}">
+                </td>
+                <td>
+                    <input type="number" name="login_times_alert" min="1" value="{{ $announce->login_times_alert }}">
                 </td>
                 <td class="created_at">{{ $announce->created_at }}</td>
                 <td class="updated_at">{{ $announce->updated_at }}</td>

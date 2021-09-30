@@ -1019,6 +1019,7 @@ background: transparent;
 
 .blbg{width:100%; height:100%;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 9;display:none;}
 .announce_bg{width:100%; height:100%;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 9;display:none;}
+.evaluation_bg{width:100%; height:100%;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 9;display:none;}
 .bl_tab{width:36%;background:#e2e8ff; border:#8a9fef 2px solid;border-radius:5px;position: fixed;left:32%;top: 8%;z-index: 10;display:none;}
 .bltitle{width:100%; height:45px; line-height:45px; background:#8a9fef; color:#ffffff; text-align:center; font-size:18px;}
 .bltitle span{ float:left; margin-left:15px;}
@@ -1035,7 +1036,7 @@ border-radius: 3px;
 }
 
 
-.gg_tab{width:36%;background:#fcedf1; border:#fd90b6 2px solid;border-radius:5px;position: fixed;left:32%;top: 20%;z-index: 10;display:none;}
+.gg_tab{width:36%;background:#fcedf1; border:#fd90b6 2px solid;border-radius:5px;position: fixed;left:32%;top: 8%;z-index: 10;display:none;}
 .ggtitle{width:100%; height:45px; line-height:45px; background:#fd90b6; color:#ffffff; text-align:center; font-size:18px;}
 .ggtitle span{ float:left; margin-left:15px;}
 .ggnr{width:95%; margin:0 auto; display:table; padding:30px 0 50px 0;color:#666666}

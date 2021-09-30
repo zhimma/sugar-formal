@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Reported;
 use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
+use App\Models\SetAutoBan;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\AdminService;
@@ -152,13 +153,12 @@ class StatController extends \App\Http\Controllers\BaseController
     public function set_autoBan_add(Request $request){
         if(isset($request->content)){
             $user = User::findByEmail($request->cuz_email_set);
-			if($request->type=='ip') 
-				$expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
-			else $expiry = '';
             if($user){
-                DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban, 'cuz_user_set' => $user->id,'expiry'=>$expiry]);
+                SetAutoBan::setAutoBanAdd($request->type, $request->content, $request->set_ban, $user->id);
+//                DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban, 'cuz_user_set' => $user->id,'expiry'=>$expiry]);
             }else{
-                DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban,'expiry'=>$expiry]);
+                SetAutoBan::setAutoBanAdd($request->type, $request->content, $request->set_ban);
+//                DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban,'expiry'=>$expiry]);
             }
         }
         $data = DB::table('set_auto_ban')->orderBy('id', 'desc')->get();

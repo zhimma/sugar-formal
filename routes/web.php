@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Single\Chat;
+use App\Http\Controllers\Api\CfpController;
 
 /*
 |--------------------------------------------------------------------------
@@ -197,6 +197,10 @@ Route::get('/banned', 'PagesController@banned')->name('banned');
 Route::get('/sms_add_view', 'PagesController@sms_add_view');
 Route::get('/sms_add_list', 'PagesController@sms_add_list');
 Route::post('/sms_add', 'PagesController@sms_add');
+
+Route::get('/refresh-csrf', function(){
+    return csrf_token();
+});
 /*
 |--------------------------------------------------------------------------
 | Login/ Logout/ Password
@@ -307,7 +311,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::post('town_ajax', 'PagesController@town_ajax');
     Route::post('searchData', 'PagesController@searchData');
     Route::post('updateMemberData', 'PagesController@updateMemberData');
-    
+
     Route::get('new/mem_updatevip', 'PagesController@mem_updatevip');
     Route::post('cancelVip', 'PagesController@cancelVip');
     Route::get('new/women_updatevip', 'PagesController@women_updatevip');
@@ -327,23 +331,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
     Route::get('hint_auth1', 'PagesController@hint_auth1');
     Route::get('hint_auth2', 'PagesController@hint_auth2');
+
+
     /*會員驗證END*/
-
-    /*進階驗證*/
-    Route::get('advance_auth', 'PagesController@advance_auth');
-    Route::post('advance_auth_process', 'PagesController@advance_auth_process');
-
-    Route::get('advance_auth_return_url', 'PagesController@advance_auth_return_url');
-    Route::get('query_verify_result', 'PagesController@query_verify_result');
-    Route::get('advance_auth_result', 'PagesController@advance_auth_result');
-    Route::post('advance_auth_result', 'PagesController@advance_auth_result');
-
-    Route::get('advance_auth_query', 'PagesController@advance_auth_query');
-    Route::post('advance_auth_query', 'PagesController@advance_auth_query');
-
-    Route::post('advance_auth_back', 'PagesController@advance_auth_back');
-    Route::get('data_test', 'PagesController@data_test');
-    /*進階驗證END*/
 
 
     /*進階驗證*/
@@ -357,7 +347,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::post('advance_auth_result', 'PagesController@advance_auth_result');
 
     /*進階驗證END*/
-    
+
     /*
     |--------------------------------------------------------------------------
     | Dashboard
@@ -374,6 +364,16 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/posts_reply', 'PagesController@posts_reply');/*討論區留言回覆*/
         Route::post('/dashboard/posts_delete', 'PagesController@posts_delete');/*討論區留言刪除*/
         Route::post('/dashboard/post_views', 'PagesController@post_views');
+    });
+
+    //留言板
+    Route::group(['prefix' => 'MessageBoard'], function () {
+        Route::get('/showList', 'PagesController@messageBoard_showList')->name('messageBoard_list');
+        Route::get('/posts', 'PagesController@messageBoard_posts');
+        Route::get('/edit/{id}', 'PagesController@messageBoard_edit');
+        Route::get('/post_detail/{pid}', 'PagesController@messageBoard_post_detail');
+        Route::post('/doPosts', 'PagesController@messageBoard_doPosts');
+        Route::post('/delete/{mid}', 'PagesController@messageBoard_delete');
     });
 
     Route::post('/dashboard', 'PagesController@profileUpdate');
@@ -507,7 +507,11 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::get('/dashboard/banned', 'PagesController@dashboard_banned');
         Route::get('/dashboard/visited', 'PagesController@visited');
-        Route::get('/dashboard/viewuser/{uid?}', 'PagesController@viewuser2')->name('viewuser'); //new route
+        Route::middleware("HasReferer:listSeatch2")->group(function (){
+            Route::get('/dashboard/viewuser/{uid?}', 'PagesController@viewuser2')->name('viewuser'); //new route
+        });
+		Route::get('/dashboard/switch_other_engroup', 'PagesController@switchOtherEngroup')->name('switch_other_engroup');
+		Route::get('/dashboard/switch_engroup_back', 'PagesController@switchEngroupBack')->name('switch_engroup_back');
         Route::get('/dashboard/personalPage', 'PagesController@personalPage'); //new route
         Route::post('/dashboard/personalPage/reportDelete', 'PagesController@report_delete')->name('report_delete');
         Route::post('/dashboard/closeNoticeNewEvaluation', 'PagesController@closeNoticeNewEvaluation')->name('closeNoticeNewEvaluation');
@@ -553,7 +557,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/line/callback', 'LineNotify@lineNotifyCallback')->name('lineNotifyCallback');
         Route::get('/dashboard/line/notifyCancel', 'LineNotify@lineNotifyCancel')->name('lineNotifyCancel');
 
-
+        Route::get('/dashboard/setTinySetting','PagesController@setTinySetting')->name('setTinySetting');
+        Route::get('/dashboard/getTinySetting','PagesController@getTinySetting')->name('getTinySetting');
     });
 
     /*
@@ -613,8 +618,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/pictures/modify', 'UserController@modifyUserPictures')->name('users/pictures/modify');
         Route::get('users/reported/count', 'UserController@showReportedCountPage')->name('users/reported/count/GET');
         Route::post('users/reported/count', 'UserController@showReportedCountList')->name('users/reported/count');
-        Route::get('users/filterByInfo', 'UserController@showFilterByInfoPage')->name('users/filterByInfo');;
+        Route::get('users/filterByInfo', 'UserController@showFilterByInfoList')->name('users/filterByInfo');
         Route::post('users/filterByInfo', 'UserController@showFilterByInfoList');
+        Route::get('users/filterByInfoIgnore', 'UserController@switchFilterByInfoIgnore')->name('users/filterByInfoIgnore');
         Route::get('users/board', 'PagesController@board')->name('users/board');
         Route::post('users/board', 'PagesController@board')->name('users/board/search');
         Route::get('users/board/delete/{id}', 'UserController@deleteBoard')->name('users/board/delete');
@@ -623,6 +629,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/posts/prohibit', 'UserController@toggleUser_prohibit_posts');
         Route::post('users/posts/access', 'UserController@toggleUser_access_posts');
         Route::post('users/accountStatus_admin', 'UserController@accountStatus_admin');
+        Route::post('users/accountStatus_user', 'UserController@accountStatus_user');
         Route::get('users/messageBoard', 'UserController@messageBoardList')->name('users/messageBoardList');
         Route::post('users/messageBoard/delete/{id}', 'UserController@deleteMessageBoard');
         Route::post('users/messageBoard/hideMsg/{id}', 'UserController@hideMessageBoard');
@@ -673,6 +680,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::group(['prefix'=>'users/phone'], function(){
             Route::post('modify', 'UserController@modifyPhone')->name('phoneModify');
             Route::post('delete', 'UserController@deletePhone')->name('phoneDelete');
+            Route::post('search', 'UserController@searchPhone');
         });
 
         Route::get('statistics', 'UserController@statisticsReply')->name("statistics");
@@ -779,7 +787,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         /*新增、編輯訊息*/
         Route::post('users/getmsglib', 'UserController@getMessageLib');
         Route::post('users/updatemsglib', 'UserController@updateMessageLib');
-        
+
         Route::post('users/delmsglib', 'UserController@delMessageLib');
         Route::get('users/message/msglib/create', 'UserController@addMessageLibPage');
         Route::get('users/message/msglib/create/editPic_sendMsg', 'UserController@addMessageLibPageReporter');
@@ -856,4 +864,4 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 });
 Route::get('/test', 'ImageController@deletePictures');
 
-Route::get('/cfp', 'CfpController@cfp');
+Route::get('/cfp', [CfpController::class, 'cfp']);

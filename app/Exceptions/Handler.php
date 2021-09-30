@@ -55,6 +55,13 @@ class Handler extends ExceptionHandler
 //            return response()->view('errors.exception',
 //                [ 'exception' => $exception->getMessage() == null ? null : $exception->getMessage()]);
 //        }
+        if($exception instanceof \Illuminate\Session\TokenMismatchException){
+            logger('TokenMismatchException occurred, url: ' . url()->current());
+            return redirect()
+                    ->back()
+                    ->withInput($request->except('password', '_token'))
+                    ->withError('驗證已過期，請再試一次');
+        }
         return parent::render($request, $exception);
         //return redirect('/error');
         //return view('errors.exception')->with('exception', $exception->getMessage() == null ? null : $exception->getMessage());

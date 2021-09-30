@@ -69,16 +69,43 @@ class AdminService
         $name = $request->name ? $request->name : "";
         $email = $request->email ? $request->email : "";
         $keyword = $request->keyword ? $request->keyword : "";
+        $phone = $request->phone ? $request->phone : "";
+        $title = $request->title ? $request->title : "";
+        $order_no = $request->order_no ? $request->order_no : "";
         $user['isBlocked']=0;
         $users = User::select('m.about','m.style','u.*')->from('users as u')
             ->leftJoin('user_meta as m','u.id','m.user_id')
             ->where('u.email', 'like', '%' . $email . '%')
             ->where('u.name', 'like', '%' . $name . '%');
         if($keyword){
+            switch ($request->login_time){
+                case '1week':
+                    $date = date("Y-m-d H:i:s",strtotime("-1 week"));
+                    break;
+                case '2weeks':
+                    $date = date("Y-m-d H:i:s",strtotime("-2 weeks"));
+                    break;
+                default:
+                    $date = date("Y-m-d H:i:s",strtotime("-3 days"));
+                    break;
+            }
+            $users = $users->where('u.last_login','>=' , $date);
             $users = $users->where(function($query) use ($keyword){
                 $query->orWhere('m.about', 'like', '%'.$keyword.'%')
                     ->orWhere('m.style', 'like', '%'.$keyword.'%');
             });
+        }
+
+        if($phone){
+            $users = $users->leftJoin('short_message','short_message.member_id','u.id')->where('short_message.mobile', 'like', '%' . $phone . '%')->where('short_message.active',1);
+        }
+
+        if($title){
+            $users = $users->where('u.title', 'like', '%' . $title . '%');
+        }
+
+        if($order_no){
+            $users = $users->leftJoin('order','order.user_id','u.id')->where('order.order_id', 'like', '%' . $order_no . '%');
         }
 
         if($request->time){
@@ -92,7 +119,7 @@ class AdminService
             $users = $users->paginate(10);
         }
         else{
-            $users = $users->get();
+            $users = $users->paginate(10);
         }
         foreach ($users as $user){
             $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first() == true  ? true : false;

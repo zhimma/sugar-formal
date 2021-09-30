@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
+use App\Models\DataForFilterByInfoSub;
+use App\Models\DataForFilterByInfoIgnores;
 
 class DataForFilterByInfo extends Model
 {
@@ -25,5 +28,14 @@ class DataForFilterByInfo extends Model
     public function user(){
         return $this->belongsTo(User::class, 'user_id', 'id');
     }	
-
+    
+    public function sub()
+    {
+        return $this->hasMany(DataForFilterByInfoSub::class, 'data_id', 'id');
+    } 
+    
+    public function ignore()
+    {
+        return $this->hasOne(DataForFilterByInfoIgnores::class, 'user_id', 'user_id');
+    }     
 }

@@ -7,6 +7,7 @@
         h3{
             text-align: left;
         }
+        .is_new_block {position:relative;top:20px;color:black;font-weight:normal;}
     </style>
     <body style="padding: 15px;">
     <h1>新增站長公告</h1>
@@ -16,7 +17,9 @@
             <tr>
                 <th class="text-center">內容</th>
                 <th class="text-center">性別</th>
+                <th class="text-center">普通會員/VIP</th>
                 <th class="text-center">排序(預設為1)</th>
+                <th class="text-center">在第幾次login時才跳出此公告</th>
                 <th class="text-center">操作</th>
             </tr>
             <tr class="template">
@@ -34,9 +37,15 @@
                         <option value="0">普通會員</option>
                         <option value="1">VIP</option>
                     </select>
+                    <div class="is_new_7_block">
+                        <input type="checkbox" name="is_new_7" value="1"/> 新進
+                    </div>                    
                 </td>
                 <td>
                     <input type="number" name="sequence" min="1" value="1">
+                </td>
+                <td>
+                    <input type="number" name="login_times_alert" min="1" value="10">
                 </td>
                 <td>
                     <input type="submit" class='text-white btn btn-success' value="送出">

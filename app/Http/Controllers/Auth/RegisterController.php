@@ -42,25 +42,17 @@ class RegisterController extends \App\Http\Controllers\BaseController
      *
      * @return void
      */
-    public function __construct(UserService $userService)
-    {
+    public function __construct(UserService $userService) {
         $this->middleware('guest');
         $this->service = $userService;
     }
     //新樣板
-    public function showRegistrationForm2()
-    {
-		if(\Session::get('is_remind_puppet')=='1') {
-			Session::reflash();
-		}
-		
+    public function showRegistrationForm2() {
         return view('new.auth.register');
     }
 
     //新樣板
-    public function checkAdult()
-    {
-		
+    public function checkAdult() {
         return view('new.adult');
     }
 
@@ -105,6 +97,7 @@ class RegisterController extends \App\Http\Controllers\BaseController
             'agree'    => 'required',
             'google_recaptcha_token' => ['required', 'string', new \App\Rules\GoogleRecapchaV3Case()]
         ];
+		if(\Session::get('is_remind_puppet')=='1') unset($rules['google_recaptcha_token']);
         $messages = [
             'not_contains'  => '請勿使用包含「站長」或「管理員」的字眼做為暱稱！',
             'agree.required'=> '您必須同意本站的使用條款和隱私政策，才可完成註冊。',
@@ -136,15 +129,24 @@ class RegisterController extends \App\Http\Controllers\BaseController
     public function register(\Illuminate\Http\Request $request) {
 		if(\Session::get('is_remind_puppet')!='1') {
 			$this->validator($request->all())->validate();
-			if(LogUserLogin::isCfpIdExistByNotUserId(((CustomFingerPrint::where('hash', $request->cfp_hash)->first())->id ?? '')) 
-				|| LogUserLogin::isIpUsedByNotUserId($request->ip())
+			if(UserService::isShowMultiUserForbidHintUserId((CustomFingerPrint::where('hash', $request->cfp_hash)->first())->id ?? '','cfp_id') 
+				&& UserService::isShowMultiUserForbidHintUserId($request->ip(),'ip')
 			) {
-				return redirect()->route('register')->with('is_remind_puppet', '1')->with('filled_data',$request->all()); 
+                \Session::put('is_remind_puppet', '1');
+                \Session::put('filled_data', $request->all());
+                return redirect()->route('register');
 			}
+		}
+		else if(\Session::get('is_remind_puppet')=='1' && \Session::get('filled_data')) {
+			$request->request->add(\Session::get('filled_data')); 
+			$this->validator($request->all())->validate();
 		}
 		else if(\Session::get('filled_data')){
 			$request->request->add(\Session::get('filled_data')); 
 		}
+        
+        \Session::forget('is_remind_puppet');
+        \Session::forget('filled_data');
 
         event(new \Illuminate\Auth\Events\Registered($user = $this->create($request->all())));
 		$this->guard()->login($user);
@@ -155,6 +157,7 @@ class RegisterController extends \App\Http\Controllers\BaseController
                     'cfp_id' => $cfp->id,
                     'userAgent' => $_SERVER['HTTP_USER_AGENT'],
                     'ip' => $request->ip(),
+                    'created_date' =>  date('Y-m-d'),
                     'created_at' =>  date('Y-m-d H:i:s')]
             );
         }else{
@@ -162,6 +165,7 @@ class RegisterController extends \App\Http\Controllers\BaseController
                     'user_id' => $user->id,
                     'userAgent' => $_SERVER['HTTP_USER_AGENT'],
                     'ip' => $request->ip(),
+                    'created_date' =>  date('Y-m-d'),
                     'created_at' =>  date('Y-m-d H:i:s')]
             );
         }

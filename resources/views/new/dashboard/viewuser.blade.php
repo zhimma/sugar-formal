@@ -347,7 +347,7 @@
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
                 @include('new.dashboard.panel')
             </div>
-            <div class="col-sm-12 col-xs-12 col-md-10">
+            <div class="col-sm-12 col-xs-12 col-md-10">				
                 @if(isset($to))
                 <div class="rightbg">
                     <div class="metx">
@@ -390,10 +390,44 @@
                         @if($to->isPhoneAuth())
                                 <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a6.png @else/new/images/b_6.png @endif'></div> <span>通過手機認證的會員</span></li>
                                 @endif
-                      
                                 </ul>">
                             <ul @if(!$user->isVip())style="margin-top: -5px;"@endif>
-                                @if(isset($data['description']) && $to->engroup == 2)
+
+{{--                                @if(isset($data['description']) && $to->engroup == 1)--}}
+{{--                                    <li>--}}
+{{--                                        <div class="tagText" data-toggle="popover" data-content="優質會員是願意長期付費的VIP，或者常用車馬費邀請的男會員，建議女會員優先考慮。" style="width: 100%">--}}
+{{--                                            @if($user->isVip())--}}
+{{--                                                <img src="/new/images/a2.png">--}}
+{{--                                            @else--}}
+{{--                                                <img src="/new/images/b_2.png" style="height: 50px;">--}}
+{{--                                            @endif--}}
+{{--                                        </div>--}}
+{{--                                        --}}{{--                                        <span>{{$well_member}}</span>--}}
+{{--                                    </li>--}}
+{{--                                    @php--}}
+{{--                                        $user->isReadIntro = 1;--}}
+{{--                                        $introCount++;--}}
+{{--                                    @endphp--}}
+{{--                                @endif--}}
+                                {{--                            <li><img src="/new/images/icon_23.png"><span>{{$money_cert}}</span></li>--}}
+
+                                {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
+                                @if($to->meta->isWarned == 1 || $to->aw_relation)
+                                    <li>
+
+                                        <div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">
+                                            @if($user->isVip())
+                                                <img src="/new/images/a5.png">
+                                            @else
+                                                <img src="/new/images/b_5.png" style="height: 50px;">
+                                            @endif
+                                        </div>
+                                    </li>
+                                    @php
+                                        $user->isReadIntro = 1;
+                                        $introCount++;
+                                    @endphp
+                                @elseif(isset($data['description']) && $to->engroup == 2)
                                     <li>
                                         <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。" style="width: 100%">
                                             @if($user->isVip())
@@ -408,25 +442,7 @@
                                         $user->isReadIntro = 1;
                                         $introCount++;
                                     @endphp
-                                @endif
-                                @if(isset($data['description']) && $to->engroup == 1)
-                                    <li>
-                                        <div class="tagText" data-toggle="popover" data-content="優質會員是願意長期付費的VIP，或者常用車馬費邀請的男會員，建議女會員優先考慮。" style="width: 100%">
-                                            @if($user->isVip())
-                                                <img src="/new/images/a2.png">
-                                            @else
-                                                <img src="/new/images/b_2.png" style="height: 50px;">
-                                            @endif
-                                        </div>
-                                        {{--                                        <span>{{$well_member}}</span>--}}
-                                    </li>
-                                    @php
-                                        $user->isReadIntro = 1;
-                                        $introCount++;
-                                    @endphp
-                                @endif
-                                {{--                            <li><img src="/new/images/icon_23.png"><span>{{$money_cert}}</span></li>--}}
-                                @if($to->isVip() && $to->engroup == 1)
+                                @elseif($to->isVip() && $to->engroup == 1)
                                     <li>
                                         <div class="tagText" data-toggle="popover" data-content="本站的付費會員。" style="width: 100%">
                                             @if($user->isVip())
@@ -442,63 +458,25 @@
                                         $introCount++;
                                     @endphp
                                 @endif
-                                {{--                            <li><img src="/new/images/icon_27.png"><span>{{$alert_account}}</span></li>--}}
-                                @if($to->meta->isWarned == 1 || $to->aw_relation)
-                                    <li>
-
-                                        <div class="tagText" data-toggle="popover" data-content="此人被多人檢舉！與此會員交流務必提高警覺！">
-                                            @if($user->isVip())
-                                                <img src="/new/images/a5.png">
-                                            @else
-                                                <img src="/new/images/b_5.png" style="height: 50px;">
-                                            @endif
-                                        </div>
-                                    </li>
-                                    @php
-                                        $user->isReadIntro = 1;
-                                        $introCount++;
-                                    @endphp
-                                @endif
-                                @php var_dump($to->advance_auth_status); @endphp
-                                @if($to->advance_auth_status)
-                                    <li>
-                                        @if($to->engroup == 1)
-                                            <div class="tagText" data-toggle="popover" data-content="Baby們可通過完成手機驗證的Daddy，加強其身份真實性，提升信賴感55%以上。" style="width: 100%">
-                                                @else
-                                                    <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。" style="width: 100%">
-                                                        @endif
-                                                        @if($user->isVip())
-                                                            <img src="/new/images/a6.png" class="">
-                                                        @else
-                                                            <img src="/new/images/b_6.png" style="height: 50px; margin-bottom: 10px;">
-                                                        @endif
-                                                    </div>
-                                    </li>
-                                    @php
-                                        $user->isReadIntro = 1;
-                                        $introCount++;
-                                    @endphp
-                                @endif
-
-                                @if(1)
-                                    <li>
-                                        @if($to->engroup == 1)
-                                            <div class="tagText" data-toggle="popover" data-content="Baby們可通過完成手機驗證的Daddy，加強其身份真實性，提升信賴感55%以上。" style="width: 100%">
-                                                @else
-                                                    <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。" style="width: 100%">
-                                                        @endif
-                                                        @if($user->isVip())
-                                                            <img src="/new/images/a7.png" class="">
-                                                        @else
-                                                            <img src="/new/images/b_7.png" style="height: 50px; margin-bottom: 10px;">
-                                                        @endif
-                                                    </div>
-                                    </li>
-                                    @php
-                                        $user->isReadIntro = 1;
-                                        $introCount++;
-                                    @endphp
-                                @endif
+{{--                                @if($to->isPhoneAuth())--}}
+{{--                                    <li>--}}
+{{--                                        @if($to->engroup == 1)--}}
+{{--                                            <div class="tagText" data-toggle="popover" data-content="Baby們可通過完成手機驗證的Daddy，加強其身份真實性，提升信賴感55%以上。" style="width: 100%">--}}
+{{--                                                @else--}}
+{{--                                                    <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。" style="width: 100%">--}}
+{{--                                                        @endif--}}
+{{--                                                        @if($user->isVip())--}}
+{{--                                                            <img src="/new/images/a6.png" class="">--}}
+{{--                                                        @else--}}
+{{--                                                            <img src="/new/images/b_6.png" style="height: 50px; margin-bottom: 10px;">--}}
+{{--                                                        @endif--}}
+{{--                                                    </div>--}}
+{{--                                    </li>--}}
+{{--                                    @php--}}
+{{--                                        $user->isReadIntro = 1;--}}
+{{--                                        $introCount++;--}}
+{{--                                    @endphp--}}
+{{--                                @endif--}}
                             </ul>
                         </div>
                         <!--引导弹出层-->
@@ -579,7 +557,11 @@
                         <ul>
 {{--                            @if(!$isBlocked)--}}
                                 <li>
-                                    <a href="/dashboard/chat2/chatShow/{{ $to->id }}"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
+                                    @if($to->id==$user->id)
+                                        <a onclick="show_chat()"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
+                                    @else
+                                        <a href="/dashboard/chat2/chatShow/{{ $to->id }}"><img src="/new/images/icon_06.png" class="tubiao_i"><span>發信</span></a>
+                                    @endif
                                 </li>
 {{--                            @endif--}}
                             @if($user->isVip())
@@ -601,6 +583,7 @@
                             @endif
                             <li>
                                 @if($isAdminWarned)
+                                    {{--                警告跟banned有差別嗎？               --}}
                                     <a onclick="show_Warned()"><img src="/new/images/icon_10.png" class="tubiao_i"><span>檢舉</span></a>
                                 @else
                                     <a onclick="show_banned()"><img src="/new/images/icon_10.png" class="tubiao_i"><span>檢舉</span></a>
@@ -654,7 +637,9 @@
                 <div class="mintop">
                     <div class="">
                         <div class="ziliao">
-                            <div class="ztitle"><span>基本資料</span>Basic information</div>
+                            <div class="ztitle">
+								<span>基本資料</span>Basic information								
+							</div>
                             <div class="xiliao_input">
                                 <div class="xl_input">
                                     <dt>
@@ -1281,7 +1266,7 @@
                         <input type="hidden" name="uid" value="{{$to->id}}">
                         <textarea name="content" cols="" rows="" class="n_nutext" style="border-style: none;" maxlength="300" placeholder="{{$report_member}}" required></textarea>
                         <span class="alert_tip" style="color:red;"></span>
-                        <input type="file" name="reportedImages" accept="image/*">
+                        <input type="file" name="reportedImages">
                         <div class="n_bbutton" style="margin-top:10px;text-align:center;">
                             <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">送出</button>
                             <button type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="show_banned_close()">返回</button>
@@ -1305,7 +1290,7 @@
                         <input type="hidden" name="picType" value="">
                         <input type="hidden" name="pic_id" value="">
                         <textarea name="content" cols="" rows="" class="n_nutext" placeholder="{{$report_avatar}}" required></textarea>
-                        <input type="file" name="images" accept="image/*">
+                        <input type="file" name="images">
                         <div class="n_bbutton" style="margin-top:10px;text-align:center;">
                             <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff;float: unset; margin-left: 0px; margin-right: 20px;">送出</button>
                             <button type="reset" class="n_left" style="border-style: none;background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="show_reportPic_close()">返回</button>
@@ -1343,7 +1328,7 @@
                         <input type="hidden" name="uid" value={{$user->id}}>
                         <input type="hidden" name="eid" value={{$to->id}}>
                         <span class="alert_tip" style="color:red;"></span>
-                        <input type="file" name="images" accept="image/*">
+                        <input type="file" name="images" >
                         <div class="new_pjckbox">
                             評價請敘述事實，並盡量佐以圖片證明。主觀性評價站方得有修改或刪除的權力不另行通知
                             <span><input type="checkbox" name="agree"><label>我同意上述說明</label></span>
@@ -1369,7 +1354,7 @@
                     <div class="fpt_pic1">
                         <textarea id="re_content_reply" name="re_content" cols="" rows="" class="n_nutext evaluation_content" style="border-style: none;" maxlength="120" placeholder="請輸入回覆（最多120個字元）"></textarea>
                         <span class="alert_tip" style="color:red;"></span>
-                        <input id="images_reply" type="file" name="images" accept="image/*">
+                        <input id="images_reply" type="file" name="images">
                         <div class="n_bbutton" style="margin-top:0px;">
                             <a class="n_bllbut" onclick="form_evaluation_reply_submit()">送出</a>
                         </div>
@@ -1436,71 +1421,13 @@
             </div>
         </div>
         <div class="swiper-pagination2"></div>
-
     </div>
-    <link type="text/css" rel="stylesheet" href="/new/css/app.css">
-    <link rel="stylesheet" type="text/css" href="/new/css/swiper2.min.css"/>
-    <script type="text/javascript" src="/new/js/swiper.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            /*调起大图 S*/
-            var mySwiper = new Swiper('.swiper-container2',{
-                pagination : '.swiper-pagination2',
-                paginationClickable:true,
-                onInit: function(swiper){//Swiper初始化了
-                    // var total = swiper.bullets.length;
-                    var active =swiper.activeIndex;
-                    $(".swiper-num .active").text(active);
-                    // $(".swiper-num .total").text(total);
-                },
-                onSlideChangeEnd: function(swiper){
-                    var active =swiper.realIndex +1;
-                    $(".swiper-num .active").text(active);
-                }
-            });
-
-            $(".zap_photo li").on("click",
-                function () {
-                    var imgBox = $(this).parent(".zap_photo").find("li");
-                    var i = $(imgBox).index(this);
-                    $(".big_img .swiper-wrapper").html("")
-
-                    for (var j = 0, c = imgBox.length; j < c ; j++) {
-                        $(".big_img .swiper-wrapper").append('<div class="swiper-slide"><div class="cell"><img src="' + imgBox.eq(j).find("img").attr("src") + '" / ></div></div>');
-                    }
-                    mySwiper.updateSlidesSize();
-                    mySwiper.updatePagination();
-                    $(".big_img").css({
-                        "z-index": 1001,
-                        "opacity": "1"
-                    });
-                    //分页器
-                    var num = $(".swiper-pagination2 span").length;
-                    $(".swiper-num .total").text(num);
-                    // var active =$(".swiper-pagination2").index(".swiper-pagination-bullet-active");
-                    $(".swiper-num .active").text(i + 1);
-                    // console.log(active)
-
-                    mySwiper.slideTo(i, 0, false);
-                    return false;
-                });
-            $(".swiper-container2").click(function(){
-                $(this).parent(".big_img").css({
-                    "z-index": "-1",
-                    "opacity": "0"
-                });
-            });
-
-        });
-        /*调起大图 E*/
-    </script>
-    <!--照片查看end-->
 @stop
 
 @section('javascript')
 
 <script>
-
+    let is_banned = {{ $is_banned ? 1 : 0 }};
     function jidutiao() {
         c5('此會員使用紀錄不足，無法判斷');
     }
@@ -1604,6 +1531,86 @@
         if( /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
             // $('.metx').css('position','unset');
         }
+
+        $('.content_delete').on( "click", function() {
+            c4('確定要刪除嗎?');
+            var id = $(this).data('id');
+            $(".n_left").on('click', function() {
+                $.post('{{ route('evaluation_delete') }}', {
+                    id: id,
+                    _token: '{{ csrf_token() }}'
+                }, function (data) {
+                    $("#tab04").hide();
+                    show_pop_message('評價已刪除');
+
+                });
+            });
+        });
+
+        $('.re_content_delete').on( "click", function() {
+            c4('確定要刪除嗎?');
+            var id = $(this).data('id');
+            var userid = $(this).data('userid');
+            $(".n_left").on('click', function() {
+                $.post('{{ route('evaluation_re_content_delete') }}', {
+                    id: id,
+                    userid:userid,
+                    _token: '{{ csrf_token() }}'
+                }, function (data) {
+                    $("#tab04").hide();
+                    show_pop_message('回覆已刪除');
+                });
+            });
+        });
+
+        $('.hf_but').on( "click", function() {
+
+            if($('#form_re_content'+ $(this).data('id')).find('.hf_i').val() == ''){
+                c5('請輸入內容');
+            }else{
+                $('#form_re_content'+ $(this).data('id')).submit();
+            }
+
+        });
+
+        //let button = document.getElementsByTagName('button');
+        let button = document.getElementsByClassName('show_all_evaluation');
+        let p = document.getElementsByTagName('p');
+
+        for (let i = 0; i < button.length; i++) {
+            button[i].onclick = function() {
+                if (this.innerHTML == "[完整評價]") {
+                    p[i].classList.remove("many-txt");
+                    p[i].classList.add("all-txt");
+                    this.innerHTML = "[點擊收起]";
+                    $(this).parent().siblings('.zap_photo').removeClass('huiyoic');
+                } else {
+                    p[i].classList.remove("all-txt");
+                    p[i].classList.add("many-txt");
+                    this.innerHTML = "[完整評價]";
+                    $(this).parent().siblings('.zap_photo').addClass('huiyoic');
+                }
+            }
+        }
+
+        $(".z_more").on( "click", function() {
+            $(this).parent().prev().find('.context').find("div").first().toggleClass('on context-wrap')
+            $(this).html($(this).text() === '展開' ? '收起' : '展開');
+            $(this).parent().prev().find('.context').find(".zap_photo").toggleClass('huiyoic');
+        });
+
+        $('div.context-wrap').each(function(i) {
+            if (isEllipsisActive(this)) {
+                $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
+                $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
+                $(this).parents('.hu_p').find('span.z_more').addClass('show_more');
+            }
+            else {
+                $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
+                $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
+                $(this).parents('.hu_p').find('span.z_more').addClass('hide_more');
+            }
+        });
     });
     // $( document ).ready(function() {
         @if(isset($to))
@@ -1759,6 +1766,11 @@
     }
 
     function show_banned() {
+
+        if(is_banned){
+            return  c5('您目前被站方封鎖，無檢舉權限');
+        }
+
         //$(".blbg").show();
         var uid='{{ $user->id }}';
         var to='{{$to->id}}';
@@ -1772,6 +1784,11 @@
     }
 
     function show_reportPic() {
+
+        if(is_banned){
+            return  c5('您目前被站方封鎖，無檢舉權限');
+        }
+
         $(".blbg").show();
         $("#show_reportPic").show();
         $('body').css("overflow", "hidden");
@@ -1916,9 +1933,10 @@
     });
 
     // $.noConflict();
-    
+
     function show_Warned() {
-        c5('無法檢舉');
+        // c5('無法檢舉');
+        return  c5('您目前被站方封鎖，無檢舉權限');
     }
 
     @if(isset($to))
@@ -1975,20 +1993,6 @@
         return false;
     }
 
-    $('.content_delete').on( "click", function() {
-        c4('確定要刪除嗎?');
-        var id = $(this).data('id');
-        $(".n_left").on('click', function() {
-            $.post('{{ route('evaluation_delete') }}', {
-                id: id,
-                _token: '{{ csrf_token() }}'
-            }, function (data) {
-                $("#tab04").hide();
-                show_pop_message('評價已刪除');
-                
-            });
-        });
-    });
     // function form_re_content_submit(){
     //     if($.trim($(".hf_i").val())=='') {
     //         c5('請輸入內容');
@@ -2005,70 +2009,6 @@
             $('#form_evaluation_reply').submit();
         }
     }
-    $('.hf_but').on( "click", function() {
-
-        if($('#form_re_content'+ $(this).data('id')).find('.hf_i').val() == ''){
-            c5('請輸入內容');
-        }else{
-            $('#form_re_content'+ $(this).data('id')).submit();
-        }
-
-    });
-
-    $('.re_content_delete').on( "click", function() {
-        c4('確定要刪除嗎?');
-        var id = $(this).data('id');
-        var userid = $(this).data('userid');
-        $(".n_left").on('click', function() {
-            $.post('{{ route('evaluation_re_content_delete') }}', {
-                id: id,
-                userid:userid,
-                _token: '{{ csrf_token() }}'
-            }, function (data) {
-                $("#tab04").hide();
-                show_pop_message('回覆已刪除');
-            });
-        });
-    });
-
-    //let button = document.getElementsByTagName('button');
-    let button = document.getElementsByClassName('show_all_evaluation');
-    let p = document.getElementsByTagName('p');
-
-    for (let i = 0; i < button.length; i++) {
-        button[i].onclick = function() {
-            if (this.innerHTML == "[完整評價]") {
-                p[i].classList.remove("many-txt");
-                p[i].classList.add("all-txt");
-                this.innerHTML = "[點擊收起]";
-                $(this).parent().siblings('.zap_photo').removeClass('huiyoic');
-            } else {
-                p[i].classList.remove("all-txt");
-                p[i].classList.add("many-txt");
-                this.innerHTML = "[完整評價]";
-                $(this).parent().siblings('.zap_photo').addClass('huiyoic');
-            }
-        }
-    }
-
-    $(".z_more").on( "click", function() {
-        $(this).parent().prev().find('.context').find("div").first().toggleClass('on context-wrap')
-        $(this).html($(this).text() === '展開' ? '收起' : '展開');
-        $(this).parent().prev().find('.context').find(".zap_photo").toggleClass('huiyoic');
-    });
-
-    $('div.context-wrap').each(function(i) {
-        if (isEllipsisActive(this)) {
-            $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
-            $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
-            $(this).parents('.hu_p').find('span.z_more').addClass('show_more');
-        }
-        else {
-            $(this).parents('.hu_p').find('span.z_more').removeClass('show_more');
-            $(this).parents('.hu_p').find('span.z_more').removeClass('hide_more');
-            $(this).parents('.hu_p').find('span.z_more').addClass('hide_more');
-        }
-    });
 
     $(window).resize(function() {
         $('div.context-wrap').each(function(i) {
@@ -2157,16 +2097,15 @@
 <link href="{{ asset('new/css/fileupload.css') }}" media="all" rel="stylesheet">
 <link href="{{ asset('css/font/font-fileuploader.css') }}" media="all" rel="stylesheet">
 <script src="{{ asset('js/jquery.fileuploader.js') }}" type="text/javascript"></script>
+<script src="{{ asset('new/js/heic2any.min.js') }}" type="text/javascript"></script>
+<!--
 <script src="{{ asset('new/js/resize_before_upload.js') }}" type="text/javascript"></script>
+-->
 <script>
 
-    $(document).ready(function () {
-        resize_before_upload(400,600,'#reportPostForm' ,'.fileuploader input[type=file]','input[name=fileuploader-list-reportedImages]','.n_bbutton .n_right','#show_banned');
-        resize_before_upload(400,600,'#reportPicNextNewForm' ,'.fileuploader input[type=file]','input[name=fileuploader-list-images]','.n_bbutton .n_right','#show_reportPic');
-        resize_before_upload(400,600,'#form1' ,'.fileuploader input[type=file]','input[name=fileuploader-list-images]','.n_bbutton .n_bllbut','#tab_evaluation');
-        
-        $('input[name="images"]').fileuploader({
-            extensions: ['jpg', 'png', 'jpeg', 'bmp'],
+    $(document).ready(function () {        
+        images_uploader=$('input[name="images"]').fileuploader({
+            //extensions: ['jpg', 'png', 'jpeg', 'bmp'],
             changeInput: ' ',
             theme: 'thumbnails',
             enableApi: true,
@@ -2296,9 +2235,9 @@
                 }
             }
         });
-
-        $('input[name="reportedImages"]').fileuploader({
-            extensions: ['jpg', 'png', 'jpeg', 'bmp'],
+        //resize_before_upload(images_uploader,400,600,'#tab_evaluation,#show_reportPic');
+        reportedImages_uploader = $('input[name="reportedImages"]').fileuploader({
+            //extensions: ['jpg', 'png', 'jpeg', 'bmp'],
             changeInput: ' ',
             theme: 'thumbnails',
             enableApi: true,
@@ -2428,7 +2367,7 @@
                 }
             }
         });
-
+        //resize_before_upload(reportedImages_uploader,400,600,'#show_banned');
         $(".announce_bg").on("click", function() {
             $('.bl_tab_aa').hide();
             $('body').css("overflow", "auto");
@@ -2471,6 +2410,63 @@
         $('body').css("overflow", "hidden");
     }
 
+</script>
+
+<link type="text/css" rel="stylesheet" href="/new/css/app.css">
+<link rel="stylesheet" type="text/css" href="/new/css/swiper2.min.css"/>
+<script type="text/javascript" src="/new/js/swiper.min.js"></script>
+<script>
+    $(document).ready(function () {
+        /*调起大图 S*/
+        var mySwiper = new Swiper('.swiper-container2',{
+            pagination : '.swiper-pagination2',
+            paginationClickable:true,
+            onInit: function(swiper){//Swiper初始化了
+                // var total = swiper.bullets.length;
+                var active =swiper.activeIndex;
+                $(".swiper-num .active").text(active);
+                // $(".swiper-num .total").text(total);
+            },
+            onSlideChangeEnd: function(swiper){
+                var active =swiper.realIndex +1;
+                $(".swiper-num .active").text(active);
+            }
+        });
+
+        $(".zap_photo li").on("click",
+            function () {
+                var imgBox = $(this).parent(".zap_photo").find("li");
+                var i = $(imgBox).index(this);
+                $(".big_img .swiper-wrapper").html("")
+
+                for (var j = 0, c = imgBox.length; j < c ; j++) {
+                    $(".big_img .swiper-wrapper").append('<div class="swiper-slide"><div class="cell"><img src="' + imgBox.eq(j).find("img").attr("src") + '" / ></div></div>');
+                }
+                mySwiper.updateSlidesSize();
+                mySwiper.updatePagination();
+                $(".big_img").css({
+                    "z-index": 1001,
+                    "opacity": "1"
+                });
+                //分页器
+                var num = $(".swiper-pagination2 span").length;
+                $(".swiper-num .total").text(num);
+                // var active =$(".swiper-pagination2").index(".swiper-pagination-bullet-active");
+                $(".swiper-num .active").text(i + 1);
+                // console.log(active)
+
+                mySwiper.slideTo(i, 0, false);
+                return false;
+            });
+        $(".swiper-container2").click(function(){
+            $(this).parent(".big_img").css({
+                "z-index": "-1",
+                "opacity": "0"
+            });
+        });
+
+    });
+    /*调起大图 E*/
 </script>
 
 @stop

@@ -13,6 +13,7 @@ use App\Models\CustomFingerPrint;
 use App\Models\Evaluation;
 use App\Models\EvaluationPic;
 use App\Models\hideOnlineData;
+use App\Models\LogUserLogin;
 use App\Models\Message_new;
 use App\Models\MessageBoard;
 use App\Models\MessageBoardPic;
@@ -64,6 +65,7 @@ use App\Models\ValueAddedService;
 use App\Repositories\SuspiciousRepository;
 use App\Services\AdminService;
 use App\Models\LogFreeVipPicAct;
+use App\Models\UserTinySetting;
 
 class PagesController extends BaseController
 {
@@ -479,6 +481,8 @@ class PagesController extends BaseController
      */
     public function home(Request $request)
     {
+        \Session::forget('is_remind_puppet');
+        \Session::forget('filled_data');        
         // (SELECT CEIL(RAND() * (SELECT MAX(id) FROM random)) AS id) as u2
         $imgUserM = User::select('users.name', 'users.title', 'user_meta.pic')
             ->join(\DB::raw("(SELECT CEIL(RAND() * (SELECT MAX(id) FROM users)) AS id) as u2"), function($join){
@@ -1862,6 +1866,7 @@ class PagesController extends BaseController
 
     public function viewuser2(Request $request, $uid = -1) {
         $user = $request->user();
+        $bannedUsers = \App\Services\UserService::getBannedId();
 
         $vipDays=0;
         if($user->isVip()) {
@@ -1873,10 +1878,8 @@ class PagesController extends BaseController
         if($user->isPhoneAuth()==1){
             $auth_check=1;
         }
-        
         if (isset($user) && isset($uid)) {
             $targetUser = User::where('id', $uid)->where('accountStatus',1)->get()->first();
-            // var_dump($targetUser->isAdvanceAuth());die();
             if (!isset($targetUser)) {
                 return view('errors.nodata');
             }
@@ -1886,7 +1889,13 @@ class PagesController extends BaseController
                 // return view('new.dashboard.viewuser', compact('user'));
             // }
             if ($user->id != $uid) {
-                if($user->engroup == $targetUser->engroup){
+
+                if(
+                    //檢查性別
+                    $user->engroup == $targetUser->engroup
+                    //檢查是否被封鎖
+//                    || User::isBanned($user->id)
+                ){
                     return redirect()->route('listSeatch2');
                 }
                 Visited::visit($user->id, $targetUser);
@@ -1903,9 +1912,21 @@ class PagesController extends BaseController
             }
 
             /*收藏會員次數*/
-            $fav_count = MemberFav::where('member_id', $uid)->get()->count();
+            $fav_count = MemberFav::select('member_fav.*')
+                ->join('users', 'users.id', '=', 'member_fav.member_fav_id')
+                ->whereNotNull('users.id')
+                ->where('member_fav.member_id', $uid)
+                ->whereNotIn('member_fav.member_fav_id',$bannedUsers)
+                ->get()->count();
+
             /*被收藏次數*/
-            $be_fav_count = MemberFav::where('member_fav_id', $uid)->get()->count();
+            $be_fav_count = MemberFav::select('member_fav.*')
+                ->join('users', 'users.id', '=', 'member_fav.member_id')
+                ->whereNotNull('users.id')
+                ->where('member_fav.member_fav_id', $uid)
+                ->whereNotIn('member_fav.member_id',$bannedUsers)
+                ->get()->count();
+
 
             /*是否封鎖我*/
             $is_block_mid = Blocked::where('blocked_id', $user->id)->where('member_id', $uid)->count() >= 1 ? '是' : '否';
@@ -2040,7 +2061,6 @@ class PagesController extends BaseController
 
 
             /*此會員封鎖多少其他會員*/
-            $bannedUsers = \App\Services\UserService::getBannedId();
             $blocked_other_count = Blocked::with(['blocked_user'])
                 ->join('users', 'users.id', '=', 'blocked.blocked_id')
                 ->where('blocked.member_id', $uid)
@@ -2266,6 +2286,7 @@ class PagesController extends BaseController
                     session()->put('goBackPage',$_SERVER['HTTP_REFERER']);
                 }
             }
+
             return view('new.dashboard.viewuser', $data)
                     ->with('user', $user)
                     ->with('blockadepopup', $blockadepopup)
@@ -2291,6 +2312,7 @@ class PagesController extends BaseController
                     ->with('vipDays',$vipDays)
                     ->with('isReadIntro',$isReadIntro)
                     ->with('auth_check',$auth_check)
+                    ->with('is_banned',User::isBanned($user->id))
                     ->with('pr', $pr);
             }
 
@@ -2489,6 +2511,21 @@ class PagesController extends BaseController
     }
 
     public function reportPost(Request $request){
+
+        //先判定是否在站方封鎖名單裡面
+        $aid = $request->input('aid');
+        $uid = $request->input('uid');
+
+        if (User::isBanned($aid)) {
+            if ($request->ajax()) {
+                echo '您目前被站方封鎖，無檢舉權限';
+                exit;
+            }
+            return redirect(route("viewuser", ['uid' => $uid]))->withErrors([
+                '您目前被站方封鎖，無檢舉權限'
+            ]);
+        }
+
         if(empty($this->customTrim($request->content))){
             if($request->ajax()) {
                 exit;
@@ -2510,6 +2547,12 @@ class PagesController extends BaseController
     }
 
     public function reportMsg(Request $request){
+        $is_banned = User::isBanned($request->aid);
+        if($is_banned && $request->ajax()){
+            echo '您目前被站方封鎖，無檢舉權限';
+            exit;
+        }
+
         if(empty($this->customTrim($request->content))){
             $user = $request->user();
             if($request->ajax()) exit;
@@ -2598,6 +2641,16 @@ class PagesController extends BaseController
     }
 
     public function reportPicNextNew(Request $request){
+        if (User::isBanned($aid)) {
+            if ($request->ajax()) {
+                echo '您目前被站方封鎖，無檢舉權限';
+                exit;
+            }
+            return redirect(route("viewuser", ['uid' => $uid]))->withErrors([
+                '您目前被站方封鎖，無檢舉權限'
+            ]);
+        }
+
         if($request->picType=='avatar'){
             ReportedAvatar::report($request->aid, $request->uid, $request->content, $request->file('images'));
         }
@@ -2869,12 +2922,20 @@ class PagesController extends BaseController
         }
 
         if (isset($user)) {
+            $is_banned = User::isBanned($user->id);
             $isVip = $user->isVip();
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
             $messages = Message::allToFromSender($user->id, $cid,$includeDeleted);
             $c_user_meta = UserMeta::where('user_id', $cid)->get()->first();
             //$messages = Message::allSenders($user->id, 1);
             if (isset($cid)) {
+                $cid_user = $this->service->find($cid);
+                if(!$cid_user){
+                    return '<h1>該會員不存在。</h1>';
+                }
+                $cid_recommend_data = [];
+                $forbid_msg_data = UserService::checkNewSugarForbidMsg($cid_user,$user);
+                
                 if(!$user->isVip() && $user->engroup == 1){
                     $m_time = Message::select('created_at')->
                     where('from_id', $user->id)->
@@ -2886,8 +2947,11 @@ class PagesController extends BaseController
                 return view('new.dashboard.chatWithUser')
                     ->with('user', $user)
                     ->with('admin', $admin)
+                    ->with('is_banned', $is_banned)
                     ->with('cmeta', $c_user_meta)
-                    ->with('to', $this->service->find($cid))
+                    //->with('to', $this->service->find($cid))
+                    ->with('to', $cid_user)
+                    ->with('to_forbid_msg_data',$forbid_msg_data)                    
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
                     ->with('tippopup', $tippopup)
@@ -2898,6 +2962,7 @@ class PagesController extends BaseController
                 return view('new.dashboard.chatWithUser')
                     ->with('user', $user)
                     ->with('admin', $admin)
+                    ->with('is_banned', $is_banned)
                     ->with('cmeta', $c_user_meta)
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
@@ -2977,7 +3042,6 @@ class PagesController extends BaseController
     public function search2(Request $request)
     {
         $input = $request->input();
-      
         $search_page_key=session()->get('search_page_key',[]);
         if(!isset($input['page'])){
             foreach ($input as $key =>$value){
@@ -3350,7 +3414,7 @@ class PagesController extends BaseController
         }
     }
 
-
+    //本月封鎖名單
     public function dashboard_banned(Request $request)
     {
         $user = $request->user();
@@ -3810,325 +3874,6 @@ class PagesController extends BaseController
         return view('/auth/member_auth')
                 ->with('user',$user)
                 ->with('cur', $user);
-    }
-
-    
-    public function advance_auth(Request $request){
-        $user = $request->user();
-        // var_dump($user);die();
-        return view('/auth/advance_auth')
-                ->with('user',$user)
-                ->with('cur', $user);
-    }
-
-    public function advance_auth_back(Request $request){
-        $create = array(
-            'member_id'=>$request->id,
-            'reason'=>'進階驗證封鎖',
-            'message_content'=>'1',
-            'updated_at'=>now(),
-            'created_at'=>now()
-        );
-        $status = banned_users::create($create);
-        $data = array(
-            'status'=>'success',
-            'code'=>200
-        );
-        echo json_encode($data, JSON_UNESCAPED_UNICODE);
-    }
-    public function advance_auth_process(Request $request){
-        //fix information
-        $api_url = 'https://midonlinetest.twca.com.tw/';
-        $api_url_mid = $api_url.'IDPortal/MIDClause';
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL,$api_url_mid);
-        curl_setopt($ch, CURLOPT_POST, 0);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
-
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $return_output = curl_exec ($ch);
-
-        curl_close ($ch);
-        $output = json_decode($return_output);
-
-        //float information
-        $id_serial = $data['id_serial'] = $request->id_serial;
-        $phone_number = $data['phone_number'] = $request->phone_number;
-        $birth = $data['birth'] = date('Ymd', strtotime($request->birth));
-
-        //fix information
-        $BusinessNo = $data['BusinessNo'] = '54666024';
-        $ApiVersion = $data['ApiVersion'] = '1.0';
-        $HashKeyNo = $data['HashKeyNo'] = '12';
-        $HashKey = $data['HashKey'] = '4341dcdf-0b14-475e-9b2a-3eb69650a12d';
-        $VerifyNo = $data['VerifyNo'] = time();
-        // $ReturnURL = $data['ReturnURL'] = url('/advance_auth_result');
-        $data['ReturnParams'] = '';
-
-        $InputParams_arr = array(
-            'MemberNo'=>$id_serial,
-            'Action'=>'ValidateMSISDNAdvance',
-            'MIDInputParams'=>array(
-                'Msisdn'=>$data['phone_number'],
-                'Birthday'=>$data['birth'],
-                'ClauseVer'=>$output->clausever,
-                'ClauseTime'=> $output->lastUpdate
-            )
-        );
-        
-        
-        $data['InputParams'] = json_encode($InputParams_arr, JSON_UNESCAPED_SLASHES);
-        $InputParams = $data['InputParams'];
-
-        $MemberNo = $data['MemberNo'] = $request->id_serial;
-
-        $IdentifyNo = $this->get_identify_no_do($data);
-
-
-        $api_url_transaction = $api_url.'IDPortal/ServerSideTransaction';
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL,$api_url_transaction);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS,
-                    "BusinessNo=$BusinessNo&ApiVersion=$ApiVersion&HashKeyNo=$HashKeyNo&VerifyNo=$VerifyNo&IdentifyNo=$IdentifyNo&InputParams=$InputParams");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
-
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $return_data = curl_exec ($ch);
-
-        curl_close ($ch);
-
-        $return = json_decode($return_data, JSON_UNESCAPED_UNICODE);
-
-        $api_url_verify = $api_url.'IDPortal/ServerSideVerifyResult';
-        $Token = $data['Token']= json_decode($return['OutputParams'], JSON_UNESCAPED_UNICODE)["Token"];
-
-        $IdentifyNo_query = $this->get_identify_no_query($data);
-       
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $api_url_verify);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS,
-                    "BusinessNo=$BusinessNo&ApiVersion=$ApiVersion&HashKeyNo=$HashKeyNo&VerifyNo=$VerifyNo&MemberNo=$MemberNo&Token=$Token&IdentifyNo=$IdentifyNo_query");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $return_output = curl_exec ($ch);
-        curl_close ($ch);
-
-        $output = json_decode($return_output, JSON_UNESCAPED_UNICODE);
-        $OutputParams = json_decode($output["OutputParams"], JSON_UNESCAPED_UNICODE);
-        $MIDOutputParams = json_decode($OutputParams["MIDOutputParams"]["MIDResp"], JSON_UNESCAPED_UNICODE);
-        //驗證成功
-        if($MIDOutputParams["code"]=="0000"){
-            $user =Auth::user();
-
-            $user->advance_auth_status = 1;
-            $user->advance_auth_time = date('Y-m-d H:m:s');
-            $user->advance_auth_identity_no = $request->id_serial;
-            $user->advance_auth_birth = $request->birth;
-            $user->advance_auth_phone = $request->phone_number;
-            $user->save();
-
-            $update = array(
-                'message_content'=>'0',
-                'updated_at'=>now()
-            );
-            $status = banned_users::where('member_id',$user->id)->where('reason','進階驗證封鎖')->update($update);
-
-
-            $insert = array(
-                'mobile'=>$request->phone_number,
-                'active'=>1,
-                'member_id'=>$user->id
-            );
-
-            DB::table('short_message')->insert($insert);
-
-            
-            return redirect('/advance_auth');
-        }else{
-            return redirect('/advance_auth?status=false');
-        }
-
-    }
-
-    public function advance_auth_result(Request $request){
-        $data['BusinessNo'] = $request->BusinessNo;
-        $data['ApiVersion'] = $request->ApiVersion;
-        $data['HashKeyNo'] = $request->HashKeyNo;
-        $data['VerifyNo'] = $request->VerifyNo;
-        $data['MemberNoMapping'] = $request->MemberNoMapping;
-        $data['Token'] = $request->Token;
-
-        $res = $this->advance_auth_query($data);
-        $auth_status = $request->ReturnCode;
-        return view('/auth/advance_auth_result')
-                    ->with('auth_status', $auth_status);
-    }
-
-    public function advance_auth_query($data){
-        
-        $api_url = 'https://midonlinetest.twca.com.tw/IDPortal/QueryVerifyResult';
-        $data['BusinessNo'] = $BusinessNo = $data["BusinessNo"];
-        $data['ApiVersion'] = $ApiVersion = $data["ApiVersion"];
-        $data['HashKeyNo'] = $HashKeyNo = $data["HashKeyNo"];
-        $data['VerifyNo'] = $VerifyNo = $data["VerifyNo"];
-        $data['Token'] = $Token = $data["Token"];
-        $data['MemberNo'] = $MemberNo = 'A123456789';
-        $data['HashKey'] = "4341dcdf-0b14-475e-9b2a-3eb69650a12d";
-        $data['IdentifyNo'] = $IdentifyNo = $this->get_identify_no_query($data);
- 
-        
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL, $api_url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS,
-                    "BusinessNo=$BusinessNo&ApiVersion=$ApiVersion&HashKeyNo=$HashKeyNo&VerifyNo=$VerifyNo&MemberNo=$MemberNo&Token=$Token&IdentifyNo=$IdentifyNo");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
-
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $return_output = curl_exec ($ch);
-
-        curl_close ($ch);
-
-        $output = json_decode($return_output);
-
-        $OutputParams = json_decode($output->OutputParams);
-        $result = $OutputParams->MIDParams->VerifyCode;
-
-        if($result=='0000'){
-            var_dump('success');
-        }else{
-            var_dump('failed');
-        }
-
-    }
-
-    public function advance_auth_do($data){
-        //fix information
-        $api_url = 'https://midonlinetest.twca.com.tw/IDPortal/MIDClause';
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL,$api_url);
-        curl_setopt($ch, CURLOPT_POST, 0);
- 
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
-
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $return_output = curl_exec ($ch);
-
-        curl_close ($ch);
-        $output = json_decode($return_output);
-        
-        $api_url = 'https://midonlinetest.twca.com.tw/IDPortal/ServerSideTransaction'; //https://ServerIP:ServerPort/IDPortal/Login
-        $BusinessNo = $data['BusinessNo'];
-        $ApiVersion = $data['ApiVersion'];
-        $HashKeyNo = $data['HashKeyNo'];
-        $VerifyNo = $data['VerifyNo'];
-
-        $IdentifyNo = $this->get_identify_no_do($data);
-        $InputParams = $data['InputParams'];
-        echo "
-        <form action='$api_url' method='post' id='advance_auth_return_process_form' style='display:none'>
-            <input name='BusinessNo' type='hidden' value='$BusinessNo'>
-            <input name='ApiVersion' type='hidden' value='$ApiVersion'>
-            <input name='HashKeyNo' type='hidden' value='$HashKeyNo'>
-            <input name='VerifyNo' type='hidden' value='$VerifyNo'>
-            <input name='IdentifyNo' type='hidden' value='$IdentifyNo'>
-            <input name='InputParams' type='hidden' value='$InputParams'>
-            <input type='submit'>
-        </form>
-
-        <script type='text/javascript'>
-            document.getElementById('advance_auth_return_process_form').submit();
-        </script>
-        ";
-    }
-
-    public function get_login_token($data){
-        $api_url = 'https://midonlinetest.twca.com.tw/IDPortal/MIDClause'; //https://ServerIP:ServerPort/IDPortal/Login
-        $BusinessNo = $data['BusinessNo'];
-        $ApiVersion = $data['ApiVersion'];
-        $HashKeyNo = $data['HashKeyNo'];
-        $VerifyNo = $data['VerifyNo'];
-        $ReturnURL = $data['ReturnURL'];
-        $ReturnParams = $data['ReturnParams'];
-        $IdentifyNo = $data['IdentifyNo'];
-        $InputParams = $data['InputParams'];
-
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL,"https://midonlinetest.twca.com.tw/IDPortal/Login");
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS,
-                    "BusinessNo=$BusinessNo&ApiVersion=$ApiVersion&HashKeyNo=$HashKeyNo&VerifyNo=$VerifyNo&ReturnURL=$ReturnURL&ReturnParams=$ReturnParams&IdentifyNo=$IdentifyNo&InputParams=$InputParams");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
-
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $return_output = curl_exec ($ch);
-
-        curl_close ($ch);
-
-        //OK(交易成功)
-
-        $output = json_decode($return_output);
-        //回傳為json
-        if ($output->ResultCode == "S" && $output->ReturnCode=="0") { 
-            $OutputParams = json_decode($output->OutputParams);
-            return $OutputParams;//return OutputParams
-        //not OK
-        } else { 
-            redirect('/advance_auth');
-        }
-    }
-
-    public function data_test(){
-        $data = '{"Action":"SIGN","SelectType":"8","VerifyTime":"2021/08/23 01:40:30","Plaintext":"","MIDParams":{"MIDResp":"{\"code\":\"0000\",\"fullcode\":\"0\",\"message\":\"success\",\"msisdn\":\"0971632551\",\"reqSeq\":\"0116296540064980670000\",\"rspSeq\":\"1361829\",\"rspTime\":\"2021-08-22T17:40:30Z\",\"srvCode\":\"364\",\"tokenId\":\"3f316fa3419b4ea2b53eca4521021ac63305a813\"}","VerifyCode":"0000","VerifyMsg":"成功,(0000)success"}}';
-
-        $data_res = json_decode($data);
-        echo '<pre>';var_dump($data_res->MIDParams->VerifyCode);echo '</pre>';
-    }
-
-    public function get_identify_no_token($data){
-        //串聯資料
-        $concat = $data['BusinessNo'].$data['ApiVersion'].$data['HashKeyNo'].$data['VerifyNo'].$data['ReturnParams'].$data['InputParams'].$data['HashKey'];
-        //調整編碼(還不確定原本編碼是否UTF8)
-        $concat_utf16le = mb_convert_encoding($concat, "UTF-16LE", "UTF-8");
-        //剩hex還未實作
-        $result = hash('sha256', $concat_utf16le);
-        return $result;
-    }
-
-    public function get_identify_no_do($data){
-        //串聯資料
-        // var_dump('do');
-        // var_dump($data);
-        $concat = $data['BusinessNo'].$data['ApiVersion'].$data['HashKeyNo'].$data['VerifyNo'].$data['InputParams'].$data['HashKey'];
-        //調整編碼(還不確定原本編碼是否UTF8)
-        $concat_utf16le = mb_convert_encoding($concat, "UTF-16LE", "UTF-8");
-        //剩hex還未實作
-        $result = hash('sha256', $concat_utf16le);
-        return $result;
-    }
-
-    public function get_identify_no_query($data){
-        // var_dump('query');
-        // var_dump($data);
-        //串聯資料
-        $concat = $data['BusinessNo'].$data['ApiVersion'].$data['HashKeyNo'].$data['VerifyNo'].$data['MemberNo'].$data['Token'].$data['HashKey'];
-        //調整編碼(還不確定原本編碼是否UTF8)
-        $concat_utf16le = mb_convert_encoding($concat, "UTF-16LE", "UTF-8");
-        //剩hex還未實作
-        $result = hash('sha256', $concat_utf16le);
-        return $result;
     }
 
     public function member_auth_photo(Request $request){
@@ -5321,7 +5066,7 @@ class PagesController extends BaseController
             if(in_array($user->line_notify_alert,[3,6,10])){
                 $showLineNotifyPop=true;
             }
-            if($user->created_at>='2021-07-23' && $user->line_notify_alert<=1){
+            if($user->created_at>='2021-07-23' && $user->line_notify_alert<=2){
                 $showLineNotifyPop=true;
             }
         }
@@ -5337,6 +5082,13 @@ class PagesController extends BaseController
         if(isset($announcement) && count($announcement) > 0 && !session()->get('announceClose')){
             $announcePopUp='Y';
         }
+        /*
+        //在新進甜心第4次登入顯示只接受VIP會員傳訊的提醒
+        $showNewSugarForbidMsgNotify=false ;
+        if($user->log_user_login()->count()==4) {
+            $showNewSugarForbidMsgNotify = true;
+        }
+        */
 
         if (isset($user)) {
             $data = array(
@@ -5356,6 +5108,7 @@ class PagesController extends BaseController
                 'evaluation_30days_unread_count' => $evaluation_30days_unread_count,
                 'showLineNotifyPop'=>$showLineNotifyPop,
                 'announcePopUp'=>$announcePopUp,
+                //'showNewSugarForbidMsgNotify'=>$showNewSugarForbidMsgNotify,
             );
             $allMessage = \App\Models\Message::allMessage($user->id);
             return view('new.dashboard.personalPage', $data)
@@ -5423,6 +5176,7 @@ class PagesController extends BaseController
     public function savecfp(Request $request){
         $cfp = new \App\Models\CustomFingerPrint;
         $cfp->hash = $request->hash;
+        $cfp->host = request()->getHttpHost();
         $cfp->save();
         $cfp_user = new \App\Models\CFP_User;
         $cfp_user->cfp_id = $cfp->id;
@@ -5897,5 +5651,48 @@ class PagesController extends BaseController
             return response()->json(['msg' => '該留言已經檢舉過了']);
         }
     }
+    
+    public function setTinySetting(Request $request) {
+        $user=$request->user();
+        $cat = $request->catalog;
+        $value = $request->value;
+        $is_ajax = $request->ajax();
+        
+        if(!$user || !$cat) {
+            if($is_ajax) {
+                return response()->json(['msg' => '儲存失敗']);
+            }
+            else {
+                return redirect()->back()->with('message','儲存失敗');
+            }             
+        }
+        
+        if(UserTinySetting::updateOrInsert(['user_id'=>$user->id,'cat'=>$cat],['value'=>$value,'created_at'=>date('Y-m-d H:i:s'),'updated_at'=>date('Y-m-d H:i:s')]))
+        {
+            if($is_ajax) {
+                return response()->json(['msg' => '儲存成功']);
+            }
+            else {
+                return redirect()->back()->with('message','儲存成功');
+            }
+        }
+        else {
+            if($is_ajax) {
+                return response()->json(['msg' => '儲存失敗']);
+            }
+            else {
+                return redirect()->back()->with('message','儲存失敗');
+            }            
+        }
+        
+    }
+    
+    public function getTinySetting(Request $request) {
+        $user=$request->user();
+        $cat = $request->catalog;
+        if(!$cat) return null;
 
+        $setting = UserTinySetting::where([['user_id',$user->id],['cat',$cat]])->orderByDesc('id')->first();
+        if($setting) return $setting->value;
+    }
 }

@@ -13,19 +13,23 @@ h3{
     <h3>男性公告</h3>
     <table class="table-bordered table-hover center-block text-center" style="width: 100%;" id="table">
         <tr>
-            <th class="text-center">內容</th>
-            <th class="text-center">排序(預設為1)</th>
-            <th class="text-center">普通會員/VIP</th>
-            <th class="text-center">建立時間</th>
-            <th class="text-center">更新時間</th>
-            <th class="text-center">操作</th>
+            <th width="40%" class="text-center">內容</th>
+            <th width="8%" class="text-center">排序(預設為1)</th>
+            <th width="8%" class="text-center">普通會員/VIP</th>
+            <th width="10%" class="text-center">在第幾次login時才跳出此公告</th>
+            <th width="10%" class="text-center">建立時間</th>
+            <th width="10%" class="text-center">更新時間</th>
+            <th width="14%" class="text-center">操作</th>
         </tr>
         @foreach($announce as $a)
             @if($a->en_group == 1)
                 <tr class="template">
                     <td style="word-break: break-all; width: 50%;">{!! nl2br($a->content) !!}</td>
                     <td>{{ $a->sequence }}</td>
-                    <td>@if($a->isVip==0)普通會員 @elseif($a->isVip==1)VIP @endif</td>
+                    <td>@if($a->isVip==0)普通會員 @elseif($a->isVip==1)VIP @endif
+                        @if($a->is_new_7==1) <div> (未滿7天) </div> @endif
+                    </td>
+                    <td>{{ $a->login_times_alert }}</td>
                     <td class="created_at">{{ $a->created_at }}</td>
                     <td class="updated_at">{{ $a->updated_at }}</td>
                     <td>
@@ -40,19 +44,23 @@ h3{
     <h3>女性公告</h3>
     <table class="table-bordered table-hover center-block text-center" style="width: 100%;" id="table">
         <tr>
-            <th class="text-center">內容</th>
-            <th class="text-center">排序(預設為1)</th>
-            <th class="text-center">普通會員/VIP</th>
-            <th class="text-center">建立時間</th>
-            <th class="text-center">更新時間</th>
-            <th class="text-center">操作</th>
+            <th width="40%" class="text-center">內容</th>
+            <th width="8%" class="text-center">排序(預設為1)</th>
+            <th width="8%" class="text-center">普通會員/VIP</th>
+            <th width="10%" class="text-center">在第幾次login時才跳出此公告</th>
+            <th width="10%" class="text-center">建立時間</th>
+            <th width="10%" class="text-center">更新時間</th>
+            <th width="14%" class="text-center">操作</th>
         </tr>
         @foreach($announce as $a)
             @if($a->en_group == 2)
                 <tr class="template">
                     <td style="word-break: break-all; width: 50%;">{!! nl2br($a->content) !!}</td>
                     <td>{{ $a->sequence }}</td>
-                    <td>@if($a->isVip==0)普通會員 @elseif($a->isVip==1)VIP @endif</td>
+                    <td>@if($a->isVip==0)普通會員 @elseif($a->isVip==1)VIP @endif
+                    @if($a->is_new_7==1) <div> (未滿7天) </div> @endif
+                    </td>
+                    <td>{{ $a->login_times_alert }}</td>
                     <td class="created_at">{{ $a->created_at }}</td>
                     <td class="updated_at">{{ $a->updated_at }}</td>
                     <td>

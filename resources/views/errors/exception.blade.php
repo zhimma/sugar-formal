@@ -19,6 +19,9 @@
                                 <h5>網站目前正在更新，請半小時後重試。如果還是出現此畫面，請與站長聯繫(右下角聯絡我們)，並提供以下資訊：</h5>
                                 <h4>時間：{{ \Carbon\Carbon::now()->toDateTimeString() }}</h4>
                                 <h4>錯誤類型：{{ substr($exception, 0, strpos($exception, ':')) }}</h4>
+                                @if(isset($user))
+                                    {{ logger('user id: ' . $user->id) }}
+                                @endif
                             @else
                                 <h4>這是系統錯誤頁面</h4>
                                 <ul>

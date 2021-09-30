@@ -11,7 +11,7 @@
 									回到原使用者
 								</a></div>
 						@endif
-					    @if(!str_contains(url()->current(), 'dashboard') && !str_contains(url()->current(), 'contact') && !str_contains(url()->current(), 'notification') && !str_contains(url()->current(), 'feature') && !str_contains(url()->current(), 'terms') && !str_contains(url()->current(), 'activate') && Auth::user() && $user->meta->is_active ==1)
+					    @if(!str_contains(url()->current(), 'dashboard') && !str_contains(url()->current(), 'MessageBoard') && !str_contains(url()->current(), 'contact') && !str_contains(url()->current(), 'notification') && !str_contains(url()->current(), 'feature') && !str_contains(url()->current(), 'terms') && !str_contains(url()->current(), 'activate') && Auth::user() && $user->meta->is_active ==1)
 						<div class="ndlrfont">
 							<a href="{!! url('dashboard/search') !!}"><img src="/new/images/icon_38.png"></a>
 {{--							@if($user->meta_()->isConsign == 0 && ($user->meta_()->consign_expiry_date == null||$user->meta_()->consign_expiry_date <= \Carbon\Carbon::now()))--}}

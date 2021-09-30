@@ -29,7 +29,7 @@ class DashboardController extends \App\Http\Controllers\BaseController
 
     public function showJuniorAdmin(Request $request)
     {
-        $permissionItems = AdminMenuItems::get();
+        $permissionItems = AdminMenuItems::where('status',1)->orderBy('sort')->get();
         return view('admin.showJuniorAdmin',compact('permissionItems'));
     }
 

@@ -279,32 +279,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     }
                     
                     $ignoreUserId = array_pluck($this->ignore->whereNull('ip')->orwhere('ip','')->get()->toArray(),'item');                                        
-                              
-                    $puppetFromUsers = null;
-                    
-                    if(!$only || $only=='ip') {
-                        $ipPuppetFromUserQuery = $model->has('user')->groupBy('ip')
-                                ->select('ip')->selectRaw('COUNT(DISTINCT `user_id`) AS num')->whereNotNull('ip')->where('ip','<>','')
-                                ->orderByDesc('num');
-                                
-                        if($whereArr)  $ipPuppetFromUserQuery->where($whereArr);
-                        if($whereArrOfIp) $ipPuppetFromUserQuery->where($whereArrOfIp);        
-                        if($excludeUserId) $ipPuppetFromUserQuery=$ipPuppetFromUserQuery->whereNotIn('user_id',$excludeUserId);                            
-                        if($ignoreUserId) $ipPuppetFromUserQuery=$ipPuppetFromUserQuery->whereNotIn('user_id',$ignoreUserId);
+                        
 
-                        $puppetFromUsers = $ipPuppetFromUserQuery->get();
-
-                        foreach($puppetFromUsers as $ipPuppet) {
-
-                            if($ipPuppet->num<2 || $this->_isColumnChecked($ipPuppet->ip))
-                                continue;
-                            else {
-                                if($this->_findMultiUserIdFromIp($ipPuppet->ip)===true) continue;
-
-                                $this->_groupIdx++;
-                            }
-                        }
-                    }
                     $puppetFromUsers = null;
                   
                     if(!$only || $only=='cfpid') {
@@ -332,6 +308,36 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                             }
                         } 
                     }
+
+
+
+                        
+                    $puppetFromUsers = null;
+                    
+                    if(!$only || $only=='ip') {
+                        $ipPuppetFromUserQuery = $model->has('user')->groupBy('ip')
+                                ->select('ip')->selectRaw('COUNT(DISTINCT `user_id`) AS num')->whereNotNull('ip')->where('ip','<>','')
+                                ->orderByDesc('num');
+                                
+                        if($whereArr)  $ipPuppetFromUserQuery->where($whereArr);
+                        if($whereArrOfIp) $ipPuppetFromUserQuery->where($whereArrOfIp);        
+                        if($excludeUserId) $ipPuppetFromUserQuery=$ipPuppetFromUserQuery->whereNotIn('user_id',$excludeUserId);                            
+                        if($ignoreUserId) $ipPuppetFromUserQuery=$ipPuppetFromUserQuery->whereNotIn('user_id',$ignoreUserId);
+
+                        $puppetFromUsers = $ipPuppetFromUserQuery->get();
+
+                        foreach($puppetFromUsers as $ipPuppet) {
+
+                            if($ipPuppet->num<2 || $this->_isColumnChecked($ipPuppet->ip))
+                                continue;
+                            else {
+                                if($this->_findMultiUserIdFromIp($ipPuppet->ip)===true) continue;
+
+                                $this->_groupIdx++;
+                            }
+                        }
+                    }
+
                     $add_num=0;
                     $creatingArr = null;
                     

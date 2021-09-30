@@ -73,8 +73,15 @@ class LoginController extends \App\Http\Controllers\BaseController
             $banned_users->delete();
         }
         $userMeta = UserMeta::where('user_id', \Auth::user()->id)->get()->first();
+        $is_new_7 = false;
+        if( Carbon::parse(\Auth::user()->created_at)->diffInDays(Carbon::now())<7) {
+            $is_new_7 = true;
+        }
         $announceRead = \App\Models\AnnouncementRead::select('announcement_id')->where('user_id', \Auth::user()->id)->get();
-        $announcement = \App\Models\AdminAnnounce::where('en_group', \Auth::user()->engroup)->whereNotIn('id', $announceRead)->orderBy('sequence', 'desc')->get();
+        $aq = \App\Models\AdminAnnounce::where('en_group', \Auth::user()->engroup)->whereNotIn('id', $announceRead)->orderBy('sequence', 'desc');
+        if(!$is_new_7) $aq = $aq->where('is_new_7','<>',1);
+        $announcement = $aq->get();
+        //$announcement = \App\Models\AdminAnnounce::where('en_group', \Auth::user()->engroup)->whereNotIn('id', $announceRead)->orderBy('sequence', 'desc')->get();
         //$announcement = $announcement->content;
         //$announcement = str_replace(PHP_EOL, '\n', $announcement);
         foreach ($announcement as &$a){
@@ -224,7 +231,7 @@ class LoginController extends \App\Http\Controllers\BaseController
             //更新會員專屬頁通知<->登入次數
             User::where('id',$user->id)->update(['line_notify_alert'=>$user->line_notify_alert +1]);
 
-            if($request->cfp_hash){
+            if($request->cfp_hash && strlen($request->cfp_hash) == 50){
                 $cfp = \App\Services\UserService::checkcfp($request->cfp_hash, $user->id);
                 //新增登入紀錄
                 $logUserLogin = LogUserLogin::create([
@@ -232,14 +239,17 @@ class LoginController extends \App\Http\Controllers\BaseController
                         'cfp_id' => $cfp->id,
                         'userAgent' => $_SERVER['HTTP_USER_AGENT'],
                         'ip' => $request->ip(),
+                        'created_date' =>  date('Y-m-d'),
                         'created_at' =>  date('Y-m-d H:i:s')]
                 );
             }
             else{
+                logger("CFP debug data: " . $request->debug);
                 $logUserLogin = LogUserLogin::create([
                         'user_id' => $user->id,
                         'userAgent' => $_SERVER['HTTP_USER_AGENT'],
                         'ip' => $request->ip(),
+                        'created_date' =>  date('Y-m-d'),
                         'created_at' =>  date('Y-m-d H:i:s')]
                 );
             }

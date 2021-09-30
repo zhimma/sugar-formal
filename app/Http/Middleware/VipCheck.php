@@ -87,7 +87,14 @@ class VipCheck
                 \App\Models\ValueAddedServiceLog::addToLog($user->id, $userValueAddedService->service_name,'Expired, system auto cancellation.', $userValueAddedService->order_id, $userValueAddedService->txn_id,0);
             }
 
+            //fix hideOnlineData if data empty
+            $countHideOnlineData = \App\Models\hideOnlineData::where('user_id', $user->id)->withTrashed()->get()->count();
+            if($countHideOnlineData == 0){
+                \App\Models\ValueAddedService::addHideOnlineData($user->id);
+            }
+
         }
+
         return $next($request);
     }
 }
