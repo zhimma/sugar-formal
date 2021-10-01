@@ -21,6 +21,9 @@ use \FileUploader;
 use App\Models\Vip;
 use App\Models\AdminCommonText;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
 
 class ImageController extends BaseController
 {
@@ -710,5 +713,95 @@ class ImageController extends BaseController
         }
         
         return response($msg);
+    }
+
+    public function admin_user_image_delete(Request $request)
+    {
+        DB::beginTransaction();
+        
+        try {
+
+            // 軟刪除
+            MemberPic::destroy($request->imgId);
+
+            // 操作紀錄
+            \App\Models\AdminPicturesSimilarActionLog::insert([
+                'operator_id'   => Auth::user()->id,
+                'operator_role' => Auth::user()->roles->first()->id,
+                'target_id'     => $request->userId,
+                'act'           => '刪除生活照',
+                'pic'           => MemberPic::withTrashed()->find($request->imgId)->pic,
+                'ip'            => $request->ip(),
+                'created_at'    => now(),
+                'updated_at'    => now(),
+            ]);
+
+            DB::commit();
+
+            $msg_type    = 'message';
+            $msg_content = '生活照刪除成功';
+
+        } catch (\Throwable $th) {
+
+            // throw $th;
+            DB::rollback();
+
+            $msg_type    = 'error';
+            $msg_content = '生活照刪除失敗';
+        }
+
+        return back()->with($msg_type, $msg_content);
+    }
+
+    public function admin_user_avatar_delete(Request $request)
+    {
+
+        DB::beginTransaction();
+
+        try {
+
+            $user_id = $request->input('userId');
+            $usermeta = UserMeta::where('user_id', $user_id)->first();
+
+            // 標記刪除
+            \App\Models\AvatarDeleted::insert([
+                'user_id'    => $usermeta->user_id,
+                'operator'   => Auth::user()->id,
+                'pic'        => $usermeta->pic,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            // 操作記錄
+            \App\Models\AdminPicturesSimilarActionLog::insert([
+                'operator_id'   => Auth::user()->id,
+                'operator_role' => Auth::user()->roles->first()->id,
+                'target_id'     => $usermeta->user_id,
+                'act'           => '刪除頭像',
+                'pic'           => $usermeta->pic,
+                'ip'            => $request->ip(),
+                'created_at'    => now(),
+                'updated_at'    => now(),
+            ]);
+
+            // 設為空值 (軟刪除)
+            $usermeta->pic = null;
+            $usermeta->save();
+            
+            DB::commit();
+            
+            $msg_type    = 'message';
+            $msg_content = '頭像刪除成功';
+
+        } catch (\Throwable $th) {
+
+            // throw $th;
+            DB::rollback();
+            
+            $msg_type    = 'error';
+            $msg_content = '頭像刪除失敗';
+        }
+
+        return back()->with($msg_type, $msg_content);
     }
 }

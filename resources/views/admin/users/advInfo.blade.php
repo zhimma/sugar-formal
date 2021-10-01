@@ -1371,7 +1371,7 @@
 	</tr>
 </table>
 
-<h4>現有生活照</h4>
+{{-- <h4>現有生活照</h4>
 <?php $pics = \App\Models\MemberPic::getSelf($user->id); ?>
 <table class="table table-hover table-bordered" style="width: 50%;">
 	@forelse ($pics as $pic)
@@ -1387,7 +1387,7 @@
 	@empty
 		此會員目前沒有生活照
 	@endforelse
-</table>
+</table> --}}
 <h4>現有證件照</h4>
 <?php $pics = \App\Models\MemberPic::getSelfIDPhoto($user->id); ?>
 <table class="table table-hover table-bordered" style="width: 50%;">
@@ -1405,6 +1405,161 @@
 		此會員目前沒有證件照
 	@endforelse
 </table>
+
+<h4>現有頭像</h4>
+<table class="table table-bordered" style="width: 50%;">
+    <thead>
+        <th style="width: 120px;">圖片</th>
+        <th>即時搜尋結果</th>
+    </thead>
+    <tbody>
+        @if($user->meta->pic)
+        <tr>
+            <td><img src="{{ url($user->meta->pic) }}" width="120px"></td>
+            <td><div class="SimilarSearch" data-url="{{ url($user->meta->pic) }}"></div></td>
+        </tr>
+        @else
+        <tr>
+            <td colspan="2">此會員目前沒有生活照</td>
+        </tr>
+        @endif
+    </tbody>
+</table>
+
+<h4>現有生活照</h4>
+<table class="table table-bordered" style="width: 50%;">
+    <thead>
+        <th style="width: 120px;">圖片</th>
+        <th>即時搜尋結果</th>
+    </thead>
+    <tbody>
+        @forelse ($user->pic as $pic)
+        <tr>
+            <td><img src="{{ url($pic->pic) }}" width="120px"></td>
+            <td><div class="SimilarSearch" data-url="{{ url($pic->pic) }}"></div></td>
+        </tr>
+        @empty
+        <tr>
+            <td colspan="2">此會員目前沒有生活照</td>
+        </tr>
+        @endforelse
+    </tbody>
+</table>
+
+<h4>被刪除的頭像</h4>
+<table class="table table-bordered" style="width: 50%;">
+    <thead>
+        <th style="width: 120px;">圖片</th>
+        <th>即時搜尋結果</th>
+    </thead>
+    <tbody>
+        @forelse ($user->avatar_deleted as $pic)
+        <tr>
+            <td><img src="{{ url($pic->pic) }}" width="120px"><br><span>{{ date('Y/m/d', strtotime($pic->created_at)) }} 被刪除</span></td>
+            <td><div class="SimilarSearch" data-url="{{ url($pic->pic) }}"></div></td>
+        </tr>
+        @empty
+        <tr>
+            <td colspan="2">此會員目前沒有被刪除的頭像</td>
+        </tr>
+        @endforelse
+    </tbody>
+</table>
+
+<h4>被刪除的生活照</h4>
+<table class="table table-bordered" style="width: 50%;">
+    <thead>
+        <th style="width: 120px;">圖片</th>
+        <th>即時搜尋結果</th>
+    </thead>
+    <tbody>
+        @forelse ($user->pic_onlyTrashed as $pic)
+        <tr>
+            <td><img src="{{ url($pic->pic) }}" width="120px"><br><span>{{ date('Y/m/d', strtotime($pic->deleted_at)) }} 被刪除</span></td>
+            <td><div class="SimilarSearch" data-url="{{ url($pic->pic) }}"></div></td>
+        </tr>
+        @empty
+        <tr>
+            <td colspan="2">此會員目前沒有被刪除的照片</td>
+        </tr>
+        @endforelse
+    </tbody>
+</table>
+<script>
+$(document).ready(function () {
+    $('.SimilarSearch').each(function (index, element) {
+        let ImageUrl = $(element).data('url');
+        let data = JSON.stringify({
+            "requests": [
+                {
+                    "image": {
+                        "source": {
+                            "imageUri": ImageUrl
+                        }
+                    },
+                    "features": [
+                        {
+                            "type": "WEB_DETECTION",
+                            "maxResults": 3
+                        }
+                    ]
+                }
+            ]
+        });
+        $.ajax({
+            url: 'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyAmLABYHRv2NxaD5MyP-4yFaMF0oSvzdPI',
+            method:'post',
+            dataType: "json",
+            data: data,
+            contentType: "application/json;charset=utf-8",
+            success: function(res) {
+
+                if(res.responses[0].webDetection){
+                    if (res.responses[0].webDetection.pagesWithMatchingImages !== undefined) {
+                        let append = '<b>匹配的網頁</b><p>';
+                        $.each(res.responses[0].webDetection.pagesWithMatchingImages, function (indexInArray, valueOfElement) {
+                            append += '<a href="' + valueOfElement.url + '" target="_blank">' + valueOfElement.pageTitle + '</a><br>';
+                        });
+
+                        $(element).prepend(append + '</p>');
+                    }
+
+                    if (res.responses[0].webDetection.partialMatchingImages !== undefined) {
+                        
+                        let append = '<b>足夠相似</b><p>';
+                        $.each(res.responses[0].webDetection.partialMatchingImages, function (indexInArray, valueOfElement) {
+                            append += '<a href="' + valueOfElement.url + '" target="_blank"><img src="' + valueOfElement.url + '" style="max-width:120px; margin-right:10px;" onerror="this.src=\'/img/linktosource.png\'"></img></a>';
+                        });
+                        $(element).prepend(append + '</p>');
+                    }
+
+                    if (res.responses[0].webDetection.fullMatchingImages !== undefined) {
+                        
+                        let append = '<b>完全匹配(含調整過寬高)</b><p>';
+                        $.each(res.responses[0].webDetection.fullMatchingImages, function (indexInArray, valueOfElement) {
+                            append += '<a href="' + valueOfElement.url + '" target="_blank"><img src="' + valueOfElement.url + '" style="max-width:120px; margin-right:10px;" onerror="this.src=\'/img/linktosource.png\'"></img></a>';
+                        });
+                        $(element).prepend(append + '</p>');
+                    }
+
+                    if(res.responses[0].webDetection.pagesWithMatchingImages === undefined && res.responses[0].webDetection.partialMatchingImages === undefined && res.responses[0].webDetection.fullMatchingImages === undefined){
+                        $(element).prepend('<p>查無相關資料</p>');
+                    }
+
+                    return;
+                }
+                
+                $(element).prepend('<p>Vision API 無法取得該圖片</p>');
+            },
+            error: function(err){
+                
+                console.log(err)
+                $(element).append('<p>查詢發生錯誤</p>');
+            },
+        });
+    });
+});
+</script>
 </body>
 <div class="modal fade" id="blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 	<div class="modal-dialog" role="document" style="max-width: 60%;">
