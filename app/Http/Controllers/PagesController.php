@@ -2091,11 +2091,15 @@ class PagesController extends BaseController
             $last_login = $targetUser->last_login;
 
             $is_banned = null;
-//            $message_count_7_old='';
-//            $message_reply_count_7_old='';
-//            $visit_other_count_7_old='';
-//            $hideOnlineDays='';
-            //
+
+            //此段僅測試用
+            //上正式機前起移除
+            $message_count_7_old='';
+            $message_reply_count_7_old='';
+            $visit_other_count_7_old='';
+            $hideOnlineDays='';
+            //end
+
             $userHideOnlinePayStatus = ValueAddedService::status($uid,'hideOnline');
             if($userHideOnlinePayStatus == 1 /*&& $targetUser->is_hide_online != 0*/){
                 $hideOnlineData = hideOnlineData::where('user_id',$uid)->where('deleted_at',null)->get()->first();
@@ -2107,25 +2111,23 @@ class PagesController extends BaseController
                     $tip_count = $hideOnlineData->tip_count;//new add
                     $message_count = $hideOnlineData->message_count;//new add
                     $message_count_7 = $hideOnlineData->message_count_7;
-//                    $message_count_7_old = $hideOnlineData->message_count_7;
-                    //
-
                     $message_reply_count = $hideOnlineData->message_reply_count;//new add
                     $message_reply_count_7 = $hideOnlineData->message_reply_count_7;
-//                    $message_reply_count_7_old = $hideOnlineData->message_reply_count_7;
-                    //
-
                     $message_percent_7 = $hideOnlineData->message_percent_7;
                     $visit_other_count = $hideOnlineData->visit_other_count;//new add
                     $visit_other_count_7 = $hideOnlineData->visit_other_count_7;
-//                    $visit_other_count_7_old = $hideOnlineData->visit_other_count_7;
-                    //
-
                     $be_visit_other_count = $hideOnlineData->be_visit_other_count;//new add
                     $be_visit_other_count_7 = $hideOnlineData->be_visit_other_count_7;//new add
                     $blocked_other_count = $hideOnlineData->blocked_other_count;//new add
                     $be_blocked_other_count = $hideOnlineData->be_blocked_other_count;//new add
                     $last_login = $hideOnlineData->updated_at; //new add
+
+                    //此段僅測試用
+                    //上正式機前起移除
+                    $message_count_7_old = $hideOnlineData->message_count_7;
+                    $message_reply_count_7_old = $hideOnlineData->message_reply_count_7;
+                    $visit_other_count_7_old = $hideOnlineData->visit_other_count_7;
+                    //end
 
                     for($x=0; $x<$hideOnlineDays; $x++) {
 
@@ -2167,13 +2169,14 @@ class PagesController extends BaseController
                 'is_banned' => $is_banned,
                 'userHideOnlinePayStatus' => $userHideOnlinePayStatus,
                 'last_login' => $last_login
-//                ,
-//                'message_count_7_old' => $message_count_7_old,
-//                'message_reply_count_7_old' => $message_reply_count_7_old,
-//                'visit_other_count_7_old' => $visit_other_count_7_old,
-//                'hideOnlineDays' => $hideOnlineDays
-
-
+                //此段僅測試用
+                //上正式機前起移除
+                ,
+                'message_count_7_old' => $message_count_7_old,
+                'message_reply_count_7_old' => $message_reply_count_7_old,
+                'visit_other_count_7_old' => $visit_other_count_7_old,
+                'hideOnlineDays' => $hideOnlineDays
+                //end
             );
 
             $member_pic = DB::table('member_pic')->where('member_id', $uid)->where('pic', '<>', $targetUser->meta->pic)->get();
@@ -2266,6 +2269,8 @@ class PagesController extends BaseController
             $query = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
                 ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.from_id')
                 ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.from_id')
+                ->leftJoin('users as u1', 'u1.id', '=', 'evaluation.from_id')
+                ->leftJoin('users as u2', 'u2.id', '=', 'evaluation.from_id')
 //                ->leftJoin('user_meta as um', function($join) {
 //                    $join->on('um.user_id', '=', 'evaluation.from_id')
 //                        ->where('isWarned', 1); })
@@ -2276,6 +2281,8 @@ class PagesController extends BaseController
 //                                ->orWhere('wu.expire_date', null); }); })
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
+                ->whereNotNull('u1.id')
+                ->whereNotNull('u2.id')
 //                ->whereNull('um.user_id')
 //                ->whereNull('wu.member_id')
                 ->orderBy('evaluation.created_at','desc')
