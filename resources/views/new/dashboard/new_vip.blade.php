@@ -40,6 +40,7 @@
                                             <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                             <input type="hidden" name="userId" value="{{$user->id}}">
                                             <input type="hidden" name="type" value="cc_quarterly_payment">
+                                            <input type="hidden" name="remainDays" value="@if($user->isVipOnePaymentNotExpire() && $days>0){{$days}}@endif">
                                             <button type="submit" class="new_gvip_input cc_quarterly_payment paySubmit" style="border-style: none; outline: none;">信用卡</button>
                                         </form>
                                     </li>
@@ -53,6 +54,7 @@
                                             <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                             <input type="hidden" name="userId" value="{{$user->id}}">
                                             <input type="hidden" name="type" value="cc_monthly_payment">
+                                            <input type="hidden" name="remainDays" value="@if($user->isVipOnePaymentNotExpire() && $days>0){{$days}}@endif">
                                             <button type="submit" class="new_gvip_input cc_monthly_payment paySubmit" style="border-style: none; outline: none;">信用卡</button>
                                         </form>
                                     </li>
@@ -272,9 +274,11 @@
 
         $('.paySubmit').on('click', function(event) {
 
-                var id,choosePayment;
+            let id,choosePayment;
+
                 if($(this).hasClass("cc_monthly_payment")) {
-                    @if(($user->isVipNotCanceledNotOnePayment() || $user->isVipNotOnePaymentNotExpiry() || $user->isVipOnePaymentNotExpire()))
+
+                    @if($user->isVipNotCanceledNotOnePayment() || $user->isVipNotOnePaymentNotExpiry() /*|| $user->isVipOnePaymentNotExpire()*/ )
                         c5('您目前已是VIP會員');
                         return false;
                     @else
@@ -282,12 +286,14 @@
                         id = 'cc_monthly_payment';
                         choosePayment='';
                     @endif
+
                     $(".n_left").on('click', function() {
                         $('#'+id+choosePayment+'Form').submit();
                     });
 
                 }else if($(this).hasClass("cc_quarterly_payment")){
-                    @if(($user->isVipNotCanceledNotOnePayment() || $user->isVipNotOnePaymentNotExpiry() || $user->isVipOnePaymentNotExpire()))
+
+                    @if($user->isVipNotCanceledNotOnePayment() || $user->isVipNotOnePaymentNotExpiry() /*|| $user->isVipOnePaymentNotExpire()*/ )
                         c5('您目前已是VIP會員');
                         return false;
                     @else
@@ -295,6 +301,7 @@
                         id = 'cc_quarterly_payment';
                         choosePayment='';
                     @endif
+
                     $(".n_left").on('click', function() {
                         $('#'+id+choosePayment+'Form').submit();
                     });

@@ -2091,31 +2091,59 @@ class PagesController extends BaseController
             $last_login = $targetUser->last_login;
 
             $is_banned = null;
-
+//            $message_count_7_old='';
+//            $message_reply_count_7_old='';
+//            $visit_other_count_7_old='';
+//            $hideOnlineDays='';
             //
             $userHideOnlinePayStatus = ValueAddedService::status($uid,'hideOnline');
             if($userHideOnlinePayStatus == 1 /*&& $targetUser->is_hide_online != 0*/){
                 $hideOnlineData = hideOnlineData::where('user_id',$uid)->where('deleted_at',null)->get()->first();
                 if(isset($hideOnlineData)){
+                    $hideOnlineDays = now()->diffInDays($hideOnlineData->created_at);
                     $login_times_per_week = $hideOnlineData->login_times_per_week;
                     $be_fav_count = $hideOnlineData->be_fav_count;//new add
                     $fav_count = $hideOnlineData->fav_count;//new add
                     $tip_count = $hideOnlineData->tip_count;//new add
                     $message_count = $hideOnlineData->message_count;//new add
                     $message_count_7 = $hideOnlineData->message_count_7;
+//                    $message_count_7_old = $hideOnlineData->message_count_7;
+                    //
+
                     $message_reply_count = $hideOnlineData->message_reply_count;//new add
                     $message_reply_count_7 = $hideOnlineData->message_reply_count_7;
+//                    $message_reply_count_7_old = $hideOnlineData->message_reply_count_7;
+                    //
+
                     $message_percent_7 = $hideOnlineData->message_percent_7;
                     $visit_other_count = $hideOnlineData->visit_other_count;//new add
                     $visit_other_count_7 = $hideOnlineData->visit_other_count_7;
+//                    $visit_other_count_7_old = $hideOnlineData->visit_other_count_7;
+                    //
+
                     $be_visit_other_count = $hideOnlineData->be_visit_other_count;//new add
                     $be_visit_other_count_7 = $hideOnlineData->be_visit_other_count_7;//new add
                     $blocked_other_count = $hideOnlineData->blocked_other_count;//new add
                     $be_blocked_other_count = $hideOnlineData->be_blocked_other_count;//new add
                     $last_login = $hideOnlineData->updated_at; //new add
 
+                    for($x=0; $x<$hideOnlineDays; $x++) {
+
+                        $message_count_7 = $message_count_7 - ($message_count_7 / 7);
+                        $message_reply_count_7 = $message_reply_count_7 - ($message_reply_count_7 / 7);
+                        $visit_other_count_7 = $visit_other_count_7 - ($visit_other_count_7 / 7);
+
+                        if($message_count_7<0 && $message_reply_count_7<0 && $visit_other_count_7<0){
+                            break;
+                        }
+                    }
+
+                    $message_count_7 = round((int)$message_count_7);
+                    $message_reply_count_7 = round((int)$message_reply_count_7);
+                    $visit_other_count_7 = round((int)$visit_other_count_7);
                 }
             }
+
 
             $data = array(
                 'login_times_per_week' => $login_times_per_week,
@@ -2139,6 +2167,13 @@ class PagesController extends BaseController
                 'is_banned' => $is_banned,
                 'userHideOnlinePayStatus' => $userHideOnlinePayStatus,
                 'last_login' => $last_login
+//                ,
+//                'message_count_7_old' => $message_count_7_old,
+//                'message_reply_count_7_old' => $message_reply_count_7_old,
+//                'visit_other_count_7_old' => $visit_other_count_7_old,
+//                'hideOnlineDays' => $hideOnlineDays
+
+
             );
 
             $member_pic = DB::table('member_pic')->where('member_id', $uid)->where('pic', '<>', $targetUser->meta->pic)->get();

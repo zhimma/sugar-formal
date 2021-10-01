@@ -124,6 +124,12 @@ class ECPayment extends BaseController
             // $obj->Send['IgnorePayment']     = ECPay_PaymentMethod::GooglePay ;           //不使用付款方式:GooglePay
             $obj->Send['CustomField1']      = $request->userId;
             $obj->Send['CustomField3']      = $request->type;
+
+            //CustomField2 記錄前次單次VIP付費者未到期剩餘天數
+            if($request->remainDays){
+                $obj->Send['CustomField2']  = $request->remainDays;
+            }
+
             //訂單的商品資料
             array_push($obj->Send['Items'], array('Name' => "SG-VIP(".$request->userId.")", 'Price' => (int)$amount, 'Currency' => "元", 'Quantity' => (int) "1", 'URL' => ""));
 
@@ -391,6 +397,10 @@ class ECPayment extends BaseController
             $obj->Send['CustomField1']      = $request->userId;
             $obj->Send['CustomField3']      = $request->payment;
             $obj->Send['CustomField4']      = $request->service_name;
+            //CustomField2 記錄前次單次VIP付費者未到期剩餘天數
+            if($request->remainDays){
+                $obj->Send['CustomField2']  = $request->remainDays;
+            }
             //訂單的商品資料
             array_push($obj->Send['Items'], array('Name' => "SG-".$request->service_name."(".$request->userId.")", 'Price' => (int)$amount, 'Currency' => "元", 'Quantity' => (int) "1", 'URL' => ""));
 
