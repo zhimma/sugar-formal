@@ -864,7 +864,7 @@
                             <div class="ztitle"><span>進階資料</span>Advanced materials</div>
                             <div class="xiliao_input">
                                 <div class="xl_text">
-                                    <dt>{{$hideOnlineDays}}</dt><!--此行僅提供測試用 上正式機前請移除-->
+                                    {{--<dt>{{$hideOnlineDays}}</dt><!--此行僅提供測試用 上正式機前請移除-->--}}
                                     <dt><span>註冊時間</span>@if($user->isVip())<font>{{substr($to->created_at,0,10)}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>最後上線時間</span>
                                         @if($user->isVip())
@@ -901,13 +901,13 @@
                                     <dt><span>發信次數</span>@if($user->isVip())<font>{{$message_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>過去7天發信次數</span>
                                         @if($user->isVip())  <font>
-                                            {{$message_count_7_old}} => <!--此行僅提供測試用 上正式機前請移除-->
+                                            {{--{{$message_count_7_old}} => <!--此行僅提供測試用 上正式機前請移除-->--}}
                                             {{$message_count_7}}</font> @else <img src="/new/images/icon_35.png"> @endif
                                     </dt>
                                     <dt><span>回信次數</span>@if($user->isVip())<font>{{$message_reply_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>過去7天回信次數</span>
                                         @if($user->isVip())  <font>
-                                            {{$message_reply_count_7_old}} => <!--此行僅提供測試用 上正式機前請移除-->
+                                            {{--{{$message_reply_count_7_old}} => <!--此行僅提供測試用 上正式機前請移除-->--}}
                                             {{$message_reply_count_7}}</font> @else <img src="/new/images/icon_35.png"> @endif
                                     </dt>
                                     <dt><span>過去7天罐頭訊息比例</span>
@@ -918,7 +918,7 @@
                                     <dt><span>瀏覽其他會員次數</span>@if($user->isVip())<font>{{$visit_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>過去7天瀏覽其他會員次數</span>
                                         @if($user->isVip())  <font>
-                                            {{$visit_other_count_7_old}} => <!--此行僅提供測試用 上正式機前請移除-->
+                                            {{--{{$visit_other_count_7_old}} => <!--此行僅提供測試用 上正式機前請移除-->--}}
                                             {{$visit_other_count_7}}</font>  @else <img src="/new/images/icon_35.png"> @endif
                                     </dt>
                                     <dt><span>被瀏覽次數</span>@if($user->isVip())<font>{{$be_visit_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>

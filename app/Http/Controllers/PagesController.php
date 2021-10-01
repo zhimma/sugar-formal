@@ -2094,10 +2094,10 @@ class PagesController extends BaseController
 
             //此段僅測試用
             //上正式機前起移除
-            $message_count_7_old='';
-            $message_reply_count_7_old='';
-            $visit_other_count_7_old='';
-            $hideOnlineDays='';
+            // $message_count_7_old='';
+            // $message_reply_count_7_old='';
+            // $visit_other_count_7_old='';
+            // $hideOnlineDays='';
             //end
 
             $userHideOnlinePayStatus = ValueAddedService::status($uid,'hideOnline');
@@ -2124,9 +2124,9 @@ class PagesController extends BaseController
 
                     //此段僅測試用
                     //上正式機前起移除
-                    $message_count_7_old = $hideOnlineData->message_count_7;
-                    $message_reply_count_7_old = $hideOnlineData->message_reply_count_7;
-                    $visit_other_count_7_old = $hideOnlineData->visit_other_count_7;
+                    // $message_count_7_old = $hideOnlineData->message_count_7;
+                    // $message_reply_count_7_old = $hideOnlineData->message_reply_count_7;
+                    // $visit_other_count_7_old = $hideOnlineData->visit_other_count_7;
                     //end
 
                     for($x=0; $x<$hideOnlineDays; $x++) {
@@ -2171,11 +2171,11 @@ class PagesController extends BaseController
                 'last_login' => $last_login
                 //此段僅測試用
                 //上正式機前起移除
-                ,
-                'message_count_7_old' => $message_count_7_old,
-                'message_reply_count_7_old' => $message_reply_count_7_old,
-                'visit_other_count_7_old' => $visit_other_count_7_old,
-                'hideOnlineDays' => $hideOnlineDays
+                // ,
+                // 'message_count_7_old' => $message_count_7_old,
+                // 'message_reply_count_7_old' => $message_reply_count_7_old,
+                // 'visit_other_count_7_old' => $visit_other_count_7_old,
+                // 'hideOnlineDays' => $hideOnlineDays
                 //end
             );
 
