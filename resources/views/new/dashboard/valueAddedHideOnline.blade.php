@@ -41,6 +41,7 @@
                                             <input type="hidden" name="payment" value="cc_quarterly_payment">
                                             <input type="hidden" name="service_name" value="hideOnline">
                                             <input type="hidden" name="amount" value="1164">
+                                            <input type="hidden" name="remainDays" value="@if($isPaidOnePayment == 1 && $days>0){{$days}}@endif">
                                             <button type="submit" class="new_gvip_input cc_quarterly_payment paySubmit" style="border-style: none; outline: none;">信用卡</button>
                                         </form>
 {{--                                        <a class="new_gvip_input" onclick="">信用卡</a>--}}
@@ -57,6 +58,7 @@
                                             <input type="hidden" name="payment" value="cc_monthly_payment">
                                             <input type="hidden" name="service_name" value="hideOnline">
                                             <input type="hidden" name="amount" value="688">
+                                            <input type="hidden" name="remainDays" value="@if($isPaidOnePayment == 1 && $days>0){{$days}}@endif">
                                             <button type="submit" class="new_gvip_input cc_monthly_payment paySubmit" style="border-style: none; outline: none;">信用卡</button>
                                         </form>
 {{--                                        <a class="new_gvip_input" onclick="">信用卡</a>--}}
@@ -274,7 +276,7 @@
         $('.paySubmit').on('click', function(event) {
                 var id,choosePayment;
                 if($(this).hasClass("cc_monthly_payment")) {
-                    @if($user->valueAddedServiceStatus('hideOnline') == 1)
+                    @if($user->valueAddedServiceStatus('hideOnline') == 1 && $isPaidOnePayment != 1)
                         c5('您目前已在付費隱藏期間');
                         return false;
                     @else
@@ -289,7 +291,7 @@
                     @endif
 
                 }else if($(this).hasClass("cc_quarterly_payment")){
-                    @if($user->valueAddedServiceStatus('hideOnline') == 1)
+                    @if($user->valueAddedServiceStatus('hideOnline') == 1 && $isPaidOnePayment != 1)
                         c5('您目前已在付費隱藏期間');
                         return false;
                     @else

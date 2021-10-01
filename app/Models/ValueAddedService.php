@@ -91,7 +91,7 @@ class ValueAddedService extends Model
         return 0;
     }
 
-    public static function upgrade($member_id, $service_name, $business_id, $order_id, $amount, $txn_id, $active, $payment = null)
+    public static function upgrade($member_id, $service_name, $business_id, $order_id, $amount, $txn_id, $active, $payment = null, $remain_days=0)
     {
         $valueAddedServiceData = ValueAddedService::findByIdAndServiceNameWithDateDesc($member_id,$service_name);
 
@@ -113,10 +113,13 @@ class ValueAddedService extends Model
             $valueAddedService->amount = $amount;
             $valueAddedService->active = $active;
             $valueAddedService->payment = $payment;
+            $valueAddedService->remain_days = $remain_days;
 
             //單次付款到期日
             if(isset($expiry)){
                 $valueAddedService->expiry = $expiry;
+            }else{
+                $valueAddedService->expiry = '0000-00-00 00:00:00';
             }
 
             $valueAddedService->created_at = Carbon::now();
@@ -128,7 +131,7 @@ class ValueAddedService extends Model
 
         }else{
             // 檢查重複升級
-            if(ValueAddedServiceLog::getLatestLog($member_id)->order_id == $order_id){
+            if(isset(ValueAddedServiceLog::getLatestLog($member_id)->order_id) && ValueAddedServiceLog::getLatestLog($member_id)->order_id == $order_id){
                 ValueAddedServiceLog::addToLog($member_id, $service_name,'Upgrade duplicated.', $order_id, $txn_id, 0);
                 return 0;
             }
@@ -154,6 +157,7 @@ class ValueAddedService extends Model
             $valueAddedServiceData->amount = $amount;
             $valueAddedServiceData->active = $active;
             $valueAddedServiceData->payment = $payment;
+            $valueAddedServiceData->remain_days = $remain_days;
 
             //單次付款到期日
             if(isset($expiry)){
@@ -224,20 +228,35 @@ class ValueAddedService extends Model
                 }
             }
 
+            //訂單更新到期日
+            $order = Order::where('order_id', $user[0]->order_id)->get()->first();
+            if (strpos($user[0]->order_id, 'SG') !== false && isset($order)) {
+
+                //此訂單如有剩餘天數則加回到期日
+                if($order->remain_days>0){
+                    $expiryDate = $expiryDate->addDay($order->remain_days);
+                    Order::where('order_id', $user[0]->order_id)->update(['order_expire_date' => $expiryDate]);
+                }
+
+            }else{
+
+                Order::addEcPayOrder($user[0]->order_id, $expiryDate);
+
+            }
+
+            //測試機更新剩餘天數至到期日
+            //此測試訂單如有剩餘天數則加回到期日
+            //上正式機前這段請移除
+            if($user[0]->remain_days>0){
+                $expiryDate = $expiryDate->addDays($user[0]->remain_days);
+            }
+
             foreach ($user as $u){
                 $u->expiry = $expiryDate->startOfDay()->toDateTimeString();
                 $u->save();
             }
 
             ValueAddedServiceLog::addToLog($member_id, $service_name,'Cancelled, expiry: ' . $expiryDate, $user[0]->order_id, $user[0]->txn_id,0);
-
-            //訂單更新到期日
-            $order = Order::where('order_id', $user[0]->order_id->get());
-            if (strpos($user[0]->order_id, 'SG') !== false && count($order)>0) {
-                Order::where('order_id', $user[0]->order_id)->update(['order_expire_date' => $expiryDate]);
-            }else{
-                Order::addEcPayOrder($user[0]->order_id, $expiryDate);
-            }
 
             return [true, "str"  => $str ?? null];
         }

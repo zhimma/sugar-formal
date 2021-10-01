@@ -196,7 +196,8 @@ class ApiDataLogger{
 
                         logger('Middleware ApiDataLogger=> userID:'.$user->id.', 種類:' .$payload['CustomField3'].', 付款方式:' .$transactionType);
 
-                        Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0,$payload['CustomField3'],$transactionType);
+                        $remain_days = $payload['CustomField2'];
+                        Vip::upgrade($user->id, $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, 0,$payload['CustomField3'],$transactionType,$remain_days);
 
                         //解除vip_pass紀錄 banned_users warned_users
                         banned_users::where('vip_pass', 1)->where('member_id', $user->id)->delete();
