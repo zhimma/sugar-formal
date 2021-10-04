@@ -83,7 +83,7 @@ class CheckECpayForValueAddedService implements ShouldQueue
                 $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
                 // 三個月一期或一個月一期
                 if(str_contains($this->valueAddedServiceData->payment, 'quarterly')){
-                    $days = 92;
+                    $days = 94;
                 }
                 else{
                     $days = 31;
