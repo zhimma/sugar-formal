@@ -3981,6 +3981,7 @@ class PagesController extends BaseController
 
     public function post_detail(Request $request)
     {
+        return redirect(url('/dashboard/posts_list'));
         $user = $request->user();
 
         $pid = $request->pid;
@@ -4025,6 +4026,7 @@ class PagesController extends BaseController
 
     public function posts(Request $request)
     {
+        return redirect(url('/dashboard/posts_list'));
         $user = $this->user;
         if ($user && $user->engroup == 2){
             return back();
