@@ -3935,18 +3935,19 @@ class PagesController extends BaseController
             return back();
         }
 
-        $posts = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at')
-            ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid or reply_id in ((select distinct(id) from posts where type="sub" and reply_id=pid) )  order by updated_at desc limit 1) as currentReplyTime')
-            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
-            ->LeftJoin('users', 'users.id','=','posts.user_id')
-            ->join('user_meta', 'users.id','=','user_meta.user_id')
-            ->where('posts.type','main')
-            ->orderBy('adminFlag','desc')
-            ->orderBy('currentReplyTime','desc')
-            ->paginate(10);
+        // $posts = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at')
+        //     ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid or reply_id in ((select distinct(id) from posts where type="sub" and reply_id=pid) )  order by updated_at desc limit 1) as currentReplyTime')
+        //     ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
+        //     ->LeftJoin('users', 'users.id','=','posts.user_id')
+        //     ->join('user_meta', 'users.id','=','user_meta.user_id')
+        //     ->where('posts.type','main')
+        //     ->orderBy('adminFlag','desc')
+        //     ->orderBy('currentReplyTime','desc')
+        //     ->paginate(10);
 
         $data = array(
-            'posts' => $posts
+            'posts' => null
+            // 'posts' => $posts
         );
 
         if ($user)
@@ -3981,6 +3982,7 @@ class PagesController extends BaseController
 
     public function post_detail(Request $request)
     {
+        return redirect(url('/dashboard/posts_list'));
         $user = $request->user();
 
         $pid = $request->pid;
@@ -4025,6 +4027,7 @@ class PagesController extends BaseController
 
     public function posts(Request $request)
     {
+        return redirect(url('/dashboard/posts_list'));
         $user = $this->user;
         if ($user && $user->engroup == 2){
             return back();

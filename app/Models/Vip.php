@@ -211,27 +211,29 @@ class Vip extends Model
             }
 
 
-            //訂單更新到期日 //此段在測試機無法測試
-            $order = Order::where('order_id', $user[0]->order_id)->get()->first();
-            if (strpos($user[0]->order_id, 'SG') !== false && isset($order)) {
+            if(!\App::environment('local')) {
+                //訂單更新到期日 //此段在測試機無法測試
+                $order = Order::where('order_id', $user[0]->order_id)->get()->first();
+                if (strpos($user[0]->order_id, 'SG') !== false && isset($order)) {
 
-                //此訂單如有剩餘天數則加回到期日
-                if($order->remain_days>0){
-                    $expiryDate = $expiryDate->addDays($order->remain_days);
-                    Order::where('order_id', $user[0]->order_id)->update(['order_expire_date' => $expiryDate]);
+                    //此訂單如有剩餘天數則加回到期日
+                    if ($order->remain_days > 0) {
+                        $expiryDate = $expiryDate->addDays($order->remain_days);
+                        Order::where('order_id', $user[0]->order_id)->update(['order_expire_date' => $expiryDate]);
+                    }
+
+                } else {
+
+                    Order::addEcPayOrder($user[0]->order_id, $expiryDate);
+
                 }
-
-            }else{
-
-                Order::addEcPayOrder($user[0]->order_id, $expiryDate);
-
-            }
-
-            //測試機更新剩餘天數至到期日
-            //此測試訂單如有剩餘天數則加回到期日
-            //上正式機前這段請移除
-            if($user[0]->remain_days>0){
-                $expiryDate = $expiryDate->addDays($user[0]->remain_days);
+            }else {
+                //測試機更新剩餘天數至到期日
+                //此測試訂單如有剩餘天數則加回到期日
+                //上正式機前這段請移除
+                if($user[0]->remain_days>0){
+                    $expiryDate = $expiryDate->addDays($user[0]->remain_days);
+                }
             }
 
             foreach ($user as $u){

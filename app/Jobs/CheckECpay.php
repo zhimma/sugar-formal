@@ -90,7 +90,7 @@ class CheckECpay implements ShouldQueue
                 // 三個月一期或一個月一期
                 try{
                     if(str_contains($this->vipData->payment, 'quarterly')){
-                        $days = 92;
+                        $days = 94;
                     }
                     else{
                         $days = 31;

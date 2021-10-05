@@ -1182,6 +1182,7 @@ class UserController extends \App\Http\Controllers\BaseController
         foreach ($evaluation_data as $row) {
             $tmp = array();
             $f_user = User::findById($row->to_id);
+            if(!$f_user){ continue; }
             $tmp['id'] = $row->id;
             $tmp['content'] = $row->content . (!is_null($row->admin_comment) ? ('  ('.$row->admin_comment.')') : '');
             $tmp['re_content'] = $row->re_content;
@@ -1209,6 +1210,7 @@ class UserController extends \App\Http\Controllers\BaseController
         foreach ($evaluation_data as $row) {
             $tmp = array();
             $f_user = User::findById($row->from_id);
+            if(!$f_user){ continue; }
             $tmp['id'] = $row->id;
             $tmp['content'] = $row->content . (!is_null($row->admin_comment) ? ('  ('.$row->admin_comment.')') : '');
             $tmp['re_content'] = $row->re_content;
