@@ -316,6 +316,8 @@ class ImageController extends BaseController
                 $path = substr($avatar[0]['file'], strlen(public_path()));                 
                 $path[0] = '/';
                 UserMeta::where('user_id', $userId)->update(['pic' => $path, 'pic_original_name'=>$avatar[0]['old_name']]);
+                
+                \App\Jobs\SimilarImagesSearcher::dispatchSync($path);
             }
             $msg="上傳成功";
 
@@ -551,6 +553,8 @@ class ImageController extends BaseController
                 $addPicture->pic = $path;
                 $addPicture->original_name = $uploadedFile['old_name'];
                 $addPicture->save();
+
+                \App\Jobs\SimilarImagesSearcher::dispatchSync($path);
             }
         }
         $msg="上傳成功";
