@@ -26,13 +26,13 @@
                         $ban = \App\Models\SimpleTables\banned_users::where('member_id', $user->id)->first();
                         $banImplicitly = \App\Models\BannedUsersImplicitly::where('target', $user->id)->first();
                     @endphp
-{{--                    <li>--}}
-{{--                        @if($ban || $banImplicitly)--}}
-{{--                            <a onclick="CheckEnterPop()"><img src="/new/images/tlq.png">討論區</a>--}}
-{{--                        @else--}}
-{{--                            <a href="/dashboard/posts_list"><img src="/new/images/tlq.png">討論區</a>--}}
-{{--                        @endif--}}
-{{--                    </li>--}}
+                   <li>
+                       @if($ban || $banImplicitly)
+                           <a onclick="CheckEnterPop()"><img src="/new/images/tlq.png">討論區</a>
+                       @else
+                           <a href="/dashboard/posts_list"><img src="/new/images/tlq.png">討論區</a>
+                       @endif
+                   </li>
                 @endif
                 <li>
                     <a href="/MessageBoard/showList"><img src="/new/images/icon_new45.png">留言板</a>
