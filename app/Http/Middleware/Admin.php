@@ -41,9 +41,15 @@ class Admin
         }
         if (Gate::allows('juniorAdmin', $this->auth->user())) {
             //檢查權限
-            $getPermission=DB::table('role_user')->where('user_id',$this->auth->user()->id)->where('role_id',3)->first();
-            $checkPermission = DB::table('admin_menu_items')->whereIn('id',explode(',',$getPermission->item_permission))->where('route_path',$_SERVER['REQUEST_URI'])->where('status', 1)->first();
-            if(!is_null($checkPermission) || $_SERVER['REQUEST_URI']='/admin/manager'){
+            $getAllPaths     = DB::table('admin_menu_items')->pluck('route_path')->all();
+            $getPermission   = DB::table('role_user')->where('user_id',$this->auth->user()->id)->where('role_id',3)->first();
+            $checkPermission = DB::table('admin_menu_items')->whereIn('id',explode(',',$getPermission->item_permission))->where('route_path', '/' . request()->path())->first();
+
+            $specificPaths = [
+                '/admin/manager',
+            ];
+
+            if(!in_array('/' . request()->path(), $getAllPaths) || !is_null($checkPermission) || in_array('/' . request()->path(), $specificPaths)){
                 return $next($request);
             }
         }
