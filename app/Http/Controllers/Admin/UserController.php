@@ -4490,4 +4490,361 @@ class UserController extends \App\Http\Controllers\BaseController
         
         return redirect()->back();
     }    
+
+    public function UserPicturesSimilar(Request $request){
+        
+        $users = User::selectRaw(
+            '*,
+            @meta_update := (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`) AS `meta_update`,
+            @pic_update  := (SELECT max(`updated_at`) FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL) AS `pic_update`,
+            @last_update := IF(@meta_update > @pic_update, @meta_update, @pic_update) AS `last_update`'
+        );
+
+        // 開始日期
+        if ($request->date_start) {
+
+            $users = $users->whereRaw(
+                "IF(
+                    (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`) > (SELECT max(`updated_at`) FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL),
+                    (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`),
+                    (SELECT max(`updated_at`) FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL)
+                ) >= '$request->date_start'"
+            );
+        }
+
+        // 結束日期
+        if ($request->date_end) {
+
+            $users = $users->whereRaw(
+                "IF(
+                    (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`) > (SELECT max(`updated_at`) FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL),
+                    (SELECT `updated_at` FROM `user_meta` WHERE `user_meta`.`user_id` = `users`.`id`),
+                    (SELECT max(`updated_at`) FROM `member_pic` WHERE `member_pic`.`member_id` = `users`.`id` AND `member_pic`.`deleted_at` IS NULL)
+                ) <= '$request->date_end 23:59:59'"
+            );
+        }
+
+        // 性別
+        if ($request->en_group) {
+
+            $users = $users->where('engroup', $request->en_group);
+        }
+
+        // 縣市
+        if ($request->city) {
+            
+            $users = $users->whereHas('meta', function ($query) use ($request) {
+                $query->where('city', $request->city);
+            });
+        }
+
+        // 行政區
+        if ($request->area) {
+            
+            $users = $users->whereHas('meta', function ($query) use ($request) {
+                $query->where('area', $request->area);
+            });
+        }
+
+        // 照片是否隱藏
+        if ($request->hidden){
+
+            $users = $users->whereHas('pic', function ($query) {
+                $query->where('isHidden', 1);
+            });
+
+            $users = $users->whereHas('meta', function ($query) {
+                $query->where('isAvatarHidden', 1);
+            });
+        } else {
+
+            $users = $users->whereHas('pic', function ($query) {
+                $query->where('isHidden', 0);
+            });
+            
+            $users = $users->whereHas('meta', function ($query) {
+                $query->where('isAvatarHidden', 0);
+            });
+        }
+
+        if ($request->order_by == 'last_login') {
+
+            $users = $users->orderBy('last_login', 'desc');
+        } else {
+
+            $users = $users->orderBy('last_update', 'desc');
+        }
+
+        $users = $users->paginate(15);
+
+        return view('admin.users.userPicturesSimilar',[
+            'users' => $users
+        ]);
+    }
+
+    public function UserPicturesSimilarLog(Request $request){
+
+        $AdminPicturesSimilarActionLogs = \App\Models\AdminPicturesSimilarActionLog::selectRaw(
+            '*, 
+            max(`created_at`) AS `max_created_at`, 
+            (SELECT `last_login` FROM `users` WHERE `id` = `admin_pictures_similar_action_logs`.`target_id`) AS `last_login`'
+        )
+        ->where('operator_role', 3)
+        ->when($request, function ($query) use($request) {
+
+            // 開始日期
+            if ($request->date_start) $query->where('created_at', '>=', $request->date_start);
+
+            // 結束日期
+            if ($request->date_end) $query->where('created_at', '<=', "$request->date_end 23:59:59");
+
+            // 性別
+            if ($request->en_group) $query->whereHas('target_user', function ($query) use ($request) {
+                $query->where('engroup', $request->en_group);
+            });
+
+            // 縣市
+            if ($request->city) $query->whereHas('target_user.meta', function ($query) use ($request) {
+                $query->where('city', $request->city);
+            });
+
+            // 地區
+            if ($request->area) $query->whereHas('target_user.meta', function ($query) use ($request) {
+                $query->where('area', $request->area);
+            });
+        })
+        ->when($request->hidden, function ($query) {
+            $query->whereHas('target_user.pic', function ($query) {
+                $query->where('isHidden', 1);
+            });
+            $query->whereHas('target_user.meta', function ($query) {
+                   $query->where('isAvatarHidden', 1);
+            });
+        }, function ($query) {
+            $query->whereHas('target_user.pic', function ($query) {
+                $query->where('isHidden', 0);
+            });
+            $query->whereHas('target_user.meta', function ($query) {
+                $query->where('isAvatarHidden', 0);
+            });
+        })
+        ->groupBy('target_id')
+        ->when($request->order_by == 'last_login', function ($query) {
+            $query->orderByDesc('last_login');
+        }, function ($query) {
+            $query->orderByDesc('max_created_at');
+        })
+        ->paginate(15);
+
+        return view('admin.users.userPicturesSimilarLog', [
+            'AdminPicturesSimilarActionLogs' => $AdminPicturesSimilarActionLogs
+        ]);
+    }
+
+    public function UserPicturesSimilarJobCreate(Request $request){
+
+        if ($request->type == 'date'){
+            $validated = $request->validate([
+                'date_start' => ['required', 'date'],
+                'date_end' => ['required', 'date'],
+            ]);
+    
+            if ($validated) {
+                $images = MemberPic::withTrashed()->whereBetween('created_at', [ $request->date_start , $request->date_end . ' 23:59:59'])->get();
+                $imgs_count = $images->count();
+                if ($imgs_count > 0){
+                    foreach ($images as $img){
+                        \App\Jobs\SimilarImagesSearcher::dispatch($img->pic);
+                    }
+                }
+            }
+
+            return '成功將 ' . $imgs_count . ' 筆資料列入送檢佇列';
+        }
+
+        if ($request->type == 'all') {
+            $UserMetaPics      = \App\Models\UserMeta::select('pic')->whereNotNull('pic');
+            $AvatarDeletedPics = \App\Models\AvatarDeleted::select('pic');
+            $MemberPics        = \App\Models\MemberPic::withTrashed()->select('pic');
+    
+            $Imgs = $UserMetaPics->union($AvatarDeletedPics)->union($MemberPics)->get();
+            $Imgs_count = $Imgs->count();
+    
+            foreach ($Imgs as $img) {
+                \App\Jobs\SimilarImagesSearcher::dispatch($img->pic);
+            }
+
+            return '成功將 ' . $Imgs_count . ' 筆資料列入送檢佇列';
+        }
+
+        return '沒有指定的方法';
+    }
+
+    public function admin_user_suspicious_toggle(Request $request){
+
+        if ($request->toggle == 1) {
+
+            DB::beginTransaction();
+
+            try {
+
+                // 先刪後增
+                SuspiciousUser::where('user_id',$request->uid)->delete();
+                SuspiciousUser::insert([
+                    'admin_id'   => Auth::user()->id,
+                    'user_id'    => $request->uid,
+                    'reason'     => $request->reason,
+                    'created_at' => now()
+                ]);
+
+                // 操作紀錄
+                \App\Models\AdminPicturesSimilarActionLog::insert([
+                    'operator_id'   => Auth::user()->id,
+                    'operator_role' => Auth::user()->roles->first()->id,
+                    'target_id'     => $request->uid,
+                    'act'           => '加入可疑名單',
+                    'reason'        => $request->reason,
+                    'ip'            => $request->ip(),
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
+                ]);
+
+                DB::commit();
+
+                $msg_type    = 'message';
+                $msg_content = '已將該用戶加入至可疑名單內';
+
+            } catch (\Throwable $th) {
+
+                //throw $th;
+                DB::rollback();
+                
+                $msg_type    = 'error';
+                $msg_content = '加入可疑名單失敗';
+            }
+            
+            return back()->with($msg_type, $msg_content);
+        }
+        
+        if ($request->toggle == 0) {
+
+            DB::beginTransaction();
+
+            try {
+
+                // 刪除
+                SuspiciousUser::where('user_id',$request->uid)->delete();
+
+                // 操作紀錄
+                \App\Models\AdminPicturesSimilarActionLog::insert([
+                    'operator_id'   => Auth::user()->id,
+                    'operator_role' => Auth::user()->roles->first()->id,
+                    'target_id'     => $request->uid,
+                    'act'           => '刪除可疑名單',
+                    'reason'        => $request->reason,
+                    'ip'            => $request->ip(),
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
+                ]);
+                
+                DB::commit();
+
+                $msg_type    = 'message';
+                $msg_content = '已將該用戶從可疑名單內移除';
+
+            } catch (\Throwable $th) {
+
+                // throw $th;
+                DB::rollback();
+                
+                $msg_type    = 'error';
+                $msg_content = '移除可疑名單失敗';
+            }
+            
+            return back()->with($msg_type, $msg_content);
+        }
+
+        return back()->with('error', 'unknow controller method');
+
+    }
+
+    public function admin_user_block_toggle(Request $request){
+
+        if ($request->toggle == 1){
+
+            DB::beginTransaction();
+
+            try {
+
+                // toggleUserBlock Method
+                $this->toggleUserBlock($request);
+
+                // 操作紀錄
+                \App\Models\AdminPicturesSimilarActionLog::insert([
+                    'operator_id'   => Auth::user()->id,
+                    'operator_role' => Auth::user()->roles->first()->id,
+                    'target_id'     => $request->user_id,
+                    'act'           => '加入封鎖名單',
+                    'reason'        => $request->reason,
+                    'days'          => $request->days,
+                    'ip'            => $request->ip(),
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
+                ]);
+
+                DB::commit();
+
+                $msg_type    = 'message';
+                $msg_content = '已將該用戶加入至封鎖名單內';
+
+            } catch (\Throwable $th) {
+
+                //throw $th;
+                DB::rollback();
+                
+                $msg_type    = 'error';
+                $msg_content = '新增封鎖名單失敗';
+            }
+            
+            return back()->with($msg_type, $msg_content);
+        }
+
+        if ($request->toggle == 0){
+
+            DB::beginTransaction();
+
+            try {
+
+                // toggleUserBlock Method
+                $this->toggleUserBlock($request);
+
+                \App\Models\AdminPicturesSimilarActionLog::insert([
+                    'operator_id'   => Auth::user()->id,
+                    'operator_role' => Auth::user()->roles->first()->id,
+                    'target_id'     => $request->user_id,
+                    'act'           => '刪除封鎖名單',
+                    'ip'            => $request->ip(),
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
+                ]);
+
+                DB::commit();
+
+                $msg_type    = 'message';
+                $msg_content = '已將該用戶從封鎖名單內移除';
+
+            } catch (\Throwable $th) {
+
+                //throw $th;
+                DB::rollback();
+                
+                $msg_type    = 'error';
+                $msg_content = '刪除封鎖名單失敗';
+            }
+
+            return back()->with($msg_type, $msg_content);
+        }
+
+        return back()->with('error', 'unknow controller method');
+    }
 }

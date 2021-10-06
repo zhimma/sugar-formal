@@ -749,6 +749,14 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
             return $str;
         });
 
+        Route::get('users/picturesSimilar', 'UserController@UserPicturesSimilar')->name('users/picturesSimilar');
+        Route::get('users/picturesSimilarLog', 'UserController@UserPicturesSimilarLog')->name('users/picturesSimilarLog');
+        Route::get('users/picturesSimilar/job:create', 'UserController@UserPicturesSimilarJobCreate');
+        Route::post('users/picturesSimilar/block:toggle', 'UserController@admin_user_block_toggle')->withoutMiddleware('Admin');
+        Route::post('users/picturesSimilar/suspicious:toggle', 'UserController@admin_user_suspicious_toggle')->withoutMiddleware('Admin');
+        Route::post('users/picturesSimilar/image:delete', [\App\Http\Controllers\ImageController::class, 'admin_user_image_delete'])->withoutMiddleware('Admin');
+        Route::post('users/picturesSimilar/avatar:delete', [\App\Http\Controllers\ImageController::class, 'admin_user_avatar_delete'])->withoutMiddleware('Admin');
+
         /*
         |--------------------------------------------------------------------------
         | Roles
