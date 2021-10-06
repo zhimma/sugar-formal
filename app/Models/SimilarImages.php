@@ -13,7 +13,7 @@ class SimilarImages extends Model
     protected $table = 'similar_images';
 
     protected $apiUrl = 'https://vision.googleapis.com/v1/images:annotate';
-    protected $apiKey = 'AIzaSyAmLABYHRv2NxaD5MyP-4yFaMF0oSvzdPI';
+    protected $apiKey = 'AIzaSyCkXLyEfuDivZ3cewVX4hkb-hWa3lEc6Bk';
     protected $maxResults = 3;
 
 
