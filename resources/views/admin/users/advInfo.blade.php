@@ -1374,23 +1374,6 @@
 	</tr>
 </table>
 
-<h4>現有生活照</h4>
-<?php $pics = \App\Models\MemberPic::getSelf($user->id); ?>
-<table class="table table-hover table-bordered" style="width: 50%;">
-	@forelse ($pics as $pic)
-		<tr>
-			<td>
-				<input type="hidden" name="userId" value="{{$user->id}}">
-				<input type="hidden" name="imgId" value="{{$pic->id}}">
-				<div style="width:250px;height:250px;">
-					<img src="{{$pic->pic}}" style="width: 250px;height: 250px;object-fit: contain;">
-				</div>
-			</td>
-		</tr>
-	@empty
-		此會員目前沒有生活照
-	@endforelse
-</table>
 <h4>現有證件照</h4>
 <?php $pics = \App\Models\MemberPic::getSelfIDPhoto($user->id); ?>
 <table class="table table-hover table-bordered" style="width: 50%;">
@@ -1408,6 +1391,351 @@
 		此會員目前沒有證件照
 	@endforelse
 </table>
+
+<h4>現有頭像</h4>
+<table class="table table-bordered" style="width: 50%;">
+    <thead>
+        <th style="width: 120px;">圖片</th>
+        <th>以圖找圖</th>
+    </thead>
+    <tbody>
+        @if($user->meta->pic)
+        <tr>
+            <td><img src="{{ url($user->meta->pic) }}" width="120px"></td>
+            <td>
+                @php
+                    $ImgResult = \App\Models\SimilarImages::where('pic', $user->meta->pic)->first();
+                @endphp
+                @if ($ImgResult)
+
+                    @if ($ImgResult->status == 'success')
+
+                        {{-- 完全匹配 Start --}}
+                        <b>完全匹配(含調整過寬高)</b>
+                        @if ($ImgResult->fullMatchingImages)
+                            <p>
+                                @foreach (json_decode($ImgResult->fullMatchingImages) as $fullMatchingImage)
+                                    <a href="{{ $fullMatchingImage->url }}" target="_blank"><img src="{{ $fullMatchingImage->url }}" style="max-width:120px; margin-right:10px;" onerror="this.src='/img/linktosource.png'"></a>
+                                @endforeach
+                            </p>
+                        @else
+                            <p>沒有完全匹配的內容</p>
+                        @endif
+                        {{-- 完全匹配 End --}}
+
+                        {{-- 足夠相似 Start --}}
+                        <b>足夠相似</b>
+                        @if ($ImgResult->partialMatchingImages)
+                            <p>
+                                @foreach (json_decode($ImgResult->partialMatchingImages) as $partialMatchingImage)
+                                    <a href="{{ $partialMatchingImage->url }}" target="_blank"><img src="{{ $partialMatchingImage->url }}" style="max-width:120px; margin-right:10px;" onerror="this.src='/img/linktosource.png'"></a>
+                                @endforeach
+                            </p>
+                        @else
+                            <p>沒有足夠相似的內容</p>
+                        @endif
+                        {{-- 足夠相似 End --}}
+
+                        {{-- 匹配的網頁 Start --}}
+                        <b>匹配的網頁</b>
+                        @if ($ImgResult->pagesWithMatchingImages)
+                            <p>
+                                @foreach (json_decode($ImgResult->pagesWithMatchingImages) as $pagesWithMatchingImage)
+                                    <a href="{{ $pagesWithMatchingImage->url }}" target="_blank">{{ $pagesWithMatchingImage->pageTitle }}</a><br>
+                                @endforeach
+                            </p>
+                        @else
+                            <p>沒有匹配的網頁</p>
+                        @endif
+                        {{-- 匹配的網頁 End --}}
+
+                        {{-- 看起來像的圖片 Start --}}
+                        <b>看起來像的圖片</b>
+                        @if ($ImgResult->visuallySimilarImages)
+                            <p>
+                                @foreach (json_decode($ImgResult->visuallySimilarImages) as $visuallySimilarImage)
+                                    <a href="{{ $visuallySimilarImage->url }}" target="_blank"><img src="{{ $visuallySimilarImage->url }}" style="max-width:120px; margin-right:10px;" onerror="this.src='/img/linktosource.png'"></a>
+                                @endforeach
+                            </p>
+                        @else
+                            <p>沒有看起來像的圖片</p>
+                        @endif
+                        {{-- 看起來像的圖片 End --}}
+
+                    @elseif ($ImgResult->status == 'failed')
+                        <p>搜尋失敗</p>
+                    @endif
+                @else
+                    <p>無紀錄</p>
+                @endif
+            </td>
+        </tr>
+        @else
+        <tr>
+            <td colspan="2">此會員目前沒有生活照</td>
+        </tr>
+        @endif
+    </tbody>
+</table>
+
+<h4>現有生活照</h4>
+<table class="table table-bordered" style="width: 50%;">
+    <thead>
+        <th style="width: 120px;">圖片</th>
+        <th>以圖找圖</th>
+    </thead>
+    <tbody>
+        @forelse ($user->pic as $pic)
+        <tr>
+            <td><img src="{{ url($pic->pic) }}" width="120px"></td>
+            <td>
+                @php
+                    $ImgResult = \App\Models\SimilarImages::where('pic', $pic->pic)->first();
+                @endphp
+                @if ($ImgResult)
+
+                    @if ($ImgResult->status == 'success')
+
+                        {{-- 完全匹配 Start --}}
+                        <b>完全匹配(含調整過寬高)</b>
+                        @if ($ImgResult->fullMatchingImages)
+                            <p>
+                                @foreach (json_decode($ImgResult->fullMatchingImages) as $fullMatchingImage)
+                                    <a href="{{ $fullMatchingImage->url }}" target="_blank"><img src="{{ $fullMatchingImage->url }}" style="max-width:120px; margin-right:10px;" onerror="this.src='/img/linktosource.png'"></a>
+                                @endforeach
+                            </p>
+                        @else
+                            <p>沒有完全匹配的內容</p>
+                        @endif
+                        {{-- 完全匹配 End --}}
+
+                        {{-- 足夠相似 Start --}}
+                        <b>足夠相似</b>
+                        @if ($ImgResult->partialMatchingImages)
+                            <p>
+                                @foreach (json_decode($ImgResult->partialMatchingImages) as $partialMatchingImage)
+                                    <a href="{{ $partialMatchingImage->url }}" target="_blank"><img src="{{ $partialMatchingImage->url }}" style="max-width:120px; margin-right:10px;" onerror="this.src='/img/linktosource.png'"></a>
+                                @endforeach
+                            </p>
+                        @else
+                            <p>沒有足夠相似的內容</p>
+                        @endif
+                        {{-- 足夠相似 End --}}
+
+                        {{-- 匹配的網頁 Start --}}
+                        <b>匹配的網頁</b>
+                        @if ($ImgResult->pagesWithMatchingImages)
+                            <p>
+                                @foreach (json_decode($ImgResult->pagesWithMatchingImages) as $pagesWithMatchingImage)
+                                    <a href="{{ $pagesWithMatchingImage->url }}" target="_blank">{{ $pagesWithMatchingImage->pageTitle }}</a><br>
+                                @endforeach
+                            </p>
+                        @else
+                            <p>沒有匹配的網頁</p>
+                        @endif
+                        {{-- 匹配的網頁 End --}}
+
+                        {{-- 看起來像的圖片 Start --}}
+                        <b>看起來像的圖片</b>
+                        @if ($ImgResult->visuallySimilarImages)
+                            <p>
+                                @foreach (json_decode($ImgResult->visuallySimilarImages) as $visuallySimilarImage)
+                                    <a href="{{ $visuallySimilarImage->url }}" target="_blank"><img src="{{ $visuallySimilarImage->url }}" style="max-width:120px; margin-right:10px;" onerror="this.src='/img/linktosource.png'"></a>
+                                @endforeach
+                            </p>
+                        @else
+                            <p>沒有看起來像的圖片</p>
+                        @endif
+                        {{-- 看起來像的圖片 End --}}
+
+                    @elseif ($ImgResult->status == 'failed')
+                        <p>搜尋失敗</p>
+                    @endif
+                @else
+                    <p>無紀錄</p>
+                @endif
+            </td>
+        </tr>
+        @empty
+        <tr>
+            <td colspan="2">此會員目前沒有生活照</td>
+        </tr>
+        @endforelse
+    </tbody>
+</table>
+
+<h4>被刪除的頭像</h4>
+<table class="table table-bordered" style="width: 50%;">
+    <thead>
+        <th style="width: 120px;">圖片</th>
+        <th>以圖找圖</th>
+    </thead>
+    <tbody>
+        @forelse ($user->avatar_deleted as $pic)
+        <tr>
+            <td><img src="{{ url($pic->pic) }}" width="120px"><br><span>{{ date('Y/m/d', strtotime($pic->created_at)) }} 被刪除</span></td>
+            <td>
+                @php
+                    $ImgResult = \App\Models\SimilarImages::where('pic', $pic->pic)->first();
+                @endphp
+                @if ($ImgResult)
+
+                    @if ($ImgResult->status == 'success')
+
+                        {{-- 完全匹配 Start --}}
+                        <b>完全匹配(含調整過寬高)</b>
+                        @if ($ImgResult->fullMatchingImages)
+                            <p>
+                                @foreach (json_decode($ImgResult->fullMatchingImages) as $fullMatchingImage)
+                                    <a href="{{ $fullMatchingImage->url }}" target="_blank"><img src="{{ $fullMatchingImage->url }}" style="max-width:120px; margin-right:10px;" onerror="this.src='/img/linktosource.png'"></a>
+                                @endforeach
+                            </p>
+                        @else
+                            <p>沒有完全匹配的內容</p>
+                        @endif
+                        {{-- 完全匹配 End --}}
+
+                        {{-- 足夠相似 Start --}}
+                        <b>足夠相似</b>
+                        @if ($ImgResult->partialMatchingImages)
+                            <p>
+                                @foreach (json_decode($ImgResult->partialMatchingImages) as $partialMatchingImage)
+                                    <a href="{{ $partialMatchingImage->url }}" target="_blank"><img src="{{ $partialMatchingImage->url }}" style="max-width:120px; margin-right:10px;" onerror="this.src='/img/linktosource.png'"></a>
+                                @endforeach
+                            </p>
+                        @else
+                            <p>沒有足夠相似的內容</p>
+                        @endif
+                        {{-- 足夠相似 End --}}
+
+                        {{-- 匹配的網頁 Start --}}
+                        <b>匹配的網頁</b>
+                        @if ($ImgResult->pagesWithMatchingImages)
+                            <p>
+                                @foreach (json_decode($ImgResult->pagesWithMatchingImages) as $pagesWithMatchingImage)
+                                    <a href="{{ $pagesWithMatchingImage->url }}" target="_blank">{{ $pagesWithMatchingImage->pageTitle }}</a><br>
+                                @endforeach
+                            </p>
+                        @else
+                            <p>沒有匹配的網頁</p>
+                        @endif
+                        {{-- 匹配的網頁 End --}}
+
+                        {{-- 看起來像的圖片 Start --}}
+                        <b>看起來像的圖片</b>
+                        @if ($ImgResult->visuallySimilarImages)
+                            <p>
+                                @foreach (json_decode($ImgResult->visuallySimilarImages) as $visuallySimilarImage)
+                                    <a href="{{ $visuallySimilarImage->url }}" target="_blank"><img src="{{ $visuallySimilarImage->url }}" style="max-width:120px; margin-right:10px;" onerror="this.src='/img/linktosource.png'"></a>
+                                @endforeach
+                            </p>
+                        @else
+                            <p>沒有看起來像的圖片</p>
+                        @endif
+                        {{-- 看起來像的圖片 End --}}
+
+                    @elseif ($ImgResult->status == 'failed')
+                        <p>搜尋失敗</p>
+                    @endif
+                @else
+                    <p>無紀錄</p>
+                @endif
+            </td>
+        </tr>
+        @empty
+        <tr>
+            <td colspan="2">此會員目前沒有被刪除的頭像</td>
+        </tr>
+        @endforelse
+    </tbody>
+</table>
+
+<h4>被刪除的生活照</h4>
+<table class="table table-bordered" style="width: 50%;">
+    <thead>
+        <th style="width: 120px;">圖片</th>
+        <th>以圖找圖</th>
+    </thead>
+    <tbody>
+        @forelse ($user->pic_onlyTrashed as $pic)
+        <tr>
+            <td><img src="{{ url($pic->pic) }}" width="120px"><br><span>{{ date('Y/m/d', strtotime($pic->deleted_at)) }} 被刪除</span></td>
+            <td>
+                @php
+                    $ImgResult = \App\Models\SimilarImages::where('pic', $pic->pic)->first();
+                @endphp
+                @if ($ImgResult)
+
+                    @if ($ImgResult->status == 'success')
+
+                        {{-- 完全匹配 Start --}}
+                        <b>完全匹配(含調整過寬高)</b>
+                        @if ($ImgResult->fullMatchingImages)
+                            <p>
+                                @foreach (json_decode($ImgResult->fullMatchingImages) as $fullMatchingImage)
+                                    <a href="{{ $fullMatchingImage->url }}" target="_blank"><img src="{{ $fullMatchingImage->url }}" style="max-width:120px; margin-right:10px;" onerror="this.src='/img/linktosource.png'"></a>
+                                @endforeach
+                            </p>
+                        @else
+                            <p>沒有完全匹配的內容</p>
+                        @endif
+                        {{-- 完全匹配 End --}}
+
+                        {{-- 足夠相似 Start --}}
+                        <b>足夠相似</b>
+                        @if ($ImgResult->partialMatchingImages)
+                            <p>
+                                @foreach (json_decode($ImgResult->partialMatchingImages) as $partialMatchingImage)
+                                    <a href="{{ $partialMatchingImage->url }}" target="_blank"><img src="{{ $partialMatchingImage->url }}" style="max-width:120px; margin-right:10px;" onerror="this.src='/img/linktosource.png'"></a>
+                                @endforeach
+                            </p>
+                        @else
+                            <p>沒有足夠相似的內容</p>
+                        @endif
+                        {{-- 足夠相似 End --}}
+
+                        {{-- 匹配的網頁 Start --}}
+                        <b>匹配的網頁</b>
+                        @if ($ImgResult->pagesWithMatchingImages)
+                            <p>
+                                @foreach (json_decode($ImgResult->pagesWithMatchingImages) as $pagesWithMatchingImage)
+                                    <a href="{{ $pagesWithMatchingImage->url }}" target="_blank">{{ $pagesWithMatchingImage->pageTitle }}</a><br>
+                                @endforeach
+                            </p>
+                        @else
+                            <p>沒有匹配的網頁</p>
+                        @endif
+                        {{-- 匹配的網頁 End --}}
+
+                        {{-- 看起來像的圖片 Start --}}
+                        <b>看起來像的圖片</b>
+                        @if ($ImgResult->visuallySimilarImages)
+                            <p>
+                                @foreach (json_decode($ImgResult->visuallySimilarImages) as $visuallySimilarImage)
+                                    <a href="{{ $visuallySimilarImage->url }}" target="_blank"><img src="{{ $visuallySimilarImage->url }}" style="max-width:120px; margin-right:10px;" onerror="this.src='/img/linktosource.png'"></a>
+                                @endforeach
+                            </p>
+                        @else
+                            <p>沒有看起來像的圖片</p>
+                        @endif
+                        {{-- 看起來像的圖片 End --}}
+
+                    @elseif ($ImgResult->status == 'failed')
+                        <p>搜尋失敗</p>
+                    @endif
+                @else
+                    <p>無紀錄</p>
+                @endif
+            </td>
+        </tr>
+        @empty
+        <tr>
+            <td colspan="2">此會員目前沒有被刪除的照片</td>
+        </tr>
+        @endforelse
+    </tbody>
+</table>
+
 </body>
 <div class="modal fade" id="blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 	<div class="modal-dialog" role="document" style="max-width: 60%;">

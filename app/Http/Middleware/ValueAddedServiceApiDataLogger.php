@@ -95,14 +95,21 @@ class ValueAddedServiceApiDataLogger{
                 unset($payload['CheckMacValue']);
                 uksort($payload, array('\App\Http\Middleware\ValueAddedServiceApiDataLogger','merchantSort'));
 
+                if(\App::environment('local')){
+                    $envStr = '_test';
+                }
+                else{
+                    $envStr = '';
+                }
+
                 // 組合字串
-                $sMacValue = 'HashKey=' . config('ecpay.payment.HashKey') ;
+                $sMacValue = 'HashKey=' . config('ecpay.payment'.$envStr.'.HashKey') ;
                 foreach($payload as $key => $value)
                 {
                     $sMacValue .= '&' . $key . '=' . $value ;
                 }
 
-                $sMacValue .= '&HashIV=' . config('ecpay.payment.HashIV') ;
+                $sMacValue .= '&HashIV=' . config('ecpay.payment'.$envStr.'.HashIV') ;
 
                 // URL Encode編碼
                 $sMacValue = urlencode($sMacValue);
@@ -149,7 +156,8 @@ class ValueAddedServiceApiDataLogger{
                 $infos->save();
                 if (isset($payload['RtnCode'])) {
                     if($payload['RtnCode'] == 1) {
-                        ValueAddedService::upgrade($user->id, $payload['CustomField4'], $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, $payload['CustomField3']);
+                        $remain_days = $payload['CustomField2'];
+                        ValueAddedService::upgrade($user->id, $payload['CustomField4'], $payload['MerchantID'], $payload['MerchantTradeNo'], $payload['TradeAmt'], '', 1, $payload['CustomField3'], $remain_days);
 
                         if(!\App::environment('local')) {
                             //產生訂單 --正式綠界

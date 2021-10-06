@@ -102,10 +102,18 @@ class Order extends Model
                     } elseif ($payment == 'cc_quarterly_payment' && $lastProcessDate != '' && $lastProcessDateDiffDays != '') {
                         if ($lastProcessDateDiffDays > 90) {
                             $order->order_expire_date = $lastProcessDate->addMonthsNoOverflow(3);
+                            if($paymentData['CustomField2'] != '' && $paymentData['CustomField2']>0 && ($service_name == 'VIP' || $service_name == 'hideOnline')){
+                                $temp_day = $order->order_expire_date;
+                                $order->order_expire_date = $temp_day->addDays($paymentData['CustomField2']);
+                            }
                         }
                     } elseif ($payment == 'cc_monthly_payment' && $lastProcessDate != '' && $lastProcessDateDiffDays != '') {
                         if ($lastProcessDateDiffDays > 30) {
                             $order->order_expire_date = $lastProcessDate->addMonthsNoOverflow(1);
+                            if($paymentData['CustomField2'] != '' && $paymentData['CustomField2']>0 && ($service_name == 'VIP' || $service_name == 'hideOnline')){
+                                $temp_day = $order->order_expire_date;
+                                $order->order_expire_date = $temp_day->addDays($paymentData['CustomField2']);
+                            }
                         }
                     } elseif ($payment == '') {
                         if ($lastProcessDateDiffDays > 30) {
@@ -118,6 +126,9 @@ class Order extends Model
 
                 $order->amount = $paymentData['TradeAmt'];
                 $order->created_at = Carbon::now();
+                if($paymentData['CustomField2'] != '' && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline')) {
+                    $order->remain_days = $paymentData['CustomField2'];
+                }
                 $order->save();
 
                 return true;
@@ -208,10 +219,16 @@ class Order extends Model
                 }elseif($payment=='cc_quarterly_payment' && $lastProcessDate != '' && $lastProcessDateDiffDays !=''){
                     if($lastProcessDateDiffDays>90){
                         $order_expire_date = $lastProcessDate->addMonthsNoOverflow(3);
+                        if($paymentData['CustomField2'] != '' && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline')){
+                            $order_expire_date = $order_expire_date->addDays($paymentData['CustomField2']);
+                        }
                     }
                 }elseif($payment=='cc_monthly_payment' && $lastProcessDate != '' && $lastProcessDateDiffDays !=''){
                     if($lastProcessDateDiffDays>30){
                         $order_expire_date = $lastProcessDate->addMonthsNoOverflow(1);
+                        if($paymentData['CustomField2'] != '' && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline')){
+                            $order_expire_date = $order_expire_date->addDays($paymentData['CustomField2']);
+                        }
                     }
                 }elseif($payment==''){
                     if($lastProcessDateDiffDays>30){

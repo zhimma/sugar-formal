@@ -62,7 +62,7 @@ class Vip extends Model
         return !$status->free;
     }
 
-    public static function upgrade($member_id, $business_id, $order_id, $amount, $txn_id, $active, $free, $payment = null, $transactionType = null)
+    public static function upgrade($member_id, $business_id, $order_id, $amount, $txn_id, $active, $free, $payment = null, $transactionType = null, $remain_days=0)
     {
         $vipData = Vip::findByIdWithDateDesc($member_id);
 
@@ -85,10 +85,13 @@ class Vip extends Model
             $vip->free = $free;
             $vip->payment = $payment;
             $vip->payment_method = $transactionType; //付款方法
+            $vip->remain_days = $remain_days;
 
             //單次付款到期日
             if(isset($expiry)){
                 $vip->expiry = $expiry;
+            }else{
+                $vip->expiry = '0000-00-00 00:00:00';
             }
 
             $vip->save();
@@ -118,10 +121,13 @@ class Vip extends Model
             $vipData->free = $free;
             $vipData->payment = $payment;
             $vipData->payment_method = $transactionType; //付款方法
+            $vipData->remain_days = $remain_days;
 
             //單次付款到期日
             if(isset($expiry)){
                 $vipData->expiry = $expiry;
+            }else{
+                $vipData->expiry = '0000-00-00 00:00:00';
             }
 
             $vipData->save();
@@ -160,7 +166,7 @@ class Vip extends Model
         else{
             return false;
         }
-        $user = Vip::select('id', 'expiry', 'created_at', 'updated_at','payment','business_id', 'order_id')
+        $user = Vip::select('id', 'expiry', 'created_at', 'updated_at','payment','business_id', 'order_id','remain_days')
                 ->where('member_id', $member_id)
                 ->orderBy('created_at', 'desc')->get();
         // 取消時，確認沒有設定到期日，才開始動作，否則遇上多次取消，可能會導致到期日被延後的結果
@@ -182,8 +188,8 @@ class Vip extends Model
             }else {
                 $periodRemained = 30 - ($daysDiff % 30);
             }
-            // 基準日加上得出的天數，就會是預計的到期日
-            $expiryDate = $baseDate->addDays($periodRemained);
+            // 基準日加上得出的天數再加 1 (不加 1 到期日會少一天)，即為取消後的到期日
+            $expiryDate = $baseDate->addDays($periodRemained + 1);
             /**
              * Debugging codes.
              * $output = new \Symfony\Component\Console\Output\ConsoleOutput();
@@ -203,21 +209,38 @@ class Vip extends Model
                 }
                 $str = $curUser->name . ' 您好，您已取消本站 VIP 續期。但由於您的扣款時間是每月'. $latestUpdatedAt->day .'號，取消時間低於七個工作天，作業不及。所以本次還是會正常扣款，下一週期就會停止扣款。造成不便敬請見諒。';
             }
-            //儲存到期日時，要再加 1 天(不加 1 的話，實際的到期日會少一天)，這時即為取消後的到期日
-            $expiryDate = $expiryDate->addDay();
+
+
+            if(!\App::environment('local')) {
+                //訂單更新到期日 //此段在測試機無法測試
+                $order = Order::where('order_id', $user[0]->order_id)->get()->first();
+                if (strpos($user[0]->order_id, 'SG') !== false && isset($order)) {
+
+                    //此訂單如有剩餘天數則加回到期日
+                    if ($order->remain_days > 0) {
+                        $expiryDate = $expiryDate->addDays($order->remain_days);
+                        Order::where('order_id', $user[0]->order_id)->update(['order_expire_date' => $expiryDate]);
+                    }
+
+                } else {
+
+                    Order::addEcPayOrder($user[0]->order_id, $expiryDate);
+
+                }
+            }else {
+                //測試機更新剩餘天數至到期日
+                //此測試訂單如有剩餘天數則加回到期日
+                //上正式機前這段請移除
+                if($user[0]->remain_days>0){
+                    $expiryDate = $expiryDate->addDays($user[0]->remain_days);
+                }
+            }
+
             foreach ($user as $u){
                 $u->expiry = $expiryDate->startOfDay()->toDateTimeString();
                 $u->save();
             }
             VipLog::addToLog($member_id, 'User cancel, expiry: ' . $expiryDate, 'XXXXXXXXX', 0, $free);
-
-            //訂單更新到期日
-            $order = Order::where('order_id', $user->order_id)->get();
-            if (strpos($user->order_id, 'SG') !== false && count($order)>0) {
-                Order::where('order_id', $user->order_id)->update(['order_expire_date' => $expiryDate]);
-            }else{
-                Order::addEcPayOrder($user->order_id, $expiryDate);
-            }
 
             return [true, "str"  => $str ?? null];
         }

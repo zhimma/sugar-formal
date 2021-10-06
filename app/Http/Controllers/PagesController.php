@@ -2092,11 +2092,19 @@ class PagesController extends BaseController
 
             $is_banned = null;
 
-            //
+            //此段僅測試用
+            //上正式機前起移除
+            $message_count_7_old='';
+            $message_reply_count_7_old='';
+            $visit_other_count_7_old='';
+            $hideOnlineDays='';
+            //end
+
             $userHideOnlinePayStatus = ValueAddedService::status($uid,'hideOnline');
             if($userHideOnlinePayStatus == 1 /*&& $targetUser->is_hide_online != 0*/){
                 $hideOnlineData = hideOnlineData::where('user_id',$uid)->where('deleted_at',null)->get()->first();
                 if(isset($hideOnlineData)){
+                    $hideOnlineDays = now()->diffInDays($hideOnlineData->created_at);
                     $login_times_per_week = $hideOnlineData->login_times_per_week;
                     $be_fav_count = $hideOnlineData->be_fav_count;//new add
                     $fav_count = $hideOnlineData->fav_count;//new add
@@ -2114,8 +2122,30 @@ class PagesController extends BaseController
                     $be_blocked_other_count = $hideOnlineData->be_blocked_other_count;//new add
                     $last_login = $hideOnlineData->updated_at; //new add
 
+                    //此段僅測試用
+                    //上正式機前起移除
+                    $message_count_7_old = $hideOnlineData->message_count_7;
+                    $message_reply_count_7_old = $hideOnlineData->message_reply_count_7;
+                    $visit_other_count_7_old = $hideOnlineData->visit_other_count_7;
+                    //end
+
+                    for($x=0; $x<$hideOnlineDays; $x++) {
+
+                        $message_count_7 = $message_count_7 - ($message_count_7 / 7);
+                        $message_reply_count_7 = $message_reply_count_7 - ($message_reply_count_7 / 7);
+                        $visit_other_count_7 = $visit_other_count_7 - ($visit_other_count_7 / 7);
+
+                        if($message_count_7<0 && $message_reply_count_7<0 && $visit_other_count_7<0){
+                            break;
+                        }
+                    }
+
+                    $message_count_7 = round((int)$message_count_7);
+                    $message_reply_count_7 = round((int)$message_reply_count_7);
+                    $visit_other_count_7 = round((int)$visit_other_count_7);
                 }
             }
+
 
             $data = array(
                 'login_times_per_week' => $login_times_per_week,
@@ -2139,9 +2169,17 @@ class PagesController extends BaseController
                 'is_banned' => $is_banned,
                 'userHideOnlinePayStatus' => $userHideOnlinePayStatus,
                 'last_login' => $last_login
+                //此段僅測試用
+                //上正式機前起移除
+                ,
+                'message_count_7_old' => $message_count_7_old,
+                'message_reply_count_7_old' => $message_reply_count_7_old,
+                'visit_other_count_7_old' => $visit_other_count_7_old,
+                'hideOnlineDays' => $hideOnlineDays
+                //end
             );
 
-            $member_pic = DB::table('member_pic')->where('member_id', $uid)->where('pic', '<>', $targetUser->meta->pic)->get();
+            $member_pic = DB::table('member_pic')->where('member_id', $uid)->where('pic', '<>', $targetUser->meta->pic)->whereNull('deleted_at')->get();
 
             if($user->isVip()){
                 $vipLevel = 1;
@@ -2231,6 +2269,8 @@ class PagesController extends BaseController
             $query = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
                 ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.from_id')
                 ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.from_id')
+                ->leftJoin('users as u1', 'u1.id', '=', 'evaluation.from_id')
+                ->leftJoin('users as u2', 'u2.id', '=', 'evaluation.from_id')
 //                ->leftJoin('user_meta as um', function($join) {
 //                    $join->on('um.user_id', '=', 'evaluation.from_id')
 //                        ->where('isWarned', 1); })
@@ -2241,6 +2281,8 @@ class PagesController extends BaseController
 //                                ->orWhere('wu.expire_date', null); }); })
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
+                ->whereNotNull('u1.id')
+                ->whereNotNull('u2.id')
 //                ->whereNull('um.user_id')
 //                ->whereNull('wu.member_id')
                 ->orderBy('evaluation.created_at','desc')
@@ -4095,18 +4137,19 @@ class PagesController extends BaseController
             return back();
         }
 
-        $posts = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at')
-            ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid or reply_id in ((select distinct(id) from posts where type="sub" and reply_id=pid) )  order by updated_at desc limit 1) as currentReplyTime')
-            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
-            ->LeftJoin('users', 'users.id','=','posts.user_id')
-            ->join('user_meta', 'users.id','=','user_meta.user_id')
-            ->where('posts.type','main')
-            ->orderBy('adminFlag','desc')
-            ->orderBy('currentReplyTime','desc')
-            ->paginate(10);
+        // $posts = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at')
+        //     ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid or reply_id in ((select distinct(id) from posts where type="sub" and reply_id=pid) )  order by updated_at desc limit 1) as currentReplyTime')
+        //     ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
+        //     ->LeftJoin('users', 'users.id','=','posts.user_id')
+        //     ->join('user_meta', 'users.id','=','user_meta.user_id')
+        //     ->where('posts.type','main')
+        //     ->orderBy('adminFlag','desc')
+        //     ->orderBy('currentReplyTime','desc')
+        //     ->paginate(10);
 
         $data = array(
-            'posts' => $posts
+            'posts' => null
+            // 'posts' => $posts
         );
 
         if ($user)
@@ -4141,6 +4184,7 @@ class PagesController extends BaseController
 
     public function post_detail(Request $request)
     {
+        return redirect(url('/dashboard/posts_list'));
         $user = $request->user();
 
         $pid = $request->pid;
@@ -4185,6 +4229,7 @@ class PagesController extends BaseController
 
     public function posts(Request $request)
     {
+        return redirect(url('/dashboard/posts_list'));
         $user = $this->user;
         if ($user && $user->engroup == 2){
             return back();

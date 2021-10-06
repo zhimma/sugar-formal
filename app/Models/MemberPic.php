@@ -4,9 +4,12 @@ namespace App\Models;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MemberPic extends Model
 {
+    use SoftDeletes;
+
     /**
      * The database table used by the model.
      *

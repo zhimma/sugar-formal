@@ -142,6 +142,30 @@ class User extends Authenticatable
         return $this->hasMany(IsWarnedLog::class, 'user_id', 'id');
     }	
 
+    // 可疑
+    public function suspicious()
+    {
+        return $this->hasOne(SuspiciousUser::class, 'user_id', 'id')->whereNull('deleted_at');
+    }
+
+    // 只列出已刪除的生活照
+    public function pic_onlyTrashed()
+    {
+        return $this->hasMany(MemberPic::class, 'member_id', 'id')->onlyTrashed();
+    }
+
+    // 列出含已刪除的所有生活照
+    public function pic_withTrashed()
+    {
+        return $this->hasMany(MemberPic::class, 'member_id', 'id')->withTrashed();
+    }
+
+    // 列出已刪除頭像
+    public function avatar_deleted()
+    {
+        return $this->hasMany(AvatarDeleted::class, 'user_id', 'id');
+    }
+    
     /*
     |--------------------------------------------------------------------------
     | Mutators and Accessors
