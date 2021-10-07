@@ -85,14 +85,15 @@
                 <table class="table-hover table table-bordered">
                     <tr>
                         <td class="col-3">會員資料</td>
-                        <td class="col-3" colspan="2">照片</td>
+                        <td class="col-3">照片</td>
                         <td class="col-6">以圖找圖</td>
                     </tr>
                     @foreach ($users as $user)
                         <tr>
                             <td rowspan="{{ $user->pic->count() + 1 }}" style="{{ $user->isBanned($user->id) ? 'background-color: #FFFF00;' : '' }}">
                                 <p>
-                                    <span>會員名稱: <a href="{{ route('users/advInfo', $user->id) }}" target="_blank"><span class="{{ $user->engroup == 2 ? 'text-danger' : 'text-primary' }}">{{ $user->name }}</span></a></span><br>
+                                    <span>會員名稱: <a href="/admin/users/advInfo/editPic_sendMsg/{{ $user->id }}" target="_blank"><span class="{{ $user->engroup == 2 ? 'text-danger' : 'text-primary' }}">{{ $user->name }}</span></a></span><br>
+                                    <span>user email: {{ str_replace(strchr($user->email,'@'), '', $user->email) }}</span><br>
                                     <span>會員標題: {{ $user->title }}</span><br>
                                     <span>上線時間: {{ $user->last_login }}</span><br>
                                     <span>更新時間: {{ $user->last_update }}</span><br>
@@ -127,13 +128,13 @@
                             <td>
                                 <p>
                                     @if ($user->meta->pic)
-                                        <img src="{{ url($user->meta->pic) }}" width="120px">
+                                        <p><img src="{{ url($user->meta->pic) }}" width="120px"><br><span>新增時間: {{ $pic->created_at }}</span></p>
                                     @else
                                         無
                                     @endif
                                 </p>
                             </td>
-                            <td style="width: 10%">
+                            {{--<td style="width: 10%">
                                 @if ($user->meta->pic)
                                     <form action="/admin/users/picturesSimilar/avatar:delete" method="post">
                                         {!! csrf_field() !!}
@@ -143,7 +144,7 @@
                                 @else
                                     <button class="btn btn-sm btn-dark mb-2" type="button" disabled>刪除</button>
                                 @endif
-                            </td>
+                            </td>--}}
                             <td>
                                 @if ($user->meta->pic)
                                     @php
@@ -220,16 +221,17 @@
                             @foreach ($user->pic as $pic)
                                 <tr>
                                     <td>
-                                        <p><img src="{{ url($pic->pic) }}" width="120px"></p>
+                                        <p><img src="{{ url($pic->pic) }}" width="120px"><br><span>新增時間: {{ $pic->created_at }}</span>
+                                        </p>
                                     </td>
-                                    <td>
+                                    {{--<td>
                                         <form action="/admin/users/picturesSimilar/image:delete" method="post">
                                             {!! csrf_field() !!}
                                             <input type="hidden" name="userId" value="{{ $user->id }}">
                                             <input type="hidden" name="imgId" value="{{ $pic->id }}">
                                             <button type="submit" class="btn btn-sm btn-danger">刪除</button>
                                         </form>
-                                    </td>
+                                    </td>--}}
                                     <td>
                                         @php
                                             $ImgResult = \App\Models\SimilarImages::where('pic', $pic->pic)->first();

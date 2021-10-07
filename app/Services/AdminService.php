@@ -760,6 +760,17 @@ class AdminService
             $avatar_ids = $returnDatas2['pic_ids'];
             foreach( $avatar_ids as $user_id){
                 $u = UserMeta::select('id', 'pic')->where('user_id', $user_id)->get()->first();
+                // 操作紀錄
+                \App\Models\AdminPicturesSimilarActionLog::insert([
+                    'operator_id'   => $admin->id,
+                    'operator_role' => $admin->roles->first()->id,
+                    'target_id'     => $user_id,
+                    'act'           => '刪除頭像',
+                    'pic'           => $u->pic,
+                    'ip'            => $request->ip(),
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
+                ]);
                 $u->pic = null;
                 $u->save();
             }
