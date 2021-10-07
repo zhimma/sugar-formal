@@ -14,7 +14,7 @@ class ScheduleServiceProvider extends ServiceProvider
      */
     protected $commands = [
         \App\Console\Commands\InsertPR::class,
-        \App\Console\Commands\OrderGenerator::class
+//        \App\Console\Commands\OrderGenerator::class
     ];
     public function boot()
     {
@@ -22,7 +22,7 @@ class ScheduleServiceProvider extends ServiceProvider
         $this->app->booted(function () {
             $schedule = $this->app->make(Schedule::class);
             $schedule->command(\App\Console\Commands\InsertPR::class)->timezone('Asia/Taipei')->dailyAt('04:00');
-            $schedule->command(\App\Console\Commands\OrderGenerator::class)->timezone('Asia/Taipei')->dailyAt('06:00');
+//            $schedule->command(\App\Console\Commands\OrderGenerator::class)->timezone('Asia/Taipei')->dailyAt('06:00');
         });
     }
 
