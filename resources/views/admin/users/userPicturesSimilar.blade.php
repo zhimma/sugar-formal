@@ -93,7 +93,7 @@
                             <td rowspan="{{ $user->pic->count() + 1 }}" style="{{ $user->isBanned($user->id) ? 'background-color: #FFFF00;' : '' }}">
                                 <p>
                                     <span>會員名稱: <a href="/admin/users/advInfo/editPic_sendMsg/{{ $user->id }}" target="_blank"><span class="{{ $user->engroup == 2 ? 'text-danger' : 'text-primary' }}">{{ $user->name }}</span></a></span><br>
-                                    <span>user email: {{ str_replace(strchr($user->email,'@'), '', $user->email) }}</span><br>
+                                    <span>電子郵件: {{ str_replace(strchr($user->email,'@'), '', $user->email) }}</span><br>
                                     <span>會員標題: {{ $user->title }}</span><br>
                                     <span>上線時間: {{ $user->last_login }}</span><br>
                                     <span>更新時間: {{ $user->last_update }}</span><br>
@@ -128,7 +128,7 @@
                             <td>
                                 <p>
                                     @if ($user->meta->pic)
-                                        <p><img src="{{ url($user->meta->pic) }}" width="120px"><br><span>新增時間: {{ $pic->created_at }}</span></p>
+                                        <p><img src="{{ url($user->meta->pic) }}" width="120px"><br><span>新增時間: {{ $user->meta->created_at }}</span></p>
                                     @else
                                         無
                                     @endif
