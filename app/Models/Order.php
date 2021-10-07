@@ -131,28 +131,28 @@ class Order extends Model
                 }
                 $order->save();
 
-                //檢查VIP
-                if($order->order_expire_date = '' && $order->order_expire_date > now() && $service_name == 'VIP'){
-                    $transactionType = '';
-                    if($paymentData['PaymentType'] == 'Credit_CreditCard') {
-                        $transactionType = 'CREDIT'; //信用卡
-                    }elseif(str_contains($paymentData['PaymentType'], 'ATM')) {
-                        $transactionType = 'ATM'; //ATM
-                    }elseif($paymentData['PaymentType'] == 'BARCODE_BARCODE') {
-                        $transactionType = 'BARCODE'; //超商條碼
-                    }elseif ($paymentData['PaymentType'] == 'CVS_CVS') {
-                        $transactionType = 'CVS'; //超商代號
-                    }else {
-                        $transactionType = $paymentData['PaymentType']; //寫入回傳的PaymentType
-                    }
+                // //檢查VIP
+                // if($order->order_expire_date = '' && $order->order_expire_date > now() && $service_name == 'VIP'){
+                //     $transactionType = '';
+                //     if($paymentData['PaymentType'] == 'Credit_CreditCard') {
+                //         $transactionType = 'CREDIT'; //信用卡
+                //     }elseif(str_contains($paymentData['PaymentType'], 'ATM')) {
+                //         $transactionType = 'ATM'; //ATM
+                //     }elseif($paymentData['PaymentType'] == 'BARCODE_BARCODE') {
+                //         $transactionType = 'BARCODE'; //超商條碼
+                //     }elseif ($paymentData['PaymentType'] == 'CVS_CVS') {
+                //         $transactionType = 'CVS'; //超商代號
+                //     }else {
+                //         $transactionType = $paymentData['PaymentType']; //寫入回傳的PaymentType
+                //     }
 
-                    $checkVip = Vip::where('order_id', $order_id)->first();
-                    if(isset($checkVip) && $checkVip->active==0){
-                        Vip::upgrade($paymentData['CustomField1'], $ecpay->MerchantID, $order_id, $paymentData['TradeAmt'], '', 1, 0, $paymentData['CustomField3'], $transactionType, $paymentData['CustomField2']);
-                    }else{
-                        Vip::upgrade($paymentData['CustomField1'], $ecpay->MerchantID, $order_id, $paymentData['TradeAmt'], '', 1, 0, $paymentData['CustomField3'], $transactionType, $paymentData['CustomField2']);
-                    }
-                }
+                //     $checkVip = Vip::where('order_id', $order_id)->first();
+                //     if(isset($checkVip) && $checkVip->active==0){
+                //         Vip::upgrade($paymentData['CustomField1'], $ecpay->MerchantID, $order_id, $paymentData['TradeAmt'], '', 1, 0, $paymentData['CustomField3'], $transactionType, $paymentData['CustomField2']);
+                //     }else{
+                //         Vip::upgrade($paymentData['CustomField1'], $ecpay->MerchantID, $order_id, $paymentData['TradeAmt'], '', 1, 0, $paymentData['CustomField3'], $transactionType, $paymentData['CustomField2']);
+                //     }
+                // }
 
                 return true;
             }
@@ -261,28 +261,28 @@ class Order extends Model
 
                 Order::where('order_id', $order_id)->update(['order_expire_date' => $order_expire_date, 'pay_date' => json_encode($dateArray)]);
 
-                //檢查VIP
-                if($order_expire_date = null && $order_expire_date > now() && $paymentData['CustomField4'] == 'VIP'){
-                    $transactionType = '';
-                    if($paymentData['PaymentType'] == 'Credit_CreditCard') {
-                        $transactionType = 'CREDIT'; //信用卡
-                    }elseif(str_contains($paymentData['PaymentType'], 'ATM')) {
-                        $transactionType = 'ATM'; //ATM
-                    }elseif($paymentData['PaymentType'] == 'BARCODE_BARCODE') {
-                        $transactionType = 'BARCODE'; //超商條碼
-                    }elseif ($paymentData['PaymentType'] == 'CVS_CVS') {
-                        $transactionType = 'CVS'; //超商代號
-                    }else {
-                        $transactionType = $paymentData['PaymentType']; //寫入回傳的PaymentType
-                    }
+                // //檢查VIP
+                // if($order_expire_date = null && $order_expire_date > now() && $paymentData['CustomField4'] == 'VIP'){
+                //     $transactionType = '';
+                //     if($paymentData['PaymentType'] == 'Credit_CreditCard') {
+                //         $transactionType = 'CREDIT'; //信用卡
+                //     }elseif(str_contains($paymentData['PaymentType'], 'ATM')) {
+                //         $transactionType = 'ATM'; //ATM
+                //     }elseif($paymentData['PaymentType'] == 'BARCODE_BARCODE') {
+                //         $transactionType = 'BARCODE'; //超商條碼
+                //     }elseif ($paymentData['PaymentType'] == 'CVS_CVS') {
+                //         $transactionType = 'CVS'; //超商代號
+                //     }else {
+                //         $transactionType = $paymentData['PaymentType']; //寫入回傳的PaymentType
+                //     }
 
-                    $checkVip = Vip::where('order_id', $order_id)->first();
-                    if(isset($checkVip) && $checkVip->active==0){
-                        Vip::upgrade($paymentData['CustomField1'], $ecpay->MerchantID, $order_id, $paymentData['TradeAmt'], '', 1, 0, $paymentData['CustomField3'], $transactionType, $paymentData['CustomField2']);
-                    }else{
-                        Vip::upgrade($paymentData['CustomField1'], $ecpay->MerchantID, $order_id, $paymentData['TradeAmt'], '', 1, 0, $paymentData['CustomField3'], $transactionType, $paymentData['CustomField2']);
-                    }
-                }
+                //     $checkVip = Vip::where('order_id', $order_id)->first();
+                //     if(isset($checkVip) && $checkVip->active==0){
+                //         Vip::upgrade($paymentData['CustomField1'], $ecpay->MerchantID, $order_id, $paymentData['TradeAmt'], '', 1, 0, $paymentData['CustomField3'], $transactionType, $paymentData['CustomField2']);
+                //     }else{
+                //         Vip::upgrade($paymentData['CustomField1'], $ecpay->MerchantID, $order_id, $paymentData['TradeAmt'], '', 1, 0, $paymentData['CustomField3'], $transactionType, $paymentData['CustomField2']);
+                //     }
+                // }
             }
 
         }
