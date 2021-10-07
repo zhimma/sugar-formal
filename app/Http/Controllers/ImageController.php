@@ -48,6 +48,20 @@ class ImageController extends BaseController
     {
         $payload = $request->all();
         MemberPic::destroy($payload['imgId']);
+        if($admin){
+            // 操作紀錄
+            \App\Models\AdminPicturesSimilarActionLog::insert([
+                'operator_id'   => Auth::user()->id,
+                'operator_role' => Auth::user()->roles->first()->id,
+                'target_id'     => MemberPic::withTrashed()->find($payload['imgId'])->member_id,
+                'act'           => '刪除生活照',
+                'pic'           => MemberPic::withTrashed()->find($payload['imgId'])->pic,
+                'ip'            => $request->ip(),
+                'created_at'    => now(),
+                'updated_at'    => now(),
+            ]);
+        }
+
         if(!$admin){
             // return redirect("/dashboard?img");
             return back()->with('message','照片刪除成功');

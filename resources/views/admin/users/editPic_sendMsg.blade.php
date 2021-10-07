@@ -201,7 +201,7 @@
                         <input type="hidden" name="userId" value="{{$user->id}}">
                         <input type="hidden" name="imgId" value="{{$pic->id}}">
                         <div style="width:400px">
-                            <img src="{{$pic->pic}}" />
+                            <img class="w-100 text-center" src="{{$pic->pic}}">
                         </div>
                     </td>
                     <td>
