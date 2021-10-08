@@ -288,7 +288,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $checkLog = DB::table('is_banned_log')->where('user_id', $userBanned->member_id)->where('created_at', $userBanned->created_at)->first();
             if(!$checkLog) {
                 //寫入log
-                DB::table('is_banned_log')->insert(['user_id' => $userBanned->member_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'created_at' => $userBanned->created_at]);
+                DB::table('is_banned_log')->insert(['user_id' => $userBanned->member_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'vip_pass' => $userBanned->vip_pass, 'created_at' => $userBanned->created_at]);
             }
             $userBanned->delete();
             //新增Admin操作log
@@ -321,7 +321,7 @@ class UserController extends \App\Http\Controllers\BaseController
             }
             $userBanned->save();
             //寫入log
-            DB::table('is_banned_log')->insert(['user_id' => $request->user_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'created_at' => Carbon::now()]);
+            DB::table('is_banned_log')->insert(['user_id' => $request->user_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'vip_pass' => $userBanned->vip_pass, 'created_at' => Carbon::now()]);
             //新增Admin操作log
             $this->insertAdminActionLog($request->user_id, '封鎖會員');
 
@@ -351,7 +351,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $checkLog = DB::table('is_banned_log')->where('user_id', $userBanned->member_id)->where('created_at', $userBanned->created_at)->first();
             if(!$checkLog) {
                 //寫入log
-                DB::table('is_banned_log')->insert(['user_id' => $userBanned->member_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'created_at' => $userBanned->created_at]);
+                DB::table('is_banned_log')->insert(['user_id' => $userBanned->member_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'vip_pass' => $userBanned->vip_pass, 'created_at' => $userBanned->created_at]);
             }
             $userBanned->delete();
 
@@ -425,7 +425,7 @@ class UserController extends \App\Http\Controllers\BaseController
         }
         $userWarned->save();
         //寫入log
-        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason, 'created_at' => Carbon::now()]);
+        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason, 'vip_pass'=>$request->vip_pass,'created_at' => Carbon::now()]);
         //新增Admin操作log
         $this->insertAdminActionLog($request->user_id, '站方警示');
 
@@ -538,7 +538,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 $checkLog = DB::table('is_warned_log')->where('user_id', $r->member_id)->where('created_at', $r->created_at)->first();
                 if (!$checkLog) {
                     //寫入log
-                    DB::table('is_warned_log')->insert(['user_id' => $r->member_id, 'reason' => $r->reason, 'created_at' => $r->created_at]);
+                    DB::table('is_warned_log')->insert(['user_id' => $r->member_id, 'reason' => $r->reason, 'vip_pass'=>$r->vip_pass, 'created_at' => $r->created_at]);
                 }
             }
             warned_users::where('member_id', '=', $data['id'])->delete();
@@ -722,7 +722,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $checkLog = DB::table('is_banned_log')->where('user_id', $userBanned->member_id)->where('created_at', $userBanned->created_at)->get()->first();
             if(!$checkLog) {
                 //寫入log
-                DB::table('is_banned_log')->insert(['user_id' => $userBanned->member_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'created_at' => $userBanned->created_at]);
+                DB::table('is_banned_log')->insert(['user_id' => $userBanned->member_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'vip_pass' => $userBanned->vip_pass, 'created_at' => $userBanned->created_at]);
             }
             $userBanned->delete();
             return redirect()->back()->with('message', '成功解除封鎖使用者');
@@ -2772,7 +2772,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 $checkLog = DB::table('is_banned_log')->where('user_id', $r->member_id)->where('created_at', $r->created_at)->first();
                 if(!$checkLog) {
                     //寫入log
-                    DB::table('is_banned_log')->insert(['user_id' => $r->member_id, 'reason' => $r->reason, 'expire_date' => $r->expire_date, 'created_at' => $r->created_at]);
+                    DB::table('is_banned_log')->insert(['user_id' => $r->member_id, 'reason' => $r->reason, 'expire_date' => $r->expire_date, 'vip_pass' => $r->vip_pass, 'created_at' => $r->created_at]);
                 }
             }
             banned_users::where('member_id', '=', $data['id'])->first()->delete();
@@ -3089,7 +3089,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $checkLog = DB::table('is_banned_log')->where('user_id', $banned->member_id)->where('created_at', $banned->created_at)->first();
             if(!$checkLog) {
                 //寫入log
-                DB::table('is_banned_log')->insert(['user_id' => $banned->member_id, 'reason' => $banned->reason, 'expire_date' => $banned->expire_date, 'created_at' => $banned->created_at]);
+                DB::table('is_banned_log')->insert(['user_id' => $banned->member_id, 'reason' => $banned->reason, 'expire_date' => $banned->expire_date, 'vip_pass' => $banned->vip_pass, 'created_at' => $banned->created_at]);
             }
             $banned->delete();
         }
