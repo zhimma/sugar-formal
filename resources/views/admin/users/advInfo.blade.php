@@ -935,9 +935,9 @@
 <br>
 <h4>帳號登入紀錄</h4>
 <div>
-	<a id="ip10days" href="/admin/users/ip/不指定/?type=detail&user_id={{$user->id}}&period=10days" target="_blank" class="btn btn-success" style="margin-left: 10px;">10天</a>
-	<a id="ip20days" href="/admin/users/ip/不指定/?type=detail&user_id={{$user->id}}&period=20days" target="_blank" class="btn btn-primary">20天</a>
-	<a id="ip30days" href="/admin/users/ip/不指定/?type=detail&user_id={{$user->id}}&period=30days" target="_blank" class="btn btn-warning">30天</a>
+	<a id="ip10days" href="/admin/users/ip/不指定/?type=detail&period=10days" target="_blank" class="btn btn-success" style="margin-left: 10px;">10天</a>
+	<a id="ip20days" href="/admin/users/ip/不指定/?type=detail&period=20days" target="_blank" class="btn btn-primary">20天</a>
+	<a id="ip30days" href="/admin/users/ip/不指定/?type=detail&period=30days" target="_blank" class="btn btn-warning">30天</a>
 </div>
 <table id="table_userLogin_log" class="table table-hover table-bordered">
 	@foreach($userLogin_log as $logInLog)
