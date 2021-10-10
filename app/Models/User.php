@@ -678,9 +678,29 @@ class User extends Authenticatable
                     if(substr( $row->payment ,0,3) =='cc_' || $row->payment == ''){
                         //定期定額
                         $months = Carbon::parse($row->order_date)->diffInMonths(Carbon::now());
-                        $pr = $pr + ($months * 5)+ (($months-1)*2.5);
+                        $pr = $pr + ($months * 5);
+                        //+ (($months-1)*2.5);
                         $otherMonths = $months - 1;
-                        $pr_log = $pr_log . '當前定期定額VIP累計 ' .$months. ' 個月, 額外連續VIP '.$otherMonths.' 個月=>' . $pr .'; ';
+
+                        if($row->payment == 'cc_quarterly_payment'){
+                            $pr_log = $pr_log . '當前定期定額季付VIP累計 ' . $months . ' 個月';
+                            $pr = $pr + ceil($months/3) * 5 + (ceil($months/3)-1)*2.5;
+                            if(ceil($months/3)==1){
+                                $pr_log = $pr_log . ', 額外連續VIP 2 個月';
+                            }elseif(ceil($months/3)>1){
+                                $otherMonths = 2 + (ceil($months/3 )-1)*3;
+                                $pr_log = $pr_log . ', 額外連續VIP '. $otherMonths .' 個月';
+                            }
+
+                        }else {
+                            $pr_log = $pr_log . '當前定期定額月付VIP累計 ' . $months . ' 個月';
+                            if ($otherMonths > 0) {
+                                $pr = $pr + ($months-1)*2.5;
+                                $pr_log = $pr_log . ', 額外連續VIP ' . $otherMonths . ' 個月';
+                            }
+                        }
+
+                        $pr_log = $pr_log . '=>'. $pr .'; ';
                     }else{
                         //單次付費加分
                         if ($row->payment == 'one_quarter_payment') {
