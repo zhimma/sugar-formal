@@ -66,21 +66,21 @@ class CheckIsWarned
 
                 if($logBanned || $logWarned){
                     //get cfp_users
-                    $userId = $user->id;
-                    $cfp_users = CFP_User::select('cfp_user.user_id')->from('cfp_user')
-                        ->leftJoin('users', 'users.id', 'cfp_user.user_id')
-                        ->where('users.engroup', 1)
-                        ->whereIn('cfp_user.cfp_id', function($query) use($userId){
-                        $query->select('cfp_id')
-                            ->from(with(new CFP_User)->getTable())
-                            ->where('user_id', $userId);
-                    })->get();
+//                    $userId = $user->id;
+//                    $cfp_users = CFP_User::select('cfp_user.user_id')->from('cfp_user')
+//                        ->leftJoin('users', 'users.id', 'cfp_user.user_id')
+//                        ->where('users.engroup', 1)
+//                        ->whereIn('cfp_user.cfp_id', function($query) use($userId){
+//                        $query->select('cfp_id')
+//                            ->from(with(new CFP_User)->getTable())
+//                            ->where('user_id', $userId);
+//                    })->get();
 
                     if($logBanned){
-                        if(count($cfp_users)>0) {
-                            foreach($cfp_users as $row) {
+//                        if(count($cfp_users)>0) {
+//                            foreach($cfp_users as $row) {
                                 banned_users::insert([
-                                    'member_id' => $row->user_id,
+                                    'member_id' => $user->id,
                                     'vip_pass' => 1,
                                     'reason' => $logBanned->reason,
                                     'message_content' => $logBanned->message_content,
@@ -88,21 +88,21 @@ class CheckIsWarned
                                     'message_time' => $logBanned->message_time,
                                     'created_at' => now()
                                 ]);
-                            }
-                        }
+//                            }
+//                        }
                     }
 
                     if($logWarned){
-                        if(count($cfp_users)>0) {
-                            foreach($cfp_users as $row) {
+//                        if(count($cfp_users)>0) {
+//                            foreach($cfp_users as $row) {
                                 warned_users::insert([
-                                    'member_id' => $row->user_id,
+                                    'member_id' => $user->id,
                                     'vip_pass' => 1,
                                     'reason' => $logWarned->reason,
                                     'created_at' => now()
                                 ]);
-                            }
-                        }
+//                            }
+//                        }
                     }
                 }
             }
