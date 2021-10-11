@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Models\MemberPic;
 use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -399,6 +400,44 @@ class Kernel extends ConsoleKernel
             $admin = \App\Models\User::findByEmail(config('social.admin.email'));
             $admin->notify(new \App\Notifications\AutoComparisonFailedEmail(\Carbon\Carbon::now()->toDateTimeString(), 'RP_761404_'.$localDate.'.dat', '本地端沒有檔案'));
             return "Local file not found, check process didn't initiate.";
+        }
+    }
+
+    public function checkUserPics() {
+        // 每天超過 250 張發警告信
+        // 每天超過 500 發警告信並停止
+        // 每個月超過 6000 張停止
+        $picCount = MemberPic::where('created_at' > Carbon::today()->format('Y-m-d'))->count();
+        $picCountMonth = MemberPic::whereBetween('created_at', [Carbon::today()->subMonth()->format('Y-m-d'), Carbon::today()->format('Y-m-d')])->count();
+        $str = null;
+        if ($picCount > 400) {
+            DB::table("queue_global_variables")
+                ->where("similar_images_search")
+                ->update([
+                    "value" => 0,
+                    'updated_at' => \Carbon\Carbon::now(),
+                ]);
+            $str = "本日會員照片數已超過 400 張，比對程序已暫停。";
+        }
+        elseif($picCount > 200) {
+            $str = "本日會員照片數已超過 200 張。";
+        }
+        elseif ($picCountMonth > 4500) {
+            DB::table("queue_global_variables")
+                ->where("similar_images_search")
+                ->update([
+                    "value" => 0,
+                    'updated_at' => \Carbon\Carbon::now(),
+                ]);
+            $str = "一個月內會員照片數已超過 4500 張，比對程序已暫停。";
+        }
+        $to = ["admin@sugar-garden.org", "sandyh.dlc@gmail.com", "lzong.tw@gmail.com"];
+        foreach ($to as $t) {
+            \Mail::raw($str, function ($message) use ($t) {
+                $message->from('admin@sugar-garden.org', 'Sugar-garden');
+                $message->to($t);
+                $message->subject('會員照片數量通知');
+            });
         }
     }
 }

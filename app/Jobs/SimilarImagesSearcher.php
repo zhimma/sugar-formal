@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Models\SimilarImages;
+use Illuminate\Support\Facades\DB;
 
 class SimilarImagesSearcher implements ShouldQueue
 {
@@ -33,6 +34,8 @@ class SimilarImagesSearcher implements ShouldQueue
      */
     public function handle(SimilarImages $SimilarImages)
     {
-        $SimilarImages->update_or_create($this->targetImg_path);
+        if(DB::table("queue_global_variables")->where("similar_images_search")->first()->similar_images_search) {
+            $SimilarImages->update_or_create($this->targetImg_path);
+        }
     }
 }
