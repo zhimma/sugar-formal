@@ -441,6 +441,7 @@
         foreach($isEverWarned as $key =>$row){
             $isEverWarned_log[$key]['created_at']=$row->created_at;
             $isEverWarned_log[$key]['reason']=$row->reason;
+            $isEverWarned_log[$key]['vip_pass']=$row->vip_pass;
         }
     }
     //曾被封鎖
@@ -450,6 +451,7 @@
             $isEverBanned_log[$key]['created_at']=$row->created_at;
             $isEverBanned_log[$key]['reason']=$row->reason;
             $isEverBanned_log[$key]['expire_date']=$row->expire_date;
+            $isEverBanned_log[$key]['vip_pass']=$row->vip_pass;
         }
     }
     //目前正被警示
@@ -459,6 +461,7 @@
              $isWarned_show['created_at']=$row->created_at;
              $isWarned_show['reason']=$row->reason;
              $isWarned_show['expire_date']=$row->expire_date;
+             $isWarned_show['vip_pass']=$row->vip_pass;
          }
     }
     //目前正被封鎖
@@ -468,6 +471,7 @@
              $isBanned_show['created_at']=$row->created_at;
              $isBanned_show['reason']=$row->reason;
              $isBanned_show['expire_date']=$row->expire_date;
+             $isBanned_show['vip_pass']=$row->vip_pass;
          }
     }
 
@@ -551,6 +555,25 @@
 			@if(count($isEverWarned_log)>0)
 				@if(!is_null(array_get($isEverWarned_log,'0')))
 					<td>{{ !empty(array_get($isEverWarned_log,'0.expire_date')) ? array_get($isEverWarned_log,'0.expire_date') : '永久' }}</td>
+				@endif
+			@endif
+		</tr>
+		<tr>
+			<th>付費封鎖</th>
+			@if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
+				<td>{{ array_get($isBanned_show,'vip_pass')==1  ? '付費封鎖' : '' }}</td>
+			@endif
+			@if(count($isWarned_show)>0 || count($isEverWarned_log)>0)
+				<td>{{ array_get($isWarned_show,'vip_pass')==1  ? '付費封鎖' : '' }}</td>
+			@endif
+			@if(count($isEverBanned_log)>0)
+				@if(!is_null(array_get($isEverBanned_log,'0')))
+					<td>{{ array_get($isEverBanned_log,'0.vip_pass') == 1 ? '付費封鎖' : '' }}</td>
+				@endif
+			@endif
+			@if(count($isEverWarned_log)>0)
+				@if(!is_null(array_get($isEverWarned_log,'0')))
+					<td>{{ array_get($isEverWarned_log,'0.vip_pass') == 1 ? '付費封鎖' : '' }}</td>
 				@endif
 			@endif
 		</tr>
