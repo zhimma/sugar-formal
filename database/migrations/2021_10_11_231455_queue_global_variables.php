@@ -23,13 +23,13 @@ class QueueGlobalVariables extends Migration
                 $table->string('value');
                 $table->timestamps();
             });
-            DB::table('queue_global_variables')->updateOrInsertTs([
+            DB::table('queue_global_variables')->updateOrInsert([
                 'name' => 'similar_images_search',
                 'type' => 'bool',
                 'value' => '1',
                 'created_at' => \Carbon\Carbon::now(),
                 'updated_at' => \Carbon\Carbon::now(),
-            ])->withTimestamp;
+            ]);
         }
     }
 
