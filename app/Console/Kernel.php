@@ -414,8 +414,8 @@ class Kernel extends ConsoleKernel
         // 每天超過 250 張發警告信
         // 每天超過 500 發警告信並停止
         // 每個月超過 6000 張停止
-        $picCount = MemberPic::where('created_at', '>', Carbon::today()->format('Y-m-d'))->count();
-        $picCountMonth = MemberPic::whereBetween('created_at', [Carbon::today()->subMonth()->format('Y-m-d'), Carbon::today()->format('Y-m-d')])->count();
+        $picCount = MemberPic::withTrashed()->where('created_at', '>', Carbon::today()->format('Y-m-d'))->count();
+        $picCountMonth = MemberPic::withTrashed()->whereBetween('created_at', [Carbon::today()->subMonth()->format('Y-m-d'), Carbon::today()->format('Y-m-d')])->count();
         $str = null;
         if ($picCount > 400) {
             DB::table("queue_global_variables")
