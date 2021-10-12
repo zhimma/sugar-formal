@@ -414,7 +414,7 @@ class Kernel extends ConsoleKernel
         // 每天超過 250 張發警告信
         // 每天超過 500 發警告信並停止
         // 每個月超過 6000 張停止
-        $picCount = MemberPic::where('created_at' > Carbon::today()->format('Y-m-d'))->count();
+        $picCount = MemberPic::where('created_at', '>', Carbon::today()->format('Y-m-d'))->count();
         $picCountMonth = MemberPic::whereBetween('created_at', [Carbon::today()->subMonth()->format('Y-m-d'), Carbon::today()->format('Y-m-d')])->count();
         $str = null;
         if ($picCount > 400) {
@@ -422,7 +422,7 @@ class Kernel extends ConsoleKernel
                 ->where("similar_images_search")
                 ->update([
                     "value" => 0,
-                    'updated_at' => \Carbon\Carbon::now(),
+                    'updated_at' => Carbon::now(),
                 ]);
             $str = "本日會員照片數已超過 400 張，比對程序已暫停。";
         }
