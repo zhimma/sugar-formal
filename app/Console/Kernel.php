@@ -417,34 +417,42 @@ class Kernel extends ConsoleKernel
         $picCount = MemberPic::withTrashed()->where('created_at', '>', Carbon::today()->format('Y-m-d'))->count();
         $picCountMonth = MemberPic::withTrashed()->whereBetween('created_at', [Carbon::today()->subMonth()->format('Y-m-d'), Carbon::today()->format('Y-m-d')])->count();
         $str = null;
+        $isOn = DB::table("queue_global_variables")
+                    ->where("similar_images_search")->first()->value;
         if ($picCount > 400) {
-            DB::table("queue_global_variables")
-                ->where("similar_images_search")
-                ->update([
-                    "value" => 0,
-                    'updated_at' => Carbon::now(),
-                ]);
-            $str = "本日會員照片數已超過 400 張，比對程序已暫停。";
+            if($isOn) {
+                DB::table("queue_global_variables")
+                    ->where("similar_images_search")
+                    ->update([
+                        "value" => 0,
+                        'updated_at' => Carbon::now(),
+                    ]);
+                $str = "本日會員照片數已超過 400 張，比對程序已暫停。";
+            }
         }
         elseif($picCount > 200) {
             $str = "本日會員照片數已超過 200 張。";
         }
         elseif ($picCountMonth > 4500) {
-            DB::table("queue_global_variables")
-                ->where("similar_images_search")
-                ->update([
-                    "value" => 0,
-                    'updated_at' => \Carbon\Carbon::now(),
-                ]);
-            $str = "一個月內會員照片數已超過 4500 張，比對程序已暫停。";
+            if($isOn) {
+                DB::table("queue_global_variables")
+                    ->where("similar_images_search")
+                    ->update([
+                        "value" => 0,
+                        'updated_at' => \Carbon\Carbon::now(),
+                    ]);
+                $str = "一個月內會員照片數已超過 4500 張，比對程序已暫停。";
+            }
         }
-        $to = ["admin@sugar-garden.org", "sandyh.dlc@gmail.com", "lzong.tw@gmail.com"];
-        foreach ($to as $t) {
-            \Mail::raw($str, function ($message) use ($t) {
-                $message->from('admin@sugar-garden.org', 'Sugar-garden');
-                $message->to($t);
-                $message->subject('會員照片數量通知');
-            });
+        if($str) {
+            $to = ["admin@sugar-garden.org", "sandyh.dlc@gmail.com", "lzong.tw@gmail.com"];
+            foreach ($to as $t) {
+                \Mail::raw($str, function ($message) use ($t) {
+                    $message->from('admin@sugar-garden.org', 'Sugar-garden');
+                    $message->to($t);
+                    $message->subject('會員照片數量通知');
+                });
+            }
         }
     }
 
