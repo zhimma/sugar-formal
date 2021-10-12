@@ -4361,7 +4361,7 @@ class UserController extends \App\Http\Controllers\BaseController
 				$infoSet = DataForFilterByInfo::select('data_for_filter_by_info.*')
                     ->join('users', 'users.id', '=', 'data_for_filter_by_info.user_id')	
                     ->leftJoin('data_for_filter_by_info_ignores', 'data_for_filter_by_info_ignores.user_id', '=', 'data_for_filter_by_info.user_id')	                  
-					->where('engroup',($en_group ?? 2));
+					->where('users.engroup',($en_group ?? 2));
 
 				if($msg_gt_visit_7days) {
 					$qstrArr['msg_gt_visit_7days'] = $msg_gt_visit_7days;
