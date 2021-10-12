@@ -73,6 +73,9 @@ class Kernel extends ConsoleKernel
             $this->VIPCheck();
             $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('23:59');
+        $schedule->call(function (){
+            $this->checkUserPics();
+        })->everyFiveMinutes();
     }
 
     /**
