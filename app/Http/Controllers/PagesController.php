@@ -2683,6 +2683,8 @@ class PagesController extends BaseController
     }
 
     public function reportPicNextNew(Request $request){
+        $aid = $request->input('aid');
+        $uid = $request->input('uid');
         if (User::isBanned($aid)) {
             if ($request->ajax()) {
                 echo '您目前被站方封鎖，無檢舉權限';

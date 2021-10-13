@@ -661,14 +661,11 @@ class User extends Authenticatable
     public static function PR($uid)
     {
         $user = User::findById($uid);
+
         //車馬費次數
         $tip_count = Tip::where('member_id',$uid)->count();
-        //註冊天數
-//        $days = Carbon::parse($user->created_at)->diffInDays(Carbon::now());
-//        if( /*(!$user->isVip() && $tip_count==0) || */ (!$user->isVip() && $days<=30) || $user->engroup==2){
-//            return false;//普通會員需註冊滿1個月後，其餘不列計
-//        }
 
+        //訂單紀錄
         $order = Order::where('user_id', $uid)->where('service_name','VIP')->get();
 
         //註冊後如無任何傳訊紀錄 + 不是 vip 則顯示 無
@@ -685,70 +682,39 @@ class User extends Authenticatable
         $pr = 50;
         $pr_log = '';
 
-        //車馬費計分
-        $pr = $pr + ($tip_count * 1.004);
-        $pr_log = $pr_log.'車馬費 '.$tip_count.' 次計分 +'.$tip_count*1.004 .' 分=>'.$pr.'; ';
-
-
-//        $userBlockList = Blocked::select('blocked_id')->where('member_id', $uid)->get();
-//        $isBlockList = Blocked::select('member_id')->where('blocked_id', $uid)->get();
-//        $bannedUsers = UserService::getBannedId();
-//        $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
-//        $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
-//
-//        //評價計分
-//        $evaluation = DB::table('evaluation')->select('rating')->where('to_id',$uid)
-//            ->whereNotIn('from_id',$userBlockList)
-//            ->whereNotIn('from_id',$isBlockList)
-//            ->whereNotIn('from_id',$bannedUsers)
-//            ->whereNotIn('from_id',$isAdminWarnedList)
-//            ->whereNotIn('from_id',$isWarnedList)
-//            ->get();
-//
-//        $r5=0;
-//        $r4=0;
-//        $r3=0;
-//        $r2=0;
-//        $r1=0;
-//        if(isset($evaluation)){
-//            foreach ($evaluation as $row){
-//                if($row->rating==5 && $r5 <= 5){
-//                    $pr = $pr + 2;
-//                    $pr_log = $pr_log.'評價計分5星+2分=>'.$pr.'; ';
-//                    $r5 = $r5 + 1;
-//                }elseif($row->rating==4 && $r4 <= 5){
-//                    $pr = $pr + 1;
-//                    $pr_log = $pr_log.'評價計分4星+1分=>'.$pr.'; ';
-//                    $r4 = $r4 + 1;
-//                }elseif($row->rating==3 && $r3 <= 5){
-//                    $pr = $pr + 0.3;
-//                    $pr_log = $pr_log.'評價計分3星+0.3分=>'.$pr.'; ';
-//                    $r3 = $r3 + 1;
-//                }elseif($row->rating==2 && $r2 <= 5){
-//                    $pr = $pr - 2;
-//                    $pr_log = $pr_log.'評價計分2星-2分=>'.$pr.'; ';
-//                    $r2 = $r2 + 1;
-//                }elseif($row->rating==1 && $r1 <= 5){
-//                    $pr = $pr - 5;
-//                    $pr_log = $pr_log.'評價計分1星-5分=>'.$pr.'; ';
-//                    $r1 = $r1 + 1;
-//                }
-//            }
-//        }
-
         //vip計分
-
         if(count($order)>0){
-            foreach ( $order as $row){
-                if($row->order_expire_date == '' || $row->order_expire_date > Carbon::now()){
 
+            foreach ( $order as $row){
+
+                if($row->order_expire_date == '' || $row->order_expire_date > Carbon::now()){
                     //當前有VIP 或 VIP尚未到期
                     if(substr( $row->payment ,0,3) =='cc_' || $row->payment == ''){
                         //定期定額
                         $months = Carbon::parse($row->order_date)->diffInMonths(Carbon::now());
-                        $pr = $pr + ($months * 5)+ (($months-1)*2.5);
+                        $pr = $pr + ($months * 5);
+                        //+ (($months-1)*2.5);
                         $otherMonths = $months - 1;
-                        $pr_log = $pr_log . '當前定期定額VIP累計 ' .$months. ' 個月, 額外連續VIP '.$otherMonths.' 個月=>' . $pr .'; ';
+
+                        if($row->payment == 'cc_quarterly_payment'){
+                            $pr_log = $pr_log . '當前定期定額季付VIP累計 ' . $months . ' 個月';
+                            $pr = $pr + ceil($months/3) * 5 + (ceil($months/3)-1)*2.5;
+                            if(ceil($months/3)==1){
+                                $pr_log = $pr_log . ', 額外連續VIP 2 個月';
+                            }elseif(ceil($months/3)>1){
+                                $otherMonths = 2 + (ceil($months/3 )-1)*3;
+                                $pr_log = $pr_log . ', 額外連續VIP '. $otherMonths .' 個月';
+                            }
+
+                        }else {
+                            $pr_log = $pr_log . '當前定期定額月付VIP累計 ' . $months . ' 個月';
+                            if ($otherMonths > 0) {
+                                $pr = $pr + ($months-1)*2.5;
+                                $pr_log = $pr_log . ', 額外連續VIP ' . $otherMonths . ' 個月';
+                            }
+                        }
+
+                        $pr_log = $pr_log . '=>'. $pr .'; ';
                     }else{
                         //單次付費加分
                         if ($row->payment == 'one_quarter_payment') {
@@ -781,59 +747,21 @@ class User extends Authenticatable
 
                 }
             }
+
         }
 
-
-
-        //罐頭訊息計分
-//        $msg = array();
-//        $from_content = array();
-//        $user_similar_msg = array();
-//        $message = Message::where('from_id',$uid)->orderBy('created_at','desc')->where('sys_notice',0)->take(100)->get();
-//        foreach($message as $row){
-//            array_push($msg,array('id'=>$row->id,'content'=>$row->content,'created_at'=>$row->created_at));
-//        }
-//        array_push($from_content,  array('msg'=>$msg));
-//        //比對訊息
-//        foreach($from_content as $data) {
-//            foreach ($data['msg'] as $word1) {
-//                foreach ($data['msg'] as $word2) {
-//                    if ($word1['created_at'] != $word2['created_at']) {
-//                        similar_text($word1['content'], $word2['content'], $percent);
-//                        if ($percent >= 70) {
-//                                array_push($user_similar_msg, array($word1['id'], $word1['content'], $word1['created_at'], $percent));
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        $spam_percent = round(count($user_similar_msg) / count($message))*100;
-//        if($spam_percent>70){
-//            $pr = $pr - 30;
-//            $pr_log = $pr_log.'罐頭訊息比例70%-30分=>'.$pr.'; ';
-//        }elseif($spam_percent>60){
-//            $pr = $pr - 20;
-//            $pr_log = $pr_log.'罐頭訊息比例60%-20分=>'.$pr.'; ';
-//        }elseif($spam_percent>50){
-//            $pr = $pr - 10;
-//            $pr_log = $pr_log.'罐頭訊息比例50%-10分=>'.$pr.'; ';
-//        }
-
-        //沒有VIP計分
-//        if(!$user->isVip() && $pr>=40){
-//            $o_pr = $pr;
-//            $pr = ($pr-40)/2 + 40;
-//            $pr_log = $pr_log.'沒有VIP('.$o_pr.'-40)/2+40=>'.$pr.'; ';
-//        }
-
-        //VVIP直接100計算 待VVIP實作後加入
+        //車馬費計分
+        if($tip_count>0) {
+            $pr = ($pr + $tip_count) * 1.04;
+            $pr_log = $pr_log.'車馬費 '.$tip_count.' 次計分 => '.$pr.'; ';
+        }
 
         //非VIP 扣分 每位通訊人數扣0.2
         if(!$user->isVip()) {
             $checkMessageUsers = Message::select('to_id')->where('from_id', $uid)->distinct()->get()->count();
             if($checkMessageUsers>0){
                 $pr = $pr - ($checkMessageUsers * 0.2);
-                $pr_log = $pr_log.'非VIP通訊人數 '.$checkMessageUsers.' 人扣分 =>'.$pr.'; ';
+                $pr_log = $pr_log.'當前非VIP通訊人數 '.$checkMessageUsers.' 人扣分 =>'.$pr.'; ';
             }
         }
 
@@ -849,7 +777,6 @@ class User extends Authenticatable
             $pr=0;
             $pr_log = $pr_log.'PR低於或等於0以0計算=>'.$pr.'; ';
         }
-
 
         //舊紀錄刪除
         Pr_log::where('user_id',$uid)->delete();

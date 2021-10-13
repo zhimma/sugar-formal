@@ -17,6 +17,7 @@ use App\Models\MemberPic;
 use App\Models\SimpleTables\banned_users;
 use App\Repositories\UserRepository;
 use PhpParser\Node\Expr\Cast\Object_;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class AdminService
@@ -760,6 +761,27 @@ class AdminService
             $avatar_ids = $returnDatas2['pic_ids'];
             foreach( $avatar_ids as $user_id){
                 $u = UserMeta::select('id', 'pic')->where('user_id', $user_id)->get()->first();
+
+                // 標記刪除
+                \App\Models\AvatarDeleted::insert([
+                    'user_id'    => $user_id,
+                    'operator'   => Auth::user()->id,
+                    'pic'        => $u->pic,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                // 操作紀錄
+                \App\Models\AdminPicturesSimilarActionLog::insert([
+                    'operator_id'   => Auth::user()->id,
+                    'operator_role' => Auth::user()->roles->first()->id,
+                    'target_id'     => $user_id,
+                    'act'           => '刪除頭像',
+                    'pic'           => $u->pic,
+                    'ip'            => $request->ip(),
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
+                ]);
                 $u->pic = null;
                 $u->save();
             }

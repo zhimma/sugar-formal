@@ -444,6 +444,7 @@
         foreach($isEverWarned as $key =>$row){
             $isEverWarned_log[$key]['created_at']=$row->created_at;
             $isEverWarned_log[$key]['reason']=$row->reason;
+            $isEverWarned_log[$key]['vip_pass']=$row->vip_pass;
         }
     }
     //曾被封鎖
@@ -453,6 +454,7 @@
             $isEverBanned_log[$key]['created_at']=$row->created_at;
             $isEverBanned_log[$key]['reason']=$row->reason;
             $isEverBanned_log[$key]['expire_date']=$row->expire_date;
+            $isEverBanned_log[$key]['vip_pass']=$row->vip_pass;
         }
     }
     //目前正被警示
@@ -462,6 +464,7 @@
              $isWarned_show['created_at']=$row->created_at;
              $isWarned_show['reason']=$row->reason;
              $isWarned_show['expire_date']=$row->expire_date;
+             $isWarned_show['vip_pass']=$row->vip_pass;
          }
     }
     //目前正被封鎖
@@ -471,6 +474,7 @@
              $isBanned_show['created_at']=$row->created_at;
              $isBanned_show['reason']=$row->reason;
              $isBanned_show['expire_date']=$row->expire_date;
+             $isBanned_show['vip_pass']=$row->vip_pass;
          }
     }
 
@@ -554,6 +558,25 @@
 			@if(count($isEverWarned_log)>0)
 				@if(!is_null(array_get($isEverWarned_log,'0')))
 					<td>{{ !empty(array_get($isEverWarned_log,'0.expire_date')) ? array_get($isEverWarned_log,'0.expire_date') : '永久' }}</td>
+				@endif
+			@endif
+		</tr>
+		<tr>
+			<th>付費封鎖</th>
+			@if(count($isBanned_show)>0 || count($isEverBanned_log)>0)
+				<td>{{ array_get($isBanned_show,'vip_pass')==1  ? '付費封鎖' : '' }}</td>
+			@endif
+			@if(count($isWarned_show)>0 || count($isEverWarned_log)>0)
+				<td>{{ array_get($isWarned_show,'vip_pass')==1  ? '付費封鎖' : '' }}</td>
+			@endif
+			@if(count($isEverBanned_log)>0)
+				@if(!is_null(array_get($isEverBanned_log,'0')))
+					<td>{{ array_get($isEverBanned_log,'0.vip_pass') == 1 ? '付費封鎖' : '' }}</td>
+				@endif
+			@endif
+			@if(count($isEverWarned_log)>0)
+				@if(!is_null(array_get($isEverWarned_log,'0')))
+					<td>{{ array_get($isEverWarned_log,'0.vip_pass') == 1 ? '付費封鎖' : '' }}</td>
 				@endif
 			@endif
 		</tr>
@@ -938,9 +961,9 @@
 <br>
 <h4>帳號登入紀錄</h4>
 <div>
-	<a id="ip10days" href="/admin/users/ip/不指定/?type=detail&user_id={{$user->id}}&period=10days" target="_blank" class="btn btn-success" style="margin-left: 10px;">10天</a>
-	<a id="ip20days" href="/admin/users/ip/不指定/?type=detail&user_id={{$user->id}}&period=20days" target="_blank" class="btn btn-primary">20天</a>
-	<a id="ip30days" href="/admin/users/ip/不指定/?type=detail&user_id={{$user->id}}&period=30days" target="_blank" class="btn btn-warning">30天</a>
+	<a id="ip10days" href="/admin/users/ip/不指定/?type=detail&period=10days" target="_blank" class="btn btn-success" style="margin-left: 10px;">10天</a>
+	<a id="ip20days" href="/admin/users/ip/不指定/?type=detail&period=20days" target="_blank" class="btn btn-primary">20天</a>
+	<a id="ip30days" href="/admin/users/ip/不指定/?type=detail&period=30days" target="_blank" class="btn btn-warning">30天</a>
 </div>
 <table id="table_userLogin_log" class="table table-hover table-bordered">
 	@foreach($userLogin_log as $logInLog)
