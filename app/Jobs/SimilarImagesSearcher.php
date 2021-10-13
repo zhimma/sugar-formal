@@ -34,7 +34,7 @@ class SimilarImagesSearcher implements ShouldQueue
      */
     public function handle(SimilarImages $SimilarImages)
     {
-        if(DB::table("queue_global_variables")->where("similar_images_search")->first()->similar_images_search) {
+        if(DB::table("queue_global_variables")->where("name", "similar_images_search")->first()->value) {
             $SimilarImages->update_or_create($this->targetImg_path);
         }
     }
