@@ -512,6 +512,7 @@ class ImageController extends BaseController
         $user=$request->user();
         $preloadedFiles = $this->getPictures($request)->content();
         $preloadedFiles = json_decode($preloadedFiles, true);
+        $before_uploaded_existHeaderImage = $user->existHeaderImage();
 
         $fileUploader = new FileUploader('pictures', array(
             'fileMaxSize' => 8,
@@ -591,6 +592,7 @@ class ImageController extends BaseController
                             && $last_mempic_sys_react!='upgrade'
                             && $last_mempic_sys_react!='member_pic_ok'
                             && $last_mempic_sys_react!='remain'  //不可能發生但為以防萬一列入判斷
+                            || !$before_uploaded_existHeaderImage
                             ) {
                         $msg = "照片上傳成功，24H後升級為VIP會員";
                         LogFreeVipPicAct::create(['user_id'=> $user->id
@@ -629,7 +631,7 @@ class ImageController extends BaseController
                             $sys_react = 'remain';
                         }  
                         else {
-                            $sys_react = 'error：delete pics under rule but still free vip after 30 min ';
+                            $sys_react = 'error：delete pics under rule but still free vip and satisfy image free vip rule  after 30 min ';
                         }
                     }
                 }
