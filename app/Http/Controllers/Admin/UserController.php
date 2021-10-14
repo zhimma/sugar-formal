@@ -3714,7 +3714,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function searchUserPicturesSimple(Request $request)
     {
-        $pics = DB::table('member_pic')
+        $pics = MemberPic::select('member_pic.*')->from('member_pic')
             ->leftJoin('users', 'users.id', '=', 'member_pic.member_id')
             ->leftJoin('user_meta', 'user_meta.user_id', '=', 'member_pic.member_id')
             ->leftJoin('suspicious_user', function ($join){
