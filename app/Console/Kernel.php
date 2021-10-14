@@ -78,6 +78,9 @@ class Kernel extends ConsoleKernel
             $this->checkUserPics();
         })->everyFiveMinutes();
         $schedule->call(function (){
+            $this->resetUserPicsSwitches();
+        })->timezone('Asia/Taipei')->dailyAt('6:30');
+        $schedule->call(function (){
             $this->send_registed_users_statistics_by_LineNotify();
         })->timezone('Asia/Taipei')->dailyAt('1:00');
     }
@@ -410,6 +413,15 @@ class Kernel extends ConsoleKernel
         }
     }
 
+    public function resetUserPicsSwitches(){
+        DB::table("queue_global_variables")
+            ->where("name", "sent_today_200")->update(["value", 0]);
+        DB::table("queue_global_variables")
+            ->where("name", "sent_today_400")->update(["value", 0]);
+        DB::table("queue_global_variables")
+            ->where("name", "sent_today_4500")->update(["value", 0]);
+    }
+
     public function checkUserPics() {
         // 每天超過 250 張發警告信
         // 每天超過 500 發警告信並停止
@@ -419,8 +431,14 @@ class Kernel extends ConsoleKernel
         $str = null;
         $isOn = DB::table("queue_global_variables")
                     ->where("name", "similar_images_search")->first()->value;
+        $todayHasSent200 = DB::table("queue_global_variables")
+            ->where("name", "sent_today_200")->first();
+        $todayHasSent400 = DB::table("queue_global_variables")
+            ->where("name", "sent_today_400")->first();
+        $todayHasSent4500 = DB::table("queue_global_variables")
+            ->where("name", "sent_today_4500")->first();
         if ($picCount > 400) {
-            if($isOn) {
+            if($isOn && $todayHasSent400->value == 0) {
                 DB::table("queue_global_variables")
                     ->where("name", "similar_images_search")
                     ->update([
@@ -428,12 +446,16 @@ class Kernel extends ConsoleKernel
                         'updated_at' => Carbon::now(),
                     ]);
                 $str = "本日會員照片數已超過 400 張，比對程序已暫停。";
+                $todayHasSent400->value = 1;
+                $todayHasSent400->save();
             }
         }
-        elseif($picCount > 200) {
+        elseif($picCount > 200 && $todayHasSent200->value == 0) {
             $str = "本日會員照片數已超過 200 張。";
+            $todayHasSent200->value = 1;
+            $todayHasSent200->save();
         }
-        elseif ($picCountMonth > 4500) {
+        elseif ($picCountMonth > 4500 && $todayHasSent4500->value == 0) {
             if($isOn) {
                 DB::table("queue_global_variables")
                     ->where("name", "similar_images_search")
@@ -442,6 +464,8 @@ class Kernel extends ConsoleKernel
                         'updated_at' => \Carbon\Carbon::now(),
                     ]);
                 $str = "一個月內會員照片數已超過 4500 張，比對程序已暫停。";
+                $todayHasSent4500->value = 1;
+                $todayHasSent4500->save();
             }
         }
         if($str) {
