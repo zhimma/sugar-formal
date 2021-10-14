@@ -1420,8 +1420,8 @@
         <th style="width: 120px;">頭像照</th>
         <th style="width: 170px;">上傳時間</th>
         <th style="width: 170px;">刪除時間</th>
-        <th>刪除者</th>
-        <th style="width: 50%;">以圖找圖</th>
+        <th style="width: 15%;">刪除者</th>
+        <th style="width: 35%;">以圖找圖</th>
     </thead>
     <tbody>
         {{-- 當前頭像 --}}
@@ -1590,8 +1590,8 @@
         <th style="width: 120px;">生活照</th>
         <th style="width: 170px;">上傳時間</th>
         <th style="width: 170px;">刪除時間</th>
-        <th>刪除者</th>
-        <th style="width: 50%;">以圖找圖</th>
+        <th style="width: 15%;">刪除者</th>
+        <th style="width: 35%;">以圖找圖</th>
     </thead>
     <tbody>
         {{-- 當前生活照 --}}
