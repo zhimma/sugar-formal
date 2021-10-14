@@ -148,10 +148,16 @@ class User extends Authenticatable
         return $this->hasOne(SuspiciousUser::class, 'user_id', 'id')->whereNull('deleted_at');
     }
 
+    //生活照倒序
+    public function pic_orderByDecs()
+    {
+        return $this->hasMany(MemberPic::class, 'member_id', 'id')->orderByDesc('created_at');
+    }
+
     // 只列出已刪除的生活照
     public function pic_onlyTrashed()
     {
-        return $this->hasMany(MemberPic::class, 'member_id', 'id')->onlyTrashed();
+        return $this->hasMany(MemberPic::class, 'member_id', 'id')->onlyTrashed()->orderByDesc('created_at');
     }
 
     // 列出含已刪除的所有生活照
@@ -163,7 +169,7 @@ class User extends Authenticatable
     // 列出已刪除頭像
     public function avatar_deleted()
     {
-        return $this->hasMany(AvatarDeleted::class, 'user_id', 'id');
+        return $this->hasMany(AvatarDeleted::class, 'user_id', 'id')->orderByDesc('uploaded_at');
     }
     
     /*

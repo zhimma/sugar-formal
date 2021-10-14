@@ -89,7 +89,20 @@
 
     <hr>
     
-    <h1>{{ $user->name }}的所有資料</h1>
+    <h1>{{ $user->name }}的所有資料 <span><button class="btn btn-primary" id="btnDeleteAll" type="button">全部刪除</button></span></h1>
+    <form id="deleteAll" action="/admin/users/picturesSimilar/pictures:delete/all" method="post">
+        @csrf
+        <input type="hidden" name="target_uid" value="{{ $user->id }}">
+    </form>
+    <script>
+        $('#btnDeleteAll').click(function (e) { 
+            e.preventDefault();
+            var result = confirm('你確定執行這個操作嗎? 這個操作會刪除 {{ $user->name }} 所有的頭像及生活照，如果 {{ $user->name }} 是 VIP 女會員，將會取消他的 VIP。');
+            if (result) {
+                $('#deleteAll').submit();
+            }
+        });
+    </script>
     <h4>基本資料</h4>
     <table class='table table-hover table-bordered'>
         <tr>
