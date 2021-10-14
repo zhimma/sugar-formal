@@ -446,16 +446,16 @@ class Kernel extends ConsoleKernel
                         'updated_at' => Carbon::now(),
                     ]);
                 $str = "本日會員照片數已超過 400 張，比對程序已暫停。";
-                $todayHasSent400->value = 1;
-                $todayHasSent400->updated_at = now();
-                $todayHasSent400->save();
+                DB::table("queue_global_variables")
+                    ->where("name", "sent_today_400")
+                    ->update(["value" => 1, "updated_at" => Carbon::now()]);
             }
         }
         elseif($picCount > 200 && $todayHasSent200->value == 0) {
             $str = "本日會員照片數已超過 200 張。";
-            $todayHasSent200->value = 1;
-            $todayHasSent200->updated_at = now();
-            $todayHasSent200->save();
+            DB::table("queue_global_variables")
+                    ->where("name", "sent_today_200")
+                    ->update(["value" => 1, "updated_at" => Carbon::now()]);
         }
         elseif ($picCountMonth > 4500 && $todayHasSent4500->value == 0) {
             if($isOn) {
@@ -466,9 +466,9 @@ class Kernel extends ConsoleKernel
                         'updated_at' => \Carbon\Carbon::now(),
                     ]);
                 $str = "一個月內會員照片數已超過 4500 張，比對程序已暫停。";
-                $todayHasSent4500->value = 1;
-                $todayHasSent4500->updated_at = now();
-                $todayHasSent4500->save();
+                DB::table("queue_global_variables")
+                    ->where("name", "sent_today_4500")
+                    ->update(["value" => 1, "updated_at" => Carbon::now()]);
             }
         }
         if($str) {
