@@ -246,7 +246,7 @@ class Kernel extends ConsoleKernel
                 $log_str = '';
                 $line = explode(',', $line);
                 if(!isset($line[1])){
-                     continue;
+                    continue;
                 }
                 $user = \App\Models\User::where('id', $line[1])->get()->first();
                 //若異動檔多的是Delete
@@ -415,11 +415,11 @@ class Kernel extends ConsoleKernel
 
     public function resetUserPicsSwitches(){
         DB::table("queue_global_variables")
-            ->where("name", "sent_today_200")->update(["value", 0]);
+            ->where("name", "sent_today_200")->update(["value" => 0, "updated_at" => Carbon::now()]);
         DB::table("queue_global_variables")
-            ->where("name", "sent_today_400")->update(["value", 0]);
+            ->where("name", "sent_today_400")->update(["value" => 0, "updated_at" => Carbon::now()]);
         DB::table("queue_global_variables")
-            ->where("name", "sent_today_4500")->update(["value", 0]);
+            ->where("name", "sent_today_4500")->update(["value" => 0, "updated_at" => Carbon::now()]);
     }
 
     public function checkUserPics() {
@@ -447,12 +447,14 @@ class Kernel extends ConsoleKernel
                     ]);
                 $str = "本日會員照片數已超過 400 張，比對程序已暫停。";
                 $todayHasSent400->value = 1;
+                $todayHasSent400->updated_at = now();
                 $todayHasSent400->save();
             }
         }
         elseif($picCount > 200 && $todayHasSent200->value == 0) {
             $str = "本日會員照片數已超過 200 張。";
             $todayHasSent200->value = 1;
+            $todayHasSent200->updated_at = now();
             $todayHasSent200->save();
         }
         elseif ($picCountMonth > 4500 && $todayHasSent4500->value == 0) {
@@ -465,6 +467,7 @@ class Kernel extends ConsoleKernel
                     ]);
                 $str = "一個月內會員照片數已超過 4500 張，比對程序已暫停。";
                 $todayHasSent4500->value = 1;
+                $todayHasSent4500->updated_at = now();
                 $todayHasSent4500->save();
             }
         }
