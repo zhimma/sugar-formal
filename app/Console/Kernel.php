@@ -418,11 +418,11 @@ class Kernel extends ConsoleKernel
         $picCountMonth = MemberPic::withTrashed()->whereBetween('created_at', [Carbon::today()->subMonth()->format('Y-m-d'), Carbon::today()->format('Y-m-d')])->count();
         $str = null;
         $isOn = DB::table("queue_global_variables")
-                    ->where("similar_images_search")->first()->value;
+                    ->where("name", "similar_images_search")->first()->value;
         if ($picCount > 400) {
             if($isOn) {
                 DB::table("queue_global_variables")
-                    ->where("similar_images_search")
+                    ->where("name", "similar_images_search")
                     ->update([
                         "value" => 0,
                         'updated_at' => Carbon::now(),
@@ -436,7 +436,7 @@ class Kernel extends ConsoleKernel
         elseif ($picCountMonth > 4500) {
             if($isOn) {
                 DB::table("queue_global_variables")
-                    ->where("similar_images_search")
+                    ->where("name", "similar_images_search")
                     ->update([
                         "value" => 0,
                         'updated_at' => \Carbon\Carbon::now(),
