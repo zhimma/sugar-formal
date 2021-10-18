@@ -425,6 +425,16 @@ class ImageController extends BaseController
         $fullPath = public_path($meta->pic);
         if(File::exists($fullPath) and unlink($fullPath))
         {
+            // 標記刪除
+            \App\Models\AvatarDeleted::insert([
+                'user_id'     => $meta->user_id,
+                'operator'    => $meta->user_id,
+                'pic'         => $meta->pic,
+                'created_at'  => now(),
+                'updated_at'  => now(),
+                'uploaded_at' => $meta->updated_at,
+            ]);
+
             $meta->pic = NULL;
             $meta->save();
             $msg="刪除成功";
@@ -512,6 +522,7 @@ class ImageController extends BaseController
         $user=$request->user();
         $preloadedFiles = $this->getPictures($request)->content();
         $preloadedFiles = json_decode($preloadedFiles, true);
+        $before_uploaded_existHeaderImage = $user->existHeaderImage();
 
         $fileUploader = new FileUploader('pictures', array(
             'fileMaxSize' => 8,
@@ -591,6 +602,7 @@ class ImageController extends BaseController
                             && $last_mempic_sys_react!='upgrade'
                             && $last_mempic_sys_react!='member_pic_ok'
                             && $last_mempic_sys_react!='remain'  //不可能發生但為以防萬一列入判斷
+                            || !$before_uploaded_existHeaderImage
                             ) {
                         $msg = "照片上傳成功，24H後升級為VIP會員";
                         LogFreeVipPicAct::create(['user_id'=> $user->id
@@ -629,7 +641,7 @@ class ImageController extends BaseController
                             $sys_react = 'remain';
                         }  
                         else {
-                            $sys_react = 'error：delete pics under rule but still free vip after 30 min ';
+                            $sys_react = 'error：delete pics under rule but still free vip and satisfy image free vip rule  after 30 min ';
                         }
                     }
                 }
@@ -783,11 +795,12 @@ class ImageController extends BaseController
 
             // 標記刪除
             \App\Models\AvatarDeleted::insert([
-                'user_id'    => $usermeta->user_id,
-                'operator'   => Auth::user()->id,
-                'pic'        => $usermeta->pic,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'user_id'     => $usermeta->user_id,
+                'operator'    => Auth::user()->id,
+                'pic'         => $usermeta->pic,
+                'created_at'  => now(),
+                'updated_at'  => now(),
+                'uploaded_at' => $usermeta->updated_at,
             ]);
 
             // 操作記錄
@@ -821,5 +834,97 @@ class ImageController extends BaseController
         }
 
         return back()->with($msg_type, $msg_content);
+    }
+
+    public function admin_user_pictures_all_delete(Request $request){
+
+        $userId = $request->target_uid;
+        $user = User::where('id', $userId)->first();
+
+        if (!$user) {
+            return back()->with('errpr', '沒有找到該會員的資料');
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            // 刪除生活照
+            $member_pics = MemberPic::where('member_id', $user->id)->get();
+
+            foreach ($member_pics as $member_pic) {
+
+                // 操作紀錄
+                \App\Models\AdminPicturesSimilarActionLog::insert([
+                    'operator_id'   => Auth::user()->id,
+                    'operator_role' => Auth::user()->roles->first()->id,
+                    'target_id'     => $user->id,
+                    'act'           => '刪除生活照',
+                    'pic'           => $member_pic->pic,
+                    'ip'            => $request->ip(),
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
+                ]);
+
+                $member_pic->pic = '/img/illegal.jpg';
+                $member_pic->save();
+
+                $member_pic->delete();
+
+            }
+
+            // 刪除頭像
+
+            $usermeta = UserMeta::where('user_id', $user->id)->first();
+
+            if ($usermeta->pic) {
+                // 標記刪除
+                \App\Models\AvatarDeleted::insert([
+                    'user_id'     => $usermeta->user_id,
+                    'operator'    => Auth::user()->id,
+                    'pic'         => $usermeta->pic,
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
+                    'uploaded_at' => $usermeta->updated_at,
+                ]);
+                
+                // 操作記錄
+                \App\Models\AdminPicturesSimilarActionLog::insert([
+                    'operator_id'   => Auth::user()->id,
+                    'operator_role' => Auth::user()->roles->first()->id,
+                    'target_id'     => $usermeta->user_id,
+                    'act'           => '刪除頭像',
+                    'pic'           => $usermeta->pic,
+                    'ip'            => $request->ip(),
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
+                ]);
+
+                // 設為空值 (軟刪除)
+                $usermeta->pic = null;
+                $usermeta->save();
+            }
+
+            // 女性會員刪除VIP
+            if ($user->isVip() && $user->engroup == 2) {
+                Vip::where('member_id', $user->id)->update([
+                    'active' => 0,
+                    'expiry' => null
+                ]);
+            }
+
+            DB::commit();
+
+            $msg_type    = 'message';
+            $msg_content = '刪除成功';
+        } catch (\Throwable $th) {
+            throw $th;
+            DB::rollback();
+            $msg_type    = 'error';
+            $msg_content = '刪除失敗';
+        }
+
+        return back()->with($msg_type, $msg_content);
+
     }
 }

@@ -3717,7 +3717,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function searchUserPicturesSimple(Request $request)
     {
-        $pics = DB::table('member_pic')
+        $pics = MemberPic::select('member_pic.*')->from('member_pic')
             ->leftJoin('users', 'users.id', '=', 'member_pic.member_id')
             ->leftJoin('user_meta', 'user_meta.user_id', '=', 'member_pic.member_id')
             ->leftJoin('suspicious_user', function ($join){
@@ -4678,6 +4678,24 @@ class UserController extends \App\Http\Controllers\BaseController
             }
 
             return '成功將 ' . $Imgs_count . ' 筆資料列入送檢佇列';
+        }
+
+        if ($request->type == 'userAll') {
+
+            $user_id = $request->targetUser;
+
+            $UserMetaPics      = \App\Models\UserMeta::select('pic')->whereNotNull('pic')->where('user_id', $user_id);
+            $AvatarDeletedPics = \App\Models\AvatarDeleted::select('pic')->where('user_id', $user_id);
+            $MemberPics        = \App\Models\MemberPic::withTrashed()->select('pic')->where('member_id', $user_id);
+
+            $Imgs = $UserMetaPics->union($AvatarDeletedPics)->union($MemberPics)->get();
+            $Imgs_count = $Imgs->count();
+    
+            foreach ($Imgs as $img) {
+                \App\Jobs\SimilarImagesSearcher::dispatch($img->pic);
+            }
+
+            return back()->with('message', '成功將 ' . $Imgs_count . ' 筆資料列入送檢佇列');
         }
 
         return '沒有指定的方法';

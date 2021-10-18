@@ -760,15 +760,16 @@ class AdminService
             $avatarInfos = $returnDatas2['infos'];
             $avatar_ids = $returnDatas2['pic_ids'];
             foreach( $avatar_ids as $user_id){
-                $u = UserMeta::select('id', 'pic')->where('user_id', $user_id)->get()->first();
+                $u = UserMeta::select('id', 'pic', 'updated_at')->where('user_id', $user_id)->get()->first();
 
                 // 標記刪除
                 \App\Models\AvatarDeleted::insert([
-                    'user_id'    => $user_id,
-                    'operator'   => Auth::user()->id,
-                    'pic'        => $u->pic,
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    'user_id'     => $user_id,
+                    'operator'    => Auth::user()->id,
+                    'pic'         => $u->pic,
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
+                    'uploaded_at' => $u->updated_at,
                 ]);
 
                 // 操作紀錄
