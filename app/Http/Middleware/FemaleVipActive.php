@@ -9,6 +9,7 @@ use Illuminate\Contracts\Auth\Guard;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Vip;
+use App\Models\LogFreeVipPicAct;
 use Illuminate\Support\Facades\Config;
 
 class FemaleVipActive
@@ -51,20 +52,40 @@ class FemaleVipActive
         $user_last_login = Carbon::parse($user->last_login);
         $vip_record = Carbon::parse($user->vip_record);
         $isVIP = $user->isVip();
-        $existHeaderImage = $user->existHeaderImage();       
+        $existHeaderImage = $user->existHeaderImage();   
+        $freeVipCount =  VipLog::where('member_id', $user->id)->where('free',1)->where('action',1)->count();
         
         $log_pic_acts_count = $user->log_free_vip_pic_acts->count();  
-        $last_pic_act_log = $user->log_free_vip_pic_acts->first()??null;
-        $last_pic_sys_react = $last_pic_act_log->sys_react??'';
-        $last_pic_act_time =  isset($last_pic_act_log->created_at)?Carbon::parse($last_pic_act_log->created_at):'0000-00-00 00:00:00';         
+        $latest_pic_act_log = $user->log_free_vip_pic_acts()->orderBy('created_at','DESC')->first()??null;
+        
+        if($latest_pic_act_log) $real_latest_pic_act_log = clone $latest_pic_act_log;
+        
+        if($latest_pic_act_log && in_array($latest_pic_act_log->sys_react,LogFreeVipPicAct::$replaceByFirstRemindSysReacts) ) {
+            $lastPicRecoverLog = $user->log_free_vip_pic_acts()->where([['id','<>',$latest_pic_act_log->id],['created_at','<',$latest_pic_act_log->created_at]])->whereIn('sys_react',LogFreeVipPicAct::$reachRuleSysReacts)->orderBy('created_at', 'DESC')->first();
+            $firstRemindingLogQuery = $user->log_free_vip_pic_acts()->where([['created_at','<=',$latest_pic_act_log->created_at]])->where('sys_react','reminding')->orderBy('created_at');
+            if($lastPicRecoverLog) $firstRemindingLogQuery->where('created_at','>',($lastPicRecoverLog->created_at??'0000-00-00 00:00:00'));
+            $firstRemindingLog =  $firstRemindingLogQuery->first();
+            if($firstRemindingLog) $latest_pic_act_log = $firstRemindingLog;
+        }
+
+        $last_pic_sys_react = $latest_pic_act_log->sys_react??'';
+        $last_pic_act_time =  isset($latest_pic_act_log->created_at)?Carbon::parse($latest_pic_act_log->created_at):'0000-00-00 00:00:00';         
         //剩下的是符合資格的女會員，如果她已經是免費VIP，則檢查現在是否依舊符合資格(照片、固定上線)
         if(view()->shared('isFreeVip')){
+            if($existHeaderImage && in_array($real_latest_pic_act_log->sys_react??null,LogFreeVipPicAct::$notReachRuleSysReacts)) {
+                LogFreeVipPicAct::create(['user_id'=> $user->id
+                     ,'sys_react'=>'auto_remain'
+                     ,'shot_vip_record'=>$user->vip_record
+                      ,'shot_is_free_vip'=>$user->isFreeVip()
+                         ]);                
+            }
+            
             //如果取得免費VIP權限的時間點與現在時間的差距，小於系統設定的時間長度(代表他固定上線)，同時也符合照片條件，則將現在時間記錄至vip_record(延長VIP時間)
             if( ($vip_record->diffInSeconds(Carbon::now()) <= Config::get('social.vip.free-days'))  && $existHeaderImage 
                     && ($vip_record->diffInSeconds(Carbon::now()) >= 86400 
-                            || ($last_pic_sys_react=='recovering' && $last_pic_act_time->diffInSeconds(Carbon::now()) >= 86400)) 
-                    
-                    ) {
+                            || ($last_pic_sys_react=='recovering'  && $last_pic_act_time->diffInSeconds(Carbon::now()) >= 86400)
+                        )                           
+            ) {               
                 $user->vip_record = Carbon::now();
                 $user->save();
             }
@@ -77,7 +98,6 @@ class FemaleVipActive
                         || $last_pic_sys_react!='reminding'
                      )                   
                     && !$existHeaderImage){    
-//                Vip::cancel($user->id, 1);
                 Vip::where('member_id', $user->id)->get()->first()->removeVIP();
                 VipLog::addToLog($user->id, 'User free VIP auto cancelled.', 'XXXXXXXXX', 0, 1);
                 $user->vip_record = Carbon::now();
@@ -95,13 +115,24 @@ class FemaleVipActive
         //提供免費VIP的主要程式段，若會員非VIP，則提供免費VIP，使用vip_record記錄提供的時間點
         else if(!$isVIP && $existHeaderImage) {
             //if( (isset($vip_record) && $vip_record->diffInSeconds(Carbon::now()) >= 86400) || ($vip_record=='0000-00-00 00:00:00')){
-            if( ($log_pic_acts_count>0 && ($last_pic_sys_react=='recovering' || $last_pic_sys_react=='upgrade' ) && $last_pic_act_time->diffInSeconds(Carbon::now()) >= 86400) 
+            if( ($log_pic_acts_count>0 && $last_pic_sys_react=='recovering'  && $last_pic_act_time->diffInSeconds(Carbon::now()) >= 86400) 
                     || !$log_pic_acts_count
-                    || ($last_pic_sys_react!='recovering' &&   $last_pic_sys_react!='upgrade') 
-                    ){
+                    || $last_pic_sys_react!='recovering'
+                    || !$freeVipCount
+            ){
+                $before_upgrade_vip_record = $user->vip_record;
+                $before_upgrade_is_free_vip = $user->isFreeVip();
                 $user->vip_record = Carbon::now();
                 $user->save();
                 Vip::upgrade($user->id, '1111000', '0', 0, 'OOOOOOOO', 1, 1);
+                
+                if(!in_array( $last_pic_sys_react??null,LogFreeVipPicAct::$reachRuleSysReacts)) {
+                    LogFreeVipPicAct::create(['user_id'=> $user->id
+                         ,'sys_react'=>'auto_upgrade'
+                         ,'shot_vip_record'=>$before_upgrade_vip_record
+                          ,'shot_is_free_vip'=>$before_upgrade_is_free_vip 
+                             ]);
+                }
             }
 
             if($request->session()->exists('success')) {

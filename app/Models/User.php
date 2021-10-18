@@ -111,17 +111,17 @@ class User extends Authenticatable
     //免費VIP照片管理log
     public function log_free_vip_pic_acts()
     {
-        return $this->hasMany(LogFreeVipPicAct::class, 'user_id', 'id')->orderBy('created_at', 'desc');
+        return $this->hasMany(LogFreeVipPicAct::class, 'user_id', 'id');
     } 
     
     public function log_free_vip_avatar_acts()
     {
-        return $this->hasMany(LogFreeVipPicAct::class, 'user_id', 'id')->orderBy('created_at', 'desc')->where('pic_type','avatar')->orderBy('created_at', 'desc');
+        return $this->hasMany(LogFreeVipPicAct::class, 'user_id', 'id')->where('pic_type','avatar');
     }  
     
     public function log_free_vip_member_pic_acts()
     {
-        return $this->hasMany(LogFreeVipPicAct::class, 'user_id', 'id')->orderBy('created_at', 'desc')->where('pic_type','member_pic')->orderBy('created_at', 'desc');
+        return $this->hasMany(LogFreeVipPicAct::class, 'user_id', 'id')->where('pic_type','member_pic');
     } 
 
     public function log_user_login()
