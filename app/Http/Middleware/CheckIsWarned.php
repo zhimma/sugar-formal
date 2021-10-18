@@ -82,13 +82,25 @@ class CheckIsWarned
                                 banned_users::insert([
                                     'member_id' => $user->id,
                                     'vip_pass' => 1,
-                                    'reason' => $logBanned->reason,
+                                    'reason' => $logBanned->reason.'(未續費)',
                                     'message_content' => $logBanned->message_content,
                                     'recipient_name' => $logBanned->recipient_name,
                                     'message_time' => $logBanned->message_time,
                                     'created_at' => now()
                                 ]);
-//                            }
+
+                                //寫入log
+                                IsBannedLog::insert([
+                                    'user_id' => $user->id,
+                                    'reason' => $logBanned->reason.'(未續費)',
+                                    'message_content' => $logBanned->message_content,
+                                    'recipient_name' => $logBanned->recipient_name,
+                                    'message_time' => $logBanned->message_time,
+                                    'vip_pass' => 1,
+                                    'created_at' => now()
+                                ]);
+
+                        //                            }
 //                        }
                     }
 
@@ -98,7 +110,15 @@ class CheckIsWarned
                                 warned_users::insert([
                                     'member_id' => $user->id,
                                     'vip_pass' => 1,
-                                    'reason' => $logWarned->reason,
+                                    'reason' => $logWarned->reason.'(未續費)',
+                                    'created_at' => now()
+                                ]);
+
+                                //寫入log
+                                IsWarnedLog::insert([
+                                    'user_id' => $user->id,
+                                    'reason' => $logWarned->reason.'(未續費)',
+                                    'vip_pass' => 1,
                                     'created_at' => now()
                                 ]);
 //                            }
