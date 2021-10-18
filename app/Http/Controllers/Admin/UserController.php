@@ -4689,7 +4689,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $Imgs_count = $Imgs->count();
     
             foreach ($Imgs as $img) {
-                \App\Jobs\SimilarImagesSearcher::dispatch($img->pic);
+                \App\Jobs\SimilarImagesSearcher::dispatchSync($img->pic);
             }
 
             return back()->with('message', '成功將 ' . $Imgs_count . ' 筆資料列入送檢佇列');
