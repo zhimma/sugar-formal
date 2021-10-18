@@ -24,8 +24,8 @@ use \App\Services\UserService;
 use App\Models\LogFreeVipPicAct;
 use App\Models\LogUserLogin;
 use App\Models\UserTinySetting;
-use App\Models\IsWarnedLog;
 use App\Models\IsBannedLog;
+use App\Models\IsWarnedLog;
 
 class User extends Authenticatable
 {
@@ -748,12 +748,28 @@ class User extends Authenticatable
             $pr_log = $pr_log.'車馬費 '.$tip_count.' 次計分 => '.$pr.'; ';
         }
 
+        //曾被付費警示/封鎖扣分
+        //付費警示紀錄
+        $isEverBannedByVipPass = IsBannedLog::where('user_id', $uid)->where('vip_pass', 1)->get()->count();
+        //付費封鎖紀錄
+        $isEverWarnedByVipPass = IsWarnedLog::where('user_id', $uid)->where('vip_pass', 1)->get()->count();
+        if(($isEverBannedByVipPass+$isEverWarnedByVipPass) >= 1){
+            $pr = $pr - 30;
+            $pr_log = $pr_log.'曾經警示/封鎖付費首次扣 30 分 => '.$pr.'; ';
+        }
+
         //非VIP 扣分 每位通訊人數扣0.2
         if(!$user->isVip()) {
             $checkMessageUsers = Message::select('to_id')->where('from_id', $uid)->distinct()->get()->count();
             if($checkMessageUsers>0){
                 $pr = $pr - ($checkMessageUsers * 0.2);
                 $pr_log = $pr_log.'當前非VIP通訊人數 '.$checkMessageUsers.' 人扣分 =>'.$pr.'; ';
+            }
+
+            if(($isEverBannedByVipPass+$isEverWarnedByVipPass) >= 2){
+                $temp_count = $isEverBannedByVipPass+$isEverWarnedByVipPass-1;
+                $pr = $pr - $temp_count*5;
+                $pr_log = $pr_log.'曾經警示/封鎖付費未續費 '. $temp_count .' 次 => '.$pr.'; ';
             }
         }
 
