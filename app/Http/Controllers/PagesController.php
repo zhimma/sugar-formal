@@ -4835,7 +4835,7 @@ class PagesController extends BaseController
 
         //你收藏的會員上線
         $uid = $user->id;
-        $myFav =  MemberFav::select('a.id as rowid','a.member_id','a.member_fav_id','b.id','b.name','b.title','b.last_login','v.id as vid','v.created_at as visited_created_at')
+        $myFav =  MemberFav::select('a.id as rowid','a.member_id','a.member_fav_id','b.id','b.name','b.title',\DB::raw("IF(b.is_hide_online = 1, b.hide_online_time, b.last_login) as last_login"),'v.id as vid','v.created_at as visited_created_at')
             ->where('a.member_id',$user->id)->from('member_fav as a')
             ->leftJoin('users as b','a.member_fav_id','b.id')->where('b.id','!=',null)
             ->leftJoin('visited as v', function ($join) use ($uid){
@@ -4850,14 +4850,16 @@ class PagesController extends BaseController
         $myFav = $myFav->whereNull('b1.member_id')
             ->whereNull('b3.target')
             ->whereNull('b5.blocked_id')
-            ->where('b.last_login', '>=', Carbon::now()->subDays(7))
+            ->where('b.accountStatus', 1)
+            ->where('last_login', '>=', Carbon::now()->subDays(7))
             ->where('a.hide_member_id_log',0)
             ->groupBy('a.member_fav_id')
             ->get();
 
 
         //收藏你的會員上線
-        $otherFav = MemberFav::select('a.id as rowid','a.member_id','a.member_fav_id','b.name','b.title','b.last_login')->where('a.member_fav_id',$user->id)->from('member_fav as a')
+        $otherFav = MemberFav::select('a.id as rowid','a.member_id','a.member_fav_id','b.name','b.title',\DB::raw("IF(b.is_hide_online = 1, b.hide_online_time, b.last_login) as last_login"))
+            ->where('a.member_fav_id',$user->id)->from('member_fav as a')
             ->leftJoin('users as b','a.member_id','b.id')->where('b.id','!=',null)
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'a.member_id')
             ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'a.member_id')
@@ -4867,7 +4869,8 @@ class PagesController extends BaseController
         $otherFav = $otherFav->whereNull('b1.member_id')
             ->whereNull('b3.target')
             ->whereNull('b5.blocked_id')
-            ->where('b.last_login', '>=', Carbon::now()->subDays(7))
+            ->where('b.accountStatus', 1)
+            ->where('last_login', '>=', Carbon::now()->subDays(7))
             ->where('a.hide_member_fav_id_log',0)
             ->get();
 
