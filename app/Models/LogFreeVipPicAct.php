@@ -21,4 +21,9 @@ class LogFreeVipPicAct extends Model
     //protected $fillable = '';
 
     protected $guarded = ['id'];
+    
+    public static $reachRuleSysReacts = ['recovering','upgrade','remain','remain_init','auto_upgrade','auto_remain'];
+    public static $notReachRuleSysReacts = ['reminding','avatar_ok','member_pic_ok','not_vip_not_ok'];
+    public static $needFirstRemindSysReacts = ['reminding','upgrade','recovering','avatar_ok','member_pic_ok'];
+    public static $replaceByFirstRemindSysReacts = ['reminding','avatar_ok','member_pic_ok'];
 }
