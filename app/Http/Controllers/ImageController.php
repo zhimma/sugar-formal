@@ -473,7 +473,7 @@ class ImageController extends BaseController
         $id = $request->userId;
         
         // $picturePaths = MemberPic::getSelf($id)->pluck('pic');
-        $picturePaths = MemberPic::withTrashed()->where('member_id', $id)->where('self_deleted', 0)->orderByDesc('created_at')->get()->take(6)->pluck('pic');
+        $picturePaths = MemberPic::withTrashed()->where('member_id', $id)->where('self_deleted', 0)->orderByDesc('created_at')->whereNull('deleted_at')->get()->take(6)->pluck('pic');
         $paths = array();
         foreach($picturePaths as $path)
         {
