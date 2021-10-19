@@ -2184,7 +2184,7 @@ class PagesController extends BaseController
                 //end
             );
 
-            $member_pic = DB::table('member_pic')->where('member_id', $uid)->where('pic', '<>', $targetUser->meta->pic)->whereNull('deleted_at')->get();
+            $member_pic = DB::table('member_pic')->where('member_id', $uid)->where('pic', '<>', $targetUser->meta->pic)->whereNull('deleted_at')->orderByDesc('created_at')->get();
 
             if($user->isVip()){
                 $vipLevel = 1;
