@@ -81,9 +81,23 @@
                                     <img src="/new/images/ph_03.png">
                                 </div>
                                 @php
-                                    $avatar = isset($avatar->pic) ? $avatar->pic . '?' . \Carbon\Carbon::now() : NULL;
+                                    // 沒有頭像
+                                    if(is_null($avatar->pic)) {
+
+                                        $avatar = '/new/images/ph_12.png';
+
+                                        // 檢查是否被刪除
+                                        $chk_deleted_avatar = \App\Models\AvatarDeleted::where('user_id', $user->id)->orderByDesc('created_at')->first();
+
+                                        // 被管理員刪除
+                                        if ($chk_deleted_avatar && $chk_deleted_avatar->operator != $user->id) {
+                                            $avatar = '/img/illegal.jpg';
+                                        }
+                                    } else {
+                                        $avatar = $avatar->pic . '?' . time();
+                                    }
                                 @endphp
-                                <b class="img" style="background:url(' {{ $avatar ?? '/new/images/ph_12.png' }} '); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
+                                <b class="img" style="background:url('{{ $avatar ?? '/new/images/ph_12.png' }}'); background-position:50% 50%; background-repeat: no-repeat; background-size: {{ ($avatar == '/img/illegal.jpg') ? 'cover' : 'contain' }};"></b>
                             </li>
                         @endif
                         @if ($member_pics)
@@ -94,8 +108,12 @@
                                     </div>
                                     @php
                                         $pic = isset($member_pics[$i]->pic) ? $member_pics[$i]->pic . '?' . \Carbon\Carbon::now() : NULL;
+                                        
+                                        if (isset($member_pics[$i]->pic) && \App\Models\AdminPicturesSimilarActionLog::where('pic', $member_pics[$i]->pic)->first()) {
+                                            $pic = '/img/illegal.jpg';
+                                        }
                                     @endphp
-                                    <b class="img" style="background:url(' {{ $pic ?? '/new/images/ph_12.png' }} '); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
+                                    <b class="img" style="background:url(' {{ $pic ?? '/new/images/ph_12.png' }} '); background-position:50% 50%; background-repeat: no-repeat; background-size: {{ ($pic == '/img/illegal.jpg') ? 'cover' : 'contain' }};"></b>
                                 </li>
                             @endfor
                         @endif
@@ -111,9 +129,24 @@
                             @php
                                 $defaultAvatar = $user->isVip() ? '/new/images/ph_12.png' : '/new/images/ph_11.png';
                                 // 添加日期參數, 讓圖片不使用快取機制
-                                $avatar = isset($avatar->pic) ? $avatar->pic . '?' . \Carbon\Carbon::now() : null;
+                                // $avatar = isset($avatar->pic) ? $avatar->pic . '?' . \Carbon\Carbon::now() : null;
+
+                                // 沒有頭像
+                                if(is_null($avatar->pic)) {
+                                    $avatar = '/new/images/ph_12.png';
+
+                                    // 檢查是否被刪除
+                                    $chk_deleted_avatar = \App\Models\AvatarDeleted::where('user_id', $user->id)->orderByDesc('created_at')->first();
+
+                                    // 被管理員刪除
+                                    if ($chk_deleted_avatar && $chk_deleted_avatar->operator != $user->id) {
+                                        $avatar = '/img/illegal.jpg';
+                                    }
+                                } else {
+                                    $avatar = $avatar->pic . '?' . time();
+                                }
                             @endphp
-                            <b class="img" style="background:url('{{ $avatar ?? $defaultAvatar}}'); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;">
+                            <b class="img" style="background:url('{{ $avatar ?? $defaultAvatar}}'); background-position:50% 50%; background-repeat: no-repeat; background-size: {{ ($avatar == '/img/illegal.jpg') ? 'cover' : 'contain' }};">
                                 
                             </b>
                         </li>
@@ -127,12 +160,16 @@
                                     $default .= 'ph_12.png';
 
                                 $pic = isset($member_pics[$i]->pic) ? $member_pics[$i]->pic . '?' .\Carbon\Carbon::now() : NULL;
+
+                                if (isset($member_pics[$i]->pic) && \App\Models\AdminPicturesSimilarActionLog::where('pic', $member_pics[$i]->pic)->first()) {
+                                    $pic = '/img/illegal.jpg';
+                                }
                             @endphp
                             <li class="write_img">
                                 <div class="n_ulhh">
                                     <img src="/new/images/ph_05.png">
                                 </div>
-                                <b class="img" style="background:url('{{ $pic ?? $default }}'); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
+                                <b class="img" style="background:url('{{ $pic ?? $default }}'); background-position:50% 50%; background-repeat: no-repeat; background-size: {{ ($pic == '/img/illegal.jpg') ? 'cover' : 'contain' }};"></b>
                             </li>
                         @endfor
                     @endif

@@ -746,7 +746,12 @@ class PagesController extends BaseController
             $tabName = 'm_user_profile_tab_1';
         }
 
-        $member_pics = MemberPic::select('*')->where('member_id',$user->id)->whereRaw('pic  NOT LIKE "%IDPhoto%"')->get()->take(6);
+        // $member_pics = MemberPic::where('member_id',$user->id)->whereRaw('pic  NOT LIKE "%IDPhoto%"')->get()->take(6);
+        $member_pics = MemberPic::withTrashed()->where('member_id', $user->id)->where('self_deleted', 0)->whereRaw('pic  NOT LIKE "%IDPhoto%"')->orderByDesc('created_at')->get();
+        $member_pics = $member_pics->filter(function ($member_pic) {
+            $admin_deleted_check = \App\Models\AdminPicturesSimilarActionLog::where('pic', $member_pic->pic)->first();
+            return !$member_pic->deleted_at || ($member_pic->deleted_at && $admin_deleted_check);
+        })->values()->take(6);
         $avatar = UserMeta::where('user_id', $user->id)->get()->first();
         $userMeta = UserMeta::where('user_id', $user->id)->first();
         $blurryAvatar = $userMeta->blurryAvatar;
