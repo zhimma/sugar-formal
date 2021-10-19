@@ -11,11 +11,14 @@ use App\Models\SimpleTables\banned_users;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SetAutoBan extends Model
 {
+    use SoftDeletes;
     //
     protected $table = 'set_auto_ban';
+    protected $dates = ['deleted_at'];
 	
 	public $timestamps = false;
 

@@ -2366,10 +2366,13 @@ class PagesController extends BaseController
         $evaluation_data = Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.to_id')
             ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.to_id')
+            ->leftJoin('users as u', 'u.id', '=', 'evaluation.to_id')
             ->whereNull('b1.member_id')
             ->whereNull('b3.target')
-            ->orderBy('evaluation.created_at','desc')
+            ->where('u.accountStatus', 1)
+            ->where('u.account_status_admin', 1)
             ->where('evaluation.from_id', $user->id)
+            ->orderBy('evaluation.created_at','desc')
             ->paginate(15);
         return view('new.dashboard.evaluation_self')
             ->with('user', $user)
@@ -3167,6 +3170,8 @@ class PagesController extends BaseController
                 ->where('member_id', $user->id)
                 ->whereNotIn('blocked_id',$bannedUsers)
                 ->whereNotNull('users.id')
+                ->where('users.accountStatus', 1)
+                ->where('users.account_status_admin', 1)
                 ->orderBy('blocked.created_at','desc')->paginate(15);
 
             return view('new.dashboard.block')

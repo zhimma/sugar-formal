@@ -43,7 +43,7 @@ class MemberFav extends Model
         $fav = Visited::unique(MemberFav::where([['member_id', $uid],['member_fav_id', '!=', $uid]])->whereNotIn('member_fav_id',$blocks)->whereNotIn('member_fav_id',$bannedUsers)->distinct()->orderBy('created_at', 'desc')->get(), "member_fav_id");
         foreach ($fav as $k => $f) {
             $favUser = \App\Models\User::findById($f->member_fav_id);
-            if(isset($favUser)){
+            if(isset($favUser) && $favUser->accountStatus==1 && $favUser->account_status_admin==1){
                 $fav[$k]['name'] = $favUser->name;
                 $fav[$k]['pic'] = $favUser->meta_()->pic;
                 $fav[$k]['blurry_avatar'] = $favUser->meta_()->blurryAvatar;
