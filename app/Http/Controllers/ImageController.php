@@ -472,14 +472,21 @@ class ImageController extends BaseController
         //$id = 41759;
         $id = $request->userId;
         
-        $picturePaths = MemberPic::getSelf($id)->pluck('pic');
+        // $picturePaths = MemberPic::getSelf($id)->pluck('pic');
+        $picturePaths = MemberPic::withTrashed()->where('member_id', $id)->where('self_deleted', 0)->orderByDesc('created_at')->get()->take(6)->pluck('pic');
         $paths = array();
         foreach($picturePaths as $path)
         {
+            $targetPic = MemberPic::withTrashed()->where('pic', $path)->first();
+
+            if ($targetPic->deleted_at && $targetPic->self_deleted == 0) {
+                $admin_deleted_name = '不合規定的照片';
+            }
+
             $path_slice = explode('/', $path);
             if(!file_exists(public_path($path))){
                 $paths[] = array(
-                    "name" => end($path_slice), //filename
+                    "name" => $admin_deleted_name??end($path_slice), //filename
                     "type" => FileUploader::mime_content_type($path),
                     "size" => 0, //filesize需完整路徑
                     "file" => $path,
@@ -493,7 +500,7 @@ class ImageController extends BaseController
             }
             else{
                 $paths[] = array(
-                    "name" => end($path_slice), //filename
+                    "name" => $admin_deleted_name??end($path_slice), //filename
                     "type" => FileUploader::mime_content_type($path),
                     "size" => filesize(public_path($path)), //filesize需完整路徑
                     "file" => $path,
@@ -703,17 +710,22 @@ class ImageController extends BaseController
         if($request->userId)
             $picutres = MemberPic::getSelf($request->userId)->get();
         else{
-            $pictures = MemberPic::where('pic', $request->picture)->get();
+            $pictures = MemberPic::withTrashed()->where('pic', $request->picture)->get();
         }
 
         foreach($pictures as $picture)
         {
-            $fullPath = public_path($picture->pic);
+            // 後台需要管理紀錄，故取消刪除照片實體。
+            // $fullPath = public_path($picture->pic);
             
-            if(File::exists($fullPath))
-                unlink($fullPath);
+            // if(File::exists($fullPath))
+            //     unlink($fullPath);
 
             $picture->delete();
+            
+            // 由於 Admin 刪除與 User 刪除是共用 deleted_at 欄位，故 User 刪除時應添加此筆紀錄以記錄使用者自行刪除。
+            $picture->self_deleted = 1;
+            $picture->save();
         }
         
         $msg="刪除成功";
@@ -863,9 +875,6 @@ class ImageController extends BaseController
                     'updated_at'    => now(),
                 ]);
 
-                $member_pic->pic = '/img/illegal.jpg';
-                $member_pic->save();
-
                 $member_pic->delete();
 
             }
@@ -906,8 +915,9 @@ class ImageController extends BaseController
             if ($user->isVip() && $user->engroup == 2) {
                 Vip::where('member_id', $user->id)->update([
                     'active' => 0,
-                    'expiry' => null
+                    'expiry' => date('Y-m-d H:i:s'),
                 ]);
+                // Vip::where('member_id', $user->id)->first()->removeVIP();
             }
 
             DB::commit();
