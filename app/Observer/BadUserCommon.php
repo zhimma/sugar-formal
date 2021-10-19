@@ -52,13 +52,14 @@ class BadUserCommon
                 }
                 $bannedIdNumOfRelateUser = count($bannedIdsOfRelateUser);
                 $warnedIdNumOfRelateUser =  warned_users::select('member_id')->whereIn('member_id',$relateRUserIds)->where('created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->distinct()->count('member_id');
-
-                $remindText = $relate_user->name.'您好，您本月通訊人數中，';
-                if($bannedIdNumOfRelateUser) $remindText.='有'.$bannedIdNumOfRelateUser.'人目前被站方封鎖';
-                if($bannedIdNumOfRelateUser && $warnedIdNumOfRelateUser) $remindText.= '，';
-                if($warnedIdNumOfRelateUser) $remindText.='有'.$warnedIdNumOfRelateUser.'人已經被警示';
-                $remindText.='。對話記錄將移到封鎖信件夾，請您再去檢查，如果您們已經交換聯絡方式，請多加注意。';
-                Message::post($admin_id, $relateUserId, $remindText,true,1);
+                if($bannedIdNumOfRelateUser || $warnedIdNumOfRelateUser) {
+                    $remindText = $relate_user->name.'您好，您本月通訊人數中，';
+                    if($bannedIdNumOfRelateUser) $remindText.='有'.$bannedIdNumOfRelateUser.'人目前被站方封鎖';
+                    if($bannedIdNumOfRelateUser && $warnedIdNumOfRelateUser) $remindText.= '，';
+                    if($warnedIdNumOfRelateUser) $remindText.='有'.$warnedIdNumOfRelateUser.'人已經被警示';
+                    $remindText.='。對話記錄將移到封鎖信件夾，請您再去檢查，如果您們已經交換聯絡方式，請多加注意。';
+                    Message::post($admin_id, $relateUserId, $remindText,true,1);
+                }
             }
         }     
     }
