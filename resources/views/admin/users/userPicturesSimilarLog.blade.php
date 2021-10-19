@@ -154,16 +154,26 @@
                                                 @if ($Log->act == '刪除封鎖名單' || $Log->act == '刪除可疑名單')
                                                     <span class="badge bg-success">{{ $Log->act }}</span>
                                                 @endif
+
+                                                @if (str_contains($Log->act, '變更性別'))
+                                                    <span class="badge bg-warning">{{ $Log->act }}</span>
+                                                @endif
                                             </p>
                                         </td>
                                         <td class="align-middle">
-                                            <p>{{ $Log->reason }}</p>
+                                            <p>{{ $Log->reason ? $Log->reason : '無'  }}</p>
                                         </td>
                                         <td class="align-middle">
                                             <p>{{ $Log->created_at }}</p>
                                         </td>
                                         <td class="align-middle">
-                                            <p class="text-center"><img src="{{ $Log->pic ? url($Log->pic) : '' }}" style="max-height: 180px;"></p>
+                                            <p class="text-center">
+                                                @if($Log->pic)
+                                                    <img src="{{ $Log->pic ? url($Log->pic) : '' }}" style="max-height: 180px;">
+                                                @else
+                                                    無
+                                                @endif
+                                            </p>
                                         </td>
                                         <td class="align-middle">
                                             @if ($Log->act == '刪除生活照' || $Log->act == '刪除頭像')

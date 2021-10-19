@@ -95,6 +95,8 @@
                                     <span>會員名稱: <a href="/admin/users/advInfo/editPic_sendMsg/{{ $user->id }}" target="_blank"><span class="{{ $user->engroup == 2 ? 'text-danger' : 'text-primary' }}">{{ $user->name }}</span></a></span><br>
                                     <span>電子郵件: {{ str_replace(strchr($user->email,'@'), '', $user->email) }}</span><br>
                                     <span>會員標題: {{ $user->title }}</span><br>
+                                    <span>關於我: {{ $user->meta_()->about }}</span><br>
+                                    <span>期待的約會模式: {{ $user->meta_()->style }}</span><br>
                                     <span>上線時間: {{ $user->last_login }}</span><br>
                                     <span>更新時間: {{ $user->last_update }}</span><br>
                                 </p>
@@ -104,6 +106,12 @@
                                     @else
                                         <button class="btn btn-sm btn-danger" type="button" onclick="blockModal(this)" data-toggle="modal" data-target="#blockModal" data-uid="{{ $user->id }}">封鎖</button>
                                     @endif
+                                    <form method="POST" action="genderToggler" class="user_profile">{!! csrf_field() !!}
+                                        <input type="hidden" name='user_id' value="{{ $user->id }}">
+                                        <input type="hidden" name='gender_now' value="{{ $user->engroup }}">
+                                        <input type="hidden" name='page' value="userPicturesSimilar">
+                                        <button type="submit" class="btn btn-sm btn-warning">變更性別</button>
+                                    </form>
                                 </p>
                                 <p>
                                 <form class="form-inline" action="/admin/users/picturesSimilar/suspicious:toggle" method="post">

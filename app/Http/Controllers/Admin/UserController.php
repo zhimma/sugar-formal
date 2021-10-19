@@ -139,13 +139,25 @@ class UserController extends \App\Http\Controllers\BaseController
         //新增Admin操作log
         $this->insertAdminActionLog($request->user_id, $request->gender_now ==1 ? '變更性別(男->女)' : '變更性別(女->男)');
 
+        // 操作紀錄
+        \App\Models\AdminPicturesSimilarActionLog::insert([
+            'operator_id'   => Auth::user()->id,
+            'operator_role' => Auth::user()->roles->first()->id,
+            'target_id'     => $request->user_id,
+            'act'           => $request->gender_now ==1 ? '變更性別(男->女)' : '變更性別(女->男)',
+            'reason'        => $request->reason,
+            'days'          => $request->days,
+            'ip'            => $request->ip(),
+            'created_at'    => now(),
+            'updated_at'    => now(),
+        ]);
+
         if (isset($request->page)) {
             switch ($request->page) {
                 case 'advInfo':
                     return redirect('admin/users/advInfo/' . $request->user_id);
                 default:
-                    return view('admin.users.success')
-                        ->with('email', $user->email);
+                    return back()->with('message', '成功變更性別');
                     break;
             }
         } else {
