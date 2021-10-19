@@ -449,15 +449,20 @@ class ImageController extends BaseController
                 else if($user->log_free_vip_pic_acts->count()>0){
                     $log_sys_react = 'not_vip_not_ok';
                 }
+                else {
+                    $log_sys_react = null;
+                }
 
-                LogFreeVipPicAct::create(['user_id'=> $user->id
-                    ,'user_operate'=>'delete'
-                    ,'img_remain_num'=>isset($user->meta->pic)
-                    ,'pic_type'=>'avatar'
-                    ,'sys_react'=>$log_sys_react
-                    ,'shot_vip_record'=>$user->vip_record
-                    ,'shot_is_free_vip'=>$user->isFreeVip()    
-                        ]);                
+                if($log_sys_react) {
+                    LogFreeVipPicAct::create(['user_id'=> $user->id
+                        ,'user_operate'=>'delete'
+                        ,'img_remain_num'=>isset($user->meta->pic)
+                        ,'pic_type'=>'avatar'
+                        ,'sys_react'=>$log_sys_react
+                        ,'shot_vip_record'=>$user->vip_record
+                        ,'shot_is_free_vip'=>$user->isFreeVip()    
+                            ]);  
+                }
             }
             return response($msg);
         }   
@@ -728,15 +733,19 @@ class ImageController extends BaseController
             else if($user->log_free_vip_pic_acts->count()>0) {
                 $log_sys_react = 'not_vip_not_ok';
             }
-
-            LogFreeVipPicAct::create(['user_id'=> $user->id
-                ,'user_operate'=>'delete'
-                ,'img_remain_num'=>$user->pic->count()
-                ,'pic_type'=>'member_pic'
-                ,'sys_react'=>$log_sys_react 
-                ,'shot_vip_record'=>$user->vip_record
-                ,'shot_is_free_vip'=>$user->isFreeVip()
-                    ]);            
+            else {
+                $log_sys_react = null;
+            }
+            if($log_sys_react) {
+                LogFreeVipPicAct::create(['user_id'=> $user->id
+                    ,'user_operate'=>'delete'
+                    ,'img_remain_num'=>$user->pic->count()
+                    ,'pic_type'=>'member_pic'
+                    ,'sys_react'=>$log_sys_react 
+                    ,'shot_vip_record'=>$user->vip_record
+                    ,'shot_is_free_vip'=>$user->isFreeVip()
+                        ]); 
+            }
         }
         
         return response($msg);
