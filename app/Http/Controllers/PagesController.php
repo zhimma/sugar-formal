@@ -750,7 +750,7 @@ class PagesController extends BaseController
         $member_pics = MemberPic::withTrashed()->where('member_id', $user->id)->where('self_deleted', 0)->whereRaw('pic  NOT LIKE "%IDPhoto%"')->orderByDesc('created_at')->get();
         $member_pics = $member_pics->filter(function ($member_pic) {
             $admin_deleted_check = \App\Models\AdminPicturesSimilarActionLog::where('pic', $member_pic->pic)->first();
-            return !$member_pic->deleted_at || ($member_pic->deleted_at && $admin_deleted_check);
+            return !$member_pic->deleted_at || !($member_pic->deleted_at && $admin_deleted_check);
         })->values()->take(6);
         $avatar = UserMeta::where('user_id', $user->id)->get()->first();
         $userMeta = UserMeta::where('user_id', $user->id)->first();
