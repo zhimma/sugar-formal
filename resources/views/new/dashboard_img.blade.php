@@ -95,6 +95,10 @@
                                         }
                                     } else {
                                         $avatar = $avatar->pic . '?' . time();
+                                        // 被管理員刪除
+                                        if ($chk_deleted_avatar && $chk_deleted_avatar->operator != $user->id) {
+                                            $avatar = '/img/illegal.jpg';
+                                        }
                                     }
                                 @endphp
                                 <b class="img" style="background:url('{{ $avatar ?? '/new/images/ph_12.png' }}'); background-position:50% 50%; background-repeat: no-repeat; background-size: {{ ($avatar == '/img/illegal.jpg') ? 'cover' : 'contain' }};"></b>
