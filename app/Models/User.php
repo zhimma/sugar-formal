@@ -757,6 +757,15 @@ class User extends Authenticatable
             $pr = $pr - 30;
             $pr_log = $pr_log.'曾經警示/封鎖付費首次扣 30 分 => '.$pr.'; ';
         }
+        //付費警示紀錄(未續費)
+        $isEverBannedByVipPass2 = IsBannedLog::where('user_id', $uid)->where('vip_pass', 1)->where('reason','like','%未續費%')->get()->count();
+        //付費封鎖紀錄(未續費)
+        $isEverWarnedByVipPass2 = IsWarnedLog::where('user_id', $uid)->where('vip_pass', 1)->where('reason','like','%未續費%')->get()->count();
+        if(($isEverBannedByVipPass2+$isEverWarnedByVipPass2) > 0){
+            $temp_count = $isEverBannedByVipPass2+$isEverWarnedByVipPass2;
+            $pr = $pr - $temp_count*5;
+            $pr_log = $pr_log.'曾經警示/封鎖付費未續費 '. $temp_count .' 次 => '.$pr.'; ';
+        }
 
         //非VIP 扣分 每位通訊人數扣0.2
         if(!$user->isVip()) {
@@ -764,12 +773,6 @@ class User extends Authenticatable
             if($checkMessageUsers>0){
                 $pr = $pr - ($checkMessageUsers * 0.2);
                 $pr_log = $pr_log.'當前非VIP通訊人數 '.$checkMessageUsers.' 人扣分 =>'.$pr.'; ';
-            }
-
-            if(($isEverBannedByVipPass+$isEverWarnedByVipPass) >= 2){
-                $temp_count = $isEverBannedByVipPass+$isEverWarnedByVipPass-1;
-                $pr = $pr - $temp_count*5;
-                $pr_log = $pr_log.'曾經警示/封鎖付費未續費 '. $temp_count .' 次 => '.$pr.'; ';
             }
         }
 

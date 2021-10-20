@@ -18,7 +18,6 @@ class SetAutoBan extends Model
     use SoftDeletes;
     //
     protected $table = 'set_auto_ban';
-    protected $dates = ['deleted_at'];
 	
 	public $timestamps = false;
 
@@ -74,6 +73,7 @@ class SetAutoBan extends Model
 				
 					if($ban_set->expiry=='0000-00-00 00:00:00') {
 						$ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
+                        $ban_set->updated_at = now();
 						$ban_set->save();						
 					}
 				
@@ -87,6 +87,7 @@ class SetAutoBan extends Model
                     if($ip->ip == $content) {
 						$violation = true;
 						$ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
+                        $ban_set->updated_at = now();
 						$ban_set->save();
 					}
                     break;
@@ -229,6 +230,7 @@ class SetAutoBan extends Model
                 case 'ip':
 					if($ban_set->expiry=='0000-00-00 00:00:00') {
 						$ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
+                        $ban_set->updated_at = now();
 						$ban_set->save();						
 					}				
 				
@@ -240,6 +242,7 @@ class SetAutoBan extends Model
                     if($ip->ip == $content) {
 						$violation = true;
 						$ban_set->expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
+                        $ban_set->updated_at = now();
 						$ban_set->save();						
 					}
                     break;
@@ -280,7 +283,7 @@ class SetAutoBan extends Model
         if($type == 'ip'){
             $expiry = \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s');
         }
-        SetAutoBan::insert(['type' => $type, 'content' => $content, 'set_ban' => $set_ban, 'cuz_user_set' => $cuz_user_set, 'expiry' => $expiry, 'host' => $host]);
+        SetAutoBan::insert(['type' => $type, 'content' => $content, 'set_ban' => $set_ban, 'cuz_user_set' => $cuz_user_set, 'expiry' => $expiry, 'host' => $host, 'created_at' => now(), 'updated_at' => now() ]);
         return;
     }
 }

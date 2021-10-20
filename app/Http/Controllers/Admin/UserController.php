@@ -255,8 +255,8 @@ class UserController extends \App\Http\Controllers\BaseController
         if (!empty($request->addautoban)) {
             foreach ($request->addautoban as $value) {
                 if (!empty($value)) {
-                    if (DB::table('set_auto_ban')->where([['type', 'allcheck'], ['content', $value], ['set_ban', '1']])->first() == null) {
-                        DB::table('set_auto_ban')->insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id]);
+                    if (SetAutoBan::where([['type', 'allcheck'], ['content', $value], ['set_ban', '1']])->first() == null) {
+                        SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
                     }
                 }
             }
@@ -267,8 +267,8 @@ class UserController extends \App\Http\Controllers\BaseController
         if (!empty($request->cfp_id)) {
             foreach ($request->cfp_id as $value) {
                 if (!empty($value)) {
-                    if (DB::table('set_auto_ban')->where([['type', 'cfp_id'], ['content', $value], ['set_ban', '1']])->first() == null) {
-                        DB::table('set_auto_ban')->insert(['type' => 'cfp_id', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id]);
+                    if (SetAutoBan::where([['type', 'cfp_id'], ['content', $value], ['set_ban', '1']])->first() == null) {
+                        SetAutoBan::insert(['type' => 'cfp_id', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
                     }
                 }
             }
@@ -278,8 +278,8 @@ class UserController extends \App\Http\Controllers\BaseController
         if (!empty($request->ip)) {
             foreach ($request->ip as $value) {
                 if (!empty($value)) {
-                    if (DB::table('set_auto_ban')->where([['type', 'ip'], ['content', $value], ['set_ban', '1']])->first() == null) {
-                        DB::table('set_auto_ban')->insert(['type' => 'ip', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id,'expiry'=> \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s')]);
+                    if (SetAutoBan::where([['type', 'ip'], ['content', $value], ['set_ban', '1']])->first() == null) {
+                        SetAutoBan::insert(['type' => 'ip', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id,'expiry'=> \Carbon\Carbon::now()->addMonths(1)->format('Y-m-d H:i:s'), 'created_at' => now(), 'updated_at' => now()]);
                     }
                 }
             }
@@ -289,8 +289,8 @@ class UserController extends \App\Http\Controllers\BaseController
         if (!empty($request->userAgent)) {
             foreach ($request->userAgent as $value) {
                 if (!empty($value)) {
-                    if (DB::table('set_auto_ban')->where([['type', 'userAgent'], ['content', $value], ['set_ban', '1']])->first() == null) {
-                        DB::table('set_auto_ban')->insert(['type' => 'userAgent', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id]);
+                    if (SetAutoBan::where([['type', 'userAgent'], ['content', $value], ['set_ban', '1']])->first() == null) {
+                        SetAutoBan::insert(['type' => 'userAgent', 'content' => $value, 'set_ban' => '1', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
                     }
                 }
             }
@@ -396,8 +396,8 @@ class UserController extends \App\Http\Controllers\BaseController
         if (!empty($request->addautoban)) {
             foreach ($request->addautoban as $value) {
                 if (!empty($value)) {
-                    if (DB::table('set_auto_ban')->where([['type', 'allcheck'], ['content', $value], ['set_ban', '3']])->first() == null) {
-                        DB::table('set_auto_ban')->insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '3', 'cuz_user_set' => $request->user_id]);
+                    if (SetAutoBan::where([['type', 'allcheck'], ['content', $value], ['set_ban', '3']])->first() == null) {
+                        SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '3', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
                     }
                 }
             }
@@ -3010,8 +3010,8 @@ class UserController extends \App\Http\Controllers\BaseController
         if (!empty($request->addautoban)) {
             foreach ($request->addautoban as $value) {
                 if (!empty($value)) {
-                    if (DB::table('set_auto_ban')->where([['type', 'allcheck'], ['content', $value], ['set_ban', '2']])->first() == null) {
-                        DB::table('set_auto_ban')->insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '2', 'cuz_user_set' => $request->user_id]);
+                    if (SetAutoBan::where([['type', 'allcheck'], ['content', $value], ['set_ban', '2']])->first() == null) {
+                        SetAutoBan::insert(['type' => 'allcheck', 'content' => $value, 'set_ban' => '2', 'cuz_user_set' => $request->user_id, 'created_at' => now(), 'updated_at' => now()]);
                     }
                 }
             }
