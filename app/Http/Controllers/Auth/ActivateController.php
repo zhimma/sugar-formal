@@ -45,7 +45,7 @@ class ActivateController extends \App\Http\Controllers\BaseController
      */
     public function sendToken()
     {
-        if(config('social.send-email')){
+        if(db_config('send-email')){
             $this->service->sendActivationToken();
         }
         $user = auth()->user();
