@@ -308,6 +308,7 @@ class UserMeta extends Model
                 ->whereHas('user_meta', $constraint)
                 ->where('engroup', $engroup)
                 ->where('accountStatus', 1)
+                ->where('account_status_admin', 1)
                 ->where('is_hide_online', '<>', 2)
                 ->whereNotIn('users.id', function ($query) {
                     // $bannedUsers
@@ -325,6 +326,7 @@ class UserMeta extends Model
                 ->whereHas('user_meta', $constraint)
                 ->where('engroup', $engroup)
                 ->where('accountStatus', 1)
+                ->where('account_status_admin', 1)
                 ->where('is_hide_online', '<>', 2)
                 ->whereNotIn('users.id', function ($query) {
                     // $bannedUsers

@@ -57,53 +57,50 @@ class CheckIsWarned
             //正被警示
             $isWarned = warned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->first();
 
-            if(!$isBanned || !$isWarned){
-
+            if(!$isBanned){
                 //if ever banned by vip_pass then reBanned
                 $logBanned = IsBannedLog::where('user_id', $user->id)->where('vip_pass', 1)->orderBy('created_at', 'desc')->first();
+                if($logBanned){
+                    banned_users::insert([
+                        'member_id' => $user->id,
+                        'vip_pass' => 1,
+                        'reason' => $logBanned->reason.'(未續費)',
+                        'message_content' => $logBanned->message_content,
+                        'recipient_name' => $logBanned->recipient_name,
+                        'message_time' => $logBanned->message_time,
+                        'created_at' => now()
+                    ]);
+
+                    IsBannedLog::insert([
+                        'user_id' => $user->id,
+                        'reason' => $logBanned->reason.'(未續費)',
+                        'message_content' => $logBanned->message_content,
+                        'recipient_name' => $logBanned->recipient_name,
+                        'message_time' => $logBanned->message_time,
+                        'vip_pass' => 1,
+                        'created_at' => now()
+                    ]);
+                }
+
+            }
+            if(!$isWarned){
                 //if ever banned by vip_pass then reBanned
                 $logWarned = IsWarnedLog::where('user_id', $user->id)->where('vip_pass', 1)->orderBy('created_at', 'desc')->first();
 
-                if($logBanned || $logWarned){
-                    //get cfp_users
-//                    $userId = $user->id;
-//                    $cfp_users = CFP_User::select('cfp_user.user_id')->from('cfp_user')
-//                        ->leftJoin('users', 'users.id', 'cfp_user.user_id')
-//                        ->where('users.engroup', 1)
-//                        ->whereIn('cfp_user.cfp_id', function($query) use($userId){
-//                        $query->select('cfp_id')
-//                            ->from(with(new CFP_User)->getTable())
-//                            ->where('user_id', $userId);
-//                    })->get();
+                if($logWarned){
+                    warned_users::insert([
+                        'member_id' => $user->id,
+                        'vip_pass' => 1,
+                        'reason' => $logWarned->reason.'(未續費)',
+                        'created_at' => now()
+                    ]);
 
-                    if($logBanned){
-//                        if(count($cfp_users)>0) {
-//                            foreach($cfp_users as $row) {
-                                banned_users::insert([
-                                    'member_id' => $user->id,
-                                    'vip_pass' => 1,
-                                    'reason' => $logBanned->reason,
-                                    'message_content' => $logBanned->message_content,
-                                    'recipient_name' => $logBanned->recipient_name,
-                                    'message_time' => $logBanned->message_time,
-                                    'created_at' => now()
-                                ]);
-//                            }
-//                        }
-                    }
-
-                    if($logWarned){
-//                        if(count($cfp_users)>0) {
-//                            foreach($cfp_users as $row) {
-                                warned_users::insert([
-                                    'member_id' => $user->id,
-                                    'vip_pass' => 1,
-                                    'reason' => $logWarned->reason,
-                                    'created_at' => now()
-                                ]);
-//                            }
-//                        }
-                    }
+                    IsWarnedLog::insert([
+                        'user_id' => $user->id,
+                        'reason' => $logWarned->reason.'(未續費)',
+                        'vip_pass' => 1,
+                        'created_at' => now()
+                    ]);
                 }
             }
         }
