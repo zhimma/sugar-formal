@@ -64,7 +64,7 @@ class CheckIsWarned
                     banned_users::insert([
                         'member_id' => $user->id,
                         'vip_pass' => 1,
-                        'reason' => $logBanned->reason.'(未續費)',
+                        'reason' => str_replace('(未續費)','', $logBanned->reason),
                         'message_content' => $logBanned->message_content,
                         'recipient_name' => $logBanned->recipient_name,
                         'message_time' => $logBanned->message_time,
@@ -73,7 +73,7 @@ class CheckIsWarned
 
                     IsBannedLog::insert([
                         'user_id' => $user->id,
-                        'reason' => $logBanned->reason.'(未續費)',
+                        'reason' => str_replace('(未續費)','', $logBanned->reason),
                         'message_content' => $logBanned->message_content,
                         'recipient_name' => $logBanned->recipient_name,
                         'message_time' => $logBanned->message_time,
@@ -91,13 +91,13 @@ class CheckIsWarned
                     warned_users::insert([
                         'member_id' => $user->id,
                         'vip_pass' => 1,
-                        'reason' => $logWarned->reason.'(未續費)',
+                        'reason' => str_replace('(未續費)','', $logWarned->reason),
                         'created_at' => now()
                     ]);
 
                     IsWarnedLog::insert([
                         'user_id' => $user->id,
-                        'reason' => $logWarned->reason.'(未續費)',
+                        'reason' => str_replace('(未續費)','', $logWarned->reason),
                         'vip_pass' => 1,
                         'created_at' => now()
                     ]);
