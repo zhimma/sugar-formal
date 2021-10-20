@@ -66,4 +66,8 @@ class DashboardController extends \App\Http\Controllers\BaseController
         DB::table('role_user')->where('user_id',$userid)->where('role_id',3)->delete();
         return back()->withErrors('該初階帳號,刪除成功');
     }
+
+    public function showGlobalVariables(){
+        return view('admin.dashboard.globalVariables');
+    }
 }

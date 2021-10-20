@@ -36,7 +36,8 @@
             "app/Helpers/activity_helper.php",
             "app/Services/ECPay.php",
             "app/Services/EsafePay.php",
-            "app/Library/class.fileuploader.php"
+            "app/Library/class.fileuploader.php",
+            "app/Helpers/helpers.php"
         ],
 
         "classmap": [

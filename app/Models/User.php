@@ -375,7 +375,7 @@ class User extends Authenticatable
             logger("IP: " . \Request::ip());
             return;
         }
-        if(config('social.send-email')){
+        if(db_config('send-email')){
             app(\Illuminate\Contracts\Notifications\Dispatcher::class)->send($this, $instance);
         }
     }
