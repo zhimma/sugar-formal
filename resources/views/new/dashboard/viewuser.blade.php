@@ -355,10 +355,31 @@
                         <div class="swiper-container photo">
                             <div class="swiper-wrapper">
                                 <div class="swiper-slide @if($isBlurAvatar) blur_img @endif" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>
-
+                                @php
+                                    $ImgCount=1;
+                                @endphp
                                 @foreach($member_pic as $row)
                                     @if(!str_contains($row->pic, 'IDPhoto'))
+                                        @php
+                                            $ImgCount+=1;
+                                        @endphp
                                         <div class="swiper-slide @if($isBlurLifePhoto) blur_img @endif" data-type="pic" data-sid="{{$to->id}}" data-pic_id="{{$row->id}}"><img src="{{$row->pic}}"></div>
+                                    @endif
+                                @endforeach
+                                @php
+                                    $lifeImgLimit=(6-$ImgCount);
+                                @endphp
+                                @foreach($user->pic_onlyTrashed as $key =>$row)
+                                    @php
+                                      $checkAdminDeleted = \App\Models\AdminPicturesSimilarActionLog::where('pic', $row->pic)->first();
+                                    @endphp
+                                    @if(!str_contains($row->pic, 'IDPhoto') && !is_null($checkAdminDeleted))
+                                        @if($lifeImgLimit>0)
+                                            <div class="swiper-slide @if($isBlurLifePhoto) blur_img @endif" data-type="pic" data-sid="{{$to->id}}" data-pic_id="{{$row->id}}"><img src="{{ $row->deleted_at ? '/img/illegal.jpg' : $row->pic}}"></div>
+                                        @endif
+                                        @php
+                                            $lifeImgLimit-=1;
+                                        @endphp
                                     @endif
                                 @endforeach
                             </div>
