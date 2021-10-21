@@ -83,16 +83,18 @@
                                 @php
                                     // 沒有頭像
                                     if(is_null($avatar->pic)) {
+
                                         $avatar = '/new/images/ph_12.png';
-                                    } else {
-                                        $avatar = $avatar->pic . '?' . time();
+
                                         // 檢查是否被刪除
                                         $chk_deleted_avatar = \App\Models\AvatarDeleted::where('user_id', $user->id)->orderByDesc('created_at')->first();
 
                                         // 被管理員刪除
                                         if ($chk_deleted_avatar && $chk_deleted_avatar->operator != $user->id) {
-                                            $avatar = null;
+                                            $avatar = '/img/illegal.jpg';
                                         }
+                                    } else {
+                                        $avatar = $avatar->pic . '?' . time();
                                     }
                                 @endphp
                                 <b class="img" style="background:url('{{ $avatar ?? '/new/images/ph_12.png' }}'); background-position:50% 50%; background-repeat: no-repeat; background-size: {{ ($avatar == '/img/illegal.jpg') ? 'cover' : 'contain' }};"></b>
@@ -132,15 +134,16 @@
                                 // 沒有頭像
                                 if(is_null($avatar->pic)) {
                                     $avatar = '/new/images/ph_12.png';
-                                } else {
-                                    $avatar = $avatar->pic . '?' . time();
 
                                     // 檢查是否被刪除
                                     $chk_deleted_avatar = \App\Models\AvatarDeleted::where('user_id', $user->id)->orderByDesc('created_at')->first();
 
                                     // 被管理員刪除
                                     if ($chk_deleted_avatar && $chk_deleted_avatar->operator != $user->id) {
-                                        $avatar = null;}
+                                        $avatar = '/img/illegal.jpg';
+                                    }
+                                } else {
+                                    $avatar = $avatar->pic . '?' . time();
                                 }
                             @endphp
                             <b class="img" style="background:url('{{ $avatar ?? $defaultAvatar}}'); background-position:50% 50%; background-repeat: no-repeat; background-size: {{ ($avatar == '/img/illegal.jpg') ? 'cover' : 'contain' }};">
