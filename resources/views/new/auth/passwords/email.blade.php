@@ -60,7 +60,10 @@
 <div class="blbg" onclick="$('.blbg').click();"></div>
 <div class="bl bl_tab" id="error_email">
     <div class="bltitle">提示</div>
-    <div class="blnr bltext">我們無法找到具有該電子郵件的用戶.</div>
+	<div class="n_blnr01 matop10">
+		<div class="blnr bltext">我們無法找到具有該電子郵件的用戶.</div>
+		<a class="n_bllbut matop30" onclick="gmBtnNoReload()">確定</a>
+	</div>
     <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
