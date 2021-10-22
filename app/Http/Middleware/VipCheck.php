@@ -93,7 +93,7 @@ class VipCheck
                 \App\Models\ValueAddedService::addHideOnlineData($user->id);
             }else{
                 //更新上線時間
-                $HideOnlineData = \App\Models\hideOnlineData::where('user_id', $user->id)->get()->count();
+                $HideOnlineData = \App\Models\hideOnlineData::where('user_id', $user->id)->get()->first();
                 User::where('id', $user->id)->update(['hide_online_time' => $HideOnlineData->login_time]);
             }
 
