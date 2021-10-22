@@ -10,6 +10,7 @@ use App\Models\PuppetAnalysisCell;
 use App\Models\PuppetAnalysisColumn;
 use App\Models\PuppetAnalysisRow;
 use App\Models\PuppetAnalysisIgnore;
+use Illuminate\Support\Facades\Log;
 
 class FindPuppetController extends \App\Http\Controllers\Controller
 {
@@ -49,7 +50,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         ini_set('memory_limit','-1'); 
         set_time_limit(0);
         error_reporting(0);        
-
+        Log::info('findPuppet排程：開始執行');
         $error_msg = '';
         $whereArr = [];
         $whereArrOfIp = [];
@@ -104,11 +105,11 @@ class FindPuppetController extends \App\Http\Controllers\Controller
             echo $error_msg;
 
                 if(!$error_msg) {
-
+                        Log::info('findPuppet排程：開始清空col、row、cell的舊資料');
  						$this->column->where('cat',$cat)->delete();
 						$this->row->where('cat',$cat)->delete();
 						$this->cell->where('cat',$cat)->delete();         
-
+                        Log::info('findPuppet排程：完成清空col、row、cell的舊資料');
 						//$this->column->truncate();
 						//$this->row->truncate();
 						//$this->cell->truncate(); 						
@@ -136,7 +137,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         else $have_mon_limit = false;
                     
                     }                                    
-                    
+                    Log::info('findPuppet排程：開始讀取不比對的user id $excludeUserId');
                     $excludeUserId = array_pluck(User::whereHas('roles', function($query){
                         $query->where('name', 'like', '%admin%');
                     })->Select('id')->orwhere('id',1049)->orwhere('id',1)->orwhere('id',2)
@@ -147,12 +148,14 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         $query->where('is_active', '0');
                     })
                     ->get()->toArray(), 'id');
-
+                    Log::info('findPuppet排程：完成讀取不比對的user id $excludeUserId '.json_encode($excludeUserId??null));
                     //$ignoreUserId = array_pluck($this->ignore->whereNull('ip')->orwhere('ip','')->get()->toArray(),'item');                    
+                    Log::info('findPuppet排程：開始讀取略過名單 $ignoreUserIdArr');
                     $ignoreUserIdEntrys = $this->ignore->whereNull('ip')->orwhere('ip','')->get();                    
                     foreach($ignoreUserIdEntrys  as $ignoreUserIdEntry) {
                         $ignoreUserIdArr[$ignoreUserIdEntry->item] = $ignoreUserIdEntry;
                     }  
+                    Log::info('findPuppet排程：完成讀取略過名單 $ignoreUserIdArr '.json_encode($ignoreUserIdArr??null));
                     $model = $this->model;
                     $loginDataEntrys = null;
                     $this->_columnIp = [];
@@ -162,7 +165,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     $this->_groupIdx = 0; 
                     
                     if(!$only || $only=='ip') {
-
+                        Log::info('findPuppet排程：開始產生IP的Login資料');
                         $ignoreUserIdIpCollect = $this->ignore->whereNotNull('ip')->where('ip','<>','')->get();         
                         $ignoreUserIdIpArr = [];
                         foreach($ignoreUserIdIpCollect  as $userIdIpEntry) {
@@ -241,13 +244,14 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                             $check_rs = null;
                             $nowUserIdArr = null;
                         }
+                        Log::info('findPuppet排程：完成產生IP的Login資料');
                     }
                     $middleIpUserIdArr = null;
                     
                     $loginDataEntrys = null;
                     
                     if(!$only || $only=='cfpid') {
-                    
+                        Log::info('findPuppet排程：開始產生CfpId的Login資料');
                         $loginDataCfpIdQuery = $model->has('user')->groupBy('cfp_id','user_id')
                                 ->select('cfp_id','user_id')->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')->whereNotNull('cfp_id')->where('cfp_id','<>','');
                         
@@ -275,7 +279,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                             
                             $this->loginDataByCfpId[$loginDataCfpIdEntry->cfp_id][$loginDataCfpIdEntry->user_id] = $loginDataCfpIdEntry;
                             $this->loginDataByUserIdCfpId[$loginDataCfpIdEntry->user_id][$loginDataCfpIdEntry->cfp_id] = $loginDataCfpIdEntry;
-                        }    
+                        }  
+                        Log::info('findPuppet排程：完成產生CfpId的Login資料');                        
                     }
                     
                     $ignoreUserId = array_pluck($this->ignore->whereNull('ip')->orwhere('ip','')->get()->toArray(),'item');                                        
@@ -284,6 +289,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     $puppetFromUsers = null;
                   
                     if(!$only || $only=='cfpid') {
+                        Log::info('findPuppet排程：開始比對CfpId');                        
                         $cfpidPuppetFromUserQuery = $model->has('user')->groupBy('cfp_id')
                                 ->select('cfp_id')->selectRaw('COUNT(DISTINCT `user_id`) AS num')
                                 ->whereNotNull('cfp_id')->where('cfp_id','<>','')
@@ -307,6 +313,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                                 
                             }
                         } 
+                        Log::info('findPuppet排程：完成比對CfpId，組別達到'.$this->_groupIdx.'組');     
                     }
 
 
@@ -315,6 +322,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     $puppetFromUsers = null;
                     
                     if(!$only || $only=='ip') {
+                        Log::info('findPuppet排程：開始比對IP');   
                         $ipPuppetFromUserQuery = $model->has('user')->groupBy('ip')
                                 ->select('ip')->selectRaw('COUNT(DISTINCT `user_id`) AS num')->whereNotNull('ip')->where('ip','<>','')
                                 ->orderByDesc('num');
@@ -336,11 +344,13 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                                 $this->_groupIdx++;
                             }
                         }
+                         Log::info('findPuppet排程：完成比對IP，組別達到'.$this->_groupIdx.'組');   
                     }
 
                     $add_num=0;
                     $creatingArr = null;
-                    
+                    Log::info('findPuppet排程：開始寫入資料庫');   
+                    Log::info('findPuppet排程：開始寫入col資料');   
                     foreach($this->_columnIp  as $groupIdx=>$colSet) {
                         foreach($colSet  as $nowColumnIdx=>$colElt) {
                             
@@ -367,12 +377,13 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         }
                         
                     }
+                     
                     if($creatingArr)
                     $this->column->insert($creatingArr);
-                    
+                    Log::info('findPuppet排程：完成寫入col資料');  
                     $creatingArr = null;
                     $add_num = 0;
-                    
+                    Log::info('findPuppet排程：開始寫入row資料'); 
                     foreach($this->_rowUserId  as $groupIdx=>$rowSet) {
                         foreach($rowSet  as $nowRowIdx=>$rowElt) {
                             
@@ -396,11 +407,11 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     }
                     if($creatingArr)
                     $this->row->insert($creatingArr);   
-                    
+                    Log::info('findPuppet排程：完成寫入row資料'); 
                     $creatingArr = null;
                     
                     $add_num = 0;
-                    
+                    Log::info('findPuppet排程：開始寫入cell資料'); 
                     foreach($this->_cellVal  as $groupIdx=>$rowSet) {
                         foreach($rowSet  as $nowRowIdx=>$colSet) {
                             foreach($colSet  as $nowColumnIdx=>$cnt) {
@@ -432,12 +443,19 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     }
                    if($creatingArr)
                     $this->cell->insert($creatingArr);  
-                
+                   Log::info('findPuppet排程：完成寫入cell資料'); 
+                   Log::info('findPuppet排程：完成寫入資料庫');
+                    Log::info('findPuppet排程：執行完畢');                   
+                }
+                else {
+                    Log::info('findPuppet排程：由程式檢查出參數錯誤而中止執行(尚未開始讀寫資料庫)'.json_encode($error_msg??null));
                 }
             
             //}
         } catch (Exception $e) {
-            echo $e->getMessage();exit;
+            echo $e->getMessage();
+            Log::info('findPuppet排程：出現Exception錯誤而中止執行 '.json_encode($e??null)); 
+            exit;
         }
         
         echo '1';exit;
