@@ -69,6 +69,16 @@
 	body table tr th .btn:visited {color:#fff;}
 	body table tr th .btn.handling {background-color:#BEBEBE;color:block;cursor:default;}
  	body table tr td.group_last_time,body table tr.banned td.group_last_time,body table tr.implicitlyBanned td.group_last_time,body table tr.isWarned td.group_last_time,body table tr.isClosed td.group_last_time,body table tr.isClosedByAdmin td.group_last_time {background-color:#FF9999 !important;}
+    h2 span.title_info {font-size:15px;}
+    div.new_exec_log {margin-top:10px;margin-bottom:10px;border:1px solid #e9ecef;padding:5px;border-radius:10px;}
+    div.bolder {font-weight:bolder;}
+    #cron_log {margin-left:145px;display:none;}
+    #review_cron_log {
+        width: 7%;
+        padding: 3px;
+        color: #fff;
+        font-size: 2px;        
+    }
  </style>
  <style>
     .table > tbody > tr > td, .table > tbody > tr > th{
@@ -229,7 +239,12 @@
 					console.log(error);
 				}
 			});			
-		})		
+		})	
+
+        $('#review_cron_log').on('click',function(){
+            $('#cron_log').toggle();
+            return false;
+        });
 	})	
 </script>
 <body style="padding: 15px;">
@@ -237,6 +252,7 @@
 
 <div class="top_head_title_info">
 <h2>多重登入帳號@if(!request()->only)交叉比對@else{{strtoupper(request()->only)}}分析@endif數據
+@if($new_exec_log->count()) <span class="title_info">(新排程正在執行中)</span> @endif
 @if(isset($columnSet) && $columnSet)
 <span class="dateInfo">
 	@if (request()->only!='cfpid')	
@@ -272,10 +288,38 @@
 @if(count($groupOrderArr)>1)
 從 
 <a href="#g{{count($groupOrderArr[0])+1}}" class="jump_to_all_handled_group">第{{count($groupOrderArr[0])+1}}組</a> 
-開始為全部被封鎖或帳號被關閉到只剩一個以下的組別
+開始 為全部被封鎖或帳號被關閉到只剩一個以下的組別
 @endif
 </div>
+
 </div>
+@if($new_exec_log->count())
+<div class="new_exec_log">
+<div class="bolder">請注意：</div>
+<div>有新的排程從{{$new_exec_log[0]->created_at}}開始執行，目前仍正在執行中，因此本頁面所呈現的已經是上一次排程的舊資料。</div>
+<div>新排程已執行{{\Carbon\Carbon::now()->diffInMinutes(\Carbon\Carbon::parse($new_exec_log[0]->created_at))}}分鐘
+@if($end_cron_date??null && $end_date??null)
+@if( \Carbon\Carbon::now()->diffInMinutes(\Carbon\Carbon::parse($new_exec_log[0]->created_at))> \Carbon\Carbon::parse($end_cron_date)->diffInMinutes(\Carbon\Carbon::parse($end_date)))
+已經超過
+@else
+尚未超過
+@endif
+上一次排程執行總時間{{\Carbon\Carbon::parse($end_cron_date)->diffInMinutes(\Carbon\Carbon::parse($end_date))}}分鐘
+@endif
+</div>
+<div class="latest_exec_log">▶排程最新執行進度：
+<span>{{$new_exec_log[0]->updated_at}}  {{$new_exec_log[0]->name}}</span>@if($new_exec_log->count()>1) <span>
+<a  id="review_cron_log" class="btn btn-primary">查看全部</a></span> @endif
+@if($new_exec_log->count()>1)
+<div id="cron_log">
+@for ($i = 1; $i < $new_exec_log->count(); $i++)
+<li>{{$new_exec_log[$i]->updated_at}} {{$new_exec_log[$i]->name}} </li>
+@endfor
+</div>
+@endif
+</div>
+</div>    
+@endif
 @if(request()->getHttpHost()=='chen.test-tw.icu')
 <div>
 <input type="button" name="check" value="手動產出數據(僅測試用)" id="checkBtn"  onclick="doCheck();return false;" />
