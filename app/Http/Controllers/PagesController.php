@@ -1607,7 +1607,7 @@ class PagesController extends BaseController
 
         }else if($isHideOnline == 1){
             //check current is_hide_online
-            $checkHideOnlineData = hideOnlineData::where('user_id',$user_id)->where('deleted_at', null)->get()->first();
+            $checkHideOnlineData = hideOnlineData::where('user_id',$user_id)->get()->first();
             $user = User::where('id', $user_id)->get()->first();
             $insertData = true;
 
@@ -1615,13 +1615,13 @@ class PagesController extends BaseController
                 $insertData = false;
             }
 
-            User::where('id', $user_id)->update(['is_hide_online' => 1, 'hide_online_time' => Carbon::now()]);
+            User::where('id', $user_id)->update(['is_hide_online' => 1, 'hide_online_time' => $checkHideOnlineData->login_time]);
 
             $status_msg = '搜索排序設定已關閉。';
 
         }else if($isHideOnline == 2){
             //check current is_hide_online
-            $checkHideOnlineData = hideOnlineData::where('user_id',$user_id)->where('deleted_at', null)->get()->first();
+            $checkHideOnlineData = hideOnlineData::where('user_id',$user_id)->get()->first();
             $user = User::where('id', $user_id)->get()->first();
             $insertData = true;
 
@@ -1629,7 +1629,7 @@ class PagesController extends BaseController
                 $insertData = false;
             }
 
-            User::where('id', $user_id)->update(['is_hide_online' => 2, 'hide_online_hide_time' => Carbon::now()]);
+            User::where('id', $user_id)->update(['is_hide_online' => 2, 'hide_online_time' => $checkHideOnlineData->login_time, 'hide_online_hide_time' => Carbon::now()]);
 
             $status_msg = '搜索排序設定已隱藏。';
         }
@@ -4727,7 +4727,7 @@ class PagesController extends BaseController
 
         //你收藏的會員上線
         $uid = $user->id;
-        $myFav =  MemberFav::select('a.id as rowid','a.member_id','a.member_fav_id','b.id','b.name','b.title',\DB::raw("IF(b.is_hide_online = 1, b.hide_online_time, b.last_login) as last_login"),'v.id as vid','v.created_at as visited_created_at')
+        $myFav =  MemberFav::select('a.id as rowid','a.member_id','a.member_fav_id','b.id','b.name','b.title',\DB::raw("IF(b.is_hide_online = 1 or b.is_hide_online = 2, b.hide_online_time, b.last_login) as last_login"),'v.id as vid','v.created_at as visited_created_at')
             ->where('a.member_id',$user->id)->from('member_fav as a')
             ->leftJoin('users as b','a.member_fav_id','b.id')->where('b.id','!=',null)
             ->leftJoin('visited as v', function ($join) use ($uid){
@@ -4751,7 +4751,7 @@ class PagesController extends BaseController
 
 
         //收藏你的會員上線
-        $otherFav = MemberFav::select('a.id as rowid','a.member_id','a.member_fav_id','b.name','b.title',\DB::raw("IF(b.is_hide_online = 1, b.hide_online_time, b.last_login) as last_login"))
+        $otherFav = MemberFav::select('a.id as rowid','a.member_id','a.member_fav_id','b.name','b.title',\DB::raw("IF(b.is_hide_online = 1 or b.is_hide_online = 2, b.hide_online_time, b.last_login) as last_login"))
             ->where('a.member_fav_id',$user->id)->from('member_fav as a')
             ->leftJoin('users as b','a.member_id','b.id')->where('b.id','!=',null)
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'a.member_id')
