@@ -39,6 +39,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $this->_rowUserId = array();
         $this->_cellVal = array();
         $this->_columnType = array();
+        $this->_cpfidOfOverLimitUserId = [];
         $this->_groupIdx = 0; 
         $this->monarr = [];    
         $this->defaultSdateOfIp = \Carbon\Carbon::now()->subDays(10)->format('Y/m/d');
@@ -71,9 +72,6 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $edate = $curdate.$curtime;
 
         try {
-            
-
-
             $this->column->insert( ['column_index'=>-1
                 ,'name'=>'開始執行'
                 ,'group_index'=>-1
@@ -318,6 +316,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         $loginDataEntrys = $loginDataCfpIdQuery->orderBy('time','desc')->get();
                         $this->loginDataByCfpId = [];
                         $this->loginDataByUserIdCfpId = [];
+                        $cpfidOfOverLimitUserId = [];
 
                         foreach($loginDataEntrys  as $loginDataCfpIdEntry) {
                             
@@ -333,8 +332,15 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                             }                            
                             
                             $this->loginDataByCfpId[$loginDataCfpIdEntry->cfp_id][$loginDataCfpIdEntry->user_id] = $loginDataCfpIdEntry;
+                            if(!in_array($loginDataCfpIdEntry->cfp_id,$this->_cpfidOfOverLimitUserId) && count($this->loginDataByCfpId[$loginDataCfpIdEntry->cfp_id]??[])>50) $this->_cpfidOfOverLimitUserId[]=$loginDataCfpIdEntry->cfp_id;
                             $this->loginDataByUserIdCfpId[$loginDataCfpIdEntry->user_id][$loginDataCfpIdEntry->cfp_id] = $loginDataCfpIdEntry;
-                        }  
+                        }
+
+                        foreach($this->_cpfidOfOverLimitUserId as $cv) {
+                            $this->loginDataByCfpId[$cv] = null;
+                            unset($this->loginDataByCfpId[$cv] );
+                        }
+                        
                         Log::info('findPuppet排程'.$cat.'：完成產生CfpId的Login資料');   
                         $this->column->insert( ['column_index'=>-1
                             ,'name'=>'完成產生CfpId的Login資料'
@@ -378,8 +384,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                             else {
                                 if($this->_findMultiUserIdFromIp($cfpidPuppet->cfp_id,'cfp_id')===true) continue;
 
-                                $this->_groupIdx++;
-                                
+                                $this->_groupIdx++;  
                             }
                         } 
                         Log::info('findPuppet排程'.$cat.'：完成比對CfpId，組別達到'.$this->_groupIdx.'組');     
@@ -731,17 +736,26 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                 
             if(isset($multiIps) && $multiIps)           
                  foreach($multiIps  as $multiIp) {
+                     if(!$multiIp) continue;
                      if($this->_findMultiUserIdFromIp($multiIp->ip)===true) continue;
                  }
             
             $multiCfpIds = isset($this->loginDataByUserIdCfpId[$multiUserId->user_id])?$this->loginDataByUserIdCfpId[$multiUserId->user_id]:[];
 
-             $new_check_column = null;
+            $new_check_column = null;
+            $multiCfpIds_keys = array_keys($multiCfpIds);
+            if($this->_cpfidOfOverLimitUserId) {
+                $multiCfpIds_keys = array_diff($multiCfpIds_keys,$this->_cpfidOfOverLimitUserId);
+            }  
+
             if(isset($this->_columnIp[$groupIdx])) {
-                $new_check_column = array_diff(array_keys($multiCfpIds),$this->_columnIp[$groupIdx]);
+            
+                //$new_check_column = array_diff(array_keys($multiCfpIds),$this->_columnIp[$groupIdx]);
+                $new_check_column = array_diff($multiCfpIds_keys,$this->_columnIp[$groupIdx]);
 
             }
-            else {$new_check_column = array_keys($multiCfpIds);}
+            //else {$new_check_column = array_keys($multiCfpIds);}
+            else {$new_check_column = $multiCfpIds_keys;}
 
             if(isset($new_check_column) && $new_check_column)
                 foreach($new_check_column as $new_check_value) {
@@ -749,9 +763,13 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                             $this->_columnIp[$groupIdx][] = $new_check_value;
                 }             
 
-            if(isset($multiCfpIds) && $multiCfpIds)                 
-                 foreach($multiCfpIds  as $multiCfpId) {
-                     if($this->_findMultiUserIdFromIp($multiCfpId->cfp_id,'cfp_id')===true) continue;
+            //if(isset($multiCfpIds) && $multiCfpIds)                 
+            if(isset($multiCfpIds_keys) && $multiCfpIds_keys)                 
+                 //foreach($multiCfpIds  as $multiCfpId) {
+                foreach($multiCfpIds_keys  as $multiCfpId) {
+                     if(!$multiCfpId) continue;
+                     //if($this->_findMultiUserIdFromIp($multiCfpId->cfp_id,'cfp_id')===true) continue;
+                     if($this->_findMultiUserIdFromIp($multiCfpId,'cfp_id')===true) continue;
                  }             
              
         }   
@@ -898,7 +916,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     
                     if(isset($last_group)) {
                         if($now_group!=$last_group) {
-                            $last_group_row_count = count($this->_rowUserId[$last_group]);
+                            $last_group_row_count = count($this->_rowUserId[$last_group]??[]);
                             $last_group_adminclosed_count = $now_group_adminclosed_count;
                             $last_group_banned_count = $now_group_banned_count;
                             $last_group_implicitlyBanned_count = $now_group_implicitlyBanned_count;
@@ -972,7 +990,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
             }  
             
             if(isset($last_group)) {
-				$last_group_row_count = count($this->_rowUserId[$last_group]);
+				$last_group_row_count = count($this->_rowUserId[$last_group]??[]);
 				$last_group_adminclosed_count = $now_group_adminclosed_count;
 				$last_group_banned_count = $now_group_banned_count;
 				$last_group_implicitlyBanned_count = $now_group_implicitlyBanned_count;
@@ -1065,7 +1083,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     break;
                 }
                 $last_i = -1;
-                for($i=0;$i<count($arr1[$g]);$i++) {
+                for($i=0;$i<count($arr1[$g]??[]);$i++) {
                     for($j=0;$j<count($arr2[$g]);$j++) {
                         if(!isset($this->_cellVal[$g][$$rowIdx][$$colIdx])) continue;
                         if(!isset($queryName1)) $queryName1 = $this->_columnType[$g][$$colIdx];
@@ -1262,10 +1280,10 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         if(array_search($check_val ,array_dot($this->_columnIp))!==false) return true;
     } 
     
-    private function _havePuppetUserId($check_val,$login_data) {
-        $multiUserIds = $login_data[$check_val];
+    private function _havePuppetUserId($check_val=null,$login_data=[]) {
+        $multiUserIds = $login_data[$check_val]??[];
         
-        if(count($multiUserIds)<=1) {
+        if(!$multiUserIds || count($multiUserIds)<=1) {
             return false;
         }
         else return true;        
