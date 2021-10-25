@@ -22,6 +22,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\UsersToBakArea::class,
         \App\Console\Commands\SendSMS::class,
         \App\Console\Commands\BlockAreaUpdate::class,
+        \App\Console\Commands\InsertPR::class,
     ];
 
     /**
@@ -44,6 +45,7 @@ class Kernel extends ConsoleKernel
             $this->VIPCheck();
             $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('4:00');
+        $schedule->command('InsertPR')->timezone('Asia/Taipei')->dailyAt('04:00');
         $schedule->call(function (){
             $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('5:00');
