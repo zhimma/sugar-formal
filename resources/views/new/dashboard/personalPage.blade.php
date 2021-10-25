@@ -331,7 +331,7 @@
                                                     <h2><span>會員暱稱</span><font><a href="{{url('/dashboard/viewuser/' . $row->member_fav_id . '?time=' . \Carbon\Carbon::now()->timestamp)}}">{{$row->name}}</a></font></h2>
                                                     <h2><span>會員標題</span><font class="xss_he">{{$row->title}}</font></h2>
                                                     <h2><span>最後上線時間</span><font>{{ substr($row->last_login,0,16)}}</font></h2>
-                                                    <h2><span>是否來看過我</span><font>@if($row->vid !='')是，{{substr($row->visited_created_at,0,16)}}@endif</font></h2>
+                                                    <h2><span>是否來看過我</span><font>@if($row->vid !='')是，@if($row->is_hide_online==1 || $row->is_hide_online==2){{substr($row->last_login,0,16)}}@else{{substr($row->visited_created_at,0,16)}}@endif @else 否 @endif</font></h2>
                                                 </li>
                                             @endforeach
                                         </ul>
