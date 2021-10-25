@@ -91,6 +91,8 @@ class Visited extends Model
             ->whereNull('b6.blocked_id')
             ->whereNull('b7.member_id')
             ->whereNull('b8.member_id')
+            ->where('u.accountStatus', 1)
+            ->where('u.account_status_admin', 1)
             ->where('v.visited_id', $uid)
             ->groupBy('v.member_id')
             ->orderBy('latest_visited', 'desc')->get();

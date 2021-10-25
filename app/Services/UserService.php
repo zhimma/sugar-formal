@@ -682,7 +682,7 @@ class UserService
                 'password' => bcrypt($password)
             ]);
 
-            return $this->create($user, $password, $info['roles'], config('social.send-email'));
+            return $this->create($user, $password, $info['roles'], db_config('send-email'));
         });
     }
 

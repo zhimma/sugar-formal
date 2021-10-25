@@ -750,7 +750,7 @@ class PagesController extends BaseController
         $member_pics = MemberPic::withTrashed()->where('member_id', $user->id)->where('self_deleted', 0)->whereRaw('pic  NOT LIKE "%IDPhoto%"')->orderByDesc('created_at')->get();
         $member_pics = $member_pics->filter(function ($member_pic) {
             $admin_deleted_check = \App\Models\AdminPicturesSimilarActionLog::where('pic', $member_pic->pic)->first();
-            return !$member_pic->deleted_at || !($member_pic->deleted_at && $admin_deleted_check);
+            return !$member_pic->deleted_at || ($member_pic->deleted_at && $admin_deleted_check);
         })->values()->take(6);
         $avatar = UserMeta::where('user_id', $user->id)->get()->first();
         $userMeta = UserMeta::where('user_id', $user->id)->first();
@@ -1884,7 +1884,7 @@ class PagesController extends BaseController
             $auth_check=1;
         }
         if (isset($user) && isset($uid)) {
-            $targetUser = User::where('id', $uid)->where('accountStatus',1)->get()->first();
+            $targetUser = User::where('id', $uid)->where('accountStatus',1)->where('account_status_admin',1)->get()->first();
             if (!isset($targetUser)) {
                 return view('errors.nodata');
             }
@@ -1920,6 +1920,8 @@ class PagesController extends BaseController
             $fav_count = MemberFav::select('member_fav.*')
                 ->join('users', 'users.id', '=', 'member_fav.member_fav_id')
                 ->whereNotNull('users.id')
+                ->where('users.accountStatus', 1)
+                ->where('users.account_status_admin', 1)
                 ->where('member_fav.member_id', $uid)
                 ->whereNotIn('member_fav.member_fav_id',$bannedUsers)
                 ->get()->count();
@@ -1928,6 +1930,8 @@ class PagesController extends BaseController
             $be_fav_count = MemberFav::select('member_fav.*')
                 ->join('users', 'users.id', '=', 'member_fav.member_id')
                 ->whereNotNull('users.id')
+                ->where('users.accountStatus', 1)
+                ->where('users.account_status_admin', 1)
                 ->where('member_fav.member_fav_id', $uid)
                 ->whereNotIn('member_fav.member_id',$bannedUsers)
                 ->get()->count();
@@ -2017,6 +2021,8 @@ class PagesController extends BaseController
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
                 ->whereNull('wu.member_id')
+                ->where('users.accountStatus', 1)
+                ->where('users.account_status_admin', 1)
                 ->where(function($query)use($date_start,$date_end) {
                     $query->where('message.from_id','<>',1049)
                         ->where('message.sys_notice',0)
@@ -2071,6 +2077,8 @@ class PagesController extends BaseController
                 ->where('blocked.member_id', $uid)
                 ->whereNotIn('blocked.blocked_id',$bannedUsers)
                 ->whereNotNull('users.id')
+                ->where('users.accountStatus', 1)
+                ->where('users.account_status_admin', 1)
                 ->count();
 
             /*此會員被多少會員封鎖*/
@@ -2079,6 +2087,8 @@ class PagesController extends BaseController
                 ->where('blocked.blocked_id', $uid)
                 ->whereNotIn('blocked.member_id',$bannedUsers)
                 ->whereNotNull('users.id')
+                ->where('users.accountStatus', 1)
+                ->where('users.account_status_admin', 1)
                 ->count();
 
             /*每周平均上線次數*/
@@ -2184,7 +2194,7 @@ class PagesController extends BaseController
                 //end
             );
 
-            $member_pic = DB::table('member_pic')->where('member_id', $uid)->where('pic', '<>', $targetUser->meta->pic)->whereNull('deleted_at')->orderByDesc('created_at')->get();
+            $member_pic = MemberPic::where('member_id', $uid)->where('pic', '<>', $targetUser->meta->pic)->whereNull('deleted_at')->orderByDesc('created_at')->get();
 
             if($user->isVip()){
                 $vipLevel = 1;
@@ -2275,7 +2285,7 @@ class PagesController extends BaseController
                 ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.from_id')
                 ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.from_id')
                 ->leftJoin('users as u1', 'u1.id', '=', 'evaluation.from_id')
-                ->leftJoin('users as u2', 'u2.id', '=', 'evaluation.from_id')
+//                ->leftJoin('users as u2', 'u2.id', '=', 'evaluation.from_id')
 //                ->leftJoin('user_meta as um', function($join) {
 //                    $join->on('um.user_id', '=', 'evaluation.from_id')
 //                        ->where('isWarned', 1); })
@@ -2287,7 +2297,11 @@ class PagesController extends BaseController
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
                 ->whereNotNull('u1.id')
-                ->whereNotNull('u2.id')
+//                ->whereNotNull('u2.id')
+                ->where('u1.accountStatus', 1)
+                ->where('u1.account_status_admin', 1)
+//                ->where('u2.accountStatus', 1)
+//                ->where('u2.account_status_admin', 1)
 //                ->whereNull('um.user_id')
 //                ->whereNull('wu.member_id')
                 ->orderBy('evaluation.created_at','desc')
@@ -2371,10 +2385,13 @@ class PagesController extends BaseController
         $evaluation_data = Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
             ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'evaluation.to_id')
             ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'evaluation.to_id')
+            ->leftJoin('users as u', 'u.id', '=', 'evaluation.to_id')
             ->whereNull('b1.member_id')
             ->whereNull('b3.target')
-            ->orderBy('evaluation.created_at','desc')
+            ->where('u.accountStatus', 1)
+            ->where('u.account_status_admin', 1)
             ->where('evaluation.from_id', $user->id)
+            ->orderBy('evaluation.created_at','desc')
             ->paginate(15);
         return view('new.dashboard.evaluation_self')
             ->with('user', $user)
@@ -3180,6 +3197,8 @@ class PagesController extends BaseController
                 ->where('member_id', $user->id)
                 ->whereNotIn('blocked_id',$bannedUsers)
                 ->whereNotNull('users.id')
+                ->where('users.accountStatus', 1)
+                ->where('users.account_status_admin', 1)
                 ->orderBy('blocked.created_at','desc')->paginate(15);
 
             return view('new.dashboard.block')
@@ -4926,6 +4945,7 @@ class PagesController extends BaseController
             ->whereNull('b3.target')
             ->whereNull('b5.blocked_id')
             ->where('b.accountStatus', 1)
+            ->where('b.account_status_admin', 1)
             ->where('last_login', '>=', Carbon::now()->subDays(7))
             ->where('a.hide_member_id_log',0)
             ->groupBy('a.member_fav_id')
@@ -4945,6 +4965,7 @@ class PagesController extends BaseController
             ->whereNull('b3.target')
             ->whereNull('b5.blocked_id')
             ->where('b.accountStatus', 1)
+            ->where('b.account_status_admin', 1)
             ->where('last_login', '>=', Carbon::now()->subDays(7))
             ->where('a.hide_member_fav_id_log',0)
             ->get();

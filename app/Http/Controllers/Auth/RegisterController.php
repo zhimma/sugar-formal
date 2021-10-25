@@ -234,7 +234,7 @@ class RegisterController extends \App\Http\Controllers\BaseController
             //新註冊不須顯示修改提示，故須先將註記資料存入
             DB::table('exchange_period_temp')->insert(['user_id'=>$user->id,'created_at'=> now()]);
 
-            return $this->service->create($user, $data['password'], config('social.send-email'));
+            return $this->service->create($user, $data['password'], db_config('send-email'));
         });
     }
 }

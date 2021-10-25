@@ -118,7 +118,7 @@
                             @endfor
                         @endif
                     @else
-                        {{-- 會員為男性 --}}
+                        {{-- 會員為女性 --}}
                         <li class="write_img editBtn" id="{{$avatar->id}}">
                             <div class="delpicBtn">
                                 <img src="/new/images/gb_icon01.png" width="30px" height="30px">

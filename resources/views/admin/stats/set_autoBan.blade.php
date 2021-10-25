@@ -28,6 +28,7 @@
 	    	輸入來源email <input type ="text" name="cuz_email_set" value="">
 	    </td>
 		<td>來源主機</td>
+		<td>建立時間</td>
 	    <td>
 	    	<input type="radio" name="set_ban" value="1" checked>封鎖
 	    	<input type="radio" name="set_ban" value="2">隱形封鎖
@@ -68,6 +69,7 @@
 			@endif
 		</td>
 		<td>{{$result->host}}</td>
+		<td>{{$result->created_at}}</td>
 		@if($result->set_ban==1)
 			<td style="color:red">永久封鎖</td>
 		@elseif($result->set_ban==2)

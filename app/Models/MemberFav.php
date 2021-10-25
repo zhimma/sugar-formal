@@ -40,7 +40,18 @@ class MemberFav extends Model
     {
         $blocks = Blocked::select('blocked_id')->where('member_id', $uid)->get();
         $bannedUsers = \App\Services\UserService::getBannedId();
-        $fav = Visited::unique(MemberFav::where([['member_id', $uid],['member_fav_id', '!=', $uid]])->whereNotIn('member_fav_id',$blocks)->whereNotIn('member_fav_id',$bannedUsers)->distinct()->orderBy('created_at', 'desc')->get(), "member_fav_id");
+        $fav = Visited::unique(
+            MemberFav::select('member_fav.*')->from('member_fav')
+                ->leftJoin('users', 'users.id', 'member_fav.member_fav_id')
+                ->where('users.accountStatus', 1)
+                ->where('users.account_status_admin', 1)
+                ->where([['member_fav.member_id', $uid],['member_fav.member_fav_id', '!=', $uid]])
+                ->whereNotIn('member_fav.member_fav_id',$blocks)
+                ->whereNotIn('member_fav.member_fav_id',$bannedUsers)
+                ->distinct()
+                ->orderBy('member_fav.created_at', 'desc')
+                ->get(),
+            "member_fav_id");
         foreach ($fav as $k => $f) {
             $favUser = \App\Models\User::findById($f->member_fav_id);
             if(isset($favUser)){
