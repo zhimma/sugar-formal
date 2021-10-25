@@ -1347,7 +1347,7 @@
                         <span class="alert_tip" style="color:red;"></span>
                         <input type="file" name="images" >
                         <div class="new_pjckbox">
-                            評價請敘述事實，並盡量佐以圖片證明。主觀性評價站方得有修改或刪除的權力不另行通知
+                            評價請以敘述<a class="text-danger" style="color: red;">確實發生的事實</a>為主，不要有主觀判斷，盡量附上截圖佐證。若被評價者來申訴，您又沒有附上截圖，評價在驗證屬實前會被隱藏或撤銷。
                             <span><input type="checkbox" name="agree"><label>我同意上述說明</label></span>
                         </div>
                         <div class="n_bbutton" style="margin-top:0px;">

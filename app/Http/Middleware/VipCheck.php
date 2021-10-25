@@ -91,6 +91,12 @@ class VipCheck
             $countHideOnlineData = \App\Models\hideOnlineData::where('user_id', $user->id)->withTrashed()->get()->count();
             if($countHideOnlineData == 0){
                 \App\Models\ValueAddedService::addHideOnlineData($user->id);
+            }else{
+                //更新上線時間
+                $HideOnlineData = \App\Models\hideOnlineData::where('user_id', $user->id)->where('deleted_at', null)->get()->first();
+                if($user->hide_online_time != $HideOnlineData->login_time) {
+                    User::where('id', $user->id)->update(['hide_online_time' => $HideOnlineData->login_time]);
+                }
             }
 
         }

@@ -125,10 +125,6 @@ class ValueAddedService extends Model
             $valueAddedService->created_at = Carbon::now();
             $valueAddedService->save();
 
-//            if($service_name=='hideOnline'){
-//                User::where('id',$member_id)->update(['is_hide_online' => 1, 'hide_online_time' => Carbon::now()]);
-//            }
-
         }else{
             // 檢查重複升級
             if(isset(ValueAddedServiceLog::getLatestLog($member_id)->order_id) && ValueAddedServiceLog::getLatestLog($member_id)->order_id == $order_id){
@@ -168,10 +164,14 @@ class ValueAddedService extends Model
 
             $valueAddedServiceData->save();
 
-//            if($service_name=='hideOnline'){
-//                User::where('id',$member_id)->update(['is_hide_online' => 1, 'hide_online_time' => Carbon::now()]);
-//            }
         }
+
+
+        if($service_name=='hideOnline'){
+            $HideOnlineData = \App\Models\hideOnlineData::where('user_id', $member_id)->where('deleted_at', null)->get()->first();
+            User::where('id',$member_id)->update(['is_hide_online' => 1, 'hide_online_time' => $HideOnlineData->login_time]);
+        }
+
         ValueAddedServiceLog::addToLog($member_id, $service_name,'Upgrade, payment: ' . $payment . ', service: ' . $service_name, $order_id, $txn_id, 0);
     }
 
@@ -278,6 +278,7 @@ class ValueAddedService extends Model
     public static function addHideOnlineData($member_id)
     {
         $user = User::findById($member_id);
+        $bannedUsers = \App\Services\UserService::getBannedId();
         //存快照
         $register_time = $user->created_at;
         $login_time = Carbon::now();
@@ -291,8 +292,29 @@ class ValueAddedService extends Model
         } else {
             $login_times_per_week = round(($user->login_times / $week), 0);
         }
-        $be_fav_count = MemberFav::where('member_fav_id', $user->id)->get()->count();
-        $fav_count = MemberFav::where('member_id', $user->id)->get()->count();
+
+        /*收藏會員次數*/
+        $fav_count = MemberFav::select('member_fav.*')
+            ->join('users', 'users.id', '=', 'member_fav.member_fav_id')
+            ->whereNotNull('users.id')
+            ->where('users.accountStatus', 1)
+            ->where('users.account_status_admin', 1)
+            ->where('member_fav.member_id', $member_id)
+            ->whereNotIn('member_fav.member_fav_id',$bannedUsers)
+            ->get()->count();
+
+        /*被收藏次數*/
+        $be_fav_count = MemberFav::select('member_fav.*')
+            ->join('users', 'users.id', '=', 'member_fav.member_id')
+            ->whereNotNull('users.id')
+            ->where('users.accountStatus', 1)
+            ->where('users.account_status_admin', 1)
+            ->where('member_fav.member_fav_id', $member_id)
+            ->whereNotIn('member_fav.member_id',$bannedUsers)
+            ->get()->count();
+
+//        $be_fav_count = MemberFav::where('member_fav_id', $user->id)->get()->count();
+//        $fav_count = MemberFav::where('member_id', $user->id)->get()->count();
         $tip_count = Tip::where('to_id', $user->id)->get()->count();
         /*七天前*/
         $date = date('Y-m-d H:m:s', strtotime('-7 days'));
@@ -363,6 +385,8 @@ class ValueAddedService extends Model
             ->whereNull('b1.member_id')
             ->whereNull('b3.target')
             ->whereNull('wu.member_id')
+            ->where('users.accountStatus', 1)
+            ->where('users.account_status_admin', 1)
             ->where(function ($query) use ($date_start, $date_end) {
                 $query->where('message.from_id', '<>', 1049)
                     ->where('message.sys_notice', 0)
@@ -419,12 +443,14 @@ class ValueAddedService extends Model
         $be_visit_other_count_7 = Visited::where('visited_id', $user->id)->where('created_at', '>=', $date)->distinct('member_id')->count();
 
         /*此會員封鎖多少其他會員*/
-        $bannedUsers = \App\Services\UserService::getBannedId();
+
         $blocked_other_count = Blocked::with(['blocked_user'])
             ->join('users', 'users.id', '=', 'blocked.blocked_id')
             ->where('blocked.member_id', $user->id)
             ->whereNotIn('blocked.blocked_id',$bannedUsers)
             ->whereNotNull('users.id')
+            ->where('users.accountStatus', 1)
+            ->where('users.account_status_admin', 1)
             ->count();
 
         /*此會員被多少會員封鎖*/
@@ -433,6 +459,8 @@ class ValueAddedService extends Model
             ->where('blocked.blocked_id', $user->id)
             ->whereNotIn('blocked.member_id',$bannedUsers)
             ->whereNotNull('users.id')
+            ->where('users.accountStatus', 1)
+            ->where('users.account_status_admin', 1)
             ->count();
 
 
