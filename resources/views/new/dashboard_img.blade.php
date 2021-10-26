@@ -100,23 +100,48 @@
                                 <b class="img" style="background:url('{{ $avatar ?? '/new/images/ph_12.png' }}'); background-position:50% 50%; background-repeat: no-repeat; background-size: {{ ($avatar == '/img/illegal.jpg') ? 'cover' : 'contain' }};"></b>
                             </li>
                         @endif
-                        @if ($member_pics)
-                            @for ($i = 0; $i < 6 ; $i++)
-                                <li class="write_img">
-                                    <div class="n_ulhh">
-                                        <img src="/new/images/ph_05.png">
-                                    </div>
-                                    @php
-                                        $pic = isset($member_pics[$i]->pic) ? $member_pics[$i]->pic . '?' . \Carbon\Carbon::now() : NULL;
-                                        
-                                        if (isset($member_pics[$i]->pic) && \App\Models\AdminPicturesSimilarActionLog::where('pic', $member_pics[$i]->pic)->first()) {
-                                            $pic = '/img/illegal.jpg';
-                                        }
-                                    @endphp
-                                    <b class="img" style="background:url(' {{ $pic ?? '/new/images/ph_12.png' }} '); background-position:50% 50%; background-repeat: no-repeat; background-size: {{ ($pic == '/img/illegal.jpg') ? 'cover' : 'contain' }};"></b>
-                                </li>
-                            @endfor
-                        @endif
+                        @php
+                            $ImgCount=0;
+                        @endphp
+                        @foreach($member_pics as $key =>$lifeImg)
+                            <li class="write_img">
+                                <div class="n_ulhh">
+                                    <img src="/new/images/ph_05.png">
+                                </div>
+                                @php
+                                    $ImgCount+=1;
+                                    $pic = isset($member_pics[$key]->pic) ? $member_pics[$key]->pic . '?' . \Carbon\Carbon::now() : NULL;
+
+                                    if (isset($member_pics[$key]->pic) && \App\Models\AdminPicturesSimilarActionLog::where('pic', $member_pics[$key]->pic)->first()) {
+                                        $pic = '/img/illegal.jpg';
+                                    }
+                                @endphp
+                                <b class="img" style="background:url(' {{ $pic ?? '/new/images/ph_12.png' }} '); background-position:50% 50%; background-repeat: no-repeat; background-size: {{ ($pic == '/img/illegal.jpg') ? 'cover' : 'contain' }};"></b>
+                            </li>
+                        @endforeach
+                        @php
+                            //取得由後台刪除的生活照
+                            $illegalRemoveCount=\App\Models\MemberPic::getIllegalLifeImagesCount($user->id);
+                        @endphp
+                        @for ($i = 0; $i <$illegalRemoveCount ; $i++)
+                            <li class="write_img">
+                                <div class="n_ulhh">
+                                    <img src="/new/images/ph_05.png">
+                                </div>
+                                <b class="img" style="background:url('/img/illegal.jpg'); background-position:50% 50%; background-repeat: no-repeat; background-size: cover; }};"></b>
+                            </li>
+                        @endfor
+                        @php
+                            $lifeImgLimit=(6-$ImgCount-$illegalRemoveCount);
+                        @endphp
+                        @for ($i = 0; $i < $lifeImgLimit ; $i++)
+                            <li class="write_img">
+                                <div class="n_ulhh">
+                                    <img src="/new/images/ph_05.png">
+                                </div>
+                                <b class="img" style="background:url('/new/images/ph_12.png'); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
+                            </li>
+                        @endfor
                     @else
                         {{-- 會員為女性 --}}
                         <li class="write_img editBtn" id="{{$avatar->id}}">
@@ -151,17 +176,21 @@
                             </b>
                         </li>
                         {{-- 生活照五張，若無照片則顯示預設圖片 --}}
-                        @for ($i = 0; $i < 6 ; $i++)
+                        @php
+                            $ImgCount=0;
+                        @endphp
+                        @foreach($member_pics as $key =>$lifeImg)
                             @php
+                                $ImgCount+=1;
                                 $default = '/new/images/';
-                                if(!$user->isVip() and $i < 3)
+                                if(!$user->isVip() and $key < 3)
                                     $default .= 'ph_10.png';
                                 else
                                     $default .= 'ph_12.png';
 
-                                $pic = isset($member_pics[$i]->pic) ? $member_pics[$i]->pic . '?' .\Carbon\Carbon::now() : NULL;
+                                $pic = isset($member_pics[$key]->pic) ? $member_pics[$key]->pic . '?' .\Carbon\Carbon::now() : NULL;
 
-                                if (isset($member_pics[$i]->pic) && \App\Models\AdminPicturesSimilarActionLog::where('pic', $member_pics[$i]->pic)->first()) {
+                                if (isset($member_pics[$key]->pic) && \App\Models\AdminPicturesSimilarActionLog::where('pic', $member_pics[$key]->pic)->first()) {
                                     $pic = '/img/illegal.jpg';
                                 }
                             @endphp
@@ -171,7 +200,48 @@
                                 </div>
                                 <b class="img" style="background:url('{{ $pic ?? $default }}'); background-position:50% 50%; background-repeat: no-repeat; background-size: {{ ($pic == '/img/illegal.jpg') ? 'cover' : 'contain' }};"></b>
                             </li>
+                        @endforeach
+                        @php
+                            //取得由後台刪除的生活照
+                            $illegalRemoveCount=\App\Models\MemberPic::getIllegalLifeImagesCount($user->id);
+                        @endphp
+                        @for ($i = 0; $i <$illegalRemoveCount ; $i++)
+                            <li class="write_img">
+                                <div class="n_ulhh">
+                                    <img src="/new/images/ph_05.png">
+                                </div>
+                                <b class="img" style="background:url('/img/illegal.jpg'); background-position:50% 50%; background-repeat: no-repeat; background-size: cover; }};"></b>
+                            </li>
                         @endfor
+
+                        @php
+                            $showVipUploadCount=$ImgCount+$illegalRemoveCount;
+                            $commonCount=$showVipUploadCount<3 ? 3 : 6-$showVipUploadCount;
+                        @endphp
+                        @if($showVipUploadCount <3)
+                            @for ($i = 0; $i < 3-$showVipUploadCount ; $i++)
+                                <li class="write_img">
+                                    <div class="n_ulhh"><img src="/new/images/ph_05.png"></div>
+                                    <b class="img" style="background:url('/new/images/ph_10.png'); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
+                                </li>
+                            @endfor
+                            @for ($i = 0; $i < $commonCount; $i++)
+                                <li class="write_img">
+                                    <div class="n_ulhh"><img src="/new/images/ph_05.png"></div>
+                                    <b class="img" style="background:url('/new/images/ph_12.png'); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
+                                </li>
+                            @endfor
+                        @else
+                            @php
+                                $lifeImgLimit=(6-$ImgCount-$illegalRemoveCount);
+                            @endphp
+                            @for ($i = 0; $i < $lifeImgLimit ; $i++)
+                                <li class="write_img">
+                                    <div class="n_ulhh"><img src="/new/images/ph_05.png"></div>
+                                    <b class="img" style="background:url('/new/images/ph_12.png'); background-position:50% 50%; background-repeat: no-repeat; background-size: contain;"></b>
+                                </li>
+                            @endfor
+                        @endif
                     @endif
                     </ul>
                     <h2 class="h5" id="fileuploader-ajax">上傳照片 (點擊圖片可以裁切)<a href="javascript:;"  onclick="tour(fileuploader_ajax_tour)"><i class="ion ion-md-help-circle"></i></a></h2>

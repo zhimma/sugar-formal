@@ -66,4 +66,27 @@ class MemberPic extends Model
     {
         return MemberPic::where('member_id', $uid)->whereRaw("pic LIKE '%IDPhoto%'")->get();
     }
+
+    public static function getIllegalLifeImagesCount($user_id)
+    {
+        $lifeImages_all=MemberPic::withTrashed()->where('member_id',$user_id)->whereRaw('pic  NOT LIKE "%IDPhoto%"')->where('self_deleted',0)->whereNotNull('deleted_at')->orderByDesc('deleted_at')->get()->toArray();
+        $lifeImages_now=MemberPic::where('member_id',$user_id)->whereRaw('pic  NOT LIKE "%IDPhoto%"')->orderByDesc('created_at')->get()->take(6)->toArray();
+        foreach($lifeImages_now as $now_k =>$now_row) {
+            $unsetImg=0;
+            foreach($lifeImages_all as $key =>$row){
+                if($unsetImg==1){
+                    continue;
+                }else{
+                    if($now_row['created_at']>=$row['deleted_at']){
+                        //logger(json_encode($lifeImages_all[$key]));
+                        unset($lifeImages_all[$key]);
+                        $unsetImg=1;
+                    }
+                }
+            }
+        }
+        $limit=6-count($lifeImages_now);
+
+        return count($lifeImages_all) > $limit ? $limit : count($lifeImages_all);
+    }
 }
