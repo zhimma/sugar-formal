@@ -367,21 +367,12 @@
                                     @endif
                                 @endforeach
                                 @php
-                                    $lifeImgLimit=(6-$ImgCount);
+                                    //取得由後台刪除的生活照
+                                    $illegalRemoveCount=\App\Models\MemberPic::getIllegalLifeImagesCount($user->id);
                                 @endphp
-                                @foreach($user->pic_onlyTrashed as $key =>$row)
-                                    @php
-                                      $checkAdminDeleted = \App\Models\AdminPicturesSimilarActionLog::where('pic', $row->pic)->first();
-                                    @endphp
-                                    @if(!str_contains($row->pic, 'IDPhoto') && !is_null($checkAdminDeleted))
-                                        @if($lifeImgLimit>0)
-                                            <div class="swiper-slide @if($isBlurLifePhoto) blur_img @endif" data-type="pic" data-sid="{{$to->id}}" data-pic_id="{{$row->id}}"><img src="{{ $row->deleted_at ? '/img/illegal.jpg' : $row->pic}}"></div>
-                                        @endif
-                                        @php
-                                            $lifeImgLimit-=1;
-                                        @endphp
-                                    @endif
-                                @endforeach
+                                @for ($i = 0; $i <$illegalRemoveCount ; $i++)
+                                    <div class="swiper-slide @if($isBlurLifePhoto) blur_img @endif"><img src="/img/illegal.jpg"></div>
+                                @endfor
                             </div>
                             <!-- Add Arrows -->
                             <div class="swiper-button-next"></div>
