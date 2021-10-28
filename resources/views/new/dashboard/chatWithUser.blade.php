@@ -371,7 +371,7 @@
             </div>
         </div>
     </div>
-    <div class="bl bl_tab" id="tab_payAlert">
+    <div class="bl bl_tab tab_payAlert" id="tab_payAlert">
         <div class="bltitle bltitle_fixed"><span>車馬費說明</span></div>
         <a id="" onclick="$('.blbg').click();" class="bl_gb bl_gb_fixed"><img src="/new/images/gb_icon.png"></a>
         <div class="n_blnr01 matop20">
@@ -634,70 +634,131 @@
     }
     $('.message').css('width',$('.shouxq').width()-20);
     $('.se_text').css('width',$('.shouxq').width());
+
     if(window.matchMedia("(max-width: 823px)").matches && window.matchMedia("(max-height: 823px)").matches){
         $('.se_text_bot').removeClass('se_text_bot_add_bottom');
         $('.bot').hide();
 
         message_max_height = message_height - $('.heicon').height() - 50;
         bl_gb_fixed_top = $(window).height() / 5 + 10;
-        $('.bltitle_fixed').css('width',$('#tab_payAlert').width()+1);
+        $('.bltitle_fixed').css('width',$('.tab_payAlert').width()+1);
         $('.bl_gb_fixed').css('top',bl_gb_fixed_top);
-        $('#tab_payAlert').css('height','70%');
+        $('.tab_payAlert').css('height','70%');
+        $('.bltitle_fixed').css('position','fixed');
+
+    }
+    if(window.matchMedia("(min-width: 812px)").matches && window.matchMedia("(max-height: 375px)").matches){
+        $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+        $('.bot').hide();
+
+        message_max_height = message_height - $('.heicon').height() - 50;
+        bl_gb_fixed_top = $(window).height() / 5 + 10;
+        $('.bltitle_fixed').css('width',$('.tab_payAlert').width()+1);
+        $('.bl_gb_fixed').css('top','40px');
+        $('.bl_gb_fixed').css('right','33%');
+        $('.tab_payAlert').css('height','70%');
+        $('.bltitle_fixed').css('position','fixed');
+
+    }
+    if(window.matchMedia("(min-width: 823px)").matches && window.matchMedia("(max-height: 411px)").matches){
+        $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+        $('.bot').hide();
+
+        message_max_height = message_height - $('.heicon').height() - 50;
+        bl_gb_fixed_top = $(window).height() / 5 + 10;
+        $('.bltitle_fixed').css('width',$('.tab_payAlert').width()+1);
+        $('.bl_gb_fixed').css('top','40px');
+        $('.bl_gb_fixed').css('right','33%');
+        $('.tab_payAlert').css('height','70%');
+        $('.bltitle_fixed').css('position','fixed');
 
     }
     if(window.matchMedia("(min-width: 1024px)").matches && window.matchMedia("(max-height: 690px)").matches){
         bl_gb_fixed_top = $(window).height() / 10 - 5;
         bl_gb_fixed_right = $(window).width() / 3 - 5;
         //alert(bl_gb_fixed_right);
-        $('.bltitle_fixed').css('width',$('#tab_payAlert').width());
+        $('.bltitle_fixed').css('width',$('.tab_payAlert').width());
         $('.bl_gb_fixed').css('top',bl_gb_fixed_top);
         $('.bl_gb_fixed').css('right',bl_gb_fixed_right);
         $('.matop20').css('margin-top','40px !important');
+        $('.bltitle_fixed').css('position','fixed');
     }
 
     $('.message').css('max-height',message_max_height-40);
 
-    $(window).resize(function() {
-        var message_max_height,bl_gb_fixed_top,bl_gb_fixed_right;
-        var message_height = $(window).height() - $('#message_input').height() - $('.shouxq').height();
-        var footer_height = $('.bot').height();
-        if($(window).height()<=601){
-            message_max_height = message_height - $('.hetop').height() - 50;
-        }else{
-            message_max_height = message_height - footer_height - $('.hetop').height() - 40;
-            //$('.se_text_bot').addClass('se_text_bot_add_bottom');
-            $('.se_text_bot').css('bottom',$('.se_text_bot_add_bottom').height() -70);
+    $(document).ready(function () {
+        $(window).resize(function() {
+            // alert($('.tab_payAlert').width());
+            var message_max_height,bl_gb_fixed_top,bl_gb_fixed_right;
+            var message_height = $(window).height() - $('#message_input').height() - $('.shouxq').height();
+            var footer_height = $('.bot').height();
+            if($(window).height()<=601){
+                message_max_height = message_height - $('.hetop').height() - 50;
+            }else{
+                message_max_height = message_height - footer_height - $('.hetop').height() - 40;
+                //$('.se_text_bot').addClass('se_text_bot_add_bottom');
+                $('.se_text_bot').css('bottom',$('.se_text_bot_add_bottom').height() -70);
 
-        }
-        $('.message').css('width',$('.shouxq').width()-20);
-        $('.se_text').css('width',$('.shouxq').width());
-        // if( /Android|iPhone/i.test(navigator.userAgent) ) {
-        if(window.matchMedia("(max-width: 767px)").matches && window.matchMedia("(max-height: 823px)").matches){
-            $('.se_text_bot').removeClass('se_text_bot_add_bottom');
-            $('.bot').hide();
+            }
+            $('.message').css('width',$('.shouxq').width()-20);
+            $('.se_text').css('width',$('.shouxq').width());
+            // if( /Android|iPhone/i.test(navigator.userAgent) ) {
+            if(window.matchMedia("(min-width: 767px)").matches && window.matchMedia("(max-height: 823px)").matches){
+                $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+                $('.bot').hide();
 
-            message_max_height = message_height - $('.heicon').height() - 50;
-            bl_gb_fixed_top = $(window).height() / 5 + 10;
-            //alert(bl_gb_fixed_top);
-            $('.bltitle_fixed').css('width',$('#tab_payAlert').width()+1);
-            $('.bl_gb_fixed').css('top',bl_gb_fixed_top);
-            $('#tab_payAlert').css('height','70%');
+                message_max_height = message_height - $('.heicon').height() - 50;
+                bl_gb_fixed_top = $(window).height() / 5 + 10;
+                //alert(bl_gb_fixed_top);
+                $('.bltitle_fixed').css('width', $('.tab_payAlert').width()+1);
+                $('.bl_gb_fixed').css('top',bl_gb_fixed_top);
+                $('.tab_payAlert').css('height','70%');
+                $('.bltitle_fixed').css('position','fixed');
 
-        }
-        if(window.matchMedia("(min-width: 1024px)").matches && window.matchMedia("(max-height: 690px)").matches){
-            bl_gb_fixed_top = $(window).height() / 10 - 5;
-            bl_gb_fixed_right = $(window).width() / 3 - 5;
-            //alert(bl_gb_fixed_right);
-            $('.bltitle_fixed').css('width',$('#tab_payAlert').width());
-            $('.bl_gb_fixed').css('top',bl_gb_fixed_top);
-            $('.bl_gb_fixed').css('right',bl_gb_fixed_right);
-            $('.matop20').css('margin-top','40px !important');
-        }
-        // if(window.matchMedia("(min-width: 1024px)").matches){
-        //     bl_gb_fixed_top = $(window).height() / 10;
-        //     $('.bl_gb_fixed').css('top',bl_gb_fixed_top);
-        // }
-        $('.message').css('max-height',message_max_height-40);
+
+            }
+            if(window.matchMedia("(min-width: 812px)").matches && window.matchMedia("(max-height: 375px)").matches){
+                $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+                $('.bot').hide();
+
+                message_max_height = message_height - $('.heicon').height() - 50;
+                bl_gb_fixed_top = $(window).height() / 5 + 10;
+                $('.bltitle_fixed').css('width',$('.tab_payAlert').width()+1);
+                $('.bl_gb_fixed').css('top','40px');
+                $('.bl_gb_fixed').css('right','33%');
+                $('.tab_payAlert').css('height','70%');
+                $('.bltitle_fixed').css('position','fixed');
+
+            }
+            if(window.matchMedia("(min-width: 823px)").matches && window.matchMedia("(max-height: 411px)").matches){
+                $('.se_text_bot').removeClass('se_text_bot_add_bottom');
+                $('.bot').hide();
+
+                message_max_height = message_height - $('.heicon').height() - 50;
+                bl_gb_fixed_top = $(window).height() / 5 + 10;
+                $('.bltitle_fixed').css('width',$('.tab_payAlert').width()+1);
+                $('.bl_gb_fixed').css('top','40px');
+                $('.bl_gb_fixed').css('right','33%');
+                $('.tab_payAlert').css('height','70%');
+                $('.bltitle_fixed').css('position','fixed');
+
+            }
+            if(window.matchMedia("(min-width: 1024px)").matches && window.matchMedia("(max-height: 690px)").matches){
+                bl_gb_fixed_top = $(window).height() / 10 - 5;
+                bl_gb_fixed_right = $(window).width() / 3 - 5;
+                //alert(bl_gb_fixed_right);
+                $('.bltitle_fixed').css('width',$('.tab_payAlert').width());
+                $('.bl_gb_fixed').css('top',bl_gb_fixed_top);
+                $('.bl_gb_fixed').css('right',bl_gb_fixed_right);
+                $('.matop20').css('margin-top','40px !important');
+                $('.bltitle_fixed').css('position','fixed');
+            }
+            // if(window.matchMedia("(min-width: 1024px)").matches){
+            //     bl_gb_fixed_top = $(window).height() / 10;
+            //     $('.bl_gb_fixed').css('top',bl_gb_fixed_top);
+            // }
+            $('.message').css('max-height',message_max_height-40);
+        });
     });
 
     $(window).scroll(function() {
