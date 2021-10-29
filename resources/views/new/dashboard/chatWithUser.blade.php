@@ -374,7 +374,7 @@
     <div class="bl bl_tab tab_payAlert" id="tab_payAlert">
         <div class="bltitle bltitle_fixed"><span>車馬費說明</span></div>
         <a id="" onclick="$('.blbg').click();" class="bl_gb bl_gb_fixed"><img src="/new/images/gb_icon.png"></a>
-        <div class="n_blnr01 matop20">
+        <div class="n_blnr01 matop20 tip_adjust">
             <div class="n_fengs">
             @if(isset($tippopup))
                 {!! $tippopup !!}
