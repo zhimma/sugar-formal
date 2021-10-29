@@ -130,7 +130,7 @@
                                 <img src="/new/images/dpicon.png">
                                 <h2><span>●</span><var>假設見面感覺不錯，可以嘗試進入長期關係。</var></h2>
                                 <h2><span>●</span><var>此時可以考慮給Line，你加他或者用二維碼(重要)。</var></h2>
-                                <h2><span>●</span><var>此時尚不要給其它聯絡方式。</var></h2>
+                                <h2><span>●</span><var>此時千萬不要先給其他聯絡方式。</var></h2>
                                 @else
                                 <img src="/new/images/dpicon_m.png">
                                 <h2><span class="sop_f">●</span><var>第一次約見盡量約在公開場合。例如星巴克，丹堤等。進可攻退可守，雙方都有意可以續約下一攤吃飯，或者直接進入包養主題。不喜歡就走人。
