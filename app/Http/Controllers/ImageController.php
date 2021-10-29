@@ -737,7 +737,7 @@ class ImageController extends BaseController
 
         $user->load('pic','meta');
 
-        if(!$user->existHeaderImage() && $user->pic()->count()<3  && $user->engroup==2){
+        if(!$user->existHeaderImage() && $user->pic()->count() <= 3  && $user->engroup==2){
             if( $user->isFreeVip()) {
                 $msg="您的照片低於四張，需於30分鐘內補上，若超過30分鐘才補上，須等24hr才會恢復vip資格喔。";
                 $log_sys_react = 'reminding';
