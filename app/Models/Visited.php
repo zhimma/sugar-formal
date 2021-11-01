@@ -62,7 +62,7 @@ class Visited extends Model
 
     public static function findBySelf($uid)
     {
-        return Visited::select(\DB::raw('v.*, max(v.created_at) as latest_visited'))
+        return Visited::select(\DB::raw('v.*, IF(u.is_hide_online = 1 or u.is_hide_online = 2, u.hide_online_time, max(v.created_at)) as latest_visited'))
             ->with(['user'])
             ->from('visited as v')
             ->leftJoin('users as u', 'u.id', '=', 'v.member_id')

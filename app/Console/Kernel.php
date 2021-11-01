@@ -22,6 +22,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\UsersToBakArea::class,
         \App\Console\Commands\SendSMS::class,
         \App\Console\Commands\BlockAreaUpdate::class,
+        \App\Console\Commands\InsertPR::class,
     ];
 
     /**
@@ -44,6 +45,7 @@ class Kernel extends ConsoleKernel
             $this->VIPCheck();
             $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('4:00');
+        $schedule->command('InsertPR')->timezone('Asia/Taipei')->dailyAt('04:00');
         $schedule->call(function (){
             $this->checkEmailVailUser();
         })->timezone('Asia/Taipei')->dailyAt('5:00');
@@ -456,20 +458,20 @@ class Kernel extends ConsoleKernel
                     ->where("name", "sent_today_200")
                     ->update(["value" => 1, "updated_at" => Carbon::now()]);
         }
-        elseif ($picCountMonth > 4500 && $todayHasSent4500->value == 0) {
-            if($isOn) {
-                DB::table("queue_global_variables")
-                    ->where("name", "similar_images_search")
-                    ->update([
-                        "value" => 0,
-                        'updated_at' => \Carbon\Carbon::now(),
-                    ]);
-                $str = "一個月內會員照片數已超過 4500 張，比對程序已暫停。";
-                DB::table("queue_global_variables")
-                    ->where("name", "sent_today_4500")
-                    ->update(["value" => 1, "updated_at" => Carbon::now()]);
-            }
-        }
+        // elseif ($picCountMonth > 4500 && $todayHasSent4500->value == 0) {
+        //     if($isOn) {
+        //         DB::table("queue_global_variables")
+        //             ->where("name", "similar_images_search")
+        //             ->update([
+        //                 "value" => 0,
+        //                 'updated_at' => \Carbon\Carbon::now(),
+        //             ]);
+        //         $str = "一個月內會員照片數已超過 4500 張，比對程序已暫停。";
+        //         DB::table("queue_global_variables")
+        //             ->where("name", "sent_today_4500")
+        //             ->update(["value" => 1, "updated_at" => Carbon::now()]);
+        //     }
+        // }
         if($str) {
             $to = ["admin@sugar-garden.org", "sandyh.dlc@gmail.com", "lzong.tw@gmail.com"];
             foreach ($to as $t) {

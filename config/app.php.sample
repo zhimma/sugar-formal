@@ -182,7 +182,6 @@ return [
         App\Providers\RouteServiceProvider::class,
         Ixudra\Curl\CurlServiceProvider::class,
         Shivella\Bitly\BitlyServiceProvider::class,
-        App\Providers\ScheduleServiceProvider::class,
         App\Providers\MessageServiceProvider::class,
         Yajra\DataTables\DataTablesServiceProvider::class,
     ],

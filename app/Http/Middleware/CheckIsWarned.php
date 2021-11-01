@@ -47,33 +47,51 @@ class CheckIsWarned
         if($user->isPhoneAuth()==1){
             $auth_status = 1;
         }
+        //正被封鎖
+        $isBanned = banned_users::where('member_id',$user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->orderBy('id', 'desc')->get();
+        //正被警示
+        $isWarned = warned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->orderBy('id', 'desc')->get();
+
+        //封鎖 警示 並存時 只保留封鎖 刪除警示
+        if(count($isBanned)>0 && count($isWarned)>0){
+            warned_users::where('member_id',$user->id)->delete();
+        }
+
+        //移除重複資料
+        if(count($isBanned)>1){
+            $isBanned_now = banned_users::where('member_id',$user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->orderBy('id', 'desc')->first();
+            //delete other
+            banned_users::where('member_id',$user->id)->where('id', '<>', $isBanned_now->id)->delete();
+        }
+
+        if(count($isWarned)>1){
+            $isWarned_now = warned_users::where('member_id',$user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->orderBy('id', 'desc')->first();
+            //delete other
+            warned_users::where('member_id',$user->id)->where('id', '<>', $isWarned_now->id)->delete();
+        }
 
         //vip_pass and vip
         //check is ever vip_pass and now not vip
         if(!$user->isVip() && !$user->isFreeVip() && $user->engroup == 1){
 
-            //正被封鎖
-            $isBanned = banned_users::where('member_id',$user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->first();
-            //正被警示
-            $isWarned = warned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->first();
-
-            if(!$isBanned){
+            if(count($isBanned)==0){
                 //if ever banned by vip_pass then reBanned
                 $logBanned = IsBannedLog::where('user_id', $user->id)->where('vip_pass', 1)->orderBy('created_at', 'desc')->first();
                 if($logBanned){
                     banned_users::insert([
                         'member_id' => $user->id,
                         'vip_pass' => 1,
-                        'reason' => str_replace('(未續費)','', $logBanned->reason),
+                        'reason' => str_replace('(未續費)','', $logBanned->reason).'(未續費)',
                         'message_content' => $logBanned->message_content,
                         'recipient_name' => $logBanned->recipient_name,
                         'message_time' => $logBanned->message_time,
-                        'created_at' => now()
+                        'created_at' => now(),
+                        'updated_at' => now()
                     ]);
 
                     IsBannedLog::insert([
                         'user_id' => $user->id,
-                        'reason' => str_replace('(未續費)','', $logBanned->reason),
+                        'reason' => str_replace('(未續費)','', $logBanned->reason).'(未續費)',
                         'message_content' => $logBanned->message_content,
                         'recipient_name' => $logBanned->recipient_name,
                         'message_time' => $logBanned->message_time,
@@ -83,7 +101,7 @@ class CheckIsWarned
                 }
 
             }
-            if(!$isWarned){
+            if(count($isWarned)==0){
                 //if ever banned by vip_pass then reBanned
                 $logWarned = IsWarnedLog::where('user_id', $user->id)->where('vip_pass', 1)->orderBy('created_at', 'desc')->first();
 
@@ -91,18 +109,23 @@ class CheckIsWarned
                     warned_users::insert([
                         'member_id' => $user->id,
                         'vip_pass' => 1,
-                        'reason' => str_replace('(未續費)','', $logWarned->reason),
-                        'created_at' => now()
+                        'reason' => str_replace('(未續費)','', $logWarned->reason).'(未續費)',
+                        'created_at' => now(),
+                        'updated_at' => now()
                     ]);
 
                     IsWarnedLog::insert([
                         'user_id' => $user->id,
-                        'reason' => str_replace('(未續費)','', $logWarned->reason),
+                        'reason' => str_replace('(未續費)','', $logWarned->reason).'(未續費)',
                         'vip_pass' => 1,
                         'created_at' => now()
                     ]);
                 }
             }
+        }else if($user->isVip() && !$user->isFreeVip() && $user->engroup == 1){
+            //防呆 當有VIP 則取消VIP_PASS
+            banned_users::where('member_id',$user->id)->where('vip_pass', 1)->delete();
+            warned_users::where('member_id',$user->id)->where('vip_pass', 1)->delete();
         }
 
         if($user->meta->isWarned == 1){

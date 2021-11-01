@@ -17,6 +17,8 @@
 <div>
     <table class="table-hover table table-bordered">
         <tr>
+            <td width="12%">列入可疑名單的時間</td>
+            <td width="12%">原因</td>
             <td width="12%">標題(一句話形容自己）</td>
             <td width="12%">email</td>
             <td width="12%">暱稱</td>
@@ -41,6 +43,8 @@
                     $user['warnedicon'] = \App\Models\User::warned_icondata($row->id);
                 @endphp
                 <tr>
+                    <td>{{$row->suspicious_created_time }}</td>
+                    <td>{{$row->suspicious_reason ? $row->suspicious_reason : '無' }}</td>
                     <td>{{$row->title }}</td>
                     <td><a href="/admin/users/advInfo/{{ $row->id }}" target="_blank">{{ $row->email }}</a></td>
                     <td @if($result['isBlocked']) style="background-color:#FFFF00" @endif>

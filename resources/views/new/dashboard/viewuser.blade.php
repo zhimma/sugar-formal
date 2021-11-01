@@ -367,21 +367,12 @@
                                     @endif
                                 @endforeach
                                 @php
-                                    $lifeImgLimit=(6-$ImgCount);
+                                    //取得由後台刪除的生活照
+                                    $illegalRemoveCount=\App\Models\MemberPic::getIllegalLifeImagesCount($user->id);
                                 @endphp
-                                @foreach($user->pic_onlyTrashed as $key =>$row)
-                                    @php
-                                      $checkAdminDeleted = \App\Models\AdminPicturesSimilarActionLog::where('pic', $row->pic)->first();
-                                    @endphp
-                                    @if(!str_contains($row->pic, 'IDPhoto') && !is_null($checkAdminDeleted))
-                                        @if($lifeImgLimit>0)
-                                            <div class="swiper-slide @if($isBlurLifePhoto) blur_img @endif" data-type="pic" data-sid="{{$to->id}}" data-pic_id="{{$row->id}}"><img src="{{ $row->deleted_at ? '/img/illegal.jpg' : $row->pic}}"></div>
-                                        @endif
-                                        @php
-                                            $lifeImgLimit-=1;
-                                        @endphp
-                                    @endif
-                                @endforeach
+                                @for ($i = 0; $i <$illegalRemoveCount ; $i++)
+                                    <div class="swiper-slide @if($isBlurLifePhoto) blur_img @endif"><img src="/img/illegal.jpg"></div>
+                                @endfor
                             </div>
                             <!-- Add Arrows -->
                             <div class="swiper-button-next"></div>
@@ -767,7 +758,7 @@
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta->cup) && $to->meta->isHideCup == '0' && ($to->meta->cup == 'A' || $to->meta->cup == 'B' ||$to->meta->cup == 'C' || $to->meta->cup == 'D' || $to->meta->cup == 'E' || $to->meta->cup == 'F'))
+                                    @if($to->engroup == 2 && (!empty($to->meta->cup) && $to->meta->isHideCup == '0' && ($to->meta->cup == 'A' || $to->meta->cup == 'B' ||$to->meta->cup == 'C' || $to->meta->cup == 'D' || $to->meta->cup == 'E' || $to->meta->cup == 'F')))
                                     <dt>
                                         <span>CUP</span>
                                         <span>
@@ -1284,9 +1275,15 @@
                         <textarea name="content" cols="" rows="" class="n_nutext" style="border-style: none;" maxlength="300" placeholder="{{$report_member}}" required></textarea>
                         <span class="alert_tip" style="color:red;"></span>
                         <input type="file" name="reportedImages">
-                        <div class="n_bbutton" style="margin-top:10px;text-align:center;">
-                            <button type="submit" class="n_right" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">送出</button>
+                        <div class="new_pjckbox">
+                            檢舉請盡量附上對話截圖或者可以證明的事項，以減輕站長查證的負擔哦~感謝~~
+                            <span><input type="checkbox" name="agree"><label>我同意上述說明</label></span>
+                        </div>
+                        <div class="n_bbutton" style="margin-top:10px;">
+                            <div style="display: inline-flex;">
+                            <div class="n_right" onclick="reportPostForm_submit()" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;">送出</div>
                             <button type="reset" class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="show_banned_close()">返回</button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -1347,7 +1344,7 @@
                         <span class="alert_tip" style="color:red;"></span>
                         <input type="file" name="images" >
                         <div class="new_pjckbox">
-                            評價請敘述事實，並盡量佐以圖片證明。主觀性評價站方得有修改或刪除的權力不另行通知
+                            評價請以敘述<a class="text-danger" style="color: red;">確實發生的事實</a>為主，不要有主觀判斷，盡量附上截圖佐證。若被評價者來申訴，您又沒有附上截圖，評價在驗證屬實前會被隱藏或撤銷。
                             <span><input type="checkbox" name="agree"><label>我同意上述說明</label></span>
                         </div>
                         <div class="n_bbutton" style="margin-top:0px;">
@@ -2010,6 +2007,15 @@
         return false;
     }
 
+    function reportPostForm_submit() {
+        if($("input[name='agree']:checked").val() == undefined) {
+            $('.alert_tip').text();
+            $('.alert_tip').text('請勾選同意上述說明');
+            return false;
+        }else{
+            $('#reportPostForm').submit();
+        }
+    }
     // function form_re_content_submit(){
     //     if($.trim($(".hf_i").val())=='') {
     //         c5('請輸入內容');
