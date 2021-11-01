@@ -3837,11 +3837,12 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function suspiciousUser(Request $request){
 
-        $query = SuspiciousUser::select('users.*','user_meta.pic','user_meta.style','user_meta.about')
+        $query = SuspiciousUser::select('users.*','user_meta.pic','user_meta.style','user_meta.about','suspicious_user.created_at AS suspicious_created_time','suspicious_user.reason AS suspicious_reason')
             ->leftJoin('users','users.id','suspicious_user.user_id')
             ->leftJoin('user_meta','user_meta.user_id','suspicious_user.user_id')
             ->where('suspicious_user.deleted_at',null)
             ->whereNotNull('users.id')
+            ->orderBy('suspicious_user.created_at', 'desc')
             ->paginate(20);
         $suspiciousUser = $query;
 
