@@ -66,6 +66,10 @@ use App\Repositories\SuspiciousRepository;
 use App\Services\AdminService;
 use App\Models\LogFreeVipPicAct;
 use App\Models\UserTinySetting;
+use App\Http\Controllers\Admin\UserController;
+use App\Models\SimpleTables\short_message;
+use App\Models\LogAdvAuthApi;
+use Illuminate\Support\Facades\Http;
 
 class PagesController extends BaseController
 {
@@ -1202,8 +1206,18 @@ class PagesController extends BaseController
 
     public function view_account_manage(Request $request)
     {
+        $chinese_num_arr = ['一','二','三','四','五','六','七','八','九'];
         $user = $request->user();
-        return view('new.dashboard.account_manage')->with('user', $user)->with('cur', $user);
+        $user_pause_during = config('memadvauth.user.pause_during');
+        $api_pause_during = config('memadvauth.api.pause_during');        
+        $userPauseMsg = '驗證失敗需'.(($user_pause_during%1440 || $user_pause_during/1440>=10)?$user_pause_during.'分鐘':$chinese_num_arr[$user_pause_during/1440-1].'天').'後才能重新申請。';
+        $apiPauseMsg = '本日進階驗證功能維修，請'.(intval($api_pause_during/60)?intval($api_pause_during/60).'hr':'').(($api_pause_during%60)?($api_pause_during%60).'分鐘':'').'後再試。';
+
+        return view('new.dashboard.account_manage')->with('user', $user)->with('cur', $user)
+                ->with('is_pause_api',LogAdvAuthApi::isPauseApi())
+                ->with('isAdvAuthUsable',$user->isAdvanceAuth()?$user->isAdvanceAuth():UserService::isAdvAuthUsableByUser($user))
+                ->with('userPauseMsg',$userPauseMsg??null)
+                ->with('apiPauseMsg',$apiPauseMsg??null);
     }
 
     public function view_name_modify(Request $request)
@@ -3135,14 +3149,6 @@ class PagesController extends BaseController
             }
 
         }
-        // // echo $user->count();
-        // var_dump($user);
-        // echo '-----------------------------------';
-        // if(isset($input['isAdvanceAuth'])){
-        //     $user = $user->where('advance_auth_status', 1)->get();
-        //     // echo $user->count();
-        //     var_dump($user);die();
-        // }
         return view('new.dashboard.search')->with('user', $user);
     }
 
@@ -3968,27 +3974,135 @@ class PagesController extends BaseController
     }
     public function advance_auth(Request $request){
         $user = $request->user();
+        $init_check_msg = null;
+        $chinese_num_arr = ['一','二','三','四','五','六','七','八','九'];
+        $user_pause_during = config('memadvauth.user.pause_during');
+        $user_pause_during_msg = '驗證失敗需'.(($user_pause_during%1440 || $user_pause_during/1440>=10)?$user_pause_during.'分鐘':$chinese_num_arr[$user_pause_during/1440-1].'天').'後才能重新申請。';
+        $api_pause_during = config('memadvauth.api.pause_during');
+        if(!$user->isAdvanceAuth()) {
+            if($user->isForbidAdvAuth()) {
+                $init_check_msg = '您的進階驗證功能有誤，請<a href="https://lin.ee/rLqcCns" target="_blank">點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。';
+            }
+            else if($user->isPauseAdvAuth()) {
+                $init_check_msg = $user_pause_during_msg ;
+            }
+            else if(LogAdvAuthApi::isPauseApi()) {
+                $init_check_msg = '本日進階驗證功能維修，請 '.(intval($api_pause_during/60)?intval($api_pause_during/60).'hr':'').(($api_pause_during%60)?($api_pause_during%60).'分鐘':'').' 後再試。';
+            }
+        }
         return view('/auth/advance_auth')
                 ->with('user',$user)
-                ->with('cur', $user);
+                ->with('cur', $user)
+                ->with('init_check_msg',$init_check_msg??null)
+                ->with('user_pause_during_msg',$user_pause_during_msg??null);
+    }
+    
+    public function advance_auth_back(Request $request){
+        $create = array(
+            'member_id'=>$request->id,
+            'reason'=>'進階驗證封鎖',
+            'message_content'=>'1',
+            'updated_at'=>now(),
+            'created_at'=>now()
+        );
+        $status = banned_users::create($create);
+        $data = array(
+            'status'=>'success',
+            'code'=>200
+        );
+        //寫入log
+        DB::table('is_banned_log')->insert(['user_id' => $create['member_id'], 'reason' => $create['reason'], 'created_at' => $create['created_at']]);
+        //新增Admin操作log
+        $uCtrl = new UserController(app(\App\Services\UserService::class),app(\App\Services\AdminService::class));
+        $uCtrl->insertAdminActionLog($create['member_id'], '封鎖會員');        
+        echo json_encode($data, JSON_UNESCAPED_UNICODE);
+    }    
+    
+    public function advance_auth_precheck(Request $request){
+        //float information
+        $user =Auth::user();
+        $check_rs = null;
+        if(!$request->id_serial) $check_rs[] = 'i';
+        if(!$request->phone_number) $check_rs[] = 'p';
+        if(!($request->year && $request->month && $request->day)) {
+            $check_rs[] = 'b';
+            $birth = null;
+        }
+        else {           
+            $birth = $data['birth'] = date('Ymd', strtotime($request->year.'-'.$request->month.'-'.$request->day));
+        }
+        
+        if($request->id_serial) {
+            if(mb_substr(trim($request->id_serial),1,1)!=$user->engroup) $error_msg[] = '請輸入符合性別的身分證字號';
+            else {
+                $id_serial = strtoupper($request->id_serial);
+                $letterConverter = [
+                        'A'=>1,'I'=>39,'O'=>48,'B'=>10,'C'=>19,'D'=>28,'E'=>37,'F'=>46,'G'=>55,'H'=>64,'J'=>73,'K'=>82,
+                        'L'=>2,'M'=>11,'N'=>20,'P'=>29,'Q'=>38,'R'=>47,'S'=>56,'T'=>65,'U'=>74,'V'=>83,'W'=>21,'X'=>3,'Y'=>12,'Z'=>30
+                    ];                
+                $weightArr = [8,7,6,5,4,3,2,1]; 
+                if (preg_match("/^[a-zA-Z][1-2][0-9]{8}$/",$id_serial)){
+                    $letterSegs = str_split($id_serial);
+                    $total = $letterConverter[array_shift($letterSegs)];
+                    $point = array_pop($letterSegs);
+                    $len = count($letterSegs);
+                    for($j=0; $j<$len; $j++){
+                        $total += $letterSegs[$j]*$weightArr[$j];
+                    }
+                    
+                    $last = (($total%10) == 0 )? 0: (10 - ( $total % 10 ));
+                    if ($last != $point) {
+                        $check_rs[] = 'i';
+                    } 
+                }  else {
+                   $check_rs[] = 'i';
+                }                
+            }
+        }
+        
+        if($request->phone_number) {
+            if(preg_match("/^09[0-9]{8}$/",$request->phone_number)) {
+
+            }
+            else {
+                $check_rs[] = 'p';
+            }
+        }  
+        if($birth) {
+            $age = $this->getAge($birth);
+            /* 判斷是否小於18歲 */
+            if($age<18){
+                $check_rs[] = 'b18';
+            }  
+        }        
+
+        return implode('_',$check_rs??[]);
     }
     
     public function advance_auth_process(Request $request){
-        //float information
-        $id_serial = $data['MemberNo'] = $request->id_serial;
-        $phone_number = $data['phone_number'] = $request->phone_number;
-        $birth = $data['birth'] = date('Ymd', strtotime($request->birth));
+        $LineToken = config('memadvauth.api.line_token');
+        $api_check_cfg = config('memadvauth.api.check');
+        $user =Auth::user();
+        
+        if(!UserService::isAdvAuthUsableByUser($user)) {
+            return back();
+        }
+        
+        $check_rs = $this->advance_auth_precheck($request)??'';
 
-        $age = $this->getAge($birth);
-        /* 判斷是否小於18歲 */
-        if($age<18){
-            return redirect('/advance_auth?status=age_failed');
+        if(!$check_rs) {
+            $id_serial = $data['MemberNo'] = strtoupper($request->id_serial);
+            $phone_number = $data['phone_number'] = $request->phone_number;
+             $birth = $data['birth'] = date('Ymd', strtotime($request->year.'-'.$request->month.'-'.$request->day));
+            $format_birth = $request->year.'-'.$request->month.'-'.$request->day;
+        }
+        else {
+            return back()->with('error_code', explode('_',$check_rs))
+                    ->with('error_code_msg',['i'=>'身分證字號','p'=>'門號','b'=>'生日','b18'=>'年齡未滿18歲，不得進行驗證']);
         }
 
         $data['api_base'] = 'https://midonlinetest.twca.com.tw/';
         $output = $this->get_mid_clause($data);
-
-
 
         //API資訊設定
         $data['BusinessNo'] = '54666024';
@@ -4013,27 +4127,183 @@ class PagesController extends BaseController
 
         $data['return'] = $this->get_transaction($data);
         $output = $this->get_verify_result($data);
+        $logArr = [
+                    'birth'=>$data['birth']
+                    ,'phone'=>$data['phone_number']
+                    ,'identity_no'=>$data['MemberNo']
+                    ,'return_response'=>json_encode($output)
+                ];
+
+        if(!$output) {
+            $user->log_adv_auth_api()->create($logArr);   
+            return back()->with('message', ['系統目前無法進行驗證']);
+        }
         $OutputParams = json_decode($output["OutputParams"], JSON_UNESCAPED_UNICODE);
         $MIDOutputParams = json_decode($OutputParams["MIDOutputParams"]["MIDResp"], JSON_UNESCAPED_UNICODE);
+      
+        $logArr['return_code'] = $MIDOutputParams["code"];
+        if($OutputParams["TimeStamp"]??null) $logArr['return_TimeStamp'] = $OutputParams["TimeStamp"];
+        if(array_key_exists('fullcode',$MIDOutputParams)) $logArr['return_fullcode'] = $MIDOutputParams["fullcode"];
+        $logAdvAuthApi = $user->log_adv_auth_api()->create($logArr);    
+        
+        $is_reach_s_pause = LogAdvAuthApi::countInInterval('small','pause') > $api_check_cfg['s']['pause_count'] ;
+        $is_reach_l_pause = LogAdvAuthApi::countInInterval('large','pause')> $api_check_cfg['l']['pause_count'];
+        $chinese_num_arr = ['一','二','三','四','五','六','七','八','九'];
+        if(!LogAdvAuthApi::isPauseApi() && ($is_reach_s_pause || $is_reach_l_pause)) {
+            $logAdvAuthApi->pause_api = 1;
+            $logAdvAuthApi->save();
+            $reason_of_pause = '';
+            if($is_reach_s_pause) {
+                $reason_of_pause = '因 '.$api_check_cfg['s']['interval'].' 分鐘內累計超過 '.$api_check_cfg['s']['pause_count'].' 筆';
+            }
+            
+            if($is_reach_l_pause) {
+                if($is_reach_s_pause) {
+                    $reason_of_pause.='及';
+                }
+                else {
+                    $reason_of_pause.='因';
+                }
 
-        //驗證成功
-        if($MIDOutputParams["code"]=="0000"){
-            $user =Auth::user();
-
-            $user->advance_auth_status = 1;
-            $user->advance_auth_time = date('Y-m-d H:m:s');
-            $user->advance_auth_identity_no = $request->id_serial;
-            $user->advance_auth_birth = $request->birth;
-            $user->advance_auth_phone = $request->phone_number;
-            $user->save();
-
-            return redirect('/advance_auth');
-        }else{
-            return redirect('/advance_auth?status=false');
+                $reason_of_pause.= (($api_check_cfg['l']['interval']%1440 || $api_check_cfg['l']['interval']/1440>=10)?$api_check_cfg['l']['interval'].'分鐘':$chinese_num_arr[$api_check_cfg['l']['interval']/1440-1].'天').'內累計超過 '.$api_check_cfg['l']['pause_count'].' 筆';
+            }            
+            if($reason_of_pause) $reason_of_pause.='，';
+            Http::withToken($LineToken)->asForm()->post('https://notify-api.line.me/api/notify', [
+                'message' =>$reason_of_pause.'已暫停進階驗證機制'
+            ]);                
         }
 
-    }
+        if(LogAdvAuthApi::countInInterval('small') > $api_check_cfg['s']['notify_count']  ) {
+            $logAdvAuthApi->s_notify = 1;
+            $logAdvAuthApi->save();
+            Http::withToken($LineToken)->asForm()->post('https://notify-api.line.me/api/notify', [
+                'message' => '進階認證 '.$api_check_cfg['s']['interval'].'  分鐘內累計已超過 '.$api_check_cfg['s']['notify_count'].'  筆'
+            ]);            
+        }  
 
+        if(LogAdvAuthApi::countInInterval('large')>$api_check_cfg['l']['notify_count']) {
+            $logAdvAuthApi->l_notify = 1;
+            $logAdvAuthApi->save();
+            Http::withToken($LineToken)->asForm()->post('https://notify-api.line.me/api/notify', [
+                'message' => '進階認證'.(($api_check_cfg['l']['interval']%1440 || $api_check_cfg['l']['interval']/1440>=10)?$api_check_cfg['l']['interval'].'分鐘':$chinese_num_arr[$api_check_cfg['l']['interval']/1440-1].'天').'內累計已超過 '.$api_check_cfg['l']['notify_count'].' 筆'
+            ]);              
+        }          
+        //驗證成功
+        if($MIDOutputParams["code"]=="0000"){
+            
+            $auth_date = date('Y-m-d H:i:s');
+            $user->advance_auth_status = 1;
+            $user->advance_auth_time = $auth_date;
+            $user->advance_auth_identity_no = strtoupper($request->id_serial);
+            $user->advance_auth_birth = $format_birth;
+            $user->advance_auth_phone = $request->phone_number;
+            $user->save();
+            
+            if(($user->meta->birthdate??'')!=$format_birth) {
+                $user->meta->birthdate_old = $user->meta->birthdate;
+                $user->meta->birthdate = $format_birth;
+                $user->meta->save();
+            }
+            
+            $user_active_mobile_query = $user->short_message()->where('active',1);
+            $latest_user_active_mobile = $user_active_mobile_query->orderBy('createdate','DESC')->first();
+            $phone_number_for_sms = substr_replace($phone_number,'+886',0,1);
+            if($latest_user_active_mobile) {
+                if($latest_user_active_mobile->mobile && $latest_user_active_mobile->mobile!=$phone_number && $latest_user_active_mobile->mobile!=$phone_number_for_sms){
+                    $user_active_mobile_query->update(['active'=>0,'canceled_date'=>$auth_date,'canceled_by'=>'adv_auth']);
+                    $user->short_message()->create(['mobile'=>$phone_number,'active'=>1]);
+                }
+                else {
+                    $user_active_mobile_query->where('id','<>',$latest_user_active_mobile->id)->update(['active'=>0,'canceled_date'=>$auth_date,'canceled_by'=>'adv_auth']);
+                }
+            }
+            else {
+                $user->short_message()->create(['mobile'=>$phone_number,'active'=>1]);
+            }
+            
+            $check_other_user_mobile_query = short_message::where('active',1)->where('member_id','<>',$user->id)
+                ->where(function($query) use ($phone_number,$phone_number_for_sms){
+                    $query->orwhere('mobile',$phone_number)
+                        ->orwhere('mobile',$phone_number_for_sms);
+                });
+            
+            if($check_other_user_mobile_query->count()) {
+                $check_other_user_mobile_query->update(['active'=>0,'canceled_date'=>$auth_date,'canceled_by'=>'adv_auth']);
+            }
+            
+            $userBanned = banned_users::where('member_id', $user->id)
+                ->where('adv_auth',1)->orderBy('created_at','DESC')
+                ->get()->first(); 
+            $user_meta = $user->meta;
+            $userWarned = warned_users::where('member_id', $user->id)->where('adv_auth',1)->orderBy('created_at','DESC')->get()->first();                
+            $isWarnedUser = $user_meta->isWarnedType=='adv_auth'?$user_meta->isWarned:0;
+            $banOrWarnCanceledMsg = [];
+            $banOrWarnCanceledStr = '';
+            if ($userBanned || $userWarned || $isWarnedUser) {
+                if($userBanned) {
+                    $checkLog = DB::table('is_banned_log')->where('user_id', $userBanned->member_id)->where('created_at', $userBanned->created_at)->first();
+                    if(!$checkLog) {
+                        //寫入log
+                        DB::table('is_banned_log')->insert(['user_id' => $userBanned->member_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date,'vip_pass'=>$userBanned->vip_pass,'adv_auth'=>$userBanned->adv_auth, 'created_at' => $userBanned->created_at]);
+                    }
+                    $userBanned->delete();
+                    $banOrWarnCanceledMsg[] = '封鎖';
+                }
+                
+                if($userWarned) {
+                    $checkLog = DB::table('is_warned_log')->where('user_id', $userWarned->member_id)->where('created_at', $userWarned->created_at)->get()->first();
+                    if(!$checkLog) {
+                        //寫入log
+                        DB::table('is_warned_log')->insert(['user_id' => $userWarned->member_id, 'reason' => $userWarned->reason, 'created_at' => $userWarned->created_at,'vip_pass'=>$userWarned->vip_pass,'adv_auth'=>$userWarned->adv_auth]);
+                    }
+                    $userWarned->delete();
+                    $banOrWarnCanceledMsg[] = '警示';
+                }
+                
+                if($isWarnedUser) {
+                    $user->meta()->update(['isWarned'=>0,'isWarnedType'=>null]);
+                    if(!in_array('警示',$banOrWarnCanceledMsg)) $banOrWarnCanceledMsg[] = '警示';
+                }
+                
+                $banOrWarnCanceledStr = implode('/',$banOrWarnCanceledMsg);
+            }
+
+            return back()->with('message',['
+                                            驗證成功：恭喜您，您的資料已經通過驗證，'.($banOrWarnCanceledStr?'成功解除'.$banOrWarnCanceledStr.'，':'').'
+                                            系統會將您的手機號碼以及生日更新到您的基本資料。
+                                            並獲得<img src="'.asset('new/images/b_7.png').'" class="adv_auth_icon" />進階驗證的標籤<img src="'.asset('new/images/b_7.png').'" class="adv_auth_icon" />          
+                                    ']);
+        }else{
+            $fullcode = $MIDOutputParams["fullcode"];
+            if($fullcode<=3644100 || $fullcode>=3645031
+                || $fullcode==3645000 || $fullcode==3645001
+                || $fullcode==3645000 || $fullcode==3645001    
+            ) {
+                $logAdvAuthApi->api_fault = 1;
+                $logAdvAuthApi->save();
+                return back()->with('message', ['系統目前無法進行驗證']);
+            }
+            else {
+                if(!$user->isForbidAdvAuth() &&  $user->getEffectFaultAdvAuthApiQuery()->count()+1>=config('memadvauth.user.allow_fault')) {
+                    $logAdvAuthApi->forbid_user = 1;
+                }                
+                $logAdvAuthApi->user_fault = 1;
+                $logAdvAuthApi->save();
+
+                if(($logAdvAuthApi->forbid_user??null)==1 ) {
+                    return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
+                }
+              
+                return back()->with('message', [
+                    '<div>驗證失敗：抱歉驗證失敗，這是您輸入的資料：</div>
+                                <div>身分證字號：'.$data['MemberNo'].'</div>
+                                <div>手機號碼：'.$data['phone_number'].'</div>
+                                <div>生日：'.str_replace('-','/',$format_birth).'</div>
+                                <div>請確認無誤後，下次可申請的時間是 :'.Carbon::parse($logAdvAuthApi->created_at)->addMinutes(config('memadvauth.user.pause_during'))->format('Y/m/d H:i:s').'</div>
+                         ']);                
+            }
+        }
+    }
     
     public function advance_auth_result(Request $request){
         $data['BusinessNo'] = $request->BusinessNo;
@@ -4042,7 +4312,6 @@ class PagesController extends BaseController
         $data['VerifyNo'] = $request->VerifyNo;
         $data['MemberNoMapping'] = $request->MemberNoMapping;
         $data['Token'] = $request->Token;
-
         $res = $this->advance_auth_query($data);
         $auth_status = $request->ReturnCode;
         return view('/auth/advance_auth_result')
@@ -4121,6 +4390,8 @@ class PagesController extends BaseController
 
     public function get_verify_result($data){
         $api_url = $data['api_base'].'IDPortal/ServerSideVerifyResult';
+        if(!json_decode($data['return']['OutputParams'], JSON_UNESCAPED_UNICODE)) return;
+        
         $Token = $data['Token']= json_decode($data['return']['OutputParams'], JSON_UNESCAPED_UNICODE)["Token"];
         $BusinessNo = $data['BusinessNo'];
         $ApiVersion = $data['ApiVersion'];
@@ -4738,16 +5009,19 @@ class PagesController extends BaseController
 
         $user_isBannedOrWarned = User::select(
             'm.isWarned',
+            'm.isWarnedType',
             'b.id as banned_id',
             'b.expire_date as banned_expire_date',
             'b.reason as banned_reason',
             'b.created_at as banned_created_at',
             'b.vip_pass as banned_vip_pass',
+            'b.adv_auth as banned_adv_auth',
             'w.id as warned_id',
             'w.expire_date as warned_expire_date',
             'w.reason as warned_reason',
             'w.created_at as warned_created_at',
-            'w.vip_pass as warned_vip_pass')
+            'w.vip_pass as warned_vip_pass',
+            'w.adv_auth as warned_adv_auth')
             ->from('users as u')
             ->leftJoin('user_meta as m','u.id','m.user_id')
             ->leftJoin('banned_users as b','u.id','b.member_id')
@@ -4763,7 +5037,10 @@ class PagesController extends BaseController
             $diffDays = $datetime2->diff($datetime3)->days;
         }
 
-        if($user_isBannedOrWarned->banned_vip_pass == 1 && $user_isBannedOrWarned->banned_expire_date == null){
+        if(!empty($user_isBannedOrWarned->banned_id) && $user_isBannedOrWarned->banned_adv_auth==1) {
+            $isBannedStatus = '您目前已被系統封鎖，做完進階驗證可解除<a class="red" href="'.url('advance_auth').'"> [請點我進行驗證]</a>。';
+        }
+        else if($user_isBannedOrWarned->banned_vip_pass == 1 && $user_isBannedOrWarned->banned_expire_date == null){
             $isBannedStatus = '您目前已被站方封鎖，原因是 ' . $user_isBannedOrWarned->banned_reason . '，若要解除請升級VIP解除，並同意如有再犯，站方有權利不退費並永久封鎖。同意 [<a href="../dashboard/new_vip" class="red">請點我</a>]';
         }else if($user_isBannedOrWarned->banned_vip_pass == 1 && $user_isBannedOrWarned->banned_expire_date > now()){
             $isBannedStatus .= '您從 '.substr($user_isBannedOrWarned->banned_created_at,0,10).' 被站方封鎖 '.$diffDays.' 天，預計至 '.substr($user_isBannedOrWarned->banned_expire_date,0,16).' 日解除，原因是 '.$user_isBannedOrWarned->banned_reason.'，若要解除請升級VIP解除，並同意如有再犯，站方有權利不退費並永久封鎖。同意 [<a href="../dashboard/new_vip" class="red">請點我</a>]';
@@ -4789,7 +5066,10 @@ class PagesController extends BaseController
             $diffDays = $datetime2->diff($datetime3)->days;
         }
 
-        if($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date == null) {
+        if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_adv_auth==1) {
+            $adminWarnedStatus = '您目前已被系統警示，做完進階驗證可解除<a class="red" href="'.url('advance_auth').'"> [請點我進行驗證]</a>。';
+        }
+        else if($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date == null) {
             $adminWarnedStatus = '您目前已被站方警示，原因是 ' . $user_isBannedOrWarned->warned_reason . '，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
         }else if($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date > now()) {
             $adminWarnedStatus .= '您從 '.substr($user_isBannedOrWarned->warned_created_at,0,10).' 被站方警示 '.$diffDays.' 天，預計至 '.substr($user_isBannedOrWarned->warned_expire_date,0,16).' 日解除，原因是 '.$user_isBannedOrWarned->warned_reason.'，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
@@ -4801,7 +5081,18 @@ class PagesController extends BaseController
 
         $isWarnedStatus = '';
         if($user_isBannedOrWarned->isWarned==1){
-            $isWarnedStatus = '您目前已被系統自動警示，做完手機認證即可解除<a class="red" href="../member_auth">[請點我進行認證]</a>。PS:此對系統針對八大行業的自動警示機制，帶來不便敬請見諒。';
+            if($user_isBannedOrWarned->isWarnedType!='adv_auth') {
+                $isWarnedAuthStr = '手機驗證';
+                $isWarnedAuthUrl = '../member_auth';
+                $ps_str = 'PS:此對系統針對八大行業的自動警示機制，帶來不便敬請見諒。';
+            }
+            else {
+                $isWarnedAuthStr = '進階驗證';
+                $isWarnedAuthUrl = url('advance_auth');
+                $ps_str = '';
+            }
+            
+            $isWarnedStatus = '您目前已被系統自動警示，做完'.$isWarnedAuthStr.'即可解除<a class="red" href="'.$isWarnedAuthUrl.'">[請點我進行認證]</a>。'.$ps_str;
         }
 
 

@@ -26,6 +26,8 @@ use App\Models\LogUserLogin;
 use App\Models\UserTinySetting;
 use App\Models\IsBannedLog;
 use App\Models\IsWarnedLog;
+use App\Models\SimpleTables\short_message;
+use App\Models\LogAdvAuthApi;
 
 class User extends Authenticatable
 {
@@ -127,9 +129,14 @@ class User extends Authenticatable
     public function log_user_login()
     {
         return $this->hasMany(LogUserLogin::class, 'user_id', 'id');
-    }    
+    }  
 
-    //簡易設定 用在檢易量少的設定上
+    public function log_adv_auth_api()
+    {
+        return $this->hasMany(LogAdvAuthApi::class, 'user_id', 'id');
+    }      
+
+    //簡易設定 用在簡易量少的設定上
     public function tiny_setting() {
         return $this->hasMany(UserTinySetting::class, 'user_id', 'id');
     }
@@ -141,6 +148,10 @@ class User extends Authenticatable
     public function is_warned_log() {
         return $this->hasMany(IsWarnedLog::class, 'user_id', 'id');
     }	
+    
+    public function short_message() {
+        return $this->hasMany(short_message::class, 'member_id', 'id');
+    }	    
 
     // 可疑
     public function suspicious()
@@ -621,8 +632,7 @@ class User extends Authenticatable
     public function isAdvanceAuth()
     {
         $count = $this->where('id',$this->id)->where('advance_auth_status',1)->count();
-        $res = $count >0 ? 1:0;
-        return $res;
+        return $count >0 ;
     }
     
     public function isImgAuth()
@@ -1126,7 +1136,7 @@ class User extends Authenticatable
         return $advInfo;
     }
 
-    public function getAdvInfo($wantIndexArr=[]) : User{
+    public function getAdvInfo($wantIndexArr=[]) : array{
         $user = $this;
         $date = date('Y-m-d H:m:s', strtotime('-7 days'));
 
@@ -1134,6 +1144,7 @@ class User extends Authenticatable
         $countInfo['message_count'] = 0;
         $countInfo['message_reply_count'] = 0;
         $countInfo['message_reply_count_7'] = 0;
+		$countInfo['message_count_7'] = 0;
         $send = [];
         $receive = [];
 
@@ -1300,4 +1311,34 @@ class User extends Authenticatable
 
         return $advInfo;
     }
+    
+    public function isForbidAdvAuth() {
+        return $this->log_adv_auth_api()->where('forbid_user',1)->count()>0;
+    }
+    
+    public function getPassAdvAuthApiQuery() {
+        return $this->log_adv_auth_api()->where('return_code','0000')->where('user_fault',0);
+    }
+    
+    public function getLatestPassAdvAuthApi() {
+        return $this->getPassAdvAuthApiQuery()->orderBy('created_at','DESC')->first();
+    }
+
+    public function getEffectFaultAdvAuthApiQuery() {
+        $effectFaultQuery = $this->log_adv_auth_api()->where('user_fault',1);
+        $latestPassAdvAuthApi = $this->getLatestPassAdvAuthApi();
+        if($latestPassAdvAuthApi) {
+            $effectFaultQuery->where('created_at','>',Carbon::parse($latestPassAdvAuthApi->created_at));
+        }
+        return $effectFaultQuery;
+    }
+
+    public function isPauseAdvAuth() {
+        $user_pause_during = config('memadvauth.user.pause_during');
+        $latest_log = $this->log_adv_auth_api()->orderBy('created_at','DESC')->first();
+        if($latest_log && $latest_log->user_fault==1) {
+            return Carbon::parse($latest_log->created_at)->diffInMinutes(Carbon::now())<$user_pause_during;
+        }
+        else return false;
+    }    
 }

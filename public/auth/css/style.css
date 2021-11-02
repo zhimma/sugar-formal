@@ -1,5 +1,5 @@
 @charset "UTF-8";
-    
+
 body{ font-family:"微软雅黑"; background:#ffffff;overflow-x:hidden;}
 body, h1, h2, h3, h4, h5, h6, dl, dd, form, p,em {margin: 0; font-style: normal; font-weight: normal;font-family:"微软雅黑"}
 ul, ol, li, dl, dd, dt {margin: 0 auto;padding: 0;list-style: none; font-weight:normal}
@@ -1718,7 +1718,7 @@ font-size:16px; float:left; cursor: pointer;}
 	    float: left;
 	    margin-left: 7px;
 	}
-
+}
 .delpicBtn{
     display:none;
     width: 30px;
@@ -1834,21 +1834,6 @@ font-size:16px; float:left; cursor: pointer;}
 }
 
 
-<<<<<<< HEAD
-/* advance auth */
-button.btn_yz{width:80%; float:none; margin:0 10% 20px 10%; border:none;}
-
-.zybg_new02>em{
-	border-right: 1px #d2d2d2 solid;
-    padding-right: 5px;
-    color: #999;
-    float: left;
-    line-height: 20px;
-    margin: 10px 0 0 5px;
-    cursor: pointer;
-}
-
-=======
 
 
 
@@ -5896,6 +5881,18 @@ button.btn_yz{width:80%; float:none; margin:0 10% 20px 10%; border:none;}
     cursor: pointer;}
 .w30{min-width:30%;}
 
+/* advance auth */
+/*
+button.btn_yz{width:80%; float:none; margin:0 10% 20px 10%; border:none;}
 
+.zybg_new02>em{
+	border-right: 1px #d2d2d2 solid;
+    padding-right: 5px;
+    color: #999;
+    float: left;
+    line-height: 20px;
+    margin: 10px 0 0 5px;
+    cursor: pointer;
+}
+*/
 
->>>>>>> f14c390f1b7625f82e070567dce4e538a7120cb8

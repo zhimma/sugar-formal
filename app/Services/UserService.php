@@ -24,6 +24,7 @@ use Carbon\Carbon;
 use App\Models\LogUserLogin;
 use App\Models\IsWarnedLog;
 use App\Models\IsBannedLog;
+use App\Models\LogAdvAuthApi;
 
 class UserService
 {
@@ -1194,4 +1195,9 @@ class UserService
 		return !(($b_count_total+$w_count_total-$b_vip_pass_count_total - $w_vip_pass_count_total)>0 ) ;
         
 	}
+    
+    public static function isAdvAuthUsableByUser($user) {
+        return !($user->isForbidAdvAuth() || $user->isPauseAdvAuth() || LogAdvAuthApi::isPauseApi());
+
+    }
 }

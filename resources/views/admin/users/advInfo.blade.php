@@ -7,6 +7,19 @@
 	.popover{
 		max-width: 600px; /* Max Width of the popover (depending on the container!) */
 	}
+    .gray {color:#C0C0C0;}
+    #adv_auth_block_user.btn-secondary,#adv_auth_warned_user.btn-secondary {
+        cursor: default;
+        color: #fff;
+        /*
+        background-color: #6c757d;
+        border-color: #6c757d;
+        */
+        background-color: #C0C0C0;
+        border-color: #C0C0C0;   
+        opacity: .65;        
+        
+    }    
 </style>
 
 <body style="padding: 15px;">
@@ -76,15 +89,18 @@
 		<a class="btn btn-danger ban-user block_vip_pass" id="block_user" href="#" data-toggle="modal" data-target="#blockade" data-vip_pass="0" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">封鎖會員</a>
 		<a class="btn btn-danger ban-user" id="implicitly_block_user" href="#" data-toggle="modal" data-target="#implicitly_blockade" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">隱性封鎖</a>
 		<a class="btn btn-danger ban-user block_vip_pass" id="block_user" href="#" data-toggle="modal" data-target="#blockade" data-vip_pass="1" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" @if($user['isvip']==1 && $user['isfreevip']==0)style="display: none;"@endif>付費封鎖</a>
-	@endif
+        <a class="btn  @if($user->advance_auth_status==1) btn-secondary @else btn-danger @endif ban-user  block_advance_auth" id="adv_auth_block_user" href="#"  @if($user->advance_auth_status==1) onclick="return false;" @else data-toggle="modal"  data-target="#blockade"  data-vip_pass="0"  data-adv_auth="1"  data-name="{{ $user['name']}}" data-id="{{ $user['id'] }}"  @endif  <?php //echo $user->advance_auth_status==1?'disabled':'';//echo $banned_advance_auth_status==1?'disabled':'';?>> 驗證封鎖 </a>
+    @endif
 	@if($user['isAdminWarned']==1)
 		<button type="button" title="{{'於'.$user['adminWarned_createdAt'].'被警示，將於'.(isset($user['adminWarned_expireDate'])? $user['adminWarned_expireDate'] : '永久').'解除站方警示' }}" id="unwarned_user" class='text-white btn @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除站方警示 </button>
 	@else
 		<a class="btn btn-danger warned-user warned_vip_pass" title="站方警示與自動封鎖的警示，只能經後台解除" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-vip_pass="0" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">站方警示</a>
 		<a class="btn btn-danger warned-user warned_vip_pass" title="站方警示與自動封鎖的警示，只能經後台解除" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-vip_pass="1" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" @if($user['isvip']==1 && $user['isfreevip']==0)style="display: none;"@endif>付費警示</a>
-	@endif
+        <a class="btn @if($user['advance_auth_status']==1 ) btn-secondary @else btn-danger @endif warned-user warned_adv_auth" title="站方警示與自動封鎖的警示，只能經後台解除" id="adv_auth_warned_user" href="#" @if($user['advance_auth_status']==1 ) onclick="return false;"  @else data-toggle="modal" data-target="#warned_modal" data-vip_pass="0" data-vip_pass="0" data-adv_auth="1"  data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" @endif >驗證警示</a>
+    @endif
 	@if($userMeta->isWarned==0)
-		<button class="btn btn-info" title="自動計算檢舉分數達10分者警示，可經手機驗證解除警示(被檢舉總分)" onclick="WarnedToggler({{$user['id']}},1)"
+		<button class="btn btn-info isWarned-user" title="自動計算檢舉分數達10分者警示，可經手機驗證解除警示(被檢舉總分)" onclick="return false;WarnedToggler({{$user['id']}},1);"
+            data-toggle="modal" data-target="#isWarned_blockade" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"
 		@if($user->WarnedScore() >= 10 AND $user['auth_status']==1) disabled="disabled" style="background-color: #C0C0C0;border-color: #C0C0C0;" @endif>
 			警示用戶({{$user->WarnedScore()}})
 		</button>
@@ -119,9 +135,6 @@
 		<input type="hidden" name="page" value="advInfo" >
 		<button type="submit" class="btn btn-warning">變更性別</button>
 	</form>
-
-	<button type="button" class="btn btn-info advance_auth_btn" id="{{$user->id}}" <?php echo $banned_advance_auth_status==1?'disabled':'';?>> 驗證解除封鎖 </button>
-	<!-- <button class="btn btn-info" onclick="VipAction({{($user['isvip'])?'1':'0' }},{{ $user['id'] }})"> 驗證解除封鎖 </button> -->
 	
 	@if($user->engroup==2)
 	<form method="POST" id="form_exchange_period" action="{{ route('changeExchangePeriod') }}" style="margin:0px;display:inline;">
@@ -1781,6 +1794,7 @@
 				<input type="hidden" value="" name="user_id" id="blockUserID">
 				<input type="hidden" value="advInfo" name="page">
 				<input type="hidden" name="vip_pass" value="">
+                <input type="hidden" name="adv_auth" value="">
                 <div class="modal-body">
                         封鎖時間
                         <select name="days" class="days">
@@ -1896,6 +1910,7 @@
 				<input type="hidden" value="" name="user_id" id="warnedUserID">
 				<input type="hidden" value="advInfo" name="page">
 				<input type="hidden" name="vip_pass">
+                <input type="hidden" name="adv_auth">
 				<div class="modal-body">
 					 警示時間
 					<select name="days" class="days">
@@ -1968,6 +1983,34 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="isWarned_blockade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="isWarnedModalLabel">警示用戶</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="/admin/users/isWarned_user" method="POST">
+            	{!! csrf_field() !!}
+				<input type="hidden" value="{{ $user['id'] }}" name="user_id">
+                <!--
+            	<input type="hidden" value="BannedInUserInfo" name="fp">
+            	<input type="hidden" value="{{ url()->full() }}" name="page">
+                -->
+                <div class="modal-body">
+                    <input type="radio" name="isWarnedType" value="" /> 手機驗證
+                    <input type="radio" name="isWarnedType" value="adv_auth" @if($user->advance_auth_status==1) disabled  @endif /> <span class="@if($user->advance_auth_status==1) gray @endif">進階驗證</span>
+                </div>
+                <div class="modal-footer">
+                	<button type="button" class='btn btn-outline-success ban-user' onclick="WarnedToggler({{$user['id']}},1);return false;"> 送出 </button>
+                    <button type="button" class="btn btn-outline-danger" data-dismiss="modal">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <div>
 	@if (Auth::user()->can('admin') || Auth::user()->can('juniorAdmin'))
@@ -2010,25 +2053,7 @@
 <script src="/js/vendors.bundle.js" type="text/javascript"></script>
 <script>
 jQuery(document).ready(function(){
-	$(".advance_auth_btn").on('click', function(){
 
-		$.ajax({
-			type: "POST",
-			url: "/advance_auth_back",
-			data: {
-				'id': $(this).attr('id'),
-				_token: '{{csrf_token()}}' 
-			},
-			cache: false,
-			success: function(data){
-				let res = JSON.parse(data);
-				if(res.code=='200'){
-					console.log('200');
-					$(".advance_auth_btn").prop("disabled", true);
-				}
-			}
-		});
-	});
 	$('.message_toggle').on('click',function(e){
 		$(this).text(function(i,old){
 			return old=='+' ?  '-' : '+';
@@ -2053,6 +2078,13 @@ jQuery(document).ready(function(){
 			$("#warnedUserID").val($(this).data('id'))
 		}
 	});
+    
+	$('.isWarned-user').click(function(){
+		if (typeof $(this).data('id') !== 'undefined') {
+			$("#isWarnedModalLabel").html('警示用戶 '+ $(this).data('name'))
+			$("#warnedUserID").val($(this).data('id'))
+		}
+	});    
 
 	$('.block_vip_pass').on('click', function () {
 		let vipPass;
@@ -2067,7 +2099,22 @@ jQuery(document).ready(function(){
 		if($(this).data('vip_pass')==1){
 			$("#exampleModalLabel").append(' (付費封鎖)');
 		}
-	})
+	}) 
+    
+	$('.block_advance_auth').on('click', function () {
+		let advAuth;
+		advAuth = $(this).data('adv_auth');
+
+		@if( $user['advance_auth_status']==1 )
+				advAuth = 0;
+		@endif
+
+		$("#clickToggleUserBlock input[name='adv_auth']").val(advAuth);
+        $("#clickToggleUserBlock input[name='vip_pass']").val(0);
+		if($(this).data('adv_auth')==1){
+			$("#exampleModalLabel").append(' (驗證封鎖)');
+		}
+	})     
 
 	$('.warned_vip_pass').on('click', function () {
 		let vipPass;
@@ -2081,7 +2128,22 @@ jQuery(document).ready(function(){
 		if($(this).data('vip_pass')==1){
 			$("#warnedModalLabel").append(' (付費警示)');
 		}
-	})
+	}) 
+    
+	$('.warned_adv_auth').on('click', function () {
+		let advAuth;
+		advAuth = $(this).data('adv_auth');
+
+		@if( $user['advance_auth_status']==1  )
+				advAuth = 0;
+		@endif
+
+		$("#clickToggleUserWarned input[name='adv_auth']").val(advAuth);
+        $("#clickToggleUserWarned input[name='vip_pass']").val(0);
+		if($(this).data('adv_auth')==1){
+			$("#warnedModalLabel").append(' (驗證警示)');
+		}
+	})    
 
 	// $('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
 	// 	var data_id = '';
@@ -2173,6 +2235,7 @@ function WarnedToggler(user_id,isWarned){
 			_token: '{{csrf_token()}}',
 			id: user_id,
 			status: isWarned,
+            isWarnedType:$('#isWarned_blockade input[name=isWarnedType]:checked').val(),
 		},
 		dataType:"json",
 		success: function(res){
