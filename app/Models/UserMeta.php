@@ -190,7 +190,8 @@ class UserMeta extends Model
                                   $education = '',
                                   $isVip = '',
                                   $isWarned = 2,
-                                  $isPhoneAuth = '')
+                                  $isPhoneAuth = '',
+                                  $isAdvanceAuth=null)
     {
         if ($engroup == 1) { $engroup = 2; }
         else if ($engroup == 2) { $engroup = 1; }
@@ -407,6 +408,11 @@ class UserMeta extends Model
                     ->from('short_message')->where('active',1);
             });
         }
+
+        if($isAdvanceAuth && isset($isAdvanceAuth) && $isAdvanceAuth==1){{
+                $query->where('users.advance_auth_status',$isAdvanceAuth);
+        }
+	
 
         if($userIsVip && isset($isVip) && $isVip==1){
             $query->whereIn('users.id', function($query) use ($userid, $isVip){

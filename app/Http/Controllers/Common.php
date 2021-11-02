@@ -6,6 +6,7 @@ use App\Services\UserService;
 use App\Services\VipLogService;
 use Illuminate\Http\Request;
 use DB;
+use App\Models\User;
 
 class Common extends BaseController {
     public function get_message(Request $request){
@@ -17,7 +18,14 @@ class Common extends BaseController {
         $password = 'zxcvbnm';
         $Mobile   = $request->get('mobile');
         $data_exist = DB::table('short_message')->where('mobile', $Mobile)->where('active',1)->first();
-        if(isset($data_exist)){
+        $Mobile_for_auth = $Mobile;
+        if(substr($Mobile,0,4)=='+886') {
+            $Mobile_for_auth = substr_replace($Mobile, '0', 0, 4);
+        }
+        
+        $adv_auth_exist = User::where([['advance_auth_status',1],['advance_auth_phone',$Mobile_for_auth],['id','<>',$user->id]])->count();
+
+        if(isset($data_exist) || $adv_auth_exist){
             $data = array(
                 'code'=>'420',
                 'msg_info'=>'手機號碼已被使用'

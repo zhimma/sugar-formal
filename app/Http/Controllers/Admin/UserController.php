@@ -300,7 +300,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $checkLog = DB::table('is_banned_log')->where('user_id', $userBanned->member_id)->where('created_at', $userBanned->created_at)->first();
             if(!$checkLog) {
                 //寫入log
-                DB::table('is_banned_log')->insert(['user_id' => $userBanned->member_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'vip_pass' => $userBanned->vip_pass, 'created_at' => $userBanned->created_at]);
+                DB::table('is_banned_log')->insert(['user_id' => $userBanned->member_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date,'vip_pass'=>$userBanned->vip_pass,'adv_auth'=>$userBanned->adv_auth, 'created_at' => $userBanned->created_at]);
             }
             $userBanned->delete();
             //新增Admin操作log
@@ -323,6 +323,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $userBanned = new banned_users;
             $userBanned->member_id = $request->user_id;
             $userBanned->vip_pass = $request->vip_pass;
+            $userBanned->adv_auth = $request->adv_auth;
             if ($request->days != 'X') {
                 $userBanned->expire_date = Carbon::now()->addDays($request->days);
             }
@@ -333,7 +334,7 @@ class UserController extends \App\Http\Controllers\BaseController
             }
             $userBanned->save();
             //寫入log
-            DB::table('is_banned_log')->insert(['user_id' => $request->user_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'vip_pass' => $userBanned->vip_pass, 'created_at' => Carbon::now()]);
+            DB::table('is_banned_log')->insert(['user_id' => $request->user_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'vip_pass' => $userBanned->vip_pass, 'adv_auth' => $userBanned->adv_auth, 'created_at' => Carbon::now()]);
             //新增Admin操作log
             $this->insertAdminActionLog($request->user_id, '封鎖會員');
 
@@ -363,7 +364,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $checkLog = DB::table('is_banned_log')->where('user_id', $userBanned->member_id)->where('created_at', $userBanned->created_at)->first();
             if(!$checkLog) {
                 //寫入log
-                DB::table('is_banned_log')->insert(['user_id' => $userBanned->member_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'vip_pass' => $userBanned->vip_pass, 'created_at' => $userBanned->created_at]);
+                DB::table('is_banned_log')->insert(['user_id' => $userBanned->member_id, 'reason' => $userBanned->reason, 'expire_date' => $userBanned->expire_date, 'vip_pass' => $userBanned->vip_pass, 'adv_auth' => $userBanned->adv_auth, 'created_at' => $userBanned->created_at]);
             }
             $userBanned->delete();
 
@@ -407,7 +408,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $checkLog = DB::table('is_warned_log')->where('user_id', $userWarned->member_id)->where('created_at', $userWarned->created_at)->get()->first();
             if(!$checkLog) {
                 //寫入log
-                DB::table('is_warned_log')->insert(['user_id' => $userWarned->member_id, 'reason' => $userWarned->reason, 'created_at' => $userWarned->created_at]);
+                DB::table('is_warned_log')->insert(['user_id' => $userWarned->member_id, 'reason' => $userWarned->reason, 'created_at' => $userWarned->created_at,'vip_pass'=>$userWarned->vip_pass,'adv_auth'=>$userWarned->adv_auth]);
             }
             $userWarned->delete();
         }
@@ -427,6 +428,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $userWarned = new warned_users;
         $userWarned->member_id = $request->user_id;
         $userWarned->vip_pass = $request->vip_pass;
+        $userWarned->adv_auth = $request->adv_auth;
         if ($request->days != 'X') {
             $userWarned->expire_date = Carbon::now()->addDays($request->days);
         }
@@ -437,7 +439,7 @@ class UserController extends \App\Http\Controllers\BaseController
         }
         $userWarned->save();
         //寫入log
-        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason, 'vip_pass'=>$request->vip_pass,'created_at' => Carbon::now()]);
+        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason, 'vip_pass'=>$request->vip_pass, 'adv_auth'=>$request->adv_auth,'created_at' => Carbon::now()]);
         //新增Admin操作log
         $this->insertAdminActionLog($request->user_id, '站方警示');
 
@@ -1282,6 +1284,9 @@ class UserController extends \App\Http\Controllers\BaseController
         $userAgent = LogUserLogin::select('userAgent')->selectRaw('MAX(created_at) AS last_tiime')->orderByDesc('last_tiime')->where('user_id',$user->id)->groupBy('userAgent')->get();
 
 
+        //$banned_advance_auth_status = DB::table('banned_users')->where('member_id', $id)->where('reason','進階驗證封鎖')->where('message_content','1')->count() > 0 ? 1:0;
+        $banned_advance_auth_status = DB::table('banned_users')->where('member_id', $id)->where('adv_auth',1)->count() > 0 ? 1:0;
+        // var_dump($banned_advance_auth_count);die();
         if (str_contains(url()->current(), 'edit')) {
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
             $birthday = explode('-', $birthday);
@@ -1320,6 +1325,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('cfp_id',$cfp_id)
                 ->with('ip',$ip)
                 ->with('userAgent',$userAgent)
+				->with('banned_advance_auth_status', $banned_advance_auth_status)
                 ;
         }
     }
@@ -2809,39 +2815,50 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function isWarnedUser(Request $request)
     {
-
+    	
         $id = $request->post('id');
         $status = $request->post('status');
+        $isWarnedType = $request->post('isWarnedType');
+        $user = User::findById($id);
+        if($status==1 &&  $isWarnedType=='adv_auth'  && $user->advance_auth_status)  {
+            $data = array(
+                'code' => '200'
+            );
+            echo json_encode($data);
+            exit;
+        }
+        
         $isWarnedTime = null;
         if($status==1){
             $isWarnedTime = Carbon::now();
         }
 
-        DB::table('user_meta')->where('user_id', $id)->update(['isWarned' => $status, 'isWarnedRead' => 0, 'isWarnedTime' => $isWarnedTime]);
+        DB::table('user_meta')->where('user_id', $id)->update(['isWarned' => $status, 'isWarnedRead' => 0, 'isWarnedTime' => $isWarnedTime,'isWarnedType'=>$isWarnedType]);
+        if($isWarnedType!='adv_auth') {
+            if ($status == 1) {
+                //加入警示流程
+                //清除認證資料
+                //            DB::table('auth_img')->where('user_id',$id)->delete();
+                DB::table('short_message')->where('member_id', $id)->delete();
+    //            DB::table('short_message')->where('member_id', $id)->update(['active' =>0]);
+            } else if ($status == 0) {
+                
+                //取消警示流程
+                //加入認證資料 假資料
+                if ($user->WarnedScore() >= 10) {
 
-        if ($status == 1) {
-            //加入警示流程
-            //清除認證資料
-            //            DB::table('auth_img')->where('user_id',$id)->delete();
-            DB::table('short_message')->where('member_id', $id)->delete();
-//            DB::table('short_message')->where('member_id', $id)->update(['active' =>0]);
-        } else if ($status == 0) {
-            $user = User::findById($id);
-            //取消警示流程
-            //加入認證資料 假資料
-            if ($user->WarnedScore() >= 10) {
+                    if ($user->isPhoneAuth() == 0) {
+                        DB::table('short_message')->insert(
+                            ['mobile' => '0922222222','member_id' => $id, 'active' => 1]);
+                    }
 
-                if ($user->isPhoneAuth() == 0) {
-                    DB::table('short_message')->insert(
-                        ['mobile' => '0922222222','member_id' => $id, 'active' => 1]);
+                    //                if ($user->isImgAuth() == 0) {
+                    //                    DB::table('auth_img')->insert(
+                    //                        ['user_id' => $id, 'status' => 1, 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+                    //                }
                 }
 
-                //                if ($user->isImgAuth() == 0) {
-                //                    DB::table('auth_img')->insert(
-                //                        ['user_id' => $id, 'status' => 1, 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
-                //                }
             }
-
         }
         //新增Admin操作log
         $this->insertAdminActionLog($id, $status==1 ? '警示用戶'  : '取消警示用戶');

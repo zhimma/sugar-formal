@@ -470,6 +470,17 @@
                                         $introCount++;
                                     @endphp
                                 @endif
+                                @if($to->isAdvanceAuth())
+                                    <li>
+                                        <div class="tagText" data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">
+                                            @if($user->isVip())
+                                                <img src="/new/images/a7.png">
+                                            @else
+                                                <img src="/new/images/b_7.png" style="height: 50px;">
+                                            @endif
+                                        </div>
+                                    </li>
+                                @endif                                
 {{--                                @if($to->isPhoneAuth())--}}
 {{--                                    <li>--}}
 {{--                                        @if($to->engroup == 1)--}}

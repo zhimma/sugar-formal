@@ -222,6 +222,21 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     /*會員驗證END*/
 
 
+    /*進階驗證*/
+    Route::get('advance_auth', 'PagesController@advance_auth');
+    Route::post('advance_auth_process', 'PagesController@advance_auth_process');
+
+    Route::get('is_advance_auth', 'PagesController@is_advance_auth');
+    Route::post('is_advance_auth', 'PagesController@is_advance_auth');
+
+    Route::get('advance_auth_result', 'PagesController@advance_auth_result');
+    Route::post('advance_auth_result', 'PagesController@advance_auth_result');
+
+    Route::get('advance_auth_query', 'PagesController@advance_auth_query');
+    Route::post('advance_auth_query', 'PagesController@advance_auth_query');
+
+    Route::post('advance_auth_back', 'PagesController@advance_auth_back');
+    /*進階驗證END*/
 
     /*
     |--------------------------------------------------------------------------

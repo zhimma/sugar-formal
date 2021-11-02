@@ -31,6 +31,14 @@
         width: auto;
         /*position: absolute;*/
     }
+    .popover{
+        position: fixed;
+    }    
+    @media (max-width: 768px) {
+        .popover{
+            max-width:60% !important;
+        }
+    }
     .onineStatus{}
     .onlineStatusNonVipSearch{
         width: 15px;
@@ -356,12 +364,9 @@
                                         </font>
                                     </li>
                                     <li>
-                                        <span>通過手機驗證</span>
+                                        <span>通過進階驗證</span>
                                         <font>
-                                            <label class="n_tx"><input type="checkbox" name="isPhoneAuth" value="2" id="Checkbox" @if( !empty( $_POST["isPhoneAuth"] ) && $_POST["isPhoneAuth"] == "2" ) checked @elseif(!empty( $_GET["isPhoneAuth"] ) && $_GET["isPhoneAuth"] == "2") checked  @elseif(!empty( session()->get('search_page_key.isPhoneAuth') ) && session()->get('search_page_key.isPhoneAuth') == "2") checked @endif><i>是</i></label>
-
-{{--                                            <label class="ba_tx"><input type="radio" name="isPhoneAuth" value="2" id="isPhoneAuth" @if( !empty( $_POST["isPhoneAuth"] ) && $_POST["isPhoneAuth"] == 2 ) checked @elseif(!empty( $_GET["isPhoneAuth"] ) && $_GET["isPhoneAuth"]== 2) checked @endif><i>開啟</i></label>--}}
-{{--                                            <label class="ba_tx"><input type="radio" name="isPhoneAuth" value="1" id="isPhoneAuth1" @if( !empty( $_POST["isPhoneAuth"] ) && $_POST["isPhoneAuth"] == 1 ) checked @elseif(!empty( $_GET["isPhoneAuth"] ) && $_GET["isPhoneAuth"]== 1) checked @endif><i>關閉</i></label>--}}
+                                            <label class="n_tx"><input type="checkbox" name="isAdvanceAuth" value="1" id="isAdvanceAuth" @if( !empty( $_POST["isAdvanceAuth"] ) && $_POST["isAdvanceAuth"] == "1" ) checked @elseif(!empty( $_GET["isAdvanceAuth"] ) && $_GET["isAdvanceAuth"] == "1") checked  @elseif(!empty( session()->get('search_page_key.isAdvanceAuth') ) && session()->get('search_page_key.isAdvanceAuth') == "1") checked @endif><i>是</i></label>
                                         </font>
                                     </li>
                                 </div>
@@ -456,6 +461,7 @@
                 @endif
                 <?php $icc = 1;
                 $userIsVip = $user->isVIP();
+                $userIsAdvanceAuth = isset($_POST['isAdvanceAuth'])?1:0;
                 $vis = \App\Models\UserMeta::search(
                     $county,
                     $district,
@@ -487,7 +493,8 @@
                     $education,
                     $isVip,
                     $isWarned,
-                    $isPhoneAuth
+                    $isPhoneAuth,
+                    $userIsAdvanceAuth
                 );
                 // vi vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php
                 // addWhereExistsQuery() remove $operator
@@ -581,6 +588,18 @@
                                                     <img src="/new/images/a4.png">
                                                 @else
                                                     <img src="/new/images/b_4.png">
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    @if($visitor->isAdvanceAuth())
+                                        <div class="hoverTip">
+                                            <div class="tagText" data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">
+                                                @if($user->isVip())
+                                                    <img src="/new/images/a7.png">
+                                                @else
+                                                    <img src="/new/images/b_7.png">
                                                 @endif
                                             </div>
                                         </div>
@@ -837,7 +856,7 @@
 
             $('[data-toggle="popover"]').popover({
                 animated: 'fade',
-                placement: 'right',
+                placement: 'bottom',
                 trigger: 'hover',
                 html: true,
                 content: function () { return '<h4' + $(this).data('content') + '</h4>'; }
