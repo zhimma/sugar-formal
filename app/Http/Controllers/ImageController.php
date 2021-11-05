@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminDeleteImageLog;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Requests\ImageRequest;
@@ -60,6 +61,13 @@ class ImageController extends BaseController
                 'ip'            => $request->ip(),
                 'created_at'    => now(),
                 'updated_at'    => now(),
+            ]);
+
+            $imageInfo=MemberPic::withTrashed()->find($payload['imgId']);
+            // 由後台刪除的生活照,寫入log紀錄
+            AdminDeleteImageLog::create([
+                'member_id'=>$imageInfo->member_id,
+                'member_pic_id'=>$imageInfo->id,
             ]);
         }
 
@@ -591,6 +599,9 @@ class ImageController extends BaseController
                 $addPicture->original_name = $uploadedFile['old_name'];
                 $addPicture->save();
 
+                // 新增生活照時,刪除AdminDeleteImageLog紀錄
+                AdminDeleteImageLog::where('member_id', $userId)->orderBy('id')->take(1)->delete();
+
                 \App\Jobs\SimilarImagesSearcher::dispatchSync($path);
             }
         }
@@ -882,6 +893,11 @@ class ImageController extends BaseController
                     'ip'            => $request->ip(),
                     'created_at'    => now(),
                     'updated_at'    => now(),
+                ]);
+                // 由後台刪除的生活照,寫入log紀錄
+                AdminDeleteImageLog::create([
+                    'member_id'=>$member_pic->member_id,
+                    'member_pic_id'=>$member_pic->id,
                 ]);
 
                 $member_pic->delete();
