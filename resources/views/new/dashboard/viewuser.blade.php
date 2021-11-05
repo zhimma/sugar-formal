@@ -351,7 +351,11 @@
                 @if(isset($to))
                 <div class="rightbg">
                     <div class="metx">
-                        <a href="{{ !empty(session()->get('goBackPage')) ? session()->get('goBackPage') : \Illuminate\Support\Facades\URL::previous() }}" {{--href="javascript: history.back()"--}} class="hyneback" style="z-index: 6;"><img src="/new/images/back_icon.png">返回</a>
+                        @if(Request()->get('page_mode')=='edit')
+                            <a href="{!! url('dashboard') !!}" class="hyneback" style="z-index: 6;"><img src="/new/images/back_icon.png">修改</a>
+                        @else
+                            <a href="{{ !empty(session()->get('goBackPage')) ? session()->get('goBackPage') : \Illuminate\Support\Facades\URL::previous() }}" {{--href="javascript: history.back()"--}} class="hyneback" style="z-index: 6;"><img src="/new/images/back_icon.png">返回</a>
+                        @endif
                         <div class="swiper-container photo">
                             <div class="swiper-wrapper">
                                 <div class="swiper-slide @if($isBlurAvatar) blur_img @endif" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>
