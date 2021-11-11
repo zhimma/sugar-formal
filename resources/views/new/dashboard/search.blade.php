@@ -363,12 +363,12 @@
 {{--                                            <label class="ba_tx"><input type="radio" name="isWarned" value="1" id="isWarned1" @if( !empty( $_POST["isWarned"] ) && $_POST["isWarned"] == 1 ) checked @elseif(!empty( $_GET["isWarned"] ) && $_GET["isWarned"]== 1) checked @endif><i>否</i></label>--}}
                                         </font>
                                     </li>
-                                    <li>
+                                    {{-- <li>
                                         <span>通過進階驗證</span>
                                         <font>
                                             <label class="n_tx"><input type="checkbox" name="isAdvanceAuth" value="1" id="isAdvanceAuth" @if( !empty( $_POST["isAdvanceAuth"] ) && $_POST["isAdvanceAuth"] == "1" ) checked @elseif(!empty( $_GET["isAdvanceAuth"] ) && $_GET["isAdvanceAuth"] == "1") checked  @elseif(!empty( session()->get('search_page_key.isAdvanceAuth') ) && session()->get('search_page_key.isAdvanceAuth') == "1") checked @endif><i>是</i></label>
                                         </font>
-                                    </li>
+                                    </li> --}}
                                 </div>
                             </dt>
                             @endif
