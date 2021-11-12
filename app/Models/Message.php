@@ -144,7 +144,7 @@ class Message extends Model
         }
     }
 
-    public static function reportMessage($id, $content, $images) {
+    public static function reportMessage($id, $content, $images = null) {
         $message = Message::where('id', $id)->first();
         $message->isReported = 1;
         $message->reportContent = $content;
