@@ -126,7 +126,7 @@
                                     </form>
                                 </div>
                             @endif
-                        <div class="vipbongn new_wyz" style="width: 400px;">
+                        <div class="vipbongn new_wyz">
                                 <h2>驗證說明</h2>
                                 @if($user->engroup == 1)
                                 <h3><span class="left">●</span><var class="newtishi">手機驗證後，能加強帳號及身份的真實性。</var></h3>
