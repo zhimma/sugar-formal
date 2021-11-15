@@ -199,7 +199,7 @@
 
                     @if($isBannedStatus != '')
                     <div class="sys_aa">
-                        <div class="tabbox_new_dt"><span>封鎖紀錄</span></div>
+                        <div class="tabbox_new_dt"><span>封鎖通知</span></div>
                         <div class="tabbox_new_dd">
                             <h2 class="tabbox_h3">{!! $isBannedStatus !!}</h2>
                         </div>
@@ -208,7 +208,7 @@
 
                     @if($adminWarnedStatus != '' || $isWarnedStatus != '')
                     <div class="sys_aa">
-                        <div class="tabbox_new_dt"><span>警示紀錄</span></div>
+                        <div class="tabbox_new_dt"><span>警示通知</span></div>
                         <div class="tabbox_new_dd">
                             @if($adminWarnedStatus!='')
                                 <h2 class="tabbox_h3">{!! $adminWarnedStatus !!}</h2>
