@@ -160,7 +160,7 @@
                                     </div>
                                     <div class="zybg_new02">
                                         <input name="" type="text" id="checkcode" class="xy_input xy_left" placeholder="請輸入驗證碼">
-                                        <a id="auth_phone1" class="xy_yanx">送出驗證碼</a>
+                                        <button id="auth_phone1" class="xy_yanx" style="margin-top: 5px">送出驗證碼</button>
                                     </div>
                                 @endif
                             </div>
