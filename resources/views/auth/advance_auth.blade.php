@@ -74,35 +74,40 @@
             .n_left:active {
                 box-shadow:inset 0px 15px 10px -10px #4c6ded, inset 0px -10px 10px -20px #4c6ded !important;            
             }
-        </style>
-        <style>
-            div.has_error input,div.has_error select.select_xx04 {border:2px red solid;background:#FFECEC !important;}       
-            {{--
-            @if(in_array('i',Session::get('error_code')??[]) || in_array('p',Session::get('error_code')??[]) || in_array('b',Session::get('error_code')??[]) || in_array('b18',Session::get('error_code')??[]))
-                div.has_error input,div.has_error select.select_xx04 {border:2px red solid;background:#FFECEC !important;}       
-            @endif
-            
-            @if(in_array('p',Session::get('error_code')??[]))
-                #phone_number {background:#FF8F8F;}
-                #phone_number::placeholder { 
-                  color:#E0E0E0;
-                  opacity: 1; 
-                }
-                #phone_number:-ms-input-placeholder {
-                  color:#E0E0E0;
-                }         
-            @endif
-            @if(in_array('b',Session::get('error_code')??[]) || in_array('b18',Session::get('error_code')??[]))
-                .select_xx04 {background:#FF8F8F !important;}    
-            @endif  
-            --}}            
+
+            div.has_error input,div.has_error select.select_xx04 {
+                border:2px red solid;background:#FFECEC !important;
+            }       
+            {{-- 
+                /*
+                @if(in_array('i',Session::get('error_code')??[]) || in_array('p',Session::get('error_code')??[]) || in_array('b',Session::get('error_code')??[]) || in_array('b18',Session::get('error_code')??[]))
+                    div.has_error input,div.has_error select.select_xx04 {
+                        border:2px red solid;background:#FFECEC !important;
+                    }       
+                @endif
+                
+                @if(in_array('p',Session::get('error_code')??[]))
+                    #phone_number {background:#FF8F8F;}
+                    #phone_number::placeholder { 
+                    color:#E0E0E0;
+                    opacity: 1; 
+                    }
+                    #phone_number:-ms-input-placeholder {
+                    color:#E0E0E0;
+                    }         
+                @endif
+                @if(in_array('b', Session::get('error_code') ?? []) || in_array('b18', Session::get('error_code') ?? []))
+                    .select_xx04 {
+                        background:#FF8F8F !important;
+                    }    
+                @endif  
+                */
+            --}}    
         </style>   
 	</head>
 
 	<body style="background:#ffffff">
         @include('new.layouts.navigation')
-
-
 		<!---->
 		<div class="container matop70 nn_yzheight">
 			<div class="row">
@@ -110,7 +115,10 @@
                     @include('new.dashboard.panel')
 				</div>
 				<div class="col-sm-12 col-xs-12 col-md-10">
-					<div class="dengl matbot140 zh_top">
+                    <div class="card">
+                        進階驗證即將推出，敬請期待
+                    </div>
+					{{-- <div class="dengl matbot140 zh_top">
 						<div class="zhuce">
 							<h2>進階驗證</h2>
 						</div>
@@ -175,7 +183,7 @@
 										<button type="text" class="n_zybg_right btn_yz advanceAuthSubmit" onclick="tab_agree();return false;">驗證</button>
 									</div>
 								</form>
-							@endif
+							@endif --}}
 						</div>
 					</div>
 				</div>
@@ -199,23 +207,23 @@
 </style>
 <!--弹出-->
 <div class="blbg" onclick="gmBtn1()" ></div>
-@if(!$user->isAdvanceAuth())
-<div class="bl bl_tab" id="tab_confirm">
-    <div class="bltitle">提示</div>
-    <div class="n_blnr01">
-        <div class="blnr bltext">
-        本站會將您的門號以及生日同步更新到會員基本資料，
-        <span class="bolder red">身分證字號則只用在本次驗證並不會紀錄</span>
+                    {{-- @if(!$user->isAdvanceAuth())
+                    <div class="bl bl_tab" id="tab_confirm">
+                        <div class="bltitle">提示</div>
+                        <div class="n_blnr01">
+                            <div class="blnr bltext">
+                            本站會將您的門號以及生日同步更新到會員基本資料，
+                            <span class="bolder red">身分證字號則只用在本次驗證並不會紀錄</span>
 
-        </div>
-        <div class="n_bbutton">
-            <span><a class="n_left" href="#" onclick="" >同意</a></span>
-            <span><a onclick="gmBtn1()" class="n_right" href="javascript:">不同意</a></span>
-        </div>
-    </div>
-    <a id="" onclick="gmBtn1()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
-</div> 
-@endif
+                            </div>
+                            <div class="n_bbutton">
+                                <span><a class="n_left" href="#" onclick="" >同意</a></span>
+                                <span><a onclick="gmBtn1()" class="n_right" href="javascript:">不同意</a></span>
+                            </div>
+                        </div>
+                        <a id="" onclick="gmBtn1()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+                    </div> 
+                    @endif --}}
 <div class="bl bl_tab " id="tab01" >
     <div class="bltitle" style="margin-top: -1px;"><span>提示</span></div>
     <div class="n_blnr01 matop10">
@@ -262,8 +270,10 @@
         $(".bl").hide();
     });
     function cl() {
-        $(".blbg").show();
-        $("#tab01").show();
+        {{--
+            $(".blbg").show();
+            $("#tab01").show();
+        --}}
     }
     
     function tab_confirm_send() {
