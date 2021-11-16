@@ -61,7 +61,7 @@
 												<a href="{!! url('dashboard/personalPage') !!}"><img src="/new/images/zsym.png">專屬頁面</a>
 											</li>
 											<li>
-												<a href="{!! url('dashboard') !!}"><img src="/new/images/icon_48.png">個人資料</a>
+												<a href="/dashboard/viewuser/{{$user->id}}?page_mode=edit"><img src="/new/images/icon_48.png">個人資料</a>
 											</li>
 		{{--									@if($user->meta_()->isConsign == 0 && ($user->meta_()->consign_expiry_date == null||$user->meta_()->consign_expiry_date <= \Carbon\Carbon::now()))--}}
 											<li>

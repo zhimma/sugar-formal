@@ -1486,7 +1486,7 @@
                         @if ($ImgResult->pagesWithMatchingImages)
                             <p>
                                 @foreach (json_decode($ImgResult->pagesWithMatchingImages) as $pagesWithMatchingImage)
-                                    <a href="{{ $pagesWithMatchingImage->url }}" target="_blank">{{ $pagesWithMatchingImage->pageTitle }}</a><br>
+                                    <a href="{{ $pagesWithMatchingImage->url }}" target="_blank">{{ $pagesWithMatchingImage->pageTitle ?? "無標題" }}</a><br>
                                 @endforeach
                             </p>
                         @else
@@ -1567,7 +1567,7 @@
                         @if ($ImgResult->pagesWithMatchingImages)
                             <p>
                                 @foreach (json_decode($ImgResult->pagesWithMatchingImages) as $pagesWithMatchingImage)
-                                    <a href="{{ $pagesWithMatchingImage->url }}" target="_blank">{{ $pagesWithMatchingImage->pageTitle }}</a><br>
+                                    <a href="{{ $pagesWithMatchingImage->url }}" target="_blank">{{ $pagesWithMatchingImage->pageTitle ?? "無標題" }}</a><br>
                                 @endforeach
                             </p>
                         @else
@@ -1745,7 +1745,7 @@
                         @if ($ImgResult->pagesWithMatchingImages)
                             <p>
                                 @foreach (json_decode($ImgResult->pagesWithMatchingImages) as $pagesWithMatchingImage)
-                                    <a href="{{ $pagesWithMatchingImage->url }}" target="_blank">{{ $pagesWithMatchingImage->pageTitle }}</a><br>
+                                    <a href="{{ $pagesWithMatchingImage->url }}" target="_blank">{{ $pagesWithMatchingImage->pageTitle ?? "無標題" }}</a><br>
                                 @endforeach
                             </p>
                         @else
