@@ -17,11 +17,4 @@ class lineNotifyChatSet extends Model
      */
     protected $table = 'line_notify_chat_set';
 
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
-
 }
