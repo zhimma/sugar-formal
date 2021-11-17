@@ -409,7 +409,7 @@ class UserMeta extends Model
             });
         }
 
-        if($isAdvanceAuth && isset($isAdvanceAuth) && $isAdvanceAuth==1){{
+        if($isAdvanceAuth && isset($isAdvanceAuth) && $isAdvanceAuth==1){
                 $query->where('users.advance_auth_status',$isAdvanceAuth);
         }
 	

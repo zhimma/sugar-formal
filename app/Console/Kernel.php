@@ -33,57 +33,63 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('FillDataForFilterByInfo')->timezone('Asia/Taipei')->dailyAt('01:00');
-        $schedule->call(function (){
-            $this->checkECPayVip();
-            $this->checkEmailVailUser();
-        })->timezone('Asia/Taipei')->dailyAt('3:00');
-        $schedule->call(function (){
-            $this->checkVipExpired();
-        })->timezone('Asia/Taipei')->dailyAt('3:10');
-        $schedule->call(function (){
-            $this->VIPCheck();
-            $this->checkEmailVailUser();
-        })->timezone('Asia/Taipei')->dailyAt('4:00');
-        $schedule->command('InsertPR')->timezone('Asia/Taipei')->dailyAt('04:00');
-        $schedule->call(function (){
-            $this->checkEmailVailUser();
-        })->timezone('Asia/Taipei')->dailyAt('5:00');
-        $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('4:00');
-        $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('16:00');
-		$puppetReq = new Request();
-		$puppetReq->only = 'cfpid';
-		$schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('8:00');
-		$schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('20:00');
-        $schedule->call(function (){
-            $this->checkEmailVailUser();
-        })->timezone('Asia/Taipei')->dailyAt('8:00');
-        $schedule->call(function (){
-            $this->VIPCheck();
-            $this->checkEmailVailUser();
-        })->timezone('Asia/Taipei')->dailyAt('12:00');
-        $schedule->command('FillDataForFilterByInfo')->timezone('Asia/Taipei')->dailyAt('13:00');
-        $schedule->call(function (){
-            $this->VIPCheck();
-            $this->checkEmailVailUser();
-        })->timezone('Asia/Taipei')->dailyAt('16:00');
-        $schedule->call(function (){
-            $this->VIPCheck();
-            $this->checkEmailVailUser();
-        })->timezone('Asia/Taipei')->dailyAt('20:00');
-        $schedule->call(function (){
-            $this->VIPCheck();
-            $this->checkEmailVailUser();
-        })->timezone('Asia/Taipei')->dailyAt('23:59');
-        $schedule->call(function (){
-            $this->checkUserPics();
-        })->everyFiveMinutes();
-        $schedule->call(function (){
-            $this->resetUserPicsSwitches();
-        })->timezone('Asia/Taipei')->dailyAt('6:30');
-        $schedule->call(function (){
-            $this->send_registed_users_statistics_by_LineNotify();
-        })->timezone('Asia/Taipei')->dailyAt('1:00');
+        if(app()->isProduction() || app()->isLocal()){
+            $schedule->command('FillDataForFilterByInfo')->timezone('Asia/Taipei')->dailyAt('01:00');
+            $schedule->call(function (){
+                $this->checkECPayVip();
+                $this->checkEmailVailUser();
+            })->timezone('Asia/Taipei')->dailyAt('3:00');
+            $schedule->call(function (){
+                $this->checkVipExpired();
+            })->timezone('Asia/Taipei')->dailyAt('3:10');
+            $schedule->call(function (){
+                $this->VIPCheck();
+                $this->checkEmailVailUser();
+            })->timezone('Asia/Taipei')->dailyAt('4:00');
+            $schedule->command('InsertPR')->timezone('Asia/Taipei')->dailyAt('04:00');
+            $schedule->call(function (){
+                $this->checkEmailVailUser();
+            })->timezone('Asia/Taipei')->dailyAt('5:00');
+        }
+        if(app()->environment('CFP')){
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('4:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('16:00');
+            $puppetReq = new Request();
+            $puppetReq->only = 'cfpid';
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('8:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('20:00');
+        }
+        if(app()->isProduction() || app()->isLocal()){
+            $schedule->call(function (){
+                $this->checkEmailVailUser();
+            })->timezone('Asia/Taipei')->dailyAt('8:00');
+            $schedule->call(function (){
+                $this->VIPCheck();
+                $this->checkEmailVailUser();
+            })->timezone('Asia/Taipei')->dailyAt('12:00');
+            $schedule->command('FillDataForFilterByInfo')->timezone('Asia/Taipei')->dailyAt('13:00');
+            $schedule->call(function (){
+                $this->VIPCheck();
+                $this->checkEmailVailUser();
+            })->timezone('Asia/Taipei')->dailyAt('16:00');
+            $schedule->call(function (){
+                $this->VIPCheck();
+                $this->checkEmailVailUser();
+            })->timezone('Asia/Taipei')->dailyAt('20:00');
+            $schedule->call(function (){
+                $this->VIPCheck();
+                $this->checkEmailVailUser();
+            })->timezone('Asia/Taipei')->dailyAt('23:59');
+            $schedule->call(function (){
+                $this->checkUserPics();
+            })->everyFiveMinutes();
+            $schedule->call(function (){
+                $this->resetUserPicsSwitches();
+            })->timezone('Asia/Taipei')->dailyAt('6:30');
+            $schedule->call(function (){
+                $this->send_registed_users_statistics_by_LineNotify();
+            })->timezone('Asia/Taipei')->dailyAt('1:00');
+        }
     }
 
     /**
