@@ -3990,7 +3990,7 @@ border-radius: 100px; float: right; margin-right:5px; margin-top:5px; color: #fd
 .wtl img{width:140px; margin: 0 auto; display: table;}
 .wtl font{ font-size: 15px; line-height: 30px; margin-bottom: 30px; text-align: center;width: 100%; display: table; color:#999;}
 
-.juanzhou{height: 180px; display: block; overflow: scroll; overflow-x: hidden;}
+.juanzhou{/*height: 180px;*/ display: block;/*overflow-y: scroll;*/-webkit-overflow-scrolling: touch;}
  .juanzhou::-webkit-scrollbar{ border-radius: 100PX;
     width:6px;
     height: 6px;
