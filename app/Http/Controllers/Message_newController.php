@@ -300,7 +300,7 @@ class Message_newController extends BaseController {
                 }
                 else if($row->gender==0 && $row->name == '誰來看我' && $to_user->isVip()){
                     //誰來看我通知
-                    $line_notify_send = Visited::where('visited_id', $user->id)->where('member_id', $to_user->id)->first();
+                    $line_notify_send = Visited::where('visited_id', $to_user->id)->where('member_id', $user->id)->first();
                     if($line_notify_send) {break;}
                 }
                 else if($row->gender==0 && $row->name == '收藏我的會員' && $to_user->isVip()){
