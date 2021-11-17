@@ -1923,14 +1923,13 @@ font-size:16px; float:left; cursor: pointer;}
 .zy_select{ padding:0px 10px; height:40px;background:none;line-height:40px; text-align:center; border:none;outline:none; float:left; margin-left:7px}
 .xy_input{float:left;width:50%;border:none;outline:none; height:40px; background:none; margin-left:5px; }
 .xy_left{ margin-left:20px;}
-
-
+}
 
 .yanzheng_1{width:100%; display:table; line-height:45px; color:#fd5678; font-weight:bold; font-size:18px;}
 .zybg_new_bg{width:100%; display:table}
 .zybg_new{width:73%; height:40px; background:#f8f8f8; border-radius:50px; display:table; border:none;outline:none; margin-bottom:15px; float:left}
 .zybg_right{width:25%;height:40px; line-height:40px; color:#ffffff; text-align:center; background:#fe92a8; border-radius:50px; float:right}
-.zybg_right:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;background:#fe92a8; border:#fe92a8 1px solid}}
+.zybg_right:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #f83964,inset 0px -10px 10px -20px #f83964;background:#fe92a8; border:#fe92a8 1px solid}
 
 
 @media (max-width:320px) {
@@ -3990,7 +3989,7 @@ border-radius: 100px; float: right; margin-right:5px; margin-top:5px; color: #fd
 .wtl img{width:140px; margin: 0 auto; display: table;}
 .wtl font{ font-size: 15px; line-height: 30px; margin-bottom: 30px; text-align: center;width: 100%; display: table; color:#999;}
 
-.juanzhou{height: 180px; display: block; overflow: scroll; overflow-x: hidden;}
+.juanzhou{/*height: 180px;*/ display: block;/*overflow-y: scroll;*/-webkit-overflow-scrolling: touch;}
  .juanzhou::-webkit-scrollbar{ border-radius: 100PX;
     width:6px;
     height: 6px;
