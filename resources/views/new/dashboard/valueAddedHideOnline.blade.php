@@ -167,7 +167,6 @@
                             <div class="vipbongn">
                                 <h2>可獲得以下功能</h2>
                                 <h3><span class="left">●</span><var class="newtishi">搜索頁上可自行選擇，是否隱藏最後上線時間</var></h3>
-                                <h3><span class="left">●</span><var class="newtishi">會員頁中的進階資料不會公開</var></h3>
                             </div>
                         </div>
                         <div class="hy_width n_viptop20"  id="vip_cancel" style="display:none">
