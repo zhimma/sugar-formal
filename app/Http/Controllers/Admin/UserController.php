@@ -3937,7 +3937,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function searchPhone(Request $request)
     {
-        $result=DB::table('short_message')->where('mobile', $request->phone)->first();
+        $result=DB::table('short_message')->where('mobile', $request->phone)->where('active',1)->first();
         $data=array();
         if($result){
             $userInfo=User::findById($result->member_id);
