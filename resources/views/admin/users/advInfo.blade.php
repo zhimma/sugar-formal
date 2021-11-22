@@ -89,18 +89,22 @@
 		<a class="btn btn-danger ban-user block_vip_pass" id="block_user" href="#" data-toggle="modal" data-target="#blockade" data-vip_pass="0" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">封鎖會員</a>
 		<a class="btn btn-danger ban-user" id="implicitly_block_user" href="#" data-toggle="modal" data-target="#implicitly_blockade" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">隱性封鎖</a>
 		<a class="btn btn-danger ban-user block_vip_pass" id="block_user" href="#" data-toggle="modal" data-target="#blockade" data-vip_pass="1" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" @if($user['isvip']==1 && $user['isfreevip']==0)style="display: none;"@endif>付費封鎖</a>
+        @if($user->engroup == 2)
         <a class="btn  @if($user->advance_auth_status==1) btn-secondary @else btn-danger @endif ban-user  block_advance_auth" id="adv_auth_block_user" href="#"  @if($user->advance_auth_status==1) onclick="return false;" @else data-toggle="modal"  data-target="#blockade"  data-vip_pass="0"  data-adv_auth="1"  data-name="{{ $user['name']}}" data-id="{{ $user['id'] }}"  @endif  <?php //echo $user->advance_auth_status==1?'disabled':'';//echo $banned_advance_auth_status==1?'disabled':'';?>> 驗證封鎖 </a>
+        @endif
     @endif
 	@if($user['isAdminWarned']==1)
 		<button type="button" title="{{'於'.$user['adminWarned_createdAt'].'被警示，將於'.(isset($user['adminWarned_expireDate'])? $user['adminWarned_expireDate'] : '永久').'解除站方警示' }}" id="unwarned_user" class='text-white btn @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除站方警示 </button>
 	@else
 		<a class="btn btn-danger warned-user warned_vip_pass" title="站方警示與自動封鎖的警示，只能經後台解除" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-vip_pass="0" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">站方警示</a>
 		<a class="btn btn-danger warned-user warned_vip_pass" title="站方警示與自動封鎖的警示，只能經後台解除" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-vip_pass="1" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" @if($user['isvip']==1 && $user['isfreevip']==0)style="display: none;"@endif>付費警示</a>
+        @if($user->engroup == 2)
         <a class="btn @if($user['advance_auth_status']==1 ) btn-secondary @else btn-danger @endif warned-user warned_adv_auth" title="站方警示與自動封鎖的警示，只能經後台解除" id="adv_auth_warned_user" href="#" @if($user['advance_auth_status']==1 ) onclick="return false;"  @else data-toggle="modal" data-target="#warned_modal" data-vip_pass="0" data-vip_pass="0" data-adv_auth="1"  data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" @endif >驗證警示</a>
+        @endif
     @endif
 	@if($userMeta->isWarned==0)
-		<button class="btn btn-info isWarned-user" title="自動計算檢舉分數達10分者警示，可經手機驗證解除警示(被檢舉總分)" onclick="return false;WarnedToggler({{$user['id']}},1);"
-            data-toggle="modal" data-target="#isWarned_blockade" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"
+		<button class="btn btn-info isWarned-user" title="自動計算檢舉分數達10分者警示，可經手機驗證解除警示(被檢舉總分)" onclick="@if($user->engroup == 2) return false; @endif WarnedToggler({{$user['id']}},1);"
+            @if($user->engroup == 2) data-toggle="modal" data-target="#isWarned_blockade" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" @endif
 		@if($user->WarnedScore() >= 10 AND $user['auth_status']==1) disabled="disabled" style="background-color: #C0C0C0;border-color: #C0C0C0;" @endif>
 			警示用戶({{$user->WarnedScore()}})
 		</button>

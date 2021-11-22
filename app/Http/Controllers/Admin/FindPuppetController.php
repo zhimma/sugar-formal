@@ -211,6 +211,14 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                             $ignoreUserIdIpArr[$userIdIpEntry->item][$userIdIpEntry->ip] = $userIdIpEntry;
                         }                   
 
+                        Log::info('findPuppet排程'.$cat.'：開始以IP讀取登入紀錄');
+                        $this->column->insert( ['column_index'=>-1
+                            ,'name'=>'開始以IP讀取登入紀錄'
+                            ,'group_index'=>-1
+                            ,'cat'=>$cat
+                            ,'type'=>''
+                            ,'created_at'=>$edate
+                            ,'updated_at'=>date('Y-m-d H:i:s')]);
                         $loginDataQuery = $model->has('user')->groupBy('ip','user_id')
                                 ->select('ip','user_id')
                                 ->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')
@@ -222,6 +230,16 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         //if($ignoreUserId) $loginDataQuery=$loginDataQuery->whereNotIn('user_id',$ignoreUserId);
                         
                         $loginDataEntrys = $loginDataQuery->orderBy('time','desc')->get();
+                        
+                        Log::info('findPuppet排程'.$cat.'：完成以IP讀取登入紀錄共'.$loginDataEntrys->count().'筆資料');
+                        $this->column->insert( ['column_index'=>-1
+                            ,'name'=>'完成以IP讀取登入紀錄共'.$loginDataEntrys->count().'筆資料'
+                            ,'group_index'=>-1
+                            ,'cat'=>$cat
+                            ,'type'=>''
+                            ,'created_at'=>$edate
+                            ,'updated_at'=>date('Y-m-d H:i:s')]);                        
+                        
                         $this->loginDataByIp = [];
                         $this->loginDataByUserId = [];
                         
@@ -304,7 +322,18 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                             ,'cat'=>$cat
                             ,'type'=>''
                             ,'created_at'=>$edate
-                            ,'updated_at'=>date('Y-m-d H:i:s')]);                          
+                            ,'updated_at'=>date('Y-m-d H:i:s')]);  
+
+                        Log::info('findPuppet排程'.$cat.'：開始以cfp_id讀取登入紀錄');
+                        $this->column->insert( ['column_index'=>-1
+                            ,'name'=>'開始以cfp_id讀取登入紀錄'
+                            ,'group_index'=>-1
+                            ,'cat'=>$cat
+                            ,'type'=>''
+                            ,'created_at'=>$edate
+                            ,'updated_at'=>date('Y-m-d H:i:s')]);
+
+                            
                         $loginDataCfpIdQuery = $model->has('user')->groupBy('cfp_id','user_id')
                                 ->select('cfp_id','user_id')->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')->whereNotNull('cfp_id')->where('cfp_id','<>','');
                         
@@ -314,6 +343,16 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         //if($ignoreUserId) $loginDataCfpIdQuery=$loginDataCfpIdQuery->whereNotIn('user_id',$ignoreUserId);
 
                         $loginDataEntrys = $loginDataCfpIdQuery->orderBy('time','desc')->get();
+                        
+                        Log::info('findPuppet排程'.$cat.'：完成以cfp_id讀取登入紀錄共'.$loginDataEntrys->count().'筆資料');
+                        $this->column->insert( ['column_index'=>-1
+                            ,'name'=>'完成以cfp_id讀取登入紀錄共'.$loginDataEntrys->count().'筆資料'
+                            ,'group_index'=>-1
+                            ,'cat'=>$cat
+                            ,'type'=>''
+                            ,'created_at'=>$edate
+                            ,'updated_at'=>date('Y-m-d H:i:s')]);                        
+                        
                         $this->loginDataByCfpId = [];
                         $this->loginDataByUserIdCfpId = [];
                         $cpfidOfOverLimitUserId = [];
