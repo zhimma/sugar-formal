@@ -254,49 +254,50 @@ class LoginController extends \App\Http\Controllers\BaseController
                 );
             }
 
-            if($user->engroup == 2) {
-                try{
-                    $country = null;
-                    // 先檢查 IP 是否有記錄
-                    $ip_record = LogUserLogin::where('ip', $request->ip())->first();
-                    if($ip_record && $ip_record->country && $ip_record->country != "??"){
-                        $country = $ip_record->country;
-                    }
-                    // 否則從 API 查詢
-                    else{
-                        $client = new \GuzzleHttp\Client();
-                        $response = $client->get('http://ipinfo.io/' . $request->ip() . '?token=27fc624e833728');
-                        $content = json_decode($response->getBody());
-                        if(isset($content->country)){
-                            $country = $content->country;
-                        }
-                        else{
-                            $country = "??";
-                        }
-                    }
+            // 因改用 Cloudflare，那邊就可以設條件，所以不需要這段
+            // if($user->engroup == 2) {
+            //     try{
+            //         $country = null;
+            //         // 先檢查 IP 是否有記錄
+            //         $ip_record = LogUserLogin::where('ip', $request->ip())->first();
+            //         if($ip_record && $ip_record->country && $ip_record->country != "??"){
+            //             $country = $ip_record->country;
+            //         }
+            //         // 否則從 API 查詢
+            //         else{
+            //             $client = new \GuzzleHttp\Client();
+            //             $response = $client->get('http://ipinfo.io/' . $request->ip() . '?token=27fc624e833728');
+            //             $content = json_decode($response->getBody());
+            //             if(isset($content->country)){
+            //                 $country = $content->country;
+            //             }
+            //             else{
+            //                 $country = "??";
+            //             }
+            //         }
 
-                    if(isset($country)){
-                        $logUserLogin->country = $country;
-                        $logUserLogin->save();
-                        $whiteList = [
-                            "pig820827@yahoo.com.tw",
-                            "henyanyilily@gmail.com",
-                            "chenyanyilily@gmail.com",
-                            "sa83109@gmail.com"
-                        ];
-                        if(!in_array($request->email, $whiteList)){
-                            if($country != "TW" && $country != "??") {
-                                logger("None TW login, user id: " . $user->id);
-                                Auth::logout();
-                                return back()->withErrors('Forbidden.');
-                            }
-                        }
-                    }
-                }
-                catch (\Exception $e){
-                    logger($e);
-                }
-            }
+            //         if(isset($country)){
+            //             $logUserLogin->country = $country;
+            //             $logUserLogin->save();
+            //             $whiteList = [
+            //                 "pig820827@yahoo.com.tw",
+            //                 "henyanyilily@gmail.com",
+            //                 "chenyanyilily@gmail.com",
+            //                 "sa83109@gmail.com"
+            //             ];
+            //             if(!in_array($request->email, $whiteList)){
+            //                 if($country != "TW" && $country != "??") {
+            //                     logger("None TW login, user id: " . $user->id);
+            //                     Auth::logout();
+            //                     return back()->withErrors('Forbidden.');
+            //                 }
+            //             }
+            //         }
+            //     }
+            //     catch (\Exception $e){
+            //         logger($e);
+            //     }
+            // }
 
             return $this->sendLoginResponse($request);
         }
