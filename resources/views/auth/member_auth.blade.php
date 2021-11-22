@@ -149,7 +149,11 @@
 {{--                                    }--}}
 {{--                               @endphp--}}
                                 @if($user->isPhoneAuth() /*or $isAdminWarned*/)
+                                    @if($user->isNeedAdvAuth())
+                                    <div>手機驗證成功，<a href="{!! url('advance_auth') !!}" class="red">按此繼續完成 進階驗證</a></div>
+                                    @else
                                     <div>已完成驗證，<a href="{!! url('dashboard') !!}" class="red">按此開始使用網站</a></div>
+                                    @endif
                                 @else
                                     <div class="zybg_new_bg">
                                         <div class="zybg_new">
@@ -253,6 +257,16 @@
     </div>
     <a id="" onclick="gmBtn1()" class="bl_gb"><img src="/auth/images/gb_icon.png"></a>
 </div>
+<div class="blbg blbg_advauth" onclick="gmBtn1OfAdvAuth()" style="display: none;"></div>
+<div class="bl  bl_tab  bl_tab_advauth" id="tab_advauth" style="display: none;">
+    <div class="bltitle"><span>提示</span></div>
+    <div class="n_blnr01 matop10">
+        <div class="n_fengs" style="text-align:center;width:100%;">手機驗證成功，</div>
+        <div class="n_fengs" style="text-align:center;width:100%;"><a href="{{url('advance_auth')}}" class="red">請按此繼續完成 進階驗證</a></div>
+        <a class="n_bllbut matop30" id="continue_adv_auth" onclick="gmBtn1OfAdvAuth()" style="cursor:pointer">確定</a>
+    </div>
+    <a id="#" onclick="gmBtn1OfAdvAuth()" class="bl_gb"><img src="/auth/images/gb_icon.png"></a>
+</div>
 
 <div class="blbg" onclick="gmBtn1()" ></div>
 <div class="bl bl_tab " id="beforeSwipeCard" >
@@ -306,6 +320,14 @@
     <div class="n_blnr02 matop10">
          <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
          <div class="n_fengs" style="text-align:center;width:100%;">請輸入正確的驗證碼</div>
+    </div>
+    <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
+</div>
+
+<div class="bl bl_tab bl_tab_empty_error_tab" id="tab_empty" style="display: none;">
+    <div class="bltitle_a"><span>提示</span></div>
+    <div class="n_blnr02 matop10">
+         <div class="n_fengs" style="text-align:center;width:100%;"></div>
     </div>
     <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
 </div>
@@ -420,6 +442,13 @@
                 $(".blbg").hide();
                 $(".bl").hide();
             }
+            
+            function gmBtn1OfAdvAuth() {
+                $('.blbg_advauth').hide();
+                $('.bl_tab_advauth').hide();
+                location.href='{{url("advance_auth")}}';
+                return false;
+            }
 
 
             $("#get_auth_code").on('click', function(){
@@ -466,6 +495,10 @@
                         console.log(res);
                         if(res.code=='200'){
                             console.log('123');
+                            @if($user->isNeedAdvAuth())
+                            $(".blbg_advauth").show();               
+                            $(".bl_tab_advauth").css('display','block');                               
+                            @else                            
                             $(".blbg").show();
                             $("#tabl_phone").css('display', 'block');
                             $("#tab01").css('display','block');
@@ -474,11 +507,17 @@
                             $("#auth_photo").removeClass('yx_butco');
                             // $("#photo").append('<input type="file" id="imgInp">');
                             $("#photo").find('input').attr('type','file').css('display','none');
+                            @endif
                         }else if(res.code=='600'){
                             $(".blbg").show();
                             $(".tab_error_checkcode").css('display', 'block');
                             $(".bl_tab_error_checkcode").css('display','block');
-                        }else{
+                        }else if(res.code=='400') {
+                            $(".blbg").show();
+                            $("#tab_empty").css('display','block').find('.n_fengs').html(res.msg);                            
+                            
+                        }
+                        else{
                             $(".blbg").show();
                             $(".tab_checkcode_empty").css('display', 'block');
                             $(".bl_tab_checkcode_empty").css('display', 'block');
@@ -528,12 +567,11 @@
                             // 	$("#tab01").css('display','block');
 
                             // 	$("#photo").addClass('yx_font');
-                            // 	$("#auth_photo").removeClass('yx_butco');
+                            // 	$("#auth_photo").removeClass('yx_butco');       
                             $(".blbg").show();
                             $(".tab_auth_success").css('display', 'block');
                             $(".bl_tab_auth_success").css('display','block');
                             setTimeout("window.location.href='/dashboard';",3000);
-
                         }else if(res.code=='201'){
                             $(".blbg").show();
                             $(".tab_auth_already").css('display', 'block');

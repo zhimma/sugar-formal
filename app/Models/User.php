@@ -1340,5 +1340,34 @@ class User extends Authenticatable
             return Carbon::parse($latest_log->created_at)->diffInMinutes(Carbon::now())<$user_pause_during;
         }
         else return false;
-    }    
+    } 
+
+    public function getWarnedOfAdvAuthQuery() {
+        return $this->aw_relation()->where('adv_auth',1);
+    }
+    
+    public function getBannedOfAdvAuthQuery() {
+        return $this->banned()->where('adv_auth',1);
+    }
+
+    public function isNeedAdvAuth() {
+        $userBanned = $this->getBannedOfAdvAuthQuery()->count(); 
+        $user_meta = $this->meta;
+        $userWarned = $this->getWarnedOfAdvAuthQuery()->count();                
+        $isWarnedUser = $user_meta->isWarnedType=='adv_auth'?$user_meta->isWarned:0;        
+        return ($userBanned || $userWarned || $isWarnedUser);
+    }
+
+    public function getAuthMobile($to_local=false) {
+        $authMobile = null;
+        $latestAuthSms = $this->short_message()->where('mobile','!=','')->where('active', 1)->orderByDesc('createdate')->first();
+        if($latestAuthSms->mobile??null) {
+            $authMobile = $latestAuthSms->mobile;
+            
+            if($to_local && substr($authMobile,0,4)=='+886') {
+                $authMobile = str_replace('+886','0',$authMobile);
+            }
+        }
+        return $authMobile;
+    }
 }
