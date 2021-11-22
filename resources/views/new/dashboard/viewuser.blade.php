@@ -85,8 +85,14 @@
                 width: 40%;
                 left: 30%;
             }
+            
+            .metx .tubiao .not_vip li img {height:50px !important;}            
         }
-
+        
+        @media (min-width:812px) and (min-height: 375px) {
+            .metx .tubiao .not_vip li img {height:50px !important;}            
+        }        
+        
         button{
             outline:none;
         }
@@ -242,6 +248,8 @@
         @media (max-width:450px) {
             .huiyoic{ height:118px;}
         }
+        
+        .tubiao ul li img {height:50px !important;}
     </style>
     <style>
         .new_pot1{width:96%;height:auto;margin: 0 auto;color: #666666;display: block; margin-top: 20px; margin-bottom: 20px;}
@@ -407,7 +415,7 @@
                                 <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip())width='85px'@endif src='@if($user->isVip())/new/images/a6.png @else/new/images/b_6.png @endif'></div> <span>通過手機認證的會員</span></li>
                                 @endif
                                 </ul>">
-                            <ul @if(!$user->isVip())style="margin-top: -5px;"@endif>
+                            <ul @if(!$user->isVip())style="margin-top: -5px;"@endif class="@if(!$user->isVip()) not_vip  @endif">
 
 {{--                                @if(isset($data['description']) && $to->engroup == 1)--}}
 {{--                                    <li>--}}
@@ -472,38 +480,46 @@
                                     @php
                                         $user->isReadIntro = 1;
                                         $introCount++;
-                                    @endphp
-                                @endif
-                                @if($to->isAdvanceAuth())
+                                    @endphp                          
+                                @else
+                                    @if($to->isPhoneAuth())
                                     <li>
-                                        <div class="tagText" data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">
-                                            @if($user->isVip())
-                                                <img src="/new/images/a7.png">
+                                        @if($user->isVip())
+                                            @if($to->isAdvanceAuth() && $to->engroup==2)
+                                            <div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">
+                                                <img src="/new/images/a8_x.png">
+                                            </div> 
+                                            @elseif(!$to->isAdvanceAuth() && $to->engroup==2)
+                                            <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
+                                                <img src="/new/images/a6_x.png">
+                                            </div>  
                                             @else
-                                                <img src="/new/images/b_7.png" style="height: 50px;">
+                                            <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
+                                                <img src="/new/images/a6.png">
+                                            </div>                                            
                                             @endif
-                                        </div>
+                                        @else
+                                            @if($to->isAdvanceAuth() && $to->engroup==2)
+                                            <div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">
+                                                <img src="/new/images/b_8x.png">
+                                            </div>                                                      
+                                            @elseif(!$to->isAdvanceAuth() && $to->engroup==2)
+                                            <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
+                                                <img src="/new/images/b_5x.png">
+                                            </div>                                              
+                                            @else
+                                            <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
+                                                <img src="/new/images/b_6.png">
+                                            </div>                                                 
+                                            @endif                                          
+                                        @endif                                
                                     </li>
+                                        @php
+                                            $user->isReadIntro = 1;
+                                            $introCount++;
+                                        @endphp
+                                    @endif
                                 @endif                                
-{{--                                @if($to->isPhoneAuth())--}}
-{{--                                    <li>--}}
-{{--                                        @if($to->engroup == 1)--}}
-{{--                                            <div class="tagText" data-toggle="popover" data-content="Baby們可通過完成手機驗證的Daddy，加強其身份真實性，提升信賴感55%以上。" style="width: 100%">--}}
-{{--                                                @else--}}
-{{--                                                    <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。" style="width: 100%">--}}
-{{--                                                        @endif--}}
-{{--                                                        @if($user->isVip())--}}
-{{--                                                            <img src="/new/images/a6.png" class="">--}}
-{{--                                                        @else--}}
-{{--                                                            <img src="/new/images/b_6.png" style="height: 50px; margin-bottom: 10px;">--}}
-{{--                                                        @endif--}}
-{{--                                                    </div>--}}
-{{--                                    </li>--}}
-{{--                                    @php--}}
-{{--                                        $user->isReadIntro = 1;--}}
-{{--                                        $introCount++;--}}
-{{--                                    @endphp--}}
-{{--                                @endif--}}
                             </ul>
                         </div>
                         <!--引导弹出层-->

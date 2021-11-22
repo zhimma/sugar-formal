@@ -363,12 +363,22 @@
 {{--                                            <label class="ba_tx"><input type="radio" name="isWarned" value="1" id="isWarned1" @if( !empty( $_POST["isWarned"] ) && $_POST["isWarned"] == 1 ) checked @elseif(!empty( $_GET["isWarned"] ) && $_GET["isWarned"]== 1) checked @endif><i>否</i></label>--}}
                                         </font>
                                     </li>
-                                    {{-- <li>
+                                    @if($user->engroup==1)
+                                    <li>
                                         <span>通過進階驗證</span>
                                         <font>
                                             <label class="n_tx"><input type="checkbox" name="isAdvanceAuth" value="1" id="isAdvanceAuth" @if( !empty( $_POST["isAdvanceAuth"] ) && $_POST["isAdvanceAuth"] == "1" ) checked @elseif(!empty( $_GET["isAdvanceAuth"] ) && $_GET["isAdvanceAuth"] == "1") checked  @elseif(!empty( session()->get('search_page_key.isAdvanceAuth') ) && session()->get('search_page_key.isAdvanceAuth') == "1") checked @endif><i>是</i></label>
                                         </font>
-                                    </li> --}}
+                                    </li>
+                                    @endif
+                                    @if($user->engroup==2)
+                                    <li>
+                                        <span>通過手機驗證</span>
+                                        <font>
+                                            <label class="n_tx"><input type="checkbox" name="isPhoneAuth" value="2" id="isPhoneAuth" @if( (request()->isPhoneAuth??null)  && request()->isPhoneAuth== "2" ) checked @elseif(!empty( session()->get('search_page_key.isAdvanceAuth') ) && session()->get('search_page_key.isPhoneAuth') == "2") checked @endif><i>是</i></label>
+                                        </font>
+                                    </li>
+                                    @endif                                    
                                 </div>
                             </dt>
                             @endif
@@ -591,31 +601,44 @@
                                                 @endif
                                             </div>
                                         </div>
-                                    @endif
-
-                                    @if($visitor->isAdvanceAuth())
-                                        <div class="hoverTip">
-                                            <div class="tagText" data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">
-                                                @if($user->isVip())
-                                                    <img src="/new/images/a7.png">
-                                                @else
-                                                    <img src="/new/images/b_7.png">
-                                                @endif
-                                            </div>
-                                        </div>
-                                    @endif
                                     {{--手機驗證--}}
-{{--                                    @if($visitor->isPhoneAuth())--}}
-{{--                                        <div class="hoverTip">--}}
-{{--                                        <div class="tagText" data-toggle="popover" data-content="Daddy們對於有通過手機驗證的Baby，會更主動聯絡妳，提升信賴感達55%以上。">--}}
-{{--                                        @if($user->isVip())--}}
-{{--                                        <img src="/new/images/a6.png">--}}
-{{--                                        @else--}}
-{{--                                        <img src="/new/images/b_6.png">--}}
-{{--                                        @endif--}}
-{{--                                        </div>--}}
-{{--                                        </div>--}}
-{{--                                    @endif--}}
+                                    @else
+                                        @if($visitor->isPhoneAuth())
+                                        <div class="hoverTip @if($user->isVip()) xa_ssbg @endif">                                            
+                                            @if($user->isVip())
+                                                @if($visitor->isAdvanceAuth() && $visitor->engroup==2)
+                                                <div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">
+                                                    <img src="/new/images/c_03.png">
+                                                </div> 
+                                                <span>丨</span>
+                                                @elseif(!$visitor->isAdvanceAuth() && $visitor->engroup==2)
+                                                <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
+                                                    <img src="/new/images/c_09.png">
+                                                </div>  
+                                                <span>丨</span>
+                                                @endif
+                                                <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
+                                                    <img src="/new/images/c_10.png">
+                                                </div>   
+                                            @else
+                                                @if($visitor->isAdvanceAuth() && $visitor->engroup==2)
+                                                <div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">
+                                                    <img src="/new/images/b_8x.png">
+                                                </div>                                                      
+                                                @elseif(!$visitor->isAdvanceAuth() && $visitor->engroup==2)
+                                                <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
+                                                    <img src="/new/images/b_5x.png">
+                                                </div>                                              
+                                                @else
+                                                <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
+                                                    <img src="/new/images/b_6.png">
+                                                </div>                                                 
+                                                @endif                                          
+                                            @endif
+                                        </div>
+                                        @endif                                 
+                                    @endif
+                                  
                                     @if($visitor->engroup == 1)
                                     <div class="tixright_a">
                                         <div class="span zi_sc">大方指數</div>

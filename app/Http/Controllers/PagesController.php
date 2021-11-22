@@ -3979,8 +3979,16 @@ class PagesController extends BaseController
         $user_pause_during = config('memadvauth.user.pause_during');
         $user_pause_during_msg = '驗證失敗需'.(($user_pause_during%1440 || $user_pause_during/1440>=10)?$user_pause_during.'分鐘':$chinese_num_arr[$user_pause_during/1440-1].'天').'後才能重新申請。';
         $api_pause_during = config('memadvauth.api.pause_during');
-        if(!$user->isAdvanceAuth()) {
-            if($user->isForbidAdvAuth()) {
+        
+        if($user->engroup!=2) {
+            $init_check_msg = '僅供女會員驗證' ;
+        }   
+        else if(!$user->isAdvanceAuth()) {
+            if(!$user->isPhoneAuth() || !$user->getAuthMobile() || $user->getAuthMobile()=='0922222222' ) {
+                $user->short_message()->delete();
+                $init_check_msg = '請先通過 <a href="'.url('member_auth').'">手機驗證(<span class="obvious">點此前往</span>)</a>' ;
+            } 
+            else if($user->isForbidAdvAuth()) {
                 $init_check_msg = '您的進階驗證功能有誤，請<a href="https://lin.ee/rLqcCns" target="_blank">點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。';
             }
             else if($user->isPauseAdvAuth()) {
@@ -4074,7 +4082,11 @@ class PagesController extends BaseController
             if($age<18){
                 $check_rs[] = 'b18';
             }  
-        }        
+        }  
+
+        if($user->engroup!=2) {
+            $check_rs = ['s'];
+        }
 
         return implode('_',$check_rs??[]);
     }
@@ -4098,17 +4110,17 @@ class PagesController extends BaseController
         }
         else {
             return back()->with('error_code', explode('_',$check_rs))
-                    ->with('error_code_msg',['i'=>'身分證字號','p'=>'門號','b'=>'生日','b18'=>'年齡未滿18歲，不得進行驗證']);
+                    ->with('error_code_msg',['s'=>'僅供女會員驗證','i'=>'身分證字號','p'=>'門號','b'=>'生日','b18'=>'年齡未滿18歲，不得進行驗證']);
         }
 
-        $data['api_base'] = 'https://midonlinetest.twca.com.tw/';
+        $data['api_base'] = 'https://'.config('memadvauth.service.host').(config('memadvauth.service.port')?':'.config('memadvauth.service.port'):'').'/';
         $output = $this->get_mid_clause($data);
 
         //API資訊設定
-        $data['BusinessNo'] = '54666024';
+        $data['BusinessNo'] = config('memadvauth.service.business_no');//'54666024';
         $data['ApiVersion'] = '1.0';
-        $data['HashKeyNo'] = '12';
-        $data['HashKey'] = '4341dcdf-0b14-475e-9b2a-3eb69650a12d';
+        $data['HashKeyNo'] = config('memadvauth.service.hash_key_no');//'12';
+        $data['HashKey'] =config('memadvauth.service.hash_key');// '4341dcdf-0b14-475e-9b2a-3eb69650a12d';
         $data['VerifyNo'] = time();
         $data['ReturnParams'] = '';
 
@@ -4198,12 +4210,19 @@ class PagesController extends BaseController
             $user->advance_auth_birth = $format_birth;
             $user->advance_auth_phone = $request->phone_number;
             $user->save();
-            
+            $renew_meta = false;
             if(($user->meta->birthdate??'')!=$format_birth) {
                 $user->meta->birthdate_old = $user->meta->birthdate;
                 $user->meta->birthdate = $format_birth;
-                $user->meta->save();
+                $renew_meta = true;
             }
+            
+            if(($user->meta->phone??'')!=$phone_number) {
+                $user->meta->phone = $phone_number;                
+                $renew_meta = true;
+            }   
+            
+            if($renew_meta) $user->meta->save();
             
             $user_active_mobile_query = $user->short_message()->where('active',1);
             $latest_user_active_mobile = $user_active_mobile_query->orderBy('createdate','DESC')->first();
@@ -4230,12 +4249,11 @@ class PagesController extends BaseController
             if($check_other_user_mobile_query->count()) {
                 $check_other_user_mobile_query->update(['active'=>0,'canceled_date'=>$auth_date,'canceled_by'=>'adv_auth']);
             }
-            
-            $userBanned = banned_users::where('member_id', $user->id)
-                ->where('adv_auth',1)->orderBy('created_at','DESC')
-                ->get()->first(); 
+
+            $userBanned = $user->getBannedOfAdvAuthQuery()->orderBy('created_at','DESC')->get()->first();
             $user_meta = $user->meta;
-            $userWarned = warned_users::where('member_id', $user->id)->where('adv_auth',1)->orderBy('created_at','DESC')->get()->first();                
+
+            $userWarned = $user->getWarnedOfAdvAuthQuery()->orderBy('created_at','DESC')->get()->first();                            
             $isWarnedUser = $user_meta->isWarnedType=='adv_auth'?$user_meta->isWarned:0;
             $banOrWarnCanceledMsg = [];
             $banOrWarnCanceledStr = '';
@@ -4317,6 +4335,11 @@ class PagesController extends BaseController
         return view('/auth/advance_auth_result')
                     ->with('auth_status', $auth_status);
     }
+    
+    public function advance_auth_midclause(Request $request) {
+        $user = $request->user();        
+        return view('auth/advance_auth_midclause');
+    }
 
     public function is_advance_auth(Request $request)
     {
@@ -4344,7 +4367,7 @@ class PagesController extends BaseController
     }
 
     public function get_mid_clause($data){
-        $api_url = $data['api_base'].'IDPortal/MIDClause';
+        $api_url = $data['api_base'].config('memadvauth.service.uri');
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL,$api_url);
