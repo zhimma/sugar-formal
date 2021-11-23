@@ -32,7 +32,7 @@
             @foreach ($ipUsersData as $row)
                 @php
                     $user= \App\Models\User::find($row->user_id);
-                    $loginLogs=\App\Models\LogUserLogin::where('user_id',$row->user_id)->where('cfp_id',$row->cfp_id)->where('created_date', $row->created_date)->orderBy('created_at','desc');
+                    $loginLogs=\App\Models\LogUserLogin::where('user_id',$row->user_id)->where('cfp_id',$row->cfp_id)->where('created_date', $row->created_date)->where('ip', $ip)->orderBy('created_at','desc');
                     if($recordType=='detail'){
                         $loginLogs=$loginLogs->get();
                     }else{
