@@ -248,8 +248,9 @@
         @media (max-width:450px) {
             .huiyoic{ height:118px;}
         }
-        
+        @if(!$user->isVip())
         .tubiao ul li img {height:50px !important;}
+        @endif
     </style>
     <style>
         .new_pot1{width:96%;height:auto;margin: 0 auto;color: #666666;display: block; margin-top: 20px; margin-bottom: 20px;}

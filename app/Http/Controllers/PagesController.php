@@ -3974,35 +3974,13 @@ class PagesController extends BaseController
     }
     public function advance_auth(Request $request){
         $user = $request->user();
-        $init_check_msg = null;
-        $chinese_num_arr = ['一','二','三','四','五','六','七','八','九'];
-        $user_pause_during = config('memadvauth.user.pause_during');
-        $user_pause_during_msg = '驗證失敗需'.(($user_pause_during%1440 || $user_pause_during/1440>=10)?$user_pause_during.'分鐘':$chinese_num_arr[$user_pause_during/1440-1].'天').'後才能重新申請。';
-        $api_pause_during = config('memadvauth.api.pause_during');
-        
-        if($user->engroup!=2) {
-            $init_check_msg = '僅供女會員驗證' ;
-        }   
-        else if(!$user->isAdvanceAuth()) {
-            if(!$user->isPhoneAuth() || !$user->getAuthMobile() || $user->getAuthMobile()=='0922222222' ) {
-                $user->short_message()->delete();
-                $init_check_msg = '請先通過 <a href="'.url('member_auth').'">手機驗證(<span class="obvious">點此前往</span>)</a>' ;
-            } 
-            else if($user->isForbidAdvAuth()) {
-                $init_check_msg = '您的進階驗證功能有誤，請<a href="https://lin.ee/rLqcCns" target="_blank">點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。';
-            }
-            else if($user->isPauseAdvAuth()) {
-                $init_check_msg = $user_pause_during_msg ;
-            }
-            else if(LogAdvAuthApi::isPauseApi()) {
-                $init_check_msg = '本日進階驗證功能維修，請 '.(intval($api_pause_during/60)?intval($api_pause_during/60).'hr':'').(($api_pause_during%60)?($api_pause_during%60).'分鐘':'').' 後再試。';
-            }
-        }
+        $init_check_msg = $this->advance_auth_prechase();
+
         return view('/auth/advance_auth')
                 ->with('user',$user)
                 ->with('cur', $user)
                 ->with('init_check_msg',$init_check_msg??null)
-                ->with('user_pause_during_msg',$user_pause_during_msg??null);
+                ->with('user_pause_during_msg',$this->advance_auth_get_msg('api_pause'));
     }
     
     public function advance_auth_back(Request $request){
@@ -4024,11 +4002,56 @@ class PagesController extends BaseController
         $uCtrl = new UserController(app(\App\Services\UserService::class),app(\App\Services\AdminService::class));
         $uCtrl->insertAdminActionLog($create['member_id'], '封鎖會員');        
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
-    }    
+    } 
+
+    public function advance_auth_get_msg($type=null) {
+        $msg = null;
+        switch($type) {
+            case 'user_pause':
+                $chinese_num_arr = ['一','二','三','四','五','六','七','八','九'];
+                $user_pause_during = config('memadvauth.user.pause_during');
+                $msg = '驗證失敗需'.(($user_pause_during%1440 || $user_pause_during/1440>=10)?$user_pause_during.'分鐘':$chinese_num_arr[$user_pause_during/1440-1].'天').'後才能重新申請。';               
+            break;
+            case 'api_pause':
+                $api_pause_during = config('memadvauth.api.pause_during');            
+                $msg = '本日進階驗證功能維修，請 '.(intval($api_pause_during/60)?intval($api_pause_during/60).'hr':'').(($api_pause_during%60)?($api_pause_during%60).'分鐘':'').' 後再試。';
+            break;           
+        }
+        
+        return $msg;
+    }
+
+    public function advance_auth_prechase() {
+        $user =Auth::user();
+        $init_check_msg = null;
+        var_dump($user->isPauseAdvAuth());
+        if($user->engroup!=2) {
+            $init_check_msg = '僅供女會員驗證' ;
+        }   
+        else if(!$user->isAdvanceAuth()) {
+            if(!$user->isPhoneAuth() || !$user->getAuthMobile() || $user->getAuthMobile()=='0922222222' ) {
+                $user->short_message()->delete();
+                $init_check_msg = '請先通過 <a href="'.url('member_auth').'">手機驗證(<span class="obvious">點此前往</span>)</a>' ;
+            } 
+            else if($user->isForbidAdvAuth()) {
+                $init_check_msg = '您的進階驗證功能有誤，請<a href="https://lin.ee/rLqcCns" target="_blank">點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。';
+            }
+            else if($user->isPauseAdvAuth()) {
+                //$init_check_msg = $user_pause_during_msg ;
+                $init_check_msg = $this->advance_auth_get_msg('user_pause') ;
+            }
+            else if(LogAdvAuthApi::isPauseApi()) {
+                //$init_check_msg = '本日進階驗證功能維修，請 '.(intval($api_pause_during/60)?intval($api_pause_during/60).'hr':'').(($api_pause_during%60)?($api_pause_during%60).'分鐘':'').' 後再試。';
+                $init_check_msg = $this->advance_auth_get_msg('api_pause') ;
+            }
+        } 
+
+        return $init_check_msg;
+    }
     
     public function advance_auth_precheck(Request $request){
         //float information
-        $user =Auth::user();
+        $user =$request->user();     
         $check_rs = null;
         if(!$request->id_serial) $check_rs[] = 'i';
         if(!$request->phone_number) $check_rs[] = 'p';
@@ -4070,7 +4093,10 @@ class PagesController extends BaseController
         
         if($request->phone_number) {
             if(preg_match("/^09[0-9]{8}$/",$request->phone_number)) {
-
+                if($request->phone_number!=$user->getAuthMobile(true))
+                {
+                    $check_rs[] = 'p';
+                }
             }
             else {
                 $check_rs[] = 'p';
@@ -4095,7 +4121,11 @@ class PagesController extends BaseController
         $LineToken = config('memadvauth.api.line_token');
         $api_check_cfg = config('memadvauth.api.check');
         $user =Auth::user();
-        
+        $init_check_msg = $this->advance_auth_prechase();
+        $user_pause_during_msg = $this->advance_auth_get_msg('api_pause');
+        if($init_check_msg) {
+            return back();
+        }           
         if(!UserService::isAdvAuthUsableByUser($user)) {
             return back();
         }
@@ -4114,7 +4144,7 @@ class PagesController extends BaseController
         }
 
         $data['api_base'] = 'https://'.config('memadvauth.service.host').(config('memadvauth.service.port')?':'.config('memadvauth.service.port'):'').'/';
-        $output = $this->get_mid_clause($data);
+        $output = $this->get_mid_clause($data);    
 
         //API資訊設定
         $data['BusinessNo'] = config('memadvauth.service.business_no');//'54666024';
@@ -4130,26 +4160,29 @@ class PagesController extends BaseController
             'MIDInputParams'=>array(
                 'Msisdn'=>$data['phone_number'],
                 'Birthday'=>$data['birth'],
-                'ClauseVer'=>$output->clausever,
-                'ClauseTime'=> $output->lastUpdate
+                'ClauseVer'=>$output->clausever??'',
+                'ClauseTime'=> $output->lastUpdate??''
             )
         );
         
         $data['InputParams'] = json_encode($InputParams_arr, JSON_UNESCAPED_SLASHES);
 
         $data['return'] = $this->get_transaction($data);
-        $output = $this->get_verify_result($data);
+        $output = $this->get_verify_result($data);        
+        
         $logArr = [
                     'birth'=>$data['birth']
                     ,'phone'=>$data['phone_number']
                     ,'identity_no'=>$data['MemberNo']
                     ,'return_response'=>json_encode($output)
                 ];
-
+                
         if(!$output) {
+            $logArr['api_fault']=1;
             $user->log_adv_auth_api()->create($logArr);   
             return back()->with('message', ['系統目前無法進行驗證']);
-        }
+        }                    
+
         $OutputParams = json_decode($output["OutputParams"], JSON_UNESCAPED_UNICODE);
         $MIDOutputParams = json_decode($OutputParams["MIDOutputParams"]["MIDResp"], JSON_UNESCAPED_UNICODE);
       
