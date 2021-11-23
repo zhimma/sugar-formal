@@ -40,6 +40,7 @@
                 }
                 .se_zlman {margin-left:0 !important;margin-right:0 !important;}
                 .birthday_selector em {margin-right:0 !important;}                 
+                .xy_input {width:60% !important;}
             } 
             
             @media (max-width: 370px) {
