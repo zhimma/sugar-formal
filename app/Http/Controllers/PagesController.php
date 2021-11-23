@@ -3983,7 +3983,7 @@ class PagesController extends BaseController
                 ->with('user',$user)
                 ->with('cur', $user)
                 ->with('init_check_msg',$init_check_msg??null)
-                ->with('user_pause_during_msg',$this->advance_auth_get_msg('api_pause'));
+                ->with('user_pause_during_msg',$this->advance_auth_get_msg('user_pause'));
     }
     
     public function advance_auth_back(Request $request){
@@ -4125,7 +4125,7 @@ class PagesController extends BaseController
         $api_check_cfg = config('memadvauth.api.check');
         $user =Auth::user();
         $init_check_msg = $this->advance_auth_prechase();
-        $user_pause_during_msg = $this->advance_auth_get_msg('api_pause');
+        $user_pause_during_msg = $this->advance_auth_get_msg('user_pause');
         if($init_check_msg) {
             return back();
         }           
