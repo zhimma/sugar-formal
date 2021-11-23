@@ -1362,8 +1362,9 @@ class User extends Authenticatable
         $authMobile = null;
         $latestAuthSms = $this->short_message()->where('mobile','!=','')->where('active', 1)->orderByDesc('createdate')->first();
         if($latestAuthSms->mobile??null) {
-            $authMobile = $latestAuthSms->mobile;
-            
+            $authMobile = str_replace( ' ','',$latestAuthSms->mobile);
+            $authMobile = str_replace( "\r\n",'',$authMobile);
+            $authMobile = str_replace( "\n",'',$authMobile);
             if($to_local ) {
                 if(substr($authMobile,0,3)=='886') {
                     $authMobile = substr_replace($authMobile, '0', 0, 3);
