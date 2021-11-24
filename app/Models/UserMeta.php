@@ -29,6 +29,8 @@ class UserMeta extends Model
      *
      * @var array
      */
+    //如果有做進階驗證，通過驗證的生日資料會同時更新此生日資料欄位
+    //如果有做進階驗證，通過驗證的手機資料會同時更新此手機資料欄位
     protected $fillable = [
         'user_id',
         'terms_and_cond',
@@ -40,7 +42,7 @@ class UserMeta extends Model
         'area',
         'blockarea',
         'isHideArea',
-        'budget',
+        'budget',        
         'birthdate',
         'height',
         'weight',
@@ -72,7 +74,9 @@ class UserMeta extends Model
         'notifhistory',
         'adminNote',
         'blurryLifePhoto',
-        'blurryAvatar'
+        'blurryAvatar',
+        'phone' 
+        
     ];
 
     /*
