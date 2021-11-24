@@ -130,7 +130,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(LogUserLogin::class, 'user_id', 'id');
     }  
-
+    // 送往api驗證身分證、生日和電話的紀錄，
+    // 驗證通過的生日和電話，會同時更新到user_meta上原本的生日和電話
     public function log_adv_auth_api()
     {
         return $this->hasMany(LogAdvAuthApi::class, 'user_id', 'id');
@@ -1349,7 +1350,7 @@ class User extends Authenticatable
     public function getBannedOfAdvAuthQuery() {
         return $this->banned()->where('adv_auth',1);
     }
-
+    //檢查是否需要進階驗證
     public function isNeedAdvAuth() {
         $userBanned = $this->getBannedOfAdvAuthQuery()->count(); 
         $user_meta = $this->meta;
@@ -1357,7 +1358,7 @@ class User extends Authenticatable
         $isWarnedUser = $user_meta->isWarnedType=='adv_auth'?$user_meta->isWarned:0;        
         return ($userBanned || $userWarned || $isWarnedUser);
     }
-
+    //將國際碼轉成09格式
     public function getAuthMobile($to_local=false) {
         $authMobile = null;
         $latestAuthSms = $this->short_message()->where('mobile','!=','')->where('active', 1)->orderByDesc('createdate')->first();

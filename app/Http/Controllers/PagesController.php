@@ -4027,7 +4027,6 @@ class PagesController extends BaseController
     public function advance_auth_prechase() {
         $user =Auth::user();
         $init_check_msg = null;
-        var_dump($user->isPauseAdvAuth());
         if($user->engroup!=2) {
             $init_check_msg = '僅供女會員驗證' ;
         }   
@@ -4040,11 +4039,9 @@ class PagesController extends BaseController
                 $init_check_msg = '您的進階驗證功能有誤，請<a href="https://lin.ee/rLqcCns" target="_blank">點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。';
             }
             else if($user->isPauseAdvAuth()) {
-                //$init_check_msg = $user_pause_during_msg ;
                 $init_check_msg = $this->advance_auth_get_msg('user_pause') ;
             }
             else if(LogAdvAuthApi::isPauseApi()) {
-                //$init_check_msg = '本日進階驗證功能維修，請 '.(intval($api_pause_during/60)?intval($api_pause_during/60).'hr':'').(($api_pause_during%60)?($api_pause_during%60).'分鐘':'').' 後再試。';
                 $init_check_msg = $this->advance_auth_get_msg('api_pause') ;
             }
         } 
@@ -4053,7 +4050,6 @@ class PagesController extends BaseController
     }
     
     public function advance_auth_precheck(Request $request){
-        //float information
         $user =$request->user();     
         $check_rs = null;
         if(!$request->id_serial) $check_rs[] = 'i';
@@ -5097,7 +5093,15 @@ class PagesController extends BaseController
         }
 
         if(!empty($user_isBannedOrWarned->banned_id) && $user_isBannedOrWarned->banned_adv_auth==1) {
-            $isBannedStatus = '您目前已被系統封鎖，做完進階驗證可解除<a class="red" href="'.url('advance_auth').'"> [請點我進行驗證]</a>。';
+            $isBannedStatus = '您目前已被系統封鎖，';
+            if($user_isBannedOrWarned->banned_expire_date > now()) {
+                $isBannedStatus.='預計至 '.substr($user_isBannedOrWarned->banned_expire_date,0,16).' 日解除，';
+            }   
+            if($user_isBannedOrWarned->banned_reason??'') {
+                $isBannedStatus.='原因是 ' . $user_isBannedOrWarned->banned_reason . '，';
+            }
+         
+            $isBannedStatus.= '做完進階驗證可解除<a class="red" href="'.url('advance_auth').'"> [請點我進行驗證]</a>。';
         }
         else if($user_isBannedOrWarned->banned_vip_pass == 1 && $user_isBannedOrWarned->banned_expire_date == null){
             $isBannedStatus = '您目前已被站方封鎖，原因是 ' . $user_isBannedOrWarned->banned_reason . '，若要解除請升級VIP解除，並同意如有再犯，站方有權利不退費並永久封鎖。同意 [<a href="../dashboard/new_vip" class="red">請點我</a>]';
@@ -5126,7 +5130,14 @@ class PagesController extends BaseController
         }
 
         if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_adv_auth==1) {
-            $adminWarnedStatus = '您目前已被系統警示，做完進階驗證可解除<a class="red" href="'.url('advance_auth').'"> [請點我進行驗證]</a>。';
+            $adminWarnedStatus = '您目前已被系統警示，';
+            if($user_isBannedOrWarned->warned_expire_date > now()) {
+                $adminWarnedStatus.='預計至 '.substr($user_isBannedOrWarned->warned_expire_date,0,16).' 日解除，';
+            }   
+            if($user_isBannedOrWarned->warned_reason??'') {
+                $adminWarnedStatus.='原因是 ' . $user_isBannedOrWarned->warned_reason . '，';
+            }            
+            $adminWarnedStatus.= '做完進階驗證可解除<a class="red" href="'.url('advance_auth').'"> [請點我進行驗證]</a>。';
         }
         else if($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date == null) {
             $adminWarnedStatus = '您目前已被站方警示，原因是 ' . $user_isBannedOrWarned->warned_reason . '，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';

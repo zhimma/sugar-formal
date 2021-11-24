@@ -40,7 +40,6 @@
                 }
                 .se_zlman {margin-left:0 !important;margin-right:0 !important;}
                 .birthday_selector em {margin-right:0 !important;}                 
-                .xy_input {width:60% !important;}
             } 
             
             @media (max-width: 370px) {
@@ -65,6 +64,7 @@
             }   
             .margin_top_one_line {margin-top:1em;}
             .xy_input {border-radius:5px;}
+            .xy_input.only_show {width:60% !important;}
             .center {text-align:center;}
             img.adv_auth_icon {margin:0;}
             div.blnr {padding:0;}

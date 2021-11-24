@@ -131,7 +131,10 @@ class CheckIsWarned
         if($user->meta->isWarned == 1){
             if($auth_status==1 && !$user->isAdminWarned()){
                 //取消警示
-                UserMeta::where('user_id',$user->id)->where('isWarnedType','<>','adv_auth')->update(['isWarned'=>0, 'isWarnedRead'=>0, 'isWarnedTime' => null]);
+                UserMeta::where('user_id',$user->id)->where(function ($q) {
+                    $q->whereNull('isWarnedType');
+                    $q->orwhere('isWarnedType','<>','adv_auth');
+                })->update(['isWarned'=>0, 'isWarnedRead'=>0, 'isWarnedTime' => null]);
             }
 //            dd($user->meta_()->isWarned);
             return $next($request);
