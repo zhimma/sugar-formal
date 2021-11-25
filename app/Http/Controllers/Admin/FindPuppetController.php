@@ -222,7 +222,8 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         $loginDataQuery = $model->has('user')->groupBy('ip','user_id')
                                 ->select('ip','user_id')
                                 ->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')
-                                ->whereNotNull('ip')->where('ip','<>','');
+                                ->whereNotNull('ip')->where('ip','<>','')
+                                ->where('ip','NOT LIKE','162.158.119.%');
                     
                         if($whereArr) $loginDataQuery->where($whereArr);
                         if($whereArrOfIp) $loginDataQuery->where($whereArrOfIp);
@@ -451,7 +452,9 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                             ,'created_at'=>$edate
                             ,'updated_at'=>date('Y-m-d H:i:s')]);                         
                         $ipPuppetFromUserQuery = $model->has('user')->groupBy('ip')
-                                ->select('ip')->selectRaw('COUNT(DISTINCT `user_id`) AS num')->whereNotNull('ip')->where('ip','<>','')
+                                ->select('ip')->selectRaw('COUNT(DISTINCT `user_id`) AS num')
+                                ->whereNotNull('ip')->where('ip','<>','')
+                                ->where('ip','NOT LIKE','162.158.119.%')
                                 ->orderByDesc('num');
                                 
                         if($whereArr)  $ipPuppetFromUserQuery->where($whereArr);
@@ -873,14 +876,13 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 
         }
         else {
-            
+            $whereArr[] = ['cat',$cat];
+            $whereArr[] = ['group_index','>',-1]; 
+            if($have_mon_limit) $whereArr[] = ['mon',$mon];
+                
             if($show!='text') {
 
                 $groupInfo = [];
-                $whereArr[] = ['cat',$cat];
-                $whereArr[] = ['group_index','>',-1];
-				
-                if($have_mon_limit) $whereArr[] = ['mon',$mon];
 
                 $edate_colentry_of_ip = $this->column->selectRaw('max(created_at) as end_date')->selectRaw('max(updated_at) as end_cron_date')->where($whereArr)->first();
                 $data['end_date'] = $edate_colentry_of_ip->end_date??null;

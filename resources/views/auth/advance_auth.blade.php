@@ -79,6 +79,17 @@
             #tab01 a .obvious {color:red;float:none;}
             input.only_show {color:#777;}
             div.has_error input,div.has_error select.select_xx04 {border:2px red solid;background:#FFECEC !important;}               
+            #tab_confirm div.n_blnr01  div.blnr {display:initial;}
+            #tab_confirm div.n_blnr01 div.blnr a {overflow-wrap:break-word;}
+            @media (max-height: 470px) {
+                #tab_confirm {
+                    top: 3% !important;
+                } 
+                
+                #tab_confirm .n_blnr01 {
+                    padding-top:10px !important;
+                }
+            }
         </style>   	
         </head>
 
