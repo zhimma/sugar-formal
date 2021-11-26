@@ -297,7 +297,7 @@
 <div class="new_exec_log">
 <div class="bolder">請注意：</div>
 <div>有新的排程從{{$new_exec_log[0]->created_at}}開始執行，目前仍未收到執行完畢通知，因此本頁面仍先顯示原本上一次排程的舊資料。</div>
-<div>新排程開始執行已經過{{\Carbon\Carbon::now()->diffInMinutes(\Carbon\Carbon::parse($new_exec_log[0]->created_at))}}分鐘
+<div>新排程從開始執行到現在已經過{{\Carbon\Carbon::now()->diffInMinutes(\Carbon\Carbon::parse($new_exec_log[0]->created_at))}}分鐘
 @if($end_cron_date??null && $end_date??null)
 @if( \Carbon\Carbon::now()->diffInMinutes(\Carbon\Carbon::parse($new_exec_log[0]->created_at))> \Carbon\Carbon::parse($end_cron_date)->diffInMinutes(\Carbon\Carbon::parse($end_date)))
 已經超過

@@ -25,6 +25,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         ini_set("max_execution_time",'0');
         ini_set('memory_limit','-1');
         ini_set("request_terminate_timeout",'0');
+        ini_set('default_socket_timeout',-1);
         set_time_limit(0);
         error_reporting(0);
 
@@ -43,10 +44,10 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         $this->_groupIdx = 0; 
         $this->monarr = [];    
         $this->defaultSdateOfIp = \Carbon\Carbon::now()->subDays(10)->format('Y/m/d');
-        $this->defaultSdateOfCfpId = null;
+        $this->defaultSdateOfCfpId = null;   
     }    
     
-    public function entrance(Request $request) {
+    public function entrance(Request $request) {          
         ini_set("max_execution_time",'0');
         ini_set('memory_limit','-1'); 
         set_time_limit(0);
@@ -113,11 +114,6 @@ class FindPuppetController extends \App\Http\Controllers\Controller
             echo $error_msg;
 
                 if(!$error_msg) {
-
-						//$this->column->truncate();
-						//$this->row->truncate();
-						//$this->cell->truncate(); 						
-
                     if(isset($edateOfIp)) {
                         if($edateOfIp) $edateOfIp.=$curtime;
                         $whereArrOfIp[] = ['created_at','<',$edateOfIp];
@@ -223,7 +219,13 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                                 ->select('ip','user_id')
                                 ->selectRaw('MAX(`created_at`) AS time,COUNT(*) AS num,MIN(`created_at`) AS stime')
                                 ->whereNotNull('ip')->where('ip','<>','')
-                                ->where('ip','NOT LIKE','162.158.119.%');
+                                ->where('ip','NOT LIKE','162.158.%')
+                                ->where('ip','NOT LIKE','172.70.%')
+                                ->where('ip','NOT LIKE','172.69.%')
+                                ->where('ip','NOT LIKE','172.68.%')
+                                ->where('ip','NOT LIKE','108.162.%')
+                                ->where('ip','NOT LIKE','103.22.201.%')                                
+                                ;
                     
                         if($whereArr) $loginDataQuery->where($whereArr);
                         if($whereArrOfIp) $loginDataQuery->where($whereArrOfIp);
@@ -341,7 +343,6 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         if($whereArr) $loginDataCfpIdQuery->where($whereArr);
                         if($whereArrOfCfpId) $loginDataCfpIdQuery->where($whereArrOfCfpId);                  
                         if($excludeUserId) $loginDataCfpIdQuery=$loginDataCfpIdQuery->whereNotIn('user_id',$excludeUserId);                            
-                        //if($ignoreUserId) $loginDataCfpIdQuery=$loginDataCfpIdQuery->whereNotIn('user_id',$ignoreUserId);
 
                         $loginDataEntrys = $loginDataCfpIdQuery->orderBy('time','desc')->get();
                         
@@ -372,7 +373,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                             }                            
                             
                             $this->loginDataByCfpId[$loginDataCfpIdEntry->cfp_id][$loginDataCfpIdEntry->user_id] = $loginDataCfpIdEntry;
-                            if(!in_array($loginDataCfpIdEntry->cfp_id,$this->_cpfidOfOverLimitUserId) && count($this->loginDataByCfpId[$loginDataCfpIdEntry->cfp_id]??[])>50) $this->_cpfidOfOverLimitUserId[]=$loginDataCfpIdEntry->cfp_id;
+                            //if(!in_array($loginDataCfpIdEntry->cfp_id,$this->_cpfidOfOverLimitUserId) && count($this->loginDataByCfpId[$loginDataCfpIdEntry->cfp_id]??[])>50) $this->_cpfidOfOverLimitUserId[]=$loginDataCfpIdEntry->cfp_id;
                             $this->loginDataByUserIdCfpId[$loginDataCfpIdEntry->user_id][$loginDataCfpIdEntry->cfp_id] = $loginDataCfpIdEntry;
                         }
 
@@ -454,7 +455,12 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         $ipPuppetFromUserQuery = $model->has('user')->groupBy('ip')
                                 ->select('ip')->selectRaw('COUNT(DISTINCT `user_id`) AS num')
                                 ->whereNotNull('ip')->where('ip','<>','')
-                                ->where('ip','NOT LIKE','162.158.119.%')
+                                ->where('ip','NOT LIKE','162.158.%')
+                                ->where('ip','NOT LIKE','172.70.%')
+                                ->where('ip','NOT LIKE','172.69.%')
+                                ->where('ip','NOT LIKE','172.68.%')
+                                ->where('ip','NOT LIKE','108.162.%')
+                                ->where('ip','NOT LIKE','103.22.201.%')                                
                                 ->orderByDesc('num');
                                 
                         if($whereArr)  $ipPuppetFromUserQuery->where($whereArr);
@@ -490,10 +496,15 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         ,'cat'=>$cat
                         ,'type'=>''
                         ,'created_at'=>$edate
-                        ,'updated_at'=>date('Y-m-d H:i:s')]);                      
-                    $this->column->where('cat',$cat)->where('group_index','>',-1)->delete();
-                    $this->row->where('cat',$cat)->where('group_index','>',-1)->delete();
-                    $this->cell->where('cat',$cat)->where('group_index','>',-1)->delete();         
+                        ,'updated_at'=>date('Y-m-d H:i:s')]); 
+                    $new_exec_arr = $this->column->where('cat',$cat)->where('group_index',-1)->orderBy('id')->get()->toarray();                                
+                    $this->column->truncate();
+                    $this->row->truncate();
+                    $this->cell->truncate(); 	 
+                    foreach($new_exec_arr  as $exec_log_arr) {
+                        unset($exec_log_arr['id']);
+                        $this->column->insert( $exec_log_arr);                        
+                    }
                     Log::info('findPuppet排程'.$cat.'：完成清空col、row、cell的舊資料');
                     $this->column->insert( ['column_index'=>-1
                         ,'name'=>'完成清空col、row、cell的舊資料'
@@ -678,8 +689,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         ,'created_at'=>$edate
                         ,'updated_at'=>date('Y-m-d H:i:s')]);                     
                 }
-            
-            //}
+
         } catch (Exception $e) {
             echo $e->getMessage();
             Log::info('findPuppet排程'.$cat.'：出現Exception錯誤而中止執行 '.json_encode($e??null));
@@ -790,13 +800,9 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                 $multiCfpIds_keys = array_diff($multiCfpIds_keys,$this->_cpfidOfOverLimitUserId);
             }  
 
-            if(isset($this->_columnIp[$groupIdx])) {
-            
-                //$new_check_column = array_diff(array_keys($multiCfpIds),$this->_columnIp[$groupIdx]);
+            if(isset($this->_columnIp[$groupIdx])) {        
                 $new_check_column = array_diff($multiCfpIds_keys,$this->_columnIp[$groupIdx]);
-
             }
-            //else {$new_check_column = array_keys($multiCfpIds);}
             else {$new_check_column = $multiCfpIds_keys;}
 
             if(isset($new_check_column) && $new_check_column)
@@ -804,13 +810,10 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         if($this->_havePuppetUserId($new_check_value,$this->loginDataByCfpId)) 
                             $this->_columnIp[$groupIdx][] = $new_check_value;
                 }             
-
-            //if(isset($multiCfpIds) && $multiCfpIds)                 
+               
             if(isset($multiCfpIds_keys) && $multiCfpIds_keys)                 
-                 //foreach($multiCfpIds  as $multiCfpId) {
                 foreach($multiCfpIds_keys  as $multiCfpId) {
                      if(!$multiCfpId) continue;
-                     //if($this->_findMultiUserIdFromIp($multiCfpId->cfp_id,'cfp_id')===true) continue;
                      if($this->_findMultiUserIdFromIp($multiCfpId,'cfp_id')===true) continue;
                  }             
              
@@ -827,6 +830,7 @@ class FindPuppetController extends \App\Http\Controllers\Controller
         ini_set("pm.process_idle_timeout",'10000');
         ini_set("max_children",'100');
         ini_set("pm.max_children",'100');
+        ini_set('default_socket_timeout',-1);
         set_time_limit(0);
         error_reporting(0);            
         
@@ -925,7 +929,6 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 				
                 $groupChecks = $groupChecksQuery->get();
                 foreach($groupChecks as $idx=>$groupCheck) {
-                    //$groupOrderArr[] = $groupCheck->group_index;
                     $groupInfo[$groupCheck->group_index] = $groupCheck->toArray();
                     $groupInfo[$groupCheck->group_index]['cutData'] = false;
                     if($groupCheck->maxColIdx>$data['colOverload'] && $groupCheck->maxRowIdx>$data['rowOverload']) {
@@ -1023,8 +1026,6 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                     $this->_rowUserId[$rowEntry->group_index][$rowEntry->row_index] = $cur_user;
                     $rowLastLoginArr[$rowEntry->group_index][$rowEntry->row_index] = $cur_user->last_login;
                     arsort($rowLastLoginArr[$rowEntry->group_index]);
-                    //$groupLastLoginValus = array_values($rowLastLoginArr[$rowEntry->group_index]);
-                   // $rowLatestLastLoginArr[$rowEntry->group_index] = $groupLastLoginValus[0];
                     $cur_user = null;
                     $last_group = $now_group;
                 }
@@ -1065,8 +1066,6 @@ class FindPuppetController extends \App\Http\Controllers\Controller
             $colIdxOfIp = [];
             $colIdxOfCfpId = [];
             foreach($colEntrys as $colEntry) {
-                //if(in_array($colEntry->group_index,$ignore_group_index_arr)) continue;
-                
                 if(isset($groupInfo[$colEntry->group_index]['cutData']) && $groupInfo[$colEntry->group_index]['cutData'] && $colEntry->column_index>$data['colLimit']) continue;
                 
                $this->_columnIp[$colEntry->group_index][$colEntry->column_index] = $colEntry->name;
@@ -1089,7 +1088,6 @@ class FindPuppetController extends \App\Http\Controllers\Controller
 
             $cellEntrys = $cellQuery->get();
             foreach($cellEntrys as $cellEntry) {
-                //if(in_array($cellEntry->group_index,$ignore_group_index_arr)) continue;             
                 if(isset($groupInfo[$cellEntry->group_index]['cutData']) && $groupInfo[$cellEntry->group_index]['cutData'] && ($cellEntry->row_index>$data['rowLimit'] || $cellEntry->column_index>$data['colLimit'])) continue;
                 if($this->_columnType[$cellEntry->group_index][$cellEntry->column_index]=='ip')
                     $cellEntry->ignoreEntry = $this->ignore->where('item',$this->_rowUserId[$cellEntry->group_index][$cellEntry->row_index]->id)

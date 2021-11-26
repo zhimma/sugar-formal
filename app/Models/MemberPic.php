@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\User;
+use App\Services\ImagesCompareService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -71,4 +72,36 @@ class MemberPic extends Model
     {
         return AdminDeleteImageLog::where('member_id', $user_id)->get()->count();
     }
+
+    public function getCompareStatus() {
+        return ImagesCompareService::getCompareStatusByPic($this->pic);
+    }  
+    
+    public function getCompareEncode() {
+        return ImagesCompareService::getCompareEncodeByPic($this->pic);
+    }
+
+    public function getCompareRsImg() {
+        //return MemberPic::whereHas('user')->whereIn('pic',$this->getCompareResult()->pluck('finded_pic')->all())->get();
+        return ImagesCompareService::getCompareRsImgByPic($this->pic);
+ 
+    }
+ 
+    public function getSameImg() {
+        //return MemberPic::whereHas('user')->whereIn('pic',$this->getSameCompareEncode()->pluck('pic')->all())->get();
+        return ImagesCompareService::getSameImgByPic($this->pic);
+ 
+    }
+    
+    public function compareImages() {
+        ImagesCompareService::compareImagesByPic($this->pic);
+    }  
+
+    public function isPicFileExists() {
+        return ImagesCompareService::isFileExistsByPic($this->pic);
+    }    
+    
+    public function isPicNeedCompare() {
+        return ImagesCompareService::isNeedCompareByEntry($this);
+    }        
 }
