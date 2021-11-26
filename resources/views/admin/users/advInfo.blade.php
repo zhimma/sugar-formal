@@ -20,6 +20,15 @@
         opacity: .65;        
         
     }    
+    
+    div.block_line {float:left;}
+    div.block_line:last-child {float:left;margin-bottom:1rem;}
+    .images_comparation_cell {white-space:nowrap;}
+    .images_comparation_cell b{clear:both;display:block;}
+    #user_all_mem_pic_list,#user_all_avatar_list {width:100% !important;}    
+    #user_all_mem_pic_list th,#user_all_avatar_list th {white-space:nowrap;}
+    td.images_comparation_cell div img {border:1px solid #ccc;} 
+    td.images_comparation_cell  div.block_line,td.images_comparation_cell  div.block_line img {max-width:120px; margin-right:10px;}
 </style>
 
 <body style="padding: 15px;">
@@ -1435,24 +1444,25 @@
 <div>
     <a class="btn btn-primary text-white mb-2" href="/admin/users/picturesSimilar/job:create?type=userAll&targetUser={{ $user->id }}" target="_blank">照片全部送檢</a>
 </div>
-<table class="table table-bordered" style="width: 70%;">
+<table id="user_all_avatar_list" class="table table-bordered" style="width: 70%;">
     <thead>
         <th style="width: 120px;">頭像照</th>
         <th style="width: 170px;">上傳時間</th>
         <th style="width: 170px;">刪除時間</th>
         <th style="width: 15%;">刪除者</th>
         <th style="width: 35%;">以圖找圖</th>
+        <th style="width: 35%;">站內搜圖</th>
     </thead>
     <tbody>
         {{-- 當前頭像 --}}
         @if($user->meta->pic)
         <tr>
-            <td><img src="{{ url($user->meta->pic) }}" width="120px"></td>
+            <td class="user_recorded_img"><img src="{{ url($user->meta->pic) }}" width="120px"></td>
             <td>{{ $user->meta->updated_at }}</td>
             <td>未刪除</td>
             <td>未刪除</td>
             <td>
-                @php
+                @php                   
                     $ImgResult = \App\Models\SimilarImages::where('pic', $user->meta->pic)->first();
                 @endphp
                 @if ($ImgResult)
@@ -1518,13 +1528,88 @@
                     <p>無紀錄</p>
                 @endif
             </td>
+            <td class="images_comparation_cell">
+                @if(!$user->meta->isPicNeedCompare())
+                <b>不需比對的照片</b>      
+                @else
+                    @php 
+                        $user->meta->compareImages();
+                        $compareStatus = $user->meta->getCompareStatus();
+                        $compareRsImgs = $user->meta->getCompareRsImg(); 
+                    @endphp
+                    @if(!$user->meta->getCompareEncode() && !$user->meta->isPicFileExists())
+                    <b>照片的檔案不存在，無法比對</b>  
+                    @elseif(!$user->meta->getCompareEncode() && ($compareStatus??null) && (!($compareRsImgs??null) || $compareRsImgs->count()==0) && $compareStatus->queue??null)
+                    <b>{{date('m/d H:i',strtotime($compareStatus->qstart_time))}}已{{$compareStatus->queue==2?'重新':''}}申請排隊執行比對，等待系統回應中</b>   
+                    @elseif(!$user->meta->getCompareEncode() && ($compareStatus??null))
+                    <b>尚未建立比對資訊</b>    
+                    @else
+                        <b>完全相同(不含調整過寬高)</b>
+                        @php $sameImages = $user->meta->getSameImg() @endphp
+                        @if($sameImages->count())
+                        <div>
+                            @foreach ($sameImages as $sameImg)
+                            
+                            @if($sameImg->user)
+                            <div class="block_line">
+                                <a href="{{ $sameImg->pic }}" target="_blank"><img src="{{ $sameImg->pic }}"  onerror="this.src='/img/linktosource.png'"></a>
+                                <div><a href="{{route('users/advInfo',$sameImg->user->id)}}" target="_blank">{{$sameImg->user->name}}</a></div>
+                            </div>
+                            @endif
+                            @endforeach
+                        </div>
+                        @else
+                        <p>沒有完全相同的圖片</p>
+                        @endif 
+                        <b>看起來像的圖片</b>
+                        
+                        @if($compareStatus??null)
+                           <div>
+                                @if($compareStatus->isHoldTooLong())
+                                    未完成比對
+                                @elseif($compareStatus->queue==1)
+                                    {{date('m/d H:i',strtotime($compareStatus->qstart_time))}}已申請排隊執行比對，等待系統回應中 
+                                @elseif($compareStatus->queue==2)
+                                    {{date('m/d H:i',strtotime($compareStatus->qstart_time))}}已重新申請排隊執行比對，等待系統回應中                                 
+                                @elseif($compareStatus->status==1)
+                                    比對中
+                                @endif
+                                @if($compareStatus->status)
+                                <span>已比對
+                                    <span class="percent_number">
+                                    {{abs(intval(100*$compareStatus->encode_break_id/$last_images_compare_encode->id)-5)}}
+                                    </span>
+                                    %
+                                </span>
+                                @endif
+                            </div>                                                
+                            <div>
+                                @forelse($compareRsImgs as $rsImg)                           
+                                    @if($rsImg->user)
+                                    <div class="block_line">
+                                        <a href="{{ $rsImg->pic }}" target="_blank"><img src="{{ $rsImg->pic }}"  onerror="this.src='/img/linktosource.png'"></a>
+                                        <div><a href="{{route('users/advInfo',$rsImg->user->id)}}" target="_blank">{{$rsImg->user->name}}</a></div>
+                                    </div>
+                                    @endif
+                                @empty
+                                    @if(!$compareStatus->queue && !$compareStatus->status)
+                                    <p>沒有看起來像的圖片</p>  
+                                    @endif
+                                @endforelse
+                            </div>
+                        @else
+                            <p>尚未開始比對</p>
+                        @endif                    
+                    @endif
+                @endif
+            </td>                
         </tr>
         @endif
 
         {{-- 已刪除的頭像 --}}
         @forelse ($user->avatar_deleted as $pic)
         <tr>
-            <td><img src="{{ url($pic->pic) }}" width="120px"></td>
+            <td class="user_recorded_img"><img src="{{ url($pic->pic) }}" width="120px"></td>
             <td class="text-nowrap">{{ $pic->uploaded_at }}</td>
             <td class="text-nowrap">{{ $pic->created_at }}</td>
             <td>
@@ -1599,25 +1684,102 @@
                     <p>無紀錄</p>
                 @endif
             </td>
+            <td class="images_comparation_cell">
+                @if(!$pic->isPicNeedCompare())
+                    <b>不需比對的照片</b>      
+                @else              
+                    @php 
+                        $pic->compareImages();  
+                        $compareStatus = $pic->getCompareStatus();
+                        $compareRsImgs = $pic->getCompareRsImg();
+                    @endphp                            
+                    @if(!$pic->getCompareEncode() && !$pic->isPicFileExists())
+                    <b>照片的檔案不存在，無法比對</b>  
+                    @elseif(!$pic->getCompareEncode() && ($compareStatus??null) && !($compareRsImgs??null) && $compareRsImgs->count()==0 && $compareStatus->queue??null)
+                    <b>{{date('m/d H:i',strtotime($compareStatus->qstart_time))}}已{{$compareStatus->queue==2?'重新':''}}申請排隊執行比對，等待系統回應中</b>   
+                    @elseif(!$pic->getCompareEncode() )
+                    <b>尚未建立比對資訊</b>    
+                    @else
+                        <b>完全相同(不含調整過寬高)</b>
+                        @php $sameImages = $pic->getSameImg() @endphp
+                        @if($sameImages->count())
+                        <div>
+                            @foreach ($sameImages as $sameImg)
+                            
+                            @if($sameImg->user)
+                            <div class="block_line">
+                                <a href="{{ $sameImg->pic }}" target="_blank"><img src="{{ $sameImg->pic }}" onerror="this.src='/img/linktosource.png'"></a>
+                                <div><a href="{{route('users/advInfo',$sameImg->user->id)}}" target="_blank">{{$sameImg->user->name}}</a></div>
+                            </div>
+                            @endif
+                            @endforeach
+                        </div>
+                        @else
+                        <p>沒有完全相同的圖片</p>
+                        @endif 
+                        <b>看起來像的圖片</b>
+                        @php $compareStatus = $pic->getCompareStatus() @endphp
+                        @if($compareStatus??null)
+                           <div>
+                                @if($compareStatus->isHoldTooLong())
+                                    未完成比對
+                                @elseif($compareStatus->queue==1)
+                                    {{date('m/d H:i',strtotime($compareStatus->qstart_time))}}已申請排隊執行比對，等待系統回應中
+                                @elseif($compareStatus->queue==2)
+                                    {{date('m/d H:i',strtotime($compareStatus->qstart_time))}}已重新申請排隊執行比對，等待系統回應中                                  
+                                @elseif($compareStatus->status==1)
+                                    比對中
+                                @endif
+                                @if($compareStatus->status)
+                                <span>已比對
+                                    <span class="percent_number">
+                                    {{abs(intval(100*$compareStatus->encode_break_id/$last_images_compare_encode->id)-5)}}
+                                    </span>
+                                    %
+                                </span>
+                                @endif
+                            </div>                        
+                            @php $compareRsImgs = $pic->getCompareRsImg() @endphp
+                            <div>
+                                @forelse($compareRsImgs as $rsImg)                           
+                                    @if($rsImg->user)
+                                    <div class="block_line">
+                                        <a href="{{ $rsImg->pic }}" target="_blank"><img src="{{ $rsImg->pic }}" onerror="this.src='/img/linktosource.png'"></a>
+                                        <div><a href="{{route('users/advInfo',$rsImg->user->id)}}" target="_blank">{{$rsImg->user->name}}</a></div>
+                                    </div>
+                                    @endif
+                                @empty
+                                    @if(!$compareStatus->queue && !$compareStatus->status)
+                                    <p>沒有看起來像的圖片</p>    
+                                    @endif
+                                @endforelse
+                            </div>
+                        @else
+                            <p>尚未開始比對</p>
+                        @endif                    
+                    @endif
+                @endif
+            </td>                
         </tr>
         @empty
         @endforelse
     </tbody>
 </table>
 
-<table class="table table-bordered" style="width: 70%;">
+<table  id="user_all_mem_pic_list" class="table table-bordered" style="width: 70%;">
     <thead>
         <th style="width: 120px;">生活照</th>
         <th style="width: 170px;">上傳時間</th>
         <th style="width: 170px;">刪除時間</th>
         <th style="width: 15%;">刪除者</th>
         <th style="width: 35%;">以圖找圖</th>
+        <th style="width: 35%;">站內搜圖</th>
     </thead>
     <tbody>
         {{-- 當前生活照 --}}
         @forelse ($user->pic_orderByDecs as $pic)
         <tr>
-            <td><img src="{{ url($pic->pic) }}" width="120px"></td>
+            <td class="user_recorded_img"><img src="{{ url($pic->pic) }}" width="120px"></td>
             <td>{{ $pic->created_at }}</td>
             <td>未刪除</td>
             <td>未刪除</td>
@@ -1688,6 +1850,80 @@
                     <p>無紀錄</p>
                 @endif
             </td>
+            <td class="images_comparation_cell">
+                @if(!$pic->isPicNeedCompare())
+                    <b>不需比對的照片</b>      
+                @else              
+                    @php 
+                        $pic->compareImages();  
+                        $compareStatus = $pic->getCompareStatus();
+                        $compareRsImgs = $pic->getCompareRsImg();
+                    @endphp                
+                    @if(!$pic->getCompareEncode() && !$pic->isPicFileExists())
+                    <b>照片的檔案不存在，無法比對</b>  
+                    @elseif(!$pic->getCompareEncode() && ($compareStatus??null) && !($compareRsImgs??null) && $compareRsImgs->count()==0 && $compareStatus->queue??null)
+                    <b>{{date('m/d H:i',strtotime($compareStatus->qstart_time))}}已{{$compareStatus->queue==2?'重新':''}}申請排隊執行比對，等待系統回應中</b>   
+                    @elseif(!$pic->getCompareEncode() )
+                    <b>尚未建立比對資訊</b>    
+                    @else
+                    <b>完全相同(不含調整過寬高)</b>
+                        @php $sameImages = $pic->getSameImg() @endphp
+                        @if($sameImages->count())
+                        <div>
+                            @foreach ($sameImages as $sameImg)
+                            
+                            @if($sameImg->user)
+                            <div class="block_line">
+                                <a href="{{ $sameImg->pic }}" target="_blank"><img src="{{ $sameImg->pic }}" onerror="this.src='/img/linktosource.png'"></a>
+                                <div><a href="{{route('users/advInfo',$sameImg->user->id)}}" target="_blank">{{$sameImg->user->name}}</a></div>
+                            </div>
+                            @endif
+                            @endforeach
+                        </div>
+                        @else
+                        <p>沒有完全相同的圖片</p>
+                        @endif 
+                        <b>看起來像的圖片</b>
+                        @if($compareStatus??null)
+                           <div>
+                                @if($compareStatus->isHoldTooLong())
+                                    未完成比對
+                                @elseif($compareStatus->queue==1)
+                                    {{date('m/d H:i',strtotime($compareStatus->qstart_time))}}已申請排隊執行比對，等待系統回應中    
+                                @elseif($compareStatus->queue==2)
+                                    {{date('m/d H:i',strtotime($compareStatus->qstart_time))}}已重新申請排隊執行比對，等待系統回應中                                  
+                                @elseif($compareStatus->status==1)
+                                    比對中
+                                @endif
+                                @if($compareStatus->status)
+                                <span>已比對
+                                    <span class="percent_number">
+                                    {{abs(intval(100*$compareStatus->encode_break_id/$last_images_compare_encode->id)-5)}}
+                                    </span>
+                                    %
+                                </span>
+                                @endif
+                            </div>                        
+                            <div>
+                                @forelse($compareRsImgs as $rsImg)                           
+                                    @if($rsImg->user)
+                                    <div class="block_line">
+                                        <a href="{{ $rsImg->pic }}" target="_blank"><img src="{{ $rsImg->pic }}" onerror="this.src='/img/linktosource.png'"></a>
+                                        <div><a href="{{route('users/advInfo',$rsImg->user->id)}}" target="_blank">{{$rsImg->user->name}}</a></div>
+                                    </div>
+                                    @endif
+                                @empty
+                                    @if(!$compareStatus->queue && !$compareStatus->status)
+                                    <p>沒有看起來像的圖片</p> 
+                                    @endif
+                                @endforelse
+                            </div>
+                        @else
+                            <p>尚未開始比對</p>
+                        @endif                    
+                    @endif
+                @endif
+            </td>
         </tr>
         @empty
         @endforelse
@@ -1695,7 +1931,7 @@
         {{-- 已刪除的生活照 --}}
         @forelse ($user->pic_onlyTrashed as $pic)
         <tr>
-            <td><img src="{{ url($pic->pic) }}" width="120px"></td>
+            <td class="user_recorded_img"><img src="{{ url($pic->pic) }}" width="120px"></td>
             <td class="text-nowrap">{{ $pic->created_at }}</td>
             <td class="text-nowrap">{{ $pic->deleted_at }}</td>
             <td>
@@ -1777,6 +2013,80 @@
                     <p>無紀錄</p>
                 @endif
             </td>
+            <td class="images_comparation_cell">
+                @if(!$pic->isPicNeedCompare())
+                    <b>不需比對的照片</b>      
+                @else            
+                    @php
+                        $pic->compareImages();                
+                        $compareStatus = $pic->getCompareStatus();
+                        $compareRsImgs = $pic->getCompareRsImg();
+                    @endphp
+                    @if(!$pic->getCompareEncode() && !$pic->isPicFileExists())
+                        <b>照片的檔案不存在，無法比對</b>  
+                    @elseif(!$pic->getCompareEncode() && ($compareStatus??null) && !($compareRsImgs??null) && $compareRsImgs->count()==0 && ($compareStatus->queue??null))
+                        <b>{{date('m/d H:i',strtotime($compareStatus->qstart_time))}}已{{$compareStatus->queue==2?'重新':''}}申請排隊執行比對，等待系統回應中</b>   
+                    @elseif(!$pic->getCompareEncode() )
+                        <b>尚未建立比對資訊</b>    
+                    @else
+                        <b>完全相同(不含調整過寬高)</b>
+                        @php $sameImages = $pic->getSameImg() @endphp
+                        @if($sameImages->count())
+                        <div>
+                            @foreach ($sameImages as $sameImg)
+                            
+                            @if($sameImg->user)
+                            <div class="block_line">
+                                <a href="{{ $sameImg->pic }}" target="_blank"><img src="{{ $sameImg->pic }}" onerror="this.src='/img/linktosource.png'"></a>
+                                <div><a href="{{route('users/advInfo',$sameImg->user->id)}}" target="_blank">{{$sameImg->user->name}}</a></div>
+                            </div>
+                            @endif
+                            @endforeach
+                        </div>
+                        @else
+                        <p>沒有完全相同的圖片</p>
+                        @endif 
+                        <b>看起來像的圖片</b>
+                        @if($compareStatus??null)
+                           <div>
+                                @if($compareStatus->isHoldTooLong())
+                                    未完成比對
+                                @elseif($compareStatus->queue==1)
+                                    {{date('m/d H:i',strtotime($compareStatus->qstart_time))}}已申請排隊執行比對，等待系統回應中
+                                @elseif($compareStatus->queue==2)
+                                    {{date('m/d H:i',strtotime($compareStatus->qstart_time))}}已重新申請排隊執行比對，等待系統回應中                                 
+                                @elseif($compareStatus->status==1)
+                                    比對中
+                                @endif
+                                @if($compareStatus->status)
+                                <span>已比對
+                                    <span class="percent_number">
+                                    {{abs(intval(100*$compareStatus->encode_break_id/$last_images_compare_encode->id)-5)}}
+                                    </span>
+                                    %
+                                </span>
+                                @endif
+                            </div>                        
+                            <div>                    
+                                @forelse($compareRsImgs as $rsImg)                           
+                                    @if($rsImg->user)
+                                    <div class="block_line">
+                                        <a href="{{ $rsImg->pic }}" target="_blank"><img src="{{ $rsImg->pic }}" onerror="this.src='/img/linktosource.png'"></a>
+                                        <div><a href="{{route('users/advInfo',$rsImg->user->id)}}" target="_blank">{{$rsImg->user->name}}</a></div>
+                                    </div>
+                                    @endif
+                                @empty
+                                    @if(!$compareStatus->queue && !$compareStatus->status)
+                                    <p>沒有看起來像的圖片</p>    
+                                    @endif
+                                @endforelse
+                            </div>
+                        @else
+                            <p>尚未開始比對</p>
+                        @endif                    
+                    @endif
+                @endif
+            </td>            
         </tr>
         @empty
         @endforelse
@@ -2209,7 +2519,7 @@ jQuery(document).ready(function(){
 		$('#ip20days').attr("href",'/admin/users/ip/' + getIP + '?period=20days');
 		$('#ip30days').attr("href",'/admin/users/ip/' + getIP + '?period=30days');
 	});
-
+    
 
 });
 function Release(id) {

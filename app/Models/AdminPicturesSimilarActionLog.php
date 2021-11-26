@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
+use App\Services\ImagesCompareService;
 
 class AdminPicturesSimilarActionLog extends Model
 {
@@ -19,5 +20,35 @@ class AdminPicturesSimilarActionLog extends Model
     {
         return $this->belongsTo(User::class, 'operator_id', 'id');
     }
+    
+    public function getCompareStatus() {
+        return ImagesCompareService::getCompareStatusByPic($this->pic);
+    }      
+    
+    public function getCompareEncode() {
+        return ImagesCompareService::getCompareEncodeByPic($this->pic);
+    }    
+    
+    public function getCompareRsImg() {
+        return ImagesCompareService::getCompareRsImgByPic($this->pic);
+ 
+    }
+ 
+    public function getSameImg() {
+        return ImagesCompareService::getSameImgByPic($this->pic);
+ 
+    } 
+
+    public function compareImages() {
+        ImagesCompareService::compareImagesByPic($this->pic);
+    }  
+
+    public function isPicFileExists() {
+        return ImagesCompareService::isFileExistsByPic($this->pic);
+    }
+    
+    public function isPicNeedCompare() {
+        return ImagesCompareService::isNeedCompareByEntry($this);
+    }      
     
 }

@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Models\Pr_log;
 use App\Models\Vip;
+use App\Services\ImagesCompareService;
 
 class UserMeta extends Model
 {
@@ -434,4 +435,34 @@ class UserMeta extends Model
     {
         return UserMeta::where('user_id', $memberId)->first();
     }
+    
+    public function getCompareStatus() {
+        return ImagesCompareService::getCompareStatusByPic($this->pic);
+    }      
+    
+    public function getCompareEncode() {
+        return ImagesCompareService::getCompareEncodeByPic($this->pic);
+    }    
+    
+    public function getCompareRsImg() {
+        return ImagesCompareService::getCompareRsImgByPic($this->pic);
+ 
+    }
+ 
+    public function getSameImg() {
+        return ImagesCompareService::getSameImgByPic($this->pic);
+ 
+    } 
+
+    public function compareImages() {
+        ImagesCompareService::compareImagesByPic($this->pic);
+    }  
+
+    public function isPicFileExists() {
+        return ImagesCompareService::isFileExistsByPic($this->pic);
+    }
+    
+    public function isPicNeedCompare() {
+        return ImagesCompareService::isNeedCompareByEntry($this);
+    }        
 }
