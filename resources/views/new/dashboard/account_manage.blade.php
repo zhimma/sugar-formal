@@ -53,7 +53,7 @@
                             <font>搜索隱藏設定</font>
                         </a>
 
-                        <a href="{{route('viewChatNotice')}}" class="gg_zh_li"><span><img src="/new/images/zh08.png"></span>
+                        <a @if($user->isVip()) href=" {{route('viewChatNotice')}}" @else onclick="show_onlyForVipPleaseUpgrade()"  @endif class="gg_zh_li"><span><img src="/new/images/zh08.png"></span>
                             <font>Line通知設定</font>
                         </a>
 
