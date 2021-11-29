@@ -103,7 +103,13 @@ position:relative;line-height:40px;cursor:pointer;text-align: center;}
             </div>
             <div class="col-sm-12 col-xs-12 col-md-10">
                 <div class="shou" style="text-align: center;">
-                    <div class="sj_iconleft"><a href="{{route('viewChatNotice')}}"><img src="/new/images/ncion_03.png"></a></div>
+                    <div class="sj_iconleft">
+                        @if($user->isVip())
+                            <a href="{{route('viewChatNotice')}}"><img src="/new/images/ncion_03.png"></a>
+                        @else
+                            <a onclick="show_onlyForVipPleaseUpgrade()"><img src="/new/images/ncion_03.png"></a>
+                        @endif
+                    </div>
                     <span style="border-bottom: unset;">收件夾</span>
                     <font>Inbox</font>
 {{--                    <a href="" class="shou_but">全部刪除</a>--}}

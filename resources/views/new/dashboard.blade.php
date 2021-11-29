@@ -1288,7 +1288,12 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
     });
 
     $(".line_notify").on('click', function() {
+        @if($user->isVip())
         c5html('iPhone 的 Safari 在 Line 的綁定容易出問題。如果您在綁定過程中失敗，請改用 Google Chrome 嘗試看看。如果還是出問題，<a href="https://lin.ee/rLqcCns" target="_blank">請點此&nbsp;<img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a>&nbsp;或點右下聯絡我們加站長line。');
+        @else
+        show_onlyForVipPleaseUpgrade();
+        @endif
+
         $(".n_bllbut").on('click', function() {
             var lineClientId = '{{config('line.line_notify.client_id')}}';
             var callbackUrl = '{{config('line.line_notify.callback_url')}}';

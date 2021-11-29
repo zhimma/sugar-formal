@@ -426,7 +426,11 @@
                         <img src="/new/images/LINE_T.png" class="line_img">
                     </div>
                     <div class="n_bbutton" style="margin-top: 0;">
-                        <a class="sl_bllbut" href="/dashboard/chat/chatNotice">好，我想即時接收聊天訊息</a>
+                        @if($user->isVip())
+                            <a class="sl_bllbut" href="/dashboard/chat/chatNotice">好，我想即時接收聊天訊息</a>
+                        @else
+                            <a class="sl_bllbut" onclick="lineNotifyPopUp_close();show_onlyForVipPleaseUpgrade();">好，我想即時接收聊天訊息</a>
+                        @endif
                         <a class="sl_bllbut01" onclick="lineNotifyPopUp_close()">不想即時收到訊息</a>
                     </div>
                 </div>
