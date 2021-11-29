@@ -426,7 +426,11 @@
                         <img src="/new/images/LINE_T.png" class="line_img">
                     </div>
                     <div class="n_bbutton" style="margin-top: 0;">
-                        <a class="sl_bllbut" href="/dashboard/chat/chatNotice">好，我想即時接收聊天訊息</a>
+                        @if($user->isVip())
+                            <a class="sl_bllbut" href="/dashboard/chat/chatNotice">好，我想即時接收聊天訊息</a>
+                        @else
+                            <a class="sl_bllbut" onclick="lineNotifyPopUp_close();show_onlyForVipPleaseUpgrade();">好，我想即時接收聊天訊息</a>
+                        @endif
                         <a class="sl_bllbut01" onclick="lineNotifyPopUp_close()">不想即時收到訊息</a>
                     </div>
                 </div>
@@ -717,7 +721,12 @@
     }
 
     $(".line_notify").on('click', function() {
-        c5html('iPhone 的 Safari 在 Line 的綁定容易出問題。如果您在綁定過程中失敗，請改用 Google Chrome 嘗試看看。如果還是出問題，<a href="https://lin.ee/rLqcCns" target="_blank">請點此&nbsp;<img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a>&nbsp;或點右下聯絡我們加站長line。');
+        @if($user->isVip())
+            c5html('iPhone 的 Safari 在 Line 的綁定容易出問題。如果您在綁定過程中失敗，請改用 Google Chrome 嘗試看看。如果還是出問題，<a href="https://lin.ee/rLqcCns" target="_blank">請點此&nbsp;<img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a>&nbsp;或點右下聯絡我們加站長line。');
+        @else
+            show_onlyForVipPleaseUpgrade();
+        @endif
+
         $(".n_bllbut").on('click', function() {
             var lineClientId = '{{config('line.line_notify.client_id')}}';
             var callbackUrl = '{{config('line.line_notify.callback_url')}}';

@@ -92,6 +92,17 @@
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
+<div class="bl bl_tab" id="onlyForVipPleaseUpgrade">
+    <div class="bltitle">提示</div>
+    <div class="n_blnr01 matop10">
+        <div class="blnr bltext">
+            此功能目前僅開放VIP使用，<a href="/dashboard/vipSelect"><span style="color: red;">請點此升級</span></a>
+        </div>
+        <div class="linktext"></div>
+    </div>
+    <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+</div>
+
 <div class="bl bl_tab" id="tab_block">
     <div class="bltitle"><span>是否要封鎖他</span></div>
     <div class="n_blnr01 matop20" style="padding-top: 20px !important; margin-top: 0px !important;">

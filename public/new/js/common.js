@@ -221,6 +221,11 @@
 		// c5(str);
 	}
 
+	function show_onlyForVipPleaseUpgrade() {
+		$(".announce_bg").show();
+		$("#onlyForVipPleaseUpgrade").show();
+	}
+
 	function show_block() {
 		$(".blbg").show();
 		$("#tab_block").show();
