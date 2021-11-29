@@ -96,7 +96,11 @@
     <div class="bltitle">提示</div>
     <div class="n_blnr01 matop10">
         <div class="blnr bltext">
-            此功能目前僅開放VIP使用，<a href="/dashboard/vipSelect"><span style="color: red;">請點此升級</span></a>
+            @if(isset($user) && $user->engroup==2)
+                此功能目前僅開放給VIP使用，<a href="/dashboard_img"><span style="color: red;">請上傳一張大頭照+三張生活照</span></a>，<a href="/dashboard/vipSelect"><span style="color: red;">或點此升級VIP</span></a>
+            @else
+                此功能目前僅開放VIP使用，<a href="/dashboard/vipSelect"><span style="color: red;">請點此升級</span></a>
+            @endif
         </div>
         <div class="linktext"></div>
     </div>
