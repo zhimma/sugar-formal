@@ -62,6 +62,11 @@ class Handler extends ExceptionHandler
             logger("Referer: " . request()->headers->get("referer"));
             logger("UserAgent: " . request()->headers->get("User-Agent"));
             logger("IP: " . request()->ip());
+            if(\Str::contains(request()->headers->get("referer"), "login")){
+                return redirect()->route('login')
+                            ->withInput($request->except('password', '_token'))
+                            ->withError('驗證已過期，請再試一次');
+            }
             return redirect()
                     ->back()
                     ->withInput($request->except('password', '_token'))
