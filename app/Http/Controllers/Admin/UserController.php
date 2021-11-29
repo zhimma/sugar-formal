@@ -44,6 +44,7 @@ use App\Models\SimpleTables\warned_users;
 use App\Models\BannedUsersImplicitly;
 use App\Models\DataForFilterByInfo;
 use App\Models\DataForFilterByInfoIgnores;
+use App\Models\ImagesCompareEncode;
 use App\Notifications\BannedNotification;
 use App\Observer\BadUserCommon;
 use Carbon\Carbon;
@@ -1326,7 +1327,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('ip',$ip)
                 ->with('userAgent',$userAgent)
 				->with('banned_advance_auth_status', $banned_advance_auth_status)
-                ;
+                ->with('last_images_compare_encode',ImagesCompareEncode::orderByDesc('id')->first());
         }
     }
 
@@ -4609,7 +4610,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
         return view('admin.users.userPicturesSimilar',[
             'users' => $users
-        ]);
+        ])->with('last_images_compare_encode',ImagesCompareEncode::orderByDesc('id')->first());
     }
 
     public function UserPicturesSimilarLog(Request $request){
@@ -4668,7 +4669,7 @@ class UserController extends \App\Http\Controllers\BaseController
 
         return view('admin.users.userPicturesSimilarLog', [
             'AdminPicturesSimilarActionLogs' => $AdminPicturesSimilarActionLogs
-        ]);
+        ])->with('last_images_compare_encode',ImagesCompareEncode::orderByDesc('id')->first());
     }
 
     public function UserPicturesSimilarJobCreate(Request $request){
@@ -4894,5 +4895,5 @@ class UserController extends \App\Http\Controllers\BaseController
         }
 
         return back()->with('error', 'unknow controller method');
-    }
+    } 
 }

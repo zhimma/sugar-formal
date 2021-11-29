@@ -58,6 +58,12 @@ class Kernel extends ConsoleKernel
             $puppetReq->only = 'cfpid';
             $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('8:00');
             $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('20:00');
+        
+            $schedule->command('EncodeImagesForCompare')->timezone('Asia/Taipei')->dailyAt('10:30');
+            $schedule->command('EncodeImagesForCompare')->timezone('Asia/Taipei')->dailyAt('22:30');
+            
+            $schedule->command('CompareImages')->timezone('Asia/Taipei')->dailyAt('13:00');
+            $schedule->command('CompareImages')->timezone('Asia/Taipei')->dailyAt('01:00');        
         }
         if(app()->isProduction() || app()->isLocal()){
             $schedule->call(function (){
