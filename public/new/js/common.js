@@ -226,6 +226,11 @@
 		$("#onlyForVipPleaseUpgrade").show();
 	}
 
+	function show_line_notify_set_alert() {
+		$(".announce_bg").show();
+		$('#line_notify_set_failure').show();
+	}
+
 	function show_block() {
 		$(".blbg").show();
 		$("#tab_block").show();
