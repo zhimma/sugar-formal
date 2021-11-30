@@ -7,7 +7,9 @@ use App\Models\ImagesCompare;
 use App\Models\ImagesCompareEncode;
 use App\Models\ImagesCompareStatus;
 use App\Jobs\CompareImagesCaller;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Log;
 
 class ImagesCompareService {
@@ -217,7 +219,7 @@ class ImagesCompareService {
         }
     }
 
-    public static  function getCompareRsImgByPic($pic) {
+    public static  function getCompareRsImgByPic($pic) : Collection|SupportCollection {
         return \collect();
         $rsImgSet = null;
         $compareRsPicList = ImagesCompareService::getResultOfCompareByPic($pic)->where('pic','<>','/img/illegal.jpg')->pluck('finded_pic')->all();
