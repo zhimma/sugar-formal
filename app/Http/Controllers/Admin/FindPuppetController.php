@@ -497,14 +497,9 @@ class FindPuppetController extends \App\Http\Controllers\Controller
                         ,'type'=>''
                         ,'created_at'=>$edate
                         ,'updated_at'=>date('Y-m-d H:i:s')]); 
-                    $new_exec_arr = $this->column->where('cat',$cat)->where('group_index',-1)->orderBy('id')->get()->toarray();                                
-                    $this->column->truncate();
-                    $this->row->truncate();
-                    $this->cell->truncate(); 	 
-                    foreach($new_exec_arr  as $exec_log_arr) {
-                        unset($exec_log_arr['id']);
-                        $this->column->insert( $exec_log_arr);                        
-                    }
+                    $this->column->where('cat',$cat)->where('group_index','>',-1)->delete();
+                    $this->row->where('cat',$cat)->where('group_index','>',-1)->delete();
+                    $this->cell->where('cat',$cat)->where('group_index','>',-1)->delete(); 
                     Log::info('findPuppet排程'.$cat.'：完成清空col、row、cell的舊資料');
                     $this->column->insert( ['column_index'=>-1
                         ,'name'=>'完成清空col、row、cell的舊資料'
