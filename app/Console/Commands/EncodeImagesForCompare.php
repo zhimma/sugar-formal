@@ -59,14 +59,19 @@ class EncodeImagesForCompare extends Command
             $lastMemPic = null;
             $breakMemPic = null;
 
-            $memPicQuery = MemberPic::withTrashed()->where('pic','LIKE','/img/Member/%/%/%/%')->orWhere('pic','LIKE','/Member_pics/%')->orderByDesc('id');
+            $memPicQuery = MemberPic::withTrashed()->orderByDesc('id');   
             
             if($specific_pic) $memPicQuery->where('pic',$specific_pic);
             else {
                 if(!(\App::environment('CFP') || \App::environment('local'))) {
                     echo '本命令只能在特定主機或測試環境下執行，已中止';
                     return;
-                }                
+                }  
+
+                $memPicQuery->where(function($q) {
+                    $q->where('pic','LIKE','/img/Member/%/%/%/%');
+                    $q->orWhere('pic','LIKE','/Member_pics/%');
+                });            
                 
                 if($encodedPicArr) {
                     $lastMemPic = MemberPic::withTrashed()->where('pic',$encodedPicArr[0])->orderBy('id')->first();
@@ -86,13 +91,20 @@ class EncodeImagesForCompare extends Command
             
             $memPicEntry = $memPicQuery->get();
             
-            $metaPicQuery = UserMeta::where('pic','LIKE','/img/Member/%/%/%/%')->orWhere('pic','LIKE','/Member_pics/%')->orderByDesc('id');
+            $metaPicQuery = UserMeta::where(function($q) {
+                $q->where('pic','LIKE','/img/Member/%/%/%/%');
+                $q->orWhere('pic','LIKE','/Member_pics/%');
+            })->orderByDesc('id');
             if($specific_pic) $metaPicQuery->where('pic',$specific_pic);
             $metaPicEntry = $metaPicQuery->get();
             
-            $delAvatarQuery = AvatarDeleted::where('pic','LIKE','/img/Member/%/%/%/%')->orWhere('pic','LIKE','/Member_pics/%')->orderByDesc('id');
+            $delAvatarQuery = AvatarDeleted::where(function($q) {
+                $q->where('pic','LIKE','/img/Member/%/%/%/%');
+                $q->orWhere('pic','LIKE','/Member_pics/%');
+            })->orderByDesc('id');
             if($specific_pic) $delAvatarQuery->where('pic',$specific_pic);
             $delAvatarEntry = $delAvatarQuery->get();
+
             foreach($memPicEntry as $memPic) {
                 if(in_array($memPic->pic,$encodedPicArr)) continue;
                 if(ImagesCompareService::addEncodeByEntry($memPic,'cron')) {
@@ -102,6 +114,7 @@ class EncodeImagesForCompare extends Command
                 
                 if(time()-$stime>7200) {
                      Log::info('EncodeImagesForCompare：超過限制時間仍未完成，強制結束圖片編碼 memPic='.$memPic->pic);
+                     exit;
                 }                
             }
 
@@ -115,6 +128,7 @@ class EncodeImagesForCompare extends Command
                 
                 if(time()-$stime>7200) {
                      Log::info('EncodeImagesForCompare：超過限制時間仍未完成，強制結束圖片編碼 metaPic='.$metaPic->pic);
+                    exit;
                 }                 
             } 
 
@@ -128,6 +142,7 @@ class EncodeImagesForCompare extends Command
   
                 if(time()-$stime>7200) {
                      Log::info('EncodeImagesForCompare：超過限制時間仍未完成，強制結束圖片編碼 delAvatar='.$delAvatar->pic);
+                    exit;
                 }    
             }               
             
