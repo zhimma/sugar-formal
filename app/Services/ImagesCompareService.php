@@ -218,6 +218,7 @@ class ImagesCompareService {
     }
 
     public static  function getCompareRsImgByPic($pic) {
+        return null;
         $rsImgSet = null;
         $compareRsPicList = ImagesCompareService::getResultOfCompareByPic($pic)->where('pic','<>','/img/illegal.jpg')->pluck('finded_pic')->all();
 
@@ -279,6 +280,7 @@ class ImagesCompareService {
     }
     
     public static function compareImagesByPic($pic) {
+        return 0;
         if(!$pic) return;
         if(!ImagesCompareService::isFileExistsByPic($pic)) return;
         $status = ImagesCompareStatus::firstOrNew(['pic'=>$pic]);
