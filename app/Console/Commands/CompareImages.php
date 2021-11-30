@@ -103,7 +103,9 @@ class CompareImages extends Command
                 $is_not_compare = false;
                 $nowPicEntry = ImagesCompareService::getEntryByPic($imgEncode->pic);
 
-                if($nowPicEntry && !ImagesCompareService::isNeedCompareByEntry($picEntry)) $is_not_compare=true;
+                if($nowPicEntry && !ImagesCompareService::isNeedCompareByEntry($nowPicEntry)) {
+                    $is_not_compare=true;
+                }
 
                 $this->now_pic = $imgEncode->pic;
                 $statusEntry = $statusAllEntry->where('pic',$imgEncode->pic)->first();
@@ -112,14 +114,18 @@ class CompareImages extends Command
                     if(!$statusEntry->is_error) {
                         if($statusEntry->status==1  ) {
                             if($statusEntry->start_time && Carbon::now()->diffInMinutes(Carbon::parse($statusEntry->start_time))<10) {
-                                if($specific_pic) echo '未超過10分鐘的status=1不比對'; 
+                                if($specific_pic) {
+                                    echo '未超過10分鐘的status=1不比對'; 
+                                    Log::info('未超過10分鐘的status=1不比對 specific_pic='.$specific_pic); 
+                                }
                                 $is_not_compare=true;
                             }
                         }
-                        
+                      
                         if(($lastEncodeEntry??false) && $statusEntry->status==0 && $statusEntry->encode_break_id==$lastEncodeEntry->id) {
                             if($specific_pic) {
                                 echo '中斷點等於encode最後一筆id 不比對';
+                                Log::info('中斷點等於encode最後一筆id 不比對  specific_pic='.$specific_pic); 
                             }
                             $is_not_compare=true;
                         }
@@ -163,18 +169,7 @@ class CompareImages extends Command
                         $compare = ImagesCompare::where('pic',$imgEncode->pic)->where('finded_pic',$target->pic)->firstOrNew();
                         
                         if($compare->id) continue;
-                        
-                        if($imgEncode->file_md5==$target->file_md5) {
-                        if($imgEncode->pic=='/img/Member/2021/10/15/20211015998238979.jpg'
-                            && $target->pic=='/img/Member/2021/11/10/20211110191531138.jpg'
-                        ) {
-                            echo '$imgEncode->file_md5='.$imgEncode->file_md5??100 ;
-                            echo '$target->file_md5='.$target->file_md5??100;
-                        }
-                            continue;
-                        }
-                        
-                        
+
                         $targetEncode =  json_decode($target->encode,true);
                         if(!$targetEncode || count($targetEncode)==0) continue;
                         
@@ -234,7 +229,7 @@ class CompareImages extends Command
                     }
                 }
                 elseif($specific_pic) {
-                    Log::info('不需比對的圖片  specific_pic='.$specific_pic); 
+                    Log::info('不比對  specific_pic='.$specific_pic); 
                 }
                 $statusEntry->status=0;                  
                 $statusEntry->encode_break_id = $target->id;

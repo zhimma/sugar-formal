@@ -8,6 +8,7 @@ use App\Models\ImagesCompareEncode;
 use App\Models\ImagesCompareStatus;
 use App\Jobs\CompareImagesCaller;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class ImagesCompareService {
    public static $resize_length=100;
@@ -302,9 +303,11 @@ class ImagesCompareService {
         if(!($picEntry->updated_at??null)) return true;
         if($picEntry->updated_at>=ImagesCompareService::$need_compare_from_date 
             && !in_array($picEntry->pic,ImagesCompareService::$sys_pic_arr)
-        )
+        ) { 
             return true;
-        else
+        }
+        else {
             return false;
+        }
     }
 }
