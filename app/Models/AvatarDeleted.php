@@ -36,8 +36,8 @@ class AvatarDeleted extends Model
  
     }   
 
-    public function compareImages() {
-        ImagesCompareService::compareImagesByPic($this->pic);
+    public function compareImages($encode_by=null) {
+        ImagesCompareService::compareImagesByPic($this->pic,$encode_by);
     }
     
     public function isPicFileExists() {

@@ -137,13 +137,16 @@ class ImagesCompareService {
     }
 
     public static function addEncodeByEntry($picEntry,$from=null) {
+        if(!($picEntry??null)) return false;
         $pic_path = public_path($picEntry->pic);         
 
         if(!ImagesCompareService::isFileExistsByPic($picEntry->pic)) return false;
         $pic_encode = ImagesCompareService::encodeImgFile($pic_path);
         if(!$pic_encode) return false;
         $pic_type = null;
-        if($picEntry->user_id) $pic_type='avatar';
+        if($picEntry->user_id && $picEntry->operator) $pic_type='avatar_deleted';
+        elseif($picEntry->user_id) $pic_type='avatar';
+        elseif($picEntry->member_id && $picEntry->deleted_at) $pic_type='member_pic_deleted';
         elseif($picEntry->member_id) $pic_type='member_pic';
         ImagesCompareEncode::create(['pic'=>$picEntry->pic,'encode'=>json_encode($pic_encode),'file_md5'=>md5_file($pic_path)
                                     ,'total_spot'=>array_sum($pic_encode),'total_diff_code'=>count($pic_encode)
@@ -198,7 +201,9 @@ class ImagesCompareService {
         if(!$pic) return;
         $encode = ImagesCompareService::getCompareEncodeByPic($pic);
         if(!$encode) {
-            $encode = ImagesCompareService::addEncodeByEntry(ImagesCompareService::getEntryByPic($pic),'ImagesCompareService@getSameCompareEncodeByPic');
+            if(ImagesCompareService::addEncodeByEntry(ImagesCompareService::getEntryByPic($pic),'ImagesCompareService@getSameCompareEncodeByPic')) {
+                $encode = ImagesCompareService::getCompareEncodeByPic($pic);
+            }
         }
         
         
@@ -281,8 +286,7 @@ class ImagesCompareService {
         return file_exists($pic_path);        
     }
     
-    public static function compareImagesByPic($pic) {
-        return 0;
+    public static function compareImagesByPic($pic,$encode_by=null) {
         if(!$pic) return;
         if(!ImagesCompareService::isFileExistsByPic($pic)) return;
         $status = ImagesCompareStatus::firstOrNew(['pic'=>$pic]);
@@ -299,7 +303,8 @@ class ImagesCompareService {
         $status->is_error=0;
         $status->save();
        
-        CompareImagesCaller::dispatchAfterResponse($pic);
+        CompareImagesCaller::dispatch($pic,$encode_by);
+        CompareImagesCaller::dispatch($pic)->onQueue('compare_images')->delay(10);
     }
     
     public static function isNeedCompareByEntry($picEntry) {

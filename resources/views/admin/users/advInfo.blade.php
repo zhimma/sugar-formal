@@ -1533,7 +1533,7 @@
                 <b>不需比對的照片</b>      
                 @else
                     @php 
-                        $user->meta->compareImages();
+                        $user->meta->compareImages('advInfo');
                         $compareStatus = $user->meta->getCompareStatus();
                         $compareRsImgs = $user->meta->getCompareRsImg(); 
                     @endphp
@@ -1541,8 +1541,12 @@
                     <b>照片的檔案不存在，無法比對</b>  
                     @elseif(!$user->meta->getCompareEncode() && ($compareStatus??null) && (!($compareRsImgs??null) || $compareRsImgs->count()==0) && $compareStatus->queue??null)
                     <b>{{date('m/d H:i',strtotime($compareStatus->qstart_time))}}已{{$compareStatus->queue==2?'重新':''}}申請排隊執行比對，等待系統回應中</b>   
-                    @elseif(!$user->meta->getCompareEncode() && ($compareStatus??null))
-                    <b>尚未建立比對資訊</b>    
+                    @elseif(!$user->meta->getCompareEncode() )
+                        @if($compareStatus??null)
+                        <b>資料異常</b>
+                        @else
+                        <b>尚未建立比對資訊</b>
+                        @endif  
                     @else
                         <b>完全相同(不含調整過寬高)</b>
                         @php $sameImages = $user->meta->getSameImg() @endphp
@@ -1689,7 +1693,7 @@
                     <b>不需比對的照片</b>      
                 @else              
                     @php 
-                        $pic->compareImages();  
+                        $pic->compareImages('advInfo');  
                         $compareStatus = $pic->getCompareStatus();
                         $compareRsImgs = $pic->getCompareRsImg();
                     @endphp                            
@@ -1698,7 +1702,11 @@
                     @elseif(!$pic->getCompareEncode() && ($compareStatus??null) && !($compareRsImgs??null) && $compareRsImgs->count()==0 && $compareStatus->queue??null)
                     <b>{{date('m/d H:i',strtotime($compareStatus->qstart_time))}}已{{$compareStatus->queue==2?'重新':''}}申請排隊執行比對，等待系統回應中</b>   
                     @elseif(!$pic->getCompareEncode() )
-                    <b>尚未建立比對資訊</b>    
+                        @if($compareStatus??null)
+                        <b>資料異常</b>
+                        @else
+                        <b>尚未建立比對資訊</b>
+                        @endif    
                     @else
                         <b>完全相同(不含調整過寬高)</b>
                         @php $sameImages = $pic->getSameImg() @endphp
@@ -1855,7 +1863,7 @@
                     <b>不需比對的照片</b>      
                 @else              
                     @php 
-                        $pic->compareImages();  
+                        $pic->compareImages('advInfo');  
                         $compareStatus = $pic->getCompareStatus();
                         $compareRsImgs = $pic->getCompareRsImg();
                     @endphp                
@@ -1864,7 +1872,11 @@
                     @elseif(!$pic->getCompareEncode() && ($compareStatus??null) && !($compareRsImgs??null) && $compareRsImgs->count()==0 && $compareStatus->queue??null)
                     <b>{{date('m/d H:i',strtotime($compareStatus->qstart_time))}}已{{$compareStatus->queue==2?'重新':''}}申請排隊執行比對，等待系統回應中</b>   
                     @elseif(!$pic->getCompareEncode() )
-                    <b>尚未建立比對資訊</b>    
+                        @if($compareStatus??null)
+                        <b>資料異常</b>
+                        @else
+                        <b>尚未建立比對資訊</b>
+                        @endif   
                     @else
                     <b>完全相同(不含調整過寬高)</b>
                         @php $sameImages = $pic->getSameImg() @endphp
@@ -2018,7 +2030,7 @@
                     <b>不需比對的照片</b>      
                 @else            
                     @php
-                        $pic->compareImages();                
+                        $pic->compareImages('advInfo');                
                         $compareStatus = $pic->getCompareStatus();
                         $compareRsImgs = $pic->getCompareRsImg();
                     @endphp
@@ -2027,7 +2039,11 @@
                     @elseif(!$pic->getCompareEncode() && ($compareStatus??null) && !($compareRsImgs??null) && $compareRsImgs->count()==0 && ($compareStatus->queue??null))
                         <b>{{date('m/d H:i',strtotime($compareStatus->qstart_time))}}已{{$compareStatus->queue==2?'重新':''}}申請排隊執行比對，等待系統回應中</b>   
                     @elseif(!$pic->getCompareEncode() )
-                        <b>尚未建立比對資訊</b>    
+                        @if($compareStatus??null)
+                        <b>資料異常</b>
+                        @else
+                        <b>尚未建立比對資訊</b>
+                        @endif    
                     @else
                         <b>完全相同(不含調整過寬高)</b>
                         @php $sameImages = $pic->getSameImg() @endphp

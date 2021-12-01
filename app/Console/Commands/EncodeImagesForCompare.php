@@ -19,7 +19,7 @@ class EncodeImagesForCompare extends Command
      *
      * @var string
      */
-    protected $signature = 'EncodeImagesForCompare {pic?}';
+    protected $signature = 'EncodeImagesForCompare {pic?}  {encode_by?}';
 
     /**
      * The console command description.
@@ -54,6 +54,7 @@ class EncodeImagesForCompare extends Command
         try {
             $stime = time();
             $specific_pic  = $this->argument('pic');
+            $encode_by  = $this->argument('encode_by')??'cron';
             $encodedPicArr = ImagesCompareEncode::select('pic')->orderBy('id')->get()->pluck('pic')->all();
             $encodedMemPic = ImagesCompareEncode::select('pic')->where('pic_cat','member_pic')->where('encode_by','cron')->orderByDesc('id')->first();
             $lastMemPic = null;
@@ -107,7 +108,7 @@ class EncodeImagesForCompare extends Command
 
             foreach($memPicEntry as $memPic) {
                 if(in_array($memPic->pic,$encodedPicArr)) continue;
-                if(ImagesCompareService::addEncodeByEntry($memPic,'cron')) {
+                if(ImagesCompareService::addEncodeByEntry($memPic,$encode_by)) {
                     $encodedPicArr[] = $memPic->pic;
                 }
                 else continue;
@@ -121,7 +122,7 @@ class EncodeImagesForCompare extends Command
             foreach($metaPicEntry as $metaPic) {
                 if(in_array($metaPic->pic,$encodedPicArr)) continue;
 
-                if(ImagesCompareService::addEncodeByEntry($metaPic,'cron')) {
+                if(ImagesCompareService::addEncodeByEntry($metaPic,$encode_by)) {
                     $encodedPicArr[] = $metaPic->pic;
                 }
                 else continue;
@@ -135,7 +136,7 @@ class EncodeImagesForCompare extends Command
             foreach($delAvatarEntry as $delAvatar) {
                 if(in_array($delAvatar->pic,$encodedPicArr)) continue;
 
-                if(ImagesCompareService::addEncodeByEntry($delAvatar,'cron')) {
+                if(ImagesCompareService::addEncodeByEntry($delAvatar,$encode_by)) {
                     $encodedPicArr[] = $delAvatar->pic;
                 }
                 else continue;
