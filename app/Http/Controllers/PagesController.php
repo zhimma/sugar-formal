@@ -2070,7 +2070,7 @@ class PagesController extends BaseController
                     foreach ($data['msg'] as $word1) {
                         foreach ($data['msg'] as $word2) {
                             if ($word1['created_at'] != $word2['created_at']) {
-                                if(strlen($word1['content']) > 300) {
+                                if(strlen($word1['content']) > 200) {
                                     continue;
                                 }
                                 similar_text($word1['content'], $word2['content'], $percent);
