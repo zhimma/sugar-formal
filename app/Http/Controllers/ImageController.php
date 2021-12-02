@@ -9,7 +9,7 @@ use App\Http\Requests\ImageRequest;
 use App\Http\Requests\MultipleImageRequest;
 use App\Http\Requests;
 use App\Services\ImageService;
-use App\Services\ImagesCompareService;
+//use App\Services\ImagesCompareService;
 use App\Models\User;
 use App\Models\MemberPic;
 use App\Models\UserMeta;
@@ -26,6 +26,7 @@ use App\Models\AdminCommonText;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\CompareImagesCaller;
 
 
 class ImageController extends BaseController
@@ -125,7 +126,7 @@ class ImageController extends BaseController
         $umeta->pic = $destinationPath;
         $umeta->pic_original_name = $image->getClientOriginalName();
         $umeta->save();
-        ImagesCompareService::addEncodeByEntry($umeta,'ImageController@resizeImagePostHeader');
+        CompareImagesCaller::dispatch($umeta->pic,'ImageController@resizeImagePostHeader');
 
         if(!$admin){
             // return redirect()->to('/dashboard?img')
@@ -176,8 +177,8 @@ class ImageController extends BaseController
                             unlink('.'.$umeta->pic);//將檔案刪除
                         }
                         $umeta->pic = $destinationPath;
-                        $umeta->save();
-                        ImagesCompareService::addEncodeByEntry($umeta,'ImageController@resizeImagePostHeader2');                        
+                        $umeta->save();                       
+                        CompareImagesCaller::dispatch($umeta->pic,'ImageController@resizeImagePostHeader2');
                         return redirect()->to('/dashboard?img')
                         ->with('success','照片上傳成功');
                     }
@@ -242,7 +243,7 @@ class ImageController extends BaseController
                 $memberPic->pic = $destinationPath;
                 $memberPic->original_name = $file->getClientOriginalName();
                 $memberPic->save();
-                ImagesCompareService::addEncodeByEntry($memberPic,'ImageController@resizeImagePost');
+                CompareImagesCaller::dispatch($memberPic->pic,'ImageController@resizeImagePost');
             }
         }
 
@@ -351,7 +352,7 @@ class ImageController extends BaseController
             $girl_to_vip = AdminCommonText::where('alias', 'girl_to_vip')->get()->first();
 
             $user->load('meta','pic');
-            if($avatar) ImagesCompareService::addEncodeByEntry($user->meta,'ImageController@uploadAvatar');
+            if($avatar) CompareImagesCaller::dispatch($user->meta->pic,'ImageController@uploadAvatar');
             $log_pic_acts_count = $user->log_free_vip_pic_acts->count();  
             $last_avatar_act_log = $user->log_free_vip_avatar_acts()->orderBY('created_at','DESC')->first();
             $last_avatar_sys_react = $last_avatar_act_log->sys_react??'';
@@ -608,7 +609,7 @@ class ImageController extends BaseController
                 AdminDeleteImageLog::where('member_id', $userId)->orderBy('id')->take(1)->delete();
 
                 \App\Jobs\SimilarImagesSearcher::dispatchSync($path);
-                ImagesCompareService::addEncodeByEntry($addPicture,'ImageController@uploadPictures');
+                CompareImagesCaller::dispatch($addPicture->pic,'ImageController@uploadPictures');
             }
         }
         $msg="上傳成功";

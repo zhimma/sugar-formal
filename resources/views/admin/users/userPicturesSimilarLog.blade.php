@@ -265,7 +265,7 @@
                                                 <b>不需比對的照片</b>      
                                                 @else
                                                     @php 
-                                                        $Log->compareImages();
+                                                        $Log->compareImages('picturesSimilarLog');
                                                         $compareStatus = $Log->getCompareStatus();
                                                         $compareRsImgs = $Log->getCompareRsImg(); 
                                                     @endphp
@@ -273,8 +273,12 @@
                                                     <b>照片的檔案不存在，無法比對</b>  
                                                     @elseif(!$Log->getCompareEncode() && ($compareStatus??null) && (!($compareRsImgs??null) || $compareRsImgs->count()==0) && $compareStatus->queue??null)
                                                     <b>{{date('m/d H:i',strtotime($compareStatus->qstart_time))}}已{{$compareStatus->queue==2?'重新':''}}申請排隊執行比對，等待系統回應中</b>   
-                                                    @elseif(!$Log->getCompareEncode() && ($compareStatus??null))
-                                                    <b>尚未建立比對資訊</b>    
+                                                    @elseif(!$Log->getCompareEncode())
+                                                        @if($compareStatus??null)
+                                                        <b>資料異常</b>
+                                                        @else
+                                                        <b>尚未建立比對資訊</b>
+                                                        @endif   
                                                     @else
                                                         
                                                         <b>完全相同(不含調整過寬高)</b>
