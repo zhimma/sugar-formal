@@ -209,7 +209,7 @@ class ImagesCompareService {
         
         
         if($encode) {
-            $md5 = $encode->file_md5;
+            $md5 = $encode->file_md5??'';
             $selfPic = [];
             $picEntry = ImagesCompareService::getEntryByPic($pic);
             $nowUserId = $picEntry->user_id??$picEntry->member_id;

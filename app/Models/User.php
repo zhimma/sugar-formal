@@ -1314,7 +1314,7 @@ class User extends Authenticatable
     }
     
     public function isForbidAdvAuth() {
-        return $this->log_adv_auth_api()->where('forbid_user',1)->count()>0;
+        return $this->log_adv_auth_api()->where('forbid_user',1)->orWhere('is_duplicate',1)->count()>0;
     }
     
     public function getPassAdvAuthApiQuery() {
@@ -1366,6 +1366,7 @@ class User extends Authenticatable
             $authMobile = str_replace( ' ','',$latestAuthSms->mobile);
             $authMobile = str_replace( "\r\n",'',$authMobile);
             $authMobile = str_replace( "\n",'',$authMobile);
+            $authMobile =  preg_replace("/([^0-9]+)/", "", $authMobile );
             if($to_local ) {
                 if(substr($authMobile,0,3)=='886') {
                     $authMobile = substr_replace($authMobile, '0', 0, 3);
