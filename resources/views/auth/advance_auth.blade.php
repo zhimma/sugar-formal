@@ -61,7 +61,12 @@
             } 
             .red {
                 color:red;
-            }   
+            } 
+
+            #tab_confirm.left .bltext  {
+                text-align: left;
+            }
+            
             .margin_top_one_line {margin-top:1em;}
             .xy_input {border-radius:5px;}
             .xy_input.only_show {width:60% !important;}
@@ -89,7 +94,7 @@
                 #tab_confirm .n_blnr01 {
                     padding-top:10px !important;
                 }
-            }
+            }  
         </style>   	
         </head>
 
@@ -264,7 +269,7 @@
     }
     
     function tab_confirm_send() {
-        $("#tab_confirm").show().find('.bltext').click().html('您輸入的資料如下'
+        $("#tab_confirm").show().addClass('left').find('.bltext').click().html('您輸入的資料如下'
             +'<div>身分證字號：'+$('#id_serial').val()+'</div>'
             +'<div>手機號碼：'+$('#phone_number').val()+'</div>'
             +'<div>生日：'+$('#year').val()+'/'+$('#month').val()+'/'+$('#day').val()+'</div>'
@@ -277,7 +282,7 @@
         $(".blbg").show();
         clear_error_appear();
         if(check_val()) {
-            $("#tab_confirm").show().find('.bltext').html(
+            $("#tab_confirm").removeClass('left').show().find('.bltext').html(
                     '本站會將您的門號以及生日同步更新到會員基本資料，'+
                     '<span class="bolder red">身分證字號則只用在本次驗證並不會紀錄</span>'+
                     '<div class="margin_top_one_line">此驗證依照以下條款進行</div>'+
@@ -302,6 +307,13 @@
         var empty_str = '';
         var age_error_msg = '';
         var error_msg = '';
+        $('#tab01 .n_fengs').html('');
+        if(!checkIdSerial($('#id_serial').val(),'sex')) {
+            $('#id_serial').parent().addClass('has_error');
+            $('#tab01 .n_fengs').html('您輸入的身分證號與您登記的性別不符，請用本人申請的門號驗證');
+            return false;            
+        }
+        
         if($('#id_serial').val()=='' || !checkIdSerial($('#id_serial').val())) {
             $('#id_serial').parent().addClass('has_error');
             empty_str='/身分證字號';
@@ -366,7 +378,7 @@
         return phone_number.match('^09[0-9]{8}$');
     }
 
-    function checkIdSerial(id_serial) {
+    function checkIdSerial(id_serial,check_type=null) {
         var id = id_serial.trim();
         var check_id_rs = true;
 
@@ -383,7 +395,10 @@
         var sexCode = id.charCodeAt(1);
         if (sexCode != {{$user->engroup+48}}) {
             check_id_rs = false;
-        }
+            if(check_type=='sex') {
+                return false;
+            }
+        } else if(check_type=='sex') return true;
 
         var splitCode = id.slice(2)
         for (var i in splitCode) {
