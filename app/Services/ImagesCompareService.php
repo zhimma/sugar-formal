@@ -219,7 +219,12 @@ class ImagesCompareService {
         }
     }
 
-    public static  function getCompareRsImgByPic($pic) : Collection|SupportCollection {
+    /**
+     * 
+     * @param mixed $pic 
+     * @return  Collection|SupportCollection 
+     */
+    public static  function getCompareRsImgByPic($pic) {
         return \collect();
         $rsImgSet = null;
         $compareRsPicList = ImagesCompareService::getResultOfCompareByPic($pic)->where('pic','<>','/img/illegal.jpg')->pluck('finded_pic')->all();
