@@ -4133,6 +4133,7 @@ class PagesController extends BaseController
 
         if(!$check_rs) {
             $id_serial = $data['MemberNo'] = strtoupper($request->id_serial);
+            $encode_id_serial = md5(sha1(md5($id_serial)));
             $phone_number = $data['phone_number'] = $request->phone_number;
              $birth = $data['birth'] = date('Ymd', strtotime($request->year.'-'.$request->month.'-'.$request->day));
             $format_birth = $request->year.'-'.$request->month.'-'.$request->day;
@@ -4141,6 +4142,16 @@ class PagesController extends BaseController
             return back()->with('error_code', explode('_',$check_rs))
                     ->with('error_code_msg',['s'=>'僅供女會員驗證','i'=>'身分證字號','p'=>'門號','b'=>'生日','b18'=>'年齡未滿18歲，不得進行驗證']);
         }
+        
+        if(User::where('advance_auth_identity_encode',$encode_id_serial)->where('advance_auth_status',1)->where('advance_auth_phone',$phone_number)->where('advance_auth_birth',$format_birth)->count()) {
+            $user->log_adv_auth_api()->create([
+                    'birth'=>$data['birth']
+                    ,'phone'=>$data['phone_number']
+                    ,'identity_encode'=>$encode_id_serial
+                    ,'is_duplicate'=>1
+                ]);
+            return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
+        }        
 
         $data['api_base'] = 'https://'.config('memadvauth.service.host').(config('memadvauth.service.port')?':'.config('memadvauth.service.port'):'').'/';
         $output = $this->get_mid_clause($data);    
@@ -4167,12 +4178,17 @@ class PagesController extends BaseController
         $data['InputParams'] = json_encode($InputParams_arr, JSON_UNESCAPED_SLASHES);
 
         $data['return'] = $this->get_transaction($data);
-        $output = $this->get_verify_result($data);        
-        
+        $output = $this->get_verify_result($data); 
+        $OutputParams = json_decode($output["OutputParams"]??'', JSON_UNESCAPED_UNICODE);        
+     
+        if($OutputParams['MemberNo']??null) {
+            $OutputParams['MemberNo'] = md5(sha1(md5($OutputParams['MemberNo'])));
+            $output["OutputParams"] = json_encode($OutputParams);
+        }
         $logArr = [
                     'birth'=>$data['birth']
                     ,'phone'=>$data['phone_number']
-                    ,'identity_no'=>$data['MemberNo']
+                    ,'identity_encode'=>$encode_id_serial
                     ,'return_response'=>json_encode($output)
                 ];
                 
@@ -4181,13 +4197,12 @@ class PagesController extends BaseController
             $user->log_adv_auth_api()->create($logArr);   
             return back()->with('message', ['系統目前無法進行驗證']);
         }                    
-
-        $OutputParams = json_decode($output["OutputParams"], JSON_UNESCAPED_UNICODE);
-        $MIDOutputParams = json_decode($OutputParams["MIDOutputParams"]["MIDResp"], JSON_UNESCAPED_UNICODE);
+        
+        $MIDOutputParams = json_decode($OutputParams["MIDOutputParams"]["MIDResp"]??'', JSON_UNESCAPED_UNICODE);
       
-        $logArr['return_code'] = $MIDOutputParams["code"];
+        $logArr['return_code'] = $MIDOutputParams["code"]??'';
         if($OutputParams["TimeStamp"]??null) $logArr['return_TimeStamp'] = $OutputParams["TimeStamp"];
-        if(array_key_exists('fullcode',$MIDOutputParams)) $logArr['return_fullcode'] = $MIDOutputParams["fullcode"];
+        if(array_key_exists('fullcode',$MIDOutputParams??[])) $logArr['return_fullcode'] = $MIDOutputParams["fullcode"];
         $logAdvAuthApi = $user->log_adv_auth_api()->create($logArr);    
         
         $is_reach_s_pause = LogAdvAuthApi::countInInterval('small','pause') > $api_check_cfg['s']['pause_count'] ;
@@ -4235,10 +4250,15 @@ class PagesController extends BaseController
         //驗證成功
         if($MIDOutputParams["code"]=="0000"){
             
+            if(User::where('advance_auth_identity_encode',$encode_id_serial)->where('advance_auth_status',1)->count()) {
+                $logAdvAuthApi->is_duplicate=1;
+                $logAdvAuthApi->save();
+                return back()->with('message', ['您的進階驗證功能有誤，<a href="https://lin.ee/rLqcCns" target="_blank">請點此 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a> 或點右下聯絡我們加站長 line 與站長聯絡。']);
+            }
             $auth_date = date('Y-m-d H:i:s');
             $user->advance_auth_status = 1;
             $user->advance_auth_time = $auth_date;
-            $user->advance_auth_identity_no = strtoupper($request->id_serial);
+            $user->advance_auth_identity_encode = $encode_id_serial;
             $user->advance_auth_birth = $format_birth;
             $user->advance_auth_phone = $request->phone_number;
             $user->save();
