@@ -5,6 +5,11 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<title>甜心花園包養網測試站</title>
 		<meta name="csrf-token" content="{{ csrf_token() }}">
+		<script
+			src="https://browser.sentry-cdn.com/6.15.0/bundle.min.js"
+			integrity="sha384-uAr9Te+rNkmpaCjPTu4/ipQDpO1nR6fEY8JX+NHVNO5mY6LUs362JWJD8rHyaLEt"
+			crossorigin="anonymous"
+		></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/webfont/1.6.28/webfontloader.js"></script>
 		@if (\App::environment('local'))
 			<script src="{{ asset('js/app_local.js') }}" type="text/javascript"></script>
@@ -36,6 +41,17 @@
 		<!-- Global site tag (gtag.js) - Google Analytics -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-151409328-1"></script>
 		<script>
+			Sentry.init({
+				dsn: "https://91838140cc964d4994202d4d3994654a@o1051989.ingest.sentry.io/6090793",
+				// this assumes your build process sets "npm_package_version" in the env
+				release: "sugar-garden",
+				integrations: [new Sentry.Integrations.BrowserTracing()],
+
+				// We recommend adjusting this value in production, or using tracesSampler
+				// for finer control
+				tracesSampleRate: 1.0,
+			});
+
 			window.dataLayer = window.dataLayer || [];
 			function gtag(){dataLayer.push(arguments);}
 			gtag('js', new Date());
