@@ -602,20 +602,25 @@ class Message extends Model
             $user = User::find($uid);
         }
         $isAdminSender = AdminService::checkAdmin()->id==$sid;
-		if(!$isAdminSender) $includeDeleted = false;
-        if($user->isVip()) {
-            self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
-        }else {
-            self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
+		if(!$isAdminSender) 
+        {
+            $includeDeleted = false;
+            if($user->isVip()) {
+                self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
+            }else {
+                self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
+            }   
+            
+            $query = Message::where('created_at','>=',self::$date);
+        }  
+        else {
+            $query = Message::whereNotNull('id');
         }
 		
 		$min_bad_date = self::getNotShowBadUserDate($uid, $sid);
 				
         $block = Blocked::where('member_id',$sid)->where('blocked_id', $uid)->get()->first();
-        if($isAdminSender)
-            $query = Message::whereNotNull('id');
-        else
-            $query = Message::where('created_at','>=',self::$date);
+
         $query = $query->where(function ($query) use ($uid,$sid,$isAdminSender,$includeDeleted) {
 			$whereArr1 = [['to_id', $uid],['from_id', $sid]];
 			$whereArr2 = [['from_id', $uid],['to_id', $sid]];

@@ -52,18 +52,19 @@ class Kernel extends ConsoleKernel
             })->timezone('Asia/Taipei')->dailyAt('5:00');
         }
         if(app()->environment('CFP')){
-            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('4:00');
-            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('16:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('03:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('15:00');
             $puppetReq = new Request();
             $puppetReq->only = 'cfpid';
-            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('8:00');
-            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('20:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('05:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('17:00');
         
-            $schedule->command('EncodeImagesForCompare')->timezone('Asia/Taipei')->dailyAt('10:30');
-            $schedule->command('EncodeImagesForCompare')->timezone('Asia/Taipei')->dailyAt('22:30');
-            
-            $schedule->command('CompareImages')->timezone('Asia/Taipei')->dailyAt('13:00');
-            $schedule->command('CompareImages')->timezone('Asia/Taipei')->dailyAt('01:00');        
+            $schedule->command('EncodeImagesForCompare')->timezone('Asia/Taipei')->dailyAt('01:00');
+
+            $schedule->command('CompareImages')->timezone('Asia/Taipei')->dailyAt('07:00');            
+            $schedule->command('CompareImages')->timezone('Asia/Taipei')->dailyAt('09:00');
+            $schedule->command('CompareImages')->timezone('Asia/Taipei')->dailyAt('11:00');
+            $schedule->command('CompareImages')->timezone('Asia/Taipei')->dailyAt('13:00');        
         }
         if(app()->isProduction() || app()->isLocal()){
             $schedule->call(function (){

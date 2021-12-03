@@ -308,8 +308,15 @@ class ImagesCompareService {
         $status->is_error=0;
         $status->save();
        
-        CompareImagesCaller::dispatch($pic,$encode_by);
-        CompareImagesCaller::dispatch($pic)->onQueue('compare_images')->delay(10);
+        $delay = 0;
+        $now=Carbon::now();
+        $next = $now->addDay();
+        $stime = Carbon::parse($now->format('Y-m-d').' 18:00:00');
+        $etime = Carbon::parse($next->format('Y-m-d').' 01:00:00');
+        if($now->gt($stime) && $now->lt($etime)) $delay=25200;
+        
+        CompareImagesCaller::dispatch($pic,$encode_by)->delay($delay);
+        CompareImagesCaller::dispatch($pic)->onQueue('compare_images')->delay($delay+10);
     }
     
     public static function isNeedCompareByEntry($picEntry) {

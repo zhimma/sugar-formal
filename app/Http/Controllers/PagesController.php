@@ -4863,7 +4863,7 @@ class PagesController extends BaseController
         $admin = AdminService::checkAdmin();
         $uid=$user->id;
         $sid=$admin->id;
-
+        $sys_notice = intval(!$request->manual);
         $includeDeleted=false;
         $query = Message::whereNotNull('id');
         $query = $query->where(function ($query) use ($uid,$sid,$includeDeleted) {
@@ -4875,8 +4875,10 @@ class PagesController extends BaseController
             }
             $query->where($whereArr1);
         });
-
+        if($sys_notice) $query->where('sys_notice',1);
+        else $query->where('sys_notice','<>',1);
         $query = $query->orderBy('created_at', 'desc')->orderBy('read')->paginate(10);
+        if(!$sys_notice) $query->appends(['manual'=>intval(!$sys_notice)]);
         $admin_msgData=$query;
 
         $unreadCount=0;
@@ -4891,7 +4893,8 @@ class PagesController extends BaseController
 
         return view('/new/dashboard/adminMsgPage',compact('admin_msgData','readCount', 'unreadCount'))
             ->with('user', $user)
-            ->with('admin', $admin);
+            ->with('admin', $admin)
+            ->with('msg_spoken',$sys_notice?'系統來訊通知':'站長來訊通知');
 
     }
 
@@ -5113,25 +5116,25 @@ class PagesController extends BaseController
         }
 
         if(!empty($user_isBannedOrWarned->banned_id) && $user_isBannedOrWarned->banned_adv_auth==1) {
-            $isBannedStatus = '您目前已被系統封鎖，';
+            $isBannedStatus = '您目前<span class="main_word">已被系統封鎖</span>，';
             if($user_isBannedOrWarned->banned_expire_date > now()) {
                 $isBannedStatus.='預計至 '.substr($user_isBannedOrWarned->banned_expire_date,0,16).' 日解除，';
             }   
             if($user_isBannedOrWarned->banned_reason??'') {
-                $isBannedStatus.='原因是 ' . $user_isBannedOrWarned->banned_reason . '，';
+                $isBannedStatus.='原因是<span class="main_word"> ' . $user_isBannedOrWarned->banned_reason . '</span>，';
             }
          
             $isBannedStatus.= '做完進階驗證可解除<a class="red" href="'.url('advance_auth').'"> [請點我進行驗證]</a>。';
         }
         else if($user_isBannedOrWarned->banned_vip_pass == 1 && $user_isBannedOrWarned->banned_expire_date == null){
-            $isBannedStatus = '您目前已被站方封鎖，原因是 ' . $user_isBannedOrWarned->banned_reason . '，若要解除請升級VIP解除，並同意如有再犯，站方有權利不退費並永久封鎖。同意 [<a href="../dashboard/new_vip" class="red">請點我</a>]';
+            $isBannedStatus = '您目前<span class="main_word">已被站方封鎖</span>，原因是 <span class="main_word">' . $user_isBannedOrWarned->banned_reason . '</span>，若要解除請升級VIP解除，並同意如有再犯，站方有權利不退費並永久封鎖。同意 [<a href="../dashboard/new_vip" class="red">請點我</a>]';
         }else if($user_isBannedOrWarned->banned_vip_pass == 1 && $user_isBannedOrWarned->banned_expire_date > now()){
-            $isBannedStatus .= '您從 '.substr($user_isBannedOrWarned->banned_created_at,0,10).' 被站方封鎖 '.$diffDays.' 天，預計至 '.substr($user_isBannedOrWarned->banned_expire_date,0,16).' 日解除，原因是 '.$user_isBannedOrWarned->banned_reason.'，若要解除請升級VIP解除，並同意如有再犯，站方有權利不退費並永久封鎖。同意 [<a href="../dashboard/new_vip" class="red">請點我</a>]';
+            $isBannedStatus .= '您從 '.substr($user_isBannedOrWarned->banned_created_at,0,10).' <span class="main_word">被站方封鎖 '.$diffDays.'天</span>，預計至 '.substr($user_isBannedOrWarned->banned_expire_date,0,16).' 日解除，原因是<span class="main_word"> '.$user_isBannedOrWarned->banned_reason.'</span>，若要解除請升級VIP解除，並同意如有再犯，站方有權利不退費並永久封鎖。同意 [<a href="../dashboard/new_vip" class="red">請點我</a>]';
         }else if(!empty($user_isBannedOrWarned->banned_id) && $user_isBannedOrWarned->banned_expire_date == null) {
-            $isBannedStatus = '您目前已被站方封鎖，原因是 ' . $user_isBannedOrWarned->banned_reason . '，如有需要反應請點右下聯絡我們聯絡站長。';
+            $isBannedStatus = '您目前<span class="main_word">已被站方封鎖</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->banned_reason . '</span>，如有需要反應請點右下聯絡我們聯絡站長。';
         }else if(!empty($user_isBannedOrWarned->banned_id) && $user_isBannedOrWarned->banned_expire_date > now() ) {
 
-            $isBannedStatus .= '您從 '.substr($user_isBannedOrWarned->banned_created_at,0,10).' 被站方封鎖 '.$diffDays.' 天，預計至 '.substr($user_isBannedOrWarned->banned_expire_date,0,16).' 日解除，原因是 '.$user_isBannedOrWarned->banned_reason.'，如有需要反應請點右下聯絡我們聯絡站長。';
+            $isBannedStatus .= '您從 '.substr($user_isBannedOrWarned->banned_created_at,0,10).' <span class="main_word">被站方封鎖'.$diffDays.'天</span>，預計至 '.substr($user_isBannedOrWarned->banned_expire_date,0,16).' 日解除，原因是 <span class="main_word">'.$user_isBannedOrWarned->banned_reason.'</span>，如有需要反應請點右下聯絡我們聯絡站長。';
         }
 
 //        $isBannedImplicitlyStatus = '';
@@ -5150,23 +5153,23 @@ class PagesController extends BaseController
         }
 
         if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_adv_auth==1) {
-            $adminWarnedStatus = '您目前已被系統警示，';
+            $adminWarnedStatus = '您目前<span class="main_word">已被系統警示</span>，';
             if($user_isBannedOrWarned->warned_expire_date > now()) {
                 $adminWarnedStatus.='預計至 '.substr($user_isBannedOrWarned->warned_expire_date,0,16).' 日解除，';
             }   
             if($user_isBannedOrWarned->warned_reason??'') {
-                $adminWarnedStatus.='原因是 ' . $user_isBannedOrWarned->warned_reason . '，';
+                $adminWarnedStatus.='原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，';
             }            
             $adminWarnedStatus.= '做完進階驗證可解除<a class="red" href="'.url('advance_auth').'"> [請點我進行驗證]</a>。';
         }
         else if($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date == null) {
-            $adminWarnedStatus = '您目前已被站方警示，原因是 ' . $user_isBannedOrWarned->warned_reason . '，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
+            $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
         }else if($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date > now()) {
-            $adminWarnedStatus .= '您從 '.substr($user_isBannedOrWarned->warned_created_at,0,10).' 被站方警示 '.$diffDays.' 天，預計至 '.substr($user_isBannedOrWarned->warned_expire_date,0,16).' 日解除，原因是 '.$user_isBannedOrWarned->warned_reason.'，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
+            $adminWarnedStatus .= '您從 '.substr($user_isBannedOrWarned->warned_created_at,0,10).' <span class="main_word">被站方警示 '.$diffDays.'天</span>，預計至 '.substr($user_isBannedOrWarned->warned_expire_date,0,16).' 日解除，原因是<span class="main_word"> '.$user_isBannedOrWarned->warned_reason.'</span>，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
         }else if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date == null) {
-            $adminWarnedStatus = '您目前已被站方警示，原因是 ' . $user_isBannedOrWarned->warned_reason . '，如有需要反應請點右下聯絡我們聯絡站長。';
+            $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，如有需要反應請點右下聯絡我們聯絡站長。';
         }else if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date > now() ) {
-            $adminWarnedStatus .= '您從 '.substr($user_isBannedOrWarned->warned_created_at,0,10).' 被站方警示 '.$diffDays.' 天，預計至 '.substr($user_isBannedOrWarned->warned_expire_date,0,16).' 日解除，原因是 '.$user_isBannedOrWarned->warned_reason.'，如有需要反應請點右下聯絡我們聯絡站長。';
+            $adminWarnedStatus .= '您從 '.substr($user_isBannedOrWarned->warned_created_at,0,10).' <span class="main_word">被站方警示 '.$diffDays.'天</span>，預計至 '.substr($user_isBannedOrWarned->warned_expire_date,0,16).' 日解除，原因是<span class="main_word"> '.$user_isBannedOrWarned->warned_reason.'</span>，如有需要反應請點右下聯絡我們聯絡站長。';
         }
 
         $isWarnedStatus = '';
@@ -5182,7 +5185,7 @@ class PagesController extends BaseController
                 $ps_str = '';
             }
             
-            $isWarnedStatus = '您目前已被系統自動警示，做完'.$isWarnedAuthStr.'即可解除<a class="red" href="'.$isWarnedAuthUrl.'">[請點我進行認證]</a>。'.$ps_str;
+            $isWarnedStatus = '您目前<span class="main_word">已被系統自動警示</span>，做完'.$isWarnedAuthStr.'即可解除<a class="red" href="'.$isWarnedAuthUrl.'">[請點我進行認證]</a>。'.$ps_str;
         }
 
 
@@ -5394,15 +5397,27 @@ class PagesController extends BaseController
 
         $isHasEvaluation = sizeof($arrayHE) > 0? true : false;
 
-        
-        $admin_msg_entrys = Message::allToFromSender($uid,$admin->id);
+        $query = Message::whereNotNull('id');
+        $query = $query->where(function ($query) use ($uid,$admin) {
+            $whereArr1 = [['to_id', $uid],['from_id', $admin->id]];
+            array_push($whereArr1,['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]);
+            $query->where($whereArr1);
+        });        
+        $admin_msg_entrys =  $query->orderBy('created_at', 'desc')->get();
 		$admin_msgs = [];
+        $admin_msgs_sys = [];
 		$i=0;
-		foreach($admin_msg_entrys as $admin_msg_entry) {
+		foreach($admin_msg_entrys->where('sys_notice','<>','1') as $admin_msg_entry) {
 			$admin_msgs[] = $admin_msg_entry;
 			$i++;
 			if($i>=3) break;
 		}
+        $i=0;
+		foreach($admin_msg_entrys->where('sys_notice','1') as $admin_msg_entry) {
+			$admin_msgs_sys[] = $admin_msg_entry;
+			$i++;
+			if($i>=3) break;
+		}        
 
 
         //僅顯示30天內的評價
@@ -5476,6 +5491,7 @@ class PagesController extends BaseController
                 ->with('myFav', $myFav)
                 ->with('otherFav',$otherFav)
                 ->with('admin_msgs',$admin_msgs)
+                ->with('admin_msgs_sys',$admin_msgs_sys)
                 ->with('admin',$admin)
                 ->with('allMessage', $allMessage);
         }
@@ -5588,6 +5604,7 @@ class PagesController extends BaseController
         $updateType = $request->type;
         $user_id = $request->user_id;
         $items = $request->deleteItems;
+        $sys_remind = $request->sys_remind;
         switch ($updateType){
             case 'myFavRecord' : //不顯示我收藏的會員上線
                 MemberFav::where('member_id',$user_id)->whereIn('id', $items)->update(['hide_member_id_log'=>1]);
@@ -5631,6 +5648,8 @@ class PagesController extends BaseController
 				$admin_msg_entrys = Message::allToFromSender($user_id,$admin_id);
 				$admin_msgs = [];
 				$i=0;
+                if($sys_remind) $admin_msg_entrys = $admin_msg_entrys->where('sys_notice',1);
+                else $admin_msg_entrys = $admin_msg_entrys->where('sys_notice','<>',1);
 				foreach($admin_msg_entrys as $admin_msg_entry) {
 					$admin_msgs[] = $admin_msg_entry;
 					$i++;

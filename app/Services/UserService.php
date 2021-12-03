@@ -376,7 +376,7 @@ class UserService
                   $payload['meta']['budget'] = $payload['budget'];
                   unset($payload['budget']);
                   }
-                  if (isset($payload['birthdate']))
+                  if (isset($payload['birthdate']) && !($user->advance_auth_status??null))
                   {
                   $payload['meta']['birthdate'] = $payload['birthdate'];
                   unset($payload['birthdate']);

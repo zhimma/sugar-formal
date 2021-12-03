@@ -48,9 +48,9 @@ class CheckIsWarned
             $auth_status = 1;
         }
         //正被封鎖
-        $isBanned = banned_users::where('member_id',$user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->orderBy('id', 'desc')->get();
+        $isBanned = banned_users::where('member_id',$user->id)->where( function($q) {$q->where('expire_date', null)->orWhere('expire_date','>',Carbon::now());})->where('member_id', $user->id)->orderBy('id', 'desc')->get();
         //正被警示
-        $isWarned = warned_users::where('member_id', $user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->orderBy('id', 'desc')->get();
+        $isWarned = warned_users::where('member_id', $user->id)->where( function($q) {$q->where('expire_date', null)->orWhere('expire_date','>',Carbon::now());})->where('member_id', $user->id)->orderBy('id', 'desc')->get();
 
         //封鎖 警示 並存時 只保留封鎖 刪除警示
         if(count($isBanned)>0 && count($isWarned)>0){
@@ -59,13 +59,13 @@ class CheckIsWarned
 
         //移除重複資料
         if(count($isBanned)>1){
-            $isBanned_now = banned_users::where('member_id',$user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->orderBy('id', 'desc')->first();
+            $isBanned_now = banned_users::where('member_id',$user->id)->where( function($q) {$q->where('expire_date', null)->orWhere('expire_date','>',Carbon::now());})->where('member_id', $user->id)->orderBy('id', 'desc')->first();
             //delete other
             banned_users::where('member_id',$user->id)->where('id', '<>', $isBanned_now->id)->delete();
         }
 
         if(count($isWarned)>1){
-            $isWarned_now = warned_users::where('member_id',$user->id)->where('expire_date', null)->orWhere('expire_date','>',Carbon::now() )->where('member_id', $user->id)->orderBy('id', 'desc')->first();
+            $isWarned_now = warned_users::where('member_id',$user->id)->where( function($q) {$q->where('expire_date', null)->orWhere('expire_date','>',Carbon::now());})->where('member_id', $user->id)->orderBy('id', 'desc')->first();
             //delete other
             warned_users::where('member_id',$user->id)->where('id', '<>', $isWarned_now->id)->delete();
         }
