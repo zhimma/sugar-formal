@@ -150,7 +150,7 @@
                     <a href="/dashboard/personalPage" class="toug_back btn_img" style=" position: absolute; left: 0;">
                         <div class="btn_back"></div>
                     </a>
-                    <span style="margin: 0 auto; position: relative;line-height: 44px;padding-bottom: 3px;">系統通知<i class="btcic">{{ $unreadCount }}</i></span>
+                    <span style="margin: 0 auto; position: relative;line-height: 44px;padding-bottom: 3px;">{{$msg_spoken}}<i class="btcic">{{ $unreadCount }}</i></span>
                     <a onclick="deleteAll();" class="toug_back btn_img01" style=" position: absolute; right: 0;">
                         <div class="btn_back"><img src="{{ asset("new/images/zs_jsdel.png") }}" style="margin-left: -5px;">全部刪除</div>
                     </a>
@@ -162,7 +162,7 @@
                             <li class="unread" data-MsgId="{{ $msg->id }}">
                                 <div class="tong_list"><img src="{{ asset("new/images/lingdang.png") }}" ></div>
                                 <div class="tong_font">
-                                    <h2>系統通知<a><img src="{{ asset("new/images/cold.png") }}"  class="ronr_icon" onclick="deleteAdminMsg('{{ $msg->id }}')"></a></h2>
+                                    <h2>{{$msg_spoken}}<a><img src="{{ asset("new/images/cold.png") }}"  class="ronr_icon" onclick="deleteAdminMsg('{{ $msg->id }}')"></a></h2>
                                     <div class="text pda_zx">
                                         <span class="showText">{{ $msg->content }}</span>
                                         <a>…<em>更多</em></a>
@@ -180,7 +180,7 @@
                                 <li data-MsgId="{{ $msg->id }}">
                                     <div class="tong_list tong_xh"><img src="{{ asset("new/images/lingdang01.png") }}" ></div>
                                     <div class="tong_font">
-                                        <h2>系統通知<a><img src="{{ asset("new/images/cold.png") }}"  class="ronr_icon" onclick="deleteAdminMsg('{{ $msg->id }}')"></a></h2>
+                                        <h2>{{$msg_spoken}}<a><img src="{{ asset("new/images/cold.png") }}"  class="ronr_icon" onclick="deleteAdminMsg('{{ $msg->id }}')"></a></h2>
                                         <div class="text pda_zx">
                                             <span class="showText">{{ $msg->content }}</span>
                                             <a class="padc">…<em>更多</em></a>
@@ -242,7 +242,7 @@
 
     function deleteAll() {
 
-        c6('確認刪除全部系統通知?');
+        c6('確認刪除全部{{$msg_spoken}}?');
         var items = [];
         $('.tong_x').find('li').each(function(){
             items.push($(this).attr('data-MsgId'));
@@ -267,7 +267,7 @@
 
     function deleteAdminMsg(msgId){
 
-        c6('確認刪除該系統通知?');
+        c6('確認刪除該{{$msg_spoken}}?');
         var items = [];
         $(".n_left").on('click', function() {
             items.push(msgId);
