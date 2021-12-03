@@ -13,14 +13,14 @@
 		
 		.ta_l{ border-bottom: #eee 1px solid; display: table; margin-bottom: 6px; padding-bottom: 6px; line-height: 24px;}
 		.tu_dfont{
-			width: calc(100% - 100px);
+			width: calc(100% - 30px);
 			 float: left;
-			 max-height: 45px;
+			 /*max-height: 45px;*/
 			 word-break: break-all;
 			 text-overflow: ellipsis;
 			 display: -webkit-box;
 			 -webkit-box-orient: vertical;
-			 -webkit-line-clamp: 2;
+			 /*-webkit-line-clamp: 2;*/
 			 overflow: hidden;
 		}	
 
@@ -95,6 +95,26 @@
     #vip_state_block .tu_dfont {width:auto;max-height:unset; -webkit-box-orient: vertical; -webkit-line-clamp:none; -webkit-line-clamp:unset;}
     #vip_state_block .tabbox_new_dt a.zs_buttonn{font-size: 15px; line-height: 30px;font-weight:normal;margin-right:2%; }
     </style>
+    <style>
+        span.main_word {color:#fd5678;font-weight:bolder;}
+        div.one_row_sys_aa {overflow:hidden;}
+        div.one_row_sys_aa div.sys_aa {width:49%;}
+        div.one_row_sys_aa div.sys_aa_first {float:left;}
+        div.one_row_sys_aa div.sys_aa_last {float:right;}
+        div.one_row_sys_aa div.tabbox_new_dt span {margin-left:5%;}
+        div.one_row_sys_aa .tabbox_new_dd .tabbox_hsz {width:88%;}
+        div.sys_remind {
+            margin-top:10px;
+            border: #ffc8cd 1px solid;
+        }
+        div.sys_remind .tu_dfont {
+            width: calc(100% - 100px);
+            max-height: 45px;
+            -webkit-line-clamp: 2;
+        }
+        div.sys_remind > div.tabbox_new_dt.tabbox_new_ss {background:#fff5f6;}
+        div.sys_remind > div.tabbox_new_dt.tabbox_new_ss > span {color:#fe5476;}
+    </style>
     <div class="container matop70">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -157,21 +177,23 @@
                         }
                     </script>
                     <!-- js 控制 展开 隐藏div -->
-
-                    <div class="sys_aa">
-                        <div class="tabbox_new_dt"><span>收件夾通訊人數</span></div>
-                        <div class="tabbox_new_dd">
-                            <h2 class="tabbox_hsz">@if(empty($msgMemberCount))0 @else{{$msgMemberCount}}@endif</h2>
+                    <div class="one_row_sys_aa">
+                        <div class="sys_aa sys_aa_first">
+                            <div class="tabbox_new_dt"><span>收件夾通訊人數</span></div>
+                            <div class="tabbox_new_dd">
+                                <h2 class="tabbox_hsz">@if(empty($msgMemberCount))0 @else{{$msgMemberCount}}@endif</h2>
+                            </div>
+                        </div>
+                        <div class="sys_aa  sys_aa_last">
+                            <div class="tabbox_new_dt"><span>收件夾總訊息數</span></div>
+                            <div class="tabbox_new_dd">
+                                <h2 class="tabbox_hsz">@if(empty($allMessage))0 @else{{$allMessage}}@endif</h2>
+                            </div>
                         </div>
                     </div>
+                    
                     <div class="sys_aa">
-                        <div class="tabbox_new_dt"><span>收件夾總訊息數</span></div>
-                        <div class="tabbox_new_dd">
-                            <h2 class="tabbox_hsz">@if(empty($allMessage))0 @else{{$allMessage}}@endif</h2>
-                        </div>
-                    </div>
-                    <div class="sys_aa">
-                        <div class="tabbox_new_dt tabbox_new_ss"><span>系統來訊通知</span>
+                        <div class="tabbox_new_dt tabbox_new_ss"><span>站長來訊通知</span>
 						@if(isset($admin_msgs) && count($admin_msgs))
 						<div class="right btn01 btn_admin_msgs"><span class="zixu_cs"><img src="/new/images/xiugai1.png">編輯</span></div>
 						<div class="btn02 sx_ment fr_nbj">
@@ -188,14 +210,13 @@
 								<span class="tu_dfont">
 								{{ strip_tags($amsg->content)}}
 								</span>
-								<a class="zs_buttonn1 right"  href="{{route("adminMsgPage",$user->id)}}">前往查看</a>
 							</h2>
 							@endforeach
 						@else
 							<h2 class="tabbox_h2 ta_l"><span class="tu_dfont">暫無系統信</span></h2>
 						@endif
                         </div>
-                    </div>
+                    </div>                    
 
                     @if($isBannedStatus != '')
                     <div class="sys_aa">
@@ -231,7 +252,7 @@
                     </div>
 
                     <div class="sys_aa">
-                        <dt class="tabbox_new_ss"><span class="sys_log1 xs_wi90 open_reportedRecord">檢舉處理狀況</span>
+                        <dt class="tabbox_new_ss"><span class="sys_log1 xs_wi90 open_reportedRecord">檢舉處理狀況與其他</span>
                             @if($reportedStatus)
                             <div class="right btn01"><span class="zixu_cs"><img src="/new/images/xiugai1.png">編輯</span></div>
                             <div class="btn02 sx_ment">
@@ -265,6 +286,29 @@
                                     <div class="ta_divfont">暫無紀錄</div>
                                 </h2>
                             @endif
+                            <div class="tabbox_h3 sys_remind">
+                                <div class="tabbox_new_dt tabbox_new_ss"><span>系統來訊通知</span>
+                                @if(isset($admin_msgs_sys) && count($admin_msgs_sys))
+                                <div class="right btn01 btn_admin_msgs"><span class="zixu_cs"></span></div>
+                                <div class="btn02 sx_ment fr_nbj">
+                                </div>
+                                @endif
+                                </div>
+                                <div class="tabbox_new_dd">
+                                @if(isset($admin_msgs_sys) && count($admin_msgs_sys))
+                                    @foreach($admin_msgs_sys as $amsg)
+                                    <h2 class="tabbox_h2 ta_l no_edit"  data-recordtype="admin_msgs" data-rowid="{{$amsg->id}}" >
+                                        <span class="tu_dfont">
+                                        {{ strip_tags($amsg->content)}}
+                                        </span>
+                                        <a class="zs_buttonn1 right"  href="{{route("adminMsgPage")}}">前往查看</a>
+                                    </h2>
+                                    @endforeach
+                                @else
+                                    <h2 class="tabbox_h2 ta_l"><span class="tu_dfont">暫無系統信</span></h2>
+                                @endif
+                                </div>
+                            </div>                              
                         </dd>
                     </div>
 
@@ -483,7 +527,7 @@
                 $(this).closest('.sys_aa').find('.tab_jianju tr:gt(0)').prepend(td_check);
             }
             if(tu_dfont.length > 0){
-				$(this).closest('.sys_aa').find('.tabbox_h2').prepend(li_check);
+				$(this).closest('.sys_aa').find('.tabbox_h2:not(.no_edit)').prepend(li_check);
 				$(this).closest('.sys_aa').find('.zs_buttonn1').hide();
             }			
             var li_one = $(this).closest('.sys_aa').find('.tabbox_h4 li');
@@ -509,7 +553,10 @@
             // getCheckBoxVal();
             var chk_value = [];
             var recordType='';//$(this).parent().parent().attr('data-recordtype');
-            var tab = $(this).closest('.sys_aa').find('.tab_jianju');
+            var top_block = $(this).closest('.sys_aa');
+            var sys_remind = top_block.hasClass('sys_remind');
+            
+            var tab = top_block.find('.tab_jianju');
             if(tab.length > 0){
                 tab.find('input[type=checkbox]:checked').each(function(){ //遍历，将所有选中的值放到数组中
                     // $(this).parent().parent().addClass('emma2');
@@ -566,6 +613,7 @@
                         $.post('{{ route('personalPageHideRecordLog') }}', {
                             type: recordType,
                             deleteItems: chk_value,
+                            sys_remind:sys_remind?1:0,
                             user_id: '{{ $user->id }}',
                             _token: '{{ csrf_token() }}'
                         },function(data) {
@@ -580,7 +628,7 @@
 												+'<span class="check"><input type="checkbox"></span>'
 												+'<span class="tu_dfont">'
 												+dataArr[i]["content"]
-												+'</span><a class="zs_buttonn1 right" style="display:none;"  href="{{route("chat2WithUser",$admin->id)}}">前往查看</a></h2>';										
+												+'</span>{{--<a class="zs_buttonn1 right" style="display:none;"  href="{{route("chat2WithUser",$admin->id)}}">前往查看</a>--}}</h2>';										
 										
 									}  	
 									msgs_container.html(msgs_dom_st);
