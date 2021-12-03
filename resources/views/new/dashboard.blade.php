@@ -46,6 +46,9 @@ body div .g_inputt a.zw_dw_left {float:left;}
 .zw_dw {margin-bottom:5px;}
 dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
   </style>
+  <style>
+    div.se_zlman div.birth_lock {display:inline-block;}
+  </style>
 
     <div class="container matop70 chat">
     <div class="row">
@@ -277,13 +280,21 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                       <span>
                         <input type="hidden" name="day" value="01">
                         <div class="se_zlman left">
+                        @if(!$user->advance_auth_status??null)
                           <select data-parsley-errors-messages-disabled name="year"  class="select_xx04 sel_year" data-value="{{ $year }}">
                           </select>
+                        @else
+                            <div class="select_xx01 senhs hy_new select_xx04 birth_lock" style="background: #d2d2d2;">{{ $year }}</div>                            
+                        @endif
                           <i class="right">年</i>
                         </div>
                         <div class="se_zlman right">
+                        @if(!$user->advance_auth_status??null)
                           <select data-parsley-errors-messages-disabled name="month"  class="select_xx04 sel_month" data-value="{{ $month }}">
                           </select>
+                        @else
+                            <div class="select_xx01 senhs hy_new select_xx04 birth_lock" style="background: #d2d2d2;">{{ $month }}</div>                            
+                        @endif
                           <i class="right">月</i>
                         </div>
                       </span>
