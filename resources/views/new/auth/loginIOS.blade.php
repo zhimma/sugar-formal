@@ -52,7 +52,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         var batterylevel = "XX";
         /*取得電池等級*/
 
-        var backendProcess = function(){
+        {{--  var backendProcess = function(){
             let email =  document.getElementById('email').value;
             if(email != null || email != ""){
                 if (window.requestIdleCallback) {
@@ -70,7 +70,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     }, 500)
                 }
             }
-        }
+        }  --}}
 
         $(document).ready(function() {
             let data = analysisFingerpirntForm();
