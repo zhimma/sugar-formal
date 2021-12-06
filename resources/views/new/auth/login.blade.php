@@ -62,7 +62,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             "                        <div class='wknr'>" +
             "                            <a href=\"{!! url('password/reset') !!}\" class=\"dlpassword\">忘記密碼 ?</a>\n" +
             "                        </div>" +
-            "                        <a href=\"javascript:void(0);\" onclick=\"backendProcess()\" class=\"dlbut btn-login\" id=\"btn-login\">登入</a>\n" +
+            "                        <a href=\"javascript:void(0);\" class=\"dlbut btn-login\" id=\"btn-login\">登入</a>\n" +
             "                        <a href=\"{!! url('/checkAdult') !!}\" class=\"dlbut02\">還沒有帳號 ?  免費註冊</a>\n" +
             "                   </div>";
         $("#notice").remove();
