@@ -280,12 +280,13 @@
                                         </tbody>
                                     </table>
                                 </div>
-                            @else
+                            @elseif(!($admin_msgs_sys??null) || !count($admin_msgs_sys))
                                 <h2 class="tabbox_h3">
                                     <img src="/new/images/wuziliao_aaa.png" class="ta_img">
                                     <div class="ta_divfont">暫無紀錄</div>
                                 </h2>
                             @endif
+                            @if((isset($admin_msgs_sys) && count($admin_msgs_sys)) || $reportedStatus )
                             <div class="tabbox_h3 sys_remind">
                                 <div class="tabbox_new_dt tabbox_new_ss"><span>系統來訊通知</span>
                                 @if(isset($admin_msgs_sys) && count($admin_msgs_sys))
@@ -304,11 +305,12 @@
                                         <a class="zs_buttonn1 right"  href="{{route("adminMsgPage")}}">前往查看</a>
                                     </h2>
                                     @endforeach
-                                @else
+                                @elseif($reportedStatus)
                                     <h2 class="tabbox_h2 ta_l"><span class="tu_dfont">暫無系統信</span></h2>
                                 @endif
                                 </div>
-                            </div>                              
+                            </div> 
+                            @endif
                         </dd>
                     </div>
 
@@ -684,7 +686,7 @@
         });
 
         //顯示檢舉處理狀況
-        var hasReportedRecord='{{$reportedStatus ? 1 : 0}}';
+        var hasReportedRecord='{{((isset($admin_msgs_sys) && count($admin_msgs_sys)) || $reportedStatus) ? 1 : 0}}';
         if(hasReportedRecord==1){
             $('.open_reportedRecord').click();
         }

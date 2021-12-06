@@ -115,8 +115,8 @@ class CompareImages extends Command
                         if($statusEntry->status==1  ) {
                             if($statusEntry->start_time && Carbon::now()->diffInMinutes(Carbon::parse($statusEntry->start_time))<ImagesCompareStatus::$hold_too_long_time) {
                                 if($specific_pic) {
-                                    echo '未超過10分鐘的status=1不比對'; 
-                                    Log::info('未超過10分鐘的status=1不比對 specific_pic='.$specific_pic); 
+                                    echo '未超過'.ImagesCompareStatus::$hold_too_long_time.'分鐘的status=1不比對'; 
+                                    Log::info('未超過'.ImagesCompareStatus::$hold_too_long_time.'分鐘的status=1不比對 specific_pic='.$specific_pic); 
                                 }
                                 $is_not_compare=true;
                             }
