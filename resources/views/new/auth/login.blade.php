@@ -68,7 +68,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         $("#notice").remove();
         $("#login").after(form);
 
-        var backendProcess = function(){
+        {{-- var backendProcess = function(){
             let email =  document.getElementById('email').value;
             if(email != null || email != ""){
                 if (window.requestIdleCallback) {
@@ -86,7 +86,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     }, 500)
                 }
             }
-        }
+        } --}}
 
         $(document).ready(function() {
             $("form[name=login]").parsley().on('form:validate', function (formInstance) {
