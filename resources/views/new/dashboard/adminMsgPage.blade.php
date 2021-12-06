@@ -248,25 +248,21 @@
             items.push($(this).attr('data-MsgId'));
         });
         $(".n_left").on('click', function() {
-
             $.post('{{ route('personalPageHideRecordLog') }}', {
                 type: 'admin_msgs',
                 deleteItems: items,
                 user_id: '{{ $user->id }}',
                 _token: '{{ csrf_token() }}'
             },function(data) {
-
+                $(".blbg").hide();
+                $("#tab06").hide();
+                c5('刪除成功');
+                window.location.reload();
             });
-
-            $(".blbg").hide();
-            $("#tab06").hide();
-            c5('刪除成功');
-            window.location.reload();
         });
     }
 
     function deleteAdminMsg(msgId){
-
         c6('確認刪除該{{$msg_spoken}}?');
         var items = [];
         $(".n_left").on('click', function() {
@@ -277,13 +273,11 @@
                 user_id: '{{ $user->id }}',
                 _token: '{{ csrf_token() }}'
             },function(data) {
-
+                $(".blbg").hide();
+                $("#tab06").hide();
+                c5('刪除成功');
+                window.location.reload();
             });
-
-            $(".blbg").hide();
-            $("#tab06").hide();
-            c5('刪除成功');
-            window.location.reload();
         });
     }
 
@@ -298,7 +292,7 @@
             },
             dataType:"json",
             success: function(){
-                location.reload();
+                //location.reload();
             }
         });
     }).find('.ronr_icon').click(function() {

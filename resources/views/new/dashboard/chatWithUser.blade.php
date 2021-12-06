@@ -996,10 +996,12 @@
     @include('new.dashboard.chat_to')
     @include('new.dashboard.chat_from')
     <script>
-        document.getElementById("chatForm").onsubmit = function(event) {
-            submit();
-            event.preventDefault();
-            return false;
+        if($('#chatForm').length){
+            document.getElementById("chatForm").onsubmit = function(event) {
+                submit();
+                event.preventDefault();
+                return false;
+            }
         }
         function submit(){
             var formData = new FormData();

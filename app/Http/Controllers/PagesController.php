@@ -4877,19 +4877,19 @@ class PagesController extends BaseController
         });
         if($sys_notice) $query->where('sys_notice',1);
         else $query->where('sys_notice','<>',1);
-        $query = $query->orderBy('created_at', 'desc')->orderBy('read')->paginate(10);
+        $query = $query->orderBy('created_at', 'desc')->orderBy('read');
         if(!$sys_notice) $query->appends(['manual'=>intval(!$sys_notice)]);
-        $admin_msgData=$query;
 
         $unreadCount=0;
         $readCount=0;
-        foreach($admin_msgData as $msg) {
+        foreach($query->get() as $msg) {
             if($msg->read=='Y'){
                 $readCount++;
             }else{
                 $unreadCount++;
             }
         }
+        $admin_msgData=$query->paginate(10);
 
         return view('/new/dashboard/adminMsgPage',compact('admin_msgData','readCount', 'unreadCount'))
             ->with('user', $user)
