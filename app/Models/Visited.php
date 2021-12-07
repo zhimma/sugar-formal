@@ -125,6 +125,6 @@ class Visited extends Model
     }  
     
     public static function implicitLimitDate() {
-        return Carbon::now()->subMonth();
+        return Carbon::now()->subMonth()->startOfDay();
     }
 }
