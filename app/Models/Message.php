@@ -967,4 +967,20 @@ class Message extends Model
 		
 	}
     
+    protected static function booted()
+    {
+        Message::addGlobalScope('created_at', function ($q) {
+            $q->where('message.created_at', '>', Message::implicitLimitDate());
+        });
+    }  
+
+    public function scopeImplicitWhere($q, $alias)
+    {
+        return $q->where($alias.'.created_at', '>', Message::implicitLimitDate());
+    } 
+
+    public static function implicitLimitDate() {
+        return Carbon::now()->subMonths(3);
+    }    
+    
 }
