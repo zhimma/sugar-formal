@@ -980,7 +980,7 @@ class Message extends Model
     } 
 
     public static function implicitLimitDate() {
-        return Carbon::now()->subMonths(3);
+        return Carbon::now()->subMonths(3)->startOfDay();
     }    
     
 }
