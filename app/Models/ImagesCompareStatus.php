@@ -25,7 +25,7 @@ class ImagesCompareStatus extends Model
     
     public static $hold_too_long_time = 30;
     
-    public static $queue_too_long_time = 300;
+    public static $queue_too_long_time = 10080;
     
     public function isHoldTooLong() {
         return ($this->status==1 && $this->start_time && Carbon::now()->diffInMinutes(Carbon::parse($this->start_time))>ImagesCompareStatus::$hold_too_long_time);

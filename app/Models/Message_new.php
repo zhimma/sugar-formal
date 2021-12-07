@@ -818,4 +818,16 @@ class Message_new extends Model
         return $allSenders;
     }
 
+    protected static function booted()
+    {
+        Message_new::addGlobalScope('created_at', function ($q) {
+            $q->where('message.created_at', '>', Message::implicitLimitDate());
+        });
+    }  
+
+    public function scopeImplicitWhere($q, $alias)
+    {
+        return $q->where($alias.'.created_at', '>', Message::implicitLimitDate());
+    }  
+
 }
