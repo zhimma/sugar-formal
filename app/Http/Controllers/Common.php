@@ -7,6 +7,7 @@ use App\Services\VipLogService;
 use Illuminate\Http\Request;
 use DB;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class Common extends BaseController {
     public function get_message(Request $request){
@@ -22,6 +23,9 @@ class Common extends BaseController {
         if(substr($Mobile,0,4)=='+886') {
             $Mobile_for_auth = substr_replace($Mobile, '0', 0, 4);
         }
+        if(substr($Mobile,0,3)=='886') {
+            $Mobile_for_auth = substr_replace($Mobile, '0', 0, 3);
+        }        
         
         $adv_auth_exist = User::where([['advance_auth_status',1],['advance_auth_phone',$Mobile_for_auth],['id','<>',$user->id]])->count();
 
@@ -39,6 +43,14 @@ class Common extends BaseController {
             );
             return json_encode($data);
         }
+        if(!preg_match("/^09[0-9]{8}$/",$Mobile)) {
+            $data = array(
+                'code'=>'400',
+                'msg_info'=>'手機格式不正確，請輸入09開頭的手機號碼'
+            );
+            return json_encode($data);
+        }        
+        
         $check_repeat_during = $this->check_repeat_during($Mobile);
         // dd($check_repeat_during);
         if($check_repeat_during['code']!='600'){
@@ -97,9 +109,10 @@ class Common extends BaseController {
     public function checkcode_during(Request $request)
     {
         $user=$request->user();
+        $Mobile = $request->get('mobile','');
         $now_time    = strtotime('now');
         $checkcode = $request->get('checkcode','');
-        $info = DB::table('short_message')->where('checkcode', $checkcode)->first();
+        $info = DB::table('short_message')->where('member_id',$user->id)->where('mobile', $Mobile)->where('checkcode', $checkcode)->orderBYDesc('id')->first();
         // dd($info);
         if($checkcode==''){
             $data = array(
@@ -113,7 +126,19 @@ class Common extends BaseController {
                 'msg'  => '請輸入正確的驗證碼'
             );
             return json_encode($data, JSON_UNESCAPED_UNICODE);
-        }else{
+        }else if(!$Mobile) {
+            $data = array(
+                'code' => '400',
+                'msg'  => '請填寫手機號碼'
+            );
+            return json_encode($data, JSON_UNESCAPED_UNICODE);            
+        }else if(!preg_match("/^09[0-9]{8}$/",$Mobile)) {
+            $data = array(
+                'code'=>'400',
+                'msg_info'=>'手機格式不正確，請輸入09開頭的手機號碼'
+            );
+            return json_encode($data, JSON_UNESCAPED_UNICODE);            
+        } else{
             
             // dd($request);
             if($now_time-300<strtotime($info->createdate)){
@@ -144,8 +169,9 @@ class Common extends BaseController {
     public function check_repeat_during($Mobile)
     {
         // $phone = $request->get('phone');
+        $user=Auth::user();
         $now_time    = strtotime('now');
-        $data = DB::table('short_message')->where('mobile', $Mobile)->first();
+        $data = DB::table('short_message')->where('member_id',$user->id)->where('mobile', $Mobile)->orderByDesc('id')->first();
         if(isset($data)){
             if($now_time-300<=strtotime($data->createdate)){
                 $data = array(

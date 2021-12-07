@@ -157,7 +157,7 @@
                                 @else
                                     <div class="zybg_new_bg">
                                         <div class="zybg_new">
-                                            <select name="" class="zy_select"><option>台灣</option><option>大陸</option></select>
+                                            <select name="" class="zy_select"><option>台灣</option></select>
                                             <input name="" type="text" id="mobile" class="xy_input" placeholder="請輸入手機號碼">
                                        </div>
                                        <a id="get_auth_code" class="n_zybg_right" style="cursor:pointer; margin-bottom: 6px;">取得驗證碼</a>
@@ -307,7 +307,7 @@
     <div class="bltitle_a"><span>提示</span></div>
     <div class="n_blnr02 matop10">
          <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
-         <div class="n_fengs" style="text-align:center;width:100%;">請輸入手機號碼以獲取驗證碼</div>
+         <div class="n_fengs" style="text-align:center;width:100%;">請輸入09開頭的手機號碼以獲取驗證碼</div>
     </div>
     <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
 </div>
@@ -412,6 +412,14 @@
     </div>
     <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
 </div>
+<div class="bl bl_tab bl_tab_format_alert" id="tab_format_alert" style="display: none;">
+    <div class="bltitle_a"><span>提示</span></div>
+    <div class="n_blnr02 matop10">
+        <!-- <div class="n_fengs" style="text-align:center;width:100%;">請點選</div> -->
+        <div class="n_fengs" style="text-align:center;width:100%;">手機格式不正確，請輸入09開頭的手機號碼</div>
+    </div>
+    <a id="" onclick="gmBtn1()" class="bl_gb01"><img src="/auth/images/gb_icon.png"></a>
+</div>
 
 
         <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
@@ -451,12 +459,17 @@
             }
 
 
-            $("#get_auth_code").on('click', function(){
+            $("#get_auth_code").on('click', function(){                               
                 if($("#mobile").val().length<10){
                     $(".blbg").show();
                     $(".tab_checkcode_empty").css('display', 'block');
                     $(".bl_tab_checkcode_empty").css('display', 'block');
-                }else {
+                }
+                else if(!checkPhoneNumber($("#mobile").val())) {
+                    $(".blbg").show();
+                    $(".bl_tab_format_alert").css('display', 'block');                   
+                }
+                else {
                     $.ajax({
                         type: 'POST',
                         url: '/Common/get_message',
@@ -483,12 +496,25 @@
             });
 
             $("#auth_phone1").on('click', function(){
-                $.ajax({
+                if($("#mobile").val().length<10){
+                    $(".blbg").show();
+                    $(".tab_checkcode_empty").css('display', 'block');
+                    $(".bl_tab_checkcode_empty").css('display', 'block');
+                    return false;
+                }
+                else if(!checkPhoneNumber($("#mobile").val())) {
+                    $(".blbg").show();
+                    $(".bl_tab_format_alert").css('display', 'block');                   
+                    return false;
+                }               
+
+               $.ajax({
                     type: 'POST',
                     url: '/Common/checkcode_during',
                     data:{
                         _token: '{{csrf_token()}}',
                         'checkcode': $("#checkcode").val(),
+                        'mobile': $("#mobile").val(),
                     },
                     success: function(res) {
                         res = JSON.parse(res);
@@ -653,6 +679,10 @@
             function sendSwipeCardSummit() {
                 $("#mobile_verify_paymentForm").submit();
             }
+            
+            function checkPhoneNumber(phone_number) {
+                return phone_number.match('^09[0-9]{8}$');
+            }            
         </script>
 
 	</body>
