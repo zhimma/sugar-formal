@@ -59,12 +59,9 @@ class Kernel extends ConsoleKernel
             $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('05:00');
             $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('17:00');
         
-            $schedule->command('EncodeImagesForCompare')->timezone('Asia/Taipei')->dailyAt('01:00');
+            $schedule->command('EncodeImagesForCompare')->timezone('Asia/Taipei')->dailyAt('00:01');
 
-            $schedule->command('CompareImages')->timezone('Asia/Taipei')->dailyAt('07:00');            
-            $schedule->command('CompareImages')->timezone('Asia/Taipei')->dailyAt('09:00');
-            $schedule->command('CompareImages')->timezone('Asia/Taipei')->dailyAt('11:00');
-            $schedule->command('CompareImages')->timezone('Asia/Taipei')->dailyAt('13:00');        
+            $schedule->command('CompareImages')->timezone('Asia/Taipei')->dailyAt('01:00');                   
         }
         if(app()->isProduction() || app()->isLocal()){
             $schedule->call(function (){

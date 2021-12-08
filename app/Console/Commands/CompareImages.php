@@ -13,7 +13,6 @@ use App\Services\ImagesCompareService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
 
 class CompareImages extends Command
 {
@@ -66,12 +65,6 @@ class CompareImages extends Command
                     echo '本命令只能在特定主機或測試環境下執行，已中止';
                     Log::info('CompareImages:本命令只能在特定主機或測試環境下執行，已中止');
                     return;
-                }
-                
-                if(DB::table('jobs')->where('queue','compare_images')->count()>5) {
-                    echo '佇列等待比對的圖片超過五筆，故中止執行';
-                    Log::info('CompareImages:佇列等待比對的圖片超過五筆，故中止執行');
-                    return;                    
                 }
                 
                 Log::info('CompareImages:開始比對圖片');
@@ -244,7 +237,7 @@ class CompareImages extends Command
                 $statusEntry->save();
                 $last_target = null;
                 
-                if(time()-$stime>7200) {
+                if(time()-$stime>86400) {
                     Log::info('CompareImages:超過限制時間仍未完成，強制結束比對圖片 pic='.$statusEntry->pic);            
                     exit;
                 }
