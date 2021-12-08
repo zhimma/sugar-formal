@@ -14,6 +14,9 @@ use Illuminate\Foundation\Auth\RegistersUsers;
 use Carbon\Carbon;
 use phpDocumentor\Reflection\Types\Mixed_;
 use Session;
+use App\Models\IsBannedLog;
+use App\Models\BannedUsersImplicitly;
+use App\Models\IsWarnedLog;
 
 class RegisterController extends \App\Http\Controllers\BaseController
 {
@@ -48,7 +51,16 @@ class RegisterController extends \App\Http\Controllers\BaseController
     }
     //新樣板
     public function showRegistrationForm2() {
-        return view('new.auth.register');
+        $warnNum = $banNum = 0;
+        if(\Session::get('is_remind_puppet')) {        
+            $warnNum =  IsWarnedLog::select('user_id')->where('reason','like','%多重帳號%')->where('created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->distinct()->count('user_id');
+            $bannedIdNum =  IsBannedLog::select('user_id')->where('reason','like','%多重帳號%')->where('created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->distinct()->count('user_id');
+            $ibanedNum = BannedUsersImplicitly::select('target')->where('reason','like','%多重帳號%')->where('created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->distinct()->count('target');
+            $banNum =  $bannedIdNum+$ibanedNum;
+        }   
+        
+            
+        return view('new.auth.register')->with('banNum',$banNum)->with('warnNum',$warnNum);
     }
 
     //新樣板
