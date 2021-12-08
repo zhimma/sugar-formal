@@ -56,7 +56,13 @@ class CheckIsWarned
                         ->orderBy('id', 'desc')->get();
         $isBanned = $isBanned1->merge($isBanned2);
         //正被警示
-        $isWarned = warned_users::where('member_id', $user->id)->where( function($q) {$q->where('expire_date', null)->orWhere('expire_date','>',Carbon::now());})->where('member_id', $user->id)->orderBy('id', 'desc')->get();
+        $isWarned1 = warned_users::where('member_id', $user->id)
+                        ->where('expire_date', null)
+                        ->orderBy('id', 'desc')->get();
+        $isWarned2 = warned_users::where('member_id', $user->id)
+                        ->Where('expire_date','>',Carbon::now())
+                        ->orderBy('id', 'desc')->get();
+        $isWarned = $isWarned1->merge($isWarned2);
 
         //封鎖 警示 並存時 只保留封鎖 刪除警示
         if(count($isBanned)>0 && count($isWarned)>0){
