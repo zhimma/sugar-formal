@@ -79,7 +79,7 @@ class CompareImages extends Command
             if($specific_pic) {
                 $this->now_pic = $specific_pic;
                 $encodeEntry = $imgEncodeEntry->where('pic',$specific_pic);
-                $statusAllEntryQuery = ImagesCompareStatus::where('pic',$specific_pic);                  
+                
             }
             else {
                 //$check_break_id = ImagesCompareStatus::where('status',0)->where('is_specific',0)->where('is_error',0)->min('encode_break_id');                
@@ -93,7 +93,7 @@ class CompareImages extends Command
                     $encodeEntry = $imgEncodeEntry;
                 //}
                 
-                $statusAllEntryQuery = ImagesCompareStatus::whereNotNull('id');                
+                //$statusAllEntryQuery = ImagesCompareStatus::whereNotNull('id');                
             }
             
             $memPicAllEntry = MemberPic::withTrashed()->select('member_id','pic','created_at','updated_at')->where('pic','<>','')->whereNotNull('pic')->orderByDesc('id')->get();
@@ -109,13 +109,13 @@ class CompareImages extends Command
                 }
 
                 $this->now_pic = $imgEncode->pic;
-                $statusAllEntryQuery->where('pic',$imgEncode->pic);
-                $statusNum = $statusAllEntryQuery->count();
+                $statusEntryQuery = ImagesCompareStatus::where('pic',$imgEncode->pic);                  
+                $statusNum = $statusEntryQuery->count();
                 if($statusNum>1) {
-                    echo '請注意 '.$specific_pic.'有重複'.$statusNum.'筆的status'; 
-                    Log::info('請注意 '.$specific_pic.'有重複'.$statusNum.'筆的status');                    
+                    echo '請注意 '.$imgEncode->pic.'有重複'.$statusNum.'筆的status'; 
+                    Log::info('請注意 '.$imgEncode->pic.'有重複'.$statusNum.'筆的status');                    
                 }
-                $statusEntry = $statusAllEntryQuery->where('pic',$imgEncode->pic)->orderBy('id')->first();
+                $statusEntry = $statusEntryQuery->orderBy('id')->first();
 
                 if($statusEntry) {
                     if(!$statusEntry->is_error) {
