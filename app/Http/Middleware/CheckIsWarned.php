@@ -48,11 +48,13 @@ class CheckIsWarned
             $auth_status = 1;
         }
         //正被封鎖
-        $isBanned = banned_users::where('member_id',$user->id)
-            ->where( function($q) {
-                $q->where('expire_date', null)
-                    ->orWhere('expire_date','>',Carbon::now());
-                })->orderBy('id', 'desc')->get();
+        $isBanned1 = banned_users::where('member_id',$user->id)
+                        ->where('expire_date', null)
+                        ->orderBy('id', 'desc')->get();
+        $isBanned2 = banned_users::where('member_id',$user->id)
+                        ->where('expire_date','>',Carbon::now())
+                        ->orderBy('id', 'desc')->get();
+        $isBanned = $isBanned1->merge($isBanned2);
         //正被警示
         $isWarned = warned_users::where('member_id', $user->id)->where( function($q) {$q->where('expire_date', null)->orWhere('expire_date','>',Carbon::now());})->where('member_id', $user->id)->orderBy('id', 'desc')->get();
 
