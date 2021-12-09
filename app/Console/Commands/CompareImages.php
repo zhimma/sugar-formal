@@ -82,16 +82,19 @@ class CompareImages extends Command
                 
             }
             else {
-                //$check_break_id = ImagesCompareStatus::where('status',0)->where('is_specific',0)->where('is_error',0)->min('encode_break_id');                
-                
-                // if(($lastEncodeEntry??false) && ($check_break_id??false) && $check_break_id<$lastEncodeEntry->id) {
-                    // $encodeEntry1 = $imgEncodeEntry->where('id','>',$check_break_id);
-                    // $encodeEntry2 = $imgEncodeEntry->where('id','<=',$check_break_id);
-                    // $encodeEntry = $encodeEntry1->merge($encodeEntry2);
-                // }
-                // else {
+                $check_status = ImagesCompareStatus::where('status',0)->where('is_specific',0)->where('is_error',0)->orderByDesc('id')->first();                
+                $check_encode = null;
+                if($check_status) $check_encode = ImagesCompareEncode::where('pic',$check_status->pic)->first();
+                $check_break_id = $check_encode->id??0;
+                if(($lastEncodeEntry??false) && ($check_break_id??false) && $check_break_id<$lastEncodeEntry->id) {
+                    //$encodeEntry1 = $imgEncodeEntry->where('id','>',$check_break_id);
+                    //$encodeEntry2 = $imgEncodeEntry->where('id','<=',$lastEncodeEntry->id);
+                    //$encodeEntry = $encodeEntry1->merge($encodeEntry2);
+                    $encodeEntry = $imgEncodeEntry->where('id','>',$check_break_id);
+                }
+                else {
                     $encodeEntry = $imgEncodeEntry;
-                //}
+                }
                 
                 //$statusAllEntryQuery = ImagesCompareStatus::whereNotNull('id');                
             }
@@ -106,6 +109,10 @@ class CompareImages extends Command
 
                 if($nowPicEntry && !ImagesCompareService::isNeedCompareByEntry($nowPicEntry)) {
                     $is_not_compare=true;
+                }
+                else if(!$nowPicEntry) {
+                    $is_not_compare=true;
+                    continue;
                 }
 
                 $this->now_pic = $imgEncode->pic;
@@ -139,6 +146,7 @@ class CompareImages extends Command
                     }
                 }
                 else {
+                    if($is_not_compare) continue;
                     $statusEntry = new ImagesCompareStatus();
                     $statusEntry->pic = $imgEncode->pic;
                 }
