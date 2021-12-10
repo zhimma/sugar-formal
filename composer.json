@@ -30,6 +30,7 @@
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": ">=3.2",
+        "dietercoopman/laravel-showsql": "^1.1",
         "filp/whoops": "~2.0",
         "mockery/mockery": ">=0.9"
     },
