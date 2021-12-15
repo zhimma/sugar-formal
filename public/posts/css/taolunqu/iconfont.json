@@ -1,0 +1,79 @@
+{
+  "id": "2899124",
+  "name": "10-28甜心网",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "25295963",
+      "name": "移除成员",
+      "font_class": "yichuchengyuan1",
+      "unicode": "e666",
+      "unicode_decimal": 58982
+    },
+    {
+      "icon_id": "25250633",
+      "name": "聊天",
+      "font_class": "liaotian1",
+      "unicode": "e664",
+      "unicode_decimal": 58980
+    },
+    {
+      "icon_id": "25247960",
+      "name": "语言切换",
+      "font_class": "yuyanqiehuan",
+      "unicode": "e663",
+      "unicode_decimal": 58979
+    },
+    {
+      "icon_id": "5387666",
+      "name": "时间",
+      "font_class": "shijian",
+      "unicode": "eb2a",
+      "unicode_decimal": 60202
+    },
+    {
+      "icon_id": "6195944",
+      "name": "图片添加",
+      "font_class": "tupiantianjia",
+      "unicode": "ec7d",
+      "unicode_decimal": 60541
+    },
+    {
+      "icon_id": "6570227",
+      "name": "申请",
+      "font_class": "shenqing",
+      "unicode": "e61a",
+      "unicode_decimal": 58906
+    },
+    {
+      "icon_id": "8706529",
+      "name": "聊天室-点击状态",
+      "font_class": "liaotianshi-dianjizhuangtai",
+      "unicode": "e649",
+      "unicode_decimal": 58953
+    },
+    {
+      "icon_id": "11746730",
+      "name": "放大镜",
+      "font_class": "fangdajing",
+      "unicode": "e60a",
+      "unicode_decimal": 58890
+    },
+    {
+      "icon_id": "13438313",
+      "name": "公共聊天室-fill",
+      "font_class": "gonggongliaotianshi-fill",
+      "unicode": "e69e",
+      "unicode_decimal": 59038
+    },
+    {
+      "icon_id": "15686570",
+      "name": "发送",
+      "font_class": "fasong",
+      "unicode": "e6c8",
+      "unicode_decimal": 59080
+    }
+  ]
+}
