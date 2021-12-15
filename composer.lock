@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c5c6e3445b3cc7800535e5b5c265b574",
+    "content-hash": "ac872f51fce879753b69ae1f1fe41e2b",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -10593,6 +10593,80 @@
     ],
     "packages-dev": [
         {
+            "name": "dietercoopman/laravel-showsql",
+            "version": "v1.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dietercoopman/laravel-showsql.git",
+                "reference": "833881cd95e299298b64b6d838983a7d74d4326d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dietercoopman/laravel-showsql/zipball/833881cd95e299298b64b6d838983a7d74d4326d",
+                "reference": "833881cd95e299298b64b6d838983a7d74d4326d",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/contracts": "^8.37",
+                "php": "^7.4|^8.0",
+                "spatie/laravel-package-tools": "^1.4.3"
+            },
+            "require-dev": {
+                "nunomaduro/collision": "^5.3",
+                "orchestra/testbench": "^6.15",
+                "pestphp/pest": "^1.18",
+                "pestphp/pest-plugin-laravel": "^1.1",
+                "spatie/laravel-ray": "^1.23",
+                "vimeo/psalm": "^4.8"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Dietercoopman\\Showsql\\ShowsqlServiceProvider"
+                    ],
+                    "aliases": {
+                        "Showsql": "Dietercoopman\\Showsql\\ShowsqlFacade"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Dietercoopman\\Showsql\\": "src",
+                    "Dietercoopman\\Showsql\\Database\\Factories\\": "database/factories"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dieter Coopman",
+                    "email": "dieter@deltasolutions.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A Laravel package to output an sql as given to the database",
+            "homepage": "https://github.com/dietercoopman/showsql",
+            "keywords": [
+                "dietercoopman",
+                "laravel",
+                "showsql"
+            ],
+            "support": {
+                "issues": "https://github.com/dietercoopman/laravel-showsql/issues",
+                "source": "https://github.com/dietercoopman/laravel-showsql/tree/v1.1.2"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/dietercoopman",
+                    "type": "github"
+                }
+            ],
+            "time": "2021-11-25T11:30:56+00:00"
+        },
+        {
             "name": "hamcrest/hamcrest-php",
             "version": "v2.0.1",
             "source": {
@@ -10779,6 +10853,66 @@
                 "source": "https://github.com/mockery/mockery/tree/1.4.3"
             },
             "time": "2021-02-24T09:51:49+00:00"
+        },
+        {
+            "name": "spatie/laravel-package-tools",
+            "version": "1.9.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/laravel-package-tools.git",
+                "reference": "f710fe196c126fb9e0aee67eb5af49ad8f13f528"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/laravel-package-tools/zipball/f710fe196c126fb9e0aee67eb5af49ad8f13f528",
+                "reference": "f710fe196c126fb9e0aee67eb5af49ad8f13f528",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/contracts": "^7.0|^8.0",
+                "php": "^7.4|^8.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.4",
+                "orchestra/testbench": "^5.0|^6.0",
+                "phpunit/phpunit": "^9.3",
+                "spatie/test-time": "^1.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Spatie\\LaravelPackageTools\\": "src",
+                    "Spatie\\LaravelPackageTools\\Database\\Factories\\": "database/factories"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Tools for creating Laravel packages",
+            "homepage": "https://github.com/spatie/laravel-package-tools",
+            "keywords": [
+                "laravel-package-tools",
+                "spatie"
+            ],
+            "support": {
+                "issues": "https://github.com/spatie/laravel-package-tools/issues",
+                "source": "https://github.com/spatie/laravel-package-tools/tree/1.9.2"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/spatie",
+                    "type": "github"
+                }
+            ],
+            "time": "2021-09-21T13:06:51+00:00"
         },
         {
             "name": "symfony/debug",
