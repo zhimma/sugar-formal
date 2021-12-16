@@ -289,8 +289,10 @@ class LoginController extends \App\Http\Controllers\BaseController
                     if(!in_array($request->email, $whiteList)){
                         if($country != "TW" && $country != "??") {
                             logger("None TW login, user id: " . $user->id);
-                            Auth::logout();
-                            return back()->withErrors('Forbidden.');
+                            if($user->engroup == 2){
+                                Auth::logout();
+                                return back()->withErrors('Forbidden.');
+                            }
                         }
                     }
                 }
