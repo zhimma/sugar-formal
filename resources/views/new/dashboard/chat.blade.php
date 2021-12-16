@@ -1,44 +1,52 @@
-<?php
-// header("Cache-Control: no-cache, no-store, must-revalidate, post-check=0, pre-check=0", false);
-// header("Pragma: no-cache");
-// header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-// header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
-?>
+@php
+    header("Cache-Control: no-cache, no-store, must-revalidate, post-check=0, pre-check=0", false);
+    header("Pragma: no-cache");
+    header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+    header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
+@endphp
+@extends('new.layouts.website')
+@section('app-content')
 <style>
     .blur_img {
         filter: blur(1px);
         -webkit-filter: blur(1px);
     }
-    .page>li{
+
+    .page>li {
         display: none !important;
     }
-    .pagination > li > a:focus,
-.pagination > li > a:hover,
-.pagination > li > span:focus,
-.pagination > li > span:hover{
-    z-index: 3;
-    /* color: #23527c !important; */
-    background-color: #FF8888 !important;
-    /* border-color: #ddd !important; */
-    /* border-color:#ee5472 !important; */
-    /* color:white !important; */
-}
-    .sjright{
+
+    .pagination>li>a:focus,
+    .pagination>li>a:hover,
+    .pagination>li>span:focus,
+    .pagination>li>span:hover {
+        z-index: 3;
+        /* color: #23527c !important; */
+        background-color: #FF8888 !important;
+        /* border-color: #ddd !important; */
+        /* border-color:#ee5472 !important; */
+        /* color:white !important; */
+    }
+
+    .sjright {
         right: 40px;
         position: absolute;
     }
-    .shou_but{
-         margin-top: 8px !important;
-         /*right: 80px;*/
-         left: 80px;
-         position: absolute;
-         z-index: 1;
-     }
-    @media (max-width: 767px){
-        .sjright{
+
+    .shou_but {
+        margin-top: 8px !important;
+        /*right: 80px;*/
+        left: 80px;
+        position: absolute;
+        z-index: 1;
+    }
+
+    @media (max-width: 767px) {
+        .sjright {
             right: 20px;
         }
-        .shou_but{
+
+        .shou_but {
             margin-top: 8px !important;
             /*right: 40px !important;*/
             left: 10px !important;
@@ -47,276 +55,356 @@
     }
 
     .select_cont {
-width: 94%;
-margin: 20px auto;
-}
-.select_cont select {
-border-radius: 6px;
-border: 1px solid #ddd;
-cursor: pointer;
-padding: 5px 35px 5px 10px;
-appearance: none;
--moz-appearance: none;
--webkit-appearance: none;
-background: url(../../new/images/sjx_down.png)no-repeat right center #f5f5f5;
-background-size: auto 100%;
-}
-.send:after, .show:after, .msg:after, .select_cont:after {
-content: "";
-clear: both;
-display: table;
-}
-.select_cont option {
-text-align: center;
-}
+        width: 94%;
+        margin: 20px auto;
+    }
 
-.sjleftmm{width:64%; height:50px; float:left; line-height:25px; margin-left:10px;text-overflow: ellipsis;
-    white-space: nowrap;
-    display: block;}
-.sjleftmm span{ font-size:14px;text-align:left !important; height:25px; float:left;  -webkit-line-clamp:3;white-space:nowrap;display: -webkit-box;-webkit-box-orient: vertical;overflow: hidden !important; }
-.sjleftmm font{ font-size:14px;height:25px; overflow:hidden; text-align:left; color:#999999; display:block; text-overflow:ellipsis;/*white-space: nowrap*/}
-.sjleftmm font img{ height:20px}
- @media (max-width:360px) {
-    .sjleftmm{width:57%;}
- }
- @media (max-width:320px) {
-    .sjleftmm{width:50%;}
- }
+    .select_cont select {
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        cursor: pointer;
+        padding: 5px 35px 5px 10px;
+        appearance: none;
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        background: url(../../new/images/sjx_down.png)no-repeat right center #f5f5f5;
+        background-size: auto 100%;
+    }
 
-.lebox5{background: url({{ asset('/new/images/off.png') }}) no-repeat right #94a5b4; background-position:98%; background-size:22px; padding:0px 20px;color:#fff;font-size:16px;
-position:relative;line-height:40px;cursor:pointer;text-align: center;}
-.lebox5.on{background:  url({{ asset('/new/images/on.png') }}) no-repeat right #94a5b4;background-position:98%;  background-size:22px;position:relative;cursor:pointer;;color:#fff;}
+    .send:after,
+    .show:after,
+    .msg:after,
+    .select_cont:after {
+        content: "";
+        clear: both;
+        display: table;
+    }
 
+    .select_cont option {
+        text-align: center;
+    }
 
+    .sjleftmm {
+        width: 64%;
+        height: 50px;
+        float: left;
+        line-height: 25px;
+        margin-left: 10px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: block;
+    }
+
+    .sjleftmm span {
+        font-size: 14px;
+        text-align: left !important;
+        height: 25px;
+        float: left;
+        -webkit-line-clamp: 3;
+        white-space: nowrap;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden !important;
+    }
+
+    .sjleftmm font {
+        font-size: 14px;
+        height: 25px;
+        overflow: hidden;
+        text-align: left;
+        color: #999999;
+        display: block;
+        text-overflow: ellipsis;
+        /*white-space: nowrap*/
+    }
+
+    .sjleftmm font img {
+        height: 20px
+    }
+
+    @media (max-width:360px) {
+        .sjleftmm {
+            width: 57%;
+        }
+    }
+
+    @media (max-width:320px) {
+        .sjleftmm {
+            width: 50%;
+        }
+    }
+
+    .lebox5 {
+        background: url({{ asset('/new/images/off.png') }}) no-repeat right #94a5b4;
+        background-position:98%;
+        background-size:22px;
+        padding:0px 20px;
+        color:#fff;
+        font-size:16px;
+        position:relative;
+        line-height:40px;
+        cursor:pointer;
+        text-align: center;
+    }
+
+    .lebox5.on {
+        background: url({{ asset('/new/images/on.png') }}) no-repeat right #94a5b4;
+        background-position:98%;
+        background-size:22px;
+        position:relative;
+        cursor:pointer;
+        color:#fff;
+    }
 </style>
-@extends('new.layouts.website')
-
-@section('app-content')
-    <!--引导弹出层-->
-    <script type="text/javascript" src="/new/intro/intro.js"></script>
-    <link href="/new/intro/introjs.css" rel="stylesheet">
-    <link rel="stylesheet" href="/new/intro/cover.css">
-    <div class="container matop70 chat">
-        <div class="row">
-            <div class="col-sm-2 col-xs-2 col-md-2 dinone">
-                @include('new.dashboard.panel')
-            </div>
-            <div class="col-sm-12 col-xs-12 col-md-10">
-                <div class="shou" style="text-align: center;">
-                    <div class="sj_iconleft">
-                        @if($user->isVip())
-                            <a href="{{route('viewChatNotice')}}"><img src="/new/images/ncion_03.png"></a>
-                        @else
-                            <a onclick="show_onlyForVipPleaseUpgrade()"><img src="/new/images/ncion_03.png"></a>
-                        @endif
-                    </div>
-                    <span style="border-bottom: unset;">收件夾</span>
-                    <font>Inbox</font>
-{{--                    <a href="" class="shou_but">全部刪除</a>--}}
-{{--                    <a href="javascript:void(0);" onclick="showChatSet()"><img src="/new/images/ncion_03.png" class="whoicon02 marlr10"></a>--}}
-                    <div class="sj_iconright"><img src="/new/images/sj_icon2.png"></div>
+<!--引导弹出层-->
+<script type="text/javascript" src="/new/intro/intro.js"></script>
+<link href="/new/intro/introjs.css" rel="stylesheet">
+<link rel="stylesheet" href="/new/intro/cover.css">
+<div class="container matop70 chat">
+    <div class="row">
+        <div class="col-sm-2 col-xs-2 col-md-2 dinone">
+            @include('new.dashboard.panel')
+        </div>
+        <div class="col-sm-12 col-xs-12 col-md-10">
+            <div class="shou" style="text-align: center;">
+                <div class="sj_iconleft">
+                    @if($user->isVip())
+                    <a href="{{route('viewChatNotice')}}"><img src="/new/images/ncion_03.png"></a>
+                    @else
+                    <a onclick="show_onlyForVipPleaseUpgrade()"><img src="/new/images/ncion_03.png"></a>
+                    @endif
                 </div>
-{{--                <div class="shou_j">--}}
-{{--                    <div class="sj_iconleft"><a href="{{route('viewChatNotice')}}"><img src="/new/images/ncion_03.png"></a></div>--}}
-{{--                    <span>收件夾</span>--}}
-{{--                    <div class="sj_iconright"><img src="/new/images/sj_icon2.png"></div>--}}
-{{--                </div>--}}
-                <div class="n_shtab">
+                <span style="border-bottom: unset;">收件夾</span>
+                <font>Inbox</font>
+                {{-- <a href="" class="shou_but">全部刪除</a>--}}
+                {{-- <a href="javascript:void(0);" onclick="showChatSet()"><img src="/new/images/ncion_03.png"
+                        class="whoicon02 marlr10"></a>--}}
+                <div class="sj_iconright"><img src="/new/images/sj_icon2.png"></div>
+            </div>
+            {{-- <div class="shou_j">--}}
+                {{-- <div class="sj_iconleft"><a href="{{route('viewChatNotice')}}"><img
+                            src="/new/images/ncion_03.png"></a></div>--}}
+                {{-- <span>收件夾</span>--}}
+                {{-- <div class="sj_iconright"><img src="/new/images/sj_icon2.png"></div>--}}
+                {{-- </div>--}}
+            <div class="n_shtab">
 
-{{--                    <h2><span>您目前為高級會員</span>訊息可保存天數：30，可通訊人數:無限</h2>--}}
-{{--                    @if($user->isVip())--}}
-{{--                        <h2><span>{{$letter_vip}}</span>訊息可保存天數：180，可通訊人數:無限</h2>--}}
-{{--                        @else--}}
-{{--                        <h2><span>{{$letter_normal_member}}</span>訊息可保存天數：7，可通訊人數:10</h2>--}}
-{{--                    @endif--}}
-                    <h2 data-step="1" data-highlightClass="yd1a" data-tooltipClass="yd1" data-intro="<p>不同等級會員可以有不同的信件讀取權限。</p>
+                {{-- <h2><span>您目前為高級會員</span>訊息可保存天數：30，可通訊人數:無限</h2>--}}
+                {{-- @if($user->isVip())--}}
+                {{-- <h2><span>{{$letter_vip}}</span>訊息可保存天數：180，可通訊人數:無限</h2>--}}
+                {{-- @else--}}
+                {{-- <h2><span>{{$letter_normal_member}}</span>訊息可保存天數：7，可通訊人數:10</h2>--}}
+                {{-- @endif--}}
+                <h2 data-step="1" data-highlightClass="yd1a" data-tooltipClass="yd1"
+                    data-intro="<p>不同等級會員可以有不同的信件讀取權限。</p>
                         <p>普通會員：信件可保存30天，通訊人數限制10人。</p>
                         <p>VIP 會員：信件可保存180天，無限制通訊人數。</p>
                         <h2>@if($user->isVip())您目前是 {{$letter_vip}}，所以不限制通訊人數，且信件可保存180天。@else您目前是 {{$letter_normal_member}}，所以限制通訊人數10，且信件保存30天。 @endif</h2><em></em><em></em>">
+                    @if($user->isVip())
+                    <span>您目前為{{$letter_vip}}</span>訊息可保存天數：180，可通訊人數:無限數
+                    @else
+                    <span>您目前為{{$letter_normal_member}}</span>訊息可保存天數：30，可通訊人數:10
+                    @endif
+                </h2>
+            </div>
+            <div class=" select_cont">
+                <select id="daysSelect" class="right">
+                    {{-- <option value="7">訊息</option>--}}
+                    <option value="7">7天内</option>
+                    <option value="30">30天内</option>
+                    <option value="all">全部</option>
+                </select>
+            </div>
+            <div class="sjlist_li">
+                <div class="leftsidebar_box">
+                    <dl class="system_log">
+                        @if($user->engroup==1)
+                        @php
+                        $exchange_period_name = DB::table('exchange_period_name')->get();
+                        @endphp
+                        <!--男性介面-->
+                        @foreach($exchange_period_name as $row)
                         @if($user->isVip())
-                            <span>您目前為{{$letter_vip}}</span>訊息可保存天數：180，可通訊人數:無限數
-                        @else
-                            <span>您目前為{{$letter_normal_member}}</span>訊息可保存天數：30，可通訊人數:10
+                        <span class="exchange_period_delete_{{$row->id}} shou_but">全部刪除</span>
                         @endif
-                    </h2>
-                </div>
-                <div class=" select_cont">
-                    <select id="daysSelect" class="right">
-{{--                        <option value="7">訊息</option>--}}
-                        <option value="7">7天内</option>
-                        <option value="30">30天内</option>
-                        <option value="all">全部</option>
-                    </select>
-                </div>
-                <div class="sjlist_li">
-                    <div class="leftsidebar_box">
-                        <dl class="system_log">
-                            @if($user->engroup==1)
-                                @php
-                                    $exchange_period_name = DB::table('exchange_period_name')->get();
-                                @endphp
-                                <!--男性介面-->
-                                @foreach($exchange_period_name as $row)
-                                        @if($user->isVip())
-                                            <span class="exchange_period_delete_{{$row->id}} shou_but">全部刪除</span>
-                                        @endif
-                                <dt class="lebox{{$row->id}} lebox_exchange_period_{{$row->id}}" data-step="{{2+$row->id}}" data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
-                                    data-intro="<p>
+                        <dt class="lebox{{$row->id}} lebox_exchange_period_{{$row->id}}" data-step="{{2+$row->id}}"
+                            data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
+                            data-intro="<p>
                                         @if($row->id==1)此區會員找尋長期包養關係，如若發現短期或是直接外約+line的，請直接檢舉。
                                         @elseif($row->id==2)此區會員可接受長期或短期的包養關係。如果有發現直接要 line的狀況，請向站方檢舉。
                                         @elseif($row->id==3)本區會員主要希望單次約會為主。如果是找尋長期包養關係建議避開此區會員。@endif</p><em></em><em></em>">
 
-                                        {{$row->name}}
-                                </dt>
-                                <dd>
-                                    <div class="loading warning" id="sjlist_exchange_period_warning_{{$row->id}}"><span class="loading_text">loading</span></div>
-                                    <ul class="sjlist sjlist_exchange_period_{{$row->id}}">
-                                    </ul>
-                                    <div class="page page_exchange_period_{{$row->id}} fenye" style="text-align: center;"></div>
-                                </dd>
-                                @endforeach
-                                <!--男性介面-->
+                            {{$row->name}}
+                        </dt>
+                        <dd>
+                            <div class="loading warning" id="sjlist_exchange_period_warning_{{$row->id}}"><span
+                                    class="loading_text">loading</span></div>
+                            <ul class="sjlist sjlist_exchange_period_{{$row->id}}">
+                            </ul>
+                            <div class="page page_exchange_period_{{$row->id}} fenye" style="text-align: center;"></div>
+                        </dd>
+                        @endforeach
+                        <!--男性介面-->
 
-{{--                                    @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))--}}
-{{--                                        <span class="alert_delete shou_but">全部刪除</span>--}}
-{{--                                    @endif--}}
-{{--                                    <dt class="lebox4 lebox_alert" data-position="top" data-highlightClass="yd5a" data-tooltipClass="yd5" data-step="6"--}}
-{{--                                        data-intro="警示原因會有多種，也許是被檢舉也許是站長設定為警示。站方強烈不建議與此區會員互動，若一定要跟此區會員互動請務必提高十二萬分警覺。<em></em><em></em>">--}}
-{{--                                        警示會員</dt>--}}
-{{--                                    <dd>--}}
-{{--                                        <div class="loading warning" id="sjlist_alert_warning"><span class="loading_text">loading</span></div>--}}
-{{--                                        <ul class="sjlist sjlist_alert">--}}
-{{--                                        </ul>--}}
-{{--                                    </dd>--}}
+                        {{-- @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
+                        $user->engroup==2))--}}
+                        {{-- <span class="alert_delete shou_but">全部刪除</span>--}}
+                        {{-- @endif--}}
+                        {{-- <dt class="lebox4 lebox_alert" data-position="top" data-highlightClass="yd5a"
+                            data-tooltipClass="yd5" data-step="6" --}} {{--
+                            data-intro="警示原因會有多種，也許是被檢舉也許是站長設定為警示。站方強烈不建議與此區會員互動，若一定要跟此區會員互動請務必提高十二萬分警覺。<em></em><em></em>">
+                            --}}
+                            {{-- 警示會員</dt>--}}
+                        {{-- <dd>--}}
+                            {{-- <div class="loading warning" id="sjlist_alert_warning"><span
+                                    class="loading_text">loading</span></div>--}}
+                            {{-- <ul class="sjlist sjlist_alert">--}}
+                                {{-- </ul>--}}
+                            {{-- </dd>--}}
 
-                            @endif
+                        @endif
 
-                            @if($user->engroup==2)
-                                <!--女性介面-->
-                                    @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
-                                        <span class="vip_delete shou_but">全部刪除</span>
-                                    @endif
-                                <dt class="lebox1" data-step="3" data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4" data-intro="<p>站方建議盡量多與
+                        @if($user->engroup==2)
+                        <!--女性介面-->
+                        @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
+                        $user->engroup==2))
+                        <span class="vip_delete shou_but">全部刪除</span>
+                        @endif
+                        <dt class="lebox1" data-step="3" data-position="top" data-highlightClass="yd4a"
+                            data-tooltipClass="yd4" data-intro="<p>站方建議盡量多與
                                 VIP 會員互動。本區會員的素質最佳，投訴率低於 0.1%。</p>
                                         <em></em><em></em>">
 
-                                        VIP會員
-                                </dt>
-                                <dd>
-                                    <div class="loading warning" id="sjlist_vip_warning"><span class="loading_text">loading</span></div>
-                                    <ul class="sjlist sjlist_vip">
-                                    </ul>
-                                    <div class="page page_vip fenye" style="text-align: center;"></div>
-                                </dd>
-                                    @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
-                                        <span class="novip_delete shou_but">全部刪除</span>
-                                    @endif
-                                <dt class="lebox2" data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4" data-step="4"
-                                    data-intro="未付費的會員賴帳機率高於VIP 50倍<em></em><em></em>">
+                            VIP會員
+                        </dt>
+                        <dd>
+                            <div class="loading warning" id="sjlist_vip_warning"><span
+                                    class="loading_text">loading</span></div>
+                            <ul class="sjlist sjlist_vip">
+                            </ul>
+                            <div class="page page_vip fenye" style="text-align: center;"></div>
+                        </dd>
+                        @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
+                        $user->engroup==2))
+                        <span class="novip_delete shou_but">全部刪除</span>
+                        @endif
+                        <dt class="lebox2" data-position="top" data-highlightClass="yd4a" data-tooltipClass="yd4"
+                            data-step="4" data-intro="未付費的會員賴帳機率高於VIP 50倍<em></em><em></em>">
 
-                                        普通會員
-                                </dt>
-                                <dd>
-                                    <div class="loading warning" id="sjlist_novip_warning"><span class="loading_text">loading</span></div>
-                                    <ul class="sjlist sjlist_novip">
-                                    </ul>
-                                    <div class="page page_novip fenye" style="text-align: center;"></div>
-                                </dd>
-                                <!--女性介面 END -->
+                            普通會員
+                        </dt>
+                        <dd>
+                            <div class="loading warning" id="sjlist_novip_warning"><span
+                                    class="loading_text">loading</span></div>
+                            <ul class="sjlist sjlist_novip">
+                            </ul>
+                            <div class="page page_novip fenye" style="text-align: center;"></div>
+                        </dd>
+                        <!--女性介面 END -->
 
-{{--                                    @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))--}}
-{{--                                        <span class="alert_delete shou_but">全部刪除</span>--}}
-{{--                                    @endif--}}
-{{--                                    <dt class="lebox3 lebox_alert" data-position="top" data-highlightClass="yd5a" data-tooltipClass="yd5" data-step="5"--}}
-{{--                                        data-intro="警示原因會有多種，也許是被檢舉也許是站長設定為警示。站方強烈不建議與此區會員互動，若一定要跟此區會員互動請務必提高十二萬分警覺。<em></em><em></em>">--}}
-{{--                                        警示會員</dt>--}}
-{{--                                    <dd>--}}
-{{--                                        <div class="loading warning" id="sjlist_alert_warning"><span class="loading_text">loading</span></div>--}}
-{{--                                        <ul class="sjlist sjlist_alert">--}}
-{{--                                        </ul>--}}
-{{--                                    </dd>--}}
+                        {{-- @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
+                        $user->engroup==2))--}}
+                        {{-- <span class="alert_delete shou_but">全部刪除</span>--}}
+                        {{-- @endif--}}
+                        {{-- <dt class="lebox3 lebox_alert" data-position="top" data-highlightClass="yd5a"
+                            data-tooltipClass="yd5" data-step="5" --}} {{--
+                            data-intro="警示原因會有多種，也許是被檢舉也許是站長設定為警示。站方強烈不建議與此區會員互動，若一定要跟此區會員互動請務必提高十二萬分警覺。<em></em><em></em>">
+                            --}}
+                            {{-- 警示會員</dt>--}}
+                        {{-- <dd>--}}
+                            {{-- <div class="loading warning" id="sjlist_alert_warning"><span
+                                    class="loading_text">loading</span></div>--}}
+                            {{-- <ul class="sjlist sjlist_alert">--}}
+                                {{-- </ul>--}}
+                            {{-- </dd>--}}
 
-                            @endif
+                        @endif
 
 
-                                @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
-                                    <span class="alert_delete shou_but">全部刪除</span>
-                                @endif
-                            <dt class="@if($user->engroup==2)lebox3 @else lebox4 @endif lebox_alert" data-position="top" data-highlightClass="yd5a" data-tooltipClass="yd5" @if($user->engroup==2)data-step="5" @else data-step="6" @endif
-                                data-intro="被多人或站方檢舉，互動過程請提高十二萬分警覺。<em></em><em></em>">
+                        @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
+                        $user->engroup==2))
+                        <span class="alert_delete shou_but">全部刪除</span>
+                        @endif
+                        <dt class="@if($user->engroup==2)lebox3 @else lebox4 @endif lebox_alert" data-position="top"
+                            data-highlightClass="yd5a" data-tooltipClass="yd5" @if($user->engroup==2)data-step="5" @else
+                            data-step="6" @endif
+                            data-intro="被多人或站方檢舉，互動過程請提高十二萬分警覺。<em></em><em></em>">
 
-                                    警示會員</dt>
-                            <dd>
-                                <div class="loading warning" id="sjlist_alert_warning"><span class="loading_text">loading</span></div>
-                                <ul class="sjlist sjlist_alert">
-                                </ul>
-                            </dd>
-                            @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() && $user->engroup==2))
-                            <span class="banned_delete shou_but">全部刪除</span>
-                            @endif
-                            <dt class="lebox5">已被站方封鎖會員</dt>
-                            <dd>
-                                <div class="loading warning" id="sjlist_banned_warning"><span class="loading_text">loading</span></div>
-                                <ul class="sjlist sjlist_banned">
-                                 </ul>
-                             </dd>
-                        </dl>
-                    </div>
+                            警示會員</dt>
+                        <dd>
+                            <div class="loading warning" id="sjlist_alert_warning"><span
+                                    class="loading_text">loading</span></div>
+                            <ul class="sjlist sjlist_alert">
+                            </ul>
+                        </dd>
+                        @if(($user->isVip() && ($user->engroup==1 || $user->engroup==2)) || (!$user->isVip() &&
+                        $user->engroup==2))
+                        <span class="banned_delete shou_but">全部刪除</span>
+                        @endif
+                        <dt class="lebox5">已被站方封鎖會員</dt>
+                        <dd>
+                            <div class="loading warning" id="sjlist_banned_warning"><span
+                                    class="loading_text">loading</span></div>
+                            <ul class="sjlist sjlist_banned">
+                            </ul>
+                        </dd>
+                    </dl>
                 </div>
+            </div>
 
-                <input name="rows" type="hidden" id="rows" value="">
+            <input name="rows" type="hidden" id="rows" value="">
 
-                <div class="zixun" style="display: none;">
-                    <div class="yd2a" data-position="top" data-highlightClass="yd2b" data-tooltipClass="yd2" data-step="2"
-                         data-intro="信件顯示時間為：7天內，30天內， 以及全部<em></em><em></em>">
+            <div class="zixun" style="display: none;">
+                <div class="yd2a" data-position="top" data-highlightClass="yd2b" data-tooltipClass="yd2" data-step="2"
+                    data-intro="信件顯示時間為：7天內，30天內， 以及全部<em></em><em></em>">
                     <span><input type="radio" name="RadioGroup1" value="7" id="RadioGroup1_0" checked>7天內訊息</span>
                     <span><input type="radio" name="RadioGroup1" value="30" id="RadioGroup1_1">30天內訊息</span>
                     <span><input type="radio" name="RadioGroup1" value="all" id="RadioGroup1_2">全部訊息</span>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="bl bl_tab" id="tab03">
-        <div class="bltitle">設定</div>
-        <div class="blnr02 ">
-            <h2>信息通知</h2>
-            <select name="notifmessage" id="notifmessage" class="blinput">
-                <option value="收到即通知" @if($user->meta_()->notifmessage=='收到即通知') selected @endif>收到即通知</option>
-                <option value="每天通知一次" @if($user->meta_()->notifmessage=='每天通知一次') selected @endif>每天通知一次</option>
-                <option value="不通知" @if($user->meta_()->notifmessage=='不通知') selected @endif>不通知</option>
-            </select>
-            <h2>收信設定</h2>
-            <select name="notifhistory" id="notifhistory" class="blinput">
-                <option value="顯示普通會員信件" @if($user->meta_()->notifhistory=='顯示普通會員信件') selected @endif>顯示普通會員信件</option>
-                <option value="顯示VIP會員信件" @if($user->meta_()->notifhistory=='顯示VIP會員信件') selected @endif>顯示VIP會員信件</option>
-                <option value="顯示全部會員信件" @if($user->meta_()->notifhistory=='顯示全部會員信件') selected @endif>顯示全部會員信件</option>
-            </select>
+<div class="bl bl_tab" id="tab03">
+    <div class="bltitle">設定</div>
+    <div class="blnr02 ">
+        <h2>信息通知</h2>
+        <select name="notifmessage" id="notifmessage" class="blinput">
+            <option value="收到即通知" @if($user->meta_()->notifmessage=='收到即通知') selected @endif>收到即通知</option>
+            <option value="每天通知一次" @if($user->meta_()->notifmessage=='每天通知一次') selected @endif>每天通知一次</option>
+            <option value="不通知" @if($user->meta_()->notifmessage=='不通知') selected @endif>不通知</option>
+        </select>
+        <h2>收信設定</h2>
+        <select name="notifhistory" id="notifhistory" class="blinput">
+            <option value="顯示普通會員信件" @if($user->meta_()->notifhistory=='顯示普通會員信件') selected @endif>顯示普通會員信件</option>
+            <option value="顯示VIP會員信件" @if($user->meta_()->notifhistory=='顯示VIP會員信件') selected @endif>顯示VIP會員信件</option>
+            <option value="顯示全部會員信件" @if($user->meta_()->notifhistory=='顯示全部會員信件') selected @endif>顯示全部會員信件</option>
+        </select>
 
-            <a class="blbut" href="">更新資料</a>
-        </div>
-        <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+        <a class="blbut" href="">更新資料</a>
     </div>
+    <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+</div>
 
-    <div class="bl bl_tab" id="show_banned">
-        <div class="bltitle banned_name"><span></span></div>
-        <div class="n_blnr01 ">
-            <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ route('reportPost') }}">
-                {!! csrf_field() !!}
-                <input type="hidden" name="aid" value="{{$user->id}}">
-                <input type="hidden" name="uid" value="">
-                <textarea name="content" cols="" rows="" class="n_nutext" placeholder=""></textarea>
-                <div class="n_bbutton">
-                    <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>
-                </div>
-            </form>
-        </div>
-        <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+<div class="bl bl_tab" id="show_banned">
+    <div class="bltitle banned_name"><span></span></div>
+    <div class="n_blnr01 ">
+        <form class="m-form m-form--fit m-form--label-align-right" method="POST" action="{{ route('reportPost') }}">
+            {!! csrf_field() !!}
+            <input type="hidden" name="aid" value="{{$user->id}}">
+            <input type="hidden" name="uid" value="">
+            <textarea name="content" cols="" rows="" class="n_nutext" placeholder=""></textarea>
+            <div class="n_bbutton">
+                <button type="submit" class="n_bllbut" style="border-style: none;">送出</button>
+            </div>
+        </form>
     </div>
+    <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+</div>
 
-    <script>
-        let showMsg = false;
+<script>
+    let showMsg = false;
         let isLoading = 1;
         var total = 0;//總筆數
         var no_row_li='';
@@ -1766,7 +1854,7 @@ position:relative;line-height:40px;cursor:pointer;text-align: center;}
             $("#tab03").show();
         }
 
-    </script>
+</script>
 
 @stop
 
@@ -1777,26 +1865,32 @@ position:relative;line-height:40px;cursor:pointer;text-align: center;}
     .box {
         width: 100%;
     }
+
     .ellipsis {
-        overflow:hidden;
+        overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
     }
-    .comt{
+
+    .comt {
         top: 8px;
         position: relative;
     }
-    .popover  {
-        background: #e2e8ff!important;
+
+    .popover {
+        background: #e2e8ff !important;
         color: #6783c7;
     }
+
     .popover.right .arrow:after {
-        border-right-color:#e2e8ff;
+        border-right-color: #e2e8ff;
     }
+
     .popover.bottom .arrow:after {
-        border-bottom-color:#e2e8ff;
+        border-bottom-color: #e2e8ff;
     }
-    .online{
+
+    .online {
         background: #17bb4a;
         border: #ffffff 2px solid;
         width: 15px;
@@ -1808,10 +1902,11 @@ position:relative;line-height:40px;cursor:pointer;text-align: center;}
         display: block;
         z-index: 5;
     }
-    .nonVip{
+
+    .nonVip {
         width: 15px;
         height: 15px;
-        background: linear-gradient(to TOP,#ff9225,#ffb86e);
+        background: linear-gradient(to TOP, #ff9225, #ffb86e);
         border-radius: 100px;
         box-shadow: 2px 2px 0px #ff721d;
         border-radius: 100px;
@@ -1821,6 +1916,7 @@ position:relative;line-height:40px;cursor:pointer;text-align: center;}
         display: block;
         z-index: 5;
     }
+
     .nonVip img {
         max-width: 100%;
         max-height: 100%;
@@ -1829,15 +1925,15 @@ position:relative;line-height:40px;cursor:pointer;text-align: center;}
         display: table;
         margin-top: 4px;
     }
-    .shanx{
+
+    .shanx {
         position: relative;
         overflow: inherit !important;
     }
 </style>
 
-    <script>
-
-        var step1,step3,step4,step5,step6,step7,step8,step9,step10;
+<script>
+    var step1,step3,step4,step5,step6,step7,step8,step9,step10;
 
         $('.blbut').on('click', function() {
             $("#tab03").hide();
@@ -2075,5 +2171,5 @@ position:relative;line-height:40px;cursor:pointer;text-align: center;}
 
 
 
-    </script>
+</script>
 @stop
