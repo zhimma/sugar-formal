@@ -1,18 +1,10 @@
 @extends('new.layouts.website')
 
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="format-detection" content="telephone=no" />
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-	<title>投稿列表</title>
-	<!-- Bootstrap -->
-	<link href="/posts/css/bootstrap.min.css" rel="stylesheet">
-	<link href="/posts/css/bootstrap-theme.min.css" rel="stylesheet">
-	<!-- owl-carousel-->
-	<!--    css-->
 	<link rel="stylesheet" href="/posts/css/style.css">
-	<link rel="stylesheet" href="/posts/css/swiper.min.css">
+	<link rel="stylesheet" href="/posts/css/font/font_n/iconfont.css">
+	<link rel="stylesheet" href="/posts/css/font/iconfont.css">
+	<link rel="stylesheet" href="/posts/css/taolunqu/iconfont.css">
+	<link href="https://fonts.googleapis.com/css?family=Roboto:400|700" rel="stylesheet">
 	<script src="/posts/js/jquery-2.1.1.min.js" type="text/javascript"></script>
 	<script src="/posts/js/bootstrap.min.js"></script>
 
@@ -26,7 +18,10 @@
 					<div class="shou">
 						<span><img src="/posts/images/tg_15.png" style="height: 26px; margin-right: 5px; margin-bottom: 8px;">發表文章</span>
 						<font>Publish</font>
-						<a href="/dashboard/posts_list" class="toug_back"><img src="/posts/images/back_icon.png">返回</a>
+						<a href="{{url()->previous()}}" class="toug_back btn_img">
+							<div class="btn_back"></div>
+						</a>
+						{{--						<a href="{{url()->previous()}}" class="toug_back"><img src="/posts/images/back_icon.png">返回</a>--}}
 					</div>
 					<div class="two_tg">
 						<div class="tow_input">
@@ -96,6 +91,3 @@
 		$(".gg_tab").hide();
 	});
 </script>
-<style>
-	.blnr{padding-bottom: 14px;}
-</style>

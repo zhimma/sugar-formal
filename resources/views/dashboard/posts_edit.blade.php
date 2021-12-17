@@ -26,7 +26,10 @@
 					<div class="shou">
 						<span><img src="/posts/images/tg_15.png" style="height: 26px; margin-right: 5px; margin-bottom: 8px;">{{ $editType=='all' ? '修改文章' : '修改內容'}}</span>
 						<font>Publish</font>
-						<a href="{{url()->previous()}}" class="toug_back"><img src="/posts/images/back_icon.png">返回</a>
+						<a href="{{url()->previous()}}" class="toug_back btn_img">
+							<div class="btn_back"></div>
+						</a>
+						{{--						<a href="{{url()->previous()}}" class="toug_back"><img src="/posts/images/back_icon.png">返回</a>--}}
 					</div>
 					<div class="two_tg">
 						<div class="tow_input">
