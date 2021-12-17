@@ -24,11 +24,11 @@
                 </li>
                 @if(isset($user) && $user->engroup == 1)
                     @php
-                        $ban = \App\Models\SimpleTables\banned_users::where('member_id', $user->id)->first();
+                        //$ban = \App\Models\SimpleTables\banned_users::where('member_id', $user->id)->first();
                         $banImplicitly = \App\Models\BannedUsersImplicitly::where('target', $user->id)->first();
                     @endphp
                    <li>
-                       @if($ban || $banImplicitly)
+                       @if($banImplicitly)
                            <a onclick="CheckEnterPop()"><img src="/new/images/tlq.png">討論區</a>
                        @elseif(!$user->isCanPosts_vip())
                            <a onclick="CheckEnterPop2()"><img src="/new/images/tlq.png">討論區</a>
