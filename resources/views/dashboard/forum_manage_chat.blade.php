@@ -73,7 +73,8 @@
 							<div class="btn_back">功能選單<img src="/posts/images/jiant_a.png"></div>
 						</a>
 						<div class="fabiao showslide">
-							<a onclick="checkUserVip();">我要發表</a><a href="/dashboard/posts_manage">會員管理</a>
+							<a onclick="checkUserVip();">我要發表</a>
+							<a href="/dashboard/posts_manage">會員管理</a>
 						</div>
 					</div>
 					<div class="fadeinboxs"></div>

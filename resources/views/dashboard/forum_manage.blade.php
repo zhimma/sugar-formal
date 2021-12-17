@@ -104,75 +104,35 @@
 						</div>
 
 						<div class="hy_gltabn" >
-							@if(count($posts_manage_users)>0)
-								@foreach($posts_manage_users as $row)
-								<li>
-									<div class="h3_divtab1"><span>會員暱稱丨 </span><font><a href="/dashboard/viewuser/{{$row->user_id}}">{{$row->name}}</a></font></div>
-									<div class="hy_icobutton list1"  id="itemssxN">
-										@if($row->status == 0)
-											<a href="/dashboard/forum_manage_chat/{{$user->id}}/{{$row->user_id}}" class="hy_icon022 custom_s"><span class="iconfont icon-fangdajing"></span>審核中，點此查看聊天記錄</a>
-										@elseif($row->status == 1)
-											<font class="hy_icon011 custom_s"><span class="iconfont icon-liaotian1"></span><a href="/dashboard/forum_personal/{{$row->user_id}}">討論區</a></font>
-											<font class="hy_icon011 custom_s"><span class="iconfont icon-gonggongliaotianshi-fill"></span><a href="/dashboard/forum_manage_chat/{{$row->user_id}}/{{$user->id}}">聊天室</a></font>
-											<font class="hy_icon011 custom_s"><span class="iconfont icon-yichuchengyuan1"></span><a onclick="forum_manage_toggle({{$row->user_id}}, 3)">移除成員</a></font>
-										@endif
-									</div>
-								</li>
-								@endforeach
-							@else
-								<li style="text-align: center;">
-									<img src="/posts/images/bianji.png" class="feng_img"><span>尚無資料</span>
-								</li>
-							@endif
-{{--							<li>--}}
-{{--								<div class="h3_divtab1"><span>會員暱稱丨 </span><font>天使階梯不用毒品毒</font></div>--}}
-{{--								<div class="hy_icobutton list1"  id="itemssxx" >--}}
-{{--									<a href="" class="hy_icon022 custom_s"><span class="iconfont icon-fangdajing"></span>審核中，點此查看聊天記錄</a>--}}
-{{--								</div>--}}
-{{--							</li>--}}
-{{--							<li>--}}
-{{--								<div class="h3_divtab1"><span>會員暱稱丨 </span><font>天使階梯不用毒品毒</font></div>--}}
-{{--								<div class="hy_icobutton list1" id="itemssxx" >--}}
-{{--									<a href="" class="hy_icon022 custom_s"><span class="iconfont icon-fangdajing"></span>審核中，點此查看聊天記錄</a>--}}
-{{--								</div>--}}
-{{--							</li>--}}
-{{--							<li>--}}
-{{--								<div class="h3_divtab1"><span>會員暱稱丨 </span><font>天使階梯不用毒品毒</font></div>--}}
-{{--								<div class="hy_icobutton list1"  id="itemssxN">--}}
-{{--									<font class="hy_icon011 custom_s"><span class="iconfont icon-liaotian1"></span>討論區</font>--}}
-{{--									<font class="hy_icon011 custom_s"><span class="iconfont icon-gonggongliaotianshi-fill  "></span>聊天室</font>--}}
-{{--									<font class="hy_icon011 custom_s"><span class="iconfont icon-yichuchengyuan1"></span>移除成員</font>--}}
-{{--								</div>--}}
-{{--							</li>--}}
-{{--							<li>--}}
-{{--								<div class="h3_divtab1"><span>會員暱稱丨 </span><font>天使階梯不用毒品毒</font></div>--}}
-{{--								<div class="hy_icobutton list1"  id="itemssxN">--}}
-{{--									<font class="hy_icon011 custom_s"><span class="iconfont icon-liaotian1"></span>討論區</font>--}}
-{{--									<font class="hy_icon011 custom_s"><span class="iconfont icon-gonggongliaotianshi-fill  "></span>聊天室</font>--}}
-{{--									<font class="hy_icon011 custom_s"><span class="iconfont icon-yichuchengyuan1"></span>移除成員</font>--}}
-{{--								</div>--}}
-{{--							</li>--}}
-{{--							<li>--}}
-{{--								<div class="h3_divtab1"><span>會員暱稱丨 </span><font>天使階梯不用毒品毒</font></div>--}}
-{{--								<div class="hy_icobutton list1"  id="itemssxN">--}}
-{{--									<font class="hy_icon011 custom_s"><span class="iconfont icon-liaotian1"></span>討論區</font>--}}
-{{--									<font class="hy_icon011 custom_s"><span class="iconfont icon-gonggongliaotianshi-fill  "></span>聊天室</font>--}}
-{{--									<font class="hy_icon011 custom_s"><span class="iconfont icon-yichuchengyuan1"></span>移除成員</font>--}}
-{{--								</div>--}}
-{{--							</li>--}}
-{{--							<li>--}}
-{{--								<div class="h3_divtab1"><span>會員暱稱丨 </span><font>天使階梯不用毒品毒</font></div>--}}
-{{--								<div class="hy_icobutton list1"  id="itemssxN">--}}
-{{--									<font class="hy_icon011 custom_s"><span class="iconfont icon-liaotian1"></span>討論區</font>--}}
-{{--									<font class="hy_icon011 custom_s"><span class="iconfont icon-gonggongliaotianshi-fill  "></span>聊天室</font>--}}
-{{--									<font class="hy_icon011 custom_s"><span class="iconfont icon-yichuchengyuan1"></span>移除成員</font>--}}
-{{--								</div>--}}
-{{--							</li>--}}
+							<li style="text-align: center;">
+								<img src="/posts/images/bianji.png" class="feng_img"><span>Coming Soon...</span>
+							</li>
+
+							{{--@if(count($posts_manage_users)>0)--}}
+							{{--@foreach($posts_manage_users as $row)--}}
+							{{--<li>--}}
+							{{--<div class="h3_divtab1"><span>會員暱稱丨 </span><font><a href="/dashboard/viewuser/{{$row->user_id}}">{{$row->name}}</a></font></div>--}}
+							{{--<div class="hy_icobutton list1"  id="itemssxN">--}}
+							{{--@if($row->status == 0)--}}
+							{{--<a href="/dashboard/forum_manage_chat/{{$user->id}}/{{$row->user_id}}" class="hy_icon022 custom_s"><span class="iconfont icon-fangdajing"></span>審核中，點此查看聊天記錄</a>--}}
+							{{--@elseif($row->status == 1)--}}
+							{{--<font class="hy_icon011 custom_s"><span class="iconfont icon-liaotian1"></span><a href="/dashboard/forum_personal/{{$row->user_id}}">討論區</a></font>--}}
+							{{--<font class="hy_icon011 custom_s"><span class="iconfont icon-gonggongliaotianshi-fill"></span><a href="/dashboard/forum_manage_chat/{{$row->user_id}}/{{$user->id}}">聊天室</a></font>--}}
+							{{--<font class="hy_icon011 custom_s"><span class="iconfont icon-yichuchengyuan1"></span><a onclick="forum_manage_toggle({{$row->user_id}}, 3)">移除成員</a></font>--}}
+							{{--@endif--}}
+							{{--</div>--}}
+							{{--</li>--}}
+							{{--@endforeach--}}
+							{{--@else--}}
+							{{--<li style="text-align: center;">--}}
+							{{--<img src="/posts/images/bianji.png" class="feng_img"><span>尚無資料</span>--}}
+							{{--</li>--}}
+							{{--@endif--}}
 						</div>
-						<div class="fenye ba_but" style="margin-top: 10px;">
-							{{ $posts_manage_users->links('pagination::sg-pages2') }}
+{{--						<div class="fenye ba_but" style="margin-top: 10px;">--}}
+{{--							{{ $posts_manage_users->links('pagination::sg-pages2') }}--}}
 {{--							<a href="">上一頁</a><span class="new_page">1/5</span><a href="">下一頁</a>--}}
-						</div>
+{{--						</div>--}}
 						<!-- 结束 -->
 {{--						<livewire:posts-manage-chat />--}}
 
@@ -282,45 +242,5 @@
 			})
 		});
 
-		// $(".text>a").click(function(){
-		//           var btn = $(this).prev();
-		//           if(btn.hasClass('on')){
-		//               btn.removeClass("on");
-		//               $(this).html("<em></em>");
-		//           }else{
-		//               btn.addClass("on");
-		//               $(this).html("…<em>更多</em>");
-		//           }
-		//       });
-
 	})
 </script>
-<style>
-
-
-	.pagination > li > a:focus,
-	.pagination > li > a:hover,
-	.pagination > li > span:focus,
-	.pagination > li > span:hover{
-		z-index: 3;
-		color: #23527c !important;
-		background-color: #f5c2c0 !important;
-		border-color: #ddd !important;
-		border-color:#ee5472 !important;
-		color:white !important;
-	}
-
-	.pagination > .active > a,
-	.pagination > .active > span,
-	.pagination > .active > a:hover,
-	.pagination > .active > span:hover,
-	.pagination > .active > a:focus,
-	.pagination > .active > span:focus {
-		z-index: 3;
-		color: #23527c !important;
-		background-color: #f5c2c0 !important;
-		border-color:#ee5472 !important;
-		color:white !important;
-	}
-	.blnr{padding-bottom: 14px;}
-</style>

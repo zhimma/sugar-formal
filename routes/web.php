@@ -359,6 +359,24 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     |--------------------------------------------------------------------------
     */
     Route::group(['middleware' => ['CheckDiscussPermissions']], function () {
+
+        //個人討論區
+        Route::get('/dashboard/forum', 'PagesController@forum')->name('forum');
+        Route::get('/dashboard/ForumEdit/{uid}', 'PagesController@ForumEdit');
+        Route::post('/dashboard/doForum', 'PagesController@doForum');
+
+
+        Route::post('/dashboard/doForumPosts', 'PagesController@doForumPosts');
+        Route::get('/dashboard/forum_personal/{uid}', 'PagesController@forum_personal');
+        Route::get('/dashboard/forum_manage', 'PagesController@forum_manage')->name('forum_manage');
+        Route::post('/dashboard/forum_manage_toggle', 'PagesController@forum_manage_toggle')->name('forum_manage_toggle');
+        Route::get('/dashboard/forum_manage_chat/{auid}/{uid}', 'PagesController@forum_manage_chat');
+        Route::get('/dashboard/forum_posts/{fid}', 'PagesController@forum_posts');/*投稿功能*/
+        Route::get('/dashboard/forum_post_detail/{pid}', 'PagesController@forum_post_detail');
+        Route::get('/dashboard/forumPostsEdit/{id}/{editType}', 'PagesController@forumPostsEdit');/*投稿修改功能*/
+        Route::post('/dashboard/forum_posts_reply', 'PagesController@forum_posts_reply');/*討論區留言回覆*/
+        Route::post('/dashboard/forum_posts_delete', 'PagesController@forum_posts_delete');/*討論區留言刪除*/
+
         Route::post('/dashboard/postAcceptor', 'PagesController@postAcceptor');/*投稿列表功能*/
         Route::get('/dashboard/posts_list', 'PagesController@posts_list')->name('posts_list');/*投稿列表功能*/
         Route::get('/dashboard/post_detail/{pid}', 'PagesController@post_detail');
@@ -645,6 +663,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/toggleUserWarned', 'UserController@toggleUserWarned');
         Route::get('users/closeAccountReason', 'UserController@closeAccountReason')->name('users/closeAccountReasonList');
         Route::get('users/closeAccountDetail', 'UserController@closeAccountDetail');
+
+        Route::post('users/forum_toggle', 'UserController@forum_toggle')->name('forum_toggle');
 
         Route::get('users/ip/{ip}', 'UserController@getIpUsers')->name('getIpUsers');
 		Route::get('users/getLog', 'UserController@getUsersLog')->name('getUsersLog');

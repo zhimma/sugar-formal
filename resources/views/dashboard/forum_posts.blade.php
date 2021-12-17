@@ -31,13 +31,7 @@
 								<input type="hidden" name="forum_id" value="{{$fid}}">
 								<input name="title" id="title" type="text" class="tw_input" placeholder="#標題">
 								<textarea name="contents" id="contents" cols="" rows="" class="tw_textinput" placeholder="#内容" required></textarea>
-								{{--<div class="ti_kuang">
-									<div class="ti_title">點這裡變更分身</div>
-									<h2 class="matop15"><i class='input_style input_radio radio_bg'><input type="radio" name="is_anonymous" value="anonymous"></i>匿名於站內發布</h2>
-									<h2><i class='input_style input_radio radio_bg'><input type="radio" name="is_anonymous" value="combine"></i>站內發布與本站帳號連結</h2>
-								</div>
-								<div class="ticheckbox"><i class='input_style radio_bg'><input type="checkbox" name="agreement" id="agreement"></i>同意站方匿名行銷使用</div>--}}
-								<div class="dengl_but matop30" onclick="send_posts_btn()">確定</div>
+                               <div class="dengl_but matop30" onclick="send_posts_btn()">確定</div>
 							</form>
 						</div>
 					</div>
@@ -82,7 +76,7 @@
 			c5('您的內容不可以為空！');
 			return false;
 		}
-		c5('發表成功！');
+		// c5('發表成功！');
 		$("#posts").submit();
 	}
 
@@ -92,6 +86,3 @@
 		$(".gg_tab").hide();
 	});
 </script>
-<style>
-	.blnr{padding-bottom: 14px;}
-</style>

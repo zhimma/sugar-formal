@@ -58,7 +58,7 @@
 
 
 					<div class="shou" style="text-align: center; position: relative;">
-						<a href="{{url()->previous()}}" class="toug_back btn_img" style=" position: absolute; left: 0;">
+						<a href="/dashboard/forum" class="toug_back btn_img" style=" position: absolute; left: 0;">
 							<div class="btn_back"></div>
 						</a>
 						<span style="margin: 0 auto; position: relative;line-height: 44px;padding-bottom: 3px;">{{$post_forum->title}}</span>
@@ -66,7 +66,8 @@
 							<div class="btn_back">功能選單<img src="/posts/images/jiant_a.png"></div>
 						</a>
 						<div class="fabiao showslide">
-							<a onclick="checkUserVip();">我要發表</a><a href="/dashboard/forum_manage">會員管理</a>
+							<a onclick="checkUserVip();">我要發表</a>
+							<a href="/dashboard/forum_manage">會員管理</a>
 						</div>
 					</div>
 					<div class="fadeinboxs"></div>
@@ -122,86 +123,7 @@
 										<img src="/posts/images/bianji.png" class="feng_img"><span>尚無資料</span>
 									</li>
 								@endif
-{{--								<li>--}}
-{{--									<a href="">--}}
-{{--										<div class="ta_icon"><img src="/posts/images/tl_icon.png">20</div>--}}
-{{--										<div class="alit_font">妹子分享</div>--}}
-{{--										<div class="alit_font01">--}}
-{{--											<div class="ta_textbot">内容内容内容内容内容内容内容内容内容内容内容内容内内</div>--}}
-{{--											<div class="ta_tetime"><span class="iconfont icon-shijian"></span>2021-10-21</div>--}}
-{{--										</div>--}}
-{{--									</a>--}}
-{{--								</li>--}}
-{{--								<li>--}}
-{{--									<a href="">--}}
-{{--										<div class="ta_icon"><img src="/posts/images/tl_icon.png">20</div>--}}
-{{--										<div class="alit_font">情報分享</div>--}}
-{{--										<div class="alit_font01">--}}
-{{--											<div class="ta_textbot">内容内容内容内容内容内容内容内容内容内容内容内容内内</div>--}}
-{{--											<div class="ta_tetime"><span class="iconfont icon-shijian"></span>2021-10-21</div>--}}
-{{--										</div>--}}
-{{--									</a>--}}
-{{--								</li>--}}
-{{--								<li>--}}
-{{--									<a href="">--}}
-{{--										<div class="ta_icon"><img src="/posts/images/tl_icon.png">20</div>--}}
-{{--										<div class="alit_font">車馬費怎麼給？</div>--}}
-{{--										<div class="alit_font01">--}}
-{{--											<div class="ta_textbot">内容内容内容内容内容内容内容内容内容内容内容内容内内</div>--}}
-{{--											<div class="ta_tetime"><span class="iconfont icon-shijian"></span>2021-10-21</div>--}}
-{{--										</div>--}}
-{{--									</a>--}}
-{{--								</li>--}}
-{{--								<li>--}}
-{{--									<a href="">--}}
-{{--										<div class="ta_icon"><img src="/posts/images/tl_icon.png">20</div>--}}
-{{--										<div class="alit_font">包養話術</div>--}}
-{{--										<div class="alit_font01">--}}
-{{--											<div class="ta_textbot">内容内容内容内容内容内容内容内容内容内容内容内容内内</div>--}}
-{{--											<div class="ta_tetime"><span class="iconfont icon-shijian"></span>2021-10-21</div>--}}
-{{--										</div>--}}
-{{--									</a>--}}
-{{--								</li>--}}
-{{--								<li>--}}
-{{--									<a href="">--}}
-{{--										<div class="ta_icon"><img src="/posts/images/tl_icon.png">20</div>--}}
-{{--										<div class="alit_font">情報分享</div>--}}
-{{--										<div class="alit_font01">--}}
-{{--											<div class="ta_textbot">内容内容内容内容内容内容内容内容内容内容内容内容内内</div>--}}
-{{--											<div class="ta_tetime"><span class="iconfont icon-shijian"></span>2021-10-21</div>--}}
-{{--										</div>--}}
-{{--									</a>--}}
-{{--								</li>--}}
-{{--								<li>--}}
-{{--									<a href="">--}}
-{{--										<div class="ta_icon"><img src="/posts/images/tl_icon.png">20</div>--}}
-{{--										<div class="alit_font">情報分享</div>--}}
-{{--										<div class="alit_font01">--}}
-{{--											<div class="ta_textbot">内容内容内容内容内容内容内容内容内容内容内容内容内内</div>--}}
-{{--											<div class="ta_tetime"><span class="iconfont icon-shijian"></span>2021-10-21</div>--}}
-{{--										</div>--}}
-{{--									</a>--}}
-{{--								</li>--}}
-{{--								<li>--}}
-{{--									<a href="">--}}
-{{--										<div class="ta_icon"><img src="/posts/images/tl_icon.png">20</div>--}}
-{{--										<div class="alit_font">情報分享</div>--}}
-{{--										<div class="alit_font01">--}}
-{{--											<div class="ta_textbot">内容内容内容内容内容内容内容内容内容内容内容内容内内</div>--}}
-{{--											<div class="ta_tetime"><span class="iconfont icon-shijian"></span>2021-10-21</div>--}}
-{{--										</div>--}}
-{{--									</a>--}}
-{{--								</li>--}}
-{{--								<li>--}}
-{{--									<a href="">--}}
-{{--										<div class="ta_icon"><img src="/posts/images/tl_icon.png">20</div>--}}
-{{--										<div class="alit_font">情報分享</div>--}}
-{{--										<div class="alit_font01">--}}
-{{--											<div class="ta_textbot">内容内容内容内容内容内容内容内容内容内容内容内容内内</div>--}}
-{{--											<div class="ta_tetime"><span class="iconfont icon-shijian"></span>2021-10-21</div>--}}
-{{--										</div>--}}
-{{--									</a>--}}
-{{--								</li>--}}
+
 								<div class="fenye ba_but" style="margin-bottom: 0;">
 									{{ $posts_personal_all->links('pagination::sg-pages2') }}
 {{--									<a href="">上一頁</a><span class="new_page">1/5</span><a href="">下一頁</a>--}}
@@ -357,45 +279,6 @@
 			})
 		});
 
-		// $(".text>a").click(function(){
-		//           var btn = $(this).prev();
-		//           if(btn.hasClass('on')){
-		//               btn.removeClass("on");
-		//               $(this).html("<em></em>");
-		//           }else{
-		//               btn.addClass("on");
-		//               $(this).html("…<em>更多</em>");
-		//           }
-		//       });
 
 	})
 </script>
-<style>
-
-
-	.pagination > li > a:focus,
-	.pagination > li > a:hover,
-	.pagination > li > span:focus,
-	.pagination > li > span:hover{
-		z-index: 3;
-		color: #23527c !important;
-		background-color: #f5c2c0 !important;
-		border-color: #ddd !important;
-		border-color:#ee5472 !important;
-		color:white !important;
-	}
-
-	.pagination > .active > a,
-	.pagination > .active > span,
-	.pagination > .active > a:hover,
-	.pagination > .active > span:hover,
-	.pagination > .active > a:focus,
-	.pagination > .active > span:focus {
-		z-index: 3;
-		color: #23527c !important;
-		background-color: #f5c2c0 !important;
-		border-color:#ee5472 !important;
-		color:white !important;
-	}
-	.blnr{padding-bottom: 14px;}
-</style>
