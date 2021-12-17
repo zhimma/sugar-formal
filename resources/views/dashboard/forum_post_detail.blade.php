@@ -17,8 +17,7 @@
 				margin-top: unset !important;
 			}
 		</style>
-		<script src="/posts/js/jquery-2.1.1.min.js" type="text/javascript"></script>
-		<script src="/posts/js/bootstrap.min.js"></script>
+
 @section('app-content')
 		<div class="container matop70">
 			<div class="row">

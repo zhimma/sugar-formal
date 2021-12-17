@@ -3,14 +3,6 @@
 </style>
 @extends('new.layouts.website')
 <meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="format-detection" content="telephone=no" />
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-		<!-- Bootstrap -->
-		<link href="/posts/css/bootstrap.min.css" rel="stylesheet">
-		<link href="/posts/css/bootstrap-theme.min.css" rel="stylesheet">
-		<!-- owl-carousel-->
 		<!--    css-->
 		<link rel="stylesheet" href="/posts/css/style.css">
 		<link rel="stylesheet" href="/posts/css/iconfont.css">
@@ -20,6 +12,9 @@
 				height: auto;
 				max-width: 100%;
 				max-height: 100%;	
+			}
+			.show{
+				margin-top: unset !important;
 			}
 		</style>
 @section('app-content')
