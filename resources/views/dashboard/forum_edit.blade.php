@@ -25,7 +25,7 @@
 								<input type="hidden" name="type" value="main">
 								<input type="hidden" name="action" @if(!isset($forumInfo)) value="create" @else value="update" @endif>
 								<input type="hidden" name="forum_id" value="@if(isset($forumInfo)) {{$forumInfo->id}}@endif">
-								<input name="title" id="title" type="text" class="tw_input" placeholder="#標題" value="{{$user->name}}" maxlength="13">
+								<input name="title" id="title" type="text" class="tw_input" placeholder="#標題" value="{{$user->name}}" maxlength="14">
 								<textarea name="sub_title" id="contents" cols="" rows="" class="tw_textinput" placeholder="#主題說明" maxlength="55" required></textarea>
 								<div class="dengl_but matop30" onclick="send_posts_btn()">確定</div>
 							</form>
@@ -54,6 +54,16 @@
 			}
 		});
 
+
+		let title_maxLength = 13;
+		$('#title').on('keydown keyup change', function(){
+			var char = $(this).val();
+			var charLength = $(this).val().length;
+			if(charLength > title_maxLength){
+				c5('標題最多輸入13個字元。');
+				$(this).val(char.substring(0, title_maxLength));
+			}
+		});
 
 		let maxLength = 54;
 		$('#contents').on('keydown keyup change', function(){
