@@ -79,21 +79,24 @@ class CompareImages extends Command
             if($specific_pic) {
                 $this->now_pic = $specific_pic;
                 $encodeEntry = $imgEncodeEntry->where('pic',$specific_pic);
-                $statusAllEntry = ImagesCompareStatus::where('pic',$specific_pic)->get();                  
+                
             }
             else {
-                $check_break_id = ImagesCompareStatus::where('status',0)->where('is_specific',0)->where('is_error',0)->min('encode_break_id');                
-                
+                $check_status = ImagesCompareStatus::where('status',0)->where('is_specific',0)->where('is_error',0)->orderByDesc('id')->first();                
+                $check_encode = null;
+                if($check_status) $check_encode = ImagesCompareEncode::where('pic',$check_status->pic)->first();
+                $check_break_id = $check_encode->id??0;
                 if(($lastEncodeEntry??false) && ($check_break_id??false) && $check_break_id<$lastEncodeEntry->id) {
-                    $encodeEntry1 = $imgEncodeEntry->where('id','>',$check_break_id);
-                    $encodeEntry2 = $imgEncodeEntry->where('id','<=',$check_break_id);
-                    $encodeEntry = $encodeEntry1->merge($encodeEntry2);
+                    //$encodeEntry1 = $imgEncodeEntry->where('id','>',$check_break_id);
+                    //$encodeEntry2 = $imgEncodeEntry->where('id','<=',$lastEncodeEntry->id);
+                    //$encodeEntry = $encodeEntry1->merge($encodeEntry2);
+                    $encodeEntry = $imgEncodeEntry->where('id','>',$check_break_id);
                 }
                 else {
                     $encodeEntry = $imgEncodeEntry;
                 }
                 
-                $statusAllEntry = ImagesCompareStatus::get();                
+                //$statusAllEntryQuery = ImagesCompareStatus::whereNotNull('id');                
             }
             
             $memPicAllEntry = MemberPic::withTrashed()->select('member_id','pic','created_at','updated_at')->where('pic','<>','')->whereNotNull('pic')->orderByDesc('id')->get();
@@ -107,9 +110,19 @@ class CompareImages extends Command
                 if($nowPicEntry && !ImagesCompareService::isNeedCompareByEntry($nowPicEntry)) {
                     $is_not_compare=true;
                 }
+                else if(!$nowPicEntry) {
+                    $is_not_compare=true;
+                    continue;
+                }
 
                 $this->now_pic = $imgEncode->pic;
-                $statusEntry = $statusAllEntry->where('pic',$imgEncode->pic)->first();
+                $statusEntryQuery = ImagesCompareStatus::where('pic',$imgEncode->pic);                  
+                $statusNum = $statusEntryQuery->count();
+                if($statusNum>1) {
+                    echo '請注意 '.$imgEncode->pic.'有重複'.$statusNum.'筆的status'; 
+                    Log::info('請注意 '.$imgEncode->pic.'有重複'.$statusNum.'筆的status');                    
+                }
+                $statusEntry = $statusEntryQuery->orderBy('id')->first();
 
                 if($statusEntry) {
                     if(!$statusEntry->is_error) {
@@ -133,6 +146,7 @@ class CompareImages extends Command
                     }
                 }
                 else {
+                    if($is_not_compare) continue;
                     $statusEntry = new ImagesCompareStatus();
                     $statusEntry->pic = $imgEncode->pic;
                 }

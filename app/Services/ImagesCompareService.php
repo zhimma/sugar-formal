@@ -230,42 +230,27 @@ class ImagesCompareService {
      * @return  Collection|SupportCollection 
      */
     public static  function getCompareRsImgByPic($pic) {
-        return \collect();
         $rsImgSet = null;
-        $compareRsPicList = ImagesCompareService::getResultOfCompareByPic($pic)->where('pic','<>','/img/illegal.jpg')->pluck('finded_pic')->all();
+        //$compareRsPicList = ImagesCompareService::getResultOfCompareByPic($pic)->where('pic','<>','/img/illegal.jpg')->pluck('finded_pic')->all();
 
-        if(count($compareRsPicList)>20) {
-            $compare_tb = with(new ImagesCompare)->getTable();
-            $mempic_tb = with(new MemberPic)->getTable();
-            $avatar_tb = with(new UserMeta)->getTable();
-            $delavatar_tb = with(new AvatarDeleted)->getTable();            
-            $userMemPic =MemberPic::withTrashed()->join($compare_tb, $mempic_tb.'.pic', '=', $compare_tb.'.finded_pic')->select('member_id')->selectRaw($mempic_tb.'.pic')->selectRaw('(asc_percent+desc_percent+asc_inter_part_percent+desc_inter_part_percent)  AS cpercent')->whereHas('user')->whereIn($mempic_tb.'.pic',$compareRsPicList)->get();
-            $rsImgSet = $userMemPic;
-            $userAvatar = UserMeta::join($compare_tb, $avatar_tb.'.pic', '=', $compare_tb.'.finded_pic')->whereIn($avatar_tb.'.pic',$compareRsPicList)->select('user_id')->selectRaw($avatar_tb.'.pic')->selectRaw('(asc_percent+desc_percent+asc_inter_part_percent+desc_inter_part_percent)  AS cpercent')->get();
-            
-            if($rsImgSet->count()) $rsImgSet = $rsImgSet->concat($userAvatar);
-            else $rsImgSet = $userAvatar;             
+        $compare_tb = with(new ImagesCompare)->getTable();
+        $mempic_tb = with(new MemberPic)->getTable();
+        $avatar_tb = with(new UserMeta)->getTable();
+        $delavatar_tb = with(new AvatarDeleted)->getTable();            
+        $userMemPic =MemberPic::withTrashed()->join($compare_tb, $mempic_tb.'.pic', '=', $compare_tb.'.finded_pic')->select('member_id')->selectRaw($mempic_tb.'.pic')->selectRaw('(IFNULL(asc_percent,0)+IFNULL(desc_percent,0)+IFNULL(asc_inter_part_percent,0)+IFNULL(desc_inter_part_percent,0))  AS cpercent')->whereHas('user')->where($compare_tb.'.pic',$pic)->get();
+        $rsImgSet = $userMemPic;
+        $userAvatar = UserMeta::join($compare_tb, $avatar_tb.'.pic', '=', $compare_tb.'.finded_pic')->where($compare_tb.'.pic',$pic)->select('user_id')->selectRaw($avatar_tb.'.pic')->selectRaw('(IFNULL(asc_percent,0)+IFNULL(desc_percent,0)+IFNULL(asc_inter_part_percent,0)+IFNULL(desc_inter_part_percent,0))  AS cpercent')->get();
+        
+        if($rsImgSet->count()) $rsImgSet = $rsImgSet->concat($userAvatar);
+        else $rsImgSet = $userAvatar;             
 
-            $userDelAvatar = AvatarDeleted::join($compare_tb, $delavatar_tb.'.pic', '=', $compare_tb.'.finded_pic')->whereIn($delavatar_tb.'.pic',$compareRsPicList)->select('user_id')->selectRaw($delavatar_tb.'.pic')->selectRaw('(asc_percent+desc_percent+asc_inter_part_percent+desc_inter_part_percent)  AS cpercent')->get();        
-            
-            if($rsImgSet->count()) $rsImgSet = $rsImgSet->concat($userDelAvatar);
-            else $rsImgSet = $userDelAvatar;        
+        $userDelAvatar = AvatarDeleted::join($compare_tb, $delavatar_tb.'.pic', '=', $compare_tb.'.finded_pic')->where($compare_tb.'.pic',$pic)->select('user_id')->selectRaw($delavatar_tb.'.pic')->selectRaw('(IFNULL(asc_percent,0)+IFNULL(desc_percent,0)+IFNULL(asc_inter_part_percent,0)+IFNULL(desc_inter_part_percent,0))  AS cpercent')->get();        
+        
+        if($rsImgSet->count()) $rsImgSet = $rsImgSet->concat($userDelAvatar);
+        else $rsImgSet = $userDelAvatar;        
 
-            $rsImgSet = $rsImgSet->sortByDesc('cpercent');
-        }
-        else {
-            $userMemPic =MemberPic::withTrashed()->select('member_id','pic')->whereHas('user')->whereIn('pic',$compareRsPicList)->get();
-            $rsImgSet = $userMemPic;
+        $rsImgSet = $rsImgSet->sortByDesc('cpercent')->take(15);;
 
-            $userAvatar = UserMeta::whereIn('pic',$compareRsPicList)->select('user_id','pic')->whereHas('user')->get();
-            if($rsImgSet->count()) $rsImgSet = $rsImgSet->concat($userAvatar);
-            else $rsImgSet = $userAvatar;             
-
-            $userDelAvatar = AvatarDeleted::whereIn('pic',$compareRsPicList)->select('user_id','pic')->whereHas('user')->get();        
-            if($rsImgSet->count()) $rsImgSet = $rsImgSet->concat($userDelAvatar);
-            else $rsImgSet = $userDelAvatar;        
-           
-        }
         return $rsImgSet;
  
     }

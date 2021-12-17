@@ -281,13 +281,18 @@ class LoginController extends \App\Http\Controllers\BaseController
                         "pig820827@yahoo.com.tw",
                         "henyanyilily@gmail.com",
                         "chenyanyilily@gmail.com",
-                        "sa83109@gmail.com"
+                        "sa83109@gmail.com",
+                        "frebert456@gmail.com",
+                        "sagitwang@gmail.com",
+                        "nathan7720757@gmail.com",
                     ];
                     if(!in_array($request->email, $whiteList)){
                         if($country != "TW" && $country != "??") {
                             logger("None TW login, user id: " . $user->id);
-                            Auth::logout();
-                            return back()->withErrors('Forbidden.');
+                            if($user->engroup == 2){
+                                Auth::logout();
+                                return back()->withErrors('Forbidden.');
+                            }
                         }
                     }
                 }

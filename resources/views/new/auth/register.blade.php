@@ -212,7 +212,25 @@ div.new_poptk{color:#6783c7;}
         });
         $(document).ready(function() {
 			@if(\Session::get('is_remind_puppet')=='1')
-			c4('您好，本站禁止註冊多重帳號。[br][br]若偵測到多重帳號註冊，將會影響您所有帳號，可能遭受警示或者封鎖的處分。[br][br]是否繼續註冊？');
+			c4('您好，本站禁止註冊多重帳號。'
+                +'[br]除非特殊情況，否則一個人只能擁有一個帳號。'
+                +'[br]不能關閉舊帳號，然後不斷的申請並更換。'
+                +'[br]多開帳號者將受到警示或者封鎖的懲處。'
+                @if($banNum || $warnNum)
+                +'[br][br]本月已有'
+                @if($banNum)
+                +'{{$banNum}}組多重帳號已被封鎖'
+                @if($warnNum)
+                +'，'
+                @endif
+                @endif
+                @if($warnNum)
+                +'{{$warnNum}}組@if(!$banNum)多重帳號@endif已被警示'
+                @endif
+                +'。'
+                @endif
+                +'[br][br]若您有特殊需求請加站長<a href="https://lin.ee/rLqcCns" target="_blank">@giv4956r</a><a href="https://lin.ee/rLqcCns" target="_blank">&nbsp;<img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a>&nbsp;提出申請'
+                +'[br][br]是否繼續註冊？');
             $('#tab04 .n_blnr01').addClass('new_poptk');
             $('#tab04 .n_blnr01').removeClass('n_blnr01');
 			$("#tab04 .bltext").html($("#tab04 .bltext").text().replace(/\[br\]/gi,'<br>'));

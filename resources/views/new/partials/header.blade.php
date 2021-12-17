@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}" >
     <head>
         <meta charset="utf-8" />
@@ -17,6 +17,7 @@
             integrity="sha384-1k7XKRQgqjUbNyG2sI+qsY8HTHMOeLdycMx6hoGuNSANZ3WrMa3LXkr+M4t+SIpF"
             crossorigin="anonymous"
         ></script>
+        {!! \Sentry\Laravel\Integration::sentryTracingMeta() !!}
         <script src="https://cdnjs.cloudflare.com/ajax/libs/webfont/1.6.28/webfontloader.js"></script>
         @if (\App::environment('local'))
             <script src="{{ asset('js/app_local.js') }}" type="text/javascript"></script>
