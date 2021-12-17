@@ -57,15 +57,15 @@
 				<div class="col-sm-12 col-xs-12 col-md-10">
 
 
-					<div class="shou" style="text-align: center; position: relative;">
+					<div class="shou" style="text-align: left; position: relative; ">
 						<a href="{{url()->previous()}}" class="toug_back btn_img" style=" position: absolute; left: 0;">
 							<div class="btn_back"></div>
 						</a>
-						<span style="margin: 0 auto; position: relative;line-height: 44px;padding-bottom: 3px;">{{$posts_forum->title}}</span>
+						<span style="margin: 0 auto; position: relative;line-height: 44px;padding-bottom: 3px; left: 40px; font-size: 18px;">{{$posts_forum->title}}</span>
 						<a class="toug_back btn_img01 userlogo xzgn">
 							<div class="btn_back">功能選單<img src="/posts/images/jiant_a.png"></div>
 						</a>
-						<div class="fabiao showslide">
+						<div class="fabiao showslide" style="text-align: center;">
 							<a onclick="checkUserVip();">我要發表</a>
 							<a href="/dashboard/forum_manage">會員管理</a>
 						</div>
