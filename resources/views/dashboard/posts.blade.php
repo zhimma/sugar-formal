@@ -36,7 +36,7 @@
 									<h2><i class='input_style input_radio radio_bg'><input type="radio" name="is_anonymous" value="combine"></i>站內發布與本站帳號連結</h2>
 								</div>
 								<div class="ticheckbox"><i class='input_style radio_bg'><input type="checkbox" name="agreement" id="agreement"></i>同意站方匿名行銷使用</div>--}}
-								<div class="dlbut matop30" onclick="send_posts_btn()">確定</div>
+								<div class="dengl_but matop30" onclick="send_posts_btn()" style="margin-top: 10px;">確定</div>
 							</form>
 						</div>
 					</div>
