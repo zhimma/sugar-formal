@@ -2833,6 +2833,16 @@ $("input[name='phone']").keyup(function(){
 		@endif
 	});
 	/*调起大图 E*/
+
+	function forum_toggle(uid, status) {
+		$.post('{{ route('forum_toggle') }}', {
+			uid: uid,
+			status: status,
+			_token: '{{ csrf_token() }}'
+		}, function (data) {
+			location.reload();
+		});
+	}
 </script>
 <!--照片查看end-->
 </html>
