@@ -33,7 +33,7 @@
 						{{--						<a href="{{url()->previous()}}" class="toug_back"><img src="/posts/images/back_icon.png">返回</a>--}}
 					</div>
 					<div class="t_xqheight">
-						<div class="toug_xq" style="position: relative; {{ $postDetail->uid==1049 ? 'background:#ddf3ff;' : ''}}">
+						<div class="toug_xq" style="position: relative; {{ $postDetail->uid==1049 ? 'background:#ddf3ff;' : ''}} @if($postDetail->top==1) background:#ffcf869e !important; @endif">
 							<div class="tougao_xnew">
 								<a href="/dashboard/viewuser/{{$postDetail->uid}}">
 									<div class="tou_img_1">
