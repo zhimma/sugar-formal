@@ -202,6 +202,21 @@
     </div>
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
+
+<div class="announce_bg" id="announce_bg" onclick="gmBtnNoReload()" style="display:none;"></div>
+<div class="bl bl_tab tab_postsForumAlert" id="tab_postsForumAlert">
+    <div class="bltitle">討論區重要規定</div>
+    <div class="n_blnr01 matop10">
+        <div class="n_fengs">
+            <p>1: 禁止在討論區中留下任何個人聯絡資訊，若有違規永久禁止使用討論區!</p>
+            <p>2: 如果想要交朋友，請在討論區發起版聚交流，版聚時的會員私下互動皆與站方無關</p>
+            <p>3: 其他規定請參考<a href="/dashboard/post_detail/69"><font color="red">官方討論區</font></a></p>
+        </div>
+        <a class="n_bllbut matop30">進入討論區</a>
+    </div>
+    <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+</div>
+
 {{--@if(str_contains(url()->current(), 'dashboard') && Session::has('banned_reason'))--}}
 {{--    <div class="blbg banned_bg" style="display:block"></div>--}}
 {{--    <div class="gg_tab" id="tab_banned_alert" style="display: block; z-index: 999;">--}}

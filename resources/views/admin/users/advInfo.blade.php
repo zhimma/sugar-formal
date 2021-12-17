@@ -163,7 +163,14 @@
 		<input type="hidden" name="id" value="{{$user->id}}">
 	</form>
 	@endif
-	
+
+	@if(isset($posts_forum))
+		@if($posts_forum->status==1)
+			<botton onclick="forum_toggle({{$user->id}}, 0)" class="btn btn-success">討論區啟用中</botton>
+		@elseif($posts_forum->status==0)
+			<botton onclick="forum_toggle({{$user->id}}, 1)" class="btn btn-danger">討論區關閉中</botton>
+		@endif
+	@endif
 
 	@if(is_null($userMeta->activation_token))
 		<b style="font-size:18px">已開通會員</b>

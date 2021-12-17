@@ -40,18 +40,11 @@
 </style>
 @extends('new.layouts.website')
 
-		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="format-detection" content="telephone=no" />
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-		<!-- Bootstrap -->
 		<link href="/posts/css/bootstrap.min.css" rel="stylesheet">
 		<link href="/posts/css/bootstrap-theme.min.css" rel="stylesheet">
 		<!-- owl-carousel-->
 		<!--    css-->
 		<link rel="stylesheet" href="/posts/css/style.css">
-		<link rel="stylesheet" href="/posts/css/swiper.min.css">
 		<script src="/posts/js/jquery-2.1.1.min.js" type="text/javascript"></script>
 		<script src="/posts/js/bootstrap.min.js"></script>
 
@@ -62,46 +55,60 @@
 					@include('new.dashboard.panel')
 				</div>
 				<div class="col-sm-12 col-xs-12 col-md-10">
-					<div class="shou"><span>討論區列表</span>
-						<font>Discussion</font>
-{{--						<a onclick="checkUserVip();" class="toug_but"><img src="/posts/images/tg_03.png">我要發表</a>--}}
+					<div class="shou" style="position: relative;">
+						<a href="/dashboard/forum" class="toug_back btn_img" style=" position: absolute; left: 0;">
+							<div class="btn_back"></div>
+						</a>
+						<div style="position: absolute; left:45px;">
+							<span>官方討論區</span>
+							<font>Discussion</font>
+						</div>
+						<a onclick="checkUserVip();" class="toug_but"><img src="/posts/images/tg_03.png">我要發表</a>
 					</div>
 
-{{--					@if(count($posts)==0)--}}
+					@if(!isset($posts) || count($posts)==0)
 						<div class="sjlist">
-							<div class="fengsicon"><img src="/posts/images/bianji.png" class="feng_img"><span>討論區維修中</span></div>
+							<div class="fengsicon"><img src="/posts/images/bianji.png" class="feng_img"><span>尚無資料</span></div>
 						</div>
-{{--					@else--}}
-{{--						<div class="tou_list">--}}
-{{--							<ul>--}}
-{{--								@foreach($posts as $post)--}}
-{{--									<li {{ $post->uid==1049 ? 'style=background:#ddf3ff;padding:10px' : ''}}>--}}
-{{--										<div class="tou_tx">--}}
-{{--											<a href="/dashboard/viewuser/{{$post->uid}}">--}}
-{{--												<div class="tou_tx_img"><img src="@if(file_exists( public_path().$post->umpic ) && $post->umpic != ""){{$post->umpic}} @elseif($post->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div>--}}
-{{--											</a>--}}
-{{--											<a href="/dashboard/viewuser/{{$post->uid}}"><span>{{ $post->uname }}<i>{{ date('Y-m-d', strtotime($post->pcreated_at)) }}</i></span></a>--}}
-{{--											<a href="/dashboard/post_detail/{{$post->pid}}">--}}
-{{--												<font><i class="ne_talicon"><img src="/posts/images/tl_icon.png">{{ \App\Models\Posts::where('reply_id',$post->pid)->get()->count() }}</i></font>--}}
-{{--											</a>--}}
-{{--										</div>--}}
-{{--										<a href="/dashboard/post_detail/{{$post->pid}}">--}}
-{{--											<div class="tc_text_aa"><span>{{$post->ptitle}}</span></div>--}}
-{{--											<div class="tc_text_bb"><p>{!! \App\Models\Posts::showContent($post->pcontents) !!}</p></div>--}}
-{{--										</a>--}}
-{{--									</li>--}}
-{{--								@endforeach--}}
-{{--							</ul>--}}
-{{--						</div>--}}
-{{--						<div class="fenye mabot30">--}}
-{{--							{{ $posts->links('pagination::sg-pages2') }}--}}
-{{--						</div>--}}
-{{--					@endif--}}
+					@else
+						<div class="tou_list">
+							<ul>
+								@foreach($posts as $post)
+									<li {{ $post->uid==1049 && $post->top==0 ? 'style=background:#ddf3ff;padding:10px' : ''}} @if($post->top==1) style="background:#ffcf869e;padding:10px;" @endif>
+										<div class="tou_tx">
+											<a href="/dashboard/viewuser/{{$post->uid}}">
+												<div class="tou_tx_img"><img src="@if(file_exists( public_path().$post->umpic ) && $post->umpic != ""){{$post->umpic}} @elseif($post->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div>
+											</a>
+											<a href="/dashboard/viewuser/{{$post->uid}}"><span>{{ $post->uname }}<i>{{ date('Y-m-d', strtotime($post->pcreated_at)) }}</i></span></a>
+											<a href="/dashboard/post_detail/{{$post->pid}}">
+												<font><i class="ne_talicon"><img src="/posts/images/tl_icon.png">{{ \App\Models\Posts::where('reply_id',$post->pid)->get()->count() }}</i></font>
+											</a>
+										</div>
+										<a href="/dashboard/post_detail/{{$post->pid}}">
+											<div class="tc_text_aa"><span>{{$post->ptitle}}</span></div>
+											<div class="tc_text_bb"><p>{!! \App\Models\Posts::showContent($post->pcontents) !!}</p></div>
+										</a>
+									</li>
+								@endforeach
+							</ul>
+						</div>
+						<div class="fenye mabot30">
+							{{ $posts->links('pagination::sg-pages2') }}
+						</div>
+					@endif
 				</div>
 			</div>
 		</div>
 		@stop
 <script>
+
+	$(document).ready(function() {
+		@if(Session::has('message'))
+		c5('{{Session::get('message')}}');
+		<?php session()->forget('message');?>
+		@endif
+	});
+
 	function checkUserVip() {
 
 		var checkUserVip='{{ $checkUserVip }}';
@@ -121,30 +128,3 @@
 		}
 	}
 </script>
-<style>
-	.pagination > li > a:focus,
-	.pagination > li > a:hover,
-	.pagination > li > span:focus,
-	.pagination > li > span:hover{
-		z-index: 3;
-		color: #23527c !important;
-		background-color: #f5c2c0 !important;
-		border-color: #ddd !important;
-		border-color:#ee5472 !important;
-		color:white !important;
-	}
-
-	.pagination > .active > a,
-	.pagination > .active > span,
-	.pagination > .active > a:hover,
-	.pagination > .active > span:hover,
-	.pagination > .active > a:focus,
-	.pagination > .active > span:focus {
-		z-index: 3;
-		color: #23527c !important;
-		background-color: #f5c2c0 !important;
-		border-color:#ee5472 !important;
-		color:white !important;
-	}
-	.blnr{padding-bottom: 14px;}
-</style>

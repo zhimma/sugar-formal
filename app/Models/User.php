@@ -1379,4 +1379,25 @@ class User extends Authenticatable
         }
         return $authMobile;
     }
+
+    public function isCanPosts_vip() {
+        $checkUserVip=0;
+        $isVip =Vip::where('member_id', $this->id)->where('active',1)->where('free',0)->first();
+        if($isVip){
+            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+            if($months>=3 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+                $checkUserVip=1;
+            }
+        }
+        return $checkUserVip;
+    }
+
+    public function isEverBanned() {
+        return IsBannedLog::where('user_id', $this->id)->orderBy('created_at', 'desc')->first();
+    }
+
+    public function isEverWarned() {
+        return IsWarnedLog::where('user_id', $this->id)->orderBy('created_at', 'desc')->first();
+    }
+
 }
