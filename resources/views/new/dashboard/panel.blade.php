@@ -30,8 +30,26 @@
                    <li>
                        @if($ban || $banImplicitly)
                            <a onclick="CheckEnterPop()"><img src="/new/images/tlq.png">討論區</a>
+                       @elseif(!$user->isCanPosts_vip())
+                           <a onclick="CheckEnterPop2()"><img src="/new/images/tlq.png">討論區</a>
+                       @elseif($user->isEverBanned())
+                           @php
+                               //print_r($user->is_banned_log());
+                                 $record = $user->isEverBanned();
+                                 $reason = str_replace('(未續費)','', $record->reason);
+                                 $text = '您於'.substr($record->created_at, 0, 10).'曾被站方因'.$reason.'警示，不符合進入討論區資格，若有意見反應，請洽站長Line@';
+                           @endphp
+                           <a onclick="CheckEnterPopOther('{{$text}}')"><img src="/new/images/tlq.png">討論區</a>
+                       @elseif($user->isEverWarned())
+                           @php
+                               //print_r($user->is_warned_log());
+                                  $record = $user->isEverWarned();
+                                  $reason = str_replace('(未續費)','', $record->reason);
+                                  $text = '您於'.substr($record->created_at, 0, 10).'曾被站方因'.$reason.'封鎖，不符合進入討論區資格，若有意見反應，請洽站長Line@';
+                           @endphp
+                           <a onclick="CheckEnterPopOther('{{$text}}')"><img src="/new/images/tlq.png">討論區</a>
                        @else
-                           <a href="/dashboard/posts_list"><img src="/new/images/tlq.png">討論區</a>
+                           <a onclick="CheckEnterPopOK()" class="forum_pass"><img src="/new/images/tlq.png">討論區</a>
                        @endif
                    </li>
                 @endif
@@ -52,8 +70,30 @@
         </div>
     </div>
     <script>
+        let script = '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0"></a>';
         function CheckEnterPop() {
             c5('您好，您目前被站方限制使用討論區，若有疑問請點右下角，聯繫站長Line@');
+            $('.bltext').append(script);
+        }
+        function CheckEnterPop2() {
+            c5('您成為VIP未達滿三個月以上');
+        }
+        function CheckEnterPopOther(text) {
+            c5(text);
+            $('.bltext').append(script);
+        }
+        function CheckEnterPopOK() {
+            @if(!str_contains(url()->current(), 'dashboard/forum'))
+            $(".announce_bg").show();
+            $('.tab_postsForumAlert').show();
+            $('.n_bllbut').on('click', function() {
+                $(".announce_bg").hide();
+                $('.tab_postsForumAlert').hide();
+                window.location.href = "/dashboard/forum";
+            });
+            @elseif(str_contains(url()->current(), 'dashboard/forum'))
+                window.location.href = "/dashboard/forum";
+            @endif
         }
     </script>
 

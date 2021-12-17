@@ -3,14 +3,6 @@
 </style>
 @extends('new.layouts.website')
 <meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="format-detection" content="telephone=no" />
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-		<!-- Bootstrap -->
-		<link href="/posts/css/bootstrap.min.css" rel="stylesheet">
-		<link href="/posts/css/bootstrap-theme.min.css" rel="stylesheet">
-		<!-- owl-carousel-->
 		<!--    css-->
 		<link rel="stylesheet" href="/posts/css/style.css">
 		<link rel="stylesheet" href="/posts/css/iconfont.css">
@@ -21,6 +13,9 @@
 				max-width: 100%;
 				max-height: 100%;	
 			}
+			.show{
+				margin-top: unset !important;
+			}
 		</style>
 @section('app-content')
 		<div class="container matop70">
@@ -29,9 +24,13 @@
 					@include('new.dashboard.panel')
 				</div>
 				<div class="col-sm-12 col-xs-12 col-md-10">
-					<div class="shou"><span>文章詳情</span>
-						<font>Article details</font>
-						<a href="/dashboard/posts_list" class="toug_back"><img src="/posts/images/back_icon.png">返回</a>
+					<div class="shou">
+						<span>文章詳情</span>
+						<font>Article</font>
+						<a href="/dashboard/posts_list" class="toug_back btn_img">
+							<div class="btn_back"></div>
+						</a>
+						{{--						<a href="{{url()->previous()}}" class="toug_back"><img src="/posts/images/back_icon.png">返回</a>--}}
 					</div>
 					<div class="t_xqheight">
 						<div class="toug_xq" style="position: relative; {{ $postDetail->uid==1049 ? 'background:#ddf3ff;' : ''}}">
@@ -45,9 +44,13 @@
 								{{--<div class="tog_time">{{ date('Y-m-d H:i',strtotime($postDetail->pcreated_at)) }}</div>--}}
 							</div>
 							@if($postDetail->uid == auth()->user()->id)
-								<div class="ap_but" style="margin-top: 10px; margin-right:5px;">
-									<a id="repostLink" href="/dashboard/postsEdit/{{ $postDetail->pid }}/all"><span class="iconfont icon-xiugai_nn"></span>修改</a>
-									<a onclick="postDelete({{ $postDetail->pid }})"><span class="iconfont icon-lajitong"></span>刪除</a>
+{{--								<div class="ap_but" style="margin-top: 10px; margin-right:5px;">--}}
+{{--									<a id="repostLink" href="/dashboard/postsEdit/{{ $postDetail->pid }}/all"><span class="iconfont icon-xiugai_nn"></span>修改</a>--}}
+{{--									<a onclick="postDelete({{ $postDetail->pid }})"><span class="iconfont icon-lajitong"></span>刪除</a>--}}
+{{--								</div>--}}
+								<div class="ap_butnew" style="margin-top: 10px; margin-right:10px;">
+									<a onclick="postDelete({{ $postDetail->pid }})" class="sc_cc"><img src="/posts/images/del_03n.png">刪除</a>
+									<a id="repostLink" href="/dashboard/postsEdit/{{ $postDetail->pid }}/all" class="sc_cc"><img src="/posts/images/xiugai.png">修改</a>
 								</div>
 							@endif
 							<div id="ptitle" class="xq_text">{{ $postDetail->ptitle }}</div>
@@ -373,7 +376,6 @@
 </script>
 <style>
 	.commonMenu{z-index: 10001;}
-	.blnr{padding-bottom: 14px;}
 	.blbg_new{width:100%; height:100%;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 9;display:none;}
 </style>
 @stop

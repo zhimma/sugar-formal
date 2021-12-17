@@ -12,11 +12,14 @@ use App\Models\BannedUsersImplicitly;
 use App\Models\CustomFingerPrint;
 use App\Models\Evaluation;
 use App\Models\EvaluationPic;
+use App\Models\ForumManage;
+use App\Models\ForumPosts;
 use App\Models\hideOnlineData;
 use App\Models\LogUserLogin;
 use App\Models\Message_new;
 use App\Models\MessageBoard;
 use App\Models\MessageBoardPic;
+use App\Models\Forum;
 use App\Models\ReportedMessageBoard;
 use App\Models\SimpleTables\warned_users;
 use App\Notifications\BannedUserImplicitly;
@@ -4509,19 +4512,20 @@ class PagesController extends BaseController
             return back();
         }
 
-        // $posts = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at')
-        //     ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid or reply_id in ((select distinct(id) from posts where type="sub" and reply_id=pid) )  order by updated_at desc limit 1) as currentReplyTime')
-        //     ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
-        //     ->LeftJoin('users', 'users.id','=','posts.user_id')
-        //     ->join('user_meta', 'users.id','=','user_meta.user_id')
-        //     ->where('posts.type','main')
-        //     ->orderBy('adminFlag','desc')
-        //     ->orderBy('currentReplyTime','desc')
-        //     ->paginate(10);
+        $posts = Posts::selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at')
+            ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid or reply_id in ((select distinct(id) from posts where type="sub" and reply_id=pid) )  order by updated_at desc limit 1) as currentReplyTime')
+            ->selectRaw('(case when users.id=1049 then 1 else 0 end) as adminFlag')
+            ->LeftJoin('users', 'users.id','=','posts.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->where('posts.type','main')
+            ->orderBy('posts.top','desc')
+            ->orderBy('adminFlag','desc')
+            ->orderBy('currentReplyTime','desc')
+            ->paginate(10);
 
         $data = array(
-            'posts' => null
-            // 'posts' => $posts
+//            'posts' => null
+            'posts' => $posts
         );
 
         if ($user)
@@ -4556,12 +4560,12 @@ class PagesController extends BaseController
 
     public function post_detail(Request $request)
     {
-        return redirect(url('/dashboard/posts_list'));
+//        return redirect(url('/dashboard/posts_list'));
         $user = $request->user();
 
         $pid = $request->pid;
         //$this->post_views($pid);
-        $postDetail = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
+        $postDetail = Posts::selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
             ->LeftJoin('users', 'users.id','=','posts.user_id')
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->where('posts.id', $pid)->first();
@@ -4601,7 +4605,7 @@ class PagesController extends BaseController
 
     public function posts(Request $request)
     {
-        return redirect(url('/dashboard/posts_list'));
+//        return redirect(url('/dashboard/posts_list'));
         $user = $this->user;
         if ($user && $user->engroup == 2){
             return back();
@@ -4785,6 +4789,399 @@ class PagesController extends BaseController
             @header("HTTP/1.1 500 Server Error");
         }
     }
+
+    public function forum(Request $request)
+    {
+        $user = $this->user;
+        if ($user && $user->engroup == 2){
+            return back();
+        }
+
+        $ban = banned_users::where('member_id', $user->id)->first();
+        $banImplicitly = \App\Models\BannedUsersImplicitly::where('target', $user->id)->first();
+        if($ban || $banImplicitly){
+            return back();
+        }
+
+        $post_forum = Forum::where('user_id', $user->id)->first();
+
+        $posts = Forum::selectraw('
+         users.id as uid, 
+         users.name as uname, 
+         users.engroup as uengroup, 
+         user_meta.pic as umpic, 
+         forum_posts.id as pid,
+         forum.id as f_id,
+         forum.status as f_status,
+         forum.title as f_title,
+         forum.sub_title as f_sub_title
+         ')
+            ->selectRaw('(select updated_at from forum_posts where (type="main" and id=pid and forum_id = f_id and deleted_at is null) or reply_id=pid or reply_id in ((select distinct(id) from forum_posts where type="sub" and reply_id=pid and forum_id = f_id and deleted_at is null) )  order by updated_at desc limit 1) as currentReplyTime')
+            ->selectRaw('(select count(*) from forum_posts where (type="main" and user_id=uid and forum_id = f_id and deleted_at is null)) as posts_num, (select count(*) from forum_posts where (type="sub" and forum_id = f_id and deleted_at is null and reply_id in (select id from forum_posts where (type="main" and user_id = uid and forum_id = f_id and deleted_at is null)) )) as posts_reply_num')
+            ->LeftJoin('users', 'users.id','=','forum.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->leftJoin('forum_posts', 'forum_posts.user_id','=', 'users.id')
+//            ->where('forum.status', 1)
+            ->orderBy('currentReplyTime','desc')
+            ->groupBy('forum.id')
+            ->paginate(10);
+
+        $data = array(
+            //            'posts' => null
+            'posts' => $posts,
+            'post_forum' => $post_forum
+        );
+
+        if ($user)
+        {
+            // blocked by user->id
+            $blocks = \App\Models\Blocked::where('member_id', $user->id)->paginate(15);
+
+            $usersInfo = array();
+            foreach($blocks as $blockUser){
+                $id = $blockUser->blocked_id;
+                $usersInfo[$id] = User::findById($id);
+            }
+
+        }
+
+        //檢查是否為連續兩個月以上的VIP會員
+        $checkUserVip=0;
+        $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
+        if($isVip){
+            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+                $checkUserVip=1;
+            }
+        }
+
+        return view('/dashboard/forum', $data)
+            ->with('checkUserVip', $checkUserVip)
+            ->with('blocks', $blocks)
+            ->with('users', $usersInfo)
+            ->with('user', $user);
+    }
+
+    public function ForumEdit($uid)
+    {
+        $user = $this->user;
+        $forumInfo = Forum::where('user_id', $uid)->first();
+        return view('/dashboard/forum_edit', compact('forumInfo'))->with('user', $user);
+    }
+
+    public function doForum(Request $request)
+    {
+        $user=$request->user();
+
+        if($request->get('action') == 'update'){
+            Forum::find($request->get('forum_id'))->update(['title'=>$request->get('title'),'sub_title'=>$request->get('sub_title')]);
+            return redirect('/dashboard/forum')->with('message','修改成功');
+
+        }else{
+            $postsForum = new Forum();
+            $postsForum->user_id = $user->id;
+            $postsForum->title = $request->get('title');
+            $postsForum->sub_title=$request->get('sub_title');
+            $postsForum->save();
+            return redirect('/dashboard/forum')->with('message','新增成功');
+        }
+    }
+
+    public function doForumPosts(Request $request)
+    {
+        $user=$request->user();
+
+        if($request->get('action') == 'update'){
+            ForumPosts::find($request->get('id'))->update(['title'=>$request->get('title'),'contents'=>$request->get('contents')]);
+            return redirect($request->get('redirect_path'))->with('message','修改成功');
+
+        }else{
+            $posts = new ForumPosts();
+            $posts->forum_id = $request->get('forum_id');
+            $posts->user_id = $user->id;
+            $posts->title = $request->get('title');
+            $posts->type = $request->get('type','main');
+            $posts->contents=$request->get('contents');
+            $posts->save();
+            //            return redirect('/dashboard/posts_list')->with('message','發表成功');
+            return redirect('/dashboard/forum_personal/'.$user->id)->with('message','發表成功');
+        }
+    }
+
+    public function forumPostsEdit($id, $editType='all')
+    {
+        $postInfo = ForumPosts::find($id);
+        return view('/dashboard/forum_posts_edit',compact('postInfo','editType'));
+    }
+
+    public function forum_personal(Request $request)
+    {
+        //        return redirect(url('/dashboard/posts_list'));
+        $user = $request->user();
+
+        $uid = $request->uid;
+
+        if($user->id != $uid && $uid != 1049) {
+            $checkPostMangeStatus = ForumManage::where('user_id', $user->id)->where('apply_user_id', $uid)->first();
+            if(!isset($checkPostMangeStatus)){
+                return back()->with('message', '您無法進入此討論區');
+            }elseif($checkPostMangeStatus->status == 0 && isset($checkPostMangeStatus)) {
+                return back()->with('message', '此討論區尚在申請中');
+            }elseif ($checkPostMangeStatus->status == 2) {
+                return back()->with('message', '您無法進入此討論區');
+            }
+        }
+
+        $post_forum = Forum::where('user_id', $uid)->first();
+
+        $posts_personal_all = ForumPosts::selectraw('
+        users.id as uid, 
+        users.name as uname, 
+        users.engroup as uengroup, 
+        forum_posts.is_anonymous as panonymous, 
+        forum_posts.views as uviews, 
+        forum_posts.top,
+        user_meta.pic as umpic, 
+        forum_posts.id as pid, 
+        forum_posts.forum_id as f_id, 
+        forum_posts.title as ptitle, 
+        forum_posts.contents as pcontents, 
+        forum_posts.updated_at as pupdated_at,  
+        forum_posts.created_at as pcreated_at,
+        (select count(*) from forum_posts where (type="sub" and forum_id = f_id and deleted_at is null and reply_id in (pid, EXISTS (select id from forum_posts where (type="sub" and reply_id = pid and forum_id = f_id and deleted_at is null ))) )) as posts_reply_num
+        ')
+            ->LeftJoin('users', 'users.id','=','forum_posts.user_id')
+            ->leftJoin('forum', 'forum.user_id', 'forum_posts.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->where('forum.status', 1)
+            ->where('forum_posts.user_id', $uid)
+            ->where('forum_posts.type', 'main')
+            ->orderBy('forum_posts.top', 'desc')
+            ->orderBy('pupdated_at', 'desc')
+            ->paginate(10);
+
+        //        if(!$postDetail) {
+        //            $request->session()->flash('message', '找不到文章：' . $pid);
+        //            $request->session()->reflash();
+        //            return redirect()->route('posts_list');
+        //        }
+
+        //        $replyDetail = Posts::selectraw('users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, posts.views as uviews, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at,  posts.created_at as pcreated_at')
+        //            ->LeftJoin('users', 'users.id','=','posts.user_id')
+        //            ->join('user_meta', 'users.id','=','user_meta.user_id')
+        //            ->orderBy('pcreated_at','desc')
+        //            ->where('posts.reply_id', $pid)->get();
+
+        //檢查是否為連續兩個月以上的VIP會員
+        $checkUserVip=0;
+        $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
+        if($isVip){
+            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+                $checkUserVip=1;
+            }
+        }
+        return view('/dashboard/forum_personal', compact('posts_personal_all','post_forum', 'checkUserVip'))->with('user', $user);
+    }
+
+    public function forum_manage(Request $request)
+    {
+
+        $user = $request->user();
+
+        $posts_forum = Forum::where('user_id', $user->id)->first();
+
+        $posts_manage_users = ForumManage::select('forum_manage.user_id','users.name','forum_manage.status')
+            ->leftJoin('users', 'users.id','=','forum_manage.user_id')
+            ->where('forum_manage.apply_user_id', $user->id)
+            ->where('status','<>', 2)
+            ->paginate(15);
+        //檢查是否為連續兩個月以上的VIP會員
+        $checkUserVip=0;
+        $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
+        if($isVip){
+            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+                $checkUserVip=1;
+            }
+        }
+
+        return view('/dashboard/forum_manage', compact( 'posts_manage_users', 'posts_forum', 'checkUserVip'))->with('user', $user);
+    }
+
+    public function forum_manage_toggle(Request $request)
+    {
+        $user = $request->user();
+        $uid = $request->uid;
+        $auid = $request->auid;
+        $status = $request->status;
+        $fid = Forum::where('user_id', $auid)->first();
+        $checkData = ForumManage::where('forum_id', $fid->id)->where('user_id', $uid)->where('apply_user_id', $auid)->first();
+        if($status==0){
+            if(!isset($checkData)){
+                ForumManage::insert(['forum_id'=>$fid->id, 'user_id' => $uid, 'apply_user_id' => $auid, 'status'=> 1, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
+                $msg = '申請成功';
+//                ForumManage::insert(['forum_id'=>$fid->id, 'user_id' => $uid, 'apply_user_id' => $auid, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
+//                $msg = '申請成功';
+            }else{
+                $msg = '已重複申請';
+            }
+
+        }else if($status==1){
+            if(isset($checkData)){
+                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->update(['status' => $status, 'updated_at' => Carbon::now()]);
+                $msg = '該會員已通過';
+            }else{
+                $msg = 'error';
+            }
+
+        }else if($status==2){
+            if(isset($checkData)){
+                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->update(['status' => $status, 'updated_at' => Carbon::now()]);
+                $msg = '已拒絕該會員申請';
+            }else{
+                $msg = 'error';
+            }
+
+        }
+        else if($status==3){
+            if(isset($checkData)){
+                ForumManage::where('user_id', $uid)->where('apply_user_id', $auid)->delete();
+                if($auid = $user->id){
+                    $msg = '已移除該會員';
+                }else {
+                    $msg = '已取消申請';
+                }
+            }else{
+                $msg = 'error';
+            }
+        }
+        else{
+            $msg = 'error';
+        }
+
+        echo json_encode(['message'=>$msg]);
+    }
+
+    public function forum_manage_chat($auid, $uid)
+    {
+        $user = $this->user;
+
+        if($auid != $uid) {
+
+            $forumInfo = Forum::select('forum.*')
+                ->leftJoin('users', 'users.id','=','forum.user_id')
+                ->where('forum.user_id', $auid)->first();
+
+            $checkStatus = ForumManage::select('forum_manage.status','users.name', 'forum_manage.user_id', 'forum_manage.apply_user_id')
+                ->leftJoin('users', 'users.id','=','forum_manage.apply_user_id')
+                ->where('forum_manage.user_id', $uid)
+                ->where('forum_manage.apply_user_id', $auid)
+                ->where('forum_manage.status','<>', 2)
+                ->get()->first();
+
+            $uidInfo = User::where('id', $uid)->first();
+
+        }
+
+        if(!isset($checkStatus)) {
+            return redirect()->route('forum')->with('message', '您已無法進入此聊天室');
+        }
+
+        //檢查是否為連續兩個月以上的VIP會員
+        $checkUserVip=0;
+        $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
+        if($isVip){
+            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+                $checkUserVip=1;
+            }
+        }
+
+        return view('/dashboard/forum_manage_chat', compact('checkStatus', 'forumInfo', 'uidInfo', 'checkUserVip'))->with('user', $user);
+    }
+
+    public function forum_posts($fid)
+    {
+        $user = $this->user;
+        if ($user && $user->engroup == 2){
+            return back();
+        }
+
+        if ($user) {
+            return view('/dashboard/forum_posts')
+                ->with('user', $user)
+                ->with('cur', $user)
+                ->with('fid', $fid);
+        }
+    }
+
+    public function forum_post_detail(Request $request)
+    {
+        //        return redirect(url('/dashboard/posts_list'));
+        $user = $request->user();
+
+        $pid = $request->pid;
+        //$this->post_views($pid);
+        $postDetail = ForumPosts::selectraw('forum_posts.forum_id, users.id as uid, users.name as uname, users.engroup as uengroup, forum_posts.is_anonymous as panonymous, forum_posts.views as uviews, user_meta.pic as umpic, forum_posts.id as pid, forum_posts.title as ptitle, forum_posts.contents as pcontents, forum_posts.updated_at as pupdated_at,  forum_posts.created_at as pcreated_at')
+            ->LeftJoin('users', 'users.id','=','forum_posts.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->where('forum_posts.id', $pid)->first();
+
+        if(!$postDetail) {
+            $request->session()->flash('message', '找不到文章：' . $pid);
+            $request->session()->reflash();
+            return redirect()->route('forum');
+        }
+
+        $replyDetail = ForumPosts::selectraw('forum_posts.forum_id, users.id as uid, users.name as uname, users.engroup as uengroup, forum_posts.is_anonymous as panonymous, forum_posts.views as uviews, user_meta.pic as umpic, forum_posts.id as pid, forum_posts.title as ptitle, forum_posts.contents as pcontents, forum_posts.updated_at as pupdated_at,  forum_posts.created_at as pcreated_at')
+            ->LeftJoin('users', 'users.id','=','forum_posts.user_id')
+            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->orderBy('pcreated_at','desc')
+            ->where('forum_posts.reply_id', $pid)->get();
+
+        //檢查是否為連續兩個月以上的VIP會員
+        $checkUserVip=0;
+        $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
+        if($isVip){
+            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+                $checkUserVip=1;
+            }
+        }
+        return view('/dashboard/forum_post_detail', compact('postDetail','replyDetail', 'checkUserVip'))->with('user', $user);
+    }
+
+    public function forum_posts_reply(Request $request)
+    {
+        $posts = new ForumPosts;
+        $posts->forum_id = $request->get('forum_id');
+        $posts->reply_id = $request->get('reply_id');
+        $posts->user_id = $request->get('user_id');
+        $posts->type = $request->get('type','sub');
+        $posts->contents   = str_replace('..','',$request->get('contents'));
+        $posts->tag_user_id = $request->get('tag_user_id');
+        $posts->save();
+
+        return back()->with('message', '留言成功!');
+    }
+
+    public function forum_posts_delete(Request $request)
+    {
+        $posts = ForumPosts::where('id',$request->get('pid'))->first();
+        if($posts->user_id!== auth()->user()->id){
+            return response()->json(['msg'=>'留言刪除失敗 不可刪除別人的留言!']);
+        }else{
+            $postsType = $posts->type;
+            $posts->delete();
+
+            if($postsType=='main')
+                return response()->json(['msg'=>'刪除成功!','postType'=>'main','redirectTo'=>'/dashboard/forum_personal/'.auth()->user()->id]);
+            else
+                return response()->json(['msg'=>'留言刪除成功!','postType'=>'sub']);
+        }
+    }
+
     public function sms_add_view(Request $request){
         return view('/sms/sms_add_view');
     }
