@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class PostsAddColumnTop extends Migration
@@ -17,6 +18,8 @@ class PostsAddColumnTop extends Migration
             Schema::table('posts', function (Blueprint $table) {
                 $table->smallInteger('top')->default(0)->after('views');
             });
+
+            DB::table('posts')->where('id', 69)->update(['top'=>1]);
         }
     }
 
