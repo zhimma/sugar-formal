@@ -14,6 +14,7 @@ use App\Models\MemberPic;
 use App\Models\Message;
 use App\Models\MessageBoard;
 use App\Models\Posts;
+use App\Models\Forum;
 use App\Models\Reported;
 use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
@@ -1288,6 +1289,10 @@ class UserController extends \App\Http\Controllers\BaseController
         //$banned_advance_auth_status = DB::table('banned_users')->where('member_id', $id)->where('reason','進階驗證封鎖')->where('message_content','1')->count() > 0 ? 1:0;
         $banned_advance_auth_status = DB::table('banned_users')->where('member_id', $id)->where('adv_auth',1)->count() > 0 ? 1:0;
         // var_dump($banned_advance_auth_count);die();
+
+        //討論區狀態
+        $posts_forum = Forum::where('user_id', $user->id)->first();
+
         if (str_contains(url()->current(), 'edit')) {
             $birthday = date('Y-m-d', strtotime($userMeta->birthdate));
             $birthday = explode('-', $birthday);
@@ -1327,7 +1332,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('ip',$ip)
                 ->with('userAgent',$userAgent)
 				->with('banned_advance_auth_status', $banned_advance_auth_status)
-                ->with('last_images_compare_encode',ImagesCompareEncode::orderByDesc('id')->first());
+                ->with('last_images_compare_encode',ImagesCompareEncode::orderByDesc('id')->first())
+                ->with('posts_forum', $posts_forum);
         }
     }
 
@@ -4895,5 +4901,16 @@ class UserController extends \App\Http\Controllers\BaseController
         }
 
         return back()->with('error', 'unknow controller method');
-    } 
+    }
+
+    public function forum_toggle(Request $request)
+    {
+        $uid = $request->uid;
+        $status = $request->status;
+        $checkData = Forum::where('user_id', $uid)->first();
+        if($checkData){
+            Forum::where('user_id', $uid)->update(['status' => $status, 'updated_at' => Carbon::now()]);
+        }
+        echo json_encode(['ok']);
+    }
 }
