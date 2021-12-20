@@ -24,7 +24,7 @@
 				<div class="col-sm-12 col-xs-12 col-md-10">
 					<div class="shou">
 						<span>討論區</span><font>Discussion</font>
-						<a @if(isset($post_forum))  onclick="forumTip({{$user->id}})"  @else onclick="CheckEnterPop()"
+						<a @if(isset($post_forum))  onclick="forumTip({{$user->id}})"  @else onclick="ForumCheckEnterPop()"
 {{--						   href="/dashboard/ForumEdit/{{$user->id}}" --}}
 						   @endif
 						   class="xinzeng_but" style="font-size: 12px;"><img src="/posts/images/liuyan_03.png" style="height:15px;">個人討論區</a>
@@ -195,7 +195,7 @@
 	}
 
 	let script = '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0"></a>';
-	function CheckEnterPop() {
+	function ForumCheckEnterPop() {
 		@if(!$user->isCanPosts_vip())
 			c5('您成為VIP未達滿三個月以上');
 		@elseif($user->isEverBanned())
