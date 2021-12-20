@@ -69,7 +69,7 @@
             
             .margin_top_one_line {margin-top:1em;}
             .xy_input {border-radius:5px;}
-            .xy_input.only_show {width:60% !important;}
+            .xy_input.only_show {width:60% !important;color:#666666;}
             .center {text-align:center;}
             img.adv_auth_icon {margin:0;}
             div.blnr {padding:0;}
@@ -146,7 +146,7 @@
 										<div class="zybg_new02 @if(in_array('i',Session::get('error_code')??[])) has_error @endif">                                       
 											<input name="id_serial" id="id_serial" type="text" class="xy_input xy_left wbd" placeholder="請輸入身分證字號"  autocomplete="off">
 										</div>
-										<div class="zybg_new02 @if(in_array('p',Session::get('error_code')??[])) has_error @endif">
+										<div class="zybg_new02 @if(in_array('p',Session::get('error_code')??[])) has_error @endif"  onclick="origin_phone_popup('{{$user->getAuthMobile(true)}}');return false;">
 											<select name="phone_type" class="zy_select">
 												<option>台灣</option>
 											</select>
@@ -193,9 +193,10 @@
 @if(request()->msg=='canceled_ban' && $user->isAdvanceAuth() || Session::has('error_code')  || Session::has('message') || !$user->isAdvanceAuth() || $init_check_msg)
    
 <style>
-#tab01 .n_bbutton {width:initial;}
-#tab01 .n_bbutton span {float:initial;}
+#tab01 .n_bbutton,#tab_general_alert .n_bbutton {width:initial;}
+#tab01 .n_bbutton span,#tab_general_alert .n_bbutton span {float:initial;}
 #tab01 .n_fengs {text-align:center;}
+#tab_general_alert .n_fengs a:hover,#tab_general_alert .n_fengs a:focus {color: #333333;    text-decoration: none;}
 </style>
 <!--弹出-->
 <div class="blbg" onclick="gmBtn1()" ></div>
@@ -218,6 +219,17 @@
     <a id="" onclick="gmBtn1()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div> 
 @endif
+<div class="bl bl_tab " id="tab_general_alert" >
+    <div class="bltitle" style="margin-top: -1px;"><span>提示</span></div>
+    <div class="n_blnr01 matop10">
+        <div class="n_fengs" >
+        </div>
+        <div class="n_bbutton">
+            <span><a class="n_left" onclick="gmBtn1()">確定</a></span>
+        </div>
+    </div>
+    <a  onclick="gmBtn1()" class="bl_gb"><img src="/auth/images/gb_icon.png"></a>
+</div>
 <div class="bl bl_tab " id="tab01" >
     <div class="bltitle" style="margin-top: -1px;"><span>提示</span></div>
     <div class="n_blnr01 matop10">
@@ -246,9 +258,6 @@
                 您好，您即將進入本站的進階身分驗證資訊系統。
                 通過驗證將獲得本站的<img src="{{asset('new/images/b_7.png')}}" class="adv_auth_icon" />進階驗證標籤<img src="{{asset('new/images/b_7.png')}}"  class="adv_auth_icon" />               
             @endif 
-
-
-
         </div>
         <div class="n_bbutton">
             <span><a class="n_left" onclick="gmBtn1()">確定</a></span>
@@ -424,6 +433,13 @@
             check_id_rs = total % 10 == 0
         }
         return check_id_rs
+    }
+    
+    function origin_phone_popup(phone) {
+        if(phone!='' && phone!=undefined) {
+            $(".blbg").show();
+            $('#tab_general_alert').show().find('.n_fengs').html('您之前驗證的手機門號為'+phone+'，需以相同的門號進行驗證，如需更換手機請<a href="https://lin.ee/rLqcCns" target="_blank">點此加站長line <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="all: initial;all: unset;height: 36px; float: unset;vertical-align:middle;"></a> 聯絡');
+        }
     }
 
 </script>
