@@ -24,7 +24,10 @@
 				<div class="col-sm-12 col-xs-12 col-md-10">
 					<div class="shou">
 						<span>討論區</span><font>Discussion</font>
-						<a @if(isset($post_forum))  onclick="forumTip({{$user->id}})"  @else href="/dashboard/ForumEdit/{{$user->id}}" @endif class="xinzeng_but" style="font-size: 12px;"><img src="/posts/images/liuyan_03.png" style="height:15px;">個人討論區</a>
+						<a @if(isset($post_forum))  onclick="forumTip({{$user->id}})"  @else onclick="CheckEnterPop()"
+{{--						   href="/dashboard/ForumEdit/{{$user->id}}" --}}
+						   @endif
+						   class="xinzeng_but" style="font-size: 12px;"><img src="/posts/images/liuyan_03.png" style="height:15px;">個人討論區</a>
 					</div>
 					<!--  -->
 					<a class="tl_button_PC" href="/dashboard/posts_list" style="width: 95%;"><img src="/posts/images/taolun_but_pc.png"></a>
@@ -189,6 +192,33 @@
 				});
 			});
 		});
+	}
+
+	let script = '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0"></a>';
+	function CheckEnterPop() {
+		@if(!$user->isCanPosts_vip())
+			c5('您成為VIP未達滿三個月以上');
+		@elseif($user->isEverBanned())
+			@php
+			$record = $user->isEverBanned();
+			$reason = str_replace('(未續費)','', $record->reason);
+			$text = '您於'.substr($record->created_at, 0, 10).'曾被站方因'.$reason.'封鎖，不符合開設個人討論區資格，若有意見反應，請洽站長Line@';
+			@endphp
+			let text = '{{$text}}';
+			c5(text);
+			$('.bltext').append(script);
+		@elseif($user->isEverWarned())
+			@php
+			$record = $user->isEverWarned();
+			$reason = str_replace('(未續費)','', $record->reason);
+			$text = '您於'.substr($record->created_at, 0, 10).'曾被站方因'.$reason.'警示，不符合開設個人討論區資格，若有意見反應，請洽站長Line@';
+			@endphp
+			let text2 = '{{$text}}';
+			c5(text2);
+			$('.bltext').append(script);
+		@else
+			window.location.href = "/dashboard/ForumEdit/{{$user->id}}";
+		@endif
 	}
 
 </script>
