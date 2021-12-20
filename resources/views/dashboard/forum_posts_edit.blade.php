@@ -31,7 +31,7 @@
 									<input name="title" id="title" type="text" class="tw_input" placeholder="#標題" value="{{ $postInfo->title  }}">
 								@endif
 								<textarea name="contents" id="contents" cols="" rows="" class="tw_textinput" placeholder="#内容" required>{{ $postInfo->contents }}</textarea>
-								<div class="dengl_but matop30" onclick="send_posts_btn()">確定</div>
+								<div class="dengl_but matop30" onclick="send_posts_btn()" style="margin-top: 10px;">確定</div>
 							</form>
 						</div>
 					</div>
