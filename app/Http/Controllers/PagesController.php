@@ -4506,11 +4506,11 @@ class PagesController extends BaseController
             return back();
         }
 
-        $ban = banned_users::where('member_id', $user->id)->first();
-        $banImplicitly = \App\Models\BannedUsersImplicitly::where('target', $user->id)->first();
-        if($ban || $banImplicitly){
-            return back();
-        }
+//        $ban = banned_users::where('member_id', $user->id)->first();
+//        $banImplicitly = \App\Models\BannedUsersImplicitly::where('target', $user->id)->first();
+//        if($ban || $banImplicitly){
+//            return back();
+//        }
 
         $posts = Posts::selectraw('posts.top, users.id as uid, users.name as uname, users.engroup as uengroup, posts.is_anonymous as panonymous, user_meta.pic as umpic, posts.id as pid, posts.title as ptitle, posts.contents as pcontents, posts.updated_at as pupdated_at, posts.created_at as pcreated_at')
             ->selectRaw('(select updated_at from posts where (type="main" and id=pid) or reply_id=pid or reply_id in ((select distinct(id) from posts where type="sub" and reply_id=pid) )  order by updated_at desc limit 1) as currentReplyTime')
@@ -4545,10 +4545,10 @@ class PagesController extends BaseController
         $checkUserVip=0;
         $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
         if($isVip){
-            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
-            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+//            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+//            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
                 $checkUserVip=1;
-            }
+//            }
         }
 
         return view('/dashboard/posts_list', $data)
@@ -4586,10 +4586,10 @@ class PagesController extends BaseController
         $checkUserVip=0;
         $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
         if($isVip){
-            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
-            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+//            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+//            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
                 $checkUserVip=1;
-            }
+//            }
         }
         return view('/dashboard/post_detail', compact('postDetail','replyDetail', 'checkUserVip'))->with('user', $user);
     }
@@ -4797,11 +4797,11 @@ class PagesController extends BaseController
             return back();
         }
 
-        $ban = banned_users::where('member_id', $user->id)->first();
-        $banImplicitly = \App\Models\BannedUsersImplicitly::where('target', $user->id)->first();
-        if($ban || $banImplicitly){
-            return back();
-        }
+//        $ban = banned_users::where('member_id', $user->id)->first();
+//        $banImplicitly = \App\Models\BannedUsersImplicitly::where('target', $user->id)->first();
+//        if($ban || $banImplicitly){
+//            return back();
+//        }
 
         $post_forum = Forum::where('user_id', $user->id)->first();
 
@@ -4849,10 +4849,10 @@ class PagesController extends BaseController
         $checkUserVip=0;
         $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
         if($isVip){
-            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
-            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+//            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+//            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
                 $checkUserVip=1;
-            }
+//            }
         }
 
         return view('/dashboard/forum', $data)
@@ -4976,10 +4976,10 @@ class PagesController extends BaseController
         $checkUserVip=0;
         $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
         if($isVip){
-            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
-            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+//            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+//            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
                 $checkUserVip=1;
-            }
+//            }
         }
         return view('/dashboard/forum_personal', compact('posts_personal_all','post_forum', 'checkUserVip'))->with('user', $user);
     }
@@ -5000,10 +5000,10 @@ class PagesController extends BaseController
         $checkUserVip=0;
         $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
         if($isVip){
-            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
-            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+//            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+//            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
                 $checkUserVip=1;
-            }
+//            }
         }
 
         return view('/dashboard/forum_manage', compact( 'posts_manage_users', 'posts_forum', 'checkUserVip'))->with('user', $user);
@@ -5092,10 +5092,10 @@ class PagesController extends BaseController
         $checkUserVip=0;
         $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
         if($isVip){
-            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
-            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+//            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+//            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
                 $checkUserVip=1;
-            }
+//            }
         }
 
         return view('/dashboard/forum_manage_chat', compact('checkStatus', 'forumInfo', 'uidInfo', 'checkUserVip'))->with('user', $user);
@@ -5144,10 +5144,10 @@ class PagesController extends BaseController
         $checkUserVip=0;
         $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
         if($isVip){
-            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
-            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
+//            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
+//            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
                 $checkUserVip=1;
-            }
+//            }
         }
         return view('/dashboard/forum_post_detail', compact('postDetail','replyDetail', 'checkUserVip'))->with('user', $user);
     }
