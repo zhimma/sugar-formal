@@ -35,7 +35,15 @@
                             $announceRead->save();
                         }
                     }
-                    $a = str_replace(array("\r\n", "\r", "\n"), "<br>", $a);
+                
+                    $a->content = str_replace(array("\r\n", "\r", "\n"), "<br>", $a->content);
+                    $a->content = str_replace('NAME', $user->name, $a->content);
+                    $a->content = str_replace('|$report|', $user->name, $a->content);
+                    $a->content = str_replace('LINE_ICON', \App\Services\AdminService::$line_icon_html, $a->content);
+                    $a->content = str_replace('|$lineIcon|', \App\Services\AdminService::$line_icon_html, $a->content);         
+                    $a->content = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $a->content);
+                    $a->content = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $a->content);
+                    $a->content= str_replace('NOW_TIME', date("Y-m-d H:i:s"), $a->content);                   
                 }
                 $cc=0;
             }

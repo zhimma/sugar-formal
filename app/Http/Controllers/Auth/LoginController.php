@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Session;
 use App\Observer\BadUserCommon;
+use App\Services\AdminService;
 
 class LoginController extends \App\Http\Controllers\BaseController
 {
@@ -85,7 +86,13 @@ class LoginController extends \App\Http\Controllers\BaseController
         //$announcement = $announcement->content;
         //$announcement = str_replace(PHP_EOL, '\n', $announcement);
         foreach ($announcement as &$a){
-            $a = str_replace(array("\r\n", "\r", "\n"), "<br>", $a);
+            $a->content = str_replace(array("\r\n", "\r", "\n"), "<br>", $a->content);
+            $a->content = str_replace('NAME', auth()->user()->name, $a->content);
+            $a->content = str_replace('|$report|', auth()->user()->name, $a->content);
+            $a->content = str_replace('LINE_ICON', AdminService::$line_icon_html, $a->content);
+            $a->content = str_replace('|$lineIcon|', AdminService::$line_icon_html, $a->content);         
+            $a->content = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $a->content);
+            $a = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $a); 
         }
         $request->session()->flash('announcement', $announcement);
 

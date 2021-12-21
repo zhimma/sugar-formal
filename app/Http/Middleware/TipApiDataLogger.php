@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Closure;
 use Illuminate\Support\Facades\Log;
 use App\Services\VipLogService;
+use App\Services\AdminService;
 
 class TipApiDataLogger{
     private $startTime;
@@ -147,8 +148,20 @@ class TipApiDataLogger{
                             //取資料庫並替換名字
                             $tip_msg1 = AdminCommonText::getCommonText(1);//id2給男會員訊息
                             $tip_msg1 = str_replace('NAME', \App\Models\User::findById($payload['CustomField2'])->name, $tip_msg1);
+                            $tip_msg1 = str_replace('|$report|', \App\Models\User::findById($payload['CustomField2'])->name, $tip_msg1);
+                            $tip_msg1 = str_replace('LINE_ICON', AdminService::$line_icon_html, $tip_msg1); 
+                            $tip_msg1 = str_replace('|$lineIcon|', AdminService::$line_icon_html, $tip_msg1); 
+                            $tip_msg1 = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $tip_msg1);
+                            $tip_msg1 = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $tip_msg1);
+                            $tip_msg1 = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $tip_msg1);  
                             $tip_msg2 = AdminCommonText::getCommonText(2);//id3給女會員訊息
                             $tip_msg2 = str_replace('NAME', $user->name, $tip_msg2);
+                            $tip_msg2 = str_replace('|$report|', $user->name, $tip_msg2);
+                            $tip_msg2 = str_replace('LINE_ICON', AdminService::$line_icon_html, $tip_msg2);
+                            $tip_msg2 = str_replace('|$lineIcon|', AdminService::$line_icon_html, $tip_msg2);        
+                            $tip_msg2 = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $tip_msg2);
+                            $tip_msg2 = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $tip_msg2);
+                            $tip_msg2 = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $tip_msg2); 
                             // 給男會員訊息（需在發送方的訊息框看到，所以是由男會員發送）
                             Message::post($payload['CustomField1'], $payload['CustomField2'], $tip_msg1, false, 1);
                             // 給女會員訊息（需在接收方的訊息框看到，所以是由女會員發送）

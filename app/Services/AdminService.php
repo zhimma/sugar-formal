@@ -40,6 +40,8 @@ class AdminService
      */
     protected $role;
 
+    public static $line_icon_html='<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="all: initial;all: unset;height: 36px; float: unset;"></a>';
+
     /**
      * Check admin user existence.
      *
@@ -642,6 +644,11 @@ class AdminService
         foreach ($request->msg_id as $message_id){
             $message = Message::where('id', $message_id)->get()->first();
             $message->content = str_replace($request->originalMessage, $request->replace, $message->content);
+            $message->content = str_replace('LINE_ICON', AdminService::$line_icon_html, $message->content);
+            $message->content = str_replace('|$lineIcon|', AdminService::$line_icon_html, $message->content);              
+            $message->content = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $message->content);
+            $message->content = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $message->content);
+            $message->content = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $message->content); 
             array_push($message_ids, $message->id);
             $message->save();
         }

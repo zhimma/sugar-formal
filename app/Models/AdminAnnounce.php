@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use App\Services\AdminService;
 
 class AdminAnnounce extends Model
 {
@@ -34,11 +35,20 @@ class AdminAnnounce extends Model
         $a->content = $request->engroup_2;
         $a->updated_at = Carbon::now();
         $a->save();*/
+        $convert_first = $request->convert_first;
+
         $a = AdminAnnounce::select('*')->where('id', '=', $request->id)->first();
         $a->en_group = $request->en_group;
         $a->isVip = $request->isVip;
         $a->is_new_7 = $request->is_new_7??0;
         $a->content = $request->content_word;
+        if($convert_first) {
+            $a->content = str_replace('LINE_ICON', AdminService::$line_icon_html, $a->content);
+            $a->content = str_replace('|$lineIcon|', AdminService::$line_icon_html, $a->content);         
+            $a->content = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $a->content);
+            $a->content = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $a->content);
+            $a->content = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $a->content);          
+        }
         $a->sequence = $request->sequence;
         $a->login_times_alert = $request->login_times_alert;
         if(is_null($request->login_times_alert) || $request->login_times_alert==0){
@@ -49,11 +59,19 @@ class AdminAnnounce extends Model
     }
 
     public static function newAnnouncement(Request $request) {
+        $convert_first = $request->convert_first;
         $a = new AdminAnnounce;
         $a->en_group = $request->en_group;
         $a->isVip = $request->isVip;
         $a->is_new_7 = $request->is_new_7??0;
         $a->content = $request->content_word;
+        if($convert_first) {
+            $a->content = str_replace('LINE_ICON', AdminService::$line_icon_html, $a->content);
+            $a->content = str_replace('|$lineIcon|', AdminService::$line_icon_html, $a->content);         
+            $a->content = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $a->content);
+            $a->content = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $a->content);
+            $a->content = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $a->content);          
+        }  
         $a->sequence = $request->sequence;
         $a->login_times_alert = $request->login_times_alert;
         $a->save();

@@ -39,7 +39,8 @@ class Message extends Model
         'to_id',
         'content',
         'pic',
-        'read'
+        'read',
+        'parent_msg'
     ];
 
     static $date = null;
@@ -604,14 +605,16 @@ class Message extends Model
         $isAdminSender = AdminService::checkAdmin()->id==$sid;
 		if(!$isAdminSender) 
         {
-            $includeDeleted = false;
+            $includeUnsend = $includeDeleted;
             if($user->isVip()) {
                 self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
             }else {
                 self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
             }   
-            
+           
             $query = Message::where('created_at','>=',self::$date);
+            
+            if($includeUnsend) $query->withTrashed()->where(function ($q) {$q->where('unsend',0)->whereNull('deleted_at');$q->orwhere('unsend',1);});
         }  
         else {
             $query = Message::whereNotNull('id');
@@ -865,12 +868,13 @@ class Message extends Model
         return $query->count();
     }
 
-    public static function post($from_id, $to_id, $msg, $tip_action = true, $sys_notice = 0)
+    public static function post($from_id, $to_id, $msg, $tip_action = true, $sys_notice = 0,$parent_msg=null)
     {
         $message = new Message;
         $message->from_id = $from_id;
         $message->to_id = $to_id;
         $message->content = $msg;
+        $message->parent_msg = $parent_msg;
         $message->all_delete_count = 0;
         $message->is_row_delete_1 = 0;
         $message->is_row_delete_2 = 0;

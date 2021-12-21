@@ -1298,7 +1298,8 @@
 						<th>內容</th>
 						<th width="35%">上傳照片</th>
 						<th width="10%">發送時間</th>
-					</tr>
+                        <th width="5%" nowrap>狀態</th>
+                    </tr>
 					</thead>
 					<tbody>
 					@foreach ($Log->items as $key => $item)
@@ -1357,6 +1358,7 @@
 								@endif
 							</td>
 							<td>{{ $item->m_time }}</td>
+                            <td nowrap>{{ $item->unsend?'已收回':'' }}</td>
 						</tr>
 					@endforeach
 					</tbody>

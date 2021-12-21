@@ -632,7 +632,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $admin = $this->admin->checkAdmin();
         if ($admin) {
             $bannedUser = users::where('id', $request->user_id)->get()->first();
-            $msg = Message::where('id', $request->msg_id)->get()->first();
+            $msg = Message::withTrashed()->where(function ($q) {$q->where('unsend',0)->whereNull('deleted_at');$q->orwhere('unsend',1);})->where('id', $request->msg_id)->get()->first();
             $banReason = DB::table('reason_list')->select('content')->where('type', 'ban')->get();
             if (!$bannedUser)
                 return back()->withErrors('查無使用者');
@@ -685,7 +685,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->join('users', 'reported.reported_id', '=', 'users.id')
                 ->where('reported.id', $msg_id)->get()->first();
         } else {
-            $message = Message::select('message.content', 'message.created_at', 'users.name')
+            $message = Message::withTrashed()->where(function ($q) {$q->where('unsend',0)->whereNull('deleted_at');$q->orwhere('unsend',1);})->select('message.content', 'message.created_at', 'users.name')
                 ->join('users', 'message.to_id', '=', 'users.id')
                 ->where('message.id', $msg_id)->get()->first();
         }
@@ -1416,9 +1416,13 @@ class UserController extends \App\Http\Controllers\BaseController
             $msglib_report = Msglib::selectraw('id, title, msg')->where('kind', '=', 'smsg')->get();
             $msglib_msg = collect();
             foreach ($msglib as $m) {
-                // $m->msg = str_replace('|$report|', $user->name, $m->msg);
+                $m->msg = str_replace('|$report|', $user->name, $m->msg);
                 $m->msg = str_replace('NAME', $user->name, $m->msg);
                 $m->msg = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $m->msg);
+                $m->msg = str_replace('LINE_ICON', AdminService::$line_icon_html, $m->msg);               
+                $m->msg = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $m->msg);
+                $m->msg = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $m->msg);
+                $m->msg = str_replace('|$lineIcon|', AdminService::$line_icon_html, $m->msg); 
                 // $m->msg = str_replace('|$reported|', "|被檢舉者|", $m->msg);
                 $msglib_msg->push($m->msg);
             }
@@ -1645,7 +1649,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $date_start = $request->date_start ? $request->date_start : '0000-00-00';
             $date_end = $request->date_end ? $request->date_end . ' 23:59:59' : date('Y-m-d') . ' 23:59:59';
 
-            $messages = Message::whereBetween('created_at', array($date_start, $date_end))
+            $messages = Message::withTrashed()->where(function ($q) {$q->where('unsend',0)->whereNull('deleted_at');$q->orwhere('unsend',1);})->whereBetween('created_at', array($date_start, $date_end))
                 ->where('isReported', 1)
                 ->orderBy('created_at', 'desc');
             $datas = $this->admin->fillMessageDatas($messages);
@@ -1679,7 +1683,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 $date_start = $request->date_start ? $request->date_start : '0000-00-00';
                 $date_end = $request->date_end ? $request->date_end : date('Y-m-d');
 
-                $results = Message::select('*')
+                $results = Message::withTrashed()->where(function ($q) {$q->where('unsend',0)->whereNull('deleted_at');$q->orwhere('unsend',1);})
+                    ->select('*')
                     ->where('content', 'like', '%' . $msg . '%')
                     ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
             }
@@ -1903,8 +1908,13 @@ class UserController extends \App\Http\Controllers\BaseController
             $msglib = Msglib::where('kind','smsg')->get();
             $msglib_msg = collect();
             foreach ($msglib as $m) {
+                $m->msg = str_replace('|$report|', $user->name, $m->msg);
                 $m->msg = str_replace('NAME', $user->name, $m->msg);
                 $m->msg = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $m->msg);
+                $m->msg = str_replace('LINE_ICON', AdminService::$line_icon_html, $m->msg);           
+                $m->msg = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $m->msg);
+                $m->msg = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $m->msg);
+                $m->msg = str_replace('|$lineIcon|', AdminService::$line_icon_html, $m->msg); 
                 $msglib_msg->push($m->msg);
             }
             return view('admin.users.adminMessenger')
@@ -1931,18 +1941,22 @@ class UserController extends \App\Http\Controllers\BaseController
             $msglib3 = Msglib::selectraw('msg')->get();
             /*檢舉者 */
             $user = $this->service->find($id);
-            $message = Message::where('id', $mid)->get()->first();
+            $message = Message::withTrashed()->where(function ($q) {$q->where('unsend',0)->whereNull('deleted_at');$q->orwhere('unsend',1);})->where('id', $mid)->get()->first();
             $sender = User::where('id', is_null($message) ? '' : $message->from_id)->get()->first();
             /*被檢舉者*/
-            $to_user_id = Message::where('id', $mid)->get()->first();
+            $to_user_id = Message::withTrashed()->where(function ($q) {$q->where('unsend',0)->whereNull('deleted_at');$q->orwhere('unsend',1);})->where('id', $mid)->get()->first();
             $to_user = $this->service->find(is_null($to_user_id) ? '' : $to_user_id->to_id);
-            $message_msg = Message::where('to_id', is_null($to_user) ? '' :$to_user->id)->where('from_id', is_null($user) ? '' : $user->id)->get();
+            $message_msg = Message::withTrashed()->where(function ($q) {$q->where('unsend',0)->whereNull('deleted_at');$q->orwhere('unsend',1);})->where('to_id', is_null($to_user) ? '' :$to_user->id)->where('from_id', is_null($user) ? '' : $user->id)->get();
             if (!$msglib_reported->isEmpty()) {
                 foreach ($msglib_reported as $key => $msg) {
                     $msglib_msg[$key] = str_replace('|$report|', is_null($to_user) ? '' : $to_user->name, $msg['msg']);
+                    $msglib_msg[$key] = str_replace('NAME', is_null($to_user) ? '' :$to_user->name, $msg['msg']); 
                     $msglib_msg[$key] = str_replace('|$reported|', is_null($sender) ? '' : $sender->name, $msglib_msg[$key]);
                     $msglib_msg[$key] = str_replace('|$reportTime|', isset($message_msg[0]) ? $message_msg[0]->created_at : null, $msglib_msg[$key]);
                     $msglib_msg[$key] = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $msglib_msg[$key]);
+                    $msglib_msg[$key] = str_replace('|$lineIcon|', AdminService::$line_icon_html, $msglib_msg[$key]);                    
+                    $msglib_msg[$key] = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $msglib_msg[$key]);
+                    $msglib_msg[$key] = str_replace('LINE_ICON', AdminService::$line_icon_html, $msglib_msg[$key]); 
                 }
             } else {
                 foreach ($msglib_all as $key => $msg) {
@@ -1951,10 +1965,14 @@ class UserController extends \App\Http\Controllers\BaseController
             }
             if (!$msglib_report->isEmpty()) {
                 foreach ($msglib_report as $key => $msg) {
+                    $msglib_msg2[$key] = str_replace('NAME', is_null($to_user) ? '' :$to_user->name, $msg['msg']); 
                     $msglib_msg2[$key] = str_replace('|$report|', is_null($to_user) ? '' :$to_user->name, $msg['msg']);
                     $msglib_msg2[$key] = str_replace('|$reported|', is_null($sender) ? '' : $sender->name, $msglib_msg2[$key]);
                     $msglib_msg2[$key] = str_replace('|$reportTime|', isset($message_msg[0]) ? $message_msg[0]->created_at : null, $msglib_msg2[$key]);
                     $msglib_msg2[$key] = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $msglib_msg2[$key]);
+                    $msglib_msg2[$key] = str_replace('|$lineIcon|', AdminService::$line_icon_html, $msglib_msg2[$key]); 
+                    $msglib_msg2[$key] = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $msglib_msg2[$key]);
+                    $msglib_msg2[$key] = str_replace('LINE_ICON', AdminService::$line_icon_html, $msglib_msg2[$key]); 
                 }
             } else {
                 foreach ($msglib_all as $key => $msg) {
@@ -2007,19 +2025,27 @@ class UserController extends \App\Http\Controllers\BaseController
             $reported = User::where('id', $reported_id)->get()->first();
             foreach ($msglib_reported as $key => $msg) {
                 $msglib_msg[$key] = str_replace('|$report|', $user->name, $msg['msg']);
+                $msglib_msg[$key] = str_replace('NAME', $user->name, $msg['msg']); 
                 if ($reported) {
                     $msglib_msg[$key] = str_replace('|$reported|', $reported->name, $msglib_msg[$key]);
                 }
                 $msglib_msg[$key] = str_replace('|$reportTime|', isset($report->created_at) ? $report->created_at : null, $msglib_msg[$key]);
                 $msglib_msg[$key] = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $msglib_msg[$key]);
+                $msglib_msg[$key] = str_replace('|$lineIcon|', AdminService::$line_icon_html, $msglib_msg[$key]);  
+                $msglib_msg[$key] = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $msglib_msg[$key]);
+                $msglib_msg[$key] = str_replace('LINE_ICON', AdminService::$line_icon_html, $msglib_msg[$key]);      
             }
             foreach ($msglib_report as $key => $msg) {
                 $msglib_msg2[$key] = str_replace('|$report|', $user->name, $msg['msg']);
+                $msglib_msg2[$key] = str_replace('NAME', $user->name, $msg['msg']); 
                 if ($reported) {
                     $msglib_msg2[$key] = str_replace('|$reported|', $reported->name, $msglib_msg2[$key]);
                 }
                 $msglib_msg2[$key] = str_replace('|$reportTime|', isset($report->created_at) ? $report->created_at : null, $msglib_msg2[$key]);
                 $msglib_msg2[$key] = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $msglib_msg2[$key]);
+                $msglib_msg2[$key] = str_replace('|$lineIcon|', AdminService::$line_icon_html, $msglib_msg2[$key]);                                 
+                $msglib_msg2[$key] = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $msglib_msg2[$key]);
+                $msglib_msg2[$key] = str_replace('LINE_ICON', AdminService::$line_icon_html, $msglib_msg2[$key]); 
             }
             return view('admin.users.messenger')
                 ->with('admin', $admin)
@@ -2055,7 +2081,7 @@ class UserController extends \App\Http\Controllers\BaseController
         Message::post($payload['admin_id'], $id, $payload['msg']);
         if ($request->rollback == 1) {
             if ($request->msg_id) {
-                $m = Message::where('id', $request->msg_id)->get()->first();
+                $m = Message::withTrashed()->where(function ($q) {$q->where('unsend',0)->whereNull('deleted_at');$q->orwhere('unsend',1);})->where('id', $request->msg_id)->get()->first();
                 $m->isReported = 0;
                 $m->reportContent = '';
                 $m->save();
@@ -2272,6 +2298,11 @@ class UserController extends \App\Http\Controllers\BaseController
             $a = AdminCommonText::select('*')->where('id', '=', $request->id)->first();
             
             $a->content = $request->content2;
+            $a->content = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $a->content);
+            $a->content = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $a->content);
+            $a->content = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $a->content);
+            $a->content = str_replace('LINE_ICON', AdminService::$line_icon_html, $a->content);
+            $a->content = str_replace('|$lineIcon|', AdminService::$line_icon_html, $a->content); 
             $a->save();
             return back()->with('message', '成功修改');
         }
@@ -2675,7 +2706,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $msglib = MsgLib::where('id', $id)->first();
 
             $data = array(
-                'page_title' => '編輯訊息',
+                'page_title' => '編輯訊息範本',
                 'msg_id' => $msglib->id,
                 'title' => $msglib->title,
                 'msg' => $msglib->msg,
@@ -2683,7 +2714,7 @@ class UserController extends \App\Http\Controllers\BaseController
             );
         } else {
             $data = array(
-                'page_title' => '新增訊息',
+                'page_title' => '新增訊息範本',
             );
         }
         return view('admin.users.messenger_create', $data);
@@ -2694,7 +2725,7 @@ class UserController extends \App\Http\Controllers\BaseController
         if ($id != 0) {
             $msglib = MsgLib::where('id', $id)->first();
             $data = array(
-                'page_title' => '編輯訊息',
+                'page_title' => '編輯訊息範本',
                 'msg_id' => $msglib->id,
                 'title' => $msglib->title,
                 'msg' => $msglib->msg,
@@ -2702,7 +2733,7 @@ class UserController extends \App\Http\Controllers\BaseController
             );
         } else {
             $data = array(
-                'page_title' => '新增訊息',
+                'page_title' => '新增訊息範本',
             );
         }
         return view('admin.users.messenger_create', $data);
@@ -2713,7 +2744,7 @@ class UserController extends \App\Http\Controllers\BaseController
         if ($id != 0) {
             $msglib = MsgLib::where('id', $id)->first();
             $data = array(
-                'page_title' => '編輯訊息',
+                'page_title' => '編輯訊息範本',
                 'msg_id' => $msglib->id,
                 'title' => $msglib->title,
                 'msg' => $msglib->msg,
@@ -2721,7 +2752,7 @@ class UserController extends \App\Http\Controllers\BaseController
             );
         } else {
             $data = array(
-                'page_title' => '新增訊息',
+                'page_title' => '新增訊息範本',
             );
         }
         return view('admin.users.messenger_create', $data);
@@ -3875,8 +3906,14 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function modifyContent(Request $request)
     {
+        $evaluation_content = $request->input('evaluation_content');
+        $evaluation_content = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $evaluation_content);
+        $evaluation_content = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $evaluation_content);
+        $evaluation_content = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $evaluation_content);
+        $evaluation_content = str_replace('LINE_ICON', AdminService::$line_icon_html, $evaluation_content);
+        $evaluation_content = str_replace('|$lineIcon|', AdminService::$line_icon_html, $evaluation_content);  
         DB::table('evaluation')->where('id',$request->input('id'))->update(
-            ['content' => $request->input('evaluation_content')]
+            ['content' => $evaluation_content]
         );
         return back()->with('message', '評價內容已更新');
     }
@@ -4137,6 +4174,11 @@ class UserController extends \App\Http\Controllers\BaseController
 
         $message = MessageBoard::where('id', $id)->first();
         $message->contents=$contents;
+        $message->contents = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $message->contents);
+        $message->contents = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $message->contents);
+        $message->contents = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $message->contents);
+        $message->contents = str_replace('LINE_ICON', AdminService::$line_icon_html, $message->contents);
+        $message->contents = str_replace('|$lineIcon|', AdminService::$line_icon_html, $message->contents); 
         $message->save();
 
         return back()->with('message', '修改留言成功！');

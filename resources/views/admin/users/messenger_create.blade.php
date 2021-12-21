@@ -19,14 +19,14 @@
 <table class="table table-bordered table-hover">
     <h1>{{$page_title}}</h1>
     @if(str_contains(url()->current(), 'delpic'))
-        <p>變數設定說明： 被刪除會員的名字 NAME ，照片創建時間 TIME (刪大頭照無照片時間)</p>
-        <p>範例:NAME您好，由於您在TIME上傳的照片不適合網站主旨，故已刪除。請重新上傳。如有疑慮請與站長聯絡。</p>
-        <p>範例:NAME您好，由於您的大頭照不適合網站主旨，故已刪除。請重新上傳。如有疑慮請與站長聯絡。</p>
+        <p>變數設定說明： 被刪除會員的名字 NAME ，照片創建時間 TIME (刪大頭照無照片時間)，line加入好友圖示 LINE_ICON</p>
+        <p>範例:NAME您好，由於您在TIME上傳的照片不適合網站主旨，故已刪除。請重新上傳。如有疑慮請與站長聯絡：LINE_ICON。</p>
+        <p>範例:NAME您好，由於您的大頭照不適合網站主旨，故已刪除。請重新上傳。如有疑慮請與站長聯絡：LINE_ICON。</p>
     @elseif(str_contains(url()->current(), 'editPic_sendMsg'))
-        <p>變數設定說明： 被會員的名字 NAME ，現在時間 NOW_TIME</p>
-        <p>範例:NAME您好，由於您上傳的照片不適合網站主旨，故已在NOW_TIME刪除。請重新上傳。如有疑慮請與站長聯絡。</p>
+        <p>變數設定說明： 被會員的名字 NAME ，現在時間 NOW_TIME，line加入好友圖示 LINE_ICON。</p>
+        <p>範例:NAME您好，由於您上傳的照片不適合網站主旨，故已在NOW_TIME刪除。請重新上傳。如有疑慮請與站長聯絡：LINE_ICON。</p>
     @else
-        <p>檢舉者變數|$report|，被檢舉者變數|$reported|   ，範例:|$report|在|$reportTime|檢舉|$reported|，經站長在|$responseTime|判別沒有問題。</p>
+        <p>檢舉者變數|$report|，被檢舉者變數|$reported|，line加入好友圖示|$lineIcon|   ，範例:|$report|在|$reportTime|檢舉|$reported|，經站長在|$responseTime|判別沒有問題。如有疑慮請與站長聯絡：|$lineIcon|。</p>
     @endif
     <button class="savemsgbtn btn btn-primary">儲存</button>
     <form action="" id='msglibform' method='POST'>
@@ -44,8 +44,8 @@
             @endif
             
         </select>
-        標題<input type="text" name="title_msglib" id="msglib_title" value="{{$title??''}}"></br>
-        訊息<textarea name="textarea_msglib" id="msglib_content" class="form-control" cols="80" rows="5">{{$msg??''}}</textarea>
+        範本選項標題<input type="text" name="title_msglib" id="msglib_title" value="{{$title??''}}"><br>
+        範本內容<textarea name="textarea_msglib" id="msglib_content" class="form-control" cols="80" rows="5">{{$msg??''}}</textarea>
     </form>
     </table>
 <script>

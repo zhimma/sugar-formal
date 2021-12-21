@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
-
+use App\Services\AdminService;
 //use Shivella\Bitly\Facade\Bitly;
 
 class Message_newController extends BaseController {
@@ -243,11 +243,12 @@ class Message_newController extends BaseController {
             $messageInfo = Message::create([
                 'from_id'=>$user->id,
                 'to_id'=>$payload['to'],
+                'parent_msg'=>($payload['parent']??null)
             ]);
 
             $messagePosted = $this->message_pic_save($messageInfo->id, $request->file('images'));
         }else {
-            $messagePosted = Message::post($user->id, $payload['to'], $payload['msg']);
+            $messagePosted = Message::post($user->id, $payload['to'], $payload['msg'],true,null,$payload['parent']??null);
         }
 
         //line通知訊息
@@ -509,6 +510,11 @@ class Message_newController extends BaseController {
         //$announcement = str_replace(PHP_EOL, '\n', $announcement);
         foreach ($announcement as &$a){
             $a = str_replace(array("\r\n", "\r", "\n"), "<br>", $a);
+            $a = str_replace('LINE_ICON', AdminService::$line_icon_html, $a);
+            $a = str_replace('|$lineIcon|', AdminService::$line_icon_html, $a);         
+            $a = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $a);
+            $a = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $a);
+            $a = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $a);             
         }
         return response()->json($announcement);
     }
@@ -584,5 +590,27 @@ class Message_newController extends BaseController {
 
     public function getUnread($user_id){
         return \App\Models\Message::unread($user_id);
+    }
+    
+    public function unsendChat(Request $request) {
+        $payload = $request->all();
+        $unsend_id = $payload['unsend_msg'];
+        $user = Auth::user();
+        
+        if($user->isVIP() &&  !isset($user->banned ) && !isset($user->implicitlyBanned)){
+            $msg = Message::find($unsend_id);
+            $msg->unsend = 1;
+            $msg->save();
+            $msg->delete();
+            return back();
+        }
+        else {
+            if($isCalledByEvent){
+                return array('error' => 1,
+                            'content' => '非VIP無法收回訊息。');
+            }
+            return back()->withErrors(['非VIP無法收回訊息。']);       
+        }
+        
     }
 }

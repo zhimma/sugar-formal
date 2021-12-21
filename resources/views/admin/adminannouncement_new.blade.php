@@ -8,17 +8,20 @@
             text-align: left;
         }
         .is_new_block {position:relative;top:20px;color:black;font-weight:normal;}
+        .cvvs_box {margin-top:5px;}
+        .ainput {width:80px;}   
     </style>
     <body style="padding: 15px;">
     <h1>新增站長公告</h1>
+     <p>變數設定說明： line加入好友圖示 LINE_ICON</p>
     <form action="{{ route('admin/announcement/new') }}" method="post">
         {!! csrf_field() !!}
         <table class="table-bordered table-hover center-block text-center" id="table">
             <tr>
                 <th class="text-center">內容</th>
                 <th class="text-center">性別</th>
-                <th class="text-center">普通會員/VIP</th>
-                <th class="text-center">排序(預設為1)</th>
+                <th class="text-center" nowrap>普通會員<br>/VIP</th>
+                <th class="text-center" nowrap>排序(預設為1)</th>
                 <th class="text-center">在第幾次login時才跳出此公告</th>
                 <th class="text-center">操作</th>
             </tr>
@@ -42,15 +45,18 @@
                     </div>                    
                 </td>
                 <td>
-                    <input type="number" name="sequence" min="1" value="1">
+                    <input type="number" class="ainput" name="sequence" min="1" value="1">
                 </td>
                 <td>
-                    <input type="number" name="login_times_alert" min="1" value="10">
+                    <input type="number" class="ainput" name="login_times_alert" min="1" value="10">
                 </td>
                 <td>
                     <input type="submit" class='text-white btn btn-success' value="送出">
                     <input type="reset"  class='text-white btn btn-danger' value="復原">
-                </td>
+                    <div class="cvvs_box">
+                        <input type="submit" name="convert_first" class='text-white btn btn-success' value="先轉換變數再送出" onclick="return confirm('轉換變數可將變數轉換成html，所以可以用html修改及調整高度、寬度...等外觀設定，但會失去簡潔的變數形式');">
+                    </div>                
+                </td>            
             </tr>
         </table>
     </form>

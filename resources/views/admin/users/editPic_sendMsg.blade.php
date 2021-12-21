@@ -17,12 +17,12 @@
     @include('partials.errors')
     @include('partials.message')
     <table class="table table-bordered table-hover">
-        <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create/editPic_sendMsg" target="_blank"><div class="btn btn-success message_block">新增</div></a>
+        <h1 class="message_block">訊息範本列表</h1><a href="/admin/users/message/msglib/create/editPic_sendMsg" target="_blank"><div class="btn btn-success message_block">新增</div></a>
         <br>
         <tr>
-            <td>訊息標題</td>
+            <td>範本選項標題</td>
             <td></td>
-            <td>訊息內容</td>
+            <td>範本內容</td>
         </tr>
         @forelse($msglib_report as $msglib_report)
             <tr>
@@ -32,19 +32,19 @@
                 <td>{{$msglib_report->msg}}</td>
             </tr>
         @empty
-            <tr><td>目前沒有預設選項</td></tr>
+            <tr><td>目前沒有範本選項</td></tr>
         @endforelse
     </table>
     <h1>發送站長訊息給 -> {{ $from_user->name}}</h1>
     <table class="table table-bordered table-hover">
         <tr>
-            <td>預設選項</td>
+            <td nowrap>範本選項</td>
             <td>
                 <form id="idForm">
                     @forelse($msglib as $msglib)
                         <div class="btn btn-success com_tpl tpl" id="{{$msglib->id}}">{{$msglib->title}}</div>
                     @empty
-                        目前沒有預設選項
+                        目前沒有範本選項
                     @endforelse
                 </form>
                 

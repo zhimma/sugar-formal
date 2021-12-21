@@ -14,6 +14,7 @@
 		<th>回覆收訊者</th>
 		<th>封鎖收訊者</th>
 		<th>發送時間</th>
+        <th width="5%" nowrap>狀態</th>
 		<td style="text-align: center; vertical-align: middle"><button type="submit" class="btn btn-danger delete-btn">刪除選取</button></td>
 	</tr>
 	@forelse ($messages as $message)
@@ -180,6 +181,7 @@
 			<td>
 				{{ $message->created_at }}
 			</td>
+            <td nowrap>{{ $message->unsend?'已收回':'' }}</td>
 			<td style="text-align: center; vertical-align: middle">
 				<input type="checkbox" name="msg_id[]" value="{{ $message->id }}" class="form-control">
 			</td>
