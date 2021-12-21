@@ -94,6 +94,7 @@
                 <td>照片上傳</td>
                 @endif
                 <td>發送時間</td>
+                <td width="5%" nowrap>狀態</td>
                 <td>
                     <button id="select_all" class="btn btn-primary" onclick="selectAll();return false;">全選</button>
                     <br>
@@ -322,6 +323,7 @@
                 </td>
                 @endif
                 <td>{{ $result['created_at'] }}</td>
+                <td nowrap>{{ $result['unsend']?'已收回':'' }}</td>
                 <td style="text-align: center; vertical-align: middle">
                     <input type="checkbox" name="msg_id[]" value="{{ $result['id'] }}" class="form-control boxes">
                 </td>
@@ -352,7 +354,7 @@
                 <td>內容</td>
                 <td>上傳照片</td>
                 <td>發送時間</td>
-                
+                <td width="5%" nowrap>狀態</td>
                 <td>
                     <button id="select_all" class="btn btn-primary" onclick="selectAll();return false;">全選</button>
                     <br>
@@ -513,6 +515,7 @@
                         @endif
                     </td>
                     <td>{{ $sender['messages'][0]['created_at'] }}</td>
+                    <td nowrap>{{ $sender['messages'][0]['unsend']?'已收回':'' }}</td>
                     <td style="text-align: center; vertical-align: middle">
                         <input type="checkbox" name="msg_id[]" value="{{ $sender['messages'][0]['id'] }}" class="form-control boxes">
                     </td>
@@ -615,6 +618,7 @@
                             @endif
                         </td>
                         <td>{{ $sender['messages'][$i]['created_at'] }}</td>
+                        <td nowrap>{{ $sender['messages'][$i]['unsend']?'已收回':'' }}</td>
                         <td style="text-align: center; vertical-align: middle">
                             <input type="checkbox" name="msg_id[]" value="{{ $sender['messages'][$i]['id'] }}" class="form-control boxes">
                         </td>

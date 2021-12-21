@@ -504,6 +504,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/chat2/{randomNo?}', 'Message_newController@chatview')->name('chat2View');
         Route::get('/dashboard/chat2/chatShow/{cid}', 'PagesController@chat2')->name('chat2WithUser');
         Route::post('/dashboard/chat2/deletesingle', 'Message_newController@deleteSingle')->name('delete2Single');
+        Route::post('/dashboard/chat2/unsend', 'Message_newController@unsendChat')->name('unsendChat');
         Route::post('/dashboard/chat2/{randomNo?}', 'Message_newController@postChat');
         Route::post('postMsg', 'Chat')->name('realTimeChat');
         Route::post('readMsg', 'ChatRead')->name('realTimeChatRead');

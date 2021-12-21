@@ -31,7 +31,13 @@ class ActivateController extends \App\Http\Controllers\BaseController
         $user = auth()->user();
         $masterwords = MasterWords::where('en_group', $user->engroup)->orderBy('sequence','asc')->orderBy('updated_at', 'desc')->get()->first();
         // dd($masterwords->content);
-        
+        $masterwords->content = str_replace('NAME', $user->name, $masterwords->content);
+        $masterwords->content = str_replace('|$report|', $user->name, $masterwords->content);
+        $masterwords->content = str_replace('LINE_ICON', \App\Services\AdminService::$line_icon_html, $masterwords->content);
+        $masterwords->content = str_replace('|$lineIcon|', \App\Services\AdminService::$line_icon_html, $masterwords->content);         
+        $masterwords->content = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $masterwords->content);
+        $masterwords->content = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $masterwords->content);
+        $masterwords->content= str_replace('NOW_TIME', date("Y-m-d H:i:s"), $masterwords->content);          
         return view('new.auth.activate.email')
                 ->with('user', $user)
                 ->with('register', true)

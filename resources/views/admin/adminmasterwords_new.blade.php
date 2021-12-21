@@ -7,9 +7,11 @@
         h3{
             text-align: left;
         }
+        .cvvs_box {margin-top:5px;}  
     </style>
     <body style="padding: 15px;">
     <h1>新增站長的話</h1>
+    <p>變數設定說明： line加入好友圖示 LINE_ICON</p>    
     <form action="{{ route('admin/masterwords/new') }}" method="post">
         {!! csrf_field() !!}
         <table class="table-bordered table-hover center-block text-center" id="table">
@@ -35,6 +37,9 @@
                 <td>
                     <input type="submit" class='text-white btn btn-success' value="送出">
                     <input type="reset"  class='text-white btn btn-danger' value="復原">
+                    <div class="cvvs_box">
+                        <input type="submit" name="convert_first" class='text-white btn btn-success' value="先轉換變數再送出" onclick="return confirm('轉換變數可將變數轉換成html，所以可以用html修改及調整高度、寬度...等外觀設定，但會失去簡潔的變數形式');">
+                    </div>  
                 </td>
             </tr>
         </table>

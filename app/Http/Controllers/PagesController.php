@@ -257,10 +257,22 @@ class PagesController extends BaseController
                 // Message::post($user->id, $targetUserID, "系統通知: 車馬費邀請");
                 if($user->engroup == 1) {
                     //取資料庫並替換名字
-                    $tip_msg1 = AdminCommonText::getCommonText(1);//id2給男會員訊息
+                    $tip_msg1 = AdminCommonText::getCommonText(1);//id2給男會員訊息                    
                     $tip_msg1 = str_replace('NAME', User::findById($targetUserID)->name, $tip_msg1);
-                    $tip_msg2 = AdminCommonText::getCommonText(2);//id3給女會員訊息
+                    $tip_msg1 = str_replace('|$report|', User::findById($targetUserID)->name, $tip_msg1);
+                    $tip_msg1 = str_replace('LINE_ICON', AdminService::$line_icon_html, $tip_msg1); 
+                    $tip_msg1 = str_replace('|$lineIcon|', AdminService::$line_icon_html, $tip_msg1);
+                    $tip_msg1 = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $tip_msg1);
+                    $tip_msg1 = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $tip_msg1);
+                    $tip_msg1 = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $tip_msg1); 
+                    $tip_msg2 = AdminCommonText::getCommonText(2);//id3給女會員訊息                    
                     $tip_msg2 = str_replace('NAME', $user->name, $tip_msg2);
+                    $tip_msg2 = str_replace('|$report|', $user->name, $tip_msg2);
+                    $tip_msg2 = str_replace('LINE_ICON', AdminService::$line_icon_html, $tip_msg2); 
+                    $tip_msg2 = str_replace('|$lineIcon|', AdminService::$line_icon_html, $tip_msg2);
+                    $tip_msg2 = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $tip_msg2);
+                    $tip_msg2 = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $tip_msg2);
+                    $tip_msg2 = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $tip_msg2);  
                     // 給男會員訊息（需在發送方的訊息框看到，所以是由男會員發送）
                     Message::post($user->id, $targetUserID, $tip_msg1, false, 1);
                     // 給女會員訊息（需在接收方的訊息框看到，所以是由女會員發送）
@@ -2981,8 +2993,6 @@ class PagesController extends BaseController
     {
         $user = $request->user();
         $admin = AdminService::checkAdmin();
-		$includeDeleted = false;
-		if($admin->id==$cid) $includeDeleted = true;
         $m_time = '';
         $report_reason = AdminCommonText::where('alias', 'report_reason')->get()->first();
         $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $this->userVipData);
@@ -3011,7 +3021,7 @@ class PagesController extends BaseController
             $is_banned = User::isBanned($user->id);
             $isVip = $user->isVip();
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
-            $messages = Message::allToFromSender($user->id, $cid,$includeDeleted);
+            $messages = Message::allToFromSender($user->id, $cid,true);
             $c_user_meta = UserMeta::where('user_id', $cid)->get()->first();
             //$messages = Message::allSenders($user->id, 1);
             if (isset($cid)) {
@@ -3448,8 +3458,13 @@ class PagesController extends BaseController
                     else{
                         $data = Vip::where('member_id', $user->id)->where('expiry', '!=', '0000-00-00 00:00:00')->get()->first();
                         $date = date('Y年m月d日', strtotime($data->expiry));
-                        $offVIP = AdminCommonText::getCommonText(4);
+                        $offVIP = AdminCommonText::getCommonText(4);                        
                         $offVIP = str_replace('DATE', $date, $offVIP);
+                        $offVIP = str_replace('LINE_ICON', AdminService::$line_icon_html, $offVIP);
+                        $offVIP = str_replace('|$lineIcon|', AdminService::$line_icon_html, $offVIP);
+                        $offVIP = str_replace('|$responseTime|', $date, $offVIP);
+                        $offVIP = str_replace('|$reportTime|', $date, $offVIP);
+                        $offVIP = str_replace('NOW_TIME', $date, $offVIP); 
                         logger('$expiry: ' . $data->expiry);
                         logger('base day: ' . $date);
                         logger('payment: ' . $data->payment);
@@ -5181,7 +5196,6 @@ class PagesController extends BaseController
                 return response()->json(['msg'=>'留言刪除成功!','postType'=>'sub']);
         }
     }
-
     public function sms_add_view(Request $request){
         return view('/sms/sms_add_view');
     }
@@ -5803,11 +5817,16 @@ class PagesController extends BaseController
         $admin_msg_entrys =  $query->orderBy('created_at', 'desc')->get();
 		$admin_msgs = [];
         $admin_msgs_sys = [];
-		$i=0;
-		foreach($admin_msg_entrys->where('sys_notice','<>','1') as $admin_msg_entry) {
-			$admin_msgs[] = $admin_msg_entry;
-			$i++;
-			if($i>=3) break;
+
+		foreach($admin_msg_entrys->where('sys_notice','<>','1') as $admin_msg_entry) {             
+            $admin_msg_entry->content = str_replace('NAME', $user->name, $admin_msg_entry->content);
+            $admin_msg_entry->content = str_replace('|$report|', $user->name, $admin_msg_entry->content);
+            $admin_msg_entry->content = str_replace('LINE_ICON', AdminService::$line_icon_html, $admin_msg_entry->content);
+            $admin_msg_entry->content = str_replace('|$lineIcon|', AdminService::$line_icon_html, $admin_msg_entry->content);         
+            $admin_msg_entry->content = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $admin_msg_entry->content);
+            $admin_msg_entry->content = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $admin_msg_entry->content);
+            $admin_msg_entry->content = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $admin_msg_entry->content);  
+            $admin_msgs[] = $admin_msg_entry;
 		}
         $i=0;
 		foreach($admin_msg_entrys->where('sys_notice','1') as $admin_msg_entry) {

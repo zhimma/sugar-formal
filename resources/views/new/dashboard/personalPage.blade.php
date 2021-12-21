@@ -208,7 +208,7 @@
 							@foreach($admin_msgs as $amsg)
                             <h2 class="tabbox_h2 ta_l"  data-recordtype="admin_msgs" data-rowid="{{$amsg->id}}" >
 								<span class="tu_dfont">
-								{{ strip_tags($amsg->content)}}
+								{!! $amsg->content !!}
 								</span>
 							</h2>
 							@endforeach

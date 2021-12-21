@@ -22,17 +22,17 @@
         @if(!isset($msgs))
             @if(isset($msglib))
                 <table class="table table-bordered table-hover 11">
-                    <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create/editPic_sendMsg" target="_blank"><div class="btn btn-success message_block">新增</div></a>
+                    <h1 class="message_block">訊息範本列表</h1><a href="/admin/users/message/msglib/create/editPic_sendMsg" target="_blank"><div class="btn btn-success message_block">新增</div></a>
                     <br>
                     <tr>
-                        <td>訊息標題</td>
+                        <td>範本選項標題</td>
                         <td></td>
-                        <td>訊息內容</td>
+                        <td>範本內容</td>
                     </tr>
                     @foreach($msglib as $msglib_report)
                         <tr>
                             <td>{{$msglib_report->title}}</td>
-                            <td class="btn btn_edit btn-success" id="{{$msglib_report->id}}"><a href="/admin/users/message/msglib/create/reporter/{{$msglib_report->id}}" style="color:white" target="_blank">編輯</a></td>
+                            <td class="btn btn_edit btn-success" id="{{$msglib_report->id}}"><a href="/admin/users/message/msglib/create/editPic_sendMsg/{{$msglib_report->id}}" style="color:white" target="_blank">編輯</a></td>
                             <td class="btn btn_del btn-danger" id="{{$msglib_report->id}}">刪除</td>
                             <td>{{$msglib_report->msg}}</td>
                         </tr>
@@ -48,7 +48,7 @@
                         <h1>發送站長訊息給 {{$user->name}}(收件者)</h1>
                         <table class="table table-bordered table-hover 33">
                             <tr>
-                                <td>預設選項</td>
+                                <td nowrap>範本選項</td>
                                 <td>
                                     <form id="idForm">
                                         @foreach($msglib as $msglib)
@@ -285,10 +285,15 @@
                         time = $('.time3').eq(k).val();
                         time = time?time:'';
                         msg2 = msg;
-                        msg2 = msg2.replace('NAME', name);
-                        msg2 = msg2.replace('TIME', time);
+                        msg2 = msg2.replace(/NAME/g, name);
+                        msg2 = msg2.replace(/\|$report\|/g, name);
+                        msg2 = msg2.replace(/TIME/g, time);
+                        msg2 = msg2.replace(/\|$responseTime\|/g, time);
+                        msg2 = msg2.replace(/\|$reportTime\|/g, time);
+                        msg2 = msg2.replace(/LINE_ICON/g, '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a>');
+                        msg2 = msg2.replace(/\|$lineIcon\|/g, '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a>');
                         $('.msg3').eq(k).val(msg2);
-                    });
+                    });                
                 }
             )
         );

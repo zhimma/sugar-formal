@@ -22,12 +22,12 @@
         @if(!isset($msgs))
         @if(isset($msglib_reported))
                 <table class="table table-bordered table-hover">
-                    <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create/reported" target="_blank"><div class="btn btn-success message_block">新增</div></a>
+                    <h1 class="message_block">訊息範本列表</h1><a href="/admin/users/message/msglib/create/reported" target="_blank"><div class="btn btn-success message_block">新增</div></a>
                     <br>
                     <tr>
-                        <td>訊息標題</td>
+                        <td>範本選項標題</td>
                         <td></td>
-                        <td>訊息內容</td>
+                        <td>範本內容</td>
                     </tr>
                     @foreach($msglib_reported as $msglib_reported)
                         <tr>
@@ -49,13 +49,13 @@
             <!-- <button class="savebtn btn btn-primary">儲存</button> -->
                 <table class="table table-bordered table-hover">
                     <tr>
-                        <td>預設選項</td>
+                        <td nowrap>範本選項</td>
                         <td>
                             <form id="idForm">
                                 @forelse($msglib as $msglib)
                                     <div class="btn btn-success com_tpl tpl" id="{{$msglib->id}}">{{$msglib->title}}</div>
                                 @empty
-                                    目前沒有預設選項
+                                    目前沒有範本選項
                                 @endforelse
                             </form>
                             
@@ -125,12 +125,12 @@
             <div>===================================================================================================</div>
         @if(isset($msglib_report))
             <table class="table table-bordered table-hover">
-                <h1 class="message_block">訊息列表</h1><a href="/admin/users/message/msglib/create/reporter" target="_blank"><div class="btn btn-success message_block">新增</div></a>
+                <h1 class="message_block">訊息範本列表</h1><a href="/admin/users/message/msglib/create/reporter" target="_blank"><div class="btn btn-success message_block">新增</div></a>
                 <br>
                 <tr>
-                    <td>訊息標題</td>
+                    <td>範本選項標題</td>
                     <td></td>
-                    <td>訊息內容</td>
+                    <td>範本內容</td>
                 </tr>
                 @foreach($msglib_report as $msglib_report)
                     <tr>
@@ -145,7 +145,7 @@
             <h1>發送站長訊息給{{$to_user->name}}(收件者)</h1>
                 <table class="table table-bordered table-hover">
                     <tr>
-                        <td>預設選項</td>
+                        <td nowrap>範本選項</td>
                         <td>
                             <form id="idForm">
                             @foreach($msglib2 as $msglib2)
@@ -250,13 +250,13 @@
             </table>
             <table class="table table-bordered table-hover">
                 <tr>
-                    <td>預設選項</td>
+                    <td nowrap>範本選項</td>
                     <td>
                         <form id="idForm">
                             @forelse($msglib_delpic as $msglib)
                                 <div class="btn btn-success com_tpl tpl3" id="{{$msglib->id}}">{{$msglib->title}}</div>
                             @empty
-                                目前沒有預設選項
+                                目前沒有範本選項
                             @endforelse
                         </form>
                     </td>
@@ -490,8 +490,13 @@
                         time = $('.time3').eq(k).val();
                         time = time?time:'';
                         msg2 = msg;
-                        msg2 = msg2.replace('NAME', name);
-                        msg2 = msg2.replace('TIME', time);
+                        msg2 = msg2.replace(/NAME/g, name);
+                        msg2 = msg2.replace(/\|$report\|/g, name);
+                        msg2 = msg2.replace(/TIME/g, time);
+                        msg2 = msg2.replace(/\|$responseTime\|/g, time);
+                        msg2 = msg2.replace(/\|$reportTime\|/g, time);
+                        msg2 = msg2.replace(/LINE_ICON/g, '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a>');
+                        msg2 = msg2.replace(/\|$lineIcon\|/g, '<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0" style="height: 36px; float: unset;"></a>');                    
                         $('.msg3').eq(k).val(msg2);
                     });
                 }
