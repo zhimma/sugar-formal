@@ -92,6 +92,7 @@ class LoginController extends \App\Http\Controllers\BaseController
             $a->content = str_replace('LINE_ICON', AdminService::$line_icon_html, $a->content);
             $a->content = str_replace('|$lineIcon|', AdminService::$line_icon_html, $a->content);         
             $a->content = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $a->content);
+            $a->content = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $a->content);
             $a = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $a); 
         }
         $request->session()->flash('announcement', $announcement);
