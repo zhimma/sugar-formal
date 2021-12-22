@@ -126,8 +126,7 @@ class ImageController extends BaseController
         $umeta->pic = $destinationPath;
         $umeta->pic_original_name = $image->getClientOriginalName();
         $umeta->save();
-        CompareImagesCaller::dispatch($umeta->pic,'ImageController@resizeImagePostHeader');
-
+        $umeta->compareImages('ImageController@resizeImagePostHeader');
         if(!$admin){
             // return redirect()->to('/dashboard?img')
             return back()->with('success','照片上傳成功')
@@ -178,7 +177,7 @@ class ImageController extends BaseController
                         }
                         $umeta->pic = $destinationPath;
                         $umeta->save();                       
-                        CompareImagesCaller::dispatch($umeta->pic,'ImageController@resizeImagePostHeader2');
+                        $umeta->compareImages('ImageController@resizeImagePostHeader2');
                         return redirect()->to('/dashboard?img')
                         ->with('success','照片上傳成功');
                     }
@@ -243,7 +242,7 @@ class ImageController extends BaseController
                 $memberPic->pic = $destinationPath;
                 $memberPic->original_name = $file->getClientOriginalName();
                 $memberPic->save();
-                CompareImagesCaller::dispatch($memberPic->pic,'ImageController@resizeImagePost');
+                $memberPic->compareImages('ImageController@resizeImagePost');
             }
         }
 
@@ -352,7 +351,7 @@ class ImageController extends BaseController
             $girl_to_vip = AdminCommonText::where('alias', 'girl_to_vip')->get()->first();
 
             $user->load('meta','pic');
-            if($avatar) CompareImagesCaller::dispatch($user->meta->pic,'ImageController@uploadAvatar');
+            if($avatar) $user->meta->compareImages('ImageController@uploadAvatar');
             $log_pic_acts_count = $user->log_free_vip_pic_acts->count();  
             $last_avatar_act_log = $user->log_free_vip_avatar_acts()->orderBY('created_at','DESC')->first();
             $last_avatar_sys_react = $last_avatar_act_log->sys_react??'';
@@ -609,7 +608,7 @@ class ImageController extends BaseController
                 AdminDeleteImageLog::where('member_id', $userId)->orderBy('id')->take(1)->delete();
 
                 \App\Jobs\SimilarImagesSearcher::dispatchSync($path);
-                CompareImagesCaller::dispatch($addPicture->pic,'ImageController@uploadPictures');
+                $addPicture->compareImages('ImageController@uploadPictures');
             }
         }
         $msg="上傳成功";

@@ -17,7 +17,10 @@ class ImagesCompareService {
    public static $code_seg_num=64;
    public static $need_compare_from_date = '2021-11-01 00:00:00';
    public static $sys_pic_arr = ['/img/illegal.jpg'];
-
+    public static $memPicPicArr;
+    public static $avatarPicArr;
+    public static $delAvatarPicArr;    
+    
     public static function convertCode($code) {
         if(ImagesCompareService::$code_seg_num) {
             $seg_interval = intval(256/ImagesCompareService::$code_seg_num);
@@ -138,7 +141,7 @@ class ImagesCompareService {
 
     public static function addEncodeByEntry($picEntry,$from=null) {
         if(!($picEntry??null)) return false;
-        $pic_path = public_path($picEntry->pic);         
+        $pic_path = public_path().$picEntry->pic;         
 
         if(!ImagesCompareService::isFileExistsByPic($picEntry->pic)) return false;
         $pic_encode = ImagesCompareService::encodeImgFile($pic_path);
@@ -157,16 +160,36 @@ class ImagesCompareService {
     
     public static function getEntryByPic($pic) {
         $picEntry = null;
-        $nowMemPic = MemberPic::withTrashed()->select('member_id','pic','created_at','updated_at')->where('pic',$pic)->first();
+        if(ImagesCompareService::$memPicPicArr) {
+            $nowMemPic = ImagesCompareService::$memPicPicArr[$pic];
+        }
+        else {
+            $nowMemPic = MemberPic::withTrashed()->select('member_id','pic','created_at','updated_at')->where('pic',$pic)->first();
+        }
+        
         if($nowMemPic) {
             $picEntry = $nowMemPic;
         }
         else {
-            $nowAvatar = UserMeta::select('user_id','pic','created_at','updated_at')->where('pic',$pic)->first();
+            if(ImagesCompareService::$avatarPicArr) {
+                $nowAvatar = ImagesCompareService::$avatarPicArr[$pic];
+            }
+            else {            
+                $nowAvatar = UserMeta::select('user_id','pic','created_at','updated_at','is_active')->where('pic',$pic)->first();
+            }
+            
             if($nowAvatar) $picEntry = $nowAvatar;
             else {
-                $nowDelAvatar = AvatarDeleted::select('user_id','pic','created_at','updated_at')->where('pic',$pic)->first();
+                if(ImagesCompareService::$delAvatarPicArr) {
+                    $nowAvatar = ImagesCompareService::$delAvatarPicArr[$pic];
+                }
+                else {                  
+                    $nowDelAvatar = AvatarDeleted::select('user_id','pic','created_at','updated_at','uploaded_at')->where('pic',$pic)->first();
+                }
                 if($nowDelAvatar) $picEntry = $nowDelAvatar;
+                else {
+                    
+                }
             }
         }  
         return $picEntry;
@@ -231,20 +254,19 @@ class ImagesCompareService {
      */
     public static  function getCompareRsImgByPic($pic) {
         $rsImgSet = null;
-        //$compareRsPicList = ImagesCompareService::getResultOfCompareByPic($pic)->where('pic','<>','/img/illegal.jpg')->pluck('finded_pic')->all();
 
         $compare_tb = with(new ImagesCompare)->getTable();
         $mempic_tb = with(new MemberPic)->getTable();
         $avatar_tb = with(new UserMeta)->getTable();
         $delavatar_tb = with(new AvatarDeleted)->getTable();            
-        $userMemPic =MemberPic::withTrashed()->join($compare_tb, $mempic_tb.'.pic', '=', $compare_tb.'.finded_pic')->select('member_id')->selectRaw($mempic_tb.'.pic')->selectRaw('(IFNULL(asc_percent,0)+IFNULL(desc_percent,0)+IFNULL(asc_inter_part_percent,0)+IFNULL(desc_inter_part_percent,0))  AS cpercent')->whereHas('user')->where($compare_tb.'.pic',$pic)->get();
+        $userMemPic =MemberPic::withTrashed()->join($compare_tb, $mempic_tb.'.pic', '=', $compare_tb.'.found_pic')->select('member_id')->selectRaw($mempic_tb.'.pic')->selectRaw('(IFNULL(asc_percent,0)+IFNULL(desc_percent,0)+IFNULL(asc_inter_part_percent,0)+IFNULL(desc_inter_part_percent,0))  AS cpercent')->whereHas('user')->where($compare_tb.'.pic',$pic)->get();
         $rsImgSet = $userMemPic;
-        $userAvatar = UserMeta::join($compare_tb, $avatar_tb.'.pic', '=', $compare_tb.'.finded_pic')->where($compare_tb.'.pic',$pic)->select('user_id')->selectRaw($avatar_tb.'.pic')->selectRaw('(IFNULL(asc_percent,0)+IFNULL(desc_percent,0)+IFNULL(asc_inter_part_percent,0)+IFNULL(desc_inter_part_percent,0))  AS cpercent')->get();
+        $userAvatar = UserMeta::join($compare_tb, $avatar_tb.'.pic', '=', $compare_tb.'.found_pic')->where($compare_tb.'.pic',$pic)->select('user_id')->selectRaw($avatar_tb.'.pic')->selectRaw('(IFNULL(asc_percent,0)+IFNULL(desc_percent,0)+IFNULL(asc_inter_part_percent,0)+IFNULL(desc_inter_part_percent,0))  AS cpercent')->get();
         
         if($rsImgSet->count()) $rsImgSet = $rsImgSet->concat($userAvatar);
         else $rsImgSet = $userAvatar;             
 
-        $userDelAvatar = AvatarDeleted::join($compare_tb, $delavatar_tb.'.pic', '=', $compare_tb.'.finded_pic')->where($compare_tb.'.pic',$pic)->select('user_id')->selectRaw($delavatar_tb.'.pic')->selectRaw('(IFNULL(asc_percent,0)+IFNULL(desc_percent,0)+IFNULL(asc_inter_part_percent,0)+IFNULL(desc_inter_part_percent,0))  AS cpercent')->get();        
+        $userDelAvatar = AvatarDeleted::join($compare_tb, $delavatar_tb.'.pic', '=', $compare_tb.'.found_pic')->where($compare_tb.'.pic',$pic)->select('user_id')->selectRaw($delavatar_tb.'.pic')->selectRaw('(IFNULL(asc_percent,0)+IFNULL(desc_percent,0)+IFNULL(asc_inter_part_percent,0)+IFNULL(desc_inter_part_percent,0))  AS cpercent')->get();        
         
         if($rsImgSet->count()) $rsImgSet = $rsImgSet->concat($userDelAvatar);
         else $rsImgSet = $userDelAvatar;        
@@ -286,6 +308,7 @@ class ImagesCompareService {
             else  return;
         }
         else  $status->queue=1;
+
         $status->qstart_time=Carbon::now();;
         $status->status=0;
         $status->start_time=null;
@@ -300,17 +323,29 @@ class ImagesCompareService {
         $etime = Carbon::parse($next->format('Y-m-d').' 01:00:00');
         if($now->gt($stime) && $now->lt($etime)) $delay=25200;
         
-        CompareImagesCaller::dispatch($pic,$encode_by)->delay($delay);
+        CompareImagesCaller::dispatch($pic,$encode_by);
         CompareImagesCaller::dispatch($pic)->onQueue('compare_images')->delay($delay+10);
     }
     
     public static function isNeedCompareByEntry($picEntry) {
         if(!($picEntry->pic??null)) return false;
-        if(!($picEntry->updated_at??null)) return true;
-        if($picEntry->updated_at>=ImagesCompareService::$need_compare_from_date 
-            && !in_array($picEntry->pic,ImagesCompareService::$sys_pic_arr)
-        ) { 
-            return true;
+
+        if(!($picEntry->created_at??null) && !($picEntry->updated_at??null)) return true;
+        
+        if(!in_array($picEntry->pic,ImagesCompareService::$sys_pic_arr)) {
+            
+            if(($picEntry->uploaded_at??null) &&  $picEntry->uploaded_at >= ImagesCompareService::$need_compare_from_date ) {
+                
+                return true;
+            }
+            
+            if(((($picEntry->created_at??null) && !($picEntry->is_active??null))?$picEntry->created_at:$picEntry->updated_at??null)>=ImagesCompareService::$need_compare_from_date  
+            ) {                
+                return true;
+            }
+            else {
+                return false;
+            }
         }
         else {
             return false;

@@ -82,7 +82,6 @@ class MemberPic extends Model
     }
 
     public function getCompareRsImg() {
-        //return MemberPic::whereHas('user')->whereIn('pic',$this->getCompareResult()->pluck('finded_pic')->all())->get();
         return ImagesCompareService::getCompareRsImgByPic($this->pic);
  
     }
