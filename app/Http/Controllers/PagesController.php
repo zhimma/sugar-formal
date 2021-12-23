@@ -5434,7 +5434,7 @@ class PagesController extends BaseController
                          break;
                          case 'remain':
                             if($existHeaderImage && $vipStatusPicTime->diffInSeconds(Carbon::now()) <= 86400 ) {
-                                $vipStatus = '您於  '.$vipStatusPicTime->format('Y/m/d H:i').' 上傳大頭照+生活照三張， vip 權限不受影響。';
+                                $vipStatus = '您於  '.$vipStatusPicTime->format('Y/m/d H:i').' 上傳大頭照+生活照三張，已成為本站vip！';
                             }
                          break;                     
                      }
