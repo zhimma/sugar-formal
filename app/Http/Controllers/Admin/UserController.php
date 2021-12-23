@@ -1950,7 +1950,7 @@ class UserController extends \App\Http\Controllers\BaseController
             if (!$msglib_reported->isEmpty()) {
                 foreach ($msglib_reported as $key => $msg) {
                     $msglib_msg[$key] = str_replace('|$report|', is_null($to_user) ? '' : $to_user->name, $msg['msg']);
-                    $msglib_msg[$key] = str_replace('NAME', is_null($to_user) ? '' :$to_user->name, $msg['msg']); 
+                    $msglib_msg[$key] = str_replace('NAME', is_null($to_user) ? '' :$to_user->name, $msglib_msg[$key]); 
                     $msglib_msg[$key] = str_replace('|$reported|', is_null($sender) ? '' : $sender->name, $msglib_msg[$key]);
                     $msglib_msg[$key] = str_replace('|$reportTime|', isset($message_msg[0]) ? $message_msg[0]->created_at : null, $msglib_msg[$key]);
                     $msglib_msg[$key] = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $msglib_msg[$key]);
@@ -1966,7 +1966,7 @@ class UserController extends \App\Http\Controllers\BaseController
             if (!$msglib_report->isEmpty()) {
                 foreach ($msglib_report as $key => $msg) {
                     $msglib_msg2[$key] = str_replace('NAME', is_null($to_user) ? '' :$to_user->name, $msg['msg']); 
-                    $msglib_msg2[$key] = str_replace('|$report|', is_null($to_user) ? '' :$to_user->name, $msg['msg']);
+                    $msglib_msg2[$key] = str_replace('|$report|', is_null($to_user) ? '' :$to_user->name, $msglib_msg2[$key]);
                     $msglib_msg2[$key] = str_replace('|$reported|', is_null($sender) ? '' : $sender->name, $msglib_msg2[$key]);
                     $msglib_msg2[$key] = str_replace('|$reportTime|', isset($message_msg[0]) ? $message_msg[0]->created_at : null, $msglib_msg2[$key]);
                     $msglib_msg2[$key] = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $msglib_msg2[$key]);
@@ -2025,7 +2025,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $reported = User::where('id', $reported_id)->get()->first();
             foreach ($msglib_reported as $key => $msg) {
                 $msglib_msg[$key] = str_replace('|$report|', $user->name, $msg['msg']);
-                $msglib_msg[$key] = str_replace('NAME', $user->name, $msg['msg']); 
+                $msglib_msg[$key] = str_replace('NAME', $user->name, $msglib_msg[$key]); 
                 if ($reported) {
                     $msglib_msg[$key] = str_replace('|$reported|', $reported->name, $msglib_msg[$key]);
                 }
@@ -2037,7 +2037,7 @@ class UserController extends \App\Http\Controllers\BaseController
             }
             foreach ($msglib_report as $key => $msg) {
                 $msglib_msg2[$key] = str_replace('|$report|', $user->name, $msg['msg']);
-                $msglib_msg2[$key] = str_replace('NAME', $user->name, $msg['msg']); 
+                $msglib_msg2[$key] = str_replace('NAME', $user->name,  $msglib_msg2[$key]); 
                 if ($reported) {
                     $msglib_msg2[$key] = str_replace('|$reported|', $reported->name, $msglib_msg2[$key]);
                 }
