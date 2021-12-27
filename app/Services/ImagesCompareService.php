@@ -160,33 +160,38 @@ class ImagesCompareService {
     
     public static function getEntryByPic($pic) {
         $picEntry = null;
-        if(ImagesCompareService::$memPicPicArr) {
+        if(ImagesCompareService::$memPicPicArr[$pic]??null) {
             $nowMemPic = ImagesCompareService::$memPicPicArr[$pic];
         }
         else {
             $nowMemPic = MemberPic::withTrashed()->select('member_id','pic','created_at','updated_at')->where('pic',$pic)->first();
+            if($nowMemPic??null) {
+                ImagesCompareService::$memPicPicArr[$pic] = $nowMemPic;
+            }
         }
         
-        if($nowMemPic) {
+        if($nowMemPic??null) {
             $picEntry = $nowMemPic;
         }
         else {
-            if(ImagesCompareService::$avatarPicArr) {
+            if(ImagesCompareService::$avatarPicArr[$pic]??null) {
                 $nowAvatar = ImagesCompareService::$avatarPicArr[$pic];
             }
             else {            
                 $nowAvatar = UserMeta::select('user_id','pic','created_at','updated_at','is_active')->where('pic',$pic)->first();
+                if($nowAvatar??null) ImagesCompareService::$avatarPicArr[$pic] = $nowAvatar;
             }
             
             if($nowAvatar) $picEntry = $nowAvatar;
             else {
-                if(ImagesCompareService::$delAvatarPicArr) {
-                    $nowAvatar = ImagesCompareService::$delAvatarPicArr[$pic];
+                if(ImagesCompareService::$delAvatarPicArr[$pic]??null) {
+                    $nowDelAvatar = ImagesCompareService::$delAvatarPicArr[$pic];
                 }
                 else {                  
                     $nowDelAvatar = AvatarDeleted::select('user_id','pic','created_at','updated_at','uploaded_at')->where('pic',$pic)->first();
+                    if($nowDelAvatar??null) ImagesCompareService::$delAvatarPicArr[$pic] = $nowDelAvatar;
                 }
-                if($nowDelAvatar) $picEntry = $nowDelAvatar;
+                if($nowDelAvatar??null) $picEntry = $nowDelAvatar;
                 else {
                     
                 }
@@ -253,26 +258,29 @@ class ImagesCompareService {
      * @return  Collection|SupportCollection 
      */
     public static  function getCompareRsImgByPic($pic) {
-        $rsImgSet = null;
+        $rsImgSet =   collect([]);
+        $compareEntry = [];
+        $encodeEntry = ImagesCompareEncode::where('pic',$pic)->first();
+        $compareQuery = ImagesCompare::select('pic','encode_id','found_pic','found_encode_id');
+        if($encodeEntry->id??null)
+            $compareEntry = $compareQuery->where('encode_id',$encodeEntry->id)->selectRaw('(IFNULL(asc_percent,0)+IFNULL(desc_percent,0)+IFNULL(asc_inter_part_percent,0)+IFNULL(desc_inter_part_percent,0))  AS cpercent')->orderByDesc('cpercent')->take(15)->get();
+        else
+            $compareEntry = $compareQuery->where('pic',$pic)->selectRaw('(IFNULL(asc_percent,0)+IFNULL(desc_percent,0)+IFNULL(asc_inter_part_percent,0)+IFNULL(desc_inter_part_percent,0))  AS cpercent')->orderByDesc('cpercent')->take(15)->get();
 
-        $compare_tb = with(new ImagesCompare)->getTable();
-        $mempic_tb = with(new MemberPic)->getTable();
-        $avatar_tb = with(new UserMeta)->getTable();
-        $delavatar_tb = with(new AvatarDeleted)->getTable();            
-        $userMemPic =MemberPic::withTrashed()->join($compare_tb, $mempic_tb.'.pic', '=', $compare_tb.'.found_pic')->select('member_id')->selectRaw($mempic_tb.'.pic')->selectRaw('(IFNULL(asc_percent,0)+IFNULL(desc_percent,0)+IFNULL(asc_inter_part_percent,0)+IFNULL(desc_inter_part_percent,0))  AS cpercent')->whereHas('user')->where($compare_tb.'.pic',$pic)->get();
-        $rsImgSet = $userMemPic;
-        $userAvatar = UserMeta::join($compare_tb, $avatar_tb.'.pic', '=', $compare_tb.'.found_pic')->where($compare_tb.'.pic',$pic)->select('user_id')->selectRaw($avatar_tb.'.pic')->selectRaw('(IFNULL(asc_percent,0)+IFNULL(desc_percent,0)+IFNULL(asc_inter_part_percent,0)+IFNULL(desc_inter_part_percent,0))  AS cpercent')->get();
-        
-        if($rsImgSet->count()) $rsImgSet = $rsImgSet->concat($userAvatar);
-        else $rsImgSet = $userAvatar;             
+        $picEntry = ImagesCompareService::getEntryByPic($pic);
+        $foundPicEntryArr = [];
+        if($picEntry->user??null) {
+            foreach($compareEntry as $cmprEntry) {               
+                if(!$cmprEntry->found_pic??null) continue;
+                $found_pic_entry = ImagesCompareService::getEntryByPic($cmprEntry->found_pic);
+                $found_pic_entry->cpercent = $cmprEntry->cpercent;
+                $foundPicEntryArr[] = $found_pic_entry;
+            }
+        }
 
-        $userDelAvatar = AvatarDeleted::join($compare_tb, $delavatar_tb.'.pic', '=', $compare_tb.'.found_pic')->where($compare_tb.'.pic',$pic)->select('user_id')->selectRaw($delavatar_tb.'.pic')->selectRaw('(IFNULL(asc_percent,0)+IFNULL(desc_percent,0)+IFNULL(asc_inter_part_percent,0)+IFNULL(desc_inter_part_percent,0))  AS cpercent')->get();        
-        
-        if($rsImgSet->count()) $rsImgSet = $rsImgSet->concat($userDelAvatar);
-        else $rsImgSet = $userDelAvatar;        
+        $rsImgSet = collect($foundPicEntryArr);
 
-        $rsImgSet = $rsImgSet->sortByDesc('cpercent')->take(15);;
-
+      
         return $rsImgSet;
  
     }
@@ -281,7 +289,7 @@ class ImagesCompareService {
         $sameImgSet = null;
         $sameCompareEncode = ImagesCompareService::getSameCompareEncodeByPic($pic);
         $samePicList = $sameCompareEncode?$sameCompareEncode->pluck('pic')->all():[];        
-        $userMemPic =MemberPic::withTrashed()->whereHas('user')->whereIn('pic',$samePicList )->get();
+        $userMemPic =MemberPic::withTrashed()->whereIn('pic',$samePicList )->get();
         $sameImgSet = $userMemPic;
         $userAvatar = UserMeta::whereIn('pic',$samePicList )->select('user_id','pic')->get();
         if($sameImgSet->count()) $sameImgSet = $sameImgSet->concat($userAvatar);
