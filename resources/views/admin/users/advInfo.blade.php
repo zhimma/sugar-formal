@@ -1563,7 +1563,7 @@
                         <div>
                             @foreach ($sameImages as $sameImg)
                             
-                            @if($sameImg->user)
+                            @if($sameImg->user??null)
                             <div class="block_line">
                                 <a href="{{ $sameImg->pic }}" target="_blank"><img src="{{ $sameImg->pic }}"  onerror="this.src='/img/linktosource.png'"></a>
                                 <div><a href="{{route('users/advInfo',$sameImg->user->id)}}" target="_blank">{{$sameImg->user->name}}</a></div>
@@ -1597,10 +1597,10 @@
                                 @endif
                             </div>                                                
                             <div>
-                                @forelse($compareRsImgs as $rsImg)                           
-                                    @if($rsImg->user)
+                                @forelse($compareRsImgs as $rsIdx => $rsImg)                          
+                                    @if($rsImg->user??null)
                                     <div class="block_line">
-                                        <a href="{{ $rsImg->pic }}" target="_blank"><img src="{{ $rsImg->pic }}"  onerror="this.src='/img/linktosource.png'"></a>
+                                        <a href="{{ $rsImg->pic }}" target="_blank"><img class="cp_rs_img"  src="{!!asset('/images/denglu_02_sh120.png')!!}" data-nextsrc="{{ $compareRsImgs[$rsIdx+1]->pic??'' }}"  data-thissrc="{{ $rsImg->pic }}"  onerror="this.src='/img/linktosource.png'"></a>
                                         <div><a href="{{route('users/advInfo',$rsImg->user->id)}}" target="_blank">{{$rsImg->user->name}}</a></div>
                                     </div>
                                     @endif
@@ -1723,7 +1723,7 @@
                         <div>
                             @foreach ($sameImages as $sameImg)
                             
-                            @if($sameImg->user)
+                            @if($sameImg->user??null)
                             <div class="block_line">
                                 <a href="{{ $sameImg->pic }}" target="_blank"><img src="{{ $sameImg->pic }}" onerror="this.src='/img/linktosource.png'"></a>
                                 <div><a href="{{route('users/advInfo',$sameImg->user->id)}}" target="_blank">{{$sameImg->user->name}}</a></div>
@@ -1758,10 +1758,10 @@
                             </div>                        
                             @php $compareRsImgs = $pic->getCompareRsImg() @endphp
                             <div>
-                                @forelse($compareRsImgs as $rsImg)                           
-                                    @if($rsImg->user)
+                                @forelse($compareRsImgs as $rsIdx => $rsImg)                           
+                                    @if($rsImg->user??null)
                                     <div class="block_line">
-                                        <a href="{{ $rsImg->pic }}" target="_blank"><img src="{{ $rsImg->pic }}" onerror="this.src='/img/linktosource.png'"></a>
+                                        <a href="{{ $rsImg->pic }}" target="_blank"><img class="cp_rs_img"  src="{!!asset('/images/denglu_02_sh120.png')!!}" data-nextsrc="{{ $compareRsImgs[$rsIdx+1]->pic??'' }}"  data-thissrc="{{ $rsImg->pic }}"  onerror="this.src='/img/linktosource.png'"></a>
                                         <div><a href="{{route('users/advInfo',$rsImg->user->id)}}" target="_blank">{{$rsImg->user->name}}</a></div>
                                     </div>
                                     @endif
@@ -1893,7 +1893,7 @@
                         <div>
                             @foreach ($sameImages as $sameImg)
                             
-                            @if($sameImg->user)
+                            @if($sameImg->user??null)
                             <div class="block_line">
                                 <a href="{{ $sameImg->pic }}" target="_blank"><img src="{{ $sameImg->pic }}" onerror="this.src='/img/linktosource.png'"></a>
                                 <div><a href="{{route('users/advInfo',$sameImg->user->id)}}" target="_blank">{{$sameImg->user->name}}</a></div>
@@ -1926,10 +1926,10 @@
                                 @endif
                             </div>                        
                             <div>
-                                @forelse($compareRsImgs as $rsImg)                           
-                                    @if($rsImg->user)
+                                @forelse($compareRsImgs as $rsIdx => $rsImg)                           
+                                    @if($rsImg->user??null)
                                     <div class="block_line">
-                                        <a href="{{ $rsImg->pic }}" target="_blank"><img src="{{ $rsImg->pic }}" onerror="this.src='/img/linktosource.png'"></a>
+                                        <a href="{{ $rsImg->pic }}" target="_blank"><img class="cp_rs_img"  src="{!!asset('/images/denglu_02_sh120.png')!!}"  data-nextsrc="{{ $compareRsImgs[$rsIdx+1]->pic??'' }}"  data-thissrc="{{ $rsImg->pic }}"  onerror="this.src='/img/linktosource.png'"></a>
                                         <div><a href="{{route('users/advInfo',$rsImg->user->id)}}" target="_blank">{{$rsImg->user->name}}</a></div>
                                     </div>
                                     @endif
@@ -2060,7 +2060,7 @@
                         <div>
                             @foreach ($sameImages as $sameImg)
                             
-                            @if($sameImg->user)
+                            @if($sameImg->user??null)
                             <div class="block_line">
                                 <a href="{{ $sameImg->pic }}" target="_blank"><img src="{{ $sameImg->pic }}" onerror="this.src='/img/linktosource.png'"></a>
                                 <div><a href="{{route('users/advInfo',$sameImg->user->id)}}" target="_blank">{{$sameImg->user->name}}</a></div>
@@ -2093,10 +2093,10 @@
                                 @endif
                             </div>                        
                             <div>                    
-                                @forelse($compareRsImgs as $rsImg)                           
-                                    @if($rsImg->user)
+                                @forelse($compareRsImgs as $rsIdx => $rsImg)                           
+                                    @if($rsImg->user??null)
                                     <div class="block_line">
-                                        <a href="{{ $rsImg->pic }}" target="_blank"><img src="{{ $rsImg->pic }}" onerror="this.src='/img/linktosource.png'"></a>
+                                        <a href="{{ $rsImg->pic }}" target="_blank"><img class="cp_rs_img " src="{!!asset('/images/denglu_02_sh120.png')!!}" data-nextsrc="{{ $compareRsImgs[$rsIdx+1]->pic??'' }}"  data-thissrc="{{ $rsImg->pic }}" onerror="this.src='/img/linktosource.png'"></a>
                                         <div><a href="{{route('users/advInfo',$rsImg->user->id)}}" target="_blank">{{$rsImg->user->name}}</a></div>
                                     </div>
                                     @endif
