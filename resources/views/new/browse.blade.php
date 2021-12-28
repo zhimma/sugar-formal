@@ -46,6 +46,11 @@
                 <a class="item" href="javascript:void(0);"><li style="float: left;"><img src="/new/images/z_11.png"><span class="n_zylg01">可疑帳號<font class="n_flbr">交流區</font></span><span class="vipOnly"><img src="/new/images/icon_36.png" style="height: auto;width:120px;"></span></li></a>
             @endif
             @endif
+            @if (isset($user) && $user->isVip())
+                <a class="item" href="{!! url('/dashboard/search_discard/list') !!}"><li style="float:@if($user->engroup == 1) right; @else left; @endif"><img src="/new/images/z_12.png"><span class="n_zylg">略過名單</span></li></a>
+            @else
+                <a class="item" href="javascript:void(0);"><li style="float:@if($user->engroup == 1) right; @else left; @endif"><img src="/new/images/z_12.png"><span class="n_zylg">略過名單</span><span class="vipOnly"><img src="/new/images/icon_36.png" style="height: auto;width:120px;"></span></li></a>
+            @endif            
         </div>
       </div>
     </div>
@@ -57,6 +62,10 @@
           position: absolute;
           margin-top: -60px;
           margin-left: 10px;
+      }
+      
+      .n_zylg01 + span.vipOnly {
+          margin-top:-72px;
       }
   </style>
 @stop
