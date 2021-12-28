@@ -14,7 +14,9 @@ class SearchIgnoreService
 {
     public function __construct(
         SearchIgnore $model
+        ,UserService $userService
     ) {
+        $this->userService = $userService;
         $this->model = $model;
         $this->member_id = $model->member_id??null;
         if(!$this->member_id) {
@@ -40,7 +42,9 @@ class SearchIgnoreService
             if(!($input['member_id']??null)) {
                  $input['member_id'] = $this->member_id;
             }
-            
+            $memUser = $this->userService->find($input['member_id']);
+            $ignreUser = $this->userService->find($input['ignore_id']);
+            if($memUser->engroup==$ignreUser->engroup) return false;
             return $this->model->firstOrCreate($input);
         } catch (Exception $e) {
             throw new Exception("Failed to create role", 1);

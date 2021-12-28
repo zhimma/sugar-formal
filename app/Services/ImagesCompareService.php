@@ -271,9 +271,14 @@ class ImagesCompareService {
         $foundPicEntryArr = [];
         if($picEntry->user??null) {
             foreach($compareEntry as $cmprEntry) {               
-                if(!$cmprEntry->found_pic??null) continue;
+                if(!$cmprEntry->found_pic??null) continue;                
                 $found_pic_entry = ImagesCompareService::getEntryByPic($cmprEntry->found_pic);
-                $found_pic_entry->cpercent = $cmprEntry->cpercent;
+                $found_pic_user = $found_pic_entry->user??null;
+                if(!$found_pic_user) continue;
+                    
+                $found_pic_entry->cpercent = $cmprEntry->cpercent;           
+                $found_pic_entry->userStateStr = ImagesCompareService::getStateStrByUser($found_pic_user);
+                $found_pic_entry->userLliDiffDays = ImagesCompareService::getLliDiffDaysByUser($found_pic_user);
                 $foundPicEntryArr[] = $found_pic_entry;
             }
         }
@@ -289,16 +294,19 @@ class ImagesCompareService {
         $sameImgSet = null;
         $sameCompareEncode = ImagesCompareService::getSameCompareEncodeByPic($pic);
         $samePicList = $sameCompareEncode?$sameCompareEncode->pluck('pic')->all():[];        
-        $userMemPic =MemberPic::withTrashed()->whereIn('pic',$samePicList )->get();
-        $sameImgSet = $userMemPic;
-        $userAvatar = UserMeta::whereIn('pic',$samePicList )->select('user_id','pic')->get();
-        if($sameImgSet->count()) $sameImgSet = $sameImgSet->concat($userAvatar);
-        else $sameImgSet = $userAvatar;        
-        $userDelAvatar = AvatarDeleted::whereIn('pic',$samePicList )->select('user_id','pic')->get();        
-        if($sameImgSet->count()) $sameImgSet = $sameImgSet->concat($userDelAvatar);
-        else $sameImgSet = $userDelAvatar;          
+        
+        foreach($samePicList as $splk=>$splv) {
+            if(!$splv??null) continue;                
+            $same_pic_entry = ImagesCompareService::getEntryByPic($splv);
+            $same_pic_user = $same_pic_entry->user??null;
+            if(!$same_pic_user) continue;  
 
-        return $sameImgSet;
+            $same_pic_entry->userStateStr = ImagesCompareService::getStateStrByUser($same_pic_user);
+            $same_pic_entry->userLliDiffDays = ImagesCompareService::getLliDiffDaysByUser($same_pic_user);
+            $sameImgSet[] = $same_pic_entry;            
+        }
+        
+        return collect($sameImgSet);
     } 
     
     public static function isFileExistsByPic($pic) {
@@ -359,4 +367,20 @@ class ImagesCompareService {
             return false;
         }
     }
+    
+    public static function getStateStrByUser($userEntry) {
+        if(($userEntry->banned??null) || $userEntry->implicitlyBanned??null) return 'banned';
+        if(($userEntry->user_meta->isWarned??null) || $userEntry->aw_relation??null) return 'warned';
+        if($userEntry->account_status_admin===0) return 'aclosed ';
+        if($userEntry->accountStatus===0) return 'closed ';
+
+    }
+    
+    public static function getLliDiffDaysByUser($userEntry) {
+        $now = Carbon::now();
+        $last_login_time = Carbon::parse($userEntry->last_login);
+        $diff_days = $last_login_time->diffInDays($now);
+
+        return $diff_days;
+    }    
 }

@@ -2576,11 +2576,14 @@
               type: type,
               url: url,
               data:{ target:id,_token: '{{ csrf_token() }}'},
-              success:function(data) {
+              success:function(data) {                  
                 if(!data || data=='0' || data==undefined || data==null || pick_real_error(data).length>0) {
-                    //qelt.toggleClass('lvgu_on');
+                    
+                    ccc(org_str+'失敗，請重新操作');
                     key_elt.html(org_str);
-                    c5(org_str+'失敗，請重新操作');
+                }
+                else if(data.length>500){
+                    ccc(org_str+'異常，請重新操作');
                 }
                 else {
                     if(org_str=='略過') {
@@ -2592,8 +2595,9 @@
                 }
               },
               error:function() {
+                  
+                  ccc(org_str+'失敗，請重新操作');
                   key_elt.html(org_str);
-                  c5(org_str+'略過失敗，請重新操作');
               }
             });
         } 
