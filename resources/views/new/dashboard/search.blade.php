@@ -1,4 +1,5 @@
 @extends('new.layouts.website')
+<script src="{{ mix('/js/app.js') }}"></script>
 
 @section('app-content')
 <style>
@@ -75,6 +76,7 @@
         display: block;
     }
     </style>
+    <div id="app">
     <div class="container matop70">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -472,254 +474,40 @@
                 <?php $icc = 1;
                 $userIsVip = $user->isVIP();
                 $userIsAdvanceAuth = isset($_POST['isAdvanceAuth'])?1:0;
-                $vis = \App\Models\UserMeta::search(
-                    $county,
-                    $district,
-                    $cup,
-                    $marriage,
-                    $budget,
-                    $income,
-                    $smoking,
-                    $drinking,
-                    $photo,
-                    $agefrom,
-                    $ageto,
-                    $user->engroup,
-                    $umeta->city,
-                    $umeta->area,
-                    $umeta->blockdomain,
-                    $umeta->blockdomainType,
-                    $seqtime,
-                    $body,
-                    $user->id,
-                    $exchange_period,
-                    $isBlocked,
-                    $userIsVip,
-                    $heightfrom,
-                    $heightto,
-                    $prRange_none,
-                    $prRange,
-                    $situation,
-                    $education,
-                    $isVip,
-                    $isWarned,
-                    $isPhoneAuth,
-                    $userIsAdvanceAuth
-                );
+                
                 // vi vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php
                 // addWhereExistsQuery() remove $operator
                 // https://learnku.com/articles/28283?order_by=vote_count&
                 ?>
 
                 <div class="n_searchtit"><div class="n_seline"><span>搜索结果</span></div></div>
+                
                 <div class="n_sepeop">
-                    @if (!empty($vis) && isset($vis) && sizeof($vis) > 0)
-                        @foreach ($vis as $vi)
-                            <?php $visitor = $vi;
-                            try{
-                                $umeta = $visitor->user_meta;
-                                if(isset($umeta->city)){
-                                    $umeta->city = explode(",",$umeta->city);
-                                    $umeta->area = explode(",",$umeta->area);
-                                }
-                            }
-                            catch (\Exception $e){
-                                \Illuminate\Support\Facades\Log::info('Search error, visitor: ' . $vi);
-                            }
-                            ?>
-                            <li class="nt_fg">
-                                <div class="n_seicon">
-                                    @php
-                                        $data = \App\Services\UserService::checkRecommendedUser($visitor);
-                                    @endphp
-{{--                                    @if(isset($data['description']) && $visitor->engroup == 2)--}}
-{{--                                        <div class="hoverTip">--}}
-{{--                                        <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。">--}}
-{{--                                        @if($user->isVip())--}}
-{{--                                        <img src="/new/images/a1.png">--}}
-{{--                                        @else--}}
-{{--                                        <img src="/new/images/b_1.png">--}}
-{{--                                        @endif--}}
-{{--                                        </div>--}}
-{{--                                        </div>--}}
-{{--                                    @endif--}}
-{{--                                    @if(isset($data['description']) && $visitor->engroup == 1)--}}
-{{--                                        <div class="hoverTip">--}}
-{{--                                        <div class="tagText" data-toggle="popover" data-content="優質會員是願意長期付費的VIP，或者常用車馬費邀請的男會員，建議女會員優先考慮。">--}}
-{{--                                        @if($user->isVip())--}}
-{{--                                        <img src="/new/images/a2.png">--}}
-{{--                                        @else--}}
-{{--                                        <img src="/new/images/b_2.png">--}}
-{{--                                        @endif--}}
-{{--                                        </div>--}}
-{{--                                        </div>--}}
-{{--                                    @endif--}}
-                                    {{---------財力認證尚未實作-------------- <img src="/new/images/b_03.png">--}}
-{{--                                    @if($visitor->isVip() && $visitor->engroup == 1)--}}
-{{--                                        <div class="hoverTip">--}}
-{{--                                        <div class="tagText" data-toggle="popover" data-content="本站的付費會員。">--}}
-{{--                                        @if($user->isVip())--}}
-{{--                                        <img src="/new/images/a4.png">--}}
-{{--                                        @else--}}
-{{--                                        <img src="/new/images/b_4.png">--}}
-{{--                                        @endif--}}
-{{--                                        </div>--}}
-{{--                                        </div>--}}
-{{--                                    @endif--}}
-                                    {{---------警示帳戶尚未實作-------------- <img src="/new/images/b_05.png">--}}
-                                    @if(!$visitor->user_meta)
-                                        {{ logger("Searched user no meta, id:" . $visitor->id) }}
-                                        @continue
-                                    @endif
-                                    @if($visitor->user_meta->isWarned == 1 || $visitor->isAdminWarned())
-                                        <div class="hoverTip">
-                                            <div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">
-                                            @if($user->isVip())
-                                            <img src="/new/images/a5.png">
-                                            @else
-                                            <img src="/new/images/b_5.png">
-                                            @endif
-                                            </div>
-                                        </div>
-                                    @elseif(isset($data['description']) && $visitor->engroup == 2)
-                                        <div class="hoverTip">
-                                            <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。">
-                                                @if($user->isVip())
-                                                    <img src="/new/images/a1.png">
-                                                @else
-                                                    <img src="/new/images/b_1.png">
-                                                @endif
-                                            </div>
-                                        </div>
-                                    @elseif($visitor->isVip() && $visitor->engroup == 1)
-                                        <div class="hoverTip">
-                                            <div class="tagText" data-toggle="popover" data-content="本站的付費會員。">
-                                                @if($user->isVip())
-                                                    <img src="/new/images/a4.png">
-                                                @else
-                                                    <img src="/new/images/b_4.png">
-                                                @endif
-                                            </div>
-                                        </div>
-                                    {{--手機驗證--}}
-                                    @else
-                                        @if($visitor->isPhoneAuth())
-                                        <div class="hoverTip @if($user->isVip()) xa_ssbg @endif">                                            
-                                            @if($user->isVip())
-                                                @if($visitor->isAdvanceAuth() && $visitor->engroup==2)
-                                                <div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">
-                                                    <img src="/new/images/c_03.png">
-                                                </div> 
-                                                <span>丨</span>
-                                                @elseif(!$visitor->isAdvanceAuth() && $visitor->engroup==2)
-                                                <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
-                                                    <img src="/new/images/c_09.png">
-                                                </div>  
-                                                <span>丨</span>
-                                                @endif
-                                                <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
-                                                    <img src="/new/images/c_10.png">
-                                                </div>   
-                                            @else
-                                                @if($visitor->isAdvanceAuth() && $visitor->engroup==2)
-                                                <div class="tagText"  data-toggle="popover" data-content="本站的進階認證會員，本會員通過本站的嚴格驗證，基本資料正確無誤。">
-                                                    <img src="/new/images/b_8x.png">
-                                                </div>                                                      
-                                                @elseif(!$visitor->isAdvanceAuth() && $visitor->engroup==2)
-                                                <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
-                                                    <img src="/new/images/b_5x.png">
-                                                </div>                                              
-                                                @else
-                                                <div class="tagText"  data-toggle="popover" data-content="通過本站手機驗證的會員。">
-                                                    <img src="/new/images/b_6.png">
-                                                </div>                                                 
-                                                @endif                                          
-                                            @endif
-                                        </div>
-                                        @endif                                 
-                                    @endif
-                                  
-                                    @if($visitor->engroup == 1)
-                                    <div class="tixright_a">
-                                        <div class="span zi_sc">大方指數</div>
-                                        <div class="font">
-                                            <div class="vvipjdt tm_new">
-                                                <div class="progress progress-striped vvipjdt_pre_a">
-                                                    <div class="progress-bar progress_info_a" role="progressbar" aria-valuenow="60" aria-valuemin="0"
-                                                         aria-valuemax="100" @if(isset($visitor->pr_log)) style="width:{{ $visitor->pr_log->pr }}%;" @else style="width: 0%;" @endif>
-                                                        <span class="prfont_a">PR</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    @endif
-                                </div>
-                                @php
-                                    $isBlurAvatar = \App\Services\UserService::isBlurAvatar($visitor, $user);
-                                @endphp
-                                <a href="/dashboard/viewuser/{{$visitor->id}}?time={{ \Carbon\Carbon::now()->timestamp }}">
-                                    <div class="nt_photo @if($isBlurAvatar) blur_img @endif"><img class="lazy" src="@if($visitor->user_meta->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->user_meta->pic}} @endif" data-original="@if($visitor->user_meta->isAvatarHidden == 1) {{ 'makesomeerror' }} @else {{$visitor->user_meta->pic}} @endif" @if ($visitor->engroup == 1) onerror="this.src='/new/images/male.png'" @else onerror="this.src='/new/images/female.png'" @endif></div>
-                                    <div class="nt_bot nt_bgco">
-                                        <h2>
-                                            <font class="left">{{ $visitor->name }}<span>{{ $visitor->age() }}歲</span></font>
-                                            @if($user->isVip())
-{{--                                                <span class="searchStatus" id="{{ $visitor->id }}"></span>--}}
-                                                @if($visitor->isOnline())
-                                                    <span class="onlineStatusSearch"></span>
-                                                @endif
-                                            @else
-                                                <div class="onlineStatusNonVipSearch"><img src="/new/images/wsx.png"></div>
-                                            @endif
-
-                                        </h2>
-                                        <h3>
-                                            @if(!empty($umeta->city))
-                                                @foreach($umeta->city as $key => $cityval)
-                                                    @if ($loop->first)
-                                                        {{$umeta->city[$key]}} @if($visitor->user_meta->isHideArea == 0){{$umeta->area[$key]}}@endif
-                                                    @else
-                                                        <span>{{$umeta->city[$key]}} @if($visitor->user_meta->isHideArea == 0){{$umeta->area[$key]}}@endif</span>
-                                                    @endif
-                                                @endforeach
-                                            @endif
-                                            @if($user->isVip())
-                                                @if($visitor->user_meta->isHideOccupation == 0 && !empty($visitor->user_meta->occupation) && $visitor->user_meta->occupation != 'null')
-                                                    <span style="margin-left: 0;">{{ $visitor->user_meta->occupation }}</span>
-                                                @endif
-                                            @else
-                                                <span style="margin-left: 10px;"><span style="padding-left: 5px;">職業</span><img src="/new/images/icon_35.png" class="nt_img"></span>
-                                            @endif
-
-                                            @if($user->engroup==1)
-                                                @if($user->isVip())
-                                                @php
-                                                    $exchange_period_name = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
-                                                @endphp
-                                                    <i class="j_lxx">丨</i><span>{{$exchange_period_name->name}}</span>
-                                                @else
-                                                    <i class="j_lxx">丨</i><span>包養關係<img src="/new/images/icon_35.png" class="nt_img"></span>
-                                                @endif
-                                            @endif
-                                        </h3>
-                                        <h3>最後上線時間：@if($visitor->valueAddedServiceStatus('hideOnline')==1 && $visitor->is_hide_online==1){{substr($visitor->hide_online_time,0,11)}}@else{{substr($visitor->last_login,0,11)}}@endif</h3>
-                                    </div>
-                                </a>
-                            </li>
-                        @endforeach
-                    @else
-                        <div class="fengsicon search"><img src="/new/images/loupe.png" class="feng_img"><span>沒有資料</span></div>
-                    @endif
-
+                    
+                    <a v-html="ssrData"></a>
+                    
                 </div>
-
-                <div style="text-align: center;">
+                {{-- <div style="text-align: center;">
                     {!! $vis->appends(request()->input())->links('pagination::sg-pages2') !!}
-                </div>
+                </div> --}}
+                <?php
+                if(isset($_GET['page'])){
+                    $page = $_GET['page'];
+                    $page_pre = ($page-1 <=0)? 1: $page-1;
+                    $page_next = $page+1;
+                }else{
+                    $page = 1;
+                    $page_pre = 1;
+                    $page_next = 2;
+                }
+                
+                ?>
+                <div style="text-align: center;"><div class="fenye"><a href="/dashboard/search?page=<?php echo $page_pre;?>">上一頁</a> <span class="new_page">第 <?php echo $page;?> 頁</span> <a href="/dashboard/search?page=<?php echo $page_next;?>">下一頁</a></div></div>
 
             </div>
 
         </div>
+    </div>
     </div>
 @stop
 
@@ -887,6 +675,105 @@
         });
         $("img.lazy").lazyload({
             effect : "fadeIn"
+        });
+    </script>
+    <script>
+    const vm = new Vue({
+            el: '#app',
+            data () {
+                return {
+                    "isShow":true,
+                    "allSearchData": [],                   
+                    "ssrData":
+                    '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>'+
+                    '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>'+
+                    '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>'+
+                    '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>'+
+                    '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>'+
+                    '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>'+
+                    '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>'+
+                    '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>'+
+                    '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>'+
+                    '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>'+
+                    '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>'+
+                    '<li class="nt_fg"><div class="n_seicon"><a><div class="nt_photo blur_img"></div><div class="nt_bot nt_bgco"><h2>loading...</h2><h3>loading...</h3><h3>最後上線時間：loading... </h3></div></a></div></li>'
+                }
+            },
+
+        mounted () {
+             let county = "{{$county}}";
+             let district="{{$district}}";
+             let cup="{{$cup}}";
+             let marriage="{{$marriage}}";
+             let budget="{{$budget}}";
+             let income="{{$income}}";
+             let smoking="{{$smoking}}";
+             let drinking="{{$drinking}}";
+             let photo="{{$drinking}}";
+             let agefrom="{{$agefrom}}";
+             let ageto="{{$ageto}}";
+             let user={!! $user !!};
+             let umeta={!! $umeta !!}
+             let seqtime="{{$seqtime}}";
+             let body="{{$body}}";
+
+             let exchange_period="{{$exchange_period}}";
+             let isBlocked="{{$isBlocked}}";
+             let userIsVip="{{$userIsVip}}";
+             let heightfrom="{{$heightfrom}}";
+             let heightto="{{$heightto}}";
+             let prRange_none="{{$prRange_none}}";
+             let prRange="{{$prRange}}";
+             let situation="{{$situation}}";
+             let education="{{$education}}";
+             let isVip="{{$isVip}}";
+             let isWarned="{{$isWarned}}";
+             let isPhoneAuth="{{$isPhoneAuth}}";
+             let userIsAdvanceAuth="{{$userIsAdvanceAuth}}";
+
+             let page= "{{$page}}";
+             console.log(page)
+            axios.post('http://sugar66666.com/getSearchData', {
+                county:county,
+                district:district,
+                cup:cup,
+                marriage:marriage,
+                budget:budget,
+                income:income,
+                smoking:smoking,
+                drinking:drinking,
+                photo:drinking,
+                agefrom:agefrom,
+                ageto:ageto,
+                user:user,
+                umeta:umeta,
+                seqtime:seqtime,
+                body:body,
+
+                exchange_period:exchange_period,
+                isBlocked:isBlocked,
+                userIsVip:userIsVip,
+                heightfrom:heightfrom,
+                heightto:heightto,
+                prRange_none:prRange_none,
+                prRange:prRange,
+                situation:situation,
+                education:education,
+                isVip:isVip,
+                isWarned:isWarned,
+                isPhoneAuth:isPhoneAuth,
+                userIsAdvanceAuth:userIsAdvanceAuth,
+                page:page
+            })
+            .then(response => {
+                    console.log(response)
+                    this.ssrData = response.data;
+ 
+                })
+            .catch(function (error) { // 请求失败处理
+                console.log(error);
+            });
+        }
         });
     </script>
 @stop

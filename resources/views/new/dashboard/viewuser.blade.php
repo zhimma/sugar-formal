@@ -1,4 +1,8 @@
+{{-- <script>console.log(new Date().getTimem());</script> --}}
 @extends('new.layouts.website')
+
+<script src="{{ mix('/js/app.js') }}"></script>
+
 @section('app-content')
     <style>
         .blur_img {
@@ -351,6 +355,7 @@
         $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
         $isBlurLifePhoto = \App\Services\UserService::isBlurLifePhoto($to, $user);
     @endphp
+    <div id="app">
     <div class="container matop80">
         <div class="row">
             <div class="col-sm-2 col-xs-2 col-md-2 dinone">
@@ -908,17 +913,13 @@
                             <div class="ztitle"><span>進階資料</span>Advanced materials</div>
                             <div class="xiliao_input">
                                 <div class="xl_text">
-                                    <dt>{{$hideOnlineDays}}</dt><!--此行僅提供測試用 上正式機前請移除-->
+                                    
                                     <dt><span>註冊時間</span>@if($user->isVip())<font>{{substr($to->created_at,0,10)}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>最後上線時間</span>
-                                        @if($user->isVip())
-                                            <font>{{substr($last_login,0,10)}}</font>
-                                        @else
-                                            <img src="/new/images/icon_35.png">
-                                        @endif
+                                        <span>@{{last_login}}</span>
                                     </dt>
                                     <dt><span>每周平均上線次數</span>
-                                        @if($user->isVip())  <font>{{$login_times_per_week }}</font> @else <img src="/new/images/icon_35.png"> @endif
+                                        <span>@{{login_times_per_week }}</span>
                                     </dt>
 {{--                                    <dt><span>使用者評價</span>--}}
 {{--                                        @if($user->isVip())--}}
@@ -939,36 +940,63 @@
 {{--                                            </font>--}}
 {{--                                        @else <img src="/new/images/icon_35.png"> @endif--}}
 {{--                                    </dt>--}}
-                                    <dt><span>被收藏次數</span>@if($user->isVip()) <font>{{$be_fav_count}}</font> @else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>收藏會員次數</span>@if($user->isVip())<font>{{$fav_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>車馬費邀請次數</span>@if($user->isVip())<font>{{$tip_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>發信次數</span>@if($user->isVip())<font>{{$message_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>過去7天發信次數</span>
-                                        @if($user->isVip())  <font>
-                                            {{$message_count_7_old}} => <!--此行僅提供測試用 上正式機前請移除-->
-                                            {{$message_count_7}}</font> @else <img src="/new/images/icon_35.png"> @endif
+                                    <dt><span>被收藏次數</span>
+                                        <span id="be_faved_count" ref="be_faved_count">
+                                            @{{be_faved}}
+                                        </span>
                                     </dt>
-                                    <dt><span>回信次數</span>@if($user->isVip())<font>{{$message_reply_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    <dt><span>收藏會員次數</span>
+                                        <span id="faved_count" ref="faved_count">
+                                            @{{faved}}
+                                        </span>
+                                    </dt>
+
+                                    <dt><span>車馬費邀請次數</span>
+                                        <span>@{{tip_count}}</span>
+                                    <dt><span>發信次數</span>
+                                        <span>@{{message_count}}</span>
+                                    <dt><span>過去7天發信次數</span>
+                                            <span>@{{message_count_7}}</span>
+                                    </dt>
+                                    <dt><span>回信次數</span>
+                                        <span>@{{message_reply_count}}</span>
+                                        </dt>
                                     <dt><span>過去7天回信次數</span>
-                                        @if($user->isVip())  <font>
-                                            {{$message_reply_count_7_old}} => <!--此行僅提供測試用 上正式機前請移除-->
-                                            {{$message_reply_count_7}}</font> @else <img src="/new/images/icon_35.png"> @endif
+                                        <span>@{{message_reply_count_7}}</span>
                                     </dt>
                                     <dt><span>過去7天罐頭訊息比例</span>
-                                        @if($user->isVip())  <font>{{$message_percent_7}}</font> @else <img src="/new/images/icon_35.png"> @endif
+                                       <span>@{{message_percent_7}}</span>
                                     </dt>
-                                    <dt><span>是否封鎖我</span>@if($user->isVip())<font>{{$is_block_mid}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>是否看過我</span>@if($user->isVip())<font>{{$is_visit_mid}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>瀏覽其他會員次數</span>@if($user->isVip())<font>{{$visit_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    <dt><span>是否封鎖我</span>
+                                        <span>@{{is_block_mid}}</span>
+                                    </dt>
+                                    <dt><span>是否看過我</span>
+                                        <span>@{{is_visit_mid}}</span>
+                                    </dt>
+                                    <dt><span>瀏覽其他會員次數</span>
+                                        <span>@{{visit_other_count}}</span>
+                                    </dt>
                                     <dt><span>過去7天瀏覽其他會員次數</span>
-                                        @if($user->isVip())  <font>
-                                            {{$visit_other_count_7_old}} => <!--此行僅提供測試用 上正式機前請移除-->
-                                            {{$visit_other_count_7}}</font>  @else <img src="/new/images/icon_35.png"> @endif
+                                        <span>@{{visit_other_count_7}}</span>
                                     </dt>
-                                    <dt><span>被瀏覽次數</span>@if($user->isVip())<font>{{$be_visit_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>過去7天被瀏覽次數</span>@if($user->isVip())<font>{{$be_visit_other_count_7}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>封鎖多少會員</span>@if($user->isVip())<font>{{$blocked_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
-                                    <dt><span>被多少會員封鎖</span>@if($user->isVip())<font>{{$be_blocked_other_count}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
+                                    <dt><span>被瀏覽次數</span>
+                                        <span>@{{be_visit_other_count}}</span>
+                                    </dt>
+                                    <dt><span>過去7天被瀏覽次數</span>
+                                        <span>@{{be_visit_other_count_7}}</span>
+                                    </dt>
+
+                                    <dt><span>封鎖多少會員</span>
+                                        <span id="blocked_other_count" ref="blocked_other_count">
+                                            @{{blocked_other_count}}
+                                        </span>
+                                   
+                                    </dt>
+                                    <dt><span>被多少會員封鎖</span>
+                                        <span id="be_blocked_other_count" ref="be_blocked_other_count">
+                                            @{{be_blocked_other_count}}
+                                        </span>
+                                    </dt>
                                 </div>
                             </div>
                         </div>
@@ -1248,35 +1276,11 @@
                         </div>
                     </div>
 
-{{--                    <!--會員評價-->--}}
-{{--                        <div class="ziliao">--}}
-{{--                            <div class="ztitle"><span>會員評價</span>Evaluation</div>--}}
-{{--                            <div class="pw_body" style="margin-top:40px; margin-bottom:40px">--}}
-{{--                                <a class="pjnew_but01" href="{{ url('/dashboard/evaluation/'.$to->id) }}"><img src="/new/images/ly01.png">我要評價</a>--}}
-{{--                                <ul>--}}
-{{--                                    <div class="huiy_a">--}}
-{{--                                        @for ($i = 1; $i <= 5; $i++)--}}
-{{--                                            @if(intval($rating_avg)>=$i)--}}
-{{--                                                <img src="/new/images/sxx_1.png">--}}
-{{--                                            @elseif(strstr($rating_avg,'.') && ctype_digit($rating_avg)==false)--}}
-{{--                                                <img src="/new/images/sxx_2.png">--}}
-{{--                                                @break--}}
-{{--                                            @endif--}}
-{{--                                        @endfor--}}
-{{--                                        @for ($i = 1; $i <= 5-round($rating_avg); $i++)--}}
-{{--                                            <img src="/new/images/sxx_4.png">--}}
-{{--                                        @endfor--}}
-{{--                                        {{round($rating_avg,1)}}--}}
-{{--                                    </div>--}}
-{{--                                </ul>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                    <!--會員評價-->--}}
                 @endif
             </div>
         </div>
     </div>
-
+    
     @if(isset($to))
     <div class="bl bl_tab" id="show_chat">
         <div class="bltitle"><span>發送給{{$to->name}}</span></div>
@@ -1452,7 +1456,7 @@
         </div>
         <a id="" onClick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
     </div>
-
+    </div>
     @endif
 
     <!--照片查看-->
@@ -2524,4 +2528,90 @@
     /*调起大图 E*/
 </script>
 
+<script>
+    const vm = new Vue({
+            el: '#app',
+            data () {
+                return {
+                    "is_vip": "{{$user->isVip()}}",
+                    "faved":"loading...",
+                    "be_faved":"loading...",
+                    "blocked_other_count":"loading...",
+                    "be_blocked_other_count":"loading...",
+
+                    'login_times_per_week':'loading...',
+                    'tip_count':'loading...',
+                    /* 'is_vip' => 0, */
+                    'is_block_mid':'loading...',
+                    'is_visit_mid':'loading...',
+                    'visit_other_count':'loading...',
+                    'visit_other_count_7':'loading...',
+                    'be_visit_other_count':'loading...',
+                    'be_visit_other_count_7':'loading...',
+                    'message_count':'loading...',
+                    'message_count_7':'loading...',
+                    'message_reply_count':'loading...',
+                    'message_reply_count_7':'loading...',
+                    'message_percent_7':'loading...',
+                    'is_banned':'loading...',
+                    'userHideOnlinePayStatus':'loading...',
+                    'last_login':'loading...'
+                }
+            },
+        mounted () {
+            const uid = window.location.pathname.split('/').pop();
+                axios
+                .post('/getHideData', {uid, uid})
+                .then(response => {
+                    console.log(response)
+                    let data = response.data;
+                    this.be_visit_other_count = data.be_visit_other_count;
+                    this.be_visit_other_count_7 = data.be_visit_other_count_7;
+                    this.is_banned = data.is_banned;
+                    this.is_block_mid = data.is_block_mid;
+                    this.is_visit_mid = data.is_visit_mid;
+                    this.last_login = data.last_login;
+                    this.login_times_per_week = data.login_times_per_week;
+                    this.message_count = data.message_count;
+                    this.message_count_7 = data.message_count_7;
+                    this.message_percent_7 = data.message_percent_7;
+                    this.message_reply_count = data.message_reply_count;
+                    this.message_reply_count_7 = data.message_reply_count_7;
+                    this.tip_count = data.tip_count;
+                    this.userHideOnlinePayStatus = data.userHideOnlinePayStatus;
+                    this.visit_other_count = data.visit_other_count;
+                    this.visit_other_count_7 = data.visit_other_count_7;
+                   
+                })
+                .catch(function (error) { // 请求失败处理
+                    console.log(error);
+                });
+       
+
+                axios
+                .post('/getFavCount', {uid:uid})
+                .then(response => {
+                    console.log(response)
+                    let data = response.data;
+                    this.be_faved = data.be_fav_count;
+                    this.faved = data.fav_count;
+                })
+                .catch(function (error) { // 请求失败处理
+                    console.log(error);
+                });
+   
+                axios
+                .post('/getBlockUser',{uid:uid})
+
+                .then(response => {
+                    let data = response.data;
+                    this.be_blocked_other_count = data.be_blocked_other_count;
+                    this.blocked_other_count = data.blocked_other_count;
+                })
+                .catch(function (error) { // 请求失败处理
+                    console.log(error);
+                });
+        }
+        });
+</script>
 @stop

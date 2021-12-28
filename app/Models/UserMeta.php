@@ -431,6 +431,276 @@ class UserMeta extends Model
         return $query->orderBy($orderBy, 'desc')->paginate(12);
     }
 
+    public static function searchApi($city,
+                                  $area,
+                                  $cup,
+                                  $marriage,
+                                  $budget,
+                                  $income,
+                                  $smoking,
+                                  $drinking,
+                                  $photo,
+                                  $agefrom,
+                                  $ageto,
+                                  $engroup,
+                                  $blockcity,
+                                  $blockarea,
+                                  $blockdomain,
+                                  $blockdomainType,
+                                  $seqtime,
+                                  $body,
+                                  $userid,
+                                  $exchange_period = '',
+                                  $isBlocked = 1,
+                                  $userIsVip = '',
+                                  $heightfrom = '',
+                                  $heightto = '',
+                                  $prRange_none = '',
+                                  $prRange = '',
+                                  $situation = '',
+                                  $education = '',
+                                  $isVip = '',
+                                  $isWarned = 2,
+                                  $isPhoneAuth = '',
+                                  $isAdvanceAuth=null,
+                                  $page)
+    {
+        if ($engroup == 1) { $engroup = 2; }
+        else if ($engroup == 2) { $engroup = 1; }
+        if(isset($seqtime) && $seqtime == 2){ $orderBy = 'users.created_at'; }
+        else{ $orderBy = 'last_login'; }
+        $constraint = function ($query) use (
+            $city,
+            $area,
+            $cup,
+            $agefrom,
+            $ageto,
+            $marriage,
+            $budget,
+            $income,
+            $smoking,
+            $drinking,
+            $photo,
+            $engroup,
+            $blockcity,
+            $blockarea,
+            $blockdomain,
+            $blockdomainType,
+            $seqtime, $body,
+            $userid,
+            $exchange_period,
+            $isBlocked,
+            $userIsVip,
+            $heightfrom,
+            $heightto,
+            $prRange_none,
+            $prRange,
+            $situation,
+            $education,
+            $isVip,
+            $isWarned,
+            $isPhoneAuth){
+            $query->select('*')->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
+            if (isset($city) && strlen($city) != 0) $query->where('city','like', '%'.$city.'%');
+            if (isset($area) && strlen($area) != 0) $query->where('area','like', '%'.$area.'%');
+            if (isset($cup) && $cup!=''){
+                if(count($cup) > 0){
+                    $query->whereIn('cup', $cup);
+                }
+            }
+            if (isset($agefrom) && isset($ageto) && strlen($agefrom) != 0 && strlen($ageto) != 0) {
+                $agefrom = $agefrom < 18 ? 18 : $agefrom;
+                $to = Carbon::now()->subYears($ageto + 1)->addDay(1)->format('Y-m-d');
+                $from = Carbon::now()->subYears($agefrom)->format('Y-m-d');
+                // 單純使用 whereBetween('birthdate', ... 的話會導致部分生日判斷錯誤
+                $query->whereBetween(\DB::raw("STR_TO_DATE(birthdate, '%Y-%m-%d')"), [$to, $from]);
+            }
+
+
+            if (isset($marriage) && strlen($marriage) != 0) $query->where('marriage', $marriage);
+            if (isset($budget) && strlen($budget) != 0) $query->where('budget', $budget);
+            if (isset($income) && strlen($income) != 0) $query->where('income', $income);
+            if (isset($smoking) && strlen($smoking) != 0) $query->where('smoking', $smoking);
+            if (isset($drinking) && strlen($drinking) != 0) $query->where('drinking', $drinking);
+            if (isset($body) && $body != ''){
+                if(count($body) > 0){
+                    $query->whereIn('body', $body);
+                }
+            }
+            if (isset($photo) && $photo == 1) $query->whereNotNull('pic')->where('pic', '<>', 'NULL')->where('pic', '<>', '');
+            if (isset($heightfrom) && isset($heightto) && strlen($heightfrom) != 0 && strlen($heightto) != 0) {
+                $query->whereBetween('height', [$heightfrom, $heightto]);
+            }
+            if (isset($situation) && strlen($situation) != 0) $query->where('situation', $situation);
+            if (isset($education) && strlen($education) != 0) $query->where('education', $education);
+
+            if($isWarned != 2 && $userIsVip){
+                $query->where('isWarned', '<>', 1);
+            }
+            $meta = UserMeta::select('city', 'area')->where('user_id', $userid)->get()->first();
+            $user_city = explode(',', $meta->city);
+            $user_area = explode(',', $meta->area);
+            /* 判斷搜索者的 city 和 area 是否被被搜索者封鎖 */
+//            foreach ($user_city as $key => $city) {
+//                 $query->whereRaw('(blockarea not LIKE "%' . $city .$user_area[$key]  .'%"  AND blockarea not LIKE "%'.$city.'全區%")');
+//            }
+
+            foreach ($user_city as $key => $city){
+                $query->where(
+                    function ($query) use ($city, $user_area, $key){
+                        $query->where(
+                        // 未設定封鎖城市地區
+                            function ($query) use ($city, $user_area, $key){
+                                $query->where(\DB::raw('LENGTH(blockcity) = 0'))
+                                    ->where(\DB::raw('LENGTH(blockarea) = 0'));
+                            })
+                            // 設定封鎖城市地區
+                            ->orWhere(
+                                function ($query) use ($city, $user_area, $key){
+                                    $query->whereRaw('(blockarea not LIKE "%' . $city .$user_area[$key]  .'%"  AND blockarea not LIKE "%'.$city.'全區%")')
+                                    ->whereRaw('LENGTH(blockarea) <> 0');
+                                });
+                    });
+            }
+
+
+
+            return $query->where('is_active', 1);
+        };
+
+        /**
+         * 為加速效能，此三句功能以 subquery 形式在下方被替換，並以註解形式保留以利後續維護。
+         * $bannedUsers = \App\Services\UserService::getBannedId();
+         * $blockedUsers = blocked::select('blocked_id')->where('member_id',$userid)->get();
+         * $isBlockedByUsers = blocked::select('member_id')->where('blocked_id',$userid)->get();
+         */
+        // 效能調整：Eager Loading
+        if($engroup==1) {
+            $query = User::with(['user_meta' => $constraint, 'vip', 'vas', 'aw_relation', 'fa_relation', 'pr_log'])
+                ->select('*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))
+                ->whereHas('user_meta', $constraint)
+                ->where('engroup', $engroup)
+                ->where('accountStatus', 1)
+                ->where('account_status_admin', 1)
+                ->where('is_hide_online', '<>', 2)
+                ->whereNotIn('users.id', function ($query) {
+                    // $bannedUsers
+                    $query->select('target')
+                        ->from(with(new BannedUsersImplicitly)->getTable());
+                })
+                ->whereNotIn('users.id', function ($query) {
+                    // $bannedUsers
+                    $query->select('member_id')
+                        ->from(with(new banned_users)->getTable());
+                });
+        }else {
+            $query = User::with(['user_meta' => $constraint, 'vip', 'vas', 'aw_relation', 'fa_relation'])
+                ->select('*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))
+                ->whereHas('user_meta', $constraint)
+                ->where('engroup', $engroup)
+                ->where('accountStatus', 1)
+                ->where('account_status_admin', 1)
+                ->where('is_hide_online', '<>', 2)
+                ->whereNotIn('users.id', function ($query) {
+                    // $bannedUsers
+                    $query->select('target')
+                        ->from(with(new BannedUsersImplicitly)->getTable());
+                })
+                ->whereNotIn('users.id', function ($query) {
+                    // $bannedUsers
+                    $query->select('member_id')
+                        ->from(with(new banned_users)->getTable());
+                })/*->whereNotIn('users.id', function($query) use ($userid){
+                // $blockedUsers
+                $query->select('blocked_id')
+                    ->from(with(new blocked)->getTable())
+                    ->where('member_id', $userid);})
+            ->whereNotIn('users.id', function($query) use ($userid){
+                // $isBlockedByUsers
+                $query->select('member_id')
+                    ->from(with(new blocked)->getTable())
+                    ->where('blocked_id', $userid);}) */
+            ;
+        }
+        if (isset($exchange_period) && $exchange_period != '' && count($exchange_period)>0) {
+                $query->whereIn('exchange_period', $exchange_period);
+        }
+
+        if($isBlocked==1 && $userIsVip){
+            $query->whereNotIn('users.id', function($query) use ($userid){
+                // $blockedUsers
+                $query->select('blocked_id')
+                    ->from(with(new blocked)->getTable())
+                    ->where('member_id', $userid);
+            });
+        }
+
+        if($isWarned !=2 && $userIsVip){
+            $query->whereNotIn('users.id', function($query) use ($userid){
+                // $blockedUsers
+                $query->select('member_id')
+                    ->from(with(new warned_users)->getTable())
+                    ->where('expire_date','>=',Carbon::now())
+                    ->orWhere('expire_date',null);
+            });
+        }
+        if ( $prRange != '' && $userIsVip) {
+            $pieces = explode('-', $prRange);
+            if(is_array($pieces)) {
+                $from = $pieces[0];
+                $to = $pieces[1];
+                $query->whereIn('users.id', function ($query) use ($from, $to, $prRange_none) {
+                    $query->select('user_id')
+                        ->from(with(new Pr_log)->getTable())
+                        ->where('active', 1)
+                        ->whereBetween(DB::raw("CAST(pr AS INT)"), [$from, $to]);
+                    if($prRange_none != '' && isset($prRange_none)) {
+                        $query->orWhere('pr', $prRange_none);
+                    }else{
+                        $query->where('pr', '<>', '無');
+                    }
+
+                });
+            }
+
+        }else if($prRange_none != ''){
+            $query->whereIn('users.id', function ($query) {
+                $query->select('user_id')
+                    ->from(with(new Pr_log)->getTable())
+                    ->where('active', 1)
+                    ->where('pr', '無');
+            });
+
+        }
+
+        if(isset($isPhoneAuth) && $isPhoneAuth==2 && $userIsVip){
+            $query->whereIn('users.id', function($query) use ($userid){
+                // $blockedUsers
+                $query->select('member_id')
+                    ->from('short_message')->where('active',1);
+            });
+        }
+
+        if($isAdvanceAuth && isset($isAdvanceAuth) && $isAdvanceAuth==1){
+                $query->where('users.advance_auth_status',$isAdvanceAuth);
+        }
+	
+
+        if($userIsVip && isset($isVip) && $isVip==1){
+            $query->whereIn('users.id', function($query) use ($userid, $isVip){
+                // $blockedUsers
+                $query->select('member_id')
+                    ->from(with(new Vip)->getTable())
+                    ->where('active', $isVip);
+            });
+        }
+
+        $page = $page-1;
+        $count = 12;
+        $start = $page*$count;
+        return $query->orderBy($orderBy, 'desc')->skip($start)->take($count)->get();
+    }
+    
     public static function findByMemberId($memberId)
     {
         return UserMeta::where('user_id', $memberId)->first();
