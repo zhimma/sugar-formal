@@ -73,6 +73,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Models\SimpleTables\short_message;
 use App\Models\LogAdvAuthApi;
 use Illuminate\Support\Facades\Http;
+use App\Services\SearchIgnoreService;
 
 class PagesController extends BaseController
 {
@@ -6490,5 +6491,24 @@ class PagesController extends BaseController
 
         $setting = UserTinySetting::where([['user_id',$user->id],['cat',$cat]])->orderByDesc('id')->first();
         if($setting) return $setting->value;
+    }
+    
+    public function listSearchIgnore(Request $request,SearchIgnoreService $service) {
+        $user = auth()->user();
+        $data['service'] = $service->fillPagingEntrys();
+        return view('/new/dashboard/search_ignore_list',$data)->with('user', $user);
+    }
+    
+    public function addSearchIgnore(Request $request,SearchIgnoreService $service)  {
+        if(!$request->target??null) return;
+            
+        $ignore_data['ignore_id'] = $request->target;
+        
+        return $service->create($ignore_data)?1:0;
+    }
+    
+    public function delSearchIgnore(Request $request,SearchIgnoreService $service) {
+        if(!$request->target??null) return $service->delMemberAll()?1:0;
+        return $service->delByIgnoreId($request->target)?1:0;
     }
 }

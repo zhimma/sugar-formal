@@ -497,6 +497,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/block2', 'PagesController@block2');
         Route::get('/dashboard/fav', 'PagesController@fav');
         Route::get('/dashboard/fav2', 'PagesController@fav2');
+        Route::get('/dashboard/search_discard/list', 'PagesController@listSearchIgnore');
+        Route::post('/dashboard/search_discard/add', 'PagesController@addSearchIgnore');
+        Route::post('/dashboard/search_discard/edit', 'PagesController@editSearchIgnore');
+        Route::get('/dashboard/search_discard/del', 'PagesController@delSearchIgnore');        
     });
     Route::post('/dashboard/chat2/showMessages/{randomNo?}', 'Message_newController@chatviewMore')->name('showMessages');
     Route::group(['middleware' => ['filled']], function () {
@@ -531,6 +535,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::get('/dashboard/banned', 'PagesController@dashboard_banned');
         Route::get('/dashboard/visited', 'PagesController@visited');
+
         Route::middleware("HasReferer:listSeatch2")->group(function (){
             Route::get('/dashboard/viewuser/{uid?}', 'PagesController@viewuser2')->name('viewuser'); //new route
         });

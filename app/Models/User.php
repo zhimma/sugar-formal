@@ -227,6 +227,14 @@ class User extends Authenticatable
     public function implicitlyBanned(){
         return $this->hasOne(BannedUsersImplicitly::class, 'target', 'id');
     }
+    
+    public function blocked() {
+        return $this->hasMany(Blocked::class, 'member_id', 'id');
+    }
+    
+    public function blockedInBlocked() {
+        return $this->hasMany(Blocked::class, 'blocked_id', 'id');
+    }    
 
     /**
      * Check if user has role
@@ -1399,5 +1407,11 @@ class User extends Authenticatable
     public function isEverWarned() {
         return IsWarnedLog::where('user_id', $this->id)->orderBy('created_at', 'desc')->first();
     }
+    
+    //略過搜尋
+    public function search_ignore()
+    {
+        return $this->hasMany(SearchIgnore::class, 'member_id', 'id');
+    } 
 
 }

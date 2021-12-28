@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Pr_log;
 use App\Models\Vip;
 use App\Services\ImagesCompareService;
+use App\Models\SearchIgnore;
+use App\Services\SearchIgnoreService;
 
 class UserMeta extends Model
 {
@@ -233,7 +235,7 @@ class UserMeta extends Model
             $isVip,
             $isWarned,
             $isPhoneAuth){
-            $query->select('*')->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));
+            $query->select('*')->where('user_meta.birthdate', '<', Carbon::now()->subYears(18));      
             if (isset($city) && strlen($city) != 0) $query->where('city','like', '%'.$city.'%');
             if (isset($area) && strlen($area) != 0) $query->where('area','like', '%'.$area.'%');
             if (isset($cup) && $cup!=''){
@@ -295,9 +297,6 @@ class UserMeta extends Model
                                 });
                     });
             }
-
-
-
             return $query->where('is_active', 1);
         };
 
@@ -427,7 +426,11 @@ class UserMeta extends Model
                     ->where('active', $isVip);
             });
         }
-
+        if($userIsVip) {
+            $siService = new SearchIgnoreService(new SearchIgnore);
+            $ignore_user_ids = $siService->setMemberId($userid)->member_query->get()->pluck('ignore_id')->all();
+            $query->whereNotIn('users.id',$ignore_user_ids);
+        }
         return $query->orderBy($orderBy, 'desc')->paginate(12);
     }
 
