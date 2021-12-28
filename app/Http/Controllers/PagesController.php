@@ -5007,6 +5007,10 @@ class PagesController extends BaseController
 
         $posts_forum = Forum::where('user_id', $user->id)->first();
 
+        if(!$posts_forum) {
+            return back()->with('message', '您的討論區不存在。');
+        }
+
         $posts_manage_users = ForumManage::select('forum_manage.user_id','users.name','forum_manage.status')
             ->leftJoin('users', 'users.id','=','forum_manage.user_id')
             ->where('forum_manage.apply_user_id', $user->id)
