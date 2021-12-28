@@ -806,12 +806,23 @@ class UserController extends \App\Http\Controllers\BaseController
         if (!$id) {
             return redirect(route('users/advSearch'));
         }
+        
+        $block = $request->block;
+        
         $user = User::where('id', 'like', $id)
             ->get()->first();
         if (!isset($user)) {
+            if($block=='pic')  return;
             return '<h1>會員資料已刪除。</h1>';
         }
         $userMeta = UserMeta::where('user_id', 'like', $id)->get()->first();
+        
+        if($block=='pic') {
+            return view('admin.users.advInfoPicBlock')
+                ->with('user', $user)
+                ->with('userMeta', $userMeta);
+        }        
+        
         $userMessage = Message::where('from_id', $id)->orderBy('created_at', 'desc')->paginate(config('social.admin.showMessageCount'));
         if(!empty($request->get('page'))){
             //新增Admin操作log
