@@ -102,7 +102,8 @@
                     $('#no_data_block').show();
                 }                
                 else qelt.remove();
-
+                
+                c5('解除成功');
             }
           },
           error:function() {
