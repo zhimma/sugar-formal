@@ -133,6 +133,7 @@
                     $('.shou .aa_shou_but').hide();
                     $('#no_data_block').show();
                     qelt.remove();
+                    c5('解除成功');
                 }
               },
               error:function() {
