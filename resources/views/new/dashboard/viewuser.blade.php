@@ -930,10 +930,10 @@
                                     
                                     <dt><span>註冊時間</span>@if($user->isVip())<font>{{substr($to->created_at,0,10)}}</font>@else <img src="/new/images/icon_35.png"> @endif</dt>
                                     <dt><span>最後上線時間</span>
-                                        <span>@{{last_login}}</span>
+                                        <font>@{{last_login}}</font>
                                     </dt>
                                     <dt><span>每周平均上線次數</span>
-                                        <span>@{{login_times_per_week }}</span>
+                                        <font>@{{login_times_per_week }}</font>
                                     </dt>
 {{--                                    <dt><span>使用者評價</span>--}}
 {{--                                        @if($user->isVip())--}}
@@ -955,61 +955,61 @@
 {{--                                        @else <img src="/new/images/icon_35.png"> @endif--}}
 {{--                                    </dt>--}}
                                     <dt><span>被收藏次數</span>
-                                        <span id="be_faved_count" ref="be_faved_count">
+                                        <font id="be_faved_count" ref="be_faved_count">
                                             @{{be_faved}}
-                                        </span>
+                                        </font>
                                     </dt>
                                     <dt><span>收藏會員次數</span>
-                                        <span id="faved_count" ref="faved_count">
+                                        <font id="faved_count" ref="faved_count">
                                             @{{faved}}
-                                        </span>
+                                        </font>
                                     </dt>
 
                                     <dt><span>車馬費邀請次數</span>
-                                        <span>@{{tip_count}}</span>
+                                        <font>@{{tip_count}}</font>
                                     <dt><span>發信次數</span>
-                                        <span>@{{message_count}}</span>
+                                        <font>@{{message_count}}</font>
                                     <dt><span>過去7天發信次數</span>
-                                            <span>@{{message_count_7}}</span>
+                                            <font>@{{message_count_7}}</font>
                                     </dt>
                                     <dt><span>回信次數</span>
-                                        <span>@{{message_reply_count}}</span>
+                                        <font>@{{message_reply_count}}</font>
                                         </dt>
                                     <dt><span>過去7天回信次數</span>
-                                        <span>@{{message_reply_count_7}}</span>
+                                        <font>@{{message_reply_count_7}}</font>
                                     </dt>
                                     <dt><span>過去7天罐頭訊息比例</span>
-                                       <span>@{{message_percent_7}}</span>
+                                       <font>@{{message_percent_7}}</font>
                                     </dt>
                                     <dt><span>是否封鎖我</span>
-                                        <span>@{{is_block_mid}}</span>
+                                        <font>@{{is_block_mid}}</font>
                                     </dt>
                                     <dt><span>是否看過我</span>
-                                        <span>@{{is_visit_mid}}</span>
+                                        <font>@{{is_visit_mid}}</font>
                                     </dt>
                                     <dt><span>瀏覽其他會員次數</span>
-                                        <span>@{{visit_other_count}}</span>
+                                        <font>@{{visit_other_count}}</font>
                                     </dt>
                                     <dt><span>過去7天瀏覽其他會員次數</span>
-                                        <span>@{{visit_other_count_7}}</span>
+                                        <font>@{{visit_other_count_7}}</font>
                                     </dt>
                                     <dt><span>被瀏覽次數</span>
-                                        <span>@{{be_visit_other_count}}</span>
+                                        <font>@{{be_visit_other_count}}</font>
                                     </dt>
                                     <dt><span>過去7天被瀏覽次數</span>
-                                        <span>@{{be_visit_other_count_7}}</span>
+                                        <font>@{{be_visit_other_count_7}}</font>
                                     </dt>
 
                                     <dt><span>封鎖多少會員</span>
-                                        <span id="blocked_other_count" ref="blocked_other_count">
+                                        <font id="blocked_other_count" ref="blocked_other_count">
                                             @{{blocked_other_count}}
-                                        </span>
+                                        </font>
                                    
                                     </dt>
                                     <dt><span>被多少會員封鎖</span>
-                                        <span id="be_blocked_other_count" ref="be_blocked_other_count">
+                                        <font id="be_blocked_other_count" ref="be_blocked_other_count">
                                             @{{be_blocked_other_count}}
-                                        </span>
+                                        </font>
                                     </dt>
                                 </div>
                             </div>
