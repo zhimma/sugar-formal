@@ -325,6 +325,13 @@
             font-size: 12px;
         }
     </style>
+    <style>
+        .he_tkcn ul a span {text-align:left;font-size:unset;}
+        .he_tkcn ul a span.vip_space {display:inline;height:0;float:left;}
+        .he_tkcn ul a span.vip_space .tap-vip {top: -31px;left: 16px;}
+        .he_tkcn_img {display: unset;margin-top: unset;}
+    </style>
+    <script src="{{asset('/new/js/pick_real_error.js')}}" type="text/javascript"></script>
     <script>
         function setTextAreaHeight(rowid) {
             $('#re_content_'+rowid).each(function () {
@@ -349,7 +356,7 @@
                     $("#re_area_"+rowid).css('margin-top',textAreaHeight + 'px');
                 }
             })
-        }
+        }     
     </script>
     @php
         $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
@@ -368,8 +375,8 @@
                         @if(Request()->get('page_mode')=='edit')
                             <a href="{!! url('dashboard') !!}" class="hyneback" style="z-index: 6;"><img src="/new/images/back_icon.png">修改</a>
                         @else
-                            <a href="{{ !empty(session()->get('goBackPage')) ? session()->get('goBackPage') : \Illuminate\Support\Facades\URL::previous() }}" {{--href="javascript: history.back()"--}} class="hyneback" style="z-index: 6;"><img src="/new/images/back_icon.png">返回</a>
-                        @endif
+                            <a href="{{ !empty(session()->get('goBackPage')) ? session()->get('goBackPage') : \Illuminate\Support\Facades\URL::previous() }}" {{--href="javascript: history.back()"--}} class="hyneback" style="z-index: 6;"><img src="/new/images/back_icon.png">返回</a>                          
+                        @endif                        
                         <div class="swiper-container photo">
                             <div class="swiper-wrapper">
                                 <div class="swiper-slide @if($isBlurAvatar) blur_img @endif" data-type="avatar" data-sid="{{$to->id}}" data-pic_id=""><img src="@if(file_exists( public_path().$to->meta->pic ) && $to->meta->pic != ""){{$to->meta->pic}} @elseif($to->engroup==2)/new/images/female.png @else/new/images/male.png @endif"></div>
@@ -630,37 +637,44 @@
                                     <span><img src="/new/images/icon_36.png" class="tap-vip"></span>
                                 </li>
                             @endif
-                            <li>
-                                @if($isAdminWarned)
-                                    {{--                警告跟banned有差別嗎？               --}}
-                                    <a onclick="show_Warned()"><img src="/new/images/icon_10.png" class="tubiao_i"><span>檢舉</span></a>
-                                @else
-                                    <a onclick="show_banned()"><img src="/new/images/icon_10.png" class="tubiao_i"><span>檢舉</span></a>
-                                @endif
-                            </li>
-                            @if($user->isVip())
-                                <li>
-                                    @if($isBlocked)
-                                        <a class="unblock"><img src="/new/images/icon_12_h.png" class="tubiao_i"><span>解除封鎖</span></a>
-                                    @else
-                                        @if($user->id == $to->id)
-                                        <a onclick="c5('不可封鎖自己');"><img src="/new/images/icon_12.png" class="tubiao_i"><span>封鎖</span></a>
-                                        @else
-                                        <a onclick="show_block()"><img src="/new/images/icon_12.png" class="tubiao_i"><span>封鎖</span></a>
-                                        @endif
-                                    @endif
-                                </li>
-                            @else
-
-                                <li>
-                                    <img src="/new/images/icon_12.png" class="tubiao_i"><span>封鎖</span>
-                                    <span><img src="/new/images/icon_36.png" class="tap-vip"></span>
-                                </li>
-                            @endif
                             <li class="evaluation">
-{{--                                <a href="{{ url('/dashboard/evaluation/'.$to->id) }}"><img src="/new/images/icon_14.png" class="tubiao_i"><span>評價</span></a>--}}
                                 <a><img src="/new/images/icon_14.png" class="tubiao_i"><span>評價</span></a>
                             </li>
+                            <li style="position: relative;">
+                                <div class="userlogo"><img src="/new/images/icon_15.png" class="tubiao_i"><span>更多</span></div>
+                                <div class="he_tkcn showslide">
+                                    <ul>
+                            @if($user->isVip())
+                                @if($isBlocked)
+                                    <a class="unblock"><img src="/new/images/icon_12_h.png" class="tubiao_i he_tkcn_img"><span>解除封鎖</span></a>
+                                @else
+                                    @if($user->id == $to->id)
+                                    <a onclick="c5('不可封鎖自己');"><img src="/new/images/icon_12.png" class="tubiao_i he_tkcn_img"><span>封鎖</span></a>
+                                    @else
+                                    <a onclick="show_block()"><img src="/new/images/icon_12.png" class="tubiao_i he_tkcn_img"><span>封鎖</span></a>
+                                    @endif
+                                @endif
+                            @else
+                                    <a href="javascript:void(0);">
+                                    <img src="/new/images/icon_12.png" class="tubiao_i he_tkcn_img"><span>封鎖</span>
+                                    <span class="vip_space"><img src="/new/images/icon_36.png" class="tap-vip"></span>
+                                    </a>
+                            @endif
+                                    <a href="javascript:void(0);" class="@if($user->isVip()) skip_search @endif">
+                                        <img src="/new/images/icon_17.png" class="he_tkcn_img">
+                                        <span>{{$user->search_ignore()->where('ignore_id',$to->id)->count()?'解除略過':'略過'}}</span>
+                                        @if(!$user->isVip())
+                                        <span class="vip_space"><img src="/new/images/icon_36.png" class="tap-vip"></span>
+                                        @endif
+                                    </a>
+                                @if($isAdminWarned)
+                                    <a onclick="show_Warned()"><img src="/new/images/icon_10.png" class="tubiao_i he_tkcn_img"><span>檢舉</span></a>
+                                @else
+                                    <a onclick="show_banned()"><img src="/new/images/icon_10.png" class="tubiao_i he_tkcn_img"><span>檢舉</span></a>
+                                @endif                                    
+                                    </ul>
+                                </div>						
+							</li>                            
                         </ul>
                     </div>
 
@@ -1905,18 +1919,23 @@
                     to: to,
                     _token: '{{ csrf_token() }}'
                 }, function (data) {
+                    var is_success = false;
                     if(data.save=='ok') {
+                        is_success = true;
                         c5('收藏成功');
                     }else if(data.save=='error'){
                         c5('收藏失敗');
                     }else if(data.isBlocked){
                         c5('封鎖中無法收藏');
                     }else if(data.isFav){
+                        is_success = true;
                         c5('已在收藏名單中');
                     }
-                    $(".favIcon span").text('移除收藏');
-                    $(".favIcon img").attr('src','/new/images/icon_08_.png');
-                    $(".favIcon").removeClass('addFav').addClass('removeFav');
+                    if(is_success) {
+                        $(".favIcon span").text('移除收藏');
+                        $(".favIcon img").attr('src','/new/images/icon_08_.png');
+                        $(".favIcon").removeClass('addFav').addClass('removeFav');
+                    }                                      
                 });
             }else{
                 c5('不可收藏自己');
@@ -2468,7 +2487,6 @@
         $("#tab_evaluation_reply #eid_reply").val(eid);
         $('body').css("overflow", "hidden");
     }
-
 </script>
 
 <link type="text/css" rel="stylesheet" href="/new/css/app.css">
@@ -2523,10 +2541,92 @@
                 "opacity": "0"
             });
         });
+        
+        @if($user->isVip())
+        $('.he_tkcn .skip_search').click(function () { toogelSearchDiscard('{{$to->id}}',$(this));})
+        
+        function toogelSearchDiscard(id,qelt,recall=false) {
+            if(id==null || id==undefined) return
+            if(qelt==null || qelt==undefined) {
+                qelt = $('.he_tkcn .skip_search');
+            }
+            var key_elt = qelt.find('span');
+            var url = '';
+            var type='';
+
+            var org_str = key_elt.html();
+            if(org_str=='略過') {
+                url = "{!!url('/dashboard/search_discard/add') !!}";
+                type="post";
+                key_elt.html('解除略過');
+            }
+            else {
+                if(!recall) {
+                    $('#tab08 .n_bbutton .n_left').off('click',"**");
+                    $(document).on('click','#tab08 .n_bbutton .n_left', { id: id, qelt:qelt},function(e){
+                        toogelSearchDiscard(e.data.id,e.data.qelt,true);
+                        gmBtnNoReload();            
+                    });                     
+                    c8('確定要解除略過嗎？');
+                    return false;
+                }
+                
+                url = "{!!url('/dashboard/search_discard/del') !!}";
+                type="get";
+                key_elt.html('略過');
+            }
+            
+            $.ajax({
+              type: type,
+              url: url,
+              data:{ target:id,_token: '{{ csrf_token() }}'},
+              success:function(data) {                  
+                if(!data || data=='0' || data==undefined || data==null || pick_real_error(data).length>0) {
+                    
+                    ccc(org_str+'失敗，請重新操作');
+                    key_elt.html(org_str);
+                }
+                else if(data.length>500){
+                    ccc(org_str+'異常，請重新操作');
+                }
+                else {
+                    if(org_str=='略過') {
+                        c5('略過成功');
+                    }
+                    else {
+                        c5('已解除略過');
+                    }
+                }
+              },
+              error:function() {
+                  
+                  ccc(org_str+'失敗，請重新操作');
+                  key_elt.html(org_str);
+              }
+            });
+        } 
+        @endif
 
     });
     /*调起大图 E*/
 </script>
+<script>
+    $('.userlogo').click(function() {
+        event.stopPropagation()
+        if($(this).hasClass('on1')) {
+            $(this).removeClass('on1')
+            $('.showslide').fadeOut()
+        } else {
+            $(this).addClass('on1')
+            $('.fadeinboxs').fadeIn()
+            $('.showslide').fadeIn()
+        }
+    })
+    $('body').click(function() {
+        $('.userlogo').removeClass('on1')
+        $('.showslide').fadeOut()
+    })
+</script>	
 
 <script>
     const vm = new Vue({
